@@ -51,7 +51,7 @@ import java.awt.geom.AffineTransform;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.12 2003/03/25 22:34:48 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.13 2003/04/17 08:38:09 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -213,7 +213,10 @@ public final class CTSUtilities {
      * Returns the first ellipsoid found in a coordinate
      * system, or <code>null</code> if there is none.
      */
-    public static Ellipsoid getEllipsoid(final CoordinateSystem cs) {
+    public static Ellipsoid getEllipsoid(CoordinateSystem cs) {
+        while (cs instanceof FittedCoordinateSystem) {
+            cs = ((FittedCoordinateSystem)cs).getBaseCoordinateSystem();
+        }
         if (cs instanceof HorizontalCoordinateSystem) {
             final HorizontalDatum datum = ((HorizontalCoordinateSystem) cs).getHorizontalDatum();
             if (datum != null) {
@@ -235,7 +238,10 @@ public final class CTSUtilities {
      * {@link GeographicCoordinateSystem}. Otherwise (i.e. if the
      * two first dimensions are not geographic), returns <code>null</code>.
      */
-    public static Ellipsoid getHeadGeoEllipsoid(final CoordinateSystem coordinateSystem) {
+    public static Ellipsoid getHeadGeoEllipsoid(CoordinateSystem coordinateSystem) {
+        while (coordinateSystem instanceof FittedCoordinateSystem) {
+            coordinateSystem = ((FittedCoordinateSystem)coordinateSystem).getBaseCoordinateSystem();
+        }
         if (coordinateSystem instanceof GeographicCoordinateSystem) {
             final HorizontalDatum datum = ((GeographicCoordinateSystem) coordinateSystem).getHorizontalDatum();
             if (datum != null) {
