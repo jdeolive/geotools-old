@@ -3,7 +3,8 @@
  */
 package org.geotools.filter;
 
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 
 /**
  * Defines a complex filter (could also be called logical filter).
@@ -67,10 +68,14 @@ public class ExpressionAttribute extends ExpressionDefault {
      */
     public Object getValue(Feature feature) 
         throws MalformedFilterException {
-
+        Object tempAttribute = null;
         // MUST HANDLE AN ATTRIBUTE NOT FOUND EXCEPTION HERE
-        Object tempAttribute = feature.getAttribute(attributePath);
-        
+            try{
+                tempAttribute = feature.getAttribute(attributePath);
+            }
+            catch(IllegalFeatureException ife){
+                throw new MalformedFilterException(ife.toString());
+            }
         // Check to make sure that attribute conforms to advertised type before 
         //  returning
         if( ((tempAttribute instanceof Double) && 
