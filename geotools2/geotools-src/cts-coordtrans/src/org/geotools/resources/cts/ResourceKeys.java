@@ -76,11 +76,12 @@ public interface ResourceKeys
 
     public static final int ERROR_ANGLE_OVERFLOW_$1                     =    43;
     public static final int ERROR_ANTIPODE_LATITUDES_$2                 =    44;
-    public static final int ERROR_BAD_ARGUMENT_$2                       =    91;
+    public static final int ERROR_AZIMUTH_OUT_OF_RANGE_$1               =    91;
     public static final int ERROR_CANT_COMPUTE_DERIVATIVE               =    85;
     public static final int ERROR_CANT_CONCATENATE_CS_$2                =    45;
     public static final int ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1      =    46;
     public static final int ERROR_COLINEAR_AXIS_$2                      =    47;
+    public static final int ERROR_DISTANCE_OUT_OF_RANGE_$4              =    99;
     public static final int ERROR_DUPLICATED_VALUES_$1                  =    48;
     public static final int ERROR_ELLIPTICAL_NOT_SUPPORTED              =    97;
     public static final int ERROR_ILLEGAL_ANGLE_PATTERN_$1              =    49;

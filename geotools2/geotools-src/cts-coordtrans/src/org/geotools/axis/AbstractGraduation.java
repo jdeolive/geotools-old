@@ -52,7 +52,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Base class for graduation.
  *
- * @version $Id: AbstractGraduation.java,v 1.4 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: AbstractGraduation.java,v 1.5 2004/02/12 20:45:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractGraduation implements Graduation, Serializable {
@@ -277,8 +277,8 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
      */
     static void ensureNonNull(final String name, final double n) throws IllegalArgumentException {
         if (Double.isNaN(n) || Double.isInfinite(n) || n==0) {
-            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_ARGUMENT_$2,
-                                                                name, new Double(n)));
+            throw new IllegalArgumentException(Resources.format(
+                        ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2, name, new Double(n)));
         }
     }
     
@@ -292,8 +292,8 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
      */
     static void ensureFinite(final String name, final double n) throws IllegalArgumentException {
         if (Double.isNaN(n) || Double.isInfinite(n)) {
-            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_ARGUMENT_$2,
-                                                                name, new Double(n)));
+            throw new IllegalArgumentException(Resources.format(
+                        ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2, name, new Double(n)));
         }
     }
 
@@ -307,8 +307,8 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
      */
     static void ensureFinite(final String name, final float n) throws IllegalArgumentException {
         if (Float.isNaN(n) || Float.isInfinite(n)) {
-            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_ARGUMENT_$2,
-                                                                name, new Float(n)));
+            throw new IllegalArgumentException(Resources.format(
+                        ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2, name, new Float(n)));
         }
     }
 

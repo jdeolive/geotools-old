@@ -43,7 +43,7 @@ import org.geotools.resources.ResourceBundle;
  * never been created directly. Use the factory method {@link #getResources}
  * or use static methods instead.
  *
- * @version $Id: Resources.java,v 1.3 2003/05/13 10:58:49 desruisseaux Exp $
+ * @version $Id: Resources.java,v 1.4 2004/02/12 20:45:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Resources extends ResourceBundle {
@@ -144,5 +144,26 @@ public class Resources extends ResourceBundle {
                                 final Object arg2) throws MissingResourceException
     {
         return getResources(null).getString(key, arg0, arg1, arg2);
+    }
+    
+    /**
+     * Gets a string for the given key are replace all occurence of "{0}",
+     * "{1}", with values of <code>arg0</code>, <code>arg1</code>, etc.
+     *
+     * @param  key The key for the desired string.
+     * @param  arg0 Value to substitute to "{0}".
+     * @param  arg1 Value to substitute to "{1}".
+     * @param  arg2 Value to substitute to "{2}".
+     * @param  arg3 Value to substitute to "{3}".
+     * @return The formatted string for the given key.
+     * @throws MissingResourceException If no object for the given key can be found.
+     */
+    public static String format(final int key,
+                                final Object arg0,
+                                final Object arg1,
+                                final Object arg2,
+                                final Object arg3) throws MissingResourceException
+    {
+        return getResources(null).getString(key, arg0, arg1, arg2, arg3);
     }
 }

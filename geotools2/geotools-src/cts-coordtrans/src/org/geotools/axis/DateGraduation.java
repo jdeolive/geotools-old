@@ -51,7 +51,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * A graduation using dates on a linear axis.
  *
- * @version $Id: DateGraduation.java,v 1.3 2003/07/24 08:42:28 desruisseaux Exp $
+ * @version $Id: DateGraduation.java,v 1.4 2004/02/12 20:45:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class DateGraduation extends AbstractGraduation {
@@ -108,7 +108,7 @@ public class DateGraduation extends AbstractGraduation {
      */
     private static void ensureTimeUnit(final Unit unit) throws UnitException {
         if (unit==null || !Unit.MILLISECOND.canConvert(unit)) {
-            throw new UnitException(Resources.format(ResourceKeys.ERROR_BAD_ARGUMENT_$2,
+            throw new UnitException(Resources.format(ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2,
                                                      "unit", unit));
         }
     }

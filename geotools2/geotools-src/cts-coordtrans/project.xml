@@ -87,6 +87,13 @@
         <role>Java developper / Tester</role>
       </roles>
     </contributor>
+    <contributor>
+      <name>Daniele Franzoni</name>
+      <organization>SATA srl, Italy</organization>
+      <roles>
+        <role>Java developper</role>
+      </roles>
+    </contributor>
   </contributors>
   <build>
     <nagEmailAddress>
