@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 
 
 /*
- * $Id: MultiLineHandler.java,v 1.3 2003/07/23 23:41:09 ianschneider Exp $
+ * $Id: MultiLineHandler.java,v 1.4 2003/11/13 22:10:35 jmacgill Exp $
  * @author aaime
  * @author Ian Schneider
  */
@@ -87,7 +87,7 @@ public class MultiLineHandler implements ShapeHandler {
   }
   
   private Object createNull() {
-    return geometryFactory.createLineString(null);
+    return geometryFactory.createLineString((Coordinate[])null);
   }
   
   public Object read(ByteBuffer buffer, ShapeType type) {
@@ -222,6 +222,9 @@ public class MultiLineHandler implements ShapeHandler {
 
 /*
  * $Log: MultiLineHandler.java,v $
+ * Revision 1.4  2003/11/13 22:10:35  jmacgill
+ * cast a null to avoid ambigous call with JTS1.4
+ *
  * Revision 1.3  2003/07/23 23:41:09  ianschneider
  * more testing updates
  *
