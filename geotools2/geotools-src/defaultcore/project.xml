@@ -60,6 +60,15 @@
       <role>Java Developer</role>
       </roles>
     </developer>
+        <developer>
+      <name>Linda Oxnard</name>
+      <id>loxnard</id>
+      <email>loxnard@users.sourceforge.net</email>
+      <organization>None</organization>
+            <roles>
+                <role>Doc Editor</role>
+            </roles>
+        </developer>
     </developers>
   <dependencies>
     <dependency>
