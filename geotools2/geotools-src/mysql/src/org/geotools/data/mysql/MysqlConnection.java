@@ -1,10 +1,11 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -12,39 +13,32 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *    
  */
-
 package org.geotools.data.mysql;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
+
 //import org.apache.log4j.Category;
 
-
 /**
- * Shell for JDBC transactions of all types.
+ * Shell for JDBC transactions of all types. This provides a base class to the
+ * database transactional classes.
  *
- * This provides a base class to the database transactional classes.  
- *
- * @version $Id: MysqlConnection.java,v 1.1 2002/09/13 15:12:55 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, Vision for New York
+ * @version $Id: MysqlConnection.java,v 1.2 2003/08/21 16:04:02 cholmesny Exp $
  */
 public class MysqlConnection implements javax.sql.DataSource {
-
-
     //private static Category _log = Category.getInstance(MysqlConnection.class.getName());
-    
-    /** The Mysql-specific JDBC driver class using mm.mysql */ 
+
+    /** The Mysql-specific JDBC driver class using mm.mysql */
     private static final String MYSQL_DRIVER_CLASS = "org.gjt.mm.mysql.Driver";
-    
-    /** The Mysql-specific JDBC driver path. */ 
+
+    /** The Mysql-specific JDBC driver path. */
     private static final String MYSQL_DRIVER_PATH = "jdbc:mysql";
 
     /** the computer where the database to connect to resides */
@@ -61,33 +55,32 @@ public class MysqlConnection implements javax.sql.DataSource {
 
     /** The password of the user to log in to the database */
     private String password = null;
-    
+
     /**
-     * Constructor with all internal database driver classes, driver paths
-     * and database types.
+     * Constructor with all internal database driver classes, driver paths and
+     * database types.
      *
      * @param host The driver class; should be passed from the
-     * database-specific subclass.
-     * @param port The driver path; should be passed from the
-     * database-specific subclass.
+     *        database-specific subclass.
+     * @param port The driver path; should be passed from the database-specific
+     *        subclass.
      * @param dbName The database type; should be passed from the
-     * database-specific subclass.
-     */ 
-    public MysqlConnection ( String host, String port, String dbName) {
+     *        database-specific subclass.
+     */
+    public MysqlConnection(String host, String port, String dbName) {
         this.host = host;
         this.port = port;
         this.dbName = dbName;
     }
-    
-    
+
     /**
      * Sets the user and password strings of the login to be used when
      * connecting to the Mysql database.
      *
      * @param user The string of the user to connect to the database with.
      * @param password The string of the password of user.
-     */ 
-    public void setLogin( String user, String password) {
+     */
+    public void setLogin(String user, String password) {
         this.user = user;
         this.password = password;
     }
@@ -97,8 +90,8 @@ public class MysqlConnection implements javax.sql.DataSource {
      *
      * @return the user.
      */
-    public String getLoginUser(){
-       return user;
+    public String getLoginUser() {
+        return user;
     }
 
     /**
@@ -106,58 +99,58 @@ public class MysqlConnection implements javax.sql.DataSource {
      *
      * @return a string of the password.
      */
-    public String getLoginPassword(){
-       return password;
+    public String getLoginPassword() {
+        return password;
     }
 
     /**
-     * Retrieves a connection to the Mysql database, using the current
-     * user and password;
-     * 
+     * Retrieves a connection to the Mysql database, using the current user and
+     * password;
+     *
      * @return An open SQL connection with the database.
+     *
      * @throws SQLException if there are any database problems.
-     */ 
-    public Connection getConnection()
-        throws SQLException {
-       return getConnection(user, password);
+     */
+    public Connection getConnection() throws SQLException {
+        return getConnection(user, password);
     }
 
-
     /**
-     * Retrieves a connection to the Mysql database, specifying a user
-     * and password.
+     * Retrieves a connection to the Mysql database, specifying a user and
+     * password.
      *
      * @param user The string of the user to connect to the database with.
      * @param password The string of the corresponding password of user.
+     *
      * @return An open SQL connection with the database.
+     *
      * @throws SQLException if there are any database problems.
-    */ 
+     */
     public Connection getConnection(String user, String password)
         throws SQLException {
-       // creates the string to connect with
-        String connectionPath = MYSQL_DRIVER_PATH + "://" 
-                                + host + ":" + port + "/" + dbName;
+        // creates the string to connect with
+        String connectionPath = MYSQL_DRIVER_PATH + "://" + host + ":" + port
+            + "/" + dbName;
         Connection dbConnection = null;
-   
+
         // Instantiate the driver classes
         try {
             Class.forName(MYSQL_DRIVER_CLASS);
-            dbConnection = DriverManager.getConnection(connectionPath, 
-                                                       user, password);
+            dbConnection = DriverManager.getConnection(connectionPath, user,
+                    password);
         } catch (ClassNotFoundException e) {
             throw new SQLException("Mysql driver was not found.");
         }
 
         return dbConnection;
-
     }
-    
-    
+
     /**
      * An accessor function to get the length of timeout.
      *
      * @return the time out.
-     * @tasks TODO: implement this.
+     *
+     * @task TODO: implement this.
      */
     public int getLoginTimeout() {
         return 10;
@@ -167,7 +160,8 @@ public class MysqlConnection implements javax.sql.DataSource {
      * A setter function to get the length of timeout.
      *
      * @param seconds the length of the time out.
-     * @tasks TODO: implement this.
+     *
+     * @task TODO: implement this.
      */
     public void setLoginTimeout(int seconds) {
     }
@@ -176,7 +170,8 @@ public class MysqlConnection implements javax.sql.DataSource {
      * An accessor function to get the log writer.
      *
      * @return a writer
-     * @tasks TODO: implement this.
+     *
+     * @task TODO: implement this.
      */
     public PrintWriter getLogWriter() {
         return new PrintWriter(System.out);
@@ -186,11 +181,9 @@ public class MysqlConnection implements javax.sql.DataSource {
      * An setter method to set the log writer.
      *
      * @param out the writer to use for logging.
-     * @tasks TODO: implement this.
+     *
+     * @task TODO: implement this.
      */
     public void setLogWriter(PrintWriter out) {
     }
-
-
-
 }
