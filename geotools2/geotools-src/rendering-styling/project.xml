@@ -103,6 +103,16 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
+      <artifactId>map</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <artifactId>data</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>

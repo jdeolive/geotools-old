@@ -109,5 +109,10 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <artifactId>map</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency>
   </dependencies>
 </project>
