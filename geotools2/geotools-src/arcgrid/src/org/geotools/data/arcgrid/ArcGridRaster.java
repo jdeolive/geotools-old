@@ -185,8 +185,7 @@ public class ArcGridRaster {
         // make sure tokenizer is set up right
         st.resetSyntax();
         st.eolIsSignificant(true);
-        st.whitespaceChars('\t', '\t');
-        st.whitespaceChars(' ',' ');
+        st.whitespaceChars(0,' ');
         st.wordChars('a','z');
         st.wordChars('A','Z');
         st.wordChars('_','_');
