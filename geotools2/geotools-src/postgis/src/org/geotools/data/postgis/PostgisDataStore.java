@@ -35,6 +35,8 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.JDBCDataStore;
+import org.geotools.data.jdbc.JDBCFeatureLocking;
+import org.geotools.data.jdbc.JDBCFeatureStore;
 import org.geotools.data.jdbc.SQLBuilder;
 import org.geotools.data.jdbc.WKTAttributeIO;
 import org.geotools.feature.AttributeType;
@@ -59,7 +61,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.7 2003/11/23 01:32:00 jive Exp $
+ * @version $Id: PostgisDataStore.java,v 1.8 2003/11/23 05:06:15 jive Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -90,7 +92,10 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         GEOM_TYPE_MAP.put("MULTILINESTRING", MultiLineString.class);
         GEOM_TYPE_MAP.put("MULTIPOLYGON", MultiPolygon.class);
     }
+    public static final int OPTIMIZE_SAFE = 0;
+    public static final int OPTIMIZE_SQL = 1;
 
+    public final int OPTIMIZE_MODE;       
     /** To create the sql where statement */
     protected SQLEncoder encoder = new SQLEncoderPostgis();
 
@@ -101,11 +106,16 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
     public PostgisDataStore(ConnectionPool connPool, String namespace)
         throws IOException {
-        super(connPool, null, namespace);
+        this(connPool, null, namespace);
     }
     
     public PostgisDataStore(ConnectionPool connPool, String schema, String namespace ) throws IOException{
-        super( connPool, schema, namespace );            
+        this( connPool, schema, namespace, OPTIMIZE_SAFE );            
+    }
+    public PostgisDataStore(ConnectionPool connPool, String schema, String namespace, int optimizeMode )
+        throws IOException {
+        super( connPool, schema, namespace );
+        OPTIMIZE_MODE = optimizeMode;             
     }
 
     /**
@@ -363,18 +373,23 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      */
     public FeatureSource getFeatureSource(String typeName)
         throws IOException {
-        return new PostgisFeatureLocking(this, getSchema(typeName));
+            
+        if( OPTIMIZE_MODE == OPTIMIZE_SQL ){
+            return new PostgisFeatureLocking(this, getSchema(typeName));
+        }
+        // default 
 
-        //if (getLockingManager() != null) {
-        // Use default JDBCFeatureLocking that delegates all locking
-        // the getLockingManager
-        // 
-        //  return new JDBCFeatureLocking(this, getSchema(typeName));
-        //} else {
-        // subclass should provide a FeatureLocking implementation
-        // but for now we will simply forgo all locking
-        //  return new JDBCFeatureStore(this, getSchema(typeName));
-        //}
+        if (getLockingManager() != null) {
+            // Use default JDBCFeatureLocking that delegates all locking
+            // the getLockingManager
+            return new JDBCFeatureLocking(this, getSchema(typeName));
+            
+        } else {
+            // subclass should provide a FeatureLocking implementation
+            // but for now we will simply forgo all locking
+            return new JDBCFeatureStore(this, getSchema(typeName));
+            
+        }
     }
 
     //These are going to be needed by PostgisFeatureStore as well... we also
