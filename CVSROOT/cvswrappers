@@ -23,3 +23,6 @@
 *.gif -k 'b'
 *.jpg -k 'b'
 *.jar -k 'b'
+*.shp -k 'b'
+*.shx -k 'b'
+*.dbf -k 'b'
