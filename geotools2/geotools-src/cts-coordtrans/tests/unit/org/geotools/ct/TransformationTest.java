@@ -46,7 +46,7 @@ import junit.framework.TestCase;
 /**
  * Base class for test classes.
  *
- * @version $Id: TransformationTest.java,v 1.3 2002/07/12 20:40:41 desruisseaux Exp $
+ * @version $Id: TransformationTest.java,v 1.4 2002/07/13 17:03:36 jmacgill Exp $
  * @author Martin Desruisseaux
  */
 public class TransformationTest extends TestCase
@@ -87,6 +87,18 @@ public class TransformationTest extends TestCase
         trFactory = CoordinateTransformationFactory.getDefault();
     }
 
+    /**
+     * Quick self test, in part to give this test suite a test
+     * and also the test the internal method.
+     */
+    public void testAssertPointsEqual(){
+        String name = "self test";
+        double a[] = {10,10};
+        double b[] = {10.1,10.1};
+        double delta[] = {0.2,0.2};
+        assertPointsEqual(name,a,b,deta);
+    }
+    
     /**
      * Convenience method for checking if a boolean value is false.
      */
