@@ -21,6 +21,7 @@
 package org.geotools.styling;
 
 import java.awt.Color;
+
 import org.geotools.feature.Feature;
 import org.geotools.filter.Expression;
 
@@ -46,7 +47,7 @@ import org.geotools.filter.Expression;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: Stroke.java,v 1.11 2003/08/01 16:54:21 ianturton Exp $
+ * @version $Id: Stroke.java,v 1.12 2003/08/03 03:28:15 seangeo Exp $
  * @author James Macgill
  */
 public interface Stroke {
@@ -245,6 +246,9 @@ public interface Stroke {
 
 /*
  * $Log: Stroke.java,v $
+ * Revision 1.12  2003/08/03 03:28:15  seangeo
+ * Removed unneeded imports.
+ *
  * Revision 1.11  2003/08/01 16:54:21  ianturton
  * implemented visitor pattern
  *

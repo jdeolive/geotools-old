@@ -23,16 +23,12 @@
 
 package org.geotools.renderer;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import org.geotools.styling.Style;
-import org.geotools.feature.Feature;
-import com.vividsolutions.jts.geom.Envelope;
-import java.awt.Graphics;
+import java.awt.Graphics;import org.geotools.feature.Feature;import org.geotools.styling.Style;import com.vividsolutions.jts.geom.Coordinate;import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * This is very much work in progress.
  *
- * @version $Id: Renderer.java,v 1.18 2003/06/05 11:20:43 ianturton Exp $
+ * @version $Id: Renderer.java,v 1.19 2003/08/03 03:28:15 seangeo Exp $
  * @author James Macgill
  */
 

@@ -19,13 +19,12 @@
  */
 package org.geotools.map.events;
 
-import java.util.EventListener;
-import java.util.EventObject;
+import java.util.EventListener;import java.util.EventObject;
 
 /**
  * Methods to handle a change in the Layers.
  * @author Cameron Shorter
- * @version $Id: LayerListener.java,v 1.1 2003/07/10 16:04:56 ianturton Exp $
+ * @version $Id: LayerListener.java,v 1.2 2003/08/03 03:28:15 seangeo Exp $
  */
 public interface LayerListener extends EventListener { 
 

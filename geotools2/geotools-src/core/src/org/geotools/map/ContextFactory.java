@@ -16,14 +16,14 @@
  */
 package org.geotools.map;
 
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.data.DataSource;
-import org.geotools.gui.tools.Tool;
+import org.geotools.factory.Factory;
+import org.geotools.factory.FactoryConfigurationError;
+import org.geotools.factory.FactoryFinder;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.styling.Style;
 import org.opengis.cs.CS_CoordinateSystem;
-import java.util.logging.Logger;
-import org.geotools.factory.*;
-import org.geotools.feature.FeatureCollection;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**

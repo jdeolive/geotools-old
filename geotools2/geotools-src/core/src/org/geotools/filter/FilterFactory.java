@@ -16,14 +16,12 @@
  */
 package org.geotools.filter;
 
-import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.factory.Factory;
+import org.geotools.factory.FactoryConfigurationError;
+import org.geotools.factory.FactoryFinder;
 import org.geotools.feature.FeatureType;
 
-// J2SE dependencies
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-import org.geotools.factory.*;
+import com.vividsolutions.jts.geom.Envelope;
 
 
 public abstract class FilterFactory implements Factory {

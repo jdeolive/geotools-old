@@ -16,9 +16,13 @@
  */
 package org.geotools.feature;
 
-import java.io.*;
-import java.util.*;
-import org.geotools.factory.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.geotools.factory.Factory;
+import org.geotools.factory.FactoryConfigurationError;
+import org.geotools.factory.FactoryFinder;
 
 /** A factory patterned object for the creation of FeatureTypes. Because
  * FeatureTypes are meant to be immutable, this object is mutable.<p>
@@ -47,7 +51,7 @@ import org.geotools.factory.*;
  * one exists</b><br>
  *
  * This class is not thread-safe.
- * @version $Id: FeatureTypeFactory.java,v 1.7 2003/07/24 20:28:27 ianschneider Exp $
+ * @version $Id: FeatureTypeFactory.java,v 1.8 2003/08/03 03:28:15 seangeo Exp $
  * @author Ian Schneider
  */
 public abstract class FeatureTypeFactory implements Factory {

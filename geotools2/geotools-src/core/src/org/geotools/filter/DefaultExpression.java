@@ -19,15 +19,13 @@
  */
 package org.geotools.filter;
 
-import org.geotools.data.*;
-
-import org.geotools.feature.*;
+import org.geotools.feature.Feature;
 
 
 /**
  * Implements a default expression, with helpful variables and static methods.
  *
- * @version $Id: DefaultExpression.java,v 1.4 2003/04/14 21:36:34 jmacgill Exp $
+ * @version $Id: DefaultExpression.java,v 1.5 2003/08/03 03:28:15 seangeo Exp $
  * @author Rob Hranac, Vision for New York
  */
 public abstract class DefaultExpression implements Expression {

@@ -28,15 +28,16 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: BoundingBox.java,v 1.7 2003/04/14 21:37:15 jmacgill Exp $
+ * @version $Id: BoundingBox.java,v 1.8 2003/08/03 03:28:15 seangeo Exp $
  * @author Cameron Shorter
  * 
  */
 
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.map.events.*;
+import org.geotools.map.events.BoundingBoxListener;
 import org.opengis.cs.CS_CoordinateSystem;
 import org.opengis.ct.CT_MathTransform;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 public interface BoundingBox extends Cloneable{
     

@@ -16,7 +16,6 @@
  */
 package org.geotools.data;
 
-import org.geotools.feature.AttributeType;
 import org.geotools.filter.Filter;
 
 
@@ -32,7 +31,7 @@ import org.geotools.filter.Filter;
  * and discarding when the max is reached.
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.6 2003/07/31 21:54:19 jmacgill Exp $
+ * @version $Id: Query.java,v 1.7 2003/08/03 03:28:15 seangeo Exp $
  */
 public interface Query {
     /** So getMaxFeatures does not return null we use a very large number. */

@@ -16,9 +16,12 @@
  */
 package org.geotools.styling;
 
-import org.geotools.filter.Expression;
 import java.net.URL;
-import org.geotools.factory.*;
+
+import org.geotools.factory.Factory;
+import org.geotools.factory.FactoryConfigurationError;
+import org.geotools.factory.FactoryFinder;
+import org.geotools.filter.Expression;
 
 
 public abstract class StyleFactory implements Factory {

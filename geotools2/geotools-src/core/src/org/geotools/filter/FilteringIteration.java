@@ -21,9 +21,9 @@
 package org.geotools.filter;
 
 import java.util.Iterator;
+
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionIteration;
-import org.geotools.feature.FeatureIterator;
 
 /**
  *

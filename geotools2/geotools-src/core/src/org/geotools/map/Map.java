@@ -20,17 +20,18 @@
 
 package org.geotools.map;
 
-import org.geotools.renderer.Renderer;
 import org.geotools.feature.FeatureCollection;
-import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.renderer.Renderer;
 import org.geotools.styling.Style;
 import org.opengis.cs.CS_CoordinateSystem;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Holds a set of FeatureCollections together with styles and a single output
  * coordinate system.
  *
- * @version $Id: Map.java,v 1.11 2003/03/08 07:40:00 camerons Exp $
+ * @version $Id: Map.java,v 1.12 2003/08/03 03:28:15 seangeo Exp $
  * @author James Macgill, CCG
  * @deprecated Use Context instead.
  */

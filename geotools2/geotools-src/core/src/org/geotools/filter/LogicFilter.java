@@ -1,6 +1,7 @@
 package org.geotools.filter;
 
 import java.util.Iterator;
+
 import org.geotools.feature.Feature;
 
 

@@ -16,13 +16,15 @@
  */
 package org.geotools.data;
 
-import com.vividsolutions.jts.geom.Envelope;
+import java.util.Set;
+
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureType;
 import org.geotools.filter.Filter;
-import java.util.Set;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -49,7 +51,7 @@ import java.util.Set;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.2 2003/07/31 21:54:19 jmacgill Exp $
+ * @version $Id: AbstractDataSource.java,v 1.3 2003/08/03 03:28:15 seangeo Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** A support string for unsupported operations messages */

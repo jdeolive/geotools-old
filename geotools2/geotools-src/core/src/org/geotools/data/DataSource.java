@@ -16,12 +16,14 @@
  */
 package org.geotools.data;
 
-import com.vividsolutions.jts.geom.Envelope;
+import java.util.Set;
+
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureType;
 import org.geotools.filter.Filter;
-import java.util.Set;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -31,7 +33,7 @@ import java.util.Set;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: DataSource.java,v 1.13 2003/07/17 07:09:51 ianschneider Exp $
+ * @version $Id: DataSource.java,v 1.14 2003/08/03 03:28:15 seangeo Exp $
  */
 public interface DataSource {
     /**

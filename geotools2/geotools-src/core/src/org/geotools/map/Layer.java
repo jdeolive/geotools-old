@@ -19,12 +19,12 @@
  */
 package org.geotools.map;
 
-import org.geotools.styling.Style;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.styling.Style;
 
 /**
  * Layer is an aggregation of both a FeatureCollection and Style.
- * @version $Id: Layer.java,v 1.5 2003/07/17 07:09:52 ianschneider Exp $
+ * @version $Id: Layer.java,v 1.6 2003/08/03 03:28:15 seangeo Exp $
  * @author  Cameron Shorter
  */
 public interface Layer {

@@ -18,11 +18,9 @@ package org.geotools.filter;
 
 
 // Geotools dependencies
-import org.geotools.data.*;
-import org.geotools.feature.*;
-
-// J2SE dependencies
 import java.util.logging.Logger;
+
+import org.geotools.feature.Feature;
 
 
 /**
@@ -30,7 +28,7 @@ import java.util.logging.Logger;
  * methods.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: AbstractFilter.java,v 1.8 2003/06/02 23:25:39 cholmesny Exp $
+ * @version $Id: AbstractFilter.java,v 1.9 2003/08/03 03:28:15 seangeo Exp $
  */
 public abstract class AbstractFilter implements Filter {
     /** The logger for the default core module. */

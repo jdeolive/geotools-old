@@ -16,8 +16,9 @@
  */
 package org.geotools.gui.tools;
 
-import org.geotools.gui.tools.event.SelectedToolListener;
 import java.util.List;
+
+import org.geotools.gui.tools.event.SelectedToolListener;
 
 
 /**
@@ -29,7 +30,7 @@ import java.util.List;
  * that.
  *
  * @author Cameron Shorter
- * @version $Id: ToolList.java,v 1.1 2003/05/30 12:31:23 camerons Exp $
+ * @version $Id: ToolList.java,v 1.2 2003/08/03 03:28:15 seangeo Exp $
  */
 public interface ToolList extends List {
     /**
