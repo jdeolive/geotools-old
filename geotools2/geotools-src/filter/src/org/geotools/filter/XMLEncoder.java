@@ -24,12 +24,10 @@ import org.apache.log4j.Logger;
 import java.io.Writer;
 
 /**
- * Exports a filter as a OGC Filter document.
+ * Exports a filter as a OGC XML Filter document.
  *
- * @task TODO: Support Null filters
  * @task HACK: Attrrbutes are not yet supported
- * @task TODO: Support Like filters
- * @task TODO: Fully support GeometryExpressions
+ * @task TODO: Support full header information for new XML file
  * @author  jamesm
  */
 public class XMLEncoder implements org.geotools.filter.FilterVisitor {
@@ -50,6 +48,12 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         }
     }
     
+    /**
+     * This should never be called.
+     * This can only happen if a subclass of AbstractFilter failes to implement
+     * its own version of accept(FilterVisitor);
+     * @param filter The filter to visit
+     */
     public void visit(AbstractFilter filter) {
         log.warn("exporting unknown filter type");
     }
@@ -148,18 +152,14 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         
     }
     
+    /**
+     * Export a like filter.
+     * @param filter The Like filter to export
+     * @task TODO:Implement exporting of Like Filters
+     */
     public void visit(LikeFilter filter) {
         log.debug("exporting NullFilter");
-        ExpressionDefault expr = (ExpressionDefault)filter.
-        String type = (String)comparisions.get(new Integer(filter.getFilterType()));
-        try{
-            out.write("<"+type+">\n");
-            expr.accept(this);
-            out.write("</"+type+">\n");
-        }
-        catch(java.io.IOException ioe){
-            log.error("Unable to export filter",ioe);
-        }
+       
     }
     
     public void visit(ExpressionAttribute expression) {
@@ -176,6 +176,12 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         log.warn("exporting unknown (default) expression");
     }
     
+    /**
+     * Export the contents of a Literal Expresion
+     * @param expresion the Literal to export
+     * @task TODO: Fully support GeometryExpressions so that they are
+     *             writen as GML.
+     */
     public void visit(ExpressionLiteral expression) {
         log.debug("exporting LiteralExpression");
         try{

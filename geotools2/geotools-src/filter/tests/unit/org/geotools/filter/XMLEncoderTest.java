@@ -260,9 +260,8 @@ public class XMLEncoderTest extends TestCase {
                 filter = FilterXMLParser.parseFilter(child);
                 _log.debug("filter: " + filter.getClass().toString());
                 StringWriter output = new StringWriter();
-                XMLEncoder encode = new XMLEncoder(output);
-                ((AbstractFilter)filter).accept(encode);
-                  _log.debug("Resulting filter XML is \n"+output.getBuffer().toString());
+                XMLEncoder encode = new XMLEncoder(output,(AbstractFilter)filter);
+                _log.debug("Resulting filter XML is \n"+output.getBuffer().toString());
             }
         }
         
