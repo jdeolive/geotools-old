@@ -67,9 +67,9 @@
       </includes>
       <!-- This section excludes the tests, comment out if your 
            testData/testparams.properties are set correctly -->
-      <!--excludes>
+      <excludes>
         <exclude>**/SdeDataSourceTest.java</exclude>
-      </excludes-->
+      </excludes>
       <!-- End exclude tests -->
       <resources>
           <resource>
