@@ -26,8 +26,7 @@ import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
+
 
 /**
  *
@@ -146,7 +145,7 @@ public class TextTest extends TestCase {
         FileOutputStream out = new FileOutputStream(file);
         ImageIO.write(image, "JPEG", out); 
         
-        Thread.sleep(5000);
+        //Thread.sleep(5000);
         frame.dispose();
     }
     private Point makeSamplePoint(final GeometryFactory geomFac,double x, double y) {

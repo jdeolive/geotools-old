@@ -137,7 +137,7 @@ public class DefaultMarkTest extends TestCase {
             System.out.println("Failed to write image to " + file.toString());
         }
         
-        Thread.sleep(5000);
+        //Thread.sleep(5000);
         frame.dispose();
     }
     

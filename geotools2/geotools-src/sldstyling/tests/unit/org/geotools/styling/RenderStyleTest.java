@@ -144,7 +144,7 @@ public class RenderStyleTest extends TestCase {
         File file = new File(dataFolder, "RenderStyleTest.jpg"); 
         FileOutputStream out = new FileOutputStream(file);
         ImageIO.write(image, "JPEG", out); 
-        Thread.sleep(5000);
+        //Thread.sleep(5000);
         frame.dispose();
     }
     
