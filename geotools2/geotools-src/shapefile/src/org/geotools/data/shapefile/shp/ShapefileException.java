@@ -19,12 +19,13 @@
  */
 package org.geotools.data.shapefile.shp;
 
+import org.geotools.data.DataSourceException;
 
 /**
  * Thrown when an error relating to the shapefile
  * occures
  */
-public class ShapefileException extends Exception {
+public class ShapefileException extends DataSourceException {
 
     public ShapefileException(String s) {
         super(s);
