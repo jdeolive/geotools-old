@@ -33,7 +33,7 @@ package org.geotools.util;
  * <code>Cloneable</code> interface add this missing method, which avoid the need to
  * cast an interface to its implementation in order to clone it.
  *
- * @version $Id: Cloneable.java,v 1.1 2003/08/28 15:15:25 desruisseaux Exp $
+ * @version $Id: Cloneable.java,v 1.2 2003/11/12 14:13:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see java.lang.Cloneable
@@ -42,8 +42,8 @@ package org.geotools.util;
  */
 public interface Cloneable extends java.lang.Cloneable {
     /**
-     * Creates and returns a copy of this object. The precise meaning 
-     * of &quot;copy&quot; may depend on the class of the object.
+     * Creates and returns a copy of this object.
+     * The precise meaning of "copy" may depend on the class of the object.
      *
      * @return A clone of this instance.
      * @see Object#clone

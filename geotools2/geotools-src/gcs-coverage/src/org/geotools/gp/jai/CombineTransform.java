@@ -30,8 +30,8 @@ package org.geotools.gp.jai;
 
 
 /**
- * Transform the sample values for one pixel during a &quot;{@link Combine Combine}&quot;
- * operation. The method {@link #transformSamples} is invoked by {@link Combine#computeRect
+ * Transform the sample values for one pixel during a "{@link Combine Combine}" operation.
+ * The method {@link #transformSamples} is invoked by {@link Combine#computeRect
  * Combine.computeRect(...)} just before the sample values are combined as
  *
  * <code>values[0]*row[0] + values[1]*row[1] + values[2]*row[2] + ... + row[sourceBands]</code>.
@@ -40,7 +40,7 @@ package org.geotools.gp.jai;
  * linear one. For example, the <code>transformSamples</code> method could substitutes some
  * values by their logarithm.
  *
- * @version $Id: CombineTransform.java,v 1.1 2003/07/22 15:24:54 desruisseaux Exp $
+ * @version $Id: CombineTransform.java,v 1.2 2003/11/12 14:13:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface CombineTransform {

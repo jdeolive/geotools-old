@@ -65,27 +65,27 @@ import org.geotools.resources.cts.ResourceKeys;
  *   <li><code>Polar_Stereographic_EPSG</code> (EPSG code 9810, uses a series for the inverse)</li>
  *   <li><code>Oblique_Stereographic_EPSG</code> (EPSG code 9809)</li>
  * </ul>
- * The <code>&quot;Polar_Stereographic&quot;</code> and <code>&quot;Oblique_Stereographic&quot;</code>
- * cases use the USGS equations of Snyder. The USGS oblique case computes the conformal latitude of
- * each point on the sphere. The <code>&quot;Oblique_Stereographic_EPSG&quot;</code> case uses only
- * a single conformal sphere at the origin point. The EPSG considers both methods to be valid, but
- * considers the USGS method to be a different coordinate operation method.
+ * The <code>"Polar_Stereographic"</code> and <code>"Oblique_Stereographic"</code>
+ * cases use the USGS equations of Snyder. The USGS oblique case computes the conformal latitude
+ * of each point on the sphere. The <code>"Oblique_Stereographic_EPSG"</code> case uses only
+ * a single conformal sphere at the origin point. The EPSG considers both methods to be valid,
+ * but considers the USGS method to be a different coordinate operation method.
  * <br><br>
  *
- * If a <code>&quot;latitude_of_origin&quot;</code> parameter is supplied and is not consistent
- * with the projection classification (for example a latitude different from ±90° for the polar
- * case), then the oblique or polar case will be automatically inferred from the latitude. In other
- * words, the latitude of origin has precedence on the projection classification. If ommited, then
- * the default value is 90°N for <code>&quot;Polar_Stereographic&quot;</code> and 0° for
- * <code>&quot;Oblique_Stereographic&quot;</code>.
+ * If a <code>"latitude_of_origin"</code> parameter is supplied and is not consistent with the
+ * projection classification (for example a latitude different from ±90° for the polar case),
+ * then the oblique or polar case will be automatically inferred from the latitude. In other
+ * words, the latitude of origin has precedence on the projection classification. If ommited,
+ * then the default value is 90°N for <code>"Polar_Stereographic"</code> and 0° for
+ * <code>"Oblique_Stereographic"</code>.
  *
- * The <code>&quot;latitude_true_scale&quot;</code> parameter is not specified by the EPSG and is
+ * The <code>"latitude_true_scale"</code> parameter is not specified by the EPSG and is
  * only used for the <code>Polar_Stereographic</code> case.
  *
  * <strong>References:</strong><ul>
  *   <li>John P. Snyder (Map Projections - A Working Manual,<br>
  *       U.S. Geological Survey Professional Paper 1395, 1987)</li>
- *   <li>&quot;Coordinate Conversions and Transformations including Formulas&quot;,<br>
+ *   <li>"Coordinate Conversions and Transformations including Formulas",<br>
  *       EPSG Guidence Note Number 7, Version 19.</li>
  * </ul>
  *
@@ -95,7 +95,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/stereographic.html">Stereographic</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/random_issues.html#stereographic">Some Random Stereographic Issues</A>
  *
- * @version $Id: Stereographic.java,v 1.4 2003/08/07 11:15:23 desruisseaux Exp $
+ * @version $Id: Stereographic.java,v 1.5 2003/11/12 14:13:34 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -117,10 +117,10 @@ public abstract class Stereographic extends PlanarProjection {
      * Informations about a {@link Stereographic} projection. The {@link #create} method infer
      * the kind of projection ({@link PolarStereographic} or {@link ObliqueStereographic} from
      * the latitude of origin. If the latitude of origin is not explicitely specified, then the
-     * default value is 90°N for <code>&quot;Polar_Stereographic&quot;</code> and 0° for
-     * <code>&quot;Oblique_Stereographic&quot;</code>.
+     * default value is 90°N for <code>"Polar_Stereographic"</code> and 0° for
+     * <code>"Oblique_Stereographic"</code>.
      *
-     * @version $Id: Stereographic.java,v 1.4 2003/08/07 11:15:23 desruisseaux Exp $
+     * @version $Id: Stereographic.java,v 1.5 2003/11/12 14:13:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */

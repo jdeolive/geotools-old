@@ -99,7 +99,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.32 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.33 2003/11/12 14:13:52 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -701,11 +701,11 @@ public class SampleDimension implements Serializable {
      * when an image is <A HREF="../gp/package-summary.html#Resample">resampled</A> (for
      * example reprojected in an other coordinate system) and the resampled image do not
      * fit in a rectangular area. It can also be used in various situation where a raisonable
-     * &quot;no data&quot; category is needed. The default implementation try to returns one
+     * "no data" category is needed. The default implementation try to returns one
      * of the {@linkplain #getNoDataValue no data values}. If no suitable category is found,
      * then a {@linkplain Category#NODATA default} one is returned.
      *
-     * @return A category to use as background for the &quot;Resample&quot; operation.
+     * @return A category to use as background for the "Resample" operation.
      *         Never <code>null</code>.
      */
     public Category getBackground() {
@@ -944,7 +944,7 @@ public class SampleDimension implements Serializable {
      * Together with {@link #getScale()} and {@link #getNoDataValue()}, this method provides a
      * limited way to transform sample values into geophysics values. However, the recommended
      * way is to use the {@link #getSampleToGeophysics sampleToGeophysics} transform instead,
-     * which is more general and take care of converting automatically &quot;no data&quot; values
+     * which is more general and take care of converting automatically "no data" values
      * into <code>NaN</code>.
      *
      * @return The offset to add to grid values.
@@ -969,7 +969,7 @@ public class SampleDimension implements Serializable {
      * Together with {@link #getOffset()} and {@link #getNoDataValue()}, this method provides a
      * limited way to transform sample values into geophysics values. However, the recommended
      * way is to use the {@link #getSampleToGeophysics sampleToGeophysics} transform instead,
-     * which is more general and take care of converting automatically &quot;no data&quot; values
+     * which is more general and take care of converting automatically "no data" values
      * into <code>NaN</code>.
      *
      * @return The scale to multiply to grid value.
@@ -1025,7 +1025,7 @@ public class SampleDimension implements Serializable {
      * already geophysics values (including <code>NaN</code> for "no data" values), then this
      * method returns an identity transform. Otherwise, this method returns a transform expecting
      * sample values as input and computing geophysics value as output. This transform will take
-     * care of converting all &quot;{@linkplain #getNoDataValue() no data values}&quot; into
+     * care of converting all "{@linkplain #getNoDataValue() no data values}" into
      * <code>NaN</code> values.
      * The <code>sampleToGeophysics.{@linkplain MathTransform1D#inverse() inverse()}</code>
      * transform is capable to differenciate <code>NaN</code> values to get back the original
@@ -1059,8 +1059,8 @@ public class SampleDimension implements Serializable {
      * {@linkplain #getRange range of sample values} transformed in such a way that the
      * {@link #getSampleToGeophysics sampleToGeophysics} transform is always the identity
      * transform, or <code>null</code> if no such transform existed in the first place. In
-     * other words, the range of sample values in all category maps directly the &quot;real
-     * world&quot; values without the need for any transformation.
+     * other words, the range of sample values in all category maps directly the "real world"
+     * values without the need for any transformation.
      * <br><br>
      * <code>SampleDimension</code> objects live by pair: a <cite>geophysics</cite> one (used for
      * computation) and a <cite>non-geophysics</cite> one (used for packing data, usually as

@@ -80,7 +80,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.11 2003/10/07 16:47:23 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.12 2003/11/12 14:14:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
@@ -190,10 +190,10 @@ public class RenderedGeometries extends RenderedLayer {
 
     /**
      * <code>true</code> if {@linkplain #paint(Graphics2D,Shape,Style2D) polygon rendering} uses
-     * the &quot;real world&quot; coordinate system, or <code>false</code> if it uses the device
-     * coordinate system. If <code>true</code>, then {@linkplain Stroke stroke} and {@linkplain
-     * TexturePaint texture} attributes are in &quot;real world&quot; units (usually meters);
-     * otherwise, they are in pixels.
+     * the "real world" coordinate system, or <code>false</code> if it uses the device coordinate
+     * system. If <code>true</code>, then {@linkplain Stroke stroke} and {@linkplain TexturePaint
+     * texture} attributes are in "real world" units (usually meters); otherwise, they are in
+     * pixels.
      */
     private boolean renderUsingMapCS = true;
 
@@ -430,10 +430,10 @@ public class RenderedGeometries extends RenderedLayer {
 
     /**
      * Returns <code>true</code> if {@linkplain #paint(Graphics2D,Shape,Style2D) polygon rendering}
-     * uses the &quot;real world&quot; coordinate system, or <code>false</code> if it uses the
-     * output device coordinate system. If <code>true</code>, then {@linkplain Stroke stroke} and
-     * {@linkplain TexturePaint texture} attributes are in &quot;real world&quot; units (usually
-     * meters); otherwise, they are in device units (usually pixels).
+     * uses the "real world" coordinate system, or <code>false</code> if it uses the output device
+     * coordinate system. If <code>true</code>, then {@linkplain Stroke stroke} and {@linkplain
+     * TexturePaint texture} attributes are in "real world" units (usually meters); otherwise,
+     * they are in device units (usually pixels).
      */
     protected boolean getRenderUsingMapCS() {
         return renderUsingMapCS;
@@ -441,11 +441,11 @@ public class RenderedGeometries extends RenderedLayer {
 
     /**
      * Specifies if {@linkplain #paint(Graphics2D,Shape,Style2D) polygon rendering} uses the
-     * &quot;real world&quot; coordinate system. If <code>true</code>, then {@linkplain Stroke
-     * stroke} and {@linkplain TexturePaint texture} attributes are in &quot;real world&quot;
-     * units (usually meters); otherwise, they are in device units (usually pixels). When using
-     * &quot;real world&quot; units, the visual line width will changes with zoom. When using
-     * output device units, the visual line width are constant under any zoom.
+     * "real world" coordinate system. If <code>true</code>, then {@linkplain Stroke stroke}
+     * and {@linkplain TexturePaint texture} attributes are in "real world" units (usually meters);
+     * otherwise, they are in device units (usually pixels). When using "real world" units,
+     * the visual line width will changes with zoom. When using output device units, the
+     * visual line width are constant under any zoom.
      */
     protected void setRenderUsingMapCS(final boolean renderUsingMapCS) {
         final boolean oldValue;

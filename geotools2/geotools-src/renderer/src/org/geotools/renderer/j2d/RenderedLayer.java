@@ -93,7 +93,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.30 2003/11/03 11:40:10 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.31 2003/11/12 14:14:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -586,7 +586,7 @@ public abstract class RenderedLayer {
      * This <code>repaint(...)</code> method can be invoked from any thread; it doesn't need to
      * be the <cite>Swing</cite> thread.
      *
-     * @param bounds The dirty region to repaint, in the &quot;real world&quot;
+     * @param bounds The dirty region to repaint, in the "real world"
      *        {@linkplain #getCoordinateSystem rendering coordinate system}. A
      *        <code>null</code> value repaint everything.
      */
@@ -900,7 +900,7 @@ public abstract class RenderedLayer {
      * <code>"visible"</code>, <code>"zOrder"</code>, <code>"preferredArea"</code>
      * and <code>"preferredPixelSize"</code> change events respectively.
      * <br><br>
-     * A particular event, namely <code>&quot;scale&quot;</code>, is also fired everytime
+     * A particular event, namely <code>"scale"</code>, is also fired everytime
      * the zoom changes. It is particular in that this event results from a change in the
      * {@linkplain Renderer renderer} state rather than a change applied directly on this
      * layer.  However, since {@linkplain Renderer#getScale scale} changes are propagated

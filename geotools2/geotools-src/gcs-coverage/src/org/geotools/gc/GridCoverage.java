@@ -135,7 +135,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.23 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.24 2003/11/12 14:13:52 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -386,7 +386,7 @@ public class GridCoverage extends Coverage {
 
     /**
      * Constructs a grid coverage from a {@linkplain Raster raster} with the specified
-     * &quot;{@linkplain GridGeometry#getGridToCoordinateSystem grid to coordinate system}&quot;
+     * "{@linkplain GridGeometry#getGridToCoordinateSystem grid to coordinate system}"
      * transform.
      *
      * @param name        The grid coverage name.
@@ -972,10 +972,10 @@ public class GridCoverage extends Coverage {
     /**
      * If <code>true</code>, returns the geophysics companion of this grid coverage. In a
      * <cite>geophysics grid coverage</cite>, all sample values are equals to geophysics
-     * (&quot;real world&quot;) values without the need for any transformation. In such
-     * geophysics coverage, the {@linkplain SampleDimension#getSampleToGeophysics sample
-     * to geophysics} transform is the identity transform for all sample dimensions.
-     * &quot;No data&quot; values are expressed by {@linkplain Float#NaN NaN} numbers.
+     * ("real world") values without the need for any transformation. In such geophysics
+     * coverage, the {@linkplain SampleDimension#getSampleToGeophysics sample to geophysics}
+     * transform is the identity transform for all sample dimensions. "No data" values are
+     * expressed by {@linkplain Float#NaN NaN} numbers.
      * <br><br>
      * This method may be understood as applying the JAI's {@linkplain PiecewiseDescriptor
      * piecewise} operation with breakpoints specified by the {@link Category} objects in
@@ -1342,7 +1342,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.23 2003/08/04 19:07:22 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.24 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1371,7 +1371,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.23 2003/08/04 19:07:22 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.24 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {

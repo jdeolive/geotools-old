@@ -139,7 +139,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * For example, the {@link #getCoordinateSystem} method constructs a
  * {@link org.geotools.cs.CoordinateSystem} object using available informations.
  *
- * @version $Id: PropertyParser.java,v 1.16 2003/08/04 19:07:23 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.17 2003/11/12 14:13:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -520,7 +520,7 @@ public class PropertyParser {
     public static final Key HEIGHT = new EnvelopeKey("Height", (byte)1, EnvelopeKey.SIZE);
 
     /**
-     * Key for the image's &quot;depth&quot; in pixels. This property may exists for 3D images,
+     * Key for the image's "depth" in pixels. This property may exists for 3D images,
      * but some implementations accept at most 1 pixel depth among the third dimension.
      * The {@link #getGridRange} method looks for this property in order to infer the
      * {@linkplain org.geotools.gc.GridRange#getLength grid size} along the dimension
@@ -626,8 +626,7 @@ public class PropertyParser {
     /**
      * Returns the characters to use as separator between keys and values. Leading and trailing
      * spaces will be keep when formatting with {@link #listProperties}, but will be ignored
-     * when parsing with {@link #parseLine}. The default value is
-     * <code>&quot;&nbsp;=&nbsp;&quot;</code>.
+     * when parsing with {@link #parseLine}. The default value is <code>"&nbsp;=&nbsp;"</code>.
      */
     public String getSeparator() {
         return separator;
@@ -676,10 +675,10 @@ public class PropertyParser {
      * <ul>
      *   <li>If <code>type</code> is assignable to <code>{@linkplain java.lang.Number}.class</code>,
      *       then <code>pattern</code> should be a {@link java.text.DecimalFormat} pattern (example:
-     *       <code>&quot;#0.###&quot;</code>).</li>
+     *       <code>"#0.###"</code>).</li>
      *   <li>If <code>type</code> is assignable to <code>{@linkplain java.util.Date}.class</code>,
      *       then <code>pattern</code> should be a {@link java.text.SimpleDateFormat} pattern
-     *       (example: <code>&quot;yyyy/MM/dd HH:mm&quot;</code>).</li>
+     *       (example: <code>"yyyy/MM/dd HH:mm"</code>).</li>
      * </ul>
      *
      * @param  type The data type (<code>Number.class</code> or <code>Date.class</code>).
@@ -2083,7 +2082,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.16 2003/08/04 19:07:23 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.17 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -2155,7 +2154,7 @@ loop:       for (int i=str.length(); --i>=0;) {
     /**
      * A key for properties derived from {@link Envelope} and/or {@link GridRange}.
      *
-     * @version $Id: PropertyParser.java,v 1.16 2003/08/04 19:07:23 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.17 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class EnvelopeKey extends Key {
@@ -2265,7 +2264,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * A key for properties derived from {@link Projection}.
      * The key name must be the projection parameter name.
      *
-     * @version $Id: PropertyParser.java,v 1.16 2003/08/04 19:07:23 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.17 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ProjectionKey extends Key {
@@ -2302,7 +2301,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.16 2003/08/04 19:07:23 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.17 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {

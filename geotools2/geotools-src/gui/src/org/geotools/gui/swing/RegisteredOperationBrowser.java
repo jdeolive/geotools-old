@@ -86,9 +86,9 @@ import org.geotools.resources.gui.Resources;
  *
  * <ul>
  *   <li>At the first level, all {@linkplain OperationRegistry#getRegistryModes() registry modes}
- *       (e.g. &quot;rendered&quot;, &quot;renderable&quot;, etc.) in alphabetical order.</li>
+ *       (e.g. "rendered", "renderable", etc.) in alphabetical order.</li>
  *   <li>At the second level, all {@linkplain OperationRegistry#getDescriptors(String) operation
- *       descriptors} (e.g. &quot;Affine&quot;, &quot;Multiply&quot;, etc.) registered in each
+ *       descriptors} (e.g. "Affine", "Multiply", etc.) registered in each
  *       registry mode, in alphabetical order. This is the operation name to be given to
  *       {@link JAI#create(String,ParameterBlock) JAI.create(...)} methods.</li>
  *   <li>At the third level, a list of
@@ -101,7 +101,7 @@ import org.geotools.resources.gui.Resources;
  *       is relevant.</li>
  * </ul>
  *
- * @version $Id: RegisteredOperationBrowser.java,v 1.4 2003/07/31 17:09:27 desruisseaux Exp $
+ * @version $Id: RegisteredOperationBrowser.java,v 1.5 2003/11/12 14:14:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RegisteredOperationBrowser extends JPanel {
@@ -340,7 +340,7 @@ public class RegisteredOperationBrowser extends JPanel {
 
     /**
      * Returns the localized name for the given descriptor. The name will be fecth from the
-     * &quot;{@link OperationDescriptor#getResourceBundle LocalName}&quot; resource, if available.
+     * "{@link OperationDescriptor#getResourceBundle LocalName}" resource, if available.
      * Otherwise, the {@linkplain RegistryElementDescriptor#getName non-localized name} is returned.
      */
     private static String getName(final RegistryElementDescriptor descriptor, final Locale locale) {

@@ -85,15 +85,15 @@ import org.geotools.resources.cts.ResourceKeys;
  *        Relevent files are: PJ_aea.c, pj_fwd.c and pj_inv.c </li>
  *   <li> John P. Snyder (Map Projections - A Working Manual,
  *        U.S. Geological Survey Professional Paper 1395, 1987)</li>
- *   <li> &quot;Coordinate Conversions and Transformations including Formulas&quot;,
+ *   <li> "Coordinate Conversions and Transformations including Formulas",
  *        EPSG Guidence Note Number 7, Version 19.</li>
  * </ul>
  *
  * @see <A HREF="http://mathworld.wolfram.com/AlbersEqual-AreaConicProjection.html/">Albers Equal-Area Conic Projection on MathWorld</A>
- * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/albers_equal_area_conic.html"> &quot;Albers_Conic_Equal_Area&quot; on www.remotesensing.org</A>
+ * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/albers_equal_area_conic.html"> "Albers_Conic_Equal_Area" on www.remotesensing.org</A>
  * @see <A HREF="http://srmwww.gov.bc.ca/gis/bceprojection.html">British Columbia Albers Standard Projection</A>
  *
- * @version $Id: AlbersEqualArea.java,v 1.1 2003/08/21 09:42:02 desruisseaux Exp $
+ * @version $Id: AlbersEqualArea.java,v 1.2 2003/11/12 14:13:33 desruisseaux Exp $
  * @author Rueben Schulz
  */
 final public class AlbersEqualArea extends ConicProjection {
@@ -132,7 +132,7 @@ final public class AlbersEqualArea extends ConicProjection {
     /**
      * Informations about a {@link AlbersEqualArea}.
      *
-     * @version $Id: AlbersEqualArea.java,v 1.1 2003/08/21 09:42:02 desruisseaux Exp $
+     * @version $Id: AlbersEqualArea.java,v 1.2 2003/11/12 14:13:33 desruisseaux Exp $
      * @author Rueben Schulz
      */
     static final class Provider extends org.geotools.ct.proj.Provider {

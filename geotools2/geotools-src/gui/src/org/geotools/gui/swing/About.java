@@ -92,7 +92,7 @@ import org.geotools.resources.gui.ResourceKeys;
 
 
 /**
- * An &quot;About&quot; dialog box. This dialog box contains the application's title and some
+ * An "About" dialog box. This dialog box contains the application's title and some
  * system informations (Java and OS version, free memory, image readers and writers, running
  * threads, etc.). The application version can be fetched from a {@link Manifest} object,
  * usually build from the <code>META-INF/Manifest.mf</code> file. This manifest should contains
@@ -109,7 +109,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/About.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: About.java,v 1.2 2003/08/05 17:44:56 desruisseaux Exp $
+ * @version $Id: About.java,v 1.3 2003/11/12 14:14:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class About extends JPanel {
@@ -431,7 +431,7 @@ public class About extends JPanel {
      * Modèle représentant la liste des processus actif dans un {@link ThreadGroup}.
      * Cette liste se mettre automatiquement à jour de façon périodique.
      *
-     * @version $Id: About.java,v 1.2 2003/08/05 17:44:56 desruisseaux Exp $
+     * @version $Id: About.java,v 1.3 2003/11/12 14:14:24 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ThreadList extends AbstractListModel implements Runnable {
@@ -646,7 +646,7 @@ public class About extends JPanel {
     }
 
     /**
-     * Display the default &quot;About&quot; dialog box. This method is usefull
+     * Display the default "About" dialog box. This method is usefull
      * for testing the widget appareance and for checking system informations.
      *
      * @param args the command line arguments

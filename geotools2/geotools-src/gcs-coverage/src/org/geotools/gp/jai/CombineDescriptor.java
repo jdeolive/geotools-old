@@ -49,10 +49,9 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * The operation descriptor for the {@link Combine} operation. While this descriptor declare
  * to support 0 {@link RenderedImage} sources, an arbitrary amount of sources can really be
- * specified. The &quot;0&quot; should be understood as the <em>minimal</em> number of sources
- * required.
+ * specified. The "0" should be understood as the <em>minimal</em> number of sources required.
  *
- * @version $Id: CombineDescriptor.java,v 1.5 2003/08/04 19:07:23 desruisseaux Exp $
+ * @version $Id: CombineDescriptor.java,v 1.6 2003/11/12 14:13:52 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

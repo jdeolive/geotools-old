@@ -87,7 +87,7 @@ import org.geotools.resources.ImageUtilities;
  * <code>OperationJAI</code> inherits operation name and argument types from
  * {@link OperationDescriptor}, except source argument type which is set to
  * <code>GridCoverage.class</code>. If there is only one source argument, il will be
- * renamed <code>&quot;Source&quot;</code> for better compliance to OpenGIS usage.
+ * renamed <code>"Source"</code> for better compliance to OpenGIS usage.
  * <br><br>
  * The entry point for applying operation is the usual {@link #doOperation doOperation}
  * method. The default implementation forward the call to other methods for
@@ -104,7 +104,7 @@ import org.geotools.resources.ImageUtilities;
  *   <li>{@link #createRenderedImage} (the actual call to {@link JAI#createNS JAI.createNS})</li>
  * </ol>
  *
- * @version $Id: OperationJAI.java,v 1.28 2003/08/08 17:58:21 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.29 2003/11/12 14:13:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -140,7 +140,7 @@ public class OperationJAI extends Operation {
      * fetch the {@link OperationDescriptor} from the specified operation name using the
      * default {@link JAI} instance.
      *
-     * @param operationName JAI operation name (e.g. &quot;GradientMagnitude&quot;).
+     * @param operationName JAI operation name (e.g. "GradientMagnitude").
      */
     public OperationJAI(final String operationName) {
         this(getOperationDescriptor(operationName));
@@ -165,7 +165,7 @@ public class OperationJAI extends Operation {
      *        May or may not be the same than the JAI operation name. If <code>null</code>,
      *        then the JAI operation name is used.
      * @param operationDescriptor The operation descriptor. This descriptor must supports
-     *        supports the &quot;rendered&quot; mode (which is the case for most JAI operations).
+     *        supports the "rendered" mode (which is the case for most JAI operations).
      * @param paramDescriptor The parameters descriptor. If <code>null</code>,
      *        then it will be infered from the JAI's parameter descriptor.
      *
@@ -200,7 +200,7 @@ public class OperationJAI extends Operation {
     /**
      * Returns the operation descriptor for the specified JAI operation name.
      * This method uses the default {@link JAI} instance and looks for the
-     * <code>&quot;rendered&quot;</code> mode.
+     * <code>"rendered"</code> mode.
      */
     protected static OperationDescriptor getOperationDescriptor(final String name) {
         return (OperationDescriptor) JAI.getDefaultInstance().
@@ -490,7 +490,7 @@ public class OperationJAI extends Operation {
      *                  This array is updated in-place as needed.
      * @param  coordinateSystem The target coordinate system to use,
      *                  or <code>null</code> for a default one.
-     * @param  gridToCS The target &quot;grid to coordinate system&quot; transform,
+     * @param  gridToCS The target "grid to coordinate system" transform,
      *                  or <code>null</code> for a default one.
      * @param  hints    The rendering hints, or <code>null</code> if none.
      *
@@ -708,7 +708,7 @@ public class OperationJAI extends Operation {
      * methods for each individual band.
      *
      * @param  bandLists {@link SampleDimension}s for each band in each source
-     *         <code>GridCoverage</code>s. For a band (or &quot;sample dimension&quot;)
+     *         <code>GridCoverage</code>s. For a band (or "sample dimension")
      *         <code>band</code> in a source coverage <code>source</code>, the
      *         corresponding <code>SampleDimension</code> is
      *
@@ -800,7 +800,7 @@ public class OperationJAI extends Operation {
      * {@link #deriveSampleDimension deriveSampleDimension} method for each band in the
      * destination image. Subclasses should override this method in order to compute the
      * destination {@link Category} from the source categories. For example, the
-     * &quot;<code>add</code>&quot; operation may implements this method as below:
+     * "<code>add</code>" operation may implements this method as below:
      *
      * <blockquote><pre>
      * NumberRange r0 = categories[0].getRange();
@@ -812,9 +812,8 @@ public class OperationJAI extends Operation {
      * </pre></blockquote>
      *
      * @param  categories The quantitative categories from every sources. For unary operations
-     *         like &quot;GradientMagnitude&quot;, this array has a length of 1. For binary
-     *         operations like &quot;add&quot; and &quot;multiply&quot;, this array has a length
-     *         of 2.
+     *         like "GradientMagnitude", this array has a length of 1. For binary
+     *         operations like "add" and "multiply", this array has a length of 2.
      * @param  parameters Parameters, rendering hints and coordinate system to use.
      * @return The quantative category to use in the destination image,
      *         or <code>null</code> if unknow.
@@ -828,7 +827,7 @@ public class OperationJAI extends Operation {
      * destination coverage. This method is invoked automatically by the
      * {@link #deriveSampleDimension deriveSampleDimension} method for each band in the
      * destination image. Subclasses should override this method in order to compute the
-     * destination units from the source units. For example, the &quot;<code>multiply</code>&quot;
+     * destination units from the source units. For example, the "<code>multiply</code>"
      * operation may implement this method as below:
      *
      * <blockquote><pre>
@@ -840,9 +839,8 @@ public class OperationJAI extends Operation {
      * </pre></blockquote>
      *
      * @param  units The units from every sources. For unary operations like
-     *         &quot;GradientMagnitude&quot;, this array has a length of 1.
-     *         For binary operations like &quot;add&quot; and &quot;multiply&quot;,
-     *         this array has a length of 2.
+     *         "GradientMagnitude", this array has a length of 1.
+     *         For binary operations like "add" and "multiply", this array has a length of 2.
      * @param  parameters Parameters, rendering hints and coordinate system to use.
      * @return The unit of data in the destination image, or <code>null</code> if unknow.
      */
@@ -921,7 +919,7 @@ public class OperationJAI extends Operation {
      *   <li>{@link OperationJAI#deriveUnit}</li>
      * </ul>
      *
-     * @version $Id: OperationJAI.java,v 1.28 2003/08/08 17:58:21 desruisseaux Exp $
+     * @version $Id: OperationJAI.java,v 1.29 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected static final class Parameters {
@@ -933,7 +931,7 @@ public class OperationJAI extends Operation {
         public final CoordinateSystem coordinateSystem;
 
         /**
-         * The &quot;grid to coordinate system&quot; transform for the first 2 dimensions,
+         * The "grid to coordinate system" transform for the first 2 dimensions,
          * which is common to all source grid coverages.
          */
         public final MathTransform2D gridToCoordinateSystem;

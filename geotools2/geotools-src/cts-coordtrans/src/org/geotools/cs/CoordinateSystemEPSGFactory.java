@@ -117,7 +117,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.15 2003/08/04 17:11:16 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.16 2003/11/12 14:13:33 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -267,11 +267,11 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * Invoked when a new {@link PreparedStatement} is about to be created from a SQL string.
      * Since the <A HREF="http://www.epsg.org">EPSG database</A> is available only in MS-Access
      * format, SQL statements are formatted using some syntax specific to this particular database
-     * software (for example &quot;<code>SELECT * FROM [Coordinate Reference System]</code>&quot;).
+     * software (for example "<code>SELECT * FROM [Coordinate Reference System]</code>").
      * If a port of EPSG database is to be used with an other software, then this method should be
      * overriden in order to adapt the SQL syntax. For example a subclass connecting to a
-     * <cite>PostgreeSQL</cite> database could replace all spaces (&quot;&nbsp;&quot;) between
-     * watching braces (&quot;[&quot; and &quot;]&quot;) by underscore (&quot;_&quot;).
+     * <cite>PostgreeSQL</cite> database could replace all spaces ("&nbsp;") between
+     * watching braces ("[" and "]") by underscore ("_").
      *
      * @param  statement The statement in MS-Access syntax.
      * @return The SQL statement to use. The default implementation returns the string unchanged.

@@ -144,7 +144,7 @@ import org.geotools.resources.gcs.Resources;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.21 2003/08/13 08:59:26 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.22 2003/11/12 14:13:52 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -516,7 +516,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * view of a coverage (which may or may not be a {@linkplain org.geotools.gc.GridCoverage grid
      * coverage}).
      *
-     * @version $Id: Coverage.java,v 1.21 2003/08/13 08:59:26 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.22 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Coverage#getRenderableImage
@@ -676,8 +676,8 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
         
         /**
-         * Creates a rendered image using a given render context. This method will uses an
-         * &quot;{@link ImageFunctionDescriptor ImageFunction}&quot; operation if possible
+         * Creates a rendered image using a given render context. This method will uses
+         * an "{@link ImageFunctionDescriptor ImageFunction}" operation if possible
          * (i.e. if the area of interect is rectangular  and the affine transform contains
          * only translation and scale coefficients).
          *
@@ -857,10 +857,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          * Returns all values of a given element for a specified set of coordinates.
          * This method is automatically invoked at rendering time for populating an
          * image tile, providing that the rendered image is created using the
-         * &quot;{@link ImageFunctionDescriptor ImageFunction}&quot; operator
-         * and the image type is not <code>double</code>.
-         * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint,float[])}
-         * recursively.
+         * "{@link ImageFunctionDescriptor ImageFunction}" operator and the image
+         * type is not <code>double</code>. The default implementation invokes
+         * {@link Coverage#evaluate(CoordinatePoint,float[])} recursively.
          */
         public void getElements(final float startX, final float startY,
                                 final float deltaX, final float deltaY,
@@ -887,10 +886,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          * Returns all values of a given element for a specified set of coordinates.
          * This method is automatically invoked at rendering time for populating an
          * image tile, providing that the rendered image is created using the
-         * &quot;{@link ImageFunctionDescriptor ImageFunction}&quot; operator
-         * and the image type is  <code>double</code>.
-         * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint,double[])}
-         * recursively.
+         * "{@link ImageFunctionDescriptor ImageFunction}" operator and the image type
+         * is <code>double</code>. The default implementation invokes
+         * {@link Coverage#evaluate(CoordinatePoint,double[])} recursively.
          */
         public void getElements(final double startX, final double startY,
                                 final double deltaX, final double deltaY,
@@ -975,7 +973,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.21 2003/08/13 08:59:26 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.22 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends UnicastRemoteObject implements CV_Coverage, PropertySource {

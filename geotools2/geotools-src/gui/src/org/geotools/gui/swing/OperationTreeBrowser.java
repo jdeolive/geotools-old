@@ -90,8 +90,8 @@ import org.geotools.gui.swing.tree.DefaultMutableTreeNode;
  * {@linkplain OperationNode#getParameterBlock image parameters} are like files.
  *
  * When a tree node is selected in the left pane, the content of the right pane is adjusted
- * accordingly. If the node is an image, a &quot;preview&quot; tab is show together with an
- * &quot;information&quot; tab. Informations include the {@linkplain ColorModel color model},
+ * accordingly. If the node is an image, a "preview" tab is show together with an
+ * "information" tab. Informations include the {@linkplain ColorModel color model},
  * {@linkplain SampleModel sample model}, data type, etc. If the selected tree node is a
  * parameter, then the right pane show the parameter value in {@linkplain ParameterEditor
  * some widget} appropriate for the parameter type.
@@ -100,7 +100,7 @@ import org.geotools.gui.swing.tree.DefaultMutableTreeNode;
  * <p align="center"><img src="doc-files/OperationTreeBrowser.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: OperationTreeBrowser.java,v 1.6 2003/07/30 17:44:22 desruisseaux Exp $
+ * @version $Id: OperationTreeBrowser.java,v 1.7 2003/11/12 14:14:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Lionel Flahaut 
  *
@@ -296,7 +296,7 @@ public class OperationTreeBrowser extends JPanel {
     /**
      * The listener for various event in the {@link OperationTreeBrowser} widget.
      *
-     * @version $Id: OperationTreeBrowser.java,v 1.6 2003/07/30 17:44:22 desruisseaux Exp $
+     * @version $Id: OperationTreeBrowser.java,v 1.7 2003/11/12 14:14:24 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements TreeSelectionListener {
@@ -413,7 +413,7 @@ public class OperationTreeBrowser extends JPanel {
      *
      * @param  owner The owner widget, or <code>null</code> if none.
      * @param  title The widget title, or <code>null</code> for a default one.
-     * @return <code>true</code> if the user clicked on the &quot;Ok&quot; button.
+     * @return <code>true</code> if the user clicked on the "Ok" button.
      */
     public boolean showDialog(final Component owner, String title) {
         if (title == null) {

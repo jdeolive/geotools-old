@@ -55,21 +55,21 @@ import org.geotools.cs.GeographicCoordinateSystem; // For javadoc
  * Output coordinates are the values stored in the grid of localization at the specified index.
  * <br><br>
  * The <code>LocalizationGrid</code> class is usefull when the
- * &quot;{@linkplain GridGeometry#getGridToCoordinateSystem grid to coordinate system}&quot;
+ * "{@linkplain GridGeometry#getGridToCoordinateSystem grid to coordinate system}"
  * transform for a coverage is not some kind of global mathematical relationship like an
- * {@linkplain AffineTransform affine transform}. Instead, the &quot;real world&quot; coordinates
+ * {@linkplain AffineTransform affine transform}. Instead, the "real world" coordinates
  * are explicitly specified for each pixels. If the real world coordinates are know only for some
  * pixels at a fixed interval, then a transformation can be constructed by the concatenation of
  * an affine transform with a grid of localization. After a <code>LocalizationGrid</code> object
  * has been fully constructed (i.e. real world coordinates have been specified for all grid cells),
- * a transformation from grid coordinates to &quot;real world&quot; coordinates can be obtained with
+ * a transformation from grid coordinates to "real world" coordinates can be obtained with
  * the {@link #getMathTransform} method. If this transformation is close enough to an affine
  * transform, then an instance of {@link AffineTransform} is returned. Otherwise, a transform
  * backed by the localization grid is returned.
  * <br><br>
  * The example below goes through the steps of constructing a coordinate system for a grid coverage
- * from its grid of localization. This example assumes that the &quot;real world&quot; coordinates
- * are longitudes and latitudes on the {@linkplain GeographicCoordinateSystem#WGS84 WGS84} ellipsoid.
+ * from its grid of localization. This example assumes that the "real world" coordinates are
+ * longitudes and latitudes on the {@linkplain GeographicCoordinateSystem#WGS84 WGS84} ellipsoid.
  *
  * <blockquote><pre>
  * <FONT color='#008000'>//
@@ -92,7 +92,7 @@ import org.geotools.cs.GeographicCoordinateSystem; // For javadoc
  *                                   AxisInfo.X,
  *                                   AxisInfo.Y});
  * <FONT color='#008000'>//
- * // Constructs the grid coverage using the grid coordinate system (not the &quot;real world&quot;
+ * // Constructs the grid coverage using the grid coordinate system (not the "real world"
  * // one). It is usefull to display the coverage in its native CS before we resample it.
  * // Note that if the grid of localization does not define the geographic location  for
  * // all pixels, then we need to specify some affine transform in place of the IDENTITY
@@ -115,7 +115,7 @@ import org.geotools.cs.GeographicCoordinateSystem; // For javadoc
  * FrameFactory.show(coverage);
  * </pre></blockquote>
  *
- * @version $Id: LocalizationGrid.java,v 1.9 2003/08/26 12:43:46 desruisseaux Exp $
+ * @version $Id: LocalizationGrid.java,v 1.10 2003/11/12 14:13:52 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  *

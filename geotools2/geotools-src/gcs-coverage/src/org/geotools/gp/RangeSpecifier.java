@@ -48,12 +48,12 @@ import org.geotools.resources.Utilities;
 
 
 /**
- * Argument type for {@link GridCoverageProcessor} operations for specifying the range, colors
- * and units of a computation result.      <code>RangeSpecifier</code> are used for tuning the
- * {@link Category} object to be constructed.    For example the &quot;GradientMagnitude&quot;
- * operation will produces new {@link GridCoverage} with sample values ranging from  0 to some
- * maximal value which may be very different from the source {@link GridCoverage} range.    By
- * default,  most {@linkplain Operation operations} try to guess a raisonable range for output
+ * Argument type for {@link GridCoverageProcessor} operations for specifying the range,
+ * colors and units of a computation result. <code>RangeSpecifier</code> are used for
+ * tuning the {@link Category} object to be constructed. For example the "GradientMagnitude"
+ * operation will produces new {@link GridCoverage} with sample values ranging from 0 to some
+ * maximal value which may be very different from the source {@link GridCoverage} range. By
+ * default, most {@linkplain Operation operations} try to guess a raisonable range for output
  * values. This default behavior can be overriden with an explicit <code>RangeSpecifier</code>
  * argument.
  * <br><br>
@@ -61,11 +61,11 @@ import org.geotools.resources.Utilities;
  * {@linkplain Operation operation} to replace <code>null</code> values by a default
  * one. <code>RangeSpecifier</code> argument is used by the
  *
- * &quot;GradientMagnitude&quot;
+ * "GradientMagnitude"
  *
  * operation.
  *
- * @version $Id: RangeSpecifier.java,v 1.4 2003/08/28 15:41:57 desruisseaux Exp $
+ * @version $Id: RangeSpecifier.java,v 1.5 2003/11/12 14:13:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RangeSpecifier implements Serializable, Cloneable {
@@ -80,7 +80,7 @@ public class RangeSpecifier implements Serializable, Cloneable {
     private NumberRange range;
 
     /**
-     * The target &quot;sample to geophysics&quot; transform, or <code>null</code> if none.
+     * The target "sample to geophysics" transform, or <code>null</code> if none.
      */
     private MathTransform1D transform;
 
@@ -108,8 +108,8 @@ public class RangeSpecifier implements Serializable, Cloneable {
     }
 
     /**
-     * Construct a <code>RangeSpecifier</code> initialised to the spécified
-     * &quot;sample to geophysics&quot; transform.
+     * Construct a <code>RangeSpecifier</code> initialised to the specified
+     * "sample to geophysics" transform.
      */
     public RangeSpecifier(final MathTransform1D transform) {
         this.transform = transform;
@@ -135,16 +135,16 @@ public class RangeSpecifier implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the target &quot;sample to geophysics&quot; transform, or <code>null</code> if none.
+     * Returns the target "sample to geophysics" transform, or <code>null</code> if none.
      */
     public MathTransform1D getSampleToGeophysics() {
         return transform;
     }
 
     /**
-     * Set the target &quot;sample to geophysics&quot; transform to the specified value.
-     * Setting this property will clear the {@linkplain #getRange range} property, since
-     * those properties are mutually exclusive.
+     * Set the target "sample to geophysics" transform to the specified value.
+     * Setting this property will clear the {@linkplain #getRange range} property,
+     * since those properties are mutually exclusive.
      */
     public void setSampleToGeophysics(final MathTransform1D transform) {
         this.transform = transform;

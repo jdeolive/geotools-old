@@ -71,7 +71,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * The USGS oblique/equatorial case of the {@linkplain Stereographic stereographic} projection.
  *
- * @version $Id: ObliqueStereographic.java,v 1.1 2003/08/04 13:53:16 desruisseaux Exp $
+ * @version $Id: ObliqueStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -241,7 +241,7 @@ public class ObliqueStereographic extends Stereographic {
      * Provides the transform equations for the spherical case of the 
      * oblique stereographic projection.
      *
-     * @version $Id: ObliqueStereographic.java,v 1.1 2003/08/04 13:53:16 desruisseaux Exp $
+     * @version $Id: ObliqueStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -359,13 +359,13 @@ public class ObliqueStereographic extends Stereographic {
      *       <A HREF="http://members.bellatlantic.net/~vze2hc4d/proj4/">libproj4 Miscellanea</A><br>
      *        Relevent files are: <code>PJ_sterea.c</code>, <code>pj_gauss.c</code>,
      *        <code>pj_fwd.c</code>, <code>pj_inv.c</code> and <code>lib_proj.h</code></li>
-     *   <li>&quot;Coordinate Conversions and Transformations including Formulas&quot;,
+     *   <li>"Coordinate Conversions and Transformations including Formulas",
      *       EPSG Guidence Note Number 7, Version 19.</li>
      * </ul>
      *
      * @see <A HREF="http://members.bellatlantic.net/~vze2hc4d/proj4/sterea.pdf">Oblique Stereographic Alternative (sterea.pdf)</A>
      *
-     * @version $Id: ObliqueStereographic.java,v 1.1 2003/08/04 13:53:16 desruisseaux Exp $
+     * @version $Id: ObliqueStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
      * @author Rueben Schulz
      */
     static final class EPSG extends ObliqueStereographic { 

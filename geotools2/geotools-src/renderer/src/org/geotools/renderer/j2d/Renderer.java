@@ -119,7 +119,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.43 2003/11/03 11:40:10 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.44 2003/11/12 14:14:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -1628,7 +1628,7 @@ public class Renderer implements Renderer2D {
      * @param zoomableBounds The bounds of the output area in output units (usually pixels).
      *               Those bounds are usually provided by
      *               {@link org.geotools.gui.swing.ZoomPane#getZoomableBounds}).
-     * @param zoom   A transform which converts &quot;World coordinates&quot; to
+     * @param zoom   A transform which converts "World coordinates" to
      *               output coordinates. This transform is usually provided by
      *               {@link org.geotools.gui.swing.ZoomPane#zoom}.
      * @param isPrinting <code>true</code> if the map is printed instead of painted on screen.

@@ -67,11 +67,11 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * An image that contains transformed samples.   It may be sample values after their
  * transformation to geophyics values, or the converse. Images are created using the
- * <code>SampleTranscoder.CRIF</code> inner class, where &quot;CRIF&quot; stands for
- * for {@link java.awt.image.renderable.ContextualRenderedImageFactory}.   The image
- * operation name is &quot;org.geotools.SampleTranscode&quot;.
+ * <code>SampleTranscoder.CRIF</code> inner class, where "CRIF" stands for
+ * {@link java.awt.image.renderable.ContextualRenderedImageFactory}. The image
+ * operation name is "org.geotools.SampleTranscode".
  *
- * @version $Id: SampleTranscoder.java,v 1.4 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: SampleTranscoder.java,v 1.5 2003/11/12 14:13:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class SampleTranscoder extends PointOpImage {

@@ -43,11 +43,11 @@ import org.geotools.gp.jai.CombineDescriptor;
 
 
 /**
- * The &quot;Combine&quot; operation. This operation can be simplified to a JAI's
- * &quot;{@linkplain BandCombineDescriptor BandCombine}&quot; if the operation has
+ * The "Combine" operation. This operation can be simplified to a JAI's
+ * "{@linkplain BandCombineDescriptor BandCombine}" if the operation has
  * only one source.
  *
- * @version $Id: CombineOperation.java,v 1.3 2003/10/20 14:35:48 desruisseaux Exp $
+ * @version $Id: CombineOperation.java,v 1.4 2003/11/12 14:13:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class CombineOperation extends PolyadicOperation {
@@ -69,8 +69,8 @@ final class CombineOperation extends PolyadicOperation {
     }
 
     /**
-     * Apply the JAI operation. If the operation has only one source and no transform, then this
-     * method maps directly to a JAI &quot;{@linkplain BandCombineDescriptor BandCombine}&quot;
+     * Apply the JAI operation. If the operation has only one source and no transform, then
+     * this method maps directly to a JAI "{@linkplain BandCombineDescriptor BandCombine}"
      * operation.
      *
      * @param parameters The parameters to be given to JAI.
@@ -103,10 +103,10 @@ final class CombineOperation extends PolyadicOperation {
 
     /**
      * Derives the {@link SampleDimension}s for the destination image. If this
-     * <code>&quot;Combine&quot;</code> operation is used for computing a linear
-     * interpolation between two images, then the destination image will use the
-     * same color model and sample dimensions than sources images. More specifically,
-     * if the following conditions are meet:
+     * <code>"Combine"</code> operation is used for computing a linear interpolation
+     * between two images, then the destination image will use the same color model
+     * and sample dimensions than sources images. More specifically, if the following
+     * conditions are meet:
      *
      * <ul>
      *   <li>For all destination band computed from <code>dest.band[i]</code> =

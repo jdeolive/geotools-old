@@ -76,7 +76,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * This widget can be used with one of {@link Format} objects working with pattern, like
  * {@link DecimalFormat}, {@link SimpleDateFormat} or {@link AngleFormat}.
  *
- * @version $Id: FormatChooser.java,v 1.1 2003/07/18 13:28:53 desruisseaux Exp $
+ * @version $Id: FormatChooser.java,v 1.2 2003/11/12 14:14:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class FormatChooser extends JPanel {
@@ -118,7 +118,7 @@ public class FormatChooser extends JPanel {
     protected Format format;
 
     /**
-     * A sample value for the &quot;preview&quot; text.
+     * A sample value for the "preview" text.
      */
     private Object value;
 
@@ -327,7 +327,7 @@ public class FormatChooser extends JPanel {
     }
 
     /**
-     * Returns the sample value to format as a &quot;preview&quot; text.
+     * Returns the sample value to format as a "preview" text.
      * If no such object is defined, then this method returns <code>null</code>.
      */
     public Object getSampleValue() {
@@ -335,7 +335,7 @@ public class FormatChooser extends JPanel {
     }
 
     /**
-     * Sets the sample value to format as a &quot;preview&quot; text. The value should
+     * Sets the sample value to format as a "preview" text. The value should
      * be an object formatable with {@link #getFormat}.
      *
      * @param  value The value to format, or <code>null</code>.

@@ -63,15 +63,15 @@ import org.geotools.resources.gcs.ResourceKeys;
 
 
 /**
- * A set of static methods working on images. Some of those methods are useful, but not really
- * rigorous. This is why they do not appear in any &quot;official&quot; package, but instead in
- * this private one.
+ * A set of static methods working on images. Some of those methods are useful, but not
+ * really rigorous. This is why they do not appear in any "official" package, but instead
+ * in this private one.
  *
  *                      <strong>Do not rely on this API!</strong>
  *
  * It may change in incompatible way in any future version.
  *
- * @version $Id: ImageUtilities.java,v 1.11 2003/11/10 23:24:40 desruisseaux Exp $
+ * @version $Id: ImageUtilities.java,v 1.12 2003/11/12 14:13:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ImageUtilities {

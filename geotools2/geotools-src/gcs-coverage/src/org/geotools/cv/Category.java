@@ -101,7 +101,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.21 2003/09/03 17:57:19 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.22 2003/11/12 14:13:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see SampleDimension
@@ -121,24 +121,24 @@ public class Category implements Serializable {
     static final WeakHashSet pool = new WeakHashSet();
 
     /**
-     * A default category for &quot;no data&quot; values. This default qualitative category use
+     * A default category for "no data" values. This default qualitative category use
      * sample value 0, which is mapped to geophysics value {@link Float#NaN} for those who work
      * with floating point images. The rendering color default to a fully transparent color and
-     * the name is &quot;no data&quot; localized to the requested locale.
+     * the name is "no data" localized to the requested locale.
      */
     public static final Category NODATA = new Localized(ResourceKeys.NODATA, new Color(0,0,0,0), 0);
 
     /**
-     * A default category for the boolean &quot;{@link Boolean#FALSE false}&quot; value. This
-     * default identity category uses sample value 0, the color {@linkplain Color#BLACK black}
-     * and the name "false" localized to the specified locale.
+     * A default category for the boolean "{@link Boolean#FALSE false}" value. This default
+     * identity category uses sample value 0, the color {@linkplain Color#BLACK black} and
+     * the name "false" localized to the specified locale.
      */
     public static final Category FALSE = new Localized(ResourceKeys.FALSE, Color.BLACK,
                                                        new Byte((byte)0));
 
     /**
-     * A default category for the boolean &quot;{@link Boolean#TRUE true}&quot; value. This
-     * default identity category uses sample value 1, the color {@linkplain Color#WHITE white}
+     * A default category for the boolean "{@link Boolean#TRUE true}" value. This default
+     * identity category uses sample value 1, the color {@linkplain Color#WHITE white}
      * and the name "true" localized to the specified locale.
      */
     public static final Category TRUE = new Localized(ResourceKeys.TRUE, Color.WHITE,
@@ -822,17 +822,17 @@ public class Category implements Serializable {
 
     /**
      * Changes the mapping from sample to geophysics values. This method returns a category with
-     * a &quot;{@linkplain #getSampleToGeophysics sample to geophysics}&quot; transformation set
-     * to the specified one. Other properties like the {@linkplain #getRange sample value range}
+     * a "{@linkplain #getSampleToGeophysics sample to geophysics}" transformation set to the
+     * specified one. Other properties like the {@linkplain #getRange sample value range}
      * and the {@linkplain #getColors colors} are unchanged.
      * <br><br>
      * <strong>Note about geophysics categories:</strong> The above rules are straightforward
      * when applied on non-geophysics category, but this method can be invoked on geophysics
      * category (as returned by <code>{@linkplain #geophysics geophysics}(true)</code>) as well.
-     * Since geophysics categories are already the result of some &quot;sample to geophysics&quot;
+     * Since geophysics categories are already the result of some "sample to geophysics"
      * transformation, invoking this method on those is equivalent to
      * {@linkplain MathTransformFactory#createConcatenatedTransform concatenate}
-     * this &quot;sample to geophysics&quot; transform with the specified one.
+     * this "sample to geophysics" transform with the specified one.
      *
      * @param  sampleToGeophysics The new {@linkplain #getSampleToGeophysics sample to geophysics}
      *         transform.
@@ -854,7 +854,7 @@ public class Category implements Serializable {
      * values} transformed in such a way that the {@link #getSampleToGeophysics sampleToGeophysics}
      * transform is always the identity transform, or <code>null</code> if no such transform existed
      * in the first place. In other words, the range of sample values in a geophysics category maps
-     * directly the &quot;real world&quot; values without the need for any transformation.
+     * directly the "real world" values without the need for any transformation.
      * <br><br>
      * <code>Category</code> objects live by pair: a <cite>geophysics</cite> one (used for
      * computation) and a <cite>non-geophysics</cite> one (used for packing data, usually as
@@ -975,7 +975,7 @@ public class Category implements Serializable {
      * A category with a localized name. Used for the pre-defined categories
      * {@link #NODATA}, {@link #FALSE} and {@link #TRUE}.
      *
-     * @version $Id: Category.java,v 1.21 2003/09/03 17:57:19 desruisseaux Exp $
+     * @version $Id: Category.java,v 1.22 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Localized extends Category {

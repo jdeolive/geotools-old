@@ -109,7 +109,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.21 2003/10/15 09:42:02 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.22 2003/11/12 14:13:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Resampler extends GridCoverage {
@@ -665,8 +665,8 @@ final class Resampler extends GridCoverage {
 
     /**
      * Check if two geometries are equal, ignoring unspecified fields. If one or both geometries
-     * has no &quot;gridToCoordinateSystem&quot; transform, then this properties is not taken in
-     * account. Same apply for the grid range.
+     * has no "gridToCoordinateSystem" transform, then this properties is not taken in account.
+     * Same apply for the grid range.
      * 
      *
      * @param  range1 The first range.
@@ -723,7 +723,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.21 2003/10/15 09:42:02 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.22 2003/11/12 14:13:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

@@ -39,10 +39,10 @@ import junit.framework.AssertionFailedError;
 
 /**
  * Tests projection equations as well as the integration with {@link MathTransformFactory}. The
- * spherical tests here tests real spheres (tests in <code>&quot;Simple_TestScript&quot;</code>
+ * spherical tests here tests real spheres (tests in <code>"Simple_TestScript"</code>
  * are not exactly spherical).
  *
- * @version $Id: ProjectionTest.java,v 1.1 2003/05/14 10:15:41 desruisseaux Exp $
+ * @version $Id: ProjectionTest.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
  * @author Rueben Schulz
  */
 public class ProjectionTest extends TestCase {

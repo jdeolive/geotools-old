@@ -73,7 +73,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * This default implementation uses USGS equation (i.e. iteration) for computing
  * the {@linkplain #inverseTransform inverse transform}.
  *
- * @version $Id: PolarStereographic.java,v 1.1 2003/08/04 13:53:16 desruisseaux Exp $
+ * @version $Id: PolarStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -262,7 +262,7 @@ public class PolarStereographic extends Stereographic {
      * Provides the transform equations for the spherical case of the polar
      * stereographic projection.
      *
-     * @version $Id: PolarStereographic.java,v 1.1 2003/08/04 13:53:16 desruisseaux Exp $
+     * @version $Id: PolarStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -390,10 +390,10 @@ public class PolarStereographic extends Stereographic {
     /**
      * Overides {@link PolarStereographic} to use the a series for the {@link #inverseTransform
      * inverseTransform(...)} method. This is the equation specified by the EPSG. Allows for a 
-     * <code>&quot;latitude_true_scale&quot;<code> parameter to be used, but this parameter is
+     * <code>"latitude_true_scale"<code> parameter to be used, but this parameter is
      * not listed by the EPSG.
      *
-     * @version $Id: PolarStereographic.java,v 1.1 2003/08/04 13:53:16 desruisseaux Exp $
+     * @version $Id: PolarStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
      * @author Rueben Schulz
      */
     static final class EPSG extends PolarStereographic {

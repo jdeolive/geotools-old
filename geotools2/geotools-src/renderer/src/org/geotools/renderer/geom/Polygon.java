@@ -58,10 +58,10 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
- * A polygon bounded by one exterior ring (the &quot;shell&quot;) and zero or more interior rings
- * (the &quot;holes&quot;). Shell and holes are stored as {@link Polyline} objects.
+ * A polygon bounded by one exterior ring (the "shell") and zero or more interior rings
+ * (the "holes"). Shell and holes are stored as {@link Polyline} objects.
  *
- * @version $Id: Polygon.java,v 1.15 2003/07/11 16:59:02 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.16 2003/11/12 14:14:07 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Polygon extends Polyline {

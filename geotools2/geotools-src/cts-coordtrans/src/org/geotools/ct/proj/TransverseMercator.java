@@ -101,14 +101,14 @@ import org.geotools.resources.cts.ResourceKeys;
  *        Relevent files are: PJ_tmerc.c, pj_mlfn.c, pj_fwd.c and pj_inv.c </li>
  *   <li> John P. Snyder (Map Projections - A Working Manual,
  *        U.S. Geological Survey Professional Paper 1395, 1987)</li>
- *   <li> &quot;Coordinate Conversions and Transformations including Formulas&quot;,
+ *   <li> "Coordinate Conversions and Transformations including Formulas",
  *        EPSG Guidence Note Number 7, Version 19.</li>
  * </ul>
  *
  * @see <A HREF="http://mathworld.wolfram.com/MercatorProjection.html">Transverse Mercator projection on MathWorld</A>
- * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/transverse_mercator.html">&quot;Transverse_Mercator&quot; on Remote Sensing</A>
+ * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/transverse_mercator.html">"Transverse_Mercator" on Remote Sensing</A>
  *
- * @version $Id: TransverseMercator.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
+ * @version $Id: TransverseMercator.java,v 1.4 2003/11/12 14:13:34 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -177,7 +177,7 @@ public class TransverseMercator extends CylindricalProjection {
     /**
      * Informations about a {@link TransverseMercator}.
      *
-     * @version $Id: TransverseMercator.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
+     * @version $Id: TransverseMercator.java,v 1.4 2003/11/12 14:13:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */

@@ -82,7 +82,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Describes the valid range of grid coordinates and the math
  * transform to transform grid coordinates to real world coordinates.
  *
- * @version $Id: GridGeometry.java,v 1.12 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: GridGeometry.java,v 1.13 2003/11/12 14:13:52 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -307,11 +307,11 @@ public class GridGeometry implements Dimensioned, Serializable {
     }
 
     /**
-     * Returns the bounding box of &quot;real world&quot; coordinates for this grid geometry. This
+     * Returns the bounding box of "real world" coordinates for this grid geometry. This
      * envelope is the {@linkplain #getGridRange grid range} {@linkplain #getGridToCoordinateSystem
-     * transformed} to the &quot;real world&quot; coordinate system.
+     * transformed} to the "real world" coordinate system.
      *
-     * @return The bounding box in &quot;real world&quot; coordinates.
+     * @return The bounding box in "real world" coordinates.
      * @throws InvalidGridGeometryException if the envelope can't be computed.
      *
      * @see #getGridRange

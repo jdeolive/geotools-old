@@ -46,7 +46,7 @@ import org.geotools.gc.InvalidGridGeometryException;
  * A set of utilities methods for the Grid Coverage package. Those methods are not really
  * rigorous; must of them should be seen as temporary implementations.
  *
- * @version $Id: GCSUtilities.java,v 1.10 2003/08/04 19:07:23 desruisseaux Exp $
+ * @version $Id: GCSUtilities.java,v 1.11 2003/11/12 14:13:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GCSUtilities {
@@ -117,9 +117,9 @@ public final class GCSUtilities {
      * <code>[-0.25  99.75]</code> were changed to <code>[-1  100]</code>, which is not
      * what the {@link javax.media.jai.operator.AffineDescriptor Affine} operation expects
      * for instance. Rounding to nearest integer produces better results. Note that the
-     * rounding mode do not alter the significiance of the &quot;Resample&quot; operation,
-     * since this operation will respect the &quot;grid to coordinate system&quot; transform
-     * no matter what the grid range is.
+     * rounding mode do not alter the significiance of the "Resample" operation, since this
+     * operation will respect the "grid to coordinate system" transform no matter what the
+     * grid range is.
      */
     public static GridRange toGridRange(final Envelope envelope) {
         final int dimension = envelope.getDimension();

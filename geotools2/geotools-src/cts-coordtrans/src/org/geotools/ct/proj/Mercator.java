@@ -71,15 +71,15 @@ import org.geotools.resources.cts.ResourceKeys;
  * <strong>References:</strong><ul>
  *   <li>John P. Snyder (Map Projections - A Working Manual,<br>
  *       U.S. Geological Survey Professional Paper 1395, 1987)</li>
- *   <li>&quot;Coordinate Conversions and Transformations including Formulas&quot;,<br>
+ *   <li>"Coordinate Conversions and Transformations including Formulas",<br>
  *       EPSG Guidence Note Number 7, Version 19.</li>
  * </ul>
  *
  * @see <A HREF="http://mathworld.wolfram.com/MercatorProjection.html">Mercator projection on MathWorld</A>
- * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">&quot;mercator_1sp&quot; on Remote Sensing</A>
- * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
+ * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">"mercator_1sp" on Remote Sensing</A>
+ * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">"mercator_2sp" on Remote Sensing</A>
  * 
- * @version $Id: Mercator.java,v 1.9 2003/08/04 17:11:17 desruisseaux Exp $
+ * @version $Id: Mercator.java,v 1.10 2003/11/12 14:13:34 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -103,11 +103,11 @@ public class Mercator extends CylindricalProjection {
      * of {@link org.geotools.ct.MathTransformFactory}: one for the 1SP case and one
      * for the 2SP case.
      *
-     * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">&quot;mercator_1sp&quot; on Remote Sensing</A>
-     * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
+     * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">"mercator_1sp" on Remote Sensing</A>
+     * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">"mercator_2sp" on Remote Sensing</A>
      * @see org.geotools.ct.MathTransformFactory
      *
-     * @version $Id: Mercator.java,v 1.9 2003/08/04 17:11:17 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.10 2003/11/12 14:13:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -237,7 +237,7 @@ public class Mercator extends CylindricalProjection {
     /**
      * Provides the transform equations for the spherical case of the Mercator projection.
      *
-     * @version $Id: Mercator.java,v 1.9 2003/08/04 17:11:17 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.10 2003/11/12 14:13:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */

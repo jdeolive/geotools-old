@@ -41,15 +41,15 @@ import java.util.Arrays;
 
 
 /**
- * A set of static methods for handling of colors informations. Some of those methods are useful,
- * but not really rigorous. This is why they do not appear in any &quot;official&quot; package,
- * but instead in this private one.
+ * A set of static methods for handling of colors informations. Some of those methods
+ * are useful, but not really rigorous. This is why they do not appear in any "official"
+ * package, but instead in this private one.
  *
  *                      <strong>Do not rely on this API!</strong>
  *
  * It may change in incompatible way in any future version.
  *
- * @version $Id: ColorUtilities.java,v 1.1 2003/07/22 15:24:54 desruisseaux Exp $
+ * @version $Id: ColorUtilities.java,v 1.2 2003/11/12 14:13:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ColorUtilities {

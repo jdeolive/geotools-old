@@ -89,7 +89,7 @@ import org.geotools.util.WeakValueHashMap;
  * prête, il lui suffit d'appeler une méthode <CODE>repaint(...)</CODE> pour mettre à
  * jour cette tuile.
  *
- * @version $Id: DeferredPlanarImage.java,v 1.2 2003/07/22 15:25:16 desruisseaux Exp $
+ * @version $Id: DeferredPlanarImage.java,v 1.3 2003/11/12 14:14:08 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -623,7 +623,7 @@ public final class DeferredPlanarImage extends PlanarImage
     /**
      * Provides a hint that this image will no longer be accessed from a reference in user space.
      * <strong>NOTE: this method dispose the image given to the constructor as well!</strong>.
-     * This is because <code>DeferredPlanarImage</code> is used as a &quot;view&quot; of an other
+     * This is because <code>DeferredPlanarImage</code> is used as a "view" of an other
      * image, and the user shouldn't know that he is not using directly the other image.
      */
     public synchronized void dispose() {

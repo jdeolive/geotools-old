@@ -27,7 +27,7 @@ import java.awt.geom.AffineTransform;
  * bounding box, size, and style from the {@linkplain org.geotools.map.Context context}.
  *
  * @author Cameron Shorter
- * @version $Id: Renderer2D.java,v 1.9 2003/08/18 16:33:06 desruisseaux Exp $
+ * @version $Id: Renderer2D.java,v 1.10 2003/11/12 14:19:02 desruisseaux Exp $
  *
  * @task REVISIT Renderer2D should extend Renderer once Renderer has been
  *       cleaned up.
@@ -43,7 +43,7 @@ public interface Renderer2D {
      *        The upper left corner is (0,0) in most cases. However, a different value
      *        is allowed if some widget area must be preserved, for example a margin on
      *        the left and top size for painting a graduation.
-     * @param transform A transform which converts &quot;World coordinates&quot; to output
+     * @param transform A transform which converts "World coordinates" to output
      *        coordinates.
      *        This transform will be concatenated to the <code>graphics</code> transform (as of
      *     <code>graphics.{@link Graphics2D#transform(AffineTransform) transform}(transform)</code>)

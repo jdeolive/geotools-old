@@ -73,7 +73,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <strong>References:</strong><ul>
  *   <li>John P. Snyder (Map Projections - A Working Manual,<br>
  *       U.S. Geological Survey Professional Paper 1395, 1987)</li>
- *   <li>&quot;Coordinate Conversions and Transformations including Formulas&quot;,<br>
+ *   <li>"Coordinate Conversions and Transformations including Formulas",<br>
  *       EPSG Guidence Note Number 7, Version 19.</li>
  * </ul>
  *
@@ -82,7 +82,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/lambert_conic_conformal_2sp.html">lambert_conic_conformal_2sp</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/lambert_conic_conformal_2sp_belgium.html">lambert_conic_conformal_2sp_belgium</A>
  *
- * @version $Id: LambertConformal.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
+ * @version $Id: LambertConformal.java,v 1.4 2003/11/12 14:13:34 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -122,7 +122,7 @@ public class LambertConformal extends ConicProjection {
     /**
      * Informations about a {@link LambertConformalProjection}.
      *
-     * @version $Id: LambertConformal.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
+     * @version $Id: LambertConformal.java,v 1.4 2003/11/12 14:13:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
