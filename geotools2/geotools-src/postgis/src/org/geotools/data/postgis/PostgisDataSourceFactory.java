@@ -10,6 +10,7 @@ package org.geotools.data.postgis;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.HashMap;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
@@ -24,7 +25,7 @@ public class PostgisDataSourceFactory implements org.geotools.data.DataSourceFac
     public PostgisDataSourceFactory() {
     }
     
-    public boolean canProcess(HashMap params) {
+    public boolean canProcess(Map params) {
         if(!params.containsKey("dbtype")){
             return false;
         }
@@ -49,7 +50,7 @@ public class PostgisDataSourceFactory implements org.geotools.data.DataSourceFac
         return true;
     }
     
-    public DataSource createDataSource(HashMap params)  throws DataSourceException {
+    public DataSource createDataSource(Map params)  throws DataSourceException {
         if(!canProcess(params)){
             return null;
         }
