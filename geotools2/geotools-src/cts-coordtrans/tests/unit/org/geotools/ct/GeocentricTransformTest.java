@@ -58,7 +58,7 @@ import junit.framework.TestSuite;
  *   <li>{@link Ellipsoid}</li>
  * </ul>
  *
- * @version $Id: GeocentricTransformTest.java,v 1.1 2002/07/12 00:01:02 desruisseaux Exp $
+ * @version $Id: GeocentricTransformTest.java,v 1.2 2002/07/12 10:05:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GeocentricTransformTest extends TransformationTest {
@@ -147,33 +147,36 @@ public class GeocentricTransformTest extends TransformationTest {
         final Ellipsoid       ellipsoid =                  Ellipsoid.WGS84;
         final CoordinateSystem sourceCS =   CompoundCoordinateSystem.WGS84;
         final CoordinateSystem targetCS = GeocentricCoordinateSystem.DEFAULT;
-
         final CoordinateTransformation transformation;
         final MathTransform            transform;
         final int                      dimension;
-
         transformation = trFactory.createFromCoordinateSystems(sourceCS, targetCS);
         transform      = transformation.getMathTransform();
         dimension      = transform.getDimSource();
-
         assertEquals("Source dimension", 3, dimension);
         assertEquals("Target dimension", 3, transform.getDimTarget());
         assertSame("Inverse transform", transform, transform.inverse().inverse());
-
         /*
-         * Construct an array of 85 random points. The first 8 points
+         * Construct an array of 850 random points. The first 8 points
          * are initialized to know values. Other points are left random.
          */
         final double   cartesianDistance[] = new double[4];
         final double orthodromicDistance[] = new double[4];
-        final double[]              array0 = new double[255]; // 255 is divisible by 3.
+        final double[]              array0 = new double[2550]; // 255 is divisible by 3.
         for (int i=0; i<array0.length; i++) {
-            array0[i] = 60*random.nextDouble()-30;
+            final int range;
+            switch (i % 3) {
+                case 0:  range =   360; break; // Longitude
+                case 1:  range =   180; break; // Latitidue
+                case 2:  range = 10000; break; // Altitude
+                default: range =     0; break; // Should not happen
+            }
+            array0[i] = range*random.nextDouble()-(range/2);
         }
-        array0[0]=35.0; array0[1]=24.0; array0[2]=8000; // 24°N 35°E 8000m
+        array0[0]=35.0; array0[1]=24.0; array0[2]=8000; // 24°N 35°E 8km
         array0[3]=34.8; array0[4]=24.7; array0[5]=5000; // ... about 80 km away
         cartesianDistance  [0] = 80284.00;
-        orthodromicDistance[0] = 80202.53;
+        orthodromicDistance[0] = 80302.99; // Not really exact.
 
         array0[6]=  0; array0[ 7]=0.0; array0[ 8]=0;
         array0[9]=180; array0[10]=0.0; array0[11]=0; // Antipodes; distance should be 2*6378.137 km
@@ -189,7 +192,6 @@ public class GeocentricTransformTest extends TransformationTest {
         array0[21]=-85; array0[22]=+38; array0[23]=0; // Antipodes
         cartesianDistance  [3] = 12740147.19;
         orthodromicDistance[3] = 20003867.86;
-
         /*
          * Transform all points, and then inverse transform then. The resulting
          * <code>array2</code> array should be equals to <code>array0</code>
@@ -200,28 +202,41 @@ public class GeocentricTransformTest extends TransformationTest {
         final double[] array2 = new double[array0.length];
         transform          .transform(array0, 0, array1, 0, array0.length/dimension);
         transform.inverse().transform(array1, 0, array2, 0, array1.length/dimension);
-        
         assertPointsEqual("transform(Geographic --> Geocentric --> Geographic)", array0, array2,
                           new double[] {0.1/3600, 0.1/3600, 0.01});
-
         /*
          * Compare the distances between "special" points with expected distances.
          * This test the ellipsoid orthodromic distance computation as well.
          * We require a precision of 10 centimeters.
          */
-        for (int i=0; i<cartesianDistance.length; i++) {
+        for (int i=0; i<array0.length/6; i++) {
             final int base = i*6;
             final Point3d  pt1 = new Point3d(array1[base+0], array1[base+1], array1[base+2]);
             final Point3d  pt2 = new Point3d(array1[base+3], array1[base+4], array1[base+5]);
-            double distance = pt1.distance(pt2);
-            assertEquals("Cartesian distance["+i+']', cartesianDistance[i], distance, 0.1);
+            final double cartesian = pt1.distance(pt2);
+            if (i<cartesianDistance.length) {
+                assertEquals("Cartesian distance["+i+']', cartesianDistance[i], cartesian, 0.1);
+            }
+            /*
+             * Compare with orthodromic distance.  Distance is computed using an ellipsoid
+             * at the maximal altitude (i.e. the length of semi-major axis is increased to
+             * fit the maximal altitude).
+             */
             try {
-                double orthodromic = ellipsoid.orthodromicDistance(array0[base+0], array0[base+1],
-                                                                   array0[base+3], array0[base+4]);
+                final double altitude = Math.max(array0[base+2], array0[base+5]);
+                final Ellipsoid ellip = Ellipsoid.createFlattenedSphere("Temporary",
+                                        ellipsoid.getSemiMajorAxis()+altitude,
+                                        ellipsoid.getInverseFlattening(),
+                                        ellipsoid.getAxisUnit());
+                double orthodromic = ellip.orthodromicDistance(array0[base+0], array0[base+1],
+                                                               array0[base+3], array0[base+4]);
                 orthodromic = XMath.hypot(orthodromic, array0[base+2]-array0[base+5]);
-                assertEquals("Orthodromic distance["+i+']', orthodromicDistance[i], orthodromic, 0.1);
+                if (i<orthodromicDistance.length) {
+                    assertEquals("Orthodromic distance["+i+']', orthodromicDistance[i], orthodromic, 0.1);
+                }
+                assertTrue("Distance consistency["+i+']', cartesian <= orthodromic);
             } catch (ArithmeticException exception) {
-                // Ignore if the last case, which may not converge.
+                // Orthodromic distance computation didn't converge. Ignore...
             }
         }
     }
