@@ -28,10 +28,10 @@ public class FilterDOMParser {
     }
     public static Filter parseFilter(Node root){
         LOGGER.fine("parsingFilter "+root.getNodeName());
-        
+
         //NodeList children = root.getChildNodes();
         //LOGGER.finest("children "+children);
-        
+
         if(root == null || root.getNodeType() != Node.ELEMENT_NODE){
             LOGGER.finer("bad node input ");
             return null;
@@ -46,14 +46,31 @@ public class FilterDOMParser {
             try{
                 short type = ((Integer)comparisions.get(childName)).shortValue();
                 CompareFilter filter = null;
-                if(type == AbstractFilter.BETWEEN) {
+                if ( type == AbstractFilter.FID ) {
+					FidFilter fidFilter = filterFactory.createFidFilter();
+					Element fidFilterElement = (Element)child;
+					fidFilter.addFid(fidFilterElement.getAttribute("fid"));
+					Node sibling = fidFilterElement.getNextSibling();
+
+					while (sibling != null) {
+						LOGGER.info("Parsing another FidFilter");
+						if (  sibling.getNodeType() == Node.ELEMENT_NODE ) {
+							fidFilterElement = (Element)sibling;
+							if ( "FeatureId".equals(fidFilterElement.getNodeName()) )
+								fidFilter.addFid(fidFilterElement.getAttribute("fid"));
+						}
+						sibling = sibling.getNextSibling();
+					}
+
+					return fidFilter;
+                } else if(type == AbstractFilter.BETWEEN) {
                     BetweenFilter bfilter = filterFactory.createBetweenFilter();
-                    
+
                     NodeList kids = child.getChildNodes();
                     if(kids.getLength() < 3 ){
                         throw new IllegalFilterException("wrong number of children in Between filter: expected 3 got " + kids.getLength());
                     }
-                        
+
                         Node value = child.getFirstChild();
                         while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                         // first expression
@@ -76,9 +93,9 @@ public class FilterDOMParser {
                             bfilter.addRightValue(ExpressionDOMParser.parseExpression(value));
                         }
                    }
-                    
-                        
-                    
+
+
+
                     return bfilter;
                 }else if(type==AbstractFilter.LIKE){
                     String wildcard=null,single=null,escape=null,pattern=null;
@@ -119,23 +136,23 @@ public class FilterDOMParser {
                     }
                     LOGGER.finer("Problem building like filter\n"+pattern+" "+wildcard+" "+single+" "+escape);
                     return null;
-                }else{                    
+                }else{
                     filter = new CompareFilterImpl(type);
                 }
 
-                // find and parse left and right values 
+                // find and parse left and right values
 
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add left value -> "+value+"<-");
                 filter.addLeftValue(ExpressionDOMParser.parseExpression(value));
                 value = value.getNextSibling();
-                
+
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add right value -> "+value+"<-");
                 filter.addRightValue(ExpressionDOMParser.parseExpression(value));
                 return filter;
-                
+
             }catch (IllegalFilterException ife){
                 LOGGER.warning("Unable to build filter: " + ife);
                 return null;
@@ -150,18 +167,18 @@ public class FilterDOMParser {
                     LOGGER.finer("add left value -> "+value+"<-");
                     filter.addLeftGeometry(ExpressionDOMParser.parseExpression(value));
                     value = value.getNextSibling();
-                    
+
                     while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                     LOGGER.finer("add right value -> "+value+"<-");
                     if(!(value.getNodeName().equalsIgnoreCase("Literal")
                     ||value.getNodeName().equalsIgnoreCase("propertyname"))){
                         Element literal = value.getOwnerDocument().createElement("literal");
-                        
+
                         literal.appendChild(value);
                         LOGGER.finer("Built new literal "+literal);
                         value = literal;
                     }
-        
+
                     filter.addRightGeometry(ExpressionDOMParser.parseExpression(value));
                     return filter;
                 }catch (IllegalFilterException ife){
@@ -190,11 +207,11 @@ public class FilterDOMParser {
         LOGGER.warning("unknown filter "+root);
         return null;
     }
-    
+
     private static java.util.HashMap comparisions = new java.util.HashMap();
     private static java.util.HashMap spatial = new java.util.HashMap();
     private static java.util.HashMap logical = new java.util.HashMap();
-    
+
     static{
         comparisions.put("PropertyIsEqualTo",new Integer(AbstractFilter.COMPARE_EQUALS));
         comparisions.put("PropertyIsGreaterThan",new Integer(AbstractFilter.COMPARE_GREATER_THAN));
@@ -204,7 +221,8 @@ public class FilterDOMParser {
         comparisions.put("PropertyIsLike",new Integer(AbstractFilter.LIKE));
         comparisions.put("PropertyIsNull",new Integer(AbstractFilter.NULL));
         comparisions.put("PropertyIsBetween",new Integer(AbstractFilter.BETWEEN));
-        
+        comparisions.put("FeatureId",new Integer(AbstractFilter.FID));
+
         spatial.put("Equals",new Integer(AbstractFilter.GEOMETRY_EQUALS));
         spatial.put("Disjoint",new Integer(AbstractFilter.GEOMETRY_DISJOINT));
         spatial.put("Intersects",new Integer(AbstractFilter.GEOMETRY_INTERSECTS));
@@ -215,10 +233,10 @@ public class FilterDOMParser {
         spatial.put("Overlaps",new Integer(AbstractFilter.GEOMETRY_OVERLAPS));
         spatial.put("Beyond",new Integer(AbstractFilter.GEOMETRY_BEYOND));
         spatial.put("BBOX",new Integer(AbstractFilter.GEOMETRY_BBOX));
-        
+
         logical.put("And",new Integer(AbstractFilter.LOGIC_AND));
         logical.put("Or",new Integer(AbstractFilter.LOGIC_OR));
         logical.put("Not",new Integer(AbstractFilter.LOGIC_NOT));
-        
+
     }
 }
