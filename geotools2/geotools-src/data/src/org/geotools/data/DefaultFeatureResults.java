@@ -52,8 +52,21 @@ public class DefaultFeatureResults implements FeatureResults {
      * @param query
      */
     public DefaultFeatureResults(FeatureSource source, Query query) {
-        this.query = query;
         this.featureSource = source;
+        String typeName = source.getSchema().getTypeName();
+                
+        if( typeName.equals( query.getTypeName() ) ){
+            this.query = query;            
+        }
+        else {
+            this.query = new DefaultQuery(
+                typeName,
+                query.getFilter(),
+                query.getMaxFeatures(),
+                query.getPropertyNames(),
+                query.getHandle()
+            );
+        }
     }
 
     /**
@@ -111,15 +124,8 @@ public class DefaultFeatureResults implements FeatureResults {
      * @throws IOException If results could not be obtained
      */
     public FeatureReader reader() throws IOException {
-        FeatureReader reader = featureSource.getDataStore().getFeatureReader(getSchema(),
-                query.getFilter(), getTransaction());
-        int maxFeatures = query.getMaxFeatures();
-
-        if (maxFeatures == query.DEFAULT_MAX) {
-            return reader;
-        } else {
-            return new MaxFeatureReader(reader, maxFeatures);
-        }
+        return featureSource.getDataStore().getFeatureReader( query, getTransaction() );
+        
     }
 
     /**

@@ -26,6 +26,7 @@ import com.vividsolutions.jts.geom.Envelope;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -281,9 +282,9 @@ public abstract class AbstractDataStore implements DataStore {
     }
     // Jody - Recomend moving to the following
     // When we are ready for CoordinateSystem support
-    public FeatureReader getFeatureReader(Query query,Transaction transaction) throws IOException, SchemaException {
+    public FeatureReader getFeatureReader(Query query,Transaction transaction) throws IOException {
         Filter filter = query.getFilter();
-        String typeName = query.getHandle();
+        String typeName = query.getTypeName();
         String propertyNames[] = query.getPropertyNames();
         CoordinateSystem cs = null;
                 
@@ -304,7 +305,13 @@ public abstract class AbstractDataStore implements DataStore {
         FeatureType featureType = getSchema( query.getTypeName() );
          
         if( propertyNames != null || cs != null ){
-            featureType = DataUtilities.createSubType( featureType, propertyNames, cs );
+            try {
+                featureType = DataUtilities.createSubType( featureType, propertyNames, cs );
+            } catch (SchemaException e) {
+                LOGGER.log( Level.FINEST, e.getMessage(), e);
+                throw new DataSourceException( "Could not create Feature Type for query", e );
+                
+            }
         }
         if ( filter == Filter.ALL || filter.equals( Filter.ALL )) {
             return new EmptyFeatureReader(featureType);
