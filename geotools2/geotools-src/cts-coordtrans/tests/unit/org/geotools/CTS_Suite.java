@@ -46,7 +46,7 @@ import org.geotools.ct.*;
 /**
  * Performs all tests for the Coordinate Transformations Services implementation.
  *
- * @version $Id: CTS_Suite.java,v 1.5 2002/10/13 20:00:32 desruisseaux Exp $
+ * @version $Id: CTS_Suite.java,v 1.6 2003/01/08 19:13:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CTS_Suite extends TestCase {
@@ -70,6 +70,7 @@ public class CTS_Suite extends TestCase {
     public static Test suite() {
         final TestSuite suite = new TestSuite("All CTS tests");
         suite.addTest(WKTParserTest            .suite());
+        suite.addTest(SerializationTest        .suite());
         suite.addTest(LinearTransformTest      .suite());
         suite.addTest(ConcatenatedTransformTest.suite());
         suite.addTest(ExponentialTransformTest .suite());
