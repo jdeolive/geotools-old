@@ -57,19 +57,10 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * Rendering hints can be used to control some low-level details, like the expected
  * resolution.
  *
- * @version $Id: Hints.java,v 1.9 2003/03/14 12:38:17 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.10 2003/03/25 22:50:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
-    /**
-     * Key for setting a {@link JAI} object other than the default one when a JAI operation must be
-     * applied. This is used especially for the {@linkplain javax.media.jai.operator.ScaleDescriptor
-     * scale} operation when rendering an image with {@link RenderedGridCoverage}. This is the same
-     * key than <code>org.geotools.gp</code> {@link org.geotools.gp.Hints#JAI_INSTANCE} and is
-     * declared here only for convenience.
-     */
-    public static final RenderingHints.Key JAI_INSTANCE = org.geotools.gp.Hints.JAI_INSTANCE;
-
     /**
      * Key for setting a {@link GridCoverageProcessor} instance other than the default.
      * Grid coverage processor are used for resampling grid coverage when the rendering
@@ -79,11 +70,24 @@ public final class Hints extends RenderingHints.Key {
                                                 new Hints(0, GridCoverageProcessor.class);
 
     /**
+     * Key for setting a {@link JAI} object other than the default one when a JAI operation must be
+     * applied. This is used especially for the {@linkplain javax.media.jai.operator.ScaleDescriptor
+     * scale} operation when rendering an image with {@link RenderedGridCoverage}. This is the same
+     * key than <code>org.geotools.gp.{@linkplain org.geotools.gp.Hints#JAI_INSTANCE}</code> and is
+     * declared here only for convenience. If there is no value for this key but a value exists for
+     * {@link #GRID_COVERAGE_PROCESSOR}, then the JAI instance will be inherited from the specified
+     * <code>GridCoverageProcessor</code>.
+     */
+    public static final RenderingHints.Key JAI_INSTANCE = org.geotools.gp.Hints.JAI_INSTANCE;
+
+    /**
      * Key for setting a {@link CoordinateTransformationFactory} object other
      * than the default one when coordinate transformations must be performed
      * at rendering time. This is the same key than <code>org.geotools.gp</code>
      * {@link org.geotools.gp.Hints#COORDINATE_TRANSFORMATION_FACTORY} and is
-     * declared here only for convenience.
+     * declared here only for convenience. If there is no value for this key but
+     * a value exists for {@link #GRID_COVERAGE_PROCESSOR}, then the JAI instance
+     * will be inherited from the specified <code>GridCoverageProcessor</code>.
      */
     public static final RenderingHints.Key COORDINATE_TRANSFORMATION_FACTORY =
             org.geotools.gp.Hints.COORDINATE_TRANSFORMATION_FACTORY;

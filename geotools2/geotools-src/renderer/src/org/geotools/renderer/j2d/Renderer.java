@@ -83,6 +83,7 @@ import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.NoninvertibleTransformException;
 import org.geotools.ct.CoordinateTransformationFactory;
 import org.geotools.ct.TransformException;
+import org.geotools.gp.GridCoverageProcessor;
 import org.geotools.units.UnitException;
 import org.geotools.units.Unit;
 import org.geotools.resources.XArray;
@@ -104,7 +105,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.23 2003/03/18 22:34:39 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.24 2003/03/25 22:50:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -513,12 +514,14 @@ public class Renderer {
                     unit = Unit.DEGREE;
                 }
                 /*
-                 * Converts an angular unit to a linear one. It is not clear which ellipsoid axis we
-                 * should use. For the WGS84 ellipsoid, the semi-major axis results in a nautical
-                 * mile of 1855.32 metres while the semi-minor axis results in a nautical mile
+                 * Converts an angular unit to a linear one.   An ellipsoid has two axis that we
+                 * could use. For the WGS84 ellipsoid, the semi-major axis results in a nautical
+                 * mile of 1855.32 metres  while  the semi-minor axis results in a nautical mile
                  * of 1849.10 metres. The average of semi-major and semi-minor axis results in a
                  * nautical mile of 1852.21 metres, which is pretty close to the internationaly
-                 * agreed length (1852 metres). Consequently, is seems an acceptable guess.
+                 * agreed length (1852 metres). This is consistent with the definition of nautical
+                 * mile, which is the length of an angle of 1 minute along the meridian at 45° of
+                 * latitude.
                  */
                 m = Unit.RADIAN.convert(m, unit) * 0.5*(ellipsoid.getSemiMajorAxis() +
                                                         ellipsoid.getSemiMinorAxis());
@@ -1059,7 +1062,7 @@ public class Renderer {
      * @see RenderingHints#KEY_COLOR_RENDERING
      * @see RenderingHints#KEY_INTERPOLATION
      */
-    public synchronized void setRenderingHint(final RenderingHints.Key key, final Object value) {
+    public synchronized void setRenderingHint(RenderingHints.Key key, Object value) {
         if (value != null) {
             hints.put(key, value);
         } else {
@@ -1094,6 +1097,13 @@ public class Renderer {
         if (Hints.PREFETCH.equals(key)) {
             prefetch = (value!=null) && ((Boolean) value).booleanValue();
             return;
+        }
+        if (Hints.GRID_COVERAGE_PROCESSOR.equals(key) &&
+            !hints.containsKey(Hints.COORDINATE_TRANSFORMATION_FACTORY))
+        {
+            key = Hints.COORDINATE_TRANSFORMATION_FACTORY;
+            value = (value!=null) ? ((GridCoverageProcessor) value).getRenderingHint(key) : null;
+            // Fall through
         }
         if (Hints.COORDINATE_TRANSFORMATION_FACTORY.equals(key)) {
             factory = (value!=null) ? (CoordinateTransformationFactory) value :

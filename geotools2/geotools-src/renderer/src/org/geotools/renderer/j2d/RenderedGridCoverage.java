@@ -82,7 +82,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.14 2003/03/20 22:49:34 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.15 2003/03/25 22:50:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -379,17 +379,10 @@ public class RenderedGridCoverage extends RenderedLayer {
              * Reminder: JAI will differ the execution of "Scale" operation until they are
              * requested, and only requested tiles will be computed.
              */
-            JAI jai = null;
-            RenderingHints hints = null;
-            if (renderer != null) {
-                hints = renderer.hints;
-                if (hints != null) {
-                    jai = (JAI) hints.get(Hints.JAI_INSTANCE);
-                }
-            }
-            if (jai == null) {
-                jai = JAI.getDefaultInstance();
-            }
+            final JAI jai;
+            final RenderingHints hints;
+            hints       = (renderer!=null) ? renderer.hints : null;
+            jai         = (JAI) getJAI(hints);
             images      = new RenderedImage[maxLevel+1];
             images[0]   = image;
             lastLevel   = 0;
@@ -415,6 +408,33 @@ public class RenderedGridCoverage extends RenderedLayer {
             }
             sharedImages.put(coverage, images);
         }
+    }
+
+    /**
+     * Returns the value for the key {@link Hints#JAI_INSTANCE}.  If no value is found
+     * for this key in the specified rendering hints, the value will be inherited from
+     * {@link Hints#GRID_COVERAGE_PROCESSOR}. If no value is defined their neither,
+     * then this method returns {@link JAI#getDefaultInstance()}.
+     *
+     * @param  hints The rendering hints, or <code>null</code>.
+     * @return The {@link JAI} instance as an object in order to avoid too early class loading.
+     */
+    private static Object getJAI(final RenderingHints hints) {
+        if (hints != null) {
+            Object jai = hints.get(Hints.JAI_INSTANCE);
+            if (jai != null) {
+                return jai;
+            }
+            final GridCoverageProcessor processor;
+            processor = (GridCoverageProcessor) hints.get(Hints.GRID_COVERAGE_PROCESSOR);
+            if (processor != null) {
+                jai = processor.getRenderingHint(Hints.JAI_INSTANCE);
+                if (jai != null) {
+                    return jai;
+                }
+            }
+        }
+        return JAI.getDefaultInstance();
     }
 
     /**
