@@ -46,6 +46,15 @@
             <role>Java Developer</role>
           </roles>
       </developer>
+      <developer>
+        <name>Andrea Aime</name>
+        <id>aaime</id>
+        <email>aaime@libero.it</email>
+        <organization></organization>
+          <roles>
+            <role>Java Developer</role>
+          </roles>
+      </developer>
     </developers>
   <dependencies>
   <dependency>
