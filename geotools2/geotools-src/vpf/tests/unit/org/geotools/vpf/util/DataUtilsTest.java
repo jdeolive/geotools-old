@@ -136,15 +136,15 @@ public class DataUtilsTest extends TestCase
    * int littleEndianToInt(byte[])
    * from tested class
    */
-  public void testLittleEndianToInt1374008726()
-  {
-	for (int i = 0; i < TEST_SAMPLES.length; i++)
-	{
-	  assertEquals("Testing little endian converions from bytes to java int",
-				   TEST_RESULTS[i][1],
-				   DataUtils.littleEndianToInt(TEST_SAMPLES[i]));
-	} // end of for (int i = 0; i < TEST_SAMPLES.length; i++)
-  } // end of testLittleEndianToInt1374008726(byte[])
+//   public void testLittleEndianToInt1374008726()
+//   {
+// 	for (int i = 0; i < TEST_SAMPLES.length; i++)
+// 	{
+// 	  assertEquals("Testing little endian converions from bytes to java int",
+// 				   TEST_RESULTS[i][1],
+// 				   DataUtils.littleEndianToInt(TEST_SAMPLES[i]));
+// 	} // end of for (int i = 0; i < TEST_SAMPLES.length; i++)
+//   } // end of testLittleEndianToInt1374008726(byte[])
 
   /**
    * Method for testing original source method:

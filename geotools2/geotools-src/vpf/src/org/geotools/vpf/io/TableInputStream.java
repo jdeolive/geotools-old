@@ -184,6 +184,11 @@ public class TableInputStream extends VPFInputStream
 	return null;
   }
 
+  public int tableSize()
+  {
+    return -1;
+  }
+
   public static void main(String[] args)
     throws IOException
   {
