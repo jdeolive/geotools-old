@@ -4,7 +4,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-sample-data</name>
   <id>sample-data</id>
-  <currentVersion>2.0-B2-DEV</currentVersion>
+  <currentVersion>2.0-B2</currentVersion>
   <package>org.geotools</package>
   <shortDescription>sample data module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>

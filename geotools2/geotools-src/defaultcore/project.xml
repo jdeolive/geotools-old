@@ -4,7 +4,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-defaultcore</name>
   <id>defaultcore</id>
-  <currentVersion>2.0-B2-DEV</currentVersion>
+  <currentVersion>2.0-B2</currentVersion>
   <versions>
     <version>
       <id>b1</id>
@@ -107,7 +107,7 @@
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-B2-DEV</version>
+      <version>2.0-B2</version>
     </dependency>
     <dependency>
       <id>JTS</id>
@@ -122,12 +122,12 @@
     <dependency>
       <artifactId>cts-coordtrans</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-B2-DEV</version>
+      <version>2.0-B2</version>
     </dependency>
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-B2-DEV</version>
+      <version>2.0-B2</version>
     </dependency>
     <dependency>
       <id>opengis+css</id>
@@ -136,7 +136,7 @@
     </dependency>
     <dependency>
       <id>opengis</id>
-      <version>2.0-B2-DEV</version>
+      <version>2.0-B2</version>
       <url>http://www.geotools.org</url>
     </dependency>
     <dependency>

@@ -4,7 +4,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-cts-coordtrans</name>
   <id>cts-coordtrans</id>
-  <currentVersion>2.0-B2-DEV</currentVersion>
+  <currentVersion>2.0-B2</currentVersion>
   <versions>
     <version>
       <id>b1</id>
@@ -37,29 +37,35 @@
     </dependency>
     <dependency>
       <id>opengis</id>
-      <version>2.0-B2-DEV</version>
+      <version>2.0-B2</version>
       <url>http://www.opengis.org</url>
     </dependency>
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-B2-DEV</version>
+      <version>2.0-B2</version>
     </dependency>
     <dependency>
       <id>vecmath</id>
       <version>1.2.1</version>
       <url>http://java.sun.com/products/java-media/3D/</url>
+      <properties>
+        <release.bundle>true</release.bundle>
+      </properties>
     </dependency>
     <dependency>
       <id>JTS</id>
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
+      <properties>
+        <release.bundle>true</release.bundle>
+      </properties>
     </dependency>
     <!--
         <dependency>
           <artifactId>core</artifactId>
           <groupId>gt2</groupId>
-          <version>2.0-B2-DEV</version>
+          <version>2.0-B2</version>
         </dependency>
         -->
   </dependencies>
