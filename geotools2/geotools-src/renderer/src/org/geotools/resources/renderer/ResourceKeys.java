@@ -22,6 +22,7 @@ package org.geotools.resources.renderer;
  */
 public interface ResourceKeys
 {
-    public static final int ERROR_BAD_RANGE_$2        =     0;
-    public static final int ERROR_ODD_ARRAY_LENGTH_$1 =     1;
+    public static final int ERROR_BAD_RANGE_$2                       =     0;
+    public static final int ERROR_NON_CARTESIAN_COORDINATE_SYSTEM_$1 =     2;
+    public static final int ERROR_ODD_ARRAY_LENGTH_$1                =     1;
 }
