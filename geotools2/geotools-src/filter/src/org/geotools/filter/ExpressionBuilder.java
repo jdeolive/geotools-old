@@ -390,7 +390,7 @@ public class ExpressionBuilder {
         System.out.println("Expression Tester");
         BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
         FilterTransformer t = new FilterTransformer();
-        t.setPrettyPrint(true);
+        t.setIndentation(4);
         while (true) {
             System.out.print("> ");
             String line = r.readLine();
