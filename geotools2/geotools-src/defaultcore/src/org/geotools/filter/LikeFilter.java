@@ -27,7 +27,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilter.java,v 1.8 2002/07/22 20:22:03 jmacgill Exp $
+ * @version $Id: LikeFilter.java,v 1.9 2002/07/23 14:04:16 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LikeFilter extends AbstractFilter {
@@ -97,31 +97,30 @@ public class LikeFilter extends AbstractFilter {
         char esc = escape.charAt(0);
         _log.debug("wildcard "+wildcardMulti+" single "+wildcardSingle);
         _log.debug("escape "+escape+" esc "+esc+" esc == \\ "+(esc == '\\'));
-        if(esc == '.' || esc == '?' || esc == '*' || esc == '^' || esc == '$' ||
-            esc == '+' || esc == '[' || esc == ']' || esc == '(' ||
-            esc == ')' || esc == '|' ) {
-                escape = "\\\\"+escape;
-                _log.debug("escape "+escape);
-        }else if (esc == '\\'){
-            escape = "\\"+escape;
-        }
-        char wcs = wildcardSingle.charAt(0);
         
-        if(wcs == '.' || wcs == '?' || wcs == '*' || wcs == '^' || wcs == '$' ||
-            wcs == '\\' || wcs == '+' || wcs == '[' || wcs == ']' || wcs == '(' ||
-            wcs == ')' || wcs == '|') {
-                wildcardSingle = "\\"+wildcardSingle;
-                _log.debug("wildcardSingle "+wildcardSingle);
-        }
-        char wcm = wildcardMulti.charAt(0);
-        
-        if(wcm == '.' || wcm == '?' || wcm == '*' || wcm == '^' || wcm == '$' ||
-            wcm == '\\' || wcm == '+' || wcm == '[' || wcm == ']' || wcm == '(' ||
-            wcm == ')' || wcm == '|') {
-                wildcardMulti = "\\"+wildcardMulti;
-                _log.debug("wildcardMulti "+wildcardMulti);
-        }
+        escape = fixSpecials(escape);
+        wildcardMulti = fixSpecials(wildcardMulti);
+        wildcardSingle = fixSpecials(wildcardSingle);
+        _log.debug("after fixing: wildcard "+wildcardMulti+" single "+wildcardSingle+" escape "+escape);
         _log.debug("start pattern = "+pattern);
+        
+        // escape any special chars which are not our wildcards
+        StringBuffer tmp = new StringBuffer("");
+        for(int i = 0;i<pattern.length();i++){
+            char c = pattern.charAt(i);
+            if(isSpecial(c) && wildcardMulti.indexOf(c)== -1 ){
+                _log.debug(""+c+" is special and not in wcm "+wildcardMulti);
+                tmp.append("\\"+c);
+            }else{
+                tmp.append(c);
+            }
+        }
+        pattern = tmp.toString();
+        /*
+        //pattern = fixSpecials(pattern);
+        _log.debug("after special fix "+pattern);
+        pattern = pattern.replaceAll(escape+escape,"\0");
+        _log.debug("post esc esc pattern = "+pattern);
         pattern = pattern.replaceAll("([^"+escape+"])"+wildcardSingle, "$1.?");
         _log.debug("post single pattern = "+pattern);
         pattern = pattern.replaceAll("([^"+escape+"])"+escape + wildcardSingle, "$1"+wildcardSingle);
@@ -131,12 +130,41 @@ public class LikeFilter extends AbstractFilter {
         _log.debug("post multi pattern = "+pattern);
         pattern = pattern.replaceAll("([^"+escape+"])"+escape + wildcardMulti, "$1"+wildcardMulti);
         _log.debug("post esc multi pattern = "+pattern);
-
-        //pattern = pattern.replaceAll(escape, "\\\\");
-        pattern = pattern.replaceAll(escape+escape,escape);
+        
+        pattern = pattern.replaceAll(escape,""); // any single escape is unneeded now
+        pattern = pattern.replaceAll("\0",escape);
         _log.debug("post esc pattern = "+pattern);
-
-        this.pattern = pattern;
+        */
+        tmp = new StringBuffer();
+        for(int i=0;i<pattern.length();i++){
+            char c = pattern.charAt(i);
+            _log.debug("tmp = "+tmp+" looking at "+c);
+            if(c == '\\') {
+                _log.debug("java escape");
+                tmp.append(c);
+                tmp.append(pattern.charAt(i+1));
+                i++;
+                continue;
+            }
+            if(escape.indexOf(c)!= -1 ) { // skip next char - should check for end of string
+                _log.debug("escape ");
+                tmp.append(pattern.charAt(i+1));
+                i++;
+                continue;
+            }
+            if(wildcardMulti.indexOf(c) != -1 ){ // replace with java wildcard
+                _log.debug("multi wildcard");
+                tmp.append(".*");
+                continue;
+            }
+            if(wildcardSingle.indexOf(c) != -1 ){ // replace with java single wild card
+                _log.debug("single wildcard");
+                tmp.append(".?");
+                continue;
+            }
+            tmp.append(c);
+        }
+        this.pattern = tmp.toString();
     }
 
 
@@ -191,4 +219,34 @@ public class LikeFilter extends AbstractFilter {
         visitor.visit(this);
     }
     
+    static boolean isSpecial(char c){
+        if(c == '.' || c == '?' || c == '*' || c == '^' || c == '$' ||
+            c == '+' || c == '[' || c == ']' || c == '(' ||
+            c == ')' || c == '|' || c == '\\' || c== '&' ){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    static boolean isBackslash(char c){
+        if(c == '\\'){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    static String fixSpecials(String in){
+        StringBuffer tmp = new StringBuffer("");
+        for(int i = 0;i<in.length();i++){
+            char c = in.charAt(i);
+            if(isSpecial(c)){
+                tmp.append("\\"+c);
+            }else{
+                tmp.append(c);
+            }
+        }
+        return tmp.toString();
+    }
+            
 }
