@@ -147,7 +147,7 @@ public class SLDStyleFactory {
         } else if (symbolizer instanceof LineSymbolizer) {
             style = createLineStyle(f, (LineSymbolizer) symbolizer, scaleRange);
         } else {
-            throw new UnsupportedOperationException("This kind of symbolizer is not yet supported");
+          //  throw new UnsupportedOperationException("This kind of symbolizer is not yet supported");
         }
         
         return style;
