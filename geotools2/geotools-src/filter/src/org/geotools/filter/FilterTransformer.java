@@ -14,31 +14,21 @@ import javax.xml.transform.sax.*;
 import javax.xml.transform.stream.*;
 import org.geotools.filter.*;
 import org.geotools.gml.producer.GeometryTransformer;
+import org.geotools.xml.transform.TransformerBase;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
 /**
- * Producer Filter to an output stream.
- * @todo This class should not be an XMLReader, rather it should use an internal
- * XMLReader class as this causes confusion with the API.
+ * An XMLEncoder for Filters and Expressions.
  *
+ * @version $Id: FilterTransformer.java,v 1.6 2003/11/05 17:19:31 ianschneider Exp $
  * @author Ian Schneider
  *
  */
-public class FilterTransformer extends XMLFilterImpl implements XMLReader {
-    
-    static Attributes NULL_ATTS = new AttributesImpl();
-    
-    private int indent = 4;
+public class FilterTransformer extends TransformerBase {
     
     /** The namespace to use if none is provided. */
-    private String defaultNamespace = "http://www.opengis.net/ogc";
-    
-    private String prefix = null;
-    
-    private Object object;
-    
-    private boolean prettyPrint = false;
+    private static String defaultNamespace = "http://www.opengis.net/ogc";
 
     /** Map of comparison types to sql representation */
     private static Map comparisions = new HashMap();
@@ -92,180 +82,21 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
         logical.put(new Integer(AbstractFilter.LOGIC_NOT), "Not");
     }
     
-    /**
-     * Sets a default namespace to use.
-     *
-     * @param namespace the namespace to use, should be a uri.
-     */
-    public void setDefaultNamespace(String namespace) {
-        this.defaultNamespace = namespace;
-    }
     
-    /**
-     * Sets if newlines and indents should be used for printing.
-     *
-     * @param pp true if pretty printing is desired.
-     */
-    public void setPrettyPrint(boolean pp) {
-        prettyPrint = pp;
-    }
+    public org.geotools.xml.transform.Translator createTranslator(ContentHandler handler) {
+        return new FilterTranslator(handler);
+    }    
     
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-    
-    public void setIndent(int indent) {
-        this.indent = indent;
-    }
-    
-    /**
-     * performs the sending of sax events from the passed in  feature
-     * collection.
-     *
-     * @param collection the collection to turn to gml.
-     * @param out the stream to send the output to.
-     *
-     * @throws TransformerException DOCUMENT ME!
-     */
-    public synchronized void transform(Object object, OutputStream out)
-    throws TransformerException {
-        transform(object,new StreamResult(out));
-    }
-    
-    public synchronized void transform(Object object, Writer out)
-    throws TransformerException {
-        transform(object,new StreamResult(out));
-    }
-    
-    public synchronized void transform(Object object,StreamResult result)
-    throws TransformerException {
-        this.object = object;
+    public static class FilterTranslator extends TranslatorSupport implements FilterVisitor {
         
-        TransformerFactory tFactory = TransformerFactory.newInstance();
-        Transformer transformer = tFactory.newTransformer();
+        GeometryTransformer.GeometryTranslator geometryEncoder;
         
-        if (prettyPrint) {
-            transformer.setOutputProperty(OutputKeys.INDENT,"yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", indent + "");
-        }
-        
-        InputSource inputSource = new InputSource();
-        SAXSource source = new SAXSource(this, inputSource);
-        transformer.transform(source, result);
-    }
-    
-    public static OutputVisitor createOutputVisitor(ContentHandler handler,String nsURI,String prefix) {
-        return new OutputVisitor(handler,nsURI,prefix);
-    }
-    
-    /**
-     * Performs the iteration, walking over the collection and  firing events.
-     *
-     * @param collection the features to walk over.
-     *
-     * @throws SAXException DOCUMENT ME!
-     */
-    private void walk() throws SAXException {
-        ContentHandler handler = getContentHandler();
-        handler.startDocument();
-        
-        OutputVisitor output = createOutputVisitor(handler,defaultNamespace,prefix);
-        
-        if (object instanceof Expression) {
-            output.encode( (Expression) object);
-        } else if (object instanceof Filter) {
-            output.encode( (Filter) object);
-        } else {
-            throw new RuntimeException("Filter encoder encodes Filter or Expression, not " + object.getClass());
-        }
-        
-        handler.endDocument();
-    }
-    
-    
-    /**
-     * walks the given collection.
-     *
-     * @param systemId DOCUMENT ME!
-     *
-     * @throws java.io.IOException DOCUMENT ME!
-     * @throws SAXException DOCUMENT ME!
-     */
-    public void parse(String systemId) throws java.io.IOException, SAXException {
-        walk();
-    }
-    
-    /**
-     * walks the given collection.
-     *
-     * @param input DOCUMENT ME!
-     *
-     * @throws java.io.IOException DOCUMENT ME!
-     * @throws SAXException DOCUMENT ME!
-     */
-    public void parse(InputSource input)
-    throws java.io.IOException, SAXException {
-        walk();
-    }
-    
-    
-    public static class OutputVisitor implements FilterVisitor {
-        
-        ContentHandler contentHandler;
-        String defaultNamespace = null;
-        String prefix = null;
-        GeometryTransformer geometryEncoder;
-        
-        public OutputVisitor(ContentHandler handler,String nsURI,String prefix) {
-            this.contentHandler = handler;
-            this.defaultNamespace = nsURI;
-            if (prefix == "")
-              prefix = null;
-            this.prefix = prefix;
+        public FilterTranslator(ContentHandler handler) {
+            super(handler, "ogc" ,defaultNamespace);
+ 
+            geometryEncoder = new GeometryTransformer.GeometryTranslator(handler);
             
-            geometryEncoder = new GeometryTransformer(handler);
-        }
-        
-        void element(String element,String content) {
-            element(element,content,NULL_ATTS);
-        }
-        
-        void element(String element,String content,Attributes atts) {
-            start(element,atts);
-            if (content != null)
-                chars(content);
-            end(element);
-        }
-        
-        void start(String element) {
-            start(element,NULL_ATTS);
-        }
-        
-        void start(String element,Attributes atts) {
-            try {
-                String el = prefix == null ? element : prefix + ":" + element;
-                contentHandler.startElement("", "", el, atts);
-            } catch (SAXException se) {
-                throw new RuntimeException(se);
-            }
-        }
-        
-        void chars(String text) {
-            try {
-                char[] ch = text.toCharArray();
-                contentHandler.characters(ch,0,ch.length);
-            } catch (SAXException se) {
-                throw new RuntimeException(se);
-            }
-        }
-        
-        public void end(String element) {
-            try {
-                String el = prefix == null ? element : prefix + ":" + element;
-                contentHandler.endElement("", "", el);
-            } catch (SAXException se) {
-                throw new RuntimeException(se);
-            }
+            getNamespaceSupport().declarePrefix(geometryEncoder.getDefaultPrefix(), geometryEncoder.getDefaultNamespace());
         }
         
         public void visit(org.geotools.filter.LogicFilter filter) {
@@ -423,6 +254,15 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
             start("Filter");
             f.accept(this);
             end("Filter");
+        }
+        
+        public void encode(Object o) {
+            if (o instanceof Filter)
+                encode( (Filter) o);
+            else if (o instanceof Expression)
+                encode( (Expression) o);
+            else 
+                throw new IllegalArgumentException("Cannot encode " + (o == null ? "null" : o.getClass().getName()));
         }
         
     }
