@@ -21,17 +21,18 @@ package org.geotools.styling;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.geotools.filter.Filter;
 
 /** Provides the default implementation of Rule.
  * 
- * @version $Id: RuleImpl.java,v 1.10 2003/08/10 08:39:28 seangeo Exp $
+ * @version $Id: RuleImpl.java,v 1.11 2003/08/10 14:24:08 seangeo Exp $
  * @author James Macgill
  */
 public class RuleImpl implements Rule, Cloneable {
-    private Symbolizer[] symbolizers;
+    private List symbolizers = new ArrayList();
     private List graphics = new ArrayList();
     private String name = "name";
     private String title = "title";
@@ -43,12 +44,11 @@ public class RuleImpl implements Rule, Cloneable {
 
     /** Creates a new instance of DefaultRule */
     protected RuleImpl() {
-        symbolizers = new Symbolizer[0];
     }
 
     /** Creates a new instance of DefaultRule */
     protected RuleImpl(Symbolizer[] symbolizers) {
-        this.symbolizers = symbolizers;
+        this.symbolizers.addAll(Arrays.asList(symbolizers));
     }
 
     public Graphic[] getLegendGraphic() {
@@ -75,12 +75,19 @@ public class RuleImpl implements Rule, Cloneable {
         }
     }
 
+    public void addSymbolizer(Symbolizer symb) {
+        this.symbolizers.add(symb);
+    }
+    
     public void setSymbolizers(Symbolizer[] syms) {
-        symbolizers = syms;
+        this.symbolizers.clear();
+        for (int i = 0; i < syms.length; i++) {
+            addSymbolizer(syms[i]);
+        }
     }
 
     public Symbolizer[] getSymbolizers() {
-        return symbolizers;
+        return (Symbolizer[]) symbolizers.toArray(new Symbolizer[symbolizers.size()]);
     }
 
     /**
@@ -205,9 +212,10 @@ public class RuleImpl implements Rule, Cloneable {
         } 
         clone.setLegendGraphic(legends);
         
-        Symbolizer[] symbArray = new Symbolizer[symbolizers.length];
+        Symbolizer[] symbArray = new Symbolizer[symbolizers.size()];
         for (int i = 0; i < symbArray.length; i++) {
-            symbArray[i] = (Symbolizer) symbolizers[i].clone();
+            Symbolizer symb = (Symbolizer) symbolizers.get(i);
+            symbArray[i] = (Symbolizer) symb.clone();
         }
         clone.setSymbolizers(symbArray);
         
@@ -216,12 +224,16 @@ public class RuleImpl implements Rule, Cloneable {
 
     /** Generates a hashcode for the Rule.
      * 
+     *  <p>For complex styles this can be an expensive operation
+     *  since the hash code is computed using all the hashcodes
+     *  of the object within the style.
+     * 
      *  @return The hashcode.
      */
     public int hashCode() {
         final int PRIME = 1000003;
         int result = 0;
-        result = PRIME * result + hashCodeHelper(symbolizers);
+        result = PRIME * result + symbolizers.hashCode();
         if (graphics != null) {
             result = PRIME * result + graphics.hashCode();
         }
@@ -248,31 +260,13 @@ public class RuleImpl implements Rule, Cloneable {
         return result;
     }
 
-    /*
-     * Helper method to compute the hashCode of arbitrary arrays.
-     */
-    private int hashCodeHelper(Object a) {
-        final int PRIME = 1000003;
-        if (a == null) {
-            return 0;
-        }
-        if (!a.getClass().isArray()) {
-            return a.hashCode();
-        }
-
-        int result = 0;
-        int aLength = java.lang.reflect.Array.getLength(a);
-        for (int i = 0; i < aLength; i++) {
-            result = PRIME * result + hashCodeHelper(java.lang.reflect.Array.get(a, i));
-        }
-
-        return result;
-    }
-
     /** Compares this Rule with another for equality.
      *  
      *  <p>Two RuleImpls are equal if all their properties
      *  are equal.
+     * 
+     *  <p>For complex styles this can be an expensive operation
+     *  since it checks all objects for equality.
      * 
      *  @param oth The other rule to compare with.
      *  @return True if this and oth are equal.
@@ -342,7 +336,7 @@ public class RuleImpl implements Rule, Cloneable {
                 Double.doubleToLongBits(other.minScaleDenominator)) {
             return false;
         }
-        if (!equalsHelper(symbolizers, other.symbolizers)) {
+        if (!symbolizers.equals(other.symbolizers)) {
             return false;
         }
         if (this.graphics == null) {
@@ -351,35 +345,6 @@ public class RuleImpl implements Rule, Cloneable {
             }
         } else {
             if (!this.graphics.equals(other.graphics)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /*
-     * Helper method to compare two arbitrary arrays.
-     */
-    private boolean equalsHelper(Object a, Object b) {
-        if (a == b) {
-            return true;
-        }
-        if (a == null || b == null) {
-            return false;
-        }
-
-        if (!a.getClass().isArray() || !b.getClass().isArray()) {
-            return a.equals(b);
-        }
-
-        int aLength = java.lang.reflect.Array.getLength(a);
-        if (aLength != java.lang.reflect.Array.getLength(b)) {
-            return false;
-        }
-
-        for (int i = 0; i < aLength; i++) {
-            if (!equalsHelper(java.lang.reflect.Array.get(a, i), java.lang.reflect.Array.get(b, i))) {
                 return false;
             }
         }
