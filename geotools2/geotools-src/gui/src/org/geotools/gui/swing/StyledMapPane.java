@@ -28,6 +28,7 @@
 package org.geotools.gui.swing;
 
 // J2SE dependencies
+import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 
 // JTS dependencies
@@ -37,15 +38,19 @@ import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.map.Layer;
 import org.geotools.map.Context;
 import org.geotools.map.BoundingBox;
+import org.geotools.map.ContextFactory;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.renderer.j2d.Renderer;
 import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.styling.StyleBuilder;
+import org.geotools.styling.Style;
 
 
 /**
  * A map pane which support styling.
  *
- * @version $Id: StyledMapPane.java,v 1.1 2003/08/18 17:04:51 desruisseaux Exp $
+ * @version $Id: StyledMapPane.java,v 1.2 2003/08/28 10:41:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class StyledMapPane extends MapPane {
@@ -101,6 +106,37 @@ public class StyledMapPane extends MapPane {
     }
 
     /**
+     * Set a feature collection as the current context. This convenience method creates a default
+     * {@linkplain Context context} from the specified collection. A default simple style is used
+     * with the current {@linkplain #getForeground foreground color} as the polygon filling color.
+     * The created context can be fetch from {@link #getContext}. This method is usefull for quick
+     * tests.
+     *
+     * @param features The feature collection to display.
+     */
+    public void setFeatures(final FeatureCollection features) {
+        Color fill = getForeground();
+        if (fill == null) {
+            fill = Color.BLUE;
+        }
+        if (fill.equals(getBackground())) {
+            fill = fill.darker();
+        }
+        Color border = fill.darker();
+        if (border.equals(fill)) {
+            border = border.brighter();
+        }
+        StyleBuilder   builder = new StyleBuilder();
+        Style          style   = builder.createStyle(builder.createPolygonSymbolizer(fill, border, 1));
+        ContextFactory factory = ContextFactory.createFactory();
+        Context        context = factory.createContext();
+        Layer          layer   = factory.createLayer(features, style);
+        context.getLayerList().addLayer(layer);
+        context.getBoundingBox().setAreaOfInterest(features.getBounds());
+        setContext(context);
+    }
+
+    /**
      * Returns a bounding box representative of the geographic area to drawn.
      * This method returns the first of the following area available:
      *
@@ -120,7 +156,7 @@ public class StyledMapPane extends MapPane {
      */
     public Rectangle2D getArea() {
         if (context != null) {
-            final BoundingBox box = context.getBbox();
+            final BoundingBox box = context.getBoundingBox();
             if (box != null) {
                 Envelope envelope = box.getAreaOfInterest();
                 if (envelope != null) {
