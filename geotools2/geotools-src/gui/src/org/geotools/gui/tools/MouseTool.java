@@ -35,13 +35,18 @@ public abstract class MouseTool extends Tool implements MouseListener {
      * Set the Widget which sends MouseEvents and contains widget size
      * information.  Registers for mouseEvents.
      * @param widget The widget to get size information from.
+     * @param listener The widget to send mouseEvents to, usually the child of
+     * this class.
      * @throws IllegalStateException if the widget has already been set to
      * another widget.
      */
-    public void setWidget(JComponent widget) throws IllegalStateException {
+    public void setWidget(
+        JComponent widget,
+        MouseListener listener) throws IllegalStateException
+    {
         super.setWidget(widget);
         if (this.widget!=null){
-            widget.addMouseListener(this);
+            widget.addMouseListener(listener);
         }
     }
 

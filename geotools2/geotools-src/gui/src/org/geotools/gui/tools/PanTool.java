@@ -50,7 +50,8 @@ public class PanTool extends MouseTool {
      * so it would be possible to create Coordinates which are outside real
      * world coordinates.
      */
-    public void MouseClicked(MouseEvent e) {
+     public void mouseClicked(MouseEvent e)
+     {
         if ((widget==null)||(context==null)){
             LOGGER.warning("Widget or Context is NULL");
         }else{
@@ -99,7 +100,7 @@ public class PanTool extends MouseTool {
      * another widget.
      */
     public void setWidget(JComponent widget) throws IllegalStateException {
-        super.setWidget(widget);
+        super.setWidget(widget,this);
         if (this.widget!=null){
             widget.addMouseListener(this);
         }
