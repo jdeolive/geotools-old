@@ -35,64 +35,7 @@ public class FeatureFlatTest extends TestCase {
     }
     
     public void setUp() {
-        try {
-            LOGGER.fine("creating flat feature...");
-            AttributeType geometryAttribute = new AttributeTypeDefault("testGeometry", Point.class);
-            LOGGER.fine("created geometry attribute");
-            AttributeType booleanAttribute = new AttributeTypeDefault("testBoolean", Boolean.class);
-            LOGGER.fine("created boolean attribute");
-            AttributeType charAttribute = new AttributeTypeDefault("testCharacter", Character.class);
-            AttributeType byteAttribute = new AttributeTypeDefault("testByte", Byte.class);
-            AttributeType shortAttribute = new AttributeTypeDefault("testShort", Short.class);
-            AttributeType intAttribute = new AttributeTypeDefault("testInteger", Integer.class);
-            AttributeType longAttribute = new AttributeTypeDefault("testLong", Long.class);
-            AttributeType floatAttribute = new AttributeTypeDefault("testFloat", Float.class);
-            AttributeType doubleAttribute = new AttributeTypeDefault("testDouble", Double.class);
-            AttributeType stringAttribute = new AttributeTypeDefault("testString", String.class);
-
-            FeatureType testType = new FeatureTypeFlat(geometryAttribute); 
-            LOGGER.fine("created feature type and added geometry");
-            testType = testType.setAttributeType(booleanAttribute);
-            LOGGER.fine("added boolean to feature type");
-            testType = testType.setAttributeType(charAttribute);
-            LOGGER.fine("added character to feature type");
-            testType = testType.setAttributeType(byteAttribute);
-            LOGGER.fine("added byte to feature type");
-            testType = testType.setAttributeType(shortAttribute);
-            LOGGER.fine("added short to feature type");
-            testType = testType.setAttributeType(intAttribute);
-            LOGGER.fine("added int to feature type");
-            testType = testType.setAttributeType(longAttribute);
-            LOGGER.fine("added long to feature type");
-            testType = testType.setAttributeType(floatAttribute);
-            LOGGER.fine("added float to feature type");
-            testType = testType.setAttributeType(doubleAttribute);
-            LOGGER.fine("added double to feature type");
-            testType = testType.setAttributeType(stringAttribute);
-            LOGGER.fine("added string to feature type");
-
-            Object[] attributes = new Object[10];
-            attributes[0] = new Point(new Coordinate(1,2), new PrecisionModel(), 1);
-            attributes[1] = new Boolean(true);
-            attributes[2] = new Character('t');
-            attributes[3] = new Byte("10");
-            attributes[4] = new Short("101");
-            attributes[5] = new Integer(1002);
-            attributes[6] = new Long(10003);
-            attributes[7] = new Float(10000.4);
-            attributes[8] = new Double(100000.5);
-            attributes[9] = "test string data";
-            testFeature = new FeatureFlat((FeatureTypeFlat) testType, attributes);
-            LOGGER.fine("...flat feature created");
-        }
-        catch(SchemaException e) {
-            LOGGER.fine("Test failed during schema creation: ");
-            LOGGER.fine(e.getMessage());
-        }
-        catch(IllegalFeatureException e) {
-            LOGGER.fine("Test failed during feature creation: ");
-            LOGGER.fine(e.getMessage());
-        }
+        testFeature = SampleFeatureFixtures.createFeature();
     }
 
     public void testRetrieve() {
