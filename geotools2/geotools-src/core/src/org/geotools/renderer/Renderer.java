@@ -33,12 +33,12 @@ import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.FeatureCollection;
 
 /**
- * This is very much work in progress.
+ * Base interface for renderer. This is very much work in progress.
+ * <strong>Note: this interface will changes in future versions.</strong>
  *
- * @version $Id: Renderer.java,v 1.20 2003/08/11 20:29:47 aaime Exp $
+ * @version $Id: Renderer.java,v 1.21 2003/08/18 19:54:38 desruisseaux Exp $
  * @author James Macgill
  */
-
 public interface Renderer {
 
     /**
@@ -47,6 +47,8 @@ public interface Renderer {
      * consuming operations to complete (e.g. Image Loading).
      * A non-interactive renderer (e.g. a SVG or PDF renderer) will block
      * for these operations.
+     *
+     * @deprecated This flag should not be there.
      */
      boolean interactive = true;
     
@@ -79,4 +81,3 @@ public interface Renderer {
     
     public Coordinate pixelToWorld(int x, int y, Envelope map);
 }
-
