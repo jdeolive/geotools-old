@@ -22,6 +22,10 @@ public class NIOBufferUtils {
 	 * The logger for reporting io problems
 	 */
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.io");
+    
+    private NIOBufferUtils() {
+        // utility class, don't instantiate
+    }
 	
 	/**
 	 * Really closes a MappedByteBuffer without the need to wait for
