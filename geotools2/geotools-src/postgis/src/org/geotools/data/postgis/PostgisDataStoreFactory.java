@@ -15,16 +15,18 @@
  */
 package org.geotools.data.postgis;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Map;
-
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.jdbc.ConnectionPool;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.sql.SQLException;
+import java.util.Map;
+
 
 /**
  * Creates a PostgisDataStore baed on the correct params.
+ * 
  * <p>
  * This factory should be registered in the META-INF/ folder, under services/
  * in the DataStoreFactorySpi file.
@@ -34,9 +36,58 @@ import org.geotools.data.jdbc.ConnectionPool;
  */
 public class PostgisDataStoreFactory
     implements org.geotools.data.DataStoreFactorySpi {
-
-     /** Creates PostGIS-specific JDBC driver class. */
+    /** Creates PostGIS-specific JDBC driver class. */
     private static final String DRIVER_CLASS = "org.postgresql.Driver";
+
+    /** Param, package visibiity for JUnit tests */
+    static final Param DBTYPE = new Param("dbtype", String.class,
+            "must be 'postgis'", true, "postgis");
+
+    /** Param, package visibiity for JUnit tests */
+    static final Param HOST = new Param("host", String.class,
+            "postgis host machine", true, "localhost");
+
+    /** Param, package visibiity for JUnit tests */
+    static final Param PORT = new Param("port", Integer.class,
+            "postgis connection port", true, new Integer(5432));
+
+    /** Param, package visibiity for JUnit tests */
+    static final Param DATABASE = new Param("database", String.class,
+            "postgis database");
+
+    /** Param, package visibiity for JUnit tests */
+    static final Param USER = new Param("user", String.class,
+            "user name to login as");
+
+    /** Param, package visibiity for JUnit tests */
+    static final Param PASSWD = new Param("passwd", String.class,
+            "password used to login", false);
+
+    /**
+     * Param, package visibiity for JUnit tests.
+     * <p>
+     * Example of a non simple Param type where custom parse method
+     * is required.
+     * </p>
+     * <p>
+     * When we convert to BeanInfo custom PropertyEditors will be
+     * required for this Param.
+     * </p>
+     */
+    static final Param CHARSET = new Param("charset", Charset.class,
+            "character set", false, "ISO-8859-1") {
+            public Object parse(String text) throws IOException {
+                return Charset.forName(text);
+            }
+
+            public String text(Object value) {
+                return ((Charset) value).name();
+            }
+        };
+
+    /** Param, package visibiity for JUnit tests */
+    static final Param NAMESPACE = new Param("namespace", String.class,
+            "namespace prefix used", false);
 
     /**
      * Creates a new instance of PostgisDataStoreFactory
@@ -46,23 +97,41 @@ public class PostgisDataStoreFactory
 
     /**
      * Checks to see if all the postgis params are there.
+     * 
      * <p>
      * Should have:
      * </p>
+     * 
      * <ul>
-     * <li>dbtype: equal to postgis</li>
-     * <li>host</li>
-     * <li>user</li>
-     * <li>passwd</li>
-     * <li>database</li>
-     * <li>charset</li>
+     * <li>
+     * dbtype: equal to postgis
+     * </li>
+     * <li>
+     * host
+     * </li>
+     * <li>
+     * user
+     * </li>
+     * <li>
+     * passwd
+     * </li>
+     * <li>
+     * database
+     * </li>
+     * <li>
+     * charset
+     * </li>
      * </ul>
+     * 
+     *
      * @param params Set of parameters needed for a postgis data store.
+     *
      * @return <code>true</code> if dbtype equals postgis, and contains keys
      *         for host, user, passwd, and database.
      */
     public boolean canProcess(Map params) {
         Object value;
+
         if (!params.containsKey("dbtype")) {
             return false;
         }
@@ -82,7 +151,7 @@ public class PostgisDataStoreFactory
         if (!params.containsKey("database")) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -98,50 +167,63 @@ public class PostgisDataStoreFactory
      *         Note that canProcess() should have returned false if the
      *         problem is to do with insuficent parameters.
      *
+     * @throws IOException See DataSourceException
      * @throws DataSourceException Thrown if there were any problems creating
      *         or connecting the datasource.
      */
     public DataStore createDataStore(Map params) throws IOException {
+        String host = (String) HOST.lookUp(params);
+        String user = (String) USER.lookUp(params);
+        String passwd = (String) PASSWD.lookUp(params);
+        Integer port = (Integer) PORT.lookUp(params);
+        String database = (String) DATABASE.lookUp(params);
+        Charset charSet = (Charset) CHARSET.lookUp(params);
+        String namespace = (String) NAMESPACE.lookUp(params);
+
+        // Try processing params first so we can get an error message
+        // back to the user
+        //
         if (!canProcess(params)) {
             return null;
         }
-                
-        String host = (String) params.get("host");
-        String user = (String) params.get("user");
-        String passwd = (String) params.get("passwd");        
-        String port = params.get("port").toString();
-        String database = (String) params.get("database");
-        String table = (String) params.get("table");
-        String charSet = (String) params.get("charset");
-        String namespace = (String) params.get("namespace");
 
         PostgisConnectionFactory connFact = new PostgisConnectionFactory(host,
-                port, database);
+                port.toString(), database);
 
         connFact.setLogin(user, passwd);
-        connFact.setCharSet(charSet);
+
+        if (charSet != null) {
+            connFact.setCharSet(charSet.name());
+        }
 
         ConnectionPool pool;
+
         try {
             pool = connFact.getConnectionPool();
         } catch (SQLException e) {
-            throw new DataSourceException("Could not create connection", e );
+            throw new DataSourceException("Could not create connection", e);
         }
-        if( namespace != null){
-            return new PostgisDataStore(pool, namespace );                
+
+        if (namespace != null) {
+            return new PostgisDataStore(pool, namespace);
+        } else {
+            return new PostgisDataStore(pool);
         }
-        else {
-            return new PostgisDataStore(pool);                
-        }                        
     }
+
     /**
      * Postgis cannot create a new database.
+     *
      * @param params
+     *
      * @return
+     *
+     * @throws IOException See UnsupportedOperationException
      * @throws UnsupportedOperationException Cannot create new database
      */
     public DataStore createNewDataStore(Map params) throws IOException {
-        throw new UnsupportedOperationException("Postgis cannot create a new Database");
+        throw new UnsupportedOperationException(
+            "Postgis cannot create a new Database");
     }
 
     /**
@@ -156,20 +238,14 @@ public class PostgisDataStoreFactory
 
     /**
      * Describe parameters.
-     * 
-     * @see org.geotools.data.DataStoreFactorySpi#getParametersInfo()
+     *
      * @return
+     *
+     * @see org.geotools.data.DataStoreFactorySpi#getParametersInfo()
      */
     public Param[] getParametersInfo() {
-        return new Param[]{
-            new Param("dbtype"),
-            new Param("host"),
-            new Param("port",Integer.class,"database connection port"),
-            new Param("database"),                        
-            new Param("user"),
-            new Param("passwd", String.class,"passwd for user", false),                      
-            new Param("charset",String.class,"character set", false),
-            new Param("namespace",String.class,"namespace",false)            
+        return new Param[] {
+            DBTYPE, HOST, PORT, DATABASE, USER, PASSWD, CHARSET, NAMESPACE
         };
-    }    
+    }
 }
