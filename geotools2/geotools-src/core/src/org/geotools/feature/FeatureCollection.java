@@ -29,7 +29,7 @@ import org.geotools.data.Extent;
  *
  * @author Ian Turton, CCG<br>
  * @author Rob Hranac, VFNY
- * @version $Id: FeatureCollection.java,v 1.9 2003/07/02 18:24:19 jmacgill Exp $
+ * @version $Id: FeatureCollection.java,v 1.10 2003/07/02 18:33:02 jmacgill Exp $
  *
  * @task REVISIT: get rid of datasource reference, get rid of extents.
  */
@@ -43,6 +43,8 @@ public interface FeatureCollection extends java.util.Set {
      *
      * @param data The datasource for this feature collection to mediate.
      *
+     * @deprecated FeatureCollections should not contain a reference to the datasource which
+     * created them so this method will be removed in the near future.
      * @task REVISIT: remove the datasource reference?  Some feature
      *       collections will have references to their datasource, but not
      *       all, as the loading when needed hasn't really worked.
@@ -98,12 +100,14 @@ public interface FeatureCollection extends java.util.Set {
      * Managing features via the datasource.
      * ***********************************************************************/
 
-    /**
-     * Gets the features in the datasource inside the loadedExtent.  Will not
+    /** Gets the features in the datasource inside the loadedExtent.  Will not
      * trigger a datasourceload.  Functionally equivalent to
      * getFeatures(getLoadedExtent());
-     *
      * @see #getFeatures(Extent ex)
+     * @deprecated FeatureCollection now extends Set and this mechanism for obtaining an array of
+     * features is no longer supported.
+     * Either obtain an itterator from the FeatureCollection or use the toArray method
+     * instead.
      */
     Feature[] getFeatures();
 
