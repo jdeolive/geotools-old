@@ -15,7 +15,12 @@
   <package>org.geotools</package>
   <shortDescription>Core interfaces for GeoTools2</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description/>
+  <description>
+    The Core module contains the key interfaces that are implemented and used by other GeoTools modules.
+    Other than Exceptions and Events the Core module contains no actual code, instead that is provided
+    by other modules.  See the defaultcore module for standard implemenations of the interfaces defined
+    here.
+  </description>
   <url>http://www.geotols.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
@@ -25,7 +30,7 @@
   
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/core</connection>
-    <url>http://address.of.geotools/cvsviewer/</url>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/core/</url>
   </repository>
   
 
@@ -36,7 +41,6 @@
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
-      
             <roles>
                 <role>Module Maintainer</role>
                 <role>Java Developer</role>
@@ -47,7 +51,6 @@
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
-      
             <roles>
                 <role>Java Developer</role>
             </roles>
@@ -57,7 +60,6 @@
       <id>loxnard</id>
       <email>loxnard@users.sourceforge.net</email>
       <organization>None</organization>
-      
             <roles>
                 <role>Doc Editor</role>
             </roles>
@@ -75,8 +77,7 @@
     <dependency>
       <id>opengis-css</id>
       <version>0.1</version>
-    </dependency>
-        
+    </dependency>   
     </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
