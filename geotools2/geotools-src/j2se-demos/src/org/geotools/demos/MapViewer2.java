@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import org.opengis.cs.CS_CoordinateSystem;
 import org.geotools.cs.Adapters;
 import org.geotools.cs.CoordinateSystemFactory;
@@ -67,11 +68,11 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.6 2003/01/19 21:00:11 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.7 2003/01/21 11:56:04 camerons Exp $
  *
  */
 
-public class MapViewer2 extends javax.swing.JFrame {
+public class MapViewer2 extends JFrame {
 
     /** Translates between coordinate systems */
     private Adapters adapters = Adapters.getDefault();
@@ -83,8 +84,7 @@ public class MapViewer2 extends javax.swing.JFrame {
 
     /** Creates new form MapViewer2 */
     public MapViewer2() {
-        initComponents();
-        LOGGER.info("mapViewer graphics="+this.getGraphics());
+        //initComponents();
         initComponents2();
     }
 
@@ -103,7 +103,7 @@ public class MapViewer2 extends javax.swing.JFrame {
             }
         });
 
-        pack();
+        //pack();
     }//GEN-END:initComponents
 
     /** 
@@ -148,6 +148,10 @@ public class MapViewer2 extends javax.swing.JFrame {
             // Create a Context
             Context context=new ContextImpl(
                 bbox,layerList,"defaultContext",null,null,null);
+            
+            // Initialise this Panel
+            this.setTitle("Funky Map");
+            this.setSize(600,600);
 
             // Create MapPane and associate a Tool
             tool=new PanTool();
@@ -156,11 +160,11 @@ public class MapViewer2 extends javax.swing.JFrame {
             mapPane.setBorder(
                 new javax.swing.border.TitledBorder("MapPane Map"));
             getContentPane().add(
-                mapPane,
-                new org.netbeans.lib.awtextra.AbsoluteConstraints(
-                    0, 0, 300, 420));
-            //mapPane.setSize(400,400);
-            pack();
+                mapPane);
+//                new org.netbeans.lib.awtextra.AbsoluteConstraints(
+//                    0, 0, 300, 420));
+            mapPane.setSize(400,400);
+            //pack();
          } catch (Exception e){
             LOGGER.warning("Exception: "+e+" initialising MapView.");
         }
