@@ -19,9 +19,7 @@
 
 package org.geotools.vpf.io;
 
-import java.io.ByteArrayInputStream;
 import java.io.PushbackInputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -35,6 +33,7 @@ import org.geotools.vpf.TableHeader;
 import org.geotools.vpf.TableRow;
 import org.geotools.vpf.RowField;
 import org.geotools.vpf.VPFDate;
+import org.geotools.vpf.util.DataUtils;
 import org.geotools.vpf.exc.VPFHeaderFormatException;
 import org.geotools.vpf.exc.VPFRowDataException;
 import org.geotools.vpf.ifc.DataTypesDefinition;
@@ -79,12 +78,19 @@ public class TableInputStream extends InputStream
     readHeader();
   }
 
+  public void close()
+    throws IOException
+  {
+    input.close();
+    input = null;
+  }
+
   public TableHeader getHeader()
   {
     return header;
   }
 
-  protected void readHeader()
+  private void readHeader()
     throws IOException
   {
     byte[] fourBytes = new byte[4];
@@ -92,9 +98,9 @@ public class TableInputStream extends InputStream
     char order = readChar();
     if (order == LITTLE_ENDIAN_ORDER)
     {
-      fourBytes = toBigEndian(fourBytes);
+      fourBytes = DataUtils.toBigEndian(fourBytes);
     } // end of if (order == LITTLE_ENDIAN_ORDER)
-    int length = decodeInt(fourBytes);
+    int length = DataUtils.decodeInt(fourBytes);
     char ctrl = readChar();
     if (ctrl != VPF_RECORD_SEPARATOR)
     {
@@ -125,7 +131,7 @@ public class TableInputStream extends InputStream
                              narrativeTable, colDefs);
   }
 
-  public TableColumnDef readColumnDef()
+  private TableColumnDef readColumnDef()
     throws IOException, NumberFormatException
   {
     char ctrl = readChar();
@@ -182,10 +188,10 @@ public class TableInputStream extends InputStream
 	  } // end of if (size != tcd.getColumnSize())
 	  if (tcd.isNumeric() && header.getByteOrder() == LITTLE_ENDIAN_ORDER)
 	  {
-		bytes = toBigEndian(bytes);
+		bytes = DataUtils.toBigEndian(bytes);
 	  } // end of if (tcd.isNumeric() &&
 	    //header.getByteOrder() == LITTLE_ENDIAN_ORDER)
-	  Object value = decodeData(bytes, tcd.getType());
+	  Object value = DataUtils.decodeData(bytes, tcd.getType());
       RowField field = new RowField(value, tcd.getType());
       fieldsArr[i] = field;
       fieldsMap.put(tcd.getName(), field);
@@ -208,13 +214,13 @@ public class TableInputStream extends InputStream
     return rowsReadAhead.size();
   }
 
-  protected char readChar()
+  private char readChar()
     throws IOException
   {
     return (char)input.read();
   }
 
-  protected String readString(String terminators)
+  private String readString(String terminators)
     throws IOException
   {
     StringBuffer text = new StringBuffer();
@@ -240,143 +246,6 @@ public class TableInputStream extends InputStream
       return text.toString();
     } // end of if (text.equals("null")) else
   }
-
-  public static byte[] toBigEndian(byte[] source)
-  {
-	byte[] result = new byte[source.length];
-	for (int i = 0; i < source.length; i++)
-	{
-	  result[i] = source[source.length - (i+1)];
-	} // end of for (int i = 0; i < source.length; i++)
-	return result;
-  }
-
-  public Object decodeData(byte[] bytes, char type)
-    throws IOException
-  {
-	Object result = null;
-	switch (type) {
-	  case DATA_TEXT:
-	  case DATA_LEVEL1_TEXT:
-	  case DATA_LEVEL2_TEXT:
-	  case DATA_LEVEL3_TEXT:
-		StringBuffer sb = new StringBuffer(bytes.length);
-		for (int i = 0; i < bytes.length; i++) {
-		  sb.append((char)bytes[i]);
-		} // end of for (int i = 0; i < bytes.length; i++)
-        boolean isNull = false;
-        for (int i = 0; i < STRING_NULL_VALUES.length; i++)
-        {
-          isNull |=
-			sb.toString().trim().equalsIgnoreCase(STRING_NULL_VALUES[i]);
-        } // end of for (int i = 0; i < STRING_NULL_VALUES.length; i++)
-        if (isNull)
-        {
-          result = null;
-        } // end of if (isNull)
-        else
-        {
-          result = sb.toString();
-        } // end of else
-		break;
-	  case DATA_SHORT_FLOAT:
-		result = new Float(decodeFloat(bytes));
-		break;
-	  case DATA_LONG_FLOAT:
-		result = new Double(decodeDouble(bytes));
-		break;
-	  case DATA_SHORT_INTEGER:
-		result = new Short(decodeShort(bytes));
-		break;
-	  case DATA_LONG_INTEGER:
-		result = new Integer(decodeInt(bytes));
-		break;
-	  case DATA_2_COORD_F:
-
-		break;
-	  case DATA_2_COORD_R:
-
-		break;
-	  case DATA_3_COORD_F:
-
-		break;
-	  case DATA_3_COORD_R:
-
-		break;
-	  case DATA_DATE_TIME:
-		result = new VPFDate(bytes);
-		break;
-	  case DATA_NULL_FIELD:
-
-		break;
-	  case DATA_TRIPLED_ID:
-
-	  default:
-		break;
-	} // end of switch (tcd.getType())
-	return result;
-  }
-
-  public static short decodeShort(byte[] bytes)
-    throws IOException
-  {
-	DataInputStream dis =
-	  new DataInputStream(new ByteArrayInputStream(bytes));
-	return dis.readShort();
-  }
-
-  public static int decodeInt(byte[] bytes)
-    throws IOException
-  {
-	DataInputStream dis =
-	  new DataInputStream(new ByteArrayInputStream(bytes));
-	return dis.readInt();
-  }
-  
-  public static float decodeFloat(byte[] bytes)
-    throws IOException
-  {
-	DataInputStream dis =
-	  new DataInputStream(new ByteArrayInputStream(bytes));
-	return dis.readFloat();
-  }
-  
-  public static double decodeDouble(byte[] bytes)
-    throws IOException
-  {
-	DataInputStream dis =
-	  new DataInputStream(new ByteArrayInputStream(bytes));
-	return dis.readDouble();
-  }
-  
-  //   public static int littleEndianToInt(byte[] fourBytes)
-  //   {
-  //     int res = 0;
-  //     int limit = Math.min(fourBytes.length, 4);
-  //     for (int i = 0; i < limit-1; i++)
-  //     {
-  //       res += unsigByteToInt(fourBytes[i]) << (i*8);
-  //     } // end of for (int i = 0; i < limit-1; i++)
-  // 	res += (int)fourBytes[i] << (i*8);
-  //     return res;
-  //   }
-
-  //   public static int bigEndianToInt(byte[] fourBytes)
-  //   {
-  //     int res = 0;
-  //     int limit = Math.min(fourBytes.length, 4);
-  // 	res += (int)fourBytes[0] << ((limit-1)*8);
-  //     for (int i = 1; i < limit; i++)
-  //     {
-  //       res += unsigByteToInt(fourBytes[i]) << ((limit-(i+1))*8);
-  //     } // end of for (int i = 0; i < limit-1; i++)
-  //     return res;
-  //   }
-
-  //   public static int unsigByteToInt(byte b)
-  //   {
-  //     return (int) b & 0xFF;
-  //   }
 
   public static void main(String[] args)
     throws IOException

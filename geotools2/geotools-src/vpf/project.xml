@@ -7,7 +7,7 @@
   <id>vpf</id>
   <currentVersion>1.0.0</currentVersion>
  
-  <package>org.geotools</package>
+  <package>org.geotools.vpf</package>
   <shortDescription>vpf module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description>vpf module</description>
@@ -35,10 +35,6 @@
         <dependency>
       <id>defaultcore</id>
       <version>0.1</version>
-    </dependency>
-    <dependency>
-      <id>littleEndian</id>
-      <version>1.0</version>
     </dependency>
   </dependencies>
  

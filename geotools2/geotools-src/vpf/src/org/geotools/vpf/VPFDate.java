@@ -18,7 +18,7 @@ import java.text.ParseException;
 
 public class VPFDate {
 
-  public static final SimpleDateFormat sdf =
+  protected SimpleDateFormat sdf =
 	new SimpleDateFormat("yyyyMMddHHmmssZ");
   
   protected byte[] dateBin = null;
@@ -41,7 +41,20 @@ public class VPFDate {
   {
 	try {
 	  return sdf.parse(toString());
-	} catch (ParseException e) {} // end of try-catch
+	} catch (ParseException e) {
+      e.printStackTrace();
+    } // end of try-catch
+	return null;
+  }
+
+  public Calendar getCalendar()
+  {
+	try {
+      sdf.parse(toString());
+	  return sdf.getCalendar();
+	} catch (ParseException e) {
+      e.printStackTrace();
+    } // end of try-catch
 	return null;
   }
   
