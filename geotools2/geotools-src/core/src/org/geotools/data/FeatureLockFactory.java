@@ -22,14 +22,18 @@ import org.geotools.factory.FactoryFinder;
 
 /**
  * This specifies the interface to create FeatureLocks.
- *
- * @version $Id: FeatureLockFactory.java,v 1.1 2003/09/22 17:44:35 cholmesny Exp $
+ * <p>
+ * Sample use:
+ * <code><pre>
+ * FeatureLock lock = FeatureLockFactory.generate( "MyLock", 3600 );
+ * </pre></code>
+ * @version $Id: FeatureLockFactory.java,v 1.2 2003/10/01 23:40:31 jive Exp $
  * @task REVISIT: Combine this with a factory to also make Query objects?
  * @author Chris Holmes, TOPP
  */
 
 public abstract class FeatureLockFactory implements Factory {
-    /** A cached facotry to create FeatureLocks. */
+    /** A cached factory to create FeatureLocks. */
     private static FeatureLockFactory factory = null;
     
     /**
@@ -68,7 +72,7 @@ public abstract class FeatureLockFactory implements Factory {
      * @param duration FeatureLock duration in seconds
      */
     public static FeatureLock generate(long duration) {
-	return generate("LockID", duration);
+	   return generate("LockID", duration);
     }
 
     /**

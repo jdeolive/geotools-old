@@ -24,8 +24,8 @@ package org.geotools.data;
  * </p> 
  * Example:
  * <table border=1, bgcolor="lightgray", width="100%"><tr><td><code><pre>
- * FeatureLock lock1 = FeatureLock.generate( 18*60*60 ); // expire in 18 min
- * FeatureLock lock3 = FeatureLock.generate( "MyLock", 30*60*60 ); // expire in 30 min
+ * FeatureLock lock1 = FeatureLockFactory.generate( 18*60*60 ); // expire in 18 min
+ * FeatureLock lock3 = FeatureLockFactory.generate( "MyLock", 30*60*60 ); // expire in 30 min
  * </pre></code></td></tr></table>
  * <p>
  * Although it is tempting to have these FeatureLock objects stored in a static
@@ -33,7 +33,7 @@ package org.geotools.data;
  * that decision should be left to the individual DataSources.
  * </p>
  * <p>An AbstractLockingDataSource with appropriate overrideable callbacks
- * may be an elegent way to acomplish this.
+ * may be an elegent way to acomplish this.</p>
  * 
  * @see http://vwfs.refractions.net/docs/Database_Research.pdf
  * @see http://vwfs.refractions.net/docs/Transactional_WFS_Design.pdf
@@ -61,5 +61,4 @@ public class DefaultFeatureLock implements FeatureLock {
     public long getDuration(){        
         return duration;
     }
-    
 }

@@ -21,11 +21,14 @@ package org.geotools.data;
  *
  * @author Jody Garnett, Refractions Research, Inc.
  * @author Chris Holmes, TOPP.
- * @version $Id: DefaultFeatureLockFactory.java,v 1.1 2003/09/22 17:48:26 cholmesny Exp $
+ * @version $Id: DefaultFeatureLockFactory.java,v 1.2 2003/10/01 23:41:48 jive Exp $
  *
  * @task REVISIT: Should more of this code move to the parent?  I guess if
  *       other implementations came along they may want to implement
  *       differently.
+ * @task REVISIT: The generation code can move to the parent. Even if other
+ *       implementations come along we do not want the to implement the
+ *       generation differently.
  */
 public class DefaultFeatureLockFactory extends FeatureLockFactory {
     /** Count used to generate unique ID numbers */
@@ -98,15 +101,13 @@ public class DefaultFeatureLockFactory extends FeatureLockFactory {
     }
 
     /**
-     * Horrible utility method used to reverse bits.
-     * 
+     * Utility method used to reverse bits.
      * <p>
      * Since generating ID numbers is not performance critical I won't care
      * right now.
      * </p>
      *
      * @param number
-     *
      * @return Number represented as bits
      */
     private static String asBits(long number) {

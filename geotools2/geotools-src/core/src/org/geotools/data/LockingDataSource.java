@@ -101,7 +101,7 @@ import org.geotools.filter.Filter;
  *   LockingDataSource tds =
  *       (LockingDataSource) DataSourceFinder.getDataSource( params );
  *  
- *   FeatureLock lock = FeatureLock.generate( 30*60*60 ); // 30 min
+ *   FeatureLock lock = FeatureLockFactory.generate( 30*60*60 ); // 30 min
  *   lds.setFeatureLock( lock );
  *   lds.lockFeatures( Filter );
  *   lds.commit();
@@ -133,7 +133,7 @@ import org.geotools.filter.Filter;
 public interface LockingDataSource extends DataSource {
             
     /**
-     * All locking operations will operate against the provided FeatureLock.
+     * All locking operations will operate against the provided <code>lock</code>.
      * <p>
      * This in in keeping with the stateful spirit of DataSource in which operations are against the
      * "current" transaction. If a FeatureLock is not provided lock operations will only
@@ -145,7 +145,7 @@ public interface LockingDataSource extends DataSource {
      * <li>Be recorded against the current transaction if no FeatureLock is provided.
      * </ul>
      * <p>
-     * Calling this method with <code>setCurrentLock( null )<code> will revert to per transaction operation.</p>
+     * Calling this method with <code>setFeatureLock( null )<code> will revert to per transaction operation.</p>
      * <p>
      * This design allows for the following:</p>
      * <ul>
