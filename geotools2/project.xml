@@ -38,7 +38,6 @@
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
             <roles>
-                <role>Module Maintainer</role>
                 <role>Java Developer</role>
             </roles>
         </developer>
@@ -62,7 +61,47 @@
                 <role>Java Developer</role>
             </roles>
         </developer>
-  </developers>
+        <developer>
+      <name>Linda Oxnard</name>
+      <id>loxnard</id>
+      <email>loxnard@users.sourceforge.net</email>
+      <organization>None</organization>
+            <roles>
+                <role>Doc Editor</role>
+            </roles>
+        </developer>
+        <developer>
+      <name>Cameron Shorter</name>
+      <id>camerons</id>
+      <email>cameronsl@users.sourceforge.net</email>
+      <organization>None</organization>
+            <roles>
+                
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        
+        <developer>
+      <name>Chris Holmes</name>
+      <id>cholmesny</id>
+      <email>cholmesny@users.sourceforge.net</email>
+      <organization>TOPP</organization>
+            <roles>
+		<role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+      <name>Martin Desruisseaux</name>
+      <id>desruisseaux</id>
+      <email>desruisseaux@users.sourceforge.net</email>
+      <organization>Institut de Recherche pour le Developpement (IRD)</organization>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    </developers>
   <dependencies>
   </dependencies>
   <build>
