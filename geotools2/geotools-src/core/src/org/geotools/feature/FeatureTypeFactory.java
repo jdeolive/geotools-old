@@ -20,15 +20,14 @@ import java.io.*;
 import java.util.*;
 import org.geotools.factory.*;
 
-/**
- * A factory patterned object for the creation of FeatureTypes. Because
+/** A factory patterned object for the creation of FeatureTypes. Because
  * FeatureTypes are meant to be immutable, this object is mutable.<p>
- * 
- * The basic idea for usage is that you configure the factory to whatever state 
- * is desired, setting properties and adding AttributeTypes. When the desired 
+ *
+ * The basic idea for usage is that you configure the factory to whatever state
+ * is desired, setting properties and adding AttributeTypes. When the desired
  * state is acheived, the expected FeatureType can be retrieved by calling<br>
  * <code>getFeatureType()</code><br>
- * Repeated calls to getFeatureType will return the <i>same</i> FeatureType 
+ * Repeated calls to getFeatureType will return the <i>same</i> FeatureType
  * given that no calls which modify the state of the factory are made.<p>
  *
  * Here's an example of how to use this:
@@ -41,14 +40,15 @@ import org.geotools.factory.*;
  * FeatureType type = factory.getFeatureType();
  * </pre>
  * </code>
+ * There are also a set of convenience methods for creation of FeatureTypes. These
+ * are the various newFeatureType methods.<p>
  *
  * <b>Remember, changes to any state will invalidate the current FeatureType, if
  * one exists</b><br>
- * 
- * This class is not thread-safe.
  *
- * @version $Id: FeatureTypeFactory.java,v 1.6 2003/07/22 00:57:40 ianschneider Exp $
- * @author  Ian Schneider
+ * This class is not thread-safe.
+ * @version $Id: FeatureTypeFactory.java,v 1.7 2003/07/24 20:28:27 ianschneider Exp $
+ * @author Ian Schneider
  */
 public abstract class FeatureTypeFactory implements Factory {
   
@@ -91,6 +91,17 @@ public abstract class FeatureTypeFactory implements Factory {
     return factory;
   }
   
+  /** The most specific way to create a new FeatureType.
+   * @param types The AttributeTypes to create the FeatureType with.
+   * @param name The typeName of the FeatureType. Required, may not be null.
+   * @param ns The namespace of the FeatureType. Optional, may be null.
+   * @param isAbstract True if this created type should be abstract.
+   * @param superTypes A Collection of types the FeatureType will inherit from. Currently, all types
+   * inherit from feature in the opengis namespace.
+   * @throws FactoryConfigurationError If there are problems creating a factory.
+   * @throws SchemaException If the AttributeTypes provided are invalid in some way.
+   * @return A new FeatureType created from the given arguments.
+   */  
   public static FeatureType newFeatureType(
   AttributeType[] types,String name,String ns,boolean isAbstract,FeatureType[] superTypes) 
   throws FactoryConfigurationError,
@@ -103,14 +114,15 @@ public abstract class FeatureTypeFactory implements Factory {
       factory.setSuperTypes(Arrays.asList(superTypes));
     return factory.getFeatureType();
   }
-  /** Create a new FeatureType with the given AttributeTypes. This is a convenience
-   * method for creating a new factory which assumes that the first AttributeType,
-   * if a geometry, will be the default geometry.
-   * @param types An array of AttributeTypes to use.
-   * @param name The name of the new FeatureType.
-   * @throws FactoryConfigurationError If a FeatureTypeFactory cannot be found.
-   * @throws SchemaException If there are problems creating a FeatureType.
-   * @return A new FeatureType containing the above information.
+  /** Create a new FeatureType with the given AttributeTypes. A short cut for
+   * calling <code>newFeatureType(types,name,ns,isAbstract,null)</code>.
+   * @param types The AttributeTypes to create the FeatureType with.
+   * @param name The typeName of the FeatureType. Required, may not be null.
+   * @param ns The namespace of the FeatureType. Optional, may be null.
+   * @param isAbstract True if this created type should be abstract.
+   * @throws FactoryConfigurationError If there are problems creating a factory.
+   * @throws SchemaException If the AttributeTypes provided are invalid in some way.
+   * @return A new FeatureType created from the given arguments.
    */  
   public static FeatureType newFeatureType(
   AttributeType[] types,String name,String ns,boolean isAbstract) 
@@ -119,6 +131,15 @@ public abstract class FeatureTypeFactory implements Factory {
     return newFeatureType(types,name,ns,isAbstract,null);
   }
   
+  /** Create a new FeatureType with the given AttributeTypes. A short cut for
+   * calling <code>newFeatureType(types,name,ns,false,null)</code>.
+   * @param types The AttributeTypes to create the FeatureType with.
+   * @param name The typeName of the FeatureType. Required, may not be null.
+   * @param ns The namespace of the FeatureType. Optional, may be null.
+   * @throws FactoryConfigurationError If there are problems creating a factory.
+   * @throws SchemaException If the AttributeTypes provided are invalid in some way.
+   * @return A new FeatureType created from the given arguments.
+   */  
   public static FeatureType newFeatureType(
   AttributeType[] types,String name,String ns) 
   throws FactoryConfigurationError,
@@ -126,16 +147,25 @@ public abstract class FeatureTypeFactory implements Factory {
     return newFeatureType(types,name,ns,false);
   }
   
+  /** Create a new FeatureType with the given AttributeTypes. A short cut for
+   * calling <code>newFeatureType(types,name,null,false,null)</code>. Useful for
+   * test cases or datasources which may not allow a namespace.
+   * @param types The AttributeTypes to create the FeatureType with.
+   * @param name The typeName of the FeatureType. Required, may not be null.
+   * @throws FactoryConfigurationError If there are problems creating a factory.
+   * @throws SchemaException If the AttributeTypes provided are invalid in some way.
+   * @return A new FeatureType created from the given arguments.
+   */  
   public static FeatureType newFeatureType(AttributeType[] types,String name) 
   throws FactoryConfigurationError,
          SchemaException {
     return newFeatureType(types,name,null,false);        
   }
   
-  /** Create a new FeatureTypeFactory. This class uses the FactoryFinder.
-   * @throws FactoryConfigurationError
-   * @return
-   * @see
+  /** Create a new FeatureTypeFactory with the given typeName.
+   * @return A new FeatureTypeFactory instance.
+   * @param name The typeName of the feature to create.
+   * @throws FactoryConfigurationError If there exists a configuration error.
    */  
   public static FeatureTypeFactory newInstance(String name) throws FactoryConfigurationError {
     FeatureTypeFactory factory = (FeatureTypeFactory) FactoryFinder.findFactory(
@@ -167,10 +197,18 @@ public abstract class FeatureTypeFactory implements Factory {
     }
   }
   
+  /** Set the super types of this factory. The types will be copied into a Set.
+   * @param types A Collection of types.
+   */  
   public final void setSuperTypes(java.util.Collection types) {
     superTypes = new java.util.LinkedHashSet(types);
   }
   
+  /** Obtain the super types of this factory. Any user types will be appended to the
+   * built in types of this factory.
+   * @return A Collection representing the super types of the FeatureType this factory will
+   * create.
+   */  
   public final java.util.Collection getSuperTypes() {
     Set supers = superTypes == null ? new HashSet() : superTypes;
     Set builtin = getBuiltinTypes();
@@ -220,10 +258,16 @@ public abstract class FeatureTypeFactory implements Factory {
     return namespace;
   }
   
+  /** Is this factory configured to be abstract?
+   * @return True if it is, false if it aint.
+   */  
   public final boolean isAbstract() {
     return abstractType;
   } 
   
+  /** Configure this factory to produce an abstract type.
+   * @param a True or false.
+   */  
   public final void setAbstract(boolean a) {
     dirty = true;
     this.abstractType = a;
@@ -291,7 +335,7 @@ public abstract class FeatureTypeFactory implements Factory {
    * @param idx The index to insert at.
    * @param type The AttributeType to insert.
    * @throws NullPointerException If the type is null.
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException If the AttributeType is not allowed.
    * @throws ArrayIndexOutOfBoundsException If the index is out of range.
    */  
   public final void addType(int idx,AttributeType type)
@@ -305,10 +349,13 @@ public abstract class FeatureTypeFactory implements Factory {
     add(idx,type);
   }
   
-  /** Remove the AttributeType at the given index. */  
+  /** Remove the AttributeType at the given index.
+   * @param idx The index to remove at.
+   * @throws NullPointerException
+   * @throws ArrayIndexOutOfBoundsException If the index is out of bounds.
+   */  
   public final void removeType(int idx)
-  throws NullPointerException,
-  ArrayIndexOutOfBoundsException {
+  throws ArrayIndexOutOfBoundsException {
     dirty = true;
     AttributeType removed = remove(idx);
     if (removed == defaultGeometry)
@@ -316,12 +363,14 @@ public abstract class FeatureTypeFactory implements Factory {
   }
   
   /** Set the AttributeType at the given index. Overwrites the existing type.
-   * @param idx
-   * @param type
-   * @throws IllegalArgumentException
+   * @param idx The index to use.
+   * @param type The type to use.
+   * @throws IllegalArgumentException If the type is not good.
    */  
   public final void setType(int idx,AttributeType type)
-  throws IllegalArgumentException {
+  throws IllegalArgumentException,
+  NullPointerException,
+  ArrayIndexOutOfBoundsException {
     if (type == null)
       throw new NullPointerException("type");
     dirty = true;
