@@ -1,15 +1,17 @@
 package org.geotools.feature;
 
 import junit.framework.*;
-import org.apache.log4j.Category;
-import org.apache.log4j.BasicConfigurator;
 import com.vividsolutions.jts.geom.*;
+
 import java.util.*;
+import java.util.logging.Logger;
 
 public class FeatureFlatTest extends TestCase {
 
-    /** Standard logging instance */
-    private static Category _log = Category.getInstance(FeatureFlatTest.class.getName());
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
 
     /** Feature on which to preform tests */
     private Feature testFeature = null;
@@ -21,23 +23,21 @@ public class FeatureFlatTest extends TestCase {
     }
 
     public static void main(String[] args) {
-        BasicConfigurator.configure();
         junit.textui.TestRunner.run(suite());
     }
 
     public static Test suite() {
-        BasicConfigurator.configure();
         TestSuite suite = new TestSuite(FeatureFlatTest.class);
         return suite;
     }
     
     public void setUp() {
         try {
-            _log.info("creating flat feature...");
+            LOGGER.fine("creating flat feature...");
             AttributeType geometryAttribute = new AttributeTypeDefault("testGeometry", Point.class);
-            _log.info("created geometry attribute");
+            LOGGER.fine("created geometry attribute");
             AttributeType booleanAttribute = new AttributeTypeDefault("testBoolean", Boolean.class);
-            _log.info("created boolean attribute");
+            LOGGER.fine("created boolean attribute");
             AttributeType charAttribute = new AttributeTypeDefault("testCharacter", Character.class);
             AttributeType byteAttribute = new AttributeTypeDefault("testByte", Byte.class);
             AttributeType shortAttribute = new AttributeTypeDefault("testShort", Short.class);
@@ -48,25 +48,25 @@ public class FeatureFlatTest extends TestCase {
             AttributeType stringAttribute = new AttributeTypeDefault("testString", String.class);
 
             FeatureType testType = new FeatureTypeFlat(geometryAttribute); 
-            _log.info("created feature type and added geometry");
+            LOGGER.fine("created feature type and added geometry");
             testType = testType.setAttributeType(booleanAttribute);
-            _log.info("added boolean to feature type");
+            LOGGER.fine("added boolean to feature type");
             testType = testType.setAttributeType(charAttribute);
-            _log.info("added character to feature type");
+            LOGGER.fine("added character to feature type");
             testType = testType.setAttributeType(byteAttribute);
-            _log.info("added byte to feature type");
+            LOGGER.fine("added byte to feature type");
             testType = testType.setAttributeType(shortAttribute);
-            _log.info("added short to feature type");
+            LOGGER.fine("added short to feature type");
             testType = testType.setAttributeType(intAttribute);
-            _log.info("added int to feature type");
+            LOGGER.fine("added int to feature type");
             testType = testType.setAttributeType(longAttribute);
-            _log.info("added long to feature type");
+            LOGGER.fine("added long to feature type");
             testType = testType.setAttributeType(floatAttribute);
-            _log.info("added float to feature type");
+            LOGGER.fine("added float to feature type");
             testType = testType.setAttributeType(doubleAttribute);
-            _log.info("added double to feature type");
+            LOGGER.fine("added double to feature type");
             testType = testType.setAttributeType(stringAttribute);
-            _log.info("added string to feature type");
+            LOGGER.fine("added string to feature type");
 
             Object[] attributes = new Object[10];
             attributes[0] = new Point(new Coordinate(1,2), new PrecisionModel(), 1);
@@ -80,21 +80,21 @@ public class FeatureFlatTest extends TestCase {
             attributes[8] = new Double(100000.5);
             attributes[9] = "test string data";
             testFeature = new FeatureFlat((FeatureTypeFlat) testType, attributes);
-            _log.info("...flat feature created");
+            LOGGER.fine("...flat feature created");
         }
         catch(SchemaException e) {
-            _log.info("Test failed during schema creation: ");
-            _log.info(e.getMessage());
+            LOGGER.fine("Test failed during schema creation: ");
+            LOGGER.fine(e.getMessage());
         }
         catch(IllegalFeatureException e) {
-            _log.info("Test failed during feature creation: ");
-            _log.info(e.getMessage());
+            LOGGER.fine("Test failed during feature creation: ");
+            LOGGER.fine(e.getMessage());
         }
     }
 
     public void testRetrieve() {
         try {
-            _log.info("starting retrieval tests...");
+            LOGGER.fine("starting retrieval tests...");
             assertTrue("geometry retrieval and match",
                        ((Point) testFeature.getAttribute("testGeometry")).
                        equals(new Point(new Coordinate(1,2), new PrecisionModel(), 1)));
@@ -125,17 +125,17 @@ public class FeatureFlatTest extends TestCase {
             assertTrue("string retrieval and match",
                        ((String) testFeature.getAttribute("testString")).
                         equals("test string data"));
-            _log.info("...ending retrieval tests");
+            LOGGER.fine("...ending retrieval tests");
         }
         catch(IllegalFeatureException e) {
-            _log.info("Feature threw exception: ");
-            _log.info(e.getMessage());
+            LOGGER.fine("Feature threw exception: ");
+            LOGGER.fine(e.getMessage());
         }
     }
 
     public void testModify() {
         try {
-            _log.info("starting attribute modification tests...");
+            LOGGER.fine("starting attribute modification tests...");
             
             testFeature.setAttribute("testString", "new test string data");
             assertEquals("match modified (string) attribute",
@@ -148,18 +148,18 @@ public class FeatureFlatTest extends TestCase {
                        ((Point) testFeature.getAttribute("testGeometry")).
                        equals(new Point(new Coordinate(3,4), new PrecisionModel(), 1)));
 
-            _log.info("...ending attribute modification tests");
+            LOGGER.fine("...ending attribute modification tests");
         }
         catch(IllegalFeatureException e) {
-            _log.info("Feature threw exception: ");
-            _log.info(e.getMessage());
+            LOGGER.fine("Feature threw exception: ");
+            LOGGER.fine(e.getMessage());
         }
     }
 
 
     public void testEnforceType() {
-        _log.info("starting type enforcement tests...");
-        _log.info("...ending type enforcement tests");
+        LOGGER.fine("starting type enforcement tests...");
+        LOGGER.fine("...ending type enforcement tests");
     }
 
     
