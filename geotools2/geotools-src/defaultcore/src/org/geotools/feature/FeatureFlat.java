@@ -1,8 +1,23 @@
 /*
- * FeatureFlat.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on March 15, 2002, 3:46 PM
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
+
 package org.geotools.feature;
 
 import java.util.*;
@@ -12,11 +27,12 @@ import com.vividsolutions.jts.geom.*;
 /**
  * Provides a more efficient feature representation for the flat feature type.
  * This implementation actually not only enforces feature type synchronization,
- * it also enfoces the use of its accessor methods to change the state of
+ * it also enforces the use of its accessor methods to change the state of
  * internal object representations.  In this case, the implementation is 
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
+ * @version $Id: FeatureFlat.java,v 1.8 2002/06/04 16:40:48 loxnard Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFlat implements Feature {
@@ -42,7 +58,7 @@ public class FeatureFlat implements Feature {
      * @param schema Feature type schema for this flat feature.
      * @param attributes Initial attributes for this feature.
      * @throws IllegalFeatureException Attribtues do not conform to feature type
-     * schema
+     * schema.
      */
     protected FeatureFlat (FeatureTypeFlat schema, Object[] attributes) 
         throws IllegalFeatureException {
@@ -92,15 +108,16 @@ public class FeatureFlat implements Feature {
     /** 
      * Gets a reference to the feature type schema for this feature.
      *
-     * @return A copy of this feature's metadata in the form of a feature type schema.
+     * @return A copy of this feature's metadata in the form of a feature type
+     *         schema.
      */
      public FeatureType getSchema() {
         return (FeatureType) schema;
     }
 
-    /* ************************************************************************
+    /* ***********************************************************************
      * Attribute extraction methods.
-     * ************************************************************************/
+     * ***********************************************************************/
 
     // TODO 2:
     // Several of these methods must be synchronized to ensure that the state
@@ -123,7 +140,8 @@ public class FeatureFlat implements Feature {
      *
      * @param xPath XPath representation of attribute location.
      * @return Attribute.
-     * @throws IllegalFeatureException Requested attribute doesn't match feature type.
+     * @throws IllegalFeatureException Requested attribute doesn't
+     * match feature type.
      */
     public Object getAttribute(String xPath)
         throws IllegalFeatureException {
@@ -145,7 +163,7 @@ public class FeatureFlat implements Feature {
     }
 
     /** 
-     * Throws an exception, since flat features have only one occurence.
+     * Throws an exception, since flat features have only one occurrence.
      *
      * @param xPath XPath representation of attribute location.
      * @return Attribute.
@@ -160,24 +178,25 @@ public class FeatureFlat implements Feature {
     }
 
 
-    /* ************************************************************************
+    /* ***********************************************************************
      * Attribute setting methods.
-     * ************************************************************************/
+     * ***********************************************************************/
     /** 
      * Sets all attributes for this feature, passed as an array.  All attributes
      * are checked for validity before adding.
      *
      * @param attributes All feature attributes.
-     * @throws IllegalFeatureException Passed attributes do not match feature type.
+     * @throws IllegalFeatureException Passed attributes do not match
+     * feature type.
      */
     public void setAttributes(Object[] attributes)
         throws IllegalFeatureException {
 
-        // Gets the number of attributes from feature and use to set valid flag
+        // Gets the number of attributes from feature and uses to set valid flag
         int n = schema.attributeTotal();
         boolean isValid = (n == attributes.length);
 
-        // Check each attribute for validity
+        // Checks each attribute for validity
         for(int i = 0; i < n; i++) {
             isValid =  schema.getAttributeType(i).getType().
                 isAssignableFrom(attributes[i].getClass()) &&
@@ -202,7 +221,8 @@ public class FeatureFlat implements Feature {
      *
      * @param xPath XPath representation of attribute location.
      * @param attribute Feature attribute to set.
-     * @throws IllegalFeatureException Passed attribute does not match feature type
+     * @throws IllegalFeatureException Passed attribute does not match
+     * feature type
      */
     public void setAttribute(String xPath, Object attribute)
         throws IllegalFeatureException {
@@ -228,9 +248,9 @@ public class FeatureFlat implements Feature {
     }
 
 
-    /* ************************************************************************
+    /* ***********************************************************************
      * Geometry handling methods.
-     * ************************************************************************/
+     * ***********************************************************************/
     /** 
      * Gets the geometry for this feature.
      *
@@ -262,9 +282,9 @@ public class FeatureFlat implements Feature {
     }
 
 
-    /* ************************************************************************
+    /* ***********************************************************************
      * Necessary overrides.
-     * ************************************************************************/
+     * ***********************************************************************/
     /** 
      * Creates an exact copy of this feature.
      *

@@ -1,8 +1,23 @@
 /*
- * FeatureCollectionDefault.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on March 14, 2002, 2:09 PM
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
+
 package org.geotools.feature;
 
 import java.util.*;
@@ -14,7 +29,8 @@ import org.geotools.datasource.extents.*;
  * to requesting clients.  It does not guarantee that features are of a certain
  * type or that they follow a specific schema. 
  * 
- * @author  James MacGill, CCG<br>
+ * @version $Id: FeatureCollectionDefault.java,v 1.3 2002/06/04 16:34:28 loxnard Exp $
+ * @author  James Macgill, CCG<br>
  * @author  Rob Hranac, VFNY<br>
  */
 public class FeatureCollectionDefault implements FeatureCollection {
@@ -25,7 +41,7 @@ public class FeatureCollectionDefault implements FeatureCollection {
     /* Internal listener storage list */
     private List listeners = new Vector();
 
-    /* Pointer to the data source */
+    /* Pointer to the datasource */
     private DataSource data;
 
     /* The currently loaded extent */
@@ -49,11 +65,11 @@ public class FeatureCollectionDefault implements FeatureCollection {
 
 
 
-    /* ************************************************************************
+    /* ***********************************************************************
      * Managing data source and extents.
-     * ************************************************************************/
+     * ***********************************************************************/
     /** 
-     * Creates a new instance of DefaultFeatureTable
+     * Creates a new instance of DefaultFeatureTable.
      *
      * @param data 
      */
@@ -62,25 +78,28 @@ public class FeatureCollectionDefault implements FeatureCollection {
     }
 
     /** 
-     * Creates a new instance of DefaultFeatureTable
+     * Creates a new instance of DefaultFeatureTable.
      *
-     * @return 
+     * @return The datasource that the Feature Collection is currently attached
+     *         to.
      */
     public DataSource getDataSource() {
         return this.data;
     }
 
 
-    /** Gets the loaded Extent of this FeatureTable
-     * The Extent of current loaded Features in this table
+    /**
+     * Gets the loaded Extent of this FeatureTable.
+     * The Extent of current loaded Features in this table.
      */
     public void setExtent(Extent extent) {
         this.loadedExtent = extent;
     }
     
 
-    /** Gets the loaded Extent of this FeatureTable
-     * The Extent of current loaded Features in this table
+    /**
+     * Gets the loaded Extent of this FeatureTable.
+     * The Extent of current loaded Features in this table.
      */
     public Extent getExtent() {
         return this.loadedExtent;
@@ -88,30 +107,31 @@ public class FeatureCollectionDefault implements FeatureCollection {
     
 
 
-    /* ************************************************************************
+    /* ***********************************************************************
      * Managing collection listeners.
-     * ************************************************************************/
+     * ***********************************************************************/
     /** 
-     * Adds a listener for table events
+     * Adds a listener for table events.
      */
     public void addListener(CollectionListener spy) {
         listeners.add(spy);
     }
     
-    /** Removes a listener for table events
+    /**
+     * Removes a listener for table events.
      */
     public void removeListener(CollectionListener spy) {
         listeners.remove(spy);
     }
     
 
-    /* ************************************************************************
+    /* ***********************************************************************
      * Managing features via the datasource.
-     * ************************************************************************/
+     * ***********************************************************************/
     /** 
-     * get the features in the datasource inside the loadedExtent
-     * will not trigger a datasourceload.
-     * functionally equivalent to getFeatures(getLoadedExtent());
+     * Gets the features in the datasource inside the loadedExtent.
+     * Will not trigger a datasourceload.
+     * Functionally equivalent to getFeatures(getLoadedExtent());
      *
      * @see #getfeatures(Extent ex)
      */
@@ -121,8 +141,8 @@ public class FeatureCollectionDefault implements FeatureCollection {
     
 
     /** 
-     * get the features in the datasource inside the Extent ex
-     * this may trigger a load on the datasource
+     * Gets the features in the datasource inside the Extent ex.
+     * This may trigger a load on the datasource.
      */
     public Feature[] getFeatures(Extent ex) 
         throws DataSourceException {
@@ -161,14 +181,16 @@ public class FeatureCollectionDefault implements FeatureCollection {
 
     /** 
      * Removes the features from this FeatureTable which fall into the specified
-     * extent, notifying TableChangedListeners that the table has changed
+     * extent, notifying TableChangedListeners that the table has changed.
      * @param ex The extent defining which features to remove
      */
     public void removeFeatures(Extent ex) {
         //TODO: remove the features
     }
 
-    /** Removes the features from this FeatureTable, notifying TableChangedListeners that the table has changed
+    /**
+     * Removes the features from this FeatureTable, notifying
+     * TableChangedListeners that the table has changed.
      * @param f The Features to remove
      */ 
     public void removeFeatures(Feature[] features) {
@@ -176,7 +198,7 @@ public class FeatureCollectionDefault implements FeatureCollection {
     }
 
     /** 
-     * Adds the given List of Features to this FeatureTable
+     * Adds the given List of Features to this FeatureTable.
      *
      * @param features The List of Features to add
      */
