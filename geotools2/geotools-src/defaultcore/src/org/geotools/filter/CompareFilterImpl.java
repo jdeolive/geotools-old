@@ -45,7 +45,7 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilterImpl.java,v 1.5 2002/12/04 21:42:23 cholmesny Exp $
+ * @version $Id: CompareFilterImpl.java,v 1.6 2003/05/27 20:36:27 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class CompareFilterImpl extends AbstractFilterImpl implements CompareFilter { 
@@ -168,6 +168,10 @@ public class CompareFilterImpl extends AbstractFilterImpl implements CompareFilt
                 }
                 return leftValue.getValue(feature).equals( rightValue.getValue(feature));
             }
+
+	    if (filterType == COMPARE_NOT_EQUALS) {
+		return !leftValue.getValue(feature).equals( rightValue.getValue(feature));
+	    }
             
             // Math comparisons
             double leftResult = ((Number) leftValue.getValue(feature)).doubleValue();
@@ -214,6 +218,9 @@ public class CompareFilterImpl extends AbstractFilterImpl implements CompareFilt
         if (filterType == COMPARE_GREATER_THAN_EQUAL) {
             operator = " >= ";
         }
+	if (filterType == COMPARE_NOT_EQUALS) {
+	    operator = " != ";
+	}
 
         return "[ " + leftValue.toString() + operator + rightValue.toString() + " ]";        
     }
