@@ -1,4 +1,4 @@
-package datasource;
+package org.geotools.datasource;
 
 /** Thrown when there is an error rebuilding an index
  */

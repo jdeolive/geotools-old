@@ -1,4 +1,4 @@
-package datasource;
+package org.geotools.datasource;
 
 /** Represents the extent of a loaded Feature set.
  */

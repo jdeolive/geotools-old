@@ -1,4 +1,4 @@
-package datasource;
+package org.geotools.datasource;
 
 /** Represents one row of a table. A Feature is a primary Object (can be any Object, usually a Geography)
  * plus any attributes which are associated with the Object.

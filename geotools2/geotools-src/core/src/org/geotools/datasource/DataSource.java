@@ -1,4 +1,4 @@
-package datasource;
+package org.geotools.datasource;
 
 import com.sun.java.util.collections.List;
 
