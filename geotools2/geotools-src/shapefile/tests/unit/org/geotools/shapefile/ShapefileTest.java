@@ -38,11 +38,8 @@ public class ShapefileTest extends TestCase {
         try{
             URL url = new URL("file:///"+dataFolder+"/statePop.shp");
             System.out.println("Testing ability to load "+url);
-            URLConnection uc = url.openConnection();
-            BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
-             System.out.println("state pop length "+uc.getContentLength());
-            LEDataInputStream sfile = new LEDataInputStream(in);
-            GeometryCollection shapes = Shapefile.read(sfile, new GeometryFactory());
+            Shapefile shapefile = new Shapefile(url);
+            GeometryCollection shapes = shapefile.read(new GeometryFactory());
             assertEquals("Number of Geometries loaded incorect",49,shapes.getNumGeometries());
             //Geometry bounds = shapes.getEnvelope();
             //bounds.
@@ -54,6 +51,8 @@ public class ShapefileTest extends TestCase {
             fail("Load failed because of exception "+e.toString());
         }
     }
+    
+    
     /*
     public void testLoadingSamplePointFile() {
         
