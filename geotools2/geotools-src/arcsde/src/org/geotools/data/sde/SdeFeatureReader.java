@@ -239,13 +239,13 @@ public class SdeFeatureReader implements FeatureReader
         fidPrefix = sdeLayer.getQualifiedName() + ".";
         SeSqlConstruct seSql = new SeSqlConstruct(sdeLayer.getName());
         Filter filter = query.getFilter();
-        SQLUnpacker unpacker = new SQLUnpacker(SQLEncoderSDE.getCapabilities());
+        SQLUnpacker unpacker = new SQLUnpacker(sqlEncoder.getCapabilities());
         unpacker.unPackAND(filter);
 
         //unpacker.unPackOR(filter);
         Filter sqlFilter = unpacker.getSupported();
         Filter unsupportedFilter = unpacker.getUnSupported();
-        unpacker = new SQLUnpacker(GeometryEncoderSDE.getCapabilities());
+        unpacker = new SQLUnpacker(geometryEncoder.getCapabilities());
         unpacker.unPackAND(unsupportedFilter);
         Filter geometryFilter = unpacker.getSupported();
         unsupportedFilter = unpacker.getUnSupported();
