@@ -21,12 +21,17 @@ import org.geotools.data.FeatureSource;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureType;
+import org.geotools.validation.IntegrityValidation;
+import org.geotools.validation.ValidationResults;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 
 /**
@@ -91,9 +96,11 @@ import java.util.Set;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.6 2004/04/21 11:09:36 jive Exp $
+ * @version $Id: ValidationProcessor.java,v 1.7 2004/04/22 07:51:31 jive Exp $
  */
 public class ValidationProcessor {
+	private static final Logger LOGGER = Logger.getLogger("org.geotools.validation");
+	
     /** Magic key used to hold the place of any featureType */
     final Object ANYTYPENAME = new Object();    
 
@@ -294,6 +301,7 @@ public class ValidationProcessor {
      */
     public void runFeatureTests(String dsID, FeatureType type, FeatureCollection collection,
         ValidationResults results) throws Exception {
+    	
         // check for any tests that are to be performed on ALL features
         ArrayList tests = (ArrayList) featureLookup.get(ANYTYPENAME);
 
@@ -353,8 +361,8 @@ public class ValidationProcessor {
      * iterated through then run on each Feature, with the ValidationResults
      * coming along for the ride, collecting error information.
      * </p>
-     *
-     * @param stores the Map of modified features (Map of key=featureTypeName,
+     * @param typeRefs List of modified features
+     * @param stores the Map of effected features (Map of key=typeRef,
      *        value="featureSource"
      * @param envelope The bounding box that contains all modified Features
      * @param results Storage for the results of the validation tests.
@@ -362,58 +370,44 @@ public class ValidationProcessor {
      * @throws Exception Throws an exception if the HashMap contains a value
      *         that is not a FeatureSource
      */
-    public void runIntegrityTests(Map stores, Envelope envelope,
+    public void runIntegrityTests(Set typeRefs, Map stores, Envelope envelope,
         ValidationResults results) throws Exception {
+    	
+    	if( typeRefs == null || typeRefs.isEmpty() ){
+    		LOGGER.finer("Validation test abandond - nothing was modified" );    		
+    	}
         // convert each HashMap element into FeatureSources
-        FeatureSource[] sources = new FeatureSource[stores.size()];
-        Object[] array = stores.values().toArray();
+    	//
+    	List tests = new ArrayList();
+    	
+    	// check for any tests that are to be performed on ALL features
+    	//
+    	LOGGER.finer("Finding tests for everybody" );    	
+    	tests.addAll( (List) integrityLookup.get(ANYTYPENAME) );
 
-        for (int i = 0; i < stores.size(); i++) {
-            if (array[i] instanceof FeatureSource) {
-                sources[i] = (FeatureSource) array[i];
-            } else { //TODO clean me up (just put this in here temporarily)
-                throw new Exception("Not a FeatureSource");
-            }
-        }
-
+    	
         // for each modified FeatureTypeInfo
-        for (int i = 0; i < sources.length; i++) {
-            // check for any tests that are to be performed on ALL features
-            ArrayList tests = (ArrayList) integrityLookup.get(ANYTYPENAME);
-
-            // check for any FeatureTypeInfo specific tests
-            ArrayList FT_tests = (ArrayList) integrityLookup.get(sources[i].getSchema()
-                                                                           .getTypeName());
-
-            // append featureType specific integrity tests to the list of tests		
-            if (FT_tests != null) {
-                if (tests != null) {
-                    Iterator it = FT_tests.iterator();
-
-                    while (it.hasNext())
-                        tests.add((IntegrityValidation) it.next());
-                } else {
-                    tests = FT_tests;
-                }
-            }
-
-            if (tests != null) // if we found some tests to be performed on this FeatureTypeInfo
-             {
-                // for each test that is to be performed on this featureType
-                for (int j = 0; j < tests.size(); j++) {
-                    IntegrityValidation validator = (IntegrityValidation) tests
-                        .get(j);
-                    results.setValidation(validator);
-					try{
-						validator.validate(stores, envelope, results);
-					}catch(Throwable e){
-						results.error(null,e.getMessage());
-					}
-                }
-            }
+        //
+        for (Iterator i=typeRefs.iterator(); i.hasNext(); ){
+        	String typeRef = (String) i.next();
+        	LOGGER.finer("Finding tests for typeRef:"+typeRef );        	
+        	tests.addAll( (List) integrityLookup.get( typeRef ) );
         }
+    	if( tests.isEmpty() ){
+    		LOGGER.finer("Validation test abandond - no tests found to run");
+    		return;
+    	}    	    
+        for( Iterator j=tests.iterator(); j.hasNext(); ){
+            IntegrityValidation validator = (IntegrityValidation) j.next();
 
-        // end for each modified featureType
+            LOGGER.finer("Running test:"+validator.getName() );            
+            results.setValidation(validator);
+			try{
+				validator.validate(stores, envelope, results);
+			} catch(Throwable e){
+				results.error(null,e.getMessage());
+			}
+        }        
     }
 
 }
