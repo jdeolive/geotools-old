@@ -16,6 +16,7 @@
  */
 package org.geotools.data;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
@@ -492,6 +493,32 @@ public class DataUtilities {
             public void close() throws IOException {
                 array = null;
                 offset = -1;
+            }
+        };
+    }
+    public static FeatureResults results( final FeatureCollection collection ) throws IOException{
+        if (collection.size() == 0) {
+            throw new IOException("Provided collection was empty");
+        }        
+        return new FeatureResults(){
+            public FeatureType getSchema() throws IOException {
+                return collection.features().next().getFeatureType();                
+            }
+
+            public FeatureReader reader() throws IOException {
+                return DataUtilities.reader(collection);
+            }
+
+            public Envelope getBounds() throws IOException {
+                return collection.getBounds();
+            }
+
+            public int getCount() throws IOException {
+                return collection.size();
+            }
+
+            public FeatureCollection collection() throws IOException {
+                return collection;
             }
         };
     }
