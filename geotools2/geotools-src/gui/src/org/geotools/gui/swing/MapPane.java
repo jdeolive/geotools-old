@@ -57,7 +57,6 @@ import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.TransformException;
 import org.geotools.renderer.j2d.Hints;
-import org.geotools.renderer.j2d.Tools;
 import org.geotools.renderer.j2d.Renderer;
 import org.geotools.renderer.j2d.RenderedLayer;
 import org.geotools.renderer.j2d.GeoMouseEvent;
@@ -70,7 +69,7 @@ import org.geotools.renderer.j2d.GeoMouseEvent;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.14 2003/01/31 23:16:15 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.15 2003/02/20 11:26:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MapPane extends ZoomPane {
@@ -154,6 +153,7 @@ public class MapPane extends ZoomPane {
         renderer.setRenderingHint(Hints.  FINEST_RESOLUTION,   FINEST_RESOLUTION);
         renderer.setRenderingHint(Hints.REQUIRED_RESOLUTION, REQUIRED_RESOLUTION);
         renderer.addPropertyChangeListener(listenerProxy);
+        ToolTipManager.sharedInstance().registerComponent(this);
         setResetPolicy(true);
     }
 
@@ -378,7 +378,7 @@ public class MapPane extends ZoomPane {
     /**
      * Registers the default text to display in a tool tip. The text displays
      * when the cursor lingers over the component and no layer has proposed a
-     * tool tip (i.e. {@link Tools#getToolTipText} returned <code>null</code>
+     * tool tip (i.e. {@link Renderer#getToolTipText} returned <code>null</code>
      * for all registered layers).
      *
      * @param tooltip The default tooltip, or <code>null</code> if none.
@@ -390,26 +390,19 @@ public class MapPane extends ZoomPane {
              * If the tool tip text is set to null, then JComponent unregister itself.
              * We need to be re-registered it if we want tool tips for rendered layers.
              */
-            final Object hasTools = getClientProperty("RendererHasTools");
-            if ((hasTools instanceof Boolean) && ((Boolean)hasTools).booleanValue()) {
-                ToolTipManager.sharedInstance().registerComponent(this);
-            }
+            ToolTipManager.sharedInstance().registerComponent(this);
         }
     }
 
     /**
-     * Returns the string to be used as the tooltip for a given mouse event. This method
-     * invokes {@link Tools#getToolTipText} for some registered {@linkplain RenderedLayer
-     * layers} in decreasing {@linkplain RenderedLayer#getZOrder z-order} until one is found
-     * to returns a non-null string. If no layer has a tool tip for this event, then returns
-     * the last tooltip string set by {@link #setToolTipText}.
+     * Returns the string to be used as the tooltip for a given mouse event.
+     * The default implementation delegates to {@link Renderer#getToolTipText}.
      *
      * @param  event The mouse event.
      * @return The tool tip text, or <code>null</code> if there is no tool tip for this location.
      *
      * @see #setToolTipText
      * @see Renderer#getToolTipText
-     * @see Tools#getToolTipText
      */
     public String getToolTipText(final MouseEvent event) {
         final String text = renderer.getToolTipText((GeoMouseEvent)event);
@@ -418,20 +411,18 @@ public class MapPane extends ZoomPane {
 
     /**
      * Returns the popup menu to appears for a given mouse event. This method invokes
-     * {@link Tools#getPopupMenu} for some registered {@linkplain RenderedLayer layers}
-     * in decreasing {@linkplain RenderedLayer#getZOrder z-order} until one is found to
-     * returns a non-null menu. If no layer has a popup menu for this event, then this
-     * method returns {@link #getDefaultPopupMenu}.
+     * {@link ContextualMenuTool#getPopupMenu} in decreasing
+     * {@linkplain RenderedLayer#getZOrder z-order} until one is found to
+     * returns a non-null menu. If no layer has a popup menu for this event,
+     * then this method returns {@link #getDefaultPopupMenu}.
      *
      * @param  event The mouse event.
      * @return The popup menu for this event, or <code>null</code> if there is none.
      *
-     * @see Renderer#getPopupMenu
-     * @see Tools#getPopupMenu
      * @see #getDefaultPopupMenu
      */
     protected JPopupMenu getPopupMenu(final MouseEvent event) {
-        final Action[] actions = renderer.getPopupMenu((GeoMouseEvent) event);
+        final Action[] actions = null; // TODO: search for actions here.
         if (actions == null) {
             return getDefaultPopupMenu((GeoMouseEvent) event);
         }
