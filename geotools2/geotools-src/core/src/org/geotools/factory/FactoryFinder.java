@@ -54,18 +54,25 @@ import java.util.logging.Logger;
  * then falls back on the system ClassLoader.<br>
  *
  * @author Ian Schneider
- * @version $Id: FactoryFinder.java,v 1.3 2003/07/30 19:34:49 jmacgill Exp $
+ * @version $Id: FactoryFinder.java,v 1.4 2003/08/05 20:59:23 cholmesny Exp $
  */
 public final class FactoryFinder {
     /**
-     * DOCUMENT ME!
+     * Private constructor so default constructor is not available for  this
+     * utility class.
+     */
+    private FactoryFinder() {
+    }
+
+    /**
+     * Creates a new instance of the class using the loader.
      *
      * @param clazz The class to instatiate - if null a default will be used
      * @param loader The class loader to use when obtaining the instance
      *
      * @return An Object which is an instance of clazz
      *
-     * @throws FactoryConfigurationError DOCUMENT ME!
+     * @throws FactoryConfigurationError If the class could not be constructed.
      */
     private static Object newInstance(String clazz, ClassLoader loader) {
         Logger logger = Logger.getLogger("org.geotools.factory");
@@ -262,14 +269,16 @@ public final class FactoryFinder {
         return factories(key, findLoader());
     }
 
-    /** Obtain an Iterator of Factory Objects which are found using the given
+    /**
+     * Obtain an Iterator of Factory Objects which are found using the given
      * key. This is a replacement for the sun.misc.Service class, and can be
      * used to implement a service provider architecture.
      *
-     * @return An Iterator of Factory objects. May have no entries.
      * @param key The key to search with. The actual key to search with will be
      *        key.getName().
      * @param loader The ClassLoader to search for resources with.
+     *
+     * @return An Iterator of Factory objects. May have no entries.
      */
     public static Iterator factories(Class key, final ClassLoader loader) {
         String clazz = key.getName();
