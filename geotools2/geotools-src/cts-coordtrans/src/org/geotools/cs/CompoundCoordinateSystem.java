@@ -46,7 +46,6 @@ import org.geotools.pt.CoordinatePoint;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 // J2SE dependencies
 import java.rmi.RemoteException;
@@ -58,7 +57,7 @@ import java.rmi.RemoteException;
  * geographic or a projected coordinate system with a horizontal datum.
  * The other is a one-dimensional coordinate system with a vertical datum.
  *
- * @version $Id: CompoundCoordinateSystem.java,v 1.12 2003/11/19 05:44:57 jive Exp $
+ * @version $Id: CompoundCoordinateSystem.java,v 1.13 2003/11/20 22:18:25 jive Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -110,12 +109,7 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
         ensureNonNull("tail", tail);
         checkAxis(null);
     }
-    /**
-     * Just hacking in a placeholder right now.
-     */        
-    protected GeometryFactory createGeometryFactory(){
-        return new GeometryFactory();
-    }
+
     /**
      * Returns the first sub-coordinate system.
      *

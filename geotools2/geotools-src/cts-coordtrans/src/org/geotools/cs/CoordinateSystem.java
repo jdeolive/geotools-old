@@ -49,8 +49,6 @@ import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-
 // J2SE dependencies
 import java.rmi.RemoteException;
 
@@ -74,7 +72,7 @@ import java.rmi.RemoteException;
  * of the Earth.  This mapping from the mathematical space into real-world
  * locations is called a Datum.
  *
- * @version $Id: CoordinateSystem.java,v 1.11 2003/11/20 22:14:00 jive Exp $
+ * @version $Id: CoordinateSystem.java,v 1.12 2003/11/20 22:18:25 jive Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
