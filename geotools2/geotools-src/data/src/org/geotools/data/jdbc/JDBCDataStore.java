@@ -146,7 +146,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.23 2004/04/05 12:11:48 cholmesny Exp $
+ * $Id: JDBCDataStore.java,v 1.24 2004/04/14 11:06:19 cholmesny Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     
@@ -795,6 +795,10 @@ public abstract class JDBCDataStore implements DataStore {
             conn = getConnection(transaction);
             statement = conn.createStatement(resultSetType, concurrency);
 	    statement.setFetchSize(200);
+	    if (resultSetType == ResultSet.TYPE_FORWARD_ONLY) {
+                conn.setAutoCommit(false); //Postgis needs these two calls for 
+            
+	    }
             rs = statement.executeQuery(sqlQuery);
 
             FeatureTypeInfo info = getFeatureTypeInfo(tableName);
