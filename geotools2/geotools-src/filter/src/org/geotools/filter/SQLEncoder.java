@@ -213,10 +213,10 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
 
     /**
      * Describes the capabilities of this encoder.
-     *
+     * 
      * @return The capabilities supported by this encoder.
      */
-    public static FilterCapabilities getCapabilities() {
+    public FilterCapabilities getCapabilities() {
         return capabilities; //maybe clone?  Make immutable somehow
     }
 
