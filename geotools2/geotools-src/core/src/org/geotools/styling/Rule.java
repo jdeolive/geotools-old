@@ -18,6 +18,9 @@
  */
 package org.geotools.styling;
 
+import org.geotools.filter.Filter;
+
+
 /**
  * A rule is used to attach a condition to, and group, the individual
  * symbolizers used for rendering.  The Title and Abstract describe the rule
@@ -42,9 +45,6 @@ package org.geotools.styling;
  * range (lim[x->0+](x)), and a missing MaxScale means there is no upper bound
  * (infinity).  0.28mm
  */
-import org.geotools.filter.Filter;
-
-
 public interface Rule {
     /**
      * Gets the name of the rule.
