@@ -38,10 +38,13 @@ import java.util.StringTokenizer;
  * including handling different delimiters (decimal, coordinate, tuple)
  * that may be used by more outlandish GML generators.<p>
  *
- * @version $Id: GMLFilterDocument.java,v 1.7 2002/07/12 16:46:42 loxnard Exp $
- * @author Rob Hranac, Vision for New York
+ * @version $Id: GMLFilterDocument.java,v 1.8 2003/03/14 16:52:33 jmacgill Exp $
+ * @author Rob Hranac, Vision for New York 
  */
 public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
+    
+    /** Added by Sean Geoghegan to store character data chunks */
+    private StringBuffer buffer = new StringBuffer();
     
     /** Parent of the filter: must implement GMLHandlerGeometry. */
     private GMLHandlerGeometry parent;
@@ -96,6 +99,9 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
      * it uses internal methods to set the current state of the
      * coordinates reader appropriately.
      *
+     * <p>Modified by Sean Geoghegan to create new StringBuffers when 
+     * entering a coord or coordinate element.
+     * 
      * @param namespaceURI The namespace of the element.
      * @param localName The local name of the element.
      * @param qName The full name of the element, including
@@ -120,8 +126,10 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
             } else if (COORDINATES_NAME.equals(localName)){
                 // if coordinate, set one of the internal coordinate methods
                 coordinateReader.insideCoordinates(true, atts);
+                buffer = new StringBuffer();
             } else if (COORD_NAME.equals(localName)){
                 coordinateReader.insideCoord(true);
+                buffer = new StringBuffer();
             } else if (X_NAME.equals(localName)){
                 coordinateReader.insideX(true);
             } else if (Y_NAME.equals(localName)){
@@ -146,6 +154,11 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
      * coordinates reader class, which interprets them appropriately,
      * depending on its current state.
      *
+     * <p>Modified by Sean Geoghegan to append character data to
+     * buffer when inside a coordinate or coord element.  SAX doesn't
+     * guarentee that all the character data of an element will be passed to the
+     * character method in one call, it may be split up into to chunks.
+     * 
      * @param ch Raw coordinate string from the GML document.
      * @param start Beginning character position of raw coordinate string.
      * @param length Length of the character string.
@@ -165,9 +178,11 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
          * what element we are currently inside
          */
         if (coordinateReader.insideCoordinates()) {
-            coordinateReader.readCoordinates(rawCoordinates);
+        	buffer.append(rawCoordinates);
+            //coordinateReader.readCoordinates(rawCoordinates);
         } else if (coordinateReader.insideCoord()){
-            coordinateReader.readCoord(rawCoordinates);
+        	buffer.append(rawCoordinates);
+            //coordinateReader.readCoord(rawCoordinates);
         } else {
             /* all non-coordinate data passed on down the
              * filter chain without modification
@@ -185,6 +200,10 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
      * it uses internal methods to set the current state of the
      * coordinates reader appropriately.
      *
+     * <p> Modified by Sean Geoghegan. When we reach the end of
+     * a coord or coordinate element, then the buffer is passed to the
+     * handler for processing.
+     * 
      * @param namespaceURI The namespace of the element.
      * @param localName The local name of the element.
      * @param qName The full name of the element, including namespace prefix.
@@ -205,10 +224,13 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
             } else if (SUB_GEOMETRY_TYPES.contains(localName))   {
                 parent.geometrySub(localName); 
             } else if (COORDINATES_NAME.equals(localName)){
-                // if coordinate, set internal coordinate handling methods
-                coordinateReader.insideCoordinates(false); 
+                // Convert the string buffer to a string and process the
+                // coordinate, then end the coordinate status in the handler.
+				coordinateReader.readCoordinates(buffer.toString());
+                coordinateReader.insideCoordinates(false);                
             } else if (COORD_NAME.equals(localName)){
-                coordinateReader.insideCoord(false); 
+            	coordinateReader.readCoord(buffer.toString());
+                coordinateReader.insideCoord(false);                
             } else if (X_NAME.equals(localName)){
                 coordinateReader.insideX(false); 
             } else if (Y_NAME.equals(localName)){
