@@ -141,12 +141,15 @@
     <sourceDirectory>src</sourceDirectory>
     <resourcesSourceDirectory>src</resourcesSourceDirectory>
     <resources>
-    
+      <resource>
+       <directory>${basedir}/src/</directory>
         <includes>
-            <include>**/*.serialized</include> 
-            <include>**/*.txt</include> 
-             <include>**/*.utf</include> 
+          <!-- The following seems to fail, not sure why -->
+          <!--  <include>*.serialized</include> 
+            <include>*.txt</include> 
+            <include>*.utf</include> -->
         </includes>
+      </resource>
     </resources>
 
     
