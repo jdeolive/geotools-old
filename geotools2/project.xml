@@ -97,8 +97,8 @@
 		</developer>
 		<developer>
 			<name>Ian Schneider</name>
-			<id>ianschneider</id>
-			<email>ianschneider@users.sourceforge.net</email>
+			<id>ianschne</id>
+			<email>ianschne@users.sourceforge.net</email>
 			<organization>USDA ARS</organization>
 			<roles>
 				<role>Java Developer</role>
@@ -125,114 +125,118 @@
 				<role>Project Management Committee (PMC) Member</role>
 			</roles>
 		</developer>
-                 <developer>
-                  <name>Jody Garnett</name>
-                  <id>jive</id>
-                  <email>jive@users.sourceforge.net</email>
-                  <organization>Refractions Research</organization>
-                  <roles>
-                    <role>Java Developer</role>
-                  </roles>
-                </developer>
-                <developer>
-                  <name>Justin Deoliveira</name>
-                  <id>jdeolive</id>
-                  <email>jdeolive@users.sourceforge.net</email>
-                  <organization>Refractions Research</organization>
-                  <roles>
-                    <role>Java Developer</role>
-                  </roles>
-                </developer>
-                <developer>
-                  <name>Christiaan ten Klooster</name>
-                  <id>ckl</id>
-                  <email>ckl@dacelo.nl</email>
-                  <organization>Dacelo</organization>
-                  <roles>
-                    <role>Java Developer</role>
-                  </roles>
-                </developer>
-                <developer>
-                  <name>Gabriel Roldan</name>
-                  <id>groldan</id>
-                  <email>groldan@users.sourceforge.net</email>
-                  <organization>dominion t.i.</organization>
-                  <roles>
-                    <role>Java Developer</role>
-                  </roles>
-                </developer>
-                <developer>
-                  <name>Sean Geoghegan</name>
-                  <id>seangeo</id>
-                  <email>sean.geoghegan@dsto.defence.gov.au</email>
-                  <organization>Defence Science and Technology
-                  Organisation</organization>
-                  <roles>
-                    <role>Java Developer</role>
-                  </roles>
-                </developer>
-                 <developer>
-                  <name>Julian Ray</name>
-                  <id>jjray</id>
-                  <email>jjray@users.sourceforge.net</email>
-                  <organization></organization>
-                  <roles>
-                    <role>Module Maintainer</role>
-                    <role>Java Developer</role>
-                  </roles>
-                </developer>
-                <developer>
-                  <name>Darren Edmonds</name>
-                  <id>dledmonds</id>
-                  <email>dledmonds@users.sourceforge.net</email>
-                  <organization></organization>
-                  <roles>
-                    <role>Module Maintainer</role>
-                    <role>Java Developer</role>
-                  </roles>
-                </developer>
-                 <developer>
-                  <name>Ray Gallagher</name>
-                  <id>omyar</id>
-                  <email>omyar@users.sourceforge.net</email>
-                  <organization>none</organization>
-                  <roles>
-                    <role>Java Developer</role>
-                  </roles>
-                </developer>
-                <developer>
-                  <name>Jianhui Jin</name>
-                  <id></id>
-                  <email></email>
-                  <organization>CCG</organization>
-                  <roles>
-                    <role>Java Developer</role>
-                  </roles>
-                </developer>
-                 <developer>
-                    <name>Gary Sheppard</name>
-                    <id>shepshep</id>
-                    <email>garysheppard@psu.edu</email>
-                    <organization>Penn State GeoVISTA Center</organization>
-                    <roles>
-                        <role>Java Developer</role>
-                    </roles>
-                </developer>
-                <developer>
-                  <name>Simon Rass</name>
-                  <roles>
-                    <role>Bug Fixer</role>
-                  </roles>
-                </developer>
-                 <developer>
-                    <name>David Zwiers</name>
-                    <id>dmzwiers</id>
-                    <email>dzwiers@refractions.net</email>
-                    <organization>Refractions Research Inc.</organization>
-                    <roles>
-                        <role>Java Developer</role>
-                    </roles>
-                </developer>
+		<developer>
+			<name>Jody Garnett</name>
+			<id>jive</id>
+			<email>jive@users.sourceforge.net</email>
+			<organization>Refractions Research</organization>
+			<roles>
+				<role>Java Developer</role>
+		        <role>Module Maintainer</role>
+				<role>Project Management Committee (PMC) Member</role>		        				
+			</roles>
+		</developer>
+		<developer>
+			<name>Justin Deoliveira</name>
+			<id>jdeolive</id>
+			<email>jdeolive@users.sourceforge.net</email>
+			<organization>Refractions Research</organization>
+  			<roles>
+				<role>Java Developer</role>
+		        <role>Module Maintainer</role>				
+			</roles>
+		</developer>
+		<developer>
+			<name>Christiaan ten Klooster</name>
+			<id>ckl</id>
+			<email>ckl@dacelo.nl</email>
+			<organization>Dacelo</organization>
+			<roles>
+				<role>Java Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Gabriel Roldan</name>
+			<id>groldan</id>
+			<email>groldan@users.sourceforge.net</email>
+			<organization>dominion t.i.</organization>
+			<roles>
+				<role>Java Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Sean Geoghegan</name>
+			<id>seangeo</id>
+			<email>sean.geoghegan@dsto.defence.gov.au</email>
+			<organization>Defence Science and Technology
+		  	Organisation</organization>
+			<roles>
+				<role>Java Developer</role>
+		        <role>Module Maintainer</role>				
+			</roles>
+		</developer>
+		 <developer>
+			<name>Julian Ray</name>
+			<id>jjray</id>
+			<email>jjray@users.sourceforge.net</email>
+			<organization></organization>
+			<roles>
+				<role>Module Maintainer</role>
+				<role>Java Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Darren Edmonds</name>
+			<id>dledmonds</id>
+			<email>dledmonds@users.sourceforge.net</email>
+			<organization></organization>
+			<roles>
+		    	<role>Module Maintainer</role>
+				<role>Java Developer</role>
+			</roles>
+		</developer>
+		 <developer>
+			<name>Ray Gallagher</name>
+			<id>omyar</id>
+			<email>omyar@users.sourceforge.net</email>
+			<organization>none</organization>
+			<roles>
+		    	<role>Java Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Jianhui Jin</name>
+		  <id></id>
+		  <email></email>
+		  <organization>CCG</organization>
+		  <roles>
+		    <role>Java Developer</role>
+		  </roles>
+		</developer>
+		 <developer>
+		    <name>Gary Sheppard</name>
+		    <id>shepshep</id>
+		    <email>garysheppard@psu.edu</email>
+		    <organization>Penn State GeoVISTA Center</organization>
+		    <roles>
+		        <role>Java Developer</role>
+		    </roles>
+		</developer>
+		<developer>
+			<name>Simon Rass</name>
+			<roles>
+				<role>Bug Fixer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>David Zwiers</name>
+            <id>dmzwiers</id>
+            <email>dzwiers@refractions.net</email>
+            <organization>Refractions Research Inc.</organization>
+            <roles>
+                <role>Java Developer</role>
+			</roles>
+		</developer>
 	</developers>
 	<dependencies>
           <dependency>
