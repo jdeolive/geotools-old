@@ -1,0 +1,43 @@
+//
+// Test coordinate transformations for simple cases.
+// This is not the test provided by OpenGIS. This is
+// a set of simplier tests  focusing on one Geotools
+// class at time, which make debugging easier.   For
+// OpenGIS tests, see CT_TestScript and MT_TestScript.
+//
+
+
+// Coordinate systems
+set _WGS84_    =                    GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
+set _Mercator_ = PROJCS["Mercator", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Mercator_1SP"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 60.0], PARAMETER["latitude_of_origin", 45.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+
+
+
+//////////////////////////////////
+// Tests transforms
+
+cs_source=_WGS84_
+cs_target=_Mercator_
+test_tolerance=(1e-5, 1e-5)
+
+pt_source=(60, 0)
+pt_target=(0, 0)
+
+pt_source=(70, 40)
+pt_target=(788468.3509397813, 3427056.247843599)
+
+
+
+
+////////////////////////////
+// Inverse transforms
+
+cs_source=_Mercator_
+cs_target=_WGS84_
+test_tolerance=(1e-5, 1e-5)
+
+pt_source=(0, 0)
+pt_target=(60, 0)
+
+pt_source=(788468.3509397813, 3427056.247843599)
+pt_target=(70, 40)

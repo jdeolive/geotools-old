@@ -38,12 +38,14 @@ import java.text.ParseException;
 import java.util.StringTokenizer;
 
 // Input/output
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.InputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 // Collections
 import java.util.Map;
@@ -64,7 +66,7 @@ import org.geotools.resources.Arguments;
 
 
 /**
- * Run the suite of OpenGIS tests. A text file ({@link #TEST_FILE}) is provided. This
+ * Run the suite of OpenGIS tests. A text file ({@link #CT_SCRIPT}) is provided. This
  * file contains a list of source and target coordinates systems (in WKT), source
  * coordinate points and expected coordinate points after the transformation from
  * source CS to target CS. Running this test really test all the following classes:
@@ -78,16 +80,21 @@ import org.geotools.resources.Arguments;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: ScriptTest.java,v 1.2 2002/10/25 16:32:18 ianturton Exp $
+ * @version $Id: ScriptTest.java,v 1.3 2003/01/10 23:08:02 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
 public class ScriptTest extends TestCase {
     /**
-     * The test file to parse and execute.
+     * A simple test file to parse and execute
      */
-    private static final String TEST_FILE = "test-data/CT_TestScript.txt";
+    private static final String SIMPLE_SCRIPT = "test-data/Simple_TestScript.txt";
+    
+    /**
+     * The OpenGIS test file to parse and execute.
+     */
+    private static final String CT_SCRIPT = "test-data/CT_TestScript.txt";
 
     /**
      * The coordinate system factory to use for the test.
@@ -106,7 +113,7 @@ public class ScriptTest extends TestCase {
     private MathTransformFactory mtFactory;
 
     /**
-     * The list of object defined in the {@link #TEST_FILE} file.  Keys are
+     * The list of object defined in the {@link #CT_SCRIPT} file.  Keys are
      * {@link String} objects, while values are {@link CoordinateSystem} or
      * {@link MathTransform} objects.
      */
@@ -398,24 +405,26 @@ public class ScriptTest extends TestCase {
     }
 
     /**
-     * Run the {@link #TEST_FILE}.
+     * Run the specified script.
      *
-     * @throws IOException If {@link #TEST_FILE} can't be read.
+     * @throws IOException If the script can't be read.
      * @throws FactoryException if a line can't be parsed.
      * @throws TransformException if the transformation can't be run.
      */
-    public void testOpenGIS() throws IOException, FactoryException  {
+    private void runScript(final String script) throws IOException, FactoryException {
+        definitions.clear();
+        testRun    = 0;
+        testPassed = 0;
         final BufferedReader reader;
         if (true) {
-            InputStream in = getClass().getClassLoader().getResourceAsStream(TEST_FILE);
+            InputStream in = getClass().getClassLoader().getResourceAsStream(script);
             if (in == null) {
-                 String dataFolder;
-                
-                    //then we are being run by maven
-                    dataFolder = System.getProperty("basedir");
-                    dataFolder+="/tests/unit/" + TEST_FILE;
-                in = new java.io.FileInputStream(dataFolder);
-                //throw new FileNotFoundException(TEST_FILE);
+                // Then we are being run by maven
+                File dataFolder;
+                dataFolder = new File(System.getProperty("basedir", "."));
+                dataFolder = new File(dataFolder, "/tests/unit/");
+                dataFolder = new File(dataFolder, script);
+                in = new FileInputStream(dataFolder);
             }
             reader = new BufferedReader(new InputStreamReader(in));
         }
@@ -436,10 +445,10 @@ public class ScriptTest extends TestCase {
             }
             try{
                 runInstruction(line);
-            } catch (TransformException te){
-                if(out != null){
-                    out.println(line + "\n\t threw a TransformationException - " + te);
-                }
+            } catch (TransformException exception) {
+                // TODO: We should throw the TransformException instead,
+                //       but Maven doesn't seem to like it.
+                throw new AssertionError(exception);
             }
         }
         reader.close();
@@ -452,6 +461,28 @@ public class ScriptTest extends TestCase {
     }   
 
     /**
+     * Run the {@link #SIMPLE_SCRIPT}.
+     *
+     * @throws IOException If {@link #SIMPLE_SCRIPT} can't be read.
+     * @throws FactoryException if a line can't be parsed.
+     * @throws TransformException if the transformation can't be run.
+     */
+    public void testSimpleScript() throws IOException, FactoryException {
+        runScript(SIMPLE_SCRIPT);
+    }
+
+    /**
+     * Run the {@link #CT_SCRIPT}.
+     *
+     * @throws IOException If {@link #CT_SCRIPT} can't be read.
+     * @throws FactoryException if a line can't be parsed.
+     * @throws TransformException if the transformation can't be run.
+     */
+    public void testOpenGIS() throws IOException, FactoryException {
+        runScript(CT_SCRIPT);
+    }
+
+    /**
      * Run the test from the command line.
      *
      * @param  args The command-line arguments.
@@ -462,6 +493,7 @@ public class ScriptTest extends TestCase {
         final ScriptTest test = new ScriptTest(null);
         test.out = arguments.out;
         test.setUp();
+        test.testSimpleScript();
         test.testOpenGIS();
     }
 }
