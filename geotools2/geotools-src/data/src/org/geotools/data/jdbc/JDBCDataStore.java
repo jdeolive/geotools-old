@@ -162,7 +162,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.18 2004/01/12 23:58:58 seangeo Exp $
+ * $Id: JDBCDataStore.java,v 1.19 2004/01/13 00:08:43 seangeo Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     
@@ -1821,10 +1821,10 @@ public abstract class JDBCDataStore implements DataStore {
                 doUpdate(DataUtilities.template(current.getFeatureType()), current);
                 queryData.doInsert();
                 
-                // refresh the row and read the new fid into the Feature.
-                rd.refreshRow();
-                MutableFIDFeature mutable = (MutableFIDFeature) current;
-                mutable.setID(rd.read(1).toString());
+                // refresh the row and read the new fid into the Feature. Not working yet.
+                //rd.refreshRow();
+                //MutableFIDFeature mutable = (MutableFIDFeature) current;
+                //mutable.setID(rd.read(1).toString());
             } catch (IllegalAttributeException e) {
                 throw new DataSourceException("Unable to do insert", e);
             }
