@@ -93,7 +93,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.9 2002/08/08 18:35:43 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.10 2002/08/10 12:33:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -248,6 +248,7 @@ public class OperationJAI extends Operation {
     protected GridCoverage doOperation(final ParameterList  parameters,
                                        final RenderingHints hints)
     {
+        Boolean requireGeophysicsType = null;
         final ParameterBlockJAI block = new ParameterBlockJAI(descriptor, RENDERED_MODE);
         final String[]     paramNames = parameters.getParameterListDescriptor().getParamNames();
         final String[]    sourceNames = getSourceNames(descriptor);
@@ -258,7 +259,11 @@ public class OperationJAI extends Operation {
             if (contains(sourceNames, name)) {
                 GridCoverage source = ((GridCoverage) param);
                 if (COMPUTE_ON_GEOPHYSICS_VALUES) {
+                    final GridCoverage old = source;
                     source = source.geophysics(true);
+                    if (srcCount == MASTER_SOURCE_INDEX) {
+                        requireGeophysicsType = (old==source) ? Boolean.TRUE : Boolean.FALSE;
+                    }
                 }
                 block.addSource(source.getRenderedImage());
                 sources[srcCount++] = source;
@@ -266,9 +271,11 @@ public class OperationJAI extends Operation {
                 block.setParameter(name, param);
             }
         }
-        final GridCoverage master = sources[MASTER_SOURCE_INDEX];
-        final GridCoverage result = doOperation(sources, block, hints);
-        return result.geophysics(master == master.geophysics(true));
+        GridCoverage result = doOperation(sources, block, hints);
+        if (requireGeophysicsType != null) {
+            result = result.geophysics(requireGeophysicsType.booleanValue());
+        }
+        return result;
     }
     
     /**

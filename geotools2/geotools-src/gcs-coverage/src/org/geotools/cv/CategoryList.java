@@ -82,7 +82,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.4 2002/07/26 22:17:33 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.5 2002/08/10 12:33:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable
@@ -1093,7 +1093,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
         double minTr = Double.NEGATIVE_INFINITY;
         if (overflowFallback != null) {
             maxTr = category.inverse.maximum;
-            maxTr = category.inverse.minimum;
+            minTr = category.inverse.minimum;
         }
         try {
             iterator.startLines();
@@ -1115,7 +1115,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
                         tr      = category.transform;
                         if (overflowFallback != null) {
                             maxTr = category.inverse.maximum;
-                            maxTr = category.inverse.minimum;
+                            minTr = category.inverse.minimum;
                         }
                     }
                     value = tr.transform(value);
