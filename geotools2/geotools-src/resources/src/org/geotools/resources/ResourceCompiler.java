@@ -75,7 +75,7 @@ import java.lang.reflect.Field;
  * don't need to be included in the final JAR file. They are used at
  * compile time only and no other classes should keep reference to them.
  *
- * @version $Id: ResourceCompiler.java,v 1.6 2003/08/04 18:21:32 desruisseaux Exp $
+ * @version $Id: ResourceCompiler.java,v 1.7 2003/08/19 15:05:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ResourceCompiler implements Comparator {
@@ -274,10 +274,13 @@ final class ResourceCompiler implements Comparator {
         if (!allocatedIDs.isEmpty()) {
             final Set missing = new HashSet(allocatedIDs.values());
             missing.removeAll(resources.keySet());
-            for (final Iterator it=missing.iterator(); it.hasNext();) {
-                final String key = (String) it.next();
-                warning(file, key, "Key defined in previous languages "+
-                                   "is missing in current one.", null);
+            final String filename = file.getName();
+            if (filename.indexOf('_') == filename.lastIndexOf('_')) {
+                for (final Iterator it=missing.iterator(); it.hasNext();) {
+                    final String key = (String) it.next();
+                    warning(file, key, "Key defined in previous languages "+
+                                       "is missing in current one.", null);
+                }
             }
             // Second check
             missing.clear();
