@@ -71,6 +71,7 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
       includes="*/project.xml"
       goals="clean,jar:install"
       banner="Building"
+      postProcessing="true"
       ignoreFailures="true"
     />
     
