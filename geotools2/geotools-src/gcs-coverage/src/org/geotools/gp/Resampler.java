@@ -381,9 +381,9 @@ final class Resampler extends GridCoverage {
         tmp = (int)Math.ceil(bounds.getMaxY() - EPS); if (tmp<ymax) {ymax=tmp; changed=true;}
         bounds.setRect(xmin, ymin, xmax-xmin, ymax-ymin);
         if (changed) {
-            image = processor.create("Crop", new ParameterBlock().addSource(image)
+            image = processor.createNS("Crop", new ParameterBlock().addSource(image)
                              .add((float)bounds.getX    ()).add((float)bounds.getY())
-                             .add((float)bounds.getWidth()).add((float)bounds.getHeight()));
+                             .add((float)bounds.getWidth()).add((float)bounds.getHeight()), null);
             area = CTSUtilities.transform(gridToCS, bounds, bounds);
         }
         /*
