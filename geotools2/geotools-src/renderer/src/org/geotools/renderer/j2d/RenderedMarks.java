@@ -66,7 +66,7 @@ import org.geotools.resources.XArray;
  * Subclasses must override the {@link #getMarkIterator} method in order to returns informations
  * about marks.
  *
- * @version $Id: RenderedMarks.java,v 1.17 2003/11/03 11:40:10 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.18 2003/12/19 20:28:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -522,7 +522,9 @@ public abstract class RenderedMarks extends RenderedLayer {
                      *                but never create the 'glyphVectors' array). But once an array
                      *                is created, it must have the same capacity than every others.
                      */
-                    if (glyphs==null && transformedShape.shape==null && markIcon==null) {
+                    if (transformedShape.shape==null && markIcon==null
+                        && glyphs==null && geographicArea==null)
+                    {
                         continue;
                     }
                     if (markIndex == null) {
