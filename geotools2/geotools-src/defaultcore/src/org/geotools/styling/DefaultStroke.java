@@ -25,7 +25,7 @@ package org.geotools.styling;
   * TODO:This is unfinished as it currently returns fixed values with no way
   * to change them.
   *
-  * @version $Id: DefaultStroke.java,v 1.10 2002/07/11 18:06:13 loxnard Exp $
+  * @version $Id: DefaultStroke.java,v 1.11 2002/08/11 21:01:17 jmacgill Exp $
   * @author James Macgill, CCG
   */
 
@@ -97,6 +97,24 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
         }
         color = c;
     }
+    
+    /**
+     * This parameter sets the solid color that will be used for a stroke.<br>
+     * The color value is RGB-encoded using two hexidecimal digits per
+     * primary-color component in the order Red, Green, Blue, prefixed with the
+     * hash (#) sign.  The hexidecimal digits between A and F may be in either
+     * upper or lower case.  For example, full red is encoded as "#ff0000" 
+     * (with no quotation marks).  The default color is defined to be
+     * black ("#000000").
+     *
+     * Note: in CSS this parameter is just called Stroke and not Color.
+     *
+     * @param c The color of the stroke encoded as a hexidecimal RGB value.
+     */
+    public void setColor(String c) {
+        setColor(new ExpressionLiteral(c));
+    }
+    
     
     /**
      * This parameter encodes the dash pattern as a series of floats.<br>

@@ -18,12 +18,12 @@ import org.geotools.filter.*;
  * @author  iant
  */
 public class TextMark extends DefaultMark implements Mark, Symbol {
-
+    
     /**
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-
+    
     Expression wellKnownName = null;
     ArrayList fonts = new ArrayList();
     Expression symbol;
@@ -31,25 +31,17 @@ public class TextMark extends DefaultMark implements Mark, Symbol {
     public TextMark(Font font, String symbol) {
         addFont(font);
         setSymbol(symbol);
-        try{
-            wellKnownName = new ExpressionLiteral("Symbol");
-        } catch (IllegalFilterException ife){
-            LOGGER.severe("Unable to build TextMark " + ife);
-        }
+        wellKnownName = new ExpressionLiteral("Symbol");
     }
     
     public TextMark(Font font, Expression symbol) {
         addFont(font);
         setSymbol(symbol);
-        try{
-            wellKnownName = new ExpressionLiteral("Symbol");
-        } catch (IllegalFilterException ife){
-            LOGGER.severe("Unable to build TextMark " + ife);
-        }
+        wellKnownName = new ExpressionLiteral("Symbol");
     }
     
     /** This parameter gives the well-known name of the symbol of the mark.<br>
-     * 
+     *
      * @return The well-known name of this symbol
      */
     public Expression getWellKnownName() {
@@ -81,11 +73,7 @@ public class TextMark extends DefaultMark implements Mark, Symbol {
      * @param symbol New value of property symbol.
      */
     public void setSymbol(java.lang.String symbol) {
-        try{
-            this.symbol = new ExpressionLiteral(symbol);
-        } catch (IllegalFilterException ife){
-            LOGGER.severe("failed to build expression from string " + symbol + ": " + ife);
-        }
+        this.symbol = new ExpressionLiteral(symbol);
     }
     
     public void setSymbol(Expression symbol){

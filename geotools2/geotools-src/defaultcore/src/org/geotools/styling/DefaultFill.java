@@ -32,17 +32,17 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: DefaultFill.java,v 1.10 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: DefaultFill.java,v 1.11 2002/08/11 21:01:17 jmacgill Exp $
  * @author James Macgill, CCG
  */
 
 public class DefaultFill implements org.geotools.styling.Fill {
-
+    
     /**
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-
+    
     private Expression color = null;
     private Expression backgroundColor = null;
     private Expression opacity = null;
@@ -92,12 +92,8 @@ public class DefaultFill implements org.geotools.styling.Fill {
     public void setColor(Expression rgb) {
         color = rgb;
     }
-    public void setColor(String rgb){
-        try {
-            color = new org.geotools.filter.ExpressionLiteral(rgb);
-        } catch (org.geotools.filter.IllegalFilterException ife){
-            LOGGER.severe("error setting color: " + ife);
-        }
+    public void setColor(String rgb){        
+        color = new org.geotools.filter.ExpressionLiteral(rgb);
     }
     
     /**
@@ -125,7 +121,7 @@ public class DefaultFill implements org.geotools.styling.Fill {
      * or lower case.  For example, full red is encoded as "#ff0000" (with no
      * quotation marks).
      *
-     * 
+     *
      *
      * @param rgb The color of the Fill encoded as a hexidecimal RGB value.
      */
@@ -133,11 +129,9 @@ public class DefaultFill implements org.geotools.styling.Fill {
         backgroundColor = rgb;
     }
     public void setBackgroundColor(String rgb){
-        try {
-            backgroundColor = new org.geotools.filter.ExpressionLiteral(rgb);
-        } catch (org.geotools.filter.IllegalFilterException ife){
-            LOGGER.severe("error setting color: " + ife);
-        }
+        
+        backgroundColor = new org.geotools.filter.ExpressionLiteral(rgb);
+        
     }
     
     /**
@@ -164,11 +158,9 @@ public class DefaultFill implements org.geotools.styling.Fill {
         this.opacity = opacity;
     }
     public void setOpacity(String opacity){
-        try {
-            this.opacity = new org.geotools.filter.ExpressionLiteral(opacity);
-        } catch (org.geotools.filter.IllegalFilterException ife){
-            LOGGER.severe("error setting opacity: " + ife);
-        }
+        
+        this.opacity = new org.geotools.filter.ExpressionLiteral(opacity);
+        
     }
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be
