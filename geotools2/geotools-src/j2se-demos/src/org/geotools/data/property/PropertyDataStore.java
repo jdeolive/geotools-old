@@ -7,9 +7,6 @@ import org.geotools.feature.*;
 
 public class PropertyDataStore extends AbstractDataStore {
     File directory;
-    {
-        isWriteable = true;
-    }
     public PropertyDataStore(){
         this( new File("."));
     }

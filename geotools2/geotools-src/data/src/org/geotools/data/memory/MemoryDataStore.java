@@ -62,8 +62,9 @@ public class MemoryDataStore extends AbstractDataStore {
 
     /** Schema holds FeatureType by typeName */
     protected Map schema = new HashMap();
-
+    
     public MemoryDataStore() {
+        super( true );
     }
 
     public MemoryDataStore(FeatureCollection collection) {

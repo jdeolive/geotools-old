@@ -8,8 +8,6 @@ import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.IllegalAttributeException;
 
-import clover.org.apache.velocity.runtime.parser.node.n;
-
 import junit.framework.TestCase;
 
 /**

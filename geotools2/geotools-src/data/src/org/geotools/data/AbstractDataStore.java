@@ -66,6 +66,7 @@ public abstract class AbstractDataStore implements DataStore {
     /** Manages listener lists for FeatureSource implementation */
     protected FeatureListenerManager listenerManager = new FeatureListenerManager();
 
+    protected final boolean isWriteable;
     /**
      * Manages InProcess locks for FeatureLocking implementations.
      * 
@@ -76,7 +77,11 @@ public abstract class AbstractDataStore implements DataStore {
     private InProcessLockingManager lockingManager;
 
     public AbstractDataStore() {
-        lockingManager = createLockingManager();
+        this( true );    
+    }
+    public AbstractDataStore( boolean isWriteable){
+        this.isWriteable = isWriteable;
+        lockingManager = createLockingManager();        
     }
 
     /**
@@ -97,7 +102,26 @@ public abstract class AbstractDataStore implements DataStore {
 
     public abstract FeatureType getSchema(String typeName)
         throws IOException;
+    /**
+     * Subclass must implement.
+     *
+     * @param typeName
+     *
+     * @return FeatureReader over contents of typeName
+     */
+    protected abstract FeatureReader getFeatureReader(String typeName)
+        throws IOException;
 
+    /**
+     * Subclass should implement this to provide writing support.
+     *
+     * @param typeName
+     * @return FeatureWriter over contents of typeName
+     */
+    protected FeatureWriter getFeatureWriter(String typeName) throws IOException {
+        throw new UnsupportedOperationException("Writing not supported");
+    }
+        
     /**
      * Default implementation based on getFeatureReader and getFeatureWriter.
      * 
@@ -110,44 +134,55 @@ public abstract class AbstractDataStore implements DataStore {
     public FeatureSource getFeatureSource(final String typeName)
         throws IOException {
         final FeatureType featureType = getSchema(typeName);
-
-        if (lockingManager != null) {
-            return new AbstractFeatureLocking() {
+        if( isWriteable ){
+            if (lockingManager != null) {
+                return new AbstractFeatureLocking() {
                     public DataStore getDataStore() {
                         return AbstractDataStore.this;
                     }
-
                     public void addFeatureListener(FeatureListener listener) {
                         listenerManager.addFeatureListener(this, listener);
                     }
-
                     public void removeFeatureListener(FeatureListener listener) {
                         listenerManager.removeFeatureListener(this, listener);
                     }
-
                     public FeatureType getSchema() {
                         return featureType;
                     }
                 };
-        } else {
-            return new AbstractFeatureStore() {
+            } else {
+                return new AbstractFeatureStore() {
                     public DataStore getDataStore() {
                         return AbstractDataStore.this;
                     }
-
                     public void addFeatureListener(FeatureListener listener) {
                         listenerManager.addFeatureListener(this, listener);
                     }
-
                     public void removeFeatureListener(FeatureListener listener) {
                         listenerManager.removeFeatureListener(this, listener);
                     }
-
                     public FeatureType getSchema() {
                         return featureType;
                     }
                 };
+            }                                
         }
+        else {
+            return new AbstractFeatureSource() {
+                public DataStore getDataStore() {
+                    return AbstractDataStore.this;
+                }
+                public void addFeatureListener(FeatureListener listener) {
+                    listenerManager.addFeatureListener(this, listener);
+                }
+                public void removeFeatureListener(FeatureListener listener) {
+                    listenerManager.removeFeatureListener(this, listener);
+                }
+                public FeatureType getSchema() {
+                    return featureType;
+                }
+            };            
+        }        
     }
 
     /**
@@ -209,27 +244,7 @@ public abstract class AbstractDataStore implements DataStore {
 
             return state;
         }
-    }
-
-    /**
-     * Subclass must implement.
-     *
-     * @param typeName
-     *
-     * @return FeatureReader over contents of typeName
-     */
-    protected abstract FeatureReader getFeatureReader(String typeName)
-        throws IOException;
-
-    /**
-     * Subclass must implement.
-     *
-     * @param typeName
-     *
-     * @return FeatureWriter over contents of typeName
-     */
-    protected abstract FeatureWriter getFeatureWriter(String typeName)
-        throws IOException;
+    }    
 
     /* (non-Javadoc)
      * @see org.geotools.data.DataStore#getFeatureWriter(java.lang.String, org.geotools.filter.Filter, org.geotools.data.Transaction)
