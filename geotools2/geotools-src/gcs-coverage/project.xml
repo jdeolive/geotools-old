@@ -57,5 +57,38 @@
         </roles>
       </contributor>
     </contributors>
+<build>
+    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
+    
+    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+    <integrationUnitTestSourceDirectory/>
+    <aspectSourceDirectories/>
+    
+    <integrationUnitTestPatterns/>
+    <sourceDirectory>src</sourceDirectory>
+    <resourcesSourceDirectory>src</resourcesSourceDirectory>
+    <resources>
+    
+        <includes>
+            <include>**/*.serialized</include> 
+            <include>**/*.txt</include> 
+             <include>**/*.utf</include> 
+        </includes>
+    </resources>
 
+    
+    <jars/>
+
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/SampleDimensionTest.java</exclude>
+        <exclude>**/GridCoverageTest.java</exclude>
+        <exclude>**/InterpolatorTest.java</exclude>
+        <exclude>**/OperationTest.java</exclude>
+      </excludes>
+    </unitTest>
+  </build>
 </project>
