@@ -30,17 +30,17 @@ import java.util.regex.Pattern;
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: LikeFilterImpl.java,v 1.6 2003/07/22 22:41:08 cholmesny Exp $
+ * @version $Id: LikeFilterImpl.java,v 1.7 2003/07/23 18:15:03 cholmesny Exp $
  */
 public class LikeFilterImpl extends AbstractFilterImpl implements LikeFilter {
     /** The logger for the default core module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
     /** The attribute value, which must be an attribute expression. */
-    protected Expression attribute = null;
+    private Expression attribute = null;
 
     /** The (limited) REGEXP pattern. */
-    protected String pattern = null;
+    private String pattern = null;
 
     /** The single wildcard for the REGEXP pattern. */
     private String wildcardSingle = ".?";
@@ -305,9 +305,9 @@ public class LikeFilterImpl extends AbstractFilterImpl implements LikeFilter {
      */
     private boolean isSpecial(final char chr) {
         return ((chr == '.') || (chr == '?') || (chr == '*') || (chr == '^')
-                || (chr == '$') || (chr == '+') || (chr == '[') || (chr == ']')
-                || (chr == '(') || (chr == ')') || (chr == '|')
-                || (chr == '\\') || (chr == '&')); 
+        || (chr == '$') || (chr == '+') || (chr == '[') || (chr == ']')
+        || (chr == '(') || (chr == ')') || (chr == '|') || (chr == '\\')
+        || (chr == '&'));
     }
 
     /**
@@ -345,9 +345,10 @@ public class LikeFilterImpl extends AbstractFilterImpl implements LikeFilter {
      *         otherwise.
      */
     public boolean equals(Object obj) {
-        if (obj.getClass() == this.getClass()) {
+        if (obj instanceof LikeFilterImpl) {
             LikeFilterImpl lFilter = (LikeFilterImpl) obj;
 
+            //REVISIT: check for nulls.
             return ((lFilter.getFilterType() == this.filterType)
             && lFilter.getValue().equals(this.attribute)
             && lFilter.getPattern().equals(this.pattern));
@@ -363,8 +364,9 @@ public class LikeFilterImpl extends AbstractFilterImpl implements LikeFilter {
      */
     public int hashCode() {
         int result = 17;
-        result = result = (37 * result) + attribute.hashCode();
-        result = (37 * result) + pattern.hashCode();
+        result = (37 * result)
+            + ((attribute == null) ? 0 : attribute.hashCode());
+        result = (37 * result) + ((pattern == null) ? 0 : pattern.hashCode());
 
         return result;
     }
