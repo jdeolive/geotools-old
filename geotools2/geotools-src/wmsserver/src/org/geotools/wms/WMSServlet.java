@@ -441,7 +441,7 @@ public class WMSServlet extends HttpServlet {
         }
         
         // address of this service
-        String resource = "<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\""+
+        String resource = "<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\" "+
         "xlink:href=\"" + getUrl + "\"/>";
         
         xml.replace(xml.toString().indexOf(XML_GETURL), xml.toString().indexOf(XML_GETURL)+ XML_GETURL.length(), resource);
@@ -503,7 +503,7 @@ public class WMSServlet extends HttpServlet {
         if (root.name!=null) xml += tab+"<Name>"+root.name+"</Name>\n";
         xml += tab+"<Title>"+root.title+"</Title>\n";
         xml += tab+"<Abstract></Abstract>\n";
-        xml += tab+"<LatLongBoundingBox minx=\""+root.bbox[0]+"\" miny=\""+root.bbox[1]+"\" maxx=\""+root.bbox[2]+"\" maxy=\""+root.bbox[3]+"\"/ >\n";
+        xml += tab+"<LatLongBoundingBox minx=\""+root.bbox[0]+"\" miny=\""+root.bbox[1]+"\" maxx=\""+root.bbox[2]+"\" maxy=\""+root.bbox[3]+"\" />\n";
         if (root.srs!=null) xml += tab+"<SRS>"+root.srs+"</SRS>\n";
         // Styles
         if (root.styles!=null) {
