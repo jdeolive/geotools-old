@@ -36,8 +36,9 @@ package org.geotools.renderer.j2d;
 import java.awt.Shape;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Font;
+import java.awt.font.GlyphVector;
 import java.awt.geom.Point2D;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
@@ -64,48 +65,17 @@ import org.geotools.resources.XAffineTransform;
 
 
 /**
- * Représentation graphique d'un ensemble de marques apparaissant sur une carte.  Ces marques
- * peuvent être par exemple des points représentant les positions de stations, ou des flèches
- * de courants. L'implémentation par défaut de cette classe ne fait que dessiner des points à
- * certaines positions.   Les classes dérivées peuvent implémenter un dessin plus évolué, par
- * exemple une flèche de courant ou une ellipse de marée.   La façon de mémoriser les données
- * est laissée à la discrétion des classes dérivées.  Toute classe concrète devra implémenter
- * au moins les deux méthodes suivantes, qui servent à obtenir les coordonnées des stations:
+ * A set of marks and/or labels to be rendered. Marks can have different sizes and orientations
+ * (for example a field of wind arrows). This abstract class is not a container for marks.
+ * Subclasses must override the {@link #getMarkIterator} method in order to returns informations
+ * about marks.
  *
- * <ul>
- *   <li>{@link #getCount}</li>
- *   <li>{@link #getPosition}</li>
- * </ul>
- *
- * Si, à la position de chaque marque, on souhaite dessiner une figure orientable dans l'espace
- * (par exemple une flèche de courant ou une ellipse de marée), la classe dérivée pourra redéfinir
- * une ou plusieurs des méthodes ci-dessous. Redéfinir ces méthodes permet par exemple de dessiner
- * des flèches dont la forme exacte (par exemple une, deux ou trois têtes) et la couleur varie avec
- * l'amplitude, la direction ou d'autres critères de votre choix.
- *
- * <ul>
- *   <li>{@link #getTypicalAmplitude}</li>
- *   <li>{@link #getAmplitude}</li>
- *   <li>{@link #getDirection}</li>
- *   <li>{@link #getMarkShape}</li>
- *   <li>{@link #paint(Graphics2D, Shape, int)}</li>
- * </ul>
- *
- * @version $Id: RenderedMarks.java,v 1.7 2003/03/03 22:51:46 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.8 2003/03/15 12:58:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
     /**
-     * Forme géométrique à utiliser par défaut lorsqu'aucune autre forme n'a
-     * été spécifiée. La position centrale de la station doit correspondre à
-     * la coordonnée (0,0) de cette forme. La dimension de cette forme est
-     * exprimée en pixels. La forme par défaut sera un cercle centré à
-     * (0,0) et d'un diamètre de 10 pixels.
-     */
-    static final Shape DEFAULT_SHAPE = new Ellipse2D.Float(-5, -5, 10, 10);
-
-    /**
-     * Couleur des marques. La couleur par défaut sera grisée.
+     * Default color for marks.
      */
     static final Color DEFAULT_COLOR = new Color(102, 102, 153, 192);
 
@@ -134,87 +104,67 @@ public abstract class RenderedMarks extends RenderedLayer {
      * dans {@link #transformedShapes}. Les coordonnées de cette boîte
      * seront en pixels.
      */
-    private transient Rectangle boundingBox;
+    private transient Rectangle shapeBoundingBox;
 
     /**
-     * Amplitude typique calculée par {@link #getTypicalAmplitude}.
-     * Cette information est conservée dans une cache interne pour
-     * des accès plus rapides.
+     * Typical amplitude of marks, or 0 or {@link Double#NaN} if it need to be recomputed.
+     * This value is computed by {@link #getTypicalAmplitude} and cached here for faster
+     * access. The default implementation computes the Root Mean Square (RMS) value of all
+     * {@linkplain MarkIterator#amplitude marks amplitude}.
+     *
+     * Note: this field is read and write by {@link RenderedGridMarks}, which overrides
+     * {@link #getTypicalAmplitude}.
      */
-    private transient double typicalAmplitude;
+    transient double typicalAmplitude;
 
     /**
-     * Construit un ensemble de marques. Les coordonnées de ces
-     * marques seront exprimées selon le système de coordonnées
-     * par défaut (WGS 1984).    Ce système de coordonnées peut
-     * être changé par un appel à {@link #setCoordinateSystem}.
+     * Construct a new layer of marks.
      */
     public RenderedMarks() {
         super();
     }
 
     /**
-     * Retourne le nombre de marques mémorisées dans cette couche.
-     * Les données de chacune de ces marques pourront être accédées
-     * à l'aides des différentes méthodes <code>get*</code> de cette
-     * classe.
+     * Returns the number of marks. <strong>Note: this method is a temporary hack and will
+     * be removed in a future version.</strong>
      *
-     * @see #getPosition
-     * @see #getAmplitude
-     * @see #getDirection
+     * @task TODO: Make this method package-privated and rename it "guessCount".
+     *             The actual count will be fetched from the MarkIterator.
      */
     protected abstract int getCount();
 
     /**
-     * Indique si la marque pointée par l'index spécifié est visible. L'implémentation par
-     * défaut retourne toujours <code>true</code>. Les classes dérivées peuvent redéfinir
-     * cette méthode si elles veulent que certaines marques ne soient pas visibles sur la
-     * carte. Les classes dérivées ne sont pas tenues de retourner toujours la même valeur
-     * pour un index donné. Par exemple deux appels consécutifs à <code>isVisible(23)</code>
-     * pourraient retourner <code>true</code> la première fois et <code>false</code> la
-     * seconde, ce qui indiquerait que la station #23 apparaissait d'abord comme "allumée",
-     * puis comme "éteinte" sur la carte.
+     * Returns an iterator for iterating through the marks.
+     * This iterator doesn't need to be thread-safe.
      */
-    protected boolean isVisible(int index) {
-        return true;
-    }
+    public abstract MarkIterator getMarkIterator();
 
     /**
-     * Retourne les coordonnées (<var>x</var>,<var>y</var>) de la marque désignée par l'index
-     * spécifié. Les coordonnées doivent être exprimées selon le {@linkplain #getCoordinateSystem
-     * système de coordonnées de cette couche} (WGS 1984 par défaut). Cette méthode est autorisée
-     * à retourner <code>null</code> si la position d'une marque n'est pas connue.
-     *
-     * @throws TransformException if a transform was required and failed.
-     *
-     * @see #getGeographicShape
+     * Returns the units for {@linkplain MarkIterator#amplitude marks amplitude}, or
+     * <code>null</code> if unknow. All marks must use the same units. The default
+     * implementation returns always <code>null</code>.
      */
-    protected abstract Point2D getPosition(int index) throws TransformException;
-
-    /**
-     * Retourne les unités de l'amplitude, ou <code>null</code> si ces unités ne sont pas connues.
-     * L'implémentation par défaut retourne toujours <code>null</code>. Les unités de la direction,
-     * pour leur part, seront toujours en radians.
-     */
-    protected Unit getAmplitudeUnit() {
+    public Unit getAmplitudeUnit() {
         return null;
     }
 
     /**
-     * Retourne l'amplitude typique des valeurs de cette couche. Cette information est à
-     * interpréter de pair avec celle que retourne {@link #getAmplitude}. Les marques associées
-     * à des valeurs qui ont une amplitude égale à l'amplitude typique paraîtront de la taille
-     * normale; les marques qui ont une amplitude deux fois plus grande que l'amplitude typique
-     * paraîtront deux fois plus grosses, etc. L'implémentation par défaut retourne la valeur
-     * RMS de toutes les amplitudes retournées par {@link #getAmplitude}.
+     * Returns the typical amplitude of marks. The default implementation computes the <cite>Root
+     * Mean Square</cite> (RMS) value of all {@linkplain MarkIterator#amplitude marks amplitude}.
+     *
+     * This information is used with mark's {@linkplain MarkIterator#amplitude amplitude} and
+     * {@linkplain MarkIterator#markShape shape} in order to determine how big they should be
+     * rendered. Marks with an {@linkplain MarkIterator#amplitude amplitude} equals to the
+     * typical amplitude will be rendered with their {@linkplain MarkIterator#markShape shape}
+     * unscaled. Other marks will be rendered with scaled versions of their shapes.
      */
-    protected double getTypicalAmplitude() {
+    public double getTypicalAmplitude() {
         synchronized (getTreeLock()) {
             if (!(typicalAmplitude>0)) {
                 int n=0;
                 double rms=0;
-                for (int i=getCount(); --i>=0;) {
-                    final double v = getAmplitude(i);
+                for (final MarkIterator it=getMarkIterator(); it.next();) {
+                    final double v = it.amplitude();
                     if (!Double.isNaN(v)) {
                         rms += v*v;
                         n++;
@@ -227,55 +177,9 @@ public abstract class RenderedMarks extends RenderedLayer {
     }
 
     /**
-     * Retourne l'amplitude horizontale à la position d'une marque. L'amplitude horizontale indique
-     * de quelle grosseur doit apparaître la marque. Plus l'amplitude est élevée,  plus la marque
-     * paraîtra grosse. Cette information est principalement utilisée pour dessiner des flèches de
-     * courants ou de vents. L'implémentation par défaut retourne toujours 1.
-     */
-    protected double getAmplitude(int index) {
-        return 1;
-    }
-
-    /**
-     * Retourne la direction à la position d'une marque, en radians arithmétiques. Cette
-     * information est particulièrement utile pour le traçage de flèches de courants ou
-     * de vents. L'implémentation par défaut retourne toujours 0.
-     */
-    protected double getDirection(int index) {
-        return 0;
-    }
-
-    /**
-     * Retourne l'étendue géographique d'une marque, ou <code>null</code> s'il n'y en a pas.
-     * Cette étendue doit être exprimée selon le système de coordonnées de cette couche. En
-     * général (mais pas obligatoirement), cette étendue contiendra le point retourné par
-     * {@link #getPosition}. L'implémentation par défaut retourne toujours <code>null</code>,
-     * ce qui suppose que cette couche n'affiche que des points sans étendue géographique connue.
-     */
-    protected Shape getGeographicShape(int index) {
-        return null;
-    }
-
-    /**
-     * Retourne la forme géométrique servant de modèle au traçage des marques. Cette forme peut
-     * varier d'une marque à l'autre, ou être la même pour toutes les marques. Cette forme doit
-     * être centrée à l'origine (0,0) et ses coordonnées doivent être exprimées en points (1/72
-     * de pouces). Par exemple pour dessiner des flèches de courants, la forme modèle devrait
-     * être une flèche toujours orientée vers l'axe des <var>x</var> positifs (le 0° arithmétique),
-     * avoir sa base centrée à (0,0) et être de dimension raisonable (par exemple 16&times;4
-     * pixels). La méthode {@link #paint(RenderingContext)} prendra automatiquement en charge
-     * les rotations et translations pour ajuster le modèle aux différentes marques.
-     * L'implémentation par défaut retourne toujours un cercle centré à (0,0) et d'un
-     * diamètre de 10 points.
-     */
-    protected Shape getMarkShape(int index) {
-        return DEFAULT_SHAPE;
-    }
-
-    /**
      * Dessine la forme géométrique spécifiée. Cette méthode est appellée automatiquement par la
      * méthode {@link #paint(RenderingContext)}. Les classes dérivées peuvent la redéfinir si
-     * elles veulent modifier la façon dont les stations sont dessinées. Cette méthode reçoit
+     * elles veulent modifier la façon dont les marques sont dessinées. Cette méthode reçoit
      * en argument une forme géométrique <code>shape</code> à dessiner dans <code>graphics</code>.
      * Les rotations, translations et facteurs d'échelles nécessaires pour bien représenter la
      * marque auront déjà été pris en compte. Le graphique <code>graphics</code> a déja reçu la
@@ -288,18 +192,23 @@ public abstract class RenderedMarks extends RenderedLayer {
      * </pre></blockquote>
      *
      * @param graphics Graphique à utiliser pour tracer la marque. L'espace de coordonnées
-     *                 de ce graphique sera les pixels en les points (1/72 de pouce).
+     *                 de ce graphique sera les pixels ou les points (1/72 de pouce).
      * @param shape    Forme géométrique représentant la marque à tracer.
-     * @param index    Index de la marque à tracer.
+     * @param iterator The iterator used for computing <code>shape</code>. This method can
+     *                 query properties like the {@linkplain MarkIterator#position position},
+     *                 the {@linkplain MarkIterator#amplitude amplitude}, etc. However, it
+     *                 should <strong>not</strong> moves the iterator (i.e. do not invoke
+     *                 any {@link MarkIterator#next} method).
      */
-    protected void paint(final Graphics2D graphics, final Shape shape, final int index) {
+    protected void paint(final Graphics2D graphics, final Shape shape, final MarkIterator iterator)
+    {
         graphics.setColor(DEFAULT_COLOR);
         graphics.fill(shape);
     }
 
     /**
      * Retourne les indices qui correspondent aux coordonnées spécifiées.
-     * Ces indices seront utilisées par {@link #isVisible(int,Rectangle)}
+     * Ces indices seront utilisées par {@link MarkIterator#visible(Rectangle)}
      * pour vérifier si un point est dans la partie visible. Cette méthode
      * sera redéfinie par {@link RenderedGridMarks}.
      *
@@ -310,19 +219,9 @@ public abstract class RenderedMarks extends RenderedLayer {
     }
 
     /**
-     * Indique si la station à l'index spécifié est visible
-     * dans le clip spécifié. Le rectangle <code>clip</code>
-     * doit avoir été obtenu par {@link #getUserClip}. Cette
-     * méthode sera définie par {@link RenderedGridMarks}.
-     */
-    boolean isVisible(final int index, final Rectangle clip) {
-        return true;
-    }
-
-    /**
      * Fait en sorte que {@link #transformedShapes} soit non-nul et ait
      * exactement la longueur nécessaire pour contenir toutes les formes
-     * géométriques des stations. Si un nouveau tableau a dû être créé,
+     * géométriques des marques. Si un nouveau tableau a dû être créé,
      * cette méthode retourne <code>true</code>. Si l'ancien tableau n'a
      * pas été modifié parce qu'il convenait déjà, alors cette méthode
      * retourne <code>false</code>.
@@ -341,19 +240,17 @@ public abstract class RenderedMarks extends RenderedLayer {
      * façon de dessiner les marques, redéfinissez plutôt une des méthodes
      * énumérées dans la section "voir aussi" ci-dessous.
      *
-     * @throws TransformException si une projection cartographique était
-     *         nécessaire et a échouée.
+     * @throws TransformException if a coordinate transformation was required and failed.
      *
-     * @see #getCount()
-     * @see #isVisible(int)
-     * @see #getPosition
-     * @see #getDirection
-     * @see #getAmplitude
-     * @see #getAmplitudeUnit
+     * @see MarkIterator#visible
+     * @see MarkIterator#position
+     * @see MarkIterator#geographicArea
+     * @see MarkIterator#markShape
+     * @see MarkIterator#direction
+     * @see MarkIterator#amplitude
      * @see #getTypicalAmplitude
-     * @see #getGeographicShape
-     * @see #getMarkShape
-     * @see #paint(Graphics2D, Shape, int)
+     * @see #getAmplitudeUnit
+     * @see #paint(Graphics2D, Shape, MarkIterator)
      */
     protected void paint(final RenderingContext context) throws TransformException {
         assert Thread.holdsLock(getTreeLock());
@@ -363,6 +260,7 @@ public abstract class RenderedMarks extends RenderedLayer {
         final Rectangle   zoomableBounds = context.getPaintingArea(context.textCS).getBounds();
         final int                  count = getCount();
         if (count != 0) {
+            final MarkIterator iterator = getMarkIterator();
             /*
              * Vérifie si la transformation affine est la même que la dernière fois. Si ce n'est
              * pas le cas, alors on va recréer une liste de toutes les formes géométriques
@@ -375,9 +273,9 @@ public abstract class RenderedMarks extends RenderedLayer {
             if (validateShapesArray(count) || !Utilities.equals(projection, lastProjection) ||
                                               !Utilities.equals(fromWorld,  lastTransform))
             {
-                boundingBox    = null;
-                lastProjection = projection;
-                lastTransform  = fromWorld;
+                shapeBoundingBox = null;
+                lastProjection   = projection;
+                lastTransform    = fromWorld;
                 Rectangle userClip;
                 try {
                     Rectangle2D visibleArea;
@@ -429,13 +327,13 @@ public abstract class RenderedMarks extends RenderedLayer {
                  * servira à transformer les coordonnées de la marque "modèle" en
                  * coordonnées pixels propres à chaque marque.
                  */
-                for (int i=0; i<count; i++) {
-                    if (!isVisible(i, userClip)) {
-                        transformedShapes[shapeIndex++]=null;
+                while (iterator.next()) {
+                    if (!iterator.visible(userClip)) {
+                        transformedShapes[shapeIndex++] = null;
                         continue;
                     }
                     final AffineTransform fromShape;
-                    Shape shape = getGeographicShape(i);
+                    Shape shape = iterator.geographicArea();
                     if (shape != null) {
                         /*
                          * Si l'utilisateur a définit une étendue géographique
@@ -452,7 +350,9 @@ public abstract class RenderedMarks extends RenderedLayer {
                          * et de l'angle spécifié par {@link #getDirection}.
                          */
                         Point2D point;
-                        if ((point=getPosition(i))==null || (shape=getMarkShape(i))==null) {
+                        if ((point=iterator.position ())==null ||
+                            (shape=iterator.markShape())==null)
+                        {
                             transformedShapes[shapeIndex++] = null;
                             continue;
                         }
@@ -461,9 +361,9 @@ public abstract class RenderedMarks extends RenderedLayer {
                         matrix[5] = point.getY();
                         fromWorld.transform(matrix, 4, matrix, 4, 1);
                         tr.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-                        scale = getAmplitude(i)/typicalScale;
+                        scale = iterator.amplitude()/typicalScale;
                         tr.scale(scale,scale);
-                        tr.rotate(getDirection(i));
+                        tr.rotate(iterator.direction());
                         fromShape = tr;
                     }
                     /*
@@ -542,10 +442,10 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
                     transformedShapes[shapeIndex++] = (transformedShape.intersects(zoomableBounds))
                                                     ? transformedShape : null;
                     final Rectangle bounds = transformedShape.getBounds();
-                    if (boundingBox == null) {
-                        boundingBox = bounds;
+                    if (shapeBoundingBox == null) {
+                        shapeBoundingBox = bounds;
                     } else {
-                        boundingBox.add(bounds);
+                        shapeBoundingBox.add(bounds);
                     }
                 }
             }
@@ -557,15 +457,15 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
             final Stroke          oldStroke  = graphics.getStroke();
             final Paint           oldPaint   = graphics.getPaint();
             try {
+                int shapeIndex=0;
+                iterator.seek(-1);
                 graphics.setTransform(fromPoints);
                 graphics.setStroke(DEFAULT_STROKE);
                 final Rectangle clip = graphics.getClipBounds();
-                for (int i=0; i<transformedShapes.length; i++) {
-                    if (isVisible(i)) {
-                        final Shape shape = transformedShapes[i];
-                        if (shape!=null && (clip==null || shape.intersects(clip))) {
-                            paint(graphics, shape, i);
-                        }
+                while (iterator.next()) {
+                    final Shape shape = transformedShapes[shapeIndex++];
+                    if (shape!=null && (clip==null || shape.intersects(clip))) {
+                        paint(graphics, shape, iterator);
                     }
                 }
             } finally {
@@ -574,13 +474,13 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
                 graphics.setPaint(oldPaint);
             }
         }
-        context.addPaintedArea(boundingBox, context.textCS);
+        context.addPaintedArea(shapeBoundingBox, context.textCS);
     }
 
     /**
      * Indique que cette couche a besoin d'être redéssinée. Cette méthode
      * <code>repaint()</code> peut être appelée à partir de n'importe quel
-     * thread (pas nécessairement celui de <i>Swing</i>).
+     * thread (pas nécessairement celui de <cite>Swing</cite>).
      */
     public void repaint() {
         synchronized (getTreeLock()) {
@@ -590,14 +490,14 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
     }
 
     /**
-     * Déclare que la station spécifiée a besoin d'être redessinée.
+     * Déclare que la marque spécifiée a besoin d'être redessinée.
      * Cette méthode peut être utilisée pour faire apparaître ou
-     * disparaître une station, après que sa visibilité (telle que
-     * retournée par {@link #isVisible}) ait changée.
+     * disparaître une marque, après que sa visibilité (telle que
+     * retournée par {@link MarkIterator#visible}) ait changée.
      *
-     * Si un nombre restreint de stations sont à redessiner, cette
+     * Si un nombre restreint de marques sont à redessiner, cette
      * méthode sera efficace car elle provoquera le retraçage d'une
-     * portion relativement petite de la carte. Si toutes les stations
+     * portion relativement petite de la carte. Si toutes les marques
      * sont à redessiner, il peut être plus efficace d'appeller {@link
      * #repaint()}.
      */
@@ -624,7 +524,7 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
         lastTransform     = null;
         lastProjection    = null;
         transformedShapes = null;
-        boundingBox       = null;
+        shapeBoundingBox  = null;
         typicalAmplitude  = Double.NaN;
         super.clearCache();
     }
@@ -641,22 +541,10 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
     private transient Point2D point;
 
     /**
-     * Returns a tooltip text for the specified marks. The default implementation returns
-     * always <code>null</code>. <strong>Note:</strong> This method is not a commited part
-     * of the API. It may moves elsewhere in a future version.
-     *
-     * @param  index The mark index, from 0 inclusive to {@link #getCount} exclusive.
-     * @return The tool tip text for the specified mark, or <code>null</code> if none.
-     */
-    protected String getToolTipText(int index) {
-        return null;
-    }
-
-    /**
      * Retourne le texte à afficher dans une bulle lorsque le curseur
      * de la souris traîne sur la carte. L'implémentation par défaut
      * identifie la marque sur laquelle traîne le curseur et appelle
-     * {@link #getToolTipText(int)}.
+     * {@link MarkIterator#getToolTipText()}.
      *
      * @param  event Coordonnées du curseur de la souris.
      * @return Le texte à afficher lorsque la souris traîne sur cet élément.
@@ -666,12 +554,17 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
         synchronized (getTreeLock()) {
             final Shape[] transformedShapes = RenderedMarks.this.transformedShapes;
             if (transformedShapes != null) {
-                Shape shape;
+                MarkIterator iterator = null;
                 final Point2D point = this.point = event.getPixelCoordinate(this.point);
                 for (int i=transformedShapes.length; --i>=0;) {
-                    if (isVisible(i) && (shape=transformedShapes[i])!=null) {
+                    final Shape shape = transformedShapes[i];
+                    if (shape != null) {
                         if (shape.contains(point)) {
-                            final String text = getToolTipText(i);
+                            if (iterator == null) {
+                                iterator = getMarkIterator();
+                            }
+                            iterator.seek(i);
+                            final String text = iterator.getToolTipText(event);
                             if (text != null) {
                                 return text;
                             }
