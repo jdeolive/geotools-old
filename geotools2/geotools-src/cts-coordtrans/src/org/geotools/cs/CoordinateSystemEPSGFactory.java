@@ -90,7 +90,7 @@ import org.geotools.resources.cts.ResourceKeys;
  *       button to select it.</li>
  * </ul>
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.6 2002/07/31 10:19:29 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.7 2002/08/20 22:01:44 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -260,7 +260,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             }
             record.setSourceClassName("CoordinateSystemEPSGFactory");
             record.setSourceMethodName("<init>");
-            Logger.getLogger("org.geotools.cts").log(record);
+            Logger.getLogger("org.geotools.cs").log(record);
         }
         return DriverManager.getConnection(url);
     }
@@ -517,7 +517,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                     if (semiMinorAxis != 0) {
                         // Both 'inverseFlattening' and 'semiMinorAxis' are defined.
                         // Log a warning and create the ellipsoid using the inverse flattening.
-                        Logger.getLogger("org.geotools.cts").warning(Resources.format(
+                        Logger.getLogger("org.geotools.cs").warning(Resources.format(
                                             ResourceKeys.WARNING_AMBIGUOUS_ELLIPSOID));
                     }
                     ellipsoid = factory.createFlattenedSphere(name, semiMajorAxis,
@@ -1318,7 +1318,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 record.setSourceClassName("CoordinateSystemEPSGFactory");
                 record.setSourceMethodName("createProjectedCoordinateSystem");
                 record.setThrown(exception);
-                Logger.getLogger("org.geotools.cts").log(record);
+                Logger.getLogger("org.geotools.cs").log(record);
             }
         }
 
