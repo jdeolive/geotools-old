@@ -101,6 +101,31 @@
       <groupId>gt2</groupId>
       <version>2.0-B3</version>
     </dependency>
+     <dependency>
+      <artifactId>batik</artifactId>
+      <groupId>batik</groupId>
+      <version>1.5</version>
+    </dependency>
+    <dependency>
+      <artifactId>batik-gvt</artifactId>
+      <groupId>batik</groupId>
+      <version>1.5</version>
+    </dependency>
+    <dependency>
+      <artifactId>batik-svg-dom</artifactId>
+      <groupId>batik</groupId>
+      <version>1.5</version>
+    </dependency>
+     <dependency>
+      <artifactId>batik-rasterizer</artifactId>
+      <groupId>batik</groupId>
+      <version>1.5</version>
+    </dependency>
+    <dependency>
+      <artifactId>batik-transcoder</artifactId>
+      <groupId>batik</groupId>
+      <version>1.5</version>
+    </dependency>
   </dependencies>
   <build>
     <unitTest>
