@@ -11,6 +11,8 @@ import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.*;
 
@@ -53,7 +55,7 @@ public class GmlTest extends TestCase {
             System.out.println("Testing ability to load "+url+" as Feature datasource");
             DataSource ds = new GMLDataSource(url);
             
-            table = new FeatureCollectionDefault(ds);
+            table = ds.getFeatures(Query.ALL);
             
             
             
@@ -82,7 +84,9 @@ public class GmlTest extends TestCase {
         }catch(Exception e){
             System.out.println(e);
             e.printStackTrace();
-            fail("Load failed because of exception "+e.toString());
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            e.printStackTrace(new PrintWriter(out));
+            fail("Load failed because of exception "+e.toString()+" "+out.toString());
         }
     }
     
