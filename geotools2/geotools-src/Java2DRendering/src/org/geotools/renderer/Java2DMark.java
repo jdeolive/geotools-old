@@ -21,7 +21,7 @@
 package org.geotools.renderer;
 
 /**
- * @version $Id: Java2DMark.java,v 1.2 2002/06/04 19:22:23 loxnard Exp $
+ * @version $Id: Java2DMark.java,v 1.3 2002/06/07 14:46:08 ianturton Exp $
  * @author Ian Turton
  */
 
@@ -35,14 +35,58 @@ public class Java2DMark {
     public Java2DMark() {
         
     }
-    
+    static GeneralPath cross,star,triangle;
+    static Shape X;
+    static{
+            cross = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
+            cross.moveTo( 0.5f, 0.125f);
+            cross.lineTo( 0.125f, 0.125f);
+            cross.lineTo( 0.125f, 0.5f);
+            cross.lineTo(-0.125f, 0.5f);
+            cross.lineTo(-0.125f, 0.125f);
+            cross.lineTo(-0.5f, 0.125f);
+            cross.lineTo(-0.5f,-0.125f);
+            cross.lineTo(-0.125f,-0.125f);
+            cross.lineTo(-0.125f,-0.5f);
+            cross.lineTo( 0.125f,-0.5f);
+            cross.lineTo( 0.125f,-0.125f);
+            cross.lineTo( 0.5f,-0.125f);
+            cross.lineTo( 0.5f, 0.125f);
+            AffineTransform at = new AffineTransform();
+            at.rotate(Math.PI/4.0);
+            X = cross.createTransformedShape(at);
+            star = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
+            star.moveTo(0.191f, 0.0f);
+            star.lineTo(0.25f, 0.344f);
+            star.lineTo(0.0f, 0.588f); 
+            star.lineTo(0.346f, 0.638f); 
+            star.lineTo(0.5f, 0.951f);
+            star.lineTo(0.654f, 0.638f); 
+            star.lineTo(1.0f, 0.588f); // max = 7.887
+            star.lineTo(0.75f, 0.344f); 
+            star.lineTo(0.89f, 0f); 
+            star.lineTo(0.5f, 0.162f); 
+            star.lineTo(0.191f, 0.0f);
+            at = new AffineTransform();
+            at.translate(-.5,-.5);
+            star.transform(at);
+            triangle = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
+            triangle.moveTo(0f,1f);
+            triangle.lineTo(0.866f,-.5f);
+            triangle.lineTo(-0.866f,-.5f);
+            triangle.lineTo(0f,1f);
+            at = new AffineTransform();
+            
+            at.translate(0,-.25);
+            at.scale(.5,.5);
+           
+            triangle.transform(at);
+    }
     static Shape getWellKnownMark(String wellKnownName){
         _log.debug("fetching mark of name "+wellKnownName);
         if(wellKnownName.equalsIgnoreCase("cross")){
-            int x[] = { 4, 1, 1,-1,-1,-4,-4,-1,-1, 1, 1, 4};
-            int y[] = { 1, 1, 4, 4, 1, 1,-1,-1,-4,-4,-1,-1};
             _log.debug("returning cross");
-            return new java.awt.Polygon(x,y,12);
+            return cross;
         }
         if(wellKnownName.equalsIgnoreCase("circle")){
             _log.debug("returning circle");
@@ -51,20 +95,16 @@ public class Java2DMark {
         if(wellKnownName.equalsIgnoreCase("triangle")){
             _log.debug("returning triangle");
             int x[] = {-1,0,1};
-            int y[] = {1,-1,1};
-            return new java.awt.Polygon(x,y,3);
+            int y[] = {-1,1,-1};
+            return triangle;
         }
         if(wellKnownName.equalsIgnoreCase("X")){
             _log.debug("returning X");
-            int x[] = { 1, 2, 1, 0,-1,-2,-1,-2,-1, 0, 1, 2};
-            int y[] = { 0, 1, 2, 1, 2, 1, 0,-1,-2,-1,-2,-1};
-            return new java.awt.Polygon(x,y,12);
+            return X;
         }
         if(wellKnownName.equalsIgnoreCase("star")){
             _log.debug("returning star");
-            int x[] = { 2, 1, 0,-1,-2,-1,-2,-1, 0, 1, 2, 1};
-            int y[] = { 1, 1, 2, 1, 1, 0,-1,-1,-2,-1,-1, 0};
-            return new java.awt.Polygon(x,y,12);
+            return star;
         }
         // failing that return a square?
         _log.debug("returning square");
