@@ -5,7 +5,7 @@
  */
 
 package org.geotools.gml;
-import org.geotools.datasource.*;
+
 import org.geotools.gml.handlers.*;
 import java.io.*;
 import java.util.*;
@@ -16,7 +16,7 @@ import com.vividsolutions.jts.geom.*;
 /** Reads and parses a GML file into a geometry collection
  *
  * @author ian
- * @version $Id: GMLReader.java,v 1.6 2002/03/11 15:52:26 ianturton Exp $
+ * @version $Id: GMLReader.java,v 1.7 2002/03/15 07:55:36 ianturton Exp $
  */
 public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     boolean stopped = false;
@@ -32,9 +32,9 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
      * @param in inputStream to be read
      * @throws DataSourceException if an IO Exception occurs
      */
-    public GMLReader(Reader in) throws DataSourceException{
+    public GMLReader(Reader in) throws GMLException{
         if(in==null){
-            throw new DataSourceException("Null input stream in GMLReader");
+            throw new GMLException("Null input stream in GMLReader");
         }
         this.in= new InputSource(in);
         try{
@@ -42,7 +42,7 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
             parser.setContentHandler(this);
             
         }catch(SAXException e){
-            throw new DataSourceException("GMLReader setup error:"+e);
+            throw new GMLException("GMLReader setup error:"+e);
         }
         
         
@@ -51,12 +51,12 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
      * @throws DataSourceException if anything goes wrong
      * @return a geometry collection of the geometries read in
      */
-    public GeometryCollection read()throws DataSourceException{
+    public GeometryCollection read()throws GMLException{
         try{
             parser.parse(in);
         }catch(Exception e){
             e.printStackTrace();
-            throw new DataSourceException("GMLReader reading error:"+e);
+            throw new GMLException("GMLReader reading error:"+e);
         }
         return (GeometryCollection) head.finish(factory);
     }
@@ -67,7 +67,7 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
         stopped=true;
         // we should actually stop here!
     }
-    /** called by parser when a new entity is found
+    /** Called by parser when a new entity is found.
      * @param namespace the namespace of the element
      * @param localName local name of the element
      * @param qName Qualified name of the element
@@ -100,7 +100,7 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
         }
         
     }
-    /** called by parser when a charater string is found
+    /** Called by parser when a charater string is found.
      * at present we handle exactly two cases here either its a coordinate or an X,Y or Z inside a coord
      * @param ch the character array which contains the string
      * @param start where the string starts in ch
@@ -122,7 +122,7 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
             ((GMLXYZHandler)handler).parseText(s);
         }
     }
-    /** called by parser when an entitiy finishes
+    /** Called by parser when an entitiy finishes.
      * first we "capture" the info insider the handler for the entitiy we've
      * just finished, e.g. geometry, coordinates, etc.
      * then we need to remove the current handler from the top of the stack
@@ -218,5 +218,20 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
         }
         return h;
     }
+    
+    /** Getter for property factory.
+     * @return Value of property factory.
+     */
+    public com.vividsolutions.jts.geom.GeometryFactory getFactory() {
+        return factory;
+    }
+    
+    /** Setter for property factory.
+     * @param factory New value of property factory.
+     */
+    public void setFactory(com.vividsolutions.jts.geom.GeometryFactory factory) {
+        this.factory = factory;
+    }
+    
     private String[] primativeGeoms = {"Point","Box","LineString","LinearRing","Polygon"};
 }

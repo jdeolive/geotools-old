@@ -7,6 +7,7 @@
 package org.geotools.gml;
 import org.geotools.datasource.*;
 import org.geotools.datasource.extents.*;
+import org.geotools.featuretable.*;
 import java.net.*;
 import java.io.*;
 import com.vividsolutions.jts.geom.*;
@@ -15,7 +16,7 @@ import java.util.*;
  * rest of geotools.
  *
  * @author ian
- * @version $Id: GMLDataSource.java,v 1.4 2002/03/12 12:51:42 ianturton Exp $
+ * @version $Id: GMLDataSource.java,v 1.5 2002/03/15 07:55:36 ianturton Exp $
  */
 public class GMLDataSource implements org.geotools.datasource.DataSource{
     boolean stopped=false;
@@ -39,11 +40,12 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
     }
     
     /** Loads Feature rows for the given Extent from the datasource
-     * @param ex An extent to limit the data returned
-     * @throws DataSourceException if any exceptions are generated reading the resource
-     * @return List of features
+     * @param ft featureTable to load features into
+     * @param ex an extent defining which features to load - null means all features
+     * @throws DataSourceException if anything goes wrong
      */
-    public List load(Extent ex) throws DataSourceException {
+    public void importFeatures(FeatureTable ft, Extent ex) throws DataSourceException {
+    
 
         if(ex instanceof EnvelopeExtent){
             List features = new ArrayList();
@@ -58,10 +60,8 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
                 int count = shapes.getNumGeometries();
                 for(int i=0;i<count;i++){
                     Feature feat = new Feature();
-                    feat.columnNames = getColumnNames();
-                    Object [] row = new Object[1];
-                    feat.row = row;
-                    feat.row[0] = shapes.getGeometryN(i);
+                    feat.setAttributes(getColumnNames());
+                    feat.setGeometry(shapes.getGeometryN(i));
                     if(ee.containsFeature(feat)){
                         features.add(feat);
                     }
@@ -71,10 +71,11 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
             catch(IOException ioe){
                 throw new DataSourceException("IO Exception loading data : "+ioe.getMessage());
             }
-            return features;
+            ft.addFeatures((Feature[])features.toArray(new Feature[0]));
+            return ;
         }
         else{
-            return null;
+            return;
         }
         
     }
@@ -87,12 +88,13 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
     }
     
     /** Saves the given features to the datasource
-     * not currently implemented
-     * @param features the features to be saved
-     *
-     * @throws DataSourceException if anything goes wrong in the write
+     * @param ft feature table to get features from
+     * @param ex extent to define which features to write - null means all
+     * @throws DataSourceException if anything goes wrong or if exporting is not supported
      */
-    public void save(List features) throws DataSourceException {
+    public void exportFeatures(FeatureTable ft, Extent ex) throws DataSourceException {
     }
+    
+    
     
 }
