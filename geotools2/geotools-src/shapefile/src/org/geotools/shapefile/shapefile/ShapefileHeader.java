@@ -85,7 +85,10 @@ public class ShapefileHeader {
         this.fileLength = fileLength;
     }
 
-
+    public int getFileLength() {
+        return this.fileLength;
+    }
+    
     public void write(EndianDataOutputStream file) throws IOException {
         int pos = 0;
 
