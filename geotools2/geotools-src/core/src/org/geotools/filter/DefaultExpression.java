@@ -26,7 +26,7 @@ import org.geotools.feature.*;
 /**
  * Implements a default expression, with helpful variables and static methods.
  *
- * @version $Id: DefaultExpression.java,v 1.2 2002/10/25 11:38:30 ianturton Exp $
+ * @version $Id: DefaultExpression.java,v 1.3 2002/10/25 13:45:34 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public abstract class DefaultExpression implements Expression{
@@ -76,6 +76,8 @@ public abstract class DefaultExpression implements Expression{
     /** Defines an attribute expression with a declared string type. */  
     public static final short ATTRIBUTE = 113;
 
+    public static final short FUNCTION = 114;
+    
     /**
      * Gets the type of this expression.
      */

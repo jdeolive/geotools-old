@@ -191,7 +191,7 @@ public class ExpressionTest extends TestCase {
         //_log.info("string literal expression equals: " + testLiteral.getValue(testFeature));            
         assertEquals("test string data", testLiteral.getValue(testFeature));
     }
-    
+    static FilterFactory filterFactory = FilterFactory.createFilterFactory();
      /** 
      * Tests the min function expression.
      */
@@ -200,7 +200,7 @@ public class ExpressionTest extends TestCase {
         Expression a = new AttributeExpressionImpl(testSchema, "testInteger");          
         Expression b = new LiteralExpressionImpl(new Double(1004));
         
-        MinFunctionImpl min = new MinFunctionImpl();
+        FunctionExpression min = filterFactory.createFunctionExpression("min");
         min.setArgs(new Expression[]{a,b});         
         assertEquals(1002d,((Double)min.getValue(testFeature)).doubleValue(),0);
         
@@ -217,7 +217,7 @@ public class ExpressionTest extends TestCase {
         Expression a = new AttributeExpressionImpl(testSchema, "testInteger");          
         Expression b = new LiteralExpressionImpl(new Double(1004));
         
-        MaxFunctionImpl max = new MaxFunctionImpl();
+        FunctionExpression max = filterFactory.createFunctionExpression("MaxFunction");
         max.setArgs(new Expression[]{a,b});         
         assertEquals(1004d,((Double)max.getValue(testFeature)).doubleValue(),0);
         

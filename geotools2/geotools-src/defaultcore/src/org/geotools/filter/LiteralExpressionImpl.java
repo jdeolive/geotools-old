@@ -28,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: LiteralExpressionImpl.java,v 1.4 2002/10/25 11:37:43 ianturton Exp $
+ * @version $Id: LiteralExpressionImpl.java,v 1.5 2002/10/25 13:46:23 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LiteralExpressionImpl extends DefaultExpression implements LiteralExpression { 
@@ -182,7 +182,7 @@ public class LiteralExpressionImpl extends DefaultExpression implements LiteralE
 	return (obj.getClass() == this.getClass() && 
 		     this.literal.equals(((LiteralExpressionImpl)obj).getLiteral()));
     }
-       /** Used by FilterVisitors to perform some action on this filter instance.
+   /** Used by FilterVisitors to perform some action on this filter instance.
      * Typicaly used by Filter decoders, but may also be used by any thing which needs
      * infomration from filter structure.
      *

@@ -20,10 +20,10 @@ public abstract class FunctionExpressionImpl extends org.geotools.filter.Default
     protected FunctionExpressionImpl() {
     }
     /*
-     * @task HACK: this shoud return a proper type for Functions
+     * return the type FUNCTION
      */
     public short getType(){
-        return -1;
+        return FUNCTION;
     }
     
     public abstract String getName();
@@ -32,4 +32,20 @@ public abstract class FunctionExpressionImpl extends org.geotools.filter.Default
     
     public abstract int getArgCount();
     
+       /** Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing which needs
+     * infomration from filter structure.
+     *
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the parents
+     * API is identical.
+     *
+     * @param visitor The visitor which requires access to this filter,
+     *                the method must call visitor.visit(this);
+     *
+     */
+    public void accept(FilterVisitor visitor) { 
+        visitor.visit(this);
+    }    
 }

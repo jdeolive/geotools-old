@@ -14,12 +14,16 @@ public abstract class FilterFactory {
      * The logger 
      */
     protected static final Logger LOGGER = Logger.getLogger("org.geotools.filter"); 
-    
+    private static FilterFactory factory = null;
     /** creates an instance of a Filter factory
      * @return an instance of the Filter factory
      */   
     
     public static FilterFactory createFilterFactory() { //throws FilterFactoryCreationException{ 
+        if(factory != null ){
+            return factory;
+        }
+          
         String factoryClass = System.getProperty("FilterFactoryImpl");
         LOGGER.fine("loaded property = " + factoryClass);
         FilterFactory sf = null;
@@ -34,12 +38,13 @@ public abstract class FilterFactory {
         }else{
             sf = createFilterFactory("org.geotools.filter.FilterFactoryImpl");
         }
+        factory = sf;
         return sf;
     }
     
     public static FilterFactory createFilterFactory(String factoryClass){// throws FilterFactoryCreationException{
         try{
-            return (FilterFactory)Class.forName(factoryClass).newInstance();
+            return factory = (FilterFactory)Class.forName(factoryClass).newInstance();
         } catch (ClassNotFoundException cnfe){
             severe("createFilterFactory", "failed to find implementation " + factoryClass, cnfe);
             //throw new FilterFactoryCreationException("Failed to find implementation " + factoryClass, cnfe); 
@@ -89,10 +94,6 @@ public abstract class FilterFactory {
 
     public abstract LiteralExpression createLiteralExpression(String s);
 
-    public abstract MaxFunction createMaxFunction();
-
-    public abstract MinFunction createMinFunction();
-
     public abstract LiteralExpression createLiteralExpression(double d);
 
     public abstract AttributeExpression createAttributeExpression(FeatureType schema);
@@ -112,6 +113,7 @@ public abstract class FilterFactory {
 
     public abstract LikeFilter createLikeFilter();
     
+    public abstract FunctionExpression createFunctionExpression(String name);
         
     /**
      * Convenience method for logging a message with an exception.

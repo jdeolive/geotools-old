@@ -105,13 +105,24 @@ public class FilterFactoryImpl extends FilterFactory {
                                         throws IllegalFilterException {
         return new MathExpressionImpl(expressionType);
     }
-
-    public MaxFunction createMaxFunction() {
-        return new MaxFunctionImpl();
-    }
-
-    public MinFunction createMinFunction() {
-        return new MinFunctionImpl();
+     
+    public FunctionExpression createFunctionExpression(String name){
+        
+        LOGGER.fine("trying to load name " + name);
+        int index = -1;
+        if((index = name.indexOf("Function")) != -1 ){
+            name = name.substring(0,index);
+        }
+        name = name.toLowerCase().trim();
+        char c = name.charAt(0);
+        name = name.replaceFirst(""+c, ""+Character.toUpperCase(c));
+        LOGGER.fine("now trying to load name " + name);
+        try{
+            return (FunctionExpression) Class.forName("org.geotools.filter." + name + "Function").newInstance();
+        } catch (Exception e){
+            severe("createFunctionExpression", "Unable to find "+name+"Function", e);
+            return null;
+        }
     }
 
     public NullFilter createNullFilter() {

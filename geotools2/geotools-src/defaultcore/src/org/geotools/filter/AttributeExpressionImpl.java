@@ -34,7 +34,7 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: AttributeExpressionImpl.java,v 1.4 2002/10/25 11:37:35 ianturton Exp $
+ * @version $Id: AttributeExpressionImpl.java,v 1.5 2002/10/25 13:46:23 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class AttributeExpressionImpl extends DefaultExpression implements AttributeExpression {  
@@ -150,7 +150,7 @@ public class AttributeExpressionImpl extends DefaultExpression implements Attrib
 	    return false;
 	}
     }
-       /** Used by FilterVisitors to perform some action on this filter instance.
+    /** Used by FilterVisitors to perform some action on this filter instance.
      * Typicaly used by Filter decoders, but may also be used by any thing which needs
      * infomration from filter structure.
      *
