@@ -7,22 +7,22 @@ body {
  color: #000;
  }
 .app h3, .app h4, .app th, .tabs td, .tabs th, .functnbar {
- background-image: url(../images/nw_min.gif);
- background-repeat: no-repeat;
+ background-image: url('../images/nw_min.gif');
+ background-repeat: no-repeat
  }
 #navcolumn div div, body.docs #toc li li  {
- background-image: url(../images/strich.gif);
+ background-image: url('../images/strich.gif');
  background-repeat: no-repeat;
- background-position: .5em .5em;
+ background-position:  .5em;
  }
 #navcolumn div div.heading  {
- background-image: none;
+ background-image: url('none');
  }
 .app h3, .app h4 {
  color: #fff;
  }
 .app h3 {
- background-color: #036;
+ background-color: #1C7D06;
  }
 .app h4 { 
  background-color: #888;
@@ -43,7 +43,7 @@ div.colbar {
  background: #bbb;
  }
 div#banner {
- border-top: 1px solid #369;
+ border-top: 1px solid #1C7D06;
  border-bottom: 1px solid #003;
  }
 div#helptext th {
@@ -89,19 +89,19 @@ body.docs div.docs {
  border-top: 1px solid #ddd;
  }
 body.docs { 
- background: #eee url(../images/help_logo.gif) top right no-repeat !important;
+ background: #eee url('../images/help_logo.gif') no-repeat top right !important;
  }
 .docs h3, .docs h4 {
  border-top: solid 1px #000;
  }
 #alerterrormessage { 
- background: url(../images/icon_alert.gif) top left no-repeat !important;
+ background: url('../images/icon_alert.gif') no-repeat top left !important;
  }
 .functnbar {
  background-color: #aaa;
  }
 .functnbar2, .functnbar3  {
- background: #aaa url(../images/sw_min.gif) no-repeat bottom left;
+ background: #aaa url('../images/sw_min.gif') no-repeat bottom left;
  }
 .functnbar3 {
  background-color: #ddd;
@@ -123,23 +123,31 @@ body.docs {
  border-right: 1px solid #aaa;
  }
 a:link, #navcolumn a:visited, .app a:visited, .tasknav a:visited {
- color: blue;
+   text-decoration: none;
+   color: #1c7d06;
+   font-weight: bold;
  }
 a:active, a:hover, #leftcol a:active, #leftcol a:hover {
- color: #f30 !important;
+ color: #000000 !important;
  }
 #login a:link, #login a:visited {
  color: white; 
  text-decoration: underline;
+ font-size: 11pt;
  }
 #banner a:active, #banner a:hover {
  color: #f90 !important;
  }
 #leftcol a, #breadcrumbs a  {
- text-decoration: none;
+   font-size: 9.5pt;
+   font-weight: bold;
+   font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif;
+   padding-left: .5em;
+   text-decoration: none;
+   color: #1c7d06;
  }
 a:link.selfref, a:visited.selfref {
- color: #555 !important;
+ color: #1C7D06 !important;
  text-decoration: none;
  }
 h2 .lastchild {
@@ -187,10 +195,24 @@ h2 .lastchild {
  text-decoration: none;
  }
 #navcolumn div strong {
- color: #000;
+   color: #000000;
+   font-size: 11pt;
+   font-weight: bold;
+   font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif;
+   border-bottom: thin dotted #a0a0a0;
+   line-height: 170%;
+   width: 100%;
+   margin-top: 4px;
+   margin-bottom: 4px;
+ }
+#navcolumn div small {
+   font-size: 9.5pt;
+   font-weight: bold;
+   font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif;
+   padding-left: .5em;
  }
 #banner, #banner td { 
- background: #036;
+ background: #fff;
  color: #fff;
  }
 body #banner #login a { 
