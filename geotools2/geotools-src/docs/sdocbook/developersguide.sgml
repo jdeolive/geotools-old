@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/11/07 09:52:19 $</date>
+    <date>$Date: 2002/11/10 08:27:47 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -198,7 +198,7 @@ public class ThisClass {
 
         <para>Directory names shall be all lower case with no spaces. Some
         versions of windows do not distinguish between upper and lower case,
-        and unix, writing spaces in filenames is painful.</para>
+        and in unix, writing spaces in filenames is painful.</para>
       </section>
 
       <section>
