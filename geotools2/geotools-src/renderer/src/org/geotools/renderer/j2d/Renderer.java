@@ -35,6 +35,7 @@ package org.geotools.renderer.j2d;
 
 // J2SE dependencies
 import java.awt.Shape;
+import java.awt.Image;
 import java.awt.Frame;
 import java.awt.Dialog;
 import java.awt.Rectangle;
@@ -44,6 +45,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.GraphicsConfiguration;
 import java.awt.IllegalComponentStateException;
+import java.awt.image.VolatileImage;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
@@ -56,10 +58,13 @@ import javax.swing.JInternalFrame;
 import javax.swing.ToolTipManager;
 import javax.swing.JComponent;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.WeakHashMap;
 import java.util.Locale;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
@@ -87,6 +92,7 @@ import org.geotools.ct.TransformException;
 import org.geotools.gp.GridCoverageProcessor;
 import org.geotools.units.UnitException;
 import org.geotools.units.Unit;
+import org.geotools.util.RangeSet;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
@@ -107,7 +113,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.33 2003/07/11 16:59:02 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.34 2003/08/10 20:27:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -164,6 +170,24 @@ public class Renderer implements Renderer2D {
      * be invoked.
      */
     private boolean layerSorted;
+
+    /**
+     * The offscreen buffers. There is one {@link VolatileImage} for each range in the
+     * {@link #offscreenZRanges} set. If non-null, this array length must be equals to
+     * the size of {@link #offscreenZRanges}.
+     *
+     * @see #setOffscreenBuffered
+     */
+    private transient VolatileImage[] offscreenBuffers;
+
+    /**
+     * The ranges of {@linkplain RenderedLayer#getZOrder z-order} for which to create an
+     * offscreen buffer. There is one offscreen buffer (usually a {@link VolatileImage})
+     * for each range of z-orders.
+     *
+     * @see #setOffscreenBuffered
+     */
+    private RangeSet offscreenZRanges;
 
 
 
@@ -415,6 +439,27 @@ public class Renderer implements Renderer2D {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns to locale for this renderer. The renderer will inherit
+     * the locale of its {@link Component}, if it have one. Otherwise,
+     * a default locale will be returned.
+     *
+     * @see Component#getLocale
+     * @see JComponent#getDefaultLocale
+     * @see Locale#getDefault
+     */
+    public Locale getLocale() {
+        if (mapPane != null) try {
+            return mapPane.getLocale();
+        } catch (IllegalComponentStateException exception) {
+            // Not yet added to a containment hierarchy. Ignore...
+            if (mapPane instanceof JComponent) {
+                return JComponent.getDefaultLocale();
+            }
+        }
+        return Locale.getDefault();
     }
 
     /**
@@ -1122,6 +1167,108 @@ public class Renderer implements Renderer2D {
     }
 
     /**
+     * Enable or disable the use of offscreen buffer for all {@linkplain RenderedLayer layers}
+     * in the given range of {@linkplain RenderedLayer#getZOrder z-orders}. When enabled, all
+     * layers in the given range will be rendered once in an offscreen buffer (for example an
+     * {@link VolatileImage}); the image will then been reused as much as possible. The offscreen
+     * buffer may be invalidate at any time by some external event (including a call to any of
+     * {@link RenderedLayer#repaint()} methods) and will be recreated as needed. Using offscreen
+     * buffer for background layers that do not change often (e.g. a background map) help to make
+     * the GUI more responsive to frequent change in foreground layers (e.g. a glass pane with
+     * highlighted selections).
+     * <br><br>
+     * An arbitrary amount of ranges can be specified. Each <strong>distinct</strong> range will
+     * use its own offscreen buffer. This means that if this method is invoked twice for enabling
+     * buffering in overlapping range of z-values, then the union of the two ranges will shares
+     * the same offscreen image.
+     *
+     * @param lower The lower z-order, inclusive.
+     * @param upper The upper z-order, inclusive.
+     * @param enable <code>true</code> for enabling offscreen buffering for the specified range,
+     *        or <code>false</code> for disabling it.
+     */
+    public synchronized void setOffscreenBuffered(final float lower,
+                                                  final float upper,
+                                                  final boolean enable)
+    {
+        /*
+         * Save the references to the old VolatileImage. We will try to reuse
+         * existing VolatileImages after the range set has been updated.
+         */
+        final Map old;
+        if (offscreenZRanges == null) {
+            if (!enable) {
+                return;
+            }
+            offscreenZRanges = new RangeSet(Float.class);
+            old = Collections.EMPTY_MAP;
+        } else {
+            int index=0;
+            old = new HashMap();
+            for (final Iterator it=offscreenZRanges.iterator(); it.hasNext();) {
+                if (old.put(it.next(), offscreenBuffers[index++]) != null) {
+                    throw new AssertionError(); // Should not happen
+                }
+            }
+            assert index == offscreenBuffers.length : index;
+        }
+        /*
+         * Update the range set, and rebuild the offscreen buffers array.
+         */
+        if (enable) {
+            offscreenZRanges.add(lower, upper);
+        } else {
+            offscreenZRanges.remove(lower, upper);
+        }
+        offscreenBuffers = new VolatileImage[offscreenZRanges.size()];
+        int index=0;
+        for (final Iterator it=offscreenZRanges.iterator(); it.hasNext();) {
+            offscreenBuffers[index++] = (VolatileImage) old.remove(it.next());
+        }
+        assert index == offscreenBuffers.length : index;
+        /*
+         * Release resources used by remaining (now unused) images.
+         */
+        for (final Iterator it=old.values().iterator(); it.hasNext();) {
+            ((Image) it.next()).flush();
+        }
+    }
+
+    /**
+     * Signal that a layer at the given {@linkplain RenderedLayer#getZOrder z-order} need
+     * to be repaint.  If an offscreen buffer were allocated for this z-order, it must be
+     * flushed. This method is invoked by any of {@link RenderedLayer#repaint} methods.
+     *
+     * @param zOrder The z-order of the offscreen buffer to flush.
+     */
+    final synchronized void clearOffscreenBuffer(final float zOrder) {
+        if (offscreenZRanges != null) {
+            final int index = offscreenZRanges.indexOfRange(new Float(zOrder));
+            if (index >= 0) {
+                final Image image = offscreenBuffers[index];
+                if (image != null) {
+                    image.flush();
+                }
+            }
+        }
+    }
+
+    /**
+     * Flush all offscreen buffers.
+     */
+    private void flushOffscreenBuffers() {
+        assert Thread.holdsLock(this);
+        if (offscreenBuffers != null) {
+            for (int i=0; i<offscreenBuffers.length; i++) {
+                final Image image = offscreenBuffers[i];
+                if (image != null) {
+                    image.flush();
+                }
+            }
+        }
+    }
+
+    /**
      * Returns a string representation of a coordinate system. This method is
      * used for formatting a logging message in {@link #getMathTransform}.
      */
@@ -1342,6 +1489,7 @@ public class Renderer implements Renderer2D {
              * same area twice.
              */
             if (!sameZoom) {
+                flushOffscreenBuffers();
                 /*
                  * Compute the change as an affine transform, and sent the notification.
                  */
@@ -1492,27 +1640,6 @@ public class Renderer implements Renderer2D {
     ////////                     Events                       ////////
     ////////                                                  ////////
     //////////////////////////////////////////////////////////////////
-    /**
-     * Returns to locale for this renderer. The renderer will inherit
-     * the locale of its {@link Component}, if he have one. Otherwise,
-     * a default locale will be returned.
-     *
-     * @see Component#getLocale
-     * @see JComponent#getDefaultLocale
-     * @see Locale#getDefault
-     */
-    public Locale getLocale() {
-        if (mapPane != null) try {
-            return mapPane.getLocale();
-        } catch (IllegalComponentStateException exception) {
-            // Not yet added to a containment hierarchy. Ignore...
-            if (mapPane instanceof JComponent) {
-                return JComponent.getDefaultLocale();
-            }
-        }
-        return Locale.getDefault();
-    }
-
     /**
      * Returns the string to be used as the tooltip for a given mouse event.
      * This method queries registered {@linkplain RenderedLayer layers} in decreasing
@@ -1690,6 +1817,9 @@ public class Renderer implements Renderer2D {
      * @see PlanarImage#dispose
      */
     public synchronized void dispose() {
+        flushOffscreenBuffers();
+        offscreenBuffers = null;
+        offscreenZRanges = null;
         final RenderedLayer[] layers = new RenderedLayer[layerCount];
         if (layerCount != 0) {
             System.arraycopy(this.layers, 0, layers, 0, layerCount);
