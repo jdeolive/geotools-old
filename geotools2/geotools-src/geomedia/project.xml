@@ -40,11 +40,6 @@
       <version>2.0-B2-DEV</version>
     </dependency>
     <dependency>
-      <artifactId>ledatastream</artifactId>
-      <groupId>cmp</groupId>
-      <version>1.5</version>
-    </dependency>
-    <dependency>
       <artifactId>data</artifactId>
       <groupId>gt2</groupId>
       <version>2.0-B2-DEV</version>
