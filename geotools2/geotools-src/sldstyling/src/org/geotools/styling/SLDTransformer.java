@@ -12,6 +12,7 @@ import javax.xml.transform.sax.*;
 import javax.xml.transform.stream.*;
 import org.geotools.filter.Expression;
 import org.geotools.filter.Filter;
+import org.geotools.filter.FilterTransformer;
 import org.geotools.styling.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
@@ -158,30 +159,42 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
     
     class OutputVisitor implements StyleVisitor {
         
-        public void element(String element,Expression e) {
-            System.out.println("FIX ME");
+        FilterTransformer.OutputVisitor filterOutput;
+
+        FilterTransformer.OutputVisitor filterOutput() {
+            if (filterOutput == null)
+                filterOutput = FilterTransformer.createOutputVisitor(contentHandler);
+            return filterOutput;
         }
         
-        public void element(String element,Filter f) {
-            System.out.println("FIX ME");
+        void element(String element,Expression e) {
+            start(element);
+            filterOutput().encode(e);
+            end(element);
         }
         
-        public void element(String element,String content) {
+        void element(String element,Filter f) {
+            start(element);
+            filterOutput().encode(f);
+            end(element);
+        }
+        
+        void element(String element,String content) {
             element(element,content,NULL_ATTS);
         }
         
-        public void element(String element,String content,Attributes atts) {
+        void element(String element,String content,Attributes atts) {
             start(element,atts);
             if (content != null)
                 chars(content);
             end(element);
         }
         
-        public void start(String element) {
+        void start(String element) {
             start(element,NULL_ATTS);
         }
         
-        public void start(String element,Attributes atts) {
+        void start(String element,Attributes atts) {
             try {
                 contentHandler.startElement(defaultNamespace, "", element, atts);
             } catch (SAXException se) {
@@ -189,7 +202,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             }
         }
         
-        public void chars(String text) {
+        void chars(String text) {
             try {
                 char[] ch = text.toCharArray();
                 contentHandler.characters(ch,0,ch.length);
@@ -198,7 +211,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             }
         }
         
-        public void end(String element) {
+        void end(String element) {
             try {
                 contentHandler.endElement(defaultNamespace, "", element);
             } catch (SAXException se) {
@@ -499,14 +512,14 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             end("Displacement");
         }
         
-        protected void encodeGeometryProperty(String name) {
+        void encodeGeometryProperty(String name) {
             if (name == null || name.trim().length() == 0) return;
             start("Geometry");
             element("PropertyName",name);
             end("Geometry");
         }
         
-        public void encodeCssParam(String name,org.geotools.filter.Expression expression) {
+        void encodeCssParam(String name,org.geotools.filter.Expression expression) {
             AttributesImpl atts = new AttributesImpl();
             atts.addAttribute("", "name", "", "", name);
             start("CssParameter",atts);
@@ -514,7 +527,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             end("CssParameter");
             
         }
-        public void encodeCssParam(String name,String expression) {
+        void encodeCssParam(String name,String expression) {
             AttributesImpl atts = new AttributesImpl();
             atts.addAttribute("", "name", "", "", name);
             start("CssParameter",atts);
