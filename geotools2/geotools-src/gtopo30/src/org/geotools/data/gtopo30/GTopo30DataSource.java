@@ -31,6 +31,7 @@ import org.geotools.cs.HorizontalDatum;
 import org.geotools.cs.PrimeMeridian;
 import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
+import org.geotools.cv.ScaledColorSpace;
 import org.geotools.data.AbstractDataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Query;
@@ -47,6 +48,7 @@ import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
 import org.geotools.gc.GridGeometry;
 import org.geotools.gc.GridRange;
+import org.geotools.resources.ComponentColorModelJAI;
 import org.geotools.units.Unit;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -84,7 +86,7 @@ import org.geotools.feature.DefaultFeatureType;
  */
 public class GTopo30DataSource extends AbstractDataSource {
     /** Let's say that, for the moment, I want to read approximately 128k at a time */
-    private static final int TILE_SIZE = 1024 * 128;
+    private static final int TILE_SIZE = 1024 * 1024;
 
     /** Dem data URL */
     private URL demURL;
@@ -251,36 +253,47 @@ public class GTopo30DataSource extends AbstractDataSource {
      */
     public void getFeatures(FeatureCollection collection, Query query)
         throws DataSourceException {
+        GridCoverage gc = getGridCoverage(); //, bands, null, null);
+
+        // last step, wrap, add the the feature collection and return
+        try {
+            collection.add(wrapGcInFeature(gc));
+        } catch (Exception e) {
+            throw new DataSourceException("Unexpected error", e);
+        }
+    }
+
+    public GridCoverage getGridCoverage() throws DataSourceException {
         // Read the header
         GT30Header header = null;
-
+        
         try {
             header = new GT30Header(demHeaderURL);
         } catch (Exception e) {
             throw new DataSourceException("Unexpected exception", e);
         }
-
+        
         int nrows = header.getNRows();
         int ncols = header.getNCols();
         double xdim = header.getXDim();
         double ydim = header.getYDim();
         double minx = header.getULXMap() - (xdim / 2);
         double miny = (header.getULYMap() + (ydim / 2)) - (ydim * nrows);
-
+        
         // Read the statistics file
         GT30Stats stats = null;
-
+        
         try {
             stats = new GT30Stats(statsURL);
         } catch (Exception e) {
             throw new DataSourceException("Unexpected exception", e);
         }
-
+        
         int max = stats.getMax();
-
+        
         // prepare NIO based ImageInputStream
         FileChannelImageInputStream iis = null;
-
+        
         try {
             String filePath = URLDecoder.decode(demURL.getFile(), "US-ASCII");
             FileInputStream fis = new FileInputStream(filePath);
@@ -289,51 +302,51 @@ public class GTopo30DataSource extends AbstractDataSource {
         } catch (Exception e) {
             throw new DataSourceException("Unexpected exception", e);
         }
-
+        
         // Prepare temporaray colorModel and sample model, needed to build the
         // RawImageInputStream
-        ColorSpace graycs = ICC_ColorSpace.getInstance(ICC_ColorSpace.CS_GRAY);
+        ColorSpace graycs = new ScaledColorSpace(0, 1, -9999, 10000); 
         ColorModel cm = new ComponentColorModel(graycs, false, false, Color.TRANSLUCENT,
                 DataBuffer.TYPE_SHORT);
-
+        
         SampleModel sm = new BandedSampleModel(DataBuffer.TYPE_SHORT, ncols, nrows, 1);
         ImageTypeSpecifier its = new ImageTypeSpecifier(cm, sm);
-
+        
         // Finally, build the image input stream
         RawImageInputStream raw;
         raw = new RawImageInputStream(iis, its, new long[] {0},
                 new Dimension[] {new Dimension(ncols, nrows)});
-
+        
         // if crop needed
         com.vividsolutions.jts.geom.Envelope env = getBounds();
         ImageReadParam irp = null;
-
+        
         // Make some decision about tiling.
         int tileRows = (int) Math.ceil(TILE_SIZE / (ncols * 2));
         ImageLayout il = new ImageLayout(0, 0, ncols, nrows, 0, 0, ncols, tileRows, sm, cm);
-
+        
         // First operator: read the image
         ParameterBlockJAI pbj = new ParameterBlockJAI("ImageRead");
         pbj.setParameter("Input", raw);
         pbj.setParameter("ReadParam", irp);
-
+        
         // Do not cache these tiles: the file is memory mapped anyway by
         // using NIO and these tiles are very big and fill up rapidly the cache:
         // better use it to avoid operations down the rendering chaing
         RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, il);
         hints.add(new RenderingHints(JAI.KEY_TILE_CACHE, null));
-
+        
         RenderedOp image = JAI.create("ImageRead", pbj, hints);
-
+        
         if (cropEnvelope != null) {
             env = intersectEnvelope(env, cropEnvelope);
-
+        
             float cxmin = (float) Math.round((env.getMinX() - minx) / xdim);
             float cymin = (float) Math.round((env.getMinY() - miny) / ydim);
             float cwidth = (float) Math.round(env.getWidth() / xdim);
             float cheight = (float) Math.round(env.getHeight() / ydim);
             cymin = nrows - cymin - cheight;
-
+        
             ParameterBlock pb = new ParameterBlock();
             pb.addSource(image);
             pb.add(cxmin);
@@ -342,27 +355,27 @@ public class GTopo30DataSource extends AbstractDataSource {
             pb.add(cheight);
             hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
             image = JAI.create("Crop", pb, hints);
-
+        
             pb = new ParameterBlock();
             pb.addSource(image);
             pb.add(-cxmin);
             pb.add(-cymin);
             image = JAI.create("Translate", pb, hints);
         }
-
+        
         // Build the coordinate system
         CoordinateSystemFactory csFactory = CoordinateSystemFactory.getDefault();
         HorizontalDatum datum = HorizontalDatum.WGS84;
         PrimeMeridian meridian = PrimeMeridian.GREENWICH;
         GeographicCoordinateSystem sourceCS = null;
-
+        
         try {
             sourceCS = csFactory.createGeographicCoordinateSystem("Geographic - WGS84",
                     Unit.DEGREE, datum, meridian, AxisInfo.LATITUDE, AxisInfo.LONGITUDE);
         } catch (FactoryException fe) {
             throw new DataSourceException("Unexpected error", fe);
         }
-
+        
         // Create the SampleDimension, with colors and byte transformation 
         // needed for visualization
         double offset = 0.0;
@@ -372,21 +385,15 @@ public class GTopo30DataSource extends AbstractDataSource {
         SampleDimension sd = new SampleDimension(new Category[] {nullValue, elevation}, Unit.METRE);
         SampleDimension geoSd = sd.geophysics(true);
         SampleDimension[] bands = new SampleDimension[] {geoSd};
-
+        
         // Create the transform from Grid to real coordinates (and flip NS axis)
         GridRange gr = new GridRange(image);
         GridGeometry gg = new GridGeometry(gr, convertEnvelope(env), new boolean[] {false, true});
-
+        
         // Finally, create the gridcoverage!
         GridCoverage gc = new GridCoverage("topo", image, sourceCS, gg.getGridToCoordinateSystem(),
-                bands, null, null); //, bands, null, null);
-
-        // last step, wrap, add the the feature collection and return
-        try {
-            collection.add(wrapGcInFeature(gc));
-        } catch (Exception e) {
-            throw new DataSourceException("Unexpected error", e);
-        }
+                bands, null, null);
+        return gc;
     }
 
     /**
