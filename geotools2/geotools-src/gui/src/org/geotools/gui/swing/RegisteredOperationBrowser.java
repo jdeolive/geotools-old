@@ -88,7 +88,7 @@ import org.geotools.resources.gui.Resources;
  *   <li>At the first level, all {@linkplain OperationRegistry#getRegistryModes() registry modes}
  *       (e.g. &quot;rendered&quot;, &quot;renderable&quot;, etc.) in alphabetical order.</li>
  *   <li>At the second level, all {@linkplain OperationRegistry#getDescriptors(String) operation
- *       descriptors} (e.g. &quot;Affine&quot;, &quot;Multiply&quot;, etc.) registered to each
+ *       descriptors} (e.g. &quot;Affine&quot;, &quot;Multiply&quot;, etc.) registered in each
  *       registry mode, in alphabetical order. This is the operation name to be given to
  *       {@link JAI#create(String,ParameterBlock) JAI.create(...)} methods.</li>
  *   <li>At the third level, a list of
@@ -101,7 +101,7 @@ import org.geotools.resources.gui.Resources;
  *       is relevant.</li>
  * </ul>
  *
- * @version $Id: RegisteredOperationBrowser.java,v 1.3 2003/07/30 17:44:22 desruisseaux Exp $
+ * @version $Id: RegisteredOperationBrowser.java,v 1.4 2003/07/31 17:09:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RegisteredOperationBrowser extends JPanel {
@@ -256,7 +256,7 @@ public class RegisteredOperationBrowser extends JPanel {
      * Returns a tree view of all operations registered in the given registry.
      *
      * @param  registry The registry (e.g. {@link JAI#getOperationRegistry()}).
-     * @param  The locale (e.g. {@link Locale#getDefault()}).
+     * @param  locale The locale (e.g. {@link Locale#getDefault()}).
      * @return All JAI operations as a tree.
      *
      * @see #getTree()

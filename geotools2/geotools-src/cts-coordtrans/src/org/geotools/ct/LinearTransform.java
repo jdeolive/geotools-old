@@ -43,10 +43,10 @@ import org.geotools.pt.Matrix;
  * Interface for linear {@link MathTransform}s.  A linear transform can be express as an affine
  * transform using a {@linkplain #getMatrix matrix}. The {@linkplain Matrix#getNumCol number of
  * columns} is equals to the number of {@linkplain #getDimSource source dimension} plus 1,  and
- * the {@linkplain #getNumRow number of rows} is equals to the number of {@linkplain #getDimTarget
- * target dimension} plus 1.
+ * the {@linkplain Matrix#getNumRow number of rows} is equals to the number of
+ * {@linkplain #getDimTarget target dimension} plus 1.
  *
- * @version $Id: LinearTransform.java,v 1.3 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: LinearTransform.java,v 1.4 2003/07/31 17:08:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface LinearTransform extends MathTransform {

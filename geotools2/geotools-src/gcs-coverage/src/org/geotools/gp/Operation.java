@@ -75,7 +75,7 @@ import org.geotools.resources.gcs.Resources;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.14 2003/07/23 18:04:52 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -269,7 +269,7 @@ public abstract class Operation implements Serializable {
      *
      * @param  parameters List of name value pairs for the parameters
      *         required for the operation.
-     * @param  A set of rendering hints, or <code>null</code> if none.
+     * @param  hints A set of rendering hints, or <code>null</code> if none.
      *         The <code>GridCoverageProcessor</code> may provides hints
      *         for the following keys: {@link Hints#COORDINATE_TRANSFORMATION_FACTORY}
      *         and {@link Hints#JAI_INSTANCE}.

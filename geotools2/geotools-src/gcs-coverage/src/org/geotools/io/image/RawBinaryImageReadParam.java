@@ -63,7 +63,7 @@ import org.geotools.resources.ComponentColorModelJAI;
  * width and height. The <code>RawBinaryImageReadParam</code> gives a chance
  * to specify those missing informations.
  *
- * @version $Id: RawBinaryImageReadParam.java,v 1.5 2003/05/15 08:48:32 desruisseaux Exp $
+ * @version $Id: RawBinaryImageReadParam.java,v 1.6 2003/07/31 17:08:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @deprecated Use Sun's RAW decoder provided with "Java Advanced Imaging Image I/O Tools"
@@ -170,7 +170,7 @@ public class RawBinaryImageReadParam extends ImageReadParam {
      * any previous setting made with {@link #setDestinationType(ImageTypeSpecifier)}
      * or this <code>setDestinationType(int)</code> method.
      *
-     * @param dataType The data type. This should be a constant from {@link DataBuffer}.
+     * @param destType The data type. This should be a constant from {@link DataBuffer}.
      *        Common types are {@link DataBuffer#TYPE_INT}, {@link DataBuffer#TYPE_FLOAT}
      *        and {@link DataBuffer#TYPE_DOUBLE}.
      */

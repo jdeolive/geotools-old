@@ -92,6 +92,14 @@ import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
 
+/*
+ * NOTE: For an unknow reason, JavaDoc {@link} and {@see} tags fail to recognize classes if they
+ *       are not fully qualified.  For example we have to write {@link org.geotools.pt.Envelope}
+ *       instead of {@link Envelope}. This is the only Java source I'm aware of which cause this
+ *       failure.
+ */
+
+
 /**
  * Helper class for creating OpenGIS's object from a set of properties. Properties are
  * <cite>key-value</cite> pairs, for example <code>"Units=meters"</code>. There is a wide
@@ -131,10 +139,10 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Once the mapping is etablished, <code>PropertyParser</code> provides a set of
  * <code>getXXX()</code> methods for constructing various objects from those informations.
- * For example, the {@link #getCoordinateSystem} method constructs a {@link CoordinateSystem}
- * object using available informations.
+ * For example, the {@link #getCoordinateSystem} method constructs a
+ * {@link org.geotools.cs.CoordinateSystem} object using available informations.
  *
- * @version $Id: PropertyParser.java,v 1.14 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -164,12 +172,12 @@ public class PropertyParser {
      * The {@link #getUnits} method looks for this property.
      * Its return value is used by {@link #getCoordinateSystem} as below:
      * <ul>
-     *   <li>If the unit is compatible with {@link Unit#DEGREE}, then
-     *       <code>getCoordinateSystem()</code> will usually returns
-     *       a {@link GeographicCoordinateSystem}.</li>
-     *   <li>Otherwise, if this unit is compatible with {@link Unit#METRE}, then
-     *       <code>getCoordinateSystem()</code> will usually returns
-     *       a {@link ProjectedCoordinateSystem}.</li>
+     *   <li>If the unit is compatible with {@link org.geotools.units.Unit#DEGREE}, then
+     *       <code>getCoordinateSystem()</code> will usually returns a
+     *       {@link org.geotools.cs.GeographicCoordinateSystem}.</li>
+     *   <li>Otherwise, if this unit is compatible with {@link org.geotools.units.Unit#METRE}, then
+     *       <code>getCoordinateSystem()</code> will usually returns a
+     *       {@link org.geotools.cs.ProjectedCoordinateSystem}.</li>
      * </ul>
      *
      * @see #DATUM
@@ -231,8 +239,8 @@ public class PropertyParser {
     };
 
     /**
-     * Key for the projection classification. This is the classification name required
-     * by {@link CoordinateSystemFactory#createProjection(CharSequence,String,ParameterList)
+     * Key for the projection classification. This is the classification name required by {@link
+     * org.geotools.cs.CoordinateSystemFactory#createProjection(CharSequence,String,ParameterList)
      * CoordinateSystemFactory.createProjection(...)}. The {@link #getProjection} method
      * looks for this property. Its return value is used by {@link #getCoordinateSystem}.
      *
@@ -366,7 +374,8 @@ public class PropertyParser {
      * Key for the minimal <var>x</var> value (western limit).
      * This is usually the longitude coordinate of the <em>upper left</em> corner.
      * The {@link #getEnvelope} method looks for this property in order to set the
-     * {@linkplain Envelope#getMinimum minimal coordinate} for dimension <strong>0</strong>.
+     * {@linkplain org.geotools.pt.Envelope#getMinimum minimal coordinate} for dimension
+     * <strong>0</strong>.
      *
      * @see #X_MAXIMUM
      * @see #Y_MINIMUM
@@ -380,7 +389,8 @@ public class PropertyParser {
      * Key for the minimal <var>y</var> value (southern limit).
      * This is usually the latitude coordinate of the <em>bottom right</em> corner.
      * The {@link #getEnvelope} method looks for this property. in order to set the
-     * {@linkplain Envelope#getMinimum minimal coordinate} for dimension <strong>1</strong>.
+     * {@linkplain org.geotools.pt.Envelope#getMinimum minimal coordinate} for dimension
+     * <strong>1</strong>.
      *
      * @see #X_MINIMUM
      * @see #X_MAXIMUM
@@ -394,7 +404,8 @@ public class PropertyParser {
      * Key for the minimal <var>z</var> value.
      * This is usually the minimal altitude.
      * The {@link #getEnvelope} method looks for this property in order to set the
-     * {@linkplain Envelope#getMinimum minimal coordinate} for dimension <strong>2</strong>.
+     * {@linkplain org.geotools.pt.Envelope#getMinimum minimal coordinate} for dimension
+     * <strong>2</strong>.
      *
      * @see #Z_MAXIMUM
      * @see #Z_RESOLUTION
@@ -406,7 +417,8 @@ public class PropertyParser {
      * Key for the maximal <var>x</var> value (eastern limit).
      * This is usually the longitude coordinate of the <em>bottom right</em> corner.
      * The {@link #getEnvelope} method looks for this property in order to set the
-     * {@linkplain Envelope#getMaximum maximal coordinate} for dimension <strong>0</strong>.
+     * {@linkplain org.geotools.pt.Envelope#getMaximum maximal coordinate} for dimension
+     * <strong>0</strong>.
      *
      * @see #X_MINIMUM
      * @see #Y_MINIMUM
@@ -420,7 +432,8 @@ public class PropertyParser {
      * Key for the maximal <var>y</var> value (northern limit).
      * This is usually the latitude coordinate of the <em>upper left</em> corner.
      * The {@link #getEnvelope} method looks for this property in order to set the
-     * {@linkplain Envelope#getMaximum maximal coordinate} for dimension <strong>1</strong>.
+     * {@linkplain org.geotools.pt.Envelope#getMaximum maximal coordinate} for dimension
+     * <strong>1</strong>.
      *
      * @see #X_MINIMUM
      * @see #X_MAXIMUM
@@ -434,7 +447,8 @@ public class PropertyParser {
      * Key for the maximal <var>z</var> value.
      * This is usually the maximal altitude.
      * The {@link #getEnvelope} method looks for this property in order to set the
-     * {@linkplain Envelope#getMaximum maximal coordinate} for dimension <strong>2</strong>.
+     * {@linkplain org.geotools.pt.Envelope#getMaximum maximal coordinate} for dimension
+     * <strong>2</strong>.
      *
      * @see #Z_MINIMUM
      * @see #Z_RESOLUTION
@@ -487,7 +501,8 @@ public class PropertyParser {
     /**
      * Key for the image's width in pixels.
      * The {@link #getGridRange} method looks for this property in order to infer the
-     * {@linkplain GridRange#getLength grid size} along the dimension <strong>0</strong>.
+     * {@linkplain org.geotools.gc.GridRange#getLength grid size} along the dimension
+     * <strong>0</strong>.
      *
      * @see #HEIGHT
      * @see #X_RESOLUTION
@@ -498,7 +513,8 @@ public class PropertyParser {
     /**
      * Key for the image's height in pixels.
      * The {@link #getGridRange} method looks for this property in order to infer the
-     * {@linkplain GridRange#getLength grid size} along the dimension <strong>1</strong>.
+     * {@linkplain org.geotools.gc.GridRange#getLength grid size} along the dimension
+     * <strong>1</strong>.
      *
      * @see #WIDTH
      * @see #X_RESOLUTION
@@ -510,7 +526,8 @@ public class PropertyParser {
      * Key for the image's &quot;depth&quot; in pixels. This property may exists for 3D images,
      * but some implementations accept at most 1 pixel depth among the third dimension.
      * The {@link #getGridRange} method looks for this property in order to infer the
-     * {@linkplain GridRange#getLength grid size} along the dimension <strong>2</strong>.
+     * {@linkplain org.geotools.gc.GridRange#getLength grid size} along the dimension
+     * <strong>2</strong>.
      *
      * @see #Z_MINIMUM
      * @see #Z_MAXIMUM
@@ -594,16 +611,16 @@ public class PropertyParser {
     private Locale userLocale;
     
     /**
-     * Construct a new <code>PropertyParser</code>
-     * using the default {@link CoordinateSystemFactory}.
+     * Construct a new <code>PropertyParser</code> using the default
+     * {@link org.geotools.cs.CoordinateSystemFactory}.
      */
     public PropertyParser() {
         this(CoordinateSystemFactory.getDefault());
     }
     
     /**
-     * Construct a new <code>PropertyParser</code> using
-     * the specified {@link CoordinateSystemFactory}.
+     * Construct a new <code>PropertyParser</code> using the specified
+     * {@link org.geotools.cs.CoordinateSystemFactory}.
      */
     public PropertyParser(final CoordinateSystemFactory factory) {
         this.factory = factory;
@@ -632,10 +649,10 @@ public class PropertyParser {
      * The type should be either <code>Number.class</code> or <code>Date.class</code>.
      *
      * if <code>type</code> is assignable to <code>Number.class</code>, then this method
-     * returns the number pattern as specified by {@link DecimalFormat}.
+     * returns the number pattern as specified by {@link java.text.DecimalFormat}.
      *
      * Otherwise, if <code>type</code> is assignable to <code>Date.class</code>, then this
-     * method returns the date pattern as specified by {@link SimpleDateFormat}.
+     * method returns the date pattern as specified by {@link java.text.SimpleDateFormat}.
      *
      * In any case, this method returns <code>null</code> if this object should use the default
      * pattern for the {@linkplain #getLocale data locale}.
@@ -660,12 +677,12 @@ public class PropertyParser {
      * The type should be either <code>Number.class</code> or <code>Date.class</code>.
      *
      * <ul>
-     *   <li>If <code>type</code> is assignable to <code>{@linkplain Number}.class</code>,
-     *       then <code>pattern</code> should be a {@link DecimalFormat} pattern (example:
+     *   <li>If <code>type</code> is assignable to <code>{@linkplain java.lang.Number}.class</code>,
+     *       then <code>pattern</code> should be a {@link java.text.DecimalFormat} pattern (example:
      *       <code>&quot;#0.###&quot;</code>).</li>
-     *   <li>If <code>type</code> is assignable to <code>{@linkplain Date}.class</code>,
-     *       then <code>pattern</code> should be a {@link SimpleDateFormat} pattern (example:
-     *       <code>&quot;yyyy/MM/dd HH:mm&quot;</code>).</li>
+     *   <li>If <code>type</code> is assignable to <code>{@linkplain java.util.Date}.class</code>,
+     *       then <code>pattern</code> should be a {@link java.text.SimpleDateFormat} pattern
+     *       (example: <code>&quot;yyyy/MM/dd HH:mm&quot;</code>).</li>
      * </ul>
      *
      * @param  type The data type (<code>Number.class</code> or <code>Date.class</code>).
@@ -706,7 +723,7 @@ public class PropertyParser {
      * prior the loading. Consequently, the loaded properties will be added to the set of
      * existing properties.
      *
-     * @param  in The file to read until EOF.
+     * @param  header The file to read until EOF.
      * @throws IOException if an error occurs during loading.
      *
      * @see #clear()
@@ -727,7 +744,7 @@ public class PropertyParser {
      * prior the loading. Consequently, the loaded properties will be added to the set of
      * existing properties.
      *
-     * @param  in The URL to read until EOF.
+     * @param  header The URL to read until EOF.
      * @throws IOException if an error occurs during loading.
      *
      * @see #clear()
@@ -931,7 +948,7 @@ public class PropertyParser {
      *         in a format neutral way). This key is usually, but not always, one of the alias
      *         defined with {@link #addAlias}.
      * @param  value The value for the property to add. If <code>null</code> or
-     *         {@link Image#UndefinedProperty}, then this method do nothing.
+     *         {@link java.awt.Image#UndefinedProperty}, then this method do nothing.
      * @throws AmbiguousPropertyException if a different value already exists for the specified
      *         alias, or for an other alias bound to the same {@link Key}.
      *
@@ -1037,7 +1054,7 @@ public class PropertyParser {
      * </pre></blockquote>
      *
      * @param  key The key to add an alias. This key is format neutral.
-     * @param  The alias to add. This is the name actually used in the file to be parsed.
+     * @param  alias The alias to add. This is the name actually used in the file to be parsed.
      *         Alias are case insensitive and ignore multiple whitespace, like keys. If
      *         this alias is already bound to the specified key, then this method do nothing.
      * @throws AmbiguousPropertyException if the addition of the supplied alias
@@ -1221,7 +1238,7 @@ public class PropertyParser {
     /**
      * Returns a property as a <code>double</code> value. The default implementation
      * invokes <code>{@link #get get}(key)</code> and parse the resulting value with
-     * {@link NumberFormat#parse(String)} for the {@linkplain #getLocale current locale}.
+     * {@link java.text.NumberFormat#parse(String)} for the {@linkplain #getLocale current locale}.
      *
      * @param  key The key of the desired property. Keys are case-insensitive.
      * @return Value for the specified key as a <code>double</code>.
@@ -1274,12 +1291,12 @@ public class PropertyParser {
     }
     
     /**
-     * Returns a property as a {@link Date} value. The default implementation
+     * Returns a property as a {@link java.util.Date} value. The default implementation
      * invokes <code>{@link #get get}(key)</code> and parse the resulting value with
-     * {@link DateFormat#parse(String)} for the {@linkplain #getLocale current locale}.
+     * {@link java.text.DateFormat#parse(String)} for the {@linkplain #getLocale current locale}.
      *
      * @param  key The key of the desired property. Keys are case-insensitive.
-     * @return Value for the specified key as a {@link Date}.
+     * @return Value for the specified key as a {@link java.util.Date}.
      * @throws MissingPropertyException if no value exists for the specified key.
      * @throws PropertyException if the value can't be parsed as a date.
      */
@@ -1394,7 +1411,7 @@ public class PropertyParser {
     /**
      * Returns the locale to use when parsing property values as numbers, angles or dates.
      * This is <strong>not</strong> the locale used for formatting error messages, if any.
-     * The default implementation returns {@link Locale#US}, since it is the format used
+     * The default implementation returns {@link java.util.Locale#US}, since it is the format used
      * in most data file.
      *
      * @return The locale to use for parsing property values.
@@ -1411,7 +1428,7 @@ public class PropertyParser {
     /**
      * Returns the units. The default implementation invokes
      * <code>{@linkplain #get get}({@linkplain #UNITS})</code>
-     * and transform the resulting string into an {@link Unit} object.
+     * and transform the resulting string into an {@link org.geotools.units.Unit} object.
      *
      * @throws MissingPropertyException if no value exists for the {@link #UNITS} key.
      * @throws PropertyException if the operation failed for some other reason.
@@ -1450,7 +1467,7 @@ public class PropertyParser {
     /**
      * Returns the datum. The default implementation invokes
      * <code>{@linkplain #get get}({@linkplain #DATUM})</code>
-     * and transform the resulting string into a {@link HorizontalDatum} object.
+     * and transform the resulting string into a {@link org.geotools.cs.HorizontalDatum} object.
      *
      * @throws MissingPropertyException if no value exists for the {@link #DATUM} key.
      * @throws PropertyException if the operation failed for some other reason.
@@ -1475,7 +1492,7 @@ public class PropertyParser {
     /**
      * Returns the ellipsoid. The default implementation invokes
      * <code>{@linkplain #get get}({@linkplain #ELLIPSOID})</code>
-     * and transform the resulting string into an {@link Ellipsoid} object.
+     * and transform the resulting string into an {@link org.geotools.cs.Ellipsoid} object.
      *
      * @throws MissingPropertyException if no value exists for the {@link #ELLIPSOID} key.
      * @throws PropertyException if the operation failed for some other reason.
@@ -1532,10 +1549,11 @@ public class PropertyParser {
      *       <code>{@linkplain #get get}({@linkplain #PROJECTION})</code>.</li>
      *
      *   <li>Gets the list of projection parameters for the above classification with
-     *       <code>{@linkplain CoordinateSystemFactory#createProjectionParameterList
+     *       <code>{@linkplain org.geotools.cs.CoordinateSystemFactory#createProjectionParameterList
      *       createProjectionParameterList}(classification)</code>.</li>
      *
-     *   <li>Gets the property values for each parameters in the above {@link ParameterList}.
+     *   <li>Gets the property values for each parameters in the above
+     *       {@link javax.media.jai.ParameterList}.
      *       If a parameter is not defined in this <code>PropertyParser</code>, then it will
      *       be left to its (projection dependent) default value. Parameters are projection
      *       dependent, but will typically include
@@ -1561,7 +1579,7 @@ public class PropertyParser {
      * </ul>
      *
      * @return The projection, or <code>null</code> if the underlying coordinate
-     *         system is not a {@link ProjectedCoordinateSystem}.
+     *         system is not a {@link org.geotools.cs.ProjectedCoordinateSystem}.
      * @throws MissingPropertyException if no value exists for the {@link #PROJECTION} key.
      * @throws PropertyException if the operation failed for some other reason
      *         (for example if a parameter value can't be parsed as a <code>double</code>).
@@ -1717,7 +1735,7 @@ public class PropertyParser {
      * 1984 datum.
      *
      * @throws PropertyException if the operation failed. This exception
-     *         may contains a {@link TransformException} as its cause.
+     *         may contains a {@link org.geotools.ct.TransformException} as its cause.
      *
      * @see #getEnvelope
      * @see #getGridRange
@@ -1755,7 +1773,7 @@ public class PropertyParser {
     }
     
     /**
-     * Returns the envelope. Default implementation construct an {@link Envelope}
+     * Returns the envelope. Default implementation construct an {@link org.geotools.pt.Envelope}
      * object using the values from the following keys:
      * <ul>
      *   <li>The horizontal limits with at least one of the following keys:
@@ -1853,7 +1871,7 @@ public class PropertyParser {
     /**
      * Returns the grid range. Default implementation fetchs the property values
      * for keys {@link #WIDTH} and {@link #HEIGHT}, and transform the resulting
-     * strings into a {@link GridRange} object.
+     * strings into a {@link org.geotools.gc.GridRange} object.
      *
      * @throws MissingPropertyException if a required value is missing.
      * @throws PropertyException if the operation failed for some other reason.
@@ -1895,7 +1913,7 @@ public class PropertyParser {
     }
     
     /**
-     * Returns the sample dimensions for each band of the {@link GridCoverage}
+     * Returns the sample dimensions for each band of the {@link org.geotools.gc.GridCoverage}
      * to be read. If sample dimensions are not know, then this method returns
      * <code>null</code>. The default implementation always returns <code>null</code>.
      *
@@ -2064,11 +2082,11 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <br><br>
      * Keys are case-insensitive. Furthermore, trailing and leading spaces are ignored.
      * Any succession of one ore more unicode whitespace characters (as of
-     * {@link Character#isSpaceChar(char)} is understood as equal to a single
+     * {@link java.lang.Character#isSpaceChar(char)} is understood as equal to a single
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.14 2003/05/13 10:59:52 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -2140,7 +2158,7 @@ loop:       for (int i=str.length(); --i>=0;) {
     /**
      * A key for properties derived from {@link Envelope} and/or {@link GridRange}.
      *
-     * @version $Id: PropertyParser.java,v 1.14 2003/05/13 10:59:52 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class EnvelopeKey extends Key {
@@ -2250,7 +2268,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * A key for properties derived from {@link Projection}.
      * The key name must be the projection parameter name.
      *
-     * @version $Id: PropertyParser.java,v 1.14 2003/05/13 10:59:52 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ProjectionKey extends Key {
@@ -2287,7 +2305,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.14 2003/05/13 10:59:52 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {

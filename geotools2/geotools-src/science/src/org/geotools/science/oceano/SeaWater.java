@@ -45,7 +45,7 @@ package org.geotools.science.oceano;
  *   <li>Pressure: decibars (1 dbar = 10 kPa).
  * </ul>
  *
- * @version $Id: SeaWater.java,v 1.2 2003/05/13 10:58:04 desruisseaux Exp $
+ * @version $Id: SeaWater.java,v 1.3 2003/07/31 17:07:54 desruisseaux Exp $
  * @author Bernard Pelchat
  * @author Martin Desruisseux
  */
@@ -60,8 +60,8 @@ public final class SeaWater {
      */
 
     /**
-     * Conductivité d'une eau standard en mS/cm.
-     * S représente des Siemmens (ou des Mho, c'est pareil...)
+     * Conductivity (in mS/cm) of a standard sea water sample.
+     * S is for <cite>Siemmens</cite> (or Mho, its the same...).
      */
     public static final double STANDARD_CONDUCTIVITY=42.914;
 
@@ -198,8 +198,7 @@ public final class SeaWater {
      *
      * @param S Salinity PSS-78 (0 to 42)
      * @param T Temperature ITS-68 (-2 to 40°C)
-     * @param P Pressure in decibars (0 to 1E+5 dbar),
-     *          not including atmospheric pressure.
+     * @param P Pressure in decibars (0 to 10<sup>5</sup> dbar), not including atmospheric pressure.
      * @return  Density (kg/m³).
      */
     public static double density(final double S, final double T, double P) {
@@ -226,9 +225,8 @@ public final class SeaWater {
      *
      * @param S Salinity PSS-78 (0 to 42)
      * @param T Temperature ITS-68 (-2 to 40°C)
-     * @param P Pressure in decibars (0 to 1E+5 dbar),
-     *          not including atmospheric pressure.
-     * @return Density Sigma-T (kg/m³).
+     * @param P Pressure in decibars (0 to 10<sup>5</sup> dbar), not including atmospheric pressure.
+     * @return  Density Sigma-T (kg/m³).
      */
     public static double densitySigmaT(final double S, final double T, double P) {
         P /= 10.0;
@@ -264,8 +262,7 @@ public final class SeaWater {
      *
      * @param S Salinity PSS-78 (0 to 42)
      * @param T Temperature ITS-68 (-2 to 40°C)
-     * @param P Pressure in decibars (0 to 1E+5 dbar),
-     *          not including atmospheric pressure.
+     * @param P Pressure in decibars (0 to 10<sup>5</sup> dbar), not including atmospheric pressure.
      * @return  Volume (m³/kg).
      */
     public static double volume(final double S, final double T, double P) {
@@ -298,8 +295,8 @@ public final class SeaWater {
      *
      * @param S Salinity PSS-78 (0 to 42)
      * @param T Temperature ITS-68 (-2 to 40°C)
-     * @param P Pressure in decibars (0 to 1E+5 dbar), not including atmospheric pressure.
-     * @return Volumic anomaly (m³/kg).
+     * @param P Pressure in decibars (0 to 10<sup>5</sup> dbar), not including atmospheric pressure.
+     * @return  Volumic anomaly (m³/kg).
      */
     public static double volumeAnomaly(final double S, final double T, double P) {
         P /= 10.0;
@@ -346,8 +343,7 @@ public final class SeaWater {
      *          real conductivity, but instead the ratio between the sample's
      *          conductivity and the standard sample's conductivity.
      * @param T Temperature ITS-68 (-2 to 40°C)
-     * @param P Pressure in decibars (0 to 1E+5 dbar),
-     *          not including atmospheric pressure.
+     * @param P Pressure in decibars (0 to 10<sup>5</sup> dbar), not including atmospheric pressure.
      * @return  Salinity PSS-78.
      *
      * @task TODO: What to do with pression!?! Check the equation of state.
@@ -377,7 +373,7 @@ public final class SeaWater {
      *
      * @param S Salinity PSS-78 (0 to 42)
      * @param T Temperature ITS-68 (-2 to 40°C)
-     * @param P Pressure (0 to 1E+5 dbar), not including atmospheric pressure.
+     * @param P Pressure (0 to 10<sup>5</sup> dbar), not including atmospheric pressure.
      * @return  Conductivity in mS/cm.
      */
     public static double conductivity(final double S, final double T, final double P) {
@@ -409,7 +405,7 @@ public final class SeaWater {
      * @param S Salinity PSS-78.
      * @param T Temperature (°C).
      * @param P Pressure (dbar), not including atmospheric pressure.
-     * @return  Specific heat (J/(kg*°C)).
+     * @return  Specific heat (J/(kg&times;°C)).
      */
     public static double specificHeat(final double S, final double T, double P) {
         P /= 10.0;
@@ -423,9 +419,9 @@ public final class SeaWater {
     /**
      * Compute fusion temperature (melting point) as a function of salinity and pressure.
      *
-     * @param  S Salinity PSS-78.
-     * @param  P Pressure (dbar), not including atmospheric pressure.
-     * @return Melting point (°C).
+     * @param S Salinity PSS-78.
+     * @param P Pressure (dbar), not including atmospheric pressure.
+     * @return  Melting point (°C).
      */
     public static double fusionTemperature(final double S, final double P) {
         return (-0.0575 + 1.710523E-3*Math.sqrt(S) + -2.154996E-4*S)*S + -7.53E-4*P;

@@ -64,7 +64,7 @@ import org.geotools.resources.Utilities;
  * <br><br>
  * The <code>WeakValueHashMap</code> class is thread-safe.
  *
- * @version $Id: WeakValueHashMap.java,v 1.4 2003/05/13 10:58:21 desruisseaux Exp $
+ * @version $Id: WeakValueHashMap.java,v 1.5 2003/07/31 17:08:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see WeakHashMap
@@ -446,8 +446,8 @@ public class WeakValueHashMap extends AbstractMap {
 
     /**
      * Returns a set view of the mappings contained in this map.
-     * Each element in this set is a {@link Map.Entry}. The current
-     * implementation thrown {@link UnsupportedOperationException}.
+     * Each element in this set is a {@link java.util.Map.Entry}.
+     * The current implementation thrown {@link UnsupportedOperationException}.
      *
      * @return a set view of the mappings contained in this map.
      */

@@ -42,7 +42,7 @@ import java.text.NumberFormat;
 import java.text.DateFormat;
 import java.text.Format;
 
-import javax.swing.JList;
+import javax.swing.JList; // For javadoc
 import javax.swing.JTable;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -93,12 +93,12 @@ import org.geotools.resources.gui.ResourceKeys;
  *   <li>Table of any primitive type (<code>int[]</code>, <code>float[]</code>, etc.).</li>
  *   <li>Matrix of any primitive type (<code>int[][]</code>, <code>float[][]</code>, etc.).</li>
  *   <li>JAI {@linkplain LookupTableJAI lookup table}, which are display in tabular format.</li>
- *   <li>{@linkplain AffineTranform Affine transform} and {@linkplain PerspectiveTransform
+ *   <li>{@linkplain AffineTransform Affine transform} and {@linkplain PerspectiveTransform
  *       perspective transform}, which are display like a matrix.</li>
  *   <li>Convolution {@linkplain KernelJAI kernel}, which are display in a {@link KernelEditor}.</li>
  * </ul>
  *
- * @version $Id: ParameterEditor.java,v 1.2 2003/07/29 15:40:34 desruisseaux Exp $
+ * @version $Id: ParameterEditor.java,v 1.3 2003/07/31 17:09:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see KernelEditor
@@ -129,7 +129,7 @@ public class ParameterEditor extends JPanel {
      * depends on the selected item, but usually includes the following:
      * <ul>
      *   <li>A {@link JTextField} for simple parameters (numbers, string, etc.)</li>
-     *   <li>A {@link JComboBox} for enumerated parameters.</li>
+     *   <li>A {@link JList} for enumerated parameters.</li>
      *   <li>A {@link JTable} for any kind of array parameter and {@link LookupTableJAI}.</li>
      *   <li>A {@link KernelEditor} for {@link KernelJAI} parameters.</li>
      * </ul>
@@ -300,7 +300,7 @@ public class ParameterEditor extends JPanel {
     /**
      * Returns the component used for editing the parameter. The component class depends on the
      * class of the value set by the last call to {@link #setParameterValue}. The editor may be
-     * an instance of {@link KernelEditor}, {@link JTable}, {@link TextField}, {@link JList} or
+     * an instance of {@link KernelEditor}, {@link JTable}, {@link JTextField}, {@link JList} or
      * any other suitable component.
      *
      * @return The editor, or <code>null</code> if no value has been set.
@@ -353,7 +353,7 @@ public class ParameterEditor extends JPanel {
      *
      * The {@link #editor} field will be set to the component used for editing the parameter.
      * This component may be an instance of {@link KernelEditor}, {@link JTable},
-     * {@link TextField}, {@link JList} or any other suitable component.
+     * {@link JTextField}, {@link JList} or any other suitable component.
      *
      * The {@link #model} field will be set to the model used by the editor widget.
      */
@@ -525,7 +525,7 @@ public class ParameterEditor extends JPanel {
     /**
      * The interface for editor capable to returns the edited value.
      *
-     * @version $Id: ParameterEditor.java,v 1.2 2003/07/29 15:40:34 desruisseaux Exp $
+     * @version $Id: ParameterEditor.java,v 1.3 2003/07/31 17:09:27 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @task TODO: This interface should have a 'setEditable(boolean)' method.
@@ -546,7 +546,7 @@ public class ParameterEditor extends JPanel {
      * An editor panel for editing a single value. The value if usually an instance of
      * {@link Number}, {@link Date}, {@link Angle} or {@link String}.
      *
-     * @version $Id: ParameterEditor.java,v 1.2 2003/07/29 15:40:34 desruisseaux Exp $
+     * @version $Id: ParameterEditor.java,v 1.3 2003/07/31 17:09:27 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @task TODO: This editor should use <code>JSpinner</code>, but we need to gets
@@ -671,7 +671,7 @@ public class ParameterEditor extends JPanel {
      * Table model for table parameters (including {@link LookupTableJAI}.
      * Instance of this class are created by {@link #updateEditor} when first needed.
      *
-     * @version $Id: ParameterEditor.java,v 1.2 2003/07/29 15:40:34 desruisseaux Exp $
+     * @version $Id: ParameterEditor.java,v 1.3 2003/07/31 17:09:27 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Table extends AbstractTableModel implements Editor {
@@ -791,7 +791,7 @@ public class ParameterEditor extends JPanel {
      * Table model for matrix parameters. Instance of this class
      * are created by {@link #updateEditor} when first needed.
      *
-     * @version $Id: ParameterEditor.java,v 1.2 2003/07/29 15:40:34 desruisseaux Exp $
+     * @version $Id: ParameterEditor.java,v 1.3 2003/07/31 17:09:27 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Matrix extends AbstractTableModel implements Editor {

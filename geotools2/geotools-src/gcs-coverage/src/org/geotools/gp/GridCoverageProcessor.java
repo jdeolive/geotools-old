@@ -82,7 +82,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.31 2003/07/30 17:45:22 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.32 2003/07/31 17:08:34 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -387,7 +387,7 @@ public class GridCoverageProcessor {
      * @param  argumentName2  The name of the second parameter to set.
      * @param  argumentValue2 The value for the second parameter.
      * @param  argumentName3  The name of the third parameter to set.
-     * @param  argumentValu3  The value for the third parameter.
+     * @param  argumentValue3 The value for the third parameter.
      * @return The result as a grid coverage.
      * @throws OperationNotFoundException if there is no operation named <code>operationName</code>.
      * @throws IllegalArgumentException if there is no parameter with the specified name.
@@ -522,7 +522,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.31 2003/07/30 17:45:22 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.32 2003/07/31 17:08:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {
