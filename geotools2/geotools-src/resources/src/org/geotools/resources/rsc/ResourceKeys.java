@@ -22,6 +22,8 @@ package org.geotools.resources.rsc;
  */
 public interface ResourceKeys
 {
+    public static final int STATISTICS_TO_STRING_$6               =    20;
+
     public static final int ERROR_BAD_LOCALE_$1                   =     0;
     public static final int ERROR_BAD_RANGE_$2                    =     1;
     public static final int ERROR_BAD_UNIT_OPERATION_$2           =     2;
