@@ -34,18 +34,23 @@ package org.geotools.resources;
 
 // J2SE library
 import java.awt.Color;
+import java.awt.Frame;
 import java.awt.Insets;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Component;
 import java.awt.EventQueue;
 import javax.swing.Action;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JDialog;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.LookAndFeel;
 import javax.swing.JDesktopPane;
+import javax.swing.JInternalFrame;
 import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -76,6 +81,63 @@ public final class SwingUtilities {
      * of this class to be created.
      */
     private SwingUtilities() {
+    }
+
+    /**
+     * Insert a Swing component into a frame. The kind of frame depends on the owner:
+     *
+     * <ul>
+     *   <li>If <code>owner</code> or one of its parent is a {@link JDesktopPane},
+     *       then <code>panel</code> is added into a {@link JInternalFrame}.</li>
+     *   <li>If <code>owner</code> or one of its parent is a {@link Frame} or a {@link Dialog},
+     *       then <code>panel</code> is added into a {@link JDialog}.</li>
+     *   <li>Otherwise, <code>panel</code> is added into a {@link JFrame}.</li>
+     * </ul>
+     *
+     * @param  owner The frame's owner, or <code>null</code> if none.
+     * @param  panel The panel to insert into a frame.
+     * @param  title The frame's title.
+     * @return The frame. This frame is not initially visible. The method
+     *         <code>Component.setVisible(true)</code> must be invoked
+     *         in order to show the frame.
+     */
+    public static Component toFrame(Component owner,
+                                    final JComponent panel,
+                                    final String     title)
+    {
+        while (owner != null) {
+            if (owner == panel) {
+                throw new IllegalArgumentException();
+            }
+            if (owner instanceof JDesktopPane) {
+                final JInternalFrame frame = new JInternalFrame(title);
+                ((JDesktopPane) owner).add(frame);
+                frame.getContentPane().add(panel);
+                frame.pack();
+                return frame;
+            }
+            if (owner instanceof Frame) {
+                final JDialog dialog = new JDialog((Frame) owner, title);
+                dialog.getContentPane().add(panel);
+                dialog.pack();
+                return dialog;
+            }
+            if (owner instanceof Dialog) {
+                final JDialog dialog = new JDialog((Dialog) owner, title);
+                dialog.getContentPane().add(panel);
+                dialog.pack();
+                return dialog;
+            }
+            owner = owner.getParent();
+        }
+        //
+        // Add the panel as a standalone window.
+        // This window has its own button on the task bar.
+        //
+        final JFrame frame = new JFrame(title);
+        frame.getContentPane().add(panel);
+        frame.pack();
+        return frame;
     }
 
     /**
