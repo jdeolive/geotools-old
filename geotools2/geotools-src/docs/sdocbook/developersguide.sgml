@@ -13,12 +13,55 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Id: developersguide.sgml,v 1.9 2002/11/14 19:53:28 camerons Exp $</date>
+    <date>$Id: developersguide.sgml,v 1.10 2002/11/15 21:03:52 camerons Exp $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
     </abstract>
   </articleinfo>
+
+  <section>
+    <title id="scope">Introduction</title>
+
+    <section>
+      <title id="identification">Identification.</title>
+
+      <para>This document aims to help new <ulink url="http://geotools.org">Geotools2</ulink>
+      developers get up to speed and track practices of existing developers in
+      order to keep the project consistent.</para>
+    </section>
+
+    <section>
+      <title id="systemoverview">System overview.</title>
+
+      <para>Geotools 2 is an open source, java GIS toolkit for developing
+      standards compliant solutions. It&#39;s modular architecture allows
+      extra functionality to be easily incorporated. Geotools 2 aims to
+      support Open GIS and other relevant standards as they are developed.</para>
+
+      <para>GeoTools 2 code is built using the latest Java tools and
+      environments (Java 1.4.1 at time of writing) and will continue to
+      leverage the capabilities of future Java environments and official
+      extensions as and when the technologies are released and have been
+      through the first maintenance cycle (i.e. version 1.x.1).</para>
+
+      <para>The GeoTools2 project is divided into separate modules, each of
+      which implements a specific requirement. Only a subset of these modules
+      is usually required to build an application based on Geotools2.</para>
+    </section>
+
+    <section>
+      <title id="licence">Licence</title>
+
+      <para>Copyright (c) 2002 Cameron Shorter. Permission is granted to copy,
+      distribute and/or modify this document under the terms of the <ulink
+      url="http://www.fsf.org/copyleft/fdl.html">GNU Free Documentation
+      License</ulink>, Version 1.1 or any later version published by the Free
+      Software Foundation; with the Invariant Sections being with no Invariant
+      Sections, with the Front-Cover Texts being no Front-Cover Texts, and
+      with the Back-Cover Texts being no Back-Cover Texts.</para>
+    </section>
+  </section>
 
   <section id="intro">
     <title>Introduction</title>
