@@ -89,27 +89,31 @@ public class CoordinatePoint implements Dimensioned, Cloneable, Serializable {
     }
     
     /**
-     * Construct a 2D coordinate from
-     * the specified ordinates.
+     * Construct a 2D coordinate from the specified ordinates.
      */
     public CoordinatePoint(final double x, final double y) {
         ord = new double[] {x,y};
     }
     
     /**
-     * Construct a 3D coordinate from
-     * the specified ordinates.
+     * Construct a 3D coordinate from the specified ordinates.
      */
     public CoordinatePoint(final double x, final double y, final double z) {
         ord = new double[] {x,y,z};
     }
     
     /**
-     * Construct a coordinate from
-     * the specified {@link Point2D}.
+     * Construct a coordinate from the specified {@link Point2D}.
      */
     public CoordinatePoint(final Point2D point) {
         this(point.getX(), point.getY());
+    }
+    
+    /**
+     * Construct a coordinate initialized to the same values than the specified point.
+     */
+    public CoordinatePoint(final CoordinatePoint point) {
+        ord = (double[]) point.ord.clone();
     }
 
     /**
