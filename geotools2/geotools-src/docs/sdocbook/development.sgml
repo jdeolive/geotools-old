@@ -282,21 +282,20 @@ cvs tag -R r2_3_4</programlisting>
       it.</para>
 
       <para>Once a Contributor is nominated, all existing committers will
-        vote. If there are at least 3 positive votes and no negative votes, the
-        Contributor is converted into a Committer and given write access to the
-        source code repository. This is an example offer letter that should be
-        sent to the volunteer after 3 positive votes have been received:</para>
+      vote. If there are at least 3 positive votes and no negative votes, the
+      Contributor is converted into a Committer and given write access to the
+      source code repository. This is an example offer letter that should be
+      sent to the volunteer after 3 positive votes have been received:</para>
 
       <blockquote>
         <para>Dear Contributor,</para>
 
         <para>Our project would like to offer you commit privileges. We have
-          been impressed with your contributions up till now, and believe that
-          your involvement will improve the quality of the code we produce. If
-          you are interested in having commit privileges, please set up an
-          account with <ulink url="http://sourceforge.net/">
-          http://sourceforge.net</ulink> and let us know your account
-          name.</para>
+        been impressed with your contributions up till now, and believe that
+        your involvement will improve the quality of the code we produce. If
+        you are interested in having commit privileges, please set up an
+        account with <ulink url="http://sourceforge.net/">
+        http://sourceforge.net</ulink> and let us know your account name.</para>
 
         <para>We all hope that you accept this invitation.</para>
 
@@ -304,11 +303,11 @@ cvs tag -R r2_3_4</programlisting>
       </blockquote>
 
       <para>Committers are asked to coordinate their efforts with the
-        maintainers of the modules they wish to modify/extend.  Contact details
-        for each module's maintainer can be found at
-        http://modules.geotools.org/&#60;module&#62;/team-list.html e.g.  <ulink
-          url="http://modules.geotools.org/shapefile/team-list.html">
-          http://modules.geotools.org/shapefile/team-list.html</ulink></para>
+      maintainers of the modules they wish to modify/extend. Contact details
+      for each module&#39;s maintainer can be found at
+      http://modules.geotools.org/&#60;module&#62;/team-list.html e.g. <ulink
+      url="http://modules.geotools.org/shapefile/team-list.html">
+      http://modules.geotools.org/shapefile/team-list.html</ulink></para>
 
       <para>At times, Committers may go inactive for a variety of reasons. A
       Committer that has been inactive for 6 months or more may lose their
@@ -493,8 +492,8 @@ maven build -o</programlisting>
         <para>It should do a complete build, note that if you have not done a
         full build yet then the build may fail because it can&#39;t find the
         jar for a module it depends on. An error caused by not having another
-        GT2 module installed can be a little misleading, for example the
-        error may look something like: <command>Error: unable to download
+        GT2 module installed can be a little misleading, for example the error
+        may look something like: <command>Error: unable to download
         core-0.1.jar</command>. This is because Maven failed to find
         core-0.1.jar in the local repository (where a full build should have
         put it) so it tried to download and fails. If you see an error like
@@ -668,8 +667,8 @@ maven build -o</programlisting>
               GeoTools2. Also, be aware that dependencies are not transitive.
               In other words, suppose module B has a dependency on module A.
               If you are creating module C, and have a dependency on module B,
-              then you do not automatically have a dependency on module A. If C
-              depends on A, then you must add the dependency manually.</para>
+              then you do not automatically have a dependency on module A. If
+              C depends on A, then you must add the dependency manually.</para>
 
               <example>
                 <title>Sample project.xml dependency entry</title>
@@ -2087,7 +2086,7 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
     </section>
   </section>
 
-  <section id="CodingStandards">
+  <section id="codingstandards">
     <title>Coding Conventions</title>
 
     <para>Coding conventions describe the coding styles developers should use
@@ -2893,6 +2892,57 @@ xxe yoursection.sgml</programlisting>
           documentation section.</para>
         </listitem>
       </orderedlist>
+    </section>
+
+    <section id="writingguidelines">
+      <title>Writing Guidelines</title>
+
+      <para>todo: Fill this out. Include:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Each section tag should have an unique id tag associated with
+          it. This id is used for references and filenames.</para>
+        </listitem>
+
+        <listitem>
+          <para>Documentation should be concise and preferably should refer to
+          documentation elsewhere on the web rather than reproduce it in this
+          guide.</para>
+        </listitem>
+
+        <listitem>
+          <para>Sections should be broken in the following manner:</para>
+
+          <orderedlist>
+            <listitem>
+              <para><emphasis>Section: Process</emphasis></para>
+
+              <para>Line or two describing the process</para>
+
+              <orderedlist>
+                <listitem>
+                  <para><emphasis>Section: Tool1</emphasis></para>
+
+                  <para>Description of tool, how to configure and use it.
+                  Reference tool&#39;s documentation rather than reproducing
+                  it here. </para>
+                </listitem>
+
+                <listitem>
+                  <para><emphasis>Section: Tool2</emphasis></para>
+                </listitem>
+
+                <listitem>
+                  <para><emphasis>Section: References</emphasis></para>
+
+                  <para>References to further reading.</para>
+                </listitem>
+              </orderedlist>
+            </listitem>
+          </orderedlist>
+        </listitem>
+      </itemizedlist>
     </section>
 
     <section id="whydocbook">
