@@ -1,7 +1,21 @@
 /*
- * RobustGeometryProperties.java
- * This file is covered by the LGPL
- * Created on 05 March 2002, 17:59
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
 
 package org.geotools.algorithms;
@@ -15,21 +29,21 @@ import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /** 
- * Robust implementation of the GeometryProperties interface
+ * Robust implementation of the GeometryProperties interface.
  * TODO: Update comments
  * TODO: Add in calculation for area of a Polygon
  *
- *
- * @author andyt
- * @version $Revision: 1.4 $ $Date: 2002/05/25 17:51:42 $
+ * @version $Id: RobustGeometryProperties.java,v 1.5 2002/06/05 11:56:35 loxnard Exp $
+ * @author Andy Turner, CCG
  */
 public class RobustGeometryProperties implements org.geotools.algorithms.GeometryProperties {
 
     /**
-     * Returns the area of a GeometryCollection
-     * @param geometryCollection1 The GeometryCollection for which the area is
-     * calulated
-     * @return The total area of all geometries in the collection
+     * Returns the area of a GeometryCollection.
+     *
+     * @param geometryCollection1 The GeometryCollection for which the
+     * area is calulated.
+     * @return The total area of all geometries in the collection.
      */
     protected double getArea(GeometryCollection geometryCollection1) {
         double area = 0.0d;
@@ -43,10 +57,10 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
     }
 
     /**
-     * Returns
-     * @param geometryCollection The GeometryCollection for which the perimeter is
-     * calulated
-     * @return the perimeter of a GeometryCollection
+     * Returns.
+     * @param geometryCollection The GeometryCollection for which the
+     * perimeter is calulated.
+     * @return the perimeter of a GeometryCollection.
      */
     protected double getPerimeter(GeometryCollection geometryCollection) {
         double perimeter = 0.0d;
@@ -60,15 +74,15 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
     }
 
    /**
-     * Cacluclate and return the area of the specified geometry.<br>
-     * For Polygons this is the total area inside the external ring less
+     * Calculates and returns the area of the specified geometry.<br>
+     * For Polygons, this is the total area inside the external ring less
      * the total of any contained by interior rings.  GeometryCollections
-     * (including MultiPolygons) are ittereted through so the result is the
+     * (including MultiPolygons) are iterated through so the result is the
      * sum of all polygons anywhere within the collection.
      * Any geometry other than Polgyon or a collection returns 0;
      *
      * @param geometry The Geometry to calculate the area of.
-     * @return The total area of the Geometry 
+     * @return The total area of the Geometry.
      */
     public double getArea(Geometry geometry) {
         double area = 0.0d;
@@ -85,15 +99,15 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
     }
 
    /**
-     * Cacluclate and return the perimeter of the specified geometry.<br>
-     * For Polygons this is the total length of the exterior ring and all
+     * Calculates and returns the perimeter of the specified geometry.<br>
+     * For Polygons, this is the total length of the exterior ring and all
      * internal rings.  For LineStrings the total line length is returned.
-     * GeometryCollections are ittereted through so the result is the
+     * GeometryCollections are iterated through so the result is the
      * sum of all Polygon and Line geometries anywhere within the collection.
      * Any point geometries return a value of 0;
      *
      * @param geometry The Geometry to calculate the area of.
-     * @return The total area of the Geometry 
+     * @return The total area of the Geometry.
      */
     public double getPerimeter(Geometry geometry) {
         double perimeter = 0.0d;
@@ -114,9 +128,9 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
     }
     
     /**
-     * Returns the area of a MultiPolygon
-     * @param multiPolygon - the MultiPolygon for which the area is calculated
-     * @return Total area of all polygons in multiPolgyon
+     * Returns the area of a MultiPolygon.
+     * @param multiPolygon the MultiPolygon for which the area is calculated.
+     * @return Total area of all polygons in multiPolygon.
      */
     protected double getArea(MultiPolygon multiPolygon) {
         double area = 0.0d;
@@ -128,10 +142,10 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
     }
     
     /**
-     * Returns the perimeter of a MultiPolygon
-     * @param multiPolygon - the MultiPolygon for which the perimeter is 
-     * calculated
-     * @return Total perimeter of all polygons in the multiPolygon
+     * Returns the perimeter of a MultiPolygon.
+     * @param multiPolygon the MultiPolygon for which the perimeter is 
+     * calculated.
+     * @return Total perimeter of all polygons in the multiPolygon.
      */
     protected double getperimeter(MultiPolygon multiPolygon) {
         double perimeter = 0.0d;
@@ -143,9 +157,9 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
     }
 
     /**
-     * Returns the area of a Polygon
-     * @param polygon - the Polygon for which the area is calculated
-     * @return The area of the polgyon
+     * Returns the area of a Polygon.
+     * @param polygon the Polygon for which the area is calculated.
+     * @return The area of the polygon.
      */
     protected double getArea(Polygon polygon) {
         double area = 0.0d;
@@ -163,9 +177,9 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
             miny = Math.min(miny, exteriorRingCoordinates[i].y);
             maxy = Math.max(maxy, exteriorRingCoordinates[i].y);
         }
-        //Calculate area of each trapezoid formed by droping lines from 
-        //each pair of coordinates in exteriorRingCoorinates to the x-axis.
-        //x[i]<x[i-1] will contribute a negative area
+        // Calculate area of each trapezoid formed by dropping lines from 
+        // each pair of coordinates in exteriorRingCoordinates to the x-axis.
+        // x[i]<x[i-1] will contribute a negative area
         for (int i = 0; i < (numberOfExteriorRingCoordinates - 1); i++) {
             area += (((exteriorRingCoordinates[i + 1].x - minx) - 
                     (exteriorRingCoordinates[i].x - minx)) * 
@@ -173,8 +187,8 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
                     (exteriorRingCoordinates[i].y - miny)) / 2d));
         }
         area = Math.abs(area);
-        //Calculate area of each trapezoid formed by droping lines
-        //from each pair of coordinates in interiorRingCoorinates to the x-axis.
+        // Calculate area of each trapezoid formed by dropping lines
+        // from each pair of coordinates in interiorRingCoorinates to the x-axis.
         int numberOfInteriorRings = polygon.getNumInteriorRing();
         int numberOfInteriorRingCoordinates;
         Coordinate[] interiorRingCoordinates;
@@ -204,9 +218,9 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
     }
 
     /**
-     * Returns the perimeter of a Polygon
-     * @param polygon - the Polygon for which the perimeter is calculated
-     * @return The perimeter of the polygon
+     * Returns the perimeter of a Polygon.
+     * @param polygon the Polygon for which the perimeter is calculated.
+     * @return The perimeter of the polygon.
      */
     protected double getPerimeter(Polygon polygon) {
         double perimeter = 0.0d;
@@ -220,10 +234,10 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
     }
 
     /**
-     * Returns the perimeter of a MultiLineString
-     * @param multiLineString - the MultiLineString for which the perimeter is
-     * calculated
-     * @return the total perimter (length) of the lines in multiLineString
+     * Returns the perimeter of a MultiLineString.
+     * @param multiLineString the MultiLineString for which the perimeter is
+     * calculated.
+     * @return the total perimter (length) of the lines in multiLineString.
      */
     protected double getPerimeter(MultiLineString multiLineString) {
         double perimeter = 0.0d;
@@ -235,9 +249,9 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
     }
 
     /**
-     * Returns the perimeter of a LineString
-     * @param lineString - the LineString for which the perimeter is calculated
-     * @return the perimeter (length) of hte lineString
+     * Returns the perimeter of a LineString.
+     * @param lineString the LineString for which the perimeter is calculated.
+     * @return the perimeter (length) of the lineString.
      */
     protected double getPerimeter(LineString lineString) {
         double perimeter = 0.0d;
