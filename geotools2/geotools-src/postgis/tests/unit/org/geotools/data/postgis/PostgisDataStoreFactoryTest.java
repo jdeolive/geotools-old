@@ -32,7 +32,7 @@ import junit.framework.TestCase;
  * 
  * @author jgarnett, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: PostgisDataStoreFactoryTest.java,v 1.1 2004/01/14 08:16:20 jive Exp $
+ * @version $Id: PostgisDataStoreFactoryTest.java,v 1.2 2004/01/14 10:23:13 jive Exp $
  */
 public class PostgisDataStoreFactoryTest extends TestCase {
     static PostgisDataStoreFactory factory
@@ -95,6 +95,16 @@ public class PostgisDataStoreFactoryTest extends TestCase {
         try {
             assertNotNull( "handle ISO-LATIN-1", p.handle("ISO-LATIN-1"));            
         } catch (IOException expected){            
+        }
+        System.out.println( latin1.toString() );
+        System.out.println( latin1.name() );
+        System.out.println( p.text( latin1 ));
+        assertEquals("ISO-8859-1", p.text(latin1) );
+        try {
+            assertEquals("ISO-8859-1", p.text("ISO-8859-1") );
+            fail("Should not handle bare text");
+        }
+        catch( ClassCastException expected ){            
         }
     }
     public void testLocal() throws Exception {
