@@ -56,7 +56,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.76 2003/05/04 21:52:32 camerons Exp $
+ * @version $Id: Java2DRenderer.java,v 1.77 2003/05/05 11:02:31 camerons Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -219,19 +219,21 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
         }
     }
 
-    /**
-     * Render features based on the LayerList, BoundBox and Style specified in
+
+    /** Render features based on the LayerList, BoundBox and Style specified in
      * this.context.
      *
      * @param graphics The graphics object to draw to.
      * @param paintArea The size of the output area in output units (eg:
      *        pixels).
+     * @param transform A transform which converts World coordinates to Screen
+     *        coordinates.
+     * @task TODO Use AffineTransform variable.
      *
-     * @task TODO Move this functionality into render(Graphics2D,
-     *       AffineTransform).
-     * @deprecated Use render(Graphics2D, AffineTransform) instead.
      */
-    public void render(Graphics2D graphics, Rectangle paintArea) {
+    public void paint(Graphics2D graphics, Rectangle paintArea,
+        AffineTransform transform) {
+            
         Date start = new Date();
 
         if ((graphics == null) || (paintArea == null)) {
@@ -589,18 +591,5 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
 
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
-    }
-
-    /**
-     * Render features based on the LayerList, BoundBox and Style specified in
-     * this.context.
-     *
-     * @param graphics The graphics object to draw to.
-     * @param transform A transform which converts World coordinates to Screen
-     *        coordinates.
-     *
-     * @task TODO Populate this method.
-     */
-    public void paint(Graphics2D graphics, AffineTransform transform) {
     }
 }
