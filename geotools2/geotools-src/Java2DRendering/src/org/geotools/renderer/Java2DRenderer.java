@@ -68,7 +68,7 @@ import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.59 2002/11/13 17:14:14 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.60 2002/11/22 17:39:37 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -339,6 +339,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         return null;
     }
     
+    private boolean isWithInScale(Rule r){
+        return ((r.getMinScaleDenominator() - tolerance) <= scaleDenominator) &&
+                        ((r.getMaxScaleDenominator() + tolerance) > scaleDenominator);
+    }
     /**
      * Applies each feature type styler in turn to all of the features.
      * This perhaps needs some explanation to make it absolutely clear.
@@ -385,9 +389,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     
                     for (int k = 0; k < rules.length; k++) {
                         //does this rule apply?
-                        if (((rules[k].getMinScaleDenominator() - tolerance) <= scaleDenominator) &&
-                        ((rules[k].getMaxScaleDenominator() + tolerance) > scaleDenominator) &&
-                        !rules[k].hasElseFilter()) {
+                        if ( isWithInScale(rules[k]) && !rules[k].hasElseFilter()) {
                             Filter filter = rules[k].getFilter();
                             LOGGER.finest("Filter " + filter);
                             
@@ -413,8 +415,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     //if else present apply elsefilter
                     for (int k = 0; k < rules.length; k++) {
                         //if none of the above rules applied do any of them have elsefilters that do
-                        if ((rules[k].getMinScaleDenominator() < scaleDenominator) &&
-                        (rules[k].getMaxScaleDenominator() > scaleDenominator)) {
+                        if (isWithInScale(rules[k])) {
                             if (rules[k].hasElseFilter()) {
                                 LOGGER.fine(
                                 "rule passed as else filter, moving on to symobolizers");
