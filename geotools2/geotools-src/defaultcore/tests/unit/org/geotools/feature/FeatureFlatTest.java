@@ -6,7 +6,7 @@ import com.vividsolutions.jts.geom.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import org.geotools.resources.*;
+import org.geotools.resources.Geotools;
 
 public class FeatureFlatTest extends TestCase {
 
@@ -72,32 +72,171 @@ public class FeatureFlatTest extends TestCase {
         
        
     }
-
-    public void testModify() {
-        try {
-            
-            testFeature.setAttribute("testString", "new test string data");
-            assertEquals("match modified (string) attribute",
-                         testFeature.getAttribute("testString"),
-                         "new test string data");
-
-            testFeature.setAttribute("testGeometry", 
-                                     new Point(new Coordinate(3,4), new PrecisionModel(), 1));
-            assertTrue("match modified (geometry) attribute",
-                       ((Point) testFeature.getAttribute("testGeometry")).
-                       equals(new Point(new Coordinate(3,4), new PrecisionModel(), 1)));
-
-        }
-        catch(IllegalAttributeException e) {
-            LOGGER.fine("Feature threw exception: ");
-            LOGGER.fine(e.getMessage());
-        }
+    
+    public void testBogusCreation() throws Exception {
+      FeatureTypeFactory factory = FeatureTypeFactory.newInstance("test1");
+      factory.addType(newAtt("billy",String.class,false));
+      factory.addType(newAtt("jimmy",String.class,false));
+      FeatureType test = factory.getFeatureType();
+      try {
+        test.create(null);
+        fail("no error");
+      } catch (IllegalAttributeException iae) {}
+      
+      try {
+        test.create(new Object[32]);
+        fail("no error");
+      } catch (IllegalAttributeException iae) {}
+      
+    }
+    
+    public void testBounds() throws Exception {
+      PrecisionModel pm = new PrecisionModel();
+      Geometry[] g = new Geometry[4];
+      g[0] = new Point(new Coordinate(0,0), pm,0);
+      g[1] = new Point(new Coordinate(0,10), pm,0);
+      g[2] = new Point(new Coordinate(10,0), pm,0);
+      g[3] = new Point(new Coordinate(10,10), pm,0);
+      
+      GeometryCollection gc = new GeometryCollection(g, pm,0);
+      FeatureTypeFactory factory = FeatureTypeFactory.newInstance("bounds");
+      factory.addType(newAtt("p1", Point.class));
+      factory.addType(newAtt("p2", Point.class));
+      factory.addType(newAtt("p3", Point.class));
+      factory.addType(newAtt("p4", Point.class));
+      FeatureType t = factory.createFeatureType();
+      Feature f = t.create(g);
+      assertEquals(gc.getEnvelopeInternal(),f.getBounds());
+      
+      g[1].getCoordinate().y = 20;
+      g[2].getCoordinate().x = 20;
+      f.setAttribute(1, g[1]);
+      f.setAttribute(2, g[2]);
+      gc = new GeometryCollection(g, pm,0);
+      assertEquals(gc.getEnvelopeInternal(),f.getBounds());
+    }
+    
+    public void testClone() {
+      DefaultFeature f = (DefaultFeature) SampleFeatureFixtures.createFeature();
+      Feature c = (Feature) f.clone();
+      for (int i = 0, ii = c.getNumberOfAttributes(); i < ii; i++) {
+        assertEquals(c.getAttribute(i), f.getAttribute(i));
+      }
+    }
+    
+    public void testOneWayCollectionMembership() {
+      Feature f = SampleFeatureFixtures.createFeature();
+      FeatureCollection fc = FeatureCollections.newCollection();
+      f.setParent(fc);
+      assertNotNull(f.getParent());
+      f.setParent(FeatureCollections.newCollection());
+      assertSame(f.getParent(), fc);
+    }
+    
+    public void testToStringWontThrow() throws IllegalAttributeException {
+      Feature f = SampleFeatureFixtures.createFeature();
+      f.setAttributes(new Object[f.getNumberOfAttributes()]);
+      String s = f.toString();
+    }
+    
+    static AttributeType newAtt(String name,Class c) {
+      return AttributeTypeFactory.newAttributeType(name,c,true);
+    }
+    
+    static AttributeType newAtt(String name,Class c,boolean nillable) {
+      return AttributeTypeFactory.newAttributeType(name,c,nillable);
     }
 
+    public void testModify() throws IllegalAttributeException {
+      String newData = "new test string data";
+      testFeature.setAttribute("testString", newData);
+      assertEquals("match modified (string) attribute",
+      testFeature.getAttribute("testString"),
+      newData);
+      
+      Point newGeom = new Point(new Coordinate(3,4), new PrecisionModel(), 1);
+      testFeature.setAttribute("testGeometry",
+      newGeom);
+      assertEquals("match modified (geometry) attribute",
+      testFeature.getAttribute("testGeometry"),
+      newGeom);
+      
+      testFeature.setDefaultGeometry(newGeom);
+      assertEquals("match modified (geometry) attribute",
+      testFeature.getAttribute("testGeometry"),
+      newGeom);
+            
+
+    }
+
+    public void testFindAttribute() {
+      DefaultFeature f = (DefaultFeature) SampleFeatureFixtures.createFeature();
+      FeatureType t = f.getFeatureType();
+      for (int i = 0, ii = t.getAttributeCount(); i < ii; i++) {
+        AttributeType a = t.getAttributeType(i);
+        assertEquals(i, f.findAttributeByName(a.getName()));
+      }
+      assertEquals(-1,f.findAttributeByName("bilbo baggins"));
+      assertEquals(null,f.getAttribute("jimmy hoffa"));
+    }
+    
+    public void testAttributeAccess() throws Exception {
+      // this ones kinda silly
+      Feature f = SampleFeatureFixtures.createFeature();
+      Object[] atts = null;
+      atts = f.getAttributes(atts);
+      for (int i = 0, ii = atts.length; i < ii; i++) {
+        assertEquals(atts[i], f.getAttribute(i));
+      }
+      Object[] attsAgain = f.getAttributes(null);
+      assertTrue(atts != attsAgain);
+      f.setAttributes(atts);
+      attsAgain = f.getAttributes(attsAgain);
+      assertTrue(atts != attsAgain);
+      for (int i = 0, ii = atts.length; i < ii; i++) {
+        assertEquals(atts[i], f.getAttribute(i));
+        assertEquals(attsAgain[i], f.getAttribute(i));
+      }
+      try {
+        f.setAttribute(1244, "x");
+        fail("not out of bounds");
+      } catch (ArrayIndexOutOfBoundsException aioobe) {
+        
+      }
+      try {
+        f.setAttribute("1244", "x");
+        fail("allowed bogus attribute setting");
+      } catch (IllegalAttributeException iae) {
+        
+      }
+      try {
+        f.setAttribute("testGeometry", "x");
+        fail("allowed bogus attribute setting");
+      } catch (IllegalAttributeException iae) {
+        
+      }
+    }
 
     public void testEnforceType() {
-        LOGGER.fine("starting type enforcement tests...");
-        LOGGER.fine("...ending type enforcement tests");
+      Date d = new Date();
+      Feature f = SampleFeatureFixtures.createFeature();
+      for (int i = 0, ii = f.getNumberOfAttributes(); i < ii; i++) {
+        try {
+          f.setAttribute(i,d);
+        } catch (IllegalAttributeException iae) {
+          continue; 
+        }
+        fail("No error thrown during illegal set");
+      }
+        
+    }
+    
+    public void testEquals() {
+      Feature f1 = SampleFeatureFixtures.createFeature();
+      Feature f2 = SampleFeatureFixtures.createFeature();
+      assertTrue(f1.equals(f1));
+      assertTrue(f2.equals(f2));
+      assertTrue(! f1.equals(f2));
     }
 
     /*
@@ -108,15 +247,9 @@ public class FeatureFlatTest extends TestCase {
      * as we now allow 
      */
     public void testGetDefaultGeometry() throws SchemaException {
-	FeatureType testType = testFeature.getFeatureType();
-	LOGGER.fine("testType = " + testType);
-	AttributeType geometry = testType.getAttributeType("testGeometry");
-	LOGGER.fine("geometry attr = " + geometry);
-	assertTrue(geometry != null);
-//	testType = testType.removeAttributeType("testGeometry");
-//	LOGGER.fine("test Type after removing = " + testType);
-//	geometry = testType.getAttributeType("testGeometry");
-//	assertTrue(geometry == null);
+      FeatureType testType = testFeature.getFeatureType();
+      AttributeType geometry = testType.getAttributeType("testGeometry");
+      assertTrue(geometry == testType.getDefaultGeometry());
     }
 	    
 }

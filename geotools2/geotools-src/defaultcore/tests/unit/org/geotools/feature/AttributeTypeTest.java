@@ -26,6 +26,10 @@ public class AttributeTypeTest extends TestCase {
         super(testName);
     }
     
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
+    
     public static Test suite() {
         TestSuite suite = new TestSuite(AttributeTypeTest.class);
         return suite;

@@ -60,7 +60,7 @@ public class SampleFeatureFixtures {
      *
      * @return
      */
-    private static Object[] createAttributes() {
+    public static Object[] createAttributes() {
         Object[] attributes = new Object[10];
         attributes[0] = new Point(new Coordinate(1, 2), new PrecisionModel(), 1);
         attributes[1] = new Boolean(true);
