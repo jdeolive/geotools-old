@@ -21,22 +21,22 @@
  */
 package org.geotools.gml.producer;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import org.geotools.feature.*;
-import org.xml.sax.*;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollectionIteration;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
+import org.xml.sax.helpers.XMLFilterImpl;
 import java.util.logging.Logger;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
@@ -44,37 +44,74 @@ import javax.xml.transform.stream.StreamResult;
 
 
 /**
- * DOCUMENT ME!
+ * Producers gml to an output stream.
  *
- * @author Ian Schneider<br>
+ * @author Ian Schneider
  * @author Chris Holmes, TOPP
  *
  * @task TODO: Interior rings of polygons.
  * @task TODO: srs printed, multi namespaces, bbox.
  */
-public class FeatureTransformer implements org.xml.sax.XMLReader {
+public class FeatureTransformer extends XMLFilterImpl implements XMLReader {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.gml.producer");
-    private static final String XMLNS_GML = "xmlns:gml=\"http://www.opengis.net/gml\"";
-    private static final String WFS_URI = "http://www.opengis.net/wfs";
-    private static final String SRS_DECL = "srsName=\"http://www.opengis.net" +
-        "/gml/srs/epsg.xml#";
-    private static final String GML_URL = GMLUtils.GML_URL;
-    ContentHandler contentHandler;
-    String defaultNamespace;
-    FeatureCollection collection;
-    boolean prettyPrint = false;
-    String srs = "-1";
 
+    /** The uri for gml. */
+    private static final String GML_URL = GMLUtils.GML_URL;
+
+    /** The namespace declaration for gml */
+    //private static final String XMLNS_GML = "xmlns:gml=\"" + GML_URL + "\"";
+
+    /** The namespace for WFS */
+    private static final String WFS_URI = "http://www.opengis.net/wfs";
+
+    /** The attribute to specify the spatial reference system. */
+    //private static final String SRS_DECL = "srsName=\"http://www.opengis.net"
+    //  + "/gml/srs/epsg.xml#";
+
+    /** handler to do the processing */
+    private ContentHandler contentHandler;
+
+    /** The namespace to use if none is provided. */
+    private String defaultNamespace;
+
+    /** The feature collection to process. */
+    private FeatureCollection collection;
+
+    /** Whether newlines and indents should be printed. */
+    private boolean prettyPrint = false;
+
+    /** The spatial reference system id */
+    //private String srs = "-1";
+
+    /**
+     * Sets a default namespace to use.
+     *
+     * @param namespace the namespace to use, should be a uri.
+     */
     public void setDefaultNamespace(String namespace) {
         this.defaultNamespace = namespace;
     }
 
+    /**
+     * Sets if newlines and indents should be used for printing.
+     *
+     * @param pp true if pretty printing is desired.
+     */
     public void setPrettyPrint(boolean pp) {
         this.prettyPrint = pp;
     }
 
+    /**
+     * performs the sending of sax events from the passed in  feature
+     * collection.
+     *
+     * @param collection the collection to turn to gml.
+     * @param out the stream to send the output to.
+     *
+     * @throws TransformerException DOCUMENT ME!
+     */
     public synchronized void transform(FeatureCollection collection,
         java.io.OutputStream out) throws TransformerException {
         this.collection = collection;
@@ -89,11 +126,17 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
         transformer.transform(source, result);
     }
 
+    /**
+     * Performs the iteration, walking over the collection and  firing events.
+     *
+     * @param collection the features to walk over.
+     *
+     * @throws SAXException DOCUMENT ME!
+     */
     private void walk(FeatureCollection collection) throws SAXException {
         contentHandler.startDocument();
 
         //FeatureCollectionIteration iteration = new FeatureCollectionIterat();
-
         FeatureCollectionIteration.Handler handler;
 
         if (prettyPrint) {
@@ -107,62 +150,47 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
         contentHandler.endDocument();
     }
 
-    public ContentHandler getContentHandler() {
-        return contentHandler;
-    }
-
-    public DTDHandler getDTDHandler() {
-        return null;
-    }
-
-    public EntityResolver getEntityResolver() {
-        return null;
-    }
-
-    public ErrorHandler getErrorHandler() {
-        return null;
-    }
-
-    public boolean getFeature(String name)
-        throws SAXNotRecognizedException, SAXNotSupportedException {
-        throw new SAXNotSupportedException(name);
-    }
-
-    public Object getProperty(String name)
-        throws SAXNotRecognizedException, SAXNotSupportedException {
-        throw new SAXNotSupportedException(name);
-    }
-
+    /**
+     * walks the given collection.
+     *
+     * @param systemId DOCUMENT ME!
+     *
+     * @throws java.io.IOException DOCUMENT ME!
+     * @throws SAXException DOCUMENT ME!
+     */
     public void parse(String systemId) throws java.io.IOException, SAXException {
         walk(collection);
     }
 
+    /**
+     * walks the given collection.
+     *
+     * @param input DOCUMENT ME!
+     *
+     * @throws java.io.IOException DOCUMENT ME!
+     * @throws SAXException DOCUMENT ME!
+     */
     public void parse(InputSource input)
         throws java.io.IOException, SAXException {
         walk(collection);
     }
 
+    /**
+     * sets the content handler.
+     *
+     * @param handler DOCUMENT ME!
+     */
     public void setContentHandler(ContentHandler handler) {
         contentHandler = handler;
     }
 
-    public void setDTDHandler(DTDHandler handler) {
-    }
-
-    public void setEntityResolver(EntityResolver resolver) {
-    }
-
-    public void setErrorHandler(ErrorHandler handler) {
-    }
-
-    public void setFeature(String name, boolean value)
-        throws SAXNotRecognizedException, SAXNotSupportedException {
-    }
-
-    public void setProperty(String name, Object value)
-        throws SAXNotRecognizedException, SAXNotSupportedException {
-    }
-
+    /**
+     * Currently does nothing.
+     *
+     * @param args DOCUMENT ME!
+     *
+     * @throws Exception DOCUMENT ME!
+     */
     public static final void main(String[] args) throws Exception {
         //java.net.URL url = new java.io.File(args[0]).toURL();
         //org.geotools.shapefile.data.ShapefileDataSource sds = new org.geotools.data.shapefile.ShapefileDataSource(url);
@@ -172,52 +200,108 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
         //fr.transform(fc, System.out);
     }
 
+    /**
+     * This handler keeps track of indents and adds newlines.
+     */
     class PrettyOutputVisitor extends BasicOutputVisitor {
-        final char[] CR = new char[] { '\n' };
-        final char[] TB;
+        /** The carraige return char array. */
+        private final char[] cReturn = new char[] { '\n' };
 
-        public PrettyOutputVisitor(ContentHandler h, char spacer) {
-            super(h);
-            TB = new char[5];
-            java.util.Arrays.fill(TB, spacer);
+        /** The tab char array */
+        private final char[] tab;
+
+        /**
+         * Constructor with handler and initial spacer character.
+         *
+         * @param handler the handler to use.
+         * @param spacer to use as space.
+         */
+        public PrettyOutputVisitor(ContentHandler handler, char spacer) {
+            super(handler);
+            tab = new char[5];
+            java.util.Arrays.fill(tab, spacer);
         }
 
-        protected final void CR() throws SAXException {
-            output.ignorableWhitespace(CR, 0, 1);
+        /**
+         * prints a carraige return with newline.
+         *
+         * @throws SAXException DOCUMENT ME!
+         */
+        protected final void cReturn() throws SAXException {
+            output.ignorableWhitespace(cReturn, 0, 1);
         }
 
-        protected final void TB(int i) throws SAXException {
+        /**
+         * printe a tab with the currently tracked spacing.
+         *
+         * @param i DOCUMENT ME!
+         *
+         * @throws SAXException DOCUMENT ME!
+         */
+        protected final void tab(int i) throws SAXException {
             while (i > 0) {
-                output.ignorableWhitespace(TB, 0, Math.min(TB.length, i));
-                i -= TB.length;
+                output.ignorableWhitespace(tab, 0, Math.min(tab.length, i));
+                i -= tab.length;
             }
         }
     }
 
+    /**
+     * Outputs gml without any fancy indents or newlines.
+     */
     class BasicOutputVisitor implements FeatureCollectionIteration.Handler {
-        protected CoordinateWriter coordWriter = new CoordinateWriter();
-        final ContentHandler output;
-        final Attributes atts = new org.xml.sax.helpers.AttributesImpl();
-        int indent = 0;
+        /** Used to write coordinates to out. */
+        private CoordinateWriter coordWriter = new CoordinateWriter();
 
-        public BasicOutputVisitor(ContentHandler h) {
-            this.output = h;
+        /** The handler. */
+        protected final ContentHandler output;
+
+        /** blank attributes to be used when none are needed. */
+        private final Attributes atts = new AttributesImpl();
+
+        /** initial indent */
+        private int indent = 0;
+
+        /**
+         * Constructor with handler.
+         *
+         * @param handler the handler to use.
+         */
+        public BasicOutputVisitor(ContentHandler handler) {
+            this.output = handler;
         }
 
-        protected void TB(int i) throws SAXException {
+        /**
+         * Handles a tab call - does nothing.
+         *
+         * @param i DOCUMENT ME!
+         *
+         * @throws SAXException DOCUMENT ME!
+         */
+        protected void tab(int i) throws SAXException {
         }
 
-        protected void CR() throws SAXException {
+        /**
+         * Handles a carraige return call - does nothing.
+         *
+         * @throws SAXException DOCUMENT ME!
+         */
+        protected void cReturn() throws SAXException {
         }
 
+        /**
+         * Prints up the gml for a featurecollection.
+         *
+         * @param fc DOCUMENT ME!
+         */
         public void handleFeatureCollection(FeatureCollection fc) {
             try {
-                TB(indent++);
+                tab(indent++);
 
                 AttributesImpl fcAtts = new AttributesImpl();
                 LOGGER.finer("first feat is " + fc.features().next());
-                LOGGER.finer("schema is " +
-                    fc.features().next().getFeatureType().getNamespace());
+                LOGGER.finer("schema is "
+                    + fc.features().next().getFeatureType().getNamespace());
 
                 String ns = fc.features().next().getFeatureType().getNamespace();
 
@@ -229,15 +313,20 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
                 fcAtts.addAttribute(ns, "wfs", "xmlns:wfs", "wfs", WFS_URI);
                 output.startElement("http://www.opengis.net/wfs",
                     "featureCollection", "wfs:featureCollection", fcAtts);
-                CR();
+                cReturn();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
+        /**
+         * Sends sax for the ending of a feature collection.
+         *
+         * @param fc DOCUMENT ME!
+         */
         public void endFeatureCollection(FeatureCollection fc) {
             try {
-                TB(--indent);
+                tab(--indent);
                 output.endElement("http://www.opengis.net/wfs",
                     "featureCollection", "wfs:featureCollection");
             } catch (Exception e) {
@@ -245,55 +334,74 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             }
         }
 
+        /**
+         * Sends sax for the ending of a feature.
+         *
+         * @param f DOCUMENT ME!
+         */
         public void endFeature(Feature f) {
             try {
-                TB(--indent);
+                tab(--indent);
 
                 String name = f.getFeatureType().getTypeName();
                 output.endElement("", name, name);
-                CR();
-                TB(--indent);
+                cReturn();
+                tab(--indent);
                 output.endElement("", "featureMember", "gml:featureMember");
-                CR();
+                cReturn();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
+        /**
+         * handles sax for an attribute.
+         *
+         * @param type DOCUMENT ME!
+         * @param value DOCUMENT ME!
+         */
         public void handleAttribute(AttributeType type, Object value) {
             try {
-                TB(indent);
+                tab(indent);
 
                 String name = type.getName();
                 output.startElement("", name, name, atts);
+
                 if (Geometry.class.isAssignableFrom(value.getClass())) {
                     indent++;
-		    CR();
-		    TB(indent++);
+                    cReturn();
+                    tab(indent++);
                     writeGeometry((Geometry) value, "dude");
-		      CR();
-		    TB(--indent);
-		} else {
+                    cReturn();
+                    tab(--indent);
+                } else {
                     if (value != null) {
                         String text = value.toString();
                         text = GMLUtils.encodeXML(text);
                         output.characters(text.toCharArray(), 0, text.length());
                     }
                 }
-		output.endElement("", name, name);
-                CR();
+
+                output.endElement("", name, name);
+                cReturn();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
+        /**
+         * Handles sax for a feature.
+         *
+         * @param f DOCUMENT ME!
+         */
         public void handleFeature(Feature f) {
             try {
-                TB(indent++);
+                tab(indent++);
                 output.startElement("", "featureMember", "gml:featureMember",
                     atts);
-                CR();
-                TB(indent++);
+                cReturn();
+                tab(indent++);
+
                 String name = f.getFeatureType().getTypeName();
                 AttributesImpl fidAtts = new org.xml.sax.helpers.AttributesImpl();
                 String fid = f.getID();
@@ -303,7 +411,7 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
                 }
 
                 output.startElement("", name, name, fidAtts);
-                CR();
+                cReturn();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -321,35 +429,37 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             throws SAXException {
             //user option to just use user defined bbox for whole dataset?
             //envelope.expandToInclude(geometry.getEnvelopeInternal());
-	    //-no use fc.getBounds();
-
+            //-no use fc.getBounds();
             String geomName = GMLUtils.getGeometryName(geometry);
             output.startElement(GMLUtils.GML_URL, geomName, "gml:" + geomName,
                 atts);
 
             int geometryType = GMLUtils.getGeometryType(geometry);
-	 
+
             switch (geometryType) {
             case GMLUtils.POINT:
-	    case GMLUtils.LINESTRING:
+            case GMLUtils.LINESTRING:
                 writeCoordinates(geometry);
+
                 break;
 
             case GMLUtils.POLYGON:
                 writePolygon((Polygon) geometry, gid);
+
                 break;
 
             case GMLUtils.MULTIPOINT:
             case GMLUtils.MULTILINESTRING:
             case GMLUtils.MULTIPOLYGON:
             case GMLUtils.MULTIGEOMETRY:
-		String member = getMemberName(geometryType);
-		writeMulti((GeometryCollection) geometry, gid, member);
-		break;
+
+                String member = getMemberName(geometryType);
+                writeMulti((GeometryCollection) geometry, gid, member);
+
+                break;
             }
 
             output.endElement(GMLUtils.GML_URL, geomName, "gml:" + geomName);
-        
         }
 
         /**
@@ -364,88 +474,102 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             throws SAXException {
             String outBound = "outerBoundaryIs";
             String lineRing = "LinearRing";
-            String inBound = "innerBoundaryIs";
-	    CR();
-	    TB(indent++);
+            //String inBound = "innerBoundaryIs";
+            cReturn();
+            tab(indent++);
             output.startElement(GML_URL, outBound, "gml:" + outBound, atts);
-            CR();
-            TB(indent++);
+            cReturn();
+            tab(indent++);
             output.startElement(GML_URL, lineRing, "gml:" + lineRing, atts);
-            CR();
-            TB(indent);
+            cReturn();
+            tab(indent);
             coordWriter.writeCoordinates(geometry.getExteriorRing(), output);
-            CR();
-            TB(--indent);
+            cReturn();
+            tab(--indent);
             output.endElement(GML_URL, lineRing, "gml:" + lineRing);
-            CR();
-            TB(--indent);
+            cReturn();
+            tab(--indent);
             output.endElement(GML_URL, outBound, "gml:" + outBound);
-            CR();
-            TB(--indent);
+            cReturn();
+            tab(--indent);
 
-            /* TODO: if (geometry.getNumInteriorRing() > 0) {
-	       
-	       for( int i = 0 ; i < geometry.getNumInteriorRing() ; i++ ) {
-	       finalResult.append("\n         <gml:innerBoundaryIs>");
-	       finalResult.append("\n          <gml:LinearRing>");
-	       writeCoordinates( geometry.getInteriorRingN(i) );
-	       finalResult.append("\n          </gml:LinearRing>");
-	       finalResult.append("\n        </gml:innerBoundaryIs>");
-	       }
-	       }*/
+            // TODO: if (geometry.getNumInteriorRing() > 0) {
+            //for( int i = 0 ; i < geometry.getNumInteriorRing() ; i++ ) {
+            //finalResult.append("\n         <gml:innerBoundaryIs>");
+            //finalResult.append("\n          <gml:LinearRing>");
+            //writeCoordinates( geometry.getInteriorRingN(i) );
+            //finalResult.append("\n          </gml:LinearRing>");
+            //finalResult.append("\n        </gml:innerBoundaryIs>");
+            //}
+            //}
         }
 
+        /**
+         * Writes the coordinates for a geometry.
+         *
+         * @param geometry DOCUMENT ME!
+         *
+         * @throws SAXException DOCUMENT ME!
+         */
         private void writeCoordinates(Geometry geometry)
             throws SAXException {
-            CR();
-            TB(indent);
+            cReturn();
+            tab(indent);
             coordWriter.writeCoordinates(geometry, output);
-            CR();
-            TB(--indent);
+            cReturn();
+            tab(--indent);
         }
 
-	//TODO: srs - should only appear on outermost element of geomCollection.
-	private void writeMulti(GeometryCollection geometry,
-					  String gid, String member) throws SAXException {
-	    for(int i = 0, n = geometry.getNumGeometries(); i < n; i++) {
-		CR();
-		TB(indent);
-		output.startElement(GML_URL, member, "gml:" + member, atts);
-		CR();
-		indent++;
-		TB(indent++);
-				
-		writeGeometry( geometry.getGeometryN(i), gid + "." + (i + 1));
-		
-		CR();
-		TB(--indent);
-		output.endElement(GML_URL, member, "gml:" + member);
-	    }
-	    CR();
-	    TB(--indent);
-	    
-	} 
-	
-	//move to gml utils?
-	private String getMemberName(int geometryType){
-	    String member;
-	    switch (geometryType) {
-	    case GMLUtils.MULTIPOINT:
-		return "pointMember";
-		
-		
-	    case GMLUtils.MULTILINESTRING:
-		return "lineStringMember";
-		
-		
-	    case GMLUtils.MULTIPOLYGON:
-		return "polygonMember";
-		
-	    default:
+        /**
+         * Writes a multi - point, linestring, poly or geometry collection.
+         *
+         * @param geometry DOCUMENT ME!
+         * @param gid DOCUMENT ME!
+         * @param member DOCUMENT ME!
+         *
+         * @throws SAXException DOCUMENT ME!
+         *
+         * @task TODO: srs should only appear on outermost element of
+         *       geomCollection.
+         */
+        private void writeMulti(GeometryCollection geometry, String gid,
+            String member) throws SAXException {
+            for (int i = 0, n = geometry.getNumGeometries(); i < n; i++) {
+                cReturn();
+                tab(indent);
+                output.startElement(GML_URL, member, "gml:" + member, atts);
+                cReturn();
+                indent++;
+                tab(indent++);
 
-		return "geometryMember";
-	    }
-	}
+                writeGeometry(geometry.getGeometryN(i), gid + "." + (i + 1));
 
+                cReturn();
+                tab(--indent);
+                output.endElement(GML_URL, member, "gml:" + member);
+            }
+
+            cReturn();
+            tab(--indent);
+        }
+
+        //move to gml utils?
+        private String getMemberName(int geometryType) {
+            //String member;
+
+            switch (geometryType) {
+            case GMLUtils.MULTIPOINT:
+                return "pointMember";
+
+            case GMLUtils.MULTILINESTRING:
+                return "lineStringMember";
+
+            case GMLUtils.MULTIPOLYGON:
+                return "polygonMember";
+
+            default:
+                return "geometryMember";
+            }
+        }
     }
 }
