@@ -16,63 +16,54 @@
  */
 package org.geotools.data.jdbc;
 
-import java.util.Set;
-
 import org.geotools.data.AbstractDataSource;
-import org.geotools.data.DataSourceMetaData;
 import org.geotools.data.DataSourceException;
-import java.sql.SQLException;
-import org.geotools.feature.AttributeType;
+import org.geotools.data.DataSourceMetaData;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.FeatureType;
-import org.geotools.filter.Filter;
-import java.util.logging.Logger;
-import com.vividsolutions.jts.geom.Envelope;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.logging.Logger;
+
+
 /**
  * This class provides a skeletal implementation of the DataSource interface to
  * minimize the effort of required to implement this interface.
  * 
- * <p>
- * </p>
+ * <p></p>
  * 
- * <p>
- * </p>
- * 
+ * <p></p>
+ *
  * @author Chris Holmes, TOPP
  * @author Sean Geoghegan
- * @version $Id: JDBCDataSource.java,v 1.2 2003/11/03 23:08:24 cholmesny Exp $
+ * @version $Id: JDBCDataSource.java,v 1.3 2003/11/04 00:28:50 cholmesny Exp $
  */
 public abstract class JDBCDataSource extends AbstractDataSource {
-
-      /** The logger for the data package. */
-    private static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.data");
-
+    /** The logger for the data package. */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.data");
     private ConnectionPool connectionPool;
 
     /** A postgis connection. */
     protected Connection transConn;
 
-    public JDBCDataSource(ConnectionPool pool){
-	this.connectionPool = pool;
+    public JDBCDataSource(ConnectionPool pool) {
+        this.connectionPool = pool;
     }
 
-/**
+    /**
      * Makes all transactions made since the previous commit/rollback
      * permanent.  This method should be used only when auto-commit mode has
      * been disabled.   If autoCommit is true then this method does nothing.
      *
      * @throws DataSourceException if there are any datasource errors.
      *
+     * @task REVISIT: to abstract class, same as oracle.
+     *
      * @see #setAutoCommit(boolean)
-     * @task  REVISIT: to abstract class, same as oracle.
      */
     public void commit() throws DataSourceException {
         try {
-	    LOGGER.fine("commit called");
-	    getTransactionConnection().commit();
+            LOGGER.fine("commit called");
+            getTransactionConnection().commit();
             closeTransactionConnection();
         } catch (SQLException sqle) {
             String message = "problem committing";
@@ -93,28 +84,32 @@ public abstract class JDBCDataSource extends AbstractDataSource {
     protected DataSourceMetaData createMetaData() {
         MetaDataSupport jdbcMeta = new MetaDataSupport();
         jdbcMeta.setSupportsRollbacks(true);
+
         return jdbcMeta;
     }
-    
-      /**
+
+    /**
      * Performs the setFeautres operation by removing all and then adding the
      * full collection.  This is not efficient, the add, modify and  remove
      * operations should be used instead, this is just to follow the
-     * interface.  Extensions of this class should set supportsSetFeatures
-     * to true if remove and add are supported, and this class will do
-     * the work for them.
+     * interface.  Extensions of this class should set supportsSetFeatures to
+     * true if remove and add are supported, and this class will do the work
+     * for them.
      *
      * @param features the features to set for this table.
      *
      * @throws DataSourceException if there are problems removing or adding.
-     * @task REVISIT: 
+     * @throws UnsupportedOperationException If setFeatures is not supported
+     *
+     * @task REVISIT:
      */
     public void setFeatures(FeatureCollection features)
         throws DataSourceException {
 	if (!getMetaData().supportsSetFeatures()) {
             throw new UnsupportedOperationException("Does not support setFeatures");
         }
-	boolean originalAutoCommit = getAutoCommit();
+
+        boolean originalAutoCommit = getAutoCommit();
         setAutoCommit(false);
         removeFeatures(null);
         addFeatures(features);
@@ -130,12 +125,13 @@ public abstract class JDBCDataSource extends AbstractDataSource {
      *
      * @throws DataSourceException if there are problems with the datasource.
      *
-     * @see #setAutoCommit(boolean)
      * @task REVISIT: to abstract class, same as oracle.
+     *
+     * @see #setAutoCommit(boolean)
      */
     public void rollback() throws DataSourceException {
         try {
-	    getTransactionConnection().rollback();
+            getTransactionConnection().rollback();
             closeTransactionConnection();
         } catch (SQLException sqle) {
             String message = "problem with rollbacks";
@@ -153,16 +149,17 @@ public abstract class JDBCDataSource extends AbstractDataSource {
      *
      * @throws DataSourceException if a datasource access error occurs.
      *
-     * @see #setAutoCommit(boolean)
      * @task REVISIT: to abstract class, same as oracle.
+     *
+     * @see #setAutoCommit(boolean)
      */
     public boolean getAutoCommit() throws DataSourceException {
         try {
-	    if (transConn == null) {
-		return true;
-	    } else {
-		return getTransactionConnection().getAutoCommit();
-	    }
+            if (transConn == null) {
+                return true;
+            } else {
+                return getTransactionConnection().getAutoCommit();
+            }
         } catch (SQLException sqle) {
             String message = "problem setting auto commit";
             LOGGER.info(message + ": " + sqle.getMessage());
@@ -193,17 +190,16 @@ public abstract class JDBCDataSource extends AbstractDataSource {
      *
      * @throws DataSourceException If the connection is not an
      *         OracleConnection.
-     * @throws SQLException If there is a problem with the connection.
      */
     protected Connection getConnection() throws DataSourceException {
-	try {
-	    return connectionPool.getConnection();
-	} catch (SQLException sqle) {
-	    throw new DataSourceException("could not get connection", sqle);
-	}
+        try {
+            return connectionPool.getConnection();
+        } catch (SQLException sqle) {
+            throw new DataSourceException("could not get connection", sqle);
+        }
     }
 
-       /**
+    /**
      * This is called my any transaction method in its finally block. If the
      * transaction failed it is rolled back, if it succeeded and we are
      * previously set to autocommit, it is committed and if  it succeed and we
@@ -225,9 +221,9 @@ public abstract class JDBCDataSource extends AbstractDataSource {
      */
     protected void finalizeTransactionMethod(boolean previousAutoCommit,
         boolean fail) throws DataSourceException {
+        LOGGER.finer("finalizing transaction, prevac: " + previousAutoCommit
+            + ", fail is " + fail);
 
-	LOGGER.finer("finalizing transaction, prevac: " + previousAutoCommit +
-		    ", fail is " + fail);
         if (fail) {
             rollback();
         } else {
@@ -235,15 +231,14 @@ public abstract class JDBCDataSource extends AbstractDataSource {
             // ie if the user had previously set autoCommit to false
             // we leave commiting up to them.
             if (previousAutoCommit) {
-		LOGGER.finer("committing in finalize");
+                LOGGER.finer("committing in finalize");
                 commit();
             }
         }
+
         setAutoCommit(previousAutoCommit);
         closeTransactionConnection();
     }
-
-
 
     /**
      * This method should be called when a connection is required for
@@ -281,8 +276,7 @@ public abstract class JDBCDataSource extends AbstractDataSource {
         try {
             // we only close if the transaction is set to auto commit
             // otherwise we wait until auto commit is turned off before closing.
-	    if ((transConn != null)
-                    && transConn.getAutoCommit()) {
+            if ((transConn != null) && transConn.getAutoCommit()) {
                 LOGGER.finer("Closing Transaction Connection");
                 transConn.close();
                 transConn = null;
