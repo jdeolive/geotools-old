@@ -42,7 +42,7 @@ import org.geotools.gml.GMLHandlerJTS;
  * extracts an OGC filter object from an XML stream and passes it to its parent
  * as a fully instantiated OGC filter object.</p>
  * 
- * @version $Id: FilterFilter.java,v 1.12 2002/09/17 17:33:56 robhranac Exp $
+ * @version $Id: FilterFilter.java,v 1.13 2002/10/23 15:38:51 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFilter 
@@ -53,13 +53,13 @@ public class FilterFilter
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
-    private LogicFactory logicFactory;  
+    private LogicSAXParser logicFactory;  
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
-    private FilterFactory filterFactory;  
+    private FilterSAXParser filterFactory;  
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
-    private ExpressionFactory expressionFactory;  
+    private ExpressionSAXParser expressionFactory;  
     
     /** Parent of the filter: must implement GMLHandlerGeometry. */
     private FilterHandler parent;  
@@ -93,9 +93,9 @@ public class FilterFilter
         super();
         this.parent = parent;
         this.schema = schema;
-        expressionFactory = new ExpressionFactory(schema);
-        filterFactory = new FilterFactory();  
-        logicFactory = new LogicFactory();
+        expressionFactory = new ExpressionSAXParser(schema);
+        filterFactory = new FilterSAXParser();  
+        logicFactory = new LogicSAXParser();
     }
     
     
