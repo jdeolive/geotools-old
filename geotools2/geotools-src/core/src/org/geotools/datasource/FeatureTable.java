@@ -1,8 +1,8 @@
 package org.geotools.datasource;
 
-import com.sun.java.util.collections.Vector;
-import com.sun.java.util.collections.List;
-import com.sun.java.util.collections.Iterator;
+import java.util.List;
+import java.util.Iterator;
+import java.util.Vector;
 
 public class FeatureTable
 {

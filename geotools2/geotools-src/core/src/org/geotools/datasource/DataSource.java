@@ -1,6 +1,6 @@
 package org.geotools.datasource;
 
-import com.sun.java.util.collections.List;
+import java.util.*;
 
 /** The source of data for Features. Shapefiles, database, etc. are reference through this interface.
  */

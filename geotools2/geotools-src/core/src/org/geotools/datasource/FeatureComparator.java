@@ -1,7 +1,7 @@
 package org.geotools.datasource;
 
-import com.sun.java.util.collections.Comparator;
-
+//import com.sun.java.util.collections.Comparator;
+import java.util.*;
 /** Compares one row in a featureTable with another
  */
 public class FeatureComparator implements Comparator

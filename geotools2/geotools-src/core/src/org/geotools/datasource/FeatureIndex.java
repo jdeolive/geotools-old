@@ -1,6 +1,6 @@
 package org.geotools.datasource;
 
-import com.sun.java.util.collections.List;
+import java.util.List;
 
 /** An Index is built up around a FeatureTable, using one of the columns in FeatureTable 
  * as a comparable reference. An object in a column can be any object, but must either be a 

@@ -1,9 +1,9 @@
 package org.geotools.datasource;
 
-import com.sun.java.util.collections.List;
-import com.sun.java.util.collections.Collections;
-import com.sun.java.util.collections.Iterator;
-import com.sun.java.util.collections.Vector;
+import java.util.List;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Vector;
 
 /** The first, most straightforwd implementation of FeatureIndex
  */
