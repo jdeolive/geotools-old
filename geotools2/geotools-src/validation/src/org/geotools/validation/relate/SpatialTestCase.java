@@ -30,7 +30,6 @@ import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterFactory;
-import org.geotools.validation.RoadValidationResults;
 import org.geotools.validation.ValidationResults;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -45,17 +44,17 @@ import junit.framework.TestCase;
  * @author bowens<br>
  * Created Apr 29, 2004<br>
  * @version <br>
- * 
+ *
  * <b>Puropse:</b><br>
  * <p>
  * DOCUMENT ME!!
  * </p>
- * 
+ *
  * <b>Description:</b><br>
  * <p>
  * DOCUMENT ME!!
  * </p>
- * 
+ *
  * <b>Usage:</b><br>
  * <p>
  * DOCUMENT ME!!
@@ -71,10 +70,10 @@ public class SpatialTestCase extends TestCase
 	protected String namespace;
 	protected FilterFactory filterFactory;
 	protected Filter lineFilter;
-	
+
 	MemoryDataStore mds;		// assumes a consistant data type
 	ValidationResults vr;
-	
+
 	/**
 	 * Constructor for OverlapsIntegrityTest.
 	 * @param arg0
@@ -83,12 +82,12 @@ public class SpatialTestCase extends TestCase
 	{
 		super(arg0);
 	}
-		
+
 	/**
 	 * @see junit.framework.TestCase#setUp()
-	 * 
+	 *
 	 * <code><pre>
-	 * 
+	 *
 	 * 			 (0,2)				(2.6,2)
 	 * 			    x					x
 	 * 				 \  				|
@@ -104,16 +103,16 @@ public class SpatialTestCase extends TestCase
 	 * 				   |				|
 	 * 				   x				x
 	 * 				(1,-1)			  (2,-1)
-	 * 
+	 *
 	 * </pre></code>
 	 */
-	protected void setUp() throws Exception 
+	protected void setUp() throws Exception
 	{
 		gf = new GeometryFactory();
 		mds = new MemoryDataStore();
 		namespace = getName();
-		vr = new RoadValidationResults();
-		
+		vr = null; // new RoadValidationResults();
+
 		lineFeatures = new Feature[4];
 		ls0 = gf.createLineString(new Coordinate[]{	new Coordinate(0,0),
 													new Coordinate(2,0.1),
@@ -129,7 +128,7 @@ public class SpatialTestCase extends TestCase
 		ls3 = gf.createLineString(new Coordinate[]{	new Coordinate(3,0),
 													new Coordinate(4,0),
 													new Coordinate(5,0.1)} );
-		
+
 		lineType = DataUtilities.createType("my.line",
 											"id:0,geom:LineString,name:String");
 		lineFeatures[0] = lineType.create(new Object[] {
@@ -157,17 +156,17 @@ public class SpatialTestCase extends TestCase
 		lineBounds.expandToInclude( lineFeatures[1].getBounds() );
 		lineBounds.expandToInclude( lineFeatures[2].getBounds() );
 		lineBounds.expandToInclude( lineFeatures[3].getBounds() );
-		
+
 //		filterFactory = FilterFactory.createFilterFactory();
 //		BBoxExpression bbex = filterFactory.createBBoxExpression(lineBounds);
-		
+
 		mds.addFeature(lineFeatures[0]);
 		mds.addFeature(lineFeatures[1]);
 		mds.addFeature(lineFeatures[2]);
 		mds.addFeature(lineFeatures[3]);
 	}
-	
-	protected void tearDown() throws Exception 
+
+	protected void tearDown() throws Exception
 	{
 		gf = null;
 		lineType = null;
@@ -180,5 +179,5 @@ public class SpatialTestCase extends TestCase
 		namespace = null;
 		vr = null;
 	}
-		
+
 }
