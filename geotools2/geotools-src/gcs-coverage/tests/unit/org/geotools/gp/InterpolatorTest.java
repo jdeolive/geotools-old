@@ -58,7 +58,7 @@ import junit.framework.TestSuite;
  * will be performed on {@link Interpolator} objects instead of default
  * {@link GridCoverage}.
  *
- * @version $Id: InterpolatorTest.java,v 1.1 2002/07/27 22:10:30 desruisseaux Exp $
+ * @version $Id: InterpolatorTest.java,v 1.2 2002/08/09 11:13:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class InterpolatorTest extends GridCoverageTest {
@@ -72,6 +72,13 @@ public class InterpolatorTest extends GridCoverageTest {
      */
     public static Test suite() {
         return new TestSuite(InterpolatorTest.class);
+    }
+
+    /**
+     * Set up common objects used for all tests.
+     */
+    protected void setUp() throws Exception {
+        super.setUp();
     }
 
     /**
@@ -91,11 +98,12 @@ public class InterpolatorTest extends GridCoverageTest {
     }
 
     /**
-     * Set up common objects used for all tests.
+     * Apply an operation on the specified coverage, if wanted.
+     * The default implementation apply a set of interpolations
+     * on <code>coverage</code>.
      */
-    protected void setUp() throws Exception {
-        super.setUp();
-        coverage = Interpolator.create(coverage, interpolations);
+    protected GridCoverage transform(final GridCoverage coverage) {
+        return Interpolator.create(coverage, interpolations);
     }
 
     /**
@@ -104,10 +112,10 @@ public class InterpolatorTest extends GridCoverageTest {
      * a result without interpolation.
      */
     public void testGridCoverage() {
+        final GridCoverage coverage = getRandomCoverage();
         assertTrue(coverage instanceof Interpolator);
         assertTrue(coverage.geophysics(true)  instanceof Interpolator);
         assertTrue(coverage.geophysics(false) instanceof Interpolator);
-        super.testGridCoverage();
     }
 
     /**
@@ -115,7 +123,11 @@ public class InterpolatorTest extends GridCoverageTest {
      * to the average of the four pixels around.
      */
     public void testInterpolationAtEdges() {
-        final GridCoverage coverage = Interpolator.create(this.coverage.geophysics(true),
+        // Following constant is pixel size (in degrees).
+        // This constant must be identical to the one defined in 'getRandomCoverage()'
+        final double PIXEL_SIZE = 0.25;
+
+        final GridCoverage coverage = Interpolator.create(getRandomCoverage().geophysics(true),
               new Interpolation[] {Interpolation.getInstance(Interpolation.INTERP_BILINEAR)});
 
         final int  band = 0; // Band to test.

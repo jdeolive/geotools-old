@@ -55,7 +55,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link OperationJAI} implementation.
  *
- * @version $Id: OperationTest.java,v 1.2 2002/08/08 18:36:07 desruisseaux Exp $
+ * @version $Id: OperationTest.java,v 1.3 2002/08/09 11:13:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationTest extends GridCoverageTest {
@@ -81,6 +81,14 @@ public class OperationTest extends GridCoverageTest {
     }
 
     /**
+     * Basic test of {@link GridCoverage}.
+     */
+    public void testGridCoverage() {
+        // No test to do. It was already done by {@link GridCoverageTest}.
+        // We don't want to reload all tested image...
+    }
+
+    /**
      * Test a simple {@link OpenrationJAI}.
      */
     public void testOperationJAI() {
@@ -99,9 +107,10 @@ public class OperationTest extends GridCoverageTest {
      * Test the "Colormap" operation.
      */
     public void testColormap() {
-        final Operation operation = new ColormapOperation();
-        final ParameterList param = operation.getParameterList().setParameter("Source", coverage);
-        final GridCoverage result = operation.doOperation(param, null);
+        final Operation   operation = new ColormapOperation();
+        final GridCoverage coverage = getRandomCoverage();
+        final ParameterList   param = operation.getParameterList().setParameter("Source", coverage);
+        final GridCoverage   result = operation.doOperation(param, null);
         assertTrue(!Arrays.equals(getARGB(coverage), getARGB(result)));
         assertTrue(!coverage.geophysics(true) .equals(result.geophysics(true )));
         assertTrue(!coverage.geophysics(false).equals(result.geophysics(false)));
