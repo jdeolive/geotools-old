@@ -51,7 +51,7 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.6 2003/05/20 17:05:34 jmacgill Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.7 2003/05/23 18:00:08 crotwell Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -71,7 +71,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     if (url == null)
       throw new NullPointerException("Null URL for ShapefileDataSource");
     try {
-      filename = java.net.URLDecoder.decode(url.getFile(),"US-ASCII");
+      filename = java.net.URLDecoder.decode(url.toString(),"US-ASCII");
     } catch (java.io.UnsupportedEncodingException use) {
       throw new java.net.MalformedURLException(
       "Unable to decode " + url + " cause " + use.getMessage()
@@ -91,9 +91,9 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       shxext = ".SHX";
     }
     
-    shpURL = new URL(url, filename + shpext);
-    dbfURL = new URL(url, filename + dbfext);
-    shxURL = new URL(url, filename + shxext);
+    shpURL = new URL(filename + shpext);
+    dbfURL = new URL(filename + dbfext);
+    shxURL = new URL(filename + shxext);
   }
   
   public IDFactory getIDFactory() {
