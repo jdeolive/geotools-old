@@ -16,7 +16,7 @@ import com.vividsolutions.jts.geom.*;
 /** Reads and parses a GML file into a geometry collection
  *
  * @author ian
- * @version $Id: GMLReader.java,v 1.4 2002/03/09 17:54:50 ianturton Exp $
+ * @version $Id: GMLReader.java,v 1.5 2002/03/11 14:37:34 ianturton Exp $
  */
 public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     boolean stopped = false;
@@ -48,7 +48,7 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
         
     }
     /** Reads the inputstream
-     * @throws DataSourceException
+     * @throws DataSourceException if anything goes wrong
      * @return a geometry collection of the geometries read in
      */
     public GeometryCollection read()throws DataSourceException{
@@ -67,6 +67,11 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
         stopped=true;
     }
     /** called by parser when a new entity is found
+     * @param namespace the namespace of the element
+     * @param localName local name of the element
+     * @param qName Qualified name of the element
+     * @param atts attributes of the element
+     * @throws SAXException if anything goes wrong
      */
     public void startElement(String namespace, String localName, String qName, Attributes atts)
     throws SAXException{
@@ -96,6 +101,11 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     }
     /** called by parser when a charater string is found
      * at present we handle exactly two cases here either its a coordinate or an X,Y or Z inside a coord
+     * @param ch the character array which contains the string
+     * @param start where the string starts in ch
+     * @param length how long the string is
+     *
+     * @throws SAXException when something goes wrong
      */
     public void characters(char[] ch,int start, int length) throws SAXException{
         String s = new String(ch,start,length).trim();
@@ -116,6 +126,10 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
      * just finished, e.g. geometry, coordinates, etc.
      * then we need to remove the current handler from the top of the stack
      * we can then add the info retieved to the new head of the stack.
+     * @param namespace the namespace of the element
+     * @param localName local name of the element
+     * @param qName Qualified name of the element
+     * @throws SAXException when something goes wrong
      */
     public void endElement(String namespace,String localName, String qName) throws SAXException{
         

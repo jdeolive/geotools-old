@@ -22,7 +22,7 @@ public class GMLPolygonHandler extends org.geotools.gml.GMLHandler {
     }
     
     public Geometry finish(GeometryFactory gf) {
-        System.out.println("Building finished poly "+shell+" with "+holes.size()+" holes");
+        
         return gf.createPolygon(shell,(LinearRing[])holes.toArray(new LinearRing[0]));
         
     }

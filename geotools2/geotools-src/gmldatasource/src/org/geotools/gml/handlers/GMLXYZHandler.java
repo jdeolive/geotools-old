@@ -6,12 +6,15 @@
 
 package org.geotools.gml.handlers;
 import com.vividsolutions.jts.geom.*;
-/**
+/** superclass for X, Y and Z elements
  *
- * @author  ian
+ * @author ian
  */
 public abstract class GMLXYZHandler extends org.geotools.gml.GMLHandler {
 
+    /** convert string to value
+     * @param s string containing number
+     */    
     public abstract void parseText(String s);
     
     public Geometry finish(GeometryFactory gf) {
