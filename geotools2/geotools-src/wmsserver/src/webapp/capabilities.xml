@@ -18,10 +18,10 @@
   <ContactInformation>
     <ContactPersonPrimary>
       <ContactPerson>James Macgill</ContactPerson> 
-      <ContactOrganization>Leeds University</ContactOrganization> 
+      <ContactOrganization>PennState University</ContactOrganization> 
     </ContactPersonPrimary>
     <ContactPosition>Project Lead</ContactPosition> 
-    <ContactElectronicMailAddress>j.macgill@geography.leeds.ac.uk</ContactElectronicMailAddress> 
+    <ContactElectronicMailAddress>jmacgill@psu.edu</ContactElectronicMailAddress> 
   </ContactInformation>
 
   <Fees>none</Fees> 
