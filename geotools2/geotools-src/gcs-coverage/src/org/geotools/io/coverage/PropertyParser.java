@@ -94,10 +94,10 @@ import org.geotools.resources.gcs.ResourceKeys;
  * variety of ways to contruct OpenGIS's objects from <cite>key-value</cite> pairs, and
  * supporting them is not always straightforward. The <code>PropertyParser</code> class
  * try to make the work easier. It defines a set of format-neutral keys (i.e. keys not
- * related to any file format in particular). Before to parse a file, the mapping between
+ * related to any file format in particular). Before parsing a file, the mapping between
  * format-neutral keys and "real" keys used in a particuler file format <strong>must</strong>
  * be specified. This mapping is constructed with calls to {@link #addAlias}. For example,
- * one may wants to parse the following informations:
+ * one may want to parse the following informations:
  *
  * <blockquote><pre>
  * XMinimum           = 217904.31
@@ -130,7 +130,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * For example, the {@link #getCoordinateSystem} method constructs a {@link CoordinateSystem}
  * object using available informations. 
  *
- * @version $Id: PropertyParser.java,v 1.7 2002/08/26 16:26:13 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.8 2002/11/06 16:45:54 ianturton Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -557,7 +557,7 @@ public class PropertyParser {
      * @see #load(URL)
      * @see #parseLine
      */
-    private void load(final BufferedReader in) throws IOException {
+    protected void load(final BufferedReader in) throws IOException {
         final Set  previousComments = new HashSet();
         final StringBuffer comments = new StringBuffer();
         final String  lineSeparator = System.getProperty("line.separator", "\n");
@@ -1719,7 +1719,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.7 2002/08/26 16:26:13 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.8 2002/11/06 16:45:54 ianturton Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -1782,7 +1782,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.7 2002/08/26 16:26:13 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.8 2002/11/06 16:45:54 ianturton Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {
