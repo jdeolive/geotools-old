@@ -94,6 +94,14 @@
         <exclude>**/PostgisDataStoreTest.java</exclude>
       </excludes>
       <!-- End exclude tests -->
+       <resources>
+          <resource>
+              <directory>${basedir}/tests/unit</directory>
+              <includes>
+                  <include>**/*.properties</include>
+              </includes>
+          </resource>
+      </resources>
     </unitTest>
   </build>
 </project>
