@@ -39,7 +39,6 @@ gt2 geotools2/geotools-src/core \
     geotools2/geotools-src/shapefile \
     geotools2/geotools-src/mapinfo \
     geotools2/geotools-src/oracle \
-    #geotools2/geotools-src/vpf (pending Artur)
     geotools2/geotools-src/cts-coordtrans \
     geotools2/geotools-src/algorithms \
     geotools2/geotools-src/filter \
@@ -48,6 +47,5 @@ gt2 geotools2/geotools-src/core \
     geotools2/geotools-src/gcs-coverage \
     geotools2/geotools-src/lite-renderer \
     geotools2/geotools-src/resources 
+    #geotools2/geotools-src/vpf (pending Artur) 
     #geotools2/geotools-src/utils (pending James)
-
-
