@@ -151,7 +151,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
         }
 
         data = new PostgisDataStore(pool, "public", getName(),
-                PostgisDataStore.OPTIMIZE_SQL);
+                PostgisDataStore.OPTIMIZE_SAFE);
 
         //
         // Update Fixture to reflect the actual data in the database
