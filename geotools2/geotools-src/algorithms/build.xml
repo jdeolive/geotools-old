@@ -1,49 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [
+    <!ENTITY common SYSTEM "../gtbuild/common.xml">
+]>
+
 <project basedir="." default="all" name="algorithms">
-    <property file="build.ant.properties"/>
-    <target depends="test" name="all">
-        <!-- WRITEME -->
-    </target>
-    
-    <target name="compile">
-        <javac debug="true" srcdir="src">
-        <classpath>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\..\extbin\gtbuild\lib\"/>
-            </classpath>
-        </javac>
-    </target>
-    <target depends="compile" name="compile-tests">    
-        <javac debug="true" srcdir="tests/unit">
-            <classpath>
-                <path path="src"/>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\..\extbin\gtbuild\lib\"/>
-            </classpath>
-        </javac>
-    </target>
-    <target depends="compile-tests" name="test">
-        <junit fork="false" printsummary="true">
-        <formatter type="plain"/>
-        <classpath>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\..\extbin\gtbuild\lib\"/>
-                <path path="src/"/>
-                <path path="tests/unit/"/>
-            </classpath>
-            <test name="org.geotools.algorithms.AlgorithmsSuite"/>
-        </junit>
-    </target>
-    <target depends="test" name="release">
-        <mkdir dir="${releaseFolder}"/>
-        <jar basedir="src/" jarfile="${releaseFolder}/algorithms.jar"/>
-    </target>
-    <target name="buildTODOlist">
-        
-    </target>
-    <target name="clean">
-        <delete>
-            <fileset dir="src" includes="**/*.class"/>
-        </delete>
-    </target>
+    &common;
 </project>
