@@ -43,19 +43,20 @@ import com.vividsolutions.jts.geom.Envelope;
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: GMLDataSource.java,v 1.1 2003/07/23 21:44:23 dledmonds Exp $
+ * @version $Id: GMLDataSource.java,v 1.2 2003/07/26 15:28:36 dledmonds Exp $
  * @author Ian Turton, CCG
  */
-public class GMLDataSource extends XMLFilterImpl
-implements DataSource, GMLHandlerFeature {
+public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
+//implements DataSource { , GMLHandlerFeature {
 
     /**
      * The logger for the GML module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.data.gml");
     
+    // unused now ...
     /** Specifies the default parser (Xerces). */
-    private String defaultParser = "org.apache.xerces.parsers.SAXParser";
+    // private String defaultParser = "org.apache.xerces.parsers.SAXParser";
     
     /** Holds a URI for the GML data. */
     private URL url;
@@ -95,15 +96,15 @@ implements DataSource, GMLHandlerFeature {
         this.url = uri;
     }
     
+    // unused now ...
+    //public void setParser(String parser) {
+    //    this.defaultParser = parser;
+    //}
     
-    public void setParser(String parser) {
-        this.defaultParser = parser;
-    }
     
-    
-    public void feature(Feature feature) {
-        features.add(feature);
-    }
+//    public void feature(Feature feature) {
+//        features.add(feature);
+//    }
     
     
     
@@ -124,10 +125,11 @@ implements DataSource, GMLHandlerFeature {
      * @param collection The collection from which to add the features.
      * @throws DataSourceException If anything goes wrong or if exporting is
      * not supported.
+     * @throw UnsupportedOperationException
      * @task TODO: Implement addFeatures method
      */
-    public Set addFeatures(FeatureCollection collection) throws DataSourceException {
-         throw new DataSourceException("Removal of features is not yet supported by this datasource");
+    public Set addFeatures(FeatureCollection collection) throws DataSourceException, UnsupportedOperationException {
+         return super.addFeatures( collection );
     }
     
 
@@ -142,23 +144,26 @@ implements DataSource, GMLHandlerFeature {
      * expensive for the method to calculate.
      * @task TODO: implement quick bbox.  This will return slow no matter what.
      */
-    public Envelope getBounds() {
+    public Envelope getBounds() throws DataSourceException, UnsupportedOperationException {
             //scan whole file
-      try {
-        GMLFilterFeature featureFilter = new GMLFilterFeature(this);
-        GMLFilterGeometry geometryFilter = new GMLFilterGeometry(featureFilter);
-        GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
-        //XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
-        SAXParserFactory fac = SAXParserFactory.newInstance();
-        SAXParser parser = fac.newSAXParser();
+//      try {
+//        // GMLFilterFeature featureFilter = new GMLFilterFeature(this);
+//        GMLFilterFeature featureFilter = new GMLFilterFeature( new GMLReceiver( features ) );
+//        GMLFilterGeometry geometryFilter = new GMLFilterGeometry(featureFilter);
+//        GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
+//        //XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
+//        SAXParserFactory fac = SAXParserFactory.newInstance();
+//        SAXParser parser = fac.newSAXParser();
+//        
+//        ParserAdapter p = new ParserAdapter(parser.getParser());
+//        p.setContentHandler(documentFilter);
+//        p.parse(getInputSource());
+//      }
+//      catch (Exception e) {
+//        return null;
+//      }
+        parse();
         
-        ParserAdapter p = new ParserAdapter(parser.getParser());
-        p.setContentHandler(documentFilter);
-        p.parse(getInputSource());
-      }
-      catch (Exception e) {
-        return null;
-      }
 //      Envelope bbox = new Envelope();
 //      for ( int i = 0; i < features.size(); i++ ) {
 //        Envelope bbox2;
@@ -183,6 +188,9 @@ implements DataSource, GMLHandlerFeature {
         return fc;
     }
     
+    /**
+     *
+     */
     public FeatureCollection getFeatures(Query query) 
 	throws DataSourceException {
 	Filter filter = null;
@@ -192,6 +200,9 @@ implements DataSource, GMLHandlerFeature {
 	return getFeatures(filter);
     }
 
+    /**
+     *
+     */
     public void getFeatures(FeatureCollection collection, Query query)
 	throws DataSourceException {
 	Filter filter = null;
@@ -212,27 +223,29 @@ implements DataSource, GMLHandlerFeature {
     public void getFeatures(FeatureCollection collection, Filter filter) throws DataSourceException {
         // chains all the appropriate filters together (in correct order)
         //  and initiates parsing
-        try {
-            GMLFilterFeature featureFilter = new GMLFilterFeature(this);
-            GMLFilterGeometry geometryFilter = new GMLFilterGeometry(featureFilter);
-            GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
-            //XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
-            SAXParserFactory fac = SAXParserFactory.newInstance();
-            SAXParser parser = fac.newSAXParser();
-            
-            ParserAdapter p = new ParserAdapter(parser.getParser());
-            p.setContentHandler(documentFilter);
-            p.parse(getInputSource());
-        }
-        catch (IOException e) {
-            throw new DataSourceException("Error reading URI: " + url );
-        }
-        catch (SAXException e) {
-            throw new DataSourceException("Parsing error: " + e.getMessage());
-        }
-        catch (ParserConfigurationException e){
-            throw new DataSourceException("Parsing error: " + e.getMessage());
-        }
+//        try {
+//            //GMLFilterFeature featureFilter = new GMLFilterFeature(this);
+//            GMLFilterFeature featureFilter = new GMLFilterFeature( new GMLReceiver( features ) );
+//            GMLFilterGeometry geometryFilter = new GMLFilterGeometry(featureFilter);
+//            GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
+//            //XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
+//            SAXParserFactory fac = SAXParserFactory.newInstance();
+//            SAXParser parser = fac.newSAXParser();
+//            
+//            ParserAdapter p = new ParserAdapter(parser.getParser());
+//            p.setContentHandler(documentFilter);
+//            p.parse(getInputSource());
+//        }
+//        catch (IOException e) {
+//            throw new DataSourceException("Error reading URI: " + url );
+//        }
+//        catch (SAXException e) {
+//            throw new DataSourceException("Parsing error: " + e.getMessage());
+//        }
+//        catch (ParserConfigurationException e){
+//            throw new DataSourceException("Parsing error: " + e.getMessage());
+//        }
+        parse();
         
         FilteringIteration.filter(features,filter);
         collection.addAll(features);
@@ -252,9 +265,6 @@ implements DataSource, GMLHandlerFeature {
 //            typedFeatures[i] = (Feature) features.get(i);
 //        }
 //        collection.addFeatures(typedFeatures);
-        
-        
-        
     }
 
        /**
@@ -281,8 +291,8 @@ implements DataSource, GMLHandlerFeature {
      * the object type do not match the attribute type.
      * @task TODO: Implement support for modification of features (single attribute)
      */
-    public void modifyFeatures(AttributeType type, Object value, Filter filter) throws DataSourceException {
-        throw new DataSourceException("Modification of features is not yet supported by this datasource");
+    public void modifyFeatures(AttributeType type, Object value, Filter filter) throws DataSourceException, UnsupportedOperationException {
+        super.modifyFeatures( type, value, filter );
     }
     
     /** Modifies the passed attribute types with the passed objects in all
@@ -296,8 +306,8 @@ implements DataSource, GMLHandlerFeature {
      * types do not match the attribute types.
      * @task TODO: Implement support for modification of feature (multi attribute)
      */
-    public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter) throws DataSourceException {
-        throw new DataSourceException("Modification of features is not yet supported by this datasource");
+    public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter) throws DataSourceException, UnsupportedOperationException {
+        super.modifyFeatures( type, value, filter );
     }
     
     /** Removes all of the features specificed by the passed filter from the
@@ -308,10 +318,13 @@ implements DataSource, GMLHandlerFeature {
      * not supported.
      * @task TODO: Implement support for removal of features
      */
-    public void removeFeatures(Filter filter) throws DataSourceException {
-        throw new DataSourceException("Removal of features is not yet supported by this datasource");
+    public void removeFeatures(Filter filter) throws DataSourceException, UnsupportedOperationException {
+        super.removeFeatures( filter );
     }
     
+    /**
+     *
+     */
     private InputSource getInputSource() throws DataSourceException{
         InputStream in;
         try {
@@ -322,8 +335,36 @@ implements DataSource, GMLHandlerFeature {
         }
         return new InputSource(in);
     }
-        
 
+    /**
+     *
+     */
+    private void parse() throws DataSourceException {
+        try {
+            //GMLFilterFeature featureFilter = new GMLFilterFeature(this);
+            GMLFilterFeature featureFilter = new GMLFilterFeature( new GMLReceiver( features ) );
+            GMLFilterGeometry geometryFilter = new GMLFilterGeometry(featureFilter);
+            GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
+            //XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
+            SAXParserFactory fac = SAXParserFactory.newInstance();
+            SAXParser parser = fac.newSAXParser();
+            
+            ParserAdapter p = new ParserAdapter(parser.getParser());
+            p.setContentHandler(documentFilter);
+            p.parse(getInputSource());
+        }
+        catch (IOException e) {
+            throw new DataSourceException("Error reading URI: " + url );
+        }
+        catch (SAXException e) {
+            throw new DataSourceException("Parsing error: " + e.getMessage());
+        }
+        catch (ParserConfigurationException e){
+            throw new DataSourceException("Parsing error: " + e.getMessage());
+        }
+    }
+
+    
     /**************************************************
       Data source utility methods.
      **************************************************/
@@ -336,18 +377,33 @@ implements DataSource, GMLHandlerFeature {
      * @task REVISIT: way for datasource to change hasFastBbox after bbox is
      * calculated.
      */
-    public DataSourceMetaData getMetaData(){
-	return new DataSourceMetaData() {
-		public boolean supportsAdd(){ return false; }
-		public boolean supportsModify(){ return false; }
-		public boolean supportsRemove(){ return false; }
-		public boolean supportsRollbacks(){ return false; }
-		public boolean supportsSetFeatures(){return false;}
-		public boolean hasFastBbox(){return true;}
-		public boolean supportsAbort(){return false;}
-		public boolean supportsGetBbox(){return true;}
-	    };
+//    public DataSourceMetaData getMetaData(){
+//	return new DataSourceMetaData() {
+//		public boolean supportsAdd(){ return false; }
+//		public boolean supportsModify(){ return false; }
+//		public boolean supportsRemove(){ return false; }
+//		public boolean supportsRollbacks(){ return false; }
+//		public boolean supportsSetFeatures(){return false;}
+//		public boolean hasFastBbox(){return true;}
+//		public boolean supportsAbort(){return false;}
+//		public boolean supportsGetBbox(){return true;}
+//	    };
+//    }
+    
+    /**
+     * Creates the a metaData object.
+     *
+     * @return the metadata for this datasource.
+     *
+     * @see #MetaDataSupport
+     */
+    protected DataSourceMetaData createMetaData() {
+        MetaDataSupport metaData = new MetaDataSupport();
+        metaData.setSupportsGetBbox( true );
+        
+        return metaData;
     }
+
 	    
     /**
      * Deletes the all the current Features of this datasource and adds the
@@ -355,17 +411,20 @@ implements DataSource, GMLHandlerFeature {
      * datasources.  
      * @param collection - the collection to be written
      */
-    public void setFeatures(FeatureCollection collection) throws DataSourceException{
-	throw new DataSourceException("set feature not supported");
+    public void setFeatures(FeatureCollection collection) throws DataSourceException, UnsupportedOperationException {
+	super.setFeatures( collection );
     }
 
     /**
      * Retrieves the featureType that features extracted from this datasource
      * will be created with.
+     *
+     * @throws DataSourceException if there are any problems getting the
+     *         schema.
      * @tasks TODO: implement this, as all datasources _should_ have this 
      * method.
      */
-    public FeatureType getSchema(){
+    public FeatureType getSchema() throws DataSourceException {
 	return null;
     }
 
@@ -408,9 +467,7 @@ implements DataSource, GMLHandlerFeature {
      */
     public void rollback()
         throws DataSourceException, UnsupportedOperationException {
-	throw new UnsupportedOperationException("This datasource does not" +
-                " support rollbacks");
-        
+	super.rollback();
     }
 
     /**
@@ -432,9 +489,7 @@ implements DataSource, GMLHandlerFeature {
     public void setAutoCommit(boolean autoCommit)
         throws DataSourceException, UnsupportedOperationException {
 	
-	throw new UnsupportedOperationException("This datasource does not" +
-                " support rollbacks");
-        
+	super.setAutoCommit( autoCommit );
     }
 
     /**
@@ -456,4 +511,3 @@ implements DataSource, GMLHandlerFeature {
     
     
 }
-
