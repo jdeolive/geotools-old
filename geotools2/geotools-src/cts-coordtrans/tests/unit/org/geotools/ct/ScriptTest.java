@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.cs;
+package org.geotools.ct;
 
 // Text parsing and formating
 import java.text.ParsePosition;
@@ -80,7 +80,7 @@ import org.geotools.resources.Arguments;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: ScriptTest.java,v 1.7 2003/08/04 13:53:16 desruisseaux Exp $
+ * @version $Id: ScriptTest.java,v 1.1 2003/08/04 22:14:29 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
