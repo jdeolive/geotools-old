@@ -69,7 +69,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * See {@link java.lang.Comparable}, {@link java.util.SortedMap} or
  * {@link java.util.SortedSet} for more information.
  *
- * @version $Id: AxisOrientation.java,v 1.4 2002/07/28 21:41:31 desruisseaux Exp $
+ * @version $Id: AxisOrientation.java,v 1.5 2002/07/29 18:00:24 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -214,7 +214,8 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
      * @return The enum for the specified name.
      * @throws NoSuchElementException if there is no enum for the specified name.
      */
-    public static AxisOrientation getEnum(final String name) {
+    public static AxisOrientation getEnum(String name) {
+        name = name.trim();
         for (int i=0; i<ENUMS.length; i++) {
             final AxisOrientation candidate = ENUMS[i];
             if (name.equalsIgnoreCase(candidate.getName())) {
@@ -233,7 +234,8 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
      * @return The enum for the specified localized name.
      * @throws NoSuchElementException if there is no enum for the specified name.
      */
-    public static AxisOrientation getEnum(final String name, final Locale locale) {
+    public static AxisOrientation getEnum(String name, final Locale locale) {
+        name = name.trim();
         final Resources resources = Resources.getResources(locale);
         for (int i=0; i<ENUMS.length; i++) {
             final AxisOrientation candidate = ENUMS[i];

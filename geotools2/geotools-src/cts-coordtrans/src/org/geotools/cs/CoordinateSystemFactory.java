@@ -90,7 +90,7 @@ import javax.media.jai.ParameterListImpl;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.4 2002/07/11 23:56:38 desruisseaux Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.5 2002/07/29 18:00:24 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -684,11 +684,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createCompoundCoordinateSystem(
                         name, adapters.wrap(head), adapters.wrap(tail)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -719,11 +715,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createLocalCoordinateSystem(
                         name, adapters.wrap(datum), adapters.wrap(unit), adapters.wrap(arAxes)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -740,11 +732,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createEllipsoid(
                         name, semiMajorAxis, semiMinorAxis, adapters.wrap(linearUnit)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -761,11 +749,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createFlattenedSphere(
                         name, semiMajorAxis, inverseFlattening, adapters.wrap(linearUnit)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -786,11 +770,7 @@ public class CoordinateSystemFactory {
                         name, adapters.wrap(gcs), adapters.wrap(projection), adapters.wrap(linearUnit),
                         adapters.wrap(axis0), adapters.wrap(axis1)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -806,11 +786,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createProjection(
                         name, wktProjectionClass, adapters.wrap(parameters)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -828,11 +804,7 @@ public class CoordinateSystemFactory {
                         name, (DatumType.Horizontal)adapters.wrap(horizontalDatumType),
                         adapters.wrap(ellipsoid), adapters.wrap(toWGS84)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -848,11 +820,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createPrimeMeridian(
                         name, adapters.wrap(angularUnit), longitude));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -871,11 +839,7 @@ public class CoordinateSystemFactory {
             try {
                 return adapters.export(CoordinateSystemFactory.this.createGeographicCoordinateSystem(name, adapters.wrap(angularUnit), adapters.wrap(horizontalDatum), adapters.wrap(primeMeridian), adapters.wrap(axis0), adapters.wrap(axis1)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -890,11 +854,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createLocalDatum(
                         name, (DatumType.Local)adapters.wrap(localDatumType)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -909,11 +869,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createVerticalDatum(
                         name, (DatumType.Vertical)adapters.wrap(verticalDatumType)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
         }
         
@@ -932,12 +888,19 @@ public class CoordinateSystemFactory {
                         name, adapters.wrap(verticalDatum),
                         adapters.wrap(verticalUnit), adapters.wrap(axis)));
             } catch (FactoryException exception) {
-                final Throwable cause = exception.getCause();
-                if (cause instanceof RemoteException) {
-                    throw (RemoteException) cause;
-                }
-                throw new ServerException(exception.getLocalizedMessage(), exception);
+                throw serverException(exception);
             }
+        }
+
+        /**
+         * Wrap a {@link FactoryException} into a {@link RemoteException}.
+         */
+        private RemoteException serverException(final FactoryException exception) {
+            final Throwable cause = exception.getCause();
+            if (cause instanceof RemoteException) {
+                return (RemoteException) cause;
+            }
+            return new ServerException("Can't create object", exception);
         }
     }
 }

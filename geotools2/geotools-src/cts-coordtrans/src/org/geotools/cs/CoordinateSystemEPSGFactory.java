@@ -74,7 +74,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <A HREF="http://www.epsg.org">http://www.epsg.org</a>. Current
  * version of this class requires EPSG database version 6.1.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.1 2002/07/28 21:41:31 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.2 2002/07/29 18:00:24 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -156,12 +156,10 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * factory backed by the EPSG database.
      *
      * @return The default factory.
-     * @throws SQLException if the connection to the database can't
-     *         be etablished.
+     * @throws SQLException if the connection to the database can't be etablished.
      */
-    public synchronized static CoordinateSystemAuthorityFactory getDefault() throws SQLException
-    {
-        if (DEFAULT==null) {
+    public synchronized static CoordinateSystemAuthorityFactory getDefault() throws SQLException {
+        if (DEFAULT == null) {
             final String url    = "jdbc:odbc:EPSG";
             final String driver = "sun.jdbc.odbc.JdbcOdbcDriver";
             // TODO: In a future version, we should fetch the
@@ -518,7 +516,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                  * Now that we have built an unit, scale it and
                  * compare it with the previous one (if any).
                  */
-                if(b!=0 && c!=0) {
+                if (b!=0 && c!=0) {
                     unit = unit.scale(b/c);
                 }
                 returnValue = (Unit) ensureSingleton(unit, returnValue, code);
@@ -601,7 +599,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      *
      * @task TODO:    Datum "engineering" is currently not supported.
      */
-    private Datum createDatum(final String code) throws FactoryException {
+    public Datum createDatum(final String code) throws FactoryException {
         Datum returnValue = null;
         try {
             final PreparedStatement stmt;
@@ -617,10 +615,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
              * should find only one record.   However, we will do a
              * paranoiac check and verify if there is more records.
              */
-            while (result.next())
-            {
+            while (result.next()) {
                 final String name = getString(result, 1);
-                final String type = getString(result, 2); // On recupere le type.
+                final String type = getString(result, 2);
                 final Datum datum;
                 if (type.equalsIgnoreCase("vertical")) {
                     /*
@@ -693,8 +690,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             final ResultSet result = stmt.executeQuery();
             while (result.next()) {
                 final WGS84ConversionInfo info = new WGS84ConversionInfo();
-                final Parameter[] parameterList = getParameter(getString(result, 1));
-                if ((parameterList != null) && (parameterList.length != 0)) {
+                final Parameter[] param = getParameter(getString(result, 1));
+                if ((param != null) && (param.length != 0)) {
                     String method_op_code = getString(result, 3);
                     // Value could be something else, but I don't know what to do when
                     // it is the case (for example 9618, with a radian Unit).
@@ -704,17 +701,17 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                         info.areaOfUse = result.getString(2);
 
                         // Then we get the coordinates. For each one we convert the unit in meter
-                        info.dx = Unit.METRE.convert(parameterList[0].value, parameterList[0].unit);
-                        info.dy = Unit.METRE.convert(parameterList[1].value, parameterList[1].unit);
-                        info.dz = Unit.METRE.convert(parameterList[2].value, parameterList[2].unit);
+                        info.dx = Unit.METRE.convert(param[0].value, param[0].unit);
+                        info.dy = Unit.METRE.convert(param[1].value, param[1].unit);
+                        info.dz = Unit.METRE.convert(param[2].value, param[2].unit);
 
                         if (getString(result, 3).equals("9606")) {
                             // Here we know that the database provides four more informations
                             // for WGS84 conversion : ex, ey, ez and ppm
-                            info.ex  = Unit.ARC_SECOND.convert(parameterList[3].value, parameterList[3].unit);
-                            info.ey  = Unit.ARC_SECOND.convert(parameterList[4].value, parameterList[4].unit);
-                            info.ez  = Unit.ARC_SECOND.convert(parameterList[5].value, parameterList[5].unit);
-                            info.ppm = parameterList[6].value; // This one is in parts per million, no conversion needed
+                            info.ex  = Unit.ARC_SECOND.convert(param[3].value, param[3].unit);
+                            info.ey  = Unit.ARC_SECOND.convert(param[4].value, param[4].unit);
+                            info.ez  = Unit.ARC_SECOND.convert(param[5].value, param[5].unit);
+                            info.ppm = param[6].value; // Parts per million, no conversion needed
                         }
                         list.add(info);
                     }
@@ -793,14 +790,16 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
              * paranoiac check and verify if there is more records.
              */
             while (result.next()) {
+                final int        dimension = getInt   (result, 1);
                 final String  coordSysCode = getString(result, 2);
-                final AxisInfo[] axisInfos = getAxisInfo(coordSysCode, getInt(result, 1));
-
+                final String          name = getString(result, 3);
+                final String primeMeridian = getString(result, 4);
+                final String         datum = getString(result, 5);
+                final AxisInfo[] axisInfos = getAxisInfo(coordSysCode, dimension);
                 final CoordinateSystem coordSys;
-                coordSys = factory.createGeographicCoordinateSystem(getString(result, 3),
-                                            getUnit(coordSysCode),
-                                            (HorizontalDatum) createDatum(getString(result, 5)),
-                                            createPrimeMeridian(getString(result, 4)),
+                coordSys = factory.createGeographicCoordinateSystem(name,createUnit2D(coordSysCode),
+                                            (HorizontalDatum) createDatum(datum),
+                                            createPrimeMeridian(primeMeridian),
                                             axisInfos[0], axisInfos[1]);
                 returnValue = (GeographicCoordinateSystem) ensureSingleton(coordSys, returnValue, code);
             }
@@ -808,56 +807,6 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         } catch (SQLException exception) {
             throw new FactoryException(code, exception);
         } if (returnValue==null) {
-             throw new NoSuchAuthorityCodeException(code);
-        }
-        return returnValue;
-    }
-    
-    /**
-     * Returns a vertical coordinate system from an EPSG code.
-     *
-     * @param  code Value allocated by authority.
-     * @return The vertical coordinate system object.
-     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
-     * @throws FactoryException if some other kind of failure occured in the backing
-     *         store. This exception usually have {@link SQLException} as its cause.
-     */
-    public synchronized VerticalCoordinateSystem createVerticalCoordinateSystem(final String code)
-            throws FactoryException
-    {
-        VerticalCoordinateSystem returnValue = null;
-        try {
-            final PreparedStatement stmt;
-            stmt = prepareStatement("VerticalCoordinateSystem", "select DIMENSION,"
-                                               + " cs.COORD_SYS_CODE,"
-                                               + " COORD_REF_SYS_NAME,"
-                                               + " DATUM_CODE"
-                                               + " from Coordinate_Reference_System AS crs,"
-                                               + " Coordinate_System AS cs"
-                                               + " where COORD_REF_SYS_CODE = ?"
-                                               + " and cs.COORD_SYS_CODE = crs.COORD_SYS_CODE");
-            stmt.setString(1, code);
-            final ResultSet result = stmt.executeQuery();
-            /*
-             * If the supplied code exists in the database, then we
-             * should find only one record.   However, we will do a
-             * paranoiac check and verify if there is more records.
-             */
-            while (result.next()) {
-                final String  coordSysCode = getString(result, 2);
-                final AxisInfo[] axisInfos = getAxisInfo(coordSysCode, getInt(result, 1));
-                
-                final CoordinateSystem  coordSys;
-                coordSys = factory.createVerticalCoordinateSystem( (getString(result, 3)),
-                                        (VerticalDatum) createDatum(getString(result, 4)),
-                                        getUnit(coordSysCode), axisInfos[0]);
-                returnValue = (VerticalCoordinateSystem) ensureSingleton(coordSys, returnValue, code);
-            }
-            result.close();
-        } catch (SQLException exception) {
-            throw new FactoryException(code, exception);
-        }
-        if (returnValue==null) {
              throw new NoSuchAuthorityCodeException(code);
         }
         return returnValue;
@@ -901,27 +850,32 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
              * paranoiac check and verify if there is more records.
              */
             while (result.next()) {
-                String coordSysCode = getString(result, 2);
-                final AxisInfo[] axisInfos = getAxisInfo(coordSysCode, getInt(result, 1));
-                final String name            =              (getString(result, 5));
-                final String classification  = fromEPSGtoOGC(getString(result, 6));
+                final int          dimension =               getInt   (result, 1);
+                final String    coordSysCode =               getString(result, 2);
+                final String            name =               getString(result, 3);
+                final String     geoCoordSys =               getString(result, 4);
+                final String   operationName =               getString(result, 5);
+                final String  classification = fromEPSGtoOGC(getString(result, 6));
                 final Parameter[] parameters = getParameter (getString(result, 7));
+                final AxisInfo[]   axisInfos = getAxisInfo(coordSysCode, dimension);
                 final ParameterList list = factory.createProjectionParameterList(classification);
                 for (int i=0; i<parameters.length; i++) {
                     list.setParameter(parameters[i].name, parameters[i].value);
                 }
                 final GeographicCoordinateSystem gcs;
-                gcs = (GeographicCoordinateSystem) createCoordinateSystem(getString(result, 4));
-                final Ellipsoid ellipsoid = gcs.getHorizontalDatum().getEllipsoid();
-                if (ellipsoid != null) {
-                    final Unit axisUnit = ellipsoid.getAxisUnit();
-                    list.setParameter("semi_major", Unit.METRE.convert(ellipsoid.getSemiMajorAxis(), axisUnit));
-                    list.setParameter("semi_minor", Unit.METRE.convert(ellipsoid.getSemiMinorAxis(), axisUnit));
+                gcs = (GeographicCoordinateSystem) createCoordinateSystem(geoCoordSys);
+                final Ellipsoid e = gcs.getHorizontalDatum().getEllipsoid();
+                if (e != null) {
+                    final Unit unit = e.getAxisUnit();
+                    list.setParameter("semi_major", Unit.METRE.convert(e.getSemiMajorAxis(), unit));
+                    list.setParameter("semi_minor", Unit.METRE.convert(e.getSemiMinorAxis(), unit));
                 }
-                final Projection projection = factory.createProjection(name, classification, list);
-                final Unit unit = getUnit(coordSysCode);
+                final Projection projection = factory.createProjection(operationName,
+                                                                       classification, list);
+                final Unit unit = createUnit2D(coordSysCode);
                 final CoordinateSystem coordSys;
-                coordSys = factory.createProjectedCoordinateSystem(getString(result, 3), gcs, projection, unit, axisInfos[0], axisInfos[1]);
+                coordSys = factory.createProjectedCoordinateSystem(name, gcs, projection, unit,
+                                                                   axisInfos[0], axisInfos[1]);
                 returnValue = (CoordinateSystem) ensureSingleton(coordSys, returnValue, code);
             }
             result.close();
@@ -935,25 +889,50 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     }
     
     /**
-     * Return the type of a coordinate reference system.
+     * Returns a vertical coordinate system from an EPSG code.
      *
-     * @param the EPSG code of the system.
-     * @return The string that gives the type of the system.
-     * @throws SQLException if an error occured during database access.
-     * @throws FactoryException if the code has not been found.
+     * @param  code Value allocated by authority.
+     * @return The vertical coordinate system object.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occured in the backing
+     *         store. This exception usually have {@link SQLException} as its cause.
      */
-    private String getCoordinateSystemType(final String code) throws SQLException, FactoryException
+    public synchronized VerticalCoordinateSystem createVerticalCoordinateSystem(final String code)
+            throws FactoryException
     {
-        String returnValue = null;
-        final PreparedStatement stmt;
-        stmt = prepareStatement("CoordinateSystemType", "select COORD_REF_SYS_KIND"
-                                                        + " from Coordinate_Reference_System"
-                                                        + " where COORD_REF_SYS_CODE = ?");
-        stmt.setString(1, code);
-        final ResultSet result = stmt.executeQuery();
-        while (result.next()) {
-            final String type = getString(result, 1);
-            returnValue = (String) ensureSingleton(type, returnValue, code);
+        VerticalCoordinateSystem returnValue = null;
+        try {
+            final PreparedStatement stmt;
+            stmt = prepareStatement("VerticalCoordinateSystem", "select DIMENSION,"
+                                               + " cs.COORD_SYS_CODE,"
+                                               + " COORD_REF_SYS_NAME,"
+                                               + " DATUM_CODE"
+                                               + " from Coordinate_Reference_System AS crs,"
+                                               + " Coordinate_System AS cs"
+                                               + " where COORD_REF_SYS_CODE = ?"
+                                               + " and cs.COORD_SYS_CODE = crs.COORD_SYS_CODE");
+            stmt.setString(1, code);
+            final ResultSet result = stmt.executeQuery();
+            /*
+             * If the supplied code exists in the database, then we
+             * should find only one record.   However, we will do a
+             * paranoiac check and verify if there is more records.
+             */
+            while (result.next()) {
+                final int        dimension = getInt   (result, 1);
+                final String  coordSysCode = getString(result, 2);
+                final String          name = getString(result, 3);
+                final String         datum = getString(result, 4);
+                final AxisInfo[] axisInfos = getAxisInfo(coordSysCode, dimension);
+                final CoordinateSystem  coordSys;
+                coordSys = factory.createVerticalCoordinateSystem(name,
+                                        (VerticalDatum) createDatum(datum),
+                                        createUnit2D(coordSysCode), axisInfos[0]);
+                returnValue = (VerticalCoordinateSystem)ensureSingleton(coordSys,returnValue,code);
+            }
+            result.close();
+        } catch (SQLException exception) {
+            throw new FactoryException(code, exception);
         }
         if (returnValue==null) {
              throw new NoSuchAuthorityCodeException(code);
@@ -985,11 +964,12 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             stmt.setString(1, code);
             final ResultSet result = stmt.executeQuery();
             while (result.next()) {
-                if (!getString(result, 2).equalsIgnoreCase("compound")) {
+                final String name = getString(result, 1);
+                final String type = getString(result, 2);
+                if (!type.equalsIgnoreCase("compound")) {
                     throw new FactoryException(Resources.format(
                                                ResourceKeys.ERROR_UNKNOW_TYPE_$1, code));
                 }
-                final String            name = getString(result, 1);
                 final CoordinateSystem  cs1 = createCoordinateSystem(getString(result, 3));
                 final CoordinateSystem  cs2 = createCoordinateSystem(getString(result, 4));
                 CompoundCoordinateSystem cs = factory.createCompoundCoordinateSystem(name, cs1,cs2);
@@ -1004,6 +984,33 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
              throw new NoSuchAuthorityCodeException(code);
         }
         return returnValue; 
+    }
+    
+    /**
+     * Return the type of a coordinate reference system.
+     *
+     * @param the EPSG code of the system.
+     * @return The string that gives the type of the system.
+     * @throws SQLException if an error occured during database access.
+     * @throws FactoryException if the code has not been found.
+     */
+    private String getCoordinateSystemType(final String code) throws SQLException, FactoryException
+    {
+        String returnValue = null;
+        final PreparedStatement stmt;
+        stmt = prepareStatement("CoordinateSystemType", "select COORD_REF_SYS_KIND"
+                                                        + " from Coordinate_Reference_System"
+                                                        + " where COORD_REF_SYS_CODE = ?");
+        stmt.setString(1, code);
+        final ResultSet result = stmt.executeQuery();
+        while (result.next()) {
+            final String type = getString(result, 1);
+            returnValue = (String) ensureSingleton(type, returnValue, code);
+        }
+        if (returnValue==null) {
+             throw new NoSuchAuthorityCodeException(code);
+        }
+        return returnValue;
     }
     
     /**
@@ -1066,14 +1073,14 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * @throws SQLException if an error occured during database access.
      * @throws FactoryException if some other errors has occured.
      */
-    private Unit getUnit(String code) throws SQLException, FactoryException
+    private Unit createUnit2D(String code) throws SQLException, FactoryException
     {
         Unit returnValue = null;
         final PreparedStatement stmt;
         // Note: can't use "Unit" key, because it is already used by "createUnit".
-        stmt = prepareStatement("getUnit", "select UOM_CODE"
-                                           + " from Coordinate_Axis AS ca"
-                                           + " where COORD_SYS_CODE = ?");
+        stmt = prepareStatement("Unit2D", "select UOM_CODE"
+                                          + " from Coordinate_Axis AS ca"
+                                          + " where COORD_SYS_CODE = ?");
         stmt.setString(1, code);
         final ResultSet result = stmt.executeQuery();
         while (result.next()) {
@@ -1086,15 +1093,28 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         }
         return returnValue;
     }
-    
+
     /**
      * Close the database connection and dispose any resources
      * hold by this object.
      *
-     * @throws SQLException if an error occured while closing
-     *         the connection.
+     * @throws FactoryException if an error occured while closing the connection.
      */
-    public synchronized void close() throws SQLException {
+    public void dispose() throws FactoryException {
+        try {
+            close();
+        } catch (SQLException exception) {
+            throw new FactoryException(null, exception);
+        }
+    }
+
+    /**
+     * Close the database connection and dispose any resources
+     * hold by this object.
+     *
+     * @throws SQLException if an error occured while closing the connection.
+     */
+    private synchronized void close() throws SQLException {
         for (final Iterator it=statements.values().iterator(); it.hasNext();) {
             final PreparedStatement stmt = (PreparedStatement) it.next();
             stmt.close();
@@ -1111,24 +1131,23 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * @throws SQLException if an error occured during database access.
      * @throws FactoryException if some other errors has occured.
      */
-    private Parameter[] getParameter(final String op_code) throws SQLException, FactoryException
-    {
+    private Parameter[] getParameter(final String op_code) throws SQLException, FactoryException {
         final List list = new ArrayList();
         final PreparedStatement stmt;
         stmt = prepareStatement("Parameter", "select copu.PARAMETER_CODE,"
-                                           + " cop.PARAMETER_NAME,"
-                                           + " copv.PARAMETER_VALUE,"
-                                           + " copv.UOM_CODE"
-                                           + " from Coordinate_Operation_Parameter_Usage AS copu,"
-                                           + " Coordinate_Operation AS co,"
-                                           + " Coordinate_Operation_Parameter AS cop,"
-                                           + " Coordinate_Operation_Parameter_Value AS copv"
-                                           + " where co.COORD_OP_CODE = ?"
-                                           + " and co.COORD_OP_METHOD_CODE = copu.COORD_OP_METHOD_CODE"
-                                           + " and cop.PARAMETER_CODE = copu.PARAMETER_CODE"
-                                           + " and copv.PARAMETER_CODE = copu.PARAMETER_CODE"
-                                           + " and copv.COORD_OP_CODE = ?"
-                                           + " order by copu.SORT_ORDER");
+                                       + " cop.PARAMETER_NAME,"
+                                       + " copv.PARAMETER_VALUE,"
+                                       + " copv.UOM_CODE"
+                                       + " from Coordinate_Operation_Parameter_Usage AS copu,"
+                                       + " Coordinate_Operation AS co,"
+                                       + " Coordinate_Operation_Parameter AS cop,"
+                                       + " Coordinate_Operation_Parameter_Value AS copv"
+                                       + " where co.COORD_OP_CODE = ?"
+                                       + " and co.COORD_OP_METHOD_CODE = copu.COORD_OP_METHOD_CODE"
+                                       + " and cop.PARAMETER_CODE = copu.PARAMETER_CODE"
+                                       + " and copv.PARAMETER_CODE = copu.PARAMETER_CODE"
+                                       + " and copv.COORD_OP_CODE = ?"
+                                       + " order by copu.SORT_ORDER");
         stmt.setString(1, op_code);
         stmt.setString(2, op_code);
         final ResultSet result = stmt.executeQuery();

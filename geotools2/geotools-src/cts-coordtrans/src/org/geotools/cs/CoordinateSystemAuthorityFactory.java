@@ -36,10 +36,25 @@
 package org.geotools.cs;
 
 // J2SE dependencies
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.io.IOException;   // For JavaDoc
+import java.rmi.server.RemoteObject;
+import java.rmi.ServerException;
+import java.rmi.RemoteException;
 import java.sql.SQLException; // For JavaDoc
+import java.io.IOException;   // For JavaDoc
+
+// OpenGIS dependencies
+import org.opengis.cs.CS_Ellipsoid;
+import org.opengis.cs.CS_LinearUnit;
+import org.opengis.cs.CS_AngularUnit;
+import org.opengis.cs.CS_PrimeMeridian;
+import org.opengis.cs.CS_VerticalDatum;
+import org.opengis.cs.CS_HorizontalDatum;
+import org.opengis.cs.CS_VerticalCoordinateSystem;
+import org.opengis.cs.CS_HorizontalCoordinateSystem;
+import org.opengis.cs.CS_GeographicCoordinateSystem;
+import org.opengis.cs.CS_ProjectedCoordinateSystem;
+import org.opengis.cs.CS_CompoundCoordinateSystem;
+import org.opengis.cs.CS_CoordinateSystemAuthorityFactory;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
@@ -51,7 +66,7 @@ import org.geotools.units.Unit;
  * A commonly used authority is EPSG, which is also
  * used in the GeoTIFF standard.
  *
- * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.3 2002/06/26 17:29:23 desruisseaux Exp $
+ * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.4 2002/07/29 18:00:24 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -80,72 +95,430 @@ public abstract class CoordinateSystemAuthorityFactory {
     public abstract String getAuthority();
     
     /**
-     * Returns an {@link Ellipsoid} object from a code.
-     *
-     * @param  code Value allocated by authority.
-     * @return The ellipsoid object.
-     * @throws NoSuchAuthorityCodeException if this method can't find the
-     *         requested code.
-     * @throws FactoryException if some other kind of failure occurred in
-     *         the backing store. Most common failure causes include
-     *         {@link java.sql.SQLException} or {@link java.io.IOException}.
-     *
-     * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createEllipsoid
-     */
-    public Ellipsoid createEllipsoid(final String code) throws FactoryException {
-        throw new NoSuchAuthorityCodeException(code);
-    }
-    
-    /**
      * Returns a {@link Unit} object from a code.
      *
      * @param  code Value allocated by authority.
-     * @return The unit object.
-     * @throws NoSuchAuthorityCodeException if this method can't find the
-     *         requested code.
-     * @throws FactoryException if some other kind of failure occurred in
-     *         the backing store. Most common failure causes include
-     *         {@link java.sql.SQLException} or {@link java.io.IOException}.
+     * @return The unit.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
      *
      * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createLinearUnit
      * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createAngularUnit
      */
-    public Unit createUnit(final String code) throws FactoryException {
-        throw new NoSuchAuthorityCodeException(code);
+    public abstract Unit createUnit(String code) throws FactoryException;
+    
+    /**
+     * Returns an {@link Ellipsoid} object from a code.
+     *
+     * @param  code Value allocated by authority.
+     * @return The ellipsoid.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createEllipsoid
+     */
+    public abstract Ellipsoid createEllipsoid(String code) throws FactoryException;
+    
+    /**
+     * Returns a {@link PrimeMeridian} object from a code.
+     *
+     * @param  code Value allocated by authority.
+     * @return The prime meridian.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createPrimeMeridian
+     */
+    public abstract PrimeMeridian createPrimeMeridian(String code) throws FactoryException;
+    
+    /**
+     * Returns a {@link Datum} object from a code.
+     *
+     * @param  code Value allocated by authority.
+     * @return The datum.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see #createHorizontalDatum
+     * @see #createVerticalDatum
+     */
+    public abstract Datum createDatum(String code) throws FactoryException;
+    
+    /**
+     * Returns a {@link HorizontalDatum} object from a code.
+     * The default implementation invokes {@link #createDatum}.
+     *
+     * @param  code Value allocated by authority.
+     * @return The horizontal datum.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createHorizontalDatum
+     */
+    public HorizontalDatum createHorizontalDatum(String code) throws FactoryException {
+        final Datum datum = createDatum(code);
+        if (datum instanceof HorizontalDatum) {
+            return (HorizontalDatum) datum;
+        }
+        throw new NoSuchAuthorityCodeException("HorizontalDatum", code);
     }
     
     /**
-     * Sets the properties for an {@link Info} object. This method
-     * should be invoked from all <code>create*</code> methods.
+     * Returns a {@link VerticalDatum} object from a code.
+     * The default implementation invokes {@link #createDatum}.
      *
-     * @param info         The {@link Info} object to set properties.
-     * @param code         The authority code (must not be <code>null</code>).
-     * @param alias        The alias, or <code>null</code> if none.
-     * @param abbreviation The abbreviation, or <code>null</code> if none.
-     * @param remarks      The remarks, or <code>null</code> if none.
+     * @param  code Value allocated by authority.
+     * @return The vertical datum.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createVerticalDatum
      */
-    final void setProperties(final Info   info,
-                             final String code,
-                             final String alias,
-                             final String abbreviation,
-                             final String remarks)
-    {
-        Info.ensureNonNull("code", code);
-        final Map properties = null;  // TODO: Fetch the properties from the Info object.
-        if (properties!=null) {
-            return; // TODO
+    public VerticalDatum createVerticalDatum(String code) throws FactoryException {
+        final Datum datum = createDatum(code);
+        if (datum instanceof VerticalDatum) {
+            return (VerticalDatum) datum;
         }
-        properties.put("authority", getAuthority());
-        properties.put("code", code);
-        if (alias!=null) {
-            properties.put("alias", alias);
-        }
-        if (abbreviation!=null) {
-            properties.put("abbreviation", abbreviation);
-        }
-        if (remarks!=null) {
-            properties.put("remarks", remarks);
-        }
-        // TODO: Implementation is not finished.
+        throw new NoSuchAuthorityCodeException("VerticalDatum", code);
     }
+    
+    /**
+     * Returns a {@link CoordinateSystem} object from a code.
+     *
+     * @param  code Value allocated by authority.
+     * @return The coordinate system.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see #createHorizontalCoordinateSystem
+     * @see #createGeographicCoordinateSystem
+     * @see #createProjectedCoordinateSystem
+     * @see #createVerticalCoordinateSystem
+     * @see #createCompoundCoordinateSystem
+     */
+    public abstract CoordinateSystem createCoordinateSystem(String code) throws FactoryException;
+    
+    /**
+     * Returns a {@link HorizontalCoordinateSystem} object from a code.
+     * The default implementation invokes {@link #createCoordinateSystem}.
+     *
+     * @param  code Value allocated by authority.
+     * @return The horizontal coordinate system.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createHorizontalCoordinateSystem
+     */
+    public HorizontalCoordinateSystem createHorizontalCoordinateSystem(String code) throws FactoryException {
+        final CoordinateSystem cs = createCoordinateSystem(code);
+        if (cs instanceof HorizontalCoordinateSystem) {
+            return (HorizontalCoordinateSystem) cs;
+        }
+        throw new NoSuchAuthorityCodeException("HorizontalCoordinateSystem", code);
+    }
+    
+    /**
+     * Returns a {@link GeographicCoordinateSystem} object from a code.
+     * The default implementation invokes {@link #createHorizontalCoordinateSystem}.
+     *
+     * @param  code Value allocated by authority.
+     * @return The geographic coordinate system.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createGeographicCoordinateSystem
+     */
+    public GeographicCoordinateSystem createGeographicCoordinateSystem(String code) throws FactoryException {
+        final HorizontalCoordinateSystem cs = createHorizontalCoordinateSystem(code);
+        if (cs instanceof GeographicCoordinateSystem) {
+            return (GeographicCoordinateSystem) cs;
+        }
+        throw new NoSuchAuthorityCodeException("GeographicCoordinateSystem", code);
+    }
+    
+    /**
+     * Returns a {@link ProjectedCoordinateSystem} object from a code.
+     * The default implementation invokes {@link #createHorizontalCoordinateSystem}.
+     *
+     * @param  code Value allocated by authority.
+     * @return The projected coordinate system.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createProjectedCoordinateSystem
+     */
+    public ProjectedCoordinateSystem createProjectedCoordinateSystem(String code) throws FactoryException {
+        final HorizontalCoordinateSystem cs = createHorizontalCoordinateSystem(code);
+        if (cs instanceof ProjectedCoordinateSystem) {
+            return (ProjectedCoordinateSystem) cs;
+        }
+        throw new NoSuchAuthorityCodeException("ProjectedCoordinateSystem", code);
+    }
+    
+    /**
+     * Returns a {@link VerticalCoordinateSystem} object from a code.
+     * The default implementation invokes {@link #createCoordinateSystem}.
+     *
+     * @param  code Value allocated by authority.
+     * @return The vertical coordinate system.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createVerticalCoordinateSystem
+     */
+    public VerticalCoordinateSystem createVerticalCoordinateSystem(String code) throws FactoryException {
+        final CoordinateSystem cs = createCoordinateSystem(code);
+        if (cs instanceof VerticalCoordinateSystem) {
+            return (VerticalCoordinateSystem) cs;
+        }
+        throw new NoSuchAuthorityCodeException("VerticalCoordinateSystem", code);
+    }
+    
+    /**
+     * Returns a {@link CompoundCoordinateSystem} object from a code.
+     * The default implementation invokes {@link #createCoordinateSystem}.
+     *
+     * @param  code Value allocated by authority.
+     * @return The compound coordinate system.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createCompoundCoordinateSystem
+     */
+    public CompoundCoordinateSystem createCompoundCoordinateSystem(String code) throws FactoryException {
+        final CoordinateSystem cs = createCoordinateSystem(code);
+        if (cs instanceof CompoundCoordinateSystem) {
+            return (CompoundCoordinateSystem) cs;
+        }
+        throw new NoSuchAuthorityCodeException("CompoundCoordinateSystem", code);
+    }
+
+    /**
+     * Releases resources immediately instead of waiting for the garbage collector.
+     * Once a factory has been disposed, further <code>create(...)</code> invocations
+     * may throw a {@link FactoryException}. Disposing a previously-disposed factory,
+     * however, has no effect.
+     *
+     * @throws FactoryException if an error occured while disposing the factory.
+     */
+    public void dispose() throws FactoryException {
+    }
+    
+    /**
+     * Returns an OpenGIS interface for this info.
+     * The returned object is suitable for RMI use.
+     *
+     * Note: The returned type is a generic {@link Object} in order
+     *       to avoid premature class loading of OpenGIS interface.
+     */
+    final Object toOpenGIS(final Object adapters) {
+        return new Export(adapters);
+    }
+    
+    
+    
+    
+    /////////////////////////////////////////////////////////////////////////
+    ////////////////                                         ////////////////
+    ////////////////             OPENGIS ADAPTER             ////////////////
+    ////////////////                                         ////////////////
+    /////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * Wrap an {@link Info} object for use with OpenGIS. This wrapper is a
+     * good place to check for non-implemented OpenGIS methods (just check
+     * for methods throwing {@link UnsupportedOperationException}). This
+     * class is suitable for RMI use.
+     */
+    private final class Export extends RemoteObject implements CS_CoordinateSystemAuthorityFactory {
+        /**
+         * The originating adapter.
+         */
+        protected final Adapters adapters;
+        
+        /**
+         * Constructs a remote object.
+         */
+        protected Export(final Object adapters) {
+            this.adapters = (Adapters)adapters;
+        }
+        
+        /**
+         * Returns the underlying implementation.
+         */
+        public CoordinateSystemAuthorityFactory unwrap() {
+            return CoordinateSystemAuthorityFactory.this;
+        }
+        
+        /** Returns the authority name.
+         */
+        public String getAuthority() throws RemoteException {
+            return CoordinateSystemAuthorityFactory.this.getAuthority();
+        }
+        
+        /**
+         * Returns an angular unit from a code.
+         */
+        public CS_AngularUnit createAngularUnit(String code) throws RemoteException {
+            try {
+                return (CS_AngularUnit) adapters.export(CoordinateSystemAuthorityFactory.this.createUnit(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+        
+        /**
+         * Returns a linear unit from a code.
+         */
+        public CS_LinearUnit createLinearUnit(String code) throws RemoteException {
+            try {
+                return (CS_LinearUnit) adapters.export(CoordinateSystemAuthorityFactory.this.createUnit(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+        
+        /**
+         * Returns an ellipsoid from a code.
+         */
+        public CS_Ellipsoid createEllipsoid(String code) throws RemoteException {
+            try {
+                return adapters.export(CoordinateSystemAuthorityFactory.this.createEllipsoid(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+        
+        /**
+         * Returns a prime meridian object from a code.
+         */
+        public CS_PrimeMeridian createPrimeMeridian(String code) throws RemoteException {
+            try {
+                return adapters.export(CoordinateSystemAuthorityFactory.this.createPrimeMeridian(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+        
+        /**
+         * Returns a horizontal datum from a code.
+         */
+        public CS_HorizontalDatum createHorizontalDatum(String code) throws RemoteException {
+            try {
+                return adapters.export(CoordinateSystemAuthorityFactory.this.createHorizontalDatum(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+        
+        /**
+         * Creates a vertical datum from a code.
+         */
+        public CS_VerticalDatum createVerticalDatum(String code) throws RemoteException {
+            try {
+                return adapters.export(CoordinateSystemAuthorityFactory.this.createVerticalDatum(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+
+        /**
+         * Creates a horizontal coordinate system from a code.
+         */
+        public CS_HorizontalCoordinateSystem createHorizontalCoordinateSystem(String code) throws RemoteException {
+            try {
+                return adapters.export(CoordinateSystemAuthorityFactory.this.createHorizontalCoordinateSystem(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+        
+        /**
+         * Returns a geographic coordinate system object from a code.
+         */
+        public CS_GeographicCoordinateSystem createGeographicCoordinateSystem(String code) throws RemoteException {
+            try {
+                return adapters.export(CoordinateSystemAuthorityFactory.this.createGeographicCoordinateSystem(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+        
+        /**
+         * Returns a projected coordinate system object from a code.
+         */
+        public CS_ProjectedCoordinateSystem createProjectedCoordinateSystem(String code) throws RemoteException {
+            try {
+                return adapters.export(CoordinateSystemAuthorityFactory.this.createProjectedCoordinateSystem(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+        
+        /**
+         * Create a vertical coordinate system from a code.
+         */
+        public CS_VerticalCoordinateSystem createVerticalCoordinateSystem(String code) throws RemoteException {
+            try {
+                return adapters.export(CoordinateSystemAuthorityFactory.this.createVerticalCoordinateSystem(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+        
+        /**
+         * Creates a 3D coordinate system from a code.
+         */
+        public CS_CompoundCoordinateSystem createCompoundCoordinateSystem(String code) throws RemoteException {
+            try {
+                return adapters.export(CoordinateSystemAuthorityFactory.this.createCompoundCoordinateSystem(code));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
+        }
+        
+        /**
+         * Gets a description of the object corresponding to a code.
+         */
+        public String descriptionText(String code) throws RemoteException {
+            throw new UnsupportedOperationException("Description text not yet implemented");
+        }
+        
+        /**
+         * Gets the Geoid code from a WKT name.
+         */
+        public String geoidFromWKTName(String wkt) throws RemoteException {
+            throw new UnsupportedOperationException("Geoid from WKT code not yet implemented");
+        }
+        
+        /**
+         * Gets the WKT name of a Geoid.
+         */
+        public String wktGeoidName(String geoid) throws RemoteException {
+            throw new UnsupportedOperationException("WKT formatting not yet implemented");
+        }
+
+        /**
+         * Wrap a {@link FactoryException} into a {@link RemoteException}.
+         */
+        private RemoteException serverException(final FactoryException exception) {
+            final Throwable cause = exception.getCause();
+            if (cause instanceof RemoteException) {
+                return (RemoteException) cause;
+            }
+            return new ServerException("Can't create object", exception);
+        }
+    }        
 }

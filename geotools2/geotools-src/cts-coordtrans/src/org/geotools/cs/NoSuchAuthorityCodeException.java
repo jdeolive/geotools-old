@@ -35,12 +35,16 @@
  */
 package org.geotools.cs;
 
+// Resources
+import org.geotools.resources.cts.Resources;
+import org.geotools.resources.cts.ResourceKeys;
+
 
 /**
  * Thrown if {@link CoordinateSystemAuthorityFactory}
  * can't find a requested authority code.
  *
- * @version $Id: NoSuchAuthorityCodeException.java,v 1.2 2002/06/05 16:06:14 loxnard Exp $
+ * @version $Id: NoSuchAuthorityCodeException.java,v 1.3 2002/07/29 18:00:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class NoSuchAuthorityCodeException extends FactoryException {
@@ -50,11 +54,21 @@ public class NoSuchAuthorityCodeException extends FactoryException {
     public NoSuchAuthorityCodeException() {
         super();
     }
-    
+
     /**
      * Constructs an exception with the specified detail message.
      */
     public NoSuchAuthorityCodeException(final String message) {
         super(message);
+    }
+
+    /**
+     * Constructs an exception with a default detail message.
+     *
+     * @param classname The short class name of the class to be constructed. E.g. "Ellipsoid".
+     * @param code The specified code.
+     */
+    NoSuchAuthorityCodeException(final String classname, final String code) {
+        super(Resources.format(ResourceKeys.ERROR_NO_SUCH_AUTHORITY_CODE_$2, classname, code));
     }
 }

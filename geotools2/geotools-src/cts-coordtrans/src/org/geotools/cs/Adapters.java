@@ -48,6 +48,7 @@ import org.opengis.cs.CS_GeocentricCoordinateSystem;
 import org.opengis.cs.CS_GeographicCoordinateSystem;
 import org.opengis.cs.CS_ProjectedCoordinateSystem;
 import org.opengis.cs.CS_CoordinateSystemFactory;
+import org.opengis.cs.CS_CoordinateSystemAuthorityFactory;
 
 import org.opengis.cs.CS_Datum;
 import org.opengis.cs.CS_DatumType;
@@ -88,7 +89,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <code>org.opengis.cs</code> package.</FONT>  All methods accept
  * null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version $Id: Adapters.java,v 1.5 2002/07/24 10:59:31 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.6 2002/07/29 18:00:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters {
@@ -121,6 +122,13 @@ public class Adapters {
             DEFAULT = new Adapters(org.geotools.pt.Adapters.getDefault());
         }
         return DEFAULT;
+    }
+    
+    /**
+     * Returns an OpenGIS interface for a coordinate system authority factory.
+     */
+    public CS_CoordinateSystemAuthorityFactory export(final CoordinateSystemAuthorityFactory factory) {
+        return (factory!=null) ? (CS_CoordinateSystemAuthorityFactory)factory.toOpenGIS(this) : null;
     }
     
     /**
