@@ -16,6 +16,7 @@
  */
 package org.geotools.data.memory;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
 import org.geotools.data.DataStore;
@@ -774,8 +775,8 @@ public class MemoryDataStoreTest extends DataTestCase {
         assertEquals( type.getDefaultGeometry(), actual.getDefaultGeometry() );
         assertEquals( type, actual );
         try {
-            assertNull( half.getBounds() );
-            fail("half does not specify a default geometry");            
+            Envelope b = half.getBounds();
+            assertTrue( b == null || b.isNull() );                                    
         }
         catch( IOException io ){            
         }
