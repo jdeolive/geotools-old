@@ -39,7 +39,7 @@ import org.geotools.data.*;
  * they do not allow any nested elements, but they also restrict the
  * attribute objects to be very simple data types.</p>
  *
- * @version $Id: FeatureFactory.java,v 1.4 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: FeatureFactory.java,v 1.5 2002/08/16 15:37:34 cholmesny Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFactory {
@@ -64,15 +64,35 @@ public class FeatureFactory {
      * ***********************************************************************/
     /**
      * Creates a new feature.
-     *
-     * @return Whether or not this represents a feature type (over a 'flat'
-     *         attribute).
+     * @param attributes the array of attribute values
+     * @return The created feature
      */
     public Feature create(Object[] attributes)
         throws IllegalFeatureException {
 
         if (schema instanceof FeatureTypeFlat) {
             return new FeatureFlat((FeatureTypeFlat) schema, attributes);
+        }
+        else {
+            return null;
+        }
+    }
+
+
+
+    /**
+     * Creates a new feature, with the proper featureID.
+     *
+     * @param attributes the array of attribute values. 
+     * @param featureID the feature ID.
+     * @return the created feature.
+     */
+     public Feature create(Object[] attributes, String featureID)
+        throws IllegalFeatureException {
+
+        if (schema instanceof FeatureTypeFlat) {
+            return new FeatureFlat((FeatureTypeFlat) schema, attributes, 
+				   featureID);
         }
         else {
             return null;
