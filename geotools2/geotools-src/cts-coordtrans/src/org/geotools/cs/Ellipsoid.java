@@ -32,6 +32,9 @@
  *
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
+ *
+ *    This class contains formulas from the public FTP area of NOAA.
+ *    NOAAS's work is fully acknowledged here.
  */
 package org.geotools.cs;
 
@@ -59,7 +62,7 @@ import java.rmi.RemoteException;
  * the measurement of the shape and the size of the Earth to approximate
  * the geoid as close as possible.
  *
- * @version $Id: Ellipsoid.java,v 1.3 2002/06/05 15:39:08 loxnard Exp $
+ * @version $Id: Ellipsoid.java,v 1.4 2002/07/11 23:56:38 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -116,6 +119,8 @@ public class Ellipsoid extends Info {
      * @param name   Name of this sphere.
      * @param radius The equatorial and polar radius.
      * @param unit   The units of the semi-major and semi-minor axis values.
+     *
+     * @deprecated Use {@link #createEllipsoid} instead.
      */
     public Ellipsoid(final CharSequence name, final double radius, final Unit unit) {
         this(name, check("radius", radius), radius, Double.POSITIVE_INFINITY, false, unit);
@@ -129,7 +134,7 @@ public class Ellipsoid extends Info {
      * @param semiMinorAxis The polar radius.
      * @param unit          The units of the semi-major and semi-minor axis values.
      *
-     * @see org.opengis.cs.CS_CoordinateSystemFactory#createEllipsoid
+     * @deprecated Use {@link #createEllipsoid} instead.
      */
     public Ellipsoid(final CharSequence name,
                      final double       semiMajorAxis,
@@ -147,17 +152,15 @@ public class Ellipsoid extends Info {
      * @param semiMajorAxis     The equatorial radius.
      * @param semiMinorAxis     The polar radius.
      * @param inverseFlattening The inverse of the flattening value.
-     * @param ivfDefinitive     Is the Inverse Flattening definitive for this
-     *                          ellipsoid?
-     * @param unit              The units of the semi-major and semi-minor axis
-     *                          values.
+     * @param ivfDefinitive     <code>true</code> if the inverse flattening is definitive.
+     * @param unit              The units of the semi-major and semi-minor axis values.
      */
-    Ellipsoid(final CharSequence name,
-              final double       semiMajorAxis,
-              final double       semiMinorAxis,
-              final double       inverseFlattening,
-              final boolean      ivfDefinitive,
-              final Unit         unit)
+    protected Ellipsoid(final CharSequence name,
+                        final double       semiMajorAxis,
+                        final double       semiMinorAxis,
+                        final double       inverseFlattening,
+                        final boolean      ivfDefinitive,
+                        final Unit         unit)
     {
         super(name);
         this.unit = unit;
@@ -167,6 +170,29 @@ public class Ellipsoid extends Info {
         this.ivfDefinitive     = ivfDefinitive;
         ensureNonNull("unit", unit);
         ensureLinearUnit(unit);
+    }
+
+    /**
+     * Constructs a new ellipsoid using the specified axis length.
+     *
+     * @param name          Name of this ellipsoid.
+     * @param semiMajorAxis The equatorial radius.
+     * @param semiMinorAxis The polar radius.
+     * @param unit          The units of the semi-major and semi-minor axis values.
+     *
+     * @see org.geotools.cs.CoordinateSystemFactory#createEllipsoid
+     */
+    public static Ellipsoid createEllipsoid(final CharSequence name,
+                                            final double       semiMajorAxis,
+                                            final double       semiMinorAxis,
+                                            final Unit         unit)
+    {
+        if (semiMajorAxis == semiMinorAxis) {
+            return new Spheroid(name, semiMajorAxis, false, unit);
+        } else {
+            return new Ellipsoid(name, semiMajorAxis, semiMinorAxis,
+                                 semiMajorAxis/(semiMajorAxis-semiMinorAxis), false, unit);
+        }
     }
     
     /**
@@ -179,16 +205,20 @@ public class Ellipsoid extends Info {
      * @param unit              The units of the semi-major and semi-minor axis
      *                          values.
      *
-     * @see org.opengis.cs.CS_CoordinateSystemFactory#createFlattenedSphere
+     * @see org.geotools.cs.CoordinateSystemFactory#createFlattenedSphere
      */
     public static Ellipsoid createFlattenedSphere(final CharSequence name,
                                                   final double       semiMajorAxis,
                                                   final double       inverseFlattening,
                                                   final Unit         unit)
     {
-        return new Ellipsoid(name, semiMajorAxis,
-                             semiMajorAxis*(1-1/inverseFlattening),
-                             inverseFlattening, true, unit);
+        if (Double.isInfinite(inverseFlattening)) {
+            return new Spheroid(name, semiMajorAxis, true, unit);
+        } else {
+            return new Ellipsoid(name, semiMajorAxis,
+                                 semiMajorAxis*(1-1/inverseFlattening),
+                                 inverseFlattening, true, unit);
+        }
     }
     
     /**
@@ -201,7 +231,7 @@ public class Ellipsoid extends Info {
      * @throws IllegalArgumentException if <code>value</code> is not greater
      *         than  0.
      */
-    private static double check(final String name, final double value) throws IllegalArgumentException {
+    static double check(final String name, final double value) throws IllegalArgumentException {
         if (value>0) {
             return value;
         }
@@ -261,18 +291,18 @@ public class Ellipsoid extends Info {
      * polar radius whenever asked. Other ellipsoids use the polar radius to
      * calculate the IVF whenever asked. This distinction can be important to
      * avoid floating-point rounding errors.
+     *
+     * @see org.opengis.cs.CS_Ellipsoid#isIvfDefinitive()
      */
     public boolean isIvfDefinitive() {
         return ivfDefinitive;
     }
     
     /**
-     * Returns an <em>estimation</em> of orthodromic distance between two
-     * geographic coordinates.  The orthodromic distance is the shortest
-     * distance between two points on a sphere's surface.  The orthodromic
-     * path is always on a great circle. Another possible distance measurement
-     * is the loxodromic distance, which is a longer distance on a path with
-     * a constant direction on the compass.
+     * Returns the orthodromic distance between two geographic coordinates.
+     * The orthodromic distance is the shortest distance between two points
+     * on a sphere's surface. The default implementation delegates the work
+     * to {@link #orthodromicDistance(double,double,double,double)}.
      *
      * @param  P1 Longitude and latitude of first point (in degrees).
      * @param  P2 Longitude and latitude of second point (in degrees).
@@ -283,40 +313,92 @@ public class Ellipsoid extends Info {
     }
     
     /**
-     * Returns an <em>estimation</em> of orthodromic distance between two
-     * geographic coordinates. The orthodromic distance is the shortest
-     * distance between two points on a sphere's surface.  The orthodromic
-     * path is always on a great circle. Another possible distance measurement
-     * is the loxodromic distance, which is a longer distance on a path with
-     * a constant direction on the compass.
+     * Returns the orthodromic distance between two geographic coordinates.
+     * The orthodromic distance is the shortest distance between two points
+     * on a sphere's surface. The orthodromic path is always on a great circle.
+     * This is different from the <cite>loxodromic distance</cite>, which is a
+     * longer distance on a path with a constant direction on the compass.
      *
-     * @param  x1 Longitude of first point (in degrees).
-     * @param  y1 Latitude of first point (in degrees).
+     * @param  x1 Longitude of first  point (in degrees).
+     * @param  y1 Latitude  of first  point (in degrees).
      * @param  x2 Longitude of second point (in degrees).
-     * @param  y2 Latitude of second point (in degrees).
-     * @return The orthodromic distance (in the units of this ellipsoid).
+     * @param  y2 Latitude  of second point (in degrees).
+     * @return The orthodromic distance (in the units of this ellipsoid's axis).
      */
     public double orthodromicDistance(double x1, double y1, double x2, double y2) {
-        /*
-         * The calculation of orthodromic distance on an ellipsoidal
-         * surface is complex, subject to rounding errors and has no solution
-         * near the poles.  We use a calculation based on a spherical shape
-         * of the earth.  A Fortran program which calculates orthodromic
-         * distances on an ellipsoidal surface can be downloaded from the
-         * NOAA site:
-         *
-         *            ftp://ftp.ngs.noaa.gov/pub/pcsoft/for_inv.3d/source/
-         */
+        x1 = Math.toRadians(x1);
         y1 = Math.toRadians(y1);
+        x2 = Math.toRadians(x2);
         y2 = Math.toRadians(y2);
-        final double y  = 0.5*(y1+y2);
-        final double dx = Math.toRadians(Math.abs(x2-x1) % 360);
-        double rho = Math.sin(y1)*Math.sin(y2) + Math.cos(y1)*Math.cos(y2)*Math.cos(dx);
-        assert Math.abs(rho) < 1.0000001 : rho;
-        if (rho>+1) rho=+1; // Catch rounding error.
-        if (rho<-1) rho=-1; // Catch rounding error.
-        return Math.acos(rho)/XMath.hypot(Math.sin(y)/getSemiMajorAxis(), Math.cos(y)/getSemiMinorAxis());
-        // 'hypot' calculates the inverse of the **apparent** radius of the earth at latitude 'y'.
+        /*
+         * Solution of the geodetic inverse problem after T.Vincenty.
+         * Modified Rainsford's method with Helmert's elliptical terms.
+         * Effective in any azimuth and at any distance short of antipodal.
+         *
+         * Latitudes and longitudes in radians positive North and East.
+         * Forward azimuths at both points returned in radians from North.
+         *
+         * Programmed for CDC-6600 by LCDR L.Pfeifer NGS ROCKVILLE MD 18FEB75
+         * Modified for IBM SYSTEM 360 by John G.Gergen NGS ROCKVILLE MD 7507
+         * Ported from Fortran to Java by Martin Desruisseaux.
+         *
+         * Source: ftp://ftp.ngs.noaa.gov/pub/pcsoft/for_inv.3d/source/inverse.for
+         *         subroutine INVER1
+         */
+        final int    MAX_ITERATIONS = 100;
+        final double EPS = 0.5E-13;
+        final double F   = 1/getInverseFlattening();
+        final double R   = 1-F;
+
+        double tu1 = R * Math.sin(y1) / Math.cos(y1);
+        double tu2 = R * Math.sin(y2) / Math.cos(y2);
+        double cu1 = 1 / Math.sqrt(tu1*tu1 + 1);
+        double cu2 = 1 / Math.sqrt(tu2*tu2 + 1);
+        double su1 = cu1*tu1;
+        double s   = cu1*cu2;
+        double baz = s*tu2;
+        double faz = baz*tu1;
+        double x   = x2-x1;
+        for (int i=0; i<MAX_ITERATIONS; i++) {
+            final double sx = Math.sin(x);
+            final double cx = Math.cos(x);
+            tu1 = cu2*sx;
+            tu2 = baz - su1*cu2*cx;
+            final double sy = XMath.hypot(tu1, tu2);
+            final double cy = s*cx + faz;
+            final double y = Math.atan2(sy, cy);
+            final double SA = s*sx/sy;
+            final double c2a = 1 - SA*SA;
+            double cz = faz+faz;
+            if (c2a > 0) {
+                cz = -cz/c2a + cy;
+            }
+            double e = cz*cz*2 - 1;
+            double c = ((-3*c2a+4)*F+4)*c2a*F/16;
+            double d = x;
+            x = ((e*cy*c+cz)*sy*c+y)*SA;
+            x = (1-c)*x*F + x2-x1;
+            
+            if (Math.abs(d-x) <= EPS) {
+                if (false) {
+                    // 'faz' and 'baz' are forward azimuths at both points.
+                    // Since the current API can't returns this result, it
+                    // doesn't work to compute it at this time.
+                    faz = Math.atan2(tu1, tu2);
+                    baz = Math.atan2(cu1*sx, baz*cx - su1*cu2)+Math.PI;
+                }
+                x = Math.sqrt((1/(R*R)-1) * c2a + 1)+1;
+                x = (x-2)/x;
+                c = 1-x;
+                c = (x*x/4 + 1)/c;
+                d = (0.375*x*x - 1)*x;
+                x = e*cy;
+                s = 1-2*e;
+                s = ((((sy*sy*4 - 3)*s*cz*d/6-x)*d/4+cz)*sy*d+y)*c*R*getSemiMajorAxis();
+                return s;
+            }
+        }
+        throw new ArithmeticException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
     }
     
     /**
@@ -356,10 +438,11 @@ public class Ellipsoid extends Info {
      * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
+        final double ivf = getInverseFlattening();
         buffer.append(", ");
-        buffer.append(semiMajorAxis);
+        buffer.append(getSemiMajorAxis());
         buffer.append(", ");
-        buffer.append(Double.isInfinite(inverseFlattening) ? 0 : inverseFlattening);
+        buffer.append(Double.isInfinite(ivf) ? 0 : ivf);
         return "SPHEROID";
     }
     

@@ -90,7 +90,7 @@ import javax.media.jai.ParameterListImpl;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.3 2002/06/05 14:59:14 loxnard Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.4 2002/07/11 23:56:38 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -376,7 +376,7 @@ public class CoordinateSystemFactory {
         throws FactoryException
     {
         return (Ellipsoid) pool.canonicalize(
-                new Ellipsoid(name, semiMajorAxis, semiMinorAxis, unit));
+                Ellipsoid.createEllipsoid(name, semiMajorAxis, semiMinorAxis, unit));
     }
     
     /**

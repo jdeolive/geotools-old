@@ -88,7 +88,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <code>org.opengis.cs</code> package.</FONT>  All methods accept
  * null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version $Id: Adapters.java,v 1.3 2002/06/05 14:26:55 loxnard Exp $
+ * @version $Id: Adapters.java,v 1.4 2002/07/11 23:56:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters {
@@ -574,13 +574,19 @@ public class Adapters {
         if (ellipsoid instanceof Info.Export) {
             return (Ellipsoid) ((Info.Export)ellipsoid).unwrap();
         }
-        final double ivf = ellipsoid.getInverseFlattening();
-        return new Ellipsoid(new InfoProperties(ellipsoid),
-                             ellipsoid.getSemiMajorAxis(),
-                             ellipsoid.getSemiMinorAxis(),
-                             ivf!=0 ? ivf : Double.POSITIVE_INFINITY,
-                             ellipsoid.isIvfDefinitive(),
-                             wrap(ellipsoid.getAxisUnit()));
+        final CharSequence        name = new InfoProperties(ellipsoid);
+        final double     semiMajorAxis = ellipsoid.getSemiMajorAxis();
+        final double     semiMinorAxis = ellipsoid.getSemiMinorAxis();
+        final double inverseFlattening = ellipsoid.getInverseFlattening();
+        final boolean    ivfDefinitive = ellipsoid.isIvfDefinitive();
+        final Unit               units = wrap(ellipsoid.getAxisUnit());
+        if (inverseFlattening==0 || Double.isInfinite(inverseFlattening) ||
+            semiMajorAxis==semiMinorAxis)
+        {
+            return new Spheroid(name, semiMajorAxis, ivfDefinitive, units);
+        }
+        return new Ellipsoid(name, semiMajorAxis, semiMinorAxis,
+                             inverseFlattening, ivfDefinitive, units);
     }
     
     /**
