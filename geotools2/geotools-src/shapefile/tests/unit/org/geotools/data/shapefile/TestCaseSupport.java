@@ -90,10 +90,9 @@ public abstract class TestCaseSupport extends TestCase {
     return new TestSuite(c);
   }
   
-  protected File getTempFile() {
-    URL parent = getClass().getResource("/testData/");
-      
-    File tmpFile = new File(parent.getFile(), "tmp_" + Thread.currentThread().getName() + ".shp");
+  protected File getTempFile() throws IOException {
+    
+    File tmpFile = File.createTempFile("test_shp","shp");
     try {
       tmpFile.createNewFile();
     } catch (IOException ioe) {
