@@ -82,7 +82,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.10 2003/07/17 21:35:07 jmacgill Exp $
+ * @version $Id: LiteRenderer.java,v 1.11 2003/07/20 16:18:29 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -280,7 +280,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         Date start = new Date();
 
         if ((graphics == null) || (paintArea == null)) {
-            LOGGER.info("renderer passed null arguements");
+            LOGGER.info("renderer passed null arguments");
 
             return;
         }
@@ -350,6 +350,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 } catch (Exception exception) {
                     LOGGER.warning("Exception " + exception +
                         " rendering layer " + layer);
+                    exception.printStackTrace();
                 }
             }
         } finally {
@@ -1466,10 +1467,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
         graphic.setComposite(AlphaComposite.getInstance(
                 AlphaComposite.SRC_OVER, opacity));
 
-        org.geotools.styling.Graphic gr = fill.getGraphicFill();
+        org.geotools.styling.Graphic grd = fill.getGraphicFill();
 
-        if (gr != null) {
-            setTexture(graphic, gr, feature);
+        if (grd != null) {
+            setTexture(graphic, grd, feature);
         } else {
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("no graphic fill set");
