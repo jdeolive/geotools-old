@@ -102,7 +102,7 @@
                   <gml:outerBoundaryIs>
                     <gml:LinearRing>
                       <gml:coordinates>
-                        32.5485,16.2633 -90.5485,24.2633 -85.5485,34.2633 30,30 32.5485,16.2633
+                        32.5485,16.2633 -90.548,24.2633 -85.548,34.2633 30,30 32.5485,16.2633
                       </gml:coordinates>
                     </gml:LinearRing>
                   </gml:outerBoundaryIs>
