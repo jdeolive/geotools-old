@@ -24,7 +24,7 @@
   
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/defaultcore</connection>
-    <url>http://address.of.geotools/cvsviewer/</url>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/defaultcore/</url>
   </repository>
   
 
@@ -35,6 +35,9 @@
       <id>robhranac</id>
       <email>robhranac@users.sourceforge.net</email>
       <organization>VFNY</organization>
+      <roles>
+      <role>Java Developer</role>
+      </roles>
     </developer>
     
         <developer>
@@ -42,12 +45,19 @@
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
+      <roles>
+       <role>Module Maintainer</role>
+       <role>Java Developer</role>
+       </roles>
     </developer>
         <developer>
       <name>Ian Turton</name>
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
+      <roles>
+      <role>Java Developer</role>
+      </roles>
     </developer>
     </developers>
   <dependencies>
