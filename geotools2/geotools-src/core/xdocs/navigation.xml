@@ -11,6 +11,7 @@
       <item name="shapefile" href="/../shapefile"/>
             <item name="java2drendering" href="/../Java2DRendering"></item>
             <item name="gmldatasource" href="/../gmldatasource"></item>
+            <item name="algorithms" href="/../algorithms"></item>
         </links>
     <menu name="Overview">
       <!-- <item name="Goals" href="/goals.html"/> -->
