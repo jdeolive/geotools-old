@@ -79,6 +79,31 @@ public class TableHeader
     return buff.toString();
   }
 
+  public String toStringDev()
+  {
+    StringBuffer buff = new StringBuffer("Tabel header:\n");
+    buff.append(" length="+length+"\n");
+    buff.append(" byteOrder="+byteOrder+"\n");
+    buff.append(" description="+description+"\n");
+    buff.append(" narrativeTable="+narrativeTable+"\n");
+    buff.append(" columnDefs:");
+    if (columnDefs == null)
+    {
+      buff.append("null)");
+    } // end of if (columnDefs == null)
+    else
+    {
+      for (int i = 0; i < columnDefs.size(); i++)
+      {
+        TableColumnDef tcd = (TableColumnDef)columnDefs.get(i);
+        buff.append("\n"+tcd.toStringDef());
+      } // end of for (int i = 0; i < columnDefs.size(); i++)
+      buff.append("\n)");
+    } // end of if (columnDefs == null) else
+    buff.append("]");
+    return buff.toString();
+  }
+
   /**
    * Gets the value of length
    *

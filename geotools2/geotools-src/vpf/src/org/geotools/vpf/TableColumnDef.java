@@ -74,6 +74,28 @@ public class TableColumnDef implements DataTypesDefinition
     return buff.toString();
   }
 
+  public String toStringDef()
+  {
+    StringBuffer buff = new StringBuffer(" Column definition:\n");
+//     buff.append(" name="+name+"\n");
+//     buff.append(" type="+type+"\n");
+//     buff.append(" elementsNumber="+elementsNumber+"\n");
+//     buff.append(" keyType="+keyType+"\n");
+//     buff.append(" colDesc="+colDesc+"\n");
+//     buff.append(" valDescTableName="+valDescTableName+"\n");
+//     buff.append(" thematicIdx="+thematicIdx+"\n");
+//     buff.append(" narrTable="+narrTable+"\n");
+    buff.append(" name="+name+"   ");
+    buff.append(" type="+type+"   ");
+    buff.append(" elementsNumber="+elementsNumber+"\n");
+    buff.append(" keyType="+keyType+"\n");
+    buff.append(" colDesc="+colDesc+"\n");
+    buff.append(" valDescTableName="+valDescTableName+"\n");
+    buff.append(" thematicIdx="+thematicIdx+"\n");
+    buff.append(" narrTable="+narrTable+"\n");
+    return buff.toString();
+  }
+
   /**
    * Gets the value of name
    *

@@ -19,6 +19,12 @@
 
 package org.geotools.vpf;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+
+
 /**
  * TableRow.java
  *
@@ -30,9 +36,73 @@ package org.geotools.vpf;
  */
 public class TableRow 
 {
-  public TableRow()
-  {
-    
-  } // TableRow constructor
+
+  protected RowField[] fieldsArr = null;
+  protected HashMap fieldsMap = null;
+
   
+  public TableRow(RowField[] fieldsArr, HashMap fieldsMap)
+  {
+    this.fieldsArr = fieldsArr;
+    this.fieldsMap = fieldsMap;
+  } // TableRow constructor
+
+  public String toString()
+  {
+    StringBuffer buff = new StringBuffer(" ["+getClass().getName());
+    buff.append(" (fieldsMap=");
+    if (fieldsMap == null)
+    {
+      buff.append("null)");
+    } // end of if (columnDefs == null)
+    else
+    {
+      Iterator it = fieldsMap.entrySet().iterator();
+      while (it.hasNext())
+      {
+        Map.Entry entry = (Map.Entry)it.next();
+        buff.append("\n"+
+                    entry.getKey().toString()+"="+
+                    entry.getValue().toString());
+      } // end of while (it.hasNext())
+      buff.append("\n)");
+    } // end of if (columnDefs == null) else
+    buff.append("]");
+    return buff.toString();
+  }
+  
+  public String toStringDev()
+  {
+    StringBuffer buff = new StringBuffer();
+    buff.append(" fields:");
+    if (fieldsMap == null)
+    {
+      buff.append("null)");
+    } // end of if (columnDefs == null)
+    else
+    {
+      Iterator it = fieldsMap.entrySet().iterator();
+      while (it.hasNext())
+      {
+        Map.Entry entry = (Map.Entry)it.next();
+        RowField field = (RowField)entry.getValue();
+        buff.append("\n"+
+                    entry.getKey().toString()+"="+
+                    field.toStringDev());
+      } // end of while (it.hasNext())
+      buff.append("\n)");
+    } // end of if (columnDefs == null) else
+    return buff.toString();
+  }
+  
+  public RowField get(String name)
+  {
+    return (RowField)fieldsMap.get(name);
+  }
+
+  public RowField get(int idx)
+  {
+    return fieldsArr[idx];
+  }
+
 } // TableRow

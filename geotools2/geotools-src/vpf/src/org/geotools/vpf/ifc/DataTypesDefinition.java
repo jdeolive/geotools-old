@@ -26,7 +26,7 @@ package org.geotools.vpf.ifc;
  * Created: Thu Jan 02 17:26:02 2003
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: DataTypesDefinition.java,v 1.4 2003/01/27 21:51:24 kobit Exp $
+ * @version $Id: DataTypesDefinition.java,v 1.5 2003/01/28 15:15:10 kobit Exp $
  */
 
 public interface DataTypesDefinition 
@@ -80,6 +80,7 @@ public interface DataTypesDefinition
   public static final int DATA_NULL_FIELD_LEN    = 0;
 
   public static final String STRING_NULL_VALUE = "-";
+  public static final String[] STRING_NULL_VALUES = {"-", "--", "N/A"};
   public static final char CHAR_NULL_VALUE = '-';
 
 }// DataTypesDefinition

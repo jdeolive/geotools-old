@@ -19,23 +19,26 @@
 
 package org.geotools.vpf.io;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.DataInputStream;
-import java.io.ByteArrayInputStream;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Calendar;
-import org.geotools.vpf.TableHeader;
+import java.util.TimeZone;
 import org.geotools.vpf.TableColumnDef;
+import org.geotools.vpf.TableHeader;
 import org.geotools.vpf.TableRow;
+import org.geotools.vpf.RowField;
 import org.geotools.vpf.exc.VPFHeaderFormatException;
 import org.geotools.vpf.exc.VPFRowDataException;
-import org.geotools.vpf.ifc.FileConstants;
 import org.geotools.vpf.ifc.DataTypesDefinition;
+import org.geotools.vpf.ifc.FileConstants;
 
 /**
  * TableInputStream.java
@@ -157,10 +160,16 @@ public class TableInputStream extends InputStream
     throws IOException
   {
 	List rowsDef = header.getColumnDefs();
+    RowField[] fieldsArr = new RowField[rowsDef.size()];
+    HashMap fieldsMap = new HashMap();
 	for (int i = 0; i < rowsDef.size(); i++) {
 	  TableColumnDef tcd = (TableColumnDef)rowsDef.get(i);
 	  byte[] bytes = new byte[tcd.getColumnSize()];
 	  int size = input.read(bytes);
+      if (size == 0)
+      {
+        return null;
+      } // end of if (size = 0)
 	  if (size != tcd.getColumnSize())
 	  {
 		throw new VPFRowDataException("Insuffitient data in stream.");
@@ -171,8 +180,11 @@ public class TableInputStream extends InputStream
 	  } // end of if (tcd.isNumeric() &&
 	    //header.getByteOrder() == LITTLE_ENDIAN_ORDER)
 	  Object value = decodeData(bytes, tcd.getType());
+      RowField field = new RowField(value, tcd.getType());
+      fieldsArr[i] = field;
+      fieldsMap.put(tcd.getName(), field);
 	} // end of for (int i = 0; i < rowsDefs.size(); i++)
-    return null;
+    return new TableRow(fieldsArr, fieldsMap);
   }
 
   public int readRows(TableRow[] rows)
@@ -239,7 +251,19 @@ public class TableInputStream extends InputStream
 		for (int i = 0; i < bytes.length; i++) {
 		  sb.append((char)bytes[i]);
 		} // end of for (int i = 0; i < bytes.length; i++)
-		result = sb.toString();
+        boolean isNull = false;
+        for (int i = 0; i < STRING_NULL_VALUES.length; i++)
+        {
+          isNull |= sb.toString().equalsIgnoreCase(STRING_NULL_VALUES[i]);
+        } // end of for (int i = 0; i < STRING_NULL_VALUES.length; i++)
+        if (isNull)
+        {
+          result = null;
+        } // end of if (isNull)
+        else
+        {
+          result = sb.toString();
+        } // end of else
 		break;
 	  case DATA_SHORT_FLOAT:
 		result = new Float(decodeFloat(bytes));
@@ -279,17 +303,69 @@ public class TableInputStream extends InputStream
 	return result;
   }
 
+  public static final int YEAR_OFFSET = 0;
+  public static final int YEAR_LEN = 4;
+  public static final int MONTH_OFFSET = YEAR_OFFSET+YEAR_LEN;
+  public static final int MONTH_LEN = 2;
+  public static final int DAY_OFFSET = MONTH_OFFSET+MONTH_LEN;
+  public static final int DAY_LEN = 2;
+  public static final int HOUR_OFFSET = DAY_OFFSET+DAY_LEN;
+  public static final int HOUR_LEN = 2;
+  public static final int MINUTE_OFFSET = HOUR_OFFSET+HOUR_LEN;
+  public static final int MINUTE_LEN = 2;
+  public static final int SECOND_OFFSET = MINUTE_OFFSET+MINUTE_LEN;
+  public static final int SECOND_LEN = 2;
+  public static final int SEPARATOR_OFFSET = SECOND_OFFSET+SECOND_LEN;
+  public static final int SEPARATOR_LEN = 1;
+  public static final int ZONE_OFFSET = SEPARATOR_OFFSET+SEPARATOR_LEN;
+  public static final int ZONE_LEN = 5;
+  public static final int[][] CALENDAR_ITERATOR =
+  {
+    {YEAR_OFFSET, YEAR_LEN, Calendar.YEAR},
+    {MONTH_OFFSET, MONTH_LEN, Calendar.MONTH},
+    {DAY_OFFSET, DAY_LEN, Calendar.DAY_OF_MONTH},
+    {HOUR_OFFSET, HOUR_LEN, Calendar.HOUR_OF_DAY},
+    {MINUTE_OFFSET, MINUTE_LEN, Calendar.MINUTE},
+    {SECOND_OFFSET, SECOND_LEN, Calendar.SECOND},
+    {SEPARATOR_OFFSET, SEPARATOR_LEN, -10},
+    {ZONE_OFFSET, ZONE_LEN, -20},
+  };
+  
   public static Calendar decodeDate(byte[] bytes)
   {
 	Calendar cal = Calendar.getInstance();
-	StringBuffer sb = new StringBuffer();
-	for (int i = 0; i < 4; i++) {
-	  sb.append((char)bytes[i]);
-	} // end of for (int i = 0; i < 4; i++)
-	try {
-	  int year = Integer.parseInt(sb.toString());
-	  cal.set(Calendar.YEAR, year);
-	} catch (NumberFormatException e) {} // end of try-catch
+    cal.clear();
+    for (int j = 0; j < CALENDAR_ITERATOR.length; j++)
+    {
+      StringBuffer sb = new StringBuffer(CALENDAR_ITERATOR[j][1]);
+      for (int i = CALENDAR_ITERATOR[j][0];
+           i < CALENDAR_ITERATOR[j][0] + CALENDAR_ITERATOR[j][1]; i++) {
+        sb.append((char)bytes[i]);
+      } // end of for (int i = 0; i < 4; i++)
+      switch (CALENDAR_ITERATOR[j][0])
+      {
+        case YEAR_OFFSET:
+        case MONTH_OFFSET:
+        case DAY_OFFSET:
+        case HOUR_OFFSET:
+        case MINUTE_OFFSET:
+        case SECOND_OFFSET:
+          try {
+            int value = Integer.parseInt(sb.toString());
+            cal.set(CALENDAR_ITERATOR[j][2], value);
+          } catch (NumberFormatException e) {} // end of try-catch
+          break;
+        case SEPARATOR_OFFSET:
+          break;
+        case ZONE_OFFSET:
+          sb.insert(3, ":");
+          sb.insert(0, "GMT");
+          System.out.println("TIME ZONE SET for: "+sb.toString());
+          cal.setTimeZone(TimeZone.getTimeZone(sb.toString()));
+        default:
+          break;
+      } // end of switch (CALENDAR_ITERATOR[j][0])
+    } // end of for (int j = 0; j < CALENDAR_ITERATOR.length; j++)
 	return cal;
   }
 
@@ -325,34 +401,34 @@ public class TableInputStream extends InputStream
 	return dis.readDouble();
   }
   
-//   public static int littleEndianToInt(byte[] fourBytes)
-//   {
-//     int res = 0;
-//     int limit = Math.min(fourBytes.length, 4);
-//     for (int i = 0; i < limit-1; i++)
-//     {
-//       res += unsigByteToInt(fourBytes[i]) << (i*8);
-//     } // end of for (int i = 0; i < limit-1; i++)
-// 	res += (int)fourBytes[i] << (i*8);
-//     return res;
-//   }
+  //   public static int littleEndianToInt(byte[] fourBytes)
+  //   {
+  //     int res = 0;
+  //     int limit = Math.min(fourBytes.length, 4);
+  //     for (int i = 0; i < limit-1; i++)
+  //     {
+  //       res += unsigByteToInt(fourBytes[i]) << (i*8);
+  //     } // end of for (int i = 0; i < limit-1; i++)
+  // 	res += (int)fourBytes[i] << (i*8);
+  //     return res;
+  //   }
 
-//   public static int bigEndianToInt(byte[] fourBytes)
-//   {
-//     int res = 0;
-//     int limit = Math.min(fourBytes.length, 4);
-// 	res += (int)fourBytes[0] << ((limit-1)*8);
-//     for (int i = 1; i < limit; i++)
-//     {
-//       res += unsigByteToInt(fourBytes[i]) << ((limit-(i+1))*8);
-//     } // end of for (int i = 0; i < limit-1; i++)
-//     return res;
-//   }
+  //   public static int bigEndianToInt(byte[] fourBytes)
+  //   {
+  //     int res = 0;
+  //     int limit = Math.min(fourBytes.length, 4);
+  // 	res += (int)fourBytes[0] << ((limit-1)*8);
+  //     for (int i = 1; i < limit; i++)
+  //     {
+  //       res += unsigByteToInt(fourBytes[i]) << ((limit-(i+1))*8);
+  //     } // end of for (int i = 0; i < limit-1; i++)
+  //     return res;
+  //   }
 
-//   public static int unsigByteToInt(byte b)
-//   {
-//     return (int) b & 0xFF;
-//   }
+  //   public static int unsigByteToInt(byte b)
+  //   {
+  //     return (int) b & 0xFF;
+  //   }
 
   public static void main(String[] args)
     throws IOException
@@ -364,7 +440,14 @@ public class TableInputStream extends InputStream
     } // end of if (args.length <> 1)
     TableInputStream testInput = new TableInputStream(args[0]);
     TableHeader testHeader = testInput.getHeader();
-    System.out.println(testHeader.toString());
+    System.out.println(testHeader.toStringDev());
+    TableRow row = testInput.readRow();
+    int counter = 0;
+    while (row != null)
+    {
+      System.out.println(""+(++counter)+". "+row.toStringDev());
+      row = testInput.readRow();
+    } // end of while (row != null)
   } // end of main()
   
 } // TableInputStream
