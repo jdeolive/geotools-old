@@ -55,6 +55,7 @@
     <integrationUnitTestPatterns/>
     <jarResources/>
     <jars/>
-  </build>
+        <sourceDirectory>src/</sourceDirectory>
+    </build>
 </project>
 
