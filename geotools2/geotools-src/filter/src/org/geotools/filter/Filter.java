@@ -4,7 +4,8 @@
  */
 package org.geotools.filter;
 
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 
 /**
  * Defines an OpenGIS Filter object, with default behaviors for all methods.
