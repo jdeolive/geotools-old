@@ -35,7 +35,7 @@ import java.io.IOException;
  * <b>"ESRI(r) Shapefile - A Technical Description"</b><br>
  * <i>'An ESRI White Paper. May 1997'</i></a><p>
  *
- * @version $Id: Shapefile.java,v 1.7 2002/06/05 12:56:49 loxnard Exp $
+ * @version $Id: Shapefile.java,v 1.8 2002/07/12 14:08:25 loxnard Exp $
  * @author James Macgill, CCG
  */
 
@@ -63,14 +63,16 @@ public class Shapefile  {
      * @param url The url of the shapefile.
      */
     public Shapefile(java.net.URL url){
-        baseURL=url;
+        baseURL = url;
     }
     
     private LEDataInputStream getInputStream() throws IOException{
-        if(initialized) return inStream;
+        if (initialized) {
+            return inStream;
+        }
         java.net.URLConnection uc = baseURL.openConnection();
         int len = uc.getContentLength();
-        if(len <=0){
+        if (len <= 0){
             return null;
         }
         java.io.BufferedInputStream in = new java.io.BufferedInputStream(uc.getInputStream());
@@ -90,12 +92,12 @@ public class Shapefile  {
     }
     
     private LEDataInputStream setup() throws IOException{
-        if(initialized){
+        if (initialized){
             return inStream;
         }
         inStream = getInputStream();
         if (inStream == null){
-            throw new IOException("Failed connection or no content for "+baseURL);
+            throw new IOException("Failed connection or no content for " + baseURL);
         }
         mainHeader = new ShapefileHeader(inStream);
         bounds = mainHeader.getBounds();
@@ -106,40 +108,44 @@ public class Shapefile  {
      * Initialises a shapefile from disk.
      * Use Shapefile(String) if you don't want to use LEDataInputStream
      * directly (recommended).
-     * @param file A LEDataInputStream that connects to the shapefile to read.
+     * @param geometryFactory Factory to use when constructing JTS geometries.
      */
     public com.vividsolutions.jts.geom.GeometryCollection read(com.vividsolutions.jts.geom.GeometryFactory geometryFactory) throws IOException, ShapefileException, com.vividsolutions.jts.geom.TopologyException {
         
         LEDataInputStream file = setup();
-        if(file==null) throw new IOException("Failed connection or no content for "+baseURL);
+        if (file == null) {
+            throw new IOException("Failed connection or no content for " + baseURL);
+        }
         
         
-        if(mainHeader.getVersion() < VERSION){System.err.println("Sf-->Warning, Shapefile format ("+mainHeader.getVersion()+") older that supported ("+VERSION+"), attempting to read anyway");}
-        if(mainHeader.getVersion() > VERSION){System.err.println("Sf-->Warning, Shapefile format ("+mainHeader.getVersion()+") newer that supported ("+VERSION+"), attempting to read anyway");}
+        if (mainHeader.getVersion() < VERSION){System.err.println("Sf-->Warning, Shapefile format (" + mainHeader.getVersion() + ") older that supported (" + VERSION + "), attempting to read anyway");}
+        if (mainHeader.getVersion() > VERSION){System.err.println("Sf-->Warning, Shapefile format (" + mainHeader.getVersion() + ") newer that supported (" + VERSION + "), attempting to read anyway");}
         
         Geometry body;
         java.util.ArrayList list = new java.util.ArrayList();
-        int type=mainHeader.getShapeType();
+        int type = mainHeader.getShapeType();
         ShapeHandler handler = getShapeHandler(type);
-        if(handler==null)throw new ShapeTypeNotSupportedException("Unsuported shape type:"+type);
-        try{
-            while(true){
+        if (handler == null) {
+            throw new ShapeTypeNotSupportedException("Unsuported shape type:" + type);
+        }
+        try {
+            while (true){
                 file.setLittleEndianMode(false);
-                int recordNumber=file.readInt();
-                int contentLength=file.readInt();
-                body = handler.read(file,geometryFactory);
+                int recordNumber = file.readInt();
+                int contentLength = file.readInt();
+                body = handler.read(file, geometryFactory);
                 list.add(body);
             }
         }
-        catch(java.io.EOFException e){
+        catch (java.io.EOFException e){
             
         }
-        return geometryFactory.createGeometryCollection((Geometry[])list.toArray(new Geometry[]{}));
+        return geometryFactory.createGeometryCollection((Geometry[]) list.toArray(new Geometry[]{}));
     }
     
     /**
      * Saves a shapefile to an output stream.
-     * @param file A LEDataInputStream that connects to the shapefile to read.
+     * @param geometries The collection of geometries to write to the shapefile.
      */
     public void write(com.vividsolutions.jts.geom.GeometryCollection geometries) throws IOException {
         cmp.LEDataStream.LEDataOutputStream file = getOutputStream();
@@ -152,14 +158,14 @@ public class Shapefile  {
         int numShapes = geometries.getNumGeometries();
         Geometry body;
         ShapeHandler handler = Shapefile.getShapeHandler(geometries.getGeometryN(0));
-        for(int i=0;i<numShapes;i++){
+        for (int i = 0; i < numShapes; i++){
             body = geometries.getGeometryN(i);
             file.setLittleEndianMode(false);
             file.writeInt(i);
             file.writeInt(handler.getLength(body));
-            pos+=4; // length of header in WORDS
-            handler.write(body,file);
-            pos+=handler.getLength(body); // length of shape in WORDS
+            pos += 4; // length of header in WORDS
+            handler.write(body, file);
+            pos += handler.getLength(body); // length of shape in WORDS
         }
         file.flush();
         file.close();
@@ -198,14 +204,14 @@ public class Shapefile  {
      * @return A string describing the shape type.
      */
     public static String getShapeTypeDescription(int index){
-        switch(index){
-            case(NULL):return ("Null");
-            case(POINT):return ("Points");
-            case(ARC):return ("Arcs");
-            case(ARC_M):return ("ArcsM");
-            case(POLYGON):return ("Polygons");
-            case(MULTIPOINT):return ("Multipoints");
-            default:return ("Undefined");
+        switch (index){
+            case (NULL): return ("Null");
+            case (POINT): return ("Points");
+            case (ARC): return ("Arcs");
+            case (ARC_M): return ("ArcsM");
+            case (POLYGON): return ("Polygons");
+            case (MULTIPOINT): return ("Multipoints");
+            default: return ("Undefined");
         }
     }
     
@@ -223,23 +229,33 @@ public class Shapefile  {
     }
     
     public static int getShapeType(Geometry geom){
-        if(geom instanceof com.vividsolutions.jts.geom.Point) return Shapefile.POINT;
-        if(geom instanceof com.vividsolutions.jts.geom.Polygon) return Shapefile.POLYGON;
-        if(geom instanceof com.vividsolutions.jts.geom.MultiPolygon) return Shapefile.POLYGON;
-        if(geom instanceof com.vividsolutions.jts.geom.LineString) return Shapefile.ARC;
-        if(geom instanceof com.vividsolutions.jts.geom.MultiLineString) return Shapefile.ARC;
+        if (geom instanceof com.vividsolutions.jts.geom.Point) {
+            return Shapefile.POINT;
+        }
+        if (geom instanceof com.vividsolutions.jts.geom.Polygon) {
+            return Shapefile.POLYGON;
+        }
+        if (geom instanceof com.vividsolutions.jts.geom.MultiPolygon) {
+            return Shapefile.POLYGON;
+        }
+        if (geom instanceof com.vividsolutions.jts.geom.LineString) {
+            return Shapefile.ARC;
+        }
+        if (geom instanceof com.vividsolutions.jts.geom.MultiLineString) {
+            return Shapefile.ARC;
+        }
         return Shapefile.UNDEFINED;
     }
     
     public synchronized void readIndex(java.io.InputStream is) throws IOException {
         LEDataInputStream file = null;
-        try{
+        try {
             java.io.BufferedInputStream in = new java.io.BufferedInputStream(is);
             file = new LEDataInputStream(in);
-        }catch(Exception e){System.err.println(e);}
+        }catch (Exception e){System.err.println(e);}
         ShapefileHeader head = new ShapefileHeader(file);
         
-        int pos=0,len=0;
+        int pos = 0, len = 0;
         file.setLittleEndianMode(false);
         file.close();
     }
