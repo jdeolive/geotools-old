@@ -92,13 +92,13 @@ public class PointHandler implements ShapeHandler {
      **/
     public int getLength(Geometry geometry) {
         if (myShapeType == 21) {
-            return 10;
-        }
-
-        if (myShapeType == 11) {
             return 14;
         }
 
-        return 18;
+        if (myShapeType == 11) {
+            return 18;
+        }
+
+        return 10;
     }
 }
