@@ -56,7 +56,7 @@ import org.geotools.resources.XMath;
  * Il choisit les intervalles de graduation en supposant qu'on utilise
  * un calendrier grégorien.
  *
- * @version $Id: DateIterator.java,v 1.1 2003/03/07 23:36:11 desruisseaux Exp $
+ * @version $Id: DateIterator.java,v 1.2 2003/03/10 15:08:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DateIterator implements TickIterator {
@@ -519,6 +519,15 @@ final class DateIterator implements TickIterator {
      */
     public boolean isMajorTick() {
         return isMajorTick;
+    }
+
+    /**
+     * Returns the position where to draw the current tick. The position is scaled
+     * from the graduation's minimum to maximum. This is usually the same number
+     * than {@link #currentValue}.
+     */
+    public double currentPosition() {
+        return value;
     }
 
     /**

@@ -88,7 +88,7 @@ import org.geotools.resources.XAffineTransform;
  * be used for mapping logical coordinates to pixels coordinates for an arbitrary
  * pair of <code>Axis2D</code> objects, which doesn't need to be perpendicular.
  *
- * @version $Id: Axis2D.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
+ * @version $Id: Axis2D.java,v 1.3 2003/03/10 15:08:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see AxisInfo
@@ -746,7 +746,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * method, using the iterator after a change in the underlying {@link Axis2D}
      * may thrown a {@link ConcurrentModificationException}.
      *
-     * @version $Id: Axis2D.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
+     * @version $Id: Axis2D.java,v 1.3 2003/03/10 15:08:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public class TickIterator implements org.geotools.axis.TickIterator {
@@ -861,6 +861,16 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
         }
 
         /**
+         * Returns the position where to draw the current tick.  The position is scaled
+         * from the graduation's minimum to maximum.    This is usually the same number
+         * than {@link #currentValue}. The mean exception is for logarithmic graduation,
+         * in which the tick position is not proportional to the tick value.
+         */
+        public double currentPosition() {
+            return iterator.currentPosition();
+        }
+
+        /**
          * Returns the value for current tick. The current tick may be major or minor.
          */
         public double currentValue() {
@@ -880,7 +890,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
          * @return <code>dest</code>, or a new {@link Point2D} object if <code>dest</code> was null.
          */
         public Point2D currentPosition(final Point2D dest) {
-            final double     position = currentValue()-minimum;
+            final double     position = currentPosition()-minimum;
             final double x = position*scaleX + getX1();
             final double y = position*scaleY + getY1();
             ensureValid();
@@ -905,7 +915,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
          */
         public Line2D currentTick(final Line2D dest) {
             final boolean isMajorTick = isMajorTick();
-            final double     position = currentValue()-minimum;
+            final double     position = currentPosition()-minimum;
             final double x  = position*scaleX + getX1();
             final double y  = position*scaleY + getY1();
             final double s1 = isMajorTick ? tickStart : subTickStart;
@@ -981,7 +991,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
             final double      height = bounds.getHeight();
             final double      width  = bounds.getWidth();
             final double  tickStart  = (0.5*height)-Math.min(Axis2D.this.tickStart, 0);
-            final double    position = currentValue()-minimum;
+            final double    position = currentPosition()-minimum;
             final double x= position*scaleX + getX1();
             final double y= position*scaleY + getY1();
             bounds.setRect(x - (1+tickX)*(0.5*width)  - tickX*tickStart,
@@ -1222,7 +1232,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * itérateur ne retourne que des droites et jamais de courbes, il ne prend
      * pas d'argument <code>flatness</code>.
      *
-     * @version $Id: Axis2D.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
+     * @version $Id: Axis2D.java,v 1.3 2003/03/10 15:08:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private class TickPathIterator extends TickIterator implements java.awt.geom.PathIterator {
@@ -1422,7 +1432,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * Itérateur balayant l'axe et ses barres de graduations pour leur traçage.
      * Cet itérateur balaye aussi les étiquettes de graduations.
      *
-     * @version $Id: Axis2D.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
+     * @version $Id: Axis2D.java,v 1.3 2003/03/10 15:08:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class PathIterator extends TickPathIterator {

@@ -42,10 +42,15 @@ import org.geotools.resources.XMath;
  * Cet itérateur retourne les positions des graduations à partir de la valeur minimale
  * jusqu'à la valeur maximale.
  *
- * @version $Id: LogarithmicNumberIterator.java,v 1.1 2003/03/07 23:36:13 desruisseaux Exp $
+ * @version $Id: LogarithmicNumberIterator.java,v 1.2 2003/03/10 15:08:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class LogarithmicNumberIterator extends NumberIterator {
+    /**
+     * Scale and offset factors for {@link #currentPosition}
+     */
+    private double scale, offset;
+
     /**
      * Construit un itérateur par défaut. La méthode {@link #init}
      * <u>doit</u> être appelée avant que cet itérateur ne soit
@@ -58,10 +63,41 @@ final class LogarithmicNumberIterator extends NumberIterator {
     }
 
     /**
+     * Initialise l'itérateur.
+     *
+     * @param minimum           Valeur minimale de la première graduation.
+     * @param maximum           Valeur limite des graduations. La dernière
+     *                          graduation n'aura pas nécessairement cette valeur.
+     * @param visualLength      Longueur visuelle de l'axe sur laquelle tracer la graduation.
+     *                          Cette longueur doit être exprimée en pixels ou en points.
+     * @param visualTickSpacing Espace à laisser visuellement entre deux marques de graduation.
+     *                          Cet espace doit être exprimé en pixels ou en points (1/72 de pouce).
+     */
+    protected void init(final double minimum,
+                        final double maximum,
+                        final float  visualLength,
+                        final float  visualTickSpacing)
+    {
+        final double logMin = XMath.log10(minimum);
+        final double logMax = XMath.log10(maximum);
+        super.init(logMin, logMax, visualLength, visualTickSpacing);
+        scale  = (maximum-minimum) / (logMax-logMin);
+        offset = minimum - scale*logMin;
+    }
+
+    /**
+     * Returns the position where to draw the current tick. The
+     * position is scaled from the graduation's minimum to maximum.
+     */
+    public double currentPosition() {
+        return super.currentPosition() * scale + offset;
+    }
+
+    /**
      * Retourne la valeur de la graduation courante. Cette méthode
      * peut être appelée pour une graduation majeure ou mineure.
      */
     public double currentValue() {
-        return XMath.log10(super.currentValue());
+        return XMath.pow10(super.currentValue());
     }
 }

@@ -45,7 +45,7 @@ import java.util.Locale;
  * may use a slightly variable increment between differents months, since
  * all months doesn't have the same number of days.
  *
- * @version $Id: TickIterator.java,v 1.1 2003/03/07 23:36:14 desruisseaux Exp $
+ * @version $Id: TickIterator.java,v 1.2 2003/03/10 15:08:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface TickIterator {
@@ -61,6 +61,14 @@ public interface TickIterator {
      *         or <code>false</code> if it is a minor tick.
      */
     public abstract boolean isMajorTick();
+
+    /**
+     * Returns the position where to draw the current tick.  The position is scaled
+     * from the graduation's minimum to maximum.    This is usually the same number
+     * than {@link #currentValue}. The mean exception is for logarithmic graduation,
+     * in which the tick position is not proportional to the tick value.
+     */
+    public abstract double currentPosition();
 
     /**
      * Returns the value for current tick. The

@@ -43,7 +43,7 @@ import org.geotools.resources.XMath;
  * Cet itérateur retourne les positions des graduations à partir de la
  * valeur minimale jusqu'à la valeur maximale.
  *
- * @version $Id: NumberIterator.java,v 1.1 2003/03/07 23:36:13 desruisseaux Exp $
+ * @version $Id: NumberIterator.java,v 1.2 2003/03/10 15:08:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class NumberIterator implements TickIterator {
@@ -162,10 +162,10 @@ class NumberIterator implements TickIterator {
      * @param visualTickSpacing Espace à laisser visuellement entre deux marques de graduation.
      *                          Cet espace doit être exprimé en pixels ou en points (1/72 de pouce).
      */
-    protected final void init(      double minimum,
-                              final double maximum,
-                              final float  visualLength,
-                              final float  visualTickSpacing)
+    protected void init(      double minimum,
+                        final double maximum,
+                        final float  visualLength,
+                        final float  visualTickSpacing)
     {
         if (minimum           == this.minimum      &&
             maximum           == this.maximum      &&
@@ -255,6 +255,16 @@ class NumberIterator implements TickIterator {
      */
     public boolean isMajorTick() {
         return subTickIndex == 0;
+    }
+
+    /**
+     * Returns the position where to draw the current tick.  The position is scaled
+     * from the graduation's minimum to maximum.    This is usually the same number
+     * than {@link #currentValue}. The mean exception is for logarithmic graduation,
+     * in which the tick position is not proportional to the tick value.
+     */
+    public double currentPosition() {
+        return value;
     }
 
     /**
