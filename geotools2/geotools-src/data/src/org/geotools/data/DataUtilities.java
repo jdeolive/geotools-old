@@ -16,20 +16,15 @@
  */
 package org.geotools.data;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.Map.Entry;
-
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.data.collection.CollectionDataStore;
 import org.geotools.feature.AttributeType;
@@ -58,16 +53,19 @@ import org.geotools.filter.LiteralExpression;
 import org.geotools.filter.LogicFilter;
 import org.geotools.filter.MathExpression;
 import org.geotools.filter.NullFilter;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 
 /**
@@ -1061,10 +1059,14 @@ public class DataUtilities {
             return firstQuery;
         }
 
-        if (!firstQuery.getTypeName().equals(secondQuery.getTypeName())) {
-            String msg = "Type names do not match: " + firstQuery.getTypeName()
-                + " != " + secondQuery.getTypeName();
-            throw new IllegalArgumentException(msg);
+        if ((firstQuery.getTypeName() != null)
+                && (secondQuery.getTypeName() != null)) {
+            if (!firstQuery.getTypeName().equals(secondQuery.getTypeName())) {
+                String msg = "Type names do not match: "
+                    + firstQuery.getTypeName() + " != "
+                    + secondQuery.getTypeName();
+                throw new IllegalArgumentException(msg);
+            }
         }
 
         //none of the queries equals Query.ALL, mix them
@@ -1087,7 +1089,8 @@ public class DataUtilities {
         }
 
         //build the mixed query
-        String typeName = firstQuery.getTypeName();
+        String typeName = firstQuery.getTypeName() != null? 
+        		firstQuery.getTypeName() : secondQuery.getTypeName();
 
         return new DefaultQuery(typeName, filter, maxFeatures, propNames, handle);
     }
@@ -1349,7 +1352,7 @@ public class DataUtilities {
      * DOCUMENT ME!
      *
      * @author $author$
-     * @version $Revision: 1.22 $
+     * @version $Revision: 1.23 $
      */
     public abstract static class Traversal extends AbstractFilterVisitor {
         abstract void traverse(Filter filter);
