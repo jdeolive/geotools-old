@@ -1,3 +1,4 @@
+package org.geotools.renderer;
 /*
  * LineStyle.java
  *
