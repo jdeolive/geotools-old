@@ -40,12 +40,13 @@ import junit.textui.TestRunner;
 
 // Test units
 import org.geotools.cv.*;
+import org.geotools.gc.*;
 
 
 /**
  * Performs all tests for the Grid Coverage Services implementation.
  *
- * @version $Id: GCS_Suite.java,v 1.2 2002/07/23 17:57:25 desruisseaux Exp $
+ * @version $Id: GCS_Suite.java,v 1.3 2002/07/27 12:42:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GCS_Suite extends TestCase {
@@ -72,6 +73,7 @@ public class GCS_Suite extends TestCase {
         suite.addTest(CategoryListTest   .suite());
         suite.addTest(ImageAdapterTest   .suite());
         suite.addTest(SampleDimensionTest.suite());
+        suite.addTest(GridCoverageTest   .suite());
         return suite;
     }
 }
