@@ -65,8 +65,10 @@ public interface ResourceKeys
     public static final int UP                                          =    38;
     public static final int UTC                                         =    39;
     public static final int VERTICAL                                    =    40;
-    public static final int WARNING_AMBIGUOUS_ELLIPSOID                 =    41;
     public static final int WEST                                        =    42;
+
+    public static final int WARNING_AMBIGUOUS_ELLIPSOID                 =    41;
+    public static final int WARNING_UNKNOW_PARAMETER_$3                 =    83;
 
     public static final int ERROR_ANGLE_OVERFLOW_$1                     =    43;
     public static final int ERROR_ANTIPODE_LATITUDES_$2                 =    44;
@@ -100,7 +102,7 @@ public interface ResourceKeys
     public static final int ERROR_NO_TRANSFORMATION_PATH_$2             =    71;
     public static final int ERROR_NO_TRANSFORM_FOR_CLASSIFICATION_$1    =    72;
     public static final int ERROR_NULL_ARGUMENT_$1                      =    73;
-    public static final int ERROR_NULL_VALUE_$1                         =    74;
+    public static final int ERROR_NULL_VALUE_$2                         =    74;
     public static final int ERROR_PARSE_ANGLE_EXCEPTION_$2              =    75;
     public static final int ERROR_POLE_PROJECTION_$1                    =    76;
     public static final int ERROR_UNKNOW_TYPE_$1                        =    77;

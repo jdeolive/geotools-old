@@ -66,7 +66,7 @@ import org.geotools.units.Unit;
  * A commonly used authority is EPSG, which is also
  * used in the GeoTIFF standard.
  *
- * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.4 2002/07/29 18:00:24 desruisseaux Exp $
+ * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.5 2002/07/30 17:08:56 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -93,6 +93,26 @@ public abstract class CoordinateSystemAuthorityFactory {
      * Returns the authority name.
      */
     public abstract String getAuthority();
+    
+    /**
+     * Returns an arbitrary {@link Object} from a code. Subclasses can override
+     * this method if they are capable to automatically detect the object type
+     * from its code. The default implementation always throw an exception.
+     *
+     * @param  code Value allocated by authority.
+     * @return The object.
+     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
+     * @throws FactoryException if some other kind of failure occurred in the backing store.
+     *         Most common failure causes include {@link SQLException} or {@link IOException}.
+     *
+     * @see #createCoordinateSystem
+     * @see #createDatum
+     * @see #createEllipsoid
+     * @see #createUnit
+     */
+    public Object createObject(String code) throws FactoryException {
+        throw new NoSuchAuthorityCodeException("Object", code);
+    }
     
     /**
      * Returns a {@link Unit} object from a code.

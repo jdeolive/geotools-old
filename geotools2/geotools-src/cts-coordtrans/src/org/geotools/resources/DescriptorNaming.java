@@ -37,6 +37,10 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 
+// Reflection
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
 // Parameters and JAI utilities
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListImpl;
@@ -104,8 +108,16 @@ public final class DescriptorNaming {
      */
     private void bindDefaults(final String method) {
         try {
-            Class.forName(initializer);
+            final  Class c = Class.forName(initializer);
+            final Method m = c.getMethod("getDefault", null);
+            m.invoke(null, null);
         } catch (ClassNotFoundException exception) {
+            Utilities.unexpectedException(logger, "DescriptorNaming", method, exception);
+        } catch (NoSuchMethodException exception) {
+            // No "getDefault()" static method. Ignore...
+        } catch (IllegalAccessException exception) {
+            // The method is not public. Treat it as if they were no "getDefault()" method.
+        } catch (InvocationTargetException exception) {
             Utilities.unexpectedException(logger, "DescriptorNaming", method, exception);
         }
     }
@@ -122,7 +134,7 @@ public final class DescriptorNaming {
                                   final ParameterListDescriptor descriptor)
         throws IllegalArgumentException
     {
-        if (descriptors==null) {
+        if (descriptors == null) {
             descriptors = new HashMap();
             bindDefaults("bind");
         }
@@ -144,7 +156,7 @@ public final class DescriptorNaming {
      *         or <code>null</code> if none.
      */
     public synchronized ParameterListDescriptor lookup(final String classification) {
-        if (descriptors==null) {
+        if (descriptors == null) {
             descriptors = new HashMap();
             bindDefaults("lookup");
         }
@@ -165,7 +177,7 @@ public final class DescriptorNaming {
                                           final ParameterListDescriptor fallback)
     {
         ParameterListDescriptor descriptor = lookup(classification);
-        if (descriptor==null) {
+        if (descriptor == null) {
             descriptor = fallback;
         }
         return new ParameterListImpl(descriptor);
@@ -175,7 +187,7 @@ public final class DescriptorNaming {
      * Returns the list of classification names.
      */
     public synchronized String[] list() {
-        if (descriptors==null) {
+        if (descriptors == null) {
             descriptors = new HashMap();
             bindDefaults("list");
         }
