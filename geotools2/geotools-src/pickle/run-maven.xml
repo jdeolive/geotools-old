@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="shapefile">
+    <target name="init">
+    <condition property="mavenbat">
+        <os family="windows"/>
+    </condition>
+    <condition property="mavenunix">
+        <os family="unix"/>
+    </condition>
+    <condition property="mavenmac"><and>
+      <os family="mac"/>
+      <not>
+        <os family="unix"/>
+      </not>
+    </and>
+  </condition>
+  <condition property="maven" value="maven.bat">
+    <not>
+        <equals arg1="${mavenbat}" arg2="$${mavenbat}"/>
+    </not>
+    <!-- <istrue value="${mavenbat}"/> uncomment instead if you have ant 1.5+ -->
+  </condition>
+  <!-- I have no idea what the correct command for maven on a mac is so assumed it has more sense than windows
+   if you know better please fix. -->
+  <condition property="maven" value="/home/preston/ian/maven-1.0-beta-7/bin/maven" >
+      <or>
+        <not>
+            <equals arg1="${mavenunix}" arg2="$${mavenunix}"/>
+        </not>
+        <not>
+            <equals arg1="${mavenmac}" arg2="$${mavenmac}"/>
+        </not>
+        <!-- <istrue value="${mavenunix}"/>
+        <istrue value="${mavenmac}"/> as above -->
+    </or>
+  </condition>
+	<echo message="maven = ${maven}"/>
+</target>
+    <target name="test" depends="init">
+        
+        <exec executable="${maven}">
+          <arg value="test"/> 
+        </exec>
+    </target>
+    
+    <target name="site" depends="init">
+        <exec executable="${maven}">
+          <arg value="site"/> 
+        </exec>
+    </target>
+    
+    <target name="compile" depends="init">
+        <exec executable="${maven}">
+          <arg value="java:compile"/> 
+        </exec>
+    </target>
+    
+    <target name="clean" depends="init">
+        <exec executable="${maven}">
+          <arg value="clean"/> 
+        </exec>
+    </target>
+    
+    <target name="install" depends="init">
+        <exec executable="${maven}">
+          <arg value="jar:install"/> 
+        </exec>
+    </target>
+    
+    
+    
+</project>
