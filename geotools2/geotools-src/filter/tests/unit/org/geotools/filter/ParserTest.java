@@ -53,7 +53,7 @@ public class ParserTest
         Logger.getLogger("org.geotools.filter");
 
     static {
-	Geotools.init("Log4JFormatter", Level.FINEST);
+	Geotools.init("Log4JFormatter", Level.FINE);
     }
 
     /** Schema on which to preform tests */
@@ -299,6 +299,28 @@ public class ParserTest
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
     }    
+
+    /* 18 and 19 have multiple filters, and only last one will print, 
+       but logicSAXParser was messing up with multiple filters, and 
+       I used these tests to fix it.  To make these effective the
+       parser test should be able to get multiple filters.  And shouldn't
+       we also be checking the filters generated programmatically, so they
+       fail if things mess up?  I don't have time right now, but maybe
+       some time soon...cholmes */
+    public void test18()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test18.xml");
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
+	} 
+
+      public void test19()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test19.xml");
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
+	} 
+
 
 //    public void test27()
 //        throws Exception {
