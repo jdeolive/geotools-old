@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: gtpublish,v 1.7 2003/06/03 10:07:31 kobit Exp $
+# $Id: gtpublish,v 1.8 2003/07/22 10:01:57 camerons Exp $
 #
 # Publish docbook files and docbook files which contain
 # <xi:include> tags into html files.
@@ -21,7 +21,7 @@ imageSource="sdocbook/images \
 resources="resources"
 docbookSource="sdocbook"
 target="www"
-xsl=../../extbin/gtbuild/docbook-xsl/html/docbook.xsl 
+xsl="docbook-xsl/html/docbook.xsl"
 
 sourceFiles="${docbookSource}/*.xml"
 
