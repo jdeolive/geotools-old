@@ -79,11 +79,8 @@
       <id>defaultcore</id>
       <version>0.1</version>
     </dependency>
-        <!--Shapefile is only needed for the unit tests-->
-        <dependency>
-      <id>shapefile</id>
-      <version>0.1</version>
-    </dependency>
+        
+        
     </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
