@@ -79,15 +79,15 @@ import javax.media.jai.RasterFactory;
 
 
 /**
- * DOCUMENT ME!
+ * Simple testing for grid coverage rendering
  *
  * @author aaime
  */
 public class RenderingGridCoverageTest extends TestCase {
-    /** DOCUMENT ME! */
+    /** Grid coverage width in cells */
     private static final int WIDTH = 1000;
 
-    /** DOCUMENT ME! */
+    /** Grid coverage height in cells */
     private static final int HEIGHT = 1000;
 
 

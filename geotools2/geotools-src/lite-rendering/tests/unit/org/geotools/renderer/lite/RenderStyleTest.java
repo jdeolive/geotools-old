@@ -25,6 +25,7 @@ import com.vividsolutions.jts.geom.*;
 import junit.framework.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
+import org.geotools.feature.Feature;
 import org.geotools.map.*;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.BoundingBoxImpl;
@@ -55,36 +56,41 @@ import javax.swing.*;
 
 
 /**
- * DOCUMENT ME!
+ * Test for styled rendering
  *
- * @author jamesm,iant
+ * @author jamesm,iant,aaime
  */
 public class RenderStyleTest extends TestCase {
-    /** DOCUMENT ME! */
-    private java.net.URL base = getClass().getResource("testData/");
+    /**
+     * path for test data
+     *
+     * @param testName 
+     */
+
+    // private java.net.URL base = getClass().getResource("testData/");
 
     /**
      * Creates a new RenderStyleTest object.
      *
-     * @param testName DOCUMENT ME!
+     * @param testName
      */
     public RenderStyleTest(java.lang.String testName) {
         super(testName);
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      *
-     * @param args DOCUMENT ME!
+     * @param args
      */
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      *
-     * @return DOCUMENT ME!
+     * @return
      */
     public static Test suite() {
         TestSuite suite = new TestSuite(RenderStyleTest.class);
@@ -93,9 +99,9 @@ public class RenderStyleTest extends TestCase {
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testSimpleRender() throws Exception {
         // build the features
@@ -104,8 +110,28 @@ public class RenderStyleTest extends TestCase {
         // Build up style
         Style style = buildStyle();
 
-        // create line style with 
+        // test the context architecture
         contextArchitectureTest(fc, style, fc.getBounds());
+
+        // test non interactive direct rendering
+        directRenderingTest(fc, style, fc.getBounds(), false, 400, 400);
+    }
+
+    public void testDirectRendering() throws Exception {
+        // build the features
+        FeatureCollection fc = buildFeatures();
+
+        // Build up style
+        Style style = buildStyle();
+
+        // test direct rendering with various frame sizes to check if the image
+        // gets deformed accordingly (needed for wms)
+        int[] widths = new int[] {200, 300, 400, 500, 300, 300, 300, 300};
+        int[] heights = new int[] {300, 300, 300, 300, 200, 300, 400, 500};
+
+        for (int i = 0; i < widths.length; i++) {
+            directRenderingTest(fc, style, fc.getBounds(), true, widths[i], heights[i]);
+        }
     }
 
     private Style buildStyle() {
@@ -125,7 +151,7 @@ public class RenderStyleTest extends TestCase {
         Stroke gstroke = sb.createStroke(Color.RED, 10);
         gstroke.setGraphicFill(sb.createGraphic(null, triangle, null, 1, 10, 0));
         style.addFeatureTypeStyle(sb.createFeatureTypeStyle("linefeature2",
-                new Symbolizer[] { sb.createLineSymbolizer(gstroke), sb.createLineSymbolizer(1) }));
+                new Symbolizer[] {sb.createLineSymbolizer(gstroke), sb.createLineSymbolizer(1)}));
 
         // create line style referring to external graphic
         ExternalGraphic ext = sb.createExternalGraphic("http://www.ccg.leeds.ac.uk/ian/geotools/icons/rail.gif",
@@ -143,7 +169,7 @@ public class RenderStyleTest extends TestCase {
         Fill gfill = sb.createFill(Color.BLUE, 0.5);
         gfill.setGraphicFill(sb.createGraphic(null, circle, null, 1, 10, 0));
 
-        Stroke dashed = sb.createStroke(Color.YELLOW, 3, new float[] { 1f, 2f });
+        Stroke dashed = sb.createStroke(Color.YELLOW, 3, new float[] {1f, 2f});
         style.addFeatureTypeStyle( //
             sb.createFeatureTypeStyle("polygon",
                 new Symbolizer[] {
@@ -178,7 +204,7 @@ public class RenderStyleTest extends TestCase {
                 "image/gif");
         Mark cross = sb.createMark(sb.MARK_CROSS, Color.MAGENTA, 0.5);
         Mark square = sb.createMark(sb.MARK_SQUARE, Color.GREEN, 0.5);
-        Graphic gr = sb.createGraphic(new ExternalGraphic[] { blob }, new Mark[] { cross, square },
+        Graphic gr = sb.createGraphic(new ExternalGraphic[] {blob}, new Mark[] {cross, square},
                 null, 0.5, 10, 45);
         Font font = sb.createFont("Times", 10);
         style.addFeatureTypeStyle(sb.createFeatureTypeStyle("pointfeature",
@@ -191,12 +217,12 @@ public class RenderStyleTest extends TestCase {
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      *
-     * @return DOCUMENT ME!
+     * @return
      *
-     * @throws SchemaException DOCUMENT ME!
-     * @throws IllegalAttributeException DOCUMENT ME!
+     * @throws SchemaException
+     * @throws IllegalAttributeException
      */
     private FeatureCollection buildFeatures() throws SchemaException, IllegalAttributeException {
         AttributeType[] types = new AttributeType[1];
@@ -206,41 +232,41 @@ public class RenderStyleTest extends TestCase {
         types[0] = AttributeTypeFactory.newAttributeType("centerline", line.getClass());
 
         FeatureType lineType = FeatureTypeFactory.newFeatureType(types, "linefeature");
-        Feature lineFeature = lineType.create(new Object[] { line });
+        Feature lineFeature = lineType.create(new Object[] {line});
 
         LineString line2 = makeSampleLineString(geomFac, 100, 0);
         lineType = FeatureTypeFactory.newFeatureType(types, "linefeature2");
 
-        Feature lineFeature2 = lineType.create(new Object[] { line2 });
+        Feature lineFeature2 = lineType.create(new Object[] {line2});
 
         LineString line3 = makeSampleLineString(geomFac, 200, 0);
         lineType = FeatureTypeFactory.newFeatureType(types, "linefeature3");
 
-        Feature lineFeature3 = lineType.create(new Object[] { line3 });
+        Feature lineFeature3 = lineType.create(new Object[] {line3});
 
         Polygon polygon = makeSamplePolygon(geomFac, 0, 0);
 
         types[0] = AttributeTypeFactory.newAttributeType("edge", polygon.getClass());
 
         FeatureType polygonType = FeatureTypeFactory.newFeatureType(types, "polygon");
-        Feature polygonFeature = polygonType.create(new Object[] { polygon });
+        Feature polygonFeature = polygonType.create(new Object[] {polygon});
 
         Polygon polygon2 = makeSamplePolygon(geomFac, 0, 150);
         polygonType = FeatureTypeFactory.newFeatureType(types, "polygontest2");
 
-        Feature polygonFeature2 = polygonType.create(new Object[] { polygon2 });
+        Feature polygonFeature2 = polygonType.create(new Object[] {polygon2});
 
         Polygon polygon3 = makeSamplePolygon(geomFac, 220, 100);
         polygonType = FeatureTypeFactory.newFeatureType(types, "polygontest3");
 
-        Feature polygonFeature3 = polygonType.create(new Object[] { polygon3 });
+        Feature polygonFeature3 = polygonType.create(new Object[] {polygon3});
 
         Point point = makeSamplePoint(geomFac, 140.0, 140.0);
         types[0] = AttributeTypeFactory.newAttributeType("centre", point.getClass());
 
         FeatureType pointType = FeatureTypeFactory.newFeatureType(types, "pointfeature");
 
-        Feature pointFeature = pointType.create(new Object[] { point });
+        Feature pointFeature = pointType.create(new Object[] {point});
 
         FeatureCollection fc = FeatureCollections.newCollection();
         fc.add(lineFeature);
@@ -255,81 +281,56 @@ public class RenderStyleTest extends TestCase {
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      *
-     * @param ft DOCUMENT ME!
-     * @param style DOCUMENT ME!
-     * @param ex DOCUMENT ME!
+     * @param ft
+     * @param style
+     * @param ex
+     * @param interactive 
+     * @param width 
+     * @param height 
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
-    private void mapArchitectureTest(FeatureCollection ft, Style[] style, Envelope ex)
-        throws Exception {
-        org.geotools.map.Map map = new DefaultMap();
+    private void directRenderingTest(FeatureCollection ft, Style style, Envelope ex,
+        boolean interactive, int width, int height) throws Exception {
+        LiteRenderer renderer = new LiteRenderer();
+        Frame frame = new Frame("rendering test");
+        frame.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    e.getWindow().dispose();
+                }
+            });
 
-        for (int i = 0; i < style.length; i++) {
-            map.addFeatureTable(ft, style[i]);
+        Panel p = new Panel();
 
-            Renderer renderer = new LiteRenderer();
-            Frame frame = new Frame("rendering test");
-            frame.addWindowListener(new WindowAdapter() {
-                    public void windowClosing(WindowEvent e) {
-                        e.getWindow().dispose();
-                    }
-                });
+        frame.add(p);
 
-            Panel p = new Panel();
+        frame.setSize(width, height);
+        frame.setVisible(true);
+        renderer.setOutput(p.getGraphics(), p.getBounds());
+        renderer.setInteractive(interactive);
 
-            frame.add(p);
+        Date start = new Date();
+        Feature[] features = new Feature[ft.size()];
+        features = (Feature[]) ft.toArray(features);
+        renderer.render(features, ex, style);
 
-            frame.setSize(300, 300);
-            p.setSize(300, 300); // make the panel square ?
-            frame.setLocation(300 * i, 0);
-            frame.setVisible(true);
-            renderer.setOutput(p.getGraphics(), p.getBounds());
-            renderer.setInteractive(false);
+        Date end = new Date();
+        System.out.println("Time to render to screen: " + (end.getTime() - start.getTime()));
 
-            Date start = new Date();
-            map.render(renderer, ex); //and finaly try and draw it!
-
-            Date end = new Date();
-            System.out.println("Time to render to screen: " + (end.getTime() - start.getTime()));
-
-            int[] wa = { 400, 400, 600 };
-            int[] ha = { 400, 600, 400 };
-
-            for (int j = 0; j < wa.length; j++) {
-                int w = wa[j];
-                int h = ha[j];
-
-                BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-                Graphics g = image.getGraphics();
-                g.setColor(Color.white);
-                g.fillRect(0, 0, w, h);
-                renderer.setOutput(g, new java.awt.Rectangle(0, 0, w, h));
-                start = new Date();
-                map.render(renderer, ex); //and finaly try and draw it!
-                end = new Date();
-                System.out.println("Time to render to image: " + (end.getTime() - start.getTime()));
-
-                File file = new File(base.getPath(), "RenderStyleTest" + i + "_" + j + ".jpg");
-                FileOutputStream out = new FileOutputStream(file);
-                ImageIO.write(image, "JPEG", out);
-            }
-
-            // Thread.sleep(50000);
-            frame.dispose();
-        }
+        // Thread.sleep(2000);
+        frame.dispose();
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      *
-     * @param fc DOCUMENT ME!
-     * @param style DOCUMENT ME!
-     * @param ex DOCUMENT ME!
+     * @param fc
+     * @param style
+     * @param ex
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     private void contextArchitectureTest(FeatureCollection fc, Style style, Envelope ex)
         throws Exception {
@@ -338,7 +339,6 @@ public class RenderStyleTest extends TestCase {
         ctx.getLayerList().addLayer(cfac.createLayer(fc, style));
 
         LiteRenderer renderer = new LiteRenderer(ctx);
-        renderer.setInteractive(false);
         renderer.setConcatTransforms(true);
 
         Frame frame = new Frame("rendering test");
@@ -365,17 +365,17 @@ public class RenderStyleTest extends TestCase {
         System.out.println("Time to render to screen using context: "
             + (end.getTime() - start.getTime()));
 
-        // frame.dispose();
+        frame.dispose();
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      *
-     * @param geomFac DOCUMENT ME!
-     * @param xoff DOCUMENT ME!
-     * @param yoff DOCUMENT ME!
+     * @param geomFac
+     * @param xoff
+     * @param yoff
      *
-     * @return DOCUMENT ME!
+     * @return
      */
     private LineString makeSampleLineString(final GeometryFactory geomFac, double xoff, double yoff) {
         Coordinate[] linestringCoordinates = new Coordinate[8];
@@ -394,13 +394,13 @@ public class RenderStyleTest extends TestCase {
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      *
-     * @param geomFac DOCUMENT ME!
-     * @param xoff DOCUMENT ME!
-     * @param yoff DOCUMENT ME!
+     * @param geomFac
+     * @param xoff
+     * @param yoff
      *
-     * @return DOCUMENT ME!
+     * @return
      */
     private com.vividsolutions.jts.geom.Polygon makeSamplePolygon(final GeometryFactory geomFac,
         double xoff, double yoff) {
@@ -429,13 +429,13 @@ public class RenderStyleTest extends TestCase {
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      *
-     * @param geomFac DOCUMENT ME!
-     * @param x DOCUMENT ME!
-     * @param y DOCUMENT ME!
+     * @param geomFac
+     * @param x
+     * @param y
      *
-     * @return DOCUMENT ME!
+     * @return
      */
     private Point makeSamplePoint(final GeometryFactory geomFac, double x, double y) {
         Coordinate c = new Coordinate(x, y);

@@ -25,8 +25,6 @@ import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.logging.Logger;
 
 //Logging system
@@ -66,6 +64,9 @@ import org.geotools.styling.Symbolizer;
  * @author jamesm
  */
 public class Rendering2DTest extends TestCase {
+    /** path for test data */
+    // private java.net.URL base = getClass().getResource("/testData/");
+    
     /**
      * The logger for the rendering module.
      */
@@ -203,15 +204,10 @@ public class Rendering2DTest extends TestCase {
         g.fillRect(0,0,w,h);
         renderer.setOutput(g,new Rectangle(0,0,w,h));
         map.render(renderer,ex);//and finaly try and draw it!
-        String dataFolder = System.getProperty("dataFolder");
-        if(dataFolder==null){
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder+="/tests/unit/testData";
-        }
-        File file = new File(dataFolder, "RendererStyle.jpg"); 
-        FileOutputStream out = new FileOutputStream(file);
-        ImageIO.write(image, "JPEG", out); 
+        
+//        File file = new File(base.getPath(), "RendererStyle.jpg"); 
+//        FileOutputStream out = new FileOutputStream(file);
+//        ImageIO.write(image, "JPEG", out); 
         
         // Thread.sleep(20000);
         frame.dispose();
@@ -242,7 +238,7 @@ public class Rendering2DTest extends TestCase {
         assertEquals(5d, c.x, 1.0);
         assertEquals(5d, c.y, 1.0);
        
-        
+        frame.dispose();
         
     }
     private Point makeSamplePoint(final GeometryFactory geomFac) {

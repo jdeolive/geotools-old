@@ -22,6 +22,36 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollections;
+import org.geotools.filter.Filter;
+import org.geotools.gc.GridCoverage;
+import org.geotools.map.Context;
+import org.geotools.map.Layer;
+import org.geotools.renderer.Renderer;
+import org.geotools.renderer.Renderer2D;
+import org.geotools.styling.ExternalGraphic;
+import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.Fill;
+import org.geotools.styling.Font;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.Halo;
+import org.geotools.styling.LabelPlacement;
+import org.geotools.styling.LinePlacement;
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.Mark;
+import org.geotools.styling.PointPlacement;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.RasterSymbolizer;
+import org.geotools.styling.Rule;
+import org.geotools.styling.Stroke;
+import org.geotools.styling.Style;
+import org.geotools.styling.Symbol;
+import org.geotools.styling.Symbolizer;
+import org.geotools.styling.TextMark;
+import org.geotools.styling.TextSymbolizer;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Canvas;
@@ -59,68 +89,34 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollections;
-import org.geotools.filter.Filter;
-import org.geotools.gc.GridCoverage;
-import org.geotools.map.Context;
-import org.geotools.map.Layer;
-import org.geotools.renderer.Renderer;
-import org.geotools.renderer.Renderer2D;
-import org.geotools.styling.ExternalGraphic;
-import org.geotools.styling.FeatureTypeStyle;
-import org.geotools.styling.Fill;
-import org.geotools.styling.Font;
-import org.geotools.styling.Graphic;
-import org.geotools.styling.Halo;
-import org.geotools.styling.LabelPlacement;
-import org.geotools.styling.LinePlacement;
-import org.geotools.styling.LineSymbolizer;
-import org.geotools.styling.Mark;
-import org.geotools.styling.PointPlacement;
-import org.geotools.styling.PointSymbolizer;
-import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.RasterSymbolizer;
-import org.geotools.styling.Rule;
-import org.geotools.styling.Stroke;
-import org.geotools.styling.Style;
-import org.geotools.styling.Symbol;
-import org.geotools.styling.Symbolizer;
-import org.geotools.styling.TextMark;
-import org.geotools.styling.TextSymbolizer;
-
 
 
 /**
- * A lite implementation of the Renderer and Renderer2D interfaces. Lite means
- * that:
- *
+ * A lite implementation of the Renderer and Renderer2D interfaces. Lite means that:
+ * 
  * <ul>
  * <li>
- * The code is relatively simple to understand, so it can be used as a simple
- * example of an SLD compliant rendering code
+ * The code is relatively simple to understand, so it can be used as a simple example of an SLD
+ * compliant rendering code
  * </li>
  * <li>
  * Uses as few memory as possible
  * </li>
  * </ul>
- *
- * Use this class if you need a stateless renderer that provides low memory
- * footprint and  decent rendering performance on the first call but don't
- * need good optimal performance on subsequent calls on the same data. Notice:
- * for the time being, this class doesn't support GridCoverage stylers, that
- * will be rendered using the non geophisics version of the GridCoverage, if
+ * 
+ * Use this class if you need a stateless renderer that provides low memory footprint and  decent
+ * rendering performance on the first call but don't need good optimal performance on subsequent
+ * calls on the same data. Notice: for the time being, this class doesn't support GridCoverage
+ * stylers, that will be rendered using the non geophisics version of the GridCoverage, if
  * available, with the geophisics one, otherwise.
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.21 2003/08/10 08:40:58 seangeo Exp $
+ * @version $Id: LiteRenderer.java,v 1.22 2003/08/10 15:07:06 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
-    private static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.rendering");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.rendering");
 
     /** where the centre of an untransormed mark is */
     private static Point markCentrePoint;
@@ -154,8 +150,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
     /** The image loader */
     private static ImageLoader imageLoader = new ImageLoader();
-
-    private static final Composite DEFAULT_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
+    private static final Composite DEFAULT_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+            1.0f);
     private static final java.awt.Stroke DEFAULT_STROKE = new BasicStroke();
 
     static { //static block to populate the lookups
@@ -173,9 +169,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
         fontStyleLookup.put("bold", new Integer(java.awt.Font.BOLD));
 
         /**
-         * A list of wellknownshapes that we know about: square, circle,
-         * triangle, star, cross, x. Note arrow is an implementation specific
-         * mark.
+         * A list of wellknownshapes that we know about: square, circle, triangle, star, cross, x.
+         * Note arrow is an implementation specific mark.
          */
         wellKnownMarks.add("Square");
         wellKnownMarks.add("Triangle");
@@ -203,24 +198,20 @@ public class LiteRenderer implements Renderer, Renderer2D {
         markCentrePoint = fac.createPoint(c);
     }
 
-    /**
-     * Context which contains LayerList, BoundingBox which needs to be
-     * rendered.
-     */
+    /** Context which contains LayerList, BoundingBox which needs to be rendered. */
     private Context context;
 
     /**
-     * Flag which determines if the renderer is interactive or not. An
-     * interactive renderer will return rather than waiting for time consuming
-     * operations to complete (e.g. Image Loading). A non-interactive renderer
-     * (e.g. a SVG or PDF renderer) will block for these operations.
+     * Flag which determines if the renderer is interactive or not. An interactive renderer will
+     * return rather than waiting for time consuming operations to complete (e.g. Image Loading).
+     * A non-interactive renderer (e.g. a SVG or PDF renderer) will block for these operations.
      */
     private boolean interactive = true;
 
     /**
-     * Flag which controls behaviour for applying affine transformation to the
-     * graphics object.  If true then the transform will be concatenated to
-     * the existing transform.  If false it will be replaced.
+     * Flag which controls behaviour for applying affine transformation to the graphics object.  If
+     * true then the transform will be concatenated to the existing transform.  If false it will
+     * be replaced.
      */
     private boolean concatTransforms = false;
 
@@ -234,8 +225,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
     private Rectangle screenSize;
 
     /**
-     * The ratio required to scale the features to be rendered so that they fit
-     * into the output space.
+     * The ratio required to scale the features to be rendered so that they fit into the output
+     * space.
      */
     private double scaleDenominator;
 
@@ -254,30 +245,48 @@ public class LiteRenderer implements Renderer, Renderer2D {
     /**
      * Creates a new instance of Java2DRenderer.
      *
-     * @param context Contains pointers to layers, bounding box, and style
-     *        required for rendering.
+     * @param context Contains pointers to layers, bounding box, and style required for rendering.
      */
     public LiteRenderer(Context context) {
         this.context = context;
     }
 
     /**
-     * Sets the flag which controls behaviour for applying affine
-     * transformation to the graphics object.
+     * Sets the flag which controls behaviour for applying affine transformation to the graphics
+     * object.
      *
-     * @param flag If true then the transform will be concatenated to the
-     *        existing transform.  If false it will be replaced.
+     * @param flag If true then the transform will be concatenated to the existing transform.  If
+     *        false it will be replaced.
      */
     public void setConcatTransforms(boolean flag) {
         concatTransforms = flag;
     }
+    
+    /**
+     * Returns the amount of time the renderer waits for loading an external image
+     * before giving up and examining the other images in the Graphic object
+     *
+     * @return the timeout in milliseconds
+     */
+    public static long getImageLoadingTimeout() {
+        return ImageLoader.getTimeout();
+    }
 
     /**
-     * Flag which controls behaviour for applying affine transformation to the
-     * graphics object.
+     * Sets the maximum time to wait for getting an external image. Set it to -1 to wait
+     * undefinitely. The default value is 10 seconds
      *
-     * @return a boolean flag. If true then the transform will be concatenated
-     *         to the existing transform.  If false it will be replaced.
+     * @param newTimeout the new timeout value in milliseconds
+     */
+    public static void setImageLoadingTimeout(long newTimeout) {
+        ImageLoader.setTimeout(newTimeout);
+    }
+
+    /**
+     * Flag which controls behaviour for applying affine transformation to the graphics object.
+     *
+     * @return a boolean flag. If true then the transform will be concatenated to the existing
+     *         transform.  If false it will be replaced.
      */
     public boolean getConcatTransforms() {
         return concatTransforms;
@@ -286,10 +295,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
     /**
      * Called before {@link render}, this sets where any output will be sent.
      *
-     * @param g A graphics object for future rendering to be sent to.  Note:
-     *        must be an instance of lite renderer.
-     * @param bounds The size of the output area, required so that scale can be
-     *        calculated.
+     * @param g A graphics object for future rendering to be sent to.  Note: must be an instance of
+     *        lite renderer.
+     * @param bounds The size of the output area, required so that scale can be calculated.
      *
      * @deprecated Graphics and bounds is to be set in renderer().
      */
@@ -308,22 +316,18 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     /**
-     * Render features based on the LayerList, BoundBox and Style specified in
-     * this.context. Don't mix calls to paint and setOutput, when calling this
-     * method the graphics set in the setOutput method is discarded.
+     * Render features based on the LayerList, BoundBox and Style specified in this.context. Don't
+     * mix calls to paint and setOutput, when calling this method the graphics set in the
+     * setOutput method is discarded.
      *
      * @param graphics The graphics object to draw to.
-     * @param paintArea The size of the output area in output units (eg:
-     *        pixels).
-     * @param transform A transform which converts World coordinates to Screen
-     *        coordinates.
+     * @param paintArea The size of the output area in output units (eg: pixels).
+     * @param transform A transform which converts World coordinates to Screen coordinates.
      *
-     * @task Need to check if the Layer CoordinateSystem is different to the
-     *       BoundingBox rendering CoordinateSystem and if so, then transform
-     *       the coordinates.
+     * @task Need to check if the Layer CoordinateSystem is different to the BoundingBox rendering
+     *       CoordinateSystem and if so, then transform the coordinates.
      */
-    public void paint(
-        Graphics2D graphics, Rectangle paintArea, AffineTransform transform) {
+    public void paint(Graphics2D graphics, Rectangle paintArea, AffineTransform transform) {
         if ((graphics == null) || (paintArea == null)) {
             LOGGER.info("renderer passed null arguments");
 
@@ -378,8 +382,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     // and process them
                     processStylers(fc, layer.getStyle().getFeatureTypeStyles());
                 } catch (Exception exception) {
-                    LOGGER.warning(
-                        "Exception " + exception + " rendering layer " + layer);
+                    LOGGER.warning("Exception " + exception + " rendering layer " + layer);
                     exception.printStackTrace();
                 }
             }
@@ -389,20 +392,17 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     /**
-     * Performs the actual rendering process to the graphics context set in
-     * setOutput.
-     *
+     * Performs the actual rendering process to the graphics context set in setOutput.
+     * 
      * <p>
-     * The style parameter controls the appearance features.  Rules within the
-     * style object may cause some features to be rendered multiple times or
-     * not at all.
+     * The style parameter controls the appearance features.  Rules within the style object may
+     * cause some features to be rendered multiple times or not at all.
      * </p>
      *
      * @param features An array of features to be rendered.
-     * @param map Controls the full extent of the input space.  Used in the
-     *        calculation of scale.
-     * @param s A style object.  Contains a set of FeatureTypeStylers that are
-     *        to be applied in order to control the rendering process.
+     * @param map Controls the full extent of the input space.  Used in the calculation of scale.
+     * @param s A style object.  Contains a set of FeatureTypeStylers that are to be applied in
+     *        order to control the rendering process.
      */
     public void render(Feature[] features, Envelope map, Style s) {
         if (graphics == null) {
@@ -446,9 +446,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         if (LOGGER.isLoggable(Level.FINE)) {
             long endTime = System.currentTimeMillis();
             double elapsed = (endTime - startTime) / 1000.0;
-            LOGGER.fine(
-                "Rendered " + features.length + " features in " + elapsed
-                + " sec.");
+            LOGGER.fine("Rendered " + features.length + " features in " + elapsed + " sec.");
         }
     }
 
@@ -460,23 +458,20 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @return a transform that maps from real world coordinates to the screen
      */
-    private AffineTransform setUpTransform(
-        Envelope mapExtent, Rectangle screenSize) {
+    private AffineTransform setUpTransform(Envelope mapExtent, Rectangle screenSize) {
         double scaleX = screenSize.getWidth() / mapExtent.getWidth();
         double scaleY = screenSize.getHeight() / mapExtent.getHeight();
 
         double tx = -mapExtent.getMinX() * scaleX;
         double ty = (mapExtent.getMinY() * scaleY) + screenSize.getHeight();
 
-        AffineTransform at = new AffineTransform(
-                scaleX, 0.0d, 0.0d, -scaleY, tx, ty);
+        AffineTransform at = new AffineTransform(scaleX, 0.0d, 0.0d, -scaleY, tx, ty);
 
         return at;
     }
 
     /**
-     * Converts a coordinate expressed on the device space back to real world
-     * coordinates
+     * Converts a coordinate expressed on the device space back to real world coordinates
      *
      * @param x horizontal coordinate on device space
      * @param y vertical coordinate on device space
@@ -504,8 +499,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         try {
-            Point2D result = at.inverseTransform(
-                    new java.awt.geom.Point2D.Double(x, y),
+            Point2D result = at.inverseTransform(new java.awt.geom.Point2D.Double(x, y),
                     new java.awt.geom.Point2D.Double());
             Coordinate c = new Coordinate(result.getX(), result.getY());
 
@@ -530,29 +524,27 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     /**
-     * Applies each feature type styler in turn to all of the features. This
-     * perhaps needs some explanation to make it absolutely clear.
-     * featureStylers[0] is applied to all features before featureStylers[1]
-     * is applied.  This can have important consequences as regards the
+     * Applies each feature type styler in turn to all of the features. This perhaps needs some
+     * explanation to make it absolutely clear. featureStylers[0] is applied to all features
+     * before featureStylers[1] is applied.  This can have important consequences as regards the
      * painting order.
-     *
+     * 
      * <p>
-     * In most cases, this is the desired effect.  For example, all line
-     * features may be rendered with a fat line and then a thin line.  This
-     * produces a 'cased' effect without any strange overlaps.
+     * In most cases, this is the desired effect.  For example, all line features may be rendered
+     * with a fat line and then a thin line.  This produces a 'cased' effect without any strange
+     * overlaps.
      * </p>
-     *
+     * 
      * <p>
      * This method is internal and should only be called by render.
      * </p>
-     *
+     * 
      * <p></p>
      *
      * @param features An array of features to be rendered
      * @param featureStylers An array of feature stylers to be applied
      */
-    private void processStylers(
-        final FeatureCollection features,
+    private void processStylers(final FeatureCollection features,
         final FeatureTypeStyle[] featureStylers) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("processing " + featureStylers.length + " stylers");
@@ -579,14 +571,11 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
                         String typeName = feature.getFeatureType().getTypeName();
 
-                        if (
-                            ((typeName != null)
-                                && (feature.getFeatureType().isDescendedFrom(
-                                    null, fts.getFeatureTypeName())
-                                || typeName.equalsIgnoreCase(
-                                    fts.getFeatureTypeName())))
-                                && ((filter == null)
-                                || filter.contains(feature))) {
+                        if (((typeName != null)
+                                && (feature.getFeatureType().isDescendedFrom(null,
+                                    fts.getFeatureTypeName())
+                                || typeName.equalsIgnoreCase(fts.getFeatureTypeName())))
+                                && ((filter == null) || filter.contains(feature))) {
                             processSymbolizers(feature, symbolizers);
                         }
                     }
@@ -605,17 +594,15 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
     /**
      * Applies each of a set of symbolizers in turn to a given feature.
-     *
+     * 
      * <p>
      * This is an internal method and should only be called by processStylers.
      * </p>
      *
      * @param feature The feature to be rendered
-     * @param symbolizers An array of symbolizers which actually perform the
-     *        rendering.
+     * @param symbolizers An array of symbolizers which actually perform the rendering.
      */
-    private void processSymbolizers(
-        final Feature feature, final Symbolizer[] symbolizers) {
+    private void processSymbolizers(final Feature feature, final Symbolizer[] symbolizers) {
         for (int m = 0; m < symbolizers.length; m++) {
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("applying symbolizer " + symbolizers[m]);
@@ -639,24 +626,21 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     /**
-     * Renders the given feature as a polygon using the specified symbolizer.
-     * Geometry types other than inherently area types can be used. If a line
-     * is used then the line string is closed for filling (only) by connecting
-     * its end point to its start point. This is an internal method that
-     * should only be called by processSymbolizers. TODO: the properties of a
-     * symbolizer may, in part, be dependent on TODO: attributes of the
-     * feature.  This is not yet supported.
+     * Renders the given feature as a polygon using the specified symbolizer. Geometry types other
+     * than inherently area types can be used. If a line is used then the line string is closed
+     * for filling (only) by connecting its end point to its start point. This is an internal
+     * method that should only be called by processSymbolizers. TODO: the properties of a
+     * symbolizer may, in part, be dependent on TODO: attributes of the feature.  This is not yet
+     * supported.
      *
      * @param feature The feature to render
      * @param symbolizer The polygon symbolizer to apply
      *
-     * @todo REVISIT: No attempt is made to render 0 dimension (point)
-     *       geometries
+     * @todo REVISIT: No attempt is made to render 0 dimension (point) geometries
      */
     private void renderPolygon(Feature feature, PolygonSymbolizer symbolizer) {
         if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest(
-                "rendering polygon with a scale of " + this.scaleDenominator);
+            LOGGER.finest("rendering polygon with a scale of " + this.scaleDenominator);
         }
 
         Fill fill = symbolizer.getFill();
@@ -691,31 +675,27 @@ public class LiteRenderer implements Renderer, Renderer2D {
             applyStroke(graphics, stroke, feature);
 
             if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer(
-                    "path is "
-                    + graphics.getTransform().createTransformedShape(path)
-                              .getBounds2D().toString());
+                LOGGER.finer("path is "
+                    + graphics.getTransform().createTransformedShape(path).getBounds2D().toString());
             }
 
             if (stroke.getGraphicStroke() == null) {
                 graphics.draw(path);
             } else {
                 // set up the graphic stroke
-                drawWithGraphicStroke(
-                    graphics, path, stroke.getGraphicStroke(), feature);
+                drawWithGraphicStroke(graphics, path, stroke.getGraphicStroke(), feature);
             }
         }
     }
 
     /**
-     * Renders the given feature as a line using the specified symbolizer. This
-     * is an internal method that should only be called by processSymbolizers
-     * Geometry types other than inherently linear types can be used. If a
-     * point geometry is used, it should be interpreted as a line of zero
-     * length and two end caps.  If a polygon is used (or other "area" type)
-     * then its closed outline will be used as the line string (with no end
-     * caps). TODO: the properties of a symbolizer may, in part, be dependent
-     * on TODO: attributes of the feature.  This is not yet supported.
+     * Renders the given feature as a line using the specified symbolizer. This is an internal
+     * method that should only be called by processSymbolizers Geometry types other than
+     * inherently linear types can be used. If a point geometry is used, it should be interpreted
+     * as a line of zero length and two end caps.  If a polygon is used (or other "area" type)
+     * then its closed outline will be used as the line string (with no end caps). TODO: the
+     * properties of a symbolizer may, in part, be dependent on TODO: attributes of the feature.
+     * This is not yet supported.
      *
      * @param feature The feature to render
      * @param symbolizer The polygon symbolizer to apply
@@ -741,8 +721,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             graphics.draw(path);
         } else {
             // set up the graphic stroke
-            drawWithGraphicStroke(
-                graphics, path, stroke.getGraphicStroke(), feature);
+            drawWithGraphicStroke(graphics, path, stroke.getGraphicStroke(), feature);
         }
     }
 
@@ -808,9 +787,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
             if (symbols[i] instanceof Mark) {
                 if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer(
-                        "rendering mark @ PointRenderer "
-                        + symbols[i].toString());
+                    LOGGER.finer("rendering mark @ PointRenderer " + symbols[i].toString());
                 }
 
                 flag = renderMark(geom, sldgraphic, feature, (Mark) symbols[i]);
@@ -825,8 +802,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     LOGGER.finer("rendering text symbol");
                 }
 
-                flag = renderTextSymbol(
-                        geom, sldgraphic, feature, (TextMark) symbols[i]);
+                flag = renderTextSymbol(geom, sldgraphic, feature, (TextMark) symbols[i]);
 
                 if (flag) {
                     return;
@@ -891,8 +867,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             graphics.setFont(javaFont);
         }
 
-        TextLayout tl = new TextLayout(
-                label, graphics.getFont(), graphics.getFontRenderContext());
+        TextLayout tl = new TextLayout(label, graphics.getFont(), graphics.getFontRenderContext());
         Rectangle2D textBounds = tl.getBounds();
         double x = 0;
         double y = 0;
@@ -917,19 +892,17 @@ public class LiteRenderer implements Renderer, Renderer2D {
             }
 
             PointPlacement p = (PointPlacement) placement;
-            x = ((Number) p.getAnchorPoint().getAnchorPointX().getValue(
-                    feature)).doubleValue() * -textBounds.getWidth();
-            y = ((Number) p.getAnchorPoint().getAnchorPointY().getValue(
-                    feature)).doubleValue() * textBounds.getHeight();
+            x = ((Number) p.getAnchorPoint().getAnchorPointX().getValue(feature)).doubleValue() * -textBounds
+                .getWidth();
+            y = ((Number) p.getAnchorPoint().getAnchorPointY().getValue(feature)).doubleValue() * textBounds
+                .getHeight();
 
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("anchor point (" + x + "," + y + ")");
             }
 
-            x += ((Number) p.getDisplacement().getDisplacementX().getValue(
-                feature)).doubleValue();
-            y += ((Number) p.getDisplacement().getDisplacementY().getValue(
-                feature)).doubleValue();
+            x += ((Number) p.getDisplacement().getDisplacementX().getValue(feature)).doubleValue();
+            y += ((Number) p.getDisplacement().getDisplacementY().getValue(feature)).doubleValue();
 
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("total displacement (" + x + "," + y + ")");
@@ -937,16 +910,15 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
             rotation = ((Number) p.getRotation().getValue(feature)).doubleValue();
             rotation *= (Math.PI / 180.0);
-        } else if (
-            placement instanceof LinePlacement && geom instanceof LineString){
+        } else if (placement instanceof LinePlacement && geom instanceof LineString) {
             // @TODO: if the geometry is a ring or a polygon try to find out
             // some "axis" to follow in the label placement
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("setting line placement");
             }
 
-            double offset = ((Number) ((LinePlacement) placement).getPerpendicularOffset()
-                                       .getValue(feature)).doubleValue();
+            double offset = ((Number) ((LinePlacement) placement).getPerpendicularOffset().getValue(feature))
+                .doubleValue();
             LineString line = (LineString) geom;
             Point start = line.getStartPoint();
             Point end = line.getEndPoint();
@@ -980,28 +952,24 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     /**
-     * Returns the first font associated to the feature that can be found on
-     * the current machine
+     * Returns the first font associated to the feature that can be found on the current machine
      *
      * @param feature The feature whose font is to be found
-     * @param fonts An array of fonts dependent of the feature, the first that
-     *        is found on the current machine is returned
+     * @param fonts An array of fonts dependent of the feature, the first that is found on the
+     *        current machine is returned
      *
-     * @return The first of the specified fonts found on this machine or null
-     *         if none found
+     * @return The first of the specified fonts found on this machine or null if none found
      */
     private java.awt.Font getFont(Feature feature, Font[] fonts) {
         if (fontFamilies == null) {
-            GraphicsEnvironment ge = GraphicsEnvironment
-                .getLocalGraphicsEnvironment();
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             fontFamilies = new HashSet();
 
             List f = Arrays.asList(ge.getAvailableFontFamilyNames());
             fontFamilies.addAll(f);
 
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest(
-                    "there are " + fontFamilies.size() + " fonts available");
+                LOGGER.finest("there are " + fontFamilies.size() + " fonts available");
             }
         }
 
@@ -1021,25 +989,21 @@ public class LiteRenderer implements Renderer, Renderer2D {
             if (loadedFonts.containsKey(requestedFont)) {
                 javaFont = (java.awt.Font) loadedFonts.get(requestedFont);
 
-                String reqStyle = (String) fonts[k].getFontStyle().getValue(
-                        feature);
+                String reqStyle = (String) fonts[k].getFontStyle().getValue(feature);
 
                 if (fontStyleLookup.containsKey(reqStyle)) {
-                    styleCode = ((Integer) fontStyleLookup.get(reqStyle))
-                        .intValue();
+                    styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
                 } else {
                     styleCode = java.awt.Font.PLAIN;
                 }
 
-                String reqWeight = (String) fonts[k].getFontWeight().getValue(
-                        feature);
+                String reqWeight = (String) fonts[k].getFontWeight().getValue(feature);
 
                 if (reqWeight.equalsIgnoreCase("Bold")) {
                     styleCode = styleCode | java.awt.Font.BOLD;
                 }
 
-                size = ((Number) fonts[k].getFontSize().getValue(feature))
-                    .intValue();
+                size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
 
                 return javaFont.deriveFont(styleCode, size);
             }
@@ -1049,30 +1013,24 @@ public class LiteRenderer implements Renderer, Renderer2D {
             }
 
             if (fontFamilies.contains(requestedFont)) {
-                String reqStyle = (String) fonts[k].getFontStyle().getValue(
-                        feature);
+                String reqStyle = (String) fonts[k].getFontStyle().getValue(feature);
 
                 if (fontStyleLookup.containsKey(reqStyle)) {
-                    styleCode = ((Integer) fontStyleLookup.get(reqStyle))
-                        .intValue();
+                    styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
                 } else {
                     styleCode = java.awt.Font.PLAIN;
                 }
 
-                String reqWeight = (String) fonts[k].getFontWeight().getValue(
-                        feature);
+                String reqWeight = (String) fonts[k].getFontWeight().getValue(feature);
 
                 if (reqWeight.equalsIgnoreCase("Bold")) {
                     styleCode = styleCode | java.awt.Font.BOLD;
                 }
 
-                size = ((Number) fonts[k].getFontSize().getValue(feature))
-                    .intValue();
+                size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest(
-                        "requesting " + requestedFont + " " + styleCode + " "
-                        + size);
+                    LOGGER.finest("requesting " + requestedFont + " " + styleCode + " " + size);
                 }
 
                 javaFont = new java.awt.Font(requestedFont, styleCode, size);
@@ -1088,25 +1046,19 @@ public class LiteRenderer implements Renderer, Renderer2D {
             // may be its a file or url
             InputStream is = null;
 
-            if (
-                requestedFont.startsWith("http")
-                    || requestedFont.startsWith("file:")) {
+            if (requestedFont.startsWith("http") || requestedFont.startsWith("file:")) {
                 try {
                     URL url = new URL(requestedFont);
                     is = url.openStream();
                 } catch (MalformedURLException mue) {
                     // this may be ok - but we should mention it
                     if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info(
-                            "Bad url in java2drenderer" + requestedFont + "\n"
-                            + mue);
+                        LOGGER.info("Bad url in java2drenderer" + requestedFont + "\n" + mue);
                     }
                 } catch (IOException ioe) {
                     // we'll ignore this for the moment
                     if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info(
-                            "IO error in java2drenderer " + requestedFont
-                            + "\n" + ioe);
+                        LOGGER.info("IO error in java2drenderer " + requestedFont + "\n" + ioe);
                     }
                 }
             } else {
@@ -1122,9 +1074,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 } catch (FileNotFoundException fne) {
                     // this may be ok - but we should mention it
                     if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info(
-                            "Bad file name in java2drenderer" + requestedFont
-                            + "\n" + fne);
+                        LOGGER.info("Bad file name in java2drenderer" + requestedFont + "\n" + fne);
                     }
                 }
             }
@@ -1142,22 +1092,17 @@ public class LiteRenderer implements Renderer, Renderer2D {
             }
 
             try {
-                javaFont = java.awt.Font.createFont(
-                        java.awt.Font.TRUETYPE_FONT, is);
+                javaFont = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is);
             } catch (FontFormatException ffe) {
                 if (LOGGER.isLoggable(Level.INFO)) {
-                    LOGGER.info(
-                        "Font format error in java2drender " + requestedFont
-                        + "\n" + ffe);
+                    LOGGER.info("Font format error in java2drender " + requestedFont + "\n" + ffe);
                 }
 
                 continue;
             } catch (IOException ioe) {
                 // we'll ignore this for the moment
                 if (LOGGER.isLoggable(Level.INFO)) {
-                    LOGGER.info(
-                        "IO error in java2drenderer " + requestedFont + "\n"
-                        + ioe);
+                    LOGGER.info("IO error in java2drenderer " + requestedFont + "\n" + ioe);
                 }
 
                 continue;
@@ -1174,6 +1119,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
     /**
      * Renders a string accordint the the given parameters
      *
+     * @param graphic graphics context used for drawing
      * @param x anchor point x coordinate
      * @param y anchor point y coordinate
      * @param dx horizontal offset
@@ -1183,9 +1129,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param fill eventual feature filling
      * @param rotation text rotation
      */
-    void renderString(Graphics2D graphic, double x, double y, double dx,
-                      double dy, TextLayout tl, Feature feature, Fill fill,
-                      double rotation) {
+    void renderString(Graphics2D graphic, double x, double y, double dx, double dy, TextLayout tl,
+        Feature feature, Fill fill, double rotation) {
         AffineTransform temp = graphic.getTransform();
         AffineTransform labelAT = new AffineTransform();
 
@@ -1208,22 +1153,20 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         labelAT.rotate(rotation - originalRotation);
-        double xToyRatio = Math.abs(scaleX/scaleY);
-        labelAT.scale(xToyRatio, 1.0/xToyRatio);
+
+        double xToyRatio = Math.abs(scaleX / scaleY);
+        labelAT.scale(xToyRatio, 1.0 / xToyRatio);
         graphic.setTransform(labelAT);
 
         applyFill(graphic, fill, feature);
 
-
         // we move this to the centre of the image.
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("about to draw at " + x + "," + y +
-                         " with the start of the string at " + (x + dx) +
-                         "," + (y + dy));
+            LOGGER.finer("about to draw at " + x + "," + y + " with the start of the string at "
+                + (x + dx) + "," + (y + dy));
         }
 
         tl.draw(graphic, (float) dx, (float) dy);
-
 
         //graphics.drawString(label,(float)x,(float)y);
         resetFill(graphic);
@@ -1244,8 +1187,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param feature the feature whose string is associated
      * @param rotation text rotation
      */
-    private void drawHalo(
-        Halo halo, double x, double y, double dx, double dy, TextLayout tl,
+    private void drawHalo(Halo halo, double x, double y, double dx, double dy, TextLayout tl,
         Feature feature, double rotation) {
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("doing halo");
@@ -1302,12 +1244,11 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @return true if the image is not null
      */
-    private boolean renderExternalGraphic(
-        Geometry geom, Graphic graphic, Feature feature, BufferedImage img) {
+    private boolean renderExternalGraphic(Geometry geom, Graphic graphic, Feature feature,
+        BufferedImage img) {
         if (img != null) {
             int size = ((Number) graphic.getSize().getValue(feature)).intValue();
-            double rotation = ((Number) graphic.getRotation().getValue(feature))
-                .doubleValue();
+            double rotation = ((Number) graphic.getRotation().getValue(feature)).doubleValue();
 
             if (geom instanceof Point) {
                 renderImage((Point) geom, img, size, rotation);
@@ -1350,8 +1291,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @param eg the external graphic
      *
-     * @return the buffered image representing the external image, or null if
-     *         not found
+     * @return the buffered image representing the external image, or null if not found
      */
     private BufferedImage getImage(ExternalGraphic eg) {
         if (LOGGER.isLoggable(Level.FINEST)) {
@@ -1359,27 +1299,24 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         if (supportedGraphicFormats.contains(eg.getFormat().toLowerCase())) {
-            if (
-                eg.getFormat().equalsIgnoreCase("image/gif")
+            if (eg.getFormat().equalsIgnoreCase("image/gif")
                     || eg.getFormat().equalsIgnoreCase("image/jpg")
                     || eg.getFormat().equalsIgnoreCase("image/png")) {
                 if (LOGGER.isLoggable(Level.FINER)) {
                     LOGGER.finer("a java supported format");
                 }
 
-                try{
+                try {
+                    BufferedImage img = imageLoader.get(eg.getLocation(), isInteractive());
 
-					BufferedImage img = imageLoader.get(
-							eg.getLocation(), isInteractive());
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("Image return = " + img);
+                    }
 
-					if (LOGGER.isLoggable(Level.FINEST)) {
-						LOGGER.finest("Image return = " + img);
-					}
-
-					return img;
-				} catch (MalformedURLException e) {
-					LOGGER.warning("ExternalGraphicURL was badly formed");
-				}
+                    return img;
+                } catch (MalformedURLException e) {
+                    LOGGER.warning("ExternalGraphicURL was badly formed");
+                }
             }
         }
 
@@ -1396,8 +1333,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @return true if the mark has been rendered
      */
-    private boolean renderMark(
-        Geometry geom, Graphic graphic, Feature feature, Mark mark) {
+    private boolean renderMark(Geometry geom, Graphic graphic, Feature feature, Mark mark) {
         if (mark == null) {
             return false;
         }
@@ -1415,8 +1351,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         int size = 6; // size in pixels
         double rotation = 0.0; // rotation in degrees
         size = ((Number) graphic.getSize().getValue(feature)).intValue();
-        rotation = (((Number) graphic.getRotation().getValue(feature))
-            .doubleValue() * Math.PI) / 180d;
+        rotation = (((Number) graphic.getRotation().getValue(feature)).doubleValue() * Math.PI) / 180d;
         fillDrawMark(graphics, (Point) geom, mark, size, rotation, feature);
 
         return true;
@@ -1435,8 +1370,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         Mark mark = null;
 
         for (int i = 0; i < marks.length; i++) {
-            String name = marks[i].getWellKnownName().getValue(feature)
-                                  .toString();
+            String name = marks[i].getWellKnownName().getValue(feature).toString();
 
             if (wellKnownMarks.contains(name)) {
                 mark = marks[i];
@@ -1456,8 +1390,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param size the image size
      * @param rotation the image rotatation
      */
-    private void renderImage(
-        Point point, BufferedImage img, int size, double rotation) {
+    private void renderImage(Point point, BufferedImage img, int size, double rotation) {
         renderImage(point.getX(), point.getY(), img, size, rotation);
     }
 
@@ -1470,8 +1403,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param size the image size
      * @param rotation the image rotatation
      */
-    private void renderImage(
-        double tx, double ty, BufferedImage img, int size, double rotation) {
+    private void renderImage(double tx, double ty, BufferedImage img, int size, double rotation) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("drawing Image @" + tx + "," + ty);
         }
@@ -1499,9 +1431,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         double drawSize = (double) size / unitSize;
 
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer(
-                "unitsize " + unitSize + " size = " + size + " -> scale "
-                + drawSize);
+            LOGGER.finer("unitsize " + unitSize + " size = " + size + " -> scale " + drawSize);
         }
 
         markAT.scale(drawSize, drawSize);
@@ -1525,11 +1455,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param rotation mark location
      * @param feature the feature associated to the mark
      */
-    private void fillDrawMark(
-        Graphics2D graphic, Point point, Mark mark, int size, double rotation,
-        Feature feature) {
-        fillDrawMark(
-            graphic, point.getX(), point.getY(), mark, size, rotation, feature);
+    private void fillDrawMark(Graphics2D graphic, Point point, Mark mark, int size,
+        double rotation, Feature feature) {
+        fillDrawMark(graphic, point.getX(), point.getY(), mark, size, rotation, feature);
     }
 
     /**
@@ -1543,13 +1471,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param rotation mark location
      * @param feature the feature associated to the mark
      */
-    private void fillDrawMark(
-        Graphics2D graphic, double tx, double ty, Mark mark, int size,
+    private void fillDrawMark(Graphics2D graphic, double tx, double ty, Mark mark, int size,
         double rotation, Feature feature) {
         AffineTransform temp = graphic.getTransform();
         AffineTransform markAT = new AffineTransform();
-        Shape shape = Java2DMark.getWellKnownMark(
-                mark.getWellKnownName().getValue(feature).toString());
+        Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName().getValue(feature)
+                                                      .toString());
 
         Point2D mapCentre = new java.awt.geom.Point2D.Double(tx, ty);
         Point2D graphicCentre = new java.awt.geom.Point2D.Double();
@@ -1610,20 +1537,17 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @return true if the text symbol has been rendered
      */
-    private boolean renderTextSymbol(
-        Geometry geom, Graphic graphic, Feature feature, TextMark mark) {
+    private boolean renderTextSymbol(Geometry geom, Graphic graphic, Feature feature, TextMark mark) {
         int size = 6; // size in pixels
         double rotation = 0.0; // rotation in degrees
         size = ((Number) graphic.getSize().getValue(feature)).intValue();
-        rotation = (((Number) graphic.getRotation().getValue(feature))
-            .doubleValue() * Math.PI) / 180d;
+        rotation = (((Number) graphic.getRotation().getValue(feature)).doubleValue() * Math.PI) / 180d;
 
         if (!(geom instanceof Point)) {
             geom = geom.getCentroid();
         }
 
-        return fillDrawTextMark(
-            graphics, (Point) geom, mark, size, rotation, feature);
+        return fillDrawTextMark(graphics, (Point) geom, mark, size, rotation, feature);
     }
 
     /**
@@ -1638,11 +1562,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @return true if the text symbol has been rendered
      */
-    private boolean fillDrawTextMark(
-        Graphics2D graphic, Point point, TextMark mark, int size,
+    private boolean fillDrawTextMark(Graphics2D graphic, Point point, TextMark mark, int size,
         double rotation, Feature feature) {
-        return fillDrawTextMark(
-            graphic, point.getX(), point.getY(), mark, size, rotation, feature);
+        return fillDrawTextMark(graphic, point.getX(), point.getY(), mark, size, rotation, feature);
     }
 
     /**
@@ -1658,9 +1580,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @return true if the text symbol has been rendered
      */
-    private boolean fillDrawTextMark(
-        Graphics2D graphic, double tx, double ty, TextMark mark, int size,
-        double rotation, Feature feature) {
+    private boolean fillDrawTextMark(Graphics2D graphic, double tx, double ty, TextMark mark,
+        int size, double rotation, Feature feature) {
         java.awt.Font javaFont = getFont(feature, mark.getFonts());
 
         if (javaFont != null) {
@@ -1678,8 +1599,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         String symbol = mark.getSymbol().getValue(feature).toString();
-        TextLayout tl = new TextLayout(
-                symbol, javaFont, graphic.getFontRenderContext());
+        TextLayout tl = new TextLayout(symbol, javaFont, graphic.getFontRenderContext());
         Rectangle2D textBounds = tl.getBounds();
 
         // TODO: consider if symbols should carry an offset
@@ -1693,6 +1613,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
     /**
      * Renders a filled feature
      *
+     * @param graphic graphics context used for drawing
      * @param fill how to fill the feature
      * @param feature the feature to be filled
      */
@@ -1701,8 +1622,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             return;
         }
 
-        graphic.setColor(
-            Color.decode((String) fill.getColor().getValue(feature)));
+        graphic.setColor(Color.decode((String) fill.getColor().getValue(feature)));
 
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("Setting fill: " + graphic.getColor().toString());
@@ -1710,8 +1630,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         Number value = (Number) fill.getOpacity().getValue(feature);
         float opacity = value.floatValue();
-        graphic.setComposite(
-            AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+        graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
 
         Graphic grd = fill.getGraphicFill();
 
@@ -1727,6 +1646,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
     /**
      * Sets a texture on the current graphics2D
      *
+     * @param graphic graphics context used for drawing
      * @param gr the graphic specifiying the texture
      * @param feature the feature to be painted
      */
@@ -1750,11 +1670,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
             Graphics2D g1 = image.createGraphics();
             double rotation = 0.0;
 
-            rotation = ((Number) gr.getRotation().getValue(feature))
-                .doubleValue();
+            rotation = ((Number) gr.getRotation().getValue(feature)).doubleValue();
 
-            fillDrawMark(
-                g1, markCentrePoint, mark, (int) (size * .9), rotation, feature);
+            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9), rotation, feature);
 
             MediaTracker track = new MediaTracker(obs);
             track.addImage(image, 1);
@@ -1776,9 +1694,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         double drawSize = (double) size / unitSize;
 
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer(
-                "size = " + size + " unitsize " + unitSize + " drawSize "
-                + drawSize);
+            LOGGER.finer("size = " + size + " unitsize " + unitSize + " drawSize " + drawSize);
         }
 
         AffineTransform at = graphic.getTransform();
@@ -1810,18 +1726,21 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
     /**
      * Resets the current graphics2D fill
+     *
+     * @param graphic graphics context used for drawing
      */
     private void resetFill(Graphics2D graphic) {
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("reseting the graphics");
         }
 
-        graphic.setComposite(
-            DEFAULT_COMPOSITE);
+        graphic.setComposite(DEFAULT_COMPOSITE);
     }
 
     /**
      * Resets the current graphics2D fill
+     *
+     * @param graphic graphics context used for drawing
      */
     private void resetStroke(Graphics2D graphic) {
         if (LOGGER.isLoggable(Level.FINER)) {
@@ -1832,15 +1751,13 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     /**
-     * Convenience method for applying a geotools Stroke object as a Graphics2D
-     * Stroke object.
+     * Convenience method for applying a geotools Stroke object as a Graphics2D Stroke object.
      *
      * @param graphic
      * @param stroke the Stroke to apply.
      * @param feature The feature to be stroked
      */
-    private void applyStroke(
-        Graphics2D graphic, Stroke stroke, Feature feature) {
+    private void applyStroke(Graphics2D graphic, Stroke stroke, Feature feature) {
         if (stroke == null) {
             return;
         }
@@ -1909,9 +1826,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         float opacity = value.floatValue();
 
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer(
-                "width, dashoffset, opacity " + width + " " + dashOffset + " "
-                + opacity);
+            LOGGER.finer("width, dashoffset, opacity " + width + " " + dashOffset + " " + opacity);
         }
 
         BasicStroke stroke2d;
@@ -1922,29 +1837,24 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 width = 0;
             }
 
-            stroke2d = new BasicStroke(
-                    width / (float) scale, capCode, joinCode,
-                    (float) (Math.max(1, 10 / scale)), dashes,
-                    dashOffset / (float) scale);
+            stroke2d = new BasicStroke(width / (float) scale, capCode, joinCode,
+                    (float) (Math.max(1, 10 / scale)), dashes, dashOffset / (float) scale);
         } else {
             if (width <= 1.0) {
                 width = 0;
             }
 
-            stroke2d = new BasicStroke(
-                    width / (float) scale, capCode, joinCode,
+            stroke2d = new BasicStroke(width / (float) scale, capCode, joinCode,
                     (float) (Math.max(1, 10 / scale)));
         }
 
-        graphic.setComposite(
-            AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+        graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
 
         if (!graphic.getStroke().equals(stroke2d)) {
             graphic.setStroke(stroke2d);
         }
 
-        Color color = Color.decode(
-                (String) stroke.getColor().getValue(feature));
+        Color color = Color.decode((String) stroke.getColor().getValue(feature));
 
         if (!graphic.getColor().equals(color)) {
             graphic.setColor(color);
@@ -1969,8 +1879,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param gFill the graphic fill to be used to draw the stroke
      * @param feature The feature to be drawn with the graphic stroke
      */
-    private void drawWithGraphicStroke(
-        Graphics2D graphic, Shape path, Graphic gFill, Feature feature) {
+    private void drawWithGraphicStroke(Graphics2D graphic, Shape path, Graphic gFill,
+        Feature feature) {
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("drawing a graphicalStroke");
         }
@@ -2002,10 +1912,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
             Graphics2D g1 = image.createGraphics();
             double rotation = 0.0;
-            rotation = ((Number) gFill.getRotation().getValue(feature))
-                .doubleValue();
-            fillDrawMark(
-                g1, markCentrePoint, mark, (int) (size * .9), rotation, feature);
+            rotation = ((Number) gFill.getRotation().getValue(feature)).doubleValue();
+            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9), rotation, feature);
 
             MediaTracker track = new MediaTracker(obs);
             track.addImage(image, 1);
@@ -2023,13 +1931,6 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         int imageWidth = size; //image.getWidth();
         int imageHeight = size; //image.getHeight();
-
-        double scaleX = graphic.getTransform().getScaleX();
-        double scaleY = -graphic.getTransform().getScaleY();
-
-        if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("scale X " + scaleX + " Y " + scaleY);
-        }
 
         PathIterator pi = path.getPathIterator(null, 10.0);
         double[] coords = new double[6];
@@ -2069,9 +1970,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 coords[1] = first[1];
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest(
-                        "closing from " + previous[0] + "," + previous[1]
-                        + " to " + coords[0] + "," + coords[1]);
+                    LOGGER.finest("closing from " + previous[0] + "," + previous[1] + " to "
+                        + coords[0] + "," + coords[1]);
                 }
 
             // no break here - fall through to next section
@@ -2079,24 +1979,22 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
                 // draw from previous to coords
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest(
-                        "drawing from " + previous[0] + "," + previous[1]
-                        + " to " + coords[0] + "," + coords[1]);
+                    LOGGER.finest("drawing from " + previous[0] + "," + previous[1] + " to "
+                        + coords[0] + "," + coords[1]);
                 }
 
                 double dx = coords[0] - previous[0];
                 double dy = coords[1] - previous[1];
-                double len = Math.sqrt((dx * dx) + (dy * dy)) * scaleX; // - imageWidth;
+                double len = Math.sqrt((dx * dx) + (dy * dy)); // - imageWidth;
 
                 double theta = Math.atan2(dx, dy);
-                dx = (Math.sin(theta) * imageWidth) / scaleX;
-                dy = (Math.cos(theta) * imageHeight) / scaleY;
+                dx = (Math.sin(theta) * imageWidth);
+                dy = (Math.cos(theta) * imageHeight);
 
                 //int dx2 = (int)Math.round(dy/2d);
                 //int dy2 = (int)Math.round(dx/2d);
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest(
-                        "dx = " + dx + " dy " + dy + " step = "
+                    LOGGER.finest("dx = " + dx + " dy " + dy + " step = "
                         + Math.sqrt((dx * dx) + (dy * dy)));
                 }
 
@@ -2119,9 +2017,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 }
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest(
-                        "loop end dist " + dist + " len " + len + " "
-                        + (len - dist));
+                    LOGGER.finest("loop end dist " + dist + " len " + len + " " + (len - dist));
                 }
 
                 if ((len - dist) > 0.0) {
@@ -2129,21 +2025,16 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
                     //clip and render image
                     if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest(
-                            "about to use clipped image " + remainder);
+                        LOGGER.finest("about to use clipped image " + remainder);
                     }
 
-                    BufferedImage img = new BufferedImage(
-                            trueImageHeight, trueImageWidth,
+                    BufferedImage img = new BufferedImage(trueImageHeight, trueImageWidth,
                             BufferedImage.TYPE_INT_ARGB);
                     Graphics2D ig = img.createGraphics();
-                    ig.setClip(
-                        0, 0,
-                        (int) (((double) trueImageWidth * remainder) / (double) size),
+                    ig.setClip(0, 0, (int) (((double) trueImageWidth * remainder) / (double) size),
                         trueImageHeight);
 
-                    ig.drawImage(
-                        image, 0, 0, trueImageWidth, trueImageHeight, obs);
+                    ig.drawImage(image, 0, 0, trueImageWidth, trueImageHeight, obs);
 
                     renderImage(x, y, img, size, rotation);
                 }
@@ -2151,8 +2042,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 break;
 
             default:
-                LOGGER.warning(
-                    "default branch reached in drawWithGraphicStroke");
+                LOGGER.warning("default branch reached in drawWithGraphicStroke");
             }
 
             previous[0] = coords[0];
@@ -2162,13 +2052,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     /**
-     * Renders a grid coverage on the device. At the time being, the symbolizer
-     * is ignored and the renderer tries to depict the non geophysics version
-     * of the grid coverage on the device, and falls back on the geophysics
-     * one if the former fails
+     * Renders a grid coverage on the device. At the time being, the symbolizer is ignored and the
+     * renderer tries to depict the non geophysics version of the grid coverage on the device, and
+     * falls back on the geophysics one if the former fails
      *
-     * @param feature the feature that contains the GridCoverage. The grid
-     *        coverage must be contained in the "grid" attribute
+     * @param feature the feature that contains the GridCoverage. The grid coverage must be
+     *        contained in the "grid" attribute
      * @param symbolizer The raster symbolizer
      *
      * @task make it follow the symbolizer
@@ -2192,16 +2081,14 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     /**
-     * Extracts the named geometry from feature. If geomName is null then the
-     * feature's default geometry is used. If geomName cannot be found in
-     * feature then null is returned.
+     * Extracts the named geometry from feature. If geomName is null then the feature's default
+     * geometry is used. If geomName cannot be found in feature then null is returned.
      *
      * @param feature The feature to find the geometry in
-     * @param geomName The name of the geometry to find: null if the default
-     *        geometry should be used.
+     * @param geomName The name of the geometry to find: null if the default geometry should be
+     *        used.
      *
-     * @return The geometry extracted from feature or null if this proved
-     *         impossible.
+     * @return The geometry extracted from feature or null if this proved impossible.
      */
     private Geometry findGeometry(final Feature feature, final String geomName) {
         Geometry geom = null;

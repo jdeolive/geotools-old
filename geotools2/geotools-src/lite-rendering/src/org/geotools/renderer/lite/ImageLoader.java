@@ -32,14 +32,13 @@ import java.util.logging.Logger;
 
 
 /**
- * $Id: ImageLoader.java,v 1.4 2003/08/10 07:55:15 aaime Exp $
+ * $Id: ImageLoader.java,v 1.5 2003/08/10 15:07:06 aaime Exp $
  *
  * @author Ian Turton
  */
 class ImageLoader implements Runnable {
     /** The logger for the rendering module. */
-    private static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.rendering");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.rendering");
 
     /** The images managed by the loader */
     private static Map images = new HashMap();
@@ -53,21 +52,40 @@ class ImageLoader implements Runnable {
     /** Currently loading image */
     private static int imageID = 1;
 
+    /** A maximum time to wait for the image to load */
+    private static long timeout = 10000;
+
     /** Location of the loading image */
     private URL location;
 
     /** Still waiting for the image? */
     private boolean waiting = true;
-    
-    /** A time
-    private static final long timeOut = 10000;
+
+    /**
+     * Returns the timeout for aborting an image loading sequence
+     *
+     * @return the timeout in milliseconds
+     */
+    public static long getTimeout() {
+        return timeout;
+    }
+
+    /**
+     * Sets the maximum time to wait for getting an external image. Set it to -1 to wait
+     * undefinitely
+     *
+     * @param newTimeout the new timeout value in milliseconds
+     */
+    public static void setTimeout(long newTimeout) {
+        timeout = newTimeout;
+    }
 
     /**
      * Add an image to be loaded by the ImageLoader
      *
      * @param location the image location
-     * @param interactive if true the methods returns immediatly, otherwise
-     *        waits for the image to be loaded
+     * @param interactive if true the methods returns immediatly, otherwise waits for the image to
+     *        be loaded
      */
     private void add(URL location, boolean interactive) {
         int imgId = imageID;
@@ -84,26 +102,30 @@ class ImageLoader implements Runnable {
         } else {
             waiting = true;
 
-            while (waiting) {
+            long elapsed = 0;
+            final long step = 500;
+
+            while (waiting && (elapsed < timeout || timeout < 0)) {
                 LOGGER.finest("waiting..." + waiting);
 
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(step);
+                    elapsed += step;
+
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("Waiting for image " + location + ", elapsed " + elapsed
+                            + " milliseconds");
+                    }
                 } catch (InterruptedException e) {
                     LOGGER.warning(e.toString());
                 }
             }
 
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest(
-                    imgId + " complete?: "
-                    + (isFlagUp(imgId, tracker.COMPLETE)));
-                LOGGER.finest(
-                    imgId + " abort?: " + (isFlagUp(imgId, tracker.ABORTED)));
-                LOGGER.finest(
-                    imgId + " error?: " + (isFlagUp(imgId, tracker.ERRORED)));
-                LOGGER.finest(
-                    imgId + " loading?: " + (isFlagUp(imgId, tracker.LOADING)));
+                LOGGER.finest(imgId + " complete?: " + (isFlagUp(imgId, tracker.COMPLETE)));
+                LOGGER.finest(imgId + " abort?: " + (isFlagUp(imgId, tracker.ABORTED)));
+                LOGGER.finest(imgId + " error?: " + (isFlagUp(imgId, tracker.ERRORED)));
+                LOGGER.finest(imgId + " loading?: " + (isFlagUp(imgId, tracker.LOADING)));
                 LOGGER.finest(imgId + "slow return " + waiting);
             }
 
@@ -124,16 +146,14 @@ class ImageLoader implements Runnable {
     }
 
     /**
-     * Fetch a buffered image from the loader, if interactive is false then the
-     * loader will wait for  the image to be available before returning, used
-     * by printers and file output renderers. If interactive is true and the
-     * image is ready then return, if image is not ready start loading it  and
-     * return null. The renderer is responsible for finding an alternative to
-     * use.
+     * Fetch a buffered image from the loader, if interactive is false then the loader will wait
+     * for  the image to be available before returning, used by printers and file output
+     * renderers. If interactive is true and the image is ready then return, if image is not ready
+     * start loading it  and return null. The renderer is responsible for finding an alternative
+     * to use.
      *
      * @param location the url of the image to be fetched
-     * @param interactive boolean to signal if the loader should wait for the
-     *        image to be ready.
+     * @param interactive boolean to signal if the loader should wait for the image to be ready.
      *
      * @return the buffered image or null
      */
@@ -166,8 +186,7 @@ class ImageLoader implements Runnable {
             myID = imageID++;
             tracker.addImage(img, myID);
         } catch (Exception e) {
-            LOGGER.warning(
-                "Exception fetching image from " + location + "\n" + e);
+            LOGGER.warning("Exception fetching image from " + location + "\n" + e);
             images.remove(location);
             waiting = false;
 
@@ -198,8 +217,7 @@ class ImageLoader implements Runnable {
 
             int iw = img.getWidth(obs);
             int ih = img.getHeight(obs);
-            BufferedImage bi = new BufferedImage(
-                    iw, ih, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB);
             Graphics2D big = bi.createGraphics();
             big.drawImage(img, 0, 0, obs);
             images.put(location, bi);
