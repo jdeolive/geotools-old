@@ -19,7 +19,7 @@ alternate="yes"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/07/18 21:34:07 $</date>
+    <date>$Date: 2002/07/21 10:41:05 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -239,6 +239,11 @@ alternate="yes"
       <para>Make sure you update <link linkend="netbeanscompileoptions">compile
       options in Netbeans</link> if you use Netbeans.</para>
 
+      <para>If you use <filename>ant</filename> for compiling, or building
+      javadocs or similar, then you will need to include something like:</para>
+
+      <para><command>&#60;javadoc source=&#34;1.4&#62;...</command></para>
+
       <para>So far, I have only tested Geotools with Sun&#39;s Java Run Time
       Environment. If you try another Run Time Environment, then let me know
       how successful you are and we can include it here.</para>
@@ -296,11 +301,36 @@ alternate="yes"
     <section id="templates">
       <title>Template File</title>
 
+      <para>All java packages within geotools2 should follow the following
+      structure:</para>
+
+      <blockquote>
+        <programlisting>/* * Geotools - OpenSource mapping toolkit * (C) 2002,
+        Centre for Computational Geography * * This library is free software;
+        you can redistribute it and/or * modify it under the terms of the GNU
+        Lesser General Public * License as published by the Free Software
+        Foundation; * version 2.1 of the License. * * This library is
+        distributed in the hope that it will be useful, * but WITHOUT ANY
+        WARRANTY; without even the implied warranty of * MERCHANTABILITY or
+        FITNESS FOR A PARTICULAR PURPOSE. See the GNU * Lesser General Public
+        License for more details. * * You should have received a copy of the
+        GNU Lesser General Public * License along with this library; if not,
+        write to the Free Software * Foundation, Inc., 59 Temple Place, Suite
+        330, Boston, MA 02111-1307 USA * */ package
+        org.geotools.&#60;class&#62;; import dir.dir.SomeClass1; import
+        dir.dir.SomeClass2; /** * Description of this class. * * @author Your
+        Name * @version <emphasis>$Id</emphasis> <emphasis>:$</emphasis> */
+        public class ThisClass { /** * Description of internalVar. */ private
+        SomeClass1 internalVar; /** * Description of method. * @param a_param
+        Description of the parameter. */ void aMethod( SomeClass1 aParam) {
+        internalVar=aParam; } }</programlisting>
+      </blockquote>
+
       <para>To do:</para>
 
       <itemizedlist>
         <listitem>
-          <para>Provide a template file.</para>
+          <para></para>
         </listitem>
 
         <listitem>
