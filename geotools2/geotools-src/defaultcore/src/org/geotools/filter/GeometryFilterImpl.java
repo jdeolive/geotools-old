@@ -21,6 +21,7 @@
 package org.geotools.filter;
 
 import java.util.logging.Logger;
+import java.util.logging.Level;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
@@ -44,7 +45,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilterImpl.java,v 1.7 2002/12/04 21:42:21 cholmesny Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.8 2003/01/02 19:45:10 cholmesny Exp $
  * @author Rob Hranac, TOPP
  * @tasks: REVISIT: make this class (and all filters) immutable, implement  
  * cloneable and return new filters when calling addLeftGeometry and addRightG
@@ -197,7 +198,31 @@ public class GeometryFilterImpl
             return left.within(right);
         }
         else if (filterType == GEOMETRY_BBOX) {
-            return left.intersects(right);
+            Coordinate[] cr = right.getEnvelope().getCoordinates();
+            Coordinate[] cl = left.getEnvelope().getCoordinates();
+            if(left.getDimension() >= 1) {
+                if(cl[0].x >= cr[0].x && cl[2].x <= cr[2].x &&
+                   cl[0].y >= cr[0].y && cl[2].y <= cr[2].y)
+		    // feature contained in the bbox
+                   return true;
+                else if(cl[0].x > cr[2].x || cl[2].x < cr[0].x ||
+                       cl[0].y > cl[2].y || cl[2].y < cr[0].y)
+		    // feature outside the bbox
+                    return false;
+                else {
+                    if(LOGGER.isLoggable(Level.FINER)) {
+                        LOGGER.finer("Right: " + "[" + cr[0].x + "," 
+				     + cr[0].y + "]" + "-" + "[" + 
+				     cr[3].x + "," + cr[3].y + "]");
+                        LOGGER.finer("Left: " + "[" + cl[0].x + ","  
+				     + cl[0].y + "]" + "-" + "[" +
+				     cl[3].x + "," + cl[3].y + "]");
+                    }
+                    return left.intersects(right);
+                }
+            } else {
+                return left.intersects(right);
+            }
         }
 
         // Note that this is a pretty permissive logic
