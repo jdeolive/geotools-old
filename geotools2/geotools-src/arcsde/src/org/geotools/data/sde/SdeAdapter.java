@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $revision$
  */
 public class SdeAdapter
 {
@@ -551,7 +551,7 @@ public class SdeAdapter
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 class SdeTypeDef
 {
