@@ -44,7 +44,7 @@ public class RenderingTest extends TestCase {
         //same as the datasource test, load in some features into a table
         
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(0, 15, 0, 15);
+        EnvelopeExtent ex = new EnvelopeExtent(5, 15, 5, 15);
         Feature lineFeature = new DefaultFeature();
         
         GeometryFactory geomFac = new GeometryFactory();
@@ -69,7 +69,7 @@ public class RenderingTest extends TestCase {
         myFill.setColor("#ff0000");
         polysym.setFill(myFill);
         DefaultRule rule = new DefaultRule();
-        rule.setSymbolizers(new Symbolizer[]{linesym,polysym});
+        rule.setSymbolizers(new Symbolizer[]{polysym});
         DefaultFeatureTypeStyle fts = new DefaultFeatureTypeStyle();
         fts.setRules(new Rule[]{rule});
         
@@ -94,13 +94,13 @@ public class RenderingTest extends TestCase {
     
     private LineString makeSampleLineString(final GeometryFactory geomFac) {
         Coordinate[] linestringCoordinates = new Coordinate[7];
-        linestringCoordinates[0] = new Coordinate(0.0d,0.0d);
-        linestringCoordinates[1] = new Coordinate(1.0d,0.0d);
-        linestringCoordinates[2] = new Coordinate(1.0d,1.0d);
-        linestringCoordinates[3] = new Coordinate(2.0d,1.0d);
-        linestringCoordinates[4] = new Coordinate(2.0d,2.0d);
-        linestringCoordinates[5] = new Coordinate(3.0d,2.0d);
-        linestringCoordinates[6] = new Coordinate(3.0d,3.0d);
+        linestringCoordinates[0] = new Coordinate(5.0d,5.0d);
+        linestringCoordinates[1] = new Coordinate(6.0d,5.0d);
+        linestringCoordinates[2] = new Coordinate(6.0d,6.0d);
+        linestringCoordinates[3] = new Coordinate(7.0d,6.0d);
+        linestringCoordinates[4] = new Coordinate(7.0d,7.0d);
+        linestringCoordinates[5] = new Coordinate(8.0d,7.0d);
+        linestringCoordinates[6] = new Coordinate(8.0d,8.0d);
         LineString line = geomFac.createLineString(linestringCoordinates);
         
         return line;
@@ -108,19 +108,29 @@ public class RenderingTest extends TestCase {
     
     private com.vividsolutions.jts.geom.Polygon makeSamplePolygon(final GeometryFactory geomFac) {
         Coordinate[] polygonCoordinates = new Coordinate[10];
-        polygonCoordinates[0] = new Coordinate(2,2);
-        polygonCoordinates[1] = new Coordinate(1,4);
-        polygonCoordinates[2] = new Coordinate(1,6);
-        polygonCoordinates[3] = new Coordinate(2,7);
-        polygonCoordinates[4] = new Coordinate(4,6);
-        polygonCoordinates[5] = new Coordinate(6,7);
-        polygonCoordinates[6] = new Coordinate(8,6);
-        polygonCoordinates[7] = new Coordinate(8,4);
-        polygonCoordinates[8] = new Coordinate(6,2);
-        polygonCoordinates[9] = new Coordinate(2,2);
+        polygonCoordinates[0] = new Coordinate(7,7);
+        polygonCoordinates[1] = new Coordinate(6,9);
+        polygonCoordinates[2] = new Coordinate(6,11);
+        polygonCoordinates[3] = new Coordinate(7,12);
+        polygonCoordinates[4] = new Coordinate(9,11);
+        polygonCoordinates[5] = new Coordinate(11,12);
+        polygonCoordinates[6] = new Coordinate(13,11);
+        polygonCoordinates[7] = new Coordinate(13,9);
+        polygonCoordinates[8] = new Coordinate(11,7);
+        polygonCoordinates[9] = new Coordinate(7,7);
+        
+        Coordinate[] hole = new Coordinate[6];
+        hole[0] = new Coordinate(8,8);
+        hole[1] = new Coordinate(7,9);
+        hole[2] = new Coordinate(9,9);
+        hole[3] = new Coordinate(11,9);
+        hole[4] = new Coordinate(11,8);
+        hole[5] = new Coordinate(8,8);
         try{
             LinearRing ring = geomFac.createLinearRing(polygonCoordinates);
-            com.vividsolutions.jts.geom.Polygon polyg = geomFac.createPolygon(ring,null);
+            LinearRing h1 = geomFac.createLinearRing(hole);
+            
+            com.vividsolutions.jts.geom.Polygon polyg = geomFac.createPolygon(ring,new LinearRing[]{h1});
             return polyg;
         }
         catch(TopologyException te){
