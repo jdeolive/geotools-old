@@ -23,6 +23,7 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureResults;
 import org.geotools.data.MaxFeatureReader;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.Feature;
@@ -38,6 +39,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.NamespaceSupport;
 import org.xml.sax.helpers.XMLFilterImpl;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -89,7 +91,7 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.14 2003/11/11 02:37:00 cholmesny Exp $
+ * @version $Id: FeatureTransformer.java,v 1.15 2003/11/12 02:08:17 cholmesny Exp $
  *
  * @todo Add support for schemaLocation
  */
@@ -160,7 +162,7 @@ public class FeatureTransformer extends TransformerBase {
     }
 
     public static class FeatureTypeNamespaces {
-        IdentityHashMap lookup = new IdentityHashMap();
+        Map lookup = new HashMap();
         NamespaceSupport nsSupport;
         String defaultPrefix = null;
 
@@ -215,7 +217,6 @@ public class FeatureTransformer extends TransformerBase {
             String ns, FeatureTypeNamespaces types,
             SchemaLocationSupport schemaLoc) {
             super(handler, prefix, ns, schemaLoc);
-
             geometryTranslator = new GeometryTransformer.GeometryTranslator(handler);
             this.types = types;
 
@@ -244,28 +245,65 @@ public class FeatureTransformer extends TransformerBase {
 
                 startFeatureCollection();
 
-                try {
-                    while (r.hasNext()) {
-                        Feature f = r.next();
-                        handleFeature(f);
-
-                        FeatureType t = f.getFeatureType();
-
-                        for (int i = 0, ii = f.getNumberOfAttributes(); i < ii;
-                                i++) {
-                            handleAttribute(t.getAttributeType(i),
-                                f.getAttribute(i));
-                        }
-
-                        endFeature(f);
-                    }
-                } catch (Exception ioe) {
-                    throw new RuntimeException("Error reading Features", ioe);
-                }
+                handleFeatureReader(r);
 
                 endFeatureCollection();
+            } else if (o instanceof FeatureResults) {
+                try {
+                    FeatureResults fr = (FeatureResults) o;
+                    startFeatureCollection();
+                    writeBounds(fr.getBounds());
+                    handleFeatureReader(fr.reader());
+                    endFeatureCollection();
+                } catch (IOException ioe) {
+                    throw new RuntimeException("error reading FeatureResults",
+                        ioe);
+                }
+            } else if (o instanceof FeatureResults[]) {
+                //Did FeatureResult[] so that we are sure they're all the same type.
+                //Could also consider collections here...  
+                try {
+                    FeatureResults[] results = (FeatureResults[]) o;
+                    Envelope bounds = new Envelope();
+
+                    for (int i = 0; i < results.length; i++) {
+                        bounds.expandToInclude(results[i].getBounds());
+                    }
+
+                    startFeatureCollection();
+                    writeBounds(bounds);
+
+                    for (int i = 0; i < results.length; i++) {
+                        handleFeatureReader(results[i].reader());
+                    }
+
+                    endFeatureCollection();
+                } catch (IOException ioe) {
+                    throw new RuntimeException("error reading FeatureResults",
+                        ioe);
+                }
             } else {
                 throw new IllegalArgumentException("Cannot encode " + o);
+            }
+        }
+
+        public void handleFeatureReader(FeatureReader r) {
+            try {
+                while (r.hasNext()) {
+                    Feature f = r.next();
+                    handleFeature(f);
+
+                    FeatureType t = f.getFeatureType();
+
+                    for (int i = 0, ii = f.getNumberOfAttributes(); i < ii;
+                            i++) {
+                        handleAttribute(t.getAttributeType(i), f.getAttribute(i));
+                    }
+
+                    endFeature(f);
+                }
+            } catch (Exception ioe) {
+                throw new RuntimeException("Error reading Features", ioe);
             }
         }
 
@@ -361,21 +399,28 @@ public class FeatureTransformer extends TransformerBase {
                 if (value != null) {
                     String name = type.getName();
 
-                    if (currentPrefix != null) {
-                        name = currentPrefix + ":" + name;
-                    }
-
-                    contentHandler.startElement("", "", name, NULL_ATTS);
-
-                    if (Geometry.class.isAssignableFrom(value.getClass())) {
-                        geometryTranslator.encode((Geometry) value);
+                    //HACK: this should be user configurable, along with the 
+                    //other gml substitutions I shall add.
+                    if (name.equals("boundedBy")
+                            && Geometry.class.isAssignableFrom(value.getClass())) {
+                        writeBounds(((Geometry) value).getEnvelopeInternal());
                     } else {
-                        String text = value.toString();
-                        contentHandler.characters(text.toCharArray(), 0,
-                            text.length());
-                    }
+                        if (currentPrefix != null) {
+                            name = currentPrefix + ":" + name;
+                        }
 
-                    contentHandler.endElement("", "", name);
+                        contentHandler.startElement("", "", name, NULL_ATTS);
+
+                        if (Geometry.class.isAssignableFrom(value.getClass())) {
+                            geometryTranslator.encode((Geometry) value);
+                        } else {
+                            String text = value.toString();
+                            contentHandler.characters(text.toCharArray(), 0,
+                                text.length());
+                        }
+
+                        contentHandler.endElement("", "", name);
+                    }
                 }
 
                 //REVISIT: xsi:nillable is the proper xml way to handle nulls,
