@@ -42,12 +42,13 @@ import junit.textui.TestRunner;
 import org.geotools.cv.*;
 import org.geotools.gc.*;
 import org.geotools.gp.*;
+import org.geotools.io.coverage.*;
 
 
 /**
  * Performs all tests for the Grid Coverage Services implementation.
  *
- * @version $Id: GCS_Suite.java,v 1.5 2002/08/09 18:41:23 desruisseaux Exp $
+ * @version $Id: GCS_Suite.java,v 1.6 2002/08/22 11:16:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GCS_Suite extends TestCase {
@@ -78,6 +79,8 @@ public class GCS_Suite extends TestCase {
         suite.addTest(GridCoverageTest    .suite());
         suite.addTest(InterpolatorTest    .suite());
         suite.addTest(OperationTest       .suite());
+        suite.addTest(LocalizationGridTest.suite());
+        suite.addTest(PropertyParserTest  .suite());
         return suite;
     }
 }

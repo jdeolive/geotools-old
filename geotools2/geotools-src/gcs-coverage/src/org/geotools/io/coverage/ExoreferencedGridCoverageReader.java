@@ -57,17 +57,15 @@ import org.geotools.resources.gcs.ResourceKeys;
 
 
 /**
- * An implementation of {@link GridCoverageReader} using informations
- * parsed by a {@link PropertyParser}. This reader is typically used
- * for format that stores pixel values and geographic metadata in
- * separated files. For example, pixel values may be stored as a PNG
- * images ou a RAW binary file, and geographic metadata (coordinate
- * system, geographic location, etc.) may be stored in a separated
- * text file. The text file is parsed by a {@link PropertyParser}
- * object, while the pixel values are read by a {@link ImageReader}
- * object.
+ * An implementation of {@link GridCoverageReader} using informations parsed by a
+ * {@link PropertyParser} object. This reader is typically used for format that
+ * stores pixel values and geographic metadata in separated files. For example,
+ * pixel values may be stored as a PNG images ou a RAW binary file, and geographic
+ * metadata (coordinate system, geographic location, etc.) may be stored in a separated
+ * text file. The text file is parsed by a {@link PropertyParser} object, while the pixel
+ * values are read by a {@link ImageReader} object.
  *
- * @version $Id: ExoreferencedGridCoverageReader.java,v 1.4 2002/08/18 19:59:55 desruisseaux Exp $
+ * @version $Id: ExoreferencedGridCoverageReader.java,v 1.5 2002/08/22 11:16:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ExoreferencedGridCoverageReader extends GridCoverageReader {

@@ -42,19 +42,32 @@ import org.geotools.resources.gcs.ResourceKeys;
  * thrown when a property is defined twice with different values.  It may also be thrown
  * if a property can be computed from other properties, but their values are inconsistent.
  *
- * @version $Id: AmbiguousPropertyException.java,v 1.1 2002/08/18 19:59:54 desruisseaux Exp $
+ * @version $Id: AmbiguousPropertyException.java,v 1.2 2002/08/22 11:16:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class AmbiguousPropertyException extends PropertyException {
     /**
-     * Construct an exception with the specified message.
-     *
-     * @param message  The message. If <code>null</code>, a message will
-     *                 be constructed from the property name.
-     * @param property The property name which has raised this exception.
+     * Serial number for interoperability with different versions.
      */
-    public AmbiguousPropertyException(final String message, final String property) {
-        super(message!=null ? message :
-              Resources.format(ResourceKeys.ERROR_DUPLICATED_PROPERTY_$1, property), property);
+    private static final long serialVersionUID = 9024148330467307209L;
+
+    /**
+     * Construct an exception with the specified message. This exception is
+     * usually raised because different values was found for the key <code>key</code>.
+     *
+     * @param message The message. If <code>null</code>, a message will
+     *                be constructed from the alias.
+     * @param key     The property key which was the cause for this exception, or
+     *                <code>null</code> if none. This is a format neutral key,
+     *                for example {@link PropertyParser#DATUM}.
+     * @param alias   The alias used for for the key <code>key</code>, or <code>null</code>
+     *                if none. This is usually the name used in the external file parsed.
+     */
+    public AmbiguousPropertyException(final String message,
+                                      final PropertyParser.Key key,
+                                      final String alias)
+    {
+        super((message!=null) ? message :  Resources.format(
+              ResourceKeys.ERROR_INCONSISTENT_PROPERTY_$1, alias), key, alias);
     }
 }

@@ -42,20 +42,33 @@ import org.geotools.resources.gcs.ResourceKeys;
  * when a raster is being read but the file doesn't contains enough information for
  * constructing the raster's coordinate system.
  *
- * @version $Id: MissingPropertyException.java,v 1.1 2002/08/18 19:59:55 desruisseaux Exp $
+ * @version $Id: MissingPropertyException.java,v 1.2 2002/08/22 11:16:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MissingPropertyException extends PropertyException {
     /**
-     * Construct an exception with the specified message.
-     *
-     * @param message  The message. If <code>null</code>, a message will
-     *                 be constructed from the property name.
-     * @param property The property name which has raised this exception.
+     * Serial number for interoperability with different versions.
      */
-    public MissingPropertyException(final String message, final String property) {
-        super( (message!=null) ? message :  Resources.format(
-              (property!=null) ? ResourceKeys.ERROR_UNDEFINED_PROPERTY_$1 :
-                                 ResourceKeys.ERROR_UNDEFINED_PROPERTY, property), property);
+    private static final long serialVersionUID = -5215286265847774754L;
+
+    /**
+     * Construct an exception with the specified message. This exception is
+     * usually raised because no value was defined for the key <code>key</code>.
+     *
+     * @param message The message. If <code>null</code>, a message will
+     *                be constructed from the alias.
+     * @param key     The property key which was the cause for this exception, or
+     *                <code>null</code> if none. This is a format neutral key,
+     *                for example {@link PropertyParser#DATUM}.
+     * @param alias   The alias used for for the key <code>key</code>, or <code>null</code>
+     *                if none. This is usually the name used in the external file parsed.
+     */
+    public MissingPropertyException(final String message,
+                                    final PropertyParser.Key key,
+                                    final String alias)
+    {
+        super((message!=null) ? message :  Resources.format(
+                (alias!=null) ? ResourceKeys.ERROR_UNDEFINED_PROPERTY_$1 :
+                                ResourceKeys.ERROR_UNDEFINED_PROPERTY, alias), key, alias);
     }
 }

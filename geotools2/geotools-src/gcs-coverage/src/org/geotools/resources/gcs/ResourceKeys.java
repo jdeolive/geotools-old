@@ -63,11 +63,11 @@ public interface ResourceKeys
     public static final int ERROR_BAD_TRANSFORM_$1               =    64;
     public static final int ERROR_CANT_REPROJECT_$1              =    32;
     public static final int ERROR_CANT_TRANSFORM_ENVELOPE        =    33;
-    public static final int ERROR_DUPLICATED_PROPERTY_$1         =    34;
     public static final int ERROR_EMPTY_ENVELOPE                 =    35;
     public static final int ERROR_ENVELOPE_MISMATCH              =    36;
     public static final int ERROR_FILE_HAS_TOO_FEW_DATA          =    37;
     public static final int ERROR_INCOMPATIBLE_COORDINATE_SYSTEM =    38;
+    public static final int ERROR_INCONSISTENT_PROPERTY_$1       =    34;
     public static final int ERROR_MISMATCHED_ARRAY_LENGTH        =    39;
     public static final int ERROR_MISMATCHED_DIMENSION_$2        =    40;
     public static final int ERROR_MIXED_CATEGORIES               =    65;
