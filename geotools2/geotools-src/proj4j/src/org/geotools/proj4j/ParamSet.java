@@ -28,6 +28,20 @@ Hashtable params = new Hashtable();
             params.put(param,param);
         }
     }
+    public void addParamIfNotSet(String param){
+        String arg_1,arg_2;
+        int split = param.indexOf('=');
+        if(split>=0){
+            arg_1=param.substring(0,split);
+            arg_2=param.substring(split+1);
+        }else{
+            arg_1=arg_2=param;
+        }
+        if(!this.contains(arg_1)){
+            params.put(arg_1,arg_2);
+        }
+    }
+        
           
     
     public void addParam(String param,String value){
@@ -76,5 +90,7 @@ Hashtable params = new Hashtable();
         if(value!=null)return Misc.dmsToR(value.toString());
         return 0;
     }
-    
+    public String toString(){
+        return params.toString();
+    }
 }
