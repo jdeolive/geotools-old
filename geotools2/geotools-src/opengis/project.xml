@@ -7,6 +7,7 @@
   <id>opengis</id>
   <groupId>opengis</groupId>
   <currentVersion>0.1</currentVersion>
+  <package>org.opengis</package>
   <shortDescription>opengis module</shortDescription>
   <description>opengis module</description>
   <developers>
