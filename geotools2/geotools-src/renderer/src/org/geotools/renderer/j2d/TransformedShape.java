@@ -52,7 +52,7 @@ import org.geotools.resources.XAffineTransform;
  * by {@link RenderedMarks}. It is designed for reuse with many different affine transforms and
  * shapes. This class is <strong>not</strong> thread-safe.
  *
- * @version $Id: TransformedShape.java,v 1.1 2003/03/19 23:50:49 desruisseaux Exp $
+ * @version $Id: TransformedShape.java,v 1.2 2003/03/21 23:05:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class TransformedShape extends AffineTransform implements Shape {
@@ -80,13 +80,13 @@ final class TransformedShape extends AffineTransform implements Shape {
     /**
      * Returns the 6 coefficients values.
      */
-    public void getMatrix(final double[] matrix, int offset) {
-        matrix[  offset] = getScaleX();     // m00
-        matrix[++offset] = getShearY();     // m10
-        matrix[++offset] = getShearX();     // m01
-        matrix[++offset] = getScaleY();     // m11
-        matrix[++offset] = getTranslateX(); // m02
-        matrix[++offset] = getTranslateY(); // m12
+    public void getMatrix(final float[] matrix, int offset) {
+        matrix[  offset] = (float)getScaleX();     // m00
+        matrix[++offset] = (float)getShearY();     // m10
+        matrix[++offset] = (float)getShearX();     // m01
+        matrix[++offset] = (float)getScaleY();     // m11
+        matrix[++offset] = (float)getTranslateX(); // m02
+        matrix[++offset] = (float)getTranslateY(); // m12
     }
 
     /**
@@ -95,9 +95,20 @@ final class TransformedShape extends AffineTransform implements Shape {
      * @param matrix The flat matrix.
      * @param offset The index of the first element to use in <code>matrix</code>.
      */
-    public void setTransform(final double[] matrix, int offset) {
+    public void setTransform(final float[] matrix, int offset) {
         setTransform(matrix[  offset], matrix[++offset], matrix[++offset],
                      matrix[++offset], matrix[++offset], matrix[++offset]);
+    }
+
+    /**
+     * Set the transform from a flat matrix.
+     *
+     * @param matrix The flat matrix.
+     * @param offset The index of the first element to use in <code>matrix</code>.
+     */
+    public void setTransform(final double[] matrix) {
+        setTransform(matrix[0], matrix[1], matrix[2],
+                     matrix[3], matrix[4], matrix[5]);
     }
 
     /**

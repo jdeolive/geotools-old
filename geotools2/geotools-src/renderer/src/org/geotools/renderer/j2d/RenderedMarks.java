@@ -70,7 +70,7 @@ import org.geotools.resources.XAffineTransform;
  * Subclasses must override the {@link #getMarkIterator} method in order to returns informations
  * about marks.
  *
- * @version $Id: RenderedMarks.java,v 1.10 2003/03/20 22:49:37 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.11 2003/03/21 23:05:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -160,7 +160,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      *
      * @see #MARKS_MASK
      */
-    private transient double[] markTransforms;
+    private transient float[] markTransforms;
 
     /**
      * The gylphs for each labels to be rendered, or <code>null</code> if there is no glyphs
@@ -423,7 +423,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                         if (Double.isNaN(amplitude) || amplitude==0) {
                             transformedShape.shape = null;
                         } else {
-                            transformedShape.setTransform(matrix, 0);
+                            transformedShape.setTransform(matrix);
                             transformedShape.scale(amplitude/typicalScale);
                             transformedShape.rotate(iterator.direction());
                             if (!transformedShape.intersects(zoomableBounds)) {
@@ -465,7 +465,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                                 iconBoundsPool.put(bounds, bounds);
                             }
                             transformedShape.shape = bounds;
-                            transformedShape.setTransform(matrix, 0);
+                            transformedShape.setTransform(matrix);
                         }
                         iconBounds.x += (int)Math.round(matrix[4]);
                         iconBounds.y += (int)Math.round(matrix[5]);
@@ -545,7 +545,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                     if (transformedShape.shape != null) {
                         if (markShapes == null) {
                             markShapes     = new Shape[markIndex.length];
-                            markTransforms = new double[markIndex.length*TRANSFORM_RECORD_LENGTH];
+                            markTransforms = new float[markIndex.length*TRANSFORM_RECORD_LENGTH];
                         }
                         transformedShape.getMatrix(markTransforms, numShapes*TRANSFORM_RECORD_LENGTH);
                         markShapes[numShapes] = transformedShape.shape;
