@@ -91,8 +91,9 @@ public class ShapefileWriter {
    * Make sure our buffer is of size.
    */ 
   private void checkShapeBuffer(int size) {
-    if (shapeBuffer.capacity() < size) 
+    if (shapeBuffer.capacity() < size) {
         shapeBuffer = ByteBuffer.allocateDirect(size);
+    }
   }
   
   /**
@@ -181,7 +182,8 @@ public class ShapefileWriter {
       lp = shapeBuffer.position();
       int length = handler.getLength(g);
       
-      checkShapeBuffer(length);
+      // must allocate enough for shape + header (2 ints)
+      checkShapeBuffer(length + 8);
       
       length /= 2;
       
@@ -191,7 +193,7 @@ public class ShapefileWriter {
       shapeBuffer.order(ByteOrder.LITTLE_ENDIAN);
       shapeBuffer.putInt(type.id);
       handler.write(shapeBuffer,g);
-      
+
       assert (length * 2 == (shapeBuffer.position() - lp) - 8);
 
       lp = shapeBuffer.position();
