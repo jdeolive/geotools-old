@@ -28,11 +28,11 @@ import java.awt.event.MouseListener;
 
 /**
  * This is the base widget class that all widgets inherit from.
- * @version $Id: AbstractWidgetImpl.java,v 1.1 2003/02/06 20:17:16 camerons Exp $
+ * @version $Id: PanelWidget.java,v 1.1 2003/02/07 11:04:19 camerons Exp $
  * @author Cameron Shorter
  */
 
-public abstract class AbstractWidgetImpl extends JPanel implements
+public class PanelWidget extends JPanel implements
     AbstractWidget
 {
 
@@ -47,7 +47,7 @@ public abstract class AbstractWidgetImpl extends JPanel implements
      * A MapPane marshals the drawing of maps.
      *
      */
-    public AbstractWidgetImpl()
+    public PanelWidget()
     {
     }
     

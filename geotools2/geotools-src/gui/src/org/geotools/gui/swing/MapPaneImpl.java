@@ -50,7 +50,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.4 2003/02/06 20:18:38 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.5 2003/02/07 11:04:19 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -58,7 +58,7 @@ import org.geotools.data.DataSourceException;
  * 2 maps which use the same data, but a different style.
  */
 
-public class MapPaneImpl extends AbstractWidgetImpl implements
+public class MapPaneImpl extends PanelWidget implements
     BoundingBoxListener, LayerListListener, org.geotools.gui.widget.MapPane
 {
     /**
@@ -80,7 +80,7 @@ public class MapPaneImpl extends AbstractWidgetImpl implements
      * The class used for identifying for logging.
      */
     private static final Logger LOGGER = Logger.getLogger(
-        "org.geotools.gui.swing.MapPane2");
+        "org.geotools.gui.swing.MapPaneImpl");
 
     /**
      * Create a MapPane.
@@ -213,48 +213,4 @@ public class MapPaneImpl extends AbstractWidgetImpl implements
     public void layerListChanged(EventObject layerListChangedEvent) {
         repaint(getVisibleRect());
     }
-
-//    /**
-//     * Adds the specified mouse listener to receive mouse events from
-//     * this component.
-//     * If listener <code>l</code> is <code>null</code>,
-//     * no exception is thrown and no action is performed.
-//     *
-//     * @param    l   the mouse listener
-//     * @see      java.awt.event.MouseEvent
-//     * @see      java.awt.event.MouseListener
-//     * @see      #removeMouseListener
-//     * @see      #getMouseListeners
-//     * @since    JDK1.1
-//     */
-//    public synchronized void addMouseListener(Object l) {
-//        super.addMouseListener((MouseListener)l);
-//    }
-//
-//    /**
-//     * Removes the specified mouse listener so that it no longer
-//     * receives mouse events from this component. This method performs 
-//     * no function, nor does it throw an exception, if the listener 
-//     * specified by the argument was not previously added to this component.
-//     * If listener <code>l</code> is <code>null</code>,
-//     * no exception is thrown and no action is performed.
-//     *
-//     * @param    l   the mouse listener
-//     * @see      java.awt.event.MouseEvent
-//     * @see      java.awt.event.MouseListener
-//     * @see      #addMouseListener
-//     * @see      #getMouseListeners
-//     * @since    JDK1.1
-//     */
-//    public synchronized void removeMouseListener(Object l) {
-//        super.removeMouseListener((MouseListener)l);
-//    }
-//
-//    /**
-//     * Returns the current width of this component.
-//     * @return the current width of this component
-//     */
-//    public int getWidth() {
-//        return super.getWidth();
-//    }
 }
