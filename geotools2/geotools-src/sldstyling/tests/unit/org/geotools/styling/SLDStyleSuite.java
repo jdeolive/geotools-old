@@ -2,7 +2,7 @@
  * SLDStyleSuite.java
  * JUnit based test
  *
- * $Id: SLDStyleSuite.java,v 1.8 2002/10/21 15:14:52 ianturton Exp $
+ * $Id: SLDStyleSuite.java,v 1.9 2002/10/30 11:52:29 ianturton Exp $
  */                
 
 package org.geotools.styling;
@@ -11,8 +11,7 @@ import junit.framework.*;
 
 import org.geotools.styling.*;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
+
 
 /**
  *
@@ -22,7 +21,7 @@ public class SLDStyleSuite extends TestCase {
     
     public SLDStyleSuite(java.lang.String testName) {
         super(testName);
-        BasicConfigurator.configure();
+       
         
     }        
     
