@@ -54,7 +54,7 @@ import org.apache.log4j.Category;
 
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
     
-    private static Category _log = Category.getInstance(FeatureTypeFlat.class.getName());
+    private static Category _log = Category.getInstance(org.geotools.feature.FeatureTypeFlat.class.getName());
     
     /**
      * Flag which controls behaviour for applying affine transformation
@@ -213,7 +213,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                         //TODO: the rule may be FAR more complex than this and code needs to
                         //TODO: writen to support this, particularly the filtering aspects.
                         if(rules[k].getMinScaleDenominator()<scaleDenominator && rules[k].getMaxScaleDenominator()>scaleDenominator){
-                            _log.info("rule passed, moving on to ssymobolizers");
+                            _log.info("rule passed, moving on to symobolizers");
                             //yes it does
                             //this gives us a list of symbolizers
                             Symbolizer[] symbolizers = rules[k].getSymbolizers();
@@ -247,7 +247,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     /**
-     * Renders the given feature as a polygon using the specided symbolizer.
+     * Renders the given feature as a polygon using the specifed symbolizer.
      * Geometry types other than inherently area types can be used.
      * If a line is used then the line string is closed for filling (only)
      * by connecting its end point to its start point.
@@ -273,7 +273,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         if(fill!=null){
             graphics.setColor(Color.decode(fill.getColor()));
+            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,(float)fill.getOpacity()));
             graphics.fill(path);
+            // shouldn't we reset the graphics when we'return finished?
+            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
         }
         if(symbolizer.getStroke() != null) {
             applyStroke(symbolizer.getStroke());
@@ -301,6 +304,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @param symbolizer The polygon symbolizer to apply
      **/
     private void renderLine(Feature feature, LineSymbolizer symbolizer){
+        if(symbolizer.getStroke()==null) return;
         applyStroke(symbolizer.getStroke());
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
@@ -357,6 +361,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,(float)stroke.getOpacity()));
         graphics.setStroke(stroke2d);
         graphics.setColor(Color.decode(stroke.getColor()));
+        System.out.println("stroke color "+graphics.getColor());
     }
     
     /**
