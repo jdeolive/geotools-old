@@ -43,6 +43,16 @@
     </developer>
   </developers>
 
+  <contributors>
+    <contributor>
+      <name>Ugo Taddei</name>
+      <organization>Universität Jena</organization>
+      <roles>
+        <role>Translator</role>
+      </roles>
+    </contributor>
+  </contributors>
+
   <dependencies>
     <dependency>
       <id>vecmath</id>
