@@ -1,34 +1,18 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
- * (C) 2001, Institut de Recherche pour le Développement
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; either
- *    version 2.1 of the License, or (at your option) any later version.
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *
- * Contacts:
- *     UNITED KINGDOM: James Macgill
- *             mailto:j.macgill@geog.leeds.ac.uk
- *
- *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
- *             Institut de Recherche pour le Développement / US-Espace
- *             mailto:seasnet@teledetection.fr
- *
- *     CANADA: Observatoire du Saint-Laurent
- *             Institut Maurice-Lamontagne
- *             mailto:osl@osl.gc.ca
  */
 package org.geotools.renderer.lite;
 
@@ -36,21 +20,15 @@ package org.geotools.renderer.lite;
 //Java Topology Suite
 import com.vividsolutions.jts.geom.*;
 
-import org.apache.commons.collections.LRUMap;
-
 //geotools imports
 import org.geotools.data.*;
-
+import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
-
 import org.geotools.filter.*;
-
 import org.geotools.gc.GridCoverage;
-
+import org.geotools.map.*;
 import org.geotools.renderer.*;
-
 import org.geotools.styling.*;
-
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 
@@ -64,19 +42,14 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.font.TextLayout;
 import java.awt.geom.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Point2D;
 import java.awt.image.*;
 
 // file handling
 import java.io.*;
-
 import java.net.*;
 
 //util imports
 import java.util.*;
-import java.util.Collections;
 import java.util.logging.Level;
 
 //Logging system
@@ -87,45 +60,54 @@ import javax.imageio.ImageIO;
 
 
 /**
- * @version $Id: LiteRenderer.java,v 1.5 2003/06/16 12:03:53 ianturton Exp $
+ * A lite implementation of the Renderer and Renderer2D interfaces. Lite means
+ * that:
+ * 
+ * <ul>
+ * <li>
+ * The code is relatively simple to understand, so it can be used as a simple
+ * example of an SLD compliant rendering code
+ * </li>
+ * <li>
+ * Uses as few memory as possible
+ * </li>
+ * </ul>
+ * 
+ * Use this class if you need a stateless renderer that provides low memory
+ * footprint and  decent rendering performance on the first call but don't
+ * need good optimal performance on subsequent calls on the same data. Notice:
+ * for the time being, this class doesn't support GridCoverage stylers, that
+ * will be rendered using the non geophisics version of the GridCoverage, if
+ * available, with the geophisics one, otherwise.
+ *
  * @author James Macgill
  * @author Andrea Aime
+ * @version $Id: LiteRenderer.java,v 1.6 2003/07/12 10:56:42 aaime Exp $
  */
-public class LiteRenderer implements org.geotools.renderer.Renderer {
-    /**
-     * The logger for the rendering module.
-     */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.rendering");
+public class LiteRenderer implements Renderer, Renderer2D {
+    /** The logger for the rendering module. */
+    private static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.rendering");
 
-    /**
-     * where the centre of an untransormed mark is
-     */
+    /** where the centre of an untransormed mark is */
     private static com.vividsolutions.jts.geom.Point markCentrePoint;
-    static HashSet fontFamilies = null;
-    static HashMap loadedFonts = new HashMap();
+    static Set fontFamilies = null;
+    static java.util.Map loadedFonts = new HashMap();
     static java.awt.Canvas obs = new java.awt.Canvas();
     private static double tolerance = 1e-6;
 
-    /**
-     * Holds a lookup bewteen SLD names and java constants.
-     */
-    private static final java.util.HashMap joinLookup = new java.util.HashMap();
+    /** Holds a lookup bewteen SLD names and java constants. */
+    private static final java.util.Map joinLookup = new java.util.HashMap();
 
-    /**
-     * Holds a lookup bewteen SLD names and java constants.
-     */
-    private static final java.util.HashMap capLookup = new java.util.HashMap();
+    /** Holds a lookup bewteen SLD names and java constants. */
+    private static final java.util.Map capLookup = new java.util.HashMap();
 
-    /**
-     * Holds a lookup bewteen SLD names and java constants.
-     */
-    private static final java.util.HashMap fontStyleLookup = new java.util.HashMap();
+    /** Holds a lookup bewteen SLD names and java constants. */
+    private static final java.util.Map fontStyleLookup = new java.util.HashMap();
 
-    /**
-     * Holds a list of well-known marks.
-     */
-    static HashSet wellKnownMarks = new java.util.HashSet();
-    static HashSet supportedGraphicFormats = new java.util.HashSet();
+    /** Holds a list of well-known marks. */
+    static Set wellKnownMarks = new java.util.HashSet();
+    static Set supportedGraphicFormats = new java.util.HashSet();
     static ImageLoader imageLoader = new ImageLoader();
 
     static { //static block to populate the lookups
@@ -143,9 +125,9 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         fontStyleLookup.put("bold", new Integer(java.awt.Font.BOLD));
 
         /**
-         * A list of wellknownshapes that we know about:
-         * square, circle, triangle, star, cross, x.
-         * Note arrow is an implementation specific mark.
+         * A list of wellknownshapes that we know about: square, circle,
+         * triangle, star, cross, x. Note arrow is an implementation specific
+         * mark.
          */
         wellKnownMarks.add("Square");
         wellKnownMarks.add("Triangle");
@@ -177,98 +159,211 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
     }
 
     /**
-     * Flag which determines if the renderer is interactive or not.
-     * An interactive renderer will return rather than waiting for time
-     * consuming operations to complete (e.g. Image Loading).
-     * A non-interactive renderer (e.g. a SVG or PDF renderer) will block
-     * for these operations.
+     * Context which contains LayerList, BoundingBox which needs to be
+     * rendered.
+     */
+    private Context context;
+
+    /**
+     * Flag which determines if the renderer is interactive or not. An
+     * interactive renderer will return rather than waiting for time consuming
+     * operations to complete (e.g. Image Loading). A non-interactive renderer
+     * (e.g. a SVG or PDF renderer) will block for these operations.
      */
     private boolean interactive = true;
 
     /**
-     * Flag which controls behaviour for applying affine transformation
-     * to the graphics object.  If true then the transform will be concatenated
-     * to the existing transform.  If false it will be replaced.
+     * Flag which controls behaviour for applying affine transformation to the
+     * graphics object.  If true then the transform will be concatenated to
+     * the existing transform.  If false it will be replaced.
      */
     private boolean concatTransforms = false;
     private Envelope mapExtent = null;
 
-    /**
-     * Graphics object to be rendered to.
-     * Controlled by set output.
-     */
+    /** Graphics object to be rendered to. Controlled by set output. */
     private Graphics2D graphics;
 
-    /**
-     * The size of the output area in output units.
-     */
+    /** The size of the output area in output units. */
     private Rectangle screenSize;
 
     /**
-     * The ratio required to scale the features to be rendered
-     * so that they fit into the output space.
+     * The ratio required to scale the features to be rendered so that they fit
+     * into the output space.
      */
     private double scaleDenominator;
 
-    /**
-     * Maximun displacement for generalization during rendering
-     */
+    /** Maximun displacement for generalization during rendering */
     private double maxDistance = 1.0;
 
-    /** Creates a new instance of Java2DRenderer */
+    /**
+     * Creates a new instance of LiteRenderer.
+     *
+     * @deprecated Renderer is to be created with a Context.
+     */
     public LiteRenderer() {
-        LOGGER.fine("creating new j2drenderer");
+        LOGGER.fine("creating new lite renderer");
     }
 
-
-    public LiteRenderer(double maxDistance) {
-        this();
-        this.maxDistance = maxDistance;
+    /**
+     * Creates a new instance of Java2DRenderer.
+     *
+     * @param context Contains pointers to layers, bounding box, and style
+     *        required for rendering.
+     */
+    public LiteRenderer(Context context) {
+        this.context = context;
     }
 
     /**
      * Sets the flag which controls behaviour for applying affine
      * transformation to the graphics object.
      *
-     * @param flag If true then the transform will be concatenated
-     * to the existing transform.  If false it will be replaced.
+     * @param flag If true then the transform will be concatenated to the
+     *        existing transform.  If false it will be replaced.
      */
     public void setConcatTransforms(boolean flag) {
         concatTransforms = flag;
     }
 
-
     /**
-     * Flag which controls behaviour for applying affine transformation
-     * to the graphics object.
+     * Flag which controls behaviour for applying affine transformation to the
+     * graphics object.
      *
-     * @return a boolean flag. If true then the transform will be
-     * concatenated to the existing transform.  If false it will be replaced.
+     * @return a boolean flag. If true then the transform will be concatenated
+     *         to the existing transform.  If false it will be replaced.
      */
     public boolean getConcatTransforms() {
         return concatTransforms;
     }
 
-
     /**
      * Called before {@link render}, this sets where any output will be sent.
+     *
      * @param g A graphics object for future rendering to be sent to.  Note:
-     *        must be an instance of Graphics2D.
+     *        must be an instance of lite renderer.
      * @param bounds The size of the output area, required so that scale can be
      *        calculated.
+     *
+     * @deprecated Graphics and bounds is to be set in renderer().
      */
     public void setOutput(Graphics g, Rectangle bounds) {
         graphics = (Graphics2D) g;
         screenSize = bounds;
     }
 
+    /**
+     * Setter for property scaleDenominator.
+     *
+     * @param scaleDenominator New value of property scaleDenominator.
+     */
+    protected void setScaleDenominator(double scaleDenominator) {
+        this.scaleDenominator = scaleDenominator;
+    }
+
+    /**
+     * Render features based on the LayerList, BoundBox and Style specified in
+     * this.context. Don't mix calls to paint and setOutput, when calling this
+     * method the graphics set in the setOutput method is discarded.
+     *
+     * @param graphics The graphics object to draw to.
+     * @param paintArea The size of the output area in output units (eg:
+     *        pixels).
+     * @param transform A transform which converts World coordinates to Screen
+     *        coordinates.
+     *
+     * @task TODO Need to check if the Layer CoordinateSystem is different to
+     *       the BoundingBox rendering CoordinateSystem and if so, then
+     *       transform the coordinates.
+     */
+    public void paint(Graphics2D graphics, Rectangle paintArea,
+        AffineTransform transform) {
+        Date start = new Date();
+
+        if ((graphics == null) || (paintArea == null)) {
+            LOGGER.info("renderer passed null arguements");
+
+            return;
+        }
+
+        try {
+            // set the passed graphic as the current graphic but be sure to release it before
+            this.graphics = graphics;
+
+            Layer[] layers = context.getLayerList().getLayers();
+
+            for (int l = 0; l < layers.length; l++) {
+                Layer layer = layers[l];
+
+                if (!layer.getVisability()) {
+                    // Only render layer when layer is visible
+                    continue;
+                }
+
+                FeatureCollection fc = new FeatureCollectionDefault(layer.getDataSource());
+
+                try {
+                    Feature[] features = fc.getFeatures(new EnvelopeExtent(
+                                this.context.getBbox().getAreaOfInterest()));
+                    mapExtent = this.context.getBbox().getAreaOfInterest();
+
+                    if (LOGGER.isLoggable(Level.FINE)) {
+                        LOGGER.fine("renderering " + features.length +
+                            " features");
+                    }
+
+                    // TODO: Need to check if the Layer CoordinateSystem is
+                    // different to the BoundingBox rendering CoordinateSystem and
+                    // if so, then transform the coordinates.
+                    AffineTransform at = transform;
+
+                    if (LOGGER.isLoggable(Level.FINE)) {
+                        LOGGER.fine("Affine Transform is " + at);
+                    }
+
+                    /* If we are rendering to a component which has already set up some
+                     * form of transformation then we can concatenate our
+                     * transformation to it. An example of this is the ZoomPane
+                     * component of the swinggui module.*/
+                    if (concatTransforms) {
+                        graphics.getTransform().concatenate(at);
+                    } else {
+                        graphics.setTransform(at);
+                    }
+
+                    setScaleDenominator(1 / graphics.getTransform().getScaleX());
+
+                    //extract the feature type stylers from the style object and
+                    //process them
+                    FeatureTypeStyle[] featureStylers = layer.getStyle()
+                                                             .getFeatureTypeStyles();
+                    processStylers(features, featureStylers);
+
+                    Date end = new Date();
+
+                    if (LOGGER.getLevel() == Level.INFO) { //change to fine when finished
+                        LOGGER.info("Time to render " + features.length +
+                            " is " + (end.getTime() - start.getTime()) +
+                            " milliSecs");
+                    }
+                } catch (Exception exception) {
+                    LOGGER.warning("Exception " + exception +
+                        " rendering layer " + layer);
+                }
+            }
+        } finally {
+            this.graphics = null;
+        }
+    }
 
     /**
      * Performs the actual rendering process to the graphics context set in
-     * setOutput.<p>
-     * The style parameter controls the appearance features.  Rules
-     * within the style object may cause some features to be rendered
-     * multiple times or not at all.
+     * setOutput.
+     * 
+     * <p>
+     * The style parameter controls the appearance features.  Rules within the
+     * style object may cause some features to be rendered multiple times or
+     * not at all.
+     * </p>
      *
      * @param features An array of features to be rendered.
      * @param map Controls the full extent of the input space.  Used in the
@@ -282,9 +377,9 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
             return;
         }
-        
 
         long startTime = 0;
+
         if (LOGGER.isLoggable(Level.FINE)) {
             startTime = System.currentTimeMillis();
         }
@@ -293,6 +388,7 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
         //set up the affine transform and calculate scale values
         AffineTransform at = setUpTransform(mapExtent, screenSize);
+
         /* If we are rendering to a component which has already set up some form
          * of transformation then we can concatenate our transformation to it.
          * An example of this is the ZoomPane component of the swinggui module.*/
@@ -307,12 +403,12 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         //extract the feature type stylers from the style object and process them
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
         processStylers(features, featureStylers);
-        
+
         if (LOGGER.isLoggable(Level.FINE)) {
             long endTime = System.currentTimeMillis();
             double elapsed = (endTime - startTime) / 1000.0;
-            LOGGER.fine("Rendered " + features.length + " features in " + elapsed + " sec.");
-            
+            LOGGER.fine("Rendered " + features.length + " features in " +
+                elapsed + " sec.");
         }
     }
 
@@ -328,18 +424,12 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         double tx = -mapExtent.getMinX() * scaleX; // x translation - mod by ian
         double ty = (mapExtent.getMinY() * scaleY) + screenSize.getHeight(); // y translation
 
-        double sc = scaleX;
-        double ss = 0.0d;
-
-        // TODO: if user space is geographic (i.e. in degrees) we need to
-        // transform it
-        // to Km/m here to calc the size of the pixel and hence the
-        // scaleDenominator
         AffineTransform at = new AffineTransform(scaleX, 0.0d, 0.0d, -scaleY,
                 tx, ty);
 
         return at;
     }
+
     /**
      *
      */
@@ -352,6 +442,7 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
         //set up the affine transform and calculate scale values
         AffineTransform at = setUpTransform(map, screenSize);
+
         /* If we are rendering to a component which has already set up some form
          * of transformation then we can concatenate our transformation to it.
          * An example of this is the ZoomPane component of the swinggui module.*/
@@ -362,7 +453,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         }
 
         try {
-            Point2D result = at.inverseTransform(new Point2D.Double(x, y), new Point2D.Double());
+            Point2D result = at.inverseTransform(new Point2D.Double(x, y),
+                    new Point2D.Double());
             Coordinate c = new Coordinate(result.getX(), result.getY());
 
             return c;
@@ -373,37 +465,46 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         return null;
     }
 
-
     private boolean isWithInScale(Rule r) {
         return ((r.getMinScaleDenominator() - tolerance) <= scaleDenominator) &&
         ((r.getMaxScaleDenominator() + tolerance) > scaleDenominator);
     }
 
-
     /**
-     * Applies each feature type styler in turn to all of the features.
-     * This perhaps needs some explanation to make it absolutely clear.
+     * Applies each feature type styler in turn to all of the features. This
+     * perhaps needs some explanation to make it absolutely clear.
      * featureStylers[0] is applied to all features before featureStylers[1]
      * is applied.  This can have important consequences as regards the
-     * painting order.<p>
+     * painting order.
+     * 
+     * <p>
      * In most cases, this is the desired effect.  For example, all line
      * features may be rendered with a fat line and then a thin line.  This
-     * produces a 'cased' effect without any strange overlaps.<p>
-     * This method is internal and should only be called by render.<p>
+     * produces a 'cased' effect without any strange overlaps.
+     * </p>
+     * 
+     * <p>
+     * This method is internal and should only be called by render.
+     * </p>
+     * 
+     * <p></p>
      *
      * @param features An array of features to be rendered
      * @param featureStylers An array of feature stylers to be applied
-     **/
-    private void processStylers(final Feature[] features, final FeatureTypeStyle[] featureStylers) {
+     */
+    private void processStylers(final Feature[] features,
+        final FeatureTypeStyle[] featureStylers) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("processing " + featureStylers.length + " stylers");
         }
 
         // create the arrayList of features that sits whithin the map envelop
         List insideFeatures = new ArrayList();
+
         for (int i = 0; i < features.length; i++) {
             Feature feature = features[i];
-            Envelope internal = feature.getDefaultGeometry().getEnvelopeInternal();
+            Envelope internal = feature.getDefaultGeometry()
+                                       .getEnvelopeInternal();
 
             if (mapExtent.overlaps(internal)) {
                 insideFeatures.add(feature);
@@ -423,182 +524,88 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
                 LOGGER.finer("about to draw " + features.length + " feature");
             }
 
-            // create else features
-            Set elseFeatures = new LinkedHashSet(insideFeatures);
-
             // get rules
             Rule[] rules = fts.getRules();
-            for (int k = 0; k < rules.length; k++) {
-                // if this rule applies
-                if (isWithInScale(rules[k]) && !rules[k].hasElseFilter()) {
-                    Filter filter = rules[k].getFilter();
-                    Symbolizer[] symbolizers = rules[k].getSymbolizers();
-                    ArrayList ruleFeatures = new ArrayList();
 
-                    // get all the features that must be rendered according to
-                    // this rule
-                    Iterator featIter = insideFeatures.iterator();
-                    while (featIter.hasNext()) {
-                        Feature feature = (Feature) featIter.next();
+            for (Iterator it = insideFeatures.iterator(); it.hasNext();) {
+                Feature feature = (Feature) it.next();
+
+                for (int k = 0; k < rules.length; k++) {
+                    // if this rule applies
+                    if (isWithInScale(rules[k]) && !rules[k].hasElseFilter()) {
+                        Filter filter = rules[k].getFilter();
+                        Symbolizer[] symbolizers = rules[k].getSymbolizers();
 
                         String typeName = feature.getSchema().getTypeName();
+
                         if (((typeName != null) &&
-                                typeName.equalsIgnoreCase(fts.getFeatureTypeName())) &&
+                                typeName.equalsIgnoreCase(
+                                    fts.getFeatureTypeName())) &&
                                 ((filter == null) || filter.contains(feature))) {
-                            ruleFeatures.add(feature);
-                            elseFeatures.remove(feature);
+                            processSymbolizers(feature, symbolizers);
                         }
                     }
-
-                    // now render them
-                    processSymbolizers(ruleFeatures, symbolizers);
                 }
-            }
 
-            if (elseFeatures.size() == 0) {
-                return ;
-            }
-
-            for (int k = 0; k < rules.length; k++) {
-                // if this rule applies
-                if (isWithInScale(rules[k]) && rules[k].hasElseFilter()) {
-                    Symbolizer[] symbolizers = rules[k].getSymbolizers();
-                    processSymbolizers(elseFeatures, symbolizers);
+                for (int k = 0; k < rules.length; k++) {
+                    // if this rule applies
+                    if (isWithInScale(rules[k]) && rules[k].hasElseFilter()) {
+                        Symbolizer[] symbolizers = rules[k].getSymbolizers();
+                        processSymbolizers(feature, symbolizers);
+                    }
                 }
             }
         }
     }
 
-
-    //            Iterator featIter = insideFeatures.iterator();
-    //            while(featIter.hasNext()) {
-    //                Feature feature = (Feature) featIter.next();
-    //
-    //                if (feature.getSchema().getTypeName()
-    //                           .equalsIgnoreCase(fts.getFeatureTypeName())) {
-    //                    //this styler is for this type of feature
-    //                    //now find which rule applies
-    //                    Rule[] rules = fts.getRules();
-    //                    boolean featureProcessed = false;
-    //
-    //                    for (int k = 0; k < rules.length; k++) {
-    //                        //does this rule apply?
-    //                        if (isWithInScale(rules[k]) &&
-    //                                !rules[k].hasElseFilter()) {
-    //                            Filter filter = rules[k].getFilter();
-    //
-    //                            if (LOGGER.isLoggable(Level.FINEST)) {
-    //                                LOGGER.finest("Filter " + filter);
-    //                            }
-    //
-    //                            if ((filter == null) ||
-    //                                    (filter.contains(feature) == true)) {
-    //                                if (LOGGER.isLoggable(Level.FINE)) {
-    //                                    LOGGER.fine(
-    //                                            "rule passed, moving on to symobolizers");
-    //                                }
-    //
-    //                                //yes it does
-    //                                //this gives us a list of symbolizers
-    //                                Symbolizer[] symbolizers =
-    //                                        rules[k].getSymbolizers();
-    //                                processSymbolizers(feature, symbolizers);
-    //                                featureProcessed = true;
-    //                            }
-    //                        }
-    //                    }
-    //
-    //                    if (featureProcessed == true) {
-    //                        continue;
-    //                    }
-    //
-    //                    //if else present apply elsefilter
-    //                    for (int k = 0; k < rules.length; k++) {
-    //                        //if none of the above rules applied do any of them have elsefilters that do
-    //                        if (isWithInScale(rules[k])) {
-    //                            if (rules[k].hasElseFilter()) {
-    //                                if (LOGGER.isLoggable(Level.FINE)) {
-    //                                    LOGGER.fine(
-    //                                            "rule passed as else filter, moving on to symobolizers");
-    //                                }
-    //
-    //                                Symbolizer[] symbolizers =
-    //                                        rules[k].getSymbolizers();
-    //                                processSymbolizers(feature, symbolizers);
-    //                            }
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-
     /**
-     * Applies each of a set of symbolizers in turn to a given feature.<p>
+     * Applies each of a set of symbolizers in turn to a given feature.
+     * 
+     * <p>
      * This is an internal method and should only be called by processStylers.
+     * </p>
      *
      * @param feature The feature to be rendered
      * @param symbolizers An array of symbolizers which actually perform the
-     * rendering.
+     *        rendering.
      */
-    private void processSymbolizers(final Collection features, final Symbolizer[] symbolizers) {
+    private void processSymbolizers(final Feature feature,
+        final Symbolizer[] symbolizers) {
         for (int m = 0; m < symbolizers.length; m++) {
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("applying symbolizer " + symbolizers[m]);
             }
 
             if (symbolizers[m] instanceof PolygonSymbolizer) {
-                Iterator featIter = features.iterator();
-                while (featIter.hasNext()) {
-                    Feature feature = (Feature) featIter.next();
-                    renderPolygon(feature, (PolygonSymbolizer) symbolizers[m]);
-                }
+                renderPolygon(feature, (PolygonSymbolizer) symbolizers[m]);
             } else if (symbolizers[m] instanceof LineSymbolizer) {
-                Iterator featIter = features.iterator();
-                while (featIter.hasNext()) {
-                    Feature feature = (Feature) featIter.next();
-                    renderLine(feature, (LineSymbolizer) symbolizers[m]);
-                }
+                renderLine(feature, (LineSymbolizer) symbolizers[m]);
             } else if (symbolizers[m] instanceof PointSymbolizer) {
-                Iterator featIter = features.iterator();
-                while (featIter.hasNext()) {
-                    Feature feature = (Feature) featIter.next();
-                    renderPoint(feature, (PointSymbolizer) symbolizers[m]);
-                }
+                renderPoint(feature, (PointSymbolizer) symbolizers[m]);
             } else if (symbolizers[m] instanceof TextSymbolizer) {
-                Iterator featIter = features.iterator();
-                while (featIter.hasNext()) {
-                    Feature feature = (Feature) featIter.next();
-                    renderText(feature, (TextSymbolizer) symbolizers[m]);
-                }
+                renderText(feature, (TextSymbolizer) symbolizers[m]);
             } else if (symbolizers[m] instanceof RasterSymbolizer) {
-                Iterator featIter = features.iterator();
-                while (featIter.hasNext()) {
-                    Feature feature = (Feature) featIter.next();
-                    renderRaster(feature, (RasterSymbolizer) symbolizers[m]);
-                }
+                renderRaster(feature, (RasterSymbolizer) symbolizers[m]);
             }
         }
     }
 
-
     /**
      * Renders the given feature as a polygon using the specified symbolizer.
-     * Geometry types other than inherently area types can be used.
-     * If a line is used then the line string is closed for filling (only)
-     * by connecting its end point to its start point.
-     * This is an internal method that should only be called by
-     * processSymbolizers.
-     *
-     * TODO: the properties of a symbolizer may, in part, be dependent on
-     * TODO: attributes of the feature.  This is not yet supported.
+     * Geometry types other than inherently area types can be used. If a line
+     * is used then the line string is closed for filling (only) by connecting
+     * its end point to its start point. This is an internal method that
+     * should only be called by processSymbolizers. TODO: the properties of a
+     * symbolizer may, in part, be dependent on TODO: attributes of the
+     * feature.  This is not yet supported.
      *
      * @param feature The feature to render
      * @param symbolizer The polygon symbolizer to apply
-     **/
+     */
     private void renderPolygon(Feature feature, PolygonSymbolizer symbolizer) {
         if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("rendering polygon with a scale of " + this.scaleDenominator);
+            LOGGER.finest("rendering polygon with a scale of " +
+                this.scaleDenominator);
         }
 
         Fill fill = symbolizer.getFill();
@@ -630,37 +637,33 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("path is " +
-                    graphics.getTransform().createTransformedShape(path).getBounds2D().toString());
+                    graphics.getTransform().createTransformedShape(path)
+                            .getBounds2D().toString());
             }
 
             if (stroke.getGraphicStroke() == null) {
                 graphics.draw(path);
             } else {
                 // set up the graphic stroke
-                drawWithGraphicStroke(graphics, path, stroke.getGraphicStroke(), feature);
+                drawWithGraphicStroke(graphics, path,
+                    stroke.getGraphicStroke(), feature);
             }
         }
     }
 
-
     /**
-     * Renders the given feature as a line using the specified symbolizer.
-     *
-     * This is an internal method that should only be called by
-     * processSymbolizers
-     *
-     * Geometry types other than inherently linear types can be used.
-     * If a point geometry is used, it should be interpreted as a line of zero
+     * Renders the given feature as a line using the specified symbolizer. This
+     * is an internal method that should only be called by processSymbolizers
+     * Geometry types other than inherently linear types can be used. If a
+     * point geometry is used, it should be interpreted as a line of zero
      * length and two end caps.  If a polygon is used (or other "area" type)
-     * then its closed outline will be used as the line string
-     * (with no end caps).
-     *
-     * TODO: the properties of a symbolizer may, in part, be dependent on
-     * TODO: attributes of the feature.  This is not yet supported.
+     * then its closed outline will be used as the line string (with no end
+     * caps). TODO: the properties of a symbolizer may, in part, be dependent
+     * on TODO: attributes of the feature.  This is not yet supported.
      *
      * @param feature The feature to render
      * @param symbolizer The polygon symbolizer to apply
-     **/
+     */
     private void renderLine(Feature feature, LineSymbolizer symbolizer) {
         if (symbolizer.getStroke() == null) {
             return;
@@ -682,10 +685,10 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             graphics.draw(path);
         } else {
             // set up the graphic stroke
-            drawWithGraphicStroke(graphics, path, stroke.getGraphicStroke(), feature);
+            drawWithGraphicStroke(graphics, path, stroke.getGraphicStroke(),
+                feature);
         }
     }
-
 
     private void renderPoint(Feature feature, PointSymbolizer symbolizer) {
         if (LOGGER.isLoggable(Level.FINEST)) {
@@ -712,13 +715,13 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         // TODO: consider if mark and externalgraphic should share an ancestor?
 
         /*
-        if (null != (Object)sldgraphic.getExternalGraphics()){
-            LOGGER.finer("rendering External graphic");
-            renderExternalGraphic(geom, sldgraphic, feature);
-        } else{
-            LOGGER.finer("rendering mark");
-            renderMark(geom, sldgraphic, feature);
-        }
+           if (null != (Object)sldgraphic.getExternalGraphics()){
+               LOGGER.finer("rendering External graphic");
+               renderExternalGraphic(geom, sldgraphic, feature);
+           } else{
+               LOGGER.finer("rendering mark");
+               renderMark(geom, sldgraphic, feature);
+           }
          */
         Symbol[] symbols = sldgraphic.getSymbols();
         boolean flag = false;
@@ -733,7 +736,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
                     LOGGER.finer("rendering External graphic");
                 }
 
-                flag = renderExternalGraphic(geom, sldgraphic, feature, (ExternalGraphic) symbols[i]);
+                flag = renderExternalGraphic(geom, sldgraphic, feature,
+                        (ExternalGraphic) symbols[i]);
 
                 if (flag) {
                     return;
@@ -742,7 +746,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
             if (symbols[i] instanceof Mark) {
                 if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("rendering mark @ PointRenderer " + symbols[i].toString());
+                    LOGGER.finer("rendering mark @ PointRenderer " +
+                        symbols[i].toString());
                 }
 
                 flag = renderMark(geom, sldgraphic, feature, (Mark) symbols[i]);
@@ -757,7 +762,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
                     LOGGER.finer("rendering text symbol");
                 }
 
-                flag = renderTextSymbol(geom, sldgraphic, feature, (TextMark) symbols[i]);
+                flag = renderTextSymbol(geom, sldgraphic, feature,
+                        (TextMark) symbols[i]);
 
                 if (flag) {
                     return;
@@ -765,7 +771,6 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             }
         }
     }
-
 
     private void renderText(Feature feature, TextSymbolizer symbolizer) {
         if (LOGGER.isLoggable(Level.FINER)) {
@@ -817,7 +822,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             graphics.setFont(javaFont);
         }
 
-        TextLayout tl = new TextLayout(label, graphics.getFont(), graphics.getFontRenderContext());
+        TextLayout tl = new TextLayout(label, graphics.getFont(),
+                graphics.getFontRenderContext());
         Rectangle2D textBounds = tl.getBounds();
         double x = 0;
         double y = 0;
@@ -857,7 +863,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             }
 
             //HACK: this will fail if the geometry of the feature is not a linestring
-            double offset = ((Number) ((LinePlacement) placement).getPerpendicularOffset().getValue(feature)).doubleValue();
+            double offset = ((Number) ((LinePlacement) placement).getPerpendicularOffset()
+                                       .getValue(feature)).doubleValue();
             LineString line = (LineString) geom;
             Point start = line.getStartPoint();
             Point end = line.getEndPoint();
@@ -884,14 +891,15 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         Halo halo = symbolizer.getHalo();
 
         if (halo != null) {
-            drawHalo(halo, graphics, tx, ty, x, y, tl, feature, rotation);
+            drawHalo(halo, tx, ty, x, y, tl, feature, rotation);
         }
 
-        renderString(graphics, tx, ty, x, y, tl, feature, symbolizer.getFill(), rotation);
+        renderString(graphics, tx, ty, x, y, tl, feature, symbolizer.getFill(),
+            rotation);
     }
 
-
-    private java.awt.Font getFont(Feature feature, org.geotools.styling.Font[] fonts) {
+    private java.awt.Font getFont(Feature feature,
+        org.geotools.styling.Font[] fonts) {
         if (fontFamilies == null) {
             java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
             fontFamilies = new HashSet();
@@ -900,7 +908,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             fontFamilies.addAll(f);
 
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest("there are " + fontFamilies.size() + " fonts available");
+                LOGGER.finest("there are " + fontFamilies.size() +
+                    " fonts available");
             }
         }
 
@@ -961,7 +970,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
                 size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("requesting " + requestedFont + " " + styleCode + " " + size);
+                    LOGGER.finest("requesting " + requestedFont + " " +
+                        styleCode + " " + size);
                 }
 
                 javaFont = new java.awt.Font(requestedFont, styleCode, size);
@@ -977,19 +987,22 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             // may be its a file or url
             InputStream is = null;
 
-            if (requestedFont.startsWith("http") || requestedFont.startsWith("file:")) {
+            if (requestedFont.startsWith("http") ||
+                    requestedFont.startsWith("file:")) {
                 try {
                     URL url = new URL(requestedFont);
                     is = url.openStream();
                 } catch (MalformedURLException mue) {
                     // this may be ok - but we should mention it
                     if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info("Bad url in java2drenderer" + requestedFont + "\n" + mue);
+                        LOGGER.info("Bad url in java2drenderer" +
+                            requestedFont + "\n" + mue);
                     }
                 } catch (IOException ioe) {
                     // we'll ignore this for the moment
                     if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info("IO error in java2drenderer " + requestedFont + "\n" + ioe);
+                        LOGGER.info("IO error in java2drenderer " +
+                            requestedFont + "\n" + ioe);
                     }
                 }
             } else {
@@ -1005,14 +1018,15 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
                 } catch (FileNotFoundException fne) {
                     // this may be ok - but we should mention it
                     if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info("Bad file name in java2drenderer" + requestedFont + "\n" + fne);
+                        LOGGER.info("Bad file name in java2drenderer" +
+                            requestedFont + "\n" + fne);
                     }
                 }
 
                 /*} else {
-                    LOGGER.info("not a readable file");
-                    continue; // check for next font
-                }*/
+                   LOGGER.info("not a readable file");
+                   continue; // check for next font
+                   }*/
             }
 
             if (LOGGER.isLoggable(Level.FINEST)) {
@@ -1031,14 +1045,16 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
                 javaFont = Font.createFont(Font.TRUETYPE_FONT, is);
             } catch (FontFormatException ffe) {
                 if (LOGGER.isLoggable(Level.INFO)) {
-                    LOGGER.info("Font format error in java2drender " + requestedFont + "\n" + ffe);
+                    LOGGER.info("Font format error in java2drender " +
+                        requestedFont + "\n" + ffe);
                 }
 
                 continue;
             } catch (IOException ioe) {
                 // we'll ignore this for the moment
                 if (LOGGER.isLoggable(Level.INFO)) {
-                    LOGGER.info("IO error in java2drenderer " + requestedFont + "\n" + ioe);
+                    LOGGER.info("IO error in java2drenderer " + requestedFont +
+                        "\n" + ioe);
                 }
 
                 continue;
@@ -1052,9 +1068,9 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         return null;
     }
 
-
-    private void renderString(Graphics2D graphic, double x, double y, double dx, double dy,
-        TextLayout tl, Feature feature, Fill fill, double rotation) {
+    private void renderString(Graphics2D graphic, double x, double y,
+        double dx, double dy, TextLayout tl, Feature feature, Fill fill,
+        double rotation) {
         AffineTransform temp = graphics.getTransform();
         AffineTransform labelAT = new AffineTransform();
 
@@ -1084,8 +1100,9 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
         // we move this to the centre of the image.
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("about to draw at " + x + "," + y + " with the start of the string at " +
-                (x + dx) + "," + (y + dy));
+            LOGGER.finer("about to draw at " + x + "," + y +
+                " with the start of the string at " + (x + dx) + "," +
+                (y + dy));
         }
 
         tl.draw(graphic, (float) dx, (float) dy);
@@ -1097,8 +1114,7 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         return;
     }
 
-
-    private void drawHalo(Halo halo, Graphics2D graphic, double x, double y, double dx, double dy,
+    private void drawHalo(Halo halo, double x, double y, double dx, double dy,
         TextLayout tl, Feature feature, double rotation) {
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("doing halo");
@@ -1145,24 +1161,15 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         graphics.setTransform(temp);
     }
 
-
-    private boolean renderExternalGraphic(Geometry geom, Graphic graphic, Feature feature) {
-        BufferedImage img = getExternalGraphic(graphic);
-
-        return renderExternalGraphic(geom, graphic, feature, img);
-    }
-
-
-    private boolean renderExternalGraphic(Geometry geom, Graphic graphic, Feature feature,
-        ExternalGraphic symb) {
+    private boolean renderExternalGraphic(Geometry geom, Graphic graphic,
+        Feature feature, ExternalGraphic symb) {
         BufferedImage img = getImage(symb);
 
         return renderExternalGraphic(geom, graphic, feature, img);
     }
 
-
-    private boolean renderExternalGraphic(Geometry geom, Graphic graphic, Feature feature,
-        BufferedImage img) {
+    private boolean renderExternalGraphic(Geometry geom, Graphic graphic,
+        Feature feature, BufferedImage img) {
         if (img != null) {
             int size = ((Number) graphic.getSize().getValue(feature)).intValue();
             double rotation = ((Number) graphic.getRotation().getValue(feature)).doubleValue();
@@ -1173,7 +1180,6 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             return false;
         }
     }
-
 
     private BufferedImage getExternalGraphic(Graphic graphic) {
         ExternalGraphic[] extgraphics = graphic.getExternalGraphics();
@@ -1192,7 +1198,6 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         return null;
     }
 
-
     private BufferedImage getImage(ExternalGraphic eg) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("got a " + eg.getFormat());
@@ -1206,7 +1211,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
                     LOGGER.finer("a java supported format");
                 }
 
-                BufferedImage img = imageLoader.get(eg.getLocation(), isInteractive());
+                BufferedImage img = imageLoader.get(eg.getLocation(),
+                        isInteractive());
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
                     LOGGER.finest("Image return = " + img);
@@ -1223,15 +1229,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         return null;
     }
 
-
-    private boolean renderMark(Geometry geom, Graphic graphic, Feature feature) {
-        Mark mark = getMark(graphic, feature);
-
-        return renderMark(geom, graphic, feature, mark);
-    }
-
-
-    private boolean renderMark(Geometry geom, Graphic graphic, Feature feature, Mark mark) {
+    private boolean renderMark(Geometry geom, Graphic graphic, Feature feature,
+        Mark mark) {
         if (mark == null) {
             return false;
         }
@@ -1255,13 +1254,13 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         return true;
     }
 
-
     private Mark getMark(Graphic graphic, Feature feature) {
         Mark[] marks = graphic.getMarks();
         Mark mark;
 
         for (int i = 0; i < marks.length; i++) {
-            String name = marks[i].getWellKnownName().getValue(feature).toString();
+            String name = marks[i].getWellKnownName().getValue(feature)
+                                  .toString();
 
             if (wellKnownMarks.contains(name)) {
                 mark = marks[i];
@@ -1275,14 +1274,13 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         return mark;
     }
 
-
-    private void renderImage(com.vividsolutions.jts.geom.Point point, BufferedImage img, int size,
-        double rotation) {
+    private void renderImage(com.vividsolutions.jts.geom.Point point,
+        BufferedImage img, int size, double rotation) {
         renderImage(point.getX(), point.getY(), img, size, rotation);
     }
 
-
-    private void renderImage(double tx, double ty, BufferedImage img, int size, double rotation) {
+    private void renderImage(double tx, double ty, BufferedImage img, int size,
+        double rotation) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("drawing Image @" + tx + "," + ty);
         }
@@ -1310,7 +1308,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         double drawSize = (double) size / unitSize;
 
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("unitsize " + unitSize + " size = " + size + " -> scale " + drawSize);
+            LOGGER.finer("unitsize " + unitSize + " size = " + size +
+                " -> scale " + drawSize);
         }
 
         markAT.scale(drawSize, drawSize);
@@ -1324,18 +1323,19 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         return;
     }
 
-
-    private void fillDrawMark(Graphics2D graphic, com.vividsolutions.jts.geom.Point point,
-        Mark mark, int size, double rotation, Feature feature) {
-        fillDrawMark(graphic, point.getX(), point.getY(), mark, size, rotation, feature);
+    private void fillDrawMark(Graphics2D graphic,
+        com.vividsolutions.jts.geom.Point point, Mark mark, int size,
+        double rotation, Feature feature) {
+        fillDrawMark(graphic, point.getX(), point.getY(), mark, size, rotation,
+            feature);
     }
 
-
-    private void fillDrawMark(Graphics2D graphic, double tx, double ty, Mark mark, int size,
-        double rotation, Feature feature) {
+    private void fillDrawMark(Graphics2D graphic, double tx, double ty,
+        Mark mark, int size, double rotation, Feature feature) {
         AffineTransform temp = graphic.getTransform();
         AffineTransform markAT = new AffineTransform();
-        Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName().getValue(feature)
+        Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName()
+                                                      .getValue(feature)
                                                       .toString());
 
         Point2D mapCentre = new Point2D.Double(tx, ty);
@@ -1387,25 +1387,26 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         return;
     }
 
-
-    private boolean renderTextSymbol(Geometry geom, Graphic graphic, Feature feature, TextMark mark) {
+    private boolean renderTextSymbol(Geometry geom, Graphic graphic,
+        Feature feature, TextMark mark) {
         int size = 6; // size in pixels
         double rotation = 0.0; // rotation in degrees
         size = ((Number) graphic.getSize().getValue(feature)).intValue();
         rotation = (((Number) graphic.getRotation().getValue(feature)).doubleValue() * Math.PI) / 180d;
 
-        return fillDrawTextMark(graphics, (Point) geom, mark, size, rotation, feature);
+        return fillDrawTextMark(graphics, (Point) geom, mark, size, rotation,
+            feature);
     }
 
+    private boolean fillDrawTextMark(Graphics2D graphic,
+        com.vividsolutions.jts.geom.Point point, TextMark mark, int size,
+        double rotation, Feature feature) {
+        return fillDrawTextMark(graphic, point.getX(), point.getY(), mark,
+            size, rotation, feature);
+    }
 
-    private boolean fillDrawTextMark(Graphics2D graphic, com.vividsolutions.jts.geom.Point point,
+    private boolean fillDrawTextMark(Graphics2D graphic, double tx, double ty,
         TextMark mark, int size, double rotation, Feature feature) {
-        return fillDrawTextMark(graphic, point.getX(), point.getY(), mark, size, rotation, feature);
-    }
-
-
-    private boolean fillDrawTextMark(Graphics2D graphic, double tx, double ty, TextMark mark,
-        int size, double rotation, Feature feature) {
         java.awt.Font javaFont = getFont(feature, mark.getFonts());
 
         if (javaFont != null) {
@@ -1423,24 +1424,26 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         }
 
         String symbol = mark.getSymbol().getValue(feature).toString();
-        TextLayout tl = new TextLayout(symbol, javaFont, graphic.getFontRenderContext());
+        TextLayout tl = new TextLayout(symbol, javaFont,
+                graphic.getFontRenderContext());
         Rectangle2D textBounds = tl.getBounds();
 
         // TODO: consider if symbols should carry an offset
         double dx = textBounds.getWidth() / 2.0;
         double dy = textBounds.getHeight() / 2.0;
-        renderString(graphic, tx, ty, dx, dy, tl, feature, mark.getFill(), rotation);
+        renderString(graphic, tx, ty, dx, dy, tl, feature, mark.getFill(),
+            rotation);
 
         return true;
     }
-
 
     private void applyFill(Graphics2D graphic, Fill fill, Feature feature) {
         if (fill == null) {
             return;
         }
 
-        graphic.setColor(Color.decode((String) fill.getColor().getValue(feature)));
+        graphic.setColor(Color.decode(
+                (String) fill.getColor().getValue(feature)));
 
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("Setting fill: " + graphic.getColor().toString());
@@ -1448,7 +1451,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
         Number value = (Number) fill.getOpacity().getValue(feature);
         float opacity = value.floatValue();
-        graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+        graphic.setComposite(AlphaComposite.getInstance(
+                AlphaComposite.SRC_OVER, opacity));
 
         org.geotools.styling.Graphic gr = fill.getGraphicFill();
 
@@ -1460,7 +1464,6 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             }
         }
     }
-
 
     private void setTexture(Graphics2D graphic, Graphic gr, Feature feature) {
         BufferedImage image = getExternalGraphic(gr);
@@ -1484,7 +1487,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
             rotation = ((Number) gr.getRotation().getValue(feature)).doubleValue();
 
-            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9), rotation, feature);
+            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9),
+                rotation, feature);
 
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
             track.addImage(image, 1);
@@ -1492,6 +1496,7 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             try {
                 track.waitForID(1);
             } catch (InterruptedException e) {
+                LOGGER.warning(e.toString());
             }
         }
 
@@ -1505,7 +1510,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         double drawSize = (double) size / unitSize;
 
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("size = " + size + " unitsize " + unitSize + " drawSize " + drawSize);
+            LOGGER.finer("size = " + size + " unitsize " + unitSize +
+                " drawSize " + drawSize);
         }
 
         AffineTransform at = graphics.getTransform();
@@ -1535,23 +1541,25 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         }
     }
 
-
     private void resetFill() {
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("reseting the graphics");
         }
 
-        graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+        graphics.setComposite(AlphaComposite.getInstance(
+                AlphaComposite.SRC_OVER, 1.0f));
     }
 
-
     /**
-     * Convenience method for applying a geotools Stroke object
-     * as a Graphics2D Stroke object.
+     * Convenience method for applying a geotools Stroke object as a Graphics2D
+     * Stroke object.
      *
+     * @param graphic
      * @param stroke the Stroke to apply.
+     * @param feature The feature to be stroked
      */
-    private void applyStroke(Graphics2D graphic, org.geotools.styling.Stroke stroke, Feature feature) {
+    private void applyStroke(Graphics2D graphic,
+        org.geotools.styling.Stroke stroke, Feature feature) {
         if (stroke == null) {
             return;
         }
@@ -1620,7 +1628,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         float opacity = value.floatValue();
 
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("width, dashoffset, opacity " + width + " " + dashOffset + " " + opacity);
+            LOGGER.finer("width, dashoffset, opacity " + width + " " +
+                dashOffset + " " + opacity);
         }
 
         BasicStroke stroke2d;
@@ -1630,22 +1639,28 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             if (width <= 1.0) {
                 width = 0;
             }
-            stroke2d = new BasicStroke(width / (float) scale, capCode, joinCode,
-                    (float) (Math.max(1, 10 / scale)), dashes, dashOffset / (float) scale);
+
+            stroke2d = new BasicStroke(width / (float) scale, capCode,
+                    joinCode, (float) (Math.max(1, 10 / scale)), dashes,
+                    dashOffset / (float) scale);
         } else {
             if (width <= 1.0) {
                 width = 0;
             }
-            stroke2d = new BasicStroke(width / (float) scale, capCode, joinCode,
-                    (float) (Math.max(1, 10 / scale)));
+
+            stroke2d = new BasicStroke(width / (float) scale, capCode,
+                    joinCode, (float) (Math.max(1, 10 / scale)));
         }
 
-        graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+        graphic.setComposite(AlphaComposite.getInstance(
+                AlphaComposite.SRC_OVER, opacity));
+
         if (!graphic.getStroke().equals(stroke2d)) {
             graphic.setStroke(stroke2d);
         }
 
         Color color = Color.decode((String) stroke.getColor().getValue(feature));
+
         if (!graphic.getColor().equals(color)) {
             graphic.setColor(color);
         }
@@ -1663,12 +1678,13 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         //System.out.println("stroke color "+graphics.getColor());
     }
 
-
     /**
      * a method to draw the path with a graphic stroke.
-     * @param gFill the graphic fill to be used to draw the stroke
+     *
      * @param graphic the Graphics2D to draw on
      * @param path the general path to be drawn
+     * @param gFill the graphic fill to be used to draw the stroke
+     * @param feature The feature to be drawn with the graphic stroke
      */
     private void drawWithGraphicStroke(Graphics2D graphic, Shape path,
         org.geotools.styling.Graphic gFill, Feature feature) {
@@ -1704,7 +1720,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             Graphics2D g1 = image.createGraphics();
             double rotation = 0.0;
             rotation = ((Number) gFill.getRotation().getValue(feature)).doubleValue();
-            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9), rotation, feature);
+            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9),
+                rotation, feature);
 
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
             track.addImage(image, 1);
@@ -1712,6 +1729,7 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             try {
                 track.waitForID(1);
             } catch (InterruptedException e) {
+                LOGGER.warning(e.toString());
             }
         }
 
@@ -1721,8 +1739,6 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
         int imageWidth = size; //image.getWidth();
         int imageHeight = size; //image.getHeight();
-        int midx = imageWidth / 2;
-        int midy = imageHeight / 2;
 
         double scaleX = graphic.getTransform().getScaleX();
         double scaleY = -graphic.getTransform().getScaleY();
@@ -1737,10 +1753,6 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
         double[] first = new double[2];
         double[] previous = new double[2];
-        double[] tprevious = new double[2];
-        double[] tcoords = new double[2];
-        double[] in = new double[2];
-        double[] out = new double[2];
         type = pi.currentSegment(coords);
         first[0] = coords[0];
         first[1] = coords[1];
@@ -1757,92 +1769,100 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             type = pi.currentSegment(coords);
 
             switch (type) {
-                case PathIterator.SEG_MOVETO:
+            case PathIterator.SEG_MOVETO:
 
-                    // nothing to do?
+                // nothing to do?
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("moving to " + coords[0] + "," + coords[1]);
+                }
+
+                break;
+
+            case PathIterator.SEG_CLOSE:
+
+                // draw back to first from previous
+                coords[0] = first[0];
+                coords[1] = first[1];
+
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("closing from " + previous[0] + "," +
+                        previous[1] + " to " + coords[0] + "," + coords[1]);
+                }
+
+            // no break here - fall through to next section
+            case PathIterator.SEG_LINETO:
+
+                // draw from previous to coords
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("drawing from " + previous[0] + "," +
+                        previous[1] + " to " + coords[0] + "," + coords[1]);
+                }
+
+                double dx = coords[0] - previous[0];
+                double dy = coords[1] - previous[1];
+                double len = Math.sqrt((dx * dx) + (dy * dy)) * scaleX; // - imageWidth;
+
+                double theta = Math.atan2(dx, dy);
+                dx = (Math.sin(theta) * imageWidth) / scaleX;
+                dy = (Math.cos(theta) * imageHeight) / scaleY;
+
+                //int dx2 = (int)Math.round(dy/2d);
+                //int dy2 = (int)Math.round(dx/2d);
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("dx = " + dx + " dy " + dy + " step = " +
+                        Math.sqrt((dx * dx) + (dy * dy)));
+                }
+
+                double rotation = theta - (Math.PI / 2d);
+                double x = previous[0] + (dx / 2.0);
+                double y = previous[1] + (dy / 2.0);
+
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("len =" + len + " imageWidth " + imageWidth);
+                }
+
+                double dist = 0;
+
+                for (dist = 0; dist < (len - imageWidth); dist += imageWidth) {
+                    /*graphic.drawImage(image2,(int)x-midx,(int)y-midy,null); */
+                    renderImage(x, y, image, size, rotation);
+
+                    x += dx;
+                    y += dy;
+                }
+
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("loop end dist " + dist + " len " + len +
+                        " " + (len - dist));
+                }
+
+                if ((len - dist) > 0.0) {
+                    double remainder = len - dist;
+
+                    //clip and render image
                     if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("moving to " + coords[0] + "," + coords[1]);
-                    }
-                    break;
-
-                case PathIterator.SEG_CLOSE:
-
-                    // draw back to first from previous
-                    coords[0] = first[0];
-                    coords[1] = first[1];
-
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("closing from " + previous[0] + "," + previous[1] + " to " +
-                            coords[0] + "," + coords[1]);
+                        LOGGER.finest("about to use clipped image " +
+                            remainder);
                     }
 
-                // no break here - fall through to next section
-                case PathIterator.SEG_LINETO:
+                    BufferedImage img = new BufferedImage(trueImageHeight,
+                            trueImageWidth, BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D ig = img.createGraphics();
+                    ig.setClip(0, 0,
+                        (int) (((double) trueImageWidth * remainder) / (double) size),
+                        trueImageHeight);
 
-                    // draw from previous to coords
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("drawing from " + previous[0] + "," + previous[1] + " to " +
-                            coords[0] + "," + coords[1]);
-                    }
+                    ig.drawImage(image, 0, 0, trueImageWidth, trueImageHeight,
+                        obs);
 
-                    double dx = coords[0] - previous[0];
-                    double dy = coords[1] - previous[1];
-                    double len = Math.sqrt((dx * dx) + (dy * dy)) * scaleX; // - imageWidth;
+                    renderImage(x, y, img, size, rotation);
+                }
 
-                    double theta = Math.atan2(dx, dy);
-                    dx = (Math.sin(theta) * imageWidth) / scaleX;
-                    dy = (Math.cos(theta) * imageHeight) / scaleY;
+                break;
 
-                    //int dx2 = (int)Math.round(dy/2d);
-                    //int dy2 = (int)Math.round(dx/2d);
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("dx = " + dx + " dy " + dy + " step = " +
-                            Math.sqrt((dx * dx) + (dy * dy)));
-                    }
-
-                    double rotation = theta - (Math.PI / 2d);
-                    double x = previous[0] + (dx / 2.0);
-                    double y = previous[1] + (dy / 2.0);
-
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("len =" + len + " imageWidth " + imageWidth);
-                    }
-
-                    double dist = 0;
-
-                    for (dist = 0; dist < (len - imageWidth); dist += imageWidth) {
-                        /*graphic.drawImage(image2,(int)x-midx,(int)y-midy,null); */
-                        renderImage(x, y, image, size, rotation);
-
-                        x += dx;
-                        y += dy;
-                    }
-
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("loop end dist " + dist + " len " + len + " " + (len - dist));
-                    }
-
-                    if ((len - dist) > 0.0) {
-                        double remainder = len - dist;
-
-                        //clip and render image
-                        if (LOGGER.isLoggable(Level.FINEST)) {
-                            LOGGER.finest("about to use clipped image " + remainder);
-                        }
-
-                        BufferedImage img = new BufferedImage(trueImageHeight, trueImageWidth,
-                                BufferedImage.TYPE_INT_ARGB);
-                        Graphics2D ig = img.createGraphics();
-                        ig.setClip(0, 0,
-                            (int) (((double) trueImageWidth * remainder) / (double) size),
-                            trueImageHeight);
-
-                        ig.drawImage(image, 0, 0, trueImageWidth, trueImageHeight, obs);
-
-                        renderImage(x, y, img, size, rotation);
-                    }
-
-                    break;
+            default:
+                LOGGER.warning(
+                    "default branch reached in drawWithGraphicStroke");
             }
 
             previous[0] = coords[0];
@@ -1850,7 +1870,6 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             pi.next();
         }
     }
-
 
     private void renderRaster(Feature feature, RasterSymbolizer symbolizer) {
         try {
@@ -1863,25 +1882,26 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         }
     }
 
-
     /**
      * Convenience method.  Converts a Geometry object into a GeneralPath.
+     *
      * @param geom The Geometry object to convert
+     *
      * @return A GeneralPath that is equivalent to geom
      */
     private Shape createPath(final Geometry geom) {
         return new LiteShape(geom, true, maxDistance);
     }
 
-
     /**
-     * Extracts the named geometry from feature.
-     * If geomName is null then the feature's default geometry is used.
-     * If geomName cannot be found in feature then null is returned.
+     * Extracts the named geometry from feature. If geomName is null then the
+     * feature's default geometry is used. If geomName cannot be found in
+     * feature then null is returned.
      *
      * @param feature The feature to find the geometry in
      * @param geomName The name of the geometry to find: null if the default
      *        geometry should be used.
+     *
      * @return The geometry extracted from feature or null if this proved
      *         impossible.
      */
@@ -1906,15 +1926,14 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         return geom;
     }
 
-
     /**
      * Getter for property interactive.
+     *
      * @return Value of property interactive.
      */
     public boolean isInteractive() {
         return interactive;
     }
-
 
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;

@@ -1,53 +1,36 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
- * (C) 2001, Institut de Recherche pour le Développement
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; either
- *    version 2.1 of the License, or (at your option) any later version.
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *
- * Contacts:
- *     UNITED KINGDOM: James Macgill
- *             mailto:j.macgill@geog.leeds.ac.uk
- *
- *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
- *             Institut de Recherche pour le Développement / US-Espace
- *             mailto:seasnet@teledetection.fr
- *
- *     CANADA: Observatoire du Saint-Laurent
- *             Institut Maurice-Lamontagne
- *             mailto:osl@osl.gc.ca
  */
 package org.geotools.renderer.lite;
 
 import java.awt.*;
 import java.awt.geom.*;
-
 import java.util.logging.Logger;
 
 
 /**
- * @version $Id: Java2DMark.java,v 1.1 2003/02/09 09:49:15 aaime Exp $
+ * Utility class used to get well known marks
+ *
  * @author Ian Turton
+ * @version $Id: Java2DMark.java,v 1.2 2003/07/12 10:56:42 aaime Exp $
  */
 public class Java2DMark {
-    /**
-     * The logger for the rendering module.
-     */
+    /** The logger for the rendering module. */
     private static final Logger LOGGER = Logger.getLogger(
-                                                 "org.geotools.rendering");
+            "org.geotools.rendering");
     static GeneralPath cross;
     static GeneralPath star;
     static GeneralPath triangle;
@@ -111,8 +94,10 @@ public class Java2DMark {
         arrow.lineTo(0f, -.5f);
     }
 
-    /** Creates a new instance of Java2DMark */
-    public Java2DMark() {
+    /**
+     * Java2DMark is an utility class, instantiation is not allowed
+     */
+    private Java2DMark() {
     }
 
     static Shape getWellKnownMark(String wellKnownName) {
@@ -153,7 +138,6 @@ public class Java2DMark {
 
             return arrow;
         }
-
 
         // failing that return a square?
         LOGGER.finer("returning square");
