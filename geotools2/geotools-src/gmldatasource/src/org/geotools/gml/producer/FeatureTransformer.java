@@ -92,7 +92,7 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.20 2004/04/16 15:44:55 cholmesny Exp $
+ * @version $Id: FeatureTransformer.java,v 1.21 2004/04/16 15:58:34 cholmesny Exp $
  *
  * @todo Add support for schemaLocation
  */
@@ -279,7 +279,7 @@ public class FeatureTransformer extends TransformerBase {
         String srsName = null;
         String lockId = null;
         ContentHandler handler;
-        private boolean running;
+        private boolean running = true;
 
         /**
          * Constructor with handler.
