@@ -68,7 +68,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * interpolation. If input coordinates are outside the grid range, then output
  * coordinates are extrapolated.
  *
- * @version $Id: LocalizationGridTransform2D.java,v 1.4 2002/08/12 15:50:01 desruisseaux Exp $
+ * @version $Id: LocalizationGridTransform2D.java,v 1.5 2002/08/12 18:15:41 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -79,6 +79,12 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = 1067560328828441295L;
+
+    /**
+     * Maximal number of iterations to try before to fail
+     * during an inverse transformation.
+     */
+    private static final int MAX_ITER = 10;
 
     /**
      * <var>x</var> (usually longitude) offset relative to an entry.
@@ -380,31 +386,79 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
         final Point2D.Double target = new Point2D.Double();
         final AffineTransform tr = new AffineTransform(global);
         try {
-loop:       while (numPts-- > 0) {
+            while (--numPts >= 0) {
                 source.x = srcPts[srcOff++];
                 source.y = srcPts[srcOff++];
                 tr.inverseTransform(source, target);
-                for (int numIter=10; --numIter>=0;) {
+                int numIter = MAX_ITER;
+                while (true) {
                     final int ix = (int)target.x;
                     final int iy = (int)target.y;
                     getAffineTransform(ix, iy, tr);
                     tr.inverseTransform(source, target);
-                    if (ix == (int)target.x && iy == (int)target.y) {
-                        dstPts[dstOff++] = target.x;
-                        dstPts[dstOff++] = target.y;
-                        srcOff += postIncrement;
-                        dstOff += postIncrement;
-                        continue loop;
+                    if (ix == (int)target.x  &&  iy == (int)target.y) {
+                        break;
+                    }
+                    if (--numIter < 0) {
+                        resolveLoop(source, target, tr);
+                        break;
                     }
                 }
-                throw new TransformException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
+                dstPts[dstOff++] = target.x;
+                dstPts[dstOff++] = target.y;
+                srcOff += postIncrement;
+                dstOff += postIncrement;
             }
         } catch (NoninvertibleTransformException exception) {
-            TransformException e = new TransformException(Resources.format(
-                                            ResourceKeys.ERROR_NONINVERTIBLE_TRANSFORM));
+            final TransformException e;
+            e=new TransformException(Resources.format(ResourceKeys.ERROR_NONINVERTIBLE_TRANSFORM));
             e.initCause(exception);
             throw e;
         }
+    }
+
+    /**
+     * Invoked when an <code>inverseTransform(...)</code> method do not converge.
+     * This special method checks if we are stuck in a never-ending loop. If yes,
+     * then it will try to minimize the following function:
+     *
+     *     <code>transform(target).distance(source)</code>.
+     *
+     * @param source The "real world" coordinates.
+     * @param target The last grid coordinates, and the place where to store the result.
+     * @param tr     A temporary affine transform to use.
+     */
+    private void resolveLoop(final Point2D.Double source,
+                             final Point2D.Double target,
+                             final AffineTransform tr)
+        throws TransformException, NoninvertibleTransformException
+    {
+        double bestX = target.x;
+        double bestY = target.y;
+        double minSq = Double.POSITIVE_INFINITY;
+        final int firstX, firstY; int ix, iy;
+        firstX = ix = (int)bestX;
+        firstY = iy = (int)bestY;
+        for (int i=0; i<MAX_ITER; i++) {
+            getAffineTransform(ix, iy, tr);
+            tr.inverseTransform(source, target);
+            final double x=target.x;  ix=(int)x;
+            final double y=target.y;  iy=(int)y;
+            if (ix==firstX && iy==firstY) {
+                // Loop detected.
+                target.x = bestX;
+                target.y = bestY;
+                return;
+            }
+            transform(target, target);
+            final double distanceSq = target.distanceSq(source);
+            if (distanceSq < minSq) {
+                minSq = distanceSq;
+                bestX = x;
+                bestY = y;
+            }
+        }
+        throw new TransformException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
     }
 
     /** 
@@ -421,7 +475,7 @@ loop:       while (numPts-- > 0) {
      * The inverse transform. This inner class is
      * the inverse of the enclosing math transform.
      *
-     * @version $Id: LocalizationGridTransform2D.java,v 1.4 2002/08/12 15:50:01 desruisseaux Exp $
+     * @version $Id: LocalizationGridTransform2D.java,v 1.5 2002/08/12 18:15:41 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D,
