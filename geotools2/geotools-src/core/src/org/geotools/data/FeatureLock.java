@@ -26,7 +26,7 @@ package org.geotools.data;
  * provided.</p>
  * 
  * @author jgarnett, Refractions Research, Inc.
- * @version $Id: FeatureLock.java,v 1.2 2003/10/07 19:08:02 jive Exp $
+ * @version $Id: FeatureLock.java,v 1.3 2003/11/04 00:20:53 cholmesny Exp $
  *
  * @see <a
  *      href="http://vwfs.refractions.net/docs/Database_Research.pdf">Database
@@ -42,6 +42,21 @@ package org.geotools.data;
 public interface FeatureLock {
     /** A FeatureLock representing the current Transaction */
     static FeatureLock CURRENT_TRANSACTION = new CurrentTransactionLock();
+    /**
+     * FeatureLock representing Transaction duration locking
+     * <p>
+     * When this FeatureLock is used locks are expected to last until
+     * the current Transasction ends with a commit() or rollback().
+     * </p>
+     */
+    public static final FeatureLock TRANSACTION = new FeatureLock(){
+        public String getAuthorization() {
+            return null;
+        }
+        public long getDuration() {
+            return -1;
+        }        
+    };
     /**
      * LockId used for transaction authorization.
      *

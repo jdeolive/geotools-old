@@ -33,7 +33,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.10 2003/09/08 18:16:50 ianschneider Exp $
+ * @version $Id: DefaultFeature.java,v 1.11 2003/11/04 00:23:35 cholmesny Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
@@ -453,10 +453,15 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
      *         otherwise.
      */
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (obj == null ) {
             return false;
         }
-
+        if( obj == this ) {
+            return true;
+        }
+        if( !(obj instanceof Feature) ){
+            return false;
+        }
         Feature feat = (Feature) obj;
 
         if (!feat.getFeatureType().equals(schema)) {
@@ -479,8 +484,24 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
             Object otherAtt = feat.getAttribute(i);
             if (attributes[i] == null && otherAtt != null)
                 return false;
-            if (! attributes[i].equals(otherAtt))
-              return false;
+            if (! attributes[i].equals(otherAtt)){
+                if( attributes[i] instanceof Geometry &&
+                    otherAtt instanceof Geometry ){
+                    // we need to special case Geometry
+                    // as JTS is broken
+                    // Geometry.equals( Object ) and Geometry.equals( Geometry )
+                    // are different 
+                    // (We should fold this knowledge into AttributeType...)
+                    // 
+                    if( !((Geometry)attributes[i]).equals( (Geometry) otherAtt )){
+                        return false;   
+                    }
+                }
+                else {
+                    return false;
+                }            
+            }
+              
         }
 
         return true;
