@@ -46,6 +46,16 @@
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
     <dependency>
+      <artifactId>core</artifactId>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency>
+        <dependency>
+      <artifactId>defaultcore</artifactId>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
       <version>0.1</version>
@@ -60,6 +70,11 @@
       <groupId>gt2</groupId>
       <version>0.6</version>
     </dependency>
+    <dependency>
+      <artifactId>sldstyling</artifactId>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency> 
   </dependencies>
   
 </project>
