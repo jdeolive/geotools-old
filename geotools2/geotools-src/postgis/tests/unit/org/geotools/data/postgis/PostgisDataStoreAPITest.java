@@ -50,6 +50,9 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.NoSuchElementException;
 import java.util.PropertyResourceBundle;
@@ -91,7 +94,8 @@ public class PostgisDataStoreAPITest extends DataTestCase {
     public PostgisDataStoreAPITest(String arg0) {
         super(arg0);
     }
-
+    static boolean CHECK_TYPE= true;
+    
     /**
      * @see TestCase#setUp()
      */
@@ -121,13 +125,49 @@ public class PostgisDataStoreAPITest extends DataTestCase {
         PostgisConnectionFactory factory1 = new PostgisConnectionFactory(host, port, database );        
         pool = factory1.getConnectionPool( user, password );
         
-        assertFalse( pool.getConnection().isClosed() );      
-        
         killTestTables();
         setUpRoadTable();
         setUpRiverTable();
         
-        data = new PostgisDataStore( pool, database );        
+        if( CHECK_TYPE ){
+        Connection conn = pool.getConnection();
+        try {
+            DatabaseMetaData md = conn.getMetaData();
+            ResultSet rs =
+                //md.getTables( catalog, null, null, null );
+                md.getTables( null, "public", "%", new String[]{"TABLE",} );            
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int NUM=rsmd.getColumnCount();
+            System.out.print(" ");
+            for( int i=1; i<=NUM; i++ ){
+                System.out.print( rsmd.getColumnName( i ) ); System.out.flush();
+                System.out.print(":");System.out.flush();
+                System.out.print( rsmd.getColumnClassName( i ));System.out.flush();
+                if( i<NUM ){
+                    System.out.print(",");System.out.flush();
+                }                                       
+            }
+            System.out.println();
+            while( rs.next() ){
+                System.out.print( rs.getRow() );
+                System.out.print( ":" );System.out.flush();
+                for( int i=1; i<=NUM; i++){
+                    System.out.print( rsmd.getColumnName( i ) );System.out.flush();
+                    System.out.print( "=" );System.out.flush();
+                    System.out.print( rs.getString( i ) );System.out.flush();
+                    if( i<NUM ){
+                        System.out.print(",");System.out.flush();
+                    }
+                }
+                System.out.println();                
+            }            
+        }
+        finally {
+            conn.close();
+        }
+        CHECK_TYPE = false;
+        }
+        data = new PostgisDataStore( pool, "public", "test" );        
         
     }
     protected void setUpRoadTable() throws Exception {
@@ -136,7 +176,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
             Statement s = conn.createStatement();
     
             //postgis = new PostgisDataSource(connection, FEATURE_TABLE);
-            s.execute( "CREATE TABLE road(id int)");
+            s.execute( "CREATE TABLE road (id int)");
             s.execute( "SELECT AddGeometryColumn('jody', 'road', 'geom', 0, 'LINESTRING', 2);");
             s.execute( "ALTER TABLE road add name varchar;");
     
