@@ -84,20 +84,27 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         assertEquals("Value of land area is wrong",((Double)firstFeature(features).getAttribute("LAND_KM")).doubleValue(),143986.61,0.001);
     }
     
+    private ShapefileDataStore createDataStore(File f) throws Exception {
+        FeatureCollection fc = createFeatureCollection();
+        f.createNewFile();
+        ShapefileDataStore sds = new ShapefileDataStore(f.toURL());
+        writeFeatures(sds, fc);
+        return sds;
+    }
+    
+    private ShapefileDataStore createDataStore() throws Exception {
+        return createDataStore(getTempFile());
+    }
+    
     /**
      * Create a set of features, then remove every other one, updating the 
      * remaining. Test for removal and proper update after reloading...
      */
     public void testUpdating() throws Exception {
-        FeatureCollection fc = createFeatureCollection();
-        File f = getTempFile();
-        f.createNewFile();
-        ShapefileDataStore sds = new ShapefileDataStore(f.toURL());
-        writeFeatures(sds, fc);
+        ShapefileDataStore sds = createDataStore();
         loadFeatures(sds);
         
         FeatureWriter writer = sds.getFeatureWriter(sds.getTypeNames()[0],Filter.NONE, Transaction.AUTO_COMMIT);
-        int idx = 0;
         while (writer.hasNext()) {
             Feature feat = writer.next();
             Byte b = (Byte) feat.getAttribute(1);
@@ -108,14 +115,50 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
             }
         }
         writer.close();
-        fc = loadFeatures(sds);
+        FeatureCollection fc = loadFeatures(sds);
         
         assertEquals(10,fc.size());
         for (FeatureIterator i = fc.features();i.hasNext();) {
             assertEquals(-1, ((Byte) i.next().getAttribute(1)).byteValue());
         }
-            
+    }
+    
+    /**
+     * Create a test file, then continue removing the first entry until
+     * there are no features left.
+     */ 
+    public void testRemoveFromFrontAndClose() throws Exception {
+        ShapefileDataStore sds = createDataStore();
         
+        int idx = loadFeatures(sds).size();
+        
+        while (idx > 0) {
+            FeatureWriter writer = sds.getFeatureWriter(sds.getTypeNames()[0],Filter.NONE, Transaction.AUTO_COMMIT);    
+            writer.next();
+            writer.remove();
+            writer.close();
+            assertEquals(--idx,loadFeatures(sds).size());
+        }
+    }
+    
+    /**
+     * Create a test file, then continue removing the last entry until
+     * there are no features left.
+     */ 
+    public void testRemoveFromBackAndClose() throws Exception {
+        ShapefileDataStore sds = createDataStore();
+        
+        int idx = loadFeatures(sds).size();
+        
+        while (idx > 0) {
+            FeatureWriter writer = sds.getFeatureWriter(sds.getTypeNames()[0],Filter.NONE, Transaction.AUTO_COMMIT);    
+            while (writer.hasNext()) {
+                writer.next();
+            }
+            writer.remove();
+            writer.close();
+            assertEquals(--idx,loadFeatures(sds).size());
+        }
     }
     
     private FeatureCollection createFeatureCollection() throws Exception {
@@ -133,7 +176,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         FeatureCollection features = FeatureCollections.newCollection();
         for (int i = 0, ii = 20; i < ii; i++) {
             features.add(type.create(new Object[] {
-                new Point(new Coordinate(0,0), new PrecisionModel(),0),
+                new Point(new Coordinate(1,-1), new PrecisionModel(),0),
                 new Byte( (byte) i ),
                 new Short( (short) i),
                 new Double( i ),
@@ -149,7 +192,6 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
     
     public void testAttributesWriting() throws Exception {
         FeatureCollection features = createFeatureCollection();
-
         File tmpFile = getTempFile();
         tmpFile.createNewFile();
         ShapefileDataStore s = new ShapefileDataStore(tmpFile.toURL());
