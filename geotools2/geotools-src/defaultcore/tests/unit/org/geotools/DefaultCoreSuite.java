@@ -41,6 +41,7 @@ public class DefaultCoreSuite extends TestCase {
         suite.addTestSuite(FeatureFlatTest.class);
         suite.addTestSuite(ExpressionTest.class);
         suite.addTestSuite(FilterTest.class);
+        suite.addTestSuite(StyleFactoryImplTest.class);
         suite.addTestSuite(TextSymbolTest.class); 
         return suite;
     }
