@@ -352,12 +352,13 @@ public class GtWmsServer implements WMSServer {
     
     public BufferedImage getLegend(String[] layers, String[] styleNames,
      int width, int height, boolean transparent,
-    Color bgcolor) throws WMSException {
+    Color bgcolor, double scale) throws WMSException {
         BufferedImage image = null;
         try{
             Style[] reqStyles = findStyles(layers, styleNames);
         
         LegendImageGenerator lig = new LegendImageGenerator(reqStyles,width,height); 
+        lig.setScale(scale); 
         image = lig.getLegend(bgcolor);
         return image;
         }catch (MalformedURLException mfe){
