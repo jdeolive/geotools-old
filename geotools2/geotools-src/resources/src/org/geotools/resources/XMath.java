@@ -47,7 +47,7 @@ import java.text.ChoiceFormat;
  *   <li><a href="http://developer.java.sun.com/developer/bugParade/bugs/4461243.html">Math.acos is very slow</a></li>
  * </ul>
  *
- * @version 1.0
+ * @version $Id: XMath.java,v 1.4 2002/08/06 13:35:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class XMath
@@ -72,6 +72,15 @@ public final class XMath
      * Do not allow instantiation of this class.
      */
     private XMath() {
+    }
+
+    /**
+     * Combute the cubic root of the specified value. This is method will be removed if
+     * <A HREF="http://developer.java.sun.com/developer/bugParade/bugs/4633024.html">RFE
+     * 4633024</A> is implemented.
+     */
+    public static double cbrt(final double x) {
+        return Math.pow(x, 1.0/3);
     }
     
     /**
