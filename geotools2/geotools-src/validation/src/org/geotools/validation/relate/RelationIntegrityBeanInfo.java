@@ -57,7 +57,7 @@ public abstract class RelationIntegrityBeanInfo
     		pd2 = new PropertyDescriptor[0];
     	}
 
-    	PropertyDescriptor[] pd = new PropertyDescriptor[pd2.length + 1];
+    	PropertyDescriptor[] pd = new PropertyDescriptor[pd2.length + 3];
     	int i = 0;
 
     	for (; i < pd2.length; i++)
