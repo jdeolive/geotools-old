@@ -31,13 +31,21 @@ public class TextMark extends DefaultMark implements Mark, Symbol {
     public TextMark(Font font, String symbol) {
         addFont(font);
         setSymbol(symbol);
-        wellKnownName = new ExpressionLiteral("Symbol");
+        try {
+            wellKnownName = new ExpressionLiteral("Symbol");
+        } catch (org.geotools.filter.IllegalFilterException ife){
+            LOGGER.severe("Failed to build default fill: " + ife);
+        }
     }
     
     public TextMark(Font font, Expression symbol) {
         addFont(font);
         setSymbol(symbol);
-        wellKnownName = new ExpressionLiteral("Symbol");
+        try {
+            wellKnownName = new ExpressionLiteral("Symbol");
+        } catch (org.geotools.filter.IllegalFilterException ife){
+            LOGGER.severe("Failed to build default fill: " + ife);
+        }
     }
     
     /** This parameter gives the well-known name of the symbol of the mark.<br>
@@ -73,7 +81,11 @@ public class TextMark extends DefaultMark implements Mark, Symbol {
      * @param symbol New value of property symbol.
      */
     public void setSymbol(java.lang.String symbol) {
-        this.symbol = new ExpressionLiteral(symbol);
+        try {
+            this.symbol = new ExpressionLiteral(symbol);
+        } catch (org.geotools.filter.IllegalFilterException ife){
+            LOGGER.severe("Failed to build default fill: " + ife);
+        }
     }
     
     public void setSymbol(Expression symbol){

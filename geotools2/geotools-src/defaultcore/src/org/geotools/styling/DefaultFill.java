@@ -32,7 +32,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: DefaultFill.java,v 1.11 2002/08/11 21:01:17 jmacgill Exp $
+ * @version $Id: DefaultFill.java,v 1.12 2002/08/20 15:29:18 wtstockhausen Exp $
  * @author James Macgill, CCG
  */
 
@@ -92,8 +92,12 @@ public class DefaultFill implements org.geotools.styling.Fill {
     public void setColor(Expression rgb) {
         color = rgb;
     }
-    public void setColor(String rgb){        
-        color = new org.geotools.filter.ExpressionLiteral(rgb);
+    public void setColor(String rgb){
+        try {
+            color = new org.geotools.filter.ExpressionLiteral(rgb);
+        } catch (org.geotools.filter.IllegalFilterException ife) {
+            LOGGER.severe("Failed to set Color: " + ife);
+        }
     }
     
     /**
@@ -129,9 +133,11 @@ public class DefaultFill implements org.geotools.styling.Fill {
         backgroundColor = rgb;
     }
     public void setBackgroundColor(String rgb){
-        
-        backgroundColor = new org.geotools.filter.ExpressionLiteral(rgb);
-        
+        try {
+            backgroundColor = new org.geotools.filter.ExpressionLiteral(rgb);
+        } catch (org.geotools.filter.IllegalFilterException ife) {
+            LOGGER.severe("Failed to set Background color: " + ife);
+        }
     }
     
     /**
@@ -158,9 +164,11 @@ public class DefaultFill implements org.geotools.styling.Fill {
         this.opacity = opacity;
     }
     public void setOpacity(String opacity){
-        
-        this.opacity = new org.geotools.filter.ExpressionLiteral(opacity);
-        
+        try{
+            this.opacity = new org.geotools.filter.ExpressionLiteral(opacity);
+        } catch (org.geotools.filter.IllegalFilterException ife) {
+            LOGGER.severe("Failed to set Opacity: " + ife);
+        }
     }
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be

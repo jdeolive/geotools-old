@@ -25,7 +25,7 @@ package org.geotools.styling;
   * TODO:This is unfinished as it currently returns fixed values with no way
   * to change them.
   *
-  * @version $Id: DefaultStroke.java,v 1.11 2002/08/11 21:01:17 jmacgill Exp $
+  * @version $Id: DefaultStroke.java,v 1.12 2002/08/20 15:29:18 wtstockhausen Exp $
   * @author James Macgill, CCG
   */
 
@@ -112,7 +112,11 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * @param c The color of the stroke encoded as a hexidecimal RGB value.
      */
     public void setColor(String c) {
-        setColor(new ExpressionLiteral(c));
+        try {
+            setColor(new ExpressionLiteral(c));
+        } catch (org.geotools.filter.IllegalFilterException ife){
+            System.err.println("DefaultStroke constructor failed " + ife);
+        }
     }
     
     

@@ -33,7 +33,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: DefaultMark.java,v 1.11 2002/08/11 21:01:17 jmacgill Exp $
+ * @version $Id: DefaultMark.java,v 1.12 2002/08/20 15:29:18 wtstockhausen Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultMark implements Mark, Symbol {
@@ -149,7 +149,11 @@ public class DefaultMark implements Mark, Symbol {
         this.wellKnownName = wellKnownName;
     }
     public void setWellKnownName(String name){
-        setWellKnownName(new ExpressionLiteral(name));
+        try {
+            setWellKnownName(new ExpressionLiteral(name));
+        } catch (org.geotools.filter.IllegalFilterException ife){
+            severe("setWellKnownName", "Problem setting Name", ife);
+        }
     }
     public void setRotation(Expression rotation) {
         this.rotation = rotation;
