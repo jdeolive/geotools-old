@@ -5,8 +5,8 @@
             <version>14</version>
         </compliance>
         <style>
-            <description>Sun Java Coding Convention</description>
-            <name>Sun</name>
+            <description>Geotools Java Coding Convention</description>
+            <name>Geotools</name>
         </style>
     </general>
     <inspector>
@@ -162,7 +162,7 @@
         </chunks>
         <comments>
             <format>
-                <multiline>false</multiline>
+                <multiline>true</multiline>
             </format>
             <javadoc>
                 <check>
