@@ -67,6 +67,41 @@ public class ShapefileDataSourceTest extends TestCase {
         }
         
     }
+    
+    public void testLoadWithDbf(){
+        String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
+        try{
+            URL url = new URL("file:///"+dataFolder+"/statepop.shp");
+            System.out.println("Testing ability to load "+url);
+            Shapefile shapefile = new Shapefile(url);
+            url = new URL("file:///"+dataFolder+"/statepop");
+            DbaseFileReader dbf = new DbaseFileReader(url.getFile());
+            ShapefileDataSource datasource = new ShapefileDataSource(shapefile,dbf);
+            FeatureCollection table = new FeatureCollectionDefault();
+            table.setDataSource(datasource);
+            EnvelopeExtent r = new EnvelopeExtent();
+            r.setBounds(new Envelope(-180, 180, -90, 90));
+            Feature[] features = table.getFeatures(r);
+            System.out.println("No features loaded = "+features.length);
+            System.out.println(features[0].getSchema().toString());
+        }
+        catch(DataSourceException e){
+            System.out.println(e);
+            e.printStackTrace();
+            fail("Load failed because of exception "+e.toString());
+        }
+        catch(IOException ioe){
+            System.out.println(ioe);
+            ioe.printStackTrace();
+            fail("Load failed because of exception "+ioe.toString());
+        }
+        
+    }
 
 
 }

@@ -30,7 +30,7 @@ import org.geotools.filter.*;
 import com.vividsolutions.jts.geom.*;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.14 2002/08/16 16:36:51 jmacgill Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.15 2002/08/29 16:05:51 jmacgill Exp $
  * @author James Macgill, CCG
  * @task TODO: add support for reading dbf file
  * @task TODO: add support for the optional spatial index files to improve
@@ -42,15 +42,27 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
      **/
     private Shapefile shapefile;
     
+    private DbaseFileReader dbf;
+    
     /** Creates a new instance of ShapefileDataSource. */
     public ShapefileDataSource(Shapefile shapefile) {
         this.shapefile = shapefile;
     }
     
+    /** Creates a new instance of ShapefileDataSource. */
+    public ShapefileDataSource(Shapefile shapefile,DbaseFileReader dbf) {
+        this.shapefile = shapefile;
+        this.dbf = dbf;
+    }
+    
     /**
      * Gets the Column names (used by FeatureTable) for this DataSource.
+     * @task HACK: need to add Geometry to column names returned from dbf
      */
     public String[] getColumnNames() {
+        if(dbf != null) {
+            return dbf.getFieldNames();
+        }
         return new String[]{"Geometry"};
     }
     
@@ -93,7 +105,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
         return getBbox();
     }
     
-    /** 
+    /**
      * Loads features from the datasource into the returned collection, based
      * on the passed filter.
      *
@@ -107,7 +119,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
         return fc;
     }
     
-    /** 
+    /**
      * Loads features from the datasource into the passed collection, based
      * on the passed filter.  Note that all data sources must support this
      * method at a minimum.
@@ -122,14 +134,35 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
             List features = new ArrayList();
             Geometry typical = shapes.getGeometryN(0);
             AttributeType geometryAttribute = new AttributeTypeDefault(Shapefile.getShapeTypeDescription(Shapefile.getShapeType(typical)), Geometry.class);
-            
-            FeatureType shapefileType = new FeatureTypeFlat(geometryAttribute);
+            FeatureType shapefileType;
+            if(dbf != null) {
+                ArrayList attribs = dbf.getFieldTypes();
+                attribs.add(0,geometryAttribute);
+                AttributeType[] types = (AttributeType[])attribs.toArray(new AttributeType[0]);
+                try{
+                    shapefileType = new FeatureTypeFlat(types);
+                }
+                catch(SchemaException se){
+                    throw new DataSourceException(se.getMessage());
+                }
+            }
+            else {
+                shapefileType = new FeatureTypeFlat(geometryAttribute);
+            }
             //System.out.println("schema is " + shapefileType);
             FeatureFactory fac = new FeatureFactory(shapefileType);
             int count = shapes.getNumGeometries();
             //Feature[] features = new Feature[count];
             for (int i = 0; i < count; i++){
-                Object [] row = new Object[1];
+                Object [] row;
+                if (dbf == null) {
+                    row = new Object[1];
+                }
+                else {
+                    row = new Object[dbf.getFieldNames().length+1]; //+1 for geomety
+                    ArrayList values = dbf.read();
+                    System.arraycopy(values.toArray(),0,row,1,dbf.getFieldNames().length);
+                }
                 row[0] = (Geometry) shapes.getGeometryN(i);
                 //System.out.println("adding geometry" + row[0]);
                 Feature feature = fac.create(row);

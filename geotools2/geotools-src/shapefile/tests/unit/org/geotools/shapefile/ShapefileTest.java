@@ -57,6 +57,8 @@ public class ShapefileTest extends TestCase {
         }
     }
     
+     
+    
     
     
     public void testLoadingSamplePointFile() {

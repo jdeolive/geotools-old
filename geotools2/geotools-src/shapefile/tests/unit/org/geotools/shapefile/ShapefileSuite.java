@@ -28,6 +28,7 @@ public class ShapefileSuite extends TestCase {
     public static Test suite() {
         BasicConfigurator.configure();
         TestSuite suite = new TestSuite("All Tests");
+        suite.addTestSuite(DbaseFileTest.class);
         suite.addTestSuite(ShapefileDataSourceTest.class);
         suite.addTestSuite(ShapefileTest.class);
         return suite;
