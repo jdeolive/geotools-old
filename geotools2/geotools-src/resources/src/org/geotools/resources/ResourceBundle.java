@@ -67,7 +67,7 @@ import java.util.logging.LogRecord;
  * declarative interface is never loaded at run time. This class also
  * provides facilities for string formatting using {@link MessageFormat}.
  *
- * @version $Id: ResourceBundle.java,v 1.7 2003/08/04 18:21:32 desruisseaux Exp $
+ * @version $Id: ResourceBundle.java,v 1.8 2003/08/09 22:11:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ResourceBundle extends java.util.ResourceBundle {
@@ -596,7 +596,8 @@ public class ResourceBundle extends java.util.ResourceBundle {
      * @return The log record.
      */
     public LogRecord getLogRecord(final Level level, final int key,
-                                  final Object arg0) {
+                                  final Object arg0)
+    {
         final LogRecord record = new LogRecord(level, String.valueOf(key));
         record.setResourceBundle(this);
         if (arg0!=null) {
@@ -616,7 +617,8 @@ public class ResourceBundle extends java.util.ResourceBundle {
      */
     public LogRecord getLogRecord(final Level level, final int key,
                                   final Object arg0,
-                                  final Object arg1) {
+                                  final Object arg1)
+    {
         return getLogRecord(level, key, new Object[]{arg0, arg1});
     }
 
@@ -633,8 +635,29 @@ public class ResourceBundle extends java.util.ResourceBundle {
     public LogRecord getLogRecord(final Level level, final int key,
                                   final Object arg0,
                                   final Object arg1,
-                                  final Object arg2) {
+                                  final Object arg2)
+    {
         return getLogRecord(level, key, new Object[]{arg0, arg1, arg2});
+    }
+
+    /**
+     * Get a localized log record.
+     *
+     * @param  level The log record level.
+     * @param  key   The resource key.
+     * @param  arg0  The first parameter.
+     * @param  arg1  The second parameter.
+     * @param  arg2  The third parameter.
+     * @param  arg3  The fourth parameter.
+     * @return The log record.
+     */
+    public LogRecord getLogRecord(final Level level, final int key,
+                                  final Object arg0,
+                                  final Object arg1,
+                                  final Object arg2,
+                                  final Object arg3)
+    {
+        return getLogRecord(level, key, new Object[]{arg0, arg1, arg2, arg3});
     }
 
     /**
