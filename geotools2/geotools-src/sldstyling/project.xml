@@ -57,6 +57,11 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <artifactId>algorithms</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency>
   </dependencies>
   <build>
     <unitTest>
