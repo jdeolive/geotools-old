@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/10/27 11:04:26 $</date>
+    <date>$Date: 2002/11/07 09:52:19 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -246,8 +246,9 @@ public class ThisClass {
 
               <mediaobject>
                 <imageobject>
-                  <imagedata format="PNG"
-                  fileref="images/developersguide/dir_structure.png" />
+                  <imagedata
+                  fileref="images/developersguide/dir_structure.png"
+                  format="PNG" />
                 </imageobject>
 
                 <textobject>
@@ -810,7 +811,7 @@ void example(int i) {
 
         <itemizedlist>
           <listitem>
-            <para><filename>View over File system</filename> is a &#34;must
+            <para><filename>View over a Filesystem</filename> is a &#34;must
             have&#34; module of Netbeans. It allows you to mount each module
             within CVS and is almost essential for geotools development within
             Netbeans. The default Netbeans only allows you to mount one source
@@ -835,7 +836,7 @@ void example(int i) {
             <para><filename>RefactorIt</filename> is a useful module for
             changing many classes at once, and provide a free licence for open
             source projects like geotools. See <xref linkend="refactorit" />
-            for more details. Installation instructions are in the download</para>
+            for more details. Installation instructions are in the download.</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -847,8 +848,8 @@ void example(int i) {
         window, right click on Filesystems, select <command>Mount-&#62;Version
         Control-&#62;CVS</command>. Select the geotools2 directory that you
         have already booked out from CVS. Don&#39;t worry about the relative
-        mount point, it will be covered by the &#34;View over Filesystem&#34;
-        section. You shouldn&#39;t need to change the CVS and ssh parameters,
+        mount point, it will be covered by &#34;View over Filesystem&#34;
+        below. You shouldn&#39;t need to change the CVS and ssh parameters,
         they will have been picked up correctly from when you booked geotools
         out from CVS manually.</para>
 
