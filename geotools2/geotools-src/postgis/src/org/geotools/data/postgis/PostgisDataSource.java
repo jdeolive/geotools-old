@@ -76,7 +76,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.31 2003/07/24 21:41:07 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.32 2003/07/29 22:38:51 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -101,7 +101,7 @@ public class PostgisDataSource extends AbstractDataSource
 
     /** Error message prefix for sql connection errors */
     private static final String CONN_ERROR = 
-           "Some sort of database connection error: ";
+                          "Some sort of database connection error: ";
 
     /** Map of sql primitives to java primitives */
     private static Map sqlTypeMap = new HashMap();
@@ -266,7 +266,7 @@ public class PostgisDataSource extends AbstractDataSource
             closeResultSet(result);
 
             FeatureType retSchema = 
-                  FeatureTypeFactory.newFeatureType(attributes, tableName);
+                 FeatureTypeFactory.newFeatureType(attributes, tableName);
 
             return retSchema;
         } catch (SQLException sqle) {
@@ -464,11 +464,10 @@ public class PostgisDataSource extends AbstractDataSource
         if (filter != null) {
             try {
                 where = encoder.encode(filter);
-            } catch (SQLEncoderException e) {
-                String message = "Encoder error" + e.getMessage();
+            } catch (SQLEncoderException sqle) {
+                String message = "Encoder error" + sqle.getMessage();
                 LOGGER.warning(message);
-                LOGGER.warning(e.toString());
-                throw new DataSourceException(message, e);
+                throw new DataSourceException(message, sqle);
             }
         }
 
@@ -499,7 +498,7 @@ public class PostgisDataSource extends AbstractDataSource
      *         a part of this type's schema.
      */
     private AttributeType[] getAttTypes(Query query) 
-        throws DataSourceException {
+                           throws DataSourceException {
         AttributeType[] schemaTypes = schema.getAttributeTypes();
 
         if (query.retrieveAllProperties()) {
@@ -507,20 +506,19 @@ public class PostgisDataSource extends AbstractDataSource
         } else {
             List attNames = Arrays.asList(query.getPropertyNames());
             AttributeType[] retAttTypes = new AttributeType[attNames.size()];
-            int j = 0;
+            int retPos = 0;
 
             for (int i = 0, n = schemaTypes.length; i < n; i++) {
                 String schemaTypeName = schemaTypes[i].getName();
 
                 if (attNames.contains(schemaTypeName)) {
-                    retAttTypes[j] = schemaTypes[i];
-                    j++;
-                    //attNames.remove(schemaTypeName);
+                    retAttTypes[retPos++] = schemaTypes[i];
+
                 }
             }
 
             //TODO: better error reporting, and completely test this method.
-            if (attNames.size() != j) {
+            if (attNames.size() != retPos) {
                 String msg = "attempted to request a property, "
                     + attNames.get(0) + " that is not part of the schema ";
                 throw new DataSourceException(msg);
@@ -611,6 +609,7 @@ public class PostgisDataSource extends AbstractDataSource
                 for (col = 0; col < totalAttributes; col++) {
                     if (attTypes[col].isGeometry()) {
                         String wkt = result.getString(col + 2);
+
                         if (wkt == null) {
                             attributes[col] = null;
                         } else {
@@ -660,6 +659,7 @@ public class PostgisDataSource extends AbstractDataSource
      */
     private String createFid(String featureId) {
         String newFid;
+
         if (Character.isDigit(featureId.charAt(0))) {
             //so prepend the table name.
             newFid = tableName + "." + featureId;
@@ -785,7 +785,7 @@ public class PostgisDataSource extends AbstractDataSource
         AttributeType[] types = featureSchema.getAttributeTypes();
 
         for (int i = 0; i < types.length; i++) {
-            sql.append(types[i].getName());
+            sql.append("\"" + types[i].getName() + "\"");
             sql.append((i < (types.length - 1)) ? ", " : ") ");
         }
 
@@ -909,8 +909,9 @@ public class PostgisDataSource extends AbstractDataSource
      * @throws DataSourceException If modificaton is not supported, if the
      *         attribute and object arrays are not eqaul length, or if the
      *         object types do not match the attribute types.
-     * @task REVISIT: validate values with types.  Database does
-     *       this a bit now, but should be more fully implemented.
+     *
+     * @task REVISIT: validate values with types.  Database does this a bit
+     *       now, but should be more fully implemented.
      */
     public void modifyFeatures(AttributeType[] type, Object[] value,
         Filter filter) throws DataSourceException {
@@ -1035,7 +1036,7 @@ public class PostgisDataSource extends AbstractDataSource
                 String newValue;
 
                 //check her to make sure object matches attribute type.
-                if (Geometry.class.isAssignableFrom(curType.getType())) {
+                if (curType.isGeometry()) {
                     //create the text to add geometry
                     String geoText = geometryWriter.write((Geometry) curValue);
                     newValue = "GeometryFromText('" + geoText + "', " + srid
@@ -1045,7 +1046,10 @@ public class PostgisDataSource extends AbstractDataSource
                     newValue = addQuotes(curValue);
                 }
 
-                sqlStatement.append(curType.getName() + " = " + newValue);
+                sqlStatement.append("\"" + curType.getName() + "\" = "
+                    + newValue);
+
+                //sqlStatement.append(curType.getName() + " = " + newValue);
                 sqlStatement.append((i < (arrLength - 1)) ? ", " : " ");
             }
 
