@@ -2,9 +2,8 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 <!-- Use the following if you want to use ant to style this file when offline
-"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"-->
-
-<article id="index">
+"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"--><article
+id="index">
   <articleinfo>
     <title>Geotools2 Glossary</title>
 
@@ -14,7 +13,7 @@
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/11/21 10:38:57 $</date>
+    <date>$Date: 2002/11/22 05:06:15 $</date>
 
     <abstract>
       <para>Glossary of terms used in the Geotools2 project.</para>
@@ -215,7 +214,7 @@
           <row>
             <entry>UML</entry>
 
-            <entry>Universal Markup Language</entry>
+            <entry>Unified Modeling Language</entry>
 
             <entry>A set of diagrams used to describe software pictorially.</entry>
           </row>

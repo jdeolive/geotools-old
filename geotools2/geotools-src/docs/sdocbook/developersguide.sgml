@@ -2,9 +2,8 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 <!-- Use the following if you want to use ant to style this file when offline
-"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"-->
-
-<article id="index">
+"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"--><article
+id="index">
   <articleinfo>
     <title>Geotools2 Developer Guide</title>
 
@@ -14,7 +13,7 @@
       <surname>Shorter</surname>
     </author>
 
-    <date>$Id: developersguide.sgml,v 1.13 2002/11/21 19:36:04 robhranac Exp $</date>
+    <date>$Id: developersguide.sgml,v 1.14 2002/11/22 05:06:15 camerons Exp $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -835,7 +834,7 @@ void example(int i) {
 
           <listitem>
             <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
-            is a Universal Markup Language (UML) editor which we occasionally
+            is a Unified Modeling Language (UML) editor which we occasionally
             use to explain ideas about design. You can get away without
             installing this.</para>
           </listitem>
@@ -956,7 +955,7 @@ void example(int i) {
       <title id="poseidon">Poseidon</title>
 
       <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
-      is a Universal Modeling Language (UML) editor. Using Poseidon you can
+      is a Unified Modeling Language (UML) editor. Using Poseidon you can
       reverse engineer the Geotools2 code and view class diagrams, javadocs
       and code using a powerful graphical interface. It is a good way to
       quickly navigate through the Geotools2 design.</para>
