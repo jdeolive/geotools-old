@@ -37,7 +37,7 @@ public class SLDTransformer extends TransformerBase {
         FilterTransformer.FilterTranslator filterTranslator;
         
         public SLDTranslator(ContentHandler handler) {
-            super(handler, "sld", "http://www.opengis.net/sld");
+            super(handler,"sld", "http://www.opengis.net/sld");
             filterTranslator = new FilterTransformer.FilterTranslator(handler);
         }
         
@@ -83,13 +83,15 @@ public class SLDTransformer extends TransformerBase {
             encodeCssParam("stroke-dashoffset", stroke.getDashOffset());
             
             float[] dash = stroke.getDashArray();
-            StringBuffer sb = new StringBuffer();
-            
-            for (int i = 0; i < dash.length; i++) {
-                sb.append(dash[i] + " ");
-            }
-            
-            encodeCssParam("stroke-dasharray", sb.toString());
+//            if (dash != null) {
+                StringBuffer sb = new StringBuffer();
+
+                for (int i = 0; i < dash.length; i++) {
+                    sb.append(dash[i] + " ");
+                }
+
+                encodeCssParam("stroke-dasharray", sb.toString());
+//            }
             end("Stroke");
         }
         
@@ -164,8 +166,8 @@ public class SLDTransformer extends TransformerBase {
             element("Format",exgr.getFormat());
             AttributesImpl atts = new AttributesImpl();
             try {
-                atts.addAttribute(XLINK_NAMESPACE, "type", "", "", "simple");
-                atts.addAttribute(XLINK_NAMESPACE, "xlink", "","", exgr.getLocation().toString());
+                atts.addAttribute(XLINK_NAMESPACE, "type", "type", "", "simple");
+                atts.addAttribute(XLINK_NAMESPACE, "xlink", "xlink","", exgr.getLocation().toString());
             } catch (java.net.MalformedURLException murle) {
                 throw new Error("SOMEONE CODED THE X LINK NAMESPACE WRONG!!");
             }
@@ -287,8 +289,8 @@ public class SLDTransformer extends TransformerBase {
         
         public void visit(Style style) {
             start("NamedLayer");
-            element("Title",style.getTitle());
             element("Name",style.getName());
+            element("Title",style.getTitle());
             element("Abstract",style.getAbstract());
             start("UserLayer");
             
@@ -331,7 +333,7 @@ public class SLDTransformer extends TransformerBase {
         
         void encodeCssParam(String name,Expression expression) {
             AttributesImpl atts = new AttributesImpl();
-            atts.addAttribute("", "name", "", "", name);
+            atts.addAttribute("", "name", "name", "", name);
             start("CssParameter",atts);
             filterTranslator.encode(expression);
             end("CssParameter");
@@ -339,8 +341,9 @@ public class SLDTransformer extends TransformerBase {
         }
         
         void encodeCssParam(String name,String expression) {
+            if (expression.length() == 0) return;
             AttributesImpl atts = new AttributesImpl();
-            atts.addAttribute("", "name", "", "", name);
+            atts.addAttribute("", "name", "name", "", name);
             start("CssParameter",atts);
             chars(expression);
             end("CssParameter");
@@ -368,15 +371,16 @@ public class SLDTransformer extends TransformerBase {
         public void encode(Object o) throws IllegalArgumentException {
             if (o instanceof Style[]) {
                 encode( (Style[]) o);
-            } 
-            Class c = o.getClass();
-            try {
-                java.lang.reflect.Method m = c.getMethod("accept", new Class[] {StyleVisitor.class});
-                m.invoke(o, new Object[] {this});
-            } catch (NoSuchMethodException nsme) {
-                throw new IllegalArgumentException("Cannot encode " + o);
-            } catch (Exception e) {
-                throw new RuntimeException("Internal transformation exception",e);
+            } else {
+                Class c = o.getClass();
+                try {
+                    java.lang.reflect.Method m = c.getMethod("accept", new Class[] {StyleVisitor.class});
+                    m.invoke(o, new Object[] {this});
+                } catch (NoSuchMethodException nsme) {
+                    throw new IllegalArgumentException("Cannot encode " + o);
+                } catch (Exception e) {
+                    throw new RuntimeException("Internal transformation exception",e);
+                }
             }
             
         }
