@@ -57,9 +57,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         //GeometryTransformer transform = new GeometryTransformer(new AffineTransformer(e,component.getBounds()));
         
         AffineTransform at = new AffineTransform();
-        at.setToTranslation(0,screenSize.getHeight());
+        
         double scale = screenSize.getWidth()/e.getWidth();
         System.out.println("scale is "+scale);
+        System.out.println("translation is "+(-e.getMinX()*scale)+","+screenSize.getHeight());
+        at.setToTranslation(-e.getMinX()*scale,screenSize.getHeight());
         at.scale(scale,-scale);
         graphics.setTransform(at);
         
@@ -118,12 +120,16 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
 
         graphics.setColor(Color.decode(fill.getColor()));
         graphics.fill(path);
-        
+        // I'm not sure if this is right
+        // TODO: check this out
+        double scale = graphics.getTransform().getScaleX();
+        BasicStroke stroke2d = new BasicStroke((float)(stroke.getWidth()/scale));
+        graphics.setStroke(stroke2d);
         graphics.setColor(Color.decode(stroke.getColor()));
         //path = createGeneralPath(geom.getCoordinates());
         graphics.draw(path);
         System.out.println("Rendering a polygon with an outline colour of "+stroke.getColor()+
-            "and a fill colour of "+fill.getColor());
+            "and a fill colour of "+fill.getColor()+"\n at "+path.getCurrentPoint().toString());
     }
 
     private GeneralPath createGeneralPath(final Coordinate[] coords) {
