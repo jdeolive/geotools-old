@@ -26,8 +26,8 @@
 
 package org.geotools.renderer;
 
-import org.geotools.featuretable.*;
-import org.geotools.datasource.*;
+import org.geotools.feature.*;
+import org.geotools.data.*;
 import org.geotools.map.Map;
 import org.geotools.styling.*;
 
@@ -62,7 +62,7 @@ public class AWTRenderer implements org.geotools.renderer.Renderer {
             FeatureTypeStyle fts = featureStylers[i];
             for(int j=0;j<features.length;j++){
                 Feature feature = features[j];
-                if(feature.getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
+                if(feature.getSchema().getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
                     //this styler is for this type of feature
                     //now find which rule applies
                     Rule[] rules = fts.getRules();
@@ -130,17 +130,22 @@ public class AWTRenderer implements org.geotools.renderer.Renderer {
         System.out.println("rendering a linestring? " + scaled.getGeometryType());
         Coordinate[] coords = scaled.getCoordinates();
         int[][] points = extractPointArrays(coords);
+        try{
         if(fill!=null){
-            graphics.setColor(Color.decode(fill.getColor()));
+            graphics.setColor(Color.decode((String)fill.getColor().getValue(null)));
             graphics.fillPolygon(points[0],points[1],points[0].length);
         }
         if(stroke!=null){
-            graphics.setColor(Color.decode(stroke.getColor()));
+            graphics.setColor(Color.decode((String)stroke.getColor().getValue(null)));
             graphics.drawPolygon(points[0],points[1],points[0].length);
         }
+        }
+        catch(org.geotools.filter.MalformedFilterException mfe){
+            //not sure what to do about this
+        }
         
-        System.out.println("Rendering a polygon with an outline colour of "+stroke.getColor()+
-        "and a fill colour of "+fill.getColor() + "\nat "+points[0][0] +","+ points[1][0]);
+   
+        
     }
     
     private int[][] extractPointArrays(final Coordinate[] coords) {
@@ -161,22 +166,27 @@ public class AWTRenderer implements org.geotools.renderer.Renderer {
         Geometry scaled = transform.transformGeometry(geom);
         Coordinate[] coords = scaled.getCoordinates();
         int points[][] = extractPointArrays(coords);
-        graphics.setColor(Color.decode(stroke.getColor()));
-        graphics.drawPolyline(points[0],points[1],coords.length);
-        System.out.println("Rendering a line with a colour of "+stroke.getColor());
+        try{
+            graphics.setColor(Color.decode((String)stroke.getColor().getValue(feature)));
+            graphics.drawPolyline(points[0],points[1],coords.length);
+        }
+        catch(org.geotools.filter.MalformedFilterException mfe){
+            //hack: not sure what to do here
+        }
+        //System.out.println("Rendering a line with a colour of "+stroke.getColor());
     }
     
     private Geometry findGeometry(final Feature feature, final String geomName) {
         Geometry geom = null;
         if(geomName==null){
-            geom = feature.getGeometry();
+            geom = feature.getDefaultGeometry();
         }
         else{
-            String names[] =  feature.getAttributeNames();
-            for(int i=0;i<names.length;i++){
-                if(names[i].equalsIgnoreCase(geomName)){
-                    geom=(Geometry)feature.getAttributes()[i];
-                }
+            try{
+                geom=(Geometry)feature.getAttribute(geomName);
+            }
+            catch(org.geotools.feature.IllegalFeatureException mfe){
+                //its ok, we will end up returning null
             }
         }
         return geom;

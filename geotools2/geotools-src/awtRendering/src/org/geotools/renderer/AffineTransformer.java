@@ -6,7 +6,8 @@
 
 package org.geotools.renderer;
 import com.vividsolutions.jts.geom.*;
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 import java.awt.Rectangle;
 
 /**

@@ -7,10 +7,10 @@
 
 package org.geotools.rendering;
 import org.geotools.renderer.*;
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.datasource.extents.*;
-import org.geotools.featuretable.*;
 import org.geotools.styling.*;
 import org.geotools.map.*;
 import java.util.*;
@@ -45,19 +45,26 @@ public class RenderingTest extends TestCase {
         
         // Request extent
         EnvelopeExtent ex = new EnvelopeExtent(5, 15, 5, 15);
-        Feature lineFeature = new DefaultFeature();
-        
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac);
-        lineFeature.setAttributes(new Object[]{line});
-        Feature polygonFeature = new DefaultFeature();
+        AttributeType lineAttribute = new AttributeTypeDefault("line",Geometry.class);
+        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature");
+        FeatureFactory lineFac = new FeatureFactory(lineType);
+        Feature lineFeature = lineFac.create(new Object[]{line});
+
+        Polygon poly = makeSamplePolygon(geomFac);
+        AttributeType polygonAttribute = new AttributeTypeDefault("poly",Geometry.class);
+        FeatureType polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygonfeature");
+        FeatureFactory polyFac = new FeatureFactory(polygonType);
+        Feature polygonFeature = polyFac.create(new Object[]{poly});
         
-        polygonFeature.setAttributes(new Object[]{makeSamplePolygon(geomFac)});
+   
+        
         MemoryDataSource datasource = new MemoryDataSource();
         datasource.addFeature(lineFeature);
         datasource.addFeature(polygonFeature);
         
-        FeatureTable ft = new DefaultFeatureTable(datasource);
+        FeatureCollection ft = new FeatureCollectionDefault(datasource);
         
         org.geotools.map.Map map = new DefaultMap();
         
