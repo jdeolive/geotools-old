@@ -126,7 +126,7 @@ public abstract class AbstractFeatureSource implements FeatureSource {
      *
      * @return null representing the lack of an optimization
      */
-    public Envelope getBounds() {
+    public Envelope getBounds() throws IOException {
         return getBounds(Query.ALL);
     }
 
@@ -147,12 +147,12 @@ public abstract class AbstractFeatureSource implements FeatureSource {
      *
      * @return null representing the lack of an optimization
      */
-    public Envelope getBounds(Query query) {
+    public Envelope getBounds(Query query) throws IOException {
         if (query.getFilter() == Filter.ALL) {
             return new Envelope();
         }
 
-        return null; // to expensive right now :-)
+        return null; // too expensive right now :-)
     }
 
     /**
