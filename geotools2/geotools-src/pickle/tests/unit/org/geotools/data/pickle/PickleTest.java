@@ -40,9 +40,9 @@ public class PickleTest extends TestCase {
       throw new IllegalArgumentException("unequal lengths");
     AttributeType[] atts = new AttributeType[names.length];
     for (int i = 0, ii = atts.length; i < ii; i++) {
-      atts[i] = new AttributeTypeDefault(names[i],classes[i]);
+      atts[i] = AttributeTypeFactory.newAttributeType(names[i],classes[i]);
     }
-    return new FeatureTypeFlat(atts);
+    return FeatureTypeFactory.newFeatureType(atts,"test");
   }
   
   /*
@@ -58,17 +58,15 @@ public class PickleTest extends TestCase {
     names = new String[] { "Color","Seeds","Size" };
     clazz = new Class[] { Color.class,Boolean.class,Integer.class};
     FeatureType orange = createType(names,clazz);
-    FeatureCollection applesNoranges = new FeatureCollectionDefault();
-    FeatureFactory appleFactory = new FlatFeatureFactory(apple);
-    FeatureFactory orangeFactory = new FlatFeatureFactory(orange);
+    FeatureCollection applesNoranges = FeatureCollections.newCollection();
     Object[] apple1 = new Object[] {Color.red,new Integer(4),Boolean.FALSE};
     Object[] apple2 = new Object[] {Color.green,new Integer(5),Boolean.TRUE};
-    applesNoranges.add( appleFactory.create( apple1) );
-    applesNoranges.add( appleFactory.create( apple2) );
+    applesNoranges.add( apple.create( apple1) );
+    applesNoranges.add( apple.create( apple2) );
     Object[] orange1 = new Object[] {Color.red,Boolean.FALSE,new Integer(50)};
     Object[] orange2 = new Object[] {Color.orange,Boolean.TRUE,new Integer(30)};
-    applesNoranges.add( orangeFactory.create(orange1) );
-    applesNoranges.add( orangeFactory.create(orange2) );
+    applesNoranges.add( orange.create(orange1) );
+    applesNoranges.add( orange.create(orange2) );
     pds.setFeatures(applesNoranges);
     
     checkFeature(apple1,pds.getFeature(0));
@@ -78,10 +76,9 @@ public class PickleTest extends TestCase {
   }
   
   private void checkFeature(Object[] vals,Feature f) {
-    Object[] atts = f.getAttributes();
-    assertEquals(vals.length,atts.length);
+    assertEquals(vals.length,f.getNumberOfAttributes());
     for (int i = 0, ii = vals.length; i < ii; i++) {
-      assertEquals(vals[i], atts[i]);
+      assertEquals(vals[i], f.getAttribute(i));
     }
   }
   
@@ -94,24 +91,22 @@ public class PickleTest extends TestCase {
     String[] name = new String[] {"date","rect","innerClass"};
     Class[] clazz = new Class[] {Date.class,Rectangle.class,InnerClassTestObject.class};
     FeatureType test = createType(name, clazz);
-    FeatureFactory factory = new FlatFeatureFactory(test);
-    FeatureCollection collection = new FeatureCollectionDefault();
-    Object[] attVals = new Object[test.attributeTotal()];
+    FeatureCollection collection = FeatureCollections.newCollection();
+    Object[] attVals = new Object[test.getAttributeCount()];
     long time = System.currentTimeMillis();
     for (int i = 0; i < 100; i++) {
       attVals[0] = new Date(time + i);
       attVals[1] = new Rectangle(0,0,i+1,i+1);
       attVals[2] = new InnerClassTestObject(i,i);
-      collection.add( factory.create(attVals) );
+      collection.add( test.create(attVals) );
     }
     pds.setFeatures(collection);
     for (int i = 0; i < collection.size(); i++) {
       Feature f = pds.getFeature(i);
-      attVals = f.getAttributes();
-      assertEquals(time + i, ((Date)attVals[0]).getTime());
-      assertEquals(i + 1,((Rectangle)attVals[1]).width);
-      assertEquals(i,((InnerClassTestObject)attVals[2]).x);
-      assertEquals(0,((InnerClassTestObject)attVals[2]).y);
+      assertEquals(time + i, ((Date)f.getAttribute(0)).getTime());
+      assertEquals(i + 1,((Rectangle)f.getAttribute(1)).width);
+      assertEquals(i,((InnerClassTestObject)f.getAttribute(2)).x);
+      assertEquals(0,((InnerClassTestObject)f.getAttribute(2)).y);
     }
   }
   
@@ -131,23 +126,21 @@ public class PickleTest extends TestCase {
     File file = new File(tempFile);
     PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
     AttributeType[] atts = new AttributeType[1];
-    atts[0] = new AttributeTypeDefault("rect", Rectangle.class);
-    FeatureType test = new FeatureTypeFlat(atts);
-    FeatureFactory factory = new FlatFeatureFactory(test);
-    FeatureCollection collection = new FeatureCollectionDefault();
+    atts[0] = AttributeTypeFactory.newAttributeType("rect", Rectangle.class);
+    FeatureType test = FeatureTypeFactory.newFeatureType(atts,"test");
+    FeatureCollection collection = FeatureCollections.newCollection();
     Object[] attVals = new Object[atts.length];
     Rectangle r = new Rectangle(0,0,100,100);
     for (int i = 0; i < 100; i++) {
       attVals[0] = r;
-      collection.add( factory.create(attVals) );
+      collection.add( test.create(attVals) );
     }
     pds.setFeatures(collection);
     Object last = r;
     for (int i = 0; i < collection.size(); i++) {
       Feature f = pds.getFeature(i);
-      attVals = f.getAttributes();
-      assertEquals(r, attVals[0]);
-      assertTrue(last != attVals[0]);
+      assertEquals(r, f.getAttribute(0));
+      assertTrue(last != f.getAttribute(0));
       last = attVals[0];
     }
       
@@ -160,21 +153,20 @@ public class PickleTest extends TestCase {
     File file = new File(tempFile);
     PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
     AttributeType[] atts = new AttributeType[1];
-    atts[0] = new AttributeTypeDefault("\uAAAA\uBBBB\uCCCC\uDDDD\uEEEE", String.class);
-    FeatureType test = new FeatureTypeFlat(atts);
-    FeatureFactory factory = new FlatFeatureFactory(test);
-    FeatureCollection collection = new FeatureCollectionDefault();
+    atts[0] = AttributeTypeFactory.newAttributeType("\uAAAA\uBBBB\uCCCC\uDDDD\uEEEE", String.class);
+    FeatureType test = FeatureTypeFactory.newFeatureType(atts,"unicode");
+    FeatureCollection collection = FeatureCollections.newCollection();
     Object[] attVals = new Object[atts.length];
     for (int i = 0; i < 100; i++) {
       attVals[0] = "\uEEEE\uEEEE\uEEEE\uEEEE\uEEEE";
-      collection.add( factory.create(attVals) );
+      collection.add( test.create(attVals) );
     }
     pds.setFeatures(collection);
     FeatureCollection fc = pds.getFeatures();
-    Feature[] f = fc.getFeatures();
-    assertEquals("\uAAAA\uBBBB\uCCCC\uDDDD\uEEEE",f[0].getSchema().getAttributeType(0).getName());
+    Feature[] f = (Feature[]) fc.toArray(new Feature[fc.size()]);
+    assertEquals("\uAAAA\uBBBB\uCCCC\uDDDD\uEEEE",f[0].getFeatureType().getAttributeType(0).getName());
     for (int i = 0; i < f.length; i++) {
-      assertEquals("\uEEEE\uEEEE\uEEEE\uEEEE\uEEEE",f[i].getAttributes()[0]);
+      assertEquals("\uEEEE\uEEEE\uEEEE\uEEEE\uEEEE",f[i].getAttribute(0));
     }
   }
   
