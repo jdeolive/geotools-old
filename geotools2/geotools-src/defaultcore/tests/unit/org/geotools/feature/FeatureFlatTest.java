@@ -165,5 +165,23 @@ public class FeatureFlatTest extends TestCase {
         LOGGER.fine("...ending type enforcement tests");
     }
 
-    
+    /*
+     * This is actually a test for FeatureTypeFlat, but there is no test for that
+     * written right now, so I'm just putting it here, as I just changed the
+     * getDefaultGeometry method, and it should have a unit test.  It tests 
+     * to make sure getDefaultGeometry returns null if there is no geometry,
+     * as we now allow 
+     */
+    public void testGetDefaultGeometry() throws SchemaException {
+	FeatureType testType = testFeature.getSchema();
+	LOGGER.fine("testType = " + testType);
+	AttributeType geometry = testType.getAttributeType("testGeometry");
+	LOGGER.fine("geometry attr = " + geometry);
+	assertTrue(geometry != null);
+	testType = testType.removeAttributeType("testGeometry");
+	LOGGER.fine("test Type after removing = " + testType);
+	geometry = testType.getAttributeType("testGeometry");
+	assertTrue(geometry == null);
+    }
+	    
 }
