@@ -139,10 +139,10 @@
                 <insertStatement>false</insertStatement>
             </empty>
             <insert>
-                <dowhile>false</dowhile>
-                <for>false</for>
+                <dowhile>true</dowhile>
+                <for>true</for>
                 <ifelse>true</ifelse>
-                <while>false</while>
+                <while>true</while>
             </insert>
             <remove>
                 <block>true</block>
@@ -183,14 +183,14 @@
                     <standard>@task</standard>
                 </tags>
                 <templates>
-                    <class>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.6 $| */</class>
+                    <class>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.7 $| */</class>
                     <constructor>
                         <bottom> */</bottom>
                         <exception> * @throws $exceptionType$ DOCUMENT ME!</exception>
                         <param> * @param $paramType$ DOCUMENT ME!</param>
                         <top>/**| * Creates a new $objectType$ object.</top>
                     </constructor>
-                    <interface>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.6 $| */</interface>
+                    <interface>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.7 $| */</interface>
                     <method>
                         <bottom> */</bottom>
                         <exception> * @throws $exceptionType$ DOCUMENT ME!</exception>
