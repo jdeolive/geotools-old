@@ -36,6 +36,11 @@
 
   <dependencies>
     <dependency>
+      <artifactId>resources</artifactId>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
       <id>junit</id>
       <version>3.7</version>
       <type>test</type>
