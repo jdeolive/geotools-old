@@ -21,14 +21,14 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PointSymbolizerImpl.java,v 1.1 2002/10/14 13:44:44 ianturton Exp $
+ * @version $Id: PointSymbolizerImpl.java,v 1.2 2002/10/14 17:09:02 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class PointSymbolizerImpl implements PointSymbolizer {
     String geometryPropertyName = null;
-    Graphic graphic = new GraphicImpl();
+    Graphic graphic = new GraphicImpl(); 
     /** Creates a new instance of DefaultPointSymbolizer */
-    public PointSymbolizerImpl() {
+    protected PointSymbolizerImpl() {
     }
     
     /**

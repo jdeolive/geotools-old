@@ -32,7 +32,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FillImpl.java,v 1.1 2002/10/14 14:16:13 ianturton Exp $
+ * @version $Id: FillImpl.java,v 1.2 2002/10/14 17:08:58 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -50,7 +50,7 @@ public class FillImpl implements org.geotools.styling.Fill {
     private Graphic graphicFill = null;
     
     /** Creates a new instance of DefaultFill */
-    public FillImpl() {
+    protected FillImpl() {
         try {
             color = new org.geotools.filter.ExpressionLiteral("#808080");
             opacity = new org.geotools.filter.ExpressionLiteral(new Double(1.0));

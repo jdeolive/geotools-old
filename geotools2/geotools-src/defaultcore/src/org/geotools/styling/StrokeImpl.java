@@ -25,7 +25,7 @@ package org.geotools.styling;
   * TODO:This is unfinished as it currently returns fixed values with no way
   * to change them.
   *
-  * @version $Id: StrokeImpl.java,v 1.1 2002/10/14 14:16:08 ianturton Exp $
+  * @version $Id: StrokeImpl.java,v 1.2 2002/10/14 17:09:03 ianturton Exp $
   * @author James Macgill, CCG
   */
 
@@ -42,8 +42,8 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     private Expression opacity;
     private Expression width;
     
-    /** Creates a new instance of DefaultStroke */
-    public StrokeImpl() {
+    /** Creates a new instance of Stroke */
+    protected StrokeImpl() {
         try {
             color = new ExpressionLiteral("#000000");
             dashArray = null;//HACK: is this an acceptable return?

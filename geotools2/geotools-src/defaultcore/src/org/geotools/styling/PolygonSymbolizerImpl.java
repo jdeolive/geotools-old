@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PolygonSymbolizerImpl.java,v 1.2 2002/10/14 14:18:17 ianturton Exp $
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.3 2002/10/14 17:09:00 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class PolygonSymbolizerImpl implements org.geotools.styling.PolygonSymbolizer {
@@ -30,7 +30,7 @@ public class PolygonSymbolizerImpl implements org.geotools.styling.PolygonSymbol
     private Stroke stroke = new StrokeImpl();
     private String geometryPropertyName = null;
     /** Creates a new instance of DefaultPolygonStyler */
-    public PolygonSymbolizerImpl() {
+    protected PolygonSymbolizerImpl() {
     }
 
     /**

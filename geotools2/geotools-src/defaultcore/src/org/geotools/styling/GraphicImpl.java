@@ -31,7 +31,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: GraphicImpl.java,v 1.1 2002/10/14 13:25:58 ianturton Exp $
+ * @version $Id: GraphicImpl.java,v 1.2 2002/10/14 17:08:57 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class GraphicImpl implements org.geotools.styling.Graphic {
@@ -48,7 +48,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     private Expression size = null;
     private Expression opacity = null;
     /** Creates a new instance of DefaultGraphic */
-    public GraphicImpl() {
+    protected GraphicImpl() {
          try {
             size = new ExpressionLiteral(new Integer(6));
             opacity = new ExpressionLiteral(new Double(1.0));
@@ -87,7 +87,12 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
             return null;
         }
     }
-    
+    public void setExternalGraphics(ExternalGraphic[] externalGraphics) {
+        this.externalGraphics = new ArrayList();
+        for(int i=0;i<externalGraphics.length;i++){
+            addExternalGraphic(externalGraphics[i]);
+        }
+    }
     public void addExternalGraphic(ExternalGraphic g){
         externalGraphics.add(g);
         symbols.add(g);
@@ -110,8 +115,13 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
             return new Mark[]{new MarkImpl()};
         }
     }
-    
-    public void addMark(MarkImpl m){
+    public void setMarks(Mark[] marks) {
+        this.marks = new ArrayList();
+        for(int i=0;i<marks.length;i++){
+            addMark(marks[i]);
+        }
+    }
+    public void addMark(Mark m){
         if (m == null) {
             return;
         }
@@ -137,15 +147,22 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
             return new Symbol[]{new MarkImpl()};
         }
     }
-
+    public void setSymbols(Symbol[] symbols) {
+        this.symbols = new ArrayList();
+        for(int i=0; i<symbols.length;i++){
+            addSymbol(symbols[i]);
+        }
+    }
+    
+    
     public void addSymbol(Symbol symbol){
         symbols.add(symbol);
         if ( symbol instanceof ExternalGraphic){
             addExternalGraphic((ExternalGraphic) symbol);
             return;
         }
-        if ( symbol instanceof MarkImpl){
-            addMark((MarkImpl) symbol);
+        if ( symbol instanceof Mark){
+            addMark((Mark) symbol);
             return;
         }
     }
