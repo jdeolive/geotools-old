@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <name>geotools-utils</name>
+  <extend>../../project.xml</extend>
+  <id>utils</id>
+  
+  <currentVersion>0.1</currentVersion>
+  
+  <package>org.geotools</package>
+  <shortDescription>wmsserver module</shortDescription>
+  
+  <description>wmsserver module</description>
+ 
+  <developers>
+            
+        <developer>
+      <name>Ray Gallagher</name>
+      <id>omyar</id>
+      <email>omyar@users.sourceforge.net</email>
+      <organization>none</organization>
+            <roles>
+               <role>Module Maintainer</role>
+               <role>Java Developer</role>
+            </roles>
+        </developer>
+  </developers>
+  <dependencies>
+ 
+    <dependency>
+      <id>shapefile</id>
+      <version>0.1</version>
+    </dependency>  
+    
+    <dependency>
+      <id>sldstyling</id>
+      <version>0.1</version>
+    </dependency>  
+    
+  </dependencies>
+  
+</project>
+
