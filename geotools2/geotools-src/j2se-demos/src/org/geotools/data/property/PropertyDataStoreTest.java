@@ -1,12 +1,22 @@
 package org.geotools.data.property;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureResults;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.Query;
+import org.geotools.data.Transaction;
+import org.geotools.feature.AttributeType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.IllegalAttributeException;
+import org.geotools.filter.Filter;
+import org.geotools.filter.FilterFactory;
 
 import junit.framework.TestCase;
 
@@ -62,8 +72,56 @@ public class PropertyDataStoreTest extends TestCase {
     public void testGetSchema() throws IOException {
         FeatureType type = store.getSchema( "road" );
         assertNotNull( type );
+        assertEquals( "road", type.getTypeName() );
+        assertEquals( "propertyTestData", type.getNamespace() );
+        assertEquals( 2, type.getAttributeCount() );
+        
+        AttributeType id = type.getAttributeType(0);        
+        AttributeType name = type.getAttributeType(1);
+        
+        assertEquals( "id", id.getName() );
+        assertEquals( "class java.lang.Integer", id.getType().toString() );
+                
+        assertEquals( "name", name.getName() );
+        assertEquals( "class java.lang.String", name.getType().toString() );                        
     }
-
+    public void testGetFeaturesFeatureTypeFilterTransaction1() throws Exception {
+        FeatureType type = store.getSchema( "road" );
+        FeatureReader reader = store.getFeatureReader( type, Filter.NONE, Transaction.AUTO_COMMIT );
+        int count = 0;
+        try {
+            while( reader.hasNext() ){
+                reader.next();
+                count++;
+            }
+        }
+        finally {
+            reader.close();
+        }
+        assertEquals( 4, count );
+        
+        Filter filter;
+        
+        filter = FilterFactory.createFilterFactory().createFidFilter("fid1");
+        reader = store.getFeatureReader( type, filter, Transaction.AUTO_COMMIT );
+        assertEquals( 1, count( reader ) );
+        
+        Transaction transaction = new DefaultTransaction();
+        reader = store.getFeatureReader( type, Filter.NONE, transaction );
+        assertEquals( 4, count( reader ));
+        
+        reader = store.getFeatureReader( type, Filter.NONE, transaction );
+        List list = new ArrayList();
+        try {
+            while( reader.hasNext() ){
+                list.add( reader.next().getID() );
+            }
+        }
+        finally {
+            reader.close();
+        }
+        assertEquals( "[fid1, fid2, fid3, fid4]", list.toString() );        
+    }
     /*
      * Test for FeatureReader getFeatureReader(String)
      */
@@ -81,8 +139,7 @@ public class PropertyDataStoreTest extends TestCase {
         }
         assertEquals( 4, count );
     }
-    private int count( String typeName ) throws Exception {
-        FeatureReader reader = store.getFeatureReader( typeName );
+    private int count( FeatureReader reader ) throws Exception {
         int count = 0;
         try {
             while( reader.hasNext() ){
@@ -94,6 +151,9 @@ public class PropertyDataStoreTest extends TestCase {
             reader.close();
         }
         return count;        
+    }    
+    private int count( String typeName ) throws Exception {
+        return count( store.getFeatureReader( typeName ) );                
     }
     
     public void testWriterSkipThrough() throws Exception {
@@ -225,6 +285,26 @@ public class PropertyDataStoreTest extends TestCase {
         f.setAttribute(1,"new");        
         writer.close();
         assertEquals( 4, count( "road" ));                    
+    }
+    public void testGetFeatureSource() throws Exception {
+        FeatureSource road = store.getFeatureSource( "road" );
+        FeatureResults features = road.getFeatures();
+        FeatureReader reader = features.reader();
+        List list = new ArrayList();
+        try {
+            while( reader.hasNext() ){
+                list.add( reader.next().getID() );                
+            }
+        } finally {
+            reader.close();
+        }
+        assertEquals( "[fid1, fid2, fid3, fid4]", list.toString() );
+        assertEquals( -1, road.getCount(Query.ALL) );
+        assertEquals( null, road.getBounds(Query.ALL) );
+        assertEquals( 4, features.getCount() );
+        assertEquals( "Env[-1.0 : 0.0, -1.0 : 0.0]", features.getBounds().toString() );
+        assertEquals( 4, features.collection().size() );
+                
     }
     private void dir( File file ){
         File dir;

@@ -6,15 +6,12 @@ import org.geotools.data.*;
 import org.geotools.feature.*;
 
 public class PropertyDataStore extends AbstractDataStore {
-    File directory;
-    public PropertyDataStore(){
-        this( new File("."));
-    }
-    public PropertyDataStore(File file) {
-        if( !file.isDirectory()){
-            throw new IllegalArgumentException( file +" is not a directory");
+    protected File directory;
+    public PropertyDataStore(File dir) {
+        if( !dir.isDirectory()){
+            throw new IllegalArgumentException( dir +" is not a directory");
         }
-        directory = file;
+        directory = dir;
     }
     public String[] getTypeNames() {
         FilenameFilter f;
@@ -32,7 +29,8 @@ public class PropertyDataStore extends AbstractDataStore {
     public FeatureType getSchema(String typeName) throws IOException {
         String typeSpec = property( typeName, "_");
         try {
-            return DataUtilities.createType( typeName,typeSpec );
+            String namespace = directory.getName();
+            return DataUtilities.createType( namespace+"."+typeName,typeSpec );
         } catch (SchemaException e) {
             e.printStackTrace();
             throw new DataSourceException( typeName+" schema not available", e);

@@ -65,8 +65,15 @@ public abstract class AbstractDataStore implements DataStore {
 
     /** Manages listener lists for FeatureSource implementation */
     protected FeatureListenerManager listenerManager = new FeatureListenerManager();
-
+    
+    /**
+     * Flags AbstractDataStore to allow Modification.
+     * <p>
+     * GetFeatureSource will return a FeatureStore is this is true.
+     * </p>
+     */
     protected final boolean isWriteable;
+
     /**
      * Manages InProcess locks for FeatureLocking implementations.
      * 
@@ -77,11 +84,12 @@ public abstract class AbstractDataStore implements DataStore {
     private InProcessLockingManager lockingManager;
 
     public AbstractDataStore() {
-        this( true );    
+        this(true);
     }
-    public AbstractDataStore( boolean isWriteable){
+
+    public AbstractDataStore(boolean isWriteable) {
         this.isWriteable = isWriteable;
-        lockingManager = createLockingManager();        
+        lockingManager = createLockingManager();
     }
 
     /**
@@ -102,6 +110,7 @@ public abstract class AbstractDataStore implements DataStore {
 
     public abstract FeatureType getSchema(String typeName)
         throws IOException;
+
     /**
      * Subclass must implement.
      *
@@ -116,12 +125,29 @@ public abstract class AbstractDataStore implements DataStore {
      * Subclass should implement this to provide writing support.
      *
      * @param typeName
+     *
      * @return FeatureWriter over contents of typeName
+     *
+     * @throws IOException Subclass may throw IOException
+     * @throws UnsupportedOperationException Subclass may implement
      */
-    protected FeatureWriter getFeatureWriter(String typeName) throws IOException {
+    protected FeatureWriter getFeatureWriter(String typeName)
+        throws IOException {
         throw new UnsupportedOperationException("Writing not supported");
     }
-        
+
+    /**
+     * Subclass should implement to provide writing support.
+     *
+     * @param featureType Requested FeatureType
+     *
+     * @throws IOException Subclass may throw IOException
+     * @throws UnsupportedOperationException Subclass may implement
+     */
+    public void createSchema(FeatureType featureType) throws IOException {
+        throw new UnsupportedOperationException("Writing not supported");
+    }
+
     /**
      * Default implementation based on getFeatureReader and getFeatureWriter.
      * 
@@ -134,55 +160,66 @@ public abstract class AbstractDataStore implements DataStore {
     public FeatureSource getFeatureSource(final String typeName)
         throws IOException {
         final FeatureType featureType = getSchema(typeName);
-        if( isWriteable ){
+
+        if (isWriteable) {
             if (lockingManager != null) {
                 return new AbstractFeatureLocking() {
-                    public DataStore getDataStore() {
-                        return AbstractDataStore.this;
-                    }
-                    public void addFeatureListener(FeatureListener listener) {
-                        listenerManager.addFeatureListener(this, listener);
-                    }
-                    public void removeFeatureListener(FeatureListener listener) {
-                        listenerManager.removeFeatureListener(this, listener);
-                    }
-                    public FeatureType getSchema() {
-                        return featureType;
-                    }
-                };
+                        public DataStore getDataStore() {
+                            return AbstractDataStore.this;
+                        }
+
+                        public void addFeatureListener(FeatureListener listener) {
+                            listenerManager.addFeatureListener(this, listener);
+                        }
+
+                        public void removeFeatureListener(
+                            FeatureListener listener) {
+                            listenerManager.removeFeatureListener(this, listener);
+                        }
+
+                        public FeatureType getSchema() {
+                            return featureType;
+                        }
+                    };
             } else {
                 return new AbstractFeatureStore() {
+                        public DataStore getDataStore() {
+                            return AbstractDataStore.this;
+                        }
+
+                        public void addFeatureListener(FeatureListener listener) {
+                            listenerManager.addFeatureListener(this, listener);
+                        }
+
+                        public void removeFeatureListener(
+                            FeatureListener listener) {
+                            listenerManager.removeFeatureListener(this, listener);
+                        }
+
+                        public FeatureType getSchema() {
+                            return featureType;
+                        }
+                    };
+            }
+        } else {
+            return new AbstractFeatureSource() {
                     public DataStore getDataStore() {
                         return AbstractDataStore.this;
                     }
+
                     public void addFeatureListener(FeatureListener listener) {
                         listenerManager.addFeatureListener(this, listener);
                     }
+
                     public void removeFeatureListener(FeatureListener listener) {
                         listenerManager.removeFeatureListener(this, listener);
                     }
+
                     public FeatureType getSchema() {
                         return featureType;
                     }
                 };
-            }                                
         }
-        else {
-            return new AbstractFeatureSource() {
-                public DataStore getDataStore() {
-                    return AbstractDataStore.this;
-                }
-                public void addFeatureListener(FeatureListener listener) {
-                    listenerManager.addFeatureListener(this, listener);
-                }
-                public void removeFeatureListener(FeatureListener listener) {
-                    listenerManager.removeFeatureListener(this, listener);
-                }
-                public FeatureType getSchema() {
-                    return featureType;
-                }
-            };            
-        }        
     }
 
     /**
@@ -244,7 +281,7 @@ public abstract class AbstractDataStore implements DataStore {
 
             return state;
         }
-    }    
+    }
 
     /* (non-Javadoc)
      * @see org.geotools.data.DataStore#getFeatureWriter(java.lang.String, org.geotools.filter.Filter, org.geotools.data.Transaction)
@@ -274,7 +311,8 @@ public abstract class AbstractDataStore implements DataStore {
     /* (non-Javadoc)
      * @see org.geotools.data.DataStore#getFeatureWriter(java.lang.String, org.geotools.data.Transaction)
      */
-    public FeatureWriter getFeatureWriter(String typeName, Transaction transaction) throws IOException {
+    public FeatureWriter getFeatureWriter(String typeName,
+        Transaction transaction) throws IOException {
         if (transaction == null) {
             throw new NullPointerException(
                 "getFeatureWriter requires Transaction: "
@@ -294,18 +332,22 @@ public abstract class AbstractDataStore implements DataStore {
             // fake it with InProcess locks
             writer = lockingManager.checkedWriter(writer, transaction);
         }
+
         return writer;
     }
+
     /* (non-Javadoc)
      * @see org.geotools.data.DataStore#getFeatureWriterAppend(java.lang.String, org.geotools.data.Transaction)
-     * 
+     *
      */
-    public FeatureWriter getFeatureWriterAppend( String typeName, Transaction transaction ) throws IOException {
-        FeatureWriter writer = getFeatureWriter( typeName, transaction );        
-        
-        while (writer.hasNext()){
-            writer.next();// Hmmm this would be a use for skip() then?
+    public FeatureWriter getFeatureWriterAppend(String typeName,
+        Transaction transaction) throws IOException {
+        FeatureWriter writer = getFeatureWriter(typeName, transaction);
+
+        while (writer.hasNext()) {
+            writer.next(); // Hmmm this would be a use for skip() then?
         }
+
         return writer;
     }
 
