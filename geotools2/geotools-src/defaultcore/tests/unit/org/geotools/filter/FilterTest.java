@@ -534,7 +534,7 @@ public class FilterTest extends TestCase {
 
     public void testDistanceGeometry() throws Exception {
         // Test DWithin
-        GeometryDistanceFilter filter = new GeometryDistanceFilterImpl(AbstractFilter.GEOMETRY_DWITHIN);
+        GeometryDistanceFilter filter = new CartesianDistanceFilter(AbstractFilter.GEOMETRY_DWITHIN);
         Expression left = new AttributeExpressionImpl(testSchema, "testGeometry");
         filter.addLeftGeometry(left);
 
@@ -559,7 +559,7 @@ public class FilterTest extends TestCase {
         LOGGER.info("contains feature: " + filter.contains(testFeature));
 
         //Test Beyond
-        GeometryDistanceFilter filterB = new GeometryDistanceFilterImpl(AbstractFilter.GEOMETRY_BEYOND);
+        GeometryDistanceFilter filterB = new CartesianDistanceFilter(AbstractFilter.GEOMETRY_BEYOND);
         filterB.addLeftGeometry(left);
         filterB.addRightGeometry(right);
         filterB.setDistance(20);
