@@ -156,12 +156,14 @@ public class SLDRenderedGeometries extends RenderedGeometries {
             PathIterator iter = shape.getPathIterator(IDENTITY_TRANSFORM);
             iter.currentSegment(coords);
 
+            AffineTransform old = graphics.getTransform();
+            graphics.setTransform(IDENTITY_TRANSFORM);
+            AffineTransform temp = new AffineTransform(old);
             TextStyle2D ts2d = (TextStyle2D) style;
             GlyphVector textGv = ts2d.getTextGlyphVector(graphics);
-            Rectangle2D bounds = textGv.getVisualBounds();
-            AffineTransform old = graphics.getTransform();
-            AffineTransform temp = new AffineTransform(old);
-            temp.translate(coords[0] + (ts2d.getAnchorX() * bounds.getWidth()),
+            Rectangle2D bounds = textGv.getLogicalBounds();
+            
+            temp.translate(coords[0] + (ts2d.getAnchorX() * (-bounds.getWidth())),
                 coords[1] + (ts2d.getAnchorY() * bounds.getHeight()));
 
             if (ts2d.isAbsoluteLineDisplacement()) {
