@@ -13,6 +13,8 @@ A styling layer used for the unit tests of sldstyler
     <!-- again they have names, titles and abstracts -->
   <Name>MyStyle</Name>
     <!-- FeatureTypeStyles describe how to render different features -->
+
+    <!-- FIRST LINE, DOUBLE WIDTH SYMBOLIZER -->
     <FeatureTypeStyle>
         <!-- this describes the featureTypeName to apply this style to e.g. road -->
       <FeatureTypeName>linefeature</FeatureTypeName>
@@ -44,8 +46,8 @@ A styling layer used for the unit tests of sldstyler
       </Rule>
     </FeatureTypeStyle>
     
+    <!-- SECOND LINE, GREEN TRIANGLE FILL -->
     <FeatureTypeStyle>
-        <!-- this describes the featureTypeName to apply this style to e.g. road -->
       <FeatureTypeName>linefeature2</FeatureTypeName>
        <!-- the actual rule describes the style -->
       <Rule>
@@ -80,12 +82,13 @@ A styling layer used for the unit tests of sldstyler
         </LineSymbolizer>
     </Rule>
     </FeatureTypeStyle>
+
+    <!-- THIRD LINE, EXTERNAL GRAPHIC FILL -->
     <FeatureTypeStyle>
         <FeatureTypeName>linefeature3</FeatureTypeName>
         <Rule>
         
         <LineSymbolizer>
-           <!-- A stroke describes how the line looks -->
           <Stroke>
             <!-- the CssParameters describe the actual style 
                 you can set stroke (color of line), stroke-width, stroke-opacity, stroke-linejoin
@@ -119,6 +122,7 @@ A styling layer used for the unit tests of sldstyler
         </LineSymbolizer>
     </Rule>
     </FeatureTypeStyle>
+
     <!-- a feature type for polygons -->
     <FeatureTypeStyle>
       <FeatureTypeName>polygon</FeatureTypeName>
@@ -257,7 +261,7 @@ A styling layer used for the unit tests of sldstyler
                     <mark>
                     
                     <!-- since cross is not implemented yet should draw next mark -->
-                        <wellknownname>triangle</wellknownname>
+                    <wellknownname>triangle</wellknownname>
                         <Fill>
                             <!-- CssParameters allowed are fill (the color) and fill-opacity -->
                             <CssParameter name="fill">#FF00FF</CssParameter>
@@ -439,7 +443,7 @@ A styling layer used for the unit tests of sldstyler
           <Stroke>
             <CssParameter name="stroke">#00FFFF</CssParameter>
             <CssParameter name="stroke-width">3</CssParameter>
-            <CssParameter name="stroke-dasharray">1 2 </CssParameter>
+            <CssParameter name="stroke-dasharray">1    2 </CssParameter>
           </Stroke>
         </PolygonSymbolizer>
         
@@ -481,6 +485,8 @@ A styling layer used for the unit tests of sldstyler
         
       </Rule>
     </FeatureTypeStyle>
+
+
     <FeatureTypeStyle>
       <FeatureTypeName>polygontest3</FeatureTypeName>
       <Rule>
@@ -521,6 +527,8 @@ A styling layer used for the unit tests of sldstyler
         
       </Rule>
     </FeatureTypeStyle>
+
+    <!-- POINT THAT REFERS TO ONLINE GRAPHIC -->
     <FeatureTypeStyle>
         <FeatureTypeName>pointfeature</FeatureTypeName>
         <rule>
@@ -555,7 +563,7 @@ A styling layer used for the unit tests of sldstyler
             <TextSymbolizer>
                 <Label><Literal>Point Label</Literal></Label>
                 <Font>
-                    <CssParameter name="font-family">Serif</CssParameter>
+                    <CssParameter name="font-family">Lucida Sans</CssParameter>
                     <CssParameter name="font-Size">10</CssParameter>
                 </Font>
                 <Fill>

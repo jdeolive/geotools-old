@@ -144,7 +144,7 @@ public class DefaultMarkTest extends junit.framework.TestCase {
     }
 
     private Style loadStyleFromXml() throws Exception {
-        java.net.URL base = getClass().getResource("testData/");
+        java.net.URL base = getClass().getResource("rs-testData");
 
         StyleFactory factory = StyleFactory.createStyleFactory();
         java.net.URL surl = new java.net.URL(base + "/markTest.sld");
@@ -244,7 +244,7 @@ public class DefaultMarkTest extends junit.framework.TestCase {
      */
     private void performTestOnRenderer(Renderer2D renderer, String fileSuffix)
         throws Exception {
-        java.net.URL base = getClass().getResource("testData/");
+        java.net.URL base = getClass().getResource("rs-testData");
         
         AffineTransform at = new AffineTransform();
         at.translate(0, 400);
