@@ -102,6 +102,15 @@
 	</postGoal>
 	<goal name="build">
 		<tstamp/>
+                <available classname="com.sun.media.imageio.stream.RawImageInputStream" property="imageio.present"/>
+               
+                       <ant:available classname="com.sun.media.imageio.stream.RawImageInputStream" property="imageio.present"/>
+            
+              
+                        <fail unless="imageio.present" 
+                        message="JAI ImageIO extention not found.  Please download and install it from:  http://java.sun.com/products/java-media/jai/downloads/download-iio.html"/>               
+                <available file="geotools-src" property="geotools-src.present"/>
+                <fail unless="geotools-src.present" message="'maven build' can not be used in this directory, for individual modules use 'maven java:compile', 'maven test' or 'maven jar:install' goals"/>        
 		<j:set var="gt2home" value="${basedir}"/>
 		<echo>
       looking for modules in: ${basedir}/geotools-src
