@@ -49,7 +49,8 @@ import java.text.ParseException;
  * Cette classe reçoit en entrés les coordonnées spatio-temporelles de
  * l'observateur, soit:
  *
- * <TABLE border='0'><TR><TD>
+ * <TABLE border='0'><TR><TD valign="top">
+ * &nbsp;<BR>
  * <UL>
  *   <LI>La longitude (en degrées) de l'observateur;</LI>
  *   <LI>La latitude (en degrées) de l'observateur;</LI>
@@ -79,7 +80,7 @@ import java.text.ParseException;
  * from -1000 to 3000. Outside of this range, results will be given, but the
  * potential for error is higher.
  *
- * @version $Id: SunRelativePosition.java,v 1.2 2003/04/17 13:58:31 desruisseaux Exp $
+ * @version $Id: SunRelativePosition.java,v 1.3 2003/04/17 15:34:14 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
