@@ -15,7 +15,7 @@ import org.geotools.gml.*;
  * 
  * @author Ian Turton, CCG Leeds
  * @author Rob Hranac, Vision for New York
- * @version $Id: SubHandlerLinearRing.java,v 1.2 2002/04/12 18:51:59 robhranac Exp $
+ * @version $Id: SubHandlerLinearRing.java,v 1.3 2002/05/03 16:38:31 ianturton Exp $
  */
 public class SubHandlerLinearRing extends SubHandler {
 
@@ -50,14 +50,12 @@ public class SubHandlerLinearRing extends SubHandler {
 				if( coordinateList.size() > 1 ) {
 						Coordinate firstCoordinate = (Coordinate) coordinateList.get(0);
 						Coordinate lastCoordinate = (Coordinate) coordinateList.get( coordinateList.size() - 1 );
-						if( lastCoordinate.equals(lastCoordinate) ) { 
+						if( lastCoordinate.equals2D(firstCoordinate) ) { 
 								return true;
-						}
-						else {
+						} else {
 								return false;
 						}
-				}
-				else { 
+				} else { 
 						return false; 
 				}
     }
