@@ -81,7 +81,7 @@ public class RenderingTest extends TestCase {
         frame.add(p);
         frame.setSize(300,300);
         frame.setVisible(true);
-        renderer.setOutput(p);
+        renderer.setOutput(p.getGraphics(),p.getBounds());
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
         Thread.sleep(5000);
     }
