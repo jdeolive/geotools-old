@@ -81,7 +81,7 @@ import javax.swing.JPanel;
  * BoundingBox when this component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.22 2003/05/02 10:54:55 desruisseaux Exp $
+ * @version $Id: MapPaneImpl.java,v 1.23 2003/05/05 11:34:58 camerons Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults
  * to 1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -100,8 +100,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
     private Adapters adapters = Adapters.getDefault();
 
     /** A transform from screen coordinates to real world coordinates. */
-    //private DotToCoordinateTransformImpl dotToCoordinateTransform;
-    private MathTransform dotToCoordinateTransform;
+    private AffineTransform dotToCoordinateTransform;
 
     /**
      * Create a MapPane. A MapPane marshals the drawing of maps.
@@ -179,10 +178,16 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             h=2;
         }
         
-        renderer.render(
-            (Graphics2D)graphics,
-            new Rectangle(getInsets().left, getInsets().top,w,h)
-        );
+        try {
+            renderer.paint(
+                (Graphics2D)graphics,
+                new Rectangle(getInsets().left, getInsets().top,w,h),
+                dotToCoordinateTransform.createInverse()
+            );
+        } catch (java.awt.geom.NoninvertibleTransformException e) {
+            LOGGER.warning("Transform error while rendering. Cause is: "
+            + e.getCause());
+        }
     }
 
     /**
@@ -217,9 +222,8 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         super.processMouseEvent(
             new GeoMouseEvent(
                 event,
-                dotToCoordinateTransform
-            )
-        );
+                MathTransformFactory.getDefault(
+                    ).createAffineTransform(dotToCoordinateTransform)));
     }
 
     /**
@@ -235,9 +239,8 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         super.processMouseMotionEvent(
             new GeoMouseEvent(
                 event,
-                dotToCoordinateTransform
-            )
-        );
+                MathTransformFactory.getDefault(
+                    ).createAffineTransform(dotToCoordinateTransform)));
     }
 
     /**
@@ -364,7 +367,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         // [y']=[0       -scaleY (maxY-bottomBorder)*scaleY+csMinY][y]
         // [1 ] [0       0       1                                ][1]
 
-        AffineTransform at=new AffineTransform(
+        dotToCoordinateTransform=new AffineTransform(
             // m00: ScaleX
             scaleX,
             
@@ -383,8 +386,5 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             // m12: TransformY
             (getHeight()-getInsets().bottom)*scaleY
             +aoi.getMinY());
-        
-        dotToCoordinateTransform=MathTransformFactory.getDefault(
-            ).createAffineTransform(at);
      }
 }
