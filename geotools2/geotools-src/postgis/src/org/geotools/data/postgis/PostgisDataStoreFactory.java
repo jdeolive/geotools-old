@@ -79,10 +79,6 @@ public class PostgisDataStoreFactory
             return false;
         }
 
-        if (!params.containsKey("passwd")) {
-            return false;
-        }
-
         if (!params.containsKey("database")) {
             return false;
         }
@@ -170,7 +166,7 @@ public class PostgisDataStoreFactory
             new Param("port",String.class,"database connection port"),
             new Param("database"),                        
             new Param("user"),
-            new Param("passwd"),                        
+            new Param("passwd", String.class,"passwd for user (optional)", false),                      
             new Param("charset",String.class,"character set (optional)", false),
             new Param("namespace",String.class,"namespace (optional)",false)            
         };

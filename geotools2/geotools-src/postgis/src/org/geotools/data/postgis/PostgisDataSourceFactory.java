@@ -35,7 +35,7 @@ import java.util.Map;
  * PostgisDataSources with the correct params.
  *
  * @author James Macgill, PSU
- * @version $Id: PostgisDataSourceFactory.java,v 1.5 2003/10/31 18:53:53 cholmesny Exp $
+ * @version $Id: PostgisDataSourceFactory.java,v 1.6 2003/11/04 20:06:54 cholmesny Exp $
  */
 public class PostgisDataSourceFactory
     implements org.geotools.data.DataSourceFactorySpi {
@@ -75,10 +75,6 @@ public class PostgisDataSourceFactory
         }
 
         if (!params.containsKey("user")) {
-            return false;
-        }
-
-        if (!params.containsKey("passwd")) {
             return false;
         }
 
