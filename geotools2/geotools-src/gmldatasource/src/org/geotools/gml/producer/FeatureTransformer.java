@@ -92,7 +92,7 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.19 2004/04/12 19:15:03 ianschneider Exp $
+ * @version $Id: FeatureTransformer.java,v 1.20 2004/04/16 15:44:55 cholmesny Exp $
  *
  * @todo Add support for schemaLocation
  */
@@ -110,6 +110,7 @@ public class FeatureTransformer extends TransformerBase {
     private String srsName;
     private String lockId;
     private int numDecimals = 4;
+    
 
     public void setCollectionNamespace(String nsURI) {
         collectionNamespace = nsURI;
@@ -278,6 +279,7 @@ public class FeatureTransformer extends TransformerBase {
         String srsName = null;
         String lockId = null;
         ContentHandler handler;
+        private boolean running;
 
         /**
          * Constructor with handler.
