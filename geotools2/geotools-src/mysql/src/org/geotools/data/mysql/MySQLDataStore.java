@@ -24,6 +24,7 @@ import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.JDBCDataStore;
+import org.geotools.data.jdbc.JDBCDataStoreConfig;
 import org.geotools.data.jdbc.QueryData;
 import org.geotools.data.jdbc.SQLBuilder;
 import org.geotools.feature.AttributeType;
@@ -83,7 +84,7 @@ public class MySQLDataStore extends JDBCDataStore {
      * @throws IOException if the database cannot be properly accessed
      */
     public MySQLDataStore(ConnectionPool connectionPool, String databaseSchemaName, String namespace) throws IOException {
-        super(connectionPool, databaseSchemaName, namespace);
+        super(connectionPool, JDBCDataStoreConfig.createWithNameSpaceAndSchemaName(namespace, databaseSchemaName));
     }
     
     /**
