@@ -38,7 +38,8 @@ import java.util.logging.Logger;
  *
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
- * @version $Id: DefaultFeature.java,v 1.2 2003/07/17 07:09:53 ianschneider Exp $
+ * @author Ian Schneider ARS-USDA
+ * @version $Id: DefaultFeature.java,v 1.3 2003/07/19 00:03:06 ianschneider Exp $
  */
 public class DefaultFeature implements Feature {
     /*
@@ -97,10 +98,14 @@ public class DefaultFeature implements Feature {
    */
   protected DefaultFeature(DefaultFeatureType schema, Object[] attributes,
   String featureID) throws IllegalAttributeException {
+    if (schema ==  null)
+      throw new NullPointerException("schema");
+    
     this.schema = schema;
     this.featureId = featureID == null ? defaultID() : featureID;
     this.attributes = new Object[schema.getAttributeCount()];
-    createNew(attributes);
+    
+    setAttributes(attributes);
   }
   
   String defaultID() {
@@ -135,30 +140,6 @@ public class DefaultFeature implements Feature {
     return -1;
   }
   
-  private void createNew(Object[] vals)
-  throws IllegalAttributeException {
-    
-    final int cnt = schema.getAttributeCount();
-    
-    if (vals.length != cnt) {
-      throw new IllegalAttributeException(
-      "Wrong number of attributes expected " + cnt + " got " +
-      vals.length);
-    }
-    
-    // Check to ensure that all attributes are valid
-    for (int i = 0; i < cnt; i++) {
-      AttributeType type = schema.getAttributeType(i);
-      try {
-        Object val = type.parse(vals[i]);
-        type.validate(val);
-        attributes[i] = val;
-      } catch (IllegalArgumentException iae) {
-        throw new IllegalAttributeException(type,vals[i],iae);
-      }
-    }
-    
-  }
   
   /**
    * Gets a reference to the feature type schema for this feature.
@@ -255,7 +236,19 @@ public class DefaultFeature implements Feature {
    */
   public void setAttributes(Object[] attributes)
   throws IllegalAttributeException {
-    createNew(attributes);
+    // the passed in attributes were null, lets make that a null array
+    if (attributes == null) 
+      attributes = new Object[this.attributes.length];
+    
+    if (attributes.length != this.attributes.length) {
+      throw new IllegalAttributeException(
+      "Wrong number of attributes expected " + schema.getAttributeCount() + " got " +
+      attributes.length);
+    }
+    
+    for (int i = 0, ii = attributes.length; i < ii; i++) {
+      setAttribute(i,attributes[i]);
+    }
   }
   
   /**
@@ -278,6 +271,8 @@ public class DefaultFeature implements Feature {
     }
     
     AttributeType type = schema.getAttributeType(idx);
+    if (type.isGeometry())
+      bounds = null;
     
     try {
       Object val = type.parse(attribute);
@@ -320,18 +315,13 @@ public class DefaultFeature implements Feature {
     
     AttributeType geometryAttribute = schema.getDefaultGeometry();
     int idx = schema.find(geometryAttribute);
-    
-    
-    
-    if (geometryAttribute.getType().equals(geometry.getClass().getName())) {
-      attributes[idx] = (Geometry) geometry.clone();
-      
-      //reset the bounds so it gets recomputed.
-      bounds = null;
-    } else {
-      String message = "Cannot add geometry that does not match type.";
-      throw new IllegalAttributeException(message);
+
+    if (idx < 0) {
+      throw new IllegalAttributeException("Feature does not have geometry"); 
     }
+    //attributes[idx] = (Geometry) geometry.clone();
+    attributes[idx] = geometry;
+    bounds = null;
   }
   
   
@@ -367,7 +357,8 @@ public class DefaultFeature implements Feature {
         }
       }
     }
-    return bounds;
+    // lets be defensive
+    return new Envelope(bounds);
   }
   
   /**
@@ -393,32 +384,17 @@ public class DefaultFeature implements Feature {
    * @return A representation of this feature as a string.
    */
   public String toString() {
-    StringBuffer returnString = new StringBuffer("\n" + schema.getTypeName() +
-    " -> \n");
-    
+    String s = "Feature[ id=" + getID() + " , ";
+    FeatureType t = getFeatureType();
     for (int i = 0, n = attributes.length; i < n; i++) {
-      returnString.append(((attributes[i] == null) ? "NULL"
-      : attributes[i].toString()) +
-      "\n");
+      s += t.getAttributeType(i).getName() + "=";
+      s += attributes[i];
+      if (i + 1 < n)
+        s+= " , ";
     }
-    
-    return returnString.toString();
+    return s+= " ]";
   }
   
-  /**
-   * Returns a string representation, with the schema if requested.
-   *
-   * @param includeSchema if the schema should be printed with the feature.
-   *
-   * @return A representation of this feature as a string.
-   */
-  public String toString(boolean includeSchema) {
-    if (includeSchema) {
-      return schema.toString() + "\n" + toString();
-    } else {
-      return toString();
-    }
-  }
   
   /**
    * returns a unique code for this feature
@@ -429,13 +405,6 @@ public class DefaultFeature implements Feature {
     int hash = featureId.hashCode();
     hash *= 13 * schema.hashCode();
     return hash;
-//    int key = featureId.hashCode();
-//    key = (key * 13) + schema.hashCode();
-//    for (int i = 0; i < attributes.length; i++) {
-//      key = (key * 13) + attributes[i].hashCode();
-//    }
-//    
-//    return key;
   }
   
 
@@ -452,33 +421,6 @@ public class DefaultFeature implements Feature {
     if (!featureId.equals(feat.getID()))
       return false;
     return true;
-//    if ((obj != null) && (obj.getClass() == this.getClass())) {
-//      DefaultFeature testFeature = (DefaultFeature) obj;
-//      boolean isEqual = true;
-//      
-//      //isEqual = (this.schema.toString().equals
-//      //       (testFeature.getSchema().toString())) && isEqual;
-//      LOGGER.finest("schemas are equal: " + isEqual);
-//      
-//      Object[] testAttributes = testFeature.getAttributes(null);
-//      
-//      if (this.attributes.length == testAttributes.length) {
-//        LOGGER.finest("both are of length " + testAttributes.length);
-//        
-//        for (int i = 0; i < this.attributes.length; i++) {
-//          isEqual = isEqual &&
-//          this.attributes[i].equals(testAttributes[i]);
-//          LOGGER.finest(this.attributes[i] + " is equal to " +
-//          testAttributes[i] + ": " + isEqual);
-//        }
-//      } else {
-//        isEqual = false;
-//      }
-//      
-//      return isEqual;
-//    } else {
-//      return false;
-//    }
   }
   
   public FeatureCollection getParent() {

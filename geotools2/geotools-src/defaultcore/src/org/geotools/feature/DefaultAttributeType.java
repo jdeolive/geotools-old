@@ -27,7 +27,7 @@ import java.util.*;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.5 2003/07/18 20:02:50 jmacgill Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.6 2003/07/19 00:03:06 ianschneider Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -213,7 +213,7 @@ public class DefaultAttributeType implements AttributeType {
           }
           return;
       }
-      if (!type.isAssignableFrom(attribute.getClass()))
+      if (attribute != null && !type.isAssignableFrom(attribute.getClass()))
         throw new IllegalArgumentException(attribute.getClass().getName() + 
         " is not an acceptable class for " + getName() + " as it is not assignable from " + type);
     }
@@ -237,7 +237,7 @@ public class DefaultAttributeType implements AttributeType {
         if (type == Float.class) return Float.valueOf(value.toString());
         if (type == Double.class) return Double.valueOf(value.toString());
         if (type == Long.class) return Long.decode(value.toString());
-        if (type.isAssignableFrom(Number.class)) return Double.valueOf(value.toString());
+        if (type.isAssignableFrom(Number.class)) return new Double( value.toString() );
         throw new RuntimeException("DefaultAttributeType.Numeric is coded wrong");
       }
     }

@@ -23,7 +23,7 @@ import java.util.*;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.4 2003/07/17 21:43:10 jmacgill Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.5 2003/07/19 00:03:06 ianschneider Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     private final String typeName;
@@ -51,7 +51,7 @@ public class DefaultFeatureType implements FeatureType {
 
     
     public Feature create(Object[] attributes) throws IllegalAttributeException {
-        return new DefaultFeature(this, attributes);
+        return create(attributes,null);
     }
 
     public Feature create(Object[] attributes, String featureID)
@@ -74,9 +74,6 @@ public class DefaultFeatureType implements FeatureType {
     }
 
     public int find(AttributeType type) {
-        if (type == defaultGeom) {
-            return defaultGeomIdx;
-        }
 
         for (int i = 0, ii = types.length; i < ii; i++) {
             if (types[i].equals(type)) {

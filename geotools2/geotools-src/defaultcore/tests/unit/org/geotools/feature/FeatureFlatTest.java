@@ -231,12 +231,19 @@ public class FeatureFlatTest extends TestCase {
         
     }
     
-    public void testEquals() {
+    public void testEquals() throws Exception {
       Feature f1 = SampleFeatureFixtures.createFeature();
       Feature f2 = SampleFeatureFixtures.createFeature();
       assertTrue(f1.equals(f1));
       assertTrue(f2.equals(f2));
       assertTrue(! f1.equals(f2));
+      assertTrue(! f1.equals(null));
+      FeatureType another = FeatureTypeFactory.newFeatureType(
+        new AttributeType[] {
+          newAtt("name",String.class)
+        }
+      ,"different");
+      assertTrue(! f1.equals(another.create(new Object[1])));
     }
 
     /*
@@ -246,10 +253,25 @@ public class FeatureFlatTest extends TestCase {
      * to make sure getDefaultGeometry returns null if there is no geometry,
      * as we now allow 
      */
-    public void testGetDefaultGeometry() throws SchemaException {
+    public void testDefaultGeometry() throws Exception {
       FeatureType testType = testFeature.getFeatureType();
       AttributeType geometry = testType.getAttributeType("testGeometry");
       assertTrue(geometry == testType.getDefaultGeometry());
+      assertTrue(testFeature.getDefaultGeometry().getEnvelopeInternal().equals(testFeature.getBounds()));
+      
+      FeatureType another = FeatureTypeFactory.newFeatureType(
+        new AttributeType[] {
+          newAtt("name",String.class)
+        }
+      ,"different");
+      DefaultFeature f1 = (DefaultFeature) another.create(new Object[1]);
+      assertEquals(null,f1.getDefaultGeometry());
+      try {
+        f1.setDefaultGeometry(null);
+        fail("allowed bogus default geometry set ");
+      } catch (IllegalAttributeException iae) {
+        
+      }
     }
 	    
 }
