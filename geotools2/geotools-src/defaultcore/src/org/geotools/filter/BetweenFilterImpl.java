@@ -31,7 +31,10 @@ import org.geotools.feature.Feature;
  * filter.
  *
  * @author Rob Hranac, TOPP
- * @version $Id: BetweenFilterImpl.java,v 1.6 2003/07/23 16:11:18 cholmesny Exp $
+ * @version $Id: BetweenFilterImpl.java,v 1.7 2003/08/11 18:48:25 cholmesny Exp $
+ *
+ * @task REVISIT: I think AbstractFilter right now does not consider between a
+ *       math filter. ch
  */
 public class BetweenFilterImpl extends CompareFilterImpl
     implements BetweenFilter {
@@ -41,25 +44,25 @@ public class BetweenFilterImpl extends CompareFilterImpl
     /**
      * Constructor which flags the operator as between.
      *
-     * @throws IllegalFilterException DOCUMENT ME!
+     * @throws IllegalFilterException Should never happen.
      */
     protected BetweenFilterImpl() throws IllegalFilterException {
         super(BETWEEN);
     }
 
     /**
-     * Determines whether or not a given feature is 'inside' this filter.
+     * Sets the values to be compared as between the left and right values.
      *
-     * @param middleValue The value of this
+     * @param middleValue The expression to be compared.
      */
     public void addMiddleValue(Expression middleValue) {
         this.middleValue = middleValue;
     }
 
     /**
-     * gets the middle value of the between.
+     * Gets the middle value of the between.
      *
-     * @return the expression in the middle.
+     * @return The expression in the middle.
      */
     public Expression getMiddleValue() {
         return middleValue;
@@ -78,8 +81,7 @@ public class BetweenFilterImpl extends CompareFilterImpl
             return false;
         } else {
             double left = ((Number) leftValue.getValue(feature)).doubleValue();
-            double right = ((Number) rightValue.getValue(feature)).
-                doubleValue();
+            double right = ((Number) rightValue.getValue(feature)).doubleValue();
             double mid = ((Number) middleValue.getValue(feature)).doubleValue();
 
             return (left <= mid) && (right >= mid);
@@ -121,7 +123,7 @@ public class BetweenFilterImpl extends CompareFilterImpl
     /**
      * Override of hashCode method.
      *
-     * @return a code to hash this object by.
+     * @return a code to hash this filter by.
      */
     public int hashCode() {
         int result = 17;

@@ -34,10 +34,11 @@ public abstract class FunctionExpressionImpl
     protected FunctionExpressionImpl() {
     }
 
-    /**
-     * DOCUMENT ME!
+
+     /**
+     * Gets the type of this expression.
      *
-     * @return the type FUNCTION
+     * @return the short representation of a function expression.
      */
     public short getType() {
         return FUNCTION;

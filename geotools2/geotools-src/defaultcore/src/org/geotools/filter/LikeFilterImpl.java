@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: LikeFilterImpl.java,v 1.7 2003/07/23 18:15:03 cholmesny Exp $
+ * @version $Id: LikeFilterImpl.java,v 1.8 2003/08/11 18:48:25 cholmesny Exp $
  */
 public class LikeFilterImpl extends AbstractFilterImpl implements LikeFilter {
     /** The logger for the default core module. */
@@ -88,10 +88,10 @@ public class LikeFilterImpl extends AbstractFilterImpl implements LikeFilter {
         }
     }
 
-    /**
-     * gets the Value (left hand side) of this filter
+     /**
+     * Gets the Value (left hand side) of this filter.
      *
-     * @return the expression that is the value of the filter
+     * @return The expression that is the value of the filter.
      */
     public Expression getValue() {
         return attribute;

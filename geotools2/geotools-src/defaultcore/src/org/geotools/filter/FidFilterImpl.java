@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  * uniquely.
  *
  * @author Rob Hranac, TOPP
- * @version $Id: FidFilterImpl.java,v 1.11 2003/07/22 22:41:07 cholmesny Exp $
+ * @version $Id: FidFilterImpl.java,v 1.12 2003/08/11 18:48:25 cholmesny Exp $
  */
 public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
     /** Logger for the default core module. */
@@ -70,12 +70,12 @@ public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
     }
 
     /**
-     * Determines whether or not a given feature is 'inside' this filter.
+     * Determines whether or not the given feature's ID matches this filter.
      *
      * @param feature Specified feature to examine.
      *
-     * @return Flag confirming whether or not this feature is inside the
-     *         filter.
+     * @return <tt>true</tt> if the feature's ID matches an fid held by this
+     * filter, <tt>false</tt> otherwise.
      */
     public boolean contains(Feature feature) {
         if (feature == null) {

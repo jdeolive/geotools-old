@@ -36,12 +36,12 @@ import java.util.logging.Logger;
  * the expression comparison returns a valid result.  It does no checking to
  * see whether or not the expression comparison is meaningful with regard to
  * checking feature attributes.  In other words, this is a valid filter:
- * <b>52</b>, even though it will always return the same result and could be
- * simplified away.  It is up the the filter creator, therefore, to attempt to
- * simplify/make meaningful filter logic.
+ * <b>52 = 92</b>, even though it will always return the same result and could
+ * be simplified away.  It is up the the filter creator, therefore, to attempt
+ * to simplify/make meaningful filter logic.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: CompareFilterImpl.java,v 1.9 2003/07/23 18:19:43 cholmesny Exp $
+ * @version $Id: CompareFilterImpl.java,v 1.10 2003/08/11 18:48:25 cholmesny Exp $
  */
 public class CompareFilterImpl extends AbstractFilterImpl
     implements CompareFilter {
@@ -123,7 +123,7 @@ public class CompareFilterImpl extends AbstractFilterImpl
     /**
      * Gets the left expression.
      *
-     * @return the expression on the left of the comparison.
+     * @return The expression on the left of the comparison.
      */
     public Expression getLeftValue() {
         return this.leftValue;
@@ -132,7 +132,7 @@ public class CompareFilterImpl extends AbstractFilterImpl
     /**
      * Gets the right expression.
      *
-     * @return the expression on the right of the comparison.
+     * @return The expression on the right of the comparison.
      */
     public Expression getRightValue() {
         return this.rightValue;
@@ -253,6 +253,7 @@ public class CompareFilterImpl extends AbstractFilterImpl
     public boolean equals(Object obj) {
         if (obj instanceof CompareFilterImpl) {
             CompareFilterImpl cFilter = (CompareFilterImpl) obj;
+
             //todo - check for nulls here, or make immutable.
             return ((cFilter.getFilterType() == this.filterType)
             && cFilter.getLeftValue().equals(this.leftValue)

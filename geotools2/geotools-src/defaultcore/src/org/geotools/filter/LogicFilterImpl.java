@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  * with an internally defined type (AND, OR, NOT).
  *
  * @author Rob Hranac, TOPP
- * @version $Id: LogicFilterImpl.java,v 1.7 2003/07/22 22:41:08 cholmesny Exp $
+ * @version $Id: LogicFilterImpl.java,v 1.8 2003/08/11 18:48:25 cholmesny Exp $
  */
 public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
     /** The logger for the default core module. */
@@ -47,7 +47,7 @@ public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
      *
      * @param filterType The final relation between all sub filters.
      *
-     * @throws IllegalFilterException DOCUMENT ME!
+     * @throws IllegalFilterException If the filtertype is not a logic type.
      */
     protected LogicFilterImpl(short filterType) throws IllegalFilterException {
         LOGGER.finest("filtertype " + filterType);
