@@ -36,7 +36,7 @@ public class ShapefileTest extends TestCase {
         
         String dataFolder = System.getProperty("dataFolder");
         try{
-            URL url = new URL("file:///"+dataFolder+"/statePop.shp");
+            URL url = new URL("file:///"+dataFolder+"/statepop.shp");
             System.out.println("Testing ability to load "+url);
             Shapefile shapefile = new Shapefile(url);
             GeometryCollection shapes = shapefile.read(new GeometryFactory());
