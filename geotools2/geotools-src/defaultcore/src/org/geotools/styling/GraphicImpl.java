@@ -48,7 +48,7 @@ import org.geotools.util.EqualsUtils;
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.19 2004/01/09 15:14:13 aaime Exp $
+ * @version $Id: GraphicImpl.java,v 1.20 2004/02/12 11:17:04 aaime Exp $
  */
 public class GraphicImpl implements Graphic, Cloneable {
     /** The logger for the default core module. */
@@ -133,7 +133,7 @@ public class GraphicImpl implements Graphic, Cloneable {
      *         size of 6 pixels (unless a size is specified) is provided.
      */
     public Mark[] getMarks() {
-        Mark[] ret = new Mark[] { new MarkImpl() };
+        Mark[] ret = new Mark[0];
 
         if (marks.size() > 0) {
             ret = (Mark[]) marks.toArray(new Mark[0]);
