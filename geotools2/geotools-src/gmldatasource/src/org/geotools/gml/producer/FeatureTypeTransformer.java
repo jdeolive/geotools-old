@@ -15,7 +15,9 @@
  *
  */
 /*
+   
  * Created on 27.11.2003
+   
  */
 package org.geotools.gml.producer;
 
@@ -135,7 +137,7 @@ import java.util.logging.Logger;
  * </table>
  *
  * @author Simon Raess
- * @version $Id: FeatureTypeTransformer.java,v 1.1 2003/12/16 16:12:28 cholmesny Exp $
+ * @version $Id: FeatureTypeTransformer.java,v 1.2 2003/12/23 14:26:04 aaime Exp $
  *
  * @task TODO: Support GeometryCollection.
  * @task REVISIT: Should support a bit more for the header, like being able to
@@ -236,14 +238,19 @@ public class FeatureTypeTransformer extends TransformerBase {
         protected void startSchemaType(String name, String namespace)
             throws SAXException {
             AttributesImpl atts = new AttributesImpl();
+
             atts.addAttribute("", "name", "name", "", name + "_Type");
+
             contentHandler.startElement(SCHEMA_NS, "complexType",
                 "xs:complexType", atts);
+
             contentHandler.startElement(SCHEMA_NS, "complexContent",
                 "xs:complexContent", new AttributesImpl());
 
             atts = new AttributesImpl();
+
             atts.addAttribute("", "base", "base", "", "gml:AbstractFeatureType");
+
             contentHandler.startElement(SCHEMA_NS, "extension", "xs:extension",
                 atts);
 
@@ -258,9 +265,12 @@ public class FeatureTypeTransformer extends TransformerBase {
          */
         protected void endSchemaType() throws SAXException {
             contentHandler.endElement(SCHEMA_NS, "sequence", "xs:sequence");
+
             contentHandler.endElement(SCHEMA_NS, "extension", "xs:extension");
+
             contentHandler.endElement(SCHEMA_NS, "complexContent",
                 "xs:complexContent");
+
             contentHandler.endElement(SCHEMA_NS, "complexType", "xs:complexType");
         }
 
@@ -286,6 +296,7 @@ public class FeatureTypeTransformer extends TransformerBase {
                 encodeGeometry(attribute);
 
                 /*} else if (FeatureType.class.isAssignableFrom(type)) {
+                   
                    encodeFeature(attribute);*/
             } else {
                 throw new RuntimeException("Cannot encode " + type.getName());
@@ -302,31 +313,45 @@ public class FeatureTypeTransformer extends TransformerBase {
         protected void encodeString(AttributeType attribute)
             throws SAXException {
             int length = attribute.getFieldLength();
+
             AttributesImpl atts = createStandardAttributes(attribute);
 
             if (length == 0) {
                 atts.addAttribute("", "type", "type", "", "xs:string");
+
                 contentHandler.startElement(SCHEMA_NS, "element", "xs:element",
                     atts);
+
                 contentHandler.endElement(SCHEMA_NS, "element", "xs:element");
             } else {
                 contentHandler.startElement(SCHEMA_NS, "element", "xs:element",
                     atts);
+
                 contentHandler.startElement(SCHEMA_NS, "simpleType",
                     "xs:simpleType", new AttributesImpl());
+
                 atts = new AttributesImpl();
+
                 atts.addAttribute("", "base", "base", "", "xs:string");
+
                 contentHandler.startElement(SCHEMA_NS, "restriction",
                     "xs:restriction", atts);
+
                 atts = new AttributesImpl();
+
                 atts.addAttribute("", "value", "value", "", "" + length);
+
                 contentHandler.startElement(SCHEMA_NS, "maxLength",
                     "xs:maxLength", atts);
+
                 contentHandler.endElement(SCHEMA_NS, "maxLength", "xs:maxLength");
+
                 contentHandler.endElement(SCHEMA_NS, "restriction",
                     "xs:restriction");
+
                 contentHandler.endElement(SCHEMA_NS, "simpleType",
                     "xs:simpleType");
+
                 contentHandler.endElement(SCHEMA_NS, "element", "xs:element");
             }
         }
@@ -342,7 +367,9 @@ public class FeatureTypeTransformer extends TransformerBase {
         protected void encodeNumber(AttributeType attribute)
             throws SAXException {
             AttributesImpl atts = createStandardAttributes(attribute);
+
             Class type = attribute.getType();
+
             String typeString;
 
             if (type == Byte.class) {
@@ -371,6 +398,7 @@ public class FeatureTypeTransformer extends TransformerBase {
             atts.addAttribute("", "type", "type", "", typeString);
 
             contentHandler.startElement(SCHEMA_NS, "element", "xs:element", atts);
+
             contentHandler.endElement(SCHEMA_NS, "element", "xs:element");
         }
 
@@ -384,9 +412,11 @@ public class FeatureTypeTransformer extends TransformerBase {
         protected void encodeDate(AttributeType attribute)
             throws SAXException {
             AttributesImpl atts = createStandardAttributes(attribute);
+
             atts.addAttribute("", "type", "type", "", "xs:dateTime");
 
             contentHandler.startElement(SCHEMA_NS, "element", "xs:element", atts);
+
             contentHandler.endElement(SCHEMA_NS, "element", "xs:element");
         }
 
@@ -401,7 +431,9 @@ public class FeatureTypeTransformer extends TransformerBase {
         protected void encodeGeometry(AttributeType attribute)
             throws SAXException {
             AttributesImpl atts = createStandardAttributes(attribute);
+
             Class type = attribute.getType();
+
             String typeString = "";
 
             LOGGER.finer(type.getName());
@@ -424,7 +456,9 @@ public class FeatureTypeTransformer extends TransformerBase {
             }
 
             atts.addAttribute("", "type", "type", "", typeString);
+
             contentHandler.startElement(SCHEMA_NS, "element", "xs:element", atts);
+
             contentHandler.endElement(SCHEMA_NS, "element", "xs:element");
         }
 
@@ -437,12 +471,18 @@ public class FeatureTypeTransformer extends TransformerBase {
          */
 
         /*protected void encodeFeature(AttributeType attribute) throws SAXException {
+           
            AttributesImpl atts = createStandardAttributes(attribute);
+           
            //atts.addAttribute("", "type", "type", "", "gml:AbstractFeatureType");
         
+           
            contentHandler.startElement(SCHEMA_NS, "element", "xs:element", atts);
+           
            encode("");
+           
            contentHandler.endElement(SCHEMA_NS, "element", "xs:element");
+           
            }*/
 
         /**
@@ -463,9 +503,11 @@ public class FeatureTypeTransformer extends TransformerBase {
 
             if (attribute.isNillable()) {
                 atts.addAttribute("", "minOccurs", "minOccurs", "", "0");
+
                 atts.addAttribute("", "nillable", "nillable", "", "true");
             } else {
                 atts.addAttribute("", "minOccurs", "minOccurs", "", "1");
+
                 atts.addAttribute("", "nillable", "nillable", "", "false");
             }
 
