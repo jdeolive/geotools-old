@@ -9,12 +9,11 @@ package org.geotools.feature;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.*;
-import org.geotools.feature.AttributeType;
-import org.geotools.feature.AttributeTypeFactory;
-import org.geotools.feature.FeatureTypeFactory;
 
 /**
  *
@@ -146,8 +145,6 @@ public class AttributeTypeTest extends TestCase {
         
     }
     
-   
-    
     public void testFeatureConstruction() throws SchemaException {
         FeatureType a = FeatureTypeFactory.newFeatureType(new AttributeType[]{},"noAttribs");
         FeatureType b = FeatureTypeFactory.newFeatureType(new AttributeType[]{AttributeTypeFactory.newAttributeType("testAttribute", Double.class)},"oneAttribs");
@@ -217,7 +214,11 @@ public class AttributeTypeTest extends TestCase {
     
     public void testParse(){
         AttributeType type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class, true);
-        assertEquals(null, type.parse(null));
+        assertEquals(null, type.parse(null));        
+        assertEquals(new Double(1.1),(Double)type.parse(new Double(1.1)));
+        
+        type = AttributeTypeFactory.newAttributeType("testAttribute", Integer.class, true);
+        assertEquals(new Integer(10),(Integer)type.parse(new Integer(10)));
         
         type = AttributeTypeFactory.newAttributeType("testAttribute", String.class, true);
         assertEquals("foo",type.parse("foo"));
@@ -228,6 +229,14 @@ public class AttributeTypeTest extends TestCase {
         type = AttributeTypeFactory.newAttributeType("testAttribute", Number.class, true);
         
         
+    }
+
+    public void testParseNumberSubclass() throws Exception {
+        AttributeType type = AttributeTypeFactory.newAttributeType("testbigdecimal", BigDecimal.class,true);
+        
+        Object value = type.parse(new BigDecimal(111.111));
+        assertEquals(new Double(111.111),value);
+        assertEquals(Double.class,value.getClass());
     }
     
     
