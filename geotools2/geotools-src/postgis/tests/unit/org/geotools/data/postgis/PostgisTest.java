@@ -31,7 +31,7 @@ public class PostgisTest extends TestCase {
     public static Test suite() {
         BasicConfigurator.configure();
         _log.info("starting suite...");
-        TestSuite suite = new TestSuite(PostgisTestSuite.class);
+        TestSuite suite = new TestSuite(PostgisTest.class);
         _log.info("made suite...");
         return suite;
     }
