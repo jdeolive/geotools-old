@@ -56,9 +56,10 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 
-// Collections
+// Collections and properties
 import java.util.Map;
 import java.util.Vector;
+import javax.media.jai.PlanarImage; // For JavaDoc
 import javax.media.jai.PropertySource;
 import javax.media.jai.PropertySourceImpl;
 import javax.media.jai.util.CaselessStringKey; // For Javadoc
@@ -138,7 +139,7 @@ import org.opengis.gc.GC_GridCoverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.17 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.18 2003/08/05 17:44:11 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -175,8 +176,8 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      *        system used when accessing a coverage or grid coverage with the
      *        <code>evaluate(...)</code> methods.
      * @param source The source for this coverage, or <code>null</code> if none.
-     *        Source may be (but is not limited to) {@link javax.media.jai.PlanarImage}
-     *        or an other <code>Coverage</code> object.
+     *        Source may be (but is not limited to) a {@link PlanarImage} or an
+     *        other <code>Coverage</code> object.
      * @param properties The set of properties for this coverage, or <code>null</code> if
      *        there is none. "Properties" in <cite>Java Advanced Imaging</cite> is what
      *        OpenGIS calls "Metadata".  There is no <code>getMetadataValue(...)</code>
@@ -725,6 +726,25 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
             return matrix.toAffineTransform2D();
         }
     }
+
+    /**
+     * Provides a hint that a coverage will no longer be accessed from a reference in user space.
+     * The results are equivalent to those that occur when the program loses its last reference to
+     * this coverage, the garbage collector discovers this, and finalize is called. This can be
+     * used as a hint in situations where waiting for garbage collection would be overly
+     * conservative. The results of referencing a coverage after a call to <code>dispose()</code>
+     * are undefined.
+     *
+     * @see PlanarImage#dispose
+     */
+    public void dispose() {
+        // To be overriden by subclasses.
+        // Note: implementing this method in GridCoverage is tricky. We must ensure that:
+        //       1) The PlanarImage is not used by somebody else (i.e. is not a user supplied
+        //          image, or the user didn't got a reference with getRenderedImage()).
+        //       2) If the image is the result of a GridCoverageProcessor operation, it must
+        //          removes itself from the WeakValueHashMap.
+    }
     
     /**
      * Returns a string représentation of this coverage. This string is
@@ -768,7 +788,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.17 2003/08/04 19:07:22 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.18 2003/08/05 17:44:11 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends UnicastRemoteObject implements CV_Coverage, PropertySource {
