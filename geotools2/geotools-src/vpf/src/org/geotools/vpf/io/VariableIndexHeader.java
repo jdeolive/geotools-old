@@ -27,13 +27,64 @@ import org.geotools.vpf.ifc.VPFHeader;
  * Created: Tue Mar 11 23:41:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VariableIndexHeader.java,v 1.1 2003/03/11 22:47:34 kobit Exp $
+ * @version $Id: VariableIndexHeader.java,v 1.2 2003/03/16 22:59:39 kobit Exp $
  */
 public class VariableIndexHeader implements VPFHeader {
+
+  public static final int VARIABLE_INDEX_HEADER_LENGTH = 8;
   
-  public VariableIndexHeader()
+  protected int entriesNumber = 0;
+  protected int vpfHeaderLen = 0;
+
+  public VariableIndexHeader(int entriesNumber, int vpfHeaderLen)
   {
-	
+	this.entriesNumber = entriesNumber;
+	this.vpfHeaderLen = vpfHeaderLen;
   } // VariableIndexHeader constructor
+
+  public int getLength()
+  {
+	return VARIABLE_INDEX_HEADER_LENGTH;
+  }
+  
+  /**
+   * Gets the value of <code>entriesNumber</code>
+   *
+   * @return the value of <code>entriesNumber</code>
+   */
+  public int getEntriesNumber() 
+  {
+	return this.entriesNumber;
+  }
+
+//   /**
+//    * Sets the value of entriesNumber
+//    *
+//    * @param argEntriesNumber Value to assign to this.entriesNumber
+//    */
+//   public void setEntriesNumber(int argEntriesNumber)
+//   {
+// 	this.entriesNumber = argEntriesNumber;
+//   }
+
+  /**
+   * Gets the value of <code>vpfHeaderLen</code>
+   *
+   * @return the value of <code>vpfHeaderLen</code>
+   */
+  public int getVpfHeaderLen() 
+  {
+	return this.vpfHeaderLen;
+  }
+
+//   /**
+//    * Sets the value of vpfHeaderLen
+//    *
+//    * @param argVpfHeaderLen Value to assign to this.vpfHeaderLen
+//    */
+//   public void setVpfHeaderLen(int argVpfHeaderLen)
+//   {
+// 	this.vpfHeaderLen = argVpfHeaderLen;
+//   }
   
 } // VariableIndexHeader

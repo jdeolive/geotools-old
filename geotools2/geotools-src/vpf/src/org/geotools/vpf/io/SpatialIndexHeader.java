@@ -27,13 +27,20 @@ import org.geotools.vpf.ifc.VPFHeader;
  * Created: Tue Mar 11 23:42:48 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: SpatialIndexHeader.java,v 1.1 2003/03/11 22:47:34 kobit Exp $
+ * @version $Id: SpatialIndexHeader.java,v 1.2 2003/03/16 22:59:39 kobit Exp $
  */
 public class SpatialIndexHeader implements VPFHeader {
   
+  public static final int SPATIAL_INDEX_HEADER_LENGTH = 24;
+
   public SpatialIndexHeader()
   {
 	
   } // SpatialIndexHeader constructor
+  
+  public int getLength()
+  {
+	return SPATIAL_INDEX_HEADER_LENGTH;
+  }
   
 } // SpatialIndexHeader

@@ -25,10 +25,17 @@ package org.geotools.vpf.ifc;
  * Created: Mon Feb 24 22:51:07 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFHeader.java,v 1.1 2003/02/24 22:46:33 kobit Exp $
+ * @version $Id: VPFHeader.java,v 1.2 2003/03/16 22:59:39 kobit Exp $
  */
 
 public interface VPFHeader 
 {
+
+  /**
+   * Returns particular <code>VPFHeader</code> length.
+   *
+   * @return an <code>int</code> value of header length.
+   */
+  int getLength();
   
 }// VPFHeader
