@@ -1,26 +1,11 @@
 package org.geotools.gui.tools;
 
 import java.awt.event.MouseEvent;
-import javax.swing.JComponent;
 import javax.swing.event.MouseInputAdapter;
-import org.geotools.gui.swing.MapPane;
 import org.geotools.gui.tools.Tool;
-import org.geotools.map.AreaOfInterestModel;
 
 public class PanTool extends Tool {
 
-    // Internal variables
-    private JComponent mapPane;
-    private AreaOfInterestModel areaOfInterestModel;
-    
-    public PanTool(MapPane mapPane, AreaOfInterestModel areaOfInterestModel){
-        this.mapPane=mapPane;
-        this.areaOfInterestModel=areaOfInterestModel;
-
-        // Register for MapPane Mouse events
-        this.mapPane.addMouseListener(this);
-        this.mapPane.addMouseMotionListener(this);
-    }
 
     /**
      * Set up Click/Pan.
