@@ -79,7 +79,7 @@ public class PanTool extends MouseTool {
                         minP.getOrdinate(0),   // minX
                         maxP.getOrdinate(0),   // maxX
                         minP.getOrdinate(1),   // minY
-                        minP.getOrdinate(1))); // maxY
+                        maxP.getOrdinate(1))); // maxY
             } catch (TransformException ex){
                 LOGGER.warning("Exception: "+ex+" while transforming coordinates");
             }
