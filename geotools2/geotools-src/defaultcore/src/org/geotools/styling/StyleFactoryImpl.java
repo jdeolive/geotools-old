@@ -30,7 +30,7 @@ import org.geotools.filter.Expression;
  * org.geotools.defaultcore.
  *
  * @author iant
- * @version $Id: StyleFactoryImpl.java,v 1.12 2003/11/08 11:36:02 aaime Exp $
+ * @version $Id: StyleFactoryImpl.java,v 1.13 2004/02/12 11:26:54 aaime Exp $
  */
 public class StyleFactoryImpl extends StyleFactory {
     private static final org.geotools.filter.FilterFactory filterFactory = 
@@ -218,11 +218,6 @@ public class StyleFactoryImpl extends StyleFactory {
     public Fill createFill(Expression color, Expression backgroundColor, 
                            Expression opacity, Graphic graphicFill) {
         Fill fill = new FillImpl();
-
-        if (color == null) {
-            throw new IllegalArgumentException(
-                    "Color may not be null in a fill");
-        }
 
         fill.setColor(color);
         fill.setBackgroundColor(backgroundColor);
