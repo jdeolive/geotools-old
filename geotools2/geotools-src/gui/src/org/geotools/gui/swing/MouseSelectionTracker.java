@@ -77,6 +77,7 @@ import javax.swing.event.MouseInputAdapter;
  * component.addMouseListener(control);
  * </pre></blockquote>
  *
+ * $Id: MouseSelectionTracker.java,v 1.2 2002/07/15 15:45:11 loxnard Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
@@ -96,13 +97,13 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
      * Colour to replace during XOR drawings on a graphic.
      * This colour is specified in {@link Graphics2D#setColor}.
      */
-    private Color backXORColor=Color.white;
+    private Color backXORColor = Color.white;
 
     /**
      * Colour to replace with during the XOR drawings on a graphic.
      * This colour is specified in {@link Graphics2D#setXORMode}.
      */
-    private Color lineXORColor=Color.black;
+    private Color lineXORColor = Color.black;
 
     /**
      * <var>x</var> coordinate of the mouse when the button is pressed.
@@ -142,8 +143,8 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
      * by <code>b</code> colours and vice versa.
      */
     public void setXORColors(final Color a, final Color b) {
-        backXORColor=a;
-        lineXORColor=b;
+        backXORColor = a;
+        lineXORColor = b;
     }
 
     /**
@@ -220,40 +221,41 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
      * @throws NoninvertibleTransformException If the affine transform 
      *         <code>transform</code> can't be inverted.
      */
-    public Shape getSelectedArea(final AffineTransform transform) throws NoninvertibleTransformException {
-        if (ox==px && oy==py) return null;
-        RectangularShape shape=mouseSelectedArea;
-        if (transform!=null && !transform.isIdentity()) {
-            if (shape==null) {
-                final Point2D.Float po=new Point2D.Float(ox,oy);
-                final Point2D.Float pp=new Point2D.Float(px,py);
-                transform.inverseTransform(po,po);
-                transform.inverseTransform(pp,pp);
-                return new Line2D.Float(po,pp);
+    public Shape getSelectedArea(final AffineTransform transform)
+                                 throws NoninvertibleTransformException {
+        if (ox == px && oy == py) return null;
+        RectangularShape shape = mouseSelectedArea;
+        if (transform != null && !transform.isIdentity()) {
+            if (shape == null) {
+                final Point2D.Float po = new Point2D.Float(ox, oy);
+                final Point2D.Float pp = new Point2D.Float(px, py);
+                transform.inverseTransform(po, po);
+                transform.inverseTransform(pp, pp);
+                return new Line2D.Float(po, pp);
             } else {
                 if (canReshape(shape, transform)) {
-                    final Point2D.Double point=new Point2D.Double();
-                    double xmin=Double.POSITIVE_INFINITY;
-                    double ymin=Double.POSITIVE_INFINITY;
-                    double xmax=Double.NEGATIVE_INFINITY;
-                    double ymax=Double.NEGATIVE_INFINITY;
-                    for (int i=0; i<4; i++) {
-                        point.x = (i&1)==0 ? shape.getMinX() : shape.getMaxX();
-                        point.y = (i&2)==0 ? shape.getMinY() : shape.getMaxY();
+                    final Point2D.Double point = new Point2D.Double();
+                    double xmin = Double.POSITIVE_INFINITY;
+                    double ymin = Double.POSITIVE_INFINITY;
+                    double xmax = Double.NEGATIVE_INFINITY;
+                    double ymax = Double.NEGATIVE_INFINITY;
+                    for (int i = 0; i < 4; i++) {
+                        point.x = (i&1) == 0 ? shape.getMinX() : shape.getMaxX();
+                        point.y = (i&2) == 0 ? shape.getMinY() : shape.getMaxY();
                         transform.inverseTransform(point, point);
-                        if (point.x<xmin) xmin=point.x;
-                        if (point.x>xmax) xmax=point.x;
-                        if (point.y<ymin) ymin=point.y;
-                        if (point.y>ymax) ymax=point.y;
+                        if (point.x < xmin) xmin = point.x;
+                        if (point.x > xmax) xmax = point.x;
+                        if (point.y < ymin) ymin = point.y;
+                        if (point.y > ymax) ymax = point.y;
                     }
                     if (shape instanceof Rectangle) {
                         return new Rectangle2D.Float((float) xmin,
                                                      (float) ymin,
-                                                     (float) (xmax-xmin),
-                                                     (float) (ymax-ymin));
+                                                     (float) (xmax - xmin),
+                                                     (float) (ymax - ymin));
                     } else {
                         shape = (RectangularShape) shape.clone();
-                        shape.setFrame(xmin, ymin, xmax-xmin, ymax-ymin);
+                        shape.setFrame(xmin, ymin, xmax - xmin, ymax - ymin);
                         return shape;
                     }
                 }
@@ -263,7 +265,7 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
             }
         }
         else {
-            return (shape!=null) ? (Shape) shape.clone() : new Line2D.Float(ox,oy,px,py);
+            return (shape != null) ? (Shape) shape.clone() : new Line2D.Float(ox, oy, px, py);
         }
     }
 
@@ -294,7 +296,7 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
      * needed.
      */
     private Graphics2D getGraphics(final Component c) {
-        final Graphics2D graphics=(Graphics2D) c.getGraphics();
+        final Graphics2D graphics = (Graphics2D) c.getGraphics();
         graphics.setXORMode(lineXORColor);
         graphics.setColor  (backXORColor);
         return graphics;
@@ -310,17 +312,19 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
      *         from the class {link RectangularShape} or {link Line2D}.
      */
     public void mousePressed(final MouseEvent event) throws ClassCastException {
-        if (!event.isConsumed() && (event.getModifiers() & MouseEvent.BUTTON1_MASK)!=0) {
-            final Component source=event.getComponent();
-            if (source!=null) {
-                Shape model=getModel(event);
-                if (model!=null) {
-                    isDragging=true;
-                    ox=px=event.getX();
-                    oy=py=event.getY();
-                    if (model instanceof Line2D) model=null;
-                    mouseSelectedArea=(RectangularShape) model;
-                    if (mouseSelectedArea!=null) {
+        if (!event.isConsumed() && (event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+            final Component source = event.getComponent();
+            if (source != null) {
+                Shape model = getModel(event);
+                if (model != null) {
+                    isDragging = true;
+                    ox = px = event.getX();
+                    oy = py = event.getY();
+                    if (model instanceof Line2D) {
+                        model = null;
+                    }
+                    mouseSelectedArea = (RectangularShape) model;
+                    if (mouseSelectedArea != null) {
                         mouseSelectedArea.setFrame(ox, oy, 0, 0);
                     }
                     source.addMouseMotionListener(this);
@@ -339,27 +343,27 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
      */
     public void mouseDragged(final MouseEvent event) {
         if (isDragging) {
-            final Graphics2D graphics=getGraphics(event.getComponent());
-            if (mouseSelectedArea==null) {
+            final Graphics2D graphics = getGraphics(event.getComponent());
+            if (mouseSelectedArea == null) {
                 graphics.drawLine(ox, oy, px, py);
-                px=event.getX();
-                py=event.getY();
+                px = event.getX();
+                py = event.getY();
                 graphics.drawLine(ox, oy, px, py);
             } else {
                 graphics.draw(mouseSelectedArea);
-                int xmin=this.ox;
-                int ymin=this.oy;
-                int xmax=px=event.getX();
-                int ymax=py=event.getY();
-                if (xmin>xmax) {
-                    final int xtmp=xmin;
-                    xmin=xmax;xmax=xtmp;
+                int xmin = this.ox;
+                int ymin = this.oy;
+                int xmax = px = event.getX();
+                int ymax = py = event.getY();
+                if (xmin > xmax) {
+                    final int xtmp = xmin;
+                    xmin = xmax; xmax = xtmp;
                 }
-                if (ymin>ymax) {
-                    final int ytmp=ymin;
-                    ymin=ymax;ymax=ytmp;
+                if (ymin > ymax) {
+                    final int ytmp = ymin;
+                    ymin = ymax; ymax = ytmp;
                 }
-                mouseSelectedArea.setFrame(xmin, ymin, xmax-xmin, ymax-ymin);
+                mouseSelectedArea.setFrame(xmin, ymin, xmax - xmin, ymax - ymin);
                 graphics.draw(mouseSelectedArea);
             }
             graphics.dispose();
@@ -373,13 +377,13 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
      * the bounds of the selected region as parameters.
      */
     public void mouseReleased(final MouseEvent event) {
-        if (isDragging && (event.getModifiers() & MouseEvent.BUTTON1_MASK)!=0) {
-            isDragging=false;
-            final Component component=event.getComponent();
+        if (isDragging && (event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+            isDragging = false;
+            final Component component = event.getComponent();
             component.removeMouseMotionListener(this);
 
-            final Graphics2D graphics=getGraphics(event.getComponent());
-            if (mouseSelectedArea==null) {
+            final Graphics2D graphics = getGraphics(event.getComponent());
+            if (mouseSelectedArea == null) {
                 graphics.drawLine(ox, oy, px, py);
             } else {
                 graphics.draw(mouseSelectedArea);
