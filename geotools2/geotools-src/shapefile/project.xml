@@ -37,6 +37,15 @@
                 <role>Java Developer</role>
             </roles>
         </developer>
+      <developer>
+        <name>Darren Edmonds</name>
+        <id>dledmonds</id>
+        <email>dledmonds@btopenworld.com</email>
+        <organization></organization>
+          <roles>
+            <role>Java Developer</role>
+          </roles>
+      </developer>
     </developers>
   <dependencies>
   <dependency>
