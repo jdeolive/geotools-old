@@ -442,17 +442,26 @@ void example(int i) {
         first thing you will want to do is perform a full build so that you
         have a jar from each module installed in your local repository.</para>
 
-        <para>Move to the geotools2 directory (the one that contains
-        geotools-src and spike) <command>type &#39;maven build&#39;</command></para>
+        <para>Make sure you are connected to the internet, the do the
+        following:</para>
 
-        <para>All being well maven should startup and proceed to build all the
-        modules in the right order, at the end of this process it will display
-        a list of all the modules which were built and installed correctly.</para>
+        <programlisting>cd $GEOTOOLS_HOME/geotools2
+maven build</programlisting>
 
-        <para><emphasis>NOTE:</emphasis> The first build can take a very long
-        time as maven actually downloads a lot of the files it needs to run
-        itself before starting on the main build, please be patient,
-        subsequent builds do not take as long.</para>
+        <para>All being well maven should download the required .jar files and
+        build geotools modules. At the end of this process it will display a
+        list of all the modules which were built and installed correctly.</para>
+
+        <para>The first build takes a while due to the download time for the
+        .jar files. Future builds check for the most recent .jar files from
+        the internet, however you can bypass the checking and run maven
+        offline using the following:</para>
+
+        <programlisting>cd $GEOTOOLS_HOME/geotools2
+maven build -o</programlisting>
+
+        <para>To do: Geotools2 still has some unit tests which require you to
+        be connected to the internet while building. This should be fixed.</para>
       </section>
 
       <section id="mavenrepository">
