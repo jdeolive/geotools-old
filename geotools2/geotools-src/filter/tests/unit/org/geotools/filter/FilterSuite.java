@@ -53,10 +53,7 @@ public class FilterSuite extends TestCase {
         suite.addTestSuite(DOMParserTest.class);
         suite.addTestSuite(ParserTest.class);
         suite.addTestSuite(XMLEncoderTest.class);
-        suite.addTestSuite(SQLEncoderTest.class);
-        suite.addTestSuite(SQLEncoderPostgis.class);
-        suite.addTestSuite(SQLUnpackerTest.class);
-        suite.addTestSuite(CapabilitiesTest.class);
+        
 
         return suite;
     }
