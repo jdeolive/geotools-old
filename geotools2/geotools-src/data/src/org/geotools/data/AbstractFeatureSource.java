@@ -17,13 +17,15 @@
 package org.geotools.data;
 
 import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
- * This is a starting point for providing your own FeatureSource
- * implementation.
+ * This is a starting point for providing your own FeatureSource implementation.
  * 
  * <p>
  * Subclasses must implement:
@@ -45,8 +47,8 @@ import java.io.IOException;
  * </ul>
  * 
  * <p>
- * You may find a FeatureSource implementations that is more specific to your
- * needs - such as JDBCFeatureSource.
+ * You may find a FeatureSource implementations that is more specific to your needs - such as
+ * JDBCFeatureSource.
  * </p>
  * 
  * <p>
@@ -56,12 +58,14 @@ import java.io.IOException;
  * @author Jody Garnett, Refractions Research Inc
  */
 public abstract class AbstractFeatureSource implements FeatureSource {
+    /** The logger for the filter module. */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.data");
+
     /**
      * Retrieve the Transaction this FeatureSource is opperating against.
      * 
      * <p>
-     * For a plain FeatureSource that cannot modify this will always be
-     * Transaction.AUTO_COMMIT.
+     * For a plain FeatureSource that cannot modify this will always be Transaction.AUTO_COMMIT.
      * </p>
      *
      * @return Transacstion FeatureSource is opperating against
@@ -74,8 +78,7 @@ public abstract class AbstractFeatureSource implements FeatureSource {
      * Provides an interface to for the Resutls of a Query.
      * 
      * <p>
-     * Various queries can be made against the results, the most basic being to
-     * retrieve Features.
+     * Various queries can be made against the results, the most basic being to retrieve Features.
      * </p>
      *
      * @param query
@@ -98,7 +101,7 @@ public abstract class AbstractFeatureSource implements FeatureSource {
      * @throws IOException If results could not be obtained
      */
     public FeatureResults getFeatures(Filter filter) throws IOException {
-        return getFeatures( new DefaultQuery(getSchema().getTypeName(), filter ));
+        return getFeatures(new DefaultQuery(getSchema().getTypeName(), filter));
     }
 
     /**
@@ -120,11 +123,12 @@ public abstract class AbstractFeatureSource implements FeatureSource {
      * </p>
      * 
      * <p>
-     * Subclasses may override this method to perform the appropriate
-     * optimization for this result.
+     * Subclasses may override this method to perform the appropriate optimization for this result.
      * </p>
      *
      * @return null representing the lack of an optimization
+     *
+     * @throws IOException DOCUMENT ME!
      */
     public Envelope getBounds() throws IOException {
         return getBounds(Query.ALL);
@@ -134,25 +138,33 @@ public abstract class AbstractFeatureSource implements FeatureSource {
      * Retrieve Bounds of Query results.
      * 
      * <p>
-     * Currently returns null, consider getFeatures( query ).getBounds()
-     * instead.
+     * Currently returns null, consider getFeatures( query ).getBounds() instead.
      * </p>
      * 
      * <p>
-     * Subclasses may override this method to perform the appropriate
-     * optimization for this result.
+     * Subclasses may override this method to perform the appropriate optimization for this result.
      * </p>
      *
      * @param query Query we are requesting the bounds of
      *
      * @return null representing the lack of an optimization
+     *
+     * @throws IOException DOCUMENT ME!
      */
     public Envelope getBounds(Query query) throws IOException {
         if (query.getFilter() == Filter.ALL) {
             return new Envelope();
         }
 
-        return null; // too expensive right now :-)
+        DataStore dataStore = getDataStore();
+
+        if ((dataStore == null) || !(dataStore instanceof AbstractDataStore)) {
+            // too expensive
+            return null;
+        } else {
+            // ask the abstract data store
+            return ((AbstractDataStore) dataStore).getBounds(getSchema().getTypeName(), query);
+        }
     }
 
     /**
@@ -163,19 +175,25 @@ public abstract class AbstractFeatureSource implements FeatureSource {
      * </p>
      * 
      * <p>
-     * Subclasses may override this method to perform the appropriate
-     * optimization for this result.
+     * Subclasses may override this method to perform the appropriate optimization for this result.
      * </p>
      *
      * @param query Query we are requesting the count of
      *
      * @return -1 representing the lack of an optimization
      */
-    public int getCount(Query query) {
+    public int getCount(Query query) throws IOException {
         if (query.getFilter() == Filter.ALL) {
             return 0;
         }
 
-        return -1; // too expensive right now :-)
+        DataStore dataStore = getDataStore();
+        if ((dataStore == null) || !(dataStore instanceof AbstractDataStore)) {
+            // too expensive
+            return -1;
+        } else {
+            // ask the abstract data store
+            return ((AbstractDataStore) dataStore).getCount(getSchema().getTypeName(), query);
+        }
     }
 }

@@ -55,7 +55,7 @@ import java.io.IOException;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureSource.java,v 1.3 2003/12/02 20:03:41 cholmesny Exp $
+ * @version $Id: FeatureSource.java,v 1.4 2004/02/11 14:09:54 aaime Exp $
  */
 public interface FeatureSource {
     /**
@@ -210,5 +210,5 @@ public interface FeatureSource {
      *
      * @throws IOException if there are errors getting the count
      */
-    int getCount(Query query);
+    int getCount(Query query) throws IOException;
 }

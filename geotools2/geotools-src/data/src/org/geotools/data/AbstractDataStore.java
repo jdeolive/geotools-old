@@ -19,6 +19,7 @@ package org.geotools.data;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.Filter;
 
@@ -68,7 +69,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractDataStore implements DataStore {
     /** The logger for the filter module. */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.data");
+    protected static final Logger LOGGER = Logger.getLogger("org.geotools.data");
 
     /** Manages listener lists for FeatureSource implementation */
     public FeatureListenerManager listenerManager = new FeatureListenerManager();
@@ -480,5 +481,43 @@ public abstract class AbstractDataStore implements DataStore {
      */
     public LockingManager getLockingManager() {
         return lockingManager;
+    }
+    
+    /**
+     * Computes the bounds of the features for the specified feature type that
+     * satisfy the query provided that there is a fast way to get that result.
+     * Will return null if there is not fast way to compute the bounds. Since
+     * it's based on some kind of header/cached information, it's not guaranteed
+     * to be real bound of the features
+     * @param featureTypeName
+     * @param query
+     * @return the bounds, or null if too expensive
+     * @throws IOException 
+     */
+    protected Envelope getBounds(String featureTypeName, Query query) throws IOException {
+        return null; // too expensive
+    }
+    
+    
+    /**
+     * Gets the number of the features that would be returned by this query for
+     * the specified feature type.
+     * 
+     * <p></p>
+     * 
+     * <p>
+     * If getBounds(Query) returns <code>-1</code> due to expense consider
+     * using <code>getFeatures(Query).getCount()</code> as a an alternative.
+     * </p>
+     *
+     * @param query Contains the Filter and MaxFeatures to find the bounds for.
+     * @param featureTypeName
+     * @return The number of Features provided by the Query or <code>-1</code>
+     *         if count is too expensive to calculate or any errors or occur.
+     *
+     * @throws IOException if there are errors getting the count
+     */
+    protected int getCount(String featureTypeName, Query query) throws IOException {
+        return -1; // too expensive
     }
 }
