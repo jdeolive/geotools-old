@@ -42,7 +42,7 @@ import org.geotools.gml.GMLHandlerJTS;
  * extracts an OGC filter object from an XML stream and passes it to its parent
  * as a fully instantiated OGC filter object.</p>
  * 
- * @version $Id: FilterFilter.java,v 1.15 2002/12/13 19:43:08 cholmesny Exp $
+ * @version $Id: FilterFilter.java,v 1.16 2003/01/13 23:47:43 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFilter 
@@ -144,7 +144,7 @@ public class FilterFilter
                         }
                     }
                 }
-                else {
+                if(!isFidFilter) {
                     // if at a complex filter start, add it to the logic stack
                     LOGGER.finest("is logic?");
                     if( AbstractFilter.isLogicFilter(filterElementType) ) {
@@ -235,9 +235,8 @@ public class FilterFilter
     public void endElement(String namespaceURI, String localName, String qName)
 				throws SAXException {
         
-
-        LOGGER.finer("found end element: " + localName);
-        if(localName.equals("Filter")) {
+        LOGGER.finer("found start element: " + localName);
+	if(localName.equals("Filter")) {
 	    //moved by cholmes, bug fix for fid.
 	    if( isFidFilter && !localName.equals("FeatureId") ) {
 		isFidFilter = false;             
@@ -251,11 +250,11 @@ public class FilterFilter
 			parent.filter( filterFactory.create());
 		    }
 		}  catch (IllegalFilterException e) {
-                throw new SAXException("Attempted to construct illegal filter: " +
+		    throw new SAXException("Attempted to construct illegal filter: " +
                                        e.getMessage());
 		}
-
-	    }
+		
+	    } 
 	
 	insideFilter = false;
 	}    
@@ -263,11 +262,16 @@ public class FilterFilter
             short filterElementType = convertType(localName);
         
             try {
+
 		    {  
 		// if at the end of a complex filter, simplify the logic stack
                     //  appropriately
                     if( AbstractFilter.isLogicFilter(filterElementType) ) {
                         LOGGER.finest("found a logic filter end");
+			if(isFidFilter) {
+			    logicFactory.add( filterFactory.create());
+			    isFidFilter = false;
+			}
                         logicFactory.end( filterElementType);
                         
                         // if the filter is done, pass along to the parent
@@ -275,12 +279,14 @@ public class FilterFilter
                             LOGGER.finer("creating logic factory");
                             parent.filter( logicFactory.create());
                         }
+			//isFidFilter = false;
                     }
                     
                     
                     // if at the end of a simple filter, create it and push it on 
                     //  top of the logic stack
-                    else if( AbstractFilter.isSimpleFilter(filterElementType) && !isFidFilter) {
+                    else if( AbstractFilter.isSimpleFilter(filterElementType) 
+			     && !isFidFilter) {
                         LOGGER.finest("found a simple filter end");
                         
                         // if the filter is done, pass along to the parent
