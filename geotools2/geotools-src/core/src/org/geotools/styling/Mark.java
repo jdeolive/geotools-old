@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- *            (C) 2002, Center for Computational Geography
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Center for Computational Geography
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
