@@ -61,9 +61,15 @@ public class FeatureFlat implements Feature {
 
         // Check to ensure that all attributes are valid
         for(int i = 0; i < n ; i++) {
-            isValid = schema.getAttributeType(i).getType().
-                equals( attributes[i].getClass().getName() ) && 
+            try{
+                Class template = Class.forName(schema.getAttributeType(i).getType());
+                isValid =  template.isAssignableFrom(attributes[i].getClass()) &&
                 isValid;
+            }
+            catch(ClassNotFoundException cnfe){
+                throw new IllegalFeatureException("You have attempted to"+
+                "create an invalid feature instance. "+cnfe);
+            }
             //String existingType = schema.getAttributeType(i).getType();
             //String targetType = attributes[i].getClass().getName();
             //_log.info("target type:" + attributes[i].toString());
