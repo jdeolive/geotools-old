@@ -115,6 +115,7 @@
       looking for modules in: ${basedir}/geotools-src
 
     </echo>
+       <ant:delete dir="target/test-reports"/>  <!-- one report folder for convenience of CC -->
 		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="clean,jar:install" banner="Building" postProcessing="true" ignoreFailures="false"/>
 		<j:set var="ok" value="${reactorProjects}"/>
 		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" postProcessing="true" ignoreFailures="true"/>
@@ -275,4 +276,13 @@ Module ${module} : ${status}
 		</exec>
 		<delete file="${maven.final.name}-src.tar.gz"/>
 	</goal>
+
+       <postGoal name="test:test">
+            <echo>merging test reports into higher directory</echo>
+           <ant:copy todir="../../target/test-reports">
+               <ant:fileset dir="target/test-reports">
+               <ant:include name="*.xml"/>
+      </ant:fileset>
+    </ant:copy>
+        </postGoal>   
 </project>
