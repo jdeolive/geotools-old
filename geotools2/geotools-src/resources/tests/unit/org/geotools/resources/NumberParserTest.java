@@ -86,6 +86,7 @@ public class NumberParserTest extends TestCase {
   }
   
   public void testValidDoubles() {
+    test("4.275");
     test("0.123e5");
     test(".123e5");
     test("23e5");
@@ -97,6 +98,10 @@ public class NumberParserTest extends TestCase {
     test("10.");
     test("10.e");
     test(".");
+    
+    // check garbage bytes robustness
+    char[] zeros = new char [] {0,49,49,0};
+    assertEquals( (double) 11,NumberParser.parseDouble(new String(zeros)), 0);
   }
   
   public void testInvalidDoubles() {
