@@ -16,7 +16,7 @@ import com.vividsolutions.jts.geom.*;
 /** Reads and parses a GML file into a geometry collection
  *
  * @author ian
- * @version $Id: GMLReader.java,v 1.3 2002/03/08 18:06:03 ianturton Exp $
+ * @version $Id: GMLReader.java,v 1.4 2002/03/09 17:54:50 ianturton Exp $
  */
 public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     boolean stopped = false;
@@ -40,6 +40,7 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
         try{
             parser = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
             parser.setContentHandler(this);
+            
         }catch(SAXException e){
             throw new DataSourceException("GMLReader setup error:"+e);
         }
@@ -75,7 +76,7 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
          * also hold the reference in handler.
          */
         
-        
+        if(handler!=null) handlers.push(handler);
         try{
             
             handler = getGMLHandler(qName);
@@ -87,9 +88,6 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
                 }
             }else{
                 if(head==null) head=handler;
-                handlers.push(handler);
-                System.out.println("start of "+qName+"\nstack:"+handlers);
-                
             }
         }catch(GMLException e){
             throw new SAXException(e);
@@ -110,7 +108,6 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
                 ((GMLCoordinatesHandler)handler).parseText(pair);
             }
         }else if(handler instanceof GMLXYZHandler){
-            System.out.println("XYZ s="+s+"*");
             ((GMLXYZHandler)handler).parseText(s);
         }
     }
@@ -123,12 +120,8 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     public void endElement(String namespace,String localName, String qName) throws SAXException{
         
         GMLHandler h ;
+        if(handler==head) return;
         if(handler!=null){
-            
-            
-                System.out.println("****End of entity "+localName);
-                System.out.println("current stack:"+handlers);
-            
             Coordinate[] coords = null;
             Geometry g = null;
             
@@ -137,50 +130,50 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
                 handler = (GMLHandler)handlers.pop();
                 if(coords!=null){
                     for(int i=0;i<coords.length;i++){
-                        ((GMLHandler)handlers.peek()).addCoordinate(coords[i]);
+                        handler.addCoordinate(coords[i]);
                     }
                 }
-                System.out.println("return stack:"+handlers);
+            
                 return;
                 
             }else if(handler instanceof GMLCoordHandler){
-                System.out.println("finishing CoordHandler");
+            
                 Coordinate coord=((GMLCoordHandler)handler).getCoordinate();
                 handler = (GMLHandler)handlers.pop();
-                ((GMLHandler)handlers.peek()).addCoordinate(coord);
-                System.out.println("return stack:"+handlers);
+                handler.addCoordinate(coord);
+            
                 return;
             }else if(handler instanceof GMLXHandler){
-                System.out.println("about to get X");
+            
                 double v = ((GMLXHandler)handler).getX();
-                System.out.println("got X "+v);
+            
                 handler=(GMLHandler)handlers.pop();
-                System.out.println("post pop "+handler);
-                ((GMLCoordHandler)handlers.peek()).setX(v);
-                System.out.println("set X in coord");
-                System.out.println("return stack:"+handlers);
+            
+                ((GMLCoordHandler)handler).setX(v);
+            
+            
                 return;
             }else if(handler instanceof GMLYHandler){
                 double v = ((GMLYHandler)handler).getY();
                 handler=(GMLHandler)handlers.pop();
-                ((GMLCoordHandler)handlers.peek()).setY(v);
-                System.out.println("return stack:"+handlers);
+                ((GMLCoordHandler)handler).setY(v);
+            
                 return;
             }else if(handler instanceof GMLZHandler){
                 double v = ((GMLZHandler)handler).getZ();
                 handler=(GMLHandler)handlers.pop();
-                System.out.println("post pop "+handler);
-                ((GMLCoordHandler)handlers.peek()).setZ(v);
-                System.out.println("return stack:"+handlers);
+            
+                ((GMLCoordHandler)handler).setZ(v);
+            
                 return;
             }else{
                 // its a geometry type
                 g = handler.finish(factory);
-                handler=(GMLHandler)handlers.pop();             
-                if(handlers.size()>0){
-                    ((GMLHandler)handlers.peek()).addGeometry(g);
-                } // when the stack is empty we'return finished and ready to return head.
-                System.out.println("return stack:"+handlers);
+                handler=(GMLHandler)handlers.pop();
+                
+                handler.addGeometry(g);
+               
+            
                 return;
             }
         }else{
