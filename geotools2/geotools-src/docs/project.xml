@@ -3,6 +3,7 @@
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-docs</name>
+   <extend>../../project.xml</extend>
   <id>docs</id>
   <logo>/images/docs.gif</logo>
   <currentVersion>0.1</currentVersion>
