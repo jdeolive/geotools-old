@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * filter must implement GMLHandlerJTS in order to receive the JTS objects
  * passed by this filter.</p>
  *
- * @version $Id: GMLFilterFeature.java,v 1.15 2003/07/17 07:09:54 ianschneider Exp $
+ * @version $Id: GMLFilterFeature.java,v 1.16 2003/08/03 03:22:47 seangeo Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
@@ -162,7 +162,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
                     //currentFeature.setTypeName(localName);
                     typeName = new String(localName);
                     //_log.debug("set type name " + localName);
-                    fid = atts.getValue(1);
+                    fid = atts.getValue(i);
                 } else {
                 	attributes.add(atts.getValue(i));
 	                attributeNames.add(name);
@@ -272,18 +272,18 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
             }
             factory.setNamespace(namespaceURI);
             try {
-              Feature feature = factory.getFeatureType().create(attributes.toArray());
+              Feature feature = factory.getFeatureType().create(attributes.toArray(),fid);
               parent.feature(feature);
             } catch (org.geotools.feature.SchemaException sve){
                 //TODO: work out what to do in this case!
                 //_log.error("Unable to create valid schema",sve);
-                
+
               // UNBELIEVABLE !!!!!!!!!!!!!!!!!!!!!!!!!!! - IanS
             }
             catch (org.geotools.feature.IllegalAttributeException ife){
                 //TODO: work out what to do in this case!
                 //_log.error("Unable to build feature",ife);
-              
+
               // UNBELIEVABLE !!!!!!!!!!!!!!!!!!!!!!!!!!! - IanS
             }
             attName = "";
