@@ -10,9 +10,12 @@ import org.geotools.datasource.extents.*;
 import java.sql.*;
 import java.util.logging.Logger;
 import org.geotools.filter.*;
+import org.geotools.filter.FilterFactory;
+
 //import org.geotools.data.mysql;
 
 public class MysqlTestSuite extends TestCase {
+   private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
 
      /** Standard logging instance */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
@@ -67,9 +70,9 @@ public class MysqlTestSuite extends TestCase {
 	lampAttr[0].setPosition(1);
 	//create a filter that is always true, just to pass into getFeatures
 	try {
-	    tFilter = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
+	    tFilter = filterFactory.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
 	    Integer testInt = new Integer(5);
-	    Expression testLiteral = new ExpressionLiteral(testInt);
+	    Expression testLiteral = filterFactory.createLiteralExpression(testInt);
 	    tFilter.addLeftValue(testLiteral);
 	    tFilter.addRightValue(testLiteral);
 	} catch (IllegalFilterException e) {
