@@ -23,14 +23,10 @@ public class PropertyFeatureSource extends AbstractFeatureLocking {
         store.listenerManager.addFeatureListener( this, new FeatureListener(){
             public void changed(FeatureEvent featureEvent) {
                 if( cacheBounds != null ){
-                    switch( featureEvent.getEventType() ){
-                    case FeatureEvent.FEATURES_ADDED:
+                    if( featureEvent.getEventType() == FeatureEvent.FEATURES_ADDED ){
                         cacheBounds.expandToInclude( featureEvent.getBounds() );
-                        break;
-                
-                    case FeatureEvent.FEATURES_CHANGED:
-                    case FeatureEvent.FEATURES_REMOVED:
-                    default:
+                    }
+                    else {
                         cacheBounds = null;                                            
                     }                
                 }
