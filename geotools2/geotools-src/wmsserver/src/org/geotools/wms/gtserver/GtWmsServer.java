@@ -20,6 +20,7 @@
 
 package org.geotools.wms.gtserver;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -275,8 +276,35 @@ public class GtWmsServer implements WMSServer {
      * @param x A point of interest around which the request is centered - based on the returned bounding box (in transformed pixels) given to bbox.
      * @return An array of Feature objects.
      */
-    public Feature [] getFeatureInfo(String [] layers, String srs, double [] bbox, int width, int height, int featureCount, int x, int y) throws WMSException {
-        throw new WMSException(null, "getFeatureInfo not supported");
+    public Feature [] getFeatureInfo(String [] layer, String srs, double [] bbox, int width, int height, int featureCount, int x, int y) throws WMSException {
+       // throw new WMSException(null, "getFeatureInfo not supported");
+        try {
+            System.out.println("setting up map");
+            map = new DefaultMap();
+            for(int i = 0; i < layer.length; i++){
+                
+              
+                DataSource ds = (DataSource)features.get(layer[i]);
+                FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
+         //       map.addFeatureTable(fc,layerstyle);
+            }
+            System.out.println("map setup");
+            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            Envelope env = new Envelope(bbox[0],bbox[2],bbox[1],bbox[3]);
+            System.out.println("setting up renderer");
+            Java2DRenderer renderer = new Java2DRenderer();
+            
+            renderer.setOutput(image.getGraphics(), new java.awt.Rectangle(width,height));
+            System.out.println("inverting coordinate");
+            Coordinate c = renderer.pixelToWorld(x,y,env);
+            System.out.println("returning image");
+            return null;
+        }
+        catch(Exception exp) {
+            exp.printStackTrace();
+            throw new WMSException(null, "Internal error : "+exp.getMessage());
+        }
+        
     }
     
     
