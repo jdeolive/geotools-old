@@ -60,8 +60,15 @@ public class DefaultQuery implements Query {
 
     /**
      * Constructor that sets the filter.
-     *
+     * <p>
+     * Using a Query with only a filter, and no typeName, almost always
+     * results in an error.
+     * </p>
+     * <p>
+     * Please use DefaulQuery( typeName, filter ) 
+     * </p>
      * @param filter the OGC filter to constrain the request.
+     * @deprecated Please use DefaultQuery( typeName, filter ) instead.
      */
     public DefaultQuery(Filter filter) {
         this.filter = filter;
@@ -250,6 +257,14 @@ public class DefaultQuery implements Query {
      * field of the query for now.
      * </p>
      *
+     * <p>
+     * Update for DataStore
+     * </p>
+     * <p>
+     * The DataStore API does not assume one feature type per datastore.
+     * It currently makes use of this field to to specify with each request
+     * what type to get.
+     * </p>
      * @return the name of the feature type to be returned with this query.
      *
      * @task REVISIT: the transaction methods do not work with different
