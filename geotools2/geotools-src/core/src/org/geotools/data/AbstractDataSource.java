@@ -51,7 +51,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.5 2003/09/22 18:49:24 cholmesny Exp $
+ * @version $Id: AbstractDataSource.java,v 1.6 2003/11/20 18:24:42 jive Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** A support string for unsupported operations messages */
@@ -100,7 +100,11 @@ public abstract class AbstractDataSource implements DataSource {
      * @return A default query with the filter passed in.
      */
     protected Query makeDefaultQuery(Filter filter) {
-        return new DefaultQuery(filter);
+        try {
+            return new DefaultQuery(getSchema().getTypeName(), filter);
+        } catch (DataSourceException e) {
+            return new DefaultQuery(filter);
+        }
     }
 
     /**
