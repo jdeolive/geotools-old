@@ -34,14 +34,11 @@ package org.geotools.gp;
 
 // J2SE dependencies
 import java.awt.Color;
-import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 
 // Java Advanced Imaging
-import javax.media.jai.JAI;
 import javax.media.jai.KernelJAI;
 import javax.media.jai.ParameterList;
-import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
 
@@ -66,7 +63,7 @@ import org.geotools.resources.XAffineTransform;
  * to "geophysics" measurements. The normalization include dividing
  * by the distance between pixels.
  *
- * @version $Id: GradientMagnitudeOperation.java,v 1.3 2003/07/04 13:46:36 desruisseaux Exp $
+ * @version $Id: GradientMagnitudeOperation.java,v 1.4 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GradientMagnitudeOperation extends OperationJAI {

@@ -28,9 +28,6 @@
  */
 package org.geotools.gp.jai;
 
-// J2SE dependencies
-import java.awt.image.renderable.ParameterBlock;
-
 // JAI dependencies
 import javax.media.jai.util.Range;
 import javax.media.jai.OperationDescriptorImpl;
@@ -40,7 +37,7 @@ import javax.media.jai.registry.RenderedRegistryMode;
 /**
  * The descriptor for the {@link NodataFilter} operation.
  *
- * @version $Id: NodataFilterDescriptor.java,v 1.2 2003/07/30 17:45:22 desruisseaux Exp $
+ * @version $Id: NodataFilterDescriptor.java,v 1.3 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Lionel Flahaut 
  */
 public class NodataFilterDescriptor extends OperationDescriptorImpl {

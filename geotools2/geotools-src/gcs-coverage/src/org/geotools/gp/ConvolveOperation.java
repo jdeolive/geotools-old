@@ -33,19 +33,15 @@ package org.geotools.gp;
 
 // J2SE dependencies
 import java.awt.Color;
-import java.awt.RenderingHints;
 
 // Java Advanced Imaging
 import javax.media.jai.KernelJAI;
-import javax.media.jai.ParameterList;
-import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
 
 // Geotools dependencies
 import org.geotools.cv.Category;
 import org.geotools.gc.GridCoverage;
-import org.geotools.cs.CoordinateSystem;
 import org.geotools.util.NumberRange;
 import org.geotools.resources.Utilities;
 
@@ -55,7 +51,7 @@ import org.geotools.resources.Utilities;
  * "Convolve". It includes the OpenGIS "LaplaceType1Filter" and "LaplaceType2Filter"
  * operations.
  *
- * @version $Id: ConvolveOperation.java,v 1.4 2003/07/04 13:46:36 desruisseaux Exp $
+ * @version $Id: ConvolveOperation.java,v 1.5 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ConvolveOperation extends OperationJAI {

@@ -33,17 +33,12 @@
 package org.geotools.cv;
 
 // J2SE dependencies
-import java.awt.Image;
 import java.awt.Color;
-import java.util.List;
 import java.util.Locale;
-import java.util.Arrays;
-import java.util.ArrayList;
 import java.lang.ref.Reference;
 import java.rmi.RemoteException;
 
 // JAI dependencies
-import javax.media.jai.util.Range;
 import javax.media.jai.PropertySource;
 
 // OpenGIS dependencies
@@ -57,21 +52,18 @@ import org.opengis.cv.CV_PaletteInterpretation;
 import org.geotools.units.Unit;
 import org.geotools.pt.Envelope;
 import org.geotools.pt.CoordinatePoint;
-import org.geotools.ct.MathTransform1D;
-import org.geotools.resources.XArray;
 import org.geotools.resources.RemoteProxy;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
 
 /**
- * <FONT COLOR="#FF6633">Provide methods for interoperability with
- * <code>org.opengis.cv</code> package.</FONT>  All methods accept
- * null argument. This class has no default instance, since the
+ * Provide methods for interoperability with OpenGIS CV package.
+ * All methods accept null argument. This class has no default instance, since the
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.12 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.13 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -339,7 +331,7 @@ public class Adapters {
      * on a remote machine. {@link RemoteException} are catched and rethrown as a
      * {@link CannotEvaluateException}.
      *
-     * @version $Id: Adapters.java,v 1.12 2003/07/11 16:57:47 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.13 2003/08/04 19:07:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class CoverageProxy extends Coverage {

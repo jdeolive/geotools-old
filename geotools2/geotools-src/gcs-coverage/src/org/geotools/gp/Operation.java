@@ -55,12 +55,11 @@ import javax.media.jai.ParameterListDescriptorImpl;
 import javax.media.jai.EnumeratedParameter;
 
 // OpenGIS dependencies
-import org.opengis.gp.GP_Operation;
+import org.opengis.gp.GP_Operation; // For Javadoc
 
 // Geotools Dependencies
 import org.geotools.gc.GridCoverage;
 import org.geotools.gc.ParameterInfo;
-import org.geotools.ct.CoordinateTransformationFactory;
 
 // Resources
 import org.geotools.io.TableWriter;
@@ -76,9 +75,11 @@ import org.geotools.resources.gcs.Resources;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.17 2003/08/02 11:08:53 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.18 2003/08/04 19:07:22 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
+ *
+ * @see GP_Operation
  */
 public abstract class Operation implements Serializable {
     /**

@@ -37,16 +37,15 @@ package org.geotools.gp;
 
 // J2SE dependencies
 import java.awt.RenderingHints;
-import java.util.Locale;
 
 // JAI dependencies
-import javax.media.jai.JAI;
+import javax.media.jai.JAI; // For Javadoc
 
 // Geotools Dependencies
 import org.geotools.resources.Utilities;
-import org.geotools.cv.SampleDimensionType;
-import org.geotools.ct.CoordinateTransformation;
-import org.geotools.ct.CoordinateTransformationFactory;
+import org.geotools.cv.SampleDimensionType;             // For Javadoc
+import org.geotools.ct.CoordinateTransformation;        // For Javadoc
+import org.geotools.ct.CoordinateTransformationFactory; // For Javadoc
 
 
 /**
@@ -67,7 +66,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * GridCoverageProcessor processor = new GridCoverageProcessor(hints);
  * </pre></blockquote>
  *
- * @version $Id: Hints.java,v 1.6 2003/07/23 18:04:52 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.7 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {

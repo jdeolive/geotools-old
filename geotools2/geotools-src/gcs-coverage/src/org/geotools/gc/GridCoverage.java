@@ -54,54 +54,37 @@ import java.awt.image.IndexColorModel;
 
 // Java Advanced Imaging
 import javax.media.jai.JAI;
-import javax.media.jai.RenderedOp;
+import javax.media.jai.RenderedOp;   // For Javadoc
 import javax.media.jai.NullOpImage;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.ImageFunction;
 import javax.media.jai.LookupTableJAI;
 import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationNearest;
-import javax.media.jai.util.CaselessStringKey;
-import javax.media.jai.operator.LookupDescriptor;
-import javax.media.jai.operator.RescaleDescriptor;
-import javax.media.jai.operator.PiecewiseDescriptor;
+import javax.media.jai.InterpolationNearest;         // For Javadoc
+import javax.media.jai.util.CaselessStringKey;       // For Javadoc
+import javax.media.jai.operator.LookupDescriptor;    // For Javadoc
+import javax.media.jai.operator.RescaleDescriptor;   // For Javadoc
+import javax.media.jai.operator.PiecewiseDescriptor; // For Javadoc
 import javax.media.jai.remote.SerializableRenderedImage;
 
 // Geometry
 import java.awt.Point;
-import java.awt.Shape;
-import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.geom.Point2D;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
-import org.geotools.resources.XAffineTransform;
-import org.geotools.resources.XDimension2D;
-
-// Collections
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-
-// Events
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowAdapter;
 
 // Miscellaneous
-import java.util.Date;
+import java.util.Map;
+import java.util.List;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
-import java.text.DateFormat;
-import java.text.FieldPosition;
 import java.rmi.RemoteException;
-import java.rmi.ServerException;
-import java.io.NotSerializableException;
+import java.rmi.ServerException;  // For Javadoc
+import java.io.NotSerializableException; // For Javadoc
 import java.io.StringWriter;
 import java.io.IOException;
 
@@ -120,12 +103,11 @@ import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.AxisOrientation;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform1D;
-import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.cv.Coverage;
 import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
-import org.geotools.cv.SampleDimensionType;
+import org.geotools.cv.SampleDimensionType;  // For Javadoc
 import org.geotools.cv.CannotEvaluateException;
 import org.geotools.cv.PointOutsideCoverageException;
 
@@ -135,8 +117,6 @@ import org.geotools.io.LineWriter;
 import org.geotools.util.WeakHashSet;
 import org.geotools.util.NumberRange;
 import org.geotools.resources.XArray;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.gcs.Resources;
@@ -155,7 +135,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.22 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.23 2003/08/04 19:07:22 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1362,7 +1342,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.22 2003/07/11 16:57:47 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.23 2003/08/04 19:07:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1391,7 +1371,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.22 2003/07/11 16:57:47 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.23 2003/08/04 19:07:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {

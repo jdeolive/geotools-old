@@ -40,14 +40,6 @@ import java.util.Locale;
 import java.text.NumberFormat;
 import java.text.FieldPosition;
 
-// JAI dependencies
-import javax.media.jai.util.Range;
-
-// Geotools dependencies
-import org.geotools.ct.MathTransform;
-import org.geotools.ct.MathTransform1D;
-import org.geotools.ct.TransformException;
-
 // Resources
 import org.geotools.units.Unit;
 import org.geotools.resources.XMath;
@@ -63,7 +55,7 @@ import org.geotools.resources.Utilities;
  * the list of {@link Category}. This transform is thread safe if each
  * {@link Category#getSampleToGeophysics} transform is thread-safe too.
  *
- * @version $Id: GeophysicsCategoryList.java,v 1.3 2003/05/13 10:59:50 desruisseaux Exp $
+ * @version $Id: GeophysicsCategoryList.java,v 1.4 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GeophysicsCategoryList extends CategoryList {

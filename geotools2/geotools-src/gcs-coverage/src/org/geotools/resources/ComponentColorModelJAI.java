@@ -40,11 +40,11 @@ import java.awt.color.ColorSpace;
 import java.awt.image.DataBuffer;
 import java.awt.image.SampleModel;
 import java.awt.image.ComponentColorModel;
-import java.awt.image.ComponentSampleModel;
+import java.awt.image.ComponentSampleModel; // For Javadoc
 
 // JAI dependencies
-import javax.media.jai.iterator.RectIter;
-import javax.media.jai.FloatDoubleColorModel;
+import javax.media.jai.iterator.RectIter;      // For Javadoc
+import javax.media.jai.FloatDoubleColorModel;  // For Javadoc
 import javax.media.jai.ComponentSampleModelJAI;
 
 

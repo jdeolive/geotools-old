@@ -36,7 +36,7 @@ import org.geotools.pt.Envelope;
 import org.geotools.gc.GridRange;
 import org.geotools.gc.GridGeometry;
 import org.geotools.gc.GridCoverage;
-import org.geotools.ct.MathTransform;
+import org.geotools.ct.MathTransform; // For Javadoc
 import org.geotools.ct.MathTransform1D;
 import org.geotools.cv.SampleDimension;
 import org.geotools.gc.InvalidGridGeometryException;
@@ -46,7 +46,7 @@ import org.geotools.gc.InvalidGridGeometryException;
  * A set of utilities methods for the Grid Coverage package. Those methods are not really
  * rigorous; must of them should be seen as temporary implementations.
  *
- * @version $Id: GCSUtilities.java,v 1.9 2003/08/03 20:15:04 desruisseaux Exp $
+ * @version $Id: GCSUtilities.java,v 1.10 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GCSUtilities {

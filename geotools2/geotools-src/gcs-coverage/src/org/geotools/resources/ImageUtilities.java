@@ -45,7 +45,7 @@ import java.util.logging.Level;
 
 // Java Advanced Imaging
 import javax.media.jai.JAI;
-import javax.media.jai.OpImage;
+import javax.media.jai.OpImage;  // For Javadoc
 import javax.media.jai.ImageLayout;
 import javax.media.jai.OperationRegistry;
 import javax.media.jai.registry.RIFRegistry;
@@ -65,7 +65,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * It may change in incompatible way in any future version.
  *
- * @version $Id: ImageUtilities.java,v 1.9 2003/07/30 17:45:22 desruisseaux Exp $
+ * @version $Id: ImageUtilities.java,v 1.10 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ImageUtilities {

@@ -34,7 +34,7 @@ import java.awt.image.RenderedImage;
 
 // JAI dependencies
 import javax.media.jai.ParameterBlockJAI;
-import javax.media.jai.operator.BandCombineDescriptor;
+import javax.media.jai.operator.BandCombineDescriptor; // For Javadoc
 
 // Geotools dependencies
 import org.geotools.gp.jai.CombineDescriptor;
@@ -45,7 +45,7 @@ import org.geotools.gp.jai.CombineDescriptor;
  * &quot;{@linkplain BandCombineDescriptor BandCombine}&quot; if the operation has
  * only one source.
  *
- * @version $Id: CombineOperation.java,v 1.1 2003/07/23 18:04:52 desruisseaux Exp $
+ * @version $Id: CombineOperation.java,v 1.2 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class CombineOperation extends PolyadicOperation {

@@ -33,7 +33,6 @@
 package org.geotools.gp.jai;
 
 // J2SE dependencies
-import java.lang.reflect.Array;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 
@@ -53,7 +52,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * specified. The &quot;0&quot; should be understood as the <em>minimal</em> number of sources
  * required.
  *
- * @version $Id: CombineDescriptor.java,v 1.4 2003/07/30 17:45:22 desruisseaux Exp $
+ * @version $Id: CombineDescriptor.java,v 1.5 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

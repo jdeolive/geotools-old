@@ -39,11 +39,10 @@ package org.geotools.gc;
 import java.io.Serializable;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
-import java.awt.image.RenderedImage;
-import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;  // For Javadoc
+import java.awt.image.BufferedImage;  // For Javadoc
 
 // RMI and weak references
 import java.rmi.RemoteException;
@@ -83,7 +82,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Describes the valid range of grid coordinates and the math
  * transform to transform grid coordinates to real world coordinates.
  *
- * @version $Id: GridGeometry.java,v 1.11 2003/05/13 10:59:51 desruisseaux Exp $
+ * @version $Id: GridGeometry.java,v 1.12 2003/08/04 19:07:22 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *

@@ -36,14 +36,11 @@
 package org.geotools.cv;
 
 // J2SE dependencies
-import java.util.List;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Comparator;
 import java.util.AbstractList;
-import java.util.NoSuchElementException;
 
-import java.awt.Color;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.RasterFormatException;
@@ -54,8 +51,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 
 // JAI dependencies
-import javax.media.jai.util.Range;
-import javax.media.jai.iterator.RectIter;
 import javax.media.jai.iterator.WritableRectIter;
 
 // Geotools dependencies
@@ -64,7 +59,6 @@ import org.geotools.pt.CoordinatePoint;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform1D;
 import org.geotools.ct.TransformException;
-import org.geotools.ct.AbstractMathTransform;
 import org.geotools.pt.MismatchedDimensionException;
 
 // Resources
@@ -83,7 +77,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.18 2003/06/25 13:23:26 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.19 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable {

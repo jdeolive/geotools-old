@@ -35,7 +35,6 @@ package org.geotools.io.image;
 // Input/output
 import java.io.IOException;
 import java.io.EOFException;
-import javax.imageio.ImageReader;
 import javax.imageio.IIOException;
 import javax.imageio.stream.ImageInputStream;
 
@@ -65,9 +64,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Locale;
-import java.awt.Point;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import javax.media.jai.util.Range;
@@ -110,7 +107,7 @@ import org.geotools.resources.ComponentColorModelJAI;
  *       subclass setting the <code>padValue</code> field.</li>
  * </ul>
  *
- * @version $Id: RawBinaryImageReader.java,v 1.5 2003/07/22 15:24:54 desruisseaux Exp $
+ * @version $Id: RawBinaryImageReader.java,v 1.6 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @deprecated Use Sun's RAW decoder provided with "Java Advanced Imaging Image I/O Tools"

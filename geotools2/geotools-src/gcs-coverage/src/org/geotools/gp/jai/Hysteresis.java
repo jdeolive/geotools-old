@@ -30,7 +30,6 @@ package org.geotools.gp.jai;
 
 // J2SE dependencies
 import java.util.Map;
-import java.util.Arrays;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -38,7 +37,6 @@ import java.awt.image.WritableRaster;
 
 // JAI dependencies
 import javax.media.jai.ImageLayout;
-import javax.media.jai.PlanarImage;
 import javax.media.jai.UntiledOpImage;
 import javax.media.jai.iterator.RandomIter;
 import javax.media.jai.iterator.RandomIterFactory;
@@ -57,7 +55,7 @@ import javax.media.jai.iterator.RandomIterFactory;
  * de valeur supérieure à <var>sh</var>. Cette recherche se fait de manière itérative,
  * jusqu'à ce que le point indéterminé n'est plus de voisins satisfaisants.
  * 
- * @version $Id: Hysteresis.java,v 1.1 2003/07/18 13:49:56 desruisseaux Exp $
+ * @version $Id: Hysteresis.java,v 1.2 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Lionel Flahaut
  * @author Martin Desruisseaux
  */

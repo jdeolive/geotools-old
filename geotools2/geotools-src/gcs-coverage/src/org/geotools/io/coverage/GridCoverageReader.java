@@ -42,9 +42,7 @@ import java.io.StringWriter;
 // Image input/output
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import javax.imageio.IIOException;
 import javax.imageio.ImageReadParam;
-import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 
 // Images and geometry
@@ -101,7 +99,7 @@ import org.geotools.io.image.RawBinaryImageReadParam;
  * However, other methods may be overriden too in order to get finner control
  * on the result.
  *
- * @version $Id: GridCoverageReader.java,v 1.9 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: GridCoverageReader.java,v 1.10 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GridCoverageReader {

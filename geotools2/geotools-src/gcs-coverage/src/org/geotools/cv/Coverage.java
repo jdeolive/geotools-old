@@ -38,7 +38,6 @@ package org.geotools.cv;
 // Images
 import java.awt.Image;
 import java.awt.RenderingHints;
-import java.awt.image.DataBuffer;
 import java.awt.image.ColorModel;
 import java.awt.image.SampleModel;
 import java.awt.image.RenderedImage;
@@ -59,18 +58,16 @@ import java.awt.geom.NoninvertibleTransformException;
 
 // Collections
 import java.util.Map;
-import java.util.List;
 import java.util.Vector;
-import java.util.Comparator;
 import javax.media.jai.PropertySource;
 import javax.media.jai.PropertySourceImpl;
-import javax.media.jai.util.CaselessStringKey;
+import javax.media.jai.util.CaselessStringKey; // For Javadoc
 
 // Miscellaneous
 import java.util.Arrays;
 import java.util.Locale;
 import java.rmi.RemoteException;
-import java.rmi.ServerException;
+import java.rmi.ServerException; // For Javadoc
 import java.rmi.server.UnicastRemoteObject;
 import java.lang.ref.WeakReference;
 
@@ -141,7 +138,7 @@ import org.opengis.gc.GC_GridCoverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.16 2003/05/13 10:59:49 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.17 2003/08/04 19:07:22 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -771,7 +768,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.16 2003/05/13 10:59:49 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.17 2003/08/04 19:07:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends UnicastRemoteObject implements CV_Coverage, PropertySource {

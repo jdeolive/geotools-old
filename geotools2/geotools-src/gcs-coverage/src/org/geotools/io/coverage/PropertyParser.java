@@ -42,7 +42,6 @@ import javax.media.jai.DeferredData;
 import javax.media.jai.ParameterList;
 import javax.media.jai.PropertySource;
 import javax.media.jai.DeferredProperty;
-import javax.media.jai.ParameterListDescriptor;
 
 // Input/output
 import java.io.*;
@@ -68,12 +67,10 @@ import java.util.LinkedHashMap;
 
 // Logging
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
 // Miscellaneous
 import java.util.Locale;
-import java.awt.geom.Point2D;
 
 // Geotools dependencies (CTS and GCS)
 import org.geotools.pt.*;
@@ -142,7 +139,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * For example, the {@link #getCoordinateSystem} method constructs a
  * {@link org.geotools.cs.CoordinateSystem} object using available informations.
  *
- * @version $Id: PropertyParser.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.16 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -2086,7 +2083,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.16 2003/08/04 19:07:23 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -2158,7 +2155,7 @@ loop:       for (int i=str.length(); --i>=0;) {
     /**
      * A key for properties derived from {@link Envelope} and/or {@link GridRange}.
      *
-     * @version $Id: PropertyParser.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.16 2003/08/04 19:07:23 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class EnvelopeKey extends Key {
@@ -2268,7 +2265,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * A key for properties derived from {@link Projection}.
      * The key name must be the projection parameter name.
      *
-     * @version $Id: PropertyParser.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.16 2003/08/04 19:07:23 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ProjectionKey extends Key {
@@ -2305,7 +2302,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.16 2003/08/04 19:07:23 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {

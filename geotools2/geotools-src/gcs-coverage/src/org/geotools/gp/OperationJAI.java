@@ -36,12 +36,9 @@
 package org.geotools.gp;
 
 // J2SE dependencies
-import java.awt.Color;
 import java.awt.RenderingHints;
-import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
-import java.awt.image.renderable.ParameterBlock;
 import java.util.MissingResourceException;
 import java.util.Locale;
 import java.util.Arrays;
@@ -59,7 +56,6 @@ import javax.media.jai.ParameterListDescriptorImpl;
 import javax.media.jai.registry.RenderedRegistryMode;
 
 // Geotools dependencies
-import org.geotools.pt.Envelope;
 import org.geotools.cs.FactoryException;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.CompoundCoordinateSystem;
@@ -69,7 +65,6 @@ import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.MathTransform;
 import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
-import org.geotools.gc.GridRange;
 import org.geotools.gc.GridGeometry;
 import org.geotools.gc.GridCoverage;
 import org.geotools.gc.InvalidGridGeometryException;
@@ -109,7 +104,7 @@ import org.geotools.resources.ImageUtilities;
  *   <li>{@link #createRenderedImage} (the actual call to {@link JAI#createNS JAI.createNS})</li>
  * </ol>
  *
- * @version $Id: OperationJAI.java,v 1.26 2003/08/03 20:15:03 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.27 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -920,7 +915,7 @@ public class OperationJAI extends Operation {
      *   <li>{@link OperationJAI#deriveUnit}</li>
      * </ul>
      *
-     * @version $Id: OperationJAI.java,v 1.26 2003/08/03 20:15:03 desruisseaux Exp $
+     * @version $Id: OperationJAI.java,v 1.27 2003/08/04 19:07:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected static final class Parameters {

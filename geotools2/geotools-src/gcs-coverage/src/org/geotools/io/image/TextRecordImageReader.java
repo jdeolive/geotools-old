@@ -36,7 +36,6 @@ package org.geotools.io.image;
 import java.awt.image.DataBuffer;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
-import java.awt.image.IndexColorModel;
 
 // Images I/O
 import javax.imageio.ImageReader;
@@ -52,20 +51,14 @@ import java.text.ParseException;
 
 // Geometry
 import java.awt.Point;
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.AffineTransform;
 
 // Collections
-import java.util.Set;
 import java.util.List;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 // Miscellaneous
 import java.util.Locale;

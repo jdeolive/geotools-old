@@ -36,10 +36,8 @@
 package org.geotools.gp;
 
 // J2SE dependencies
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
@@ -51,7 +49,6 @@ import java.util.List;
 
 // Java Advanced Imaging
 import javax.media.jai.JAI;
-import javax.media.jai.Warp;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ImageLayout;
@@ -63,7 +60,6 @@ import javax.media.jai.InterpolationNearest;
 import javax.media.jai.IntegerSequence;
 
 // Geotools (GCS) dependencies
-import org.geotools.cv.Category;
 import org.geotools.gc.GridRange;
 import org.geotools.gc.GridCoverage;
 import org.geotools.gc.GridGeometry;
@@ -79,7 +75,6 @@ import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.MathTransformFactory;
-import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CoordinateTransformationFactory;
 
 // Resources
@@ -90,7 +85,6 @@ import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
-import org.geotools.resources.XAffineTransform;
 
 
 /**
@@ -114,7 +108,7 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.18 2003/08/01 10:41:53 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.19 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Resampler extends GridCoverage {
@@ -690,7 +684,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.18 2003/08/01 10:41:53 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.19 2003/08/04 19:07:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

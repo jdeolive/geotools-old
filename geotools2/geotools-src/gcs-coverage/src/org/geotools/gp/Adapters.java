@@ -40,9 +40,7 @@ import javax.media.jai.Interpolation;
 
 // OpenGIS dependencies
 import org.opengis.cv.CV_Coverage;
-import org.opengis.gc.GC_GridRange;
-import org.opengis.gc.GC_GridGeometry;
-import org.opengis.gc.GC_GridCoverage;
+import org.opengis.gc.GC_GridCoverage; // For Javadoc
 
 // Geotools dependencies
 import org.geotools.cv.Coverage;
@@ -50,11 +48,10 @@ import org.geotools.gc.GridCoverage;
 
 
 /**
- * <FONT COLOR="#FF6633">Provide methods for interoperability
- * with <code>org.opengis.gc</code> package.</FONT>
+ * Provide methods for interoperability with OpenGIS GC package.
  * All methods accept null argument.
  *
- * @version $Id: Adapters.java,v 1.7 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.8 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters extends org.geotools.gc.Adapters {

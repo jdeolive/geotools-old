@@ -69,7 +69,6 @@ import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
 // Extra operations
-import org.geotools.gp.jai.CombineDescriptor;
 import org.geotools.gp.jai.HysteresisDescriptor;
 import org.geotools.gp.jai.NodataFilterDescriptor;
 
@@ -82,7 +81,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.33 2003/08/01 17:40:20 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.34 2003/08/04 19:07:22 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -522,7 +521,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.33 2003/08/01 17:40:20 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.34 2003/08/04 19:07:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

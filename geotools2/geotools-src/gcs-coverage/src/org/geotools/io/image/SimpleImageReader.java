@@ -43,18 +43,16 @@ import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.DataBuffer;
 import java.awt.image.ColorModel;
-import java.awt.image.SampleModel;
-import java.awt.image.BandedSampleModel;
-import java.awt.image.ComponentColorModel;
+import java.awt.image.SampleModel;       // For Javadoc
+import java.awt.image.BandedSampleModel; // For Javadoc
 
 // Image I/O
 import javax.imageio.ImageReader;
-import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReadParam;     // For Javadoc
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
-import javax.imageio.IIOException;
 
 // Collections
 import java.util.Iterator;
@@ -86,7 +84,7 @@ import org.geotools.resources.ComponentColorModelJAI;
  * <a href="http://java.sun.com/products/java-media/jai/">Java Advanced Imaging</a>
  * operators after reading.
  *
- * @version $Id: SimpleImageReader.java,v 1.3 2003/05/13 10:59:53 desruisseaux Exp $
+ * @version $Id: SimpleImageReader.java,v 1.4 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see RawBinaryImageReader

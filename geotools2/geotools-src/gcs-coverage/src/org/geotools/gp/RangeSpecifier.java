@@ -39,8 +39,8 @@ import java.io.Serializable;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
-import org.geotools.cv.Category;
-import org.geotools.gc.GridCoverage;
+import org.geotools.cv.Category;     // For Javadoc
+import org.geotools.gc.GridCoverage; // For Javadoc
 import org.geotools.util.NumberRange;
 import org.geotools.ct.MathTransform1D;
 import org.geotools.resources.Utilities;
@@ -64,7 +64,7 @@ import org.geotools.resources.Utilities;
  *
  * operation.
  *
- * @version $Id: RangeSpecifier.java,v 1.2 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: RangeSpecifier.java,v 1.3 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RangeSpecifier implements Serializable, Cloneable {

@@ -41,15 +41,10 @@ import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RasterFormatException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.LogRecord;
 
 // Geotools dependencies
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
-import org.geotools.ct.proj.PointOutsideEnvelopeException;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
@@ -58,7 +53,7 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * An image warp using {@link MathTransform2D}.
  *
- * @version $Id: WarpTransform.java,v 1.6 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: WarpTransform.java,v 1.7 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class WarpTransform extends Warp {

@@ -40,8 +40,6 @@ import java.awt.image.RenderedImage;
 // JAI dependencies
 import javax.media.jai.PlanarImage;
 import javax.media.jai.PropertySource;
-import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationNearest;
 import javax.media.jai.RenderedImageAdapter;
 import javax.media.jai.remote.SerializableRenderedImage;
 
@@ -54,17 +52,15 @@ import org.opengis.cv.CV_Coverage;
 // Geotools dependencies
 import org.geotools.cv.Coverage;
 import org.geotools.cv.SampleDimension;
-import org.geotools.cs.CoordinateSystem;
 
 
 /**
- * <FONT COLOR="#FF6633">Provide methods for interoperability with
- * <code>org.opengis.gc</code> package.</FONT>  All methods accept
- * null argument. This class has no default instance, since the
+ * Provide methods for interoperability with OpenGIS GC package.
+ * All methods accept null argument. This class has no default instance, since the
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.11 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.12 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -253,7 +249,7 @@ public class Adapters extends org.geotools.cv.Adapters {
      * invoking {@link #dispose} will also dispose the serializable image,  which may
      * close socket connection.
      *
-     * @version $Id: Adapters.java,v 1.11 2003/07/11 16:57:47 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.12 2003/08/04 19:07:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ImageProxy extends RenderedImageAdapter {

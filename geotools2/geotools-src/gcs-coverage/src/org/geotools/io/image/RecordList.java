@@ -35,7 +35,6 @@ package org.geotools.io.image;
 // Miscellaneous
 import java.util.Arrays;
 import javax.imageio.IIOException;
-import java.awt.image.WritableRaster;
 
 // Resources
 import org.geotools.resources.XArray;

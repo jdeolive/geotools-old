@@ -38,11 +38,9 @@ import java.util.List;
 // Java Advanced Imaging
 import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
-import javax.media.jai.ParameterListDescriptor;
 
 // Geotools dependencies
 import org.geotools.cv.Category;
-import org.geotools.gc.GridCoverage;
 import org.geotools.cv.SampleDimension;
 
 
@@ -72,7 +70,7 @@ import org.geotools.cv.SampleDimension;
  *     08    0000FF        0000FF
  * </pre></blockquote>
  *
- * @version $Id: GradualColormapOperation.java,v 1.5 2003/08/01 10:41:53 desruisseaux Exp $
+ * @version $Id: GradualColormapOperation.java,v 1.6 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GradualColormapOperation extends IndexColorOperation {

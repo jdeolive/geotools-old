@@ -42,7 +42,7 @@ import javax.media.jai.util.Range;
 import javax.media.jai.ParameterListDescriptor;
 
 // OpenGIS dependencies
-import org.opengis.gc.GC_ParameterInfo;
+import org.opengis.gc.GC_ParameterInfo; // For Javadoc
 
 // Resources
 import org.geotools.resources.Utilities;
@@ -60,7 +60,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * OpenGIS specification and its API is significantly different from Java
  * Advanced Imaging.
  *
- * @version $Id: ParameterInfo.java,v 1.4 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: ParameterInfo.java,v 1.5 2003/08/04 19:07:22 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *

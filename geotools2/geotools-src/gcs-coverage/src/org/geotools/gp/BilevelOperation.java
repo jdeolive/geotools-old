@@ -32,21 +32,18 @@ package org.geotools.gp;
 import java.util.Arrays;
 
 // JAI dependencies
-import javax.media.jai.ParameterList;
 import javax.media.jai.operator.BinarizeDescriptor; // For javadoc
 
 // Geotools dependencies
 import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
-import org.geotools.ct.MathTransform1D;
-import org.geotools.cs.CoordinateSystem;
 
 
 /**
  * Wraps any JAI operation producing a bilevel image. An example of such operation is
  * {@link BinarizeDescriptor Binarize}.
  *
- * @version $Id: BilevelOperation.java,v 1.4 2003/07/04 13:46:36 desruisseaux Exp $
+ * @version $Id: BilevelOperation.java,v 1.5 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class BilevelOperation extends OperationJAI {

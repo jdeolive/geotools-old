@@ -29,14 +29,11 @@
 package org.geotools.gp.jai;
 
 // J2SE dependencies
-import java.util.Arrays;
 import java.util.Vector;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.awt.image.RasterFormatException;
-import java.awt.image.renderable.ParameterBlock;
 
 // JAI dependencies
 import javax.media.jai.JAI;
@@ -46,7 +43,7 @@ import javax.media.jai.PointOpImage;
 import javax.media.jai.iterator.RectIter;
 import javax.media.jai.iterator.RectIterFactory;
 import javax.media.jai.iterator.WritableRectIter;
-import javax.media.jai.operator.BandCombineDescriptor;
+import javax.media.jai.operator.BandCombineDescriptor; // For Javadoc
 
 // Java3D dependencies
 import javax.vecmath.MismatchedSizeException;
@@ -93,7 +90,7 @@ import org.geotools.resources.ImageUtilities;
  * In the special case where there is only one source, this method is equivalent to JAI's
  * &quot;{@link BandCombineDescriptor BandCombine}&quot; operation.
  *
- * @version $Id: Combine.java,v 1.3 2003/07/22 15:24:54 desruisseaux Exp $
+ * @version $Id: Combine.java,v 1.4 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Remi Eve
  */
@@ -322,7 +319,7 @@ public class Combine extends PointOpImage {
      * value = src0[x][y]*scale0 + src1[x][y]*scale1 + offset
      * </pre></blockquote>
      *
-     * @version $Id: Combine.java,v 1.3 2003/07/22 15:24:54 desruisseaux Exp $
+     * @version $Id: Combine.java,v 1.4 2003/08/04 19:07:23 desruisseaux Exp $
      * @author Remi Eve
      * @author Martin Desruisseaux
      */

@@ -57,7 +57,6 @@ import javax.media.jai.OperationDescriptorImpl;
 import javax.media.jai.iterator.WritableRectIter;
 import javax.media.jai.iterator.RectIterFactory;
 import javax.media.jai.registry.RenderedRegistryMode;
-import javax.media.jai.util.Range;
 
 // Geotools dependencies
 import org.geotools.resources.DualRectIter;
@@ -72,7 +71,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * for {@link java.awt.image.renderable.ContextualRenderedImageFactory}.   The image
  * operation name is &quot;org.geotools.SampleTranscode&quot;.
  *
- * @version $Id: SampleTranscoder.java,v 1.3 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: SampleTranscoder.java,v 1.4 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class SampleTranscoder extends PointOpImage {

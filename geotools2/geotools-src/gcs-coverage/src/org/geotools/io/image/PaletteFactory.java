@@ -34,7 +34,6 @@ package org.geotools.io.image;
 
 // Colors
 import java.awt.Color;
-import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 
 // Input/output
@@ -46,7 +45,6 @@ import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.io.FileNotFoundException;
 import javax.imageio.IIOException;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -54,7 +52,6 @@ import java.text.ParseException;
 // Miscellaneous
 import java.util.List;
 import java.util.Locale;
-import java.util.Arrays;
 import java.util.ArrayList;
 
 // Resources
@@ -90,7 +87,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * The number of RGB codes doesn't have to match an {@link IndexColorModel}'s
  * map size. RGB codes will be automatically interpolated RGB values when needed.
  *
- * @version $Id: PaletteFactory.java,v 1.6 2003/07/22 15:24:54 desruisseaux Exp $
+ * @version $Id: PaletteFactory.java,v 1.7 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PaletteFactory {

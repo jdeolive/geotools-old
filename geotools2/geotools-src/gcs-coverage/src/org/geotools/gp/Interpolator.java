@@ -40,12 +40,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
-import java.awt.image.Raster;
 import java.awt.RenderingHints;
 import java.lang.reflect.Array;
 
 // JAI dependencies
-import javax.media.jai.PlanarImage;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.iterator.RectIter;
@@ -64,10 +62,6 @@ import org.geotools.cv.CannotEvaluateException;
 import org.geotools.cv.PointOutsideCoverageException;
 import org.geotools.ct.NoninvertibleTransformException;
 
-// Resources
-import org.geotools.resources.gcs.Resources;
-import org.geotools.resources.gcs.ResourceKeys;
-
 
 /**
  * A grid coverage using an {@link Interpolation} for evaluating points.
@@ -75,7 +69,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * interpolation (use the standard {@link GridCoverage} class for that).
  * It should work for other kinds of interpolation however.
  *
- * @version $Id: Interpolator.java,v 1.10 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: Interpolator.java,v 1.11 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Interpolator extends GridCoverage {
@@ -613,7 +607,7 @@ final class Interpolator extends GridCoverage {
      * The default value is nearest neighbor. The new interpolation type operates
      * on all sample dimensions. See package description for more details.
      *
-     * @version $Id: Interpolator.java,v 1.10 2003/05/13 10:59:52 desruisseaux Exp $
+     * @version $Id: Interpolator.java,v 1.11 2003/08/04 19:07:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

@@ -32,17 +32,15 @@ package org.geotools.gp;
 import java.awt.RenderingHints;
 
 // JAI dependencies
-import javax.media.jai.JAI;
-import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
 import javax.media.jai.EnumeratedParameter;
 import javax.media.jai.OperationDescriptor;
-import javax.media.jai.operator.MinFilterShape;
-import javax.media.jai.operator.MaxFilterShape;
-import javax.media.jai.operator.MedianFilterShape;
+import javax.media.jai.operator.MinFilterShape;      // For Javadoc
+import javax.media.jai.operator.MaxFilterShape;      // For Javadoc
+import javax.media.jai.operator.MedianFilterShape;   // For Javadoc
 import javax.media.jai.operator.MinFilterDescriptor;
 import javax.media.jai.operator.MaxFilterDescriptor;
 import javax.media.jai.operator.MedianFilterDescriptor;
@@ -50,14 +48,13 @@ import javax.media.jai.operator.MedianFilterDescriptor;
 // Geotools dependencies
 import org.geotools.gc.GridCoverage;
 import org.geotools.cv.SampleDimension;
-import org.geotools.cs.CoordinateSystem;
 
 
 /**
  * The implementation of JAI's {@link MinFilterDescriptor MinFilter},
  * {@link MaxFilterDescriptor MaxFilter} and {@link MedianFilterDescriptor MedianFilter}.
  *
- * @version $Id: MaskFilterOperation.java,v 1.1 2003/07/23 10:33:14 desruisseaux Exp $
+ * @version $Id: MaskFilterOperation.java,v 1.2 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class MaskFilterOperation extends FilterOperation {

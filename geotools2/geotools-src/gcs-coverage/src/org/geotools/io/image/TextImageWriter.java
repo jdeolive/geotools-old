@@ -36,14 +36,10 @@ package org.geotools.io.image;
 import java.io.IOException;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageWriter;
-import javax.imageio.IIOException;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.spi.ImageWriterSpi;
 import javax.imageio.metadata.IIOMetadata;
-
-// Images
-import java.awt.image.RenderedImage;
 
 
 /**

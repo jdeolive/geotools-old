@@ -41,8 +41,6 @@ import java.awt.image.renderable.ParameterBlock;
 
 // Java Advanced Imaging dependencies
 import javax.media.jai.JAI;
-import javax.media.jai.util.Range;
-import javax.media.jai.RenderedOp;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
@@ -50,7 +48,6 @@ import javax.media.jai.ParameterListDescriptorImpl;
 import javax.media.jai.WritablePropertySource;
 
 // Geotools dependencies
-import org.geotools.cs.CoordinateSystem;
 import org.geotools.cv.SampleDimension;
 import org.geotools.gc.GridCoverage;
 import org.geotools.resources.GCSUtilities;
@@ -63,7 +60,7 @@ import org.geotools.resources.ColorUtilities;
  * color model is to select a different visible band. Consequently, the "SelectSampleDimension"
  * name still appropriate in this context.
  *
- * @version $Id: SelectSampleDimension.java,v 1.4 2003/07/22 15:24:53 desruisseaux Exp $
+ * @version $Id: SelectSampleDimension.java,v 1.5 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class SelectSampleDimension extends GridCoverage {
@@ -244,7 +241,7 @@ final class SelectSampleDimension extends GridCoverage {
     /**
      * An operation for selecting bands.
      *
-     * @version $Id: SelectSampleDimension.java,v 1.4 2003/07/22 15:24:53 desruisseaux Exp $
+     * @version $Id: SelectSampleDimension.java,v 1.5 2003/08/04 19:07:23 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     final static class Operation extends org.geotools.gp.Operation {

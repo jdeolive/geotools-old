@@ -47,11 +47,11 @@ import javax.media.jai.util.Range;
 import javax.media.jai.operator.PiecewiseDescriptor; // For Javadoc
 
 // OpenGIS dependencies
-import org.opengis.cv.CV_SampleDimension;
+import org.opengis.cv.CV_SampleDimension; // For Javadoc
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
-import org.geotools.ct.MathTransform;
+import org.geotools.ct.MathTransform; // For Javadoc
 import org.geotools.ct.MathTransform1D;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.MathTransformFactory;
@@ -101,7 +101,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.19 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.20 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see SampleDimension
@@ -959,7 +959,7 @@ public class Category implements Serializable {
      * A category with a localized name. Used for the pre-defined categories
      * {@link #NODATA}, {@link #FALSE} and {@link #TRUE}.
      *
-     * @version $Id: Category.java,v 1.19 2003/07/11 16:57:47 desruisseaux Exp $
+     * @version $Id: Category.java,v 1.20 2003/08/04 19:07:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Localized extends Category {

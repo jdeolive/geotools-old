@@ -33,10 +33,8 @@
 package org.geotools.io.coverage;
 
 // Image input/output
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.IIOException;
-import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.ImageIO;     // For Javadoc
+import javax.imageio.ImageReader; // For Javadoc
 
 // Miscellaneous
 import java.net.URL;
@@ -47,12 +45,11 @@ import java.util.Locale;
 // Geotools dependencies
 import org.geotools.pt.Envelope;
 import org.geotools.gc.GridRange;
-import org.geotools.gc.GridCoverage;
+import org.geotools.gc.GridCoverage;  // For Javadoc
 import org.geotools.cv.SampleDimension;
 import org.geotools.cs.CoordinateSystem;
 
 // Resources
-import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
 
@@ -65,7 +62,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * text file. The text file is parsed by a {@link PropertyParser} object, while the pixel
  * values are read by a {@link ImageReader} object.
  *
- * @version $Id: ExoreferencedGridCoverageReader.java,v 1.5 2002/08/22 11:16:08 desruisseaux Exp $
+ * @version $Id: ExoreferencedGridCoverageReader.java,v 1.6 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ExoreferencedGridCoverageReader extends GridCoverageReader {

@@ -28,9 +28,6 @@
  */
 package org.geotools.gp.jai;
 
-// J2SE dependencies
-import java.awt.image.renderable.ParameterBlock;
-
 // JAI dependencies
 import javax.media.jai.OperationDescriptorImpl;
 import javax.media.jai.registry.RenderedRegistryMode;
@@ -39,7 +36,7 @@ import javax.media.jai.registry.RenderedRegistryMode;
 /**
  * The descriptor for the {@link Hysteresis} operation.
  *
- * @version $Id: HysteresisDescriptor.java,v 1.3 2003/07/30 17:45:22 desruisseaux Exp $
+ * @version $Id: HysteresisDescriptor.java,v 1.4 2003/08/04 19:07:23 desruisseaux Exp $
  * @author Lionel Flahaut
  */
 public class HysteresisDescriptor extends OperationDescriptorImpl {

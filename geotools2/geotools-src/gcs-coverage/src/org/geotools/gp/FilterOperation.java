@@ -32,9 +32,8 @@
 package org.geotools.gp;
 
 // JAI dependencies
-import javax.media.jai.ParameterList;
-import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.OperationDescriptor;
+import javax.media.jai.ParameterListDescriptor;
 
 // Geotools dependencies
 import org.geotools.cv.SampleDimension;
@@ -66,7 +65,7 @@ import org.geotools.cv.SampleDimension;
  * duplicated to fill a complete kernel.
  * </blockquote>
  *
- * @version $Id: FilterOperation.java,v 1.6 2003/07/23 10:33:14 desruisseaux Exp $
+ * @version $Id: FilterOperation.java,v 1.7 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class FilterOperation extends OperationJAI {

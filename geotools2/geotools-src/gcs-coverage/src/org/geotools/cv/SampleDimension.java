@@ -42,13 +42,10 @@ import java.util.Locale;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.io.Serializable;
-import java.awt.RenderingHints;
 import java.awt.image.DataBuffer; // For JavaDoc
 import java.awt.image.ColorModel;
-import java.awt.image.RenderedImage;
+import java.awt.image.RenderedImage;   // For Javadoc
 import java.awt.image.IndexColorModel;
-import java.awt.image.renderable.ParameterBlock;
-import java.awt.image.renderable.RenderedImageFactory;
 
 // RMI and weak references
 import java.rmi.RemoteException;
@@ -56,18 +53,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
 
-// Logging
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.LogRecord;
-
 // JAI dependencies
 import javax.media.jai.JAI;
-import javax.media.jai.CRIFImpl;
-import javax.media.jai.util.Range;
-import javax.media.jai.OperationRegistry;
-import javax.media.jai.OperationDescriptorImpl;
-import javax.media.jai.registry.RenderedRegistryMode;
 
 // OpenGIS dependencies
 import org.opengis.cs.CS_Unit;
@@ -112,7 +99,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.31 2003/07/22 15:24:53 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.32 2003/08/04 19:07:22 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1140,7 +1127,7 @@ public class SampleDimension implements Serializable {
      * Note that {@link org.geotools.gc.GridCoverage#getSampleDimensions} returns special
      * implementations of <code>SampleDimension</code>. In this particular case, the color model
      * created by this <code>getColorModel()</code> method will have the same number of bands
-     * than the grid coverage's {@link java.awt.image.RenderedImage}.
+     * than the grid coverage's {@link RenderedImage}.
      *
      * @return The requested color model, suitable for {@link RenderedImage} objects with values
      *         in the <code>{@link #getRange}</code> range. May be <code>null</code> if this

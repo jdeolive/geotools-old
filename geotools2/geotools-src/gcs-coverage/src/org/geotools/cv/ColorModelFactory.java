@@ -40,19 +40,16 @@ import java.util.Map;
 import java.util.Arrays;
 
 // Images and colors
-import java.awt.Color;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
-import java.awt.image.RenderedImage;
-import java.awt.image.IndexColorModel;
+import java.awt.image.RenderedImage;   // For Javadoc
 import java.awt.image.ComponentColorModel;
 
 // JAI dependencies
 import javax.media.jai.RasterFactory;
 import javax.media.jai.FloatDoubleColorModel;
-import javax.media.jai.ComponentSampleModelJAI;
 
 // Resources
 import org.geotools.util.WeakValueHashMap;
@@ -67,7 +64,7 @@ import org.geotools.resources.ColorUtilities;
  * This factory provides only one public static method: {@link #getColorModel}.  Instances
  * of {@link ColorModel} are shared among all callers in the running virtual machine.
  *
- * @version $Id: ColorModelFactory.java,v 1.8 2003/07/22 15:24:53 desruisseaux Exp $
+ * @version $Id: ColorModelFactory.java,v 1.9 2003/08/04 19:07:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColorModelFactory {
