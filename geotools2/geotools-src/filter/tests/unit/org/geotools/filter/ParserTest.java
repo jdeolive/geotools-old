@@ -276,12 +276,18 @@ public class ParserTest extends TestCase implements FilterHandler {
         GMLFilterGeometry geometryFilter = new GMLFilterGeometry(filterFilter);						
         GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);						
         _log.debug("about to make parser");
-        XMLReader parser = XMLReaderFactory.createXMLReader(/*"org.apache.xerces.parsers.SAXParser"*/); // uncomment to use xerces parser
+        //XMLReader parser = XMLReaderFactory.createXMLReader(/*"org.apache.xerces.parsers.SAXParser"*/); // uncomment to use xerces parser
         _log.debug("just made parser");
         
-        parser.setContentHandler(documentFilter);
-        parser.parse(uri);
+        //parser.setContentHandler(documentFilter);
+        //parser.parse(uri);
 
+        SAXParserFactory fac = SAXParserFactory.newInstance();
+        SAXParser parser = fac.newSAXParser();
+            
+        ParserAdapter p = new ParserAdapter(parser.getParser());
+        p.setContentHandler(documentFilter);
+        p.parse(uri);
         _log.debug("just parsed: " + uri);
 
         return filter;
