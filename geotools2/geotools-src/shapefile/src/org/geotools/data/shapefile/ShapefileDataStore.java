@@ -333,7 +333,7 @@ public class ShapefileDataStore extends AbstractDataStore {
             
             for (int i = 0, ii = header.getNumFields(); i < ii; i++) {
                 Class clazz = header.getFieldClass(i);
-                atts[i + 1] = AttributeTypeFactory.newAttributeType(header.getFieldName(i), clazz);
+                atts[i + 1] = AttributeTypeFactory.newAttributeType(header.getFieldName(i), clazz, true, header.getFieldLength(i));
                 
             }
         } else {
@@ -535,30 +535,31 @@ public class ShapefileDataStore extends AbstractDataStore {
                 
                 Class colType = type.getType();
                 String colName = type.getName();
+                int fieldLen = type.getFieldLength();
+                if (fieldLen <= 0)
+                  fieldLen = 255;
                 
                 // @todo respect field length
                 if((colType == Integer.class) || (colType == Short.class) || (colType == Byte.class)) {
-                    header.addColumn(colName, 'N', 16, 0);
+                    header.addColumn(colName, 'N', Math.min(fieldLen,16), 0);
                 } else if((colType == Double.class) || (colType == Float.class) || colType == Number.class) {
-                    header.addColumn(colName, 'N', 33, 16);
+                    int l = Math.min(fieldLen,33);
+                    header.addColumn(colName, 'N', l, l / 2);
                 } else if(java.util.Date.class.isAssignableFrom(colType)) {
-                    header.addColumn(colName, 'D', 8, 0);
+                    header.addColumn(colName, 'D', fieldLen, 0);
                 } else if (colType == Boolean.class) {
                     header.addColumn(colName, 'L', 1, 0);
                 } else if(CharSequence.class.isAssignableFrom(colType)) {
-                    int len = type.getFieldLength();
-                    // no clue on what it is or should be, lets make it big
-                    if (len == 0)
-                        len = 255;
                     // Possible fix for GEOT-42 : ArcExplorer doesn't like 0 length
                     // ensure that maxLength is at least 1
-                    header.addColumn(colName, 'C', Math.max(1,Math.min(254,len)), 0);
+                    header.addColumn(colName, 'C', Math.min(254,fieldLen), 0);
                 } else if (Geometry.class.isAssignableFrom(colType)) {
                     continue;
                 } else {
                     throw new IOException("Unable to write : " + colType.getName());
                 }
             }
+            System.out.println("header " + header);
             return header;
         }
         
