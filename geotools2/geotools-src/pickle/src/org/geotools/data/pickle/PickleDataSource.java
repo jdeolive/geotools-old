@@ -17,13 +17,13 @@ import org.geotools.feature.*;
  */
 public class PickleDataSource extends AbstractDataSource {
   
-  final File objectFile;
-  final File classFile;
+  final String objectFile;
+  final String classFile;
   
   /** Creates a new instance of PickleDataSource */
   public PickleDataSource(File parent,String name) {
-    this.objectFile = new File(parent, name + ".obj");
-    this.classFile  = new File(parent, name + ".clz");
+    this.objectFile = new File(parent, name + ".obj").getAbsolutePath();
+    this.classFile  = new File(parent, name + ".clz").getAbsolutePath();
   }
   
   protected DataSourceMetaData createMetaData() {
