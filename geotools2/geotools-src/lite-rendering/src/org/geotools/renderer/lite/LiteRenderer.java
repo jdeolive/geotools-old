@@ -116,7 +116,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.31 2004/02/12 11:22:21 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.32 2004/02/16 07:02:46 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -154,6 +154,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
     /** The image loader */
     private static ImageLoader imageLoader = new ImageLoader();
+    
     private static final Composite DEFAULT_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
             1.0f);
     private static final java.awt.Stroke DEFAULT_STROKE = new BasicStroke();
@@ -239,9 +240,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
     private double maxDistance = 1.0;
 
     /**
-     * Creates a new instance of LiteRenderer.
+     * Creates a new instance of LiteRenderer without a context. Use it only
+     * to gain access to utility methods of this class
      *
-     * @deprecated Renderer is to be created with a Context.
+     * TODO: it's probably better to factor out those methods in an utility class
      */
     public LiteRenderer() {
         LOGGER.fine("creating new lite renderer");
@@ -937,7 +939,11 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 LOGGER.finer("total displacement (" + x + "," + y + ")");
             }
 
-            rotation = ((Number) p.getRotation().getValue(feature)).doubleValue();
+			if(p.getRotation() == null || p.getRotation().getValue(feature) == null) {
+				rotation = 0;
+			} else {
+            	rotation = ((Number) p.getRotation().getValue(feature)).doubleValue();
+			}
             rotation *= (Math.PI / 180.0);
         } else if (placement instanceof LinePlacement && geom instanceof LineString) {
             // @TODO: if the geometry is a ring or a polygon try to find out
@@ -946,8 +952,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 LOGGER.finer("setting line placement");
             }
 
-            double offset = ((Number) ((LinePlacement) placement).getPerpendicularOffset().getValue(feature))
-                .doubleValue();
+			LinePlacement lp = (LinePlacement) placement;
+			double offset = 0;
+			if(lp.getPerpendicularOffset() != null && lp.getPerpendicularOffset().getValue(feature) != null)
+            	offset = ((Number) lp.getPerpendicularOffset().getValue(feature)).doubleValue();
             LineString line = (LineString) geom;
             Point start = line.getStartPoint();
             Point end = line.getEndPoint();
@@ -1034,7 +1042,11 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     styleCode = styleCode | java.awt.Font.BOLD;
                 }
 
-                size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
+				if(fonts[k].getFontSize() == null || fonts[k].getFontSize().getValue(feature) == null) {
+					size = 10;
+				} else {
+					size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
+				}
 
                 return javaFont.deriveFont(styleCode, size);
             }
@@ -1058,7 +1070,11 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     styleCode = styleCode | java.awt.Font.BOLD;
                 }
 
-                size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
+				if(fonts[k].getFontSize() == null || fonts[k].getFontSize().getValue(feature) == null) {
+					size = 10;
+				} else {
+				    size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
+				}
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
                     LOGGER.finest("requesting " + requestedFont + " " + styleCode + " " + size);
@@ -1371,6 +1387,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
             return false;
         }
 
+        if(mark.getWellKnownName() == null || mark.getWellKnownName().getValue(feature) == null)
+            return false;
+        
         String name = mark.getWellKnownName().getValue(feature).toString();
 
         if (LOGGER.isLoggable(Level.FINER)) {
@@ -1660,7 +1679,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param fill how to fill the feature
      * @param feature the feature to be filled
      */
-    private void applyFill(Graphics2D graphic, Fill fill, Feature feature) {
+    public void applyFill(Graphics2D graphic, Fill fill, Feature feature) {
         if (fill == null) {
             return;
         }
@@ -1693,7 +1712,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param gr the graphic specifiying the texture
      * @param feature the feature to be painted
      */
-    private void setTexture(Graphics2D graphic, Graphic gr, Feature feature) {
+    public void setTexture(Graphics2D graphic, Graphic gr, Feature feature) {
         BufferedImage image = getExternalGraphic(gr);
 
         if (image != null) {
@@ -1805,7 +1824,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             return;
         }
 
-        double scale = graphics.getTransform().getScaleX();
+        double scale = graphic.getTransform().getScaleX();
 
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("line join = " + stroke.getLineJoin());
