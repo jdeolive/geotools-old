@@ -140,12 +140,31 @@ import com.vividsolutions.jts.geom.Envelope;
  * </ul>
  * </p>
  *
+ * <h2>FID Handling</h2>
+ * <p>FID handling needs to be considered for two features of the DataStore API. These are
+ * generation of new FIDs for insertion and determining table columns to use for FIDs.</p>
+ * <h3>FID Generation for inserts</h3>
+ * <p>The way the JDBCFeatureWriter generates FIDs is defined for each feature type in the 
+ * fidGenerationTypeMap. This maps feature type names to the FID generation strategy names.
+ * If no Map is provided all featureTypes will be given the FID_GEN_AUTO strategy.</p>
+ * <p>The FID Generation strategies supported by JDBCDataStore are:
+ * <ul>
+ *  <li>FID_GEN_AUTO - the underlying data store will generate the FID automatically and data store 
+ *      implementations should do the equivalent of inserting null into the fid.</li>
+ *  <li>FID_GEN_MANUAL - the data store implementation must handle generation of new valid fids. 
+ *      This is done by incrementing the max current fid in the table</li>
+ * </ul>
+ * </p>
+ * 
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.12 2003/12/20 01:19:27 seangeo Exp $
+ * $Id: JDBCDataStore.java,v 1.13 2004/01/07 00:53:27 seangeo Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
+    public static final String FID_GEN_AUTO = "auto";
+    public static final String FID_GEN_MANUAL = "manual";
+    
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.data.jdbc");
 
@@ -207,24 +226,32 @@ public abstract class JDBCDataStore implements DataStore {
      */
     private String databaseSchemaName = null;
 
+    protected final Map fidGenerationTypes;
+    
     /** A map of FeatureTypes with their names as the key. */
     private Map featureTypeMap = null;
 
     public JDBCDataStore(ConnectionPool connectionPool) throws IOException {
-        this(connectionPool, null, "");
+        this(connectionPool, null, new HashMap(), "");
     }
 
     public JDBCDataStore(ConnectionPool connectionPool, String databaseSchemaName)
         throws IOException {
-        this(connectionPool, databaseSchemaName, databaseSchemaName);
+        this(connectionPool, databaseSchemaName,  new HashMap(), databaseSchemaName);
+    }
+    
+    public JDBCDataStore(ConnectionPool connectionPool, String databaseSchemaName, Map fidGenerationTypes)
+        throws IOException {
+        this(connectionPool, databaseSchemaName, fidGenerationTypes, databaseSchemaName);
     }
 
-    public JDBCDataStore(ConnectionPool connectionPool, String databaseSchemaName, String namespace)
+    public JDBCDataStore(ConnectionPool connectionPool, String databaseSchemaName, Map fidGenerationTypes, String namespace)
         throws IOException {
         this.connectionPool = connectionPool;
         this.namespace = namespace;
         this.databaseSchemaName = databaseSchemaName;
         this.featureTypeMap = createFeatureTypeMap();
+        this.fidGenerationTypes = Collections.unmodifiableMap(fidGenerationTypes);
     }
 
     /**
@@ -1498,6 +1525,58 @@ public abstract class JDBCDataStore implements DataStore {
         return lockingManager;
     }
 
+    /** Gets the FIDGenerationStrategy for the FeatureType contained within the QueryData.
+     * 
+     *  <p>Sub classes can override this to provide new Strategies for generating FIDs.
+     * @param queryData The QueryData to get a FIDGenerationStrategy for.  We use QueryData
+     * here because it is required by the FID_GEN_MANUAL. It also adds a nice restriction that
+     * you can only get the strategy when you are performing a read/write.
+     * @return The FIDGenerationStrategy for the feature type in the query data.
+     * @throws DataSourceException
+     */
+    protected FIDGenerationStrategy getFIDGenerationStrategyFor(final QueryData queryData) throws DataSourceException {
+        final FeatureTypeInfo info = queryData.getFeatureTypeInfo();
+        Object strategy = fidGenerationTypes.get(info.featureTypeName);
+        LOGGER.info("FID Generation strategy for " + info.featureTypeName + " is " + strategy);
+        if (strategy == null || FID_GEN_AUTO.equalsIgnoreCase(strategy.toString())) {
+            return new FIDGenerationStrategy() {                
+                public Object generateFidFor(Feature f) {                    
+                    return null;
+                }
+            };
+        } else if (FID_GEN_MANUAL.equalsIgnoreCase(strategy.toString())) {
+            return new FIDGenerationStrategy() {               
+                public Object generateFidFor(Feature f) throws DataSourceException {
+                    try {
+                        Integer newFid = null;
+                        Connection conn = queryData.getConnection();
+                        Statement stmt = conn.createStatement();
+                        ResultSet rs = stmt.executeQuery("Select MAX(" + info.fidColumnName 
+                                        + ") from " + info.featureTypeName);
+                        if (rs.next()) {
+                            try {
+                                int maxFid = rs.getInt(1);
+                                newFid = new Integer(maxFid + 1);
+                            } catch (SQLException e) {
+                                throw new DataSourceException("Error getting max FID from result set." +
+                                        "It is likely that the fid column is not");
+                            }
+                        } else {
+                            throw new DataSourceException("Could not get MAX for " + info.featureTypeName 
+                                    + "." + info.fidColumnName + ": No result returned from query");
+                        }
+                        return newFid;
+                    } catch (SQLException e) {
+                        throw new DataSourceException("Error executing MAX query in FID Generation", e);
+                                
+                    }
+                }
+            };
+        } else {
+            throw new DataSourceException("No valid fid generation strategy defined: " + strategy);
+        }
+    }
+    
     /**
      * Stores information about known FeatureTypes.
      *
@@ -1772,13 +1851,9 @@ public abstract class JDBCDataStore implements DataStore {
         protected void doInsert(Feature current) throws IOException, SQLException {
             try {
                 queryData.startInsert();
-
-                // TODO This is a bit of a hack
-                String fid = current.getID();
-                fid = fid.substring(fid.lastIndexOf("-") + 1);
-
+                FIDGenerationStrategy fidGen = getFIDGenerationStrategyFor(queryData);
                 RowData rd = queryData.getRowData(this);
-                rd.write(Integer.valueOf(fid), 1);
+                rd.write(fidGen.generateFidFor(current), 1);
                 doUpdate(DataUtilities.template(current.getFeatureType()), current);
             } catch (IllegalAttributeException e) {
                 throw new DataSourceException("Unable to do insert", e);
@@ -1786,7 +1861,7 @@ public abstract class JDBCDataStore implements DataStore {
 
             queryData.doInsert();
         }
-
+        
         private void doUpdate(Feature live, Feature current) throws IOException {
             try {
                 //Can we create for array getAttributes more efficiently?
