@@ -35,7 +35,7 @@ import org.geotools.filter.IllegalFilterException;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.renderer.Renderer2D;
-import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.renderer.j2d.StyledMapRenderer;
 import org.geotools.renderer.lite.LiteRenderer;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -244,7 +244,7 @@ public class TextStyleTest extends junit.framework.TestCase {
         MapContext map = new DefaultMapContext();
         map.addLayer(buildFeatureCollection(), loadStyleFromXml());
 
-        StyledRenderer sr = new StyledRenderer(null);
+        StyledMapRenderer sr = new StyledMapRenderer(null);
         sr.setMapContext(map);
         performTestOnRenderer(sr, "xml");
     }
@@ -258,7 +258,7 @@ public class TextStyleTest extends junit.framework.TestCase {
         MapContext map = new DefaultMapContext();
         map.addLayer(buildFeatureCollection(), loadStyleFromXml());
 
-        StyledRenderer sr = new StyledRenderer(null);
+        StyledMapRenderer sr = new StyledMapRenderer(null);
         sr.setMapContext(map);
         performTestOnRenderer(sr, "builder");
     }

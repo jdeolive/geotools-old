@@ -66,7 +66,7 @@ import org.geotools.gc.GridCoverage;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.renderer.Renderer2D;
-import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.renderer.j2d.StyledMapRenderer;
 import org.geotools.renderer.lite.LiteRenderer;
 import org.geotools.units.Unit;
 
@@ -148,7 +148,7 @@ public class RenderingGridCoverageTest extends TestCase {
         MapContext map = new DefaultMapContext();
         map.addLayer(fc, style);
         
-        StyledRenderer renderer = new StyledRenderer(null);
+        StyledMapRenderer renderer = new StyledMapRenderer(null);
         renderer.setMapContext(map);
         performTestOnRenderer(renderer, "", 300, 300, 100, 100);
     }

@@ -35,7 +35,7 @@ import org.geotools.filter.FilterFactory;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.renderer.Renderer2D;
-import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.renderer.j2d.StyledMapRenderer;
 import org.geotools.renderer.lite.LiteRenderer;
 
 import com.vividsolutions.jts.geom.Point;
@@ -211,7 +211,7 @@ public class DefaultMarkTest extends junit.framework.TestCase {
         MapContext map = new DefaultMapContext();
         map.addLayer(buildFeatureCollection(), loadStyleFromXml());
         
-        StyledRenderer sr = new StyledRenderer(null);
+        StyledMapRenderer sr = new StyledMapRenderer(null);
         sr.setMapContext(map);
         performTestOnRenderer(sr, "xml");
     }
@@ -223,7 +223,7 @@ public class DefaultMarkTest extends junit.framework.TestCase {
 		MapContext map = new DefaultMapContext();
 	   map.addLayer(buildFeatureCollection(), loadStyleFromXml());
         
-	   StyledRenderer sr = new StyledRenderer(null);
+	   StyledMapRenderer sr = new StyledMapRenderer(null);
 	   sr.setMapContext(map);
         performTestOnRenderer(sr, "builder");
     }

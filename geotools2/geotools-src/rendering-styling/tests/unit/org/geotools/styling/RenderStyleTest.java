@@ -31,7 +31,7 @@ import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.renderer.Renderer2D;
-import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.renderer.j2d.StyledMapRenderer;
 import org.geotools.renderer.lite.LiteRenderer;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -319,12 +319,12 @@ public class RenderStyleTest extends junit.framework.TestCase {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 600, 350, 400, 350);
     }
 
-    private StyledRenderer createStyledRendererXmlStyle()
+    private StyledMapRenderer createStyledRendererXmlStyle()
         throws Exception {
         MapContext map = new DefaultMapContext();
         map.addLayer(buildFeatureCollection(), loadStyleFromXml());
 
-        StyledRenderer sr = new StyledRenderer(null);
+        StyledMapRenderer sr = new StyledMapRenderer(null);
         sr.setMapContext(map);
 
         return sr;
@@ -384,7 +384,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
         MapContext map = new DefaultMapContext();
         map.addLayer(buildFeatureCollection(), loadStyleFromXml());
 
-        StyledRenderer sr = new StyledRenderer(null);
+        StyledMapRenderer sr = new StyledMapRenderer(null);
         sr.setMapContext(map);
         performTestOnRenderer(sr, "builder", 400, 350, 400, 350);
     }
