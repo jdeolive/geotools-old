@@ -119,7 +119,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.17 2004/01/08 23:05:28 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.18 2004/01/09 15:51:36 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -280,12 +280,13 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             /*
              * A reflection API call failed.  If the cause was an unchecked exception
              * (for example a SecurityException), throws as-is. Otherwise, wrap it in
-             * an unchecked IllegalArgumentException with the reflection exception as
-             * its cause. The rational is that failing to create the EPSG factory may
-             * be understood as an user specifying a wrong implementation in the main
-             * method.
+             * an unchecked IllegalStateException with the reflection exception as
+             * its cause. This situation occurs when system properties contain the
+             * classname of an invalid implementation,  which was itself specified
+             * by the user usually from the command line with the "-implementation"
+             * argument.
              */
-            final IllegalArgumentException exception = new IllegalArgumentException(
+            final IllegalStateException exception = new IllegalStateException(
                   Resources.format(ResourceKeys.ERROR_BAD_ARGUMENT_$2,
                                    "-implementation", implementation));
             exception.initCause(cause);
@@ -1553,12 +1554,14 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      *       {@link DriverManager#getConnection(String)} specification. The default value
      *       is <code>jdbc:odbc:EPSG</code>. The specified URL is stored in system preferences
      *       and will become the default URL for every calls to {@link #getDefault()}.
+     *       An empty string reset the default URL.
      *       <br><br>
      *
      *   <strong><code>-driver</code></strong><br>
      *       Set the driver class. The default value is <code>sun.jdbc.odbc.JdbcOdbcDriver</code>.
      *       The specified classname is stored in system preferences and will become the default
-     *       URL for every calls to {@link #getDefault()}.
+     *       driver for every calls to {@link #getDefault()}.
+     *       An empty string reset the default driver.
      *       <br><br>
      *
      *   <strong><code>-implementation</code></strong><br>
@@ -1570,6 +1573,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      *         <li>The EPSG database URL as a {@link String}</li>
      *         <li>The database driver as a {@link String}</li>
      *       </ul>
+     *       The specified classname is stored in system preferences and will become the default
+     *       implementation for every calls to {@link #getDefault()}.
+     *       An empty string reset the default implementation.
      *       <br><br>
      *
      *   <strong><code>-encoding</code></strong><br>
