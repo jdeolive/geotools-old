@@ -25,6 +25,12 @@ import java.awt.event.WindowEvent;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.*;
+import java.io.*;
+import javax.imageio.*;
+
 import javax.swing.*;
 
 
@@ -137,7 +143,26 @@ public class Rendering2DTest extends TestCase {
         frame.setVisible(true);
         renderer.setOutput(p.getGraphics(),p.getBounds());
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
-        Thread.sleep(5000);
+        int w = 300, h = 600;
+        BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
+        Graphics g = image.getGraphics();
+        g.setColor(Color.white);
+        g.fillRect(0,0,w,h);
+        renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
+        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
+        File file = new File(dataFolder, "RendererStyle.jpg"); 
+        FileOutputStream out = new FileOutputStream(file);
+        ImageIO.write(image, "JPEG", out); 
+        
+        //Thread.sleep(5000);
+        frame.dispose();
+        
     }
     private Point makeSamplePoint(final GeometryFactory geomFac) {
         Coordinate c = new Coordinate(14.0d,14.0d);
