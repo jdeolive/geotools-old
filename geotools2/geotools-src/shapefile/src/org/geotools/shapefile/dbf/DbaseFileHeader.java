@@ -459,7 +459,7 @@ public class DbaseFileHeader {
       //in.skipBytes(14);
       in.position(in.position() + 14);
     
-      // some broken shapefiles have 0-length attributes. The rencerence implementation
+      // some broken shapefiles have 0-length attributes. The reference implementation
       // (ArcExplorer 2.0, built with MapObjects) just ignores them.
       if(field.fieldLength > 0) 
          lfields.add(field);  
@@ -570,7 +570,7 @@ public class DbaseFileHeader {
     StringBuffer fs = new StringBuffer();
     for (int i = 0, ii = fields.length; i < ii; i++) {
       DbaseField f = fields[i];
-      fs.append(f.fieldName + " " + f.fieldType + " " + f.fieldLength + "\n");
+      fs.append(f.fieldName + " " + f.fieldType + " " + f.fieldLength + " " + f.decimalCount + " " + f.fieldDataAddress + "\n");
     }
     
     return "DB3 Header\n" +
