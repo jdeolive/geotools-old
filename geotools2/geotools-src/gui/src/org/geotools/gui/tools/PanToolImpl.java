@@ -8,6 +8,7 @@ import java.awt.geom.Point2D;
 import java.util.logging.Logger;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.JComponent;
+import org.geotools.ct.Adapters;
 import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.TransformException;
@@ -22,6 +23,8 @@ public class PanToolImpl extends MouseToolImpl implements PanTool {
 
     private static final Logger LOGGER = Logger.getLogger(
         "org.geotools.gui.tools.PanToolImpl");
+
+    private Adapters adapters = Adapters.getDefault();
 
     /**
      * Construct a PanTool.
@@ -64,8 +67,7 @@ public class PanToolImpl extends MouseToolImpl implements PanTool {
             MathTransform transform=
                 MathTransformFactory.getDefault().createAffineTransform(at);
             
-// Need to provide a transform interface to BoundingBox.
-//            context.getBbox().transform(transform);
+            context.getBbox().transform(adapters.export(transform));
 
             at.transform(minP,minP);
             at.transform(maxP,maxP);

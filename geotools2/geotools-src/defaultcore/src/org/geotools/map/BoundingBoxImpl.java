@@ -28,7 +28,7 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: BoundingBoxImpl.java,v 1.5 2003/03/17 19:56:20 camerons Exp $
+ * @version $Id: BoundingBoxImpl.java,v 1.6 2003/03/18 20:21:13 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT Probably should use CoordinatePoint or Point2D to store
  * points instead of using Envelope.  Also worth waiting to see what interface
@@ -53,6 +53,7 @@ import org.geotools.cs.CoordinateSystem;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.events.*;
 import org.opengis.cs.CS_CoordinateSystem;
+import org.opengis.ct.CT_MathTransform;
 
 public class BoundingBoxImpl implements BoundingBox{
     
@@ -207,6 +208,21 @@ public class BoundingBoxImpl implements BoundingBox{
         } catch (TransformException e) {
             LOGGER.warning("TransformException in BoundingBoxImpl");
         }
+    }
+    
+    /**
+     * Transform the coordinates according to the provided transform.  Useful
+     * for zooming and panning processes.
+     * @param transform The transform to change AreaOfInterest.
+     */
+    public void transform(CT_MathTransform transform)
+    {
+        try {
+            transform(adapters.wrap(transform));
+        } catch (RemoteException e) {
+            LOGGER.warning("RemoteException in BoundingBoxImpl");
+        }
+
     }
     
     /**
