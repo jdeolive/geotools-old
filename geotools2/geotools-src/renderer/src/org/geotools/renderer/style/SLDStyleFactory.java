@@ -37,6 +37,7 @@ import java.awt.Composite;
 import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
+import java.awt.MediaTracker;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
@@ -44,6 +45,7 @@ import java.awt.TexturePaint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -95,9 +97,6 @@ public class SLDStyleFactory {
     /** This one is used as the observer object in image tracks */
     private static final Canvas obs = new Canvas();
 
-    /** where the centre of an untransormed mark is */
-    private static com.vividsolutions.jts.geom.Point markCentrePoint;
-
     static { //static block to populate the lookups
         joinLookup.put("miter", new Integer(BasicStroke.JOIN_MITER));
         joinLookup.put("bevel", new Integer(BasicStroke.JOIN_BEVEL));
@@ -136,12 +135,6 @@ public class SLDStyleFactory {
         for (int i = 0; i < types.length; i++) {
             supportedGraphicFormats.add(types[i]);
         }
-
-        // Compute the centre of an untransformed mark...
-        // TODO: understand what's the use of this :-)
-        Coordinate c = new Coordinate(100, 100);
-        GeometryFactory fac = new GeometryFactory();
-        markCentrePoint = fac.createPoint(c);
     }
 
     /**
@@ -203,6 +196,7 @@ public class SLDStyleFactory {
 
         setScaleRange(style, scaleRange);
         style.setStroke(getStroke(symbolizer.getStroke(), feature));
+        style.setGraphicStroke(getGraphicStroke(symbolizer.getStroke(), feature));
         style.setContour(getStrokePaint(symbolizer.getStroke(), feature));
         style.setContourComposite(getStrokeComposite(symbolizer.getStroke(), feature));
         style.setFill(getPaint(symbolizer.getFill(), feature));
@@ -226,6 +220,7 @@ public class SLDStyleFactory {
         LineStyle2D style = new LineStyle2D();
         setScaleRange(style, scaleRange);
         style.setStroke(getStroke(symbolizer.getStroke(), feature));
+        style.setGraphicStroke(getGraphicStroke(symbolizer.getStroke(), feature));
         style.setContour(getStrokePaint(symbolizer.getStroke(), feature));
         style.setContourComposite(getStrokeComposite(symbolizer.getStroke(), feature));
 
@@ -266,9 +261,16 @@ public class SLDStyleFactory {
                 }
 
                 BufferedImage img = getImage((ExternalGraphic) symbols[i]);
+                double dsize = (double) size;
+                AffineTransform scaleTx = AffineTransform.getScaleInstance(dsize / img.getWidth(),
+                        dsize / img.getHeight());
+                AffineTransformOp ato = new AffineTransformOp(scaleTx,
+                        AffineTransformOp.TYPE_BILINEAR);
+                BufferedImage scaledImage = ato.createCompatibleDestImage(img, img.getColorModel());
+                img = ato.filter(img, scaledImage);
 
                 if (img != null) {
-                    retval = new GraphicStyle2D(img, size, rotation, opacity);
+                    retval = new GraphicStyle2D(img, rotation, opacity);
 
                     break;
                 }
@@ -624,13 +626,72 @@ public class SLDStyleFactory {
             return javaFont;
         }
 
-        return null;
+        // if everything else fails fall back on a default font distributed
+        // along with the jdk
+        return java.awt.Font.getFont("Lucida Sans");
     }
 
     void setScaleRange(Style style, Range scaleRange) {
         double min = ((Number) scaleRange.getMinValue()).doubleValue();
         double max = ((Number) scaleRange.getMaxValue()).doubleValue();
         style.setMinMaxScale(min, max);
+    }
+
+    // Builds an image version of the graphics with the proper size, no further scaling will
+    // be needed during rendering
+    private BufferedImage getGraphicStroke(org.geotools.styling.Stroke stroke, Feature feature) {
+        if ((stroke == null) || (stroke.getGraphicStroke() == null)) {
+            return null;
+        }
+
+        Graphic graphicStroke = stroke.getGraphicStroke();
+
+        // lets see if an external image is to be used
+        BufferedImage image = getExternalGraphic(graphicStroke);
+
+        double size = ((Number) graphicStroke.getSize().getValue(feature)).doubleValue();
+
+        if (image != null) {
+            int trueImageWidth = image.getWidth();
+            int trueImageHeight = image.getHeight();
+            double scalex = size / trueImageWidth;
+            double scaley = size / trueImageWidth;
+
+            AffineTransform at = AffineTransform.getScaleInstance(scalex, scaley);
+            AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+            BufferedImage scaledImage = ato.createCompatibleDestImage(image, image.getColorModel());
+            ato.filter(image, scaledImage);
+
+            image = scaledImage;
+
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.finer("got an image in graphic fill");
+            }
+        } else {
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.finer("going for the mark from graphic fill");
+            }
+
+            Mark mark = getMark(graphicStroke, feature);
+            image = new BufferedImage((int) size, (int) size, BufferedImage.TYPE_INT_ARGB);
+
+            Graphics2D ig2d = image.createGraphics();
+            double rotation = 0.0;
+            rotation = ((Number) graphicStroke.getRotation().getValue(feature)).doubleValue();
+            rotation *= (Math.PI / 180.0);
+            fillDrawMark(ig2d, size / 2, size / 2, mark, (int) size, rotation, feature);
+
+            MediaTracker track = new MediaTracker(obs);
+            track.addImage(image, 1);
+
+            try {
+                track.waitForID(1);
+            } catch (InterruptedException e) {
+                LOGGER.warning(e.toString());
+            }
+        }
+
+        return image;
     }
 
     private Stroke getStroke(org.geotools.styling.Stroke stroke, Feature feature) {
@@ -793,7 +854,7 @@ public class SLDStyleFactory {
             rotation = ((Number) gr.getRotation().getValue(feature)).doubleValue();
             rotation *= (Math.PI / 180.0);
 
-            fillDrawMark(g2d, markCentrePoint, mark, (int) (size * .9), rotation, feature);
+            fillDrawMark(g2d, 100, 100, mark, (int) (size * .9), rotation, feature);
 
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
             track.addImage(image, 1);
@@ -815,7 +876,7 @@ public class SLDStyleFactory {
         double drawSize = (double) size / unitSize;
 
         width *= drawSize;
-        height *= drawSize;
+        height *= -drawSize;
 
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("size = " + size + " unitsize " + unitSize + " drawSize " + drawSize);
@@ -895,11 +956,6 @@ public class SLDStyleFactory {
         mark = null;
 
         return mark;
-    }
-
-    private void fillDrawMark(Graphics2D graphic, com.vividsolutions.jts.geom.Point point,
-        Mark mark, int size, double rotation, Feature feature) {
-        fillDrawMark(graphic, point.getX(), point.getY(), mark, size, rotation, feature);
     }
 
     private void fillDrawMark(Graphics2D graphic, double tx, double ty, Mark mark, int size,
