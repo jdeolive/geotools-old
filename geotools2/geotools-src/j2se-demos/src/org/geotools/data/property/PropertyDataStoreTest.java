@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.geotools.data.DataUtilities;
+import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureResults;
@@ -89,7 +90,8 @@ public class PropertyDataStoreTest extends TestCase {
     }
     public void testGetFeaturesFeatureTypeFilterTransaction1() throws Exception {
         FeatureType type = store.getSchema( "road" );
-        FeatureReader reader = store.getFeatureReader( type, Filter.NONE, Transaction.AUTO_COMMIT );
+        Query roadQuery = new DefaultQuery("road");
+        FeatureReader reader = store.getFeatureReader( roadQuery, Transaction.AUTO_COMMIT );
         int count = 0;
         try {
             while( reader.hasNext() ){
@@ -105,14 +107,14 @@ public class PropertyDataStoreTest extends TestCase {
         Filter filter;
         
         filter = FilterFactory.createFilterFactory().createFidFilter("fid1");
-        reader = store.getFeatureReader( type, filter, Transaction.AUTO_COMMIT );
+        reader = store.getFeatureReader( new DefaultQuery("road", filter ), Transaction.AUTO_COMMIT );
         assertEquals( 1, count( reader ) );
         
         Transaction transaction = new DefaultTransaction();
-        reader = store.getFeatureReader( type, Filter.NONE, transaction );
+        reader = store.getFeatureReader( roadQuery, transaction );
         assertEquals( 4, count( reader ));
         
-        reader = store.getFeatureReader( type, Filter.NONE, transaction );
+        reader = store.getFeatureReader( roadQuery, transaction );
         List list = new ArrayList();
         try {
             while( reader.hasNext() ){
@@ -304,11 +306,7 @@ public class PropertyDataStoreTest extends TestCase {
         assertEquals( 4, road.getCount(Query.ALL) );
         assertEquals( null, road.getBounds(Query.ALL) );
         assertEquals( 4, features.getCount() );
-        try {            
-            fail( features.getBounds().toString() );
-        }
-        catch (IOException expected ){
-        }
+        assertTrue( features.getBounds().isNull() );
         assertEquals( 4, features.collection().size() );
                 
     }
