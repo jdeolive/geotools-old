@@ -142,7 +142,7 @@ public class CrossesIntegrity extends RelationIntegrity {
 					Geometry g2 = f2.getDefaultGeometry();
 					if(g1.crosses(g2) != expected )
 					{
-						results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefB()+"("+f2.getID()+"), Result was not "+expected );
+						results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" crosses "+getGeomTypeRefB()+"("+f2.getID()+"), Result was not "+expected );
 						success = false;
 					}
 				}		
@@ -223,7 +223,7 @@ public class CrossesIntegrity extends RelationIntegrity {
 					{
 						if(g1.crosses(g2) != expected )
 						{
-							results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
+							results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" crosses "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
 							success = false;
 						}
 					}

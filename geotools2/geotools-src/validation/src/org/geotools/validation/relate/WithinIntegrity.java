@@ -140,9 +140,9 @@ public class WithinIntegrity extends RelationIntegrity {
 				{
 					Feature f2 = fr2.next();
 					Geometry g2 = f2.getDefaultGeometry();
-					if(g1.overlaps(g2) != expected || g1.contains(g2) != expected)
+					if(g1.within(g2) != expected )
 					{
-						results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefB()+"("+f2.getID()+"), Result was not "+expected );
+						results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" within "+getGeomTypeRefB()+"("+f2.getID()+"), Result was not "+expected );
 						success = false;
 					}
 				}		
@@ -221,9 +221,9 @@ public class WithinIntegrity extends RelationIntegrity {
 					Geometry g2 = f2.getDefaultGeometry();
 					if (!f1.getID().equals(f2.getID()))	// if they are the same feature, move onto the next one
 					{
-						if(g1.overlaps(g2) != expected || g1.contains(g2) != expected)
+						if(g1.within(g2) != expected )
 						{
-							results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
+							results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" within "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
 							success = false;
 						}
 					}

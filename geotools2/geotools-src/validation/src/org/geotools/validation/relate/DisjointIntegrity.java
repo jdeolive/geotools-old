@@ -142,7 +142,7 @@ public class DisjointIntegrity extends RelationIntegrity {
 					Geometry g2 = f2.getDefaultGeometry();
 					if(g1.disjoint(g2) != expected )
 					{
-						results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefB()+"("+f2.getID()+"), Result was not "+expected );
+						results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" is disjoint from "+getGeomTypeRefB()+"("+f2.getID()+"), Result was not "+expected );
 						success = false;
 					}
 				}		
@@ -223,7 +223,7 @@ public class DisjointIntegrity extends RelationIntegrity {
 					{
 						if(g1.disjoint(g2) != expected )
 						{
-							results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
+							results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" is disjoint from "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
 							success = false;
 						}
 					}
