@@ -46,9 +46,10 @@
       <name>Jody Garnett</name>
       <id>jive</id>
       <email>jive@users.sourceforge.net</email>
-      <organization>Refractions</organization>
+      <organization>Refractions Research</organization>
       <roles>
         <role>Java Developer</role>
+        <role>Module Maintainer</role>        
       </roles>
     </developer>
     <developer>
