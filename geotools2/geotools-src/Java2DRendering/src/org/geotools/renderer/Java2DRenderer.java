@@ -62,12 +62,13 @@ import org.geotools.data.*;
 import org.geotools.feature.*;
 
 import org.geotools.filter.*;
+import org.geotools.gc.GridCoverage;
 
 import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.58 2002/11/01 08:06:49 jmacgill Exp $
+ * @version $Id: Java2DRenderer.java,v 1.59 2002/11/13 17:14:14 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -450,10 +451,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 renderPoint(feature, (PointSymbolizer) symbolizers[m]);
             } else if (symbolizers[m] instanceof TextSymbolizer) {
                 renderText(feature, (TextSymbolizer) symbolizers[m]);
+            } else if (symbolizers[m] instanceof RasterSymbolizer){
+                renderRaster(feature, (RasterSymbolizer) symbolizers[m]);
             }
             
-            //else if...
-            //TODO: support other symbolizers
+            
         }
     }
     
@@ -679,10 +681,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             x = ((Number) p.getAnchorPoint().getAnchorPointX()
             .getValue(feature)).doubleValue() * -textBounds.getWidth();
             y = ((Number) p.getAnchorPoint().getAnchorPointY()
-            .getValue(feature)).doubleValue() * textBounds.getHeight();
+                .getValue(feature)).doubleValue() * textBounds.getHeight();
             LOGGER.finer("anchor point (" + x + "," + y + ")");
             x += ((Number) p.getDisplacement().getDisplacementX()
-            .getValue(feature)).doubleValue();
+                .getValue(feature)).doubleValue();
             y += ((Number) p.getDisplacement().getDisplacementY()
             .getValue(feature)).doubleValue();
             LOGGER.finer("total displacement (" + x + "," + y + ")");
@@ -1586,6 +1588,16 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
     }
     
+    private void renderRaster(Feature feature, RasterSymbolizer symbolizer){
+        try{
+            GridCoverage grid = (GridCoverage) feature.getAttribute("grid"); 
+        GridCoverageRenderer gcr = new GridCoverageRenderer(grid);
+        gcr.paint(graphics);
+        } catch (IllegalFeatureException ife){
+            LOGGER.severe("No grid in feature " + ife.getMessage());
+        }
+        
+    }
     /**
      * Convenience method.  Converts a Geometry object into a GeneralPath.
      * @param geom The Geometry object to convert
