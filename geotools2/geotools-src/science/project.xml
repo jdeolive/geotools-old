@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <name>geotools-science</name>
+   <extend>${basedir}/../../project.xml</extend>
+  <id>science</id>
+  <currentVersion>0.1</currentVersion>
+
+  <package>org.geotools</package>
+  <shortDescription>science module</shortDescription>
+  <description>Contains algorithm found in environmental science</description>
+
+  <developers>
+    <developer>
+      <name>Martin Desruisseaux</name>
+      <id>desruisseaux</id>
+      <email>desruisseaux@users.sourceforge.net</email>
+      <organization>Institut de Recherche pour le Developpement</organization>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
+
+  <contributors>
+    <contributor>
+      <name>Remi Eve</name>
+      <organization>Universite de Montpellier II</organization>
+      <roles>
+        <role>Java developper</role>
+      </roles>
+    </contributor>
+  </contributors>
+
+  <dependencies>
+    <dependency>
+      <id>junit</id>
+      <version>3.7</version>
+      <type>test</type>
+      <url>http://junit.org/</url>
+    </dependency>
+  </dependencies>
+
+</project>
