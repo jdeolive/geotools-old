@@ -16,12 +16,8 @@
  */
 package org.geotools.data.sde;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.logging.*;
-import javax.xml.parsers.*;
-
+import com.vividsolutions.jts.geom.*;
+import junit.framework.*;
 import org.geotools.data.*;
 import org.geotools.data.FeatureReader;
 import org.geotools.feature.*;
@@ -29,8 +25,11 @@ import org.geotools.filter.*;
 import org.geotools.filter.Filter;
 import org.geotools.gml.*;
 import org.xml.sax.helpers.*;
-import com.vividsolutions.jts.geom.*;
-import junit.framework.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.logging.*;
+import javax.xml.parsers.*;
 
 
 /**
@@ -44,7 +43,7 @@ public class SdeDataStoreTest extends TestCase
     /** DOCUMENT ME! */
     private static Logger LOGGER = Logger.getLogger("org.geotools.data.sde");
 
-    /** DOCUMENT ME! */
+    /** folder used to load test filters */
     private String dataFolder = "/testData/";
 
     /** DOCUMENT ME! */
@@ -59,18 +58,18 @@ public class SdeDataStoreTest extends TestCase
     /** DOCUMENT ME! */
     private String polygon_table;
 
-    /** DOCUMENT ME!  */
+    /** DOCUMENT ME! */
     private DataStore store;
 
     /** DOCUMENT ME! */
     FilterFactory ff = FilterFactory.createFilterFactory();
 
     /**
-     * Creates a new SdeDataSourceTest object.
+     * Creates a new SdeDataStoreTest object.
      */
     public SdeDataStoreTest()
     {
-        this("ArcSDE data-exp unit tests");
+        this("ArcSDE DataStore unit tests");
     }
 
     /**
@@ -81,12 +80,15 @@ public class SdeDataStoreTest extends TestCase
     public SdeDataStoreTest(String name)
     {
         super(name);
+
         URL folderUrl = getClass().getResource("/testData");
         dataFolder = folderUrl.toExternalForm() + "/";
     }
 
     /**
-     * DOCUMENT ME!
+     * loads /testData/testparams.properties into a Properties
+     * object, wich is used to obtain test tables names and
+     * is used as parameter to find the DataStore
      *
      * @throws Exception DOCUMENT ME!
      */
@@ -128,18 +130,25 @@ public class SdeDataStoreTest extends TestCase
         super.tearDown();
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     public void testFinder()
     {
-      DataStore sdeDs = null;
-      try {
-        sdeDs = DataStoreFinder.getDataStore(conProps);
-        String failMsg = sdeDs +  " is not an SdeDataStore";
-        assertTrue(failMsg, (sdeDs instanceof SdeDataStore));
-      }
-      catch (IOException ex) {
-        ex.printStackTrace();
-        fail("can't find the SdeDataSource:" + ex.getMessage());
-      }
+        DataStore sdeDs = null;
+
+        try
+        {
+            sdeDs = DataStoreFinder.getDataStore(conProps);
+
+            String failMsg = sdeDs + " is not an SdeDataStore";
+            assertTrue(failMsg, (sdeDs instanceof SdeDataStore));
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+            fail("can't find the SdeDataSource:" + ex.getMessage());
+        }
     }
 
     /**
@@ -196,8 +205,7 @@ public class SdeDataStoreTest extends TestCase
     }
 
     /**
-     * tests that the schema for the defined tests tables are returned NOTE:
-     * currently does not checks their validity
+     * tests that the schema for the defined tests tables are returned.
      */
     public void testGetSchema()
     {
@@ -238,7 +246,7 @@ public class SdeDataStoreTest extends TestCase
         {
             FeatureType type = FeatureTypeFactory.newFeatureType(att,
                     point_table);
-            FeatureReader reader = store.getFeatureReader(type, Filter.ALL,
+            FeatureReader reader = store.getFeatureReader(type, Filter.NONE,
                     Transaction.AUTO_COMMIT);
             FeatureType retType = reader.getFeatureType();
             assertEquals(retType.getAttributeCount(), 1);
@@ -269,7 +277,7 @@ public class SdeDataStoreTest extends TestCase
     }
 
     /**
-     * DOCUMENT ME!
+     * test that getFeatureSource over the point_table table works
      */
     public void testGetFeatureSourcePoint()
     {
@@ -314,55 +322,6 @@ public class SdeDataStoreTest extends TestCase
             ex.printStackTrace();
             fail(ex.getMessage());
         }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param fsource DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
-     */
-    private void testGetFeatureSource(FeatureSource fsource)
-        throws IOException
-    {
-        assertNotNull(fsource);
-        assertNotNull(fsource.getDataStore());
-        assertEquals(fsource.getDataStore(), store);
-        assertNotNull(fsource.getSchema());
-
-        Envelope env1;
-        Envelope env2;
-        env1 = fsource.getBounds();
-        assertNotNull(env1);
-        assertFalse(env1.isNull());
-
-        env2 = fsource.getBounds(Query.ALL);
-        assertNotNull(env2);
-        assertFalse(env2.isNull());
-
-        FeatureResults results = fsource.getFeatures();
-        assertTrue(results.getCount() > 0);
-
-        FeatureReader reader = results.reader();
-        assertTrue(reader.hasNext());
-
-        try
-        {
-            assertNotNull(reader.next());
-        }
-        catch (NoSuchElementException ex)
-        {
-            ex.printStackTrace();
-            fail(ex.getMessage());
-        }
-        catch (IllegalAttributeException ex)
-        {
-            ex.printStackTrace();
-            fail(ex.getMessage());
-        }
-
-        reader.close();
     }
 
     /**
@@ -471,6 +430,87 @@ public class SdeDataStoreTest extends TestCase
     /////////////////// HELPER FUNCTIONS ////////////////////////
 
     /**
+     * for a given FeatureSource, makes the following assertions:
+     *
+     * <ul>
+     * <li>
+     * it's not null
+     * </li>
+     * <li>
+     * .getDataStore() != null
+     * </li>
+     * <li>
+     * .getDataStore() == the datastore obtained in setUp()
+     * </li>
+     * <li>
+     * .getSchema() != null
+     * </li>
+     * <li>
+     * .getBounds() != null
+     * </li>
+     * <li>
+     * .getBounds().isNull() == false
+     * </li>
+     * <li>
+     * .getFeatures().getCounr() > 0
+     * </li>
+     * <li>
+     * .getFeatures().reader().hasNex() == true
+     * </li>
+     * <li>
+     * .getFeatures().reader().next() != null
+     * </li>
+     * </ul>
+     *
+     *
+     * @param fsource DOCUMENT ME!
+     *
+     * @throws IOException DOCUMENT ME!
+     */
+    private void testGetFeatureSource(FeatureSource fsource)
+        throws IOException
+    {
+        assertNotNull(fsource);
+        assertNotNull(fsource.getDataStore());
+        assertEquals(fsource.getDataStore(), store);
+        assertNotNull(fsource.getSchema());
+
+        FeatureResults results = fsource.getFeatures();
+        assertTrue(results.getCount() > 0);
+
+        Envelope env1;
+        Envelope env2;
+        env1 = fsource.getBounds();
+        assertNotNull(env1);
+        assertFalse(env1.isNull());
+
+        env2 = fsource.getBounds(Query.ALL);
+        assertNotNull(env2);
+        assertFalse(env2.isNull());
+
+
+        FeatureReader reader = results.reader();
+        assertTrue(reader.hasNext());
+
+        try
+        {
+            assertNotNull(reader.next());
+        }
+        catch (NoSuchElementException ex)
+        {
+            ex.printStackTrace();
+            fail(ex.getMessage());
+        }
+        catch (IllegalAttributeException ex)
+        {
+            ex.printStackTrace();
+            fail(ex.getMessage());
+        }
+
+        reader.close();
+    }
+
+    /**
      * DOCUMENT ME!
      *
      * @param filterKey DOCUMENT ME!
@@ -493,7 +533,8 @@ public class SdeDataStoreTest extends TestCase
     }
 
     /**
-     * DOCUMENT ME!
+     * creates an SdeDataStore using /testData/testparams.properties
+     * as holder of datastore parameters
      *
      * @return DOCUMENT ME!
      */
