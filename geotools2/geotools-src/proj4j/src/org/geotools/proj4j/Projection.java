@@ -119,7 +119,7 @@ public abstract class Projection implements Constants {
         }
         else{ /* probable elliptical figure */
             if(params.contains("ellips")){
-                Ellips ellips = Ellips.getEllips(params.getStringParam("ellips"));
+                Ellipse ellips = Ellipse.getEllipse(params.getStringParam("ellips"));
                 if(ellips==null){
                     throw new ProjectionException("Unknown ellipse");
                 }

@@ -35,7 +35,7 @@ public class Ellipse {
      * @param  id keyword id of ellips to retrive, matching is case insensitive
      * @return An Ellips from the standard list or <code>null</code> if no match is found
      */
-    public static Ellips getEllips(String id){
+    public static Ellipse getEllipse(String id){
         for(int i=0;i<ellips.length;i++){
             if(id.equalsIgnoreCase(ellips[i].id)){
                 return ellips[i];
@@ -73,12 +73,12 @@ public class Ellipse {
      * TODO: Only a small number of the full PROJ set are listed, the rest need to be moved over.
      * TODO: A hard coded list may be a bad idea, parhaps these should be loaded from a .parameter file.
      */ 
-     static final Ellips[] ellips={
+     static final Ellipse[] ellips={
          //          id          major          elliptical    name/comments
-         new Ellips("MERIT",	"a=6378137.0", "rf=298.257", "MERIT 1983"),
-         new Ellips("SGS85",	"a=6378136.0", "rf=298.257",  "Soviet Geodetic System 85"),
+         new Ellipse("MERIT",	"a=6378137.0", "rf=298.257", "MERIT 1983"),
+         new Ellipse("SGS85",	"a=6378136.0", "rf=298.257",  "Soviet Geodetic System 85"),
          //...
-         new Ellips("WGS84",    "a=6378137.0",  "rf=298.257223563", "WGS 84")      
+         new Ellipse("WGS84",    "a=6378137.0",  "rf=298.257223563", "WGS 84")      
      };
     
 }
