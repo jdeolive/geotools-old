@@ -81,23 +81,30 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
     }
     
     /** 
-     * Sets up.
+     * Create a Bounding Box.
      */
     protected void setUp() {
         envelope=new Envelope(10.0,10.0,15.0,15.0);
         try {
         cs=CoordinateSystemFactory.getDefault(
             ).createGeographicCoordinateSystem("WGS84",HorizontalDatum.WGS84);
+            bbox=new DefaultAreaOfInterestModel(envelope,cs);
         } catch (org.geotools.cs.FactoryException e) {
             LOGGER.warning("FactoryException in setup");
-        }
-        try {
-            bbox=new DefaultAreaOfInterestModel(envelope,cs);
         } catch (IllegalArgumentException e) {
             LOGGER.warning("Cannot create bbox");
         }
     }
 
+    /** Test normal constuctors. */
+    public void testConstructor(){
+        DefaultAreaOfInterestModel bbox1;
+        try {
+            bbox1= new DefaultAreaOfInterestModel(envelope,cs);
+        } catch (IllegalArgumentException e) {
+            this.fail("exception raised using default contructor");
+        }
+    }
 
     /** Test null constuctors.  Should raise an exception */
     public void testNullConstructor(){
@@ -126,43 +133,71 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
         }
     }
     
-    /** Test normal constuctors. */
-    public void testConstructor(){
+    
+     /** Test change of envelope triggers an event when register, and does
+      * not trigger an event after deregistering */
+    public void testChangeEvent(){
+        changeEventSent=false;
+        DefaultAreaOfInterestModel bbox1;
         try {
-            bbox=
-                new DefaultAreaOfInterestModel(envelope,cs);
+            bbox1= new DefaultAreaOfInterestModel(envelope,cs);
+
+            bbox1.addAreaOfInterestChangedListener(this);
+            bbox1.setAreaOfInterest(new Envelope(5.0, 5.0, 10.0,10.0));
+            // areaOfInterest() should be called and changeEventSent set TRUE.
+        
+            Thread.sleep(1000);
+            //delay 1 sec to allow a new thread to call
+            //areaOfInterestChangedEvent.
+            this.assertTrue("Event not sent after bbox change",changeEventSent);
+
+            changeEventSent=false;
+            bbox1.removeAreaOfInterestChangedListener(this);
+            bbox1.setAreaOfInterest(new Envelope(5.0, 5.0, 11.0,11.0));
+        
+            Thread.sleep(1000);
+            //delay 1 sec to allow a new thread to call
+            //areaOfInterestChangedEvent.
+            this.assertTrue("Event sent after de-registering for events",
+                !changeEventSent);
+
         } catch (IllegalArgumentException e) {
             this.fail("exception raised using default contructor");
+        } catch (java.lang.InterruptedException e){
+            this.fail("exception in sleep: "+e);
         }
     }
     
-     /** Test change of envelope triggers an event. */
-    public void testChangeEvent(){
-        changeEventSent=false;
-        bbox.addAreaOfInterestChangedListener(this);
-        bbox.setAreaOfInterest(new Envelope(5.0, 5.0, 10.0,10.0));
-        try{
-            Thread.sleep(1000);
-            //delay 1 sec to allow a new thread to call
-                             //areaOfInterestChangedEvent.
-        }catch (java.lang.InterruptedException e){}
-        this.assertTrue("Event not sent after bbox change",changeEventSent);
-    }
-    
     /** Test set/get Envelope */
-    /*
     public void testSetGetEnvelope(){
         Envelope envelope1=new Envelope(10.0,10.0,20.0,20.0);
         bbox.setAreaOfInterest(envelope1);
         Envelope envelope2=bbox.getAreaOfInterest();
-        if((envelope1.getMaxX()!=envelope2.getMaxX())
-            || (envelope1.getMinX()!=envelope2.getMinX())
-            || (envelope1.getMaxY()!=envelope2.getMaxY())
-            || (envelope1.getMinY()!=envelope2.getMinY()))
-        {
-            this.fail("set/get Envelope not working");
-        }
+        this.assertTrue("set/getEnvelope not working",
+            envelope1.equals(envelope2));
     }
+    
+    /** Test external change of envelope does not change envelope internally
+     */
+    public void testImmutableEnvelope(){
+        Envelope envelope1=new Envelope(10.0,10.0,20.0,20.0);
+        Envelope envelope2=new Envelope(envelope1);
+        bbox.setAreaOfInterest(envelope1);
+        envelope2.expandToInclude(1.0,2.0);
+        Envelope envelope3=bbox.getAreaOfInterest();
+        this.assertTrue("1Changing external Envelope changes internal values",
+            (envelope1!=envelope2)
+            && envelope3.equals(envelope1));
+
+        envelope2=null;
+        envelope2=new Envelope(envelope3);
+        envelope2.expandToInclude(1.0,1.0);
+        this.assertTrue("2Changing external Envelope changes internal values",
+            (envelope2!=envelope3)
+            && envelope3.equals(bbox.getAreaOfInterest()));
+ }
+
+    /* TestimmutableCoordinateSystem()
      */
     
     /* Test change of coordinate system works, ensure there is no dependance
