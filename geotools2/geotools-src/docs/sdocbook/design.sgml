@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Id: design.sgml,v 1.5 2002/11/08 11:02:11 camerons Exp $</date>
+    <date>$Id: design.sgml,v 1.6 2002/11/10 08:27:09 camerons Exp $</date>
   </articleinfo>
 
   <section>
@@ -110,46 +110,90 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
         </blockquote>
       </figure>
 
-      <itemizedlist>
-        <title>Systems Geotools2 interacts with</title>
+      <variablelist>
+        <varlistentry>
+          <term>Applications</term>
 
-        <listitem>
-          <para><emphasis>Applications</emphasis> are geographic applications
-          which use geotools2 primitives. They are generally end products like
-          Map Viewers, Web Map Servers and so on.</para>
-        </listitem>
+          <listitem>
+            <para>Applications are geographic applications which use geotools2
+            primitives. They are generally end products like Map Viewers, Web
+            Map Servers and so on.</para>
+          </listitem>
+        </varlistentry>
 
-        <listitem>
-          <para><emphasis>GeoInterfaces</emphasis> contains interfaces for all
-          the key geographic primitives like a Feature, Extent, Data Source
-          and so on. Geotools2 key purpose is to provide implementations for
-          some of the these interfaces.</para>
+        <varlistentry>
+          <term>GeoInterfaces</term>
 
-          <para>Not all interfaces are implemented, some functionality is
-          imported from external vendors. For instance, Geotools2 uses the
-          Java Topology Suite (JTS) to store core geographic primitives.</para>
+          <listitem>
+            <para>GeoInterfaces contains interfaces for all the key geographic
+            primitives like a Feature, Extent, Data Source and so on.
+            Geotools2 key purpose is to provide implementations for some of
+            the these interfaces.</para>
 
-          <para>At the time of writing (October 10, 2002), the GeoInterfaces
-          project was still at the proposal stage.</para>
-        </listitem>
+            <para>Not all interfaces are implemented, some functionality is
+            imported from external vendors. For instance, Geotools2 uses the
+            Java Topology Suite (JTS) to store core geographic primitives.</para>
 
-        <listitem>
-          <para><emphasis>Data</emphasis> is the geographic data that
-          geotools2 manipulates. These may be in a database, ESRI shapefile or
-          some other format.</para>
-        </listitem>
+            <para>At the time of writing (October 10, 2002), the GeoInterfaces
+            project was still at the proposal stage.</para>
+          </listitem>
+        </varlistentry>
 
-        <listitem>
-          <para><emphasis>Geographic Objects</emphasis> are the core
-          geographic primitives provided by the Java Topology Suite (JTS).</para>
-        </listitem>
-      </itemizedlist>
+        <varlistentry>
+          <term>Data</term>
+
+          <listitem>
+            <para>Data is the geographic data that geotools2 manipulates.
+            These may be in a database, ESRI shapefile or some other format.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Geographic Objects</term>
+
+          <listitem>
+            <para>Geographic Objects are the core geographic primitives
+            provided by the Java Topology Suite (JTS).</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
     </section>
 
     <section>
-      <title id="scope">Design Goals</title>
+      <title id="designdrivers">Design Drivers</title>
 
       <variablelist>
+        <varlistentry>
+          <term>Modular</term>
+
+          <listitem>
+            <para>Geotools2 uses a modular design. The benefits of this
+            include:</para>
+
+            <itemizedlist>
+              <listitem>
+                <para>The design is easier to understand.</para>
+              </listitem>
+
+              <listitem>
+                <para>Extra functionality can be incorporated easilly because
+                a developer only needs to understand the module they are
+                working on.</para>
+              </listitem>
+
+              <listitem>
+                <para>Existing modules can be reworked with minimal effect on
+                the rest of Geotools2.</para>
+              </listitem>
+
+              <listitem>
+                <para>Applications which use Geotools2 only need to include
+                the subset of the modules required.</para>
+              </listitem>
+            </itemizedlist>
+          </listitem>
+        </varlistentry>
+
         <varlistentry>
           <term>Toolkit</term>
 
@@ -157,9 +201,6 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
             <para>Geotools2 is a toolkit to be used by multiple applications,
             it is not designed to be an application itself. Geotools2 aims to
             implement all the common elements used by GIS applications.</para>
-
-            <para>Most applications only require need to include a subset of
-            the Geotools modules to cover their functional requirements.</para>
           </listitem>
         </varlistentry>
 
@@ -168,16 +209,17 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
 
           <listitem>
             <para>Geotools2 aims to implement the Open GIS Consortium (OGC)
-            specifications as they become available. Most specifications are
-            implemented in their own module.</para>
+            specifications as they become available.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>Modular</term>
+          <term>Implements GeoInterfaces</term>
 
           <listitem>
-            <para></para>
+            <para>The <emphasis>GeoInterfaces</emphasis> project defines
+            geographic components and Geotools2 provides implimentations of
+            these interfaces.</para>
           </listitem>
         </varlistentry>
 
@@ -185,45 +227,12 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
           <term>Open Source</term>
 
           <listitem>
-            <para></para>
+            <para>Geotools2 is released under the LGPL Open Source licence.
+            External packages Geotools2 depends upon must use a similar
+            licence to ensure users can use Geotools2 under the LGPL licence.</para>
           </listitem>
         </varlistentry>
       </variablelist>
-    </section>
-
-    <section>
-      <title>To do</title>
-
-      <itemizedlist>
-        <listitem>
-          <para>Implementing Open GIS Standards. Many of the modules implement
-          specific OGC specifications.</para>
-        </listitem>
-
-        <listitem>
-          <para>Open Source, so not using any proprietary libraries.</para>
-        </listitem>
-
-        <listitem>
-          <para>Not providing an end application, but rather a factoring
-          common libraries into on location in order to provide tools to
-          produce many different libraries.</para>
-        </listitem>
-
-        <listitem>
-          <para>Modular design. Easy to incorporate extra functionality. Easy
-          to plug into existing applications. Common set of infrastructure for
-          multiple projects.</para>
-        </listitem>
-
-        <listitem>
-          <para>Interfaces kept in the core module.</para>
-        </listitem>
-
-        <listitem>
-          <para>Update the status of the GeoInterfaces project.</para>
-        </listitem>
-      </itemizedlist>
     </section>
   </section>
 
