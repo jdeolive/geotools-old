@@ -51,7 +51,7 @@ import java.lang.ref.SoftReference;
 
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.22 2003/03/30 20:21:09 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.23 2003/03/31 20:55:00 aaime Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  * @task TODO: add support for the optional spatial index files to improve
@@ -143,7 +143,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
       buffer.flip();
       ShapefileHeader header = new ShapefileHeader();
       header.read(buffer, true);
-      return new Envelope(header.minX(),header.minY(),header.maxX(),header.maxY());
+      return new Envelope(header.minX(),header.maxX(),header.minY(),header.maxY() );
     } catch (IOException ioe) {
       // What now? This seems arbitrarily appropriate !
       throw new RuntimeException("Poorly designed API for DataSource - should be throwing IOException or something",ioe);
@@ -190,7 +190,11 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     try {
       
       // Open a channel for our URL
-      ShapefileReader shp = new ShapefileReader(getReadChannel(shpURL));
+      ReadableByteChannel channel = getReadChannel(shpURL);
+      if(channel == null) {
+          throw new DataSourceException("Non existent file or problems opening file: " + shpURL); 
+      }
+      ShapefileReader shp = new ShapefileReader(channel);
       
       // Start the DBaseFile, if it exists
       DbaseFileReader dbf = createDbaseReader();
@@ -445,7 +449,11 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     else {
       shapefileType = new org.geotools.feature.FeatureTypeFlat(geometryAttribute);
     }
-    shapefileType = shapefileType.setTypeName(type.toString());
+    // Non null typenames may break rendering, which assume that the
+    // type name is either null of equal to the one defined in the
+    // feature type style of the sld descriptor... don't uncomment
+    // until the rendering situation is made clearer
+    // shapefileType = shapefileType.setTypeName(type.toString());
     return shapefileType;
   }
   
