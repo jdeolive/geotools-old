@@ -79,7 +79,7 @@ import java.io.IOException;
  * 
  *
  * @author Jody Garnett, Refractions Research
- * @version $Id: DataStore.java,v 1.1 2003/12/01 22:00:38 cholmesny Exp $
+ * @version $Id: DataStore.java,v 1.2 2003/12/09 18:51:41 jive Exp $
  */
 public interface DataStore {
     /**
@@ -300,25 +300,20 @@ public interface DataStore {
      * </p>
      * 
      * <ul>
-     * <li>
-     * Jody - using FeatureType may be overkill, we may wish to simply use
-     * typeName and leave complicated stuff, like retyping, to a high-level
-     * api.
+     * <li>Jody: This method has been updated to use the Query object
+     *    (Thanks for the suggestion Sean & Chris)
      * </li>
-     * <li>
-     * Chris - change to getFeatureReader( Query, Transaction )
      * </ul>
      * 
      *
-     * @param featureType Describes the form of the returned Features
-     * @param filter Constraints used to limit the results
+     * @param query Requested form of the returned Features and the filter used
+     *              to constraints the results
      * @param transaction Transaction this query opperates against
      *
      * @return FeatureReader Allows Sequential Processing of featureType
      */
-    //FeatureReader getFeatureReader( Query query, Transaction transaction ) throws IOException;
-    FeatureReader getFeatureReader(FeatureType featureType, Filter filter,
-        Transaction transaction) throws IOException;
+    FeatureReader getFeatureReader( Query query, Transaction transaction ) throws IOException;
+    //FeatureReader getFeatureReader(FeatureType featureType, Filter filter, Transaction transaction) throws IOException;
 
     /**
      * Access FeatureWriter for modification of the DataStore contents.
