@@ -125,7 +125,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.37 2004/04/12 15:34:42 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.38 2004/04/12 15:44:07 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -240,6 +240,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *  case if the feature source is based on a generic feature collection
      */
     private boolean optimizedDataLoadingEnabled;
+    
+    /**
+     * This flag is set to false when starting rendering, and will be checked
+     * during the rendering loop in order to make it stop forcefully
+     */
+    private boolean renderingStopRequested;
 
     /**
      * The ratio required to scale the features to be rendered so that they fit into the output
@@ -350,6 +356,16 @@ public class LiteRenderer implements Renderer, Renderer2D {
     protected void setScaleDenominator(double scaleDenominator) {
         this.scaleDenominator = scaleDenominator;
     }
+    
+    /**
+     * If you call this method from another thread than the one
+     * that called <code>paint</code> or <code>render</code> the 
+     * rendering will be forcefully stopped before termination
+     *
+     */
+    public void stopRendering() {
+        renderingStopRequested = true;
+    }
 
     /**
      * Render features based on the LayerList, BoundBox and Style specified in this.context. Don't
@@ -369,6 +385,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
             return;
         }
+        
+        // reset the abort flag
+        renderingStopRequested = false;
 
         AffineTransform at = transform;
 
@@ -404,6 +423,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     // Only render layer when layer is visible
                     continue;
                 }
+                
+                if(renderingStopRequested)
+                    return;
 
                 try {
                     // mapExtent = this.context.getAreaOfInterest();
@@ -509,6 +531,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
             return;
         }
+        
+        // reset the abort flag
+        renderingStopRequested = false;
 
         long startTime = 0;
 
@@ -678,6 +703,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
             while (reader.hasNext()) {
                 boolean doElse = true;
                 Feature feature = reader.next();
+                
+                if(renderingStopRequested)
+                    return;
 
                 String typeName = feature.getFeatureType().getTypeName();
 
