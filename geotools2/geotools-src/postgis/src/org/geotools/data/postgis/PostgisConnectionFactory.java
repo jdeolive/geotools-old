@@ -37,7 +37,7 @@ import java.util.Map;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisConnectionFactory.java,v 1.6 2003/11/04 00:36:17 cholmesny Exp $
+ * @version $Id: PostgisConnectionFactory.java,v 1.7 2003/11/21 18:33:18 jive Exp $
  *
  * @task REVISIT: connection pooling, implementing java.sql.Datasource.  I
  *       removed the implementing because that class should be provided by the
@@ -211,25 +211,31 @@ public class PostgisConnectionFactory {
 	    poolDataSource.setUser(user);
 	    poolDataSource.setPassword(pass);
 	    if (charSet != null) {
-		poolDataSource.setEncoding(charSet);
+		  poolDataSource.setEncoding(charSet);
 	    }
 	    //source.setMaxConnections(10);
 	    //the source looks like this defaults to false, but we have
 	    //assumed true (as that's how it was before pooling)
 	    poolDataSource.setDefaultAutoCommit(true);
-            dataSources.put(poolKey, poolDataSource);
+        dataSources.put(poolKey, poolDataSource);
             
         }
 
-       ConnectionPoolManager manager = ConnectionPoolManager.getInstance();
-       ConnectionPool connectionPool = manager.getConnectionPool(poolDataSource);
+        ConnectionPoolManager manager = ConnectionPoolManager.getInstance();
+        ConnectionPool connectionPool = manager.getConnectionPool(poolDataSource);
+        
         return connectionPool;
     }
 
     public ConnectionPool getConnectionPool() throws SQLException {
         return getConnectionPool(user, password);
     }
-
+    public void free(ConnectionPool connectionPool){
+        if(!connectionPool.isClosed() ){
+            connectionPool.close();
+        }        
+        ConnectionPoolManager.getInstance().free( connectionPool );
+    }
     /**
      * Creates a database connection method to initialize a given database for
      * feature extraction with the given Properties.
