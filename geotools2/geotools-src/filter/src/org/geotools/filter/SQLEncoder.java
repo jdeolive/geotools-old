@@ -57,7 +57,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
     /** The escaped version of the multiple wildcard for the REGEXP pattern. */
     private String escapedWildcardMulti = "\\.\\*";
     /** used for constructing the string from visiting the filters.*/
-    private Writer out;
+    protected Writer out;
     /** the encoded string for return */
     private String encodedSQL;
    
