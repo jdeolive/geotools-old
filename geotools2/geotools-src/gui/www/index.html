@@ -39,7 +39,13 @@
 <h2>Status</h2>
 Beta
 <h2>TODO:</h2>
-No tasks yet.<br>
+<ul>
+  <li>Fix bug in <code>ZoomPane</code>: When a shape drag is in process AND a
+      repaint event occurs, the drag shape is visually broken (but logical
+      coordinates still okay). Solution: <code>paintComponent(Graphics)</code>
+      should clear the drag shape (if any) before to paint.</li>
+</ul>
+<br>
 <a href="http://sourceforge.net/pm/task.php?group_project_id=19880&group_id=4091&func=browse">View Task List</a>
 
 <p>
