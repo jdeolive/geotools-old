@@ -101,12 +101,12 @@ public class GtWmsServerTest extends TestCase {
         try {
             Feature[] features = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400,1 , 210, 250);
             assertNotNull("No features returned", features);
-            assertEquals(1,features.length);
+            assertEquals("Wrong number of features found",1,features.length);
             Object atrib[] = features[0].getAttributes();
             assertEquals("New Mexico",atrib[1].toString());
             features = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400,1 , 210, 150);
             assertNotNull("No features returned", features);
-            assertEquals(1,features.length);
+            assertEquals("Wrong number of features found",1,features.length);
             atrib = features[0].getAttributes();
             assertEquals("Wyoming",atrib[1].toString());
         }
