@@ -55,6 +55,7 @@ import java.util.Locale;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.MissingResourceException;
+import java.util.logging.Logger;
 
 // Geotools dependencies
 import org.geotools.pt.Envelope;
@@ -90,10 +91,11 @@ import org.geotools.resources.gcs.ResourceKeys;
  * However, other methods may be overriden too in order to get finner control
  * on the result.
  *
- * @version $Id: GridCoverageReader.java,v 1.3 2002/07/28 19:25:09 desruisseaux Exp $
+ * @version $Id: GridCoverageReader.java,v 1.4 2002/11/06 16:46:25 ianturton Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GridCoverageReader {
+    private static Logger LOGGER = Logger.getLogger("org.geotools.gcs");
     /**
      * The format name (e.g. "PNG" or "GeoTIFF"). This format name should
      * be understood by {@link ImageIO#getImageReadersByFormatName(String)},
@@ -407,6 +409,7 @@ public abstract class GridCoverageReader {
         final CoordinateSystem  cs = getCoordinateSystem(index);
         final SampleDimension[] sd = getSampleDimensions(index);
         final RenderedImage  image = reader.readAsRenderedImage(index, param);
+        LOGGER.fine(name+" "+image+" "+cs+" "+envelope+" "+sd);
         return new GridCoverage(name, image, cs, envelope, sd, null, null);
     }
     
