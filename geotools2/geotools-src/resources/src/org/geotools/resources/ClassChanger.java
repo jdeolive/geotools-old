@@ -50,10 +50,21 @@ import java.util.Date;
  * Number myObjectAsANumber = {@link ClassChanger#toNumber ClassChanger.toNumber}(someArbitraryObject);
  * </pre></blockquote>
  *
- * @version 1.0
+ * @version $Id: ClassChanger.java,v 1.2 2003/04/10 20:39:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ClassChanger {
+    /**
+     */
+    private static final Class[] CLASS_RANK = {
+        Byte   .class,
+        Short  .class,
+        Integer.class,
+        Long   .class,
+        Float  .class,
+        Double .class
+    };
+
     /**
      * Liste des classes d'objets pouvant être convertis en nombre. Cette liste
      * contiendra par défaut quelques instances de {@link ClassChanger} pour
@@ -62,7 +73,7 @@ public abstract class ClassChanger {
      * <u>ordonnée</u>. Les classe le plus hautes dans la hierarchie (les
      * classes parentes) doivent apparaître à la fin.
      */
-    private static ClassChanger[] list=new ClassChanger[] {
+    private static ClassChanger[] list = new ClassChanger[] {
         new ClassChanger(Date.class, Long.class) {
             protected Number convert(final Comparable object) {
                 return new Long(((Date) object).getTime());
@@ -253,5 +264,43 @@ public abstract class ClassChanger {
             return getClassChanger(classe).inverseConvert(value);
         }
         return null;
+    }
+
+    /**
+     * Cast the number to the specified class. The class must by one of {@link Byte},
+     * {@link Short}, {@link Integer}, {@link Long}, {@link Float} or {@link Double}.
+     */
+    public static Number cast(final Number n, final Class c) {
+        if (n!=null && !n.getClass().equals(c)) {
+            if (Byte   .class.equals(c)) return new Byte   (n.  byteValue());
+            if (Short  .class.equals(c)) return new Short  (n. shortValue());
+            if (Integer.class.equals(c)) return new Integer(n.   intValue());
+            if (Long   .class.equals(c)) return new Long   (n.  longValue());
+            if (Float  .class.equals(c)) return new Float  (n. floatValue());
+            if (Double .class.equals(c)) return new Double (n.doubleValue());
+            throw new IllegalArgumentException(Utilities.getShortName(c));
+        }
+        return n;
+    }
+
+    /**
+     * Returns the class of the widest type. Numbers <code>n1</code> and <code>n2</code>
+     * must be instance of any of {@link Byte}, {@link Short}, {@link Integer}, {@link Long},
+     * {@link Float} or {@link Double} types.
+     */
+    public static Class getWidestClass(final Number n1, final Number n2) {
+        return CLASS_RANK[Math.max(getRank(n1.getClass()), getRank(n2.getClass()))];
+    }
+
+    /**
+     * Returns the rank (in the {@link #CLASS_RANK} array) of the specified class.
+     */
+    private static int getRank(final Class c) {
+        for (int i=0; i<CLASS_RANK.length; i++) {
+            if (CLASS_RANK[i].isAssignableFrom(c)) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException(Utilities.getShortName(c));
     }
 }
