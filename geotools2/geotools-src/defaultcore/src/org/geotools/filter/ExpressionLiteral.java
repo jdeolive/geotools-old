@@ -28,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: ExpressionLiteral.java,v 1.1 2002/06/22 19:08:30 jmacgill Exp $
+ * @version $Id: ExpressionLiteral.java,v 1.2 2002/07/09 18:17:31 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionLiteral extends ExpressionDefault {
@@ -102,13 +102,16 @@ public class ExpressionLiteral extends ExpressionDefault {
      * Gets the value of this literal.
      *
      * @param feature Required by the interface but not used.
-     * @throws MalformedFilterException This literal type is not in scope.
+     * @throws IllegalArgumentException Feature does not match declared schema.
      */
     public Object getValue(Feature feature)
-        throws MalformedFilterException {
+        throws IllegalArgumentException {
 
         return literal;
     }
         
+    public String toString() {
+        return literal.toString();        
+    }
     
 }

@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * For example, the left value is the numerator and the right is the
  * denominator in an ExpressionMath division operation.
  *
- * @version $Id: ExpressionMath.java,v 1.1 2002/06/22 19:08:30 jmacgill Exp $
+ * @version $Id: ExpressionMath.java,v 1.2 2002/07/09 18:17:31 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionMath extends ExpressionDefault {
@@ -116,15 +116,14 @@ public class ExpressionMath extends ExpressionDefault {
      *
      * @param feature Feature to use when return sub expression values.
      * @return Value of this expression.
-     * @throws MalformedFilterException Expression is somehow poorly formed.
+     * @throws IllegalArgumentException Feature does not match declared schema.
      */
     public Object getValue(Feature feature)
-        throws MalformedFilterException {
-        
+        throws IllegalArgumentException {
         
         // Checks to make sure both sub expressions exist.
         if( leftValue == null || rightValue == null ) {
-            throw new MalformedFilterException("Attempted read math expression with missing sub expressions.");
+            throw new IllegalArgumentException("Attempted read math expression with missing sub expressions.");
         }
 
         double leftValueDouble = ((Number) leftValue.getValue(feature)).doubleValue();
@@ -146,7 +145,7 @@ public class ExpressionMath extends ExpressionDefault {
         // If the type has somehow been mis-set (can't happen externally)
         // then throw an exception.
         else {
-            throw new MalformedFilterException("Attempted read math expression with invalid type (ie. Add, Subtract, etc.).");
+            throw new IllegalArgumentException("Attempted read math expression with invalid type (ie. Add, Subtract, etc.).");
         }
     
     }

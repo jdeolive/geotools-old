@@ -32,7 +32,7 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.8 2002/06/04 16:40:48 loxnard Exp $
+ * @version $Id: FeatureFlat.java,v 1.9 2002/07/09 18:17:30 robhranac Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFlat implements Feature {
@@ -65,14 +65,14 @@ public class FeatureFlat implements Feature {
 
         // Set the feature type reference
         this.schema = schema;
-        _log.info("creating feature");
+        _log.debug("creating feature");
 
         // Gets the number of attributes from feature and uses to set valid flag
         int n = schema.attributeTotal();
         boolean isValid = (n == attributes.length);
         //_log.info("schema attributes: " + n);
-        _log.info("passed attributes: " + attributes.length);
-        _log.info("is valid: " + isValid);
+        _log.debug("passed attributes: " + attributes.length);
+        _log.debug("is valid: " + isValid);
 
         // Check to ensure that all attributes are valid
         for(int i = 0; i < n ; i++) {
@@ -227,10 +227,18 @@ public class FeatureFlat implements Feature {
     public void setAttribute(String xPath, Object attribute)
         throws IllegalFeatureException {
         
+        _log.debug("about to set attribute");
+
         AttributeType definition = null;
+
+        _log.debug("has attribute: " + schema.hasAttributeType(xPath));
+
         if( schema.hasAttributeType(xPath) ) {
+            //_log.debug("attribute: " + definition.toString());
+
             definition = schema.getAttributeType(xPath);
             if( definition.getType().isAssignableFrom( attribute.getClass()) ) {
+                //_log.info("position: " + definition.getPosition());
                 attributes[definition.getPosition()] = attribute;
             }
             else {
@@ -259,7 +267,7 @@ public class FeatureFlat implements Feature {
     public Geometry getDefaultGeometry() {
         AttributeType gType = schema.getDefaultGeometry();
         _log.debug("schema "+schema+" \n gType = "+gType);
-        _log.info("fetching geometry from "+gType.getPosition()+" -> "+attributes[gType.getPosition()]);
+        _log.debug("fetching geometry from "+gType.getPosition()+" -> "+attributes[gType.getPosition()]);
         return (Geometry) ((Geometry) attributes[gType.getPosition()]).clone();
     }
 

@@ -26,7 +26,7 @@ import org.geotools.feature.*;
 /**
  * Implements a default expression, with helpful variables and static methods.
  *
- * @version $Id: ExpressionDefault.java,v 1.1 2002/06/22 19:08:30 jmacgill Exp $
+ * @version $Id: ExpressionDefault.java,v 1.2 2002/07/09 18:17:31 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionDefault implements Expression {
@@ -73,6 +73,8 @@ public class ExpressionDefault implements Expression {
     public static final short ATTRIBUTE_GEOMETRY = 112;
     /** Defines an attribute expression with a declared string type. */  
     public static final short ATTRIBUTE_UNDECLARED = 100;
+    /** Defines an attribute expression with a declared string type. */  
+    public static final short ATTRIBUTE = 113;
 
     /**
      * Gets the type of this expression.
@@ -86,8 +88,7 @@ public class ExpressionDefault implements Expression {
      *
      * @param feature Specified feature to use when returning value.
      */
-    public Object getValue(Feature feature)
-        throws MalformedFilterException {
+    public Object getValue(Feature feature) {
         return new Object();
     }        
 

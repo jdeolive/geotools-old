@@ -17,7 +17,7 @@
   <!-- Set your module-specific build targets here -->
 
   <!-- Tests the feature flat stuff -->
-  <target name="test" depends="release">
+  <target name="test">
     <property name="dir.module" value="${basedir}"/>           
     <ant antfile="common.xml" dir="../gtbuild" target="taskdefs" inheritAll="true"/>
     <ant antfile="common.xml" dir="../gtbuild" target="compile-test" inheritAll="true"/>
@@ -27,12 +27,12 @@
       <classpath>
         <pathelement path="./tests/unit"/>
         <pathelement path="../../extbin/core/lib/JTS.jar"/>
-        <pathelement path="../../extbin/core/lib/log4j.jar"/>
+        <pathelement path="../../extbin/core/lib/log4j-1.2.3.jar"/>
         <pathelement path="../../extbin/gtbuild/lib/junit.jar"/>
         <pathelement path="../core/src"/>
         <pathelement path="src"/>
       </classpath>
-      <test fork="false" name="org.geotools.feature.FeatureFlatTest"/>
+      <test fork="false" name="org.geotools.filter.ExpressionTest"/>
     </junit>
   </target>
   

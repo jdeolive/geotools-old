@@ -20,8 +20,10 @@
 
 package org.geotools.filter;
 
-import org.geotools.data.*;
-import org.geotools.feature.*;
+import org.apache.log4j.Category;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.Feature;
+import org.geotools.feature.IllegalFeatureException;
 
 /**
  * Defines a complex filter (could also be called logical filter).
@@ -29,23 +31,27 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: ExpressionAttribute.java,v 1.2 2002/07/04 10:48:43 ianturton Exp $
+ * @version $Id: ExpressionAttribute.java,v 1.3 2002/07/09 18:17:31 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionAttribute extends ExpressionDefault {
 
+    private static Category _log = Category.getInstance(ExpressionAttribute.class.getName());
+
     /** Holds all sub filters of this filter. */
     protected String attributePath = new String();
 
+    /** Holds all sub filters of this filter. */
+    protected FeatureType schema = null;
+
 
     /**
      * Constructor with minimum dataset for a valid expression.
      *
-     * @param attributePath The initial (required) sub filter.
-     * @param expressionType The final relation between all sub filters.
+     * @param schema The schema for this attribute.
      */
-    public ExpressionAttribute () {
-        this.expressionType = ATTRIBUTE_UNDECLARED;
+    public ExpressionAttribute (FeatureType schema) {
+        this.schema = schema;
     }
 
     /**
@@ -54,63 +60,67 @@ public class ExpressionAttribute extends ExpressionDefault {
      * @param attributePath The initial (required) sub filter.
      * @param expressionType The final relation between all sub filters.
      */
-    public ExpressionAttribute (String attributePath, short expressionType) {
+    public ExpressionAttribute (FeatureType schema, String attributePath)
+        throws IllegalFilterException {
+
+        this.schema = schema;
+        this.expressionType = ATTRIBUTE;
+        setAttributePath(attributePath);
+    }
+
+
+    /**
+     * Constructor with minimum dataset for a valid expression.
+     *
+     * @param attributePath The initial (required) sub filter.
+     */
+    public void setAttributePath(String attributePath)
+        throws IllegalFilterException {
+        _log.debug("Path is: " + attributePath);
+        if( schema.hasAttributeType(attributePath)) {
+            this.attributePath = attributePath;
+        }
+        else {
+            throw new IllegalFilterException();
+        }
+    }
+
+    /**
+     * Constructor with minimum dataset for a valid expression.
+     *
+     * @param expressionType The final relation between all sub filters.
+     */
+    /*public void setExpressionType(short expressionType) {
         this.expressionType = expressionType;
-        this.attributePath = attributePath;
-    }
-
-
-    /**
-     * Constructor with minimum dataset for a valid expression.
-     *
-     * @param attributePath The initial (required) sub filter.
-     */
-    public void setAttributePath(String attributePath) {
-        this.attributePath = attributePath;
-    }
-
-    /**
-     * Constructor with minimum dataset for a valid expression.
-     *
-     * @param expressionType The final relation between all sub filters.
-     */
-    public void setExpressionType(short expressionType) {
-        this.expressionType = expressionType;
-    }
+        }*/
 
     /**
      * Gets the value of this attribute from the passed feature.
      *
      * @param feature Feature from which to extract attribute value.
      */
-    public Object getValue(Feature feature) 
-        throws MalformedFilterException {
+    public Object getValue(Feature feature) {
+
         Object tempAttribute = null;
-        // MUST HANDLE AN ATTRIBUTE NOT FOUND EXCEPTION HERE
-            try{
-                tempAttribute = feature.getAttribute(attributePath);
-            }
-            catch(IllegalFeatureException ife){
-                throw new MalformedFilterException(ife.toString());
-            }
-        // Check to make sure that attribute conforms to advertised type before 
-        // returning
-        if( ((tempAttribute instanceof Double) && 
-             (expressionType == ATTRIBUTE_DOUBLE)) || 
-            ((tempAttribute instanceof Integer) && 
-             (expressionType == ATTRIBUTE_INTEGER)) ||
-            ((tempAttribute instanceof String) && 
-             (expressionType == ATTRIBUTE_STRING)) ||
-            permissiveConstruction ||
-            expressionType == ATTRIBUTE_UNDECLARED) { // added by Ian - at build time the type is unknown and unknowable
-            return tempAttribute;
+        try {
+            tempAttribute = feature.getAttribute(attributePath);
         }
-        else {
-            throw new MalformedFilterException
-                ("Attribute does not conform to advertised type: "
-                 + expressionType);
+        catch (IllegalFeatureException e) {            
+            _log.debug("Feature does not match declared schema: " 
+                      + schema.toString());
         }
+        return tempAttribute;
+    }
         
+
+    /**
+     * Adds the 'right' value to this filter.
+     *
+     * @param rightValue Expression for 'right' value.
+     * @throws IllegalFilterException Filter is not internally consistent.
+     */
+    public String toString() {
+        return attributePath;
     }
         
     
