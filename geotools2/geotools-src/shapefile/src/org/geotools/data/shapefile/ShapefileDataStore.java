@@ -81,6 +81,8 @@ public class ShapefileDataStore extends AbstractDataStore {
     private final URL dbfURL;
     private final URL shxURL;
     
+    private final boolean useMemoryMappedBuffer;
+    
     private FeatureType schema;
     
     /** Creates a new instance of ShapefileDataStore.
@@ -88,6 +90,10 @@ public class ShapefileDataStore extends AbstractDataStore {
      * @throws MalformedURLException If computation of related URLs (dbf,shx) fails.
      */
     public ShapefileDataStore(URL url) throws java.net.MalformedURLException {
+        this(url,true);
+    }
+    
+    public ShapefileDataStore(URL url,boolean useMemoryMappedBuffer) throws java.net.MalformedURLException {
         String filename = null;
         if (url == null) {
             throw new NullPointerException("Null URL for ShapefileDataSource");
@@ -115,6 +121,8 @@ public class ShapefileDataStore extends AbstractDataStore {
         shpURL = new URL(filename + shpext);
         dbfURL = new URL(filename + dbfext);
         shxURL = new URL(filename + shxext);
+        
+        this.useMemoryMappedBuffer = useMemoryMappedBuffer;
     }
     
     /**
@@ -149,9 +157,9 @@ public class ShapefileDataStore extends AbstractDataStore {
      * file, a FileChannel will be returned. Otherwise a generic channel will
      * be obtained from the urls input stream.
      */
-    private static ReadableByteChannel getReadChannel(URL url) throws IOException {
+    private ReadableByteChannel getReadChannel(URL url) throws IOException {
         ReadableByteChannel channel = null;
-        if (url.getProtocol().equals("file")) {
+        if (url.getProtocol().equals("file") && useMemoryMappedBuffer) {
             File file = new File(url.getFile());
             if (! file.exists() || !file.canRead()) {
                 throw new IOException("File either doesn't exist or is unreadable : " + file);
@@ -171,9 +179,9 @@ public class ShapefileDataStore extends AbstractDataStore {
      * a generic channel for remote urls, however both shape and dbf writing
      * can only occur with a local FileChannel channel.
      */
-    private static WritableByteChannel getWriteChannel(URL url) throws IOException {
+    private WritableByteChannel getWriteChannel(URL url) throws IOException {
         WritableByteChannel channel;
-        if (url.getProtocol().equals("file")) {
+        if (url.getProtocol().equals("file") && useMemoryMappedBuffer) {
             File f = new File(url.getFile());
             if (!f.exists() && !f.createNewFile()) {
                 throw new IOException("Cannot create file " + f);

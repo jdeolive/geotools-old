@@ -34,12 +34,14 @@ import java.util.logging.Logger;
  * Implementation of the DataStore service provider interface for Shapefiles.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: ShapefileDataStoreFactory.java,v 1.6 2004/04/20 03:33:23 cholmesny Exp $
+ * @version $Id: ShapefileDataStoreFactory.java,v 1.7 2004/05/06 21:50:10 ianschneider Exp $
  */
 public class ShapefileDataStoreFactory
     implements org.geotools.data.DataStoreFactorySpi {
-    private static final Param PARAM = new Param("url", URL.class,
-            "url to a .shp file");
+    private static final Param URLP = new Param("url", URL.class,
+        "url to a .shp file");
+    private static final Param MEMORY_MAPPED = new Param("memory mapped buffer",
+        Boolean.class, "enable/disable the use of memory-mapped io",false);
 
     /**
      * Takes a list of params which describes how to access a restore and
@@ -53,16 +55,14 @@ public class ShapefileDataStoreFactory
      */
     public boolean canProcess(Map params) {
         boolean accept = false;
-
-        if (params.containsKey("url")) {
+        if (params.containsKey(URLP.key)) {
             try {
-                URL url = (URL) PARAM.lookUp(params);
+                URL url = (URL) URLP.lookUp(params);
                 accept = url.getFile().toUpperCase().endsWith("SHP");
             } catch (IOException ioe) {
                 // yes, I am eating this
             }
         }
-
         return accept;
     }
 
@@ -84,15 +84,17 @@ public class ShapefileDataStoreFactory
         DataStore ds = null;
 
         URL url = null;
-
         try {
-            url = (URL) PARAM.lookUp(params);
-            ds = new ShapefileDataStore(url);
+            url = (URL) URLP.lookUp(params);
+            Boolean mm = (Boolean) MEMORY_MAPPED.lookUp(params);
+            if (mm == null)
+                mm = Boolean.TRUE;
+            ds = new ShapefileDataStore(url,mm.booleanValue());
         } catch (MalformedURLException mue) {
             throw new DataSourceException("Unable to attatch datastore to "
                 + url, mue);
-        }
-
+        } 
+ 
         return ds;
     }
 
@@ -145,6 +147,6 @@ public class ShapefileDataStoreFactory
      * @see org.geotools.data.DataStoreFactorySpi#getParametersInfo()
      */
     public Param[] getParametersInfo() {
-        return new Param[] { PARAM };
+        return new Param[] { URLP, MEMORY_MAPPED };
     }
 }
