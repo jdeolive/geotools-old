@@ -32,8 +32,12 @@ import java.util.logging.Logger;
  */
 public class SQLEncoderPostgis extends SQLEncoder
     implements org.geotools.filter.FilterVisitor {
-    /** The filters that this encoder can processed. */
-    private static FilterCapabilities capabils = SQLEncoder.getCapabilities();
+        
+    /**
+     * The filters that this encoder can processed.
+     * (Note this value shadows private capabilities in superclass)
+     */
+    private static FilterCapabilities capabilities = new FilterCapabilities();
 
     /** Standard java logger */
     private static Logger log = Logger.getLogger("org.geotools.filter");
@@ -41,8 +45,22 @@ public class SQLEncoderPostgis extends SQLEncoder
     /** To write geometry so postgis can read it. */
     private static WKTWriter wkt = new WKTWriter();
 
+    
     static {
-        capabils.addType(AbstractFilter.GEOMETRY_BBOX);
+        capabilities.addType(AbstractFilter.LOGIC_OR);
+        capabilities.addType(AbstractFilter.LOGIC_AND);
+        capabilities.addType(AbstractFilter.LOGIC_NOT);
+        capabilities.addType(AbstractFilter.COMPARE_EQUALS);
+        capabilities.addType(AbstractFilter.COMPARE_NOT_EQUALS);
+        capabilities.addType(AbstractFilter.COMPARE_LESS_THAN);
+        capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN);
+        capabilities.addType(AbstractFilter.COMPARE_LESS_THAN_EQUAL);
+        capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN_EQUAL);
+        capabilities.addType(AbstractFilter.NULL);
+        capabilities.addType(AbstractFilter.BETWEEN);
+        capabilities.addType((short) 12345);
+        capabilities.addType((short) -12345);        
+        capabilities.addType(AbstractFilter.GEOMETRY_BBOX);
     }
 
     /**
@@ -60,6 +78,16 @@ public class SQLEncoderPostgis extends SQLEncoder
      * called?
      */
     public SQLEncoderPostgis() {
+    }
+
+    /**
+     * Capabilities of this encoder.
+     * 
+     * @see org.geotools.filter.SQLEncoder#getCapabilities()
+     * @return
+     */
+    public FilterCapabilities getCapabilities() {
+        return capabilities;
     }
 
     /**
