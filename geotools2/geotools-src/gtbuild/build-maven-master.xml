@@ -10,7 +10,6 @@
         <ant antfile="build-maven.xml" dir="..\algorithms" inheritall="true" target="maven:install-jar"/>
         <ant antfile="build-maven.xml" dir="..\shapefile" inheritall="true" target="maven:install-jar"/>
         <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:install-jar"/>
-        <ant antfile="build-maven.xml" dir="..\filter" inheritall="true" target="maven:install-jar"/>
         <ant antfile="build-maven.xml" dir="..\resources" inheritall="true" target="maven:install-jar"/>
     </target>
     
@@ -19,7 +18,6 @@
         <ant antfile="build-maven.xml" dir="..\algorithms" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\shapefile" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:site"/>
-        <ant antfile="build-maven.xml" dir="..\filter" inheritall="true" target="maven:site"/>
     </target>
     
     
