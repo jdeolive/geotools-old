@@ -36,6 +36,52 @@ public class PickleTest extends TestCase {
     junit.textui.TestRunner.run(suite(PickleTest.class));
   }
   
+  private FeatureType createType(String[] names,Class[] classes) throws SchemaException {
+    if (names.length != classes.length)
+      throw new IllegalArgumentException("unequal lengths");
+    AttributeType[] atts = new AttributeType[names.length];
+    for (int i = 0, ii = atts.length; i < ii; i++) {
+      atts[i] = new AttributeTypeDefault(names[i],classes[i]);
+    }
+    return new FeatureTypeFlat(atts);
+  }
+  
+  public void testMultiFeatureTypeStorage() throws Exception {
+    File file = new File(tempFile);
+    PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
+    String[] names = new String[] { "Color","Sweetness","Worms" };
+    Class[] clazz = new Class[] { Color.class,Integer.class,Boolean.class };
+    FeatureType apple = createType(names,clazz);
+    names = new String[] { "Color","Seeds","Size" };
+    clazz = new Class[] { Color.class,Boolean.class,Integer.class};
+    FeatureType orange = createType(names,clazz);
+    FeatureCollection applesNoranges = new FeatureCollectionDefault();
+    FeatureFactory appleFactory = new FlatFeatureFactory(apple);
+    FeatureFactory orangeFactory = new FlatFeatureFactory(orange);
+    Object[] apple1 = new Object[] {Color.red,new Integer(4),Boolean.FALSE};
+    Object[] apple2 = new Object[] {Color.green,new Integer(5),Boolean.TRUE};
+    applesNoranges.add( appleFactory.create( apple1) );
+    applesNoranges.add( appleFactory.create( apple2) );
+    Object[] orange1 = new Object[] {Color.red,Boolean.FALSE,new Integer(50)};
+    Object[] orange2 = new Object[] {Color.orange,Boolean.TRUE,new Integer(30)};
+    applesNoranges.add( orangeFactory.create(orange1) );
+    applesNoranges.add( orangeFactory.create(orange2) );
+    pds.setFeatures(applesNoranges);
+    
+    checkFeature(apple1,pds.getFeature(0));
+    checkFeature(apple2,pds.getFeature(1));
+    checkFeature(orange1,pds.getFeature(2));
+    checkFeature(orange2,pds.getFeature(3));
+  }
+  
+  private void checkFeature(Object[] vals,Feature f) {
+    Object[] atts = f.getAttributes();
+    assertEquals(vals.length,atts.length);
+    for (int i = 0, ii = vals.length; i < ii; i++) {
+      assertEquals(vals[i], atts[i]);
+    }
+  }
+  
   public void testWriteWithArbitraryObjects() throws Exception {
     File file = new File(tempFile);
     PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
@@ -63,7 +109,10 @@ public class PickleTest extends TestCase {
       assertEquals(i,((InnerClassTestObject)attVals[2]).x);
       assertEquals(0,((InnerClassTestObject)attVals[2]).y);
     }
-      
+  }
+  
+  public void testMultiFeatures() throws Exception {
+    
   }
   
   /*
