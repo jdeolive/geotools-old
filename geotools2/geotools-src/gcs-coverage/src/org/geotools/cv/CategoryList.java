@@ -82,7 +82,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.7 2003/01/09 21:41:20 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.8 2003/02/14 23:38:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable
@@ -128,7 +128,8 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
     /**
      * The list of categories to use for decoding samples. This list most be sorted
      * in increasing order of {@link Category#minimum}.   This {@link CategoryList}
-     * object may be used as a {@link Comparator} for that.
+     * object may be used as a {@link Comparator} for that.  Qualitative categories
+     * (with NaN values) are last.
      */
     private final Category[] categories;
 
@@ -1082,6 +1083,18 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      * @throws RasterFormatException if a problem occurs during the transformation.
      */
     public final void transform(final WritableRectIter iterator) throws RasterFormatException {
+        /*
+         * Category of the lowest minimum and highest maximum value (not including NaN),
+         * or <code>null</code in none. Will be used later for range checks.
+         */
+        Category categoryMin=null, categoryMax=null;
+        for (int i=categories.length; --i>=0;) {
+            if (!Double.isNaN(categories[i].maximum)) {
+                categoryMax = categories[i];
+                categoryMin = categories[0];
+                break;
+            }
+        }
         Category category = main;
         if (main == null) {
             category = nodata;
@@ -1112,8 +1125,8 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
                         if (category == null) {
                             category = nodata;
                         }
-                        maximum = category.maximum;
-                        minimum = category.minimum;
+                        maximum = (category!=categoryMax) ? category.maximum : Double.POSITIVE_INFINITY;
+                        minimum = (category!=categoryMin) ? category.minimum : Double.NEGATIVE_INFINITY;
                         rawBits = Double.doubleToRawLongBits(minimum);
                         tr      = category.transform;
                         if (overflowFallback != null) {

@@ -105,7 +105,7 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.10 2003/02/14 15:46:48 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.11 2003/02/14 23:38:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Resampler extends GridCoverage {
@@ -297,6 +297,10 @@ final class Resampler extends GridCoverage {
         final MathTransform transform, step1, step2, step3;
         if (sameCS) {
             step2 = null;
+            if (!GCSUtilities.hasTransform(targetGG)) {
+                targetGG = new GridGeometry(targetGG.getGridRange(),
+                                            sourceGG.getGridToCoordinateSystem());
+            }
         } else {
             if (sourceCS==null || targetCS==null) {
                 throw new CannotReprojectException(Resources.format(
@@ -384,10 +388,26 @@ final class Resampler extends GridCoverage {
             } else {
                 layout = new ImageLayout();
             }
-            layout.setMinX  (gridRange.getLower (0));
-            layout.setMinY  (gridRange.getLower (1));
-            layout.setWidth (gridRange.getLength(0));
-            layout.setHeight(gridRange.getLength(1));
+            if (0==(layout.getValidMask() & (ImageLayout.MIN_X_MASK |
+                                             ImageLayout.MIN_Y_MASK |
+                                             ImageLayout.WIDTH_MASK |
+                                             ImageLayout.HEIGHT_MASK)))
+            {
+                layout.setMinX  (gridRange.getLower (0));
+                layout.setMinY  (gridRange.getLower (1));
+                layout.setWidth (gridRange.getLength(0));
+                layout.setHeight(gridRange.getLength(1));
+                targetImage.setRenderingHint(JAI.KEY_IMAGE_LAYOUT, layout);
+            }
+            // TODO: We should set that only if 'hints' didn't provides values for them.
+            //       We can't test layout.getValidMask(), since those hints has been set
+            //       by ImageUtilities.getRenderingHints(sourceImage).
+            layout.setTileGridXOffset(layout.getMinX(targetImage));
+            layout.setTileGridYOffset(layout.getMinY(targetImage));
+            final int width  = layout.getWidth (targetImage);
+            final int height = layout.getHeight(targetImage);
+            if (layout.getTileWidth (targetImage) > width ) layout.setTileWidth (width);
+            if (layout.getTileHeight(targetImage) > height) layout.setTileHeight(height);
             targetImage.setRenderingHint(JAI.KEY_IMAGE_LAYOUT, layout);
         }
         /*
@@ -454,6 +474,7 @@ final class Resampler extends GridCoverage {
         }
         assert targetCoverage.getCoordinateSystem().equals(targetCS!=null ? targetCS : sourceCS, false);
         assert targetGG!=null || targetImage.getBounds().equals(sourceImage.getBounds());
+System.out.println(targetImage);
         return targetCoverage;
     }
     
@@ -475,7 +496,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.10 2003/02/14 15:46:48 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.11 2003/02/14 23:38:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

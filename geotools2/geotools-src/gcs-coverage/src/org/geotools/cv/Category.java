@@ -96,7 +96,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.8 2003/01/15 21:47:19 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.9 2003/02/14 23:38:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
@@ -621,7 +621,7 @@ public class Category implements Serializable {
         index += 0x200000;
         if (index>=0 && index<=0x3FFFFF) {
             final float value = Float.intBitsToFloat(0x7FC00000 + index);
-            assert Float.isNaN(value);
+            assert Float.isNaN(value) : value;
             return value;
         }
         else {
@@ -831,9 +831,17 @@ public class Category implements Serializable {
         buffer.append("(\"");
         buffer.append(name);
         buffer.append("\":[");
-        buffer.append(minimum);
-        buffer.append("..");
-        buffer.append(maximum); // Inclusive
+        if (Double.isNaN(minimum) && Double.isNaN(maximum)) {
+            buffer.append("NaN(");
+            buffer.append((int)inverse.minimum);
+            buffer.append("..");
+            buffer.append((int)inverse.maximum);
+            buffer.append(')');
+        } else {
+            buffer.append(minimum);
+            buffer.append(" .. ");
+            buffer.append(maximum); // Inclusive
+        }
         buffer.append("])");
         return buffer.toString();
     }

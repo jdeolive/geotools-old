@@ -83,6 +83,7 @@ import java.rmi.RemoteException;
 import java.rmi.ServerException;
 import java.rmi.server.RemoteObject;
 import java.io.NotSerializableException;
+import java.io.StringWriter;
 import java.io.IOException;
 
 // OpenGIS dependencies
@@ -107,6 +108,7 @@ import org.geotools.cv.CannotEvaluateException;
 import org.geotools.cv.PointOutsideCoverageException;
 
 // Resources
+import org.geotools.io.LineWriter;
 import org.geotools.util.WeakHashSet;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
@@ -128,7 +130,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.10 2003/02/14 15:46:47 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.11 2003/02/14 23:38:13 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -911,6 +913,28 @@ public class GridCoverage extends Coverage {
         // This method is overriden by org.geotools.gp.Interpolator
         return coverage;
     }
+    
+    /**
+     * Returns a string représentation of this coverage. This string is
+     * for debugging purpose only and may change in future version.
+     */
+    public String toString() {
+        final String lineSeparator = System.getProperty("line.separator", "\n");
+        final StringWriter  buffer = new StringWriter();
+        buffer.write(super.toString());
+        final LineWriter filter = new LineWriter(buffer, lineSeparator+"    ");
+        try {
+            filter.write(lineSeparator);
+            for (int i=0; i<sampleDimensions.length; i++) {
+                filter.write(sampleDimensions[i].toString());
+            }
+            filter.flush();
+        } catch (IOException exception) {
+            // Should not happen
+            throw new AssertionError(exception);
+        }
+        return buffer.toString();
+    }
 
 
 
@@ -928,7 +952,7 @@ public class GridCoverage extends Coverage {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.10 2003/02/14 15:46:47 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.11 2003/02/14 23:38:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -957,7 +981,7 @@ public class GridCoverage extends Coverage {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.10 2003/02/14 15:46:47 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.11 2003/02/14 23:38:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {

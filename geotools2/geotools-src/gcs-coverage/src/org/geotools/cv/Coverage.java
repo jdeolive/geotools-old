@@ -141,7 +141,7 @@ import org.opengis.gc.GC_GridCoverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.13 2003/01/16 21:05:11 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.14 2003/02/14 23:38:12 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -734,11 +734,24 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * for debugging purpose only and may change in future version.
      */
     public String toString() {
+        final Locale locale = null;
         final StringBuffer buffer=new StringBuffer(Utilities.getShortClassName(this));
-        buffer.append('[');
-        buffer.append(name);
-        buffer.append(": ");
-        buffer.append(getEnvelope());
+        buffer.append("[\"");
+        buffer.append(getName(locale));
+        buffer.append('"');
+        final Envelope envelope = getEnvelope();
+        if (envelope != null) {
+            buffer.append(", ");
+            buffer.append(envelope);
+        }
+        final CoordinateSystem cs = getCoordinateSystem();
+        if (cs != null) {
+            buffer.append(", ");
+            buffer.append(Utilities.getShortClassName(cs));
+            buffer.append("[\"");
+            buffer.append(cs.getName(locale));
+            buffer.append("\"]");
+        }
         buffer.append(']');
         return buffer.toString();
     }
@@ -758,7 +771,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.13 2003/01/16 21:05:11 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.14 2003/02/14 23:38:12 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends RemoteObject implements CV_Coverage, PropertySource {
