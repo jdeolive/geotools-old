@@ -62,6 +62,7 @@ public interface ResourceKeys
     public static final int OS_NAME_$1               =    70;
     public static final int OS_VERSION_$2            =    71;
     public static final int OTHERS                   =    53;
+    public static final int PARAMETER_$1             =    76;
     public static final int PERSONALIZED             =    54;
     public static final int PREDEFINED_KERNELS       =    55;
     public static final int PREFERRED_RESOLUTION     =    22;
