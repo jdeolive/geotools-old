@@ -28,7 +28,7 @@ import java.awt.event.MouseListener;
 
 /**
  * This is the base widget class that all widgets inherit from.
- * @version $Id: PanelWidgetImpl.java,v 1.2 2003/02/08 03:33:37 camerons Exp $
+ * @version $Id: PanelWidgetImpl.java,v 1.3 2003/02/09 09:53:06 camerons Exp $
  * @author Cameron Shorter
  */
 
@@ -49,8 +49,12 @@ public class PanelWidgetImpl extends JPanel implements PanelWidget
     public PanelWidgetImpl()
     {
     }
-    
 
+    // The following methods are common to all widgets however, since
+    // java doesn't allow multiple inheritence, and interfaces are not
+    // defined for Swing components, we need to include the same code
+    // in all the widgets which wrap Swing base components.
+    
     /**
      * Adds the specified mouse listener to receive mouse events from
      * this component.
