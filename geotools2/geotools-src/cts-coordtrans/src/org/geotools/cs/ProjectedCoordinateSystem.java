@@ -57,16 +57,17 @@ import javax.media.jai.ParameterList;
 
 
 /**
- * A 2D cartographic coordinate system. Projected coordinates are the two-dimensional
- * cartesian coordinates typically found on maps and computer displays. The cartesian
- * axes are often called "paper coordinates" or "display coordinates." The conversions
- * from a three-dimensional curvilinear coordinate system (whether ellipsoidal or
- * spherical) to projected coordinates may be assumed to be well known. Examples
- * of projected coordinate systems are: Lambert, Mercator, and transverse Mercator.
- * Conversions to, and conversions between, projected spatial coordinate systems
- * often do not preserve distances, areas and angles.
+ * A 2D cartographic coordinate system. Projected coordinates are the
+ * two-dimensional cartesian coordinates typically found on maps and computer
+ * displays. The cartesian axes are often called "paper coordinates" or
+ * "display coordinates."  The conversions from a three-dimensional curvilinear
+ * coordinate system (whether ellipsoidal or spherical) to projected
+ * coordinates may be assumed to be well known. Examples of projected
+ * coordinate systems are: Lambert, Mercator, and transverse Mercator.
+ * Conversions to, and conversions between, projected spatial coordinate
+ * systems often do not preserve distances, areas and angles.
  *
- * @version 1.00
+ * @version $Id: ProjectedCoordinateSystem.java,v 1.3 2002/06/05 16:11:56 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -89,7 +90,7 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
     private final GeographicCoordinateSystem gcs;
     
     /**
-     * projection Projection from geographic to projected coordinate system.
+     * Projection from geographic to projected coordinate system.
      */
     private final Projection projection;
     
@@ -193,7 +194,7 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
     
     /**
      * Gets units for dimension within coordinate system.
-     * This linear unit is the same for all axis.
+     * This linear unit is the same for all axes.
      *
      * @param dimension Zero based index of axis.
      *
@@ -209,12 +210,12 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
     }
     
     /**
-     * Returns  <code>true</code> if this coordinate system is equivalents to
+     * Returns <code>true</code> if this coordinate system is equivalent to
      * the specified coordinate system. Two coordinate systems are considered
      * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
      * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The default implementation compare datum, units and axis, but ignore
-     * name, alias and other meta-data informations.
+     * The default implementation compares datum, units and axis, but ignores
+     * name, alias and other meta-data information.
      *
      * @param  cs The coordinate system (may be <code>null</code>).
      * @return <code>true</code> if both coordinate systems are equivalent.
@@ -233,8 +234,8 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
@@ -255,7 +256,7 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
      * system. The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -271,15 +272,12 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
     /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Wrap a {@link ProjectedCoordinateSystem} object for use with OpenGIS.
+     * Wraps a {@link ProjectedCoordinateSystem} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends HorizontalCoordinateSystem.Export implements CS_ProjectedCoordinateSystem {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version 1.00
+ * @version $Id: Projection.java,v 1.4 2002/06/05 16:15:42 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -87,13 +87,13 @@ public class Projection extends Info {
      * @param name           Name to give new object.
      * @param classification Classification string for projection (e.g. "Transverse_Mercator").
      * @param ellipsoid      Ellipsoid parameter. If non-null, then <code>"semi_major"</code>
-     *                       and <code>"semi_minor"</code> parameters will be set according.
+     *                       and <code>"semi_minor"</code> parameters will be set accordingly.
      * @param centre         Central meridian and latitude of origin, in degrees. If non-null, then
      *                       <code>"central_meridian"</code> and <code>"latitude_of_origin"</code>
-     *                       will be set according.
+     *                       will be set accordingly.
      * @param translation    False easting and northing, in metres. If non-null, then
      *                       <code>"false_easting"</code> and <code>"false_northing"</code>
-     *                       will be set according.
+     *                       will be set accordingly.
      */
     public Projection(final CharSequence name, final String classification,
                       final Ellipsoid ellipsoid, final Point2D centre, final Point2D translation) {
@@ -133,17 +133,17 @@ public class Projection extends Info {
     }
     
     /**
-     * Initialize a list of parameter from the specified ellipsoid and points.
+     * Initializes a list of parameter from the specified ellipsoid and points.
      *
      * @param parameters     The parameters to initialize.
      * @param ellipsoid      Ellipsoid parameter. If non-null, then <code>"semi_major"</code>
-     *                       and <code>"semi_minor"</code> parameters will be set according.
+     *                       and <code>"semi_minor"</code> parameters will be set accordingly.
      * @param centre         Central meridian and latitude of origin, in degrees.
      *                       If non-null, then <code>"central_meridian"</code> and
-     *                       <code>"latitude_of_origin"</code> will be set according.
+     *                       <code>"latitude_of_origin"</code> will be set accordingly.
      * @param translation    False easting and northing, in metres. If non-null, then
      *                       <code>"false_easting"</code> and <code>"false_northing"</code>
-     *                       will be set according.
+     *                       will be set accordingly.
      * @return               <code>parameters</code> for convenience.
      */
     static ParameterList init(final ParameterList parameters, final Ellipsoid ellipsoid, final Point2D centre, final Point2D translation) {
@@ -201,11 +201,12 @@ public class Projection extends Info {
     
     /**
      * Convenience method for fetching a parameter value.
-     * Search is case-insensitive and ignore leading and trailing blanks.
+     * Search is case-insensitive and ignores leading and trailing blanks.
      *
      * @param  name Parameter to look for.
      * @return The parameter value.
-     * @throws MissingParameterException if parameter <code>name</code> is not found.
+     * @throws MissingParameterException if parameter <code>name</code> is
+     *         not found.
      */
     public double getValue(final String name) throws MissingParameterException {
         return getValue(parameters, name, Double.NaN, true);
@@ -213,7 +214,7 @@ public class Projection extends Info {
     
     /**
      * Convenience method for fetching a parameter value.
-     * Search is case-insensitive and ignore leading and trailing blanks.
+     * Search is case-insensitive and ignores leading and trailing blanks.
      *
      * @param  name Parameter to look for.
      * @param  defaultValue Default value to return if
@@ -227,10 +228,10 @@ public class Projection extends Info {
     
     /**
      * Convenience method for fetching a parameter value.
-     * Search is case-insensitive and ignore leading and
+     * Search is case-insensitive and ignores leading and
      * trailing blanks.
      *
-     * @param  parameters User-suplied parameters.
+     * @param  parameters User-supplied parameters.
      * @param  name Parameter to look for.
      * @param  defaultValue Default value to return if
      *         parameter <code>name</code> is not found.
@@ -253,7 +254,7 @@ public class Projection extends Info {
                 } else {
                     // May require an instance of Double. Will
                     // probably throw ClassCastException since
-                    // the last try didn't worked.
+                    // the last try didn't work.
                     return parameters.getDoubleParameter(name);
                 }
             } catch (IllegalArgumentException exception) {
@@ -298,8 +299,8 @@ public class Projection extends Info {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         return "PROJECTION";
@@ -310,7 +311,7 @@ public class Projection extends Info {
      * The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -326,21 +327,18 @@ public class Projection extends Info {
     /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Wrap a {@link Projection} object for use with OpenGIS.
+     * Wraps a {@link Projection} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends Info.Export implements CS_Projection {
         /**
-         * The set of parameters. This array is constructed
-         * only the first time it is needed.
+         * The set of parameters. This array is only constructed
+         * the first time it is needed.
          */
         private transient CS_ProjectionParameter[] parameters;
         
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

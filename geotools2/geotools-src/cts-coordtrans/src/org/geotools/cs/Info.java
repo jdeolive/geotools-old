@@ -84,7 +84,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version 1.00
+ * @version $Id: Info.java,v 1.3 2002/06/05 16:00:39 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -98,13 +98,13 @@ public class Info implements Serializable {
     
     /**
      * Set of weak references to existing coordinate systems.
-     * This set is used in order to return pre-existing object
-     * instead of creating new one.
+     * This set is used in order to return a pre-existing object
+     * instead of creating a new one.
      */
     static final WeakHashSet pool=new WeakHashSet();
 
     /**
-     * Keys of properties hold by {@link Info} objects.
+     * Keys of properties held by {@link Info} objects.
      */
     private static final String[] PROPERTY_KEYS = {
         "authority",
@@ -121,9 +121,9 @@ public class Info implements Serializable {
     
     /**
      * Properties for all <code>get</code>methods except {@link #getName}.
-     * For example the method {@link #getAuthorityCode} returns the value
+     * For example, the method {@link #getAuthorityCode} returns the value
      * of property <code>"authorityCode"</code>. May be <code>null</code>
-     * if there is no properties for this object.
+     * if there are no properties for this object.
      */
     private final String[] properties;
     
@@ -134,7 +134,7 @@ public class Info implements Serializable {
     private transient Object proxy;
     
     /**
-     * Create an object with the specified name. If <code>name</code>
+     * Creates an object with the specified name. If <code>name</code>
      * implements the {@link Map} interface, then its values will be
      * copied for the following keys:
      * <ul>
@@ -169,9 +169,10 @@ public class Info implements Serializable {
      * Gets the name of this object. The default implementation
      * returns the non-localized name given at construction time.
      *
-     * @param locale The desired locale, or <code>null</code> for a default locale.
-     *        If no string is available for the specified locale, an arbitrary locale
-     *        is used.
+     * @param locale The desired locale, or <code>null</code> for a default
+     *        locale.
+     *        If no string is available for the specified locale, an arbitrary
+     *        locale is used.
      *
      * @see org.opengis.cs.CS_Info#getName()
      */
@@ -184,12 +185,13 @@ public class Info implements Serializable {
      * An Authority is an organization that maintains definitions of Authority
      * Codes.  For example the European Petroleum Survey Group (EPSG) maintains
      * a database of coordinate systems, and other spatial referencing objects,
-     * where each object has a code number ID.  For example, the EPSG code for a
-     * WGS84 Lat/Lon coordinate system is '4326'.
+     * where each object has a code number ID.  For example, the EPSG code for
+     * a WGS84 Lat/Lon coordinate system is '4326'.
      *
-     * @param locale The desired locale, or <code>null</code> for the default locale.
-     *        If no string is available for the specified locale, an arbitrary locale
-     *        is used.
+     * @param locale The desired locale, or <code>null</code> for the default
+     *        locale.
+     *        If no string is available for the specified locale, an arbitrary
+     *        locale is used.
      *
      * @see org.opengis.cs.CS_Info#getAuthority()
      */
@@ -198,16 +200,17 @@ public class Info implements Serializable {
     }
     
     /**
-     * Gets the authority-specific identification code, or <code>null</code> if unspecified.
-     * The AuthorityCode is a compact string defined by an Authority to reference
-     * a particular spatial reference object.  For example, the European Survey
-     * Group (EPSG) authority uses 32 bit integers to reference coordinate systems,
-     * so all their code strings will consist of a few digits.  The EPSG code for
-     * WGS84 Lat/Lon is '4326'.
+     * Gets the authority-specific identification code, or <code>null</code>
+     * if unspecified.  The AuthorityCode is a compact string defined by an
+     * Authority to reference a particular spatial reference object.
+     * For example, the European Survey Group (EPSG) authority uses 32 bit
+     * integers to reference coordinate systems, so all their code strings
+     * will consist of a few digits.  The EPSG code for WGS84 Lat/Lon is '4326'
      *
-     * @param locale The desired locale, or <code>null</code> for the default locale.
-     *        If no string is available for the specified locale, an arbitrary locale
-     *        is used.
+     * @param locale The desired locale, or <code>null</code> for the default
+     *        locale.
+     *        If no string is available for the specified locale, an arbitrary
+     *        locale is used.
      *
      * @see org.opengis.cs.CS_Info#getAuthorityCode()
      */
@@ -218,9 +221,10 @@ public class Info implements Serializable {
     /**
      * Gets the alias, or <code>null</code> if there is none.
      *
-     * @param locale The desired locale, or <code>null</code> for the default locale.
-     *        If no string is available for the specified locale, an arbitrary locale
-     *        is used.
+     * @param locale The desired locale, or <code>null</code> for the default
+     *        locale.
+     *        If no string is available for the specified locale, an arbitrary
+     *        locale is used.
      *
      * @see org.opengis.cs.CS_Info#getAlias()
      */
@@ -231,9 +235,10 @@ public class Info implements Serializable {
     /**
      * Gets the abbreviation, or <code>null</code> if there is none.
      *
-     * @param locale The desired locale, or <code>null</code> for the default locale.
-     *        If no string is available for the specified locale, an arbitrary locale
-     *        is used.
+     * @param locale The desired locale, or <code>null</code> for the default
+     *        locale.
+     *        If no string is available for the specified locale, an arbitrary
+     *        locale is used.
      *
      * @see org.opengis.cs.CS_Info#getAbbreviation()
      */
@@ -245,9 +250,10 @@ public class Info implements Serializable {
      * Gets the provider-supplied remarks,
      * or <code>null</code> if there is none.
      *
-     * @param locale The desired locale, or <code>null</code> for the default locale.
-     *        If no string is available for the specified locale, an arbitrary locale
-     *        is used.
+     * @param locale The desired locale, or <code>null</code> for the default
+     *        locale.
+     *        If no string is available for the specified locale, an arbitrary
+     *        locale is used.
      *
      * @see org.opengis.cs.CS_Info#getRemarks()
      */
@@ -294,15 +300,15 @@ public class Info implements Serializable {
     }
     
     /**
-     * Returns a <em>Well Know Text</em> (WKT) for this info.
-     * "Well know text" are part of OpenGIS's specification.
+     * Returns a <em>Well Known Text</em> (WKT) for this info.
+     * "Well known text" are part of OpenGIS's specification.
      */
     public String toString() {
         return toString(null);
     }
     
     /**
-     * Returns a <em>Well Know Text</em> (WKT) for this info.
+     * Returns a <em>Well Known Text</em> (WKT) for this info.
      *
      * @param context The contextual unit. Most subclasses will
      *        ignore this argument, except {@link PrimeMeridian}.
@@ -332,11 +338,11 @@ public class Info implements Serializable {
     }
     
     /**
-     * Add more information inside the "[...]" part of {@link #toString}.
-     * The default implementation add nothing. Subclasses will override
+     * Adds more information inside the "[...]" part of {@link #toString}.
+     * The default implementation adds nothing. Subclasses will override
      * this method in order to complete string representation.
      *
-     * @param  buffer The buffer to add string to.
+     * @param  buffer The buffer to add the string to.
      * @param  context The contextual unit. Most subclasses will
      *         ignore this argument, except {@link PrimeMeridian}.
      * @return The WKT code name (e.g. "GEOGCS").
@@ -346,7 +352,7 @@ public class Info implements Serializable {
     }
     
     /**
-     * Add a unit in WKT form.
+     * Adds a unit in WKT form.
      */
     final void addUnit(final StringBuffer buffer, final Unit unit) {
         if (unit!=null) {
@@ -370,8 +376,8 @@ public class Info implements Serializable {
     }
     
     /**
-     * Make sure an argument is non-null. This is a
-     * convenience method for subclasses constructors.
+     * Makes sure an argument is non-null. This is a
+     * convenience method for subclass constructors.
      *
      * @param  name   Argument name.
      * @param  object User argument.
@@ -387,7 +393,7 @@ public class Info implements Serializable {
     }
     
     /**
-     * Make sure an array element is non-null.
+     * Makes sure an array element is non-null.
      *
      * @param  name  Argument name.
      * @param  array User argument.
@@ -404,10 +410,11 @@ public class Info implements Serializable {
     }
     
     /**
-     * Make sure that the specified unit is a temporal one.
+     * Makes sure that the specified unit is a temporal one.
      *
      * @param  unit Unit to check.
-     * @throws IllegalArgumentException if <code>unit</code> is not a temporal unit.
+     * @throws IllegalArgumentException if <code>unit</code> is not a temporal
+     *         unit.
      */
     static void ensureTimeUnit(final Unit unit) throws IllegalArgumentException {
         if (!Unit.SECOND.canConvert(unit)) {
@@ -417,10 +424,11 @@ public class Info implements Serializable {
     }
     
     /**
-     * Make sure that the specified unit is a linear one.
+     * Makes sure that the specified unit is a linear one.
      *
      * @param  unit Unit to check.
-     * @throws IllegalArgumentException if <code>unit</code> is not a linear unit.
+     * @throws IllegalArgumentException if <code>unit</code> is not a linear
+     *         unit.
      */
     static void ensureLinearUnit(final Unit unit) throws IllegalArgumentException {
         if (!Unit.METRE.canConvert(unit)) {
@@ -430,10 +438,11 @@ public class Info implements Serializable {
     }
     
     /**
-     * Make sure that the specified unit is an angular one.
+     * Makes sure that the specified unit is an angular one.
      *
      * @param  unit Unit to check.
-     * @throws IllegalArgumentException if <code>unit</code> is not an angular unit.
+     * @throws IllegalArgumentException if <code>unit</code> is not an angular
+     *         unit.
      */
     static void ensureAngularUnit(final Unit unit) throws IllegalArgumentException {
         if (!Unit.DEGREE.canConvert(unit)) {
@@ -443,7 +452,7 @@ public class Info implements Serializable {
     }
     
     /**
-     * Returns a reference to an unique instance of this <code>Info</code>.
+     * Returns a reference to a unique instance of this <code>Info</code>.
      * This method is automatically invoked during deserialization.
      *
      * NOTE ABOUT ACCESS-MODIFIER:      This method can't be private,
@@ -462,7 +471,7 @@ public class Info implements Serializable {
      * The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -470,9 +479,9 @@ public class Info implements Serializable {
     
     /**
      * Returns an OpenGIS interface for this info.
-     * This method first look in the cache. If no
+     * This method first looks in the cache. If no
      * interface was previously cached, then this
-     * method create a new adapter  and cache the
+     * method creates a new adapter  and caches the
      * result.
      *
      * @param adapters The originating {@link Adapters}.
@@ -503,13 +512,10 @@ public class Info implements Serializable {
     /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Wrap a {@link Info} object for use with OpenGIS. This wrapper is a
-     * good place to check for non-implemented OpenGIS methods  (just check
+     * Wraps a {@link Info} object for use with OpenGIS. This wrapper is a
+     * good place to check for non-implemented OpenGIS methods (just check
      * for methods throwing {@link UnsupportedOperationException}). This
      * class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     class Export extends RemoteObject implements CS_Info {
         /**
@@ -518,7 +524,7 @@ public class Info implements Serializable {
         protected final Adapters adapters;
         
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             this.adapters = (Adapters)adapters;
@@ -606,7 +612,7 @@ public class Info implements Serializable {
         final double scale;
         
         /**
-         * Construct an abstract unit.
+         * Constructs an abstract unit.
          */
         public AbstractUnit(final Adapters adapters, final double scale) {
             super(adapters);
@@ -614,7 +620,7 @@ public class Info implements Serializable {
         }
         
         /**
-         * Returns a Well Know Text for this unit.
+         * Returns a Well Known Text for this unit.
          */
         public final String toString() {
             return "UNIT[\""+name+"\","+scale+']';
@@ -626,7 +632,7 @@ public class Info implements Serializable {
      */
     final class LinearUnit extends AbstractUnit implements CS_LinearUnit {
         /**
-         * Construct a linear unit.
+         * Constructs a linear unit.
          */
         public LinearUnit(final Adapters adapters, final double metersPerUnit) {
             super(adapters, metersPerUnit);
@@ -645,7 +651,7 @@ public class Info implements Serializable {
      */
     final class AngularUnit extends AbstractUnit implements CS_AngularUnit {
         /**
-         * Construct an angular unit.
+         * Constructs an angular unit.
          */
         public AngularUnit(final Adapters adapters, final double radiansPerUnit) {
             super(adapters, radiansPerUnit);

@@ -66,7 +66,7 @@ import javax.vecmath.MismatchedSizeException;
  * (E.g. from a database of transformations, which is created and
  * maintained from real-world measurements.)
  *
- * @version 1.00
+ * @version $Id: LocalCoordinateSystem.java,v 1.4 2002/06/05 16:04:35 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -84,7 +84,7 @@ public class LocalCoordinateSystem extends CoordinateSystem {
     private final LocalDatum datum;
     
     /**
-     * Units used along all axis.
+     * Units used along all axes.
      */
     private final Unit[] units;
     
@@ -94,9 +94,9 @@ public class LocalCoordinateSystem extends CoordinateSystem {
     private final AxisInfo[] axes;
 
     /**
-     * Create an array of units. We had to create a method
+     * Creates an array of units. We had to create a method
      * for this because the constructor needs to invoke it
-     * before to invoke <code>this(...)</code>.
+     * before invoking <code>this(...)</code>.
      */
     private static Unit[] expand(final Unit unit, final int count) {
         final Unit[] units = new Unit[count];
@@ -159,7 +159,7 @@ public class LocalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Override {@link CoordinateSystem#getDatum()}.
+     * Overrides {@link CoordinateSystem#getDatum()}.
      */
     final Datum getDatum() {
         return getLocalDatum();
@@ -206,12 +206,12 @@ public class LocalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Returns  <code>true</code> if this coordinate system is equivalents to
+     * Returns <code>true</code> if this coordinate system is equivalent to
      * the specified coordinate system. Two coordinate systems are considered
      * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
      * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The default implementation compare datum, units and axis, but ignore
-     * name, alias and other meta-data informations.
+     * The default implementation compares datum, units and axis, but ignores
+     * name, alias and other meta-data information.
      *
      * @param  cs The coordinate system (may be <code>null</code>).
      * @return <code>true</code> if both coordinate systems are equivalent.
@@ -230,8 +230,8 @@ public class LocalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
@@ -250,7 +250,7 @@ public class LocalCoordinateSystem extends CoordinateSystem {
      * system. The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -266,15 +266,12 @@ public class LocalCoordinateSystem extends CoordinateSystem {
     /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Wrap a {@link LocalCoordinateSystem} object for use with OpenGIS.
+     * Wraps a {@link LocalCoordinateSystem} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends CoordinateSystem.Export implements CS_LocalCoordinateSystem {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

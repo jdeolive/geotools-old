@@ -54,7 +54,7 @@ import java.rmi.RemoteException;
 /**
  * A one-dimensional coordinate system suitable for vertical measurements.
  *
- * @version 1.00
+ * @version $Id: VerticalCoordinateSystem.java,v 1.3 2002/06/05 16:20:31 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -136,7 +136,7 @@ public class VerticalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Override {@link CoordinateSystem#getDatum()}.
+     * Overrides {@link CoordinateSystem#getDatum()}.
      */
     final Datum getDatum() {
         return getVerticalDatum();
@@ -153,7 +153,7 @@ public class VerticalCoordinateSystem extends CoordinateSystem {
     
     /**
      * Gets axis details for vertical dimension within coordinate system.
-     * A vertical coordinate system have only one axis, always at index 0.
+     * A vertical coordinate system has only one axis, always at index 0.
      *
      * @param dimension Zero based index of axis.
      *
@@ -170,7 +170,7 @@ public class VerticalCoordinateSystem extends CoordinateSystem {
     
     /**
      * Gets units for dimension within coordinate system.
-     * A vertical coordinate system have only one unit,
+     * A vertical coordinate system has only one unit,
      * always at index 0.
      *
      * @param dimension Must be 0.
@@ -188,12 +188,12 @@ public class VerticalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Returns  <code>true</code> if this coordinate system is equivalents to
+     * Returns <code>true</code> if this coordinate system is equivalent to
      * the specified coordinate system. Two coordinate systems are considered
      * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
      * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The default implementation compare datum, units and axis, but ignore
-     * name, alias and other meta-data informations.
+     * The default implementation compares datum, units and axis, but ignores
+     * name, alias and other meta-data information.
      *
      * @param  cs The coordinate system (may be <code>null</code>).
      * @return <code>true</code> if both coordinate systems are equivalent.
@@ -212,8 +212,8 @@ public class VerticalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
@@ -230,7 +230,7 @@ public class VerticalCoordinateSystem extends CoordinateSystem {
      * system. The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -246,15 +246,12 @@ public class VerticalCoordinateSystem extends CoordinateSystem {
     /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Wrap a {@link VerticalCoordinateSystem} object for use with OpenGIS.
+     * Wraps a {@link VerticalCoordinateSystem} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends CoordinateSystem.Export implements CS_VerticalCoordinateSystem {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

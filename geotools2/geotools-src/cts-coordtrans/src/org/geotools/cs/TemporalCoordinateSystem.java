@@ -50,7 +50,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * A one-dimensional coordinate system suitable for time measurements.
  *
- * @version 1.0
+ * @version $Id: TemporalCoordinateSystem.java,v 1.3 2002/06/05 16:17:42 loxnard Exp $
  * @author Martin Desruisseaux
  */
 public class TemporalCoordinateSystem extends CoordinateSystem {
@@ -83,7 +83,7 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
      * Creates a temporal coordinate system. Datum is UTC,
      * units are days and values are increasing toward future.
      *
-     * @param name  Name  to give new object.
+     * @param name  Name to give new object.
      * @param epoch The epoch (i.e. date of origin).
      */
     public TemporalCoordinateSystem(final CharSequence name, final Date epoch) {
@@ -93,11 +93,11 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
     /**
      * Creates a temporal coordinate system from a datum and time units.
      *
-     * @param name  Name  to give new object.
+     * @param name  Name to give new object.
      * @param datum Datum to use for new coordinate system.
      * @param unit  Units to use for new coordinate system.
      * @param epoch The epoch (i.e. date of origin).
-     * @param axis  Axis  to use for new coordinate system.
+     * @param axis  Axis to use for new coordinate system.
      */
     public TemporalCoordinateSystem(final CharSequence  name,
                                     final TemporalDatum datum,
@@ -126,7 +126,7 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Override {@link CoordinateSystem#getDatum()}.
+     * Overrides {@link CoordinateSystem#getDatum()}.
      */
     final Datum getDatum() {
         return getTemporalDatum();
@@ -149,7 +149,7 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
     
     /**
      * Gets axis details for temporal dimension within coordinate system.
-     * A temporal coordinate system have only one axis, always at index 0.
+     * A temporal coordinate system has only one axis, always at index 0.
      *
      * @param dimension Zero based index of axis.
      */
@@ -164,7 +164,7 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
     
     /**
      * Gets units for dimension within coordinate system.
-     * A temporal coordinate system have only one unit,
+     * A temporal coordinate system has only one unit,
      * always at index 0.
      *
      * @param dimension Must be 0.
@@ -179,12 +179,12 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Returns  <code>true</code> if this coordinate system is equivalents to
+     * Returns <code>true</code> if this coordinate system is equivalent to
      * the specified coordinate system. Two coordinate systems are considered
      * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
      * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The default implementation compare datum, units and axis, but ignore
-     * name, alias and other meta-data informations.
+     * The default implementation compares datum, units and axis, but ignores
+     * name, alias and other meta-data information.
      *
      * @param  cs The coordinate system (may be <code>null</code>).
      * @return <code>true</code> if both coordinate systems are equivalent.
@@ -203,8 +203,8 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");

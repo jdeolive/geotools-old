@@ -52,7 +52,7 @@ import java.rmi.RemoteException;
  * between two different local coordinate systems, as long as they are based
  * on the same local datum.
  *
- * @version 1.00
+ * @version $Id: LocalDatum.java,v 1.3 2002/06/05 16:05:47 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -80,7 +80,7 @@ public class LocalDatum extends Datum {
      * Gets the type of the datum as an enumerated code.
      *
      * Note: return type will be changed to {@link DatumType.Local}
-     *       when we will be able to use generic types (with JDK 1.5).
+     *       when we are able to use generic types (with JDK 1.5).
      *
      * @see org.opengis.cs.CS_LocalDatum#getDatumType()
      */
@@ -89,8 +89,8 @@ public class LocalDatum extends Datum {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         super.addString(buffer, context);
@@ -102,7 +102,7 @@ public class LocalDatum extends Datum {
      * The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -118,15 +118,12 @@ public class LocalDatum extends Datum {
     /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Wrap a {@link LocalDatum} object for use with OpenGIS.
+     * Wraps a {@link LocalDatum} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends Datum.Export implements CS_LocalDatum {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

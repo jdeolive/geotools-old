@@ -47,7 +47,7 @@ import java.util.Locale;
 /**
  * Procedure used to measure time.
  *
- * @version 1.0
+ * @version $Id: TemporalDatum.java,v 1.3 2002/06/05 16:18:34 loxnard Exp $
  * @author Martin Desruisseaux
  */
 public class TemporalDatum extends Datum {
@@ -78,15 +78,15 @@ public class TemporalDatum extends Datum {
      * Gets the type of the datum as an enumerated code.
      *
      * Note: return type will be changed to {@link DatumType.Temporal}
-     *       when we will be able to use generic types (with JDK 1.5).
+     *       when we are able to use generic types (with JDK 1.5).
      */
     public DatumType/*.Temporal*/ getDatumType() {
         return (DatumType.Temporal) super.getDatumType();
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         super.addString(buffer, context);

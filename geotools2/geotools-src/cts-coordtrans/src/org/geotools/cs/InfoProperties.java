@@ -46,10 +46,10 @@ import java.rmi.RemoteException;
 
 /**
  * A set of properties fetched from a {@link CS_Info} object.
- * Note: current implementation search all info immediatly.
- * Future implementation may differ fetching until needed.
+ * Note: current implementation searches all info immediately.
+ * Future implementation may defer fetching until needed.
  *
- * @version 1.0
+ * @version $Id: InfoProperties.java,v 1.2 2002/06/05 16:02:04 loxnard Exp $
  * @author Martin Desruisseaux
  */
 final class InfoProperties extends HashMap implements CharSequence
@@ -60,11 +60,11 @@ final class InfoProperties extends HashMap implements CharSequence
     private final String name;
     
     /**
-     * Construct an <code>InfoProperties</code> for
+     * Constructs an <code>InfoProperties</code> for
      * the specified source.
      *
      * @param  info The OpenGIS structure.
-     * @throws RemoteException if a remote call failed.
+     * @throws RemoteException if a remote call fails.
      */
     public InfoProperties(final CS_Info info) throws RemoteException
     {

@@ -50,7 +50,7 @@ import java.rmi.RemoteException;
 /**
  * A meridian used to take longitude measurements from.
  *
- * @version 1.00
+ * @version $Id: PrimeMeridian.java,v 1.3 2002/06/05 16:09:01 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -63,7 +63,7 @@ public class PrimeMeridian extends Info {
     private static final long serialVersionUID = 7570594768127669147L;
     
     /**
-     * The Greenwich meridian, with angular measures in degrees.
+     * The Greenwich meridian, with angular measurements in degrees.
      */
     public static final PrimeMeridian GREENWICH = (PrimeMeridian) pool.canonicalize(
                     new PrimeMeridian("Greenwich", Unit.DEGREE, 0));
@@ -83,7 +83,8 @@ public class PrimeMeridian extends Info {
      *
      * @param name      Name to give new object.
      * @param unit      Angular units of longitude.
-     * @param longitude Longitude of prime meridian in supplied angular units East of Greenwich.
+     * @param longitude Longitude of prime meridian in supplied angular units
+     *                  East of Greenwich.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createPrimeMeridian
      */
@@ -97,7 +98,7 @@ public class PrimeMeridian extends Info {
     
     /**
      * Returns the longitude value relative to the Greenwich Meridian.
-     * The longitude is expressed in this objects angular units.
+     * The longitude is expressed in this object's angular units.
      *
      * @see org.opengis.cs.CS_PrimeMeridian#getLongitude()
      */
@@ -107,9 +108,10 @@ public class PrimeMeridian extends Info {
     
     /**
      * Returns the longitude value relative to the Greenwich Meridian,
-     * expressed in the specified units. This convenience method make
-     * easier to obtains longitude in degrees (<code>getLongitude(Unit.DEGREE)</code>),
-     * no matter the underlying angular units of this prime meridian.
+     * expressed in the specified units. This convenience method makes it
+     * easier to obtain longitude in degrees
+     * (<code>getLongitude(Unit.DEGREE)</code>), regardless of the underlying
+     * angular units of this prime meridian.
      *
      * @param targetUnit The unit in which to express longitude.
      */
@@ -149,13 +151,13 @@ public class PrimeMeridian extends Info {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, Unit context) {
         if (context == null) {
             // If the PrimeMeridian is written inside a "GEOGCS",
-            // then OpenGIS say that it most be written into the
+            // then OpenGIS say that it must be written into the
             // unit of the enclosing geographic coordinate system.
             // Otherwise, default to degrees.
             context = Unit.DEGREE;
@@ -170,7 +172,7 @@ public class PrimeMeridian extends Info {
      * The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -186,15 +188,12 @@ public class PrimeMeridian extends Info {
     /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Wrap a {@link PrimeMeridian} object for use with OpenGIS.
+     * Wraps a {@link PrimeMeridian} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends Info.Export implements CS_PrimeMeridian {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);
@@ -210,7 +209,7 @@ public class PrimeMeridian extends Info {
         /**
          * Returns the AngularUnits.
          *
-         * @throws RemoteException if a remote method call failed.
+         * @throws RemoteException if a remote method call fails.
          */
         public CS_AngularUnit getAngularUnit() throws RemoteException {
             return (CS_AngularUnit) adapters.export(PrimeMeridian.this.getAngularUnit());
