@@ -69,7 +69,7 @@ import org.geotools.renderer.j2d.GeoMouseEvent;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.11 2003/01/27 23:02:07 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.12 2003/01/28 16:13:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MapPane extends ZoomPane {
@@ -116,6 +116,14 @@ public class MapPane extends ZoomPane {
             if (propertyName.equalsIgnoreCase("preferredArea")) {
                 fireZoomChanged(new AffineTransform()); // Update scrollbars
                 log("MapPane", "setArea", (Rectangle2D) event.getNewValue());
+                return;
+            }
+            if (propertyName.equalsIgnoreCase("layers")) {
+                final RenderedLayer[] layers = (RenderedLayer[]) event.getOldValue();
+                if (layers!=null && layers.length==0) {
+                    reset();
+                }
+                return;
             }
         }
     }
@@ -216,13 +224,9 @@ public class MapPane extends ZoomPane {
      * @see #getLayerCount
      * @see Renderer#addLayer
      */
-    public void addLayer(final RenderedLayer layer) throws IllegalArgumentException {
-        renderer.addLayer(layer);
-        if (renderer.getLayerCount() == 1) {
-            reset();
-        }
-        repaint(); // Must be invoked last
-    }
+//    public void addLayer(final RenderedLayer layer) throws IllegalArgumentException {
+//        renderer.addLayer(layer);
+//    }
 
     /**
      * Remove a layer from this viewer. Note that if the layer is going to
@@ -241,10 +245,9 @@ public class MapPane extends ZoomPane {
      * @see #getLayerCount
      * @see Renderer#removeLayer
      */
-    public void removeLayer(final RenderedLayer layer) throws IllegalArgumentException {
-        repaint(); // Must be invoked first
-        renderer.removeLayer(layer);
-    }
+//    public void removeLayer(final RenderedLayer layer) throws IllegalArgumentException {
+//        renderer.removeLayer(layer);
+//    }
 
     /**
      * Remove all layers from this viewer.
@@ -255,10 +258,9 @@ public class MapPane extends ZoomPane {
      * @see #getLayerCount
      * @see Renderer#removeAllLayers
      */
-    public void removeAllLayers() {
-        repaint(); // Must be invoked first
-        renderer.removeAllLayers();
-    }
+//    public void removeAllLayers() {
+//        renderer.removeAllLayers();
+//    }
 
     /**
      * Returns all registered layers. The returned array is sorted in increasing
@@ -275,9 +277,9 @@ public class MapPane extends ZoomPane {
      * @see #getLayerCount
      * @see Renderer#getLayers
      */
-    public RenderedLayer[] getLayers() {
-        return renderer.getLayers();
-    }
+//    public RenderedLayer[] getLayers() {
+//        return renderer.getLayers();
+//    }
 
     /**
      * Returns the number of layers in this viewer.
@@ -288,8 +290,21 @@ public class MapPane extends ZoomPane {
      * @see #removeAllLayers
      * @see Renderer#getLayerCount
      */
-    public int getLayerCount() {
-        return renderer.getLayerCount();
+//    public int getLayerCount() {
+//        return renderer.getLayerCount();
+//    }
+
+    /**
+     * Returns the {@linkplain Renderer renderer} for this map pane.
+     *
+     * @see Renderer#addLayer
+     * @see Renderer#removeLayer
+     * @see Renderer#removeAllLayers
+     * @see Renderer#getLayers
+     * @see Renderer#getLayerCount
+     */
+    public Renderer getRenderer() {
+        return renderer;
     }
 
     /**
@@ -309,9 +324,9 @@ public class MapPane extends ZoomPane {
      * @see Tools#getPopupMenu
      * @see Tools#mouseClicked
      */
-    public Tools getTools() {
-        return renderer.getTools();
-    }
+//    public Tools getTools() {
+//        return renderer.getTools();
+//    }
 
     /**
      * Set the default tools to use when no {@linkplain RendererLayer#getTools layer's tools}
@@ -319,14 +334,14 @@ public class MapPane extends ZoomPane {
      *
      * @param tools The new tools, or <code>null</code> for removing any set of tools.
      */
-    public void setTools(final Tools tools) {
-        renderer.setTools(tools);
-    }
+//    public void setTools(final Tools tools) {
+//        renderer.setTools(tools);
+//    }
 
     /**
      * Registers the default text to display in a tool tip. The text displays
      * when the cursor lingers over the component and no layer has proposed a
-     * tool tip (i.e. {@link RenderedLayer#getToolTipText} returned <code>null</code>
+     * tool tip (i.e. {@link Tools#getToolTipText} returned <code>null</code>
      * for all registered layers).
      *
      * @param tooltip The default tooltip, or <code>null</code> if none.
