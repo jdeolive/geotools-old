@@ -87,7 +87,7 @@ import javax.imageio.ImageIO;
 
 
 /**
- * @version $Id: LiteRenderer.java,v 1.3 2003/05/11 17:49:47 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.4 2003/06/16 11:54:10 ianturton Exp $
  * @author James Macgill
  * @author Andrea Aime
  */
@@ -465,7 +465,7 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             }
 
             if (elseFeatures.size() == 0) {
-                continue;
+                return ;
             }
 
             for (int k = 0; k < rules.length; k++) {
