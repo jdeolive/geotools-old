@@ -9,7 +9,7 @@
   <organization>
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>
-    <logo>http://www.geotools.org/gt2modules/core/target/docs/images/gtLogo.gif</logo>
+    <logo>/images/gtLogo.gif</logo>
   </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
