@@ -90,7 +90,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * is usually painted together with a remote sensing image, for example in a
  * {@link org.geotools.gui.swing.MapPane} object.
  *
- * @version $Id: ColorBar.java,v 1.1 2003/03/10 15:09:53 desruisseaux Exp $
+ * @version $Id: ColorBar.java,v 1.2 2003/03/11 12:35:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ColorBar extends JComponent {
@@ -309,7 +309,7 @@ public class ColorBar extends JComponent {
      *
      * @see #setColors(GridCoverage)
      * @see #setColors(SampleDimension)
-     * @see #setColors(IndexedColorModel)
+     * @see #setColors(IndexColorModel)
      * @see #setColors(Color[])
      * @see #getColors()
      * @see #getGraduation()
@@ -383,7 +383,7 @@ public class ColorBar extends JComponent {
      *         changed as a result of this call.
      *
      * @see #setColors(GridCoverage)
-     * @see #setColors(IndexedColorModel)
+     * @see #setColors(IndexColorModel)
      * @see #setColors(Color[])
      * @see #getColors()
      * @see #getGraduation()
@@ -410,7 +410,7 @@ public class ColorBar extends JComponent {
      * @return <code>true</code> if the state of this <code>ColorBar</code>
      *         changed as a result of this call.
      *
-     * @see #setColors(IndexedColorModel)
+     * @see #setColors(IndexColorModel)
      * @see #setColors(SampleDimension)
      * @see #getColors()
      * @see #getGraduation()
@@ -758,7 +758,7 @@ public class ColorBar extends JComponent {
      * de calculer l'espace qu'elle occupe. Cette classe peut aussi réagir
      * à certains événements.
      *
-     * @version $Id: ColorBar.java,v 1.1 2003/03/10 15:09:53 desruisseaux Exp $
+     * @version $Id: ColorBar.java,v 1.2 2003/03/11 12:35:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class UI extends ComponentUI implements PropertyChangeListener {
