@@ -22,8 +22,8 @@
 	<issueTrackingUrl/>
 	<siteAddress>modules.geotools.org</siteAddress>
 	<siteDirectory>/seis/raid1/Apache/htdocs/software/geotools/${pom.artifactId}</siteDirectory>
-	<distributionDirectory>/home/groups/g/ge/geotools/htdocs/gt2</distributionDirectory>
-	<distributionSite>geotools.sf.net</distributionSite>
+	<distributionDirectory>/public/html/geotools</distributionDirectory>
+	<distributionSite>login.ibiblio.org</distributionSite>
 	<!--
   <distributionDirectory>/seis/raid1/Apache/htdocs/software/mavenRepository</distributionDirectory>
   <distributionSite>www.seis.sc.edu</distributionSite>
