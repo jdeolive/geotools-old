@@ -4,7 +4,7 @@
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *    
+ *
  */
 
 package org.geotools.shapefile;
@@ -28,7 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 //Logging system
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 
 
 /**
@@ -41,7 +41,7 @@ import org.apache.log4j.Logger;
  * <b>"ESRI(r) Shapefile - A Technical Description"</b><br>
  * <i>'An ESRI White Paper. May 1997'</i></a><p>
  *
- * @version $Id: Shapefile.java,v 1.12 2002/08/30 16:24:34 jmacgill Exp $
+ * @version $Id: Shapefile.java,v 1.13 2002/09/01 15:35:25 jmacgill Exp $
  * @author James Macgill, CCG
  */
 
@@ -65,7 +65,11 @@ public class Shapefile  {
     private ShapefileHeader mainHeader = null;
     private com.vividsolutions.jts.geom.Envelope bounds = null;
     
-    private static Logger log = Logger.getLogger(Shapefile.class);
+    /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
+    
     /**
      * Creates and initialises a shapefile from a url.
      * @param url The url of the shapefile.
@@ -73,21 +77,21 @@ public class Shapefile  {
     public Shapefile(URL url){
         //experimental code to find and setup the dbf file
         String filename = url.getFile();
-        log.debug("filename part of shapefile is " + filename );
+        LOGGER.fine("filename part of shapefile is " + filename );
         String shpext = ".shp";
         String dbfext = ".dbf";
-        if (filename.endsWith(".shp") || 
-            filename.endsWith(".dbf") ||
-            filename.endsWith(".shx")) {
-                filename = filename.substring(0, filename.length() - 4);
+        if (filename.endsWith(".shp") ||
+        filename.endsWith(".dbf") ||
+        filename.endsWith(".shx")) {
+            filename = filename.substring(0, filename.length() - 4);
         }
         try{
             baseURL = new URL(url,filename + shpext);
             URL dbfURL = new URL(url,filename + dbfext);
-            log.debug("dbf url constructed as " +dbfURL);
+            LOGGER.fine("dbf url constructed as " +dbfURL);
         }
         catch(MalformedURLException mue){
-            log.error("Unable to construct URL for shapefile",mue);
+            LOGGER.warning("Unable to construct URL for shapefile " + mue);
         }
     }
     
@@ -106,7 +110,7 @@ public class Shapefile  {
     }
     
     private cmp.LEDataStream.LEDataOutputStream getOutputStream() throws IOException{
-
+        
         java.net.URLConnection connection = baseURL.openConnection();
         connection.setUseCaches(false);
         connection.setDoInput(true);
@@ -163,11 +167,11 @@ public class Shapefile  {
             }
         }
         catch (java.io.EOFException e){
-            log.debug("End of Shapefile reached, EOF caught");
+            LOGGER.fine("End of Shapefile reached, EOF caught");
         }
-         catch(org.geotools.shapefile.InvalidShapefileException e) {
-             log.warn("Truncating feature loading. Some features may not have been read");
-             log.debug("",e);
+        catch(org.geotools.shapefile.InvalidShapefileException e) {
+            LOGGER.warning("Truncating feature loading. Some features may not have been read");
+            LOGGER.warning(e.toString());
         }
         initialized = false;
         return geometryFactory.createGeometryCollection((Geometry[]) list.toArray(new Geometry[]{}));
@@ -306,15 +310,3 @@ public class Shapefile  {
     }
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
