@@ -85,7 +85,7 @@ public class OverlapsIntegrityTest extends SpatialTestCase
 		try
 		{
 			System.out.println("Test Validate");
-			assertFalse(overlap.validate(map, lineBounds, vr));
+			assertFalse("catch bad data", overlap.validate(map, lineBounds, vr));
 			//System.out.println("hi");
 			//(RoadValidationResults)vr;
 		} catch (Exception e)
@@ -94,6 +94,12 @@ public class OverlapsIntegrityTest extends SpatialTestCase
 		}
 	}
 	
+	/**
+	 * What does this test do!
+	 * <p>
+	 * Test if it catches bad data
+	 * </p>
+	 */
 	public void testValidateBBox()
 		{
 			OverlapsIntegrity overlap = new OverlapsIntegrity();
@@ -113,7 +119,7 @@ public class OverlapsIntegrityTest extends SpatialTestCase
 			try
 			{
 				System.out.println("Test Validate BBox");
-				assertFalse(overlap.validate(map, new Envelope(-1,2,-2,3), vr));
+				assertFalse("test if it catches bad data", overlap.validate(map, new Envelope(-1,2,-2,3), vr));
 				//System.out.println("hi");
 				//(RoadValidationResults)vr;
 			} catch (Exception e)

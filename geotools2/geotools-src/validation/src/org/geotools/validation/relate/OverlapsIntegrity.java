@@ -258,8 +258,8 @@ public class OverlapsIntegrity extends RelationIntegrity
 		
 		Filter filter = filterBBox(bBox, ft);
 
-		//FeatureResults featureResults = featureSourceA.getFeatures(filter);
-		FeatureResults featureResults = featureSourceA.getFeatures();
+		FeatureResults featureResults = featureSourceA.getFeatures(filter);
+		//FeatureResults featureResults = featureSourceA.getFeatures();
 		
 		FeatureReader fr1 = null;
 		FeatureReader fr2 = null;
@@ -274,7 +274,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 			{
 				//System.out.println("Single layer Outer loop count: " + loopCt1);
 				Feature f1 = fr1.next();
-//				System.out.println("overlapFilter " + overlapsFilter.contains(f1));
+	//		System.out.println("overlapFilter " + filter.contains(f1));
 //				System.out.println("containsFilter " + containsFilter.contains(f1));
 				//System.out.println("Filter " + filter.contains(f1));
 //				System.out.println("f1 = " + f1.getDefaultGeometry().getEnvelope());
@@ -283,13 +283,13 @@ public class OverlapsIntegrity extends RelationIntegrity
 				Geometry g1 = f1.getDefaultGeometry();
 				Filter filter2 = filterBBox(g1.getEnvelope().getEnvelopeInternal(), ft);
 
-				//FeatureResults featureResults2 = featureSourceA.getFeatures(filter2);
-				FeatureResults featureResults2 = featureSourceA.getFeatures();
+				FeatureResults featureResults2 = featureSourceA.getFeatures(filter2);
+				//FeatureResults featureResults2 = featureSourceA.getFeatures();
 				fr2 = featureResults2.reader();	
 				while (fr2 != null && fr2.hasNext())
 				{			
 					Feature f2 = fr2.next();
-					//System.out.println("Filter2 " + filter2.contains(f2));
+				//	System.out.println("Filter2 " + filter2.contains(f2));
 					Geometry g2 = f2.getDefaultGeometry();
 					//System.out.println("Do the two overlap?->" + g1.overlaps(g2));
 					//System.out.println("Does the one contain the other?->" + g1.contains(g2));
@@ -334,15 +334,11 @@ public class OverlapsIntegrity extends RelationIntegrity
 		FilterFactory ff = FilterFactory.createFilterFactory();
 		BBoxExpression bboxExpr = ff.createBBoxExpression(bBox);
 		AttributeExpression geomExpr = ff.createAttributeExpression(ft, ft.getDefaultGeometry().getName());
-		GeometryFilter containsFilter = ff.createGeometryFilter(Filter.GEOMETRY_DISJOINT);
-		containsFilter.addLeftGeometry(bboxExpr);
-		containsFilter.addRightGeometry(geomExpr);
+		GeometryFilter filter = ff.createGeometryFilter(Filter.GEOMETRY_OVERLAPS);//ff.createGeometryFilter(Filter.GEOMETRY_CONTAINS);
+		filter.addLeftGeometry(bboxExpr);
+		filter.addRightGeometry(geomExpr);
 		
-//		GeometryFilter overlapsFilter = ff.createGeometryFilter(Filter.GEOMETRY_OVERLAPS);
-//		overlapsFilter.addLeftGeometry(bboxExpr);
-//		overlapsFilter.addRightGeometry(geomExpr);
-//		Filter filter = containsFilter.or(overlapsFilter);
-		Filter filter = containsFilter.and(containsFilter);
+		
 		return filter;
 	}
 }
