@@ -24,9 +24,18 @@ package org.geotools.validation.spatial;
 
 import java.util.Map;
 
+import org.geotools.data.FeatureResults;
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.validation.ValidationResults;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineSegment;
+import com.vividsolutions.jts.geom.LineString;
 
 
 /**
@@ -38,9 +47,11 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineNoPseudoNodeValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: LineNoPseudoNodeValidation.java,v 1.4 2004/02/27 19:44:12 dmzwiers Exp $
  */
 public class LineNoPseudoNodeValidation extends LineAbstractValidation {
+	
+	private int degreesAllowable;
     /**
      * PointCoveredByLineValidation constructor.
      * 
@@ -72,7 +83,53 @@ public class LineNoPseudoNodeValidation extends LineAbstractValidation {
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
-        //TODO Fix Me
-        return false;
+
+    	boolean r = true;
+    	
+        FeatureSource fsLine = (FeatureSource) layers.get(getLineTypeRef());
+        FeatureResults frLine = fsLine.getFeatures();
+        FeatureCollection fcLine = frLine.collection();
+        FeatureIterator fLine = fcLine.features();
+                
+        while(fLine.hasNext()){
+        	Feature line = fLine.next();
+        	Geometry lineGeom = line.getDefaultGeometry();
+        	if(envelope.contains(lineGeom.getEnvelopeInternal())){
+        		// 	check for valid comparison
+        		if(LineString.class.isAssignableFrom(lineGeom.getClass())){
+        			Coordinate[] c = lineGeom.getCoordinates();
+        			int i=0;
+        			while(i+2<c.length){
+        				LineSegment ls1 = new LineSegment(c[i],c[i+1]);
+        				LineSegment ls2 = new LineSegment(c[i+1],c[i+2]);
+        				double a1 = ls1.angle();
+        				double a2 = ls2.angle();
+        				if(!((a1-degreesAllowable)<a1 && (a1+degreesAllowable)>a2)){
+        					results.error(line,"Atleast one node was too close to the other the perpendicular line between the node's two neighbours.");
+							i = c.length;
+        				}
+        			}
+        		}else{
+        			results.warning(line,"Invalid type: this feature is not a derivative of a LineString");
+        		}
+        	}
+        }
+        return r;
     }
+	/**
+	 * Access degreesAllowable property.
+	 * 
+	 * @return Returns the degreesAllowable.
+	 */
+	public int getDegreesAllowable() {
+		return degreesAllowable;
+	}
+	/**
+	 * Set degreesAllowable to degreesAllowable.
+	 *
+	 * @param degreesAllowable The degreesAllowable to set.
+	 */
+	public void setDegreesAllowable(int degreesAllowable) {
+		this.degreesAllowable = degreesAllowable;
+	}
 }

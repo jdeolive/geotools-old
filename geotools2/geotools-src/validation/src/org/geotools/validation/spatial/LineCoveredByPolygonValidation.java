@@ -21,11 +21,18 @@
 package org.geotools.validation.spatial;
 
 import java.util.Map;
-import java.util.logging.Logger;
 
+import org.geotools.data.FeatureResults;
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.validation.ValidationResults;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -62,13 +69,10 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author Jody Garnett, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineCoveredByPolygonValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: LineCoveredByPolygonValidation.java,v 1.4 2004/02/27 19:44:12 dmzwiers Exp $
  */
 public class LineCoveredByPolygonValidation
     extends LinePolygonAbstractValidation {
-    /** The logger for the validation module. */
-    private static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.validation");
 
     /**
      * No argument constructor, required by the Java Bean Specification.
@@ -93,9 +97,49 @@ public class LineCoveredByPolygonValidation
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
-        results.warning(null, "Validation not yet implemented");
 
-        return false;
+    	boolean r = true;
+    	
+        FeatureSource fsLine = (FeatureSource) layers.get(getLineTypeRef());
+        FeatureResults frLine = fsLine.getFeatures();
+        FeatureCollection fcLine = frLine.collection();
+        FeatureIterator fLine = fcLine.features();
+        
+        FeatureSource fsPoly = (FeatureSource) layers.get(getRestrictedPolygonTypeRef());
+        FeatureResults frPoly = fsPoly.getFeatures();
+        FeatureCollection fcPoly = frPoly.collection();
+                
+        while(fLine.hasNext()){
+        	Feature line = fLine.next();
+        	FeatureIterator fPoly = fcPoly.features();
+        	Geometry lineGeom = line.getDefaultGeometry();
+        	if(envelope.contains(lineGeom.getEnvelopeInternal())){
+        		// 	check for valid comparison
+        		if(LineString.class.isAssignableFrom(lineGeom.getClass())){
+        			while(fPoly.hasNext()){
+        				Feature poly = fPoly.next();
+        				Geometry polyGeom = poly.getDefaultGeometry(); 
+        				if(envelope.contains(polyGeom.getEnvelopeInternal())){
+        					if(Polygon.class.isAssignableFrom(polyGeom.getClass())){
+        						if(!polyGeom.contains(lineGeom)){
+        							results.error(poly,"Polygon does not contain the specified Line.");
+        							r = false;
+        						}
+                    		// do next.
+        					}else{
+        						fcPoly.remove(poly);
+        						results.warning(poly,"Invalid type: this feature is not a derivative of a Polygon");
+        					}
+        				}else{
+        					fcPoly.remove(poly);
+        				}
+        			}
+        		}else{
+        			results.warning(line,"Invalid type: this feature is not a derivative of a LineString");
+        		}
+        	}
+        }
+        return r;
     }
 
     /**

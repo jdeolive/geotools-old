@@ -42,7 +42,9 @@
  */
 package org.geotools.validation.spatial;
 
+import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.util.ResourceBundle;
 
 
 /**
@@ -54,7 +56,7 @@ import java.beans.PropertyDescriptor;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineNoPseudoNodeValidationBeanInfo.java,v 1.1 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: LineNoPseudoNodeValidationBeanInfo.java,v 1.2 2004/02/27 19:44:12 dmzwiers Exp $
  */
 public class LineNoPseudoNodeValidationBeanInfo extends LineAbstractValidationBeanInfo{
     /**
@@ -76,6 +78,30 @@ public class LineNoPseudoNodeValidationBeanInfo extends LineAbstractValidationBe
      * @see java.beans.BeanInfo#getPropertyDescriptors()
      */
     public PropertyDescriptor[] getPropertyDescriptors() {
-        return super.getPropertyDescriptors();
+    	PropertyDescriptor[] pd2 = super.getPropertyDescriptors();
+    	ResourceBundle resourceBundle = getResourceBundle(LineNoPseudoNodeValidation.class);
+
+    	if (pd2 == null) {
+    		pd2 = new PropertyDescriptor[0];
+    	}
+
+    	PropertyDescriptor[] pd = new PropertyDescriptor[pd2.length + 1];
+    	int i = 0;
+
+    	for (; i < pd2.length; i++)
+    		pd[i] = pd2[i];
+
+    	try {
+    		pd[i] = createPropertyDescriptor("degreesAllowable",
+    				LineNoPseudoNodeValidation.class, resourceBundle);
+    		pd[i].setExpert(true);
+    	} catch (IntrospectionException e) {
+    		pd = pd2;
+
+    		// TODO error, log here
+    		e.printStackTrace();
+    	}
+
+    	return pd;
     }
 }

@@ -24,9 +24,17 @@ package org.geotools.validation.spatial;
 
 import java.util.Map;
 
+import org.geotools.data.FeatureResults;
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.validation.ValidationResults;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 
 
 /**
@@ -38,7 +46,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineEndPointCoveredByLineValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: LineEndPointCoveredByLineValidation.java,v 1.4 2004/02/27 19:44:12 dmzwiers Exp $
  */
 public class LineEndPointCoveredByLineValidation
     extends LineLineAbstractValidation {
@@ -73,7 +81,51 @@ public class LineEndPointCoveredByLineValidation
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
-        //TODO Fix Me
-        return false;
+
+    	boolean r = true;
+    	
+        FeatureSource fsLine = (FeatureSource) layers.get(getLineTypeRef());
+        FeatureResults frLine = fsLine.getFeatures();
+        FeatureCollection fcLine = frLine.collection();
+        FeatureIterator fLine = fcLine.features();
+        
+        FeatureSource fsRLine = (FeatureSource) layers.get(getRestrictedLineTypeRef());
+        FeatureResults frRLine = fsRLine.getFeatures();
+        FeatureCollection fcRLine = frRLine.collection();
+                
+        while(fLine.hasNext()){
+        	Feature line = fLine.next();
+        	FeatureIterator fRLine = fcRLine.features();
+        	Geometry lineGeom = line.getDefaultGeometry();
+        	if(envelope.contains(lineGeom.getEnvelopeInternal())){
+        		// 	check for valid comparison
+        		if(LineString.class.isAssignableFrom(lineGeom.getClass())){
+        			while(fRLine.hasNext()){
+        				Feature rLine = fRLine.next();
+        				Geometry rLineGeom = rLine.getDefaultGeometry(); 
+        				if(envelope.contains(rLineGeom.getEnvelopeInternal())){
+        					if(LineString.class.isAssignableFrom(rLineGeom.getClass())){
+        						Point p1 = ((LineString)rLineGeom).getEndPoint();
+        						//Point p2 = ((LineString)rLineGeom).getStartPoint(); //include this?
+        						if(!lineGeom.contains(p1)){
+            					//if(!(lineGeom.contains(p1) || lineGeom.contains(p2))){
+        							results.error(rLine,"Line End Point not covered by the specified Line.");
+        							r = false;
+        						}
+                    		// do next.
+        					}else{
+        						fcRLine.remove(rLine);
+        						results.warning(rLine,"Invalid type: this feature is not a derivative of a LineString");
+        					}
+        				}else{
+        					fcRLine.remove(rLine);
+        				}
+        			}
+        		}else{
+        			results.warning(line,"Invalid type: this feature is not a derivative of a LineString");
+        		}
+        	}
+        }
+        return r;
     }
 }
