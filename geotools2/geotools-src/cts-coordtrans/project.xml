@@ -5,7 +5,7 @@
   <name>geotools-cts-coordtrans</name>
   <id>cts-coordtrans</id>
   <logo>/images/cts.gif</logo>
-  <currentVersion>0.1</currentVersion>
+  <currentVersion>0.6</currentVersion>
   <organization>
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>
@@ -27,23 +27,22 @@
     <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/cts-coordtrans</connection>
     <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/cts-coordtrans/</url>
   </repository>
-  
 
   <mailingLists/>
+
   <developers>
-    
     <developer>
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
       <organization>Institut de Recherche pour le Developpement (IRD)</organization>
-            <roles>
-                <role>Module Maintainer</role>
-                <role>Java Developer</role>
-            </roles>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
     </developer>
-        
   </developers>
+
   <dependencies>
     <dependency>
       <id>opengis-css</id>
@@ -61,7 +60,8 @@
       <id>core</id>
       <version>0.1</version>
     </dependency>
-    </dependencies>
+  </dependencies>
+
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
     <sourceDirectory>src/</sourceDirectory>
