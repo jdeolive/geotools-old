@@ -78,25 +78,29 @@ public abstract class GeometryBuilder
     /** specialized geometry builders classes by it's geometry type */
     private static final Map builders = new HashMap();
 
+    private static final Map nullGeometries = new HashMap();
+
     /**
      * mapping of geometry classess with their builders
      */
     static
     {
         builders.put(Point.class, PointBuilder.class);
-
         builders.put(MultiPoint.class, MultiPointBuilder.class);
-
         builders.put(LineString.class, LineStringBuilder.class);
-
         builders.put(MultiLineString.class, MultiLineStringBuilder.class);
-
         builders.put(Polygon.class, PolygonBuilder.class);
-
         builders.put(MultiPolygon.class, MultiPolygonBuilder.class);
+
+        nullGeometries.put(Point.class, PointBuilder.getEmpty());
+        nullGeometries.put(MultiPoint.class, MultiPointBuilder.getEmpty());
+        nullGeometries.put(LineString.class, LineStringBuilder.getEmpty());
+        nullGeometries.put(MultiLineString.class, MultiLineStringBuilder.getEmpty());
+        nullGeometries.put(Polygon.class, PolygonBuilder.getEmpty());
+        nullGeometries.put(MultiPolygon.class, MultiPolygonBuilder.getEmpty());
     }
 
-    /** JTS geometry factory to map SeShapes to JTS ones */
+    /** JTS geometry factory subclasses use to map SeShapes to JTS ones */
     protected GeometryFactory factory = new GeometryFactory();
 
     /**
@@ -185,11 +189,8 @@ public abstract class GeometryBuilder
     private double[][][] geometryToSdeCoords(Geometry jtsGeom)
     {
         int numParts;
-
         int numSubParts = 1;
-
         int numSubpartPoints;
-
         double[][][] sdeCoords;
 
         GeometryCollection gcol = null;
@@ -268,20 +269,15 @@ public abstract class GeometryBuilder
     private double[] toSdeCoords(Coordinate[] coords)
     {
         int nCoords = coords.length;
-
         double[] sdeCoords = new double[2 * nCoords];
-
         Coordinate c;
 
         for (int i = 0, j = 1; i < nCoords; i++, j += 2)
         {
             c = coords[i];
-
             sdeCoords[j - 1] = c.x;
-
             sdeCoords[j] = c.y;
         }
-
         return sdeCoords;
     }
 
@@ -312,7 +308,13 @@ public abstract class GeometryBuilder
      *
      * @return an empty JTS geometry
      */
-    protected abstract Geometry getEmpty();
+    protected static Geometry getEmpty()
+    {
+      throw new UnsupportedOperationException(
+        "this method sholdn't be called directly, it's intended pourpose" +
+        " is to be implemented by subclasses so they provide propper " +
+        " null Geometries");
+    }
 
     /**
      * Builds an array of JTS <code>Coordinate</code> instances that's
@@ -380,14 +382,12 @@ public abstract class GeometryBuilder
         throws IllegalArgumentException
     {
         GeometryBuilder builder = null;
-
         Class builderClass = (Class) builders.get(jtsGeometryClass);
 
         if (builderClass == null)
         {
             String msg = "no geometry builder is defined to construct "
                 + jtsGeometryClass + " instances.";
-
             throw new IllegalArgumentException(msg);
         }
 
@@ -407,6 +407,17 @@ public abstract class GeometryBuilder
         }
 
         return builder;
+    }
+
+    public static Geometry defaultValueFor(Class geoClass)
+    {
+      if(geoClass == null || geoClass.isAssignableFrom(Geometry.class))
+      {
+        throw new IllegalArgumentException(geoClass +
+                                           " is not a valid Geometry subclass");
+      }
+      Geometry emptyGeom = (Geometry)nullGeometries.get(geoClass);
+      return emptyGeom;
     }
 }
 
@@ -428,11 +439,11 @@ class PointBuilder extends GeometryBuilder
      *
      * @return DOCUMENT ME!
      */
-    protected Geometry getEmpty()
+    protected static Geometry getEmpty()
     {
         if (EMPTY == null)
         {
-            EMPTY = factory.createPoint((Coordinate)null);
+            EMPTY = new GeometryFactory().createPoint((Coordinate)null);
         }
 
         return EMPTY;
@@ -470,13 +481,9 @@ class PointBuilder extends GeometryBuilder
         {
             throw new IllegalArgumentException("argument mus be a Point");
         }
-
         Point pointArg = (Point) geometry;
-
         SDEPoint[] sdePoint = new SDEPoint[1];
-
         sdePoint[0] = new SDEPoint(pointArg.getX(), pointArg.getY());
-
         dest.generatePoint(1, sdePoint);
     }
 }
@@ -500,11 +507,11 @@ class MultiPointBuilder extends GeometryBuilder
      *
      * @return DOCUMENT ME!
      */
-    protected Geometry getEmpty()
+    protected static Geometry getEmpty()
     {
         if (EMPTY == null)
         {
-            EMPTY = factory.createMultiPoint((Point[]) null);
+            EMPTY = new GeometryFactory().createMultiPoint((Point[]) null);
         }
 
         return EMPTY;
@@ -586,11 +593,11 @@ class LineStringBuilder extends GeometryBuilder
      *
      * @return DOCUMENT ME!
      */
-    protected Geometry getEmpty()
+    protected static Geometry getEmpty()
     {
         if (EMPTY == null)
         {
-            EMPTY = factory.createMultiLineString(null);
+            EMPTY = new GeometryFactory().createLineString(null);
         }
 
         return EMPTY;
@@ -674,11 +681,11 @@ class MultiLineStringBuilder extends LineStringBuilder
      *
      * @return DOCUMENT ME!
      */
-    protected Geometry getEmpty()
+    protected static Geometry getEmpty()
     {
         if (EMPTY == null)
         {
-            EMPTY = factory.createMultiLineString(null);
+            EMPTY = new GeometryFactory().createMultiLineString(null);
         }
 
         return EMPTY;
@@ -731,11 +738,11 @@ class PolygonBuilder extends GeometryBuilder
      *
      * @return DOCUMENT ME!
      */
-    protected Geometry getEmpty()
+    protected static Geometry getEmpty()
     {
         if (EMPTY == null)
         {
-            EMPTY = factory.createMultiPolygon(null);
+            EMPTY = new GeometryFactory().createPolygon(null, null);
         }
 
         return EMPTY;
@@ -872,11 +879,11 @@ class MultiPolygonBuilder extends PolygonBuilder
      *
      * @return an empty multipolygon
      */
-    protected Geometry getEmpty()
+    protected static Geometry getEmpty()
     {
         if (EMPTY == null)
         {
-            EMPTY = factory.createMultiPolygon(null);
+            EMPTY = new GeometryFactory().createMultiPolygon(null);
         }
 
         return EMPTY;

@@ -271,7 +271,6 @@ public class SdeDataStore implements DataStore
         SeColumnDefinition[] colDefs) throws DataSourceException
     {
         AttributeType[] types = SdeAdapter.createAttributeTypes(sdeLayer, colDefs);
-
         FeatureType type = null;
 
         try

@@ -202,38 +202,51 @@ public class SdeAdapter
      * @throws DataSourceException DOCUMENT ME!
      */
     public static AttributeType[] createAttributeTypes(SeLayer sdeLayer,
-        SeColumnDefinition[] colDefs) throws DataSourceException
+        SeColumnDefinition[] wichCols) throws DataSourceException
     {
-        int nCols = colDefs.length;
+        boolean isNilable;
+        int fieldLen;
+        Object defValue;
+
+        int nCols = wichCols.length;
         DefaultAttributeTypeFactory attFactory = new DefaultAttributeTypeFactory();
         AttributeType[] attTypes = new AttributeType[nCols];
         AttributeType attribute = null;
         Class typeClass;
 
-        boolean isNilable = true;
-
         for (int i = 0; i < nCols; i++)
         {
-            Integer sdeType = new Integer(colDefs[i].getType());
+            //well, once again, the "great" ArcSDE Java API seems to not provide
+            //us as many information as we want. In fact, SeColumnDefinition
+            //has a constructor with an argument to specify if an attribute
+            //accepts null values, but DOES NOT HAVE a method to retrieve
+            //such property... very very usefull, ESRI. (I really hope to
+            //someone open my eyes and tell me how it can be obtained)
+            isNilable = true;
+            defValue = null;
+
+            Integer sdeType = new Integer(wichCols[i].getType());
+            fieldLen = wichCols[i].getSize();
 
             if (sdeType.intValue() == SeColumnDefinition.TYPE_SHAPE)
             {
                 int seShapeType = sdeLayer.getShapeTypes();
                 typeClass = getGeometryType(seShapeType);
                 isNilable = (seShapeType & SeLayer.SE_NIL_TYPE_MASK) == SeLayer.SE_NIL_TYPE_MASK;
+                defValue = GeometryBuilder.defaultValueFor(typeClass);
             }
             else if (sdeType.intValue() == SeColumnDefinition.TYPE_RASTER)
             {
                 throw new DataSourceException(
-                    "Raster columns are not supported");
+                    "Raster columns are not supported yet");
             }
             else
             {
                 typeClass = (Class) sdeTypes.get(sdeType);
             }
 
-            attribute = attFactory.newAttributeType(colDefs[i].getName(),
-                    typeClass, isNilable);
+            attribute = attFactory.newAttributeType(wichCols[i].getName(),
+                    typeClass, isNilable, fieldLen, defValue);
 
             attTypes[i] = attribute;
         }
@@ -537,7 +550,7 @@ public class SdeAdapter
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 class SdeTypeDef
 {
