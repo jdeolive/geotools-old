@@ -154,9 +154,6 @@ public class DefaultFeatureResults implements FeatureResults {
 
             FeatureReader reader = reader();
 
-            //if (reader.getFeatureType().getDefaultGeometry() == null) {
-            //    throw new IOException("No default Geometry specified");
-            //}
             while (reader.hasNext()) {
                 feature = reader.next();
                 bounds.expandToInclude(feature.getBounds());
