@@ -51,7 +51,7 @@ public class FeatureTableModelTest extends TestCase {
             r.setBounds(new Envelope(-180, 180, -90, 90));
             table.getFeatures(r);
             FeatureTableModel ftm = new FeatureTableModel();
-            ftm.setFeatureTable(table);
+            ftm.setFeatureCollection(table);
             
             JFrame frame = new JFrame();
             frame.setSize(400,400);
