@@ -35,6 +35,7 @@ import org.geotools.pt.Envelope;
 import org.geotools.units.Unit;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.color.ColorSpace;
 import java.awt.color.ICC_ColorSpace;
@@ -48,12 +49,15 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.util.Set;
+import javax.imageio.ImageReadParam;
 import javax.imageio.ImageTypeSpecifier;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.TransposeDescriptor;
+import org.geotools.gc.GridGeometry;
+import org.geotools.gc.GridRange;
 
 
 /**
@@ -179,6 +183,8 @@ public class GTopo30DataSource implements DataSource {
 
         int nrows = header.getNRows();
         int ncols = header.getNCols();
+        int readCols = ncols; // columns effectively read from the datasource
+        int readRows = nrows;
         double xdim = header.getXDim();
         double ydim = header.getYDim();
         double minx = header.getULXMap() - (xdim / 2);
@@ -221,6 +227,24 @@ public class GTopo30DataSource implements DataSource {
         raw = new RawImageInputStream(iis, its, new long[] { 0 },
                 new Dimension[] { new Dimension(ncols, nrows) });
 
+        // if crop needed
+        com.vividsolutions.jts.geom.Envelope env = getBbox();
+        ImageReadParam irp = null;
+        
+        // the following is a failed tentative to use an ImageReadParam instead of the
+        // crop operation
+//        if(cropEnvelope != null) {
+//            env = intersectEnvelope(env, cropEnvelope);
+//            
+//            irp = new ImageReadParam();
+//            int x = (int) Math.floor((env.getMinX() - minx) / xdim);
+//            int y = (int) Math.floor(nrows - (env.getMaxY() - (env.getMinY() - miny) - env.getHeight()) / ydim);
+//            int width = (int) Math.ceil(env.getWidth() / xdim);
+//            readCols = width;
+//            int heigth = (int) Math.ceil(env.getHeight() / ydim);
+//            irp.setSourceRegion(new Rectangle(x, y, width, heigth));
+//        }
+                
         // Make some decision about tiling. Let's say that, for the moment, I want
         // to read approximately a meg at a time
         int tileRows = (int) Math.ceil((1024 * 1024) / (ncols * 2));
@@ -229,29 +253,28 @@ public class GTopo30DataSource implements DataSource {
         // First operator: read the image
         ParameterBlockJAI pbj = new ParameterBlockJAI("ImageRead");
         pbj.setParameter("Input", raw);
+        pbj.setParameter("ReadParam", irp);
 
         RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, il);
 
         RenderedOp image = JAI.create("ImageRead", pbj, hints);
 
-        // Second operator: transpose image, north and south are inverted
-        ParameterBlock pb = new ParameterBlock();
-        pb.addSource(image);
-        pb.add(TransposeDescriptor.FLIP_VERTICAL);
-        image = JAI.create("Transpose", pb);
-
-        // Third operator: crop the image if necessary
-        com.vividsolutions.jts.geom.Envelope env = getBbox();
+        
 
         if (cropEnvelope != null) {
             env = intersectEnvelope(env, cropEnvelope);
 
-            pb = new ParameterBlock();
+            ParameterBlock pb = new ParameterBlock();
             pb.addSource(image);
-            pb.add((float) ((env.getMinX() - minx) / xdim));
-            pb.add((float) ((env.getMinY() - miny) / ydim));
-            pb.add((float) (env.getWidth() / xdim));
-            pb.add((float) (env.getHeight() / ydim));
+            float cxmin = (float) ((env.getMinX() - minx) / xdim);
+            float cymin = (float) ((env.getMinY() - miny) / ydim);
+            float cwidth = (float) (env.getWidth() / xdim);
+            float cheight = (float) (env.getHeight() / ydim);
+            cymin = nrows - cymin - cheight;
+            pb.add(cxmin);
+            pb.add(cymin);
+            pb.add(cwidth);
+            pb.add(cheight);
             image = JAI.create("Crop", pb);
         }
 
@@ -276,9 +299,13 @@ public class GTopo30DataSource implements DataSource {
         SampleDimension sd = new SampleDimension(new Category[] { nullValue, elevation }, Unit.METRE);
         SampleDimension geoSd = sd.geophysics(true);
         SampleDimension[] bands = new SampleDimension[] { geoSd };
+        
+        // Create the transform from Grid to real coordinates (and flip NS axis)
+        GridRange gr = new GridRange(image);
+        GridGeometry gg = new GridGeometry(gr, convertEnvelope(env), new boolean[] {false, true});
 
         // Finally, create the gridcoverage!
-        GridCoverage gc = new GridCoverage("topo", image, sourceCS, convertEnvelope(env), bands,
+        GridCoverage gc = new GridCoverage("topo", image, sourceCS, gg.getGridToCoordinateSystem(), bands,
                 null, null); //, bands, null, null);
 
         // last step, wrap, add the the feature collection and return
@@ -317,7 +344,7 @@ public class GTopo30DataSource implements DataSource {
 
         return feature;
     }
-
+    
     private Envelope convertEnvelope(com.vividsolutions.jts.geom.Envelope source) {
         double[] min = new double[] { source.getMinX(), source.getMinY() };
         double[] max = new double[] { source.getMaxX(), source.getMaxY() };
