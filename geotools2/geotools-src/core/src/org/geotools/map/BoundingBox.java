@@ -39,15 +39,11 @@ import org.geotools.map.event.BoundingBoxListener;
  * Area of interest is cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: BoundingBox.java,v 1.10 2003/08/18 16:32:30 desruisseaux Exp $
+ * @version $Id: BoundingBox.java,v 1.11 2003/08/29 11:02:34 desruisseaux Exp $
  * @author Cameron Shorter
  * @author Martin Desruisseaux
- *
- * @task REVISIT: This interface should probably not extends Cloneable; this decision is up to the
- *                implementation class. If we remove Cloneable, we must remove the clone() method
- *                as well.
  */
-public interface BoundingBox extends Cloneable {
+public interface BoundingBox {
     /**
      * Set a new area of interest and trigger a {@link BoundingBoxEvent}.
      * Note that this is the only method to change coordinate system.  A
@@ -95,6 +91,8 @@ public interface BoundingBox extends Cloneable {
      * Create a copy of this class
      *
      * @return a copy of this object.
+     *
+     * @task REVISIT: clone should not be defined in those interfaces.
      */
     Object clone();
 

@@ -17,8 +17,19 @@
 package org.geotools.map;
 
 
+// J2SE dependencies
+import java.rmi.RemoteException;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
+import javax.swing.event.EventListenerList;
+import java.lang.reflect.UndeclaredThrowableException;
+
 // JTS dependencies
 import com.vividsolutions.jts.geom.Envelope;
+
+// OpenGIS dependencies
+import org.opengis.ct.CT_MathTransform;
+import org.opengis.cs.CS_CoordinateSystem;
 
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
@@ -29,17 +40,7 @@ import org.geotools.ct.TransformException;
 import org.geotools.map.event.BoundingBoxEvent;
 import org.geotools.map.event.BoundingBoxListener;
 import org.geotools.resources.CTSUtilities;
-
-// OpenGIS dependencies
-import org.opengis.cs.CS_CoordinateSystem;
-import org.opengis.ct.CT_MathTransform;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.lang.reflect.UndeclaredThrowableException;
-
-// J2SE dependencies
-import java.rmi.RemoteException;
-import javax.swing.event.EventListenerList;
+import org.geotools.util.Cloneable;
 
 
 /**
@@ -47,13 +48,13 @@ import javax.swing.event.EventListenerList;
  *
  * @author Cameron Shorter
  * @author Martin Desruisseaux
- * @version $Id: DefaultBoundingBox.java,v 1.4 2003/08/28 22:00:35 aaime Exp $
+ * @version $Id: DefaultBoundingBox.java,v 1.5 2003/08/29 11:02:22 desruisseaux Exp $
  *
  * @task REVISIT Probably should use CoordinatePoint or Point2D to store points
  *       instead of using Envelope.  Also worth waiting to see what interface
  *       the GeoAPI project creates and use that.
  */
-public class DefaultBoundingBox implements BoundingBox {
+public class DefaultBoundingBox implements BoundingBox, Cloneable {
     /** The area of interest. */
     private Envelope areaOfInterest;
 
