@@ -34,6 +34,7 @@ package org.geotools.cs;
 
 // J2SE dependencies
 import java.io.*;
+import java.util.*;
 import java.text.*;
 
 // JUnit dependencies
@@ -45,7 +46,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link CoordinateSystemEPSGFactory} implementation.
  *
- * @version $Id: WKTParserTest.java,v 1.1 2002/09/03 17:53:00 desruisseaux Exp $
+ * @version $Id: WKTParserTest.java,v 1.2 2002/09/04 15:09:49 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
@@ -79,29 +80,57 @@ public class WKTParserTest extends TestCase {
     }
 
     /**
-     * Parse all elements from the specified file.
+     * Open a stream as a {@link BufferedReader}. Closing the
+     * stream once finished is the user's responsability.
+     */
+    private BufferedReader open(final String path) throws IOException {
+        return new BufferedReader(
+               new InputStreamReader(
+               getClass().getClassLoader().getResourceAsStream(path)));
+    }
+
+    /**
+     * Parse all elements from the specified file. Parsing create a set of
+     * {@link CoordinateSystem}. No special processing are done with them;
+     * we just check if the parsing work without error and produces distincts
+     * coordinate system objects.
      */
     public void testParsing() throws IOException, ParseException, FactoryException {
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(
-                getClass().getClassLoader().getResourceAsStream("test-data/test-cs.txt")));
-
+        final BufferedReader reader = open("test-data/test-cs.txt");
+        final Collection       pool = new HashSet();
         String line;
         while ((line=reader.readLine()) != null) {
             line = line.trim();
             if (line.length()==0 || line.startsWith("#")) {
                 continue;
             }
+            /*
+             * Parse a line. If the parse fails, then dump the WKT and rethrow the
+             * exception. We try to favor ParseException instead of FactoryException,
+             * since the later contains less usuful information for our test.
+             */
             final CoordinateSystem cs;
             try {
                 cs = factory.createFromWKT(line);
             } catch (FactoryException exception) {
+                System.err.println("-----------------------------");
+                System.err.println("Parse failed. Dump WKT below.");
+                System.err.println("-----------------------------");
+                System.err.println(line);
                 Throwable cause = exception.getCause();
                 if (cause instanceof ParseException) {
                     throw (ParseException) cause;
                 }
                 throw exception;
             }
-            System.out.println(cs);
+            assertNotNull("Parsing returns null.", cs);
+            assertEquals("Inconsistent equals method", cs, cs);
+            assertSame("Parsing twice returns different objects.", cs, factory.createFromWKT(line));
+            assertTrue("An identical object already exists.",      pool.add(cs));
+            assertTrue("Inconsistent hashCode or equals method.",  pool.contains(cs));
+            if (false) {
+                System.out.println(cs);
+            }
         }
         reader.close();
     }

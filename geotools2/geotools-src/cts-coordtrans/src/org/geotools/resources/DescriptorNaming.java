@@ -36,6 +36,7 @@ package org.geotools.resources;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Arrays;
 
 // Reflection
 import java.lang.reflect.Method;
@@ -198,5 +199,74 @@ public final class DescriptorNaming {
         }
         assert count == names.length;
         return names;
+    }
+
+    /**
+     * Checks if two {@link ParameterListDescriptor} are equal.  This method is
+     * a workaround, because the default {@link ParameterListDescriptor} do not
+     * overrides {@link Object#equals}.
+     */
+    public static boolean equals(final ParameterListDescriptor d1,
+                                 final ParameterListDescriptor d2)
+    {
+        if (d1 == d2) {
+            return true;
+        }
+        if (d1==null || d2==null || !Utilities.equals(d1.getClass(), d2.getClass())) {
+            return false;
+        }
+        final String[] names = d1.getParamNames();
+        if (!Arrays.equals(names,                 d2.getParamNames   ()) &&
+             Arrays.equals(d1.getParamClasses(),  d2.getParamClasses ()) &&
+             Arrays.equals(d1.getParamDefaults(), d2.getParamDefaults()))
+        {
+            return false;
+        }
+        for (int i=0; i<names.length; i++) {
+            final String name = names[i];
+            if (!Utilities.equals(d1.getParamValueRange(name), d2.getParamValueRange(name))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if two {@link ParameterList} are equal.  This method is
+     * a workaround, because the default {@link ParameterList} do not
+     * overrides {@link Object#equals}.
+     */
+    public static boolean equals(final ParameterList p1,
+                                 final ParameterList p2)
+    {
+        if (p1 == p2) {
+            return true;
+        }
+        if (p1==null || p2==null || !Utilities.equals(p1.getClass(), p2.getClass())) {
+            return false;
+        }
+        final ParameterListDescriptor desc = p1.getParameterListDescriptor();
+        if (!equals(desc, p2.getParameterListDescriptor())) {
+            return false;
+        }
+        final String[] names = desc.getParamNames();
+        for (int i=0; i<names.length; i++) {
+            Object o1;
+            try {
+                o1 = p1.getObjectParameter(names[i]);
+            } catch (IllegalStateException e) {
+                o1 = ParameterListDescriptor.NO_PARAMETER_DEFAULT;
+            }
+            Object o2;
+            try {
+                o2 = p2.getObjectParameter(names[i]);
+            } catch (IllegalStateException e) {
+                o2 = ParameterListDescriptor.NO_PARAMETER_DEFAULT;
+            }
+            if (!Utilities.equals(o1, o2)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -97,7 +97,7 @@ import org.geotools.util.WeakHashSet;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.7 2002/09/03 17:52:59 desruisseaux Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.8 2002/09/04 15:09:43 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -151,6 +151,37 @@ public class CoordinateSystemFactory {
             DEFAULT = new CoordinateSystemFactory(Info.pool);
         }
         return DEFAULT;
+    }
+    
+    /**
+     * Constructs a geocentric coordinate system.
+     * The <var>X</var> axis points towards the prime meridian.
+     * The <var>Y</var> axis points East or West.
+     * The <var>Z</var> axis points North or South.
+     *
+     * @param name     The coordinate system name.
+     * @param unit     The linear unit.
+     * @param datum    The horizontal datum.
+     * @param meridian The prime meridian.
+     * @param axis     The axis info. This is usually an array of length 3.
+     *
+     * @return The coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
+     */
+    public GeocentricCoordinateSystem createGeocentricCoordinateSystem(
+                                        final CharSequence    name,
+                                        final Unit            unit,
+                                        final HorizontalDatum datum,
+                                        final PrimeMeridian   meridian,
+                                        final AxisInfo[]      axis)
+        throws FactoryException
+    {
+        return (GeocentricCoordinateSystem) pool.canonicalize(
+                new GeocentricCoordinateSystem(name, unit, datum, meridian, axis));
     }
     
     /**
@@ -210,7 +241,8 @@ public class CoordinateSystemFactory {
         throws FactoryException
     {
         return (GeographicCoordinateSystem) pool.canonicalize(
-                new GeographicCoordinateSystem(name, unit, datum, meridian, axis0, axis1));}
+                new GeographicCoordinateSystem(name, unit, datum, meridian, axis0, axis1));
+    }
     
     /**
      * Creates a projected coordinate system using the specified geographic

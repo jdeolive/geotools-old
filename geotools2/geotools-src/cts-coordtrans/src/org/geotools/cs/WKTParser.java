@@ -59,7 +59,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Parser for <cite>Well Know Text</cite> (WKT).
  * Instances of this class are thread-safe.
  *
- * @version $Id: WKTParser.java,v 1.3 2002/09/03 17:53:00 desruisseaux Exp $
+ * @version $Id: WKTParser.java,v 1.4 2002/09/04 15:09:45 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -333,17 +333,17 @@ final class WKTParser extends WKTFormat {
      */
     private VerticalDatum parseVertDatum(final WKTElement parent) throws ParseException {        
         WKTElement element = parent.pullElement("VERT_DATUM");
-        CharSequence  name = element.pullString     ("name");
-        WKTElement   datum = element.pullVoidElement("datum");
+        CharSequence  name = element.pullString ("name");
+        final int    datum = element.pullInteger("datum");
         name = parseAuthority(element, name);
         element.close();
         final DatumType.Vertical type;
         try {
-            type = (DatumType.Vertical) DatumType.getEnum(datum.keyword);
+            type = (DatumType.Vertical) DatumType.getEnum(datum);
         } catch (RuntimeException exception) {
             // Include 'NoSuchElementException' and 'ClassCastException'
             throw element.parseFailed(exception,
-                    Resources.format(ResourceKeys.ERROR_UNKNOW_TYPE_$1, datum));
+                    Resources.format(ResourceKeys.ERROR_UNKNOW_TYPE_$1, new Integer(datum)));
         }
         try {
             return factory.createVerticalDatum(name, type);
@@ -364,18 +364,18 @@ final class WKTParser extends WKTFormat {
      * @throws ParseException if the "LOCAL_DATUM" element can't be parsed.
      */
     private LocalDatum parseLocalDatum(final WKTElement parent) throws ParseException {
-        WKTElement element = parent.pullElement("LOCAL_DATUM");
-        CharSequence  name = element.pullString     ("name");
-        WKTElement   datum = element.pullVoidElement("datum");
+        WKTElement   element = parent.pullElement("LOCAL_DATUM");
+        CharSequence    name = element.pullString ("name");
+        final int      datum = element.pullInteger("datum");
         name = parseAuthority(element, name);
         element.close();
         final DatumType.Local type;
         try {
-            type = (DatumType.Local) DatumType.getEnum(datum.keyword);
+            type = (DatumType.Local) DatumType.getEnum(datum);
         } catch (RuntimeException exception) {
             // Include 'NoSuchElementException' and 'ClassCastException'
             throw element.parseFailed(exception,
-                    Resources.format(ResourceKeys.ERROR_UNKNOW_TYPE_$1, datum));
+                    Resources.format(ResourceKeys.ERROR_UNKNOW_TYPE_$1, new Integer(datum)));
         }
         try {
             return factory.createLocalDatum(name, type);
@@ -443,15 +443,14 @@ final class WKTParser extends WKTFormat {
             axes[2] = parseAxis(element, true);
         }
         else {
-            axes = null;
+            axes = GeocentricCoordinateSystem.DEFAULT_AXIS;
         }
         name = parseAuthority(element, name);                
         element.close();
-        // TODO: There is no createGeocentricCoordinateSystem in CoordinateSystemFactory !!!
-        if (axes != null) {
-            return new GeocentricCoordinateSystem(name, unit, datum, meridian, axes);
-        } else {
-            return new GeocentricCoordinateSystem(name, unit, datum, meridian);
+        try {
+            return factory.createGeocentricCoordinateSystem(name, unit, datum, meridian, axes);
+        } catch (FactoryException exception) {
+            throw element.parseFailed(exception, null);
         }
     }        
 

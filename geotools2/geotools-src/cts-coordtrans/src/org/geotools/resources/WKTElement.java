@@ -67,7 +67,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * The result is a tree, which can be printed with {@link #print}.
  * Elements can be pull in a <cite>first in, first out</cite> order.
  *
- * @version $Id: WKTElement.java,v 1.2 2002/09/03 17:53:00 desruisseaux Exp $
+ * @version $Id: WKTElement.java,v 1.3 2002/09/04 15:09:47 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -157,7 +157,7 @@ public final class WKTElement {
             //
             if (parseOptionalSeparator(text, position, format.textDelimitor)) {
                 lower = position.getIndex();        
-                upper = text.indexOf(format.textDelimitor, lower+1);
+                upper = text.indexOf(format.textDelimitor, lower);
                 if (upper < lower) {
                     position.setErrorIndex(++lower);
                     throw missingCharacter(format.textDelimitor, lower);
@@ -236,8 +236,8 @@ public final class WKTElement {
      * @throws ParseException if the separator was not found.
      */
     private void parseSeparator(final String        text,
-                                       final ParsePosition position,
-                                       final char          separator)
+                                final ParsePosition position,
+                                final char          separator)
         throws ParseException
     {
         if (!parseOptionalSeparator(text, position, separator)) {
@@ -332,7 +332,7 @@ public final class WKTElement {
      */
     private String complete(String message) {
         if (keyword != null) {
-            message = Resources.format(ResourceKeys.ERROR_IN_$2, keyword, message);
+            message = Resources.format(ResourceKeys.ERROR_IN_$1, keyword) + ' ' + message;
         }
         return message;
     }
@@ -380,6 +380,33 @@ public final class WKTElement {
             if (object instanceof Number) {
                 iterator.remove();
                 return ((Number)object).doubleValue();
+            }
+        }
+        throw missingParameter(key);
+    }
+
+    /**
+     * Removes the next {@link Number} from the list and returns it
+     * as an integer.
+     *
+     * @param  key The parameter name. Used for formatting
+     *         an error message if no number are found.
+     * @return The next {@link Number} on the list as an <code>int</code>.
+     * @throws ParseException if no more number is available, or the number
+     *         is not an integer.
+     */
+    public int pullInteger(final String key) throws ParseException {
+        final Iterator iterator = list.iterator();
+        while (iterator.hasNext()) {
+            final Object object = iterator.next();
+            if (object instanceof Number) {
+                iterator.remove();
+                final Number number = (Number) object;
+                if (number instanceof Float || number instanceof Double) {
+                    throw new ParseException(complete(Resources.format(
+                            ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2, key, number)), offset);
+                }
+                return number.intValue();
             }
         }
         throw missingParameter(key);

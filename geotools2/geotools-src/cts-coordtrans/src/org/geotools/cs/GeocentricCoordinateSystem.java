@@ -61,7 +61,7 @@ import java.rmi.RemoteException;
  * will point East (e.g. a right handed system), but you should
  * check the axes for non-default values.
  *
- * @version $Id: GeocentricCoordinateSystem.java,v 1.3 2002/06/05 15:44:12 loxnard Exp $
+ * @version $Id: GeocentricCoordinateSystem.java,v 1.4 2002/09/04 15:09:44 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -79,7 +79,7 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
      * The <var>Y</var> axis points East.
      * The <var>Z</var> axis points North.
      */
-    private static final AxisInfo[] DEFAULT_AXIS = new AxisInfo[] {
+    static final AxisInfo[] DEFAULT_AXIS = new AxisInfo[] {
         new AxisInfo("x", AxisOrientation.OTHER),
         new AxisInfo("y", AxisOrientation.EAST ),
         new AxisInfo("z", AxisOrientation.NORTH)

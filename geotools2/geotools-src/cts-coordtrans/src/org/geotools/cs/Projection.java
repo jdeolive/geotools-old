@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version $Id: Projection.java,v 1.4 2002/06/05 16:15:42 loxnard Exp $
+ * @version $Id: Projection.java,v 1.5 2002/09/04 15:09:44 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -292,8 +292,8 @@ public class Projection extends Info {
     public boolean equals(final Object object) {
         if (super.equals(object)) {
             final Projection that = (Projection) object;
-            return Utilities.equals(this.classification, that.classification) &&
-                   Utilities.equals(this.parameters,     that.parameters);
+            return        Utilities.equals(this.classification, that.classification) &&
+                   DescriptorNaming.equals(this.parameters,     that.parameters);
         }
         return false;
     }

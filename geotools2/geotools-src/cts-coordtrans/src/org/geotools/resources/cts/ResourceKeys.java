@@ -86,7 +86,7 @@ public interface ResourceKeys
     public static final int ERROR_ILLEGAL_ENVELOPE_ORDINATE_$1          =    54;
     public static final int ERROR_INCOMPATIBLE_ELLIPSOID_$2             =    55;
     public static final int ERROR_INDEX_OUT_OF_BOUNDS_$1                =    56;
-    public static final int ERROR_IN_$2                                 =    88;
+    public static final int ERROR_IN_$1                                 =    88;
     public static final int ERROR_LATITUDE_OUT_OF_RANGE_$1              =    57;
     public static final int ERROR_LONGITUDE_OUT_OF_RANGE_$1             =    58;
     public static final int ERROR_MATRIX_NOT_REGULAR                    =    59;
