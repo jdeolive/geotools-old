@@ -34,6 +34,7 @@ import org.geotools.filter.*;
 
 import com.vividsolutions.jts.geom.Envelope;
 
+
 //Logging system
 import org.apache.log4j.Logger;
 
@@ -41,11 +42,13 @@ import org.apache.log4j.Logger;
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: GMLDataSource.java,v 1.18 2002/07/20 10:42:05 jmacgill Exp $
+ * @version $Id: GMLDataSource.java,v 1.19 2002/07/23 17:58:11 jmacgill Exp $
  * @author Ian Turton, CCG
  */
 public class GMLDataSource extends XMLFilterImpl
 implements DataSource, GMLHandlerFeature {
+    
+
     
     private static Logger log = Logger.getLogger("gmldatasource");
     
@@ -53,13 +56,13 @@ implements DataSource, GMLHandlerFeature {
     private String defaultParser = "org.apache.xerces.parsers.SAXParser";
     
     /** Holds a URI for the GML data. */
-    private InputSource uri;
+    private URL url;
     
     /** Temporary storage for the features loaded from GML. */
     private Vector features = new Vector();
     
     
-    public GMLDataSource(String uri) {
+    public GMLDataSource(String uri) throws DataSourceException {
         setUri(uri);
     }
     
@@ -68,19 +71,26 @@ implements DataSource, GMLHandlerFeature {
     }
     
     
-    public void setUri(String uri) {
-        this.uri = new InputSource(uri);
+    public void setUri(String uri) throws DataSourceException {
+        try{
+            url = new URL(uri);
+        }
+        catch (MalformedURLException mue){
+            throw new DataSourceException(mue.toString());
+        }
     }
     
     public void setUri(URL uri) throws DataSourceException{
-        InputStream in = null;
-        try {
+        /*try {
             in = uri.openStream();
         } catch (IOException e){
             throw new DataSourceException("Error reading url " + uri.toString() + " in GMLGeometryDataSource" +
             "\n" + e);
         }
-        this.uri = new InputSource(in);
+        this.uri = new InputSource(in);*/
+        
+        
+        this.url = uri;
     }
     
     
@@ -152,7 +162,7 @@ implements DataSource, GMLHandlerFeature {
                 
                 ParserAdapter p = new ParserAdapter(parser.getParser());
                 p.setContentHandler(documentFilter);
-                p.parse(uri);
+                p.parse(getInputSource());
             }
             catch (Exception e) {
                 return null;
@@ -201,10 +211,10 @@ implements DataSource, GMLHandlerFeature {
             
             ParserAdapter p = new ParserAdapter(parser.getParser());
             p.setContentHandler(documentFilter);
-            p.parse(uri);
+            p.parse(getInputSource());
         }
         catch (IOException e) {
-            throw new DataSourceException("Error reading URI: " + uri );
+            throw new DataSourceException("Error reading URI: " + url );
         }
         catch (SAXException e) {
             throw new DataSourceException("Parsing error: " + e.getMessage());
@@ -272,6 +282,19 @@ implements DataSource, GMLHandlerFeature {
     public void removeFeatures(Filter filter) throws DataSourceException {
         throw new DataSourceException("Removal of features is not yet supported by this datasource");
     }
+    
+    private InputSource getInputSource() throws DataSourceException{
+        InputStream in;
+        try {
+            in = url.openStream();
+        } catch (IOException e){
+            throw new DataSourceException("Error reading url " + url.toString() + " in GMLGeometryDataSource" +
+            "\n" + e);
+        }
+        return new InputSource(in);
+    }
+        
+        
     
 }
 
