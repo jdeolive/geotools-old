@@ -96,15 +96,15 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 /**
  * A single polygon. Each <code>Polygon</code> object can have its own {@link CoordinateSystem}
- * object, usually specified at construction time. A set of polygons can be built from an array
- * of (<var>x</var>,<var>y</var>) coordinates using the {@link #getInstances} factory method.
- * <em>Those points should not contains map border</em>. Border points (orange points in the
- * figure below) are treated specially and must be specified using {@link #appendBorder} or
- * {@link #prependBorder} methods.
+ * object, usually specified at construction time. A set of polygons can be built from an array of
+ * (<var>x</var>,<var>y</var>) coordinates using the {@link #getInstances(float[],CoordinateSystem)}
+ * factory method. <em>Those points should not contains map border</em>. Border points (orange
+ * points in the figure below) are treated specially and must be specified using
+ * {@link #appendBorder} or {@link #prependBorder} methods.
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polygon.java,v 1.1 2003/01/13 22:41:14 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.2 2003/01/14 23:10:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Polygon extends GeoShape {
@@ -133,13 +133,6 @@ public class Polygon extends GeoShape {
      * pas être modifié.
      */
     private static final AffineTransform IDENTITY = new AffineTransform();
-
-    /**
-     * Nombre approximatif de pixels entre deux points de la
-     * carte qui seront tracés. Ce nombre sert à déterminer
-     * la résolution à utiliser pour tracer une carte.
-     */
-    private static final int RESOLUTION_PIXELS = 4;
 
     /**
      * The enum value for <code>InteriorType == null</code>.
@@ -199,8 +192,8 @@ public class Polygon extends GeoShape {
     /**
      * Décimation à appliquer au moment du traçage du polygone. La valeur 1 signifie
      * qu'aucune décimation n'est faite; la valeur 2 signifie qu'on ne tracera qu'un
-     * point sur 2, etc. Cette information est utilisée uniquement par les objets
-     * {@link PathIterator}. Cette valeur doit être supérieure ou égale à 1.
+     * point sur 2, etc. Cette information est utilisée uniquement par les implémentation
+     * de {@link PathIterator}. Cette valeur doit être supérieure ou égale à 1.
      */
     private byte drawingDecimation = 1;
 
@@ -354,7 +347,7 @@ public class Polygon extends GeoShape {
         final float[]              buffer = new float[6];
         float[]                     array = new float[64];
         while (!pit.isDone()) {
-            if (pit.currentSegment(array)!=PathIterator.SEG_MOVETO) {
+            if (pit.currentSegment(array) != PathIterator.SEG_MOVETO) {
                 throw new IllegalPathStateException();
             }
             /*
@@ -1044,7 +1037,7 @@ public class Polygon extends GeoShape {
      * Returns a path iterator for this polygon.
      */
     public PathIterator getPathIterator(final AffineTransform transform) {
-        return new org.geotools.renderer.PathIterator(this, transform);
+        return new PolygonPathIterator(this, transform);
         // Only polygons internal to Isoline have drawingDecimation!=1.
         // Consequently, public polygons never apply decimation, while
         // Isoline's polgyons may apply a decimation for faster rendering
@@ -1140,7 +1133,7 @@ public class Polygon extends GeoShape {
      * Spécifie la décimation à appliquer au moment du traçage du polygone.
      * La valeur 1 signifie qu'aucune décimation n'est faite;  la valeur 2
      * signifie qu'on ne tracera qu'un point sur 2, etc. Cette information
-     * n'est utilisée que par les objets {@link PathIterator}.
+     * n'est utilisée que par les objets {@link PolygonPathIterator}.
      *
      * @param  decimation Décimation à appliquer.
      * @return Nombre de points qui seront à recalculer, ou 0 si la cache

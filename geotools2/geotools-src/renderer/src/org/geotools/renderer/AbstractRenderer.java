@@ -33,6 +33,7 @@
 package org.geotools.renderer;
 
 // J2SE dependencies
+import java.awt.Shape;
 import java.awt.RenderingHints;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,9 +43,11 @@ import java.util.logging.LogRecord;
 import org.geotools.gp.Hints;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.CoordinateTransformation;
+import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.CoordinateTransformationFactory;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
 
@@ -52,7 +55,7 @@ import org.geotools.resources.renderer.ResourceKeys;
 /**
  * Base class for renderer engines.
  *
- * @version $Id: AbstractRenderer.java,v 1.1 2003/01/13 22:40:00 desruisseaux Exp $
+ * @version $Id: AbstractRenderer.java,v 1.2 2003/01/14 23:10:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class AbstractRenderer {
@@ -62,7 +65,7 @@ final class AbstractRenderer {
     static final Logger LOGGER = Logger.getLogger("org.geotools.renderer");
 
     /**
-     * A default instance of use by {@link Polygon}.
+     * A default instance to be used by {@link Polygon}.
      *
      * @task REVISIT: {@link Poylgon} should be able to access to some real instance of
      *                {@link AbstractRenderer}, but how to give it to him? We don't want
@@ -77,18 +80,137 @@ final class AbstractRenderer {
     private RenderingHints hints = new RenderingHints(null);
 
     /**
-     * Construct a new renderer.
+     * Système de coordonnées utilisé pour l'affichage à l'écran. Les données des différentes
+     * couches devront être converties selon ce système de coordonnées avant d'être affichées.
+     * La transformation la plus courante utilisée à cette fin peut être conservée dans le
+     * champ {@link #commonestTransform} à des fins de performances.
+     */
+    private CoordinateSystem coordinateSystem;
+
+    /**
+     * Transformation de coordonnées (généralement une projection cartographique) utilisée
+     * le plus souvent pour convertir les coordonnées des couches en coordonnées d'affichage.
+     * Ce champ n'est conservé qu'à des fins de performances. Si ce champ est nul, ça signifie
+     * qu'il a besoin d'être reconstruit.
+     */
+    private transient CoordinateTransformation commonestTransform;
+
+    /**
+     * The rendering resolution, in units of this renderer's coordinate system
+     * (usually metres or degree). A larger resolution speed up rendering, while
+     * a smaller resolution draw more precise map.
+     */
+    private float resolution;
+
+    /**
+     * Construct a new renderer using the {@linkplain GeographicCoordinateSystem#WGS84
+     * WGS84} coordinate system.
      */
     public AbstractRenderer() {
+        this(GeographicCoordinateSystem.WGS84);
     }
 
     /**
-     * Set the rendering hints. Recognized hints include
-     * {@link Hints#COORDINATE_TRANSFORMATION_FACTORY}.
+     * Construct a new renderer using the specified coordinate system.
+     *
+     * @param cs The view coordinate system. If this coordinate system has
+     *           more than 2 dimensions, only the 2 first will be retained.
      */
-    public void setRenderingHints(final RenderingHints newHints) {
-        hints.clear();
-        hints.putAll(newHints);
+    public AbstractRenderer(final CoordinateSystem cs) {
+        coordinateSystem = CTSUtilities.getCoordinateSystem2D(cs);
+    }
+
+    /**
+     * Returns the view coordinate system. The underlying data doesn't need to be expressed
+     * in this coordinate system; transformation will performed on the fly as needed.
+     *
+     * @return The two dimensional coordinate system used for display.
+     */
+    public CoordinateSystem getCoordinateSystem() {
+        return coordinateSystem;
+    }
+
+    /**
+     * Returns the rendering resolution. Default value is 0, which (by convention) means
+     * the finest resolution available.
+     *
+     * @return The rendering resolution, in units of {@link Polygon#getResolution}
+     *         (usually metres).
+     */
+    public float getResolution() {
+        return resolution;
+    }
+
+    /**
+     * Set the rendering resolution. A larger resolution speed up rendering, while a smaller
+     * resolution draw more precise map. By convention, a resolution of 0 means the finest
+     * resolution available. This method may be call often, for example every time the zoom
+     * change.
+     *
+     * @param  resolution The rendering resolution, in units of
+     *         {@link Polygon#getResolution} (usually metres).
+     * @throws IllegalArgumentException if <code>resolution</code> is negative or NaN.
+     */
+    public void setResolution(final float resolution) throws IllegalArgumentException {
+        if (!(resolution >= 0)) {
+            throw new IllegalArgumentException(String.valueOf(resolution));
+        }
+        this.resolution = resolution;
+    }
+
+    /**
+     * Returns a rendering hints.
+     *
+     * @param  key The hint key (e.g. Hints#COORDINATE_TRANSFORMATION_FACTORY).
+     * @return The hint value for the specified key.
+     *
+     * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
+     */
+    public Object getRenderingHints(final RenderingHints.Key key) {
+        return hints.get(key);
+    }
+
+    /**
+     * Add a rendering hints. Hints provides optional information used by some
+     * rendering code.
+     *
+     * @param key   The hint key (e.g. Hints#COORDINATE_TRANSFORMATION_FACTORY).
+     * @param value The hint value.
+     *
+     * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
+     */
+    public void setRenderingHints(final RenderingHints.Key key, final Object value) {
+        hints.put(key, value);
+    }
+
+    /**
+     * Paint the specified {@linkplain Isoline isoline} to this renderer.
+     * This method is faster than <code>graphics.draw(this)</code> since it reuse
+     * internal cache when possible.   However, since it may change the isoline's
+     * resolution, this method should not be invoked on user's isoline. It should
+     * be invoked on cloned isoline instead  (remind: cloned isolines share their
+     * data, so the memory overhead is keep low).
+     *
+     * @param  isoline The isoline to paint.
+     * @param  clip The clip area in the renderer's coordinates.
+     * @param  resolution The rendering resolution, in units of this renderer's
+     *         coordinate system (usually metres or degrees). A larger resolution
+     *         speed up rendering, while a smaller resolution draw more precise map.
+     *
+     * @task TODO: This method will move in <code>AbstractRenderedIsoline</code> soon.
+     */
+    protected void paint(final Isoline isoline, final Shape clip, final float resolution) {
+        isoline.paint(this, clip, resolution);
+    }
+
+    /**
+     * Paint an polygon. This method is automatically invoked by
+     * {@link #paint(Isoline, Shape, float)} for each polygon to renderer.
+     *
+     * @task TODO: This method will move in <code>AbstractRenderedIsoline</code> soon.
+     *             This method will be made abstract.
+     */
+    protected void paint(Polygon polygon) {
     }
 
     /**

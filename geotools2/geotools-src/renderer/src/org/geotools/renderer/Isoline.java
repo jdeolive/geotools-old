@@ -47,9 +47,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
 
-// Graphics
-import java.awt.Graphics2D;
-
 // Collections
 import java.util.Set;
 import java.util.List;
@@ -72,7 +69,9 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
- * An isoline built from a set of polylines.
+ * An isoline built from a set of polylgons. An isoline is initially built with a value
+ * (for example "50" for the 50 meters isobath) and a coordinate system. Next, an arbitrary
+ * amount of polygons can be added using {@link #add(Polygon)} or {@link #add(float[])}.
  * <br><br>
  * Note: this class has a natural ordering that is inconsistent with equals.
  * The {@link #compareTo} method compare only the isoline's values, while
@@ -80,7 +79,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * for <code>Isoline</code> is convenient for sorting isolines in increasing
  * order of altitude.
  *
- * @version $Id: Isoline.java,v 1.1 2003/01/13 22:40:27 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.2 2003/01/14 23:10:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Isoline extends GeoShape implements Comparable {
@@ -88,7 +87,7 @@ public class Isoline extends GeoShape implements Comparable {
      * Numéro de version pour compatibilité avec des
      * bathymétries enregistrées sous d'anciennes versions.
      */
-//    private static final long serialVersionUID = 7006680587688349800L;
+    private static final long serialVersionUID = 6249238975475964338L;
 
     /**
      * The value for this isoline. In the case
@@ -128,12 +127,18 @@ public class Isoline extends GeoShape implements Comparable {
     private Rectangle2D bounds;
 
     /**
-     * Construct an initialy empty isoline.
+     * Construct an initialy empty isoline. Polygon may be added using one
+     * of <code>add(...)</code> methods.
      *
      * @param value The value for this isoline. In the case
      *        of isobath, the value is the altitude.
      * @param coordinateSystem The coordinate system to use for all
      *        points in this isoline, or <code>null</code> if unknow.
+     *
+     * @see #add(float[])
+     * @see #add(Shape)
+     * @see #add(Polygon)
+     * @see #add(Isoline)
      */
     public Isoline(final float value, final CoordinateSystem coordinateSystem) {
         this.value = value;
@@ -158,7 +163,7 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Returns the polyline's coordinate system, or <code>null</code> if unknow.
+     * Returns the isoline's coordinate system, or <code>null</code> if unknow.
      */
     public synchronized CoordinateSystem getCoordinateSystem() {
         return coordinateSystem;
@@ -166,7 +171,7 @@ public class Isoline extends GeoShape implements Comparable {
 
     /**
      * Set the isoline's coordinate system. Calling this method is equivalents
-     * to reproject all polyline from the old coordinate system to the new one.
+     * to reproject all polylgons from the old coordinate system to the new one.
      *
      * @param  The new coordinate system. A <code>null</code> value reset the
      *         coordinate system given at construction time.
@@ -246,7 +251,7 @@ public class Isoline extends GeoShape implements Comparable {
      * borders. This method uses a cache, such that after a first calling,
      * the following calls should be fairly quick.
      *
-     * @return A bounding box of this polylines. Changes to the
+     * @return A bounding box of this isoline. Changes to the
      *         fields of this rectangle will not affect the cache.
      */
     public synchronized Rectangle2D getBounds2D() {
@@ -385,7 +390,7 @@ public class Isoline extends GeoShape implements Comparable {
 
     /**
      * Test if the specified rectangle intercept with
-     * the interior of a polylines of this isoline.
+     * the interior of a polylgons of this isoline.
      */
     public synchronized boolean intersects(final Rectangle2D rect) {
         if (getCachedBounds().intersects(rect)) {
@@ -411,7 +416,7 @@ public class Isoline extends GeoShape implements Comparable {
 
     /**
      * Test if the specified shape intercept with
-     * the interior of a polylines of this isoline.
+     * the interior of a polylgons of this isoline.
      */
     public synchronized boolean intersects(final Shape shape) {
         if (getCachedBounds().intersects(shape.getBounds2D())) {
@@ -463,23 +468,28 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Trace cette isoligne dans le graphique spécifié. Cette méthode
-     * est à peu près équivalente à <code>graphics.draw(this)</code>
-     * ou <code>graphics.fill(this)</code>, mais peut être plus rapide
-     * en raison de l'utilisation de caches internes.
+     * Paint this isoline to the specified {@linkplain AbstractRenderer renderer}.
+     * This method is faster than <code>graphics.draw(this)</code> since it reuse
+     * internal cache when possible.   However, since it may change the isoline's
+     * resolution, this method should not be invoked on user's isoline. It should
+     * be invoked on cloned isoline instead  (remind: cloned isolines share their
+     * data, so the memory overhead is keep low).
      *
-     * @param  graphics Graphiques dans lequel dessiner cet isoligne.
-     * @param  resolution Résolution approximative désirée à l'affichage,
-     *         selon les unités de {@link Polygon#getResolution}. Une
-     *         résolution plus grossière (un nombre plus élevé) peut
-     *         rendre le traçage plus rapide au détriment de la qualité.
-     * @param  renderer An optional renderer for polygons,
-     *         or <code>null</code> for the default rendering.
+     * @param  renderer The destination renderer. The {@link AbstractRenderer#paint(Polygon)}
+     *         method will be invoked for each polygon to renderer.
+     * @param  clip The clip area in the renderer's coordinates.
+     * @param  resolution The rendering resolution, in units of the renderer's
+     *         coordinate system (usually metres or degrees). A larger resolution
+     *         speed up rendering, while a smaller resolution draw more precise map.
      *
-     * @task TODO: This method will move (in a modified form) in {@link AbstractRenderer} soon.
+     * @task TODO: We need to convert 'resolution' from Polygon's CS
+     *             to view CS before to compute the decimation rate.
+     *             We could do that with MathTransform.derivative(...),
+     *             but it is not yet implemented for map projections.
      */
-    public synchronized void paint(final Graphics2D graphics, final float resolution) {
-        final Shape clip = graphics.getClip();
+    final synchronized void paint(final AbstractRenderer renderer,
+                                  final Shape clip, final float resolution)
+    {
         if (clip.intersects(getCachedBounds())) {
             if (!sorted) {
                 sort();
@@ -490,14 +500,17 @@ public class Isoline extends GeoShape implements Comparable {
                 final Polygon polygon = polygons[i];
                 synchronized (polygon) {
                     if (clip.intersects(polygon.getCachedBounds())) {
-                        final int n = polygon.setDrawingDecimation(
-                                            Math.round(resolution/polygon.getResolution()));
+                        /*
+                         * TODO: We need to convert 'resolution' from Polygon's CS
+                         *       to view CS before to compute the decimation rate.
+                         *       We could do that with MathTransform.derivative(...),
+                         *       but it is not yet implemented for map projections.
+                         */
+                        int n = Math.round(resolution/polygon.getResolution());
+                        n = polygon.setDrawingDecimation(n);
                         numDecimated += n/polygon.getDrawingDecimation();
                         numPoints    += n;
-                        if (polygon.isClosed())
-                            graphics.fill(polygon);
-                        else
-                            graphics.draw(polygon);
+                        renderer.paint(polygon);
                     }
                 }
             }
@@ -519,7 +532,7 @@ public class Isoline extends GeoShape implements Comparable {
      * Returns a path iterator for this isoline.
      */
     public synchronized PathIterator getPathIterator(final AffineTransform transform) {
-        return new org.geotools.renderer.PathIterator(getPolygonList(true).iterator(), transform);
+        return new PolygonPathIterator(getPolygonList(true).iterator(), transform);
     }
 
     /**
@@ -551,13 +564,13 @@ public class Isoline extends GeoShape implements Comparable {
      * For example:
      *
      * <blockquote><pre>
-     * &nbsp;public Polygon getSmallestIslandAt(double x, double y)
-     * &nbsp;{
-     * &nbsp;    final Iterator it=isobath.getPolygons().iterator();
-     * &nbsp;    while (it.hasNext())
-     * &nbsp;    {
+     * &nbsp;public Polygon getSmallestIslandAt(double x, double y) {
+     * &nbsp;    final Iterator it = isobath.getPolygons().iterator();
+     * &nbsp;    while (it.hasNext()) {
      * &nbsp;        final Polygon île=(Polygon) it.next();
-     * &nbsp;        if (île.contains(x,y)) return île;
+     * &nbsp;        if (île.contains(x,y)) {
+     * &nbsp;            return île;
+     * &nbsp;        }
      * &nbsp;    }
      * &nbsp;    return null;
      * &nbsp;}
@@ -645,6 +658,10 @@ public class Isoline extends GeoShape implements Comparable {
      * paires (<var>x</var>,<var>y</var>) dans le système de coordonnées de cet isoligne
      * ({@link #getCoordinateSystem}). Les <code>NaN</code> seront considérés comme des
      * trous; aucune ligne ne joindra les points entre deux <code>NaN</code>.
+     *
+     * @param  data Tableau de coordonnées (peut contenir des NaN). Ces données seront copiées,
+     *         de sorte que toute modification future de <code>data</code> n'aura pas d'impact
+     *         sur les polygones créés.
      */
     public synchronized void add(final float[] array) {
         final Polygon[] toAdd = Polygon.getInstances(array, coordinateSystem);
@@ -656,9 +673,65 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Add a polyline to this isoline.
+     * Add polygons from the specified shape. Shape's coordinates
+     * must be express in this isoline's coordinate system.
      *
-     * @param  toAdd Polyline to add.
+     * @param  shape The shape to add.
+     * @throws IllegalArgumentException if the specified shape can't be added. This error may
+     *         occurs if <code>shape</code> is an instance of {@link Polygon} or {@link Isoline}
+     *         and use an incompatible coordinate system and/or {@linkplain #value}.
+     */
+    public synchronized void add(final Shape shape) throws IllegalArgumentException {
+        try {
+            if (shape instanceof Polygon) {
+                add((Polygon) shape);
+                return;
+            }
+            if (shape instanceof Isoline) {
+                add((Isoline) shape);
+                return;
+            }
+        } catch (TransformException exception) {
+            // TODO: localize this message, if it worth it.
+            final IllegalArgumentException e = new IllegalArgumentException("Incompatible CS");
+            e.initCause(exception);
+            throw e;
+        }
+        final Polygon[] toAdd = Polygon.getInstances(shape, coordinateSystem);
+        for (int i=0; i<toAdd.length; i++) {
+            if (!toAdd[i].isEmpty()) {
+                addImpl(toAdd[i]);
+            }
+        }
+    }
+
+    /**
+     * Add all polygons from the specified isoline. Both isolines must have
+     * the same {@linkplain #value}.
+     *
+     * @param  toAdd Isoline to add.
+     * @throws IllegalArgumentException if both isolines doesn't
+     *         have the same {@linkplain #value}.
+     * @throws TransformException if the specified isoline can't
+     *         be transformed in this isoline's coordinate system.
+     */
+    public synchronized void add(final Isoline toAdd) throws TransformException {
+        if (toAdd != null) {
+            if (Float.floatToIntBits(toAdd.value) != Float.floatToIntBits(value)) {
+                // TODO: localize this message, if it worth it.
+                throw new IllegalArgumentException("Incompatible values");
+            }
+            final Polygon[] polyToAdd = (Polygon[]) toAdd.polygons.clone();
+            for (int i=0; i<polyToAdd.length; i++) {
+                add(polyToAdd[i]);
+            }
+        }
+    }
+
+    /**
+     * Add a polygon to this isoline.
+     *
+     * @param  toAdd Polylgon to add.
      * @throws TransformException if the specified polygon can't
      *         be transformed in this isoline's coordinate system.
      */
@@ -678,7 +751,7 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Add a polyline to this isoline. This method do not clone
+     * Add a polylgon to this isoline. This method do not clone
      * the polygon and doesn't set the coordinate system.
      */
     private void addImpl(final Polygon toAdd) {
@@ -694,8 +767,10 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Remove a polyline from this isobath.
-     * @return <code>true</code> if the polyline has been removed.
+     * Remove a polylgon from this isobath.
+     *
+     * @param toRemove The polygon to remove.
+     * @return <code>true</code> if the polylgon has been removed.
      */
     public synchronized boolean remove(final Polygon toRemove) {
         boolean removed=false;
@@ -710,7 +785,7 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Remote the polyline at the specified index.
+     * Remote the polylgon at the specified index.
      */
     private void remove(final int index) {
         bounds = null;
@@ -743,7 +818,7 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Set the polyline's resolution. This method try to interpolate new points in such a way
+     * Set the isoline's resolution. This method try to interpolate new points in such a way
      * that every point is spaced by exactly <code>resolution</code> units (usually meters)
      * from the previous one.
      *
@@ -951,7 +1026,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.1 2003/01/13 22:40:27 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.2 2003/01/14 23:10:44 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {

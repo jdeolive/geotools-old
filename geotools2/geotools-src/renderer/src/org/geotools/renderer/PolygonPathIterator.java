@@ -33,6 +33,7 @@
 package org.geotools.renderer;
 
 // Geometry
+import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
 
 // Collections
@@ -42,10 +43,10 @@ import java.util.Iterator;
 /**
  * Itérateur balayant les points d'un polygone ou d'un isobath.
  *
- * @version $Id: PathIterator.java,v 1.1 2003/01/13 22:40:50 desruisseaux Exp $
+ * @version $Id: PolygonPathIterator.java,v 1.1 2003/01/14 23:10:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class PathIterator implements java.awt.geom.PathIterator {
+final class PolygonPathIterator implements PathIterator {
     /**
      * Itérateur balayant les objets
      * {@link Polygon} à tracer.
@@ -81,7 +82,7 @@ final class PathIterator implements java.awt.geom.PathIterator {
      * @param polygone Polygone à tracer.
      * @param transform Transformation affine facultative (peut être nulle).
      */
-    public PathIterator(final Polygon polygon, final AffineTransform transform) {
+    public PolygonPathIterator(final Polygon polygon, final AffineTransform transform) {
         this.polygon   = polygon;
         this.polygons  = null;
         this.transform = transform;
@@ -98,7 +99,7 @@ final class PathIterator implements java.awt.geom.PathIterator {
      * @param polygons Itérateur balayant une liste d'objets {@link Polygons}.
      * @param transform Transformation affine facultative (peut être nulle).
      */
-    public PathIterator(final Iterator polygons, final AffineTransform transform) {
+    public PolygonPathIterator(final Iterator polygons, final AffineTransform transform) {
         this.polygons  = polygons;
         this.transform = transform;
         while (polygons.hasNext()) {
