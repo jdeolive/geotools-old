@@ -37,9 +37,7 @@ import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
-import org.geotools.feature.GeometryAttributeType;
 import org.geotools.feature.DefaultAttributeType;
-import org.geotools.feature.DefaultGeometryAttributeType;
 import org.geotools.filter.AttributeExpression;
 import org.geotools.filter.BetweenFilter;
 import org.geotools.filter.CompareFilter;
@@ -587,7 +585,7 @@ public class DataUtilities {
         for( int i=0; i<properties.length;i++){
             types[i]= featureType.getAttributeType( properties[i] );
             if( override != null && types[i] instanceof GeometryAttributeType){
-                types[i] = new DefaultGeometryAttributeType( (GeometryAttributeType) types[i], override );            
+                types[i] = new DefaultAttributeType.Geometric( (DefaultAttributeType.Geometric) types[i], override );            
             }
         }
         return FeatureTypeFactory.newFeatureType(

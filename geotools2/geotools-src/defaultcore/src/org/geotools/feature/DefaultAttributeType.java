@@ -42,7 +42,7 @@ import java.util.Map;
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
  * @author Ian Schneider
- * @version $Id: DefaultAttributeType.java,v 1.18 2003/11/20 21:30:56 jive Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.19 2003/11/20 22:14:00 jive Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -632,7 +632,7 @@ public class DefaultAttributeType implements AttributeType {
         }
     }
 
-    static class Geometric extends DefaultAttributeType
+    public static class Geometric extends DefaultAttributeType
         implements GeometryAttributeType {
         /** CoordianteSystem used by this GeometryAttributeType */
         protected CoordinateSystem coordinateSystem;
@@ -657,6 +657,8 @@ public class DefaultAttributeType implements AttributeType {
             if (coordinateSystem == null) {
                 coordinateSystem = LocalCoordinateSystem.CARTESIAN;
             }
+            geometryFactory = (coordinateSystem == LocalCoordinateSystem.CARTESIAN)
+                ? CSGeometryFactory.DEFAULT : new CSGeometryFactory(coordinateSystem);            
         }
 
         public Object getCoordinateSystem() {

@@ -25,7 +25,7 @@ import org.geotools.factory.FactoryFinder;
  * implement createAttributeType
  *
  * @author Ian Schneider, USDA-ARS
- * @version $Id: AttributeTypeFactory.java,v 1.5 2003/11/06 23:34:53 ianschneider Exp $
+ * @version $Id: AttributeTypeFactory.java,v 1.6 2003/11/20 22:13:59 jive Exp $
  */
 public abstract class AttributeTypeFactory implements Factory {
     /** The instance to be returned by {@link #defaultInstance()} */
@@ -72,7 +72,23 @@ public abstract class AttributeTypeFactory implements Factory {
         boolean isNillable,int fieldLength,Object defaultValue) {
         return defaultInstance().createAttributeType(name, clazz, isNillable,fieldLength, defaultValue);
     }
-    
+    /** Creates a new AttributeType with the addition of MetaData.
+     * <p>
+     * Currently MetaData is used to supply the CoordinateSequence
+     * when making a GeometryAttributeType.
+     * </p>
+     * @param name
+     * @param clazz
+     * @param isNillable
+     * @param fieldLength
+     * @param defaultValue
+     * @param metaData
+     * @return
+     */
+    public static AttributeType newAttributeType(String name, Class clazz,
+        boolean isNillable,int fieldLength,Object defaultValue, Object metaData) {
+        return defaultInstance().createAttributeType(name, clazz, isNillable,fieldLength, defaultValue, metaData);
+    }        
     /**
      * Creates a new AttributeType with the given name, class and nillable
      * values.
@@ -178,4 +194,17 @@ public abstract class AttributeTypeFactory implements Factory {
      */
     protected abstract AttributeType createAttributeType(String name,
         FeatureType type, boolean isNillable);
+        
+    /**
+     * Create a Feature AttributeType which holds the a Feature instance which
+     * is of the given FeatureType or null if any arbitrary Feature can be held.
+     *
+     * @param name The name of the AttributeType to be created.
+     * @param type The FeatureType that Features will validate against.
+     * @param isNillable if nulls are allowed in the new type.
+     * @param defaultValue
+     * @param metaData
+     * @return the new AttributeType
+     */        
+    protected abstract AttributeType createAttributeType( String name, Class type, boolean isNillable, int fieldLength, Object defaultValue, Object metaData );        
 }

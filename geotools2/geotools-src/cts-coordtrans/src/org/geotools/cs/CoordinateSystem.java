@@ -74,7 +74,7 @@ import java.rmi.RemoteException;
  * of the Earth.  This mapping from the mathematical space into real-world
  * locations is called a Datum.
  *
- * @version $Id: CoordinateSystem.java,v 1.10 2003/11/19 05:44:57 jive Exp $
+ * @version $Id: CoordinateSystem.java,v 1.11 2003/11/20 22:14:00 jive Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -125,29 +125,6 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
             }
         }
     }
-    
-    /**
-     * Retrieve GeometryFactory configured for use with this CoordianteSystem.
-     */
-    GeometryFactory geometryFactory = null;
-    public synchronized GeometryFactory getGeometryFactory() {
-        if( geometryFactory == null ){
-            geometryFactory = createGeometryFactory();                       
-        }
-        return geometryFactory;
-    }
-    /**
-     * Create a GeometryFactory for use with this CoordianteSystem.
-     * <p>
-     * Should construct Geomtry with the correct
-     * CoordinateSequenceFactory, and SRID value if appropriate.
-     * </p>
-     * <p>
-     * Strong recomendation for setting
-     * Geometry.setUserData( CoordinateSequence ) as well.
-     * </p>
-     */
-    protected abstract GeometryFactory createGeometryFactory();
     
     /**
      * Returns the dimension of the coordinate system.
