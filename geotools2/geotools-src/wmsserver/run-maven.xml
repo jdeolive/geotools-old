@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="changeme">
+    <target name="test">
+        
+        <exec executable="maven.bat">
+          <arg value="test"/> 
+        </exec>
+    </target>
+    
+    <target name="site">
+        <exec executable="maven.bat">
+          <arg value="site"/> 
+        </exec>
+    </target>
+    
+    <target name="compile">
+        <exec executable="maven.bat">
+          <arg value="java:compile"/> 
+        </exec>
+    </target>
+    
+    <target name="clean">
+        <exec executable="maven.bat">
+          <arg value="clean"/> 
+        </exec>
+    </target>
+    
+    <target name="war:webapp">
+      <exec executable="maven.bat">
+        <arg value="war:webapp"/> 
+      </exec>
+    </target>   
+    
+</project>
