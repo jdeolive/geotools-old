@@ -37,7 +37,6 @@ import javax.xml.parsers.*;
  * @author Chris Holmes, TOPP
  */
 public class DOMParserTest extends FilterTestSupport {
-
     /** Feature on which to preform tests */
     private Filter filter = null;
 
@@ -50,14 +49,13 @@ public class DOMParserTest extends FilterTestSupport {
 
     public DOMParserTest(String testName) {
         super(testName);
-        LOGGER.info("running DOMParserTests");
-        System.out.println("running DOMParserTests");
+        LOGGER.finer("running DOMParserTests");
         dataFolder = System.getProperty("dataFolder");
 
         if (dataFolder == null) {
             //then we are being run by maven
             dataFolder = System.getProperty("basedir");
-            dataFolder = "file:////" + dataFolder + "/tests/unit/testData"; 
+            dataFolder = "file:////" + dataFolder + "/tests/unit/testData";
             LOGGER.fine("data folder is " + dataFolder);
         }
     }
@@ -71,16 +69,16 @@ public class DOMParserTest extends FilterTestSupport {
         junit.textui.TestRunner.run(suite());
     }
 
-    public void setUp()  throws SchemaException, 
-    IllegalAttributeException {
-	super.setUp();
-	FeatureTypeFactory feaTypeFactory = FeatureTypeFactory.createTemplate(testSchema);
-	AttributeType doubleAttribute2 = attFactory.newAttributeType("testZeroDouble",
-                Double.class);
-	feaTypeFactory.addType(doubleAttribute2);
-	testSchema = feaTypeFactory.getFeatureType();
+    public void setUp() throws SchemaException, IllegalAttributeException {
+        super.setUp();
 
-	    GeometryFactory geomFac = new GeometryFactory();
+        FeatureTypeFactory feaTypeFactory = FeatureTypeFactory.createTemplate(testSchema);
+        AttributeType doubleAttribute2 = attFactory.newAttributeType("testZeroDouble",
+                Double.class);
+        feaTypeFactory.addType(doubleAttribute2);
+        testSchema = feaTypeFactory.getFeatureType();
+
+        GeometryFactory geomFac = new GeometryFactory();
 
         // Creates coordinates for the linestring
         Coordinate[] coords = new Coordinate[3];
@@ -100,9 +98,9 @@ public class DOMParserTest extends FilterTestSupport {
         attributes[7] = new Float(10000.4);
         attributes[8] = new Double(100000.5);
         attributes[9] = "test string data";
-	attributes[10] = new Double(0.0);
+        attributes[10] = new Double(0.0);
+
         // Creates the feature itself
-        
         testFeature = testSchema.create(attributes);
     }
 
@@ -188,22 +186,23 @@ public class DOMParserTest extends FilterTestSupport {
         LOGGER.fine("parsed filter is " + test);
     }
 
-	public void test28() throws Exception {
-		FidFilter filter = (FidFilter)parseDocumentFirst(dataFolder + "/test28.xml");
-		String[] fids = filter.getFids();
-                List list = Arrays.asList(fids);
-		assertEquals(3,fids.length);
-                assertTrue(list.contains("FID.3"));
-                assertTrue(list.contains("FID.2"));
-                assertTrue(list.contains("FID.1"));
-	}
+    public void test28() throws Exception {
+        FidFilter filter = (FidFilter) parseDocumentFirst(dataFolder
+                + "/test28.xml");
+        String[] fids = filter.getFids();
+        List list = Arrays.asList(fids);
+        assertEquals(3, fids.length);
+        assertTrue(list.contains("FID.3"));
+        assertTrue(list.contains("FID.2"));
+        assertTrue(list.contains("FID.1"));
+    }
 
     public Filter parseDocument(String uri) throws Exception {
         Filter filter = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document dom = db.parse(uri);
-        LOGGER.info("parsing " + uri);
+        LOGGER.fine("parsing " + uri);
 
         // first grab a filter node
         NodeList nodes = dom.getElementsByTagName("Filter");
@@ -216,15 +215,15 @@ public class DOMParserTest extends FilterTestSupport {
             for (int i = 0; i < list.getLength(); i++) {
                 child = list.item(i);
 
-                if ((child == null) ||
-                        (child.getNodeType() != Node.ELEMENT_NODE)) {
+                if ((child == null)
+                        || (child.getNodeType() != Node.ELEMENT_NODE)) {
                     continue;
                 }
 
                 filter = FilterDOMParser.parseFilter(child);
                 assertNotNull("Null filter returned", filter);
                 LOGGER.finer("filter: " + filter.getClass().toString());
-                LOGGER.info("parsed: " + filter.toString());
+                LOGGER.fine("parsed: " + filter.toString());
                 LOGGER.finer("result " + filter.contains(testFeature));
             }
         }
@@ -233,37 +232,38 @@ public class DOMParserTest extends FilterTestSupport {
     }
 
     public Filter parseDocumentFirst(String uri) throws Exception {
-	        Filter filter = null;
-	        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-	        DocumentBuilder db = dbf.newDocumentBuilder();
-	        Document dom = db.parse(uri);
-	        LOGGER.info("parsing " + uri);
+        Filter filter = null;
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document dom = db.parse(uri);
+        LOGGER.fine("parsing " + uri);
 
-	        // first grab a filter node
-	        NodeList nodes = dom.getElementsByTagName("Filter");
+        // first grab a filter node
+        NodeList nodes = dom.getElementsByTagName("Filter");
 
-	        for (int j = 0; j < nodes.getLength(); j++) {
-	            Element filterNode = (Element) nodes.item(j);
-	            NodeList list = filterNode.getChildNodes();
-	            Node child = null;
+        for (int j = 0; j < nodes.getLength(); j++) {
+            Element filterNode = (Element) nodes.item(j);
+            NodeList list = filterNode.getChildNodes();
+            Node child = null;
 
-	            for (int i = 0; i < list.getLength(); i++) {
-	                child = list.item(i);
+            for (int i = 0; i < list.getLength(); i++) {
+                child = list.item(i);
 
-	                if ((child == null) ||
-	                        (child.getNodeType() != Node.ELEMENT_NODE)) {
-	                    continue;
-	                }
+                if ((child == null)
+                        || (child.getNodeType() != Node.ELEMENT_NODE)) {
+                    continue;
+                }
 
-	                filter = FilterDOMParser.parseFilter(child);
-	                assertNotNull("Null filter returned", filter);
-	                LOGGER.finer("filter: " + filter.getClass().toString());
-	                LOGGER.info("parsed: " + filter.toString());
-	                LOGGER.finer("result " + filter.contains(testFeature));
-	                return filter;
-	            }
-	        }
+                filter = FilterDOMParser.parseFilter(child);
+                assertNotNull("Null filter returned", filter);
+                LOGGER.finer("filter: " + filter.getClass().toString());
+                LOGGER.fine("parsed: " + filter.toString());
+                LOGGER.finer("result " + filter.contains(testFeature));
 
-	        return filter;
+                return filter;
+            }
+        }
+
+        return filter;
     }
 }
