@@ -53,7 +53,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link CategoryList} implementation.
  *
- * @version $Id: CategoryListTest.java,v 1.4 2003/02/18 19:28:47 desruisseaux Exp $
+ * @version $Id: CategoryListTest.java,v 1.5 2003/05/01 22:57:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CategoryListTest extends TestCase {
@@ -291,7 +291,7 @@ public class CategoryListTest extends TestCase {
     /**
      * Compare two arrays. Special comparaison is performed for NaN values.
      */
-    static void compare(final double[] output0, final double[] output1, final double eps) {
+    public static void compare(final double[] output0, final double[] output1, final double eps) {
         assertEquals("length", output0.length, output1.length);
         for (int i=0; i<output0.length; i++) {
             final double expected = output0[i];

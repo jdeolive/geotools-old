@@ -83,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.12 2003/04/16 19:25:28 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.13 2003/05/01 22:57:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable {
@@ -159,6 +159,13 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
     private transient Category last;
 
     /**
+     * <code>true</code> if there is gaps between categories, or <code>false</code> otherwise.
+     * A gap is found if for example the range of value is [-9999 .. -9999] for the first
+     * category and [0 .. 1000] for the second one.
+     */
+    private final boolean hasGaps;
+
+    /**
      * Construct a category list using the specified array of categories.
      *
      * @param  categories The list of categories.
@@ -213,11 +220,12 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
          * Construct the array of Category.minimum values. During
          * the loop, we make sure there is no overlapping ranges.
          */
+        boolean hasGaps = false;
         minimums = new double[categories.length];
         for (int i=0; i<categories.length; i++) {
             final double minimum = minimums[i] = categories[i].minimum;
             if (i!=0) {
-                assert !(minimum < minimums[i-1]); // Use '!' to accept NaN.
+                assert !(minimum < minimums[i-1]) : minimum; // Use '!' to accept NaN.
                 if (compare(minimum, categories[i-1].maximum) <= 0) {
                     // Two categories have overlapping range;
                     // Format an error message...............
@@ -239,8 +247,13 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
                     throw new IllegalArgumentException(Resources.format(
                                 ResourceKeys.ERROR_RANGE_OVERLAP_$4, args));
                 }
+                // Check if there is a gap between this category and the previous one.
+                if (!Double.isNaN(minimum) && minimum!=categories[i-1].getMaximumExclusive()) {
+                    hasGaps = true;
+                }
             }
         }
+        this.hasGaps = hasGaps;
         /*
          * Search for the "nodata" category. This loop looks
          * for a qualitative category with the NaN value.
@@ -735,6 +748,9 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
         final String lineSeparator = System.getProperty("line.separator", "\n");
         StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(owner));
         buffer = formatRange(buffer, null);
+        if (hasGaps) {
+            buffer.append(" with gaps");
+        }
         buffer.append(lineSeparator);
         /*
          * Ecrit la liste des catégories en dessous.
@@ -1111,8 +1127,8 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
                 iterator.startPixels();
                 if (!iterator.finishedPixels()) do {
                     double value = iterator.getSampleDouble();
-                    if (!(value>=minimum && value<=maximum) &&  // Use '!' because of NaN.
-                          Double.doubleToRawLongBits(value) != rawBits)
+                    if (!(value>=minimum && value<=maximum) &&          // 'true' if value is NaN...
+                          Double.doubleToRawLongBits(value) != rawBits) // and the NaN bits changed.
                     {
                         // Category has changed. Find the new category.
                         category = getCategory(value);
@@ -1128,7 +1144,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
                             minTr = category.inverse.minimum;
                         }
                     }
-                    assert (category==nodata) ||
+                    assert hasGaps || (category==nodata) || // Disable assertion in those cases
                            (Double.isNaN(value) ? Double.doubleToRawLongBits(value) == rawBits
                                                 : (value>=minimum && value<=maximum)) : value;
                     value = tr.transform(value);

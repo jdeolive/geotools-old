@@ -100,10 +100,10 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the following categories:
  *
  * <blockquote>
- *   [0]       : no data
- *   [1]       : cloud
- *   [2]       : land
- *   [10..210] : temperature to be converted into Celsius degrees through a linear equation
+ * <pre>[0]      </pre> : no data<br>
+ * <pre>[1]      </pre> : cloud<br>
+ * <pre>[2]      </pre> : land<br>
+ * <pre>[10..210]</pre> : temperature to be converted into Celsius degrees through a linear equation<br>
  * </blockquote>
  *
  * In this example, sample values in range <code>[10..210]</code> defines a quantitative category,
@@ -111,7 +111,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.24 2003/04/29 18:28:47 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.25 2003/05/01 22:57:22 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -131,11 +131,10 @@ public class SampleDimension implements Serializable {
     private SampleDimension inverse;
 
     /**
-     * The category list for this sample dimension,
-     * or <code>null</code> if this sample dimension
-     * has no category.
+     * The category list for this sample dimension, or <code>null</code> if this sample
+     * dimension has no category. This field is read by {@link SampleTranscoder} only.
      */
-    private final CategoryList categories;
+    final CategoryList categories;
 
     /**
      * <code>true</code> if all categories in this sample dimension have been already scaled
@@ -1067,33 +1066,32 @@ public class SampleDimension implements Serializable {
     }
 
     /**
-     * If <code>true</code>, returns a <code>SampleDimension</code> with sample values
-     * equals to geophysics values. In any such <cite>geophysics sample dimension</cite>,
-     * {@link #getSampleToGeophysics sampleToGeophysics} is the identity transform by
-     * definition. The following rules hold:
+     * If <code>true</code>, returns the geophysics companion of this sample dimension. By
+     * definition, a <cite>geophysics sample dimension</cite> is a sample dimension with a
+     * {@linkplain #getRange range of sample values} transformed in such a way that the
+     * {@link #getSampleToGeophysics sampleToGeophysics} transform is always the identity
+     * transform, or <code>null</code> if no such transform existed in the first place. In
+     * other words, the range of sample values in all category maps directly the &quot;real
+     * world&quot; values without the need for any transformation.
+     * <br><br>
+     * <code>SampleDimension</code> objects live by pair: a <cite>geophysics</cite> one (used for
+     * computation) and a <cite>non-geophysics</cite> one (used for packing data, usually as
+     * integers). The <code>geo</code> argument specifies which object from the pair is wanted,
+     * regardless if this method is invoked on the geophysics or non-geophysics instance of the
+     * pair. In other words, the result of <code>geophysics(b1).geophysics(b2).geophysics(b3)</code>
+     * depends only on the value in the last call (<code>b3</code>).
      *
-     * <ul>
-     *   <li><code>geophysics(true).getSampleToGeophysics()</code> always returns the identity
-     *       transform.</li>
-     *   <li><code>geophysics(false)</code> returns the original sample dimension. In other words,
-     *       it cancel a previous call to <code>geophysics(true)</code>.</li>
-     *   <li>In <code>geophysics(b).geophysics(b)</code>, the second call has no effect
-     *       if <var>b</var> has the same value.</li>
-     *   <li><code>geophysics(true).getRange()</code> returns the range of geophysics values, as
-     *       transformed by the {@link #getSampleToGeophysics sampleToGeophysics} transform.</li>
-     *   <li><code>geophysics(false).getRange()</code> returns the range of original sample values
-     *       (usually integers).</li>
-     * </ul>
-     *
-     * @param  toGeophysics <code>true</code> to gets a sample dimension with an identity
-     *         transform, or <code>false</code> to get back the original sample dimension.
+     * @param  geo <code>true</code> to get a sample dimension with an identity
+     *         {@linkplain #getSampleToGeophysics transform} and a {@linkplain #getRange range of
+     *         sample values} matching the geophysics values, or <code>false</code> to get back the
+     *         original sample dimension.
      * @return The sample dimension. Never <code>null</code>, but may be <code>this</code>.
      *
      * @see Category#geophysics
      * @see org.geotools.gc.GridCoverage#geophysics
      */
-    public SampleDimension geophysics(final boolean toGeophysics) {
-        if (toGeophysics == isGeophysics) {
+    public SampleDimension geophysics(final boolean geo) {
+        if (geo == isGeophysics) {
             return this;
         }
         if (inverse == null) {
@@ -1256,96 +1254,14 @@ public class SampleDimension implements Serializable {
 
 
 
-    //////////////////////////////////////////////////////////////////////////////////////
-    ////////                                                                      ////////
-    ////////        REGISTRATION OF "GC_SampleTranscoding" IMAGE OPERATION        ////////
-    ////////                                                                      ////////
-    //////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * The operation descriptor for the "GC_SampleTranscoding" operation. This operation can
-     * apply the {@link SampleDimension#getSampleToGeophysics sampleToGeophysics}  transform
-     * on all pixels in all bands of an image. The transformations are supplied as a list of
-     * {@link SampleDimension}s, one for each band. The supplied <code>SampleDimension</code>s
-     * objects describe the categories in the <strong>source</strong> image. The target image
-     * will matches sample dimension
-     *
-     *     <code>{@link SampleDimension#geophysics geophysics}(!isGeophysics)</code>,
-     *
-     * where <code>isGeophysics</code> is the previous state of the sample dimension.
-     */
-    private static final class Descriptor extends OperationDescriptorImpl {
-        /**
-         * Construct the descriptor.
-         */
-        public Descriptor() {
-            super(new String[][]{{"GlobalName",  "GC_SampleTranscoding"},
-                                 {"LocalName",   "GC_SampleTranscoding"},
-                                 {"Vendor",      "geotools.org"},
-                                 {"Description", "Transformation from sample to geophysics values"},
-                                 {"DocURL",      "http://modules.geotools.org/gcs-coverage"},
-                                 {"Version",     "1.0"}},
-                  new String[]   {RenderedRegistryMode.MODE_NAME}, 1,
-                  new String[]   {"sampleDimensions"},      // Argument names
-                  new Class []   {SampleDimension[].class}, // Argument classes
-                  new Object[]   {NO_PARAMETER_DEFAULT},    // Default values for parameters,
-                  null // No restriction on valid parameter values.
-            );
-        }
-
-        /**
-         * Returne <code>true</code> if the parameters are valids. This implementation check
-         * that the number of bands in the source image is equals to the number of supplied
-         * sample dimensions, and that all sample dimensions has categories.
-         */
-        protected boolean validateParameters(final String modeName,
-                                             final ParameterBlock args,
-                                             final StringBuffer msg)
-        {
-            if (!super.validateParameters(modeName, args, msg)) {
-                return false;
-            }
-            final RenderedImage  source = (RenderedImage)     args.getSource(0);
-            final SampleDimension[] dim = (SampleDimension[]) args.getObjectParameter(0);
-            final int numBands = source.getSampleModel().getNumBands();
-            if (numBands != dim.length) {
-                msg.append(Resources.format(ResourceKeys.ERROR_NUMBER_OF_BANDS_MISMATCH_$3,
-                        new Integer(numBands), new Integer(dim.length), "SampleDimension"));
-                return false;
-            }
-            for (int i=0; i<numBands; i++) {
-                if (dim[i].categories == null) {
-                    msg.append(Resources.format(ResourceKeys.ERROR_BAD_PARAMETER_$2,
-                                                "sampleDimensions["+i+"].categories", null));
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
+    /////////////////////////////////////////////////////////////////////////////////
+    ////////                                                                 ////////
+    ////////        REGISTRATION OF "SampleTranscode" IMAGE OPERATION        ////////
+    ////////                                                                 ////////
+    /////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * The {@link RenderedImageFactory} for the "GC_SampleTranscoding" operation.
-     */
-    private static final class CRIF extends CRIFImpl {
-        /**
-         * Creates a {@link RenderedImage} representing the results of an imaging
-         * operation for a given {@link ParameterBlock} and {@link RenderingHints}.
-         */
-        public RenderedImage create(final ParameterBlock paramBlock,
-                                    final RenderingHints renderHints)
-        {
-            final RenderedImage  source = (RenderedImage) paramBlock.getSource(0);
-            final SampleDimension[] dim = (SampleDimension[]) paramBlock.getObjectParameter(0);
-            final CategoryList[]   list = new CategoryList[dim.length];
-            for (int i=0; i<list.length; i++) {
-                list[i] = dim[i].categories;
-            }
-            return ImageAdapter.getInstance(source, list, JAI.getDefaultInstance());
-        }
-    }
-
-    /**
-     * Register the "GC_SampleTranscoding" image operation.
+     * Register the "SampleTranscode" image operation.
      * Registration is done when the class is first loaded.
      *
      * @task REVISIT: This static initializer will imply immediate class loading of a lot of
@@ -1370,19 +1286,7 @@ public class SampleDimension implements Serializable {
      *                of loading GCS classes.
      */
     static {
-        final OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
-        try {
-            registry.registerDescriptor(new Descriptor());
-            registry.registerFactory(RenderedRegistryMode.MODE_NAME, "GC_SampleTranscoding",
-                                     "geotools.org", new CRIF());
-        } catch (IllegalArgumentException exception) {
-            final LogRecord record = Resources.getResources(null).getLogRecord(Level.SEVERE,
-                   ResourceKeys.ERROR_CANT_REGISTER_JAI_OPERATION_$1, "GC_SampleTranscoding");
-            record.setSourceClassName("SampleDimension");
-            record.setSourceMethodName("<classinit>");
-            record.setThrown(exception);
-            Logger.getLogger("org.geotools.gc").log(record);
-        }
+        SampleTranscoder.register(JAI.getDefaultInstance());
     }
 
 

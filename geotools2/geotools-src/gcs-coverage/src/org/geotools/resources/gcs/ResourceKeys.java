@@ -48,6 +48,7 @@ public interface ResourceKeys
     public static final int PALETTE                              =    18;
     public static final int POINT_COUNT_$3                       =    19;
     public static final int RED                                  =    20;
+    public static final int SAMPLE_TRANSCODE_$3                  =    77;
     public static final int SATURATION                           =    21;
     public static final int TRANSPARENCY                         =    22;
     public static final int TRUE                                 =    76;

@@ -41,6 +41,8 @@ import org.geotools.gc.GridRange;
 import org.geotools.gc.GridGeometry;
 import org.geotools.gc.GridCoverage;
 import org.geotools.ct.MathTransform;
+import org.geotools.ct.MathTransform1D;
+import org.geotools.cv.SampleDimension;
 import org.geotools.gc.InvalidGridGeometryException;
 
 
@@ -48,7 +50,7 @@ import org.geotools.gc.InvalidGridGeometryException;
  * A set of utilities methods for the Grid Coverage package. Those methods are not really
  * rigorous; must of them should be seen as temporary implementations.
  *
- * @version $Id: GCSUtilities.java,v 1.4 2003/03/14 12:35:48 desruisseaux Exp $
+ * @version $Id: GCSUtilities.java,v 1.5 2003/05/01 22:57:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GCSUtilities {
@@ -57,6 +59,12 @@ public final class GCSUtilities {
      */
     private GCSUtilities() {
     }
+
+    ///////////////////////////////////////////////////////////////////
+    ////////                                                   ////////
+    ////////        GridGeometry / GridRange / Envelope        ////////
+    ////////                                                   ////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * Returns <code>true</code> if the specified geometry has a valid grid range.
@@ -113,6 +121,30 @@ public final class GCSUtilities {
             upper[i] = (int)Math.ceil (envelope.getMaximum(i));
         }
         return new GridRange(lower, upper);
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////////////
+    ////////                                                   ////////
+    ////////    GridRange / SampleDimension / RenderedImage    ////////
+    ////////                                                   ////////
+    ///////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns <code>true</code> if at least one of the specified sample dimensions has a
+     * {@linkplain SampleDimension#getSampleToGeophysics sample to geophysics} transform
+     * which is not the identity transform.
+     */
+    public static boolean hasTransform(final SampleDimension[] sampleDimensions) {
+        for (int i=sampleDimensions.length; --i>=0;) {
+            MathTransform1D tr = sampleDimensions[i].geophysics(false).getSampleToGeophysics();
+            if (tr!=null && !tr.isIdentity()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

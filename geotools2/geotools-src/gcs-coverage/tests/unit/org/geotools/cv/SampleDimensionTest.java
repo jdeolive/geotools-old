@@ -54,7 +54,7 @@ import junit.framework.TestSuite;
  * rely on {@link CategoryList} for many of its work, many <code>SampleDimension</code>
  * tests are actually <code>CategoryList</code> tests.
  *
- * @version $Id: SampleDimensionTest.java,v 1.7 2003/04/13 17:21:19 desruisseaux Exp $
+ * @version $Id: SampleDimensionTest.java,v 1.8 2003/05/01 22:57:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class SampleDimensionTest extends TestCase {
@@ -171,38 +171,37 @@ public class SampleDimensionTest extends TestCase {
     }
 
     /**
-     * Test the creation of an {@link ImageAdapter} using the image
-     * operation registry. This allow to apply the operation in the
-     * same way than other JAI operations, without any need for a
-     * direct access to package-private method.
+     * Test the creation of an {@link SampleTranscoder} using the image operation registry.
+     * This allow to apply the operation in the same way than other JAI operations, without
+     * any need for a direct access to package-private method.
      */
-    public void testImageAdapterCreation() {
+    public void testSampleTranscoderCreation() {
         final OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
-        assertNotNull(registry.getDescriptor("rendered", "GC_SampleTranscoding"));
+        assertNotNull(registry.getDescriptor("rendered", SampleTranscoder.OPERATION_NAME));
 
         final BufferedImage       dummy = new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
-        final ParameterBlockJAI   param = new ParameterBlockJAI("GC_SampleTranscoding");
+        final ParameterBlockJAI   param = new ParameterBlockJAI(SampleTranscoder.OPERATION_NAME);
         final ParameterListDescriptor d = param.getParameterListDescriptor();
         assertTrue(d.getParamClasses()[0].equals( SampleDimension[].class ));
 
         try {
-            JAI.create("GC_SampleTranscoding", param);
+            JAI.create(SampleTranscoder.OPERATION_NAME, param);
             fail();
         } catch (IllegalArgumentException expected) {
-            // This is the expected exception: source required
+            // This is the expected exception: source required.
         }
 
         param.addSource(dummy);
         try {
-            JAI.create("GC_SampleTranscoding", param);
+            JAI.create(SampleTranscoder.OPERATION_NAME, param);
             fail();
         } catch (IllegalArgumentException expected) {
-            // This is the expected exception: source required
+            // This is the expected exception: parameter required.
         }
 
         param.setParameter("sampleDimensions", new SampleDimension[] {test});
-        final RenderedOp op = JAI.create("GC_SampleTranscoding", param);
-        assertTrue(op.getRendering() instanceof ImageAdapter);
+        final RenderedOp op = JAI.create(SampleTranscoder.OPERATION_NAME, param);
+        assertTrue(op.getRendering() instanceof SampleTranscoder);
     }
 
     /**

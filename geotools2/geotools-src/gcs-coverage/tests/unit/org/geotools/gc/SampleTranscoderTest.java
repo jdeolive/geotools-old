@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.cv;
+package org.geotools.gc;
 
 // J2SE and JAI dependencies
 import java.util.Random;
@@ -38,8 +38,9 @@ import java.awt.image.*;
 import javax.media.jai.*;
 
 // Geotools dependencies
-import org.geotools.cv.*;
+import org.geotools.cs.*;
 import org.geotools.ct.*;
+import org.geotools.cv.*;
 
 // JUnit dependencies
 import junit.framework.Test;
@@ -48,13 +49,13 @@ import junit.framework.TestSuite;
 
 
 /**
- * Test the {@link ImageAdapter} implementation. Image adapter depends
+ * Test the {@link SampleTranscoder} implementation. Image adapter depends
  * heavily on {@link CategoryList}, so this one should be tested first.
  *
- * @version $Id: ImageAdapterTest.java,v 1.4 2002/08/10 12:35:26 desruisseaux Exp $
+ * @version $Id: SampleTranscoderTest.java,v 1.1 2003/05/01 22:57:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class ImageAdapterTest extends TestCase {
+public class SampleTranscoderTest extends TestCase {
     /**
      * Small value for comparaisons. Remind: transformed values are stored in a new image
      * using the 'float' data type. So we can't expected as much precision than with a
@@ -68,26 +69,28 @@ public class ImageAdapterTest extends TestCase {
     private Random random;
 
     /**
-     * Instance of {@link JAI} to use for image operations.
+     * A sample dimension for a band.
      */
-    private JAI jai;
+    private SampleDimension band1;
 
     /**
-     * A category list for a band.
+     * Run the suite from the command line.
      */
-    private CategoryList band1;
+    public static void main(final String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 
     /**
      * Returns the test suite.
      */
     public static Test suite() {
-        return new TestSuite(ImageAdapterTest.class);
+        return new TestSuite(SampleTranscoderTest.class);
     }
     
     /**
      * Constructs a test case with the given name.
      */
-    public ImageAdapterTest(final String name) {
+    public SampleTranscoderTest(final String name) {
         super(name);
     }
 
@@ -97,8 +100,7 @@ public class ImageAdapterTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         random = new Random();
-        jai = JAI.getDefaultInstance();
-        band1 = new CategoryList(new Category[] {
+        band1 = new SampleDimension(new Category[] {
             new Category("No data",     null, 0),
             new Category("Land",        null, 1),
             new Category("Clouds",      null, 2),
@@ -112,14 +114,14 @@ public class ImageAdapterTest extends TestCase {
      * The the transformation using a random raster with only one band.
      */
     public void testOneBand() throws TransformException {
-        assertTrue(testOneBand(1,  0) instanceof BufferedImage);
-        assertTrue(testOneBand(.8, 2) instanceof ImageAdapter); // TODO: Should be RenderedOp
-        assertTrue(testOneBand(band1) instanceof ImageAdapter);
+        testOneBand(1,  0);
+        testOneBand(.8, 2);
+        testOneBand(band1);
     }
 
     /**
      * The the transformation using a random raster with only one band.
-     * A category list with only one category will be used.
+     * A sample dimension with only one category will be used.
      *
      * @param  scale The scale factor.
      * @param  offset The offset value.
@@ -127,16 +129,16 @@ public class ImageAdapterTest extends TestCase {
      */
     private RenderedImage testOneBand(double scale, double offset) throws TransformException {
         final Category category = new Category("Values", null, 0, 256, scale, offset);
-        return testOneBand(new CategoryList(new Category[] {category}, null));
+        return testOneBand(new SampleDimension(new Category[] {category}, null));
     }
 
     /**
      * The the transformation using a random raster with only one band.
      *
-     * @param  band The list of categories for the only band.
+     * @param  band The sample dimension for the only band.
      * @return The transformed image.
      */
-    private RenderedImage testOneBand(final CategoryList band) throws TransformException {
+    private RenderedImage testOneBand(final SampleDimension band) throws TransformException {
         final int SIZE = 64;
         /*
          * Construct a 64x64 image with random values.
@@ -148,13 +150,17 @@ public class ImageAdapterTest extends TestCase {
         for (int i=0; i<array.length; i++) {
             array[i] = (byte) random.nextInt(161);
         }
+        GridCoverage coverage;
+        coverage = new GridCoverage("Test", source, GeographicCoordinateSystem.WGS84,
+                                    MathTransform2D.IDENTITY, new SampleDimension[]{band},
+                                    null, null);
         /*
-         * Apply the operation. The ImageAdapter class is suppose to transform our
+         * Apply the operation. The SampleTranscoder class is suppose to transform our
          * integers into real-world values. Check if the result use floating-points.
          */
-        final RenderedImage target=ImageAdapter.getInstance(source, new CategoryList[]{band}, jai);
+        final RenderedImage target = coverage.geophysics(true).getRenderedImage();
         assertEquals(DataBuffer.TYPE_BYTE, source.getSampleModel().getDataType());
-        if (source != target) {
+        if (coverage.getRenderedImage() != target) {
             assertEquals(DataBuffer.TYPE_FLOAT, target.getSampleModel().getDataType());
         }
         /*
@@ -162,18 +168,21 @@ public class ImageAdapterTest extends TestCase {
          */
         double[] sourceData = source.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
         double[] targetData = target.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
-        band.transform(sourceData, 0, sourceData, 0, sourceData.length);
+        band.getSampleToGeophysics().transform(sourceData, 0, sourceData, 0, sourceData.length);
         CategoryListTest.compare(sourceData, targetData, EPS);
         /*
          * Construct a new image with the resulting data, and apply an inverse transformation.
          * Compare the resulting values with the original data.
          */
         RenderedImage back = PlanarImage.wrapRenderedImage(target).getAsBufferedImage();
-        back = ImageAdapter.getInstance(target, new CategoryList[]{(CategoryList)band.inverse()}, jai);
+        coverage = new GridCoverage("Test", back, GeographicCoordinateSystem.WGS84,
+                                    MathTransform2D.IDENTITY,
+                                    new SampleDimension[]{band.geophysics(true)}, null, null);
+        back = coverage.geophysics(false).getRenderedImage();
         assertEquals(DataBuffer.TYPE_BYTE, back.getSampleModel().getDataType());
         sourceData = source.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
         targetData =   back.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
-        CategoryListTest.compare(sourceData, targetData, EPS);
+        CategoryListTest.compare(sourceData, targetData, 1+EPS);
         /*
          * Returns the "geophysics view" of the image.
          */

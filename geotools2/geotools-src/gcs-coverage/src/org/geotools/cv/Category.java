@@ -44,6 +44,7 @@ import java.io.ObjectStreamException;
 
 // JAI dependencies
 import javax.media.jai.util.Range;
+import javax.media.jai.operator.PiecewiseDescriptor; // For Javadoc
 
 // OpenGIS dependencies
 import org.opengis.cv.CV_SampleDimension;
@@ -93,12 +94,18 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * More general equation are allowed. For example, <cite>SeaWiFS</cite> images
  * use a logarithmic transform. General transformations are expressed with a
- * {@link MathTransform1D} object.
+ * {@link MathTransform1D} object. In the special case where the transformation
+ * is a linear one (as in the formula above), then a <code>Category</code> object
+ * may be understood as one breakpoint in the JAI's {@linkplain PiecewiseDescriptor
+ * piecewise} operation.
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.13 2003/04/17 11:39:34 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.14 2003/05/01 22:57:22 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see SampleDimension
+ * @see PiecewiseDescriptor
  */
 public class Category implements Serializable {
     /**
@@ -163,6 +170,8 @@ public class Category implements Serializable {
      * If this category is an instance of <code>GeophysicsCategory</code>,
      * then this field is the maximal geophysics value in this category.
      * For qualitative categories, the geophysics value is one of <code>NaN</code> values.
+     *
+     * @see #getMaximumExclusive
      */
     final double maximum;
 
@@ -733,6 +742,17 @@ public class Category implements Serializable {
     }
 
     /**
+     * Returns the maximum value, exclusive. This is different from
+     * the {@link #maximum} field, which contains an inclusive value.
+     */
+    final double getMaximumExclusive() {
+        final Range range = getRange();
+        return doubleValue(range.getElementClass(),
+                           range.getMaxValue(),
+                           range.isMaxIncluded() ? +1 : 0);
+    }
+
+    /**
      * Returns a transform from sample values to geophysics values. If this category
      * is not a quantitative one, then this method returns <code>null</code>.
      */
@@ -805,35 +825,34 @@ public class Category implements Serializable {
     }
 
     /**
-     * If <code>true</code>, returns a category with sample values equals to geophysics values. In
-     * any such <cite>geophysics category</cite>, {@link #getSampleToGeophysics sampleToGeophysics}
-     * is the identity transform by definition. The following rules hold:
+     * If <code>true</code>, returns the geophysics companion of this category.   By definition, a
+     * <cite>geophysics category</cite> is a category with a {@linkplain #getRange range of sample
+     * values} transformed in such a way that the {@link #getSampleToGeophysics sampleToGeophysics}
+     * transform is always the identity transform, or <code>null</code> if no such transform existed
+     * in the first place. In other words, the range of sample values in a geophysics category maps
+     * directly the &quot;real world&quot; values without the need for any transformation.
+     * <br><br>
+     * <code>Category</code> objects live by pair: a <cite>geophysics</cite> one (used for
+     * computation) and a <cite>non-geophysics</cite> one (used for packing data, usually as
+     * integers). The <code>geo</code> argument specifies which object from the pair is wanted,
+     * regardless if this method is invoked on the geophysics or non-geophysics instance of the
+     * pair. In other words, the result of <code>geophysics(b1).geophysics(b2).geophysics(b3)</code>
+     * depends only on the value in the last call (<code>b3</code>).
+     * <br><br>
+     * Newly constructed categories are non-geophysics (i.e. a {@linkplain #getSampleToGeophysics
+     * sample to geophysics} transform must be applied in order to gets geophysics values).
      *
-     * <ul>
-     *   <li><code>geophysics(true).getSampleToGeophysics()</code> always returns the identity
-     *       transform, or <code>null</code> if this category is a qualitative one.</li>
-     *   <li><code>geophysics(false)</code> returns the original category. In other words,
-     *       it cancel a previous call to <code>geophysics(true)</code>.</li>
-     *   <li>In <code>geophysics(b).geophysics(b)</code>, the second call has no effect
-     *       if <var>b</var> has the same value.</li>
-     *   <li><code>geophysics(false)</code> has no effect if <code>geophysics(true)</code>
-     *       has never been invoked. In other words, the default state after {@link Category}
-     *       construction is <code>geophysics(false)</code>.</li>
-     *   <li><code>geophysics(true).getRange()</code> returns the range of geophysics values, as
-     *       transformed by the {@link #getSampleToGeophysics sampleToGeophysics} transform.</li>
-     *   <li><code>geophysics(false).getRange()</code> returns the range of original sample values
-     *       (usually integers).</li>
-     * </ul>
-     *
-     * @param  toGeophysics <code>true</code> to gets a category with sample matching geophysics
-     *         values, or <code>false</code> to get back the original category.
+     * @param  geo <code>true</code> to get a category with an identity
+     *         {@linkplain #getSampleToGeophysics transform} and a {@linkplain #getRange range of
+     *         sample values} matching the geophysics values, or <code>false</code> to get back the
+     *         original category (the one constructed with <code>new Category(...)</code>).
      * @return The category. Never <code>null</code>, but may be <code>this</code>.
      *
      * @see SampleDimension#geophysics
      * @see org.geotools.gc.GridCoverage#geophysics
      */
-    public Category geophysics(final boolean toGeophysics) {
-        return toGeophysics ? inverse : this;
+    public Category geophysics(final boolean geo) {
+        return geo ? inverse : this;
     }
     
     /**
@@ -932,7 +951,7 @@ public class Category implements Serializable {
      * A category with a localized name. Used for the pre-defined categories
      * {@link #NODATA}, {@link #FALSE} and {@link #TRUE}.
      *
-     * @version $Id: Category.java,v 1.13 2003/04/17 11:39:34 desruisseaux Exp $
+     * @version $Id: Category.java,v 1.14 2003/05/01 22:57:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Localized extends Category {

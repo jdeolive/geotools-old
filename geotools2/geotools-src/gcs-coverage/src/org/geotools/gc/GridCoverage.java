@@ -39,21 +39,29 @@ package org.geotools.gc;
 import java.awt.Color;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
+import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.SampleModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.awt.image.WritableRenderedImage;
 import java.awt.image.renderable.ParameterBlock;
+import java.awt.image.PixelInterleavedSampleModel;
+import java.awt.image.ComponentSampleModel;
+import java.awt.image.IndexColorModel;
 
 // Java Advanced Imaging
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
+import javax.media.jai.NullOpImage;
 import javax.media.jai.PlanarImage;
+import javax.media.jai.ImageLayout;
 import javax.media.jai.ImageFunction;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.util.CaselessStringKey;
+import javax.media.jai.operator.PiecewiseDescriptor;
 import javax.media.jai.remote.SerializableRenderedImage;
 
 // Geometry
@@ -81,6 +89,10 @@ import java.awt.event.WindowAdapter;
 // Miscellaneous
 import java.util.Date;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
 import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.rmi.RemoteException;
@@ -103,6 +115,7 @@ import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.AxisOrientation;
 import org.geotools.ct.MathTransform;
+import org.geotools.ct.MathTransform1D;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.cv.Coverage;
@@ -120,6 +133,7 @@ import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.GCSUtilities;
+import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -136,7 +150,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.15 2003/04/29 18:28:49 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.16 2003/05/01 22:57:22 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -959,56 +973,168 @@ public class GridCoverage extends Coverage {
     }
 
     /**
-     * If <code>true</code>, returns a <code>GridCoverage</code> with sample values
-     * equals to geophysics values. In any such <cite>geophysics grid coverage</cite>,
-     * {@link SampleDimension#getSampleToGeophysics sampleToGeophysics} is the identity
-     * transform for all bands. The following rules hold:
+     * If <code>true</code>, returns the geophysics companion of this grid coverage. In a
+     * <cite>geophysics grid coverage</cite>, all sample values are equals to geophysics
+     * (&quot;real world&quot;) values without the need for any transformation. In such
+     * geophysics coverage, the {@linkplain SampleDimension#getSampleToGeophysics sample
+     * to geophysics} transform is the identity transform for all sample dimensions.
+     * &quot;No data&quot; values are expressed by {@linkplain Float#NaN NaN} numbers.
+     * <br><br>
+     * This method may be understood as applying the JAI's {@linkplain PiecewiseDescriptor
+     * piecewise} operation with breakpoints specified by the {@link Category} objects in
+     * each sample dimension. However, it is more general in that the transformation specified
+     * with each breakpoint doesn't need to be linear.
+     * <br><br>
+     * <code>GridCoverage</code> objects live by pair: a <cite>geophysics</cite> one (used for
+     * computation) and a <cite>non-geophysics</cite> one (used for packing data, usually as
+     * integers). The <code>geo</code> argument specifies which object from the pair is wanted,
+     * regardless if this method is invoked on the geophysics or non-geophysics instance of the
+     * pair. In other words, the result of <code>geophysics(b1).geophysics(b2).geophysics(b3)</code>
+     * depends only on the value in the last call (<code>b3</code>).
      *
-     * <ul>
-     *   <li><code>geophysics(true).evaluate(...)</code> returns directly the geophysics
-     *       values (no transformation needed).</li>
-     *   <li><code>geophysics(false)</code> returns the original grid coverage. In other words,
-     *       it cancel a previous call to <code>geophysics(true)</code>.</li>
-     *   <li>In <code>geophysics(b).geophysics(b)</code>, the second call has no effect
-     *       if <var>b</var> has the same value.</li>
-     * </ul>
-     *
-     * @param  toGeophysics <code>true</code> to gets a grid coverage wrapping geophysics
-     *         values, or <code>false</code> to get back the original grid coverage.  The
-     *         original grid coverage usually store sample as integers, which is faster
-     *         to display.
+     * @param  geo <code>true</code> to get a grid coverage with sample values equals to geophysics
+     *         values, or <code>false</code> to get the packed version.
      * @return The grid coverage. Never <code>null</code>, but may be <code>this</code>.
      *
      * @see SampleDimension#geophysics
      * @see Category#geophysics
+     * @see PiecewiseDescriptor
+     *
+     * @task HACK: IndexColorModel seems to badly choose its sample model. As of JDK 1.4-rc1, it
+     *             construct a ComponentSampleModel, which is drawn very slowly to the screen. A
+     *             much faster sample model is PixelInterleavedSampleModel,  which is the sample
+     *             model used by BufferedImage for TYPE_BYTE_INDEXED. We should check if this is
+     *             fixed in future J2SE release.
+     *
+     * @task HACK: This method provides an optimisation for the case of a strictly linear
+     *             transformation: it use the JAI's "Rescale" operation, which is hardware
+     *             accelerated. Unfortunatly, bug #4726416 prevent us to use this optimisation
+     *             here. The optimisation is temporarly disabled, waiting for Sun to fix the
+     *             bug. It should be fixed in JAI 1.1.2.
      */
-    public GridCoverage geophysics(final boolean toGeophysics) {
-        if (toGeophysics == isGeophysics) {
+    public GridCoverage geophysics(final boolean geo) {
+        if (geo == isGeophysics) {
             return this;
         }
-        if (inverse == null) {
-            PlanarImage       inverseImage = image;
-            SampleDimension[] inverseBands = sampleDimensions;
-            /*
-             * Transcode the image sample values. The "GC_SampleTranscoding" is registered
-             * in the org.geotools.cv package in the SampleDimension class.
-             */
-            ParameterBlock param = new ParameterBlock().addSource(inverseImage).add(inverseBands);
-            inverseImage = JAI.create("GC_SampleTranscoding", param).getRendering();
-            if (inverseImage == image) {
-                inverse = this;
-            } else {
-                inverseBands = (SampleDimension[]) inverseBands.clone();
-                for (int i=0; i<inverseBands.length; i++) {
-                    inverseBands[i] = inverseBands[i].geophysics(toGeophysics);
+        if (inverse != null) {
+            return inverse;
+        }
+        if (!GCSUtilities.hasTransform(sampleDimensions)) {
+            return inverse=this;
+        }
+        /*
+         * STEP 1 - Gets the source image and prepare the target sample dimensions.
+         *          As a slight optimisation, we skip the "Null" operations since
+         *          such image may be the result of some "Colormap" operation.
+         */
+        PlanarImage image = this.image;
+        while (image instanceof NullOpImage) {
+            final NullOpImage op = (NullOpImage) image;
+            if (op.getNumSources() != 1) {
+                break;
+            }
+            image = op.getSourceImage(0);
+        }
+        final int                  numBands = image.getNumBands();
+        final int              visibleBand  = GCSUtilities.getVisibleBand(image);
+        final SampleDimension[] targetBands = (SampleDimension[]) sampleDimensions.clone();
+        assert targetBands.length == numBands : targetBands.length;
+        for (int i=0; i<targetBands.length; i++) {
+            targetBands[i] = targetBands[i].geophysics(geo);
+        }
+        /*
+         * STEP 2 - Compute the layout for the destination RenderedImage. We will use the same
+         *          layout than the parent image, except for tile size if the parent image had
+         *          only one big tile, and for the color model and sample model  (since we are
+         *          reformating data in the process of this operation).
+         */
+        ImageLayout layout = ImageUtilities.getImageLayout(image);
+        ColorModel  colors = targetBands[visibleBand].getColorModel(visibleBand, numBands);
+        SampleModel  model = colors.createCompatibleSampleModel(layout.getTileWidth (image),
+                                                                layout.getTileHeight(image));
+        if (colors instanceof IndexColorModel && model.getClass().equals(ComponentSampleModel.class))
+        {
+            // There is the 'IndexColorModel' hack (see method description).
+            final int w = model.getWidth();
+            final int h = model.getHeight();
+            model = new PixelInterleavedSampleModel(colors.getTransferType(), w,h,1,w, new int[1]);
+        }
+        layout = layout.setSampleModel(model).setColorModel(colors);
+        ParameterBlock param = new ParameterBlock().addSource(image);
+        String operation = null; // Will be set in step 3 or 4.
+        /*
+         * STEP 3 - Check if the transcoding could be done with the JAI's "Lookup" operation.
+         *          This is probably the fatest operation available for 'geophysics(true)'.
+         */
+        
+        /*
+         * STEP 4 - Check if the transcoding could be done with one of "Rescale" or "Piecewise"
+         *          JAI operations.  Together with the previous step, this code try to performs
+         *          sample transcoding using the first of the following operations which can be
+         *          applied:  (identity), "Lookup", "Rescale", "Piecewise"  and in last ressort
+         *          our generic (and slower) "SampleTranscode".
+         */
+        if (operation==null) try {
+            boolean canRescale    = true; // 'true' if can be done with a "Rescale" operation.
+            boolean canPiecewise  = true; // 'true' if can be done with a "Piecewise" operation.
+            final double[] scale  = new double[numBands];
+            final double[] offset = new double[numBands];
+            for (int i=0; i<numBands; i++) {
+                final SampleDimension  sd = sampleDimensions[i].geophysics(false);
+                MathTransform1D transform = sd.getSampleToGeophysics();
+                if (!geo) {
+                    // We are going to convert geophysics values to packed one.
+                    transform = (MathTransform1D) transform.inverse();
                 }
-                inverse = new GridCoverage(getName(null), inverseImage,
-                                           coordinateSystem, getGridGeometry(), null,
-                                           inverseBands, new GridCoverage[]{this}, null);
-                inverse = interpolate(inverse);
-                inverse.inverse = this;
+                final List categories = sd.getCategories();
+                if (categories.size() == 1) {
+                    offset[i] = transform.transform(0);
+                    scale [i] = transform.derivative(Double.NaN);
+                    if (Double.isNaN(scale[i]) || Double.isNaN(offset[i])) {
+                        canRescale = false;
+                    }
+                } else {
+                    canRescale = false;
+                }
+            }
+            if (canRescale && false) { // TODO: Here is the optimisation that we would like to enable.
+                param = param.add(scale).add(offset);
+                operation = "Rescale";
+            } else if (canPiecewise) {
+                // TODO
             }
         }
+        catch (TransformException exception) {
+            // At least one band don't use a linear relation.
+            // Ignore the exception and fallback on the general case.
+        }
+        /*
+         * Transcode the image sample values. The "SampleTranscode" operation is
+         * registered in the org.geotools.cv package in the SampleDimension class.
+         */
+        if (operation == null) {
+            param = param.add(sampleDimensions);
+            operation = "org.geotools.cv.SampleTranscode";
+        }
+        final Logger logger = Logger.getLogger("org.geotools.gc");
+        if (logger.isLoggable(Level.FINE)) {
+            // Log a message using the same level (FINE) than GridCoverageProcessor.
+            final int        index = operation.lastIndexOf('.');
+            final String shortName = (index>=0) ? operation.substring(index+1) : operation;
+            final Locale    locale = null;
+            final LogRecord record = Resources.getResources(locale).getLogRecord(Level.FINE,
+                                     ResourceKeys.SAMPLE_TRANSCODE_$3, new Object[] {
+                                     getName(locale), new Integer(geo ? 1 : 0), shortName});
+            record.setSourceClassName("GridCoverage");
+            record.setSourceMethodName("geophysics");
+            logger.log(record);
+        }
+        inverse = new GridCoverage(getName(null), JAI.create(operation, param,
+                                   new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout)),
+                                   coordinateSystem, getGridGeometry(), null,
+                                   targetBands, new GridCoverage[]{this}, null);
+        inverse = interpolate(inverse);
+        inverse.inverse = this;
         return inverse;
     }
 
@@ -1063,7 +1189,7 @@ public class GridCoverage extends Coverage {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.15 2003/04/29 18:28:49 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.16 2003/05/01 22:57:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1092,7 +1218,7 @@ public class GridCoverage extends Coverage {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.15 2003/04/29 18:28:49 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.16 2003/05/01 22:57:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {
