@@ -160,7 +160,7 @@ public class SQLEncoderPostgis extends SQLEncoder
 
             log.warning("exporting unknown filter type");
         } catch (java.io.IOException ioe) {
-            throw new RuntimeException(IO_ERROR, ioe);
+            throw new RuntimeException("io error while writing", ioe);
         }
     }
 
