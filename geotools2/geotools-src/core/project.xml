@@ -4,12 +4,12 @@
   <pomVersion>3</pomVersion>
   <name>geotools-core</name>
   <id>core</id>
-  <logo>/images/core.gif</logo>
+  <logo>http://www.geotools.org/gt2modules/core/target/docs/images/core.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>
-    <logo>/images/gtLogo.gif</logo>
+    <logo>http://www.geotools.org/gt2modules/core/target/docs/images/gtLogo.gif</logo>
   </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
@@ -36,22 +36,32 @@
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
-      <role>Maintainer</role>
-    </developer>
+      
+            <roles>
+                <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
     <developer>
       <name>Ian Turton</name>
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
-      <role>Contributor</role>
-    </developer>
+      
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
         <developer>
       <name>Linda Oxnard</name>
       <id>loxnard</id>
       <email>loxnard@users.sourceforge.net</email>
       <organization>None</organization>
-      <role>Doc Editor</role>
-    </developer>
+      
+            <roles>
+                <role>Doc Editor</role>
+            </roles>
+        </developer>
     </developers>
   <dependencies>
     <dependency>
