@@ -351,7 +351,7 @@ public class Ellipsoid extends Info {
      * Fill the part inside "[...]".
      * Used for formatting Well Know Text (WKT).
      */
-    String addString(final StringBuffer buffer, Object context) {
+    String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
         buffer.append(semiMajorAxis);
         buffer.append(", ");

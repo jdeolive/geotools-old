@@ -307,7 +307,7 @@ public class Info implements Serializable {
      * @param context The contextual unit. Most subclasses will
      *        ignore this argument, except {@link PrimeMeridian}.
      */
-    final String toString(final Object context) {
+    final String toString(final Unit context) {
         final Locale locale = null;
         final StringBuffer buffer = new StringBuffer(40);
         buffer.append("[\"");
@@ -341,7 +341,7 @@ public class Info implements Serializable {
      *         ignore this argument, except {@link PrimeMeridian}.
      * @return The WKT code name (e.g. "GEOGCS").
      */
-    String addString(final StringBuffer buffer, Object context) {
+    String addString(final StringBuffer buffer, final Unit context) {
         return Utilities.getShortClassName(this);
     }
     
@@ -584,7 +584,7 @@ public class Info implements Serializable {
          * Gets an XML representation of this object.
          */
         public String getXML() throws RemoteException {
-            throw new UnsupportedOperationException("XML parsing not yet implemented");
+            throw new UnsupportedOperationException("XML formatting not yet implemented");
         }
         
         /**

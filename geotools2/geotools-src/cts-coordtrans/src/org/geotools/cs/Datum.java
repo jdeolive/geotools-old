@@ -40,6 +40,7 @@ import org.opengis.cs.CS_Datum;
 import org.opengis.cs.CS_DatumType;
 
 // Geotools dependencies
+import org.geotools.units.Unit;
 import org.geotools.resources.Utilities;
 
 // J2SE dependencies
@@ -122,7 +123,7 @@ public class Datum extends Info {
      * Fill the part inside "[...]".
      * Used for formatting Well Know Text (WKT).
      */
-    String addString(final StringBuffer buffer, Object context) {
+    String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
         buffer.append(type.getName());
         return "DATUM";

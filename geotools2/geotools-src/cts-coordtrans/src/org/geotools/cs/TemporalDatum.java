@@ -36,6 +36,7 @@
 package org.geotools.cs;
 
 // Geotools dependencies
+import org.geotools.units.Unit;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -87,7 +88,7 @@ public class TemporalDatum extends Datum {
      * Fill the part inside "[...]".
      * Used for formatting Well Know Text (WKT).
      */
-    String addString(final StringBuffer buffer, Object context) {
+    String addString(final StringBuffer buffer, final Unit context) {
         super.addString(buffer, context);
         return "TEMPORAL_DATUM";
     }

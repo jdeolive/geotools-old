@@ -38,6 +38,9 @@ package org.geotools.cs;
 // OpenGIS dependencies
 import org.opengis.cs.CS_VerticalDatum;
 
+// Geotools dependencies
+import org.geotools.units.Unit;
+
 // J2SE dependencies
 import java.rmi.RemoteException;
 
@@ -93,7 +96,7 @@ public class VerticalDatum extends Datum {
      * Fill the part inside "[...]".
      * Used for formatting Well Know Text (WKT).
      */
-    String addString(final StringBuffer buffer, Object context) {
+    String addString(final StringBuffer buffer, final Unit context) {
         super.addString(buffer, context);
         return "VERT_DATUM";
     }

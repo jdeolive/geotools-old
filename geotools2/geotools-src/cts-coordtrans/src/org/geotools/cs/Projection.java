@@ -302,7 +302,7 @@ public class Projection extends Info {
      * Fill the part inside "[...]".
      * Used for formatting Well Know Text (WKT).
      */
-    String addString(final StringBuffer buffer, Object context) {
+    String addString(final StringBuffer buffer, final Unit context) {
         return "PROJECTION";
     }
     
