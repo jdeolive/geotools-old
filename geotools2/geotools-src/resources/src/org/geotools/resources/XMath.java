@@ -51,7 +51,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  *   <li><a href="http://developer.java.sun.com/developer/bugParade/bugs/4461243.html">Math.acos is very slow</a></li>
  * </ul>
  *
- * @version $Id: XMath.java,v 1.5 2003/05/02 21:44:00 desruisseaux Exp $
+ * @version $Id: XMath.java,v 1.6 2003/05/03 11:52:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class XMath {
@@ -333,15 +333,12 @@ public final class XMath {
     public static double rool(final Class type, double value, int amount)
             throws IllegalArgumentException
     {
-        if (amount == 0) {
-            return value;
-        }
         if (Double.class.isAssignableFrom(type)) {
             if (amount<0) {
                 do {
                     value = previous(value);
                 } while (++amount != 0);
-            } else {
+            } else if (amount!=0) {
                 do {
                     value = next(value);
                 } while (--amount != 0);
@@ -354,7 +351,7 @@ public final class XMath {
                 do {
                     vf = previous(vf);
                 } while (++amount != 0);
-            } else {
+            } else if (amount!=0) {
                 do {
                     vf = next(vf);
                 } while (--amount != 0);
