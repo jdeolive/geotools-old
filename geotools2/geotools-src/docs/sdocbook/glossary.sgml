@@ -13,7 +13,7 @@ id="index">
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/12/01 10:28:31 $</date>
+    <date>$Date: 2002/12/07 08:34:17 $</date>
 
     <abstract>
       <para>Glossary of terms used in the Geotools2 project.</para>
@@ -276,6 +276,23 @@ id="index">
 
             <entry>Refers to editors which store symantics instead of print
             fonts. Eg, store &#60;h1&#62; instead of &#60;fontsize=32&#62;.</entry>
+          </row>
+
+          <row>
+            <entry>XSL</entry>
+
+            <entry>Extensible Stylesheet Language</entry>
+
+            <entry>A language for expressing stylesheets.</entry>
+          </row>
+
+          <row>
+            <entry>XSLT</entry>
+
+            <entry>XSL Transform</entry>
+
+            <entry>A language for transforming XML documents into other XML
+            documents. </entry>
           </row>
 
           <row>
