@@ -87,7 +87,7 @@ import javax.imageio.ImageIO;
 
 
 /**
- * @version $Id: LiteRenderer.java,v 1.4 2003/06/16 11:54:10 ianturton Exp $
+ * @version $Id: LiteRenderer.java,v 1.5 2003/06/16 12:03:53 ianturton Exp $
  * @author James Macgill
  * @author Andrea Aime
  */
@@ -292,23 +292,7 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         mapExtent = map;
 
         //set up the affine transform and calculate scale values
-        AffineTransform at = new AffineTransform();
-
-        double scale = Math.min(screenSize.getHeight() / map.getHeight(),
-                screenSize.getWidth() / map.getWidth());
-
-        //TODO: angle is almost certainly not needed and should be dropped
-        double angle = 0; //-Math.PI/8d;// rotation angle
-        double tx = -map.getMinX() * scale; // x translation - mod by ian
-        double ty = (map.getMinY() * scale) + screenSize.getHeight(); // y translation
-
-        double sc = scale * Math.cos(angle);
-        double ss = scale * Math.sin(angle);
-
-        // TODO: if user space is geographic (i.e. in degrees) we need to transform it
-        // to Km/m here to calc the size of the pixel and hence the scaleDenominator
-        at = new AffineTransform(sc, -ss, ss, -sc, tx, ty);
-
+        AffineTransform at = setUpTransform(mapExtent, screenSize);
         /* If we are rendering to a component which has already set up some form
          * of transformation then we can concatenate our transformation to it.
          * An example of this is the ZoomPane component of the swinggui module.*/
@@ -332,7 +316,30 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         }
     }
 
+    private AffineTransform setUpTransform(Envelope mapExtent,
+        Rectangle screenSize) {
+        //double scale = Math.min(screenSize.getHeight()/ mapExtent.getHeight(), 
+        //                        screenSize.getWidth()/ mapExtent.getWidth());
+        double scaleX = screenSize.getWidth() / mapExtent.getWidth();
+        double scaleY = screenSize.getHeight() / mapExtent.getHeight();
 
+        //TODO: angle is almost certainly not needed and should be dropped
+        //double angle = 0; //-Math.PI/8d;// rotation angle
+        double tx = -mapExtent.getMinX() * scaleX; // x translation - mod by ian
+        double ty = (mapExtent.getMinY() * scaleY) + screenSize.getHeight(); // y translation
+
+        double sc = scaleX;
+        double ss = 0.0d;
+
+        // TODO: if user space is geographic (i.e. in degrees) we need to
+        // transform it
+        // to Km/m here to calc the size of the pixel and hence the
+        // scaleDenominator
+        AffineTransform at = new AffineTransform(scaleX, 0.0d, 0.0d, -scaleY,
+                tx, ty);
+
+        return at;
+    }
     /**
      *
      */
@@ -344,23 +351,7 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         }
 
         //set up the affine transform and calculate scale values
-        AffineTransform at = new AffineTransform();
-
-        double scale = Math.min(screenSize.getHeight() / map.getHeight(),
-                screenSize.getWidth() / map.getWidth());
-
-        //TODO: angle is almost certainly not needed and should be dropped
-        double angle = 0; //-Math.PI/8d;// rotation angle
-        double tx = -map.getMinX() * scale; // x translation - mod by ian
-        double ty = (map.getMinY() * scale) + screenSize.getHeight(); // y translation
-
-        double sc = scale * Math.cos(angle);
-        double ss = scale * Math.sin(angle);
-
-        // TODO: if user space is geographic (i.e. in degrees) we need to transform it
-        // to Km/m here to calc the size of the pixel and hence the scaleDenominator
-        at = new AffineTransform(sc, -ss, ss, -sc, tx, ty);
-
+        AffineTransform at = setUpTransform(map, screenSize);
         /* If we are rendering to a component which has already set up some form
          * of transformation then we can concatenate our transformation to it.
          * An example of this is the ZoomPane component of the swinggui module.*/
