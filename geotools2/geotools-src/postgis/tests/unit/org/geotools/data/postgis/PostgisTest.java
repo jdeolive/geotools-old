@@ -35,9 +35,15 @@ public class PostgisTest extends TestCase {
 
     int srid = -1;
 
-    PostgisConnection db;
+    PostgisConnectionFactory db;
+
+    Connection connection;
 
     CompareFilter tFilter;
+
+    int addId = 32;
+
+    org.geotools.filter.GeometryFilter geomFilter;
 
     public PostgisTest(String testName){
         super(testName);
@@ -56,7 +62,7 @@ public class PostgisTest extends TestCase {
     
     public void setUp() {
         LOGGER.info("creating postgis connection...");
-	db = new PostgisConnection("feathers.leeds.ac.uk","5432",
+	db = new PostgisConnectionFactory("feathers.leeds.ac.uk","5432",
 				   "postgis_test");
         LOGGER.info("created new db connection");
         db.setLogin("postgis_ro", "postgis_ro");
@@ -76,14 +82,18 @@ public class PostgisTest extends TestCase {
 	    fail("Illegal Filter Exception " + e);
 	}
 	try {
-	    postgis = new PostgisDataSource(db, FEATURE_TABLE);
+	    connection = db.getConnection();
+	    postgis = new PostgisDataSource(connection, FEATURE_TABLE);
 	    schema = ((PostgisDataSource)postgis).getSchema();
 	} catch (Exception e) {
 	    LOGGER.info("exception while making schema" + e.getMessage());
 	}
- }
+    }
     
-    
+     public void tearDown() throws SQLException{
+	connection.close();
+    }
+
     public void testImport() {
         LOGGER.info("starting type enforcement tests...");
         try {
@@ -119,61 +129,75 @@ public class PostgisTest extends TestCase {
         LOGGER.info("...ending type enforcement tests");
     }
 
-        public void testAdd() {
-	int feaID = 20;
-	int geomID;
-	    
-	Feature[] features = new Feature[1];
-	Coordinate[] points = { new Coordinate(45, 45),
-				new Coordinate(45, 55),
-				new Coordinate(55, 55),
-				new Coordinate(55, 45),
-				 new Coordinate(45, 45) };
-	PrecisionModel precModel = new PrecisionModel();
-	LinearRing shell = new LinearRing(points, precModel, srid);
-	Polygon[] testPolys = {new Polygon(shell, precModel, srid)};
-	MultiPolygon the_geom = new MultiPolygon(testPolys, precModel, srid);
-	Double area = new Double(100.0);
-	Double perimeter = new Double(40.0);
-	Integer testb_ = new Integer(22);
-	Integer testb_id = new Integer(4833);
-	String name = "test add";
-	Integer code = new Integer(0);
+    public void testOwnSchema() throws Exception{
+	
+	AttributeType[] attributes = { 
+	    new AttributeTypeDefault("gid", Integer.class), 
+	    new AttributeTypeDefault("name", String.class)};
+	FeatureType small = FeatureTypeFactory.create(attributes);
+	postgis = new PostgisDataSource(connection, FEATURE_TABLE, small);
+        collection = new FeatureCollectionDefault();
+	postgis.getFeatures(collection,tFilter);
+	Feature feature = collection.getFeatures()[0];
+	LOGGER.fine("feature is " + feature + ", and feature type is " +
+		     feature.getSchema());
+    }
 
-	Object[] attributes = { new Integer(feaID), area, perimeter, testb_, 
-				testb_id, name, code, code, the_geom };
-	try{
-	    FeatureFactory factory = new FeatureFactory(schema);
-	    features[0] = factory.create(attributes, String.valueOf(feaID));
-	    collection = new FeatureCollectionDefault();
-	    collection.addFeatures(features);
-	    postgis.addFeatures(collection);
-	} catch(DataSourceException e){
-	    LOGGER.info("threw data source exception");
-	    fail();
-	    //} catch(SchemaException e){
-	    //fail();
-	    //LOGGER.info("trouble creating feature type");
-	} catch(IllegalFeatureException e){
-	    fail("illegal feature " + e);
+     public void testMaxFeatures(){ 
+	try { 
+ 	    postgis = 
+	    new PostgisDataSource(connection, FEATURE_TABLE, 4);
+	    schema = ((PostgisDataSource)postgis).getSchema();
+
+	collection = new FeatureCollectionDefault(); 
+	postgis.getFeatures(collection, tFilter);
+	//LOGGER.info("we have this number of features: " 
+	//    + collection.getFeatures().length);
+	LOGGER.info("we have this number of filtered features: " 
+		    + collection.getFeatures().length);
+	assertEquals(4,collection.getFeatures().length);
+	LikeFilter likeFilter = filterFac.createLikeFilter();
+	likeFilter.setValue
+	    (filterFac.createAttributeExpression(schema, "name"));    	
+	likeFilter.setPattern
+	    (filterFac.createLiteralExpression("*7*"),"*",".","!");
+	
+	collection = new FeatureCollectionDefault();
+
+	postgis.getFeatures(collection,likeFilter);
+	LOGGER.info("there are " + collection.getFeatures().length + " feats");
+	assertEquals(3,collection.getFeatures().length);
 	}
+        catch(DataSourceException dse) {
+            LOGGER.info("...threw data source exception" + dse);
+            this.fail("...threw data source exception");
+        }
+        catch(IllegalFilterException fe) {
+            LOGGER.info("...threw filter exception" + fe);
+            this.fail("...threw filter exception");
+        } 
 
+    }
+
+    public void testAdd() throws Exception{
+	String name = "test_add";
+	addFeature(name);
 	//clean up...basically a delete, but without using a remove features.
 	try{
-	    Connection dbConnection = db.getConnection();
-	    Statement statement = dbConnection.createStatement();
+	    //Connection dbConnection = db.getConnection();
+	    Statement statement = connection.createStatement();
 	    ResultSet result = statement.executeQuery
-		("SELECT * FROM " + FEATURE_TABLE + " WHERE gid = " + feaID);
+		("SELECT * FROM " + FEATURE_TABLE + " WHERE gid = " + addId);
 	    result.next();
-	    assertEquals(result.getInt("gid"), feaID);
-	    assertTrue(result.getDouble("area") == area.doubleValue());
+	    assertEquals(result.getInt("gid"), addId);
+	    //assertTrue(result.getDouble("area") == area.doubleValue());
 	    assertTrue(result.getString("name").equals(name));
 	     statement.executeUpdate("DELETE FROM " + FEATURE_TABLE + 
-				     " WHERE gid = " + feaID);
+				     " WHERE gid = " + addId);
 
 	    result.close();
 	    statement.close();
-	    dbConnection.close();
+	    //dbConnection.close();
 	} catch(SQLException e){
 	    LOGGER.info("we had some sql trouble " + e.getMessage());
 	    fail();
@@ -231,7 +255,7 @@ public class PostgisTest extends TestCase {
         //assertEquals(2,collection.getFeatures().length);
         LOGGER.info("...ending type enforcement tests");
  	    
-	}
+	} 
 /*
 
     //this needs to be updated to work with the feathers.leeds.ac.uk database.  But this
@@ -274,7 +298,7 @@ public class PostgisTest extends TestCase {
 	    
 	
     }
-    */
+*/   
     private void doRemoveTest(Filter filter, int expectedDel) 
 	throws DataSourceException{
 	//TODO: implement tests that don't use get and add.
@@ -333,6 +357,96 @@ public class PostgisTest extends TestCase {
 	} 
 
     }
+
+    private void addFeature(String name) throws Exception{
+	Feature[] features = new Feature[1];
+	Coordinate[] points = { new Coordinate(45, 45),
+				new Coordinate(45, 55),
+				new Coordinate(55, 55),
+				new Coordinate(55, 45),
+				 new Coordinate(45, 45) };
+	PrecisionModel precModel = new PrecisionModel();
+	LinearRing shell = new LinearRing(points, precModel, srid);
+	Polygon[] testPolys = {new Polygon(shell, precModel, srid)};
+	MultiPolygon the_geom = new MultiPolygon(testPolys, precModel, srid);
+	Integer feaID = new Integer(addId);
+	Double area = new Double(100.0);
+	Double perimeter = new Double(40.0);
+	Integer testb_ = new Integer(22);
+	Integer testb_id = new Integer(4833);
+	Integer code = new Integer(0);
+
+	Object[] attributes = { feaID, area, perimeter, testb_, 
+				testb_id, name, code, code, the_geom };
+	
+	 FeatureFactory factory = new FeatureFactory(schema);
+	 features[0] = factory.create(attributes, String.valueOf(feaID));
+	 FeatureCollection addCollection = new FeatureCollectionDefault();
+	 addCollection.addFeatures(features);
+	 postgis.addFeatures(addCollection);
+    }
+
+    public void testRollbacks() throws Exception {
+	String rollbackName = "test rollback";
+	java.sql.Connection con = db.getConnection();
+	con.setAutoCommit(false); //this should change to startMultiTransaction
+	//for now client just handles connections commits
+	postgis = new PostgisDataSource(con, FEATURE_TABLE);
+	addFeature("test rollback");
+	//create ds on different connection, to make sure transactions are
+	//not committed until commit is called.
+	PostgisDataSource postgisCheck =  
+	    new PostgisDataSource(connection, FEATURE_TABLE); 
+	postgisCheck.getFeatures(collection,tFilter);
+	LOGGER.fine("there are " + collection.getFeatures().length + 
+		    " features before commit");
+	assertEquals(6,collection.getFeatures().length);
+
+	//db.commitTransaction();
+	con.commit();
+	//db.getConnection().close();
+	collection = new FeatureCollectionDefault();
+	postgisCheck.getFeatures(collection,tFilter);
+	LOGGER.fine("there are " + collection.getFeatures().length + 
+		    " features after commit");
+	assertEquals(7,collection.getFeatures().length);
+	//db.startTransaction();
+	
+	addFeature("test2");
+	addFeature("test3");
+	collection = new FeatureCollectionDefault();
+	postgisCheck.getFeatures(collection,tFilter);
+	LOGGER.fine("there are " + collection.getFeatures().length + 
+		    " features before rollback");
+	assertEquals(7,collection.getFeatures().length);
+	con.rollback();//db.rollbackTransaction();
+	collection = new FeatureCollectionDefault();
+	postgisCheck.getFeatures(collection,tFilter);
+	LOGGER.fine("there are " + collection.getFeatures().length + 
+		    " features after rollback");
+	assertEquals(7,collection.getFeatures().length);
+	CompareFilter removeFilter = 
+	    filterFac.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
+	Expression testLiteral = 
+	    filterFac.createLiteralExpression(rollbackName);
+	removeFilter.addLeftValue(filterFac.createAttributeExpression
+				  (schema, "name"));
+	removeFilter.addRightValue(testLiteral);
+	postgis.removeFeatures(removeFilter);
+	collection = new FeatureCollectionDefault();
+	postgisCheck.getFeatures(collection,tFilter);
+	LOGGER.fine("there are " + collection.getFeatures().length + 
+		    " features before commit");
+	assertEquals(7,collection.getFeatures().length);
+	con.commit();
+	collection = new FeatureCollectionDefault();
+	postgisCheck.getFeatures(collection,tFilter);
+	LOGGER.fine("there are " + collection.getFeatures().length + 
+		    " features after commit");
+	assertEquals(6,collection.getFeatures().length);
+	con.close();
+	
+	}
 
     
     
