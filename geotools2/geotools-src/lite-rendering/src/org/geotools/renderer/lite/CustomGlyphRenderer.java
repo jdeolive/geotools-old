@@ -12,6 +12,8 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Vector;
 import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.filter.Expression;
 import org.geotools.filter.FilterFactory;
 import org.geotools.styling.ExternalGraphic;
@@ -24,6 +26,8 @@ import org.geotools.styling.Graphic;
 public class CustomGlyphRenderer implements GlyphRenderer {
     
     private GlyphPropertiesList list = new GlyphPropertiesList();
+    private boolean maxFound = false;
+    private int maxBarHeight = 0;
     
     /** Creates a new instance of CustomGlyphRenderer */
     public CustomGlyphRenderer() {
@@ -102,7 +106,12 @@ public class CustomGlyphRenderer implements GlyphRenderer {
         if (e != null){
             barUncWidth = ((Number) e.getValue(feature)).intValue();
         } 
+        
         Color barUncColor = Color.GRAY;
+        e = (Expression) list.getPropertyValue("bar uncertainty color");
+        if (e != null){
+            barUncColor = Color.decode((String) e.getValue(feature));
+        }
         
         int pointerDirection = 21;
         e = (Expression) list.getPropertyValue("pointer direction");
@@ -140,15 +149,37 @@ public class CustomGlyphRenderer implements GlyphRenderer {
         BufferedImage image;
         Graphics2D imageGraphic;
 
+        //calculate maximum value of barHeight + barUncertainty & use that instead of "barHeight + barUncertainty"
+        if (!maxFound){
+            maxFound = true;
+            FeatureCollection fc = feature.getParent();
+            FeatureIterator features = fc.features();
+            while (features.hasNext()){
+                Feature next = features.next();
+                Expression tempExp = (Expression) list.getPropertyValue("bar height");
+                int temp1 = 0;
+                if (tempExp != null){
+                    temp1 = ((Number) tempExp.getValue(next)).intValue();
+                }
+                tempExp = (Expression) list.getPropertyValue("bar uncertainty");
+                int temp2 = 0;
+                if (tempExp != null){
+                    temp2 = ((Number) tempExp.getValue(next)).intValue();
+                }            
+                if (temp1 + temp2 > maxBarHeight){
+                    maxBarHeight = temp1 + temp2;
+                }            
+            }
+        }   
+        
         circleCenterX = Math.max(pointerLength, radius);
-        circleCenterY = Math.max(barHeight + barUncertainty, Math.max(pointerLength, radius));
-        imageHeight = Math.max(radius * 2, Math.max(radius + pointerLength, Math.max(radius + barHeight + barUncertainty, pointerLength + barHeight + barUncertainty)));
+        circleCenterY = Math.max(maxBarHeight, Math.max(pointerLength, radius));     
+        
+        imageHeight = Math.max(radius * 2, Math.max(radius + pointerLength, Math.max(radius + maxBarHeight, pointerLength + maxBarHeight)));
         imageWidth = Math.max(radius * 2, pointerLength * 2);
         image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
         pointerLength = Math.max(pointerLength, radius);
         imageGraphic = image.createGraphics();
-        imageGraphic.setBackground(Color.WHITE);
-        imageGraphic.clearRect(0, 0, imageWidth, imageHeight);
         imageGraphic.setColor(circleColor);
         imageGraphic.fillOval(circleCenterX - radius, circleCenterY - radius, radius * 2, radius * 2);
         imageGraphic.setColor(wedgeColor); 
@@ -163,11 +194,16 @@ public class CustomGlyphRenderer implements GlyphRenderer {
                               circleCenterY - barHeight - barUncertainty, 
                               barUncWidth * 2, 
                               barUncertainty * 2);
-        imageGraphic.setColor(barColor);
-        imageGraphic.drawLine(circleCenterX, circleCenterY, circleCenterX, circleCenterY - barHeight);
-        imageGraphic.setColor(pointerColor);
+         //pointer
         int[] endPoint = calculateEndOfPointer(circleCenterX, circleCenterY, pointerLength, pointerDirection);
-        imageGraphic.drawLine(circleCenterX, circleCenterY, endPoint[0], endPoint[1]);
+        imageGraphic.setStroke(new java.awt.BasicStroke(3));
+        imageGraphic.setColor(pointerColor);
+        imageGraphic.draw(new java.awt.geom.Line2D.Double(circleCenterX, circleCenterY, endPoint[0], endPoint[1]));
+        //bar
+        imageGraphic.setStroke(new java.awt.BasicStroke(3));
+        imageGraphic.setColor(barColor);
+        imageGraphic.draw(new java.awt.geom.Line2D.Double(circleCenterX, circleCenterY, circleCenterX, circleCenterY - barHeight));
+
         imageGraphic.dispose();
         return image;
     }
