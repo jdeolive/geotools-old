@@ -82,7 +82,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.11 2003/03/12 22:44:41 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.12 2003/03/14 12:37:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -240,7 +240,7 @@ public class RenderedGridCoverage extends RenderedLayer {
         final GridCoverage oldCoverage;
         synchronized (getTreeLock()) {
             oldCoverage    = coverage;
-            coverage       = project(newCoverage, getCoordinateSystem());
+            coverage       = project(newCoverage, getCoordinateSystem(), renderer);
             sourceCoverage = newCoverage; // Must be set after 'coverage'.
             if (coverage != oldCoverage) {
                 initialize();
@@ -255,14 +255,31 @@ public class RenderedGridCoverage extends RenderedLayer {
      *
      * @param  coverage The grid coverage to project, or <code>null</code> if none.
      * @param  targetCS The target coordinate system for the coverage.
+     * @param  renderer The renderer to query for rendering hints.
      * @throws TransformException if the specified coverage can't be projected to
      *         the specified coordinate system.
      */
-    private static GridCoverage project(GridCoverage coverage, CoordinateSystem targetCS)
+    private static GridCoverage project(GridCoverage     coverage,
+                                        CoordinateSystem targetCS,
+                                        final Renderer   renderer)
             throws TransformException
     {
         if (coverage != null) {
+            GridCoverageProcessor processor = null;
+            if (renderer != null) {
+                final Object candidate = renderer.getRenderingHint(Hints.GRID_COVERAGE_PROCESSOR);
+                if (candidate instanceof GridCoverageProcessor) {
+                    processor = (GridCoverageProcessor) candidate;
+                }
+            }
+            if (processor == null) {
+                processor = GridCoverageProcessor.getDefault();
+            }
+            final int[] visibleBands = new int[] {
+                GCSUtilities.getVisibleBand(coverage.getRenderedImage())
+            };
             final CoordinateSystem sourceCS;
+            coverage = processor.doOperation("BandSelect", coverage, "bandIndices", visibleBands);
             coverage = coverage.geophysics(false);
             sourceCS = coverage.getCoordinateSystem();
             if (!CTSUtilities.getCoordinateSystem2D(sourceCS).equals(
@@ -285,7 +302,6 @@ public class RenderedGridCoverage extends RenderedLayer {
                                        targetCS.getName(null), targetCS, tailCS);
                     }
                 }
-                final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
                 try {
                     coverage = processor.doOperation("Resample",         coverage,
                                                      "CoordinateSystem", targetCS);
@@ -432,7 +448,7 @@ public class RenderedGridCoverage extends RenderedLayer {
      *         can't be resampled to the specified coordinate system.
      */
     protected void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
-        final GridCoverage newCoverage = project(sourceCoverage, cs);
+        final GridCoverage newCoverage = project(sourceCoverage, cs, renderer);
         synchronized (getTreeLock()) {
             super.setCoordinateSystem(cs);
             // Change the coverage only after the projection succed.
@@ -529,6 +545,7 @@ public class RenderedGridCoverage extends RenderedLayer {
                 throw new TransformException(Resources.getResources(getLocale()).getString(
                                              ResourceKeys.ERROR_NON_AFFINE_TRANSFORM), exception);
             }
+            final Graphics2D graphics = context.getGraphics();
             final AffineTransform transform;
             final RenderedImage   image; // The image to display (will be computed below).
             if (images != null) {
@@ -536,7 +553,7 @@ public class RenderedGridCoverage extends RenderedLayer {
                  * Calcule quel "niveau" d'image serait le plus approprié.
                  * Ce calcul est fait en fonction de la résolution requise.
                  */
-                transform = context.getGraphics().getTransform();
+                transform = graphics.getTransform();
                 transform.concatenate(gridToCoordinate);
                 final int level = Math.max(0,
                                   Math.min(images.length-1,
@@ -572,7 +589,7 @@ public class RenderedGridCoverage extends RenderedLayer {
                 image = coverage.getRenderedImage();                
             }
             transform.translate(-0.5, -0.5); // Map to upper-left corner.
-            context.getGraphics().drawRenderedImage(image, transform);
+            graphics.drawRenderedImage(image, transform);
             context.addPaintedArea(preferredArea, context.mapCS);
         }
     }
