@@ -49,6 +49,12 @@ public class XMLEncoderTest extends TestCase {
                 XMLEncoder encode = new XMLEncoder(output, style[0]);
                 LOGGER.info("Resulting SLD is \n" +
                     output.getBuffer().toString());
+                String result = output.getBuffer().toString();
+        
+                result.replaceAll("\n","");
+                result.replaceAll("\t","");
+        assertTrue(result.indexOf("<FeatureTypeName>testPoint</FeatureTypeName>")>0);
+        
     
     }
     public void testComplexEncoder() throws Exception{
@@ -79,4 +85,5 @@ public class XMLEncoderTest extends TestCase {
                     output.getBuffer().toString());
     
     }
+     
 }
