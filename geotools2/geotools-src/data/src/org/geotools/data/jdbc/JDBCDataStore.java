@@ -25,6 +25,7 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
+import org.geotools.data.EmptyFeatureReader;
 import org.geotools.data.EmptyFeatureWriter;
 import org.geotools.data.FIDFeatureReader;
 import org.geotools.data.FIDReader;
@@ -374,7 +375,10 @@ public abstract class JDBCDataStore implements DataStore {
             // featureType is not compatiable
             throw new IOException("Type " + typeName + " does not your request");
         }
-
+        
+        if( filter == Filter.ALL || filter.equals( Filter.ALL )){
+            return new EmptyFeatureReader( featureType );            
+        }
         FeatureReader reader = getFeatureReader(query, transaction);
 
         if (compare == 1) {
