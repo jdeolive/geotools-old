@@ -50,7 +50,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.5 2003/02/07 11:04:19 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.6 2003/02/08 03:32:49 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -58,7 +58,7 @@ import org.geotools.data.DataSourceException;
  * 2 maps which use the same data, but a different style.
  */
 
-public class MapPaneImpl extends PanelWidget implements
+public class MapPaneImpl extends PanelWidgetImpl implements
     BoundingBoxListener, LayerListListener, org.geotools.gui.widget.MapPane
 {
     /**
