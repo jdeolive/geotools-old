@@ -80,7 +80,7 @@ public class SampleFeatureFixtures {
      *
      * @throws SchemaException
      */
-    private static FeatureType createTestType() throws SchemaException {
+    public static FeatureType createTestType() throws SchemaException {
       FeatureTypeFactory typeFactory = FeatureTypeFactory.newInstance("test");
       typeFactory.addType(AttributeTypeFactory.newAttributeType("testGeometry",
                 Point.class));
