@@ -57,7 +57,7 @@ import org.geotools.ct.NoninvertibleTransformException;
  * This class is really a special case of {@link MatrixTransform} using a 2&times;2 affine
  * transform. However, this specialized <code>LinearTransform1D</code> class is faster.
  *
- * @version $Id: LinearTransform1D.java,v 1.1 2002/07/10 18:20:13 desruisseaux Exp $
+ * @version $Id: LinearTransform1D.java,v 1.2 2002/07/12 14:35:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class LinearTransform1D extends AbstractMathTransform
@@ -92,8 +92,8 @@ final class LinearTransform1D extends AbstractMathTransform
      * @param offset The <code>offset</code> term in the linear equation.
      */
     public LinearTransform1D(final double scale, final double offset) {
-        this.offset  = offset;
         this.scale   = scale;
+        this.offset  = offset;
     }
 
     /**
@@ -131,7 +131,7 @@ final class LinearTransform1D extends AbstractMathTransform
      * Creates the inverse transform of this object.
      */
     public MathTransform inverse() throws NoninvertibleTransformException {
-        if (inverse != null) {
+        if (inverse == null) {
             if (isIdentity()) {
                 inverse = this;
             } else if (scale != 0) {
@@ -200,5 +200,41 @@ final class LinearTransform1D extends AbstractMathTransform
                 dstPts[--dstOff] = offset + scale*srcPts[--srcOff];
             }
         }
+    }
+    
+    /**
+     * Returns a hash value for this transform.
+     * This value need not remain consistent between
+     * different implementations of the same class.
+     */
+    public int hashCode() {
+        long code;
+        code = 78512786 + Double.doubleToLongBits(offset);
+        code =  code*37 + Double.doubleToLongBits(scale);
+        return (int)(code >>> 32) ^ (int)code;
+    }
+    
+    /**
+     * Compares the specified object with
+     * this math transform for equality.
+     */
+    public boolean equals(final Object object) {
+        if (object==this) {
+            // Slight optimization
+            return true;
+        }
+        if (super.equals(object)) {
+            final LinearTransform1D that = (LinearTransform1D) object;
+            return Double.doubleToLongBits(this.scale)  == Double.doubleToLongBits(that.scale) &&
+                   Double.doubleToLongBits(this.offset) == Double.doubleToLongBits(that.offset);
+        }
+        return false;
+    }
+    
+    /**
+     * Returns the WKT for this math transform.
+     */
+    public String toString() {
+        return MatrixTransform.toString(getMatrix());
     }
 }
