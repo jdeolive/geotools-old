@@ -41,7 +41,7 @@ import junit.framework.TestSuite;
 /**
  * Test the Unit class.
  *
- * @version $Id: UnitTest.java,v 1.2 2002/11/05 14:41:14 crotwell Exp $
+ * @version $Id: UnitTest.java,v 1.3 2003/02/14 17:01:27 crotwell Exp $
  * @author Philip Crotwell
  */
 public class UnitTest extends TestCase {
@@ -71,7 +71,12 @@ public class UnitTest extends TestCase {
      * Test the Unit class loading.
      */
     public void testUnitClassLoad() {
-        Class c = org.geotools.units.Unit.class;
+        //Class c = org.geotools.units.Unit.class;
+        try {
+        Class c = Class.forName("org.geotools.units.Unit");
+        } catch (ClassNotFoundException e) {
+        fail(e.toString());
+        }
     }
 
     /**
