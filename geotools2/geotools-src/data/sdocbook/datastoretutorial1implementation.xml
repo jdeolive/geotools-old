@@ -177,7 +177,7 @@ public class PropertyDataStore extends AbstractDataStore {
       accessing Feature content.</para>
 
       <para>The method getFeatureReader( typeName ) is required by
-      AbstractDataStore and is not part of the DataStore API</para>
+      AbstractDataStore and is not part of the DataStore API.</para>
 
       <para>Add getFeatureReader( typeName ):</para>
 
@@ -248,8 +248,6 @@ public class PropertyFeatureReader implements FeatureReader {
         such as Joining make use of this capability.</para>
 
         <para>AttributeReader interface:</para>
-
-        <para></para>
 
         <itemizedlist>
           <listitem>

@@ -115,28 +115,46 @@ System.out.println( name.getType().toString() );               // class java.lan
     </sect2>
 
     <sect2>
-      <title>getFeatureReader( featureType, filter, transaction )</title>
+      <title>getFeatureReader( query, transaction )</title>
 
-      <para>The method getFeatureReader( featureType, filter, transaction )
-      allows access to the contents of our DataStore. The method signature may
-      be more complicated expected, we certaintly did not talk about Filters
-      or Transactions when we implemented our PropertyDataStore.</para>
+      <para>The method getFeatureReader( query, transaction ) allows access to
+      the contents of our DataStore. The method signature may be more
+      complicated expected, we certaintly did not talk about Query or
+      Transactions when we implemented our PropertyDataStore.</para>
 
       <para>Parameters:</para>
 
       <itemizedlist>
         <listitem>
-          <para>FeatureType is used to encapsulate the attributes, namespace,
-          and typeName requested from the DataStore. While you may use
-          DataStore.getSchema( typeName ) to retrive the types as specified by
-          the DataStore, you may also create your own FeatureType to limit the
-          attributes returned or cast the result into a specific namespace.</para>
+          <para>Query.getTypeName() determines which FeatureType is being
+          requested.In addition Query supports the custimization attributes,
+          namespace, and typeName requested from the DataStore.While you may
+          use DataStore.getSchema( typeName ) to retrive the types as
+          specified by the DataStore, you may also create your own FeatureType
+          to limit the attributes returned or cast the result into a specific
+          namespace.</para>
         </listitem>
 
         <listitem>
-          <para>Filter is used to define constraints on which features should
-          be fetched. The constraints can be on spatial and non-spatial
-          attributes of the features.</para>
+          <para>Query.getFilter() is used to define constraints on which
+          features should be fetched. The constraints can be on spatial and
+          non-spatial attributes of the features.</para>
+        </listitem>
+
+        <listitem>
+          <para>Query.getPropertiesNames() allows you to limit the number of
+          properties of the returned Features to only those you are interested
+          in.</para>
+        </listitem>
+
+        <listitem>
+          <para>Query.getMaxFeatures() defines an upper limit the number of
+          features returned.</para>
+        </listitem>
+
+        <listitem>
+          <para>Query.getHandle() a user supplied name used to describe an
+          query in user&#39;s terms in any generated error messages.</para>
         </listitem>
 
         <listitem>
@@ -148,8 +166,8 @@ System.out.println( name.getType().toString() );               // class java.lan
       <para>getFeatureReader( featureType, filter, transaction ) example:</para>
 
       <programlisting>PropertyDataStore store = new PropertyDataStore( new File(&#34;.&#34;) );
-FeatureType type = store.getSchema( &#34;road&#34; );
-FeatureReader reader = datastore.getFeatureReader( type, Filter.NONE, Transaction.AUTO_COMMIT );
+Query query = new DefaultQuery( &#34;road&#34; );
+FeatureReader reader = datastore.getFeatureReader( query, Transaction.AUTO_COMMIT );
 try {
     int count = 0;
     while( reader.hasNext() ){
@@ -164,10 +182,10 @@ try {
       <para>Example with a Simple Filter:</para>
 
       <programlisting>PropertyDataStore store = new PropertyDataStore( new File(&#34;.&#34;) );
-FeatureType type = store.getSchema( &#34;road&#34; );
-
 Filter filter = FilterFactory.createFilterFactory().createFidFilter(&#34;fid1&#34;);
-FeatureReader reader = store.getFeatureReader( type, filter, Transaction.AUTO_COMMIT );
+Query query = new DefaultQuery( &#34;road&#34;, filter );
+
+FeatureReader reader = store.getFeatureReader( query, Transaction.AUTO_COMMIT );
 
 System.out.println( reader.next().getID() ); // fid1
 System.out.println( reader.hasNext() ); // false
@@ -176,9 +194,9 @@ reader.close();</programlisting>
       <para>Example with a Transaction:</para>
 
       <programlisting>PropertyDataStore store = new PropertyDataStore( new File(&#34;.&#34;) );
-FeatureType type = store.getSchema( &#34;road&#34; );
+Query query = new DefaultQuery( &#34;road&#34; );
 Transaction transaction = new DefaultTransaction();
-FeatureReader reader = store.getFeatureReader( type, Filter.NONE, transaction );
+FeatureReader reader = store.getFeatureReader( query, transaction );
 List list = new ArrayList();
 try {
     while( reader.hasNext() ){
@@ -189,6 +207,29 @@ finally {
     reader.close();
 }
 System.out.println( list ); // [fid1, fid2, fid3, fid4]</programlisting>
+
+      <para>At the time of this writing Query is expanding its capabilities
+      (and the capabilities of your DataStore) to include support for
+      reprojection.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Query.getCoordianteSystem() is used to force the use of a user
+          supplied CoordinateSystem (rather than the one supplied by the
+          DataStore). This capability will allow client code to use our
+          DataStore with a CoordinateSystem of their choice. The coordinates
+          returned by the DataStore will not be modified in anyway.</para>
+        </listitem>
+
+        <listitem>
+          <para>Query.getCoordianteSystemReproject() is used to reproject the
+          Geometrys provided by a DataStore from their origional value (or the
+          one provided by Query.getCoordinateSystem) into a different
+          coordinate system. The coordinate returned by the DataStore will be
+          processed , either natively by Advanced DataStores, or using
+          GeoTools reprojection routines.</para>
+        </listitem>
+      </itemizedlist>
     </sect2>
 
     <sect2>
@@ -254,31 +295,6 @@ FeatureSource road = store.getFeatureSource( &#34;road&#34; );</programlisting>
         <para>FeatureSource also defines an event notification system and
         provides access to the DataStore which created it. You may have more
         then one FeatureSource opperating against a file at any time.</para>
-
-        <para>The Query class is used to encapsulate the request information.</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Filter - used to define constraints on which features should
-            be fetched. The constraints can be on spatial and non-spatial
-            attributes of the features.</para>
-          </listitem>
-
-          <listitem>
-            <para>Handle - a name given to the query, should be used in error
-            reporting so users can figure out where they went wrong.</para>
-          </listitem>
-
-          <listitem>
-            <para>MaxFeatures - used to limit the number of features returned
-            in the request.</para>
-          </listitem>
-
-          <listitem>
-            <para>PropertyNames - used to request features with abbreviated
-            attribute sets</para>
-          </listitem>
-        </itemizedlist>
       </sect3>
 
       <sect3>
