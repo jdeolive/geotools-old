@@ -86,7 +86,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       is determined using orthodromic distance computation.</li>
  * </ul>
  *
- * @version $Id: RenderedMapScale.java,v 1.8 2003/08/12 17:05:50 desruisseaux Exp $
+ * @version $Id: RenderedMapScale.java,v 1.9 2003/10/01 19:50:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedMapScale extends RenderedLegend {
@@ -419,10 +419,9 @@ public class RenderedMapScale extends RenderedLegend {
     }
 
     /**
-     * Dessine l'échelle de la carte. Cette échelle sera composée d'un certains nombre de
-     * rectangles disposés côtes à côtes horizontalement ou verticalement, chaque rectangle
-     * représentant une distance telle que 100 mètres ou 1 km, dépendamment de l'échelle de
-     * la carte.
+     * Draw the map scale. This map scale is build from some amount of rectangle drawn side
+     * by side vertically or horizontally. Each rectangle is for a distance like 100 meters
+     * or 1 kilometer, depending the current map scale (from the zoom).
      *
      * @param  context Information relatives to the rendering context.
      * @throws TransformException If a coordinate transformation failed
@@ -510,11 +509,16 @@ public class RenderedMapScale extends RenderedLegend {
         final double scaleFactor = logicalLength / maximumLength;
         logicalLength /= subDivisions;
         if (true) {
+            // If the current logical length is between two values in the SNAP array, then select
+            // the lowest value. It produces a more compact scale than selecting the highest value.
             final double factor = XMath.pow10((int)Math.floor(XMath.log10(logicalLength)));
             logicalLength /= factor;
             int index = Arrays.binarySearch(SNAP, logicalLength);
             if (index < 0) {
-                index = ~index - 1;  // Really ~, not -
+                index = ~index;  // Highest value (really ~, not -)
+                if (index > 0) {
+                    index--; // Choose lowest value instead, if such a value exists.
+                }
             }
             logicalLength = SNAP[index];
             logicalLength *= factor;
