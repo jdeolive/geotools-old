@@ -79,20 +79,33 @@
     </condition>
     <condition property="cond.styleCheckToScreen" >
       <equals arg1="${checking}" arg2="screen"/>
-    </condition>                
+    </condition> 
+    <condition property="test.check">
+        <and>
+            <not>
+                <equals arg1="${testsuite}" arg2="$${testsuite}"/>
+            </not>
+            <not>
+                <equals arg1="${testing}" arg2="false"/>
+            </not>
+        </and>
+    </condition>
+    <condition property="cond.test">
+        <equals arg1="${test.check}" arg2="true"/>
+    </condition>
   </target>
 
 
   <!-- ===================================================================== -->
   <!-- PREPARE DEPENDENCIES                                                  -->
   <!-- ===================================================================== -->
-  <!-- Recursively prepare dependencies -->
+  <!-- essentially a dummy target to set the classpath then build the depencies  -->
   <target name="prepare-compile" depends="init,set-classpath,add-extbin" >
     <echo message="Prep-compile: ${project.name}"/>
     <antcall target="dependancies"/>
   </target>
 
-  <!-- Recursively prepare dependencies -->
+  <!-- build a class path including extbin for this module -->
   <target name="add-extbin" if="has.extbin">
     <path id="path.compile">
       <path refid="path.external.core"/>
@@ -101,7 +114,7 @@
     </path>
   </target>
 
-  <!-- Recursively prepare dependencies -->
+  <!-- Build a class path with out extbin (i.e. this module has no extbin) -->
   <target name="set-classpath" unless="has.extbin">
     <path id="path.compile">
       <path refid="path.external.core"/>
@@ -135,7 +148,8 @@
   <target name="checkToFile" if="cond.styleCheck">
     <echo message="using ${licence.header} as header check file"/>
     <checkstyle failOnViolation="false" maxLineLen="100"> 
-      <fileset dir="src" includes="**/*.java"/>            
+      <fileset dir="${dir.source}" includes="**/*.java"/>
+      <!-- formatter type="plain"/ -->
       <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
     </checkstyle>
   </target>
@@ -162,7 +176,7 @@
   </target>
 
   <!-- Compiles all test code for the module. -->
-  <target name="compile-test" depends="compile" if="testsuite">
+  <target name="compile-test" depends="compile" if="cond.test">
     <javac debug="true" srcdir="${dir.test}">
             <classpath>
                 <path path="${dir.module}/src"/>
@@ -173,8 +187,8 @@
   </target>
 
   <!-- Runs the unit tests on the module, if any exist. -->
-  <target name="test" depends="compile-test,checkstyle" if="testsuite">
-    <junit fork="true" printsummary="true">
+  <target name="test" depends="compile-test,checkstyle" if="cond.test">
+    <junit fork="true" printsummary="true" haltonfailure="true">
       <formatter type="plain" />
       <sysproperty key="dataFolder" value="${dir.module}/tests/unit/testData"/>
       <classpath>
