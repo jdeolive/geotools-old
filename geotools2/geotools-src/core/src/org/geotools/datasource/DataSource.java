@@ -1,9 +1,9 @@
 package org.geotools.datasource;
 
 
-
+import org.geotools.featuretable.*;
 /** The source of data for Features. Shapefiles, database, etc. are referenced through this interface.
- *  @version $Id: DataSource.java,v 1.4 2002/03/13 17:42:31 ianturton Exp $
+ *  @version $Id: DataSource.java,v 1.5 2002/03/14 12:16:12 ianturton Exp $
  */
 public interface DataSource
 {
