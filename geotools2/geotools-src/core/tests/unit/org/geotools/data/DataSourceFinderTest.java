@@ -29,9 +29,7 @@ public class DataSourceFinderTest extends TestCase {
     }
     
     /** Test of getDataSource method, of class org.geotools.data.DataSourceFinder. */
-    public void testGetDataSource() throws DataSourceException {
-        System.out.println("testGetDataSource");
-        
+    public void testGetDataSource() throws DataSourceException {     
         Map params = new HashMap();
         params.put("foo","bar");
         DataSource ds = DataSourceFinder.getDataSource(params);
@@ -40,9 +38,7 @@ public class DataSourceFinderTest extends TestCase {
         
     }
     
-       public void testGetDataSourceWhenMissing() throws DataSourceException {
-        System.out.println("testGetDataSource");
-        
+       public void testGetDataSourceWhenMissing() throws DataSourceException { 
         Map params = new HashMap();
         params.put("wibble","bar");
         DataSource ds = DataSourceFinder.getDataSource(params);
@@ -52,7 +48,6 @@ public class DataSourceFinderTest extends TestCase {
     
     /** Test of getAvailableDataSources method, of class org.geotools.data.DataSourceFinder. */
     public void testGetAvailableDataSources() {
-        System.out.println("testGetAvailableDataSources");
         Iterator list = DataSourceFinder.getAvailableDataSources();
         assertNotNull(list);
     }
