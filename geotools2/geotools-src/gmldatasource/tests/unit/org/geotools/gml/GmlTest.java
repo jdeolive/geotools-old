@@ -23,7 +23,7 @@ import junit.framework.*;
  */
 public class GmlTest extends TestCase {
     
-    static int NTests = 6;
+    static int NTests = 7;
     
     FeatureCollection table = null;
     
@@ -71,7 +71,7 @@ public class GmlTest extends TestCase {
             //   exp.printStackTrace();
             //}
             
-            assertEquals(5,table.getFeatures().length);
+            assertEquals(7,table.getFeatures().length);
             // TODO: add more tests here
             Feature[] features = table.getFeatures();
             System.out.println("Got "+ features.length + " features");
