@@ -10,7 +10,7 @@ package org.geotools.proj4j;
  *
  * @author  James Macgill
  */
-public class Ellips {
+public class Ellipse {
     protected String	id;	/* ellipse keyword name */
     protected String	major;	/* a= value */
     protected String	ell;	/* elliptical parameter */
@@ -23,7 +23,7 @@ public class Ellips {
      * @param elliptical parameter
      * @param name description and comments
      */
-    public Ellips(String id,String major,String ell,String name) {
+    public Ellipse(String id, String major, String ell, String name) {
         this.id = id;
         this.major = major;
         this.ell = ell;
