@@ -5,7 +5,7 @@ import java.util.logging.Level;
 
 /**
  * Factory for constructing Tool classes.
- * @version $Id: ToolFactory.java,v 1.1 2003/02/21 19:24:09 camerons Exp $
+ * @version $Id: ToolFactory.java,v 1.2 2003/03/21 18:37:46 camerons Exp $
  * @author Cameron Shorter
  */
 public abstract class ToolFactory {
@@ -65,4 +65,9 @@ public abstract class ToolFactory {
      * Create an instance of PanTool.
      */
     public abstract PanTool createPanTool();
+    
+    /**
+     * Create an instance of PanTool.
+     */
+    public abstract ZoomTool createZoomTool();
 }
