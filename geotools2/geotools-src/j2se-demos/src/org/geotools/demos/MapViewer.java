@@ -61,7 +61,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.10 2003/04/01 10:41:38 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.11 2003/04/22 20:37:47 camerons Exp $
  *
  */
 
@@ -95,10 +95,9 @@ public class MapViewer {
         Layer layer;
         Tool tool;
 
-
         try {
             ContextFactory contextFactory=ContextFactory.createFactory();
-            
+
             // Create a BoundingBox
             envelope=new Envelope(50,60,50,60);
             CS_CoordinateSystem cs = adapters.export(
@@ -133,7 +132,7 @@ public class MapViewer {
             // Create Tool
             ToolFactory toolFactory=ToolFactory.createFactory();
             tool=toolFactory.createPanTool();
-            
+
             // Create SelectedTool
             ToolList selectedTool=contextFactory.createToolList(
                 tool);
@@ -155,9 +154,15 @@ public class MapViewer {
             mapPane.setBackground(Color.BLACK);
             mapPane.setPreferredSize(new Dimension(300,300));
 
-         } catch (Exception e){
-            LOGGER.warning("Exception: "+e+" initialising MapView.");
-            return null;
+        } catch (org.geotools.cs.FactoryException e) {
+            LOGGER.warning(
+                "CS Factory Exception, check your CLASSPATH.  Cause is: "
+                +e.getCause());
+            throw new RuntimeException();
+        }
+        catch (java.lang.Exception e) {
+            LOGGER.warning("Error styling features.  Cause is: "+e.getCause());
+            throw new RuntimeException();
         }
         return mapPane;
    }
