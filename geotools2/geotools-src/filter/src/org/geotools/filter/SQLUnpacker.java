@@ -81,24 +81,7 @@ public class SQLUnpacker {
     }
 
     /**
-     * Performs the unpacking of the filter, to get the results of the
-     * unpacking, getUnSupported() and getSupported() must be called.
-     *
-     * @param filter to be unpacked.
-     *
-     * @deprecated unPacking now can be done splitting on an AND or an OR.
-     *             unPackAND replaces this generic unPack (which assumed an
-     *             AND unpacking), and  unPackOR is added to handle the OR
-     *             case.  So use unPackAND where ever  this is currently used.
-     */
-    public void unPack(Filter filter) {
-        //this can be easily changed to return a pair, but adding a FilterPair
-        //class to the Filter package seems to add unnecessary clutter.
-        pair = doUnPack(filter, AbstractFilter.LOGIC_AND);
-    }
-
-    /**
-     * Performs the unpacking of a filter, for the cases when ANDs can be spit
+     * Performs the unpacking of a filter, for the cases when ANDs can be split
      * and ORs can not.  To get the results of the unpacking getUnsupported
      * and getSupported must be called before another unpacking is done.
      *
