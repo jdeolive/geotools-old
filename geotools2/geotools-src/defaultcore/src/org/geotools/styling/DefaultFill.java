@@ -18,14 +18,17 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill j.macgill@geog.leeds.ac.uk
+ *     UNITED KINGDOM: James Macgill j.macgill@geog.leeds.ac.uk
  *
- *
- * @author jamesm
  */
 
 package org.geotools.styling;
 import org.geotools.filter.*;
+
+/**
+ * @version $Id: DefaultFill.java,v 1.6 2002/06/04 16:55:37 loxnard Exp $
+ * @author James Macgill, CCG
+ */
 
 public class DefaultFill implements org.geotools.styling.Fill {
     private static org.apache.log4j.Logger _log =
@@ -50,14 +53,14 @@ public class DefaultFill implements org.geotools.styling.Fill {
     /**
      * This parameter gives the solid color that will be used for a Fill.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
-     * primary-color component, in the
-     * order Red, Green, Blue, prifixed wih the hash (#) sign.
-     * The hexidecimal digits beetween A and F may be in either uppoer
-     * or lower case.  For example full red is encoded as "#ff0000" (with no
+     * primary-color component, in the order Red, Green, Blue, prefixed with
+     * the hash (#) sign.
+     * The hexidecimal digits between A and F may be in either upper
+     * or lower case.  For example, full red is encoded as "#ff0000" (with no
      * quotation marks).
      * The default color is defined to be 50% gray ("#808080").
      *
-     * Note: in CSS this parameter is just called Fill and not Color
+     * Note: in CSS this parameter is just called Fill and not Color.
      *
      * @return The color of the Fill encoded as a hexidecimal RGB value.
      */
@@ -67,13 +70,13 @@ public class DefaultFill implements org.geotools.styling.Fill {
     /**
      * This parameter gives the solid color that will be used for a Fill.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
-     * primary-color component, in the
-     * order Red, Green, Blue, prifixed wih the hash (#) sign.
-     * The hexidecimal digits beetween A and F may be in either uppoer
-     * or lower case.  For example full red is encoded as "#ff0000" (with no
+     * primary-color component, in the order Red, Green, Blue, prefixed with
+     * the hash (#) sign.
+     * The hexidecimal digits between A and F may be in either upper
+     * or lower case.  For example, full red is encoded as "#ff0000" (with no
      * quotation marks).
      *
-     * Note: in CSS this parameter is just called Fill and not Color
+     * Note: in CSS this parameter is just called Fill and not Color.
      *
      * @param The color of the Fill encoded as a hexidecimal RGB value.
      */
@@ -92,20 +95,21 @@ public class DefaultFill implements org.geotools.styling.Fill {
     /**
      * This specifies the level of translucency to use when rendering the fill.
      * <br>
-     * The value is encoded as a floating-point value between 0.0 and 1.0 with 0.0
-     * representing totaly transparent and 1.0 representing totaly opaque, with
-     * a linear scale of translucency for intermediate values.<br>
+     * The value is encoded as a floating-point value between 0.0 and 1.0
+     * with 0.0 representing totally transparent and 1.0 representing totally
+     * opaque, with a linear scale of translucency for intermediate values.<br>
      * For example, "0.65" would represent 65% opacity.
-     * The default value is 1.0 (opaque)
+     * The default value is 1.0 (opaque).
      *
-     * @return The opacity of the fill, where 0.0 is completly transparent
-     *  and 1.0 is completly opaque.
+     * @return The opacity of the fill, where 0.0 is completely transparent
+     *         and 1.0 is completely opaque.
      */
     public Expression getOpacity() {
         return opacity;
     }
     
-    /** Setter for property opacity.
+    /**
+     * Setter for property opacity.
      * @param opacity New value of property opacity.
      */
     public void setOpacity(Expression opacity) {
@@ -120,10 +124,10 @@ public class DefaultFill implements org.geotools.styling.Fill {
     }
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be used and
-     * specifed the fill graphic to use.
+     * specifies the fill graphic to use.
      *
      * @return graphic The graphic to use as a stipple fill.
-     *  If null then no Stipple fill should be used.
+     *         If null then no Stipple fill should be used.
      */
     
     
@@ -131,7 +135,8 @@ public class DefaultFill implements org.geotools.styling.Fill {
         return graphicFill;
     }
     
-    /** Setter for property graphic.
+    /**
+     * Setter for property graphic.
      * @param graphic New value of property graphic.
      */
     public void setGraphicFill(org.geotools.styling.Graphic graphic) {

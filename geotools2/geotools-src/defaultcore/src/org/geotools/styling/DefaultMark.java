@@ -1,7 +1,21 @@
 /*
- * DefaultMark.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on 28 May 2002, 15:09
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
 
 package org.geotools.styling;
@@ -9,8 +23,8 @@ package org.geotools.styling;
 import com.vividsolutions.jts.geom.*;
 import java.util.StringTokenizer;
 /**
- *
- * @author  iant
+ * @version $Id: DefaultMark.java,v 1.5 2002/06/04 17:04:27 loxnard Exp $
+ * @author Ian Turton, CCG
  */
 public class DefaultMark implements Mark {
     private static org.apache.log4j.Logger _log = 
@@ -35,7 +49,7 @@ public class DefaultMark implements Mark {
    
     
     /**
-     * This parameter defines which fill style to use when renderin the Mark.
+     * This parameter defines which fill style to use when rendering the Mark.
      *
      * @return the Fill definition to use when rendering the Mark.
      */
@@ -47,7 +61,7 @@ public class DefaultMark implements Mark {
      * This paramterer defines which stroke style should be used when
      * rendering the Mark.
      *
-     * @return The Stroke defenition to use when rendering the Mark.
+     * @return The Stroke definition to use when rendering the Mark.
      */
     public Stroke getStroke() {
         return stroke;
@@ -55,24 +69,26 @@ public class DefaultMark implements Mark {
     
     /**
      * This parameter gives the well-known name of the shape of the mark.<br>
-     * Allowed names include at lest "square", "circle", "triangle", "star",
+     * Allowed names include at least "square", "circle", "triangle", "star",
      * "cross" and "x" though renderers may draw a different symbol instead
      * if they don't have a shape for all of these.<br>
      *
-     * @return The well known name of a shape.  The default value is "square".
+     * @return The well-known name of a shape.  The default value is "square".
      */
     public String getWellKnownName() {
         return wellKnownName;
     }
     
-    /** Setter for property fill.
+    /**
+     * Setter for property fill.
      * @param fill New value of property fill.
      */
     public void setFill(org.geotools.styling.Fill fill) {
         this.fill = fill;
     }
     
-    /** Setter for property stroke.
+    /**
+     * Setter for property stroke.
      * @param stroke New value of property stroke.
      */
     public void setStroke(org.geotools.styling.Stroke stroke) {
@@ -82,7 +98,8 @@ public class DefaultMark implements Mark {
     public void setSize(double size){
         this.size = size;
     }
-    /** Setter for property wellKnownName.
+    /**
+     * Setter for property wellKnownName.
      * @param wellKnownName New value of property wellKnownName.
      */
     public void setWellKnownName(java.lang.String wellKnownName) {
@@ -100,14 +117,16 @@ public class DefaultMark implements Mark {
         this.rotation = rotation;
     }
     
-    /** Getter for property size.
+    /**
+     * Getter for property size.
      * @return Value of property size.
      */
     public double getSize() {
         return size;
     }
     
-    /** Getter for property rotation.
+    /**
+     * Getter for property rotation.
      * @return Value of property rotation.
      */
     public double getRotation() {

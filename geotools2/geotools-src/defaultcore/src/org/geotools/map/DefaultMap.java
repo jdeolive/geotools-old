@@ -1,23 +1,6 @@
 /*
- * DefaultMap.java
- *
- * Created on April 12, 2002, 1:24 PM
- */
-
-package org.geotools.map;
-
-import java.util.Hashtable;
-import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
-import org.geotools.feature.*;
-import org.geotools.renderer.*;
-import org.geotools.styling.*;
-import org.opengis.cs.*;
-import com.vividsolutions.jts.geom.Envelope;
-
-/**
- * Geotools - OpenSource mapping toolkit
- *            (C) 2002, Center for Computational Geography
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -33,12 +16,22 @@ import com.vividsolutions.jts.geom.Envelope;
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *
- * Contacts:
- *     UNITED KINDOM: James Macgill j.macgill@geog.leeds.ac.uk
- *
- *
- * @author jamesm
+ */
+
+package org.geotools.map;
+
+import java.util.Hashtable;
+import org.geotools.data.*;
+import org.geotools.datasource.extents.*;
+import org.geotools.feature.*;
+import org.geotools.renderer.*;
+import org.geotools.styling.*;
+import org.opengis.cs.*;
+import com.vividsolutions.jts.geom.Envelope;
+
+/**
+ * @version $Id: DefaultMap.java,v 1.4 2002/06/04 16:49:54 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public class DefaultMap implements org.geotools.map.Map {
     

@@ -1,3 +1,23 @@
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
 package org.geotools.feature;
 
 import java.util.*;
@@ -12,10 +32,13 @@ import org.geotools.data.*;
  * <li>Attributes may only have one occurrence.
  * <li>Each feature has a single, non-changing geometry attribute.</ul></p>
  *
- * <p>Flat feature types define features types that may be thought of as 'layers' in 
- * traditional GIS parlance.  They are called flat because they do not
- * allow any nested elements, but they also restrict the attribute objects
- * to be very simple data types.</p>
+ * <p>Flat feature types define features types that may be thought of as
+ * 'layers' in traditional GIS parlance.  They are called flat because they
+ * do not allow any nested elements, but they also restrict the attribute
+ * objects to be very simple data types.</p>
+ *
+ * @version $Id: FeatureTypeFlat.java,v 1.6 2002/06/04 16:48:51 loxnard Exp $
+ * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat implements FeatureType {
 
@@ -73,11 +96,12 @@ public class FeatureTypeFlat implements FeatureType {
     }
 
     /**
-     * Constructor with several attributes.  This constructer will fail if the
+     * Constructor with several attributes.  This constructor will fail if the
      * attribute array does not contain exactly one geometry, the attributes
      * do not match the allowed types, or any of the attributes have more than
-     * one occurence.  As one might expect, this constructor ignores (reassigns)
-     * positional information in attributes based on the array order.
+     * one occurrence.  As one might expect, this constructor ignores
+     * (reassigns) positional information in attributes based on the array
+     * order.
      * 
      * @param attributeTypes The attribute types for this feature type.
      * @return Fully initialized flat feature type.
@@ -139,9 +163,9 @@ public class FeatureTypeFlat implements FeatureType {
     }
 
 
-    /* ********************************************************************************************
-     * Static Helper methods to check, add and destroy attributes.                                *
-     * ********************************************************************************************/
+    /* ***********************************************************************
+     * Static Helper methods to check, add and destroy attributes.           *
+     * ***********************************************************************/
     private static boolean isAllowed(AttributeType attribute) {
         if( ALLOWED_TYPES.contains(attribute.getType()) &&
             attribute.getOccurrences() == 1) {
@@ -182,13 +206,14 @@ public class FeatureTypeFlat implements FeatureType {
         return schema;
     }
     
-    /* ********************************************************************************************
-     * Handles all attribute interface implementation.                                            *
-     * ********************************************************************************************/
+    /* ***********************************************************************
+     * Handles all attribute interface implementation.                       *
+     * ***********************************************************************/
     /**
      * Always true.
      *
-     * @return Whether or not this represents a feature type (over a 'flat' attribute).
+     * @return Whether or not this represents a feature type (over a
+     * 'flat' attribute).
      */
     public boolean isNested() {
         return true;
@@ -244,13 +269,13 @@ public class FeatureTypeFlat implements FeatureType {
     } 
 
 
-    /* ************************************************************************
-     * Handles all global feature type modifications.                         *
-     * ************************************************************************/
+    /* ***********************************************************************
+     * Handles all global feature type modifications.                        *
+     * ***********************************************************************/
     /**
      * Sets the global feature type namespace.
      *
-     * @param namespace URI namespace associate with this feature type.
+     * @param namespace URI namespace associated with this feature type.
      * @return A modified copy of this feature type.
      */
     public FeatureType setNamespace(String namespace) {
@@ -261,8 +286,8 @@ public class FeatureTypeFlat implements FeatureType {
     }
 
     /**
-     * Sets the global feature type name.  Note that type names are not required
-     * and should return null if it is not set.
+     * Sets the global feature type name.  Note that type names are not
+     * required and should return null if it is not set.
      *
      * @param name Type name associated with this feature type.
      * @return A modified copy of this feature type.
@@ -275,16 +300,16 @@ public class FeatureTypeFlat implements FeatureType {
         return schemaCopy;
     }
 
-    /* ************************************************************************
-     * Handles all feature type attribute modifications.                      *
-     * ************************************************************************/
+    /* ***********************************************************************
+     * Handles all feature type attribute modifications.                     *
+     * ***********************************************************************/
     /**
      * Sets the values for any attribute other than a nested Feature attribute.
      *
      * @param attribute AttributeType to add to the feature type.
      * @return A modified copy of this feature type.
-     * @throws SchemaException When the type is not cloneable, occurances 
-     * are illegal
+     * @throws SchemaException When the type is not cloneable, occurrences 
+     * are illegal.
      */
     public FeatureType setAttributeType(AttributeType attribute)
         throws SchemaException {
@@ -365,9 +390,9 @@ public class FeatureTypeFlat implements FeatureType {
                                        + " feature type.");
     }
 
-    /* ************************************************************************
-     * Handles all namespace retreival                                        *
-     * ************************************************************************/
+    /* ***********************************************************************
+     * Handles all namespace retrieval                                       *
+     * ***********************************************************************/
     /**
      * Gets the global feature type namespace.
      *
@@ -387,13 +412,13 @@ public class FeatureTypeFlat implements FeatureType {
     }
 
 
-    /* ************************************************************************
-     * Handles all attribute information retreival.                           *
-     * ************************************************************************/
+    /* ***********************************************************************
+     * Handles all attribute information retreival.                          *
+     * ***********************************************************************/
     /**
      * Gets all of the names for the first 'level' of attributes.  This means
      * that nested attributes must be read seperately, via the getNames()
-     * method of thier feature types or the getAllNames() method.
+     * method of their feature types or the getAllNames() method.
      *
      * @return Non-nested attribute names.
      */
@@ -475,7 +500,7 @@ public class FeatureTypeFlat implements FeatureType {
     }
     
     /**
-     * Gets the number of occurances of this attribute.
+     * Gets the number of occurrences of this attribute.
      *
      * @param position XPath pointer to attribute.
      * @return Number of occurrences.
@@ -487,7 +512,7 @@ public class FeatureTypeFlat implements FeatureType {
 
 
     /**
-     * Gets the number of occurances of this attribute.
+     * Gets the number of occurrences of this attribute.
      *
      * @return Number of occurrences.
      * @throws SchemaException If the attribute does not exist.
@@ -514,7 +539,7 @@ public class FeatureTypeFlat implements FeatureType {
     }
 
     /**
-     * Gets the number of occurances of this attribute.
+     * Gets the number of occurrences of this attribute.
      *
      * @return Number of occurrences.
      * @throws SchemaException If the attribute does not exist.
