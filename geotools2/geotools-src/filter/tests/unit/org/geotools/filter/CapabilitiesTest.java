@@ -43,7 +43,8 @@ public class CapabilitiesTest extends TestCase {
     private Filter gFilter;
     private Filter compFilter;
     private Filter logFilter;
-    FilterCapabilities capabilities;
+    private FilterCapabilities capabilities;
+    private FilterFactory fact = FilterFactory.createFilterFactory();
 
     /** Test suite for this test case */
     TestSuite suite = null;
@@ -54,7 +55,6 @@ public class CapabilitiesTest extends TestCase {
 
     public CapabilitiesTest(String testName) {
         super(testName);
-        LOGGER.info("running CapabilitiesTests");
     }
 
     /**
@@ -82,7 +82,7 @@ public class CapabilitiesTest extends TestCase {
      * Sets up a schema and a test feature.
      */
     protected void setUp() {
-        LOGGER.info("Setting up FilterCapabilitiesTest");
+        LOGGER.finer("Setting up FilterCapabilitiesTest");
 
         if (setup) {
             return;
@@ -92,10 +92,10 @@ public class CapabilitiesTest extends TestCase {
         capabilities = new FilterCapabilities();
 
         try {
-            gFilter = new GeometryFilterImpl(AbstractFilter.GEOMETRY_WITHIN);
-            compFilter = new CompareFilterImpl(AbstractFilter.COMPARE_LESS_THAN);
-        } catch (IllegalFilterException e) {
-            LOGGER.info("Bad filter " + e);
+            gFilter = fact.createGeometryFilter(AbstractFilter.GEOMETRY_WITHIN);
+            compFilter = fact.createCompareFilter(AbstractFilter.COMPARE_LESS_THAN);
+        } catch (IllegalFilterException ife) {
+            LOGGER.fine("Bad filter " + ife);
         }
 
         capabilities.addType(AbstractFilter.LOGIC_OR);
@@ -129,14 +129,14 @@ public class CapabilitiesTest extends TestCase {
             assertTrue(capabilities.fullySupports(compFilter));
             assertTrue(!(capabilities.fullySupports(gFilter)));
             assertTrue(!(capabilities.fullySupports(logFilter)));
-            logFilter = compFilter.and(new BetweenFilterImpl());
+            logFilter = compFilter.and(fact.createBetweenFilter());
             assertTrue(capabilities.fullySupports(logFilter));
-            logFilter = logFilter.or(new BetweenFilterImpl());
+            logFilter = logFilter.or(fact.createBetweenFilter());
             assertTrue(capabilities.fullySupports(logFilter));
             logFilter = logFilter.and(gFilter);
             assertTrue(!(capabilities.fullySupports(logFilter)));
         } catch (IllegalFilterException e) {
-            LOGGER.info("Bad filter " + e);
+            LOGGER.fine("Bad filter " + e);
         }
     }
 }
