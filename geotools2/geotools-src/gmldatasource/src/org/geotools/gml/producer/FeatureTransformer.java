@@ -41,9 +41,11 @@ import org.xml.sax.helpers.NamespaceSupport;
 import org.xml.sax.helpers.XMLFilterImpl;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -91,19 +93,21 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.15 2003/11/12 02:08:17 cholmesny Exp $
+ * @version $Id: FeatureTransformer.java,v 1.16 2003/11/13 02:45:10 cholmesny Exp $
  *
  * @todo Add support for schemaLocation
  */
 public class FeatureTransformer extends TransformerBase {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
+    private static Set gmlAtts;
     private String collectionPrefix = "wfs";
     private String collectionNamespace = "http://www.opengis.net/wfs";
     private NamespaceSupport nsLookup = new NamespaceSupport();
     private FeatureTypeNamespaces featureTypeNamespaces = new FeatureTypeNamespaces(nsLookup);
     private SchemaLocationSupport schemaLocation = new SchemaLocationSupport();
     private int maxFeatures = -1;
+    private boolean prefixGml = false;
 
     public void setCollectionNamespace(String nsURI) {
         collectionNamespace = nsURI;
@@ -134,23 +138,55 @@ public class FeatureTransformer extends TransformerBase {
     }
 
     /**
-     * HACK ALERT!  This should go in FeatureSource, as all I'm doing right now
-     * is making a MaxFeatureReader from the reader I pass in. I just don't
-     * have time to implement it there.
+     * If Gml Prefixing is enabled then attributes with names that could be
+     * prefixed with gml, such as description, pointProperty, and name, will
+     * be.  So if an attribute called name is encountered, instead of
+     * prepending the default prefix (say gt2:name), it will turn out as
+     * gml:name.  Right now this is fairly hacky, as the gml:name,
+     * gml:description, ect., should be in the first attributes by default.
+     * The actualy geometry encodings will always be prefixed with the proper
+     * gml, like gml:coordinates. This only applies to attributes, that could
+     * also be part of the features normal schema (for example a pointProperty
+     * could be declared in the gt2  namespace, instead of a gml:pointProperty
+     * it would be a gt2:pointProperty.
      *
-     * @param maxFeatures DOCUMENT ME!
+     * @param prefixGml DOCUMENT ME!
+     *
+     * @task REVISIT: only prefix name, description, and boundedBy if they
+     *       occur in their proper places.  Right now names always get gml prefixed
+     *       if the gmlPrefixing is on, which is less than ideal.
+     * @task REVISIT: The other approach is to allow for generic mapping, users
+     *       would set which attributes they wanted to have different
+     *       prefixes.
      */
-    public void setMaxFeatures(int maxFeatures) {
-        this.maxFeatures = maxFeatures;
+    public void setGmlPrefixing(boolean prefixGml) {
+        this.prefixGml = prefixGml;
+
+        if (prefixGml && (gmlAtts == null)) {
+            gmlAtts = new HashSet();
+            gmlAtts.add("pointProperty");
+            gmlAtts.add("geometryProperty");
+            gmlAtts.add("polygonProperty");
+            gmlAtts.add("lineStringProperty");
+            gmlAtts.add("multiPointProperty");
+            gmlAtts.add("multiLineStringProperty");
+            gmlAtts.add("multiPolygonProperty");
+            gmlAtts.add("description");
+            gmlAtts.add("name");
+
+            //boundedBy is done in handleAttribute to make use of the writeBounds
+            //code.
+        }
     }
 
     public org.geotools.xml.transform.Translator createTranslator(
         ContentHandler handler) {
         FeatureTranslator t = new FeatureTranslator(handler, collectionPrefix,
                 collectionNamespace, featureTypeNamespaces, schemaLocation);
-        t.setMaxFeatures(this.maxFeatures);
-
         java.util.Enumeration prefixes = nsLookup.getPrefixes();
+
+        //setGmlPrefixing(true);
+        t.setGmlPrefixing(prefixGml);
 
         while (prefixes.hasMoreElements()) {
             String prefix = prefixes.nextElement().toString();
@@ -202,7 +238,7 @@ public class FeatureTransformer extends TransformerBase {
         String memberString;
         String currentPrefix;
         FeatureTypeNamespaces types;
-        int maxFeatures = -1;
+        boolean prefixGml = false;
 
         /**
          * Constructor with handler.
@@ -226,8 +262,8 @@ public class FeatureTransformer extends TransformerBase {
                 + ":featureMember";
         }
 
-        public void setMaxFeatures(int maxFeatures) {
-            this.maxFeatures = maxFeatures;
+        void setGmlPrefixing(boolean prefixGml) {
+            this.prefixGml = prefixGml;
         }
 
         public void encode(Object o) throws IllegalArgumentException {
@@ -237,11 +273,6 @@ public class FeatureTransformer extends TransformerBase {
             } else if (o instanceof FeatureReader) {
                 // THIS IS A HACK FOR QUICK USE
                 FeatureReader r = (FeatureReader) o;
-
-                //HACK: this reader should already be constructed.
-                if (maxFeatures > 0) {
-                    r = new MaxFeatureReader(r, maxFeatures);
-                }
 
                 startFeatureCollection();
 
@@ -405,8 +436,14 @@ public class FeatureTransformer extends TransformerBase {
                             && Geometry.class.isAssignableFrom(value.getClass())) {
                         writeBounds(((Geometry) value).getEnvelopeInternal());
                     } else {
-                        if (currentPrefix != null) {
-                            name = currentPrefix + ":" + name;
+                        String thisPrefix = currentPrefix;
+
+                        if (prefixGml && gmlAtts.contains(name)) {
+                            thisPrefix = "gml";
+                        }
+
+                        if (thisPrefix != null) {
+                            name = thisPrefix + ":" + name;
                         }
 
                         contentHandler.startElement("", "", name, NULL_ATTS);
