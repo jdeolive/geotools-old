@@ -24,7 +24,7 @@ package org.geotools.styling;
  * A class to read and parse an SLD file based on verion 0.7.2 of
  * the OGC Styled Layer Descriptor Spec.
  *
- * @version $Id: SLDStyle.java,v 1.18 2002/07/16 10:51:47 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.19 2002/07/25 17:07:21 ianturton Exp $
  * @author Ian Turton, CCG
  *
  *
@@ -254,20 +254,11 @@ public class SLDStyle implements org.geotools.styling.Style {
                     Filter filter = FilterXMLParser.parseFilter(kid);
                     _log.debug("filter: " + filter.getClass().toString());
                     _log.info("parsed: " + filter.toString());
-                    // TODO: store filter somewhere
+                    rule.setFilter(filter);
                 }
             }
             if(child.getNodeName().equalsIgnoreCase("ElseFilter")){
-                NodeList list = child.getChildNodes();
-                Node kid = null;
-                for(int k=0;k<list.getLength();k++){
-                    kid = list.item(k);
-                    if(kid == null || kid.getNodeType() != Node.ELEMENT_NODE) continue;
-                    Filter filter = FilterXMLParser.parseFilter(kid);
-                    _log.debug("filter: " + filter.getClass().toString());
-                    _log.info("parsed: " + filter.toString());
-                    // TODO: store filter somewhere
-                }
+                rule.setHasElseFilter();
             }
             if( child.getNodeName().equalsIgnoreCase("LegendGraphic")){
                 NodeList g = ((Element)child).getElementsByTagName("Graphic");
@@ -306,7 +297,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("Geometry")){
-                //symbol.setGeometryPropertyName(child.getNodeValue());
+                symbol.setGeometryPropertyName(parseGeometryName(child)); 
             }
             if(child.getNodeName().equalsIgnoreCase("Stroke")){
                 symbol.setStroke(parseStroke(child));
@@ -326,7 +317,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("Geometry")){
-                symbol.setGeometryPropertyName(child.getNodeValue());
+                symbol.setGeometryPropertyName(parseGeometryName(child));
             }
             if(child.getNodeName().equalsIgnoreCase("Stroke")){
                 symbol.setStroke(parseStroke(child));
@@ -349,7 +340,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("Geometry")){
-                symbol.setGeometryPropertyName(child.getNodeValue());
+                symbol.setGeometryPropertyName(parseGeometryName(child));
             }
             if(child.getNodeName().equalsIgnoreCase("Fill")){
                 symbol.setFill((DefaultFill)parseFill(child));
@@ -382,7 +373,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("Geometry")){
-                symbol.setGeometryPropertyName(child.getNodeValue());
+                symbol.setGeometryPropertyName(parseGeometryName(child));
             }
             if(child.getNodeName().equalsIgnoreCase("Graphic")){
                 symbol.setGraphic(parseGraphic(child));
@@ -402,8 +393,8 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("Geometry")){
-                // hmm I don't understand the spec here?
-                // TODO: read spec carefully
+                //TODO: add this method to Graphic
+                //graphic.setGeometryPropertyName(parseGeometryName(child));
             }
             if(child.getNodeName().equalsIgnoreCase("ExternalGraphic")){
                 _log.debug("parsing extgraphic "+child);
@@ -424,6 +415,19 @@ public class SLDStyle implements org.geotools.styling.Style {
         }
         return graphic;
     }
+    private String parseGeometryName(Node root){
+        _log.debug("parsing GeometryName");
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            return parseCssParameter(child).toString();
+        }
+        return null;
+    }
+            
     private DefaultMark parseMark(Node root){
         _log.debug("parsing mark");
         DefaultMark mark = new DefaultMark();

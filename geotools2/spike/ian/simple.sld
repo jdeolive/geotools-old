@@ -70,6 +70,12 @@ buildings.  One road and the river run through the zone.
       <FeatureTypeName>road</FeatureTypeName>
        <!-- the actual rule describes the style -->
       <Rule>
+        <Filter>
+            <PropertyIsGreaterThan>
+                <PropertyName>size</PropertyName>
+                <Literal>4</Literal>
+            </PropertyIsGreaterThan>
+        </Filter>
         <!-- these are lines so we need a line symbolizer -->
         <LineSymbolizer>
            <!-- A stroke describes how the line looks -->
@@ -86,14 +92,11 @@ buildings.  One road and the river run through the zone.
             </CssParameter>
           </Stroke>
         </LineSymbolizer>
-      </Rule>
-    </FeatureTypeStyle>
-    <!-- part one of the styling for the roads, this provides the outer case -->
-    <FeatureTypeStyle>
-        <!-- this describes the featureTypeName to apply this style to e.g. road -->
-      <FeatureTypeName>road</FeatureTypeName>
-       <!-- the actual rule describes the style -->
-      <Rule>
+    </Rule>
+</FeatureTypeStyle>
+<FeatureTypeStyle>
+        <FeatureTypeName>road</FeatureTypeName>
+        <Rule>
         <LineSymbolizer>
           <Stroke>
             <CssParameter name="stroke">#88FF00</CssParameter>
@@ -106,6 +109,30 @@ buildings.  One road and the river run through the zone.
     <FeatureTypeStyle>
       <FeatureTypeName>building</FeatureTypeName>
       <Rule>
+        <Filter>
+            <Within>
+                <PropertyName>buildingOutline</PropertyName>
+                <gml:Box gid="1" srsName="http://?/epsg.xml#ESPG:4326">
+                    <gml:coordinates>
+                      0,0 30,15
+                     </gml:coordinates>
+                </gml:Box>
+            </Within>
+        </Filter>
+        <PolygonSymbolizer>
+            <Stroke>
+                <CssParameter name="stroke-width">3</CssParameter>
+                <CssParameter name="stoke">#330000</CssParameter>
+          </Stroke>
+          <Fill>
+            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
+            <CssParameter name="fill">#00FF00</CssParameter>
+            
+          </Fill>
+        </PolygonSymbolizer>
+      </Rule>
+      <Rule>
+      <ElseFilter/>
         <!-- like a linesymbolizer but with a fill too -->
         <PolygonSymbolizer>
             <Stroke>
@@ -119,6 +146,35 @@ buildings.  One road and the river run through the zone.
           </Fill>
         </PolygonSymbolizer>
       </Rule>
+  </FeatureTypeStyle>
+  <FeatureTypeStyle>
+    <FeatureTypeName>building</FeatureTypeName>
+      <Rule>
+        <TextSymbolizer>
+                <Geometry>
+                    <PropertyName>location</PropertyName>
+                </Geometry>
+                <Label><PropertyName>description</PropertyName></Label>
+                <Font>
+                    <CssParameter name="font-family">Times New Roman</CssParameter>
+                    <CssParameter name="font-Size">
+                        <Literal>10</Literal>
+                    </CssParameter>
+                </Font>
+                <Font>
+                    <CssParameter name="font-family">Arial</CssParameter>
+                    <CssParameter name="font-Size">
+                        <Literal>10</Literal>
+                    </CssParameter>
+                </Font>
+                
+                <Fill>
+                    <CssParameter name="fill">#000000</CssParameter>
+                </Fill>
+                <Halo/>
+            </TextSymbolizer>
+        </Rule>
+            
     </FeatureTypeStyle>
     <FeatureTypeStyle>
       <FeatureTypeName>zone</FeatureTypeName>

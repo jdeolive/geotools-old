@@ -13,11 +13,13 @@
     <ccg:cartographicMember>
         <ccg:road fid="road1">   
             <ccg:description>The East Highway</ccg:description>
-                <gml:LineString gid="1" srsName="http://?/epsg.xml#ESPG:4326">
-                    <gml:coordinates>
-                        0,25 30,25
-                    </gml:coordinates>
-                </gml:LineString>
+                <gml:centerLineOf>
+                    <gml:LineString gid="1" srsName="http://?/epsg.xml#ESPG:4326">
+                        <gml:coordinates>
+                            0,25 30,25
+                        </gml:coordinates>
+                    </gml:LineString>
+                </gml:centerLineOf>
                 <ccg:size>5</ccg:size>
         </ccg:road>         
     </ccg:cartographicMember>
@@ -26,12 +28,13 @@
             <ccg:description>
                 Local dirt track
             </ccg:description>
-
-            <gml:LineString gid="2" srsName="http://?/epsg.xml#ESPG:4326">
-                <gml:coordinates>
-                    25,0 25,25
-                </gml:coordinates>
-            </gml:LineString>
+            <gml:centerLineOf>
+                <gml:LineString gid="2" srsName="http://?/epsg.xml#ESPG:4326">
+                    <gml:coordinates>
+                        25,0 25,25
+                    </gml:coordinates>
+                </gml:LineString>
+            </gml:centerLineOf>
             <ccg:size>3</ccg:size>
         </ccg:road>
     </ccg:cartographicMember>
@@ -40,38 +43,59 @@
             <ccg:description>
                 Tevior
             </ccg:description>
-
-            <gml:LineString gid="8" srsName="http://?/epsg.xml#ESPG:4326">
-                <gml:coordinates>
-                    0,10 10,20 30,30
-                </gml:coordinates>
-            </gml:LineString>
+            <gml:centerLineOf>
+                <gml:LineString gid="8" srsName="http://?/epsg.xml#ESPG:4326">
+                    <gml:coordinates>
+                        0,10 10,20 30,30
+                    </gml:coordinates>
+                </gml:LineString>
+            </gml:centerLineOf>
         </ccg:river>
     </ccg:cartographicMember>
     <ccg:cartographicMember>
         <ccg:building fid="building1">
-            <gml:Polygon gid="3" srsName="http://?/epsg.xml#ESPG:4326">
-              <gml:outerBoundaryIs>
-                <gml:LinearRing>
-                  <gml:coordinates>
-                    12,4 12,8 18,8 18,4 12,4
-                  </gml:coordinates>
-                </gml:LinearRing>
-              </gml:outerBoundaryIs>
-            </gml:Polygon>
+            <ccg:description>South Building</ccg:description>
+            <ccg:buildingOutline>
+                <gml:Polygon gid="3" srsName="http://?/epsg.xml#ESPG:4326">
+                  <gml:outerBoundaryIs>
+                    <gml:LinearRing>
+                      <gml:coordinates>
+                        12,4 12,8 18,8 18,4 12,4
+                      </gml:coordinates>
+                    </gml:LinearRing>
+                  </gml:outerBoundaryIs>
+                </gml:Polygon>
+            </ccg:buildingOutline>
+            <gml:location>
+                <gml:Point>
+                    <gml:coordinates>
+                        15,6
+                    </gml:coordinates>
+                </gml:Point>
+            </gml:location>
         </ccg:building>
     </ccg:cartographicMember>
     <ccg:cartographicMember>
         <ccg:building fid="building2">
-            <gml:Polygon gid="4" srsName="http://?/epsg.xml#ESPG:4326">
-              <gml:outerBoundaryIs>
-                <gml:LinearRing>
-                  <gml:coordinates>
-                    8,26 8,29 12,29 12,26 8,26
-                  </gml:coordinates>
-                </gml:LinearRing>
-              </gml:outerBoundaryIs>
-            </gml:Polygon>
+            <ccg:description>North Building</ccg:description>
+            <ccg:buildingOutline>
+                <gml:Polygon gid="4" srsName="http://?/epsg.xml#ESPG:4326">
+                  <gml:outerBoundaryIs>
+                    <gml:LinearRing>
+                      <gml:coordinates>
+                        8,26 8,29 12,29 12,26 8,26
+                      </gml:coordinates>
+                    </gml:LinearRing>
+                  </gml:outerBoundaryIs>
+                </gml:Polygon>
+            </ccg:buildingOutline>
+            <gml:location>
+                <gml:Point>
+                    <gml:coordinates>
+                        10,27.5
+                    </gml:coordinates>
+                </gml:Point>
+            </gml:location>
         </ccg:building>
     </ccg:cartographicMember>
     <ccg:cartographicMember>
@@ -90,11 +114,13 @@
     <ccg:cartographicMember>
         <ccg:railway fid="rail">
             <ccg:description>Main Railway</ccg:description>
-            <gml:LineString gid="8" srsName="http://?/epsg.xml#ESPG:4326">
-                <gml:coordinates>
-                    5,30 20,15 30,15
-                </gml:coordinates>
-            </gml:LineString>
+            <gml:centerLineOf>
+                <gml:LineString gid="8" srsName="http://?/epsg.xml#ESPG:4326">
+                    <gml:coordinates>
+                        5,30 20,15 30,15
+                    </gml:coordinates>
+                </gml:LineString>
+            </gml:centerLineOf>
         </ccg:railway>
     </ccg:cartographicMember>
 </ccg:featureCollection>

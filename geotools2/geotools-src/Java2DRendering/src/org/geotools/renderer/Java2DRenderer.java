@@ -49,7 +49,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.46 2002/07/12 16:25:32 loxnard Exp $
+ * @version $Id: Java2DRenderer.java,v 1.47 2002/07/25 17:07:21 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -75,64 +75,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     private static com.vividsolutions.jts.geom.Point markCentrePoint;
     
     
-    /**
-     * Holds a lookup bewteen SLD names and java constants.
-     */
-    private static final java.util.HashMap joinLookup = new java.util.HashMap();
-    /**
-     * Holds a lookup bewteen SLD names and java constants.
-     */
-    private static final java.util.HashMap capLookup = new java.util.HashMap();
-    /**
-     * Holds a lookup bewteen SLD names and java constants.
-     */
-    private static final java.util.HashMap fontStyleLookup = new java.util.HashMap();
-    /**
-     * Holds a list of well-known marks.
-     */
-    static HashSet wellKnownMarks = new java.util.HashSet();
-    static HashSet supportedGraphicFormats = new java.util.HashSet();
-    static ImageLoader imageLoader = new ImageLoader();
-    static { //static block to populate the lookups
-        joinLookup.put("miter", new Integer(BasicStroke.JOIN_MITER));
-        joinLookup.put("bevel", new Integer(BasicStroke.JOIN_BEVEL));
-        joinLookup.put("round", new Integer(BasicStroke.JOIN_ROUND));
-        
-        capLookup.put("butt",   new Integer(BasicStroke.CAP_BUTT));
-        capLookup.put("round",  new Integer(BasicStroke.CAP_ROUND));
-        capLookup.put("square", new Integer(BasicStroke.CAP_SQUARE));
-        
-        fontStyleLookup.put("normal", new Integer(java.awt.Font.PLAIN));
-        fontStyleLookup.put("italic", new Integer(java.awt.Font.ITALIC));
-        fontStyleLookup.put("oblique", new Integer(java.awt.Font.ITALIC));
-        fontStyleLookup.put("bold", new Integer(java.awt.Font.BOLD));
-        /**
-         * A list of wellknownshapes that we know about:
-         * square, circle, triangle, star, cross, x.
-         */
-        wellKnownMarks.add("Square");
-        wellKnownMarks.add("Triangle");
-        wellKnownMarks.add("Cross");
-        wellKnownMarks.add("Circle");
-        wellKnownMarks.add("Star");
-        wellKnownMarks.add("X");
-        wellKnownMarks.add("Arrow");
-        wellKnownMarks.add("square");
-        wellKnownMarks.add("triangle");
-        wellKnownMarks.add("cross");
-        wellKnownMarks.add("circle");
-        wellKnownMarks.add("star");
-        wellKnownMarks.add("x");
-        wellKnownMarks.add("arrow");
-        
-        supportedGraphicFormats.add("image/gif");
-        supportedGraphicFormats.add("image/jpg");
-        supportedGraphicFormats.add("image/png");
-        
-        Coordinate c = new Coordinate(100, 100);
-        GeometryFactory fac = new GeometryFactory();
-        markCentrePoint = fac.createPoint(c);
-    }
+
     
     /**
      * Graphics object to be rendered to.
@@ -220,7 +163,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         double sc = scale * Math.cos(angle);
         double ss = scale * Math.sin(angle);
-        
+        // TODO: if user space is geographic (i.e. in degrees) we need to transform it 
+        // to Km/m here to calc the size of the pixel and hence the scaleDenominator
+        scaleDenominator = 1/scale;
         at = new AffineTransform(sc, -ss, ss, -sc, tx, ty);
         
         /* If we are rendering to a component which has already set up some form
@@ -251,6 +196,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @param features An array of features to be rendered
      * @param featureStylers An array of feature stylers to be applied
      **/
+    private static double tolerance = 1e-6;
     private void processStylers(final Feature[] features, final FeatureTypeStyle[] featureStylers) {
         for (int i = 0; i < featureStylers.length; i++){
             FeatureTypeStyle fts = featureStylers[i];
@@ -262,16 +208,34 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     //this styler is for this type of feature
                     //now find which rule applies
                     Rule[] rules = fts.getRules();
+                    boolean featureProcessed = false;
                     for (int k = 0; k < rules.length; k++){
                         //does this rule apply?
-                        //TODO: the rule may be FAR more complex than this and code needs to
-                        //TODO: be written to support this, particularly the filtering aspects.
+                        if (rules[k].getMinScaleDenominator() - tolerance <= scaleDenominator 
+                            && rules[k].getMaxScaleDenominator() + tolerance > scaleDenominator
+                            && !rules[k].hasElseFilter()){
+                            Filter filter = rules[k].getFilter();
+                            
+                            if(filter == null || filter.contains(feature) == true){
+                                _log.info("rule passed, moving on to symobolizers");
+                                //yes it does
+                                //this gives us a list of symbolizers
+                                Symbolizer[] symbolizers = rules[k].getSymbolizers();
+                                processSymbolizers(feature, symbolizers);
+                                featureProcessed = true;                           
+                            }
+                        }
+                    }
+                    if( featureProcessed == true ) continue;
+                    //if else present apply elsefilter
+                    for (int k = 0; k < rules.length; k++){
+                        //if none of the above rules applied do any of them have elsefilters that do
                         if (rules[k].getMinScaleDenominator() < scaleDenominator && rules[k].getMaxScaleDenominator() > scaleDenominator){
-                            _log.info("rule passed, moving on to symobolizers");
-                            //yes it does
-                            //this gives us a list of symbolizers
-                            Symbolizer[] symbolizers = rules[k].getSymbolizers();
-                            processSymbolizers(feature, symbolizers);
+                            if ( rules[k].hasElseFilter() ) {
+                                _log.info("rule passed as else filter, moving on to symobolizers");
+                                Symbolizer[] symbolizers = rules[k].getSymbolizers();
+                                processSymbolizers(feature, symbolizers);               
+                            }
                         }
                     }
                 }
@@ -417,7 +381,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             
             _log.debug("rendering text");
             
-            String geomName = symbolizer.geometryPropertyName();
+            String geomName = symbolizer.getGeometryPropertyName();
+            _log.debug("geomName = " + geomName);
             Geometry geom = findGeometry(feature, geomName);
             if (geom.isEmpty()){
                 _log.debug("empty geometry");
@@ -492,8 +457,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             if (placement instanceof PointPlacement){
                 //HACK: this will fail if the geometry of the feature isn't a point
                 _log.debug("setting pointPlacement");
-                tx = ((Point) feature.getDefaultGeometry()).getX();
-                ty = ((Point) feature.getDefaultGeometry()).getY();
+                tx = ((Point) geom).getX();
+                ty = ((Point) geom).getY();
                 PointPlacement p = (PointPlacement) placement;
                 x = ((Number) p.getAnchorPoint().getAnchorPointX().getValue(feature)).doubleValue()*-textBounds.getWidth();
                 y = ((Number) p.getAnchorPoint().getAnchorPointY().getValue(feature)).doubleValue()*textBounds.getHeight();
@@ -507,7 +472,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 _log.debug("setting line placement");
                 //HACK: this will fail if the geometry of the feature is not a linestring
                 double offset = ((Number) ((LinePlacement) placement).getPerpendicularOffset().getValue(feature)).doubleValue();
-                LineString line = ((LineString) feature.getDefaultGeometry());
+                LineString line = ((LineString) geom);
                 Point start = line.getStartPoint();
                 Point end = line.getEndPoint();
                 double dx = end.getX() - start.getX();
@@ -1085,6 +1050,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 geom = (Geometry) feature.getAttribute(geomName);
             }
             catch (IllegalFeatureException ife){
+                _log.warn("Geometry " + geomName + " not found ",ife);
                 //hack: not sure if null is the right thing to return at this point
                 geom = null;
             }
@@ -1101,5 +1067,63 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     public void setInteractive(boolean interactive){
         this.interactive = interactive;
+    }
+    /**
+     * Holds a lookup bewteen SLD names and java constants.
+     */
+    private static final java.util.HashMap joinLookup = new java.util.HashMap();
+    /**
+     * Holds a lookup bewteen SLD names and java constants.
+     */
+    private static final java.util.HashMap capLookup = new java.util.HashMap();
+    /**
+     * Holds a lookup bewteen SLD names and java constants.
+     */
+    private static final java.util.HashMap fontStyleLookup = new java.util.HashMap();
+    /**
+     * Holds a list of well-known marks.
+     */
+    static HashSet wellKnownMarks = new java.util.HashSet();
+    static HashSet supportedGraphicFormats = new java.util.HashSet();
+    static ImageLoader imageLoader = new ImageLoader();
+    static { //static block to populate the lookups
+        joinLookup.put("miter", new Integer(BasicStroke.JOIN_MITER));
+        joinLookup.put("bevel", new Integer(BasicStroke.JOIN_BEVEL));
+        joinLookup.put("round", new Integer(BasicStroke.JOIN_ROUND));
+        
+        capLookup.put("butt",   new Integer(BasicStroke.CAP_BUTT));
+        capLookup.put("round",  new Integer(BasicStroke.CAP_ROUND));
+        capLookup.put("square", new Integer(BasicStroke.CAP_SQUARE));
+        
+        fontStyleLookup.put("normal", new Integer(java.awt.Font.PLAIN));
+        fontStyleLookup.put("italic", new Integer(java.awt.Font.ITALIC));
+        fontStyleLookup.put("oblique", new Integer(java.awt.Font.ITALIC));
+        fontStyleLookup.put("bold", new Integer(java.awt.Font.BOLD));
+        /**
+         * A list of wellknownshapes that we know about:
+         * square, circle, triangle, star, cross, x.
+         */
+        wellKnownMarks.add("Square");
+        wellKnownMarks.add("Triangle");
+        wellKnownMarks.add("Cross");
+        wellKnownMarks.add("Circle");
+        wellKnownMarks.add("Star");
+        wellKnownMarks.add("X");
+        wellKnownMarks.add("Arrow");
+        wellKnownMarks.add("square");
+        wellKnownMarks.add("triangle");
+        wellKnownMarks.add("cross");
+        wellKnownMarks.add("circle");
+        wellKnownMarks.add("star");
+        wellKnownMarks.add("x");
+        wellKnownMarks.add("arrow");
+        
+        supportedGraphicFormats.add("image/gif");
+        supportedGraphicFormats.add("image/jpg");
+        supportedGraphicFormats.add("image/png");
+        
+        Coordinate c = new Coordinate(100, 100);
+        GeometryFactory fac = new GeometryFactory();
+        markCentrePoint = fac.createPoint(c);
     }
 }

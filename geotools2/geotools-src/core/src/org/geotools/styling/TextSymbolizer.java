@@ -24,7 +24,7 @@
 package org.geotools.styling;
 import org.geotools.filter.Expression;
 /**
- * $Id: TextSymbolizer.java,v 1.3 2002/07/12 15:45:19 loxnard Exp $
+ * $Id: TextSymbolizer.java,v 1.4 2002/07/25 17:07:22 ianturton Exp $
  * @author Ian Turton, CCG
  */
 
@@ -72,5 +72,5 @@ public interface TextSymbolizer extends Symbolizer {
      * @return String The name of the attribute in the feature being styled 
      *  that should be used.  If null then the default geometry should be used.
      */
-    String geometryPropertyName();    
+    String getGeometryPropertyName();    
 }
