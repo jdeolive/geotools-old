@@ -1,21 +1,14 @@
 /**
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
+ * Geotools - OpenSource mapping toolkit (C) 2002, Centre for Computational
+ * Geography This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; version 2.1 of the License. This
+ * library is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
+ * more details. You should have received a copy of the GNU Lesser General
+ * Public License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 package org.geotools.renderer;
 
@@ -31,13 +24,12 @@ import java.util.logging.Logger;
 
 
 /**
- * $Id: ImageLoader.java,v 1.7 2002/09/03 15:16:28 ianturton Exp $
+ * $Id: ImageLoader.java,v 1.8 2002/10/14 14:20:59 ianturton Exp $
+ * 
  * @author Ian Turton
  */
 public class ImageLoader implements Runnable {
-    /**
-     * The logger for the rendering module.
-     */
+    /** The logger for the rendering module. */
     private static final Logger LOGGER = Logger.getLogger(
                                                  "org.geotools.rendering");
     static HashMap images = new HashMap();
@@ -94,6 +86,20 @@ public class ImageLoader implements Runnable {
         }
     }
 
+    /**
+     * Fetch a buffered image from the loader, if interactive is false then the
+     * loader will wait for  the image to be available before returning, used
+     * by printers and file output renderers. If interactive is true and the
+     * image is ready then return, if image is not ready start loading it  and
+     * return null. The renderer is responsible for finding an alternative to
+     * use.
+     * 
+     * @param location the url of the image to be fetched
+     * @param interactive boolean to signal if the loader should wait for the
+     *        image to be ready.
+     * 
+     * @return the buffered image or null
+     */
     public BufferedImage get(URL location, boolean interactive) {
         if (images.containsKey(location)) {
             LOGGER.finest("found it");
@@ -111,6 +117,9 @@ public class ImageLoader implements Runnable {
         }
     }
 
+    /**
+     * Runs the loading thread
+     */
     public void run() {
         int myID = 0;
         Image img = null;
