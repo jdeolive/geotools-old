@@ -39,61 +39,124 @@ public class SdeFeatureResults implements FeatureResults
     /** DOCUMENT ME! */
     private Query query;
 
+    /***/
+    private Envelope resultBounds;
+
     /**
      * Creates a new SdeFeatureResults object.
      *
+     * <p>
+     * The <code>Query</code> is stored as instance variable because it will be
+     * used in each call to <code>reader()</code> to construct a new
+     * <code>SDEQuery</code> instance, wich will serve as the streamed source
+     * to the FeatureReader.
+     * </p>
+     *
+     * <p>
+     * This constructor also makes use of <code>query</code> to request the
+     * results envelope, wich is cached for subsequent calls to
+     * <code>getBounds()</code>, anyway, each call to <code>reader()</code>
+     * will update the result bounds to avoid inconsistences with the
+     * underlying feature set, but it is usefull here so we have an exception
+     * to throw if we can't get the envelope, cause FeatureSource.getFeatures
+     * requires to throw an exception if something goes wrong, and since we
+     * don't really execute the query until reader() is called to keep the
+     * method reentrant, it is a good indication if such a query will fail if
+     * we can't obtain the envelope
+     * </p>
+     *
      * @param source DOCUMENT ME!
      * @param query DOCUMENT ME!
+     *
+     * @throws IOException is the result envelope can't be computed by
+     * a SDEQuery object based on <code>query</code>
      */
     SdeFeatureResults(SdeFeatureSource source, Query query)
+        throws IOException
     {
         this.source = source;
         this.query = query;
+
+        SDEQuery sdeQuery = null;
+
+        try
+        {
+            sdeQuery = source.createSeQuery(query);
+            this.resultBounds = sdeQuery.calculateLayerExtent();
+        }
+        catch (DataSourceException ex)
+        {
+            throw ex;
+        }
+        finally
+        {
+            sdeQuery.close();
+        }
     }
 
     /**
-     * Calls through to source.getSchame( query )
-     */
-    public FeatureType getSchema() throws IOException {
-        return source.getSchema(query);        
-    }
-    
-    /**
-     * DOCUMENT ME!
+     * Using que <code>org.geotools.data.Query</code> this FeatureResults
+     * respond for, creates a new instance of <code>SDEQuery</code> on each
+     * call, wich will be used as the stream source for returning a new
+     * <code>SdeFeatureReader</code>
      *
-     * @return DOCUMENT ME!
+     * @return a new FeatureReader to iterate over this results
      *
-     * @throws IOException DOCUMENT ME!
+     * @throws IOException see below
+     * @throws DataSourceException if an <code>SeException</code> is catched
+     *         while prepatring or executing the ArcSDE query, or if the
+     *         constructor of <code>SdeFeatureReader</code> throws it, wich
+     *         mostly can happen if it can't fetch the first row of data from
+     *         the streaming source this method passes as parameter
      */
-    public org.geotools.data.FeatureReader reader() throws IOException
+    public FeatureReader reader() throws IOException
     {
         SdeFeatureReader featureReader = null;
 
-        SeRow sdeStream = null;
+        int maxFeatures = query.getMaxFeatures();
         FeatureType resultType = source.getSchema(query);
-        SeQuery sdeQuery = source.createSeQuery(query);
-        Envelope resEnv = source.getBounds(sdeQuery);
+        SDEQuery sdeQuery = source.createSeQuery(query);
 
-        featureReader = new SdeFeatureReader(resultType, sdeQuery, resEnv,
-                query.getMaxFeatures());
+        try
+        {
+            this.resultBounds = sdeQuery.calculateLayerExtent();
+            sdeQuery.prepareQuery();
+            sdeQuery.execute();
+        }
+        catch (SeException ex)
+        {
+            if (sdeQuery != null)
+                sdeQuery.close();
+
+            throw new DataSourceException("Error executing query:"
+                + ex.getMessage(), ex);
+        }
+
+        featureReader = new SdeFeatureReader(resultType, sdeQuery, maxFeatures);
 
         return featureReader;
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the cached bounds of the query results that originates this
+     * instance of SdeFeatureResults. Such Envelope is obtained at the
+     * constructor of this class and is cached for subsecuent calls to
+     * getBounds.
      *
-     * @return DOCUMENT ME!
+     * @return the cached bounds of this results
      *
-     * @throws IOException DOCUMENT ME!
+     * @throws IOException not at all
      */
     public Envelope getBounds() throws IOException
     {
-        return source.getBounds(query);
+        return resultBounds;
     }
 
     /**
-     * DOCUMENT ME!
+     * uses it's caller <code>SdeFeatureSource</code> to calculate the result
+     * count of the query results this instance represents. No caching is done
+     * to avoid inconsistences if the underlying data set changes from call to
+     * call
      *
      * @return DOCUMENT ME!
      *

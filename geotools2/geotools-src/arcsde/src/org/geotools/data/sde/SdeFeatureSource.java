@@ -95,7 +95,6 @@ public class SdeFeatureSource implements FeatureSource
 
         this.dataStore = store;
         this.typeName = typeName;
-
         this.schema = schema;
         this.seLayer = dataStore.getConnectionPool().getSdeLayer(typeName);
     }
@@ -164,6 +163,7 @@ public class SdeFeatureSource implements FeatureSource
     public FeatureResults getFeatures(Query query) throws IOException
     {
         FeatureResults results = new SdeFeatureResults(this, query);
+
         return results;
     }
 
@@ -247,22 +247,27 @@ public class SdeFeatureSource implements FeatureSource
     public Envelope getBounds(Query query)
     {
         Envelope bounds = null;
+        SDEQuery sdeQuery = null;
 
         try
         {
             if (query == Query.ALL)
+            {
                 bounds = getBounds();
+            }
             else
             {
-                SeQuery sdeQuery = createSeQuery(query);
-                bounds = getBounds(sdeQuery);
+                sdeQuery = createSeQuery(query);
+                bounds = sdeQuery.calculateLayerExtent();
             }
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
-            LOGGER.warning(ex.getMessage());
+          LOGGER.warning("Error calculating query extent: " + ex.getMessage());
+        }finally{
+          if(sdeQuery != null)
+            sdeQuery.close();
         }
-
         return bounds;
     }
 
@@ -275,37 +280,9 @@ public class SdeFeatureSource implements FeatureSource
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public SeQuery createSeQuery(Query query) throws DataSourceException
+    public SDEQuery createSeQuery(Query query) throws DataSourceException
     {
         return adapter.createSeQuery(this, query);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param query DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public Envelope getBounds(SeQuery query)
-    {
-        try
-        {
-            SeQueryInfo sdeQueryInfo = new SeQueryInfo();
-            sdeQueryInfo.setConstruct(adapter.getSdeSqlConstruct());
-
-            SeExtent extent = query.calculateLayerExtent(sdeQueryInfo);
-            Envelope env = new Envelope(extent.getMinX(), extent.getMinY(),
-                    extent.getMaxX(), extent.getMaxY());
-
-            return env;
-        }
-        catch (Exception ex)
-        {
-            LOGGER.info("error calculating query envelope: " + ex.getMessage());
-        }
-
-        return null;
     }
 
     /**
@@ -322,46 +299,35 @@ public class SdeFeatureSource implements FeatureSource
     {
         int size = -1;
 
-        String []qcols = {getLayer().getSpatialColumn()};
+        String[] qcols = { getLayer().getSpatialColumn() };
 
-        try {
-          SeQuery sdeQuery = adapter.createSeQuery(this, qcols, query);
-          sdeQuery.prepareQuery();
-          sdeQuery.execute();
-          int count = 0;
-          while (sdeQuery.fetch() != null) {
-            ++count;
-          }
+        SDEQuery sdeQuery = null;
 
-          size = count;
-        }
-        catch (Exception ex)
-        {
-            LOGGER.info("Error calculating result count: " + ex.getMessage());
-            ex.printStackTrace();
-        }
-
-
-        /**@task REVISIT: find out why the "count(*)" approach thoes not
-         * works if query contains spatial filters
         try
         {
-            String[] qcols = { "count(*)" };
-            //String[] qcols = new String[0];
-            SeQuery sdeQuery = adapter.createSeQuery(this, qcols, query);
+            sdeQuery = adapter.createSeQuery(this, qcols, query);
             sdeQuery.prepareQuery();
             sdeQuery.execute();
 
-            SeRow sdeRow = sdeQuery.fetch();
-            size = sdeRow.getInteger(0).intValue();
-            size = Math.min(size, query.getMaxFeatures());
+            int count = 0;
+
+            while (sdeQuery.fetch() != null)
+            {
+                ++count;
+            }
+
+            size = Math.min(count, query.getMaxFeatures());
         }
         catch (Exception ex)
         {
             LOGGER.info("Error calculating result count: " + ex.getMessage());
             ex.printStackTrace();
         }
-        */
+        finally
+        {
+          if(sdeQuery != null)
+            sdeQuery.close(); //this will release the connection too
+        }
         return size;
     }
 

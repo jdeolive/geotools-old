@@ -23,6 +23,7 @@ import org.geotools.feature.*;
 import org.geotools.filter.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 
 /**
@@ -33,6 +34,7 @@ import java.util.*;
  */
 public class SdeDataStore implements DataStore
 {
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.data.sde");
     /** where to get sde connections from */
     private SdeConnectionPool connectionPool;
 
@@ -64,8 +66,72 @@ public class SdeDataStore implements DataStore
         return connectionPool;
     }
 
-    //HACK: to get data-exp merge compiling.
-    public void createSchema(FeatureType schema) {
+    /**
+    * Creates storage for a new <code>featureType</code>.
+    *
+    * <p>
+    * The provided <code>featureType</code> we be accessable by the typeName
+    * provided by featureType.getTypeName().
+    * </p>
+    *
+    * <p>
+    * Due to the current lack of stronger AttributeType's definitions,
+    * some assumptions are made to the database table schema creation:
+    * </p>
+    *
+    * @param featureType FetureType to add to DataStore
+    *
+    * @throws IOException If featureType cannot be created
+    */
+    public void createSchema(FeatureType featureType) throws IOException
+    {
+      SdeAdapter adapter = new SdeAdapter();
+      SeColumnDefinition []sdeColumns = null;
+      SeConnection sdeConn = null;
+      String typeName = featureType.getTypeName();
+
+      try {
+        sdeConn = getConnectionPool().getConnection();
+
+        SeLayer sdeLayer = new SeLayer(sdeConn);
+
+        AttributeType geometryAtt = featureType.getDefaultGeometry();
+        if(geometryAtt == null)
+          throw new IllegalArgumentException("No geometry attribute has been defined for the new FeatureType");
+
+        /*By creating a qualified table name with current user's name and
+         *the name of the table to be created, "EXAMPLE", we establish the user
+         *as the table owner in the backend database
+         */
+        LOGGER.info("creating new sde table " + typeName);
+        String tableName = (sdeConn.getUser() + "." + typeName);
+        SeTable table = new SeTable(sdeConn, tableName);
+        sdeColumns = adapter.createSeColDefs(featureType);
+
+        /*Create the table using the DBMS default configuration keyword.
+         *Valid config keywords are found in the $SDEHOME\etc\dbtune.sde file.
+         */
+        table.create(sdeColumns, "DEFAULTS");
+
+        /*Define the attributes of the spatial column*/
+        sdeLayer.setSpatialColumnName(geometryAtt.getName());
+        sdeLayer.setTableName(typeName);
+
+        //get the or'ed mask of the shape types this layer will accept,
+        //based on the geometry type of de default geometry
+        int sdeShapeTypes = adapter.guessShapeTypes(geometryAtt);
+        sdeLayer.setShapeTypes(sdeShapeTypes);
+
+        //spatially enable the new table, allocating space for 100 initial
+        //features and setting the estimated average number of points per feature
+        LOGGER.finer("about to spatially enable the new table");
+        sdeLayer.create(100, 4);
+        LOGGER.finer("new table has been succesfully spatially enabled");
+      }catch (SeException ex) {
+        throw new DataSourceException(ex.getMessage(), ex);
+      }finally{
+        getConnectionPool().release(sdeConn);
+      }
     }
 
     /**
@@ -88,7 +154,7 @@ public class SdeDataStore implements DataStore
         throw new java.lang.UnsupportedOperationException(
             "Method getFeatureWriter() not yet implemented.");
     }
-    
+
     public FeatureWriter getFeatureWriter(String typeName, Transaction trans){
 	  throw new java.lang.UnsupportedOperationException(
             "Method getFeatureWriter() not yet implemented.");
@@ -204,7 +270,7 @@ public class SdeDataStore implements DataStore
     protected FeatureType getSchema(SeLayer sdeLayer,
         SeColumnDefinition[] colDefs) throws DataSourceException
     {
-        AttributeType[] types = SdeAdapter.mapSdeTypes(sdeLayer, colDefs);
+        AttributeType[] types = SdeAdapter.createAttributeTypes(sdeLayer, colDefs);
 
         FeatureType type = null;
 

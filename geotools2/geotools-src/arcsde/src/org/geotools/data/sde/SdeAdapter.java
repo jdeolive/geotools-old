@@ -17,6 +17,7 @@
 package org.geotools.data.sde;
 
 import com.esri.sde.sdk.client.*;
+import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
 import org.geotools.factory.*;
 import org.geotools.feature.*;
@@ -31,7 +32,7 @@ import java.util.logging.Logger;
 /**
  * DOCUMENT ME!
  *
- * @author not attributable
+ * @author Gabriel Roldán
  * @version 0.1
  */
 public class SdeAdapter
@@ -40,8 +41,14 @@ public class SdeAdapter
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.data.sde");
 
+    /** DOCUMENT ME! */
+    private static final String NO_SDE_TYPE_MATCH_MSG = "There are no an SDE type configured to match the type ";
+
     /** mappings of SDE attribute's types to Java ones */
-    private static final Map sdeTypes = new java.util.HashMap();
+    private static final Map sdeTypes = new HashMap();
+
+    /** inverse of sdeTypes, maps Java types to SDE ones */
+    private static final Map javaTypes = new HashMap();
 
     static
     {
@@ -54,15 +61,25 @@ public class SdeAdapter
         sdeTypes.put(new Integer(SeColumnDefinition.TYPE_BLOB), byte[].class);
 
         //SeColumnDefinition.TYPE_RASTER is not supported...
+        javaTypes.put(String.class,
+            new SdeTypeDef(SeColumnDefinition.TYPE_STRING, 255, 0));
+        javaTypes.put(Short.class,
+            new SdeTypeDef(SeColumnDefinition.TYPE_SMALLINT, 4, 0));
+        javaTypes.put(Integer.class,
+            new SdeTypeDef(SeColumnDefinition.TYPE_INTEGER, 10, 0));
+        javaTypes.put(Float.class,
+            new SdeTypeDef(SeColumnDefinition.TYPE_FLOAT, 5, 2));
+        javaTypes.put(Double.class,
+            new SdeTypeDef(SeColumnDefinition.TYPE_DOUBLE, 15, 4));
+        javaTypes.put(Date.class,
+            new SdeTypeDef(SeColumnDefinition.TYPE_DATE, 1, 0));
+        javaTypes.put(byte[].class,
+            new SdeTypeDef(SeColumnDefinition.TYPE_BLOB, 1, 0));
+        javaTypes.put(Number.class,
+            new SdeTypeDef(SeColumnDefinition.TYPE_DOUBLE, 15, 4));
     }
 
-    /** To create the sql where statement */
-    private SQLEncoderSDE sqlEncoder = new SQLEncoderSDE();
-
-    /** To create the array of sde spatial filters */
-    private GeometryEncoderSDE geometryEncoder = new GeometryEncoderSDE();
-
-    /** DOCUMENT ME!  */
+    /** DOCUMENT ME! */
     private SeSqlConstruct sdeSqlConstruct = null;
 
     /**
@@ -75,6 +92,108 @@ public class SdeAdapter
     /**
      * DOCUMENT ME!
      *
+     * @param attribute DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     */
+    public int guessShapeTypes(AttributeType attribute)
+    {
+        if (attribute == null)
+            throw new IllegalArgumentException("null is not valid as argument");
+
+        if (!attribute.isGeometry())
+            throw new IllegalArgumentException(attribute.getName()
+                + " is not a geometry attribute");
+
+        Class geometryClass = attribute.getType();
+
+        if (Geometry.class.isAssignableFrom(geometryClass))
+            throw new IllegalArgumentException(geometryClass
+                + " is not a valid Geometry class");
+
+        int shapeTypes = 0;
+
+        if (attribute.isNillable())
+            shapeTypes |= SeLayer.SE_NIL_TYPE_MASK;
+
+        if (GeometryCollection.class.isAssignableFrom(geometryClass))
+        {
+            shapeTypes |= SeLayer.SE_MULTIPART_TYPE_MASK;
+
+            if (geometryClass == MultiPoint.class)
+                shapeTypes |= SeLayer.SE_POINT_TYPE_MASK;
+            else if (geometryClass == MultiLineString.class)
+                shapeTypes |= SeLayer.SE_LINE_TYPE_MASK;
+            else if (geometryClass == MultiPolygon.class)
+                shapeTypes |= SeLayer.SE_AREA_TYPE_MASK;
+            else
+                throw new IllegalArgumentException(
+                    "no SDE geometry mapping for " + geometryClass);
+        }
+        else
+        {
+            if (geometryClass == MultiPoint.class)
+                shapeTypes |= SeLayer.SE_POINT_TYPE_MASK;
+            else if (geometryClass == MultiLineString.class)
+                shapeTypes |= SeLayer.SE_LINE_TYPE_MASK;
+            else if (geometryClass == MultiPolygon.class)
+                shapeTypes |= SeLayer.SE_AREA_TYPE_MASK;
+            else
+                throw new IllegalArgumentException(
+                    "no SDE geometry mapping for " + geometryClass);
+        }
+
+        return shapeTypes;
+    }
+
+    /**
+     *
+     */
+    public SeColumnDefinition[] createSeColDefs(FeatureType featureType)
+        throws DataSourceException
+    {
+        int nCols = featureType.getAttributeCount();
+        AttributeType[] atts = featureType.getAttributeTypes();
+        SeColumnDefinition[] coldefs = new SeColumnDefinition[nCols];
+
+        //new SeColumnDefinition( "Integer_Val", SeColumnDefinition.TYPE_INTEGER, 10, 0, isNullable);
+        for (int i = 0; i < nCols; i++)
+        {
+            if (atts[i].isGeometry())
+                continue;
+
+            String attName = atts[i].getName();
+            Class attClass = atts[i].getType();
+            boolean nillable = atts[i].isNillable();
+
+            SdeTypeDef sdeType = (SdeTypeDef) javaTypes.get(attClass);
+
+            if (sdeType == null)
+                throw new DataSourceException(NO_SDE_TYPE_MATCH_MSG
+                    + attClass.getName());
+
+            try
+            {
+                coldefs[i] = new SeColumnDefinition(attName,
+                        sdeType.colDefType, sdeType.size, sdeType.scale,
+                        nillable);
+            }
+            catch (SeException ex)
+            {
+                throw new DataSourceException(
+                    "Cannot create the column definition named " + attName
+                    + ": " + ex.getSeError().getSdeErrMsg(), ex);
+            }
+        }
+
+        return coldefs;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param sdeLayer DOCUMENT ME!
      * @param colDefs DOCUMENT ME!
      *
@@ -82,12 +201,13 @@ public class SdeAdapter
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public static AttributeType[] mapSdeTypes(SeLayer sdeLayer,
+    public static AttributeType[] createAttributeTypes(SeLayer sdeLayer,
         SeColumnDefinition[] colDefs) throws DataSourceException
     {
         int nCols = colDefs.length;
-        AttributeType[] types = new AttributeType[nCols];
-        AttributeType type = null;
+        DefaultAttributeTypeFactory attFactory = new DefaultAttributeTypeFactory();
+        AttributeType[] attTypes = new AttributeType[nCols];
+        AttributeType attribute = null;
         Class typeClass;
 
         boolean isNilable = true;
@@ -112,13 +232,13 @@ public class SdeAdapter
                 typeClass = (Class) sdeTypes.get(sdeType);
             }
 
-            type = AttributeTypeFactory.newAttributeType(colDefs[i].getName(),
+            attribute = attFactory.newAttributeType(colDefs[i].getName(),
                     typeClass, isNilable);
 
-            types[i] = type;
+            attTypes[i] = attribute;
         }
 
-        return types;
+        return attTypes;
     }
 
     /**
@@ -202,7 +322,7 @@ public class SdeAdapter
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public SeQuery createSeQuery(SdeFeatureSource fSource, Query query)
+    public SDEQuery createSeQuery(SdeFeatureSource fSource, Query query)
         throws DataSourceException
     {
         String[] queryColumns = getQueryColumns(query, fSource.getSchema());
@@ -211,42 +331,51 @@ public class SdeAdapter
     }
 
     /**
-     * DOCUMENT ME!
+     * Runs a Query over the backend ArcSDE server and returns a
+     * <code>SeQuery</code>
      *
      * @param fSource DOCUMENT ME!
      * @param queryColumns DOCUMENT ME!
      * @param query DOCUMENT ME!
      *
-     * @return DOCUMENT ME!
+     * @return <code>null</code> if <code>query.getFilter() ==
+     *         Filter.ALL</code> or the SeQuery object product of the
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public SeQuery createSeQuery(SdeFeatureSource fSource,
+    public SDEQuery createSeQuery(SdeFeatureSource fSource,
         String[] queryColumns, Query query) throws DataSourceException
     {
-        SeQuery sdeQuery = null;
+        Filter filter = query.getFilter();
+
+        if (filter == Filter.ALL)
+            return null;
+
+        SDEQuery sdeQuery = null;
         SdeDataStore store = (SdeDataStore) fSource.getDataStore();
         SeLayer sdeLayer = fSource.getLayer();
+
+        SQLEncoderSDE sqlEncoder = new SQLEncoderSDE(sdeLayer);
+        GeometryEncoderSDE geometryEncoder = new GeometryEncoderSDE(sdeLayer);
 
         sdeSqlConstruct = new SeSqlConstruct();
 
         String[] tables = { sdeLayer.getTableName() };
         sdeSqlConstruct.setTables(tables);
 
-        Filter filter = query.getFilter();
         SQLUnpacker unpacker = new SQLUnpacker(sqlEncoder.getCapabilities());
         unpacker.unPackAND(filter);
 
         Filter sqlFilter = unpacker.getSupported();
         Filter unsupportedFilter = unpacker.getUnSupported();
-        unpacker = new SQLUnpacker(geometryEncoder.getCapabilities());
+        unpacker = new SQLUnpacker(GeometryEncoderSDE.getCapabilities());
         unpacker.unPackAND(unsupportedFilter);
 
         Filter geometryFilter = unpacker.getSupported();
         unsupportedFilter = unpacker.getUnSupported();
 
         //figure out which of the filter we can use.
-        if (sqlFilter != null)
+        if ((sqlFilter != null) && (sqlFilter != Filter.NONE))
         {
             try
             {
@@ -262,22 +391,8 @@ public class SdeAdapter
             }
         }
 
-        SeConnection sdeConn = null;
-
-        try
-        {
-            sdeConn = store.getConnectionPool().getConnection();
-            sdeQuery = new SeQuery(sdeConn, queryColumns, sdeSqlConstruct);
-        }
-        catch (SeException ex)
-        {
-            throw new DataSourceException("Cannot create the SDE Query: "
-                + ex.getMessage(), ex);
-        }
-        finally
-        {
-            store.getConnectionPool().release(sdeConn);
-        }
+        SdeConnectionPool pool = store.getConnectionPool();
+        sdeQuery = new SDEQuery(pool, queryColumns, sdeSqlConstruct);
 
         if (geometryFilter != null)
         {
@@ -297,8 +412,7 @@ public class SdeAdapter
 
                     try
                     {
-                        sdeQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE,
-                            false, sdeSpatialFilters);
+                        sdeQuery.setSpatialConstraints(sdeSpatialFilters);
                     }
                     catch (SeException ex)
                     {
@@ -307,10 +421,8 @@ public class SdeAdapter
                             + ex.getMessage(), ex);
                     }
                 }
-            }
-
-            catch (GeometryEncoderException ex)
-            {
+            }catch (Throwable ex){
+                sdeQuery.close();
                 String message = "Encoder error" + ex.getMessage();
                 LOGGER.warning(message);
                 throw new DataSourceException(message, ex);
@@ -417,5 +529,38 @@ public class SdeAdapter
     public SeSqlConstruct getSdeSqlConstruct()
     {
         return sdeSqlConstruct;
+    }
+}
+
+
+/**
+ * DOCUMENT ME!
+ *
+ * @author $author$
+ * @version $Revision: 1.3 $
+ */
+class SdeTypeDef
+{
+    /** DOCUMENT ME! */
+    final int colDefType;
+
+    /** DOCUMENT ME! */
+    final int size;
+
+    /** DOCUMENT ME! */
+    final int scale;
+
+    /**
+     * Creates a new SdeTypeDef object.
+     *
+     * @param colDefType DOCUMENT ME!
+     * @param size DOCUMENT ME!
+     * @param scale DOCUMENT ME!
+     */
+    public SdeTypeDef(int colDefType, int size, int scale)
+    {
+        this.colDefType = colDefType;
+        this.size = size;
+        this.scale = scale;
     }
 }

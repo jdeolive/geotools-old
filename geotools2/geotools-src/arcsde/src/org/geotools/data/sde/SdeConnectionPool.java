@@ -49,7 +49,7 @@ public class SdeConnectionPool
     public static final int DEFAULT_CONNECTIONS = 1;
 
     /** default number of maximun allowable connections a pool can hold */
-    public static final int DEFAULT_MAX_CONNECTIONS = 2;
+    public static final int DEFAULT_MAX_CONNECTIONS = 1;
 
     /** default number of connections a pool increments by */
     public static final int DEFAULT_INCREMENT = 1;
@@ -261,13 +261,13 @@ public class SdeConnectionPool
      * @throws UnavailableConnectionException DOCUMENT ME!
      */
     public SeConnection getConnection()
-        throws DataSourceException, UnavailableConnectionException
+        throws DataSourceException
     {
         SeConnection conn = null;
 
         if (closed)
         {
-            throw new DataSourceException("The ConnectionPool has been closed.");
+            throw new IllegalStateException("The ConnectionPool has been closed.");
         }
 
         //if there are no available connections
@@ -288,7 +288,7 @@ public class SdeConnectionPool
 
         long timeWaited = 0;
 
-        //then, wait until a connection be freed or time out
+        //then, wait until a connection be freed or the time out has been reached
         while (timeWaited <= getMaxWaitTime())
         {
             LOGGER.finer("waiting for connection...");

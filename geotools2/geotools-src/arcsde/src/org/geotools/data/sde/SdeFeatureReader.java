@@ -39,16 +39,11 @@ public class SdeFeatureReader implements org.geotools.data.FeatureReader
     private FeatureType type;
 
     /** DOCUMENT ME! */
-    private SeQuery sdeQuery;
+    private SDEQuery sdeQuery;
 
     /** DOCUMENT ME! */
     private SeRow stream;
-
-    /** DOCUMENT ME! */
-    private Envelope envelope;
-
     private GeometryBuilder geometryBuilder;
-
     private int currentIndex = 0;
     private int maxFeatures;
     private String fidPrefix;
@@ -58,28 +53,26 @@ public class SdeFeatureReader implements org.geotools.data.FeatureReader
      *
      * @param type DOCUMENT ME!
      * @param sdeQuery DOCUMENT ME!
-     * @param envelope DOCUMENT ME!
+     * @param maxFeatures DOCUMENT ME!
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public SdeFeatureReader(FeatureType type, SeQuery sdeQuery,
-        Envelope envelope, int maxFeatures) throws DataSourceException
+    public SdeFeatureReader(FeatureType type, SDEQuery sdeQuery, int maxFeatures)
+        throws DataSourceException
     {
         this.type = type;
         this.sdeQuery = sdeQuery;
-        this.envelope = envelope;
         this.maxFeatures = maxFeatures;
         this.fidPrefix = type.getTypeName() + ".";
 
         try
         {
-            sdeQuery.prepareQuery();
-            sdeQuery.execute();
             this.stream = sdeQuery.fetch();
         }
         catch (SeException ex)
         {
-            throw new DataSourceException("Can't execute the query: "
+            sdeQuery.close();
+            throw new DataSourceException("Can't fetch query results row: "
                 + ex.getMessage(), ex);
         }
 
@@ -112,34 +105,35 @@ public class SdeFeatureReader implements org.geotools.data.FeatureReader
      * @throws java.io.IOException DOCUMENT ME!
      * @throws org.geotools.feature.IllegalAttributeException DOCUMENT ME!
      * @throws java.util.NoSuchElementException DOCUMENT ME!
-     * @throws java.lang.UnsupportedOperationException DOCUMENT ME!
+     * @throws DataSourceException DOCUMENT ME!
      */
     public Feature next()
         throws java.io.IOException,
             org.geotools.feature.IllegalAttributeException,
             java.util.NoSuchElementException
     {
-      Feature feature = null;
+        Feature feature = null;
 
-      if ((stream != null) && (currentIndex++ < maxFeatures))
-      {
-          try
-          {
-              feature = rowToFeature(stream, this.type);
-              stream = sdeQuery.fetch();
-          }
-          catch (SeException ex)
-          {
-              throw new DataSourceException("Exception fetching sde row", ex);
-          }
+        if ((stream != null) && (currentIndex++ < maxFeatures))
+        {
+            try
+            {
+                feature = rowToFeature(stream, this.type);
+                stream = sdeQuery.fetch();
+            }
+            catch (SeException ex)
+            {
+                close();
+                throw new DataSourceException("Exception fetching sde row", ex);
+            }
 
-          if (stream == null)
-          {
-              close();
-          }
-      }
+            if (stream == null)
+            {
+                close();
+            }
+        }
 
-      return feature;
+        return feature;
     }
 
     /**
@@ -163,15 +157,8 @@ public class SdeFeatureReader implements org.geotools.data.FeatureReader
     {
         stream = null;
 
-        try
-        {
+        if (sdeQuery != null)
             sdeQuery.close();
-        }
-        catch (SeException ex)
-        {
-            LOGGER.warning("Error trying to close sde query: "
-                + ex.getMessage());
-        }
     }
 
     /////////////////////////////////////////////////////////////
@@ -192,7 +179,9 @@ public class SdeFeatureReader implements org.geotools.data.FeatureReader
             if (att.isGeometry())
             {
                 sdeShape = row.getShape(i);
-                featureId = new StringBuffer(fidPrefix).append(sdeShape.getFeatureId().longValue()).toString();
+                featureId = new StringBuffer(fidPrefix).append(sdeShape.getFeatureId()
+                                                                       .longValue())
+                                                       .toString();
                 values[i] = geometryBuilder.construct(sdeShape);
             }
             else
@@ -206,5 +195,4 @@ public class SdeFeatureReader implements org.geotools.data.FeatureReader
 
         return f;
     }
-
 }
