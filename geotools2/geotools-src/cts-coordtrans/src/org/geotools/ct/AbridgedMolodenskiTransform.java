@@ -58,7 +58,7 @@ import org.geotools.resources.XAffineTransform;
  * Transforms a three dimensional geographic points using
  * abridged versions of formulas derived by Molodenski.
  *
- * @version $Id: AbridgedMolodenskiTransform.java,v 1.6 2002/10/13 19:57:29 desruisseaux Exp $
+ * @version $Id: AbridgedMolodenskiTransform.java,v 1.7 2002/10/16 22:35:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -109,7 +109,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     {
         double f, df;
         final WGS84ConversionInfo srcInfo = source.getWGS84Parameters();
-        final WGS84ConversionInfo tgtInfo = source.getWGS84Parameters();
+        final WGS84ConversionInfo tgtInfo = target.getWGS84Parameters();
         final Ellipsoid      srcEllipsoid = source.getEllipsoid();
         final Ellipsoid      tgtEllipsoid = target.getEllipsoid();
         dx =     srcInfo.dx - tgtInfo.dx;
@@ -291,7 +291,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     /**
      * The provider for {@link AbridgedMolodenskiTransform}.
      *
-     * @version $Id: AbridgedMolodenskiTransform.java,v 1.6 2002/10/13 19:57:29 desruisseaux Exp $
+     * @version $Id: AbridgedMolodenskiTransform.java,v 1.7 2002/10/16 22:35:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
