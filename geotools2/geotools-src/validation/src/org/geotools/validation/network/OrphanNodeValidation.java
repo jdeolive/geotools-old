@@ -49,7 +49,7 @@ import java.util.Map;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: OrphanNodeValidation.java,v 1.2 2004/02/17 17:19:16 dmzwiers Exp $
+ * @version $Id: OrphanNodeValidation.java,v 1.3 2004/02/17 20:11:51 dmzwiers Exp $
  */
 public class OrphanNodeValidation extends DefaultIntegrityValidation {
     /** the FeatureSource name datastoreId:typename */
@@ -64,6 +64,17 @@ public class OrphanNodeValidation extends DefaultIntegrityValidation {
      */
     public OrphanNodeValidation() {
         super();
+    }
+    
+    /**
+     * Implementation of getTypeRefs.
+     * 
+     * @see org.geotools.validation.Validation#getTypeRefs()
+     * 
+     * @return
+     */
+    public String[] getTypeRefs() {
+    	return new String[] {typeName};
     }
 
     /**

@@ -22,7 +22,12 @@
  */
 package org.geotools.validation.network;
 
+import java.util.Map;
+
 import org.geotools.validation.DefaultIntegrityValidation;
+import org.geotools.validation.ValidationResults;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -34,7 +39,7 @@ import org.geotools.validation.DefaultIntegrityValidation;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: AddressGapValidation.java,v 1.2 2004/02/17 17:19:15 dmzwiers Exp $
+ * @version $Id: AddressGapValidation.java,v 1.3 2004/02/17 20:11:51 dmzwiers Exp $
  */
 public class AddressGapValidation extends DefaultIntegrityValidation {
     /**
@@ -46,7 +51,28 @@ public class AddressGapValidation extends DefaultIntegrityValidation {
      */
     public AddressGapValidation() {
         super();
-
         // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * Check FeatureType for ...
+     * 
+     * <p>
+     * Detailed description...
+     * </p>
+     *
+     * @param layers Map of FeatureSource by "dataStoreID:typeName"
+     * @param envelope The bounding box that encloses the unvalidated data
+     * @param results Used to coallate results information
+     *
+     * @return <code>true</code> if all the features pass this test.
+     *
+     * @throws Exception DOCUMENT ME!
+     */
+    public boolean validate(Map layers, Envelope envelope,
+    		ValidationResults results) throws Exception {
+    	results.warning(null, "Validation not yet implemented");
+    	// TODO fill me in!
+    	return false;
     }
 }
