@@ -99,7 +99,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.15 2003/02/20 11:18:08 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.16 2003/02/23 21:27:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -1011,6 +1011,13 @@ public class Renderer {
         }
         buffer.append(']');
         return buffer.toString();
+    }
+
+    /**
+     * Returns the math transform factory associated to this renderer.
+     */
+    final synchronized MathTransformFactory getMathTransformFactory() {
+        return factory.getMathTransformFactory();
     }
 
     /**

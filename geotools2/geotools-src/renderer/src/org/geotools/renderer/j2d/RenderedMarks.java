@@ -91,7 +91,7 @@ import org.geotools.resources.XAffineTransform;
  *   <li>{@link #paint(Graphics2D, Shape, int)}</li>
  * </ul>
  *
- * @version $Id: RenderedMarks.java,v 1.4 2003/02/22 22:36:03 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.5 2003/02/23 21:27:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -105,9 +105,9 @@ public abstract class RenderedMarks extends RenderedLayer {
     static final Shape DEFAULT_SHAPE = new Ellipse2D.Float(-5, -5, 10, 10);
 
     /**
-     * Couleur des marques. La couleur par défaut sera orangée.
+     * Couleur des marques. La couleur par défaut sera grisée.
      */
-    static final Color DEFAULT_COLOR = new Color(234, 192, 0);
+    static final Color DEFAULT_COLOR = new Color(102, 102, 153, 192);
 
     /**
      * Projection cartographique utilisée la
@@ -163,7 +163,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      * @see #getAmplitude
      * @see #getDirection
      */
-    public abstract int getCount();
+    protected abstract int getCount();
 
     /**
      * Indique si la marque pointée par l'index spécifié est visible. L'implémentation par
@@ -175,7 +175,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      * seconde, ce qui indiquerait que la station #23 apparaissait d'abord comme "allumée",
      * puis comme "éteinte" sur la carte.
      */
-    public boolean isVisible(int index) {
+    protected boolean isVisible(int index) {
         return true;
     }
 
@@ -185,19 +185,18 @@ public abstract class RenderedMarks extends RenderedLayer {
      * système de coordonnées de cette couche} (WGS 1984 par défaut). Cette méthode est autorisée
      * à retourner <code>null</code> si la position d'une marque n'est pas connue.
      *
-     * @see #getGeographicShape
+     * @throws TransformException if a transform was required and failed.
      *
-     * @throws IndexOutOfBoundsException Si l'index spécifié n'est pas
-     *         dans la plage <code>[0..{@link #getCount}-1]</code>.
+     * @see #getGeographicShape
      */
-    public abstract Point2D getPosition(int index) throws IndexOutOfBoundsException;
+    protected abstract Point2D getPosition(int index) throws TransformException;
 
     /**
      * Retourne les unités de l'amplitude, ou <code>null</code> si ces unités ne sont pas connues.
      * L'implémentation par défaut retourne toujours <code>null</code>. Les unités de la direction,
      * pour leur part, seront toujours en radians.
      */
-    public Unit getAmplitudeUnit() {
+    protected Unit getAmplitudeUnit() {
         return null;
     }
 
@@ -209,7 +208,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      * paraîtront deux fois plus grosses, etc. L'implémentation par défaut retourne la valeur
      * RMS de toutes les amplitudes retournées par {@link #getAmplitude}.
      */
-    public double getTypicalAmplitude() {
+    protected double getTypicalAmplitude() {
         synchronized (getTreeLock()) {
             if (!(typicalAmplitude>0)) {
                 int n=0;
@@ -233,7 +232,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      * paraîtra grosse. Cette information est principalement utilisée pour dessiner des flèches de
      * courants ou de vents. L'implémentation par défaut retourne toujours 1.
      */
-    public double getAmplitude(int index) {
+    protected double getAmplitude(int index) {
         return 1;
     }
 
@@ -242,7 +241,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      * information est particulièrement utile pour le traçage de flèches de courants ou
      * de vents. L'implémentation par défaut retourne toujours 0.
      */
-    public double getDirection(int index) {
+    protected double getDirection(int index) {
         return 0;
     }
 
@@ -253,7 +252,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      * {@link #getPosition}. L'implémentation par défaut retourne toujours <code>null</code>,
      * ce qui suppose que cette couche n'affiche que des points sans étendue géographique connue.
      */
-    public Shape getGeographicShape(int index) {
+    protected Shape getGeographicShape(int index) {
         return null;
     }
 
@@ -269,7 +268,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      * L'implémentation par défaut retourne toujours un cercle centré à (0,0) et d'un
      * diamètre de 10 points.
      */
-    public Shape getMarkShape(int index) {
+    protected Shape getMarkShape(int index) {
         return DEFAULT_SHAPE;
     }
 

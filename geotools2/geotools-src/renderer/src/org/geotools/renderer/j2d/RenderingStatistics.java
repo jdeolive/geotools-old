@@ -49,7 +49,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * painting is in process. They are used for logging messages and have no impact
  * on future rendering.
  *
- * @version $Id: RenderingStatistics.java,v 1.2 2003/02/03 09:52:00 desruisseaux Exp $
+ * @version $Id: RenderingStatistics.java,v 1.3 2003/02/23 21:27:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RenderingStatistics {
@@ -132,7 +132,7 @@ final class RenderingStatistics {
             final String         name = renderer.getName(locale);
             final Double         time = new Double(this.time/1000.0);
             final LogRecord    record;
-            if (total == 0) {
+            if (total==0 || rendered==0) {
                 record = resources.getLogRecord(level, ResourceKeys.PAINTING_$2, name, time);
             } else {
                 record = new LogRecord(level,
