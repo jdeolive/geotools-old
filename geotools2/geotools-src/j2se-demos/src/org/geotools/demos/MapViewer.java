@@ -60,7 +60,7 @@ import javax.swing.*;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.12 2003/04/25 08:59:34 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.13 2003/05/05 11:03:30 camerons Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
@@ -88,6 +88,7 @@ public class MapViewer {
      *
      * @throws RuntimeException When there is a FactoryException or Problem
      *         reading the SLD style sheets.
+     * @task TODO remove references to RemoteException when we can.
      */
     private MapPaneImpl createMapPane() {
         BoundingBox bbox;
@@ -172,9 +173,16 @@ public class MapViewer {
                 + e.getCause()
             );
             throw new RuntimeException();
-        } catch (java.lang.Exception e) {
+        }
+        catch (IllegalFeatureException e) {
             LOGGER.warning(
                 "Error styling features.  Cause is: " + e.getCause()
+            );
+            throw new RuntimeException();
+        }
+        catch (java.rmi.RemoteException e) {
+            LOGGER.warning(
+                "RemoteException " + e.getCause()
             );
             throw new RuntimeException();
         }
