@@ -53,7 +53,7 @@ import org.geotools.cs.CoordinateSystem;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.2 2003/03/12 11:10:26 camerons Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.3 2003/03/16 04:20:58 camerons Exp $
  * @author Martin Desruisseaux
  * @author Cameron Shorter
  */
@@ -103,26 +103,26 @@ public final class GeoMouseEvent extends MouseEvent {
     }
     
 
-    /**
-     * Returns the mouse's position in pixel units. This method is
-     * similar to {@link #getPoint}.
-     * @task REVISIT Investigate whether mouse location should be
-     * corrected for deformations caused by some artifacts like the
-     * {@linkplain org.geotools.gui.swing.ZoomPane#setMagnifierVisible
-     * magnifying glass}.
-     *
-     * @param  dest A pre-allocated point that stores the mouse's
-     *              location, or <code>null</code> if none.
-     * @return The mouse's location in pixel coordinates.
-     */
-    public Point2D getPixelCoordinate(Point2D dest) {
-        if (dest != null) {
-            dest.setLocation(getX(), getY());
-        } else {
-            dest = new Point2D.Double(getX(), getY());
-        }
-        return dest;
-    }
+//    /**
+//     * Returns the mouse's position in pixel units. This method is
+//     * similar to {@link #getPoint}.
+//     * @task REVISIT Investigate whether mouse location should be
+//     * corrected for deformations caused by some artifacts like the
+//     * {@linkplain org.geotools.gui.swing.ZoomPane#setMagnifierVisible
+//     * magnifying glass}.
+//     *
+//     * @param  dest A pre-allocated point that stores the mouse's
+//     *              location, or <code>null</code> if none.
+//     * @return The mouse's location in pixel coordinates.
+//     */
+//    public Point2D getPixelCoordinate(Point2D dest) {
+//        if (dest != null) {
+//            dest.setLocation(getX(), getY());
+//        } else {
+//            dest = new Point2D.Double(getX(), getY());
+//        }
+//        return dest;
+//    }
 
     /**
      * Returns the "real world" mouse's position. The coordinates are expressed
@@ -133,8 +133,12 @@ public final class GeoMouseEvent extends MouseEvent {
      * @return The mouse's location in CoordinateSystem coordinates.
      */
     public Point2D getMapCoordinate(Point2D dest) {
-        dest = getPixelCoordinate(dest);
-        transform.transform(dest,dest);
+        if (dest != null) {
+            dest.setLocation(getX(), getY());
+        } else {
+            dest = new Point2D.Double(getX(), getY());
+        }
+         transform.transform(dest,dest);
         return dest;
     }
 }
