@@ -18,6 +18,7 @@
     </menu> -->
         
         
+        
         <links>
       <item name="core" href="/../core"></item>
       <item name="defaultcore" href="/../defaultcore"></item>
@@ -25,6 +26,7 @@
             <item name="java2drendering" href="/../Java2DRendering"></item>
             <item name="gmldatasource" href="/../gmldatasource"></item>
             <item name="algorithms" href="/../algorithms"></item>
+            <item name="postgis" href="/../postgis"></item>
         </links>
     </body>
 </project>
