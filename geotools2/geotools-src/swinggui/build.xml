@@ -8,10 +8,10 @@
     <target name="compile">
         <javac debug="true" srcdir="src">
         <classpath>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\..\extbin\gtbuild\lib\"/>
-                <fileset dir="..\core\release\"/>
-                <fileset dir="..\defaultcore\release\"/>
+                <fileset dir="../../extbin/core/lib/"/>
+                <fileset dir="../../extbin/gtbuild/lib/"/>
+                <fileset dir="../core/release/"/>
+                <fileset dir="../defaultcore/release/"/>
             </classpath>
         </javac>
     </target>
@@ -19,11 +19,11 @@
         <javac debug="true" srcdir="tests/unit">
             <classpath>
                 <path path="src"/>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\..\extbin\gtbuild\lib\"/>
-                <fileset dir="..\core\release\"/>
-                <fileset dir="..\defaultcore\release\"/>
-                <fileset dir="..\shapefile\release\"/>
+                <fileset dir="../../extbin/core/lib/"/>
+                <fileset dir="../../extbin/gtbuild/lib/"/>
+                <fileset dir="../core/release/"/>
+                <fileset dir="../defaultcore/release/"/>
+                <fileset dir="../shapefile/release/"/>
             </classpath>
         </javac>
     </target>
@@ -32,12 +32,12 @@
         <formatter type="plain"/>
         <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
         <classpath>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\..\extbin\gtbuild\lib\"/>
-                <fileset dir="..\..\extbin\shapefile\lib\"/>
-                <fileset dir="..\core\release\"/>
-                <fileset dir="..\defaultcore\release\"/>
-                <fileset dir="..\shapefile\release\"/>
+                <fileset dir="../../extbin/core/lib/"/>
+                <fileset dir="../../extbin/gtbuild/lib/"/>
+                <fileset dir="../../extbin/shapefile/lib/"/>
+                <fileset dir="../core/release/"/>
+                <fileset dir="../defaultcore/release/"/>
+                <fileset dir="../shapefile/release/"/>
                 <path path="src/"/>
                 <path path="tests/unit/"/>
             </classpath>
