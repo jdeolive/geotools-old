@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, TOPP<br>
  * @author Chris Holmes, TOPP
- * @version $Id: ExpressionSAXParser.java,v 1.8 2003/07/30 00:07:11 cholmesny Exp $
+ * @version $Id: ExpressionSAXParser.java,v 1.9 2003/11/04 21:51:18 cholmesny Exp $
  */
 public class ExpressionSAXParser {
     /** The logger for the filter module. */
@@ -264,12 +264,12 @@ public class ExpressionSAXParser {
                 //HACK: This should also not use exception catching, it's 
                 //expensive and bad code practice.
                 try {
-                    Object temp = new Double(message);
+                    Object temp = new Integer(message);
                     ((LiteralExpression) curExprssn).setLiteral(temp);
                     currentState = "complete";
                 } catch (NumberFormatException nfe1) {
                     try {
-                        Object temp = new Integer(message);
+                        Object temp = new Double(message);
                         ((LiteralExpression) curExprssn).setLiteral(temp);
                         currentState = "complete";
                     } catch (NumberFormatException nfe2) {
