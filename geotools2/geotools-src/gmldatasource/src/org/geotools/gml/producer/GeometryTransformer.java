@@ -23,8 +23,8 @@ public class GeometryTransformer {
     
     Attributes NULL_ATTS = new AttributesImpl();
     ContentHandler contentHandler;
-    String namespace = GMLUtils.GML_URL;
-    String prefix = "gml";
+    String namespace;
+    String prefix;
     CoordinateWriter coordWriter = new CoordinateWriter();
     
     /** Creates a new instance of GeometryTransformer */
@@ -36,7 +36,11 @@ public class GeometryTransformer {
         this.prefix = prefix;
     }
     
-    public void encode(Geometry geometry) throws SAXException {
+    public GeometryTransformer(ContentHandler handler) {
+        this(handler,GMLUtils.GML_URL, "gml");
+    }
+    
+    public void encode(Geometry geometry) {
         String geomName = GMLUtils.getGeometryName(geometry);
         start(geomName);
         
@@ -45,7 +49,11 @@ public class GeometryTransformer {
         switch (geometryType) {
             case GMLUtils.POINT:
             case GMLUtils.LINESTRING:
-                coordWriter.writeCoordinates(geometry,contentHandler);
+                try {
+                    coordWriter.writeCoordinates(geometry,contentHandler);
+                } catch (SAXException s) {
+                    throw new RuntimeException(s);
+                }
                 
                 break;
                 
@@ -67,27 +75,34 @@ public class GeometryTransformer {
         end(geomName);
     }
     
-    private void writePolygon(Polygon geometry)
-    throws SAXException {
+    private void writePolygon(Polygon geometry) {
         String outBound = "outerBoundaryIs";
         String lineRing = "LinearRing";
         String inBound = "innerBoundaryIs";
         start(outBound);
         start(lineRing);
-        coordWriter.writeCoordinates(geometry.getExteriorRing(), contentHandler);
+        try {
+            coordWriter.writeCoordinates(geometry.getExteriorRing(), contentHandler);
+        } catch (SAXException s) {
+            throw new RuntimeException(s);
+        }
         end(lineRing);
         end(outBound);
         
         for (int i = 0, ii = geometry.getNumInteriorRing(); i < ii; i++) {
             start(inBound);
             start(lineRing);
-            coordWriter.writeCoordinates(geometry.getInteriorRingN(i), contentHandler);
+            try {
+                coordWriter.writeCoordinates(geometry.getInteriorRingN(i), contentHandler);
+            } catch (SAXException s) {
+                throw new RuntimeException(s);
+            }
             end(lineRing);
             end(inBound);
         }
     }
     
-    private void writeMulti(GeometryCollection geometry,String member) throws SAXException {
+    private void writeMulti(GeometryCollection geometry,String member) {
         for (int i = 0, n = geometry.getNumGeometries(); i < n; i++) {
             
             start(member);
