@@ -16,34 +16,79 @@
  */
 package org.geotools.renderer.style;
 
-import java.awt.*;
-import java.awt.image.*;
+import java.awt.Canvas;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.MediaTracker;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.net.URL;
+import java.util.HashMap;
 
 // J2SE dependencies
-import java.net.*;
-import java.util.*;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 /**
- * $Id: ImageLoader.java,v 1.1 2003/06/13 18:21:45 aaime Exp $
+ * $Id: ImageLoader.java,v 1.2 2003/11/15 14:19:32 aaime Exp $
  *
  * @author Ian Turton
  */
-public class ImageLoader implements Runnable {
+class ImageLoader implements Runnable {
     /** The logger for the rendering module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.rendering");
-    static Map images = new HashMap();
-    static Canvas obs = new Canvas();
-    static MediaTracker tracker = new MediaTracker(obs);
-    static int imageID = 1;
-    static java.awt.Toolkit tk = java.awt.Toolkit.getDefaultToolkit();
-    URL location;
-    boolean waiting = true;
 
+    /** The images managed by the loader */
+    private static Map images = new HashMap();
+
+    /** A canvas used as the image observer on the tracker */
+    private static Canvas obs = new Canvas();
+
+    /** Used to track the images loading status */
+    private static MediaTracker tracker = new MediaTracker(obs);
+
+    /** Currently loading image */
+    private static int imageID = 1;
+
+    /** A maximum time to wait for the image to load */
+    private static long timeout = 10000;
+
+    /** Location of the loading image */
+    private URL location;
+
+    /** Still waiting for the image? */
+    private boolean waiting = true;
+
+    /**
+     * Returns the timeout for aborting an image loading sequence
+     *
+     * @return the timeout in milliseconds
+     */
+    public static long getTimeout() {
+        return timeout;
+    }
+
+    /**
+     * Sets the maximum time to wait for getting an external image. Set it to -1 to wait
+     * undefinitely
+     *
+     * @param newTimeout the new timeout value in milliseconds
+     */
+    public static void setTimeout(long newTimeout) {
+        timeout = newTimeout;
+    }
+
+    /**
+     * Add an image to be loaded by the ImageLoader
+     *
+     * @param location the image location
+     * @param interactive if true the methods returns immediatly, otherwise waits for the image to
+     *        be loaded
+     */
     private void add(URL location, boolean interactive) {
-        int localId = imageID;
+        int imgId = imageID;
         this.location = location;
         LOGGER.finest("adding image, interactive? " + interactive);
 
@@ -57,30 +102,47 @@ public class ImageLoader implements Runnable {
         } else {
             waiting = true;
 
-            while (waiting) {
+            long elapsed = 0;
+            final long step = 500;
+
+            while (waiting && (elapsed < timeout || timeout < 0)) {
                 LOGGER.finest("waiting..." + waiting);
 
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(step);
+                    elapsed += step;
+
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("Waiting for image " + location + ", elapsed " + elapsed
+                            + " milliseconds");
+                    }
                 } catch (InterruptedException e) {
-                    LOGGER.warning("An interruptedException occurred! " + e);
+                    LOGGER.warning(e.toString());
                 }
             }
 
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest("" + localId + " complete?: " +
-                    ((tracker.statusID(localId, true) & tracker.COMPLETE) == tracker.COMPLETE));
-                LOGGER.finest("" + localId + " abort?: " +
-                    ((tracker.statusID(localId, true) & tracker.ABORTED) == tracker.ABORTED));
-                LOGGER.finest("" + localId + " error?: " +
-                    ((tracker.statusID(localId, true) & tracker.ERRORED) == tracker.ERRORED));
-                LOGGER.finest("" + localId + " loading?: " +
-                    ((tracker.statusID(localId, true) & tracker.LOADING) == tracker.LOADING));
-                LOGGER.finest("" + localId + "slow return " + waiting);
+                LOGGER.finest(imgId + " complete?: " + (isFlagUp(imgId, tracker.COMPLETE)));
+                LOGGER.finest(imgId + " abort?: " + (isFlagUp(imgId, tracker.ABORTED)));
+                LOGGER.finest(imgId + " error?: " + (isFlagUp(imgId, tracker.ERRORED)));
+                LOGGER.finest(imgId + " loading?: " + (isFlagUp(imgId, tracker.LOADING)));
+                LOGGER.finest(imgId + "slow return " + waiting);
             }
 
             return;
         }
+    }
+
+    /**
+     * Checks the state of the current tracker against a flag
+     *
+     * @param id the image id
+     * @param flag the flag to be checked
+     *
+     * @return true if the flag is up
+     */
+    private boolean isFlagUp(int id, int flag) {
+        return (tracker.statusID(id, true) & flag) == flag;
     }
 
     /**
@@ -120,7 +182,7 @@ public class ImageLoader implements Runnable {
         Image img = null;
 
         try {
-            img = tk.createImage(location);
+            img = Toolkit.getDefaultToolkit().createImage(location);
             myID = imageID++;
             tracker.addImage(img, myID);
         } catch (Exception e) {
@@ -134,10 +196,10 @@ public class ImageLoader implements Runnable {
         try {
             while ((tracker.statusID(myID, true) & tracker.LOADING) != 0) {
                 tracker.waitForID(myID, 500);
-                LOGGER.finest("" + myID + "loading - waiting....");
+                LOGGER.finest(myID + "loading - waiting....");
             }
         } catch (InterruptedException ie) {
-            LOGGER.warning("An interruptedException occurred! " + ie);
+            LOGGER.warning(ie.toString());
         }
 
         int state = tracker.statusID(myID, true);
