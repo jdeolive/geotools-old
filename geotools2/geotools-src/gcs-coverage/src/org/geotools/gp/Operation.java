@@ -76,7 +76,7 @@ import org.geotools.resources.gcs.Resources;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.16 2003/08/01 10:41:53 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.17 2003/08/02 11:08:53 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -238,7 +238,7 @@ public abstract class Operation implements Serializable {
     /**
      * Returns the parameter list descriptor.
      */
-    final ParameterListDescriptor getParameterListDescriptor() {
+    public final ParameterListDescriptor getParameterListDescriptor() {
         return descriptor;
     }
     
