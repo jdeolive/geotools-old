@@ -13,7 +13,6 @@ import com.vividsolutions.jts.geom.*;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
-import org.geotools.data.shapefile.shp.*;
 import org.geotools.feature.*;
 
 /**
