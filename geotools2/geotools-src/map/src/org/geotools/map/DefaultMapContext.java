@@ -446,7 +446,10 @@ public class DefaultMapContext implements MapContext {
                 return null;
             }
         } 
-        return new Envelope(this.areaOfInterest);
+        if(areaOfInterest == null)
+          return null;
+        else
+          return new Envelope(this.areaOfInterest);
     }
 
     /**
