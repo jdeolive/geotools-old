@@ -37,6 +37,9 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.io.IOException;
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
@@ -44,6 +47,10 @@ import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.AbstractMathTransform;
+
+// Resources
+import org.geotools.resources.cts.Resources;
+import org.geotools.resources.cts.ResourceKeys;
 
 
 /**
@@ -61,11 +68,18 @@ import org.geotools.ct.AbstractMathTransform;
  * interpolation. If input coordinates are outside the grid range, then output
  * coordinates are extrapolated.
  *
- * @version $Id: LocalizationGridTransform2D.java,v 1.3 2002/08/06 14:19:41 desruisseaux Exp $
+ * @version $Id: LocalizationGridTransform2D.java,v 1.4 2002/08/12 15:50:01 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
-final class LocalizationGridTransform2D extends AbstractMathTransform implements MathTransform2D {
+final class LocalizationGridTransform2D extends AbstractMathTransform implements MathTransform2D,
+                                                                                 Serializable
+{
+    /**
+     * Serial number for interoperability with different versions.
+     */
+    private static final long serialVersionUID = 1067560328828441295L;
+
     /**
      * <var>x</var> (usually longitude) offset relative to an entry.
      * Points are stored in {@link #grid} as <code>(x,y)</code> pairs.
@@ -104,6 +118,11 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      * A global affine transform for the whole grid.
      */
     private final AffineTransform global;
+
+    /**
+     * The inverse math transform. Will be constructed only when first requested.
+     */
+    private transient MathTransform inverse;
     
     /**
      * Construct a localization grid using the specified data.
@@ -317,10 +336,137 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
         }
     }
 
+    /**
+     * Apply the inverse transform to a set of points. More specifically, this method transform
+     * "real world" coordinates to grid coordinates. This method use an iterative algorithm for
+     * that purpose. A {@link TransformException} is thrown in the computation do not converge.
+     *
+     * @param srcPts the array containing the source point coordinates.
+     * @param srcOff the offset to the first point to be transformed
+     *               in the source array.
+     * @param dstPts the array into which the transformed point
+     *               coordinates are returned. May be the same
+     *               than <code>srcPts</code>.
+     * @param dstOff the offset to the location of the first
+     *               transformed point that is stored in the
+     *               destination array.
+     * @param numPts the number of point objects to be transformed.
+     *
+     * @throws TransformException if a point can't be transformed.
+     */
+    public void inverseTransform(final double[] srcPts, int srcOff,
+                                 final double[] dstPts, int dstOff, int numPts) 
+        throws TransformException
+    {
+        int postIncrement = 0;
+        if (srcPts == dstPts && srcOff < dstOff) {
+            srcOff += (numPts-1)*2;
+            dstOff += (numPts-1)*2;
+            postIncrement = -4;
+        }
+        /*
+         * Algorithm applied:
+         *
+         *   - Transform the first point using a "global" affine transform (i.e. the affine
+         *     transformed computed using the "least squares" method in LocalizationGrid).
+         *     Other points will be transformed using the last successful affine transform,
+         *     since we assume that the points to transform are close to each other.
+         *
+         *   - Next, compute a local affine transform and use if for transforming the point
+         *     again. Recompute again the local affine transform and continue until the cell
+         *     (ix,iy) doesn't change.
+         */
+        final Point2D.Double source = new Point2D.Double();
+        final Point2D.Double target = new Point2D.Double();
+        final AffineTransform tr = new AffineTransform(global);
+        try {
+loop:       while (numPts-- > 0) {
+                source.x = srcPts[srcOff++];
+                source.y = srcPts[srcOff++];
+                tr.inverseTransform(source, target);
+                for (int numIter=10; --numIter>=0;) {
+                    final int ix = (int)target.x;
+                    final int iy = (int)target.y;
+                    getAffineTransform(ix, iy, tr);
+                    tr.inverseTransform(source, target);
+                    if (ix == (int)target.x && iy == (int)target.y) {
+                        dstPts[dstOff++] = target.x;
+                        dstPts[dstOff++] = target.y;
+                        srcOff += postIncrement;
+                        dstOff += postIncrement;
+                        continue loop;
+                    }
+                }
+                throw new TransformException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
+            }
+        } catch (NoninvertibleTransformException exception) {
+            TransformException e = new TransformException(Resources.format(
+                                            ResourceKeys.ERROR_NONINVERTIBLE_TRANSFORM));
+            e.initCause(exception);
+            throw e;
+        }
+    }
+
     /** 
      * Retourne la transformation inverse.
      */
-//    public MathTransform inverse() {
-//        return new Inverse();
-//    }
+    public MathTransform inverse() {
+        if (inverse == null) {
+            inverse = new Inverse();
+        }
+        return inverse;
+    }
+
+    /**
+     * The inverse transform. This inner class is
+     * the inverse of the enclosing math transform.
+     *
+     * @version $Id: LocalizationGridTransform2D.java,v 1.4 2002/08/12 15:50:01 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     */
+    private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D,
+                                                                                 Serializable
+    {
+        /**
+         * Serial number for interoperability with different versions.
+         */
+        private static final long serialVersionUID = 4876426825123740986L;
+
+        /**
+         * Inverse transform a point.
+         */
+        public Point2D transform(Point2D ptSrc, Point2D ptDst) throws TransformException {
+            // TODO: delegates to LocalizationGridTransform2D.this.inverseTransform
+            return super.transform(ptSrc, ptDst);
+        }
+
+        /**
+         * Inverse transforms a list of coordinate point ordinal values.
+         */
+        public void transform(final float[] srcPts, final int srcOff,
+                              final float[] dstPts, final int dstOff, final int numPts)
+            throws TransformException
+        {
+            // TODO: delegates to LocalizationGridTransform2D.this.inverseTransform
+            super.transform(srcPts, srcOff, dstPts, dstOff, numPts);
+        }
+
+        /**
+         * Inverse transforms a list of coordinate point ordinal values.
+         */
+        public void transform(final double[] srcPts, final int srcOff,
+                              final double[] dstPts, final int dstOff, final int numPts)
+            throws TransformException
+        {
+            LocalizationGridTransform2D.this.inverseTransform(srcPts, srcOff, dstPts, dstOff, numPts);
+        }
+
+        /**
+         * Restore reference to this object after deserialization.
+         */
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            LocalizationGridTransform2D.this.inverse = this;
+        }
+    }
 }
