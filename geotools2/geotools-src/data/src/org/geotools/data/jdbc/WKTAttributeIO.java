@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Chris Holmes
- * @version $Id: WKTAttributeIO.java,v 1.7 2003/12/02 21:59:08 cholmesny Exp $
+ * @version $Id: WKTAttributeIO.java,v 1.8 2004/01/09 20:24:15 shepshep Exp $
  */
 public class WKTAttributeIO extends ResultSetAttributeIO {
     /** The logger for the filter module. */
@@ -155,7 +155,7 @@ public class WKTAttributeIO extends ResultSetAttributeIO {
             //SQLBuilder sqlBuilder = getSqlBuilder();
             FeatureTypeInfo ftInfo = queryData.getFeatureTypeInfo();
             StringBuffer sql = new StringBuffer("UPDATE ");
-            sql.append("\"" + ftInfo.getFeatureTypeName() + "\" SET ");
+            sql.append(formatFieldName(ftInfo.getFeatureTypeName()) + " SET ");
 
             AttributeType type = metaData[0];
             String name = type.getName();
@@ -170,7 +170,7 @@ public class WKTAttributeIO extends ResultSetAttributeIO {
                 newValue = formatValue(attribute);
             }
 
-            sql.append("\"" + name + "\" = " + newValue);
+            sql.append(formatFieldName(name) + " = " + newValue);
 
             //sqlBuilder.buildSQLUpdate(queryData.getFeatureTypeInfo(), attribute, position, );
             String fidColName = ftInfo.getFidColumnName();
@@ -208,4 +208,19 @@ public class WKTAttributeIO extends ResultSetAttributeIO {
 
         return retString;
     }
+    
+    /**
+     * Formats a field name or a table name for use in an SQL statement.  This default
+     * WKTAttributeIO version of the method puts double quotes around the name and
+     * returns it.  Specific implementations should override this method if field
+     * and table names are to be formatted differently; for example, MySQL field
+     * and table names do not get quotes of any kind, so MySQL's version of formatFieldName(String)
+     * simply returns the field or table name unaltered.
+     * @param fieldName the name of a field or a table to be used in an SQL statement
+     * @return fieldName properly formatted for an SQL statement.  In this case, the method returns <code>"\"" + fieldName + "\""</code>.
+     */
+    protected String formatFieldName(String fieldName) {
+        return "\"" + fieldName + "\"";
+    }
+    
 }

@@ -1,12 +1,7 @@
 package org.geotools.data.mysql;
 
-import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import org.geotools.data.AttributeWriter;
-import org.geotools.data.DataSourceException;
 import org.geotools.data.jdbc.QueryData;
-import org.geotools.data.jdbc.QueryData.RowData;
 import org.geotools.feature.AttributeType;
 
 /**
@@ -23,11 +18,7 @@ import org.geotools.feature.AttributeType;
 public class MySQLAttributeWriter extends MySQLAttributeReader implements AttributeWriter {
     
     public MySQLAttributeWriter(AttributeType metaData, QueryData queryData, int columnIndex) {
-        this(new AttributeType[] {metaData}, queryData, columnIndex, columnIndex + 1);
-    }
-    
-    public MySQLAttributeWriter(AttributeType[] metaData, QueryData queryData, int startColumn, int endColumn) {
-        super(metaData, queryData, startColumn, endColumn);
+        super(metaData, queryData, columnIndex);
     }
         
 }

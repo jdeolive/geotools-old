@@ -19,6 +19,7 @@ import java.sql.Types;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.AttributeWriter;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
@@ -31,6 +32,7 @@ import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 
 /**
@@ -308,6 +310,45 @@ public class MySQLDataStore extends JDBCDataStore {
                     }
                 }
             }
+        }
+        
+        public Feature next() throws IOException {
+            if (queryData == null) {
+                throw new IOException("FeatureWriter has been closed");
+            }
+
+            FeatureType featureType = queryData.getFeatureTypeInfo().getSchema();
+
+            if (hasNext()) {
+                try {
+                    queryData.next(this); // move the FeatureWriter position
+                    writer.next(); // move the attribute writer
+                    live = fReader.next(); // get existing content
+                    current = featureType.duplicate(live);
+                } catch (IllegalAttributeException e) {
+                    throw new DataSourceException("Unable to edit " + live.getID() + " of " +
+                        featureType.getTypeName(), e);
+                }
+            } else {
+                // new content
+                live = null;
+
+                if (fReader != null) {
+                    fReader.close();
+                    fReader = null;
+                }
+
+                try {
+                    current = DataUtilities.template(featureType);
+                    queryData.next(this);
+                    writer.next();
+                } catch (IllegalAttributeException e) {
+                    throw new DataSourceException("Unable to add additional Features of " +
+                        featureType.getTypeName(), e);
+                }
+            }
+
+            return current;
         }
         
     }
