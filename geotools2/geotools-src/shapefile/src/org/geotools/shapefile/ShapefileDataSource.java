@@ -45,7 +45,7 @@ import java.util.Date;
 
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.18 2003/02/27 22:26:28 aaime Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.19 2003/03/03 21:40:57 aaime Exp $
  * @author James Macgill, CCG
  * @task TODO: add support for reading dbf file
  * @task TODO: add support for the optional spatial index files to improve
@@ -225,7 +225,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
         try {
             // open shapefile header and guess file type
             ShapefileHeader header = shapefile.getHeader();
-            AttributeType geometryAttribute = new AttributeTypeDefault(Shapefile.getShapeTypeDescription(
+           AttributeType geometryAttribute = new AttributeTypeDefault(Shapefile.getShapeTypeDescription(
             header.getShapeType()), com.vividsolutions.jts.geom.Geometry.class);
             
             // open dbf file
@@ -253,18 +253,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
                     Class type = dbf.getFieldType(i);
                     attribs.add(new AttributeTypeDefault(name, type));
                 }
-                
-                AttributeType[] types = (AttributeType[]) attribs.toArray(new AttributeType[0]);
-                
-                try {
-                    shapefileType = new org.geotools.feature.FeatureTypeFlat(types);
-                } catch(org.geotools.feature.SchemaException se) {
-                    throw new DataSourceException(se.getMessage());
-                }
-            } else {
-                shapefileType = new org.geotools.feature.FeatureTypeFlat(geometryAttribute);
-            }
-            
+            }             
             
             AttributeType[] types = (AttributeType[]) attribs.toArray(new AttributeType[0]);
             shapefileType = new org.geotools.feature.FeatureTypeFlat(types);
@@ -292,7 +281,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
                 
                 org.geotools.feature.Feature feature = fac.create(row);
                 
-                if(filter.contains(feature)) {
+                if(filter == null || filter.contains(feature)) {
                     collection.addFeatures(new org.geotools.feature.Feature[] { feature });
                 }
             }
