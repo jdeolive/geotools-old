@@ -10,6 +10,7 @@ public class VeryBasicDataSource implements DataSource {
     String sFilename = null;
     String [] sColumnNames = null;
     boolean stopped = false;
+    GeometryFactory geomFac = new GeometryFactory();
     
     public VeryBasicDataSource(String filename) {
         sFilename = filename;
@@ -70,9 +71,12 @@ public class VeryBasicDataSource implements DataSource {
                     if (sColumnNames[j].equals("LATITUDE"))
                         p.y = (new Double(row[j].toString())).doubleValue();
                 }
-                DefaultFeature feat = new DefaultFeature();                
-                row[0] = new Point(p,null,-1);
+                DefaultFeature feat = new DefaultFeature(); 
+                System.out.println("adding P "+p);
+                row[0] = geomFac.createPoint(p);
+                System.out.println("as Point "+(Point)row[0]);
                 feat.setAttributes(row,sColumnNames);
+                feat.setGeometry((Point) row[0]);
                 // Filter Feature Feature Filter
                 if (ex.containsFeature(feat))
                     ft.addFeature(feat);
@@ -107,6 +111,27 @@ public class VeryBasicDataSource implements DataSource {
     public void stopLoading() {
         stopped=true;
         System.out.println("Stopped called on VBdatasource");
+    }
+    
+    /** gets the extent of this data source using the default speed of
+     * this datasource as set by the implementer.
+     * @return the extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Extent getExtent() {
+        return null;
+    }
+    
+    /** gets the extent of this data source using the speed of
+     * this datasource as set by the parameter.
+     * @param speed if true then a quick (and possibly dirty) estimate of
+     * the extent is returned. If false then a slow but acurate extent
+     * will be returned
+     * @return the extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Extent getExtent(boolean speed) {
+        return null;
     }
     
 }
