@@ -3,7 +3,6 @@
  *
  * Created on 08 January 2003, 13:02
  */
-
 package org.geotools.renderer;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -11,6 +10,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Canvas;
@@ -26,26 +26,33 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.imageio.ImageIO;
+
 import org.geotools.feature.Feature;
 import org.geotools.feature.IllegalFeatureException;
+
 import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.Fill;
 import org.geotools.styling.Graphic;
 import org.geotools.styling.Mark;
+
 
 /**
  *
@@ -60,30 +67,36 @@ public class RendererUtilities {
     private static final Canvas obs = new Canvas();
     static HashSet fontFamilies = null;
     static HashMap loadedFonts = new HashMap();
+
     /**
      * Holds a lookup bewteen SLD names and java constants.
      */
     private static final java.util.HashMap joinLookup = new java.util.HashMap();
+
     /**
      * where the centre of an untransormed mark is
      */
     private static com.vividsolutions.jts.geom.Point markCentrePoint;
+
     /**
      * Holds a lookup bewteen SLD names and java constants.
      */
     private static final java.util.HashMap capLookup = new java.util.HashMap();
+
     /**
      * Holds a list of well-known marks.
      */
     static HashSet wellKnownMarks = new java.util.HashSet();
+
     /**
      * Holds a lookup bewteen SLD names and java constants.
      */
     private static final java.util.HashMap fontStyleLookup = 
             new java.util.HashMap();
-    private static final HashSet supportedGraphicFormats = new java.util.HashSet();
+    private static final HashSet supportedGraphicFormats = 
+            new java.util.HashSet();
     private static final ImageLoader imageLoader = new ImageLoader();
-    
+
     static { //static block to populate the lookups
         joinLookup.put("miter", new Integer(BasicStroke.JOIN_MITER));
         joinLookup.put("bevel", new Integer(BasicStroke.JOIN_BEVEL));
@@ -92,11 +105,12 @@ public class RendererUtilities {
         capLookup.put("butt", new Integer(BasicStroke.CAP_BUTT));
         capLookup.put("round", new Integer(BasicStroke.CAP_ROUND));
         capLookup.put("square", new Integer(BasicStroke.CAP_SQUARE));
-        
+
         fontStyleLookup.put("normal", new Integer(java.awt.Font.PLAIN));
         fontStyleLookup.put("italic", new Integer(java.awt.Font.ITALIC));
         fontStyleLookup.put("oblique", new Integer(java.awt.Font.ITALIC));
         fontStyleLookup.put("bold", new Integer(java.awt.Font.BOLD));
+
 
         /**
          * A list of wellknownshapes that we know about:
@@ -117,20 +131,22 @@ public class RendererUtilities {
         wellKnownMarks.add("star");
         wellKnownMarks.add("x");
         wellKnownMarks.add("arrow");
-        
+
         String[] types = ImageIO.getReaderMIMETypes();
 
         for (int i = 0; i < types.length; i++) {
             supportedGraphicFormats.add(types[i]);
         }
+
         Coordinate c = new Coordinate(100, 100);
         GeometryFactory fac = new GeometryFactory();
         markCentrePoint = fac.createPoint(c);
-
     }
+
     /** Creates a new instance of RendererUtilities */
     public RendererUtilities() {
     }
+
     /**
      * Extracts the named geometry from feature.
      * If geomName is null then the feature's default geometry is used.
@@ -163,6 +179,7 @@ public class RendererUtilities {
 
         return geom;
     }
+
     /**
      * Convenience method.  Converts a Geometry object into a GeneralPath.
      * @param geom The Geometry object to convert
@@ -170,18 +187,14 @@ public class RendererUtilities {
      */
     protected GeneralPath createGeneralPath(final Geometry geom) {
         //String geomKey = geom.toString();
-
-//        if (pathCache.containsKey(geomKey)) {
-//            return (GeneralPath) pathCache.get(geomKey);
-//        }
-
+        //        if (pathCache.containsKey(geomKey)) {
+        //            return (GeneralPath) pathCache.get(geomKey);
+        //        }
         GeneralPath path = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
         addToPath(geom, path);
 
-
         // we could cache the path here using geom to key it
-//        pathCache.put(geomKey, path);
-
+        //        pathCache.put(geomKey, path);
         return path;
     }
 
@@ -240,12 +253,11 @@ public class RendererUtilities {
         double dx;
         double dy;
 
-        
         for (int i = 1; i < coords.length; i++) {
             path.lineTo((float) coords[i].x, (float) coords[i].y);
         }
     }
-    
+
     protected void applyFill(Graphics2D graphic, Fill fill, Feature feature) {
         if (fill == null) {
             return;
@@ -267,7 +279,7 @@ public class RendererUtilities {
 
         if (gr != null) {
             setTexture(graphic, gr, feature);
-        } 
+        }
     }
 
     void setTexture(Graphics2D graphic, Graphic gr, Feature feature) {
@@ -357,15 +369,15 @@ public class RendererUtilities {
 
         //graphics.setPaint(null);
     }
+
     /**
      * Convenience method for applying a geotools Stroke object
      * as a Graphics2D Stroke object.
      *
      * @param stroke the Stroke to apply.
      */
-    void applyStroke(Graphics2D graphic, 
-                             org.geotools.styling.Stroke stroke, 
-                             Feature feature) {
+    void applyStroke(Graphics2D graphic, org.geotools.styling.Stroke stroke, 
+                     Feature feature) {
         if (stroke == null) {
             return;
         }
@@ -476,8 +488,8 @@ public class RendererUtilities {
      * @param path the general path to be drawn
      */
     void drawWithGraphicStroke(Graphics2D graphic, GeneralPath path, 
-                                       org.geotools.styling.Graphic gFill, 
-                                       Feature feature) {
+                               org.geotools.styling.Graphic gFill, 
+                               Feature feature) {
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("drawing a graphicalStroke");
         }
@@ -667,9 +679,8 @@ public class RendererUtilities {
             previous[1] = coords[1];
             pi.next();
         }
-    }    
-    
-    
+    }
+
     BufferedImage getExternalGraphic(Graphic graphic) {
         ExternalGraphic[] extgraphics = graphic.getExternalGraphics();
 
@@ -700,8 +711,7 @@ public class RendererUtilities {
                     LOGGER.finer("a java supported format");
                 }
 
-                BufferedImage img = imageLoader.get(eg.getLocation(), 
-                                                    false); //isInteractive());
+                BufferedImage img = imageLoader.get(eg.getLocation(), false); //isInteractive());
 
                 if (LOGGER.isLoggable(Level.FINE)) {
                     LOGGER.fine("Image return = " + img);
@@ -717,13 +727,15 @@ public class RendererUtilities {
 
         return null;
     }
-    void renderImage(Graphics2D graphics, com.vividsolutions.jts.geom.Point point, 
-                             BufferedImage img, int size, double rotation) {
+
+    void renderImage(Graphics2D graphics, 
+                     com.vividsolutions.jts.geom.Point point, BufferedImage img, 
+                     int size, double rotation) {
         renderImage(graphics, point.getX(), point.getY(), img, size, rotation);
     }
 
-    private void renderImage(Graphics2D graphics, double tx, double ty, BufferedImage img, int size, 
-                             double rotation) {
+    private void renderImage(Graphics2D graphics, double tx, double ty, 
+                             BufferedImage img, int size, double rotation) {
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("drawing Image @" + tx + "," + ty);
         }
@@ -769,6 +781,7 @@ public class RendererUtilities {
 
         return;
     }
+
     private Mark getMark(Graphic graphic, Feature feature) {
         Mark[] marks = graphic.getMarks();
         Mark mark;
@@ -783,7 +796,6 @@ public class RendererUtilities {
                 return mark;
             }
         }
-        
 
 
         //LOGGER.finer("going for a defaultMark");
@@ -792,28 +804,48 @@ public class RendererUtilities {
 
         return mark;
     }
+
     void fillDrawMark(Graphics2D graphic, 
-                              com.vividsolutions.jts.geom.Point point, 
-                              Mark mark, int size, double rotation, 
-                              Feature feature) {
+                      com.vividsolutions.jts.geom.Point point, Mark mark, 
+                      int size, double rotation, Feature feature) {
         fillDrawMark(graphic, point.getX(), point.getY(), mark, size, rotation, 
                      feature);
     }
 
-    void fillDrawMark(Graphics2D graphic, double tx, double ty, 
-                              Mark mark, int size, double rotation, 
-                              Feature feature) {
-        AffineTransform temp = graphic.getTransform();
-        AffineTransform markAT = new AffineTransform();
-        if(LOGGER.isLoggable(Level.FINE)){
-            LOGGER.fine("fill draw mark " + mark + " " + mark.getWellKnownName());
+    void fillDrawMark(Graphics2D graphic, double tx, double ty, Mark mark, 
+                      int size, double rotation, Feature feature) {
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.fine("fill draw mark " + mark + " " + 
+                        mark.getWellKnownName());
         }
+
         Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName()
                                                       .getValue(feature)
                                                       .toString());
 
+        renderMark(graphic, tx, ty, mark.getFill(), mark.getStroke(), size, 
+                   rotation, shape);
+
+        return;
+    }
+
+    /** Renders the shape of a mark centred on tx,ty with the specified fill and stroke on the the provided graphic
+     * @param graphic - Graphics2D to draw on
+     * @param tx - X coordinate of centre
+     * @param ty - Y coordinate of centre
+     * @param fill - the fill to apply to the mark (null if none required)
+     * @param stroke - the stroke to apply to the mark (null if none required
+     * @param size - the size to draw the mark in pixels
+     * @param rotation - the rotation of the mark in degrees from north
+      * @param shape - the shape of the mark to be drawn
+     */
+    void renderMark(final Graphics2D graphic, final double tx, final double ty, 
+                    final Fill fill, final org.geotools.styling.Stroke stroke, 
+                    final int size, final double rotation, final Shape shape) {
         Point2D mapCentre = new Point2D.Double(tx, ty);
         Point2D graphicCentre = new Point2D.Double();
+        AffineTransform temp = graphic.getTransform();
+        AffineTransform markAT = new AffineTransform();
         temp.transform(mapCentre, graphicCentre);
         markAT.translate(graphicCentre.getX(), graphicCentre.getY());
 
@@ -834,34 +866,32 @@ public class RendererUtilities {
 
         graphic.setTransform(markAT);
 
-        if (mark.getFill() != null) {
+        if (fill != null) {
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("applying fill to mark");
             }
 
-            applyFill(graphic, mark.getFill(), null);
+            applyFill(graphic, fill, null);
             graphic.fill(shape);
         }
 
-        if (mark.getStroke() != null) {
+        if (stroke != null) {
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("applying stroke to mark");
             }
 
-            applyStroke(graphic, mark.getStroke(), null);
+            applyStroke(graphic, stroke, null);
             graphic.draw(shape);
         }
 
         graphic.setTransform(temp);
 
-        if (mark.getFill() != null) {
+        if (fill != null) {
             resetFill(graphic);
         }
-
-        return;
     }
-    java.awt.Font getFont(Feature feature, 
-                                  org.geotools.styling.Font[] fonts) {
+
+    java.awt.Font getFont(Feature feature, org.geotools.styling.Font[] fonts) {
         if (fontFamilies == null) {
             java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
             fontFamilies = new HashSet();
@@ -1034,10 +1064,10 @@ public class RendererUtilities {
 
         return null;
     }
-    
+
     void renderString(Graphics2D graphic, double x, double y, double dx, 
-                              double dy, TextLayout tl, Feature feature, 
-                              Fill fill, double rotation) {
+                      double dy, TextLayout tl, Feature feature, Fill fill, 
+                      double rotation) {
         AffineTransform temp = graphic.getTransform();
         AffineTransform labelAT = new AffineTransform();
 
@@ -1081,5 +1111,4 @@ public class RendererUtilities {
 
         return;
     }
-    
 }

@@ -71,7 +71,7 @@ import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.65 2003/01/09 17:04:54 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.66 2003/01/10 15:32:23 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -80,12 +80,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      */
     private static final Logger LOGGER = Logger.getLogger(
                                                  "org.geotools.rendering");
-
-    
-    
-    
-    
     private static double tolerance = 1e-6;
+    private java.util.LinkedHashMap renderedObjects = new LinkedHashMap();
 
     /**
      * Flag which determines if the renderer is interactive or not.
@@ -121,10 +117,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      */
     private double scaleDenominator;
 
+    
+    private Feature[] cachedFeatures;
+    private FeatureTypeStyle[] cachedFeatureStylers;
+
     /** Creates a new instance of Java2DRenderer */
     public Java2DRenderer() {
         LOGGER.fine("creating new j2drenderer");
-
     }
 
     /**
@@ -175,6 +174,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      *        to be applied in order to control the rendering process.
      */
     public void render(Feature[] features, Envelope map, Style s) {
+        Date start = new Date();
         if (graphics == null) {
             LOGGER.info("renderer passed null graphics");
 
@@ -220,6 +220,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         //extract the feature type stylers from the style object and process them
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
         processStylers(features, featureStylers);
+        Date end = new Date();
+        if(LOGGER.getLevel() == Level.INFO) { // change to fine when finished
+            LOGGER.info("Time to render " + features.length + " is " + (end.getTime() - start.getTime()) + " milliSecs");
+        }
     }
 
     /**
@@ -277,7 +281,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         return ((r.getMinScaleDenominator() - tolerance) <= scaleDenominator) && 
                ((r.getMaxScaleDenominator() + tolerance) > scaleDenominator);
     }
-
+    
     /**
      * Applies each feature type styler in turn to all of the features.
      * This perhaps needs some explanation to make it absolutely clear.
@@ -292,95 +296,112 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @param features An array of features to be rendered
      * @param featureStylers An array of feature stylers to be applied
      **/
+    
     private void processStylers(final Feature[] features, 
                                 final FeatureTypeStyle[] featureStylers) {
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("processing " + featureStylers.length + " stylers");
         }
 
-        for (int i = 0; i < featureStylers.length; i++) {
-            FeatureTypeStyle fts = featureStylers[i];
+        if (!(features.equals(cachedFeatures) && featureStylers.equals(
+                                                         cachedFeatureStylers))) {
+            // the features or style has changed so return process
+            cachedFeatures = features;
+            cachedFeatureStylers = featureStylers;
 
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("about to draw " + features.length + " feature");
-            }
+            renderedObjects = new LinkedHashMap();
 
-            for (int j = 0; j < features.length; j++) {
-                Feature feature = features[j];
+            for (int i = 0; i < featureStylers.length; i++) {
+                FeatureTypeStyle fts = featureStylers[i];
 
-                if (!mapExtent.overlaps(feature.getDefaultGeometry()
-                                               .getEnvelopeInternal())) {
-                    // if its off screen don't bother drawing it
-                    if (LOGGER.isLoggable(Level.FINER)) {
-                        LOGGER.finer("skipping " + feature.toString());
-                    }
-
-                    continue;
+                if (LOGGER.isLoggable(Level.FINER)) {
+                    LOGGER.finer("about to draw " + features.length + 
+                                 " feature");
                 }
 
-                if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.fine("feature is " + 
-                                feature.getSchema().getTypeName() + 
-                                " type styler is " + 
-                                fts.getFeatureTypeName());
-                }
+                for (int j = 0; j < features.length; j++) {
+                    Feature feature = features[j];
 
-                if (feature.getSchema().getTypeName()
-                           .equalsIgnoreCase(fts.getFeatureTypeName())) {
-                    //this styler is for this type of feature
-                    //now find which rule applies
-                    Rule[] rules = fts.getRules();
-                    boolean featureProcessed = false;
-
-                    for (int k = 0; k < rules.length; k++) {
-                        //does this rule apply?
-                        if (isWithInScale(rules[k]) && 
-                                !rules[k].hasElseFilter()) {
-                            Filter filter = rules[k].getFilter();
-
-                            if (LOGGER.isLoggable(Level.FINEST)) {
-                                LOGGER.finest("Filter " + filter);
-                            }
-
-                            if ((filter == null) || 
-                                    (filter.contains(feature) == true)) {
-                                if (LOGGER.isLoggable(Level.FINE)) {
-                                    LOGGER.fine(
-                                            "rule passed, moving on to symobolizers");
-                                }
-
-                                //yes it does
-                                //this gives us a list of symbolizers
-                                Symbolizer[] symbolizers = 
-                                        rules[k].getSymbolizers();
-                                processSymbolizers(feature, symbolizers);
-                                featureProcessed = true;
-                            }
+                    if (!mapExtent.overlaps(feature.getDefaultGeometry()
+                                                   .getEnvelopeInternal())) {
+                        // if its off screen don't bother drawing it
+                        if (LOGGER.isLoggable(Level.FINER)) {
+                            LOGGER.finer("skipping " + feature.toString());
                         }
-                    }
 
-                    if (featureProcessed == true) {
                         continue;
                     }
 
-                    //if else present apply elsefilter
-                    for (int k = 0; k < rules.length; k++) {
-                        //if none of the above rules applied do any of them have elsefilters that do
-                        if (isWithInScale(rules[k])) {
-                            if (rules[k].hasElseFilter()) {
-                                if (LOGGER.isLoggable(Level.FINE)) {
-                                    LOGGER.fine(
-                                            "rule passed as else filter, moving on to symobolizers");
+                    if (LOGGER.isLoggable(Level.FINE)) {
+                        LOGGER.fine("feature is " + 
+                                    feature.getSchema().getTypeName() + 
+                                    " type styler is " + 
+                                    fts.getFeatureTypeName());
+                    }
+
+                    if (feature.getSchema().getTypeName()
+                               .equalsIgnoreCase(fts.getFeatureTypeName())) {
+                        //this styler is for this type of feature
+                        //now find which rule applies
+                        Rule[] rules = fts.getRules();
+                        boolean featureProcessed = false;
+
+                        for (int k = 0; k < rules.length; k++) {
+                            //does this rule apply?
+                            if (isWithInScale(rules[k]) && 
+                                    !rules[k].hasElseFilter()) {
+                                Filter filter = rules[k].getFilter();
+
+                                if (LOGGER.isLoggable(Level.FINEST)) {
+                                    LOGGER.finest("Filter " + filter);
                                 }
 
-                                Symbolizer[] symbolizers = 
-                                        rules[k].getSymbolizers();
-                                processSymbolizers(feature, symbolizers);
+                                if ((filter == null) || 
+                                        (filter.contains(feature) == true)) {
+                                    if (LOGGER.isLoggable(Level.FINE)) {
+                                        LOGGER.fine(
+                                                "rule passed, moving on to symobolizers");
+                                    }
+
+                                    //yes it does
+                                    //this gives us a list of symbolizers
+                                    Symbolizer[] symbolizers = 
+                                            rules[k].getSymbolizers();
+                                    processSymbolizers(feature, symbolizers);
+                                    featureProcessed = true;
+                                }
+                            }
+                        }
+
+                        if (featureProcessed == true) {
+                            continue;
+                        }
+
+                        //if else present apply elsefilter
+                        for (int k = 0; k < rules.length; k++) {
+                            //if none of the above rules applied do any of them have elsefilters that do
+                            if (isWithInScale(rules[k])) {
+                                if (rules[k].hasElseFilter()) {
+                                    if (LOGGER.isLoggable(Level.FINE)) {
+                                        LOGGER.fine(
+                                                "rule passed as else filter, moving on to symobolizers");
+                                    }
+
+                                    Symbolizer[] symbolizers = 
+                                            rules[k].getSymbolizers();
+                                    processSymbolizers(feature, symbolizers);
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+
+        Iterator it = renderedObjects.values().iterator();
+
+        while (it.hasNext()) {
+            ((RenderedObject) it.next()).render(graphics);
         }
     }
 
@@ -392,54 +413,65 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @param symbolizers An array of symbolizers which actually perform the
      * rendering.
      */
-    
     private void processSymbolizers(final Feature feature, 
                                     final Symbolizer[] symbolizers) {
-        java.util.LinkedHashMap renderedObjects = new LinkedHashMap();
         for (int m = 0; m < symbolizers.length; m++) {
             if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.fine("applying symbolizer " + symbolizers[m]);
             }
 
+            Integer key = new Integer((symbolizers[m].hashCode() * 19) + 
+                                      feature.hashCode());
+
             if (symbolizers[m] instanceof PolygonSymbolizer) {
-                //if(!renderedObjects.containsKey(feature)){
-                    RenderedPolygon rPolygon = new RenderedPolygon(feature, (PolygonSymbolizer) symbolizers[m]);
-                    rPolygon.render(graphics);
-                    //renderedObjects.put(feature, rPolygon);
-                //}
+                if (!renderedObjects.containsKey(key)) {
+                    RenderedPolygon rPolygon = new RenderedPolygon(feature, 
+                                                                   (PolygonSymbolizer) symbolizers[m]);
+
+
+                    //                    rPolygon.render(graphics);
+                    renderedObjects.put(key, rPolygon);
+                }
             } else if (symbolizers[m] instanceof LineSymbolizer) {
-                //if(!renderedObjects.containsKey(feature)){
-                    RenderedLine rLine = new RenderedLine(feature, (LineSymbolizer) symbolizers[m]);
-                    rLine.render(graphics);
-                    //renderedObjects.put(feature, rLine);
-                //}
+                if (!renderedObjects.containsKey(key)) {
+                    RenderedLine rLine = new RenderedLine(feature, 
+                                                          (LineSymbolizer) symbolizers[m]);
+
+
+                    //                    rLine.render(graphics);
+                    renderedObjects.put(key, rLine);
+                }
             } else if (symbolizers[m] instanceof PointSymbolizer) {
-                //if(!renderedObjects.containsKey(feature)){
-                    RenderedPoint rPoint = new RenderedPoint(feature, (PointSymbolizer) symbolizers[m]);
-                    rPoint.render(graphics);
-                    //renderedObjects.put(feature, rPoint);
-                //}
+                if (!renderedObjects.containsKey(key)) {
+                    RenderedPoint rPoint = new RenderedPoint(feature, 
+                                                             (PointSymbolizer) symbolizers[m]);
+
+
+                    //                    rPoint.render(graphics);
+                    renderedObjects.put(key, rPoint);
+                }
             } else if (symbolizers[m] instanceof TextSymbolizer) {
-                //if(!renderedObjects.containsKey(feature)){
-                   RenderedText rText = new RenderedText(feature, (TextSymbolizer) symbolizers[m]);
-                   rText.render(graphics);
-                   //renderedObjects.put(feature, rText);
-                //}
+                if (!renderedObjects.containsKey(key)) {
+                    RenderedText rText = new RenderedText(feature, 
+                                                          (TextSymbolizer) symbolizers[m]);
+
+
+                    //                   rText.render(graphics);
+                    renderedObjects.put(key, rText);
+                }
             } else if (symbolizers[m] instanceof RasterSymbolizer) {
-                //if(!renderedObjects.containsKey(feature)){
-                    RenderedRaster rRaster = new RenderedRaster(feature, (RasterSymbolizer) symbolizers[m]);
-                    rRaster.render(graphics);
-                    //renderedObjects.put(feature, rRaster);
-                //}    
+                if (!renderedObjects.containsKey(key)) {
+                    RenderedRaster rRaster = new RenderedRaster(feature, 
+                                                                (RasterSymbolizer) symbolizers[m]);
+
+
+                    //                    rRaster.render(graphics);
+                    renderedObjects.put(key, rRaster);
+                }
             }
         }
-//        Iterator it = renderedObjects.values().iterator();
-//        while(it.hasNext()){
-//            ((RenderedObject)it.next()).render(graphics);
-//        }
     }
 
-    
     /**
      * Getter for property interactive.
      * @return Value of property interactive.
