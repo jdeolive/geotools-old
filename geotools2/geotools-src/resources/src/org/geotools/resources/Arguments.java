@@ -71,7 +71,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * The default implementation print the localized error message to standard output {@link #out}
  * and exits the virtual machine with a call to {@link System#exit} with error code 1.
  *
- * @version $Id: Arguments.java,v 1.2 2002/08/09 23:07:43 desruisseaux Exp $
+ * @version $Id: Arguments.java,v 1.3 2002/08/14 14:29:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Arguments {
@@ -416,7 +416,7 @@ public class Arguments {
      */
     public String[] getRemainingArguments(final int max) {
         int count=0;
-        final String[] left = new String[max];
+        final String[] left = new String[Math.min(max, arguments.length)];
         for (int i=0; i<arguments.length; i++) {
             final String arg = arguments[i];
             if (arg != null) {
