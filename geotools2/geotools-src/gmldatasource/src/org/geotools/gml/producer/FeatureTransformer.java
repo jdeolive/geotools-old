@@ -14,11 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-/*
- * FeatureReader.java
- *
- * Created on March 25, 2003, 4:01 PM
- */
 package org.geotools.gml.producer;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -27,6 +22,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygon;
+import java.util.IdentityHashMap;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
@@ -44,288 +40,180 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import org.geotools.feature.FeatureType;
+import org.geotools.xml.transform.TransformerBase;
+import org.xml.sax.helpers.NamespaceSupport;
 
 
-/**
- * Producers gml to an output stream.
+/** FeatureTransformer provides a mechanism for converting Feature objects into
+ * (hopefully) valid gml. This is a work in progress, so please be patient.
+ * A simple example of how to use this class follows:<pre>
  *
+ *   FeatureCollection collection;
+ *   OutputStream out;
+ *
+ *   FeatureTransformer ft = new FeatureTransformer();
+ *
+ *   // set the indentation to 4 spaces
+ *   ft.setIndentation(4);
+ *
+ *   // this will allow Features with the FeatureType which has the namespace
+ *   // "http://somewhere.org" to be prefixed with xxx...
+ *   ft.getFeatureNamespaces().declarePrefix("xxx","http://somewhere.org");
+ *
+ *   // transform
+ *   ft.transform(collection,out);
+ * </pre>
+ * <b>The above example assumes a homogenous collection of Features whose
+ * FeatureType has the namespace "http://somewhere.org"</b> but note that not
+ * all DataSources currently provide FeatureTypes with a namespace...
+ * There are two other mechanisms for prefixing your Features.<br>
+ * 1) Map a specific FeatureType <b>by identity</b> to prefix and nsURI
+ * <pre>
+ *   FeatureType fc;
+ *   FeatureTransformer ft = new FeatureTransformer();
+ *   ft.getFeatureTypeNamespaces().declareNamespace(fc,"xxx","http://somewhere.org");
+ * </pre>
+ * 2) Provide a default namespace for any Features whose FeatureType either
+ * has an empty namespace, OR, has not been mapped using the previous method.
+ * This is basically a catch-all mechanism.
+ * <pre>
+ *   FeatureTransformer ft = new FeatureTransformer();
+ *   ft.getFeatureTypeNamespaces().declareDefaultNamespace("xxx","http://somewhere.org");
+ * </pre>
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- *
+ * @version $Id: FeatureTransformer.java,v 1.8 2003/11/05 17:24:33 ianschneider Exp $
  * @task TODO: Interior rings of polygons.
  * @task TODO: srs printed, multi namespaces, bbox.
  */
-public class FeatureTransformer extends XMLFilterImpl implements XMLReader {
-    /** The logger for the filter module. */
-    private static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.gml.producer");
-
-    /** The uri for gml. */
-    private static final String GML_URL = GMLUtils.GML_URL;
-
-    /** The namespace declaration for gml */
-    //private static final String XMLNS_GML = "xmlns:gml=\"" + GML_URL + "\"";
-
-    /** The namespace for WFS */
-    private static final String WFS_URI = "http://www.opengis.net/wfs";
-
-    /** The attribute to specify the spatial reference system. */
-    //private static final String SRS_DECL = "srsName=\"http://www.opengis.net"
-    //  + "/gml/srs/epsg.xml#";
-
-    /** handler to do the processing */
-    private ContentHandler contentHandler;
-
-    /** The namespace to use if none is provided. */
-    private String defaultNamespace;
-
-    /** The feature collection to process. */
-    private FeatureCollection collection;
-
-    /** Whether newlines and indents should be printed. */
-    private boolean prettyPrint = false;
-
-    /** The spatial reference system id */
-    //private String srs = "-1";
-
-    /**
-     * Sets a default namespace to use.
-     *
-     * @param namespace the namespace to use, should be a uri.
-     */
-    public void setDefaultNamespace(String namespace) {
-        this.defaultNamespace = namespace;
+public class FeatureTransformer extends TransformerBase {
+    
+    private String collectionPrefix = "wfs";
+    private String collectionNamespace = "http://www.opengis/wfs";
+    private NamespaceSupport nsLookup = new NamespaceSupport();
+    private FeatureTypeNamespaces featureTypeNamespaces = new FeatureTypeNamespaces(nsLookup);
+    
+    public void setCollectionNamespace(String nsURI) {
+        collectionNamespace = nsURI;
     }
-
-    /**
-     * Sets if newlines and indents should be used for printing.
-     *
-     * @param pp true if pretty printing is desired.
-     */
-    public void setPrettyPrint(boolean pp) {
-        this.prettyPrint = pp;
+    
+    public String getCollectionNamespace() {
+        return collectionNamespace;
     }
-
-    /**
-     * performs the sending of sax events from the passed in  feature
-     * collection.
-     *
-     * @param collection the collection to turn to gml.
-     * @param out the stream to send the output to.
-     *
-     * @throws TransformerException DOCUMENT ME!
-     */
-    public synchronized void transform(FeatureCollection collection,
-        java.io.OutputStream out) throws TransformerException {
-        this.collection = collection;
-
-        TransformerFactory tFactory = TransformerFactory.newInstance();
-        Transformer transformer = tFactory.newTransformer();
-
-        // don't know what this should be, or if its even important
-        InputSource inputSource = new InputSource("XXX");
-        SAXSource source = new SAXSource(this, inputSource);
-        StreamResult result = new StreamResult(out);
-        transformer.transform(source, result);
+    
+    public void setCollectionPrefix(String prefix) {
+        this.collectionPrefix = prefix;
     }
-
-    /**
-     * Performs the iteration, walking over the collection and  firing events.
-     *
-     * @param collection the features to walk over.
-     *
-     * @throws SAXException DOCUMENT ME!
-     */
-    private void walk(FeatureCollection collection) throws SAXException {
-        contentHandler.startDocument();
-
-        //FeatureCollectionIteration iteration = new FeatureCollectionIterat();
-        FeatureCollectionIteration.Handler handler;
-
-        if (prettyPrint) {
-            handler = new PrettyOutputVisitor(contentHandler, ' ');
-        } else {
-            handler = new BasicOutputVisitor(contentHandler);
+    
+    public String getCollectionPrefix() {
+        return collectionPrefix;
+    }
+    
+    public NamespaceSupport getFeatureNamespaces() {
+        return nsLookup;
+    }
+    
+    public FeatureTypeNamespaces getFeatureTypeNamespaces() {
+        return featureTypeNamespaces;
+    }
+    
+    public org.geotools.xml.transform.Translator createTranslator(ContentHandler handler) {
+        FeatureTranslator t = new FeatureTranslator(handler,collectionPrefix,collectionNamespace,featureTypeNamespaces);
+        java.util.Enumeration prefixes = nsLookup.getPrefixes();
+        while (prefixes.hasMoreElements()) {
+            String prefix = prefixes.nextElement().toString();
+            String uri = nsLookup.getURI(prefix);
+            t.getNamespaceSupport().declarePrefix(prefix,uri);
         }
-
-        FeatureCollectionIteration.iteration(handler, collection);
-
-        contentHandler.endDocument();
+        return t;
     }
-
-    /**
-     * walks the given collection.
-     *
-     * @param systemId DOCUMENT ME!
-     *
-     * @throws java.io.IOException DOCUMENT ME!
-     * @throws SAXException DOCUMENT ME!
-     */
-    public void parse(String systemId) throws java.io.IOException, SAXException {
-        walk(collection);
-    }
-
-    /**
-     * walks the given collection.
-     *
-     * @param input DOCUMENT ME!
-     *
-     * @throws java.io.IOException DOCUMENT ME!
-     * @throws SAXException DOCUMENT ME!
-     */
-    public void parse(InputSource input)
-        throws java.io.IOException, SAXException {
-        walk(collection);
-    }
-
-    /**
-     * sets the content handler.
-     *
-     * @param handler DOCUMENT ME!
-     */
-    public void setContentHandler(ContentHandler handler) {
-        contentHandler = handler;
-    }
-
-    /**
-     * Currently does nothing.
-     *
-     * @param args DOCUMENT ME!
-     *
-     * @throws Exception DOCUMENT ME!
-     */
-    public static final void main(String[] args) throws Exception {
-        //java.net.URL url = new java.io.File(args[0]).toURL();
-        //org.geotools.shapefile.data.ShapefileDataSource sds = new org.geotools.data.shapefile.ShapefileDataSource(url);
-        //FeatureCollection fc = sds.getFeatures(null);
-        //FeatureTransformer fr = new FeatureTransformer();
-        //fr.setPrettyPrint(true);
-        //fr.transform(fc, System.out);
-    }
-
-    /**
-     * This handler keeps track of indents and adds newlines.
-     */
-    class PrettyOutputVisitor extends BasicOutputVisitor {
-        /** The carraige return char array. */
-        private final char[] cReturn = new char[] { '\n' };
-
-        /** The tab char array */
-        private final char[] tab;
-
-        /**
-         * Constructor with handler and initial spacer character.
-         *
-         * @param handler the handler to use.
-         * @param spacer to use as space.
-         */
-        public PrettyOutputVisitor(ContentHandler handler, char spacer) {
-            super(handler);
-            tab = new char[5];
-            java.util.Arrays.fill(tab, spacer);
+    
+    public static class FeatureTypeNamespaces {
+        
+        IdentityHashMap lookup = new IdentityHashMap();
+        NamespaceSupport nsSupport;
+        String defaultPrefix = null;
+        
+        public FeatureTypeNamespaces(NamespaceSupport nsSupport) {
+            this.nsSupport = nsSupport;
         }
-
-        /**
-         * prints a carraige return with newline.
-         *
-         * @throws SAXException DOCUMENT ME!
-         */
-        protected final void cReturn() throws SAXException {
-            output.ignorableWhitespace(cReturn, 0, 1);
+        
+        public void declareDefaultNamespace(String prefix,String nsURI) {
+            defaultPrefix = prefix;
+            nsSupport.declarePrefix(prefix, nsURI);
         }
-
-        /**
-         * printe a tab with the currently tracked spacing.
-         *
-         * @param i DOCUMENT ME!
-         *
-         * @throws SAXException DOCUMENT ME!
-         */
-        protected final void tab(int i) throws SAXException {
-            while (i > 0) {
-                output.ignorableWhitespace(tab, 0, Math.min(tab.length, i));
-                i -= tab.length;
-            }
+        
+        public void declareNamespace(FeatureType type,String prefix,String nsURI) {
+            lookup.put(type,prefix);
+            nsSupport.declarePrefix(prefix,nsURI);
         }
+        
+        public String findPrefix(FeatureType type) {
+            String pre = (String) lookup.get(type);
+            if (pre == null)
+                pre = defaultPrefix;
+            return pre;
+        }
+        
     }
-
+    
+    
     /**
      * Outputs gml without any fancy indents or newlines.
      */
-    class BasicOutputVisitor implements FeatureCollectionIteration.Handler {
-        /** Used to write coordinates to out. */
-        private CoordinateWriter coordWriter = new CoordinateWriter();
-
-        /** The handler. */
-        protected final ContentHandler output;
-
-        /** blank attributes to be used when none are needed. */
-        private final Attributes atts = new AttributesImpl();
-
-        /** initial indent */
-        private int indent = 0;
-
+    public static class FeatureTranslator extends TranslatorSupport implements FeatureCollectionIteration.Handler {
+        
+        String fc = "FeatureCollection";
+        GeometryTransformer.GeometryTranslator geometryTranslator;
+        String memberString;
+        String currentPrefix;
+        FeatureTypeNamespaces types;
         /**
          * Constructor with handler.
          *
          * @param handler the handler to use.
          */
-        public BasicOutputVisitor(ContentHandler handler) {
-            this.output = handler;
+        public FeatureTranslator(ContentHandler handler,String prefix,String ns,FeatureTypeNamespaces types) {
+            super(handler, prefix, ns);
+            
+            geometryTranslator = new GeometryTransformer.GeometryTranslator(handler);
+            this.types = types;
+            
+            getNamespaceSupport().declarePrefix(geometryTranslator.getDefaultPrefix(), geometryTranslator.getDefaultNamespace());
+            memberString = geometryTranslator.getDefaultPrefix() + ":featureMember";
+           
         }
-
-        /**
-         * Handles a tab call - does nothing.
-         *
-         * @param i DOCUMENT ME!
-         *
-         * @throws SAXException DOCUMENT ME!
-         */
-        protected void tab(int i) throws SAXException {
+        
+        public void encode(Object o) throws IllegalArgumentException {
+            if (o instanceof FeatureCollection) {
+                FeatureCollection fc = (FeatureCollection) o;
+                FeatureCollectionIteration.iteration(this, fc);
+            } else {
+                throw new IllegalArgumentException("Cannot encode " + o);
+            }
         }
-
-        /**
-         * Handles a carraige return call - does nothing.
-         *
-         * @throws SAXException DOCUMENT ME!
-         */
-        protected void cReturn() throws SAXException {
+        
+        protected void startFeatureCollection() {
+            try {
+                String element = getDefaultPrefix() == null ? fc : getDefaultPrefix() + ":" + fc;
+                contentHandler.startElement("", "", element, NULL_ATTS);
+            } catch (SAXException se) {
+                throw new RuntimeException(se);
+            }
         }
-
+        
         /**
          * Prints up the gml for a featurecollection.
          *
          * @param fc DOCUMENT ME!
          */
-        public void handleFeatureCollection(FeatureCollection fc) {
-            try {
-                tab(indent++);
-
-                AttributesImpl fcAtts = new AttributesImpl();
-                LOGGER.finer("first feat is " + fc.features().next());
-                LOGGER.finer("schema is "
-                    + fc.features().next().getFeatureType().getNamespace());
-
-                String ns = fc.features().next().getFeatureType().getNamespace();
-
-                if (ns == null || "".equals(ns)) {
-                    ns = defaultNamespace;
-                }
-                fcAtts.addAttribute("", "xmlns", "xmlns", "xmlns", ns);
-                fcAtts.addAttribute(ns, "wfs", "xmlns:wfs", "wfs", WFS_URI);
-                fcAtts.addAttribute(ns, "gml", "xmlns:gml", "gml", GML_URL);
-                output.startElement("http://www.opengis.net/wfs",
-                    "featureCollection", "wfs:featureCollection", fcAtts);
-
-                cReturn();
-
-                writeBounds(fc);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        public void handleFeatureCollection(FeatureCollection collection) {
+            
+            startFeatureCollection();
+            writeBounds(collection);
         }
-
+        
         /**
          * writes the <code>gml:boundedBy</code> element to output based
          * on <code>fc.getBounds()</code>
@@ -333,42 +221,27 @@ public class FeatureTransformer extends XMLFilterImpl implements XMLReader {
          * @throws SAXException if it is thorwn while writing the element or
          * coordinates
          */
-        private void writeBounds(FeatureCollection fc)
-            throws SAXException {
-          //HACK: write bounds
-          Envelope bounds = fc.getBounds();
-          Coordinate []coords = new Coordinate[4];
-          coords[0] = new Coordinate(bounds.getMinX(), bounds.getMinY());
-          coords[1] = new Coordinate(bounds.getMinX(), bounds.getMaxY());
-          coords[2] = new Coordinate(bounds.getMaxX(), bounds.getMaxY());
-          coords[3] = new Coordinate(bounds.getMaxX(), bounds.getMinY());
-
-          Geometry bbox = new GeometryFactory().createLineString(coords);
-
-          AttributesImpl atts = new AttributesImpl();
-          output.startElement(GMLUtils.GML_URL, "boundedBy", "gml:boundedBy", atts);
-          output.startElement(GMLUtils.GML_URL, "Box", "gml:Box", atts);
-          writeCoordinates(bbox);
-          output.endElement(GMLUtils.GML_URL, "Box", "gml:Box");
-          output.endElement(GMLUtils.GML_URL, "boundedBy", "gml:boundedBy");
-          cReturn();
+        private void writeBounds(FeatureCollection fc) {
+            try {
+                String boundedBy = geometryTranslator.getDefaultPrefix() + ":" + "boundedBy";
+                String box = geometryTranslator.getDefaultPrefix() + ":" + "Box";
+                contentHandler.startElement("", "", boundedBy, NULL_ATTS);
+                geometryTranslator.encode(fc.getBounds());
+                contentHandler.endElement("","", boundedBy);
+            } catch (SAXException se) {
+                throw new RuntimeException(se);
+            }
         }
-
+        
         /**
          * Sends sax for the ending of a feature collection.
          *
          * @param fc DOCUMENT ME!
          */
-        public void endFeatureCollection(FeatureCollection fc) {
-            try {
-                tab(--indent);
-                output.endElement("http://www.opengis.net/wfs",
-                    "featureCollection", "wfs:featureCollection");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        public void endFeatureCollection(FeatureCollection collection) {
+            end(fc);
         }
-
+        
         /**
          * Sends sax for the ending of a feature.
          *
@@ -376,19 +249,16 @@ public class FeatureTransformer extends XMLFilterImpl implements XMLReader {
          */
         public void endFeature(Feature f) {
             try {
-                tab(--indent);
-
                 String name = f.getFeatureType().getTypeName();
-                output.endElement("", name, name);
-                cReturn();
-                tab(--indent);
-                output.endElement("", "featureMember", "gml:featureMember");
-                cReturn();
+                if (currentPrefix != null)
+                    name = currentPrefix + ":" + name;
+                contentHandler.endElement("","", name);
+                contentHandler.endElement("","",memberString);
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
-
+        
         /**
          * handles sax for an attribute.
          *
@@ -397,33 +267,32 @@ public class FeatureTransformer extends XMLFilterImpl implements XMLReader {
          */
         public void handleAttribute(AttributeType type, Object value) {
             try {
-                tab(indent);
-
+                
                 String name = type.getName();
-                output.startElement("", name, name, atts);
-
+                if (currentPrefix != null)
+                    name = currentPrefix + ":" + name;
+                contentHandler.startElement("","", name, NULL_ATTS);
+                
                 if (Geometry.class.isAssignableFrom(value.getClass())) {
-                    indent++;
-                    cReturn();
-                    tab(indent++);
-                    writeGeometry((Geometry) value, "dude");
-                    cReturn();
-                    tab(--indent);
+                    
+                    geometryTranslator.encode( (Geometry) value );
+                    
                 } else {
                     if (value != null) {
                         String text = value.toString();
-                        text = GMLUtils.encodeXML(text);
-                        output.characters(text.toCharArray(), 0, text.length());
+                        // this shouldn't be neccessary...Transformer does it for you :)
+                        //text = GMLUtils.encodeXML(text);
+                        contentHandler.characters(text.toCharArray(), 0, text.length());
                     }
                 }
-
-                output.endElement("", name, name);
-                cReturn();
+                
+                contentHandler.endElement("","", name);
+                
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
-
+        
         /**
          * Handles sax for a feature.
          *
@@ -431,163 +300,32 @@ public class FeatureTransformer extends XMLFilterImpl implements XMLReader {
          */
         public void handleFeature(Feature f) {
             try {
-                tab(indent++);
-                output.startElement("", "featureMember", "gml:featureMember",
-                    atts);
-                cReturn();
-                tab(indent++);
-
-                String name = f.getFeatureType().getTypeName();
+                contentHandler.startElement("","",memberString,NULL_ATTS);
+                FeatureType type = f.getFeatureType();
+                String name = type.getTypeName();
+                currentPrefix = getNamespaceSupport().getPrefix(f.getFeatureType().getNamespace());
+                if (currentPrefix == null)
+                    currentPrefix = types.findPrefix(f.getFeatureType());
+                if (currentPrefix == null)
+                    throw new RuntimeException("Could not locate namespace for FeatureType : " + type.getTypeName());
+                if (currentPrefix != null)
+                    name = currentPrefix + ":" + name;
                 AttributesImpl fidAtts = new org.xml.sax.helpers.AttributesImpl();
                 String fid = f.getID();
-
+                
                 if (fid != null) {
                     fidAtts.addAttribute("", "fid", "fid", "fids", fid);
                 }
-
-                output.startElement("", name, name, fidAtts);
-                cReturn();
+                
+                contentHandler.startElement("","", name, fidAtts);
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
-
-        /**
-         * Passes off geometry writing duties to correct method.
-         *
-         * @param geometry OGC SF type
-         * @param gid Feature collection type
-         *
-         * @throws SAXException DOCUMENT ME!
-         */
-        private void writeGeometry(Geometry geometry, String gid)
-            throws SAXException {
-            //user option to just use user defined bbox for whole dataset?
-            //envelope.expandToInclude(geometry.getEnvelopeInternal());
-            //-no use fc.getBounds();
-            String geomName = GMLUtils.getGeometryName(geometry);
-            output.startElement(GMLUtils.GML_URL, geomName, "gml:" + geomName,
-                atts);
-
-            int geometryType = GMLUtils.getGeometryType(geometry);
-
-            switch (geometryType) {
-            case GMLUtils.POINT:
-            case GMLUtils.LINESTRING:
-                writeCoordinates(geometry);
-
-                break;
-
-            case GMLUtils.POLYGON:
-                writePolygon((Polygon) geometry, gid);
-
-                break;
-
-            case GMLUtils.MULTIPOINT:
-            case GMLUtils.MULTILINESTRING:
-            case GMLUtils.MULTIPOLYGON:
-            case GMLUtils.MULTIGEOMETRY:
-
-                String member = GMLUtils.getMemberName(geometryType);
-                writeMulti((GeometryCollection) geometry, gid, member);
-
-                break;
-            }
-
-            output.endElement(GMLUtils.GML_URL, geomName, "gml:" + geomName);
-        }
-
-        /**
-         * Writes a Polygon geometry.
-         *
-         * @param geometry OGC SF Polygon type
-         * @param gid Geometric ID
-         *
-         * @throws SAXException DOCUMENT ME!
-         */
-        private void writePolygon(Polygon geometry, String gid)
-            throws SAXException {
-            String outBound = "outerBoundaryIs";
-            String lineRing = "LinearRing";
-            //String inBound = "innerBoundaryIs";
-            cReturn();
-            tab(indent++);
-            output.startElement(GML_URL, outBound, "gml:" + outBound, atts);
-            cReturn();
-            tab(indent++);
-            output.startElement(GML_URL, lineRing, "gml:" + lineRing, atts);
-            cReturn();
-            tab(indent);
-            coordWriter.writeCoordinates(geometry.getExteriorRing(), output);
-            cReturn();
-            tab(--indent);
-            output.endElement(GML_URL, lineRing, "gml:" + lineRing);
-            cReturn();
-            tab(--indent);
-            output.endElement(GML_URL, outBound, "gml:" + outBound);
-            cReturn();
-            tab(--indent);
-
-            // TODO: if (geometry.getNumInteriorRing() > 0) {
-            //for( int i = 0 ; i < geometry.getNumInteriorRing() ; i++ ) {
-            //finalResult.append("\n         <gml:innerBoundaryIs>");
-            //finalResult.append("\n          <gml:LinearRing>");
-            //writeCoordinates( geometry.getInteriorRingN(i) );
-            //finalResult.append("\n          </gml:LinearRing>");
-            //finalResult.append("\n        </gml:innerBoundaryIs>");
-            //}
-            //}
-        }
-
-        /**
-         * Writes the coordinates for a geometry.
-         *
-         * @param geometry DOCUMENT ME!
-         *
-         * @throws SAXException DOCUMENT ME!
-         */
-        private void writeCoordinates(Geometry geometry)
-            throws SAXException {
-            cReturn();
-            tab(indent);
-            coordWriter.writeCoordinates(geometry, output);
-            cReturn();
-            tab(--indent);
-        }
-
-        /**
-         * Writes a multi - point, linestring, poly or geometry collection.
-         *
-         * @param geometry DOCUMENT ME!
-         * @param gid DOCUMENT ME!
-         * @param member DOCUMENT ME!
-         *
-         * @throws SAXException DOCUMENT ME!
-         *
-         * @task TODO: srs should only appear on outermost element of
-         *       geomCollection.
-         */
-        private void writeMulti(GeometryCollection geometry, String gid,
-            String member) throws SAXException {
-            for (int i = 0, n = geometry.getNumGeometries(); i < n; i++) {
-                cReturn();
-                tab(indent);
-                output.startElement(GML_URL, member, "gml:" + member, atts);
-                cReturn();
-                indent++;
-                tab(indent++);
-
-                writeGeometry(geometry.getGeometryN(i), gid + "." + (i + 1));
-
-                cReturn();
-                tab(--indent);
-                output.endElement(GML_URL, member, "gml:" + member);
-            }
-
-            cReturn();
-            tab(--indent);
-        }
-
+        
+        
+        
         
     }
+    
 }

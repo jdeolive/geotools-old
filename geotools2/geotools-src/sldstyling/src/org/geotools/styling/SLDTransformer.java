@@ -14,6 +14,7 @@ import org.geotools.filter.Expression;
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterTransformer;
 import org.geotools.styling.*;
+import org.geotools.xml.transform.TransformerBase;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
@@ -23,210 +24,34 @@ import org.xml.sax.helpers.*;
  * @author Ian Schneider
  *
  */
-public class SLDTransformer extends XMLFilterImpl implements XMLReader {
-    
-    static Attributes NULL_ATTS = new AttributesImpl();
+public class SLDTransformer extends TransformerBase {
     
     static final String XLINK_NAMESPACE = "http://www.w3.org/1999/xlink";
     
-    /** handler to do the processing */
-    private ContentHandler contentHandler;
-    
-    private int indent = 4;
-    
-    /** The namespace to use if none is provided. */
-    private String defaultNamespace = "http://www.opengis.net/sld";
-    
-    private String prefix = null;
-    
-    private Style[] styles;
-    
-    private boolean prettyPrint = false;
-    
-    
-    /**
-     * Sets a default namespace to use.
-     *
-     * @param namespace the namespace to use, should be a uri.
-     */
-    public void setDefaultNamespace(String namespace) {
-        this.defaultNamespace = namespace;
+    public org.geotools.xml.transform.Translator createTranslator(ContentHandler handler) {
+        return new SLDTranslator(handler);
     }
     
-    /**
-     * Sets if newlines and indents should be used for printing.
-     *
-     * @param pp true if pretty printing is desired.
-     */
-    public void setPrettyPrint(boolean pp) {
-        prettyPrint = pp;
-    }
-    
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-    
-    public void setIndent(int indent) {
-        this.indent = indent;
-    }
-    
-    /**
-     * performs the sending of sax events from the passed in  feature
-     * collection.
-     *
-     * @param collection the collection to turn to gml.
-     * @param out the stream to send the output to.
-     *
-     * @throws TransformerException DOCUMENT ME!
-     */
-    public synchronized void transform(Style[] styles, OutputStream out)
-    throws TransformerException {
-        this.styles = styles;
+    static class SLDTranslator extends TranslatorSupport implements StyleVisitor {
         
-        TransformerFactory tFactory = TransformerFactory.newInstance();
-        Transformer transformer = tFactory.newTransformer();
+        FilterTransformer.FilterTranslator filterTranslator;
         
-        if (prettyPrint) {
-            transformer.setOutputProperty(OutputKeys.INDENT,"yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", indent + "");
-        }
-        InputSource inputSource = new InputSource();
-        SAXSource source = new SAXSource(this, inputSource);
-        StreamResult result = new StreamResult(out);
-        transformer.transform(source, result);
-    }
-    
-    
-    /**
-     * Performs the iteration, walking over the collection and  firing events.
-     *
-     * @param collection the features to walk over.
-     *
-     * @throws SAXException DOCUMENT ME!
-     */
-    private void walk() throws SAXException {
-        contentHandler.startDocument();
-        
-        OutputVisitor output = new OutputVisitor();
-        
-        Attributes atts = documentAtts();
-        
-        output.start("StyledLayerDescriptor",atts);
-        
-        for (int i = 0, ii = styles.length; i < ii; i++) {
-            styles[i].accept(output);
+        public SLDTranslator(ContentHandler handler) {
+            super(handler, "sld", "http://www.opengis.net/sld");
+            filterTranslator = new FilterTransformer.FilterTranslator(handler);
         }
         
-        output.end("StyledLayerDescriptor");
-        
-        contentHandler.endDocument();
-    }
-    
-    private Attributes documentAtts() {
-        if (defaultNamespace == null) return NULL_ATTS;
-        AttributesImpl ns = new AttributesImpl();
-        String p = prefix == null ? "" : prefix;
-        ns.addAttribute("", "", "xmlns:" + p, "", defaultNamespace);
-        return ns;
-    }
-    
-    /**
-     * walks the given collection.
-     *
-     * @param systemId DOCUMENT ME!
-     *
-     * @throws java.io.IOException DOCUMENT ME!
-     * @throws SAXException DOCUMENT ME!
-     */
-    public void parse(String systemId) throws java.io.IOException, SAXException {
-        walk();
-    }
-    
-    /**
-     * walks the given collection.
-     *
-     * @param input DOCUMENT ME!
-     *
-     * @throws java.io.IOException DOCUMENT ME!
-     * @throws SAXException DOCUMENT ME!
-     */
-    public void parse(InputSource input)
-    throws java.io.IOException, SAXException {
-        walk();
-    }
-    
-    /**
-     * sets the content handler.
-     *
-     * @param handler DOCUMENT ME!
-     */
-    public void setContentHandler(ContentHandler handler) {
-        contentHandler = handler;
-    }
-    
-    
-    class OutputVisitor implements StyleVisitor {
-        
-        FilterTransformer.OutputVisitor filterOutput;
-
-        FilterTransformer.OutputVisitor filterOutput() {
-            if (filterOutput == null)
-                filterOutput = FilterTransformer.createOutputVisitor(contentHandler,defaultNamespace,prefix);
-            return filterOutput;
-        }
         
         void element(String element,Expression e) {
             start(element);
-            filterOutput().encode(e);
+            filterTranslator.encode(e);
             end(element);
         }
         
         void element(String element,Filter f) {
             start(element);
-            filterOutput().encode(f);
+            filterTranslator.encode(f);
             end(element);
-        }
-        
-        void element(String element,String content) {
-            element(element,content,NULL_ATTS);
-        }
-        
-        void element(String element,String content,Attributes atts) {
-            start(element,atts);
-            if (content != null)
-                chars(content);
-            end(element);
-        }
-        
-        void start(String element) {
-            start(element,NULL_ATTS);
-        }
-        
-        void start(String element,Attributes atts) {
-            try {
-                String el = prefix == null ? element : prefix + ":" + element;
-                contentHandler.startElement("", "", el, atts);
-            } catch (SAXException se) {
-                throw new RuntimeException(se);
-            }
-        }
-        
-        void chars(String text) {
-            try {
-                char[] ch = text.toCharArray();
-                contentHandler.characters(ch,0,ch.length);
-            } catch (SAXException se) {
-                throw new RuntimeException(se);
-            }
-        }
-        
-        void end(String element) {
-            try {
-                String el = prefix == null ? element : prefix + ":" + element;
-                contentHandler.endElement("", "", el);
-            } catch (SAXException se) {
-                throw new RuntimeException(se);
-            }
         }
         
         public void visit(PointPlacement pp) {
@@ -241,29 +66,29 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         
         public void visit(Stroke stroke) {
             start("Stroke");
-
+            
             if (stroke.getGraphicFill() != null) {
                 stroke.getGraphicFill().accept(this);
             }
-
+            
             if (stroke.getGraphicStroke() != null) {
                 stroke.getGraphicStroke().accept(this);
             }
-
+            
             encodeCssParam("stroke", stroke.getColor());
             encodeCssParam("stroke-linecap", stroke.getLineCap());
             encodeCssParam("stroke-linejoin", stroke.getLineJoin());
             encodeCssParam("stroke-opacity", stroke.getOpacity());
             encodeCssParam("stroke-width", stroke.getWidth());
             encodeCssParam("stroke-dashoffset", stroke.getDashOffset());
-
+            
             float[] dash = stroke.getDashArray();
             StringBuffer sb = new StringBuffer();
-
+            
             for (int i = 0; i < dash.length; i++) {
                 sb.append(dash[i] + " ");
             }
-
+            
             encodeCssParam("stroke-dasharray", sb.toString());
             end("Stroke");
         }
@@ -285,7 +110,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         
         public void visit(TextSymbolizer text) {
             start("TextSymbolizer");
-
+            
             encodeGeometryProperty(text.getGeometryPropertyName());
             
             element("Label",text.getLabel());
@@ -326,11 +151,11 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             if (poly.getFill() != null) {
                 poly.getFill().accept(this);
             }
-
+            
             if (poly.getStroke() != null) {
                 poly.getStroke().accept(this);
             }
-
+            
             end("PolygonSymbolizer");
         }
         
@@ -343,7 +168,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
                 atts.addAttribute(XLINK_NAMESPACE, "xlink", "","", exgr.getLocation().toString());
             } catch (java.net.MalformedURLException murle) {
                 throw new Error("SOMEONE CODED THE X LINK NAMESPACE WRONG!!");
-            }   
+            }
             element("OnlineResource",null,atts);
             end("ExternalGraphic");
         }
@@ -352,7 +177,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             start("LineSymbolizer");
             
             encodeGeometryProperty(line.getGeometryPropertyName());
-           
+            
             line.getStroke().accept(this);
             end("LineSymbolizer");
         }
@@ -384,7 +209,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             }
             
             if (rule.getFilter() != null) {
-                filterOutput().encode(rule.getFilter());
+                filterTranslator.encode(rule.getFilter());
             }
             
             if (rule.hasElseFilter()) {
@@ -410,17 +235,17 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         public void visit(Mark mark) {
             start("Mark");
             start("WellKnownName");
-            filterOutput().encode(mark.getWellKnownName());
+            filterTranslator.encode(mark.getWellKnownName());
             end("WellKnownName");
-
+            
             if (mark.getFill() != null) {
                 mark.getFill().accept(this);
             }
-
+            
             if (mark.getStroke() != null) {
                 mark.getStroke().accept(this);
             }
-
+            
             end("Mark");
         }
         
@@ -437,7 +262,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             start("Halo");
             halo.getFill().accept(this);
             start("Radius");
-            filterOutput().encode(halo.getRadius());
+            filterTranslator.encode(halo.getRadius());
             end("Radius");
             end("Halo");
         }
@@ -508,16 +333,51 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             AttributesImpl atts = new AttributesImpl();
             atts.addAttribute("", "name", "", "", name);
             start("CssParameter",atts);
-            filterOutput().encode(expression);
+            filterTranslator.encode(expression);
             end("CssParameter");
             
         }
+        
         void encodeCssParam(String name,String expression) {
             AttributesImpl atts = new AttributesImpl();
             atts.addAttribute("", "name", "", "", name);
             start("CssParameter",atts);
             chars(expression);
             end("CssParameter");
+            
+        }
+        
+        public void encode(Style[] styles) {
+            try {
+            contentHandler.startDocument();
+
+            start("StyledLayerDescriptor",NULL_ATTS);
+            
+            for (int i = 0, ii = styles.length; i < ii; i++) {
+                styles[i].accept(this);
+            }
+            
+            end("StyledLayerDescriptor");
+            
+            contentHandler.endDocument();
+            } catch (SAXException se) {
+                throw new RuntimeException(se);
+            }
+        }
+        
+        public void encode(Object o) throws IllegalArgumentException {
+            if (o instanceof Style[]) {
+                encode( (Style[]) o);
+            } 
+            Class c = o.getClass();
+            try {
+                java.lang.reflect.Method m = c.getMethod("accept", new Class[] {StyleVisitor.class});
+                m.invoke(o, new Object[] {this});
+            } catch (NoSuchMethodException nsme) {
+                throw new IllegalArgumentException("Cannot encode " + o);
+            } catch (Exception e) {
+                throw new RuntimeException("Internal transformation exception",e);
+            }
             
         }
         
@@ -535,12 +395,12 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         java.net.URL url = new java.io.File(args[0]).toURL();
         SLDStyle s = new SLDStyle(StyleFactory.createStyleFactory(),url);
         SLDTransformer transformer = new SLDTransformer();
-        transformer.setPrettyPrint(true);
-        transformer.setDefaultNamespace("http://www.somewhere.org");
-        transformer.setPrefix("xxx");
+        transformer.setIndentation(4);
         transformer.transform(s.readXML(), new FileOutputStream(System.getProperty("java.io.tmpdir") + "/junk.eraseme"));
         
         
     }
+    
+    
     
 }
