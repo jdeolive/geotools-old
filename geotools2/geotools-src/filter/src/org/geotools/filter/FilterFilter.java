@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: FilterFilter.java,v 1.22 2003/07/30 00:08:18 cholmesny Exp $
+ * @version $Id: FilterFilter.java,v 1.23 2003/10/29 23:11:47 cholmesny Exp $
  */
 public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     /** The logger for the filter module. */
@@ -164,7 +164,11 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
                     } else if (localName.equals("Distance")) {
                         LOGGER.finest("inside distance");
 
-                        if (atts.getLocalName(0).equals("units")) {
+			//Not too sure what to do here, as units should be
+			//required element, so an error would be nice.  
+			//But geotools is also not supporting units at all,
+			//so I feel like it doesn't matter so much...
+                        if (("units").equals(atts.getLocalName(0))) {
                             units = atts.getValue(0);
                             LOGGER.finest("units = " + units);
                         }
