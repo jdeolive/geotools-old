@@ -173,8 +173,7 @@ public class SQLEncoderPostgis extends SQLEncoder
 		 String geomText = wkt.write(bbox);
 	    out.write("GeometryFromText('" + geomText + "', " + srid + ")");
 	    } else {
-		out.write("'"+expression.getLiteral()+"'");
-		//super.visit(expression);
+		super.visit(expression);
 	    }        
 	}
         catch(java.io.IOException ioe){
