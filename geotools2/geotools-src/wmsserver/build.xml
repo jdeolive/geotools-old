@@ -17,8 +17,7 @@
     
   </lib>
  
-  <zipfileset dir="tests/unit/testData/maps/" 
-              prefix="maps"/>
+  <zipfileset dir="tests\unit\testData"/>
 </war>
 </target>
 
