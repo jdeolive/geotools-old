@@ -35,7 +35,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
     private int indent = 4;
     
     /** The namespace to use if none is provided. */
-    private String defaultNamespace = null;
+    private String defaultNamespace = "http://www.opengis.net/sld";
     
     private String prefix = null;
     
