@@ -41,7 +41,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         try{
         out.write("<Filter>\n");
         filter.accept(this);
-        out.write("\n</Fitler>");
+        out.write("</Fitler>");
         }
         catch(java.io.IOException ioe){
             log.error("Unable to export filter",ioe);
@@ -87,7 +87,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             String wcs = filter.getWildcardSingle();
             String esc = filter.getEscape();
             out.write("<PropertyIsLike wildCard=\""+wcm+"\" singleChar=\""+wcs
-                +"\" escapeChar=\"\\"+esc+"\">\n");
+                +"\" escapeChar=\""+esc+"\">\n");
             ((ExpressionDefault)filter.getValue()).accept(this);
             out.write("<Literal>\n"+filter.getPattern()+"\n</literal>\n");
             out.write("</PropertyIsLike>\n");
