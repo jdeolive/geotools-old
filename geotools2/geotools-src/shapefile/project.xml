@@ -73,6 +73,11 @@
       </developer>
     </developers>
   <dependencies>
+    <dependency>
+      <artifactId>data</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency> 
   <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
