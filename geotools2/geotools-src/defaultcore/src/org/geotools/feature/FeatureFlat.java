@@ -36,7 +36,7 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.19 2003/01/10 13:13:21 ianturton Exp $
+ * @version $Id: FeatureFlat.java,v 1.20 2003/02/12 18:56:03 cholmesny Exp $
  * @author Rob Hranac, TOPP
  */
 public class FeatureFlat implements Feature {
@@ -98,7 +98,7 @@ public class FeatureFlat implements Feature {
         throws IllegalFeatureException {
 
         // Set the feature type reference
-        LOGGER.finer("creating feature");
+        //LOGGER.finer("creating feature");
 
         // Gets the number of attributes from feature and uses to set valid flag
         int n = schema.attributeTotal();
@@ -114,8 +114,22 @@ public class FeatureFlat implements Feature {
         }
         // Check to ensure that all attributes are valid
         for (int i = 0; i < n ; i++) {
-            isValid =  schema.getAttributeType(i).getType().
-                isAssignableFrom(attributes[i].getClass()); 
+	
+	    
+	    if (attributes[i] != null) { //check if attribute is null
+		//if not check to make sure it's the right class.
+		isValid =  schema.getAttributeType(i).getType().
+		    isAssignableFrom(attributes[i].getClass()); 
+	    } else {
+		//if it is throw an exception is nulls are not allowed.
+		if (!schema.getAttributeType(i).isNillable()) {
+		    String attName = schema.getType().getName();
+		    throw new IllegalFeatureException("null values are not " +
+						      "allowed for attribute "
+						      + attName);
+		}
+	    }
+						     
             if(!isValid){
                 
 
@@ -204,8 +218,8 @@ public class FeatureFlat implements Feature {
         AttributeType definition = null;
         final boolean loggable = LOGGER.isLoggable(Level.FINER);
         if (loggable) {
-            LOGGER.finer("has attribute: " + schema.hasAttributeType(xPath));
-            LOGGER.finer("attribute is: "  + schema.getAttributeType(xPath).toString());
+            //LOGGER.finer("has attribute: " + schema.hasAttributeType(xPath));
+            //LOGGER.finer("attribute is: "  + schema.getAttributeType(xPath).toString());
         }
         if (schema.hasAttributeType(xPath)) {
             definition = schema.getAttributeType(xPath);
@@ -215,8 +229,8 @@ public class FeatureFlat implements Feature {
             throw new IllegalFeatureException(message);
         }
         if (loggable) {
-            LOGGER.finer("position is: "  + definition.getPosition());
-            LOGGER.finer("attribute is: " + attributes[definition.getPosition()].toString());
+	    // LOGGER.finer("position is: "  + definition.getPosition());
+            //LOGGER.finer("attribute is: " + attributes[definition.getPosition()].toString());
         }
         return attributes[definition.getPosition()];
     }
@@ -383,7 +397,7 @@ public class FeatureFlat implements Feature {
         StringBuffer returnString = new StringBuffer("\n" + schema.getName() + " -> \n");
         
         for (int i = 0, n = attributes.length; i < n; i++) {
-            returnString.append(attributes[i].toString() + "\n");
+            returnString.append((attributes[i] == null ? "NULL" : attributes[i].toString()) + "\n");
         }
         return returnString.toString();        
     }
@@ -412,5 +426,34 @@ public class FeatureFlat implements Feature {
         }
         return key;
     }
+
+    
+
+     public boolean equals(Object obj) {
+	if (obj != null && obj.getClass() == this.getClass()){
+	    FeatureFlat testFeature = (FeatureFlat)obj;
+	    boolean isEqual = true;
+	    //isEqual = (this.schema.toString().equals
+	    //       (testFeature.getSchema().toString())) && isEqual;
+	    LOGGER.finest("schemas are equal: " + isEqual);
+	    Object[] testAttributes = testFeature.getAttributes();
+	    if(this.attributes.length == testAttributes.length){
+		LOGGER.finest("both are of length " + testAttributes.length);    
+		for(int i = 0; i < this.attributes.length; i++) {
+			isEqual = isEqual && this.attributes[i].equals
+			    (testAttributes[i]);
+			LOGGER.finest(this.attributes[i] + " is equal to " +
+				      testAttributes[i] + ": " + isEqual);
+		    }
+	    } else {
+		isEqual = false;
+	    }
+	    
+	    return isEqual;
+	} else {
+	    return false;
+	}
+    }
+
 
 }
