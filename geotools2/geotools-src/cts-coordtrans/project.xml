@@ -82,7 +82,14 @@
     <contributors>
       <contributor>
         <name>Yann Cezard</name>
-        <organization>Institut de Recherche pour le Developpement</organization>
+        <organization>Universite de Montpellier II</organization>
+        <roles>
+          <role>Java developper</role>
+        </roles>
+      </contributor>
+      <contributor>
+        <name>Remi Eve</name>
+        <organization>Universite de Montpellier II</organization>
         <roles>
           <role>Java developper</role>
         </roles>
