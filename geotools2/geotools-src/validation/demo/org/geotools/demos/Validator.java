@@ -61,7 +61,7 @@ import java.util.Set;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: Validator.java,v 1.1 2004/02/17 17:19:15 dmzwiers Exp $
+ * @version $Id: Validator.java,v 1.2 2004/02/18 18:27:18 dmzwiers Exp $
  */
 public class Validator {
     private static Properties dataStoreProp;
@@ -129,7 +129,8 @@ public class Validator {
                             "Bounds.maxY"));
                 env = new Envelope(minx, miny, maxx, maxy);
             } catch (Exception e) {
-                System.err.println("Env not specified.");
+                System.err.println("Envelope not specified in Transaction.properties.");
+                env = new Envelope();
             }
 
             if (env == null) {
@@ -198,7 +199,7 @@ public class Validator {
                             System.out.println(
                                 "Usage: java Validator [Options]");
                             System.out.println(
-                                "Options: -help -data -test -trans");
+                                "Options: -help -data -trans");
                             System.out.println("");
                             System.out.println("-data <filename>");
                             System.out.println(
@@ -420,59 +421,77 @@ public class Validator {
             System.err.println(plugInDir.toString());
             System.exit(1);
         }
-
-        File testSuite = null;
-        testSuite = new File(transProp.getProperty("TestSuiteFile"));
-
-        if (testSuite == null) {
-            System.err.println("TestSuite file does not exist");
-            System.exit(1);
+        
+        int numSuites = 0;
+        try{
+        	numSuites = Integer.parseInt(transProp.getProperty("NumberTestSuites"));
+        }catch(Exception e){}
+        
+        Map ts = new HashMap(numSuites);
+        for(int i=0;i<numSuites;i++){
+        	String path = transProp.getProperty("TestSuiteFile."+(i+1));
+        	loadTestSuite(ts,m,path);
         }
-
-        if (!testSuite.exists()) {
-            System.err.println("TestSuite file does not exist");
-            System.err.println(testSuite.toString());
-            System.exit(1);
-        }
-
-        if (!testSuite.isFile()) {
-            System.err.println("TestSuite file is not a file");
-            System.err.println(testSuite.toString());
-            System.exit(1);
-        }
-
-        if (!testSuite.canRead()) {
-            System.err.println("TestSuite file cannot be read");
-            System.err.println(testSuite.toString());
-            System.exit(1);
-        }
-
-        TestSuiteDTO dto = null;
-
-        try {
-            dto = XMLReader.readTestSuite(new FileReader(testSuite), m);
-        } catch (FileNotFoundException e) {
-            System.err.println("TestSuite file was not found.");
-            System.err.println(testSuite.toString());
-            e.printStackTrace();
-            System.exit(1);
-        } catch (ValidationException e) {
-            System.err.println("TestSuite load had errors.");
-            System.err.println(testSuite.toString());
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        Map mt = new HashMap(1);
-        mt.put(dto.getName(), dto);
 
         // We need to make our own validator for batch
         // processing
         // (for starters it should use a custom FeatureResults
         //  that logs fail/warning information)
-        BatchValidator gv = new BatchValidator(mt, m);
+        BatchValidator gv = new BatchValidator(ts, m);
 
         return gv;
+    }
+    
+    private static void loadTestSuite(Map ts, Map plugIns, String tsPath){
+    	File testSuite = null;
+    	try{
+    		testSuite = new File(tsPath);
+    	}catch(Exception e){
+    		System.err.println(tsPath);
+    		e.printStackTrace();
+    		return;
+    	}
+
+    	if (testSuite == null) {
+    		System.err.println("TestSuite file does not exist");
+    		System.exit(1);
+    	}
+
+    	if (!testSuite.exists()) {
+    		System.err.println("TestSuite file does not exist");
+    		System.err.println(testSuite.toString());
+    		System.exit(1);
+    	}
+
+    	if (!testSuite.isFile()) {
+    		System.err.println("TestSuite file is not a file");
+    		System.err.println(testSuite.toString());
+    		System.exit(1);
+    	}
+
+    	if (!testSuite.canRead()) {
+    		System.err.println("TestSuite file cannot be read");
+    		System.err.println(testSuite.toString());
+    		System.exit(1);
+    	}
+
+    	TestSuiteDTO dto = null;
+
+    	try {
+    		dto = XMLReader.readTestSuite(new FileReader(testSuite), plugIns);
+    	} catch (FileNotFoundException e) {
+    		System.err.println("TestSuite file was not found.");
+    		System.err.println(testSuite.toString());
+    		e.printStackTrace();
+    		System.exit(1);
+    	} catch (ValidationException e) {
+    		System.err.println("TestSuite load had errors.");
+    		System.err.println(testSuite.toString());
+    		e.printStackTrace();
+    		System.exit(1);
+    	}
+
+    	ts.put(dto.getName(), dto);
     }
 
     static class BatchValidationResults implements ValidationResults {
@@ -498,14 +517,17 @@ public class Validator {
         public String toString() {
             String r = "";
             Iterator i = errors.keySet().iterator();
-
-            while (i.hasNext()) {
-                Feature f = (Feature) i.next();
-                String msg = (String) errors.get(f);
-                r += (f.getID() + " " + msg + "\n");
+            if(i.hasNext()){
+            	while (i.hasNext()) {
+                	Feature f = (Feature) i.next();
+                	String msg = (String) errors.get(f);
+                	r += (f.getID() + " " + msg + "\n");
+            	}
+            }else{
+            	r = "PASSED";
             }
 
-            return r;
+            return r+"\n";
         }
     }
 }
