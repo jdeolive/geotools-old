@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.11 2003/02/27 14:32:46 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.12 2003/03/12 22:44:42 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -234,6 +234,16 @@ public final class RenderingContext {
     }
 
     /**
+     * Returns the painting area in text coordinate system. Invoking this method is equivalent
+     * to invoking <code>getPaintingArea(textCS).getBounds()</code>, except that this method
+     * returns a direct reference to its internal rectangle. <strong>Do not modify!</strong>
+     * This method is provided for {@link RenderedLegend#translate} implementation only.
+     */
+    final Rectangle getPaintingArea() {
+        return bounds;
+    }
+
+    /**
      * Set the coordinate system in use for rendering in {@link Graphics2D}. Invoking this
      * method do not alter the current {@linkplain Renderer#getCoordinateSystem renderer's
      * coordinate system}. It is only a convenient way to set the
@@ -375,7 +385,7 @@ public final class RenderingContext {
         final Shape userArea = area;
         if (cs != null) {
             // Note: we invokes 'inverse()' instead of swapping 'sourceCS' and 'targetCS'
-            // arguments in order to give a change to 'Renderer.getMathTransform' to uses
+            // arguments in order to give a chance to 'Renderer.getMathTransform' to uses
             // its cache (the cache will never be used if the 'targetCS' is 'textCS').
             final MathTransform2D transform = (MathTransform2D)
                     renderer.getMathTransform(textCS, CTSUtilities.getCoordinateSystem2D(cs),

@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.14 2003/03/04 22:27:06 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.15 2003/03/12 22:44:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -703,7 +703,7 @@ public abstract class RenderedLayer {
      *        system, or <code>null</code> if unknow. If <code>null</code>, then this layer
      *        will be fully redrawn during the next rendering.
      */
-    final void zoomChanged(final AffineTransform change) {
+    void zoomChanged(final AffineTransform change) {
         assert Thread.holdsLock(getTreeLock());
         if (paintedArea == null) {
             return;

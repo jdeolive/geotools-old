@@ -82,7 +82,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.10 2003/03/06 23:04:31 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.11 2003/03/12 22:44:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -553,7 +553,7 @@ public class RenderedGridCoverage extends RenderedLayer {
                     transform.scale(scale, scale);
                 }
                 if (level != lastLevel) {
-                    final Logger logger = Logger.getLogger("org.geotools.renderer.j2d");
+                    final Logger logger = Renderer.LOGGER;
                     if (logger.isLoggable(Level.FINE)) {
                         final Locale locale = getLocale();
                         final LogRecord record = Resources.getResources(locale).getLogRecord(

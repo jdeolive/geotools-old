@@ -34,9 +34,12 @@ package org.geotools.renderer.j2d;
 
 // J2SE dependencies
 import java.awt.Insets;
+import java.awt.Stroke;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
+import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import javax.swing.SwingConstants;
 
@@ -45,65 +48,58 @@ import org.geotools.ct.TransformException;
 
 
 /**
- * Classe de base des légendes que l'on placera sur la carte. Cette classe prend en charge le
- * positionnement de la légende. Ce positionnement est exprimé en nombre de pixels par rapport
- * aux bords de la fenêtre qui contient la carte. Cette position peut être modifiée à l'aide des
- * méthodes suivantes:</p>
+ * Base class for legends painted at fixed location in the widget area. Contrary to others
+ * kinds of {@linkplain RenderedLayer layers}, legends location are not zoom-dependent. The
+ * legend location is specified by two quantities: a {@linkplain #getPosition compass-direction}
+ * relative to widget's bounds (for example {@linkplain LegendPosition#NORTH_EAST North-East})
+ * and a {@linkplain #getMargin margin} in dots (or pixels) to keep between the legend and
+ * widget's borders.
  *
- * <ul>
- *   <li>{@link #setPosition} pour spécifier par rapport à quels bords de
- *                            la fenêtre la légende sera positionnée.</li>
- *   <li>{@link #setMargin}   pour spécifier de combien de pixels écarter
- *                            la légende du bord de la fenêtre.</li>
- * </ul>
- *
- * @version $Id: RenderedLegend.java,v 1.1 2003/03/11 12:34:39 desruisseaux Exp $
+ * @version $Id: RenderedLegend.java,v 1.2 2003/03/12 22:44:42 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedLegend extends RenderedLayer {
     /**
      * Position où placer la légende.
      */
-    private LegendPosition position = LegendPosition.NORTH_EAST;
+    private LegendPosition position = LegendPosition.NORTH_WEST;
 
     /**
      * Espace à laisser entre le haut de la fenêtre et le haut de la légende.
      */
-    private short top = 16;
+    private short top = 15;
 
     /**
      * Espace à laisser entre le bord gauche de la la fenêtre et le bord gauche de la légende.
      */
-    private short left = 16;
+    private short left = 15;
 
     /**
      * Espace à laisser entre le bas de la fenêtre et le bas de la légende.
      */
-    private short bottom = 16;
+    private short bottom = 15;
 
     /**
      * Espace à laisser entre le bord droit de la la fenêtre et le bord droit de la légende.
      */
-    private short right = 16;
+    private short right = 15;
 
     /**
-     * Construit une légende placée par défaut dans le coin supérieur droit
-     * ({@link LegendPosition#NORTH_EAST}) avec un espace de 16 pixels par
-     * rapport aux bords de la fenêtre.
+     * Construct a new legend located in the upper left corner ({@link LegendPosition#NORTH_WEST}).
+     * Margin between legend and painting area's bounds default to 15 pixels.
      */
     public RenderedLegend() {
     }
 
     /**
-     * Retourne la position de la légende.
+     * Returns the legend position.
      */
     public LegendPosition getPosition() {
         return position;
     }
 
     /**
-     * Défini la position où placer la légende. Cette position sera un des
-     * bords de la fenêtre qui contient la carte.
+     * Set the legend position. This position is relative to the painting area's bounds.
      */
     public void setPosition(final LegendPosition position) {
         if (position == null) {
@@ -115,7 +111,7 @@ public abstract class RenderedLegend extends RenderedLayer {
     }
 
     /**
-     * Retourne le nombre de pixels à laisser tout le tour de la légende.
+     * Returns the space in pixels between the legend and the painting area's bounds.
      */
     public Insets getMargin() {
         synchronized (getTreeLock()) {
@@ -124,9 +120,7 @@ public abstract class RenderedLegend extends RenderedLayer {
     }
 
     /**
-     * Défini le nombre de pixels à laisser tout le tour de la légende.
-     * Cet espace sert à éviter que la légende soit complètement collée
-     * sur le bord de la fenêtre qui contient la carte.
+     * Set the space in pixels between the legend and the painting area's bounds.
      */
     public void setMargin(final Insets insets) {
         synchronized (getTreeLock()) {
@@ -138,114 +132,94 @@ public abstract class RenderedLegend extends RenderedLayer {
     }
 
     /**
-     * Modifie la transformation affine en vue de positionner la légende.
-     * Cette méthode est conçue pour être appellée par les classes dérivées
-     * au moment du traçage de la légende. L'exemple ci-dessous indique quel
-     * est le code minimal que devrait contenir la méthode {@link #paint} des
-     * classes dérivées:</p>
+     * Convenience method for painting a text in the legend area.
+     *
+     * @param  context Information relatives to the rendering context.
+     * @param  text The text to paint in the legend area.
+     * @throws TransformException If a coordinate transformation failed
+     *         during the rendering process.
+     */
+    protected void paint(final RenderingContext context, final String text)
+            throws TransformException
+    {
+        context.setCoordinateSystem(context.textCS);
+        final Graphics2D  graphics = context.getGraphics();
+        final Stroke     oldStroke = graphics.getStroke();
+        final FontRenderContext fc = graphics.getFontRenderContext();
+        final GlyphVector   glyphs = graphics.getFont().createGlyphVector(fc, text);
+        final Rectangle2D   bounds = glyphs.getVisualBounds();
+        LegendPosition.SOUTH_WEST.setLocation(bounds, 0, 0);
+        translate(context, bounds, graphics);
+        graphics.setStroke(DEFAULT_STROKE);
+        graphics.drawGlyphVector(glyphs, 0, 0);
+        graphics.setStroke(oldStroke);
+        bounds.setRect(bounds.getX()-1, bounds.getY()-1, bounds.getWidth()+2, bounds.getHeight()+2);
+        context.addPaintedArea(bounds, context.textCS);
+        context.setCoordinateSystem(context.mapCS);
+    }
+
+    /**
+     * Translate the specified rectangle in such a way that it appears at the {@link #getPosition}
+     * location. If the <code>graphics</code> argument is non-null, then the same translation
+     * is applied to the specified {@link Graphics2D} as well. This is a helper method for
+     * implementing the {@link #paint} method in subclasses. Example:
      *
      * <blockquote><pre>
-     * &nbsp;protected Shape paint(RenderingContext context) throws TransformException {
-     * &nbsp;    Graphics2D graphics = context.getGraphics();
-     * &nbsp;    AffineTransform currentTr = graphics.getTransform();
+     * &nbsp;protected void paint(RenderingContext context) throws TransformException {
+     * &nbsp;    Graphics2D graphics  = context.getGraphics();
      * &nbsp;    context.setCoordinateSystem(context.textCS);
      * &nbsp;    Rectangle bounds = new Rectangle(0, 0, <font face="Arial" size=2><i>legend_width</i></font>, <font face="Arial" size=2><i>legend_height</i></font>);
      * &nbsp;    <strong>translate(context, bounds, graphics);</strong>
      * &nbsp;    // <font face="Arial" size=2>draw legend now ...</font>
      * &nbsp;
-     * &nbsp;    graphics.setTransform(currentTr);
+     * &nbsp;    context.setCoordinateSystem(context.mapCS);
      * &nbsp;    context.addPaintedArea(bounds, context.textCS);
      * &nbsp;}
      * </pre></blockquote>
      *
-     * @param  context Groupe d'informations nécessaires au traçage de la légende. Ce
-     *         paramètre aura été automatiquement fournis à la méthode {@link #paint}
-     *         et doit être transmis tel quel à cette méthode <code>translate(...)</code>.
-     * @param  bounds Les dimensions de la légende, en pixels. En entré, les champs
-     *         {@link Rectangle#x} et {@link Rectangle#y} sont généralement (mais pas
-     *         obligatoirement) 0. A la sortie, on leur aura additionné la translation
-     *         qui a été appliquée sur le graphique et augmenté de 1 pixel les largeur
-     *         et hauteur.
-     * @param  graphics The graphics on which to apply the translation, or <code>null</code>
-     *         for none.
-     * @throws TransformException if a transformation was required and failed.
+     * @param  context Information relatives to the rendering context.
+     * @param  bounds The legend dimension, in units of {@linkplain RenderingContext#textCS
+     *         Java2D coordinate system}. The ({@link Rectangle#x x},{@link Rectangle#y y})
+     *         coordinates are usually (but not always) set to (0,0). This rectangle will be
+     *         translated to the location where it should be drawn.
+     * @param  graphics If non-null, a graphics on which to apply the same translation than
+     *         <code>bounds</code>. It allows painting in "legend" coordinate system no matter
+     *         where the legend is actually located. The graphics origin (0,0) while always be
+     *         located in the lower-left corner of the legend area.
      */
     final void translate(final RenderingContext context,
                          final Rectangle2D      bounds,
                          final Graphics2D       toTranslate)
-            throws TransformException
     {
-        double dx, dy;
+        final double x, y;
         final double width  = bounds.getWidth();
         final double height = bounds.getHeight();
-        final Rectangle  ws = context.getPaintingArea(context.textCS).getBounds();
+        final Rectangle  ws = context.getPaintingArea();
         switch (position.getHorizontalAlignment()) {
-            case SwingConstants.LEFT:   dx=left; break;
-            case SwingConstants.RIGHT:  dx=ws.width-(width+right); break;
-            case SwingConstants.CENTER: dx=((ws.width-(width+right+left))*0.5)+left; break;
+            case SwingConstants.LEFT:   x=left; break;
+            case SwingConstants.RIGHT:  x=ws.width-(width+right); break;
+            case SwingConstants.CENTER: x=0.5*(ws.width-(width+right+left)) + left; break;
             default: throw new IllegalStateException();
         }
         switch (position.getVerticalAlignment()) {
-            case SwingConstants.TOP:    dy=top; break;
-            case SwingConstants.BOTTOM: dy=ws.height-(height+bottom); break;
-            case SwingConstants.CENTER: dy=((ws.height-(height+bottom+top))*0.5)+top; break;
+            case SwingConstants.TOP:    y=top; break;
+            case SwingConstants.BOTTOM: y=ws.height-(height+bottom); break;
+            case SwingConstants.CENTER: y=0.5*(ws.height-(height+bottom+top)) + top; break;
             default: throw new IllegalStateException();
         }
         if (toTranslate != null) {
-            toTranslate.translate(dx-bounds.getX(), dy-bounds.getY());
+            toTranslate.translate(x-bounds.getX(), y-bounds.getY());
         }
-        bounds.setRect(dx, dy, width+1, height+1);
+        bounds.setRect(x, y, width, height);
         // No addition of (x,y) in 'bounds', since (x,y) were
         // taken in account in Graphics2D.translate(...) above.
     }
 
     /**
-     * Retourne un rectangle englobant le texte spécifié. Le rectangle sera positionnée
-     * relativement à une coordonnée (<var>x</var>,<var>y</var>) spécifiée en pixels.
-     * Cette méthode attend en argument un objet {@link GlyphVector} qui représente le
-     * texte à positionner. Cet objet {@link GlyphVector} peut être obtenu à partir d'une
-     * chaine de caractères {@link String} à l'aide du code ci-dessous:
-     *
-     * <pre>
-     * {@link java.awt.Font} font=graphics.{@link java.awt.Graphics2D#getFont() getFont()};
-     * {@link java.awt.font.FontRenderContext} fontContext=graphics.{@link java.awt.Graphics2D#getFontRenderContext() getFontRenderContext()};
-     * glyphs=font.{@link java.awt.Font#createGlyphVector createGlyphVector}(fontContext, string);
-     * </pre>
-     *
-     * Cette méthode retourne un rectangle <code>bounds</code> qui englobe le texte. A l'aide
-     * de ce rectangle, on peut écrire le texte <code>glyphs</code> avec le code ci-dessous:
-     *
-     * <pre>
-     * graphics.drawGlyphVector(glyphs, (float) bounds.getMinX(), (float) bounds.getMaxY());
-     * </pre>
-     *
-     * @param glyphs   Texte dont on veut le rectangle.
-     * @param x        Coordonnée <var>x</var> par rapport à laquelle positionner le texte.
-     * @param y        Coordonnée <var>y</var> par rapport à laquelle positionner le texte.
-     * @param position Position du texte par rapport à la coordonnée (<var>x</var>,<var>y</var>).
-     *
-     * @return Un rectangle englobant le texte.
-     * @throws IllegalArgumentException Si l'argument <code>position</code>
-     *         n'est pas un des quadrans valides.
+     * Overrides <code>zoomChanged</code> as a no-operation. This is because label are paint at
+     * fixed location relative to widget's bounds. Since label location are not zoom-dependent,
+     * we do not want to change the painted area after a zoom change event.
      */
-    static Rectangle2D getVisualBounds(final GlyphVector glyphs, double x, double y,
-                                       final LegendPosition position) {
-        final Rectangle2D bounds = glyphs.getVisualBounds();
-        final double height = bounds.getHeight();
-        final double width  = bounds.getWidth();
-        switch (position.getHorizontalAlignment()) {
-            case SwingConstants.LEFT:   x -=     width; break;
-            case SwingConstants.CENTER: x -= 0.5*width; break;
-            case SwingConstants.RIGHT:                  break;
-            default: throw new IllegalStateException();
-        }
-        switch (position.getVerticalAlignment()) {
-            case SwingConstants.TOP:    y -=     height; break;
-            case SwingConstants.CENTER: y -= 0.5*height; break;
-            case SwingConstants.BOTTOM:                  break;
-            default: throw new IllegalStateException();
-        }
-        bounds.setRect(x, y, width, height);
-        return bounds;
+    void zoomChanged(final AffineTransform change) {
     }
 }

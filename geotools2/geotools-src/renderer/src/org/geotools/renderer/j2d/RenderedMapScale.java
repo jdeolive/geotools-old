@@ -47,6 +47,8 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
@@ -54,6 +56,8 @@ import org.geotools.units.UnitException;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.AxisOrientation;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.ProjectedCoordinateSystem;
+import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.resources.XMath;
@@ -63,9 +67,22 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
- * A map scale to paint over other layers.
+ * A map scale in linear units (for example kilometres) to be painted over others layers.
+ * The map scale can be draw on top of {@linkplain ProjectedCoordinateSystem projected} or
+ * {@linkplain GeographicCoordinateSystem geographic} coordinate system. Note that because
+ * of deformations related to the projection of a curved surface on a flat screen, the map
+ * scale is not valid everywhere in the widget area. More specifically:
  *
- * @version $Id: RenderedMapScale.java,v 1.1 2003/03/11 12:34:39 desruisseaux Exp $
+ * <ul>
+ *   <li>In the particular case of {@linkplain ProjectedCoordinateSystem projected coordinate
+ *       system}, the map scale is precise only at the latitude of "true scale", which is
+ *       projection-dependent.</li>
+ *   <li>In the particular case of {@linkplain GeographicCoordinateSystem geographic coordinate
+ *       system}, the map scale is precise only at the position where it is drawn. The map scale
+ *       is determined using orthodromic distance computation.</li>
+ * </ul>
+ *
+ * @version $Id: RenderedMapScale.java,v 1.2 2003/03/12 22:44:42 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedMapScale extends RenderedLegend {
@@ -76,15 +93,16 @@ public class RenderedMapScale extends RenderedLegend {
     private Unit units = Unit.KILOMETRE;
 
     /**
-     * The format to use for formatting numbers.
+     * The format to use for formatting numbers. If <code>null</code>, then the format
+     * will be computed when first needed.
      */
     private NumberFormat format;
 
     /**
      * <code>true</code> if the map scale is horizontal, or <code>false</code> if it is vertical.
      *
-     * @task TODO: Only horizontal map scale has been texted up to now. Implementation for
-     *             vertical map scale is not finished.
+     * @task TODO: Only horizontal map scale has been tested up to now.
+     *             Implementation for vertical map scale is not finished.
      */
     private static final boolean horizontal = true;
 
@@ -95,9 +113,9 @@ public class RenderedMapScale extends RenderedLegend {
     private int subDivisions = 3;
 
     /**
-     * Longueur désirée de l'échelle, en pixels.  La longueur exacte dépendra du facteur
-     * de zoom de la carte; cette classe tentera de donnéer à l'échelle une longueur qui
-     * correspond à un chiffre rond.
+     * Longueur désirée de l'échelle, en pixels. La longueur logique dépendra du facteur de
+     * zoom de la carte; cette classe tentera de donner à l'échelle une longueur logique
+     * qui correspond à un chiffre rond.
      */
     private int preferredLength = 256;
 
@@ -128,10 +146,14 @@ public class RenderedMapScale extends RenderedLegend {
     private Paint innerRectColor = Color.BLACK;
 
     /**
-     * Couleur de l'arrière plan de l'échelle. Cette couleur sert principalement à des fins de
-     * déboguages. Ce champ peut être nul pour signifier qu'on ne veut pas d'arrière plan.
+     * Couleur de l'arrière plan de l'échelle, or <code>null</code> pour ne pas en mettre.
      */
-    private Paint backgroundColor = null;
+    private Paint backgroundColor = new Color(32,32,64,64);
+
+    /**
+     * Number of pixels between the background {@link #backgroundColor} and the map scale.
+     */
+    private static final int backgroundMargin = 3;
 
     /**
      * Construit une échelle qui sera située par défaut dans le coin
@@ -176,9 +198,9 @@ public class RenderedMapScale extends RenderedLegend {
 
     /**
      * Retourne la longueur désirée de l'échelle, en points. Lors des affichages à l'écran,
-     * les points correspondent aux pixels. La longueur exacte dépendra du facteur de zoom
-     * de la carte;  la classe <code>RenderedMapScale</code> tentera de donner à l'échelle
-     * une longueur qui correspond à un chiffre rond en mètres sur le terrain.
+     * les points correspondent aux pixels. La longueur logiques (par exemple en kilomètres)
+     * dépendra du facteur de zoom de la carte;  la classe <code>RenderedMapScale</code>
+     * tentera de donner à l'échelle une longueur logique qui correspond à un chiffre rond.
      *
      * @return The preferred length for the map scale, in dots.
      */
@@ -214,6 +236,8 @@ public class RenderedMapScale extends RenderedLegend {
     /**
      * Modifie l'épaisseur de l'échelle en pixels. Cette épaisseur
      * restera constante quelle que soit la longueur de l'échelle.
+     *
+     * @param thickness The new map scale thickness, in dots.
      */
     public void setThickness(final int thickness) {
         final int old;
@@ -226,12 +250,13 @@ public class RenderedMapScale extends RenderedLegend {
     }
 
     /**
-     * Retourne un titre à placer près de l'échelle, ou <code>null</code> pour
-     * ne pas écrire de titre. Par défaut, cette méthode retourne le nom du
-     * système de coordonnées.
+     * Returns the title to paint with the map scale. Default implementation
+     * returns the name of the supplied coordinate system.
+     *
+     * @param  cs The rendering coordinate system, or <code>null</code>.
+     * @return The title for the map scale, or <code>null</code> if none.
      */
-    public String getTitle() {
-        final CoordinateSystem cs = getCoordinateSystem();
+    protected String getTitle(final CoordinateSystem cs) {
         return (cs!=null) ? cs.getName(getLocale()) : null;
     }
 
@@ -254,6 +279,8 @@ public class RenderedMapScale extends RenderedLegend {
      *         during the rendering process.
      */
     private void paintError(final RenderingContext context) throws TransformException {
+        context.getGraphics().setPaint(textColor);
+        paint(context, Resources.getResources(getLocale()).getString(ResourceKeys.ERROR));
     }
 
     /**
@@ -268,11 +295,19 @@ public class RenderedMapScale extends RenderedLegend {
      */
     protected void paint(final RenderingContext context) throws TransformException {
         assert Thread.holdsLock(getTreeLock());
+        ////////////////////////////////////////////////////////////////////////////
+        //////                                                                  ////
+        //////    BLOCK 1 - Compute the content. No painting occurs here.       ////
+        //////              No Graphics2D modification, except through          ////
+        //////              RenderingContext.setCoordinateSystem(...).          ////
+        //////                                                                  ////
+        ////////////////////////////////////////////////////////////////////////////
         /*
-         * Gets an estimation of the map scale in linear units (usually kilometers).
-         * First, we get an estimation of the map scale position in screen coordinates.
-         * Then, we convert the position in "real world" coordinates and measure its length
-         * (using orthodromic distance computation if the rendering units were angular units).
+         * Gets an estimation of the map scale in linear units (usually kilometers). First,
+         * we get an estimation of the map scale position in screen coordinates. We use a
+         * coordinate system local to the legend in which the upper-left corner of the map
+         * scale is located at (0,0). Ticks labels and scale title locations will be relative
+         * to the map scale.
          */
         final Rectangle bounds;
         if (horizontal) {
@@ -296,6 +331,12 @@ public class RenderedMapScale extends RenderedLegend {
                                        context.getMathTransform(context.textCS, mapCS);
         P1 = toMap.transform(P1, P1);
         P2 = toMap.transform(P2, P2);
+        /*
+         * Convert the position from pixels to "real world" coordinates. Then, measures its length
+         * using orthodromic distance computation if the rendering units were angular units. Then,
+         * "snap" the length to some number easier to read. For example the length 2371 will be
+         * snapped to 2500. Finally, the new "snapped" length will be converted bach to pixel units.
+         */
         final Unit mapUnitX = mapCS.getUnits(0);
         final Unit mapUnitY = mapCS.getUnits(1);
         if (mapUnitX==null || mapUnitY==null) {
@@ -304,25 +345,32 @@ public class RenderedMapScale extends RenderedLegend {
         }
         double logicalLength;
         final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(mapCS);
-        if (ellipsoid != null) {
-            P1.setLocation(Unit.DEGREE.convert(P1.getX(), mapUnitX),
-                           Unit.DEGREE.convert(P1.getY(), mapUnitY));
-            P2.setLocation(Unit.DEGREE.convert(P2.getX(), mapUnitX),
-                           Unit.DEGREE.convert(P2.getY(), mapUnitY));
-            logicalLength = ellipsoid.orthodromicDistance(P1, P2);
-            logicalLength = units.convert(logicalLength, ellipsoid.getAxisUnit());
-        } else {
-            P1.setLocation(units.convert(P1.getX(), mapUnitX),
-                           units.convert(P1.getY(), mapUnitY));
-            P2.setLocation(units.convert(P2.getX(), mapUnitX),
-                           units.convert(P2.getY(), mapUnitY));
-            logicalLength = P1.distance(P2);
+        try {
+            if (ellipsoid != null) {
+                P1.setLocation(Unit.DEGREE.convert(P1.getX(), mapUnitX),
+                               Unit.DEGREE.convert(P1.getY(), mapUnitY));
+                P2.setLocation(Unit.DEGREE.convert(P2.getX(), mapUnitX),
+                               Unit.DEGREE.convert(P2.getY(), mapUnitY));
+                logicalLength = ellipsoid.orthodromicDistance(P1, P2);
+                logicalLength = units.convert(logicalLength, ellipsoid.getAxisUnit());
+            } else {
+                P1.setLocation(units.convert(P1.getX(), mapUnitX),
+                               units.convert(P1.getY(), mapUnitY));
+                P2.setLocation(units.convert(P2.getX(), mapUnitX),
+                               units.convert(P2.getY(), mapUnitY));
+                logicalLength = P1.distance(P2);
+            }
+        } catch (UnitException exception) {
+            // Should not occurs, unless the user is using a very particular coordinate system.
+            final LogRecord record = new LogRecord(Level.WARNING, exception.getLocalizedMessage());
+            record.setSourceClassName("RenderedMapScale");
+            record.setSourceMethodName("paint");
+            record.setThrown(exception);
+            Renderer.LOGGER.log(record);
+            paintError(context);
+            return;
         }
         final double scaleFactor = logicalLength / preferredLength;
-        /*
-         * "Snap" the length to some number easier to read. For example the number 2371
-         * will be snapped to 2500. Then, compute the final map scale length in dots.
-         */
         logicalLength /= subDivisions;
         if (true) {
             final double factor = XMath.pow10((int)Math.floor(XMath.log10(logicalLength)));
@@ -331,124 +379,129 @@ public class RenderedMapScale extends RenderedLegend {
             else if (logicalLength <= 2.0) logicalLength = 2.0;
             else if (logicalLength <= 2.5) logicalLength = 2.5;
             else if (logicalLength <= 5.0) logicalLength = 5.0;
+            else if (logicalLength <= 7.5) logicalLength = 7.5;
             else                           logicalLength =10.0;
             logicalLength *= factor;
         }
         final int visualLength = (int)Math.ceil(logicalLength / scaleFactor);
         /*
-         * Détermine les dimensions de l'échelle. Il est nécessaire de calculer
-         * à l'avance ces dimensions afin de pouvoir positionner correctement
-         * la légende.
+         * If the tick labels and/or the scale title changed, recreate them.
+         * Glyph vectors will be saved for faster rendering during the next
+         * paint event.
          */
-        final Graphics2D       graphics = context.getGraphics();
-        final AffineTransform currentTr = graphics.getTransform();
-        final Stroke          oldStroke = graphics.getStroke();
-        final Paint            oldPaint = graphics.getPaint();
-        final Font                 font = graphics.getFont();
-        if (horizontal) {
-            bounds.setBounds(0, 0, visualLength*subDivisions, thickness);
-        } else {
-            bounds.setBounds(0, 0, thickness, visualLength*subDivisions);
-        }
-        try {
-            context.setCoordinateSystem(context.textCS);
-            final GlyphVector[]       ticksText = new GlyphVector[subDivisions+2];
-            final Rectangle2D[]     ticksBounds = new Rectangle2D[subDivisions+2];
+        final GlyphVector[]   ticksText = new GlyphVector[subDivisions+2];
+        final Rectangle2D[] ticksBounds = new Rectangle2D[subDivisions+2];
+        context.setCoordinateSystem(context.textCS);
+        final Graphics2D graphics = context.getGraphics();
+        if (true) {
+            if (horizontal) {
+                bounds.setRect(0, 0, visualLength*subDivisions, thickness);
+            } else {
+                bounds.setRect(0, 0, thickness, visualLength*subDivisions);
+            }
             final FontRenderContext fontContext = graphics.getFontRenderContext();
-            /*
-             * Crée à l'avance la numérotation de l'échelle ainsi que
-             * les unités à écrire après la dernière numérotation.
-             */
-            if (true) {
-                final StringBuffer buffer = new StringBuffer(16);
-                final FieldPosition   pos = new FieldPosition(0);
-                for (int i=0; i<=subDivisions; i++) {
-                    String text = getFormat().format(logicalLength*i, buffer, pos).toString();
-                    GlyphVector glyphs = font.createGlyphVector(fontContext, text);
-                    Rectangle2D rect = getVisualBounds(glyphs, visualLength*i, thickness+3,
-                                                       LegendPosition.SOUTH);
-                    if (i == subDivisions) {
-                        buffer.append(' ');
-                        buffer.append(units);
-                        text = buffer.toString();
-                        glyphs = font.createGlyphVector(fontContext, text);
-                        rect = getVisualBounds(glyphs, rect.getMinX(), rect.getMaxY(),
-                                               LegendPosition.NORTH_EAST);
-                    }
-                    bounds.add(rect);
-                    ticksBounds[i] = rect;
-                    ticksText[i] = glyphs;
-                    buffer.setLength(0);
+            final Font           font = graphics.getFont();
+            final StringBuffer buffer = new StringBuffer(16);
+            final FieldPosition   pos = new FieldPosition(0);
+            for (int i=0; i<=subDivisions; i++) {
+                String text = getFormat().format(logicalLength*i, buffer, pos).toString();
+                GlyphVector glyphs = font.createGlyphVector(fontContext, text);
+                Rectangle2D rect   = glyphs.getVisualBounds();
+                LegendPosition.NORTH.setLocation(rect, visualLength*i, thickness+3);
+                if (i == subDivisions) {
+                    buffer.append(' ');
+                    buffer.append(units);
+                    final double anchorX = rect.getMinX();
+                    final double anchorY = rect.getMaxY();
+                    text   = buffer.toString();
+                    glyphs = font.createGlyphVector(fontContext, text);
+                    rect   = glyphs.getVisualBounds();
+                    LegendPosition.SOUTH_WEST.setLocation(rect, anchorX, anchorY);
                 }
+                bounds.add(rect);
+                ticksBounds[i] = rect;
+                ticksText[i] = glyphs;
+                buffer.setLength(0);
             }
-            /*
-             * Crée l'étiquette. Par défaut, ce sera le
-             * nom de la projection cartographique en cours.
-             */
-            final String title = getTitle();
+            final String title = getTitle(mapCS);
             if (title != null) {
-                final Font        lfont   = font.deriveFont(Font.BOLD | Font.ITALIC);
-                final GlyphVector lglyphs = lfont.createGlyphVector(fontContext, title);
-                final Rectangle2D lbounds = getVisualBounds(lglyphs, 0.5*(subDivisions*visualLength),
-                                                            -3, LegendPosition.NORTH);
-                ticksText  [subDivisions+1] = lglyphs;
-                ticksBounds[subDivisions+1] = lbounds;
-                bounds.add(lbounds);
+                final Font        lfont  = font.deriveFont(Font.BOLD | Font.ITALIC);
+                final GlyphVector glyphs = lfont.createGlyphVector(fontContext, title);
+                final Rectangle2D rect   = glyphs.getVisualBounds();
+                LegendPosition.SOUTH.setLocation(rect, 0.5*subDivisions*visualLength, -3);
+                ticksText  [subDivisions+1] = glyphs;
+                ticksBounds[subDivisions+1] = rect;
+                bounds.add(rect);
             }
-            /*
-             * Applique une translation pour positionner l'échelle à l'endroit voulu.
-             * Maintenant que l'espace occupé par la légende a été déterminé, procède
-             * ensuite à son traçage.
-             */
-            translate(context, bounds, graphics);
-            if (backgroundColor != null) {
-                final AffineTransform tr = graphics.getTransform();
-                context.setCoordinateSystem(context.textCS);
-                graphics.setPaint(backgroundColor);
-                graphics.fill(bounds);
-                graphics.setTransform(tr);
-            }
-            Rectangle2D.Double rect = new Rectangle2D.Double(0, 0, visualLength, thickness);
-            graphics.setStroke(DEFAULT_STROKE);
-            for (int i=0; i<subDivisions; i++) {
-                graphics.setPaint(outerRectColor);
-                graphics.fill(rect);
-                graphics.setPaint(innerRectColor);
-                graphics.draw(rect);
-                if ((i&1) != 0) {
-                    /*
-                     * Dans un rectangle sur deux, on dessinera un
-                     * rectangle noir à l'intérieur du rectangle blanc.
-                     */
-                    int space   = thickness-thicknessSub;
-                    rect.height = thicknessSub;
-                    rect.y      = space >> 1;
-                    if ((space&1)!=0) rect.y++;
-                    else rect.height++;
-                    graphics.fill(rect);
-                    rect.height=thickness;
-                    rect.y = 0;
-                }
-                rect.x += visualLength;
-            }
-            /*
-             * Écrit les graduations, les unités ainsi que la légende de
-             * l'échelle. Tous ces textes ont été préparés à l'avance un
-             * peu plus haut.
-             */
-            graphics.setPaint(textColor);
-            for (int i=0; i<ticksText.length; i++) {
-                if (ticksText[i] != null) {
-                    final Rectangle2D pos = ticksBounds[i];
-                    graphics.drawGlyphVector(ticksText[i], (float)pos.getMinX(),
-                                                           (float)pos.getMaxY());
-                }
-            }
-        } finally {
-            graphics.setTransform(currentTr);
-            graphics.setStroke(oldStroke);
-            graphics.setPaint(oldPaint);
         }
+        ////////////////////////////////////////////////////////////////////////////
+        //////                                                                  ////
+        //////    BLOCK 2 - Paint the content.                                  ////
+        //////                                                                  ////
+        ////////////////////////////////////////////////////////////////////////////
+        int minX = bounds.x;
+        int minY = bounds.y;
+        translate(context, bounds, graphics);
+        final Stroke oldStroke = graphics.getStroke();
+        final Paint   oldPaint = graphics.getPaint();
+        graphics.setStroke(DEFAULT_STROKE);
+        if (backgroundColor != null) {
+            minX          -=   backgroundMargin;
+            minY          -=   backgroundMargin;
+            bounds.x      -=   backgroundMargin;
+            bounds.y      -=   backgroundMargin;
+            bounds.width  += 2*backgroundMargin;
+            bounds.height += 2*backgroundMargin;
+            graphics.setPaint(backgroundColor);
+            graphics.fillRect(minX, minY, bounds.width, bounds.height);
+        }
+        final Rectangle2D.Double rect = new Rectangle2D.Double(0, 0, visualLength, thickness);
+        for (int i=0; i<subDivisions; i++) {
+            graphics.setPaint(outerRectColor);
+            graphics.fill(rect);
+            graphics.setPaint(innerRectColor);
+            graphics.draw(rect);
+            if ((i&1) != 0) {
+                /*
+                 * Dans un rectangle sur deux, on dessinera un
+                 * rectangle noir à l'intérieur du rectangle blanc.
+                 */
+                int space   = thickness-thicknessSub;
+                rect.height = thicknessSub;
+                rect.y      = space >> 1;
+                if ((space&1)!=0) rect.y++;
+                else rect.height++;
+                graphics.fill(rect);
+                rect.height=thickness;
+                rect.y = 0;
+            }
+            rect.x += visualLength;
+        }
+        /*
+         * Écrit les graduations, les unités ainsi que la légende de
+         * l'échelle. Tous ces textes ont été préparés à l'avance un
+         * peu plus haut.
+         */
+        graphics.setPaint(textColor);
+        for (int i=0; i<ticksText.length; i++) {
+            if (ticksText[i] != null) {
+                final Rectangle2D pos = ticksBounds[i];
+                graphics.drawGlyphVector(ticksText[i], (float)pos.getMinX(),
+                                                       (float)pos.getMaxY());
+            }
+        }
+        context.setCoordinateSystem(context.mapCS);
+        graphics.setStroke(oldStroke);
+        graphics.setPaint(oldPaint);
+        bounds.setBounds(bounds.x-1, bounds.y-1, bounds.width+2, bounds.height+2);
         context.addPaintedArea(bounds, context.textCS);
+    }
+
+    /**
+     * Efface les données qui avaient été conservées dans une cache interne.
+     */
+    void clearCache() {
+        format = null;
+        super.clearCache();
     }
 }

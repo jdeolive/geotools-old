@@ -35,10 +35,12 @@
 package org.geotools.renderer.j2d;
 
 // J2SE and JAI dependencies
+import java.awt.geom.Rectangle2D;
+import java.awt.font.GlyphVector;
+import javax.swing.SwingConstants;
 import java.io.ObjectStreamException;
 import java.util.NoSuchElementException;
 import javax.media.jai.EnumeratedParameter;
-import javax.swing.SwingConstants;
 
 
 /**
@@ -51,7 +53,7 @@ import javax.swing.SwingConstants;
  * <tr><td>{@link #SOUTH_WEST}</td>  <td>{@link  #SOUTH}</td>  <td>{@link #SOUTH_EAST}</td></tr>
  * </table>
  *
- * @version $Id: LegendPosition.java,v 1.1 2003/03/11 12:34:39 desruisseaux Exp $
+ * @version $Id: LegendPosition.java,v 1.2 2003/03/12 22:44:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class LegendPosition extends EnumeratedParameter {
@@ -199,5 +201,39 @@ public final class LegendPosition extends EnumeratedParameter {
             case SwingConstants.    CENTER: return SwingConstants.CENTER;
             default: throw new IllegalStateException();
         }
+    }
+
+    /**
+     * Set the location of a rectangle in such a way that the specified point is located at
+     * the compass-direction represented by this <code>LegendPosition</code>.   For example
+     * <code>{@link #EAST}.getLocation(rectangle, 10, 20)</code> will translate the rectangle
+     * in such a way that the coordinate (10, 20) is located in the midle of the right side.
+     * <br><br>
+     * Note that this method use the Java2D default coordinate system, in which the origin (0,0)
+     * is located at the upper-left corner. Consequently, direction {@link #WEST} point toward
+     * minimal {@linkplain Rectangle2D#getX x} while direction {@link #NORTH} point toward minimal
+     * {@linkplain Rectangle2D#getY y}.
+     *
+     * @param  rect The rectangle to translate.
+     * @param  x <var>x</var> anchor ordinate.
+     * @param  y <var>y</var> anchor ordinate.
+     * @return The <code>glyphs</code> bounding box translated to a position relative to (x,y).
+     */
+    final void setLocation(final Rectangle2D rect, double x, double y) {
+        final double height = rect.getHeight();
+        final double width  = rect.getWidth();
+        switch (getHorizontalAlignment()) {
+            case SwingConstants.RIGHT:  x -=     width; break;
+            case SwingConstants.CENTER: x -= 0.5*width; break;
+            case SwingConstants.LEFT:                   break;
+            default: throw new IllegalStateException();
+        }
+        switch (getVerticalAlignment()) {
+            case SwingConstants.BOTTOM: y -=     height; break;
+            case SwingConstants.CENTER: y -= 0.5*height; break;
+            case SwingConstants.TOP:                     break;
+            default: throw new IllegalStateException();
+        }
+        rect.setRect(x, y, width, height);
     }
 }
