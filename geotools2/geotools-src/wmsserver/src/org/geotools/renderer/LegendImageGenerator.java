@@ -1,0 +1,352 @@
+/*
+ * LegendImageGenerator.java
+ *
+ * Created on 18 June 2003, 12:00
+ */
+
+package org.geotools.renderer;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Iterator;
+import org.geotools.feature.AttributeTypeDefault;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureFactory;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFlat;
+import org.geotools.feature.FeatureFactoryFinder;
+import org.geotools.feature.IllegalFeatureException;
+import org.geotools.feature.SchemaException;
+import org.geotools.filter.FilterFactory;
+import org.geotools.renderer.Java2DRenderer;
+import org.geotools.renderer.RenderedObject;
+
+import org.geotools.renderer.RenderedPoint;
+import org.geotools.renderer.Renderer;
+
+import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.Rule;
+import org.geotools.styling.Style;
+import org.geotools.styling.StyleFactory;
+import org.geotools.styling.Symbolizer;
+import org.geotools.styling.TextSymbolizer;
+
+/**
+ * Based on a Style object return an Image of a legend for the style.
+ *
+ * @author  iant
+ */
+public class LegendImageGenerator {
+    /** The style to use **/
+    Style style;
+    /** the current renderer object **/
+    Java2DRenderer renderer = new Java2DRenderer();
+    /** the width of the returned image **/
+    int width = 100;
+    /** The hieght of the returned image **/
+    int height = 100;
+    int hpadding = 3;
+    int vpadding = 3;
+    int symbolWidth = 20;
+    int symbolHeight = 20;
+    static StyleFactory sFac= StyleFactory.createStyleFactory();
+    static FilterFactory filFac = FilterFactory.createFilterFactory();
+    GeometryFactory gFac = new GeometryFactory();
+    FeatureFactory fFac,labelFac;
+    /** Creates a new instance of LegendImageGenerator */
+    public LegendImageGenerator() {
+        FeatureType type = new FeatureTypeFlat(new AttributeTypeDefault("testGeometry",Geometry.class)); 
+        fFac = org.geotools.feature.FeatureFactoryFinder.getFeatureFactory(type);
+        AttributeTypeDefault[] attribs = {
+            new AttributeTypeDefault("geometry:text",Geometry.class),
+            new AttributeTypeDefault("label",String.class)
+        };
+        try{
+        FeatureType labeltype = new FeatureTypeFlat(attribs);
+        labelFac = org.geotools.feature.FeatureFactoryFinder.getFeatureFactory(labeltype);
+        }catch (SchemaException se){
+            throw new RuntimeException(se);
+        }
+        
+    }
+    /** Creates a new instance of LegendImageGenerator */
+    public LegendImageGenerator(Style style, int width, int height) {
+        this();
+        setStyle(style);
+        setWidth(width);
+        setHeight(height);
+    }
+    public BufferedImage getLegend(){
+        return getLegend(null);
+    }
+    public BufferedImage getLegend(Color background){
+        BufferedImage image = new BufferedImage(getWidth(),getHeight(),BufferedImage.TYPE_INT_ARGB);
+        
+        Graphics2D graphics = image.createGraphics();
+        if(!(background==null)){
+            graphics.setBackground(background);
+            graphics.fillRect(0,0, getWidth(),getHeight());
+        }
+        renderer.render(graphics, new java.awt.Rectangle(0,0,getWidth(),getHeight()));
+        FeatureTypeStyle[] fts = style.getFeatureTypeStyles();
+        RenderedPoint rp=null;
+        PointSymbolizer ps;
+        Point p;
+        Polygon poly;
+        Feature feature=null, labelFeature=null;
+        TextSymbolizer textSym = sFac.getDefaultTextSymbolizer();
+        textSym.getFonts()[0].setFontSize(filFac.createLiteralExpression(12.0));
+        textSym.setFill(sFac.createFill(filFac.createLiteralExpression("#000000")));
+        int offset = vpadding;
+        int items=0;
+        int hstep = (getWidth() - 2* hpadding)/2;
+        for(int i=0;i<fts.length;i++){
+            Rule[] rules = fts[i].getRules();
+            items+=rules.length;
+        }
+        int vstep = (getHeight() - (items+1)*vpadding)/items;
+        System.out.println("vstep "+vstep);
+        
+            
+        for(int i=0;i<fts.length;i++){
+            Rule[] rules = fts[i].getRules();
+            
+            for(int j=0;j<rules.length;j++){
+                String name = rules[j].getName();
+                Graphic[] g = rules[j].getLegendGraphic();
+                
+                if(g != null && g.length>0){
+                    System.out.println("got a legend graphic");
+                    for(int k=0;k<g.length;k++){
+                        p = gFac.createPoint(new Coordinate(hpadding+hstep/2,offset+vstep/2));
+                        Object[] attrib = {p};
+                        try{
+                            feature = fFac.create(attrib);
+                        }catch (IllegalFeatureException ife){
+                            throw new RuntimeException(ife);
+                        }
+                        ps = sFac.createPointSymbolizer();
+                        ps.setGraphic(g[k]);
+                        rp = new RenderedPoint(feature, ps);
+                        
+                        if(rp.isRenderable()) break;
+                    }
+                    rp.render(graphics);  
+                }else{ // no legend graphic provided 
+                    Symbolizer[] syms = rules[j].getSymbolizers();
+                    for(int k=0;k<syms.length;k++){
+                        if (syms[k] instanceof PolygonSymbolizer) {
+                            System.out.println("building polygon");
+                            Coordinate[] c = new Coordinate[5];
+                            c[0] = new Coordinate(hpadding, offset);
+                            c[1] = new Coordinate(hpadding+symbolWidth, offset);
+                            c[2] = new Coordinate(hpadding+symbolWidth, offset+symbolHeight);
+                            c[3] = new Coordinate(hpadding, offset+symbolHeight);
+                            c[4] = new Coordinate(hpadding, offset);
+                            
+                            com.vividsolutions.jts.geom.LinearRing r = null;
+                            
+                            try {
+                                r = gFac.createLinearRing(c);
+                            } catch (com.vividsolutions.jts.geom.TopologyException e) {
+                                System.err.println("Topology Exception in GMLBox");
+                                
+                                return null;
+                            }
+                            
+                            poly = gFac.createPolygon(r, null);
+                            Object[] attrib = {poly};
+                            try{
+                                feature = fFac.create(attrib);
+                            }catch (IllegalFeatureException ife){
+                                throw new RuntimeException(ife);
+                            }
+                            System.out.println("feature = "+feature);
+                            
+                        } else if (syms[k] instanceof LineSymbolizer){
+                            System.out.println("building line");
+                           Coordinate[] c = new Coordinate[5];
+                            c[0] = new Coordinate(hpadding, offset);
+                            c[1] = new Coordinate(hpadding+symbolWidth*.3, offset+symbolHeight*.3);
+                            c[2] = new Coordinate(hpadding+symbolWidth*.3, offset+symbolHeight*.7);
+                            c[3] = new Coordinate(hpadding+symbolWidth*.7, offset+symbolHeight*.7);
+                            c[4] = new Coordinate(hpadding+symbolWidth, offset+symbolHeight); 
+                            LineString line = gFac.createLineString(c);
+                            Object[] attrib = {line};
+                            try{
+                                feature = fFac.create(attrib);
+                            }catch (IllegalFeatureException ife){
+                                throw new RuntimeException(ife);
+                            }
+                            System.out.println("feature = "+feature);
+                            
+                        } else  if(syms[k] instanceof PointSymbolizer){
+                            System.out.println("building point");
+                            p = gFac.createPoint(new Coordinate(hpadding+symbolWidth/2,offset+symbolHeight/2));
+                            Object[] attrib = {p};
+                            try{
+                                feature = fFac.create(attrib);
+                            }catch (IllegalFeatureException ife){
+                                throw new RuntimeException(ife);
+                            }
+                            System.out.println("feature = "+feature);
+                            
+                        }
+                    }
+                    if(feature == null) continue;
+                    System.out.println("feature "+feature);
+                    
+                    renderer.processSymbolizers(feature, syms); 
+                }
+            
+            if(name==null || name =="") name = "unknown";
+            
+            p = gFac.createPoint(new Coordinate(2*hpadding+symbolWidth,offset+symbolHeight/2));
+            Object[] attrib = {p,name};
+            try{
+                labelFeature = labelFac.create(attrib);
+            }catch (IllegalFeatureException ife){
+                throw new RuntimeException(ife);
+            }
+            textSym.setLabel(filFac.createLiteralExpression(name));
+            
+            
+            renderer.processSymbolizers(labelFeature,new Symbolizer[]{textSym});
+//            graphics.drawString(name,hpadding+3*hstep/2,offset+vstep/2);
+            offset += symbolHeight+vpadding;
+            }
+        }
+        Iterator it = renderer.renderedObjects.values().iterator(); 
+
+        while (it.hasNext()) {
+            ((RenderedObject) it.next()).render(graphics);
+        }
+        return image;
+    }
+    /** Getter for property style.
+     * @return Value of property style.
+     *
+     */
+    public org.geotools.styling.Style getStyle() {
+        return style;
+    }
+    
+    /** Setter for property style.
+     * @param style New value of property style.
+     *
+     */
+    public void setStyle(org.geotools.styling.Style style) {
+        this.style = style;
+    }
+    
+    /** Getter for property height.
+     * @return Value of property height.
+     *
+     */
+    public int getHeight() {
+        return height;
+    }
+    
+    /** Setter for property height.
+     * @param height New value of property height.
+     *
+     */
+    public void setHeight(int height) {
+        this.height = height;
+    }
+    
+    /** Getter for property width.
+     * @return Value of property width.
+     *
+     */
+    public int getWidth() {
+        return width;
+    }
+    
+    /** Setter for property width.
+     * @param width New value of property width.
+     *
+     */
+    public void setWidth(int width) {
+        this.width = width;
+    }
+    
+    /** Getter for property hpadding.
+     * @return Value of property hpadding.
+     *
+     */
+    public int getHpadding() {
+        return hpadding;
+    }
+    
+    /** Setter for property hpadding.
+     * @param hpadding New value of property hpadding.
+     *
+     */
+    public void setHpadding(int hpadding) {
+        this.hpadding = hpadding;
+    }
+    
+    /** Getter for property vpadding.
+     * @return Value of property vpadding.
+     *
+     */
+    public int getVpadding() {
+        return vpadding;
+    }
+    
+    /** Setter for property vpadding.
+     * @param vpadding New value of property vpadding.
+     *
+     */
+    public void setVpadding(int vpadding) {
+        this.vpadding = vpadding;
+    }
+    
+    /** Getter for property symbolWidth.
+     * @return Value of property symbolWidth.
+     *
+     */
+    public int getSymbolWidth() {
+        return symbolWidth;
+    }
+    
+    /** Setter for property symbolWidth.
+     * @param symbolWidth New value of property symbolWidth.
+     *
+     */
+    public void setSymbolWidth(int symbolWidth) {
+        this.symbolWidth = symbolWidth;
+    }
+    
+    /** Getter for property symbolHeight.
+     * @return Value of property symbolHeight.
+     *
+     */
+    public int getSymbolHeight() {
+        return symbolHeight;
+    }
+    
+    /** Setter for property symbolHeight.
+     * @param symbolHeight New value of property symbolHeight.
+     *
+     */
+    public void setSymbolHeight(int symbolHeight) {
+        this.symbolHeight = symbolHeight;
+    }
+    
+}
