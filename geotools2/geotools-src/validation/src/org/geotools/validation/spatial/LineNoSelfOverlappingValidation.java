@@ -49,9 +49,9 @@ import com.vividsolutions.jts.geom.Point;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineNoSelfOverlappingValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: LineNoSelfOverlappingValidation.java,v 1.4 2004/02/25 18:40:55 dmzwiers Exp $
  */
-public class LineNoSelfOverlappingValidation extends DefaultFeatureValidation {
+public class LineNoSelfOverlappingValidation extends LineAbstractValidation {
     /** The logger for the validation module. */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.validation");
@@ -89,15 +89,15 @@ public class LineNoSelfOverlappingValidation extends DefaultFeatureValidation {
      * @see org.geotools.validation.Validation#getTypeNames()
      */
     public String[] getTypeNames() {
-        if (getTypeRef() == null) {
+        if (getLineTypeRef() == null) {
             return null;
         }
 
-        if (getTypeRef().equals("*")) {
+        if (getLineTypeRef().equals("*")) {
             return ALL;
         }
 
-        return new String[] { getTypeRef(), };
+        return new String[] { getLineTypeRef(), };
     }
 
     /**

@@ -58,7 +58,7 @@ import org.geotools.validation.DefaultIntegrityValidationBeanInfo;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: PointLineAbstractValidationBeanInfo.java,v 1.1 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: PointLineAbstractValidationBeanInfo.java,v 1.2 2004/02/25 18:40:55 dmzwiers Exp $
  */
 public class PointLineAbstractValidationBeanInfo extends DefaultIntegrityValidationBeanInfo{
     /**
@@ -96,8 +96,8 @@ public class PointLineAbstractValidationBeanInfo extends DefaultIntegrityValidat
     	try {
     		pd[i] = createPropertyDescriptor("restrictedLineTypeRef",
     				PointLineAbstractValidation.class, resourceBundle);
-    		pd[i].setExpert(true);
-    		pd[i] = createPropertyDescriptor("pointTypeRef",
+    		pd[i+1].setExpert(true);
+    		pd[i+1] = createPropertyDescriptor("pointTypeRef",
     				PointLineAbstractValidation.class, resourceBundle);
     		pd[i].setExpert(true);
     	} catch (IntrospectionException e) {

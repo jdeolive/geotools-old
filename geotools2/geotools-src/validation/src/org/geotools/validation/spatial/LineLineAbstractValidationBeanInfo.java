@@ -58,7 +58,7 @@ import org.geotools.validation.DefaultIntegrityValidationBeanInfo;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineLineAbstractValidationBeanInfo.java,v 1.1 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: LineLineAbstractValidationBeanInfo.java,v 1.2 2004/02/25 18:40:55 dmzwiers Exp $
  */
 public class LineLineAbstractValidationBeanInfo extends DefaultIntegrityValidationBeanInfo{
     /**
@@ -97,9 +97,9 @@ public class LineLineAbstractValidationBeanInfo extends DefaultIntegrityValidati
     		pd[i] = createPropertyDescriptor("lineTypeRef",
     				LineLineAbstractValidation.class, resourceBundle);
     		pd[i].setExpert(true);
-    		pd[i] = createPropertyDescriptor("restrictedLineTypeRef",
+    		pd[i+1] = createPropertyDescriptor("restrictedLineTypeRef",
     				LineLineAbstractValidation.class, resourceBundle);
-    		pd[i].setExpert(true);
+    		pd[i+1].setExpert(true);
     	} catch (IntrospectionException e) {
     		pd = pd2;
 
