@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 
 /**
- * $Id: ImageLoader.java,v 1.2 2003/11/15 14:19:32 aaime Exp $
+ * $Id: ImageLoader.java,v 1.3 2004/02/12 11:19:18 aaime Exp $
  *
  * @author Ian Turton
  */
@@ -122,10 +122,10 @@ class ImageLoader implements Runnable {
             }
 
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest(imgId + " complete?: " + (isFlagUp(imgId, tracker.COMPLETE)));
-                LOGGER.finest(imgId + " abort?: " + (isFlagUp(imgId, tracker.ABORTED)));
-                LOGGER.finest(imgId + " error?: " + (isFlagUp(imgId, tracker.ERRORED)));
-                LOGGER.finest(imgId + " loading?: " + (isFlagUp(imgId, tracker.LOADING)));
+                LOGGER.finest(imgId + " complete?: " + (isFlagUp(imgId, MediaTracker.COMPLETE)));
+                LOGGER.finest(imgId + " abort?: " + (isFlagUp(imgId, MediaTracker.ABORTED)));
+                LOGGER.finest(imgId + " error?: " + (isFlagUp(imgId, MediaTracker.ERRORED)));
+                LOGGER.finest(imgId + " loading?: " + (isFlagUp(imgId, MediaTracker.LOADING)));
                 LOGGER.finest(imgId + "slow return " + waiting);
             }
 
@@ -194,7 +194,7 @@ class ImageLoader implements Runnable {
         }
 
         try {
-            while ((tracker.statusID(myID, true) & tracker.LOADING) != 0) {
+            while ((tracker.statusID(myID, true) & MediaTracker.LOADING) != 0) {
                 tracker.waitForID(myID, 500);
                 LOGGER.finest(myID + "loading - waiting....");
             }
@@ -204,15 +204,15 @@ class ImageLoader implements Runnable {
 
         int state = tracker.statusID(myID, true);
 
-        if (state == tracker.ERRORED) {
+        if (state == MediaTracker.ERRORED) {
             LOGGER.finer("" + myID + " Error loading");
-            images.remove(location);
+            // images.remove(location);
             waiting = false;
 
             return;
         }
 
-        if ((state & tracker.COMPLETE) == tracker.COMPLETE) {
+        if ((state & MediaTracker.COMPLETE) == MediaTracker.COMPLETE) {
             LOGGER.finest("" + myID + "completed load");
 
             int iw = img.getWidth(obs);
@@ -231,5 +231,12 @@ class ImageLoader implements Runnable {
         waiting = false;
 
         return;
+    }
+    
+    /**
+     * Resets the image cache
+     */
+    public void reset() {
+        images.clear();
     }
 }
