@@ -126,7 +126,7 @@ public class ProducerTest extends TestCase {
 
         Coordinate[] points = {
             new Coordinate(15, 15), new Coordinate(15, 25),
-            new Coordinate(25, 25), new Coordinate(25, 15),
+            new Coordinate(25336677443325L, 25.0000005), new Coordinate(25, 15),
             new Coordinate(15, 15)
         };
         LinearRing shell = new LinearRing(points, precModel, srid);
@@ -232,10 +232,14 @@ public class ProducerTest extends TestCase {
         fr.setIndentation(4);
         fr.getFeatureTypeNamespaces().declareNamespace(dstore.getSchema("rail"),
             "tt2", "http://www.geotools.org");
+        fr.setGmlPrefixing(true);
+        fr.setSrsName("http://www.opengis.net/gml/srs/epsg.xml#4325");
+        fr.setLockId("00A01");
 
         java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
         fr.transform(results, baos);
-        LOGGER.info("output is " + new String(baos.toByteArray()));
+
+        LOGGER.fine("output is " + new String(baos.toByteArray()));
     }
 
     public void testMultiFeatureResults() throws Exception {
@@ -299,5 +303,29 @@ public class ProducerTest extends TestCase {
             "http://www.geotools.org");
         fr.transform(table, baos);
         LOGGER.fine("output is " + new String(baos.toByteArray()));
+    }
+
+    public void testFeatureTypeProducer() throws Exception {
+        AttributeType[] atts = {
+            AttributeTypeFactory.newAttributeType("geoid", Integer.class),
+            AttributeTypeFactory.newAttributeType("geom", Polygon.class),
+            AttributeTypeFactory.newAttributeType("name", String.class, true, 19),
+            AttributeTypeFactory.newAttributeType("start", Date.class)
+        };
+
+        try {
+            schema = FeatureTypeFactory.newFeatureType(atts, "rail",
+                    "http://www.openplans.org/data");
+        } catch (SchemaException e) {
+            LOGGER.finer("problem with creating schema");
+        }
+
+        FeatureTypeTransformer t = new FeatureTypeTransformer();
+        t.setIndentation(4);
+        t.setOmitXMLDeclaration(false);
+
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        t.transform(schema, baos);
+        LOGGER.info("output is " + new String(baos.toByteArray()));
     }
 }
