@@ -4,6 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>geotools-gtbuild</name>
   <id>gtbuild</id>
+  <groupID>GT2</groupID>
   <logo>/images/${pom.id}.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
@@ -21,7 +22,8 @@
   <issueTrackingUrl/>
   <siteAddress>modules.geotools.org</siteAddress>
   <siteDirectory>/seis/raid1/Apache/htdocs/software/geotools/${pom.id}</siteDirectory>
-  <distributionDirectory/>
+  <distributionDirectory>/home/groups/g/ge/geotools/htdocs/gt2</distributionDirectory>
+  <distributionSite>geotools.sf.net</distributionSite>
   
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot:geotools/geotools2/geotools-src/${pom.id}</connection>
