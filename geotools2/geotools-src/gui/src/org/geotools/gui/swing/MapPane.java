@@ -45,8 +45,8 @@ import org.geotools.gui.swing.event.ZoomChangeEvent;
 import org.geotools.gui.swing.event.ZoomChangeListener;
 import org.geotools.renderer.*;
 import org.geotools.datasource.extents.EnvelopeExtent;
-import org.geotools.datasource.*;
-import org.geotools.featuretable.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 import org.geotools.styling.*;
 
 //JTS classes
