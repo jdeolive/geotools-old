@@ -189,7 +189,7 @@ cvs tag -R r2_3_4</programlisting>
       <para>If you are new to IRC, you will need to find an IRC client. The
       later versions of Netscape and Mozilla have IRC built in, and you can
       connect to a GeoTools meeting simply by using the URL: <ulink
-      url="irc://irc.eu.freenode.net#getools">irc://irc.eu.freenode.net#geotools</ulink>.</para>
+      url="irc://irc.eu.freenode.net#geotools">irc://irc.eu.freenode.net#geotools</ulink>.</para>
 
       <para>The information you need to configure your IRC client are:</para>
 
