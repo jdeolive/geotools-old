@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 /**
  * Creates a Polygon geometry.
  *
- * @version $Id: SubHandlerPolygon.java,v 1.6 2002/07/21 19:35:51 jmacgill Exp $
+ * @version $Id: SubHandlerPolygon.java,v 1.7 2002/07/21 19:36:27 jmacgill Exp $
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
 
@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 
 public class SubHandlerPolygon extends SubHandler {
     
-    private static Logger _log = Logger.getLogger("gmldatasource");
+    private static Logger log = Logger.getLogger("gmldatasource");
     
     protected static com.vividsolutions.jts.algorithm.CGAlgorithms cga = 
         new com.vividsolutions.jts.algorithm.RobustCGAlgorithms();
