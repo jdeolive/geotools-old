@@ -15,6 +15,8 @@
  */
 package org.geotools.data;
 
+import java.io.IOException;
+
 /**
  * Captures additional information (and constraints) for FeatureType.
  * 
@@ -27,7 +29,7 @@ package org.geotools.data;
  *
  * @author jgarnett, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: DataStoreMetaData.java,v 1.1 2004/01/10 00:41:46 jive Exp $
+ * @version $Id: DataStoreMetaData.java,v 1.2 2004/01/12 13:38:41 jive Exp $
  */
 public interface DataStoreMetaData extends MetaData {
     /**
@@ -39,5 +41,5 @@ public interface DataStoreMetaData extends MetaData {
      *
      * @return DataStore that reflects this Meta Data.
      */
-    DataStore getDataStore();
+    DataStore getDataStore() throws IOException;
 }
