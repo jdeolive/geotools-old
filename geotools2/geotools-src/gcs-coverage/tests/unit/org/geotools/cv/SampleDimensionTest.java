@@ -35,6 +35,10 @@ package org.geotools.cv;
 // J2SE dependencies
 import java.util.Random;
 import java.util.Arrays;
+import java.awt.image.*;
+
+// JAI dependencies
+import javax.media.jai.*;
 
 // Geotools dependencies
 import org.geotools.cv.*;
@@ -50,7 +54,7 @@ import junit.framework.TestSuite;
  * rely on {@link CategoryList} for many of its work, many <code>SampleDimension</code>
  * tests are actually <code>CategoryList</code> tests.
  *
- * @version $Id: SampleDimensionTest.java,v 1.3 2002/07/24 18:15:05 desruisseaux Exp $
+ * @version $Id: SampleDimensionTest.java,v 1.4 2002/07/25 22:31:58 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class SampleDimensionTest extends TestCase {
@@ -133,5 +137,40 @@ public class SampleDimensionTest extends TestCase {
         assertEquals("offset",  test.getOffset(),    offset, 0);
         assertEquals("minimum", test.getMinimumValue(),   0, 0);
         assertEquals("maximum", test.getMaximumValue(), 255, 0);
+    }
+
+    /**
+     * Test the creation of an {@link ImageAdapter} using the image
+     * operation registry. This allow to apply the operation in the
+     * same way than other JAI operations, without any need for a
+     * direct access to package-private method.
+     */
+    public void testImageAdapterCreation() {
+        final OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
+        assertNotNull(registry.getDescriptor("rendered", "SampleToGeophysics"));
+
+        final BufferedImage       dummy = new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
+        final ParameterBlockJAI   param = new ParameterBlockJAI("SampleToGeophysics");
+        final ParameterListDescriptor d = param.getParameterListDescriptor();
+        assertTrue(d.getParamClasses()[0].equals( SampleDimension[].class ));
+
+        try {
+            JAI.create("SampleToGeophysics", param);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // This is the expected exception: source required
+        }
+
+        param.addSource(dummy);
+        try {
+            JAI.create("SampleToGeophysics", param);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // This is the expected exception: source required
+        }
+
+        param.setParameter("sampleDimensions", new SampleDimension[] {test});
+        final RenderedOp op = JAI.create("SampleToGeophysics", param);
+        assertTrue(op.getRendering() instanceof ImageAdapter);
     }
 }

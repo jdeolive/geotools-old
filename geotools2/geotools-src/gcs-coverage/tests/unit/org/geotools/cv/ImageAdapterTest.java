@@ -32,9 +32,10 @@
  */
 package org.geotools.cv;
 
-// J2SE dependencies
+// J2SE and JAI dependencies
 import java.util.Random;
 import java.awt.image.*;
+import javax.media.jai.*;
 
 // Geotools dependencies
 import org.geotools.cv.*;
@@ -50,19 +51,26 @@ import junit.framework.TestSuite;
  * Test the {@link ImageAdapter} implementation. Image adapter depends
  * heavily on {@link CategoryList}, so this one should be tested first.
  *
- * @version $Id: ImageAdapterTest.java,v 1.2 2002/07/24 18:15:05 desruisseaux Exp $
+ * @version $Id: ImageAdapterTest.java,v 1.3 2002/07/25 22:31:58 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ImageAdapterTest extends TestCase {
     /**
-     * Small value for comparaisons.
+     * Small value for comparaisons. Remind: transformed values are stored in a new image
+     * using the 'float' data type. So we can't expected as much precision than with a
+     * 'double' data type.
      */
-    private static final double EPS = 1E-6;
+    private static final double EPS = 1E-5;
 
     /**
      * Random number generator for this test.
      */
     private Random random;
+
+    /**
+     * Instance of {@link JAI} to use for image operations.
+     */
+    private JAI jai;
 
     /**
      * A category list for a band.
@@ -89,6 +97,7 @@ public class ImageAdapterTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         random = new Random();
+        jai = JAI.getDefaultInstance();
         band1 = new CategoryList(new Category[] {
             new Category("No data",     null, 0),
             new Category("Land",        null, 1),
@@ -103,6 +112,31 @@ public class ImageAdapterTest extends TestCase {
      * The the transformation using a random raster with only one band.
      */
     public void testOneBand() throws TransformException {
+        assertTrue(testOneBand(1,  0) instanceof BufferedImage);
+        assertTrue(testOneBand(.8, 2) instanceof ImageAdapter); // TODO: Should be RenderedOp
+        assertTrue(testOneBand(band1) instanceof ImageAdapter);
+    }
+
+    /**
+     * The the transformation using a random raster with only one band.
+     * A category list with only one category will be used.
+     *
+     * @param  scale The scale factor.
+     * @param  offset The offset value.
+     * @return The transformed image.
+     */
+    private RenderedImage testOneBand(double scale, double offset) throws TransformException {
+        final Category category = new Category("Values", null, 0, 256, scale, offset);
+        return testOneBand(new CategoryList(new Category[] {category}, null));
+    }
+
+    /**
+     * The the transformation using a random raster with only one band.
+     *
+     * @param  band The list of categories for the only band.
+     * @return The transformed image.
+     */
+    private RenderedImage testOneBand(final CategoryList band) throws TransformException {
         final int SIZE = 64;
 
         final BufferedImage  source = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_BYTE_INDEXED);
@@ -111,13 +145,16 @@ public class ImageAdapterTest extends TestCase {
         for (int i=0; i<array.length; i++) {
             array[i] = (byte) random.nextInt(121);
         }
-        final RenderedImage target = ImageAdapter.getInstance(source, new CategoryList[]{band1});
-        assertEquals(DataBuffer.TYPE_BYTE,  source.getSampleModel().getDataType());
-        assertEquals(DataBuffer.TYPE_FLOAT, target.getSampleModel().getDataType());
+        final RenderedImage target=ImageAdapter.getInstance(source, new CategoryList[]{band}, jai);
+        assertEquals(DataBuffer.TYPE_BYTE, source.getSampleModel().getDataType());
+        if (source != target) {
+            assertEquals(DataBuffer.TYPE_FLOAT, target.getSampleModel().getDataType());
+        }
 
         final double[] sourceData = source.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
         final double[] targetData = target.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
-        band1.transform(sourceData, 0, sourceData, 0, sourceData.length);
+        band.transform(sourceData, 0, sourceData, 0, sourceData.length);
         CategoryListTest.compare(sourceData, targetData, EPS);
+        return target;
     }
 }
