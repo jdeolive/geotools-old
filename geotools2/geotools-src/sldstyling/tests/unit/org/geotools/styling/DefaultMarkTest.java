@@ -52,7 +52,7 @@ public class DefaultMarkTest extends TestCase {
         
         GeometryFactory geomFac = new GeometryFactory();
         ArrayList features = new ArrayList();
-        String[] marks = {"Circle","Triangle","Cross","Star","X","Square"};
+        String[] marks = {"Circle","Triangle","Cross","Star","X","Square","Arrow"};
         for(int i=0; i<marks.length; i++){
             System.out.println("building test"+marks[i]+" at "+((double)i*5.0+2.0)+",25");
             Point point = makeSamplePoint(geomFac,(double)i*5.0+2.0, 25.0);

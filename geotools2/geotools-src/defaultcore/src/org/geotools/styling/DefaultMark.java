@@ -23,7 +23,7 @@ package org.geotools.styling;
 import com.vividsolutions.jts.geom.*;
 import java.util.StringTokenizer;
 /**
- * @version $Id: DefaultMark.java,v 1.5 2002/06/04 17:04:27 loxnard Exp $
+ * @version $Id: DefaultMark.java,v 1.6 2002/07/01 11:31:16 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultMark implements Mark {
@@ -132,5 +132,5 @@ public class DefaultMark implements Mark {
     public double getRotation() {
         return rotation;
     }
-    private static String[] WellKnownNames = {"Square","Circle","Cross","Triangle","Star","X"};
+    private static String[] WellKnownNames = {"Square","Circle","Cross","Triangle","Star","X","Arrow"};
 }

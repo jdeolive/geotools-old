@@ -120,6 +120,24 @@ that allows you to describe the latyer in more detail
             </PointSymbolizer>
         </rule>
     </FeatureTypeStyle>
+    <FeatureTypeStyle>
+        <FeatureTypeName>testArrow</FeatureTypeName>
+        <rule>
+            <PointSymbolizer>
+                <graphic>
+                    <size>10</size>
+                    <mark>
+                        <wellknownname>Arrow</wellknownname>
+                        <Fill>
+                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
+                            <CssParameter name="fill">#FF0000</CssParameter>
+                            <CssParameter name="fill-opacity">0.5</CssParameter>
+                        </Fill>
+                    </mark>
+                </graphic>
+            </PointSymbolizer>
+        </rule>
+    </FeatureTypeStyle>
 </UserStyle>
 </NamedLayer>
 </StyledLayerDescriptor>

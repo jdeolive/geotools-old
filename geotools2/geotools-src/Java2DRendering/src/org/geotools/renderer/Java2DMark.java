@@ -21,7 +21,7 @@
 package org.geotools.renderer;
 
 /**
- * @version $Id: Java2DMark.java,v 1.3 2002/06/07 14:46:08 ianturton Exp $
+ * @version $Id: Java2DMark.java,v 1.4 2002/07/01 11:31:16 ianturton Exp $
  * @author Ian Turton
  */
 
@@ -35,7 +35,7 @@ public class Java2DMark {
     public Java2DMark() {
         
     }
-    static GeneralPath cross,star,triangle;
+    static GeneralPath cross,star,triangle,arrow;
     static Shape X;
     static{
             cross = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
@@ -81,6 +81,17 @@ public class Java2DMark {
             at.scale(.5,.5);
            
             triangle.transform(at);
+            
+            arrow = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
+            arrow.moveTo(0f,-.5f);
+            arrow.lineTo(.5f,0f);
+            arrow.lineTo(0f,.5f);
+            arrow.lineTo(0f,.1f);
+            arrow.lineTo(-.5f,.1f);
+            arrow.lineTo(-.5f,-.1f);
+            arrow.lineTo(0f,-.1f);
+            arrow.lineTo(0f,-.5f);
+            
     }
     static Shape getWellKnownMark(String wellKnownName){
         _log.debug("fetching mark of name "+wellKnownName);
@@ -94,8 +105,7 @@ public class Java2DMark {
         }
         if(wellKnownName.equalsIgnoreCase("triangle")){
             _log.debug("returning triangle");
-            int x[] = {-1,0,1};
-            int y[] = {-1,1,-1};
+            
             return triangle;
         }
         if(wellKnownName.equalsIgnoreCase("X")){
@@ -105,6 +115,10 @@ public class Java2DMark {
         if(wellKnownName.equalsIgnoreCase("star")){
             _log.debug("returning star");
             return star;
+        }
+        if(wellKnownName.equalsIgnoreCase("arrow")){
+            _log.debug("returning arrow");
+            return arrow;
         }
         // failing that return a square?
         _log.debug("returning square");
