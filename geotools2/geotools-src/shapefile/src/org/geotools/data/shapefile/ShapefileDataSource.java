@@ -58,7 +58,7 @@ import java.nio.channels.*;
  *       the same FeatureType, compatable Geometry classes, etc.</li>
  * </ol>
  * 
- * @version $Id: ShapefileDataSource.java,v 1.19 2003/07/24 19:10:02 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.20 2003/08/07 17:58:11 desruisseaux Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  * @author aaimee
@@ -153,7 +153,7 @@ public class ShapefileDataSource extends AbstractDataSource {
    * method at a minimum.
    *
    * @param collection The collection to put the features into.
-   * @param filter An OpenGIS filter; specifies which features to retrieve.
+   * @param query An OpenGIS filter; specifies which features to retrieve.
    * @throws DataSourceException For all data source errors.
    */
   public void getFeatures(FeatureCollection collection,final Query query) throws DataSourceException {
