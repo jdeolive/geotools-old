@@ -25,7 +25,7 @@ public class Proj4jSuite extends TestCase {
     }
     
     public static Test suite() {
-        TestSuite suite = new TestSuite("All Tests");
+        TestSuite suite = new TestSuite("All Projection Tests");
         suite.addTestSuite(ProjectionFactoryTest.class);
         suite.addTestSuite(FunctionsTest.class);
         suite.addTestSuite(ParamSetTest.class);
@@ -33,6 +33,7 @@ public class Proj4jSuite extends TestCase {
         suite.addTestSuite(LPTest.class);
         suite.addTestSuite(EllipseTest.class);
         suite.addTestSuite(TransformerTest.class);
+        suite.addTestSuite(AiryTest.class);
         return suite;
     }
 }
