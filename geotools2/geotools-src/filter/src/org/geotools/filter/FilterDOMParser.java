@@ -33,8 +33,10 @@ import java.util.logging.Logger;
 /**
  * A dom based parser to build filters as per OGC 01-067
  *
- * @author iant
- * @version $Id: FilterDOMParser.java,v 1.7 2003/07/30 00:02:41 cholmesny Exp $
+ * @author Ian Turton, CCG
+ * @version $Id: FilterDOMParser.java,v 1.8 2003/07/30 22:23:16 cholmesny Exp $
+ *
+ * @task TODO: split this class up into multiple methods.
  */
 public class FilterDOMParser {
     /** The logger for the filter module. */
@@ -56,6 +58,8 @@ public class FilterDOMParser {
     static {
         comparisions.put("PropertyIsEqualTo",
             new Integer(AbstractFilter.COMPARE_EQUALS));
+        comparisions.put("PropertyIsNotEqualTo",
+            new Integer(AbstractFilter.COMPARE_NOT_EQUALS));
         comparisions.put("PropertyIsGreaterThan",
             new Integer(AbstractFilter.COMPARE_GREATER_THAN));
         comparisions.put("PropertyIsGreaterThanOrEqualTo",
@@ -93,6 +97,15 @@ public class FilterDOMParser {
     public FilterDOMParser() {
     }
 
+    /**
+     * Parses the filter using DOM.
+     *
+     * @param root a dom node containing FILTER as the root element.
+     *
+     * @return DOCUMENT ME!
+     *
+     * @task TODO: split up this insanely long method.
+     */
     public static Filter parseFilter(Node root) {
         LOGGER.fine("parsingFilter " + root.getNodeName());
 
