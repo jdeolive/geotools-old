@@ -35,8 +35,9 @@
  */
 package org.geotools.ct;
 
-// J2SE dependencies
+// J2SE and JAI dependencies
 import java.io.Serializable;
+import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
 
 // Geotools dependencies
@@ -57,7 +58,7 @@ import org.geotools.resources.XAffineTransform;
  * Transforms a three dimensional geographic points using
  * abridged versions of formulas derived by Molodenski.
  *
- * @version $Id: AbridgedMolodenskiTransform.java,v 1.5 2002/10/09 08:45:00 desruisseaux Exp $
+ * @version $Id: AbridgedMolodenskiTransform.java,v 1.6 2002/10/13 19:57:29 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -251,7 +252,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
      * this math transform for equality.
      */
     public final boolean equals(final Object object) {
-        if (object==this) {
+        if (object == this) {
             // Slight optimization
             return true;
         }
@@ -278,6 +279,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
         addParameter(buffer, "dim", getDimSource());
         addParameter(buffer, "dx",              dx);
         addParameter(buffer, "dy",              dy);
+        addParameter(buffer, "dz",              dz);
         addParameter(buffer, "src_semi_major",   a);
         addParameter(buffer, "src_semi_minor",   b);
         addParameter(buffer, "tgt_semi_major",   a-da);
@@ -289,16 +291,21 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     /**
      * The provider for {@link AbridgedMolodenskiTransform}.
      *
-     * @version $Id: AbridgedMolodenskiTransform.java,v 1.5 2002/10/09 08:45:00 desruisseaux Exp $
+     * @version $Id: AbridgedMolodenskiTransform.java,v 1.6 2002/10/13 19:57:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
+        /**
+         * The range of values for the dimension.
+         */
+        static final Range DIM_RANGE = new Range(Integer.class, new Integer(2), new Integer(3));
+        
         /**
          * Create a provider.
          */
         public Provider() {
             super("Abridged_Molodenski", ResourceKeys.ABRIDGED_MOLODENSKI_TRANSFORM, null);
-            putInt("dim",         3, POSITIVE_RANGE);
+            putInt("dim",         3, DIM_RANGE);
             put("dx",             Double.NaN, null);
             put("dy",             Double.NaN, null);
             put("dz",             0,          null);

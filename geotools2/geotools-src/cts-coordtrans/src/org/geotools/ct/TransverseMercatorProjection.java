@@ -62,7 +62,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Référence: John P. Snyder (Map Projections - A Working Manual,
  *            U.S. Geological Survey Professional Paper 1395, 1987)
  *
- * @version 1.0
+ * @version $Id: TransverseMercatorProjection.java,v 1.2 2002/10/13 19:57:29 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -253,6 +253,7 @@ final class TransverseMercatorProjection extends CylindricalProjection {
             throw new TransformException(Resources.format(
                     ResourceKeys.ERROR_POLE_PROJECTION_$1, new Latitude(Math.toDegrees(y))));
         }
+        y -= centralLatitude;
         x -= centralMeridian;
         double sinphi = Math.sin(y);
         double cosphi = Math.cos(y);
@@ -370,6 +371,7 @@ final class TransverseMercatorProjection extends CylindricalProjection {
                 ds*FC7*(61.0 + t*(662.0 + t*(1320.0 + 720.0*t))))))/cosphi + centralMeridian;
             }
         }
+        y += centralLatitude;
         if (ptDst!=null) {
             ptDst.setLocation(x,y);
             return ptDst;

@@ -62,7 +62,7 @@ import javax.media.jai.ParameterList;
  * coordinate points. Input points must be longitudes, latitudes
  * and heights above the ellipsoid.
  *
- * @version $Id: GeocentricTransform.java,v 1.5 2002/10/13 00:17:37 desruisseaux Exp $
+ * @version $Id: GeocentricTransform.java,v 1.6 2002/10/13 19:57:29 desruisseaux Exp $
  * @author Frank Warmerdam
  * @author Martin Desruisseaux
  */
@@ -506,7 +506,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * Inverse of a geocentric transform.
      *
-     * @version $Id: GeocentricTransform.java,v 1.5 2002/10/13 00:17:37 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.6 2002/10/13 19:57:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements Serializable {
@@ -554,15 +554,10 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * The provider for {@link GeocentricTransform}.
      *
-     * @version $Id: GeocentricTransform.java,v 1.5 2002/10/13 00:17:37 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.6 2002/10/13 19:57:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
-        /**
-         * The range of values for the dimension.
-         */
-        private static final Range DIM_RANGE = new Range(Integer.class, new Integer(2), new Integer(3));
-        
         /**
          * <code>false</code> for the direct transform,
          * or <code>true</code> for the inverse transform.
@@ -580,7 +575,8 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
                   ResourceKeys.GEOCENTRIC_TRANSFORM, null);
             put("semi_major", Double.NaN, POSITIVE_RANGE);
             put("semi_minor", Double.NaN, POSITIVE_RANGE);
-            putInt("dim_geoCS", 3, DIM_RANGE); // Custom parameter: NOT AN OPENGIS SPECIFICATION
+            putInt("dim_geoCS", 3, AbridgedMolodenskiTransform.Provider.DIM_RANGE);
+            // 'dim_geoCS' is a custom parameter: NOT AN OPENGIS SPECIFICATION
             this.inverse = inverse;
         }
         
