@@ -17,6 +17,8 @@
 package org.geotools.data.jdbc;
 
 import com.vividsolutions.jts.geom.Envelope;
+
+import org.geotools.data.AbstractFeatureSource;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.AttributeWriter;
 import org.geotools.data.DataSourceException;
@@ -26,6 +28,7 @@ import org.geotools.data.DefaultQuery;
 import org.geotools.data.EmptyFeatureWriter;
 import org.geotools.data.FIDFeatureReader;
 import org.geotools.data.FIDReader;
+import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureListenerManager;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
@@ -260,7 +263,60 @@ public abstract class JDBCDataStore implements DataStore {
         throw new UnsupportedOperationException(
             "Table creation not implemented");
     }
+    /**
+     * Used to provide support for changing the DataStore Schema.
+     * <p>
+     * Specifically this is intended to address updating the metadata Coordinate
+     * System information.
+     * </p>
+     * <p>
+     * If we can figure out the Catalog API for metadata we will not have to use
+     * such a heavy handed approach.
+     * </p>
+     * <p>
+     * Subclasses are free to implement various levels of support:
+     * </p>
+     * <ul>
+     * <li>None - table modification is not supported</li>
+     * <li>CS change - ensure that the attribtue types match and
+     *                 only update metadata but not table structure.</li>
+     * <li>Allow table change opperations</li>
+     * </ul>
+     * @see org.geotools.data.DataStore#updateSchema(java.lang.String, org.geotools.feature.FeatureType)
+     */
+    public void updateSchema(String typeName, FeatureType featureType)
+        throws IOException {
+        throw new UnsupportedOperationException("Table modification not supported");
+    }
+   
+    // Jody - This is my recomendation for DataStore
+    // in order to support CS reprojection and override 
+    public FeatureSource getView(final Query query)
+        throws IOException, SchemaException {
+        String typeName = query.getTypeName();
+        FeatureType origionalType = getSchema( typeName );
+        //CoordinateSystem cs = query.getCoordinateSystem();
+        //final FeatureType featureType = DataUtilities.createSubType( origionalType, query.getPropertyNames(), cs );
+        final FeatureType featureType = DataUtilities.createSubType( origionalType, query.getPropertyNames() );
+                
+        return new AbstractFeatureSource() {
+            public DataStore getDataStore() {
+                return JDBCDataStore.this;
+            }
 
+            public void addFeatureListener(FeatureListener listener) {
+                listenerManager.addFeatureListener(this, listener);
+            }
+
+            public void removeFeatureListener(FeatureListener listener) {
+                listenerManager.removeFeatureListener(this, listener);
+            }
+
+            public FeatureType getSchema() {
+                return featureType;
+            }
+        };        
+    }
     /**
      * Default implementation based on getFeatureReader and getFeatureWriter.
      * 

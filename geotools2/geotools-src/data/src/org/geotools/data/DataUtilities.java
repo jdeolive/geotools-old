@@ -25,9 +25,11 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+
+import org.geotools.cs.CoordinateSystem;
 import org.geotools.feature.AttributeType;
+import org.geotools.feature.GeometryAttributeType;
 import org.geotools.feature.AttributeTypeFactory;
-import org.geotools.feature.DefaultFeatureType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
@@ -35,6 +37,9 @@ import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
+import org.geotools.feature.GeometryAttributeType;
+import org.geotools.feature.DefaultAttributeType;
+import org.geotools.feature.DefaultGeometryAttributeType;
 import org.geotools.filter.AttributeExpression;
 import org.geotools.filter.BetweenFilter;
 import org.geotools.filter.CompareFilter;
@@ -51,12 +56,10 @@ import org.geotools.filter.MathExpression;
 import org.geotools.filter.NullFilter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -564,7 +567,35 @@ public class DataUtilities {
 	
 	return true;
     }
+    public static FeatureType createSubType( FeatureType featureType, String properties[], CoordinateSystem override ) throws SchemaException {
+        if( properties == null && override == null){
+            return featureType;
+        }
+        boolean same = featureType.getAttributeCount() == properties.length;
+        for( int i=0; i<featureType.getAttributeCount() && same; i++ ){
+            AttributeType type = featureType.getAttributeType( i );
+            same = type.getName().equals( properties[i] ) &&
+                   ((override != null && type instanceof GeometryAttributeType)
+                   ? ((GeometryAttributeType) type).getCoordinateSystem().equals( override )
+                   : true);                              
+        }
+        if( same ){
+            return featureType;
+        }
 
+        AttributeType types[] = new AttributeType[ properties.length ];
+        for( int i=0; i<properties.length;i++){
+            types[i]= featureType.getAttributeType( properties[i] );
+            if( override != null && types[i] instanceof GeometryAttributeType){
+                types[i] = new DefaultGeometryAttributeType( (GeometryAttributeType) types[i], override );            
+            }
+        }
+        return FeatureTypeFactory.newFeatureType(
+            types,
+            featureType.getTypeName(),
+            featureType.getNamespace()
+        );
+    }
     public static FeatureType createSubType( FeatureType featureType, String properties[]) throws SchemaException{
         if( properties == null ){
             return featureType;
