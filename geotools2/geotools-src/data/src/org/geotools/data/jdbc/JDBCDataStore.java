@@ -162,7 +162,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.19 2004/01/13 00:08:43 seangeo Exp $
+ * $Id: JDBCDataStore.java,v 1.20 2004/01/13 00:53:21 seangeo Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     
@@ -1351,7 +1351,7 @@ public abstract class JDBCDataStore implements DataStore {
         // TODO: This is a hack to workaround Oracle problem with inserting
         // into FORWARD_ONLY result sets.
         QueryData queryData = executeQuery(typeName, sqlQuery, transaction,
-                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         FeatureReader reader = createFeatureReader(info.getSchema(), postFilter, queryData);
         AttributeWriter[] writers = buildAttributeWriters(info.getSchema().getAttributeTypes(),
                 queryData);
@@ -1821,10 +1821,9 @@ public abstract class JDBCDataStore implements DataStore {
                 doUpdate(DataUtilities.template(current.getFeatureType()), current);
                 queryData.doInsert();
                 
-                // refresh the row and read the new fid into the Feature. Not working yet.
-                //rd.refreshRow();
-                //MutableFIDFeature mutable = (MutableFIDFeature) current;
-                //mutable.setID(rd.read(1).toString());
+                // read the new fid into the Feature. 
+                MutableFIDFeature mutable = (MutableFIDFeature) current;
+                mutable.setID(rd.read(1).toString());
             } catch (IllegalAttributeException e) {
                 throw new DataSourceException("Unable to do insert", e);
             }

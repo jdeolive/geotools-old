@@ -1,4 +1,4 @@
-/* $Id: QueryData.java,v 1.3 2004/01/12 23:54:40 seangeo Exp $
+/* $Id: QueryData.java,v 1.4 2004/01/13 00:53:21 seangeo Exp $
  * 
  * Created on 28/11/2003
  */
@@ -379,6 +379,9 @@ public final class QueryData {
     
     public void doInsert() throws SQLException {
         resultSet.insertRow();
+    }
+    
+    public void endInsert() throws SQLException {
         resultSet.moveToCurrentRow();
     }
     
