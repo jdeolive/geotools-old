@@ -70,7 +70,7 @@ import java.lang.ref.Reference;
  * If the transformation depends on empirically derived parameters (as in datum
  * transformations), then this is an ISO transformation.
  *
- * @version 1.00
+ * @version $Id: CoordinateTransformation.java,v 1.2 2002/10/09 19:36:34 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -274,18 +274,38 @@ public class CoordinateTransformation extends Info {
      * type, source and target coordinate systems. It doesn't compare the
      * math transform, since it should be equivalents if the above mentionned
      * parameters are equal.
+     *
+     * @param  object The object to compare to <code>this</code>.
+     * @param  compareNames <code>true</code> to comparare the {@linkplain #getName name},
+     *         {@link linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
+     *         code}, etc. as well, or <code>false</code> to compare only properties
+     *         relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
      */
-    public boolean equals(final Object object) {
-        if (object==this) {
+    public boolean equals(final Info object, final boolean compareNames) {
+        if (object == this) {
             return true;
         }
-        if (super.equals(object)) {
+        if (super.equals(object, compareNames)) {
             final CoordinateTransformation that = (CoordinateTransformation) object;
             return Utilities.equals(this.getTransformType(), that.getTransformType()) &&
-                   Utilities.equals(this.getSourceCS(),      that.getSourceCS()     ) &&
-                   Utilities.equals(this.getTargetCS(),      that.getTargetCS()     );
+                   equals(this.getSourceCS(), that.getSourceCS(), compareNames) &&
+                   equals(this.getTargetCS(), that.getTargetCS(), compareNames);
         }
         return false;
+    }
+
+    /**
+     * Compare two objects for equality.
+     *
+     * @param  object1 The first object to compare (may be <code>null</code>).
+     * @param  object2 The second object to compare (may be <code>null</code>).
+     * @param  compareNames <code>true</code> for performing a strict comparaison, or
+     *         <code>false</code> for comparing only properties relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
+     */
+    private static boolean equals(final Info object1, final Info object2, final boolean compareNames) {
+        return (object1==object2) || (object1!=null && object1.equals(object2, compareNames));
     }
     
     /**

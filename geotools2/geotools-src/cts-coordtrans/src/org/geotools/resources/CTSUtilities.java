@@ -50,7 +50,7 @@ import java.awt.geom.Rectangle2D;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version 1.0
+ * @version $Id: CTSUtilities.java,v 1.2 2002/10/09 19:36:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -104,58 +104,58 @@ public final class CTSUtilities {
     }
     
     /**
-     * Returns the first horizontal datum found in a coordinate system,
-     * or <code>null</code> if there is none. Note: in a future version,
-     * we may implement this method directly into {@link CoordinateSystem}
-     * (not sure yet if it would be a good idea).
+     * Returns the first horizontal coordinate system found in a coordinate system,
+     * or <code>null</code> if there is none. Note: in a future version,  we may
+     * implement this method directly into {@link CoordinateSystem} (not sure yet
+     * if it would be a good idea).
      */
-    public static HorizontalDatum getHorizontalDatum(final CoordinateSystem cs) {
+    public static HorizontalCoordinateSystem getHorizontalCS(final CoordinateSystem cs) {
         if (cs instanceof HorizontalCoordinateSystem) {
-            return ((HorizontalCoordinateSystem) cs).getHorizontalDatum();
+            return (HorizontalCoordinateSystem) cs;
         }
         if (cs instanceof CompoundCoordinateSystem) {
-            HorizontalDatum datum;
+            HorizontalCoordinateSystem hcs;
             final CompoundCoordinateSystem comp = (CompoundCoordinateSystem) cs;
-            if ((datum=getHorizontalDatum(comp.getHeadCS())) != null) return datum;
-            if ((datum=getHorizontalDatum(comp.getTailCS())) != null) return datum;
+            if ((hcs=getHorizontalCS(comp.getHeadCS())) != null) return hcs;
+            if ((hcs=getHorizontalCS(comp.getTailCS())) != null) return hcs;
         }
         return null;
     }
     
     /**
-     * Returns the first vertical datum found in a coordinate system,
+     * Returns the first vertical coordinate system found in a coordinate system,
      * or <code>null</code> if there is none. Note: if a future version,
      * we may implement this method directly into {@link CoordinateSystem}
      * (not sure yet if it would be a good idea).
      */
-    public static VerticalDatum getVerticalDatum(final CoordinateSystem cs) {
+    public static VerticalCoordinateSystem getVerticalCS(final CoordinateSystem cs) {
         if (cs instanceof VerticalCoordinateSystem) {
-            return ((VerticalCoordinateSystem) cs).getVerticalDatum();
+            return (VerticalCoordinateSystem) cs;
         }
         if (cs instanceof CompoundCoordinateSystem) {
-            VerticalDatum datum;
+            VerticalCoordinateSystem vcs;
             final CompoundCoordinateSystem comp = (CompoundCoordinateSystem) cs;
-            if ((datum=getVerticalDatum(comp.getHeadCS())) != null) return datum;
-            if ((datum=getVerticalDatum(comp.getTailCS())) != null) return datum;
+            if ((vcs=getVerticalCS(comp.getHeadCS())) != null) return vcs;
+            if ((vcs=getVerticalCS(comp.getTailCS())) != null) return vcs;
         }
         return null;
     }
     
     /**
-     * Returns the first temporal datum found in a coordinate system,
+     * Returns the first temporal coordinate system found in a coordinate system,
      * or <code>null</code> if there is none. Note: if a future version,
      * we may implement this method directly into {@link CoordinateSystem}
      * (not sure yet if it would be a good idea).
      */
-    public static TemporalDatum getTemporalDatum(final CoordinateSystem cs) {
+    public static TemporalCoordinateSystem getTemporalCS(final CoordinateSystem cs) {
         if (cs instanceof TemporalCoordinateSystem) {
-            return ((TemporalCoordinateSystem) cs).getTemporalDatum();
+            return (TemporalCoordinateSystem) cs;
         }
         if (cs instanceof CompoundCoordinateSystem) {
-            TemporalDatum datum;
+            TemporalCoordinateSystem cts;
             final CompoundCoordinateSystem comp = (CompoundCoordinateSystem) cs;
-            if ((datum=getTemporalDatum(comp.getHeadCS())) != null) return datum;
-            if ((datum=getTemporalDatum(comp.getTailCS())) != null) return datum;
+            if ((cts=getTemporalCS(comp.getHeadCS())) != null) return cts;
+            if ((cts=getTemporalCS(comp.getTailCS())) != null) return cts;
         }
         return null;
     }
