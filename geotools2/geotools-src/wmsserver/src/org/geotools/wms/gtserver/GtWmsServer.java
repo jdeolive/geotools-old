@@ -244,7 +244,7 @@ public class GtWmsServer implements WMSServer {
             org.geotools.map.Map map = new DefaultMap();
 
             for (int i = 0; i < layer.length; i++) {
-                Style layerstyle;
+                Style[] layerstyle = new Style[1];
                 LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer[i]);
 
                 if ((style != null) && (style[i] != "")) {
@@ -256,8 +256,8 @@ public class GtWmsServer implements WMSServer {
                                                "' does not exist for " + 
                                                layerdefn.id);
                     }
-                    layerstyle =  (Style)styles.get(sldpath);
-                    if(layerstyle == null){
+                    layerstyle[0] =  (Style)styles.get(sldpath); 
+                    if(layerstyle[0] == null){
                         //LOGGER.fine("looking for " + sldpath);
                         File file = new File(sldpath);
                         URL url;
@@ -272,10 +272,10 @@ public class GtWmsServer implements WMSServer {
 
                         StyleFactory factory = StyleFactory.createStyleFactory();
                         SLDStyle stylereader = new SLDStyle(factory, url);
-                        layerstyle = stylereader.readXML();
-                        styles.put(sldpath, layerstyle);
+                        layerstyle = stylereader.readXML(); 
+                        styles.put(sldpath, layerstyle[0]);
                         LOGGER.fine("sld loaded");
-                        if(layerstyle.isDefault()){
+                        if(layerstyle[0].isDefault()){
                            layerdefn.defaultStyle = sldpath;
                         }
                     }
@@ -284,8 +284,8 @@ public class GtWmsServer implements WMSServer {
                         String sldpath = (String) layerdefn.styles.get(
                                                  layerdefn.defaultStyle);
                         LOGGER.fine("looking for default:" + sldpath);
-                        layerstyle =  (Style)styles.get(sldpath);
-                        if(sldpath!=null&&layerstyle == null){
+                        layerstyle[0] =  (Style)styles.get(sldpath);
+                        if(sldpath!=null&&layerstyle[0] == null){
                             File file = new File(sldpath);
                             URL url;
 
@@ -299,23 +299,23 @@ public class GtWmsServer implements WMSServer {
                             StyleFactory factory = StyleFactory.createStyleFactory();
                             SLDStyle stylereader = new SLDStyle(factory, url);
                             layerstyle = stylereader.readXML();
-                            styles.put(sldpath, layerstyle);
+                            styles.put(sldpath, layerstyle[0]);
                             //LOGGER.fine("sld loaded");
                         }else{
-                            layerstyle = (org.geotools.styling.Style) styles.get(
+                            layerstyle[0] = (org.geotools.styling.Style) styles.get(
                                              layer[i]);
                         }
                     } else {
-                        layerstyle = (org.geotools.styling.Style) styles.get(
+                        layerstyle[0] = (org.geotools.styling.Style) styles.get(
                                              layer[i]);
                     }
                 }
                 
-                LOGGER.fine("style object is a " + layerstyle);
+                LOGGER.fine("style object is a " + layerstyle[0]);
 
                 DataSource ds = (DataSource) features.get(layer[i]);
                 FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
-                map.addFeatureTable(fc, layerstyle);
+                map.addFeatureTable(fc, layerstyle[0]);
             }
 
             LOGGER.fine("map setup");
