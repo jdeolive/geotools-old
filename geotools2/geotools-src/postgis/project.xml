@@ -53,7 +53,15 @@
       <id>defaultcore</id>
       <version>0.1</version>
     </dependency>
-  </dependencies>
+        <dependency>
+      <id>postgis</id>
+      <version>1.0</version>
+    </dependency>
+        <dependency>
+      <id>postgresql</id>
+      <version>1.0</version>
+    </dependency>
+    </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
     
