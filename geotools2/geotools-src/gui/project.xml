@@ -52,6 +52,11 @@
       <version>0.6</version>
     </dependency>
     <dependency>
+      <artifactId>gcs-coverage</artifactId>
+      <groupId>gt2</groupId>
+      <version>0.6</version>
+    </dependency>
+    <dependency>
       <artifactId>java2drendering</artifactId>
       <groupId>gt2</groupId>
       <version>0.1</version>
