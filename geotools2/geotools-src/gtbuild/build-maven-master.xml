@@ -21,7 +21,7 @@
     </target>
    
     
-    <target depends="tests" name="sites">
+    <target name="sites">
         <ant antfile="build-maven.xml" dir="..\core" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\algorithms" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\shapefile" inheritall="true" target="maven:site"/>
