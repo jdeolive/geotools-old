@@ -1,4 +1,4 @@
-package unittest.org.geotools.servlet.viewer;
+package unittest.org.geotools.wms.servlet;
 
 import junit.framework.*;
 import uk.ac.leeds.ccg.geotools.*;
