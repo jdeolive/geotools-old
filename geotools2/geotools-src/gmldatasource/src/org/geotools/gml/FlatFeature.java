@@ -23,7 +23,7 @@ import com.vividsolutions.jts.geom.*;
  *
  * @author Rob Hranac, Vision for New York
  *
- * $Id: FlatFeature.java,v 1.5 2002/05/03 11:46:44 ianturton Exp $
+ * $Id: FlatFeature.java,v 1.6 2002/05/03 16:34:42 ianturton Exp $
  */
 public class FlatFeature implements Feature {
     
@@ -102,7 +102,7 @@ public class FlatFeature implements Feature {
         StringBuffer featureString = new StringBuffer();
         Vector currentAttributes = new Vector( java.util.Arrays.asList(attributes) );
         
-        featureString.append("\n");
+        featureString.append("Feature type "+typeName + ":\n");
         if(currentAttributes != null){
             featureString.append(" attributes:  " + currentAttributes.toString() + "\n");
         }else{
