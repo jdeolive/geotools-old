@@ -105,9 +105,10 @@ public class PostgisDataStoreFactory
         if (!canProcess(params)) {
             return null;
         }
+                
         String host = (String) params.get("host");
         String user = (String) params.get("user");
-        String passwd = (String) params.get("passwd");
+        String passwd = (String) params.get("passwd");        
         String port = params.get("port").toString();
         String database = (String) params.get("database");
         String table = (String) params.get("table");
