@@ -57,7 +57,7 @@ import javax.swing.event.EventListenerList;
  * event to interested classes when parameters change.
  *
  * @author Cameron Shorter
- * @version $Id: BoundingBoxImpl.java,v 1.11 2003/04/25 10:40:32 camerons Exp $
+ * @version $Id: BoundingBoxImpl.java,v 1.12 2003/05/02 10:55:18 desruisseaux Exp $
  */
 public class BoundingBoxImpl implements BoundingBox {
     private static final Logger LOGGER =
@@ -79,6 +79,22 @@ public class BoundingBoxImpl implements BoundingBox {
     protected BoundingBoxImpl(
         Envelope bbox,
         CS_CoordinateSystem coordinateSystem
+    ) throws IllegalArgumentException {
+        this.setAreaOfInterest(bbox, coordinateSystem);
+    }
+
+    /**
+     * Initialise the model.
+     *
+     * @param bbox The extent associated with this class.
+     * @param coordinateSystem The coordinate system associated with this
+     *        class.
+     *
+     * @throws IllegalArgumentException if an argument is <code>null</code>.
+     */
+    protected BoundingBoxImpl(
+        Envelope bbox,
+        CoordinateSystem coordinateSystem
     ) throws IllegalArgumentException {
         this.setAreaOfInterest(bbox, coordinateSystem);
     }
@@ -214,10 +230,8 @@ public class BoundingBoxImpl implements BoundingBox {
                 adapters.wrap(coordinateSystem)
             );
         } catch (RemoteException e) {
-            LOGGER.warning(
-                "RemoteException converted to IllegalArgumentException"
-            );
-            throw new IllegalArgumentException();
+            // TODO: We should not hide a checked exception that way.
+            throw new java.lang.reflect.UndeclaredThrowableException(e, "Remote call failed");
         }
     }
 
@@ -263,7 +277,8 @@ public class BoundingBoxImpl implements BoundingBox {
             //LOGGER.info("bBox="+bBox);
             fireAreaOfInterestChangedListener(transform);
         } catch (TransformException e) {
-            LOGGER.warning("TransformException in BoundingBoxImpl");
+            // TODO: We should not hide a checked exception that way.
+            throw new java.lang.reflect.UndeclaredThrowableException(e, "Transformation failed");
         }
     }
 
@@ -277,7 +292,8 @@ public class BoundingBoxImpl implements BoundingBox {
         try {
             transform(adapters.wrap(transform));
         } catch (RemoteException e) {
-            LOGGER.warning("RemoteException in BoundingBoxImpl");
+            // TODO: We should not hide a checked exception that way.
+            throw new java.lang.reflect.UndeclaredThrowableException(e, "Remote call failed");
         }
     }
 
@@ -296,7 +312,12 @@ public class BoundingBoxImpl implements BoundingBox {
      * @return the coordinateSystem.
      */
     public CS_CoordinateSystem getCoordinateSystem() {
-        return adapters.export(this.coordinateSystem);
+        try {
+            return adapters.export(this.coordinateSystem);
+        } catch (RemoteException e) {
+            // TODO: We should not hide a checked exception that way.
+            throw new java.lang.reflect.UndeclaredThrowableException(e, "Remote call failed");
+        }
     }
 
     /*
@@ -306,7 +327,7 @@ public class BoundingBoxImpl implements BoundingBox {
     public Object clone() {
         return new BoundingBoxImpl(
             this.bBox,
-            adapters.export(this.coordinateSystem)
+            this.coordinateSystem
         );
     }
 

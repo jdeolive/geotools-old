@@ -18,7 +18,6 @@
 package org.geotools.gui.tools;
 
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.ct.Adapters;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.TransformException;
@@ -51,12 +50,11 @@ import javax.swing.event.MouseInputAdapter;
  * that area.
  *
  * @author Cameron Shorter
- * @version $Id: ZoomToolImpl.java,v 1.10 2003/04/25 07:02:32 camerons Exp $
+ * @version $Id: ZoomToolImpl.java,v 1.11 2003/05/02 10:54:57 desruisseaux Exp $
  */
 public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
     private static final Logger LOGGER =
         Logger.getLogger("org.geotools.gui.tools.ZoomToolImpl");
-    private Adapters adapters = Adapters.getDefault();
 
     /**
      * The factor to zoom in/out by when using click/zoom. zoomFactor=0.5 means

@@ -81,7 +81,7 @@ import javax.swing.JPanel;
  * BoundingBox when this component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.21 2003/04/28 11:08:10 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.22 2003/05/02 10:54:55 desruisseaux Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults
  * to 1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -295,7 +295,12 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
 
         MathTransform transform =
             MathTransformFactory.getDefault().createAffineTransform(at);
-        context.getBbox().transform(adapters.export(transform));
+        try {
+            context.getBbox().transform(adapters.export(transform));
+        } catch (java.rmi.RemoteException exception) {
+            // TODO: We should not hide a checked exception that way.
+            throw new java.lang.reflect.UndeclaredThrowableException(exception, "Remote call failed");
+        }
     }
 
     /**

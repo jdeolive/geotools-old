@@ -43,7 +43,7 @@ import javax.swing.event.MouseInputAdapter;
  * CordinateTransform for the map's Context.
  *
  * @author $author$
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  */
 public class PanToolImpl extends AbstractTool implements PanTool {
     private static final Logger LOGGER =
@@ -109,7 +109,12 @@ public class PanToolImpl extends AbstractTool implements PanTool {
         MathTransform transform =
             MathTransformFactory.getDefault().createAffineTransform(at);
 
-        context.getBbox().transform(adapters.export(transform));
+        try {
+            context.getBbox().transform(adapters.export(transform));
+        } catch (java.rmi.RemoteException e) {
+            // TODO: We should not hide a checked exception that way.
+            throw new java.lang.reflect.UndeclaredThrowableException(e, "Remote call failed");
+        }
     }
 
     /**
@@ -156,6 +161,9 @@ public class PanToolImpl extends AbstractTool implements PanTool {
             LOGGER.warning(
                 "Transform exception prevented mouseClicks from being processed"
             );
+        } catch (java.rmi.RemoteException t) {
+            // TODO: We should not hide a checked exception that way.
+            throw new java.lang.reflect.UndeclaredThrowableException(t, "Remote call failed");
         }
     }
 

@@ -24,7 +24,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import java.util.EventObject;
 import java.util.logging.Logger;
 import junit.framework.*;
-import org.geotools.ct.Adapters;
+import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.Datum;
 import org.geotools.cs.FactoryException;
@@ -33,7 +33,6 @@ import org.geotools.ct.MathTransform;
 import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.events.BoundingBoxEvent;
 import org.geotools.map.BoundingBoxImpl;
-import org.opengis.cs.CS_CoordinateSystem;
 
 /**
  * Unit test for BoundingBox.
@@ -55,9 +54,8 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
     
     private BoundingBoxImpl boundingBox = null;
     private Envelope envelope = null;
-    private CS_CoordinateSystem cs = null;
+    private CoordinateSystem cs = null;
     private BoundingBoxImpl bbox;
-    private Adapters adapters = Adapters.getDefault();
 
     /** 
      * Constructor with test name.
@@ -86,18 +84,12 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
     /** 
      * Create a Bounding Box.
      */
-    protected void setUp() {
-        envelope=new Envelope(10.0,10.0,15.0,15.0);
-        try {
-            cs = adapters.export(CoordinateSystemFactory.getDefault(
-            ).createGeographicCoordinateSystem("WGS84",HorizontalDatum.WGS84));
-             
-            bbox=new BoundingBoxImpl(envelope,cs);
-        } catch (org.geotools.cs.FactoryException e) {
-            LOGGER.warning("FactoryException in setup");
-        } catch (IllegalArgumentException e) {
-            LOGGER.warning("Cannot create bbox");
-        }
+    protected void setUp() throws FactoryException {
+        envelope = new Envelope(10.0,10.0,15.0,15.0);
+        cs = CoordinateSystemFactory.getDefault()
+                .createGeographicCoordinateSystem("WGS84",HorizontalDatum.WGS84);
+
+        bbox = new BoundingBoxImpl(envelope,cs);
     }
 
     /** Test normal constuctors. */
@@ -114,7 +106,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
     public void testNullConstructor1(){
         try {
             BoundingBoxImpl bbox1=
-                new BoundingBoxImpl(null,null);
+                new BoundingBoxImpl(null,(CoordinateSystem)null);
             // If an exception has not been raised yet, then fail the test.
             this.fail("No exception when creating using a null contructor");
         } catch (IllegalArgumentException e) {
@@ -125,9 +117,9 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
     public void testNullConstructor2(){
         try {
             BoundingBoxImpl bbox1=
-                new BoundingBoxImpl(envelope,null);
+                new BoundingBoxImpl(envelope,(CoordinateSystem)null);
             // If an exception has not been raised yet, then fail the test.
-            this.fail("No exception when creating using a null Bbox");
+            this.fail("No exception when creating using a null Coord System");
         } catch (IllegalArgumentException e) {
         }
     }
@@ -138,7 +130,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
             BoundingBoxImpl bbox1=
                 new BoundingBoxImpl(null,cs);
             // If an exception has not been raised yet, then fail the test.
-            this.fail("No exception when creating using a null Coord System");
+            this.fail("No exception when creating using a null Bbox");
         } catch (IllegalArgumentException e) {
         }
     }

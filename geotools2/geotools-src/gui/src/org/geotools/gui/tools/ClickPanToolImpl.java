@@ -18,7 +18,6 @@
 package org.geotools.gui.tools;
 
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.ct.Adapters;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.TransformException;
@@ -42,12 +41,11 @@ import javax.swing.event.MouseInputAdapter;
  * map and then zoom in/out by the zoomFactor.
  *
  * @author Cameron Shorter
- * @version $Id: ClickPanToolImpl.java,v 1.3 2003/04/25 07:02:32 camerons Exp $
+ * @version $Id: ClickPanToolImpl.java,v 1.4 2003/05/02 10:54:57 desruisseaux Exp $
  */
 public class ClickPanToolImpl extends PanToolImpl implements ClickPanTool {
     private static final Logger LOGGER =
         Logger.getLogger("org.geotools.gui.tools.ClickPanImpl");
-    private Adapters adapters = Adapters.getDefault();
 
     /**
      * Construct a ZoomTool.

@@ -22,7 +22,7 @@ import org.geotools.pt.CoordinatePoint;
 /**
  * Pan the map so that the new extent has the click point in the middle
  * of the map and then zoom in/out by the zoomFactor.
- * @version $Id: ClickZoomToolImpl.java,v 1.2 2003/04/25 07:02:32 camerons Exp $
+ * @version $Id: ClickZoomToolImpl.java,v 1.3 2003/05/02 10:54:57 desruisseaux Exp $
  * @author Cameron Shorter
  */
 public class ClickZoomToolImpl extends AbstractTool implements ClickZoomTool
@@ -89,6 +89,9 @@ public class ClickZoomToolImpl extends AbstractTool implements ClickZoomTool
         } catch (TransformException t) {
             LOGGER.warning(
             "Transform exception prevented mouseClicks from being processed");
+        } catch (java.rmi.RemoteException t) {
+            // TODO: We should not hide a checked exception that way.
+            throw new java.lang.reflect.UndeclaredThrowableException(t, "Remote call failed");
         }
     }
 
