@@ -71,7 +71,7 @@ import java.util.logging.Logger;
  *
  * @author Andrea Aime
  * @author Martin Desruisseaux
- * @version $Id: RenderedLayerFactory.java,v 1.22 2004/03/14 18:44:19 aaime Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.23 2004/03/27 23:37:50 jmacgill Exp $
  */
 public class RenderedLayerFactory {
     /** The logger. */
@@ -167,7 +167,7 @@ public class RenderedLayerFactory {
      * Create an array of rendered layers from the specified feature and style.
      *
      * @param featureSource The feature.
-     * @param SLDStyle The style to apply.
+     * @param sldStyle The style to apply.
      *
      * @return The rendered layer array for the specified feature and style.
      *
@@ -176,7 +176,7 @@ public class RenderedLayerFactory {
      * @throws IllegalAttributeException DOCUMENT ME!
      */
     public RenderedLayer[] create(final FeatureSource featureSource,
-        final org.geotools.styling.Style SLDStyle)
+        final org.geotools.styling.Style sldStyle)
         throws TransformException, IOException, IllegalAttributeException {
         // get the map from JTSGeometries to rendered geometries
         JTSGeometryMap renderedGeometriesMap = (JTSGeometryMap) geometryMaps.get(featureSource);
@@ -187,7 +187,7 @@ public class RenderedLayerFactory {
         }
 
         //  process the styles in order
-        FeatureTypeStyle[] featureStylers = SLDStyle.getFeatureTypeStyles();
+        FeatureTypeStyle[] featureStylers = sldStyle.getFeatureTypeStyles();
 
         // prepare the set of layers that will be generated be each feature type style
         List featureTypeRenderedLayers = new ArrayList();
