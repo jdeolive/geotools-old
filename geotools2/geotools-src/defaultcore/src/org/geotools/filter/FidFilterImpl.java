@@ -36,7 +36,7 @@ import org.geotools.feature.*;
  * This filter stores a series of feature IDs, which are used to distinguish
  * features uniquely.
  *
- * @version $Id: FidFilterImpl.java,v 1.9 2003/07/21 16:16:01 jmacgill Exp $
+ * @version $Id: FidFilterImpl.java,v 1.10 2003/07/21 16:24:47 jmacgill Exp $
  * @author Rob Hranac, TOPP
  */
 public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
@@ -84,7 +84,7 @@ public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
         if(feature == null) {
             return false;
         }
-        return fids.contains( feature.getId());
+        return fids.contains( feature.getID());
     }
 
     /**
