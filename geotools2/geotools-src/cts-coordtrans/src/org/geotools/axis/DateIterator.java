@@ -42,12 +42,8 @@ import java.text.DateFormat;
 
 // Other J2SE dependencies
 import java.util.Arrays;
-import java.util.NoSuchElementException;
 import java.io.StringWriter;
 import java.io.PrintWriter;
-
-// Geotools dependencies
-import org.geotools.resources.XMath;
 
 
 /**
@@ -57,7 +53,7 @@ import org.geotools.resources.XMath;
  * Il choisit les intervalles de graduation en supposant qu'on utilise
  * un calendrier grégorien.
  *
- * @version $Id: DateIterator.java,v 1.3 2003/05/13 10:58:46 desruisseaux Exp $
+ * @version $Id: DateIterator.java,v 1.4 2003/07/24 08:42:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DateIterator implements TickIterator {

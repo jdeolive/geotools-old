@@ -42,13 +42,12 @@ import java.awt.RenderingHints;
 // Geotools dependencies
 import org.geotools.units.Unit;
 import org.geotools.units.UnitException;
-import org.geotools.resources.Utilities;
 
 
 /**
  * A graduation using numbers on a linear axis.
  *
- * @version $Id: NumberGraduation.java,v 1.3 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: NumberGraduation.java,v 1.4 2003/07/24 08:42:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class NumberGraduation extends AbstractGraduation {

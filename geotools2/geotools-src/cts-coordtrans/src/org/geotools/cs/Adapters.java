@@ -68,15 +68,12 @@ import org.opengis.cs.CS_LinearUnit;
 import org.opengis.cs.CS_AngularUnit;
 
 // J2SE dependencies
-import java.util.Map;
-import java.util.HashMap;
 import java.rmi.RemoteException;
 import java.rmi.ServerException;
 
 // JAI dependencies (parameters)
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListImpl;
-import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
 
 // Geotools dependencies
@@ -97,7 +94,7 @@ import org.geotools.ct.MathTransform;
  * A default instance of the <code>Adapters</code> classes is provided in the
  * {@link org.geotools.ct.Adapters#getDefault() org.geotools.ct} package.
  *
- * @version $Id: Adapters.java,v 1.11 2003/05/13 10:58:46 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.12 2003/07/24 08:42:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.ct.Adapters#getDefault()
