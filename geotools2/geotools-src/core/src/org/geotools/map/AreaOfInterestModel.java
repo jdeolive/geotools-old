@@ -1,3 +1,22 @@
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 package org.geotools.map;
 
 import org.opengis.cs.CS_CoordinateSystem;
@@ -12,7 +31,7 @@ import org.geotools.map.events.AreaOfInterestChangedListener;
  * displaying of the data.
  *
  * @author Cameron Shorter
- * @version $Id: AreaOfInterestModel.java,v 1.4 2002/07/16 15:16:21 jmacgill Exp $
+ * @version $Id: AreaOfInterestModel.java,v 1.5 2002/08/09 12:51:23 camerons Exp $
  */
 public interface AreaOfInterestModel {
     
