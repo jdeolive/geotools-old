@@ -23,14 +23,14 @@ import org.geotools.feature.Feature;
  * Defines a null filter, which checks to see if an attribute is null.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: NullFilterImpl.java,v 1.5 2003/07/22 22:41:08 cholmesny Exp $
+ * @version $Id: NullFilterImpl.java,v 1.6 2003/07/30 16:42:29 cholmesny Exp $
  */
 public class NullFilterImpl extends AbstractFilterImpl implements NullFilter {
     /** The null check value, which must be an attribute expression. */
     private Expression nullCheck = null;
 
     /**
-     * Constructor which flags the operator as between.
+     * Constructor which sets the type as null check.
      */
     protected NullFilterImpl() {
         filterType = NULL;
@@ -39,13 +39,17 @@ public class NullFilterImpl extends AbstractFilterImpl implements NullFilter {
     /**
      * Determines whether or not a given feature is 'inside' this filter.
      *
-     * @param nullCheck The value of this
+     * @param nullCheck The attribute expression to null check.
      *
-     * @throws IllegalFilterException Filter is illegal.
+     * @throws IllegalFilterException If attempting to add a non-attribute
+     *         expression.
+     *
+     * @task REVISIT: change arg to AttributeExpression?
+     * @task REVISIT: change name to setNullCheckValue.
      */
     public void nullCheckValue(Expression nullCheck)
         throws IllegalFilterException {
-        if (nullCheck instanceof AttributeExpressionImpl) {
+        if (nullCheck instanceof AttributeExpression) {
             this.nullCheck = nullCheck;
         } else {
             throw new IllegalFilterException(
@@ -115,7 +119,8 @@ public class NullFilterImpl extends AbstractFilterImpl implements NullFilter {
      */
     public int hashCode() {
         int result = 17;
-        result = (37 * result) + nullCheck.hashCode();
+        result = (37 * result)
+            + ((nullCheck == null) ? 0 : nullCheck.hashCode());
 
         return result;
     }
