@@ -26,6 +26,7 @@ import java.util.Map;
 /**
  * Implementation of the DataSource service provider interface for Shapefiles.
  *
+ * @deprecated Use ShapefileDataStoreFactory.
  * @author jamesm
  */
 public class ShapefileDataSourceFactory
