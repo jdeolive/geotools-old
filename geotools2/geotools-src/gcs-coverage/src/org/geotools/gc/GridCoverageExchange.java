@@ -41,7 +41,11 @@ import java.io.IOException;
 import java.util.Locale;
 import javax.imageio.ImageIO;
 import javax.imageio.IIOException;
+import javax.imageio.ImageReadParam;
 import java.awt.image.RenderedImage;
+
+// OpenGIS dependencies
+import org.opengis.gc.GC_GridCoverageExchange;
 
 // Resources
 import org.geotools.resources.gcs.Resources;
@@ -51,13 +55,12 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * Support for creation of grid coverages from persistent formats as well
  * as exporting a grid coverage to a persistent formats.
- * <br><br>
- * This class is implemented only with the JDK 1.4 version. On the JDK 1.3
- * version, all methods throws an {@link UnsupportedOperationException}.
  *
- * @version $Id: GridCoverageExchange.java,v 1.2 2002/07/26 23:18:18 desruisseaux Exp $
+ * @version $Id: GridCoverageExchange.java,v 1.3 2002/10/07 15:09:14 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
+ *
+ * @see GC_GridCoverageExchange
  */
 public class GridCoverageExchange {
     /**
@@ -81,11 +84,15 @@ public class GridCoverageExchange {
      *         This file name can be any valid file name within the underlying operating
      *         system of the server or a valid string, such as a URL which specifics
      *         a grid coverage.
+     * @param  param Parameters used to control the reading process, or <code>null</code>
+     *         if none.
      * @return The grid coverage.
      * @throws IOException if an error occurs during reading.
      * @throws IIOException if a grid coverage can't be create from the specified name.
+     *
+     * @see GC_GridCoverageExchange#createFromName
      */
-    public GridCoverage createFromName(final String name) throws IOException {
+    public GridCoverage createFromName(final String name, ImageReadParam param) throws IOException {
         throw new IIOException(Resources.getResources(locale).
                                getString(ResourceKeys.ERROR_NO_IMAGE_READER));
     }
@@ -113,6 +120,8 @@ public class GridCoverageExchange {
      * @throws IOException if an input/output operation (including RMI) failed.
      * @throws IIOException if the file format is not compatiable with the grid
      *         coverage.
+     *
+     * @see GC_GridCoverageExchange#exportTo
      */
     public void exportTo(final GridCoverage gridCoverage,
                          final String fileFormat,
