@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 <!-- Use the following if you want to use ant to style this file when offline
@@ -33,7 +33,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2002/12/04 20:11:29 $</date>
+    <date>$Date: 2002/12/06 21:27:11 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
@@ -301,9 +301,8 @@ public class ThisClass {
 
               <mediaobject>
                 <imageobject>
-                  <imagedata
-                  fileref="images/developersguide/dir_structure.png"
-                  format="PNG" />
+                  <imagedata format="PNG"
+                  fileref="images/developersguide/dir_structure.png" />
                 </imageobject>
 
                 <textobject>
@@ -541,13 +540,200 @@ org.geotools.cts.level = INFO</programlisting>
         </listitem>
 
         <listitem>
-          <para>using maven</para>
-        </listitem>
-
-        <listitem>
           <para>insert the &#34;howto-build.html&#34; doc into here</para>
         </listitem>
       </itemizedlist>
+
+      <section>
+        <title>Using Maven</title>
+
+        <para>First off, what is maven? Maven is a &#34;Java project
+        management and project comprehension tool&#34;, or in other words, yet
+        another build tool.</para>
+
+        <para>It is built on top of ant and a number of other open source
+        utilities and brings them together in a in an easy to use tool.</para>
+
+        <para>They key part of maven is the use of project files, you should
+        now be able to find a project.xml file in every active module (note
+        for example that awtRenderer does not have one, this is because it is
+        very out of date and not currently being developed) </para>
+
+        <para>The project file tells you the name of the module, who maintains
+        it, who develops it, what version it has reached and what it depends
+        on. Note that as all the modules have some things in common the module
+        project files actually extend one which can be found in the geotools2
+        root directory.</para>
+
+        <para>The most important part of the project file is the dependencies
+        section as maven uses this to determine what order to build the
+        modules in and what support jars to download when needed. (If we move
+        over to maven exclusively we will no longer need the extbin folder)</para>
+
+        <section>
+          <title>Getting Maven</title>
+
+          <para>You will need Maven 1.0 beta 7 installed in order to use the
+          maven build process on your machine, you can download it from:
+          <ulink url="http://www.ibiblio.org/maven/maven/distributions/">http://www.ibiblio.org/maven/maven/distributions/</ulink></para>
+        </section>
+
+        <section>
+          <title>Installing Maven</title>
+
+          <para>Unpack the archive you downloaded to a convenient location on
+          your machine (c:\program files is good for windoze boxes) </para>
+
+          <para>Set an environment variable called MAVEN_HOME to point to this
+          location (e.g. c:\program files\maven-1.0-beta-7)</para>
+
+          <para>Add MAVEN_HOME\bin to your systems PATH environment variable.</para>
+
+          <para>Maven can require a lot of memory when building GT2, by
+          default it has a limit of 128mb so this needs to be raised, to do
+          this edit the maven.bat (Windows) or maven (*nix) file in the
+          MAVEN_HOME/bin folder.</para>
+
+          <para>Look for the : <command>SET MAVEN_OPTS=-Xmx128m</command></para>
+
+          <para>And change it to: <command>SET MAVEN_OPTS=-Xmx256m</command></para>
+
+          <para>You must also have the JAI extention from sun installed as it
+          is required by a number of modules.</para>
+        </section>
+
+        <section>
+          <title>Using Maven to build ALL modules</title>
+
+          <para>Most of the GT2 modules depend on other GT2 modules, so the
+          first thing you will want to do is perform a full build so that you
+          have a jar from each module installed in your local repository.</para>
+
+          <para>Move to the geotools2 directory (the one that contains
+          geotools-src and spike) <command>type &#39;maven&#39;</command></para>
+
+          <para>All being well maven should startup and proceed to build all
+          the modules in the right order, at the end of this process it will
+          display a list of all the modules which were built and installed
+          correctly. </para>
+
+          <para><emphasis>NOTE:</emphasis> The first build can take a very
+          long time as maven actually downloads a lot of the files it needs to
+          run itself before starting on the main build, please be patient,
+          subsequent builds do not take as long.</para>
+        </section>
+
+        <section>
+          <title>The Maven local repository</title>
+
+          <para>On your machine you will find a directory in MAVEN_HOME called
+          repository, this is where maven stores all downloaded jars and
+          installed projects.</para>
+
+          <para>You should see that any third party jars, such as JTS, will
+          have been installed in this repository, you should also see that all
+          successful module builds have had their jars installed here too
+          (e.g. core, defaultcore...)</para>
+        </section>
+
+        <section>
+          <title>Building an individual module</title>
+
+          <para>Provided you have done at least one complete build you should
+          be able to build individual modules.</para>
+
+          <para>Change to the modules home directory (e.g.
+          geotools-src\defaultcore) <command> Type &#39;maven&#39;</command>
+          </para>
+
+          <para>It should do a complete build, note that if you have not done
+          a full build yet then the build may fail because it can&#39;t find
+          the jar for a module it depends on. An error caused by not having
+          another GT2 module installed can be a little missleading, for
+          example the error may look something like: Error: unable to download
+          core-0.1.jar. This is beacuse Maven failed to find core-0.1.jar in
+          the local repository (where a full build should have put it) so it
+          tried to download and fails. If you see an error like that either do
+          a full build or change into the module which is missing (core in
+          this case) and type</para>
+
+          <para><command>maven jar:install</command></para>
+
+          <para>This should build and install that individual module, all
+          being well you should then be able to go back to the module you were
+          trying to build and try again.</para>
+        </section>
+
+        <section>
+          <title> Doing things other than building</title>
+
+          <para>In any individual module home you can type maven -g to see a
+          full list of goals that can be run for that module.</para>
+
+          <para>Handy examples include... maven site (generates a web site in
+          the target\docs folder which provides a LOT of information about the
+          module) maven javadoc (generates the javadoc for the module, look in
+          target for output) maven test (runs the tests, look in
+          target/test-reports for output) maven jar:install (installs the
+          module into the Maven repository for use by other modules)</para>
+        </section>
+
+        <section>
+          <title>Project File structure</title>
+
+          <para>Maven uses a number of files to work out what to do, the most
+          important as mentioned above are the project.xml files, there are
+          however a few others, the layout is as follows:</para>
+
+          <para>geotools2\project.xml - the parent template project file which
+          the module files extend geotools2\maven.xml - a control file which
+          marchels the building of ALL modules and will soon generate a full
+          website geotools2\geotools-src\module\project.xml - the specific
+          project file for a given module
+          geotools2\geotools-src\module\build.properties - some control
+          properties that will eventually be inherited from a a parent, but
+          not yet. geotools2\geotools-src\module\target - folder generated
+          during builds that contains all output (classes, jars and reports)
+          geotools2\geotools-src\module\xdocs - contains files such as logos
+          or additional web pages that go into the web site</para>
+        </section>
+
+        <section>
+          <title>Remote File Structure:</title>
+
+          <para>There is a repository of jars required by geotools2 stored on
+          the sourceforge site, you can browse it online at: <ulink
+          url="http://www.geotools.org/gt2modules/extbin">http://www.geotools.org/gt2modules/extbin</ulink></para>
+
+          <para>If a module you are developing needs a third party jar to
+          operate then this is the place to put it, the naming convention is:
+          projectname/jars/jarname-version.jar</para>
+
+          <para>You can find the remote repository on the shell sever at
+          /home/groups/g/ge/geotools/htdocs/gt2modules/extbin it has group
+          permissions set so you should be able to modify it if you have
+          developer rights.</para>
+
+          <para>So, for example, we use JTS verion 1.0 in a number of modules,
+          you can find this jar online at:<ulink
+          url="http://www.geotools.org/gt2modules/extbin/JTS/jars/JTS-1.0.jar">http://www.geotools.org/gt2modules/extbin/JTS/jars/JTS-1.0.jar</ulink></para>
+
+          <para>Which is stored on the server in
+          /home/groups/g/ge/geotools/htdocs/gt2modules/extbin/JTS/jars/JTS-1.0.jar</para>
+
+          <para>Any module which needs to depend on JTS will then have the
+          following tag in its project.xml file:</para>
+
+          <example>
+            <title>Sample project.xml dependany entry</title>
+
+            <programlisting>&#60;dependency&#62;
+  &#60;id&#62;JTS&#60;/id&#62;
+  &#60;version&#62;1.0&#60;/version&#62;
+&#60;/dependency&#62;</programlisting>
+          </example>
+        </section>
+      </section>
     </section>
 
     <section id="testing">
@@ -1054,7 +1240,7 @@ void example(int i) {
         the testcase property to the full name
         (org.geotools.package.ClassTest) of the test to run. If you are having
         problems with logging output levels be sure to read section 2.5 on
-        logging. </para>
+        logging.</para>
       </section>
 
       <section>
@@ -1089,7 +1275,7 @@ void example(int i) {
         the permissions on the jar (chmod 775 &#39;jarname-x.y.z.jar&#39;) so
         that it can be properly downloaded and manipulated by other geotools
         developers. And be sure to commit your project.xml file, with the
-        updated dependency. </para>
+        updated dependency.</para>
       </section>
     </section>
   </section>
