@@ -12,10 +12,10 @@
     </target>
     <!-- TODO: failOnViolation should be set to true eventualy -->
     <target name="checkstyle">
-         <checkstyle failOnViolation="false"> 
+         <checkstyle failOnViolation="false" headerfile="licence.header"> 
             <fileset dir="src" includes="**/*.java"/>
             <formatter type="plain"/>
-            <formatter toFile="CHECKSTYLE-${project.name}.txt" type="plain"/>
+            <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
          </checkstyle>
     </target>     
     <target depends="prepare-compile" description="compile the code for the package" name="compile">
