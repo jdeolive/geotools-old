@@ -12,7 +12,7 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 import oracle.jdbc.OracleConnection;
 import org.geotools.data.DataSource;
-import org.geotools.data.DataSourceMetaData;
+import org.geotools.data.DataSourceException;import org.geotools.data.DataSourceMetaData;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.data.jdbc.ConnectionPoolManager;import org.geotools.feature.Feature;
@@ -29,11 +29,10 @@ import org.geotools.filter.LikeFilter;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.SQLException;import java.sql.Statement;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
-
 /**
  * Tests the OracleDataSource. The oracle datasource does not have a publically available instance,
  * so the sql script in oraclespatial/tests/unit/testData named testData.sql needs to be run on
@@ -43,7 +42,7 @@ import java.util.Set;
  * oraclespatial project.xml so that maven runs the test.
  *
  * @author geoghegs
- * @version $Revision: 1.7 $ Last Modified: $Date: 2003/08/15 00:42:02 $
+ * @version $Revision: 1.8 $ Last Modified: $Date: 2003/11/04 00:46:12 $
  */
 public class OracleTest extends TestCase {
     private OracleConnection conn;
@@ -80,7 +79,7 @@ public class OracleTest extends TestCase {
                 properties.getProperty("passwd")).getConnection();
         ds = dsFact.createDataSource(properties);
         filterFactory = FilterFactory.createFilterFactory();
-        jtsFactory = new GeometryFactory();
+        jtsFactory = new GeometryFactory();        
     }
 
     public void tearDown() throws Exception {
@@ -93,7 +92,7 @@ public class OracleTest extends TestCase {
     }
 
     public void testMaxFeatures() throws Exception {
-        DefaultQuery query = new DefaultQuery();
+        DefaultQuery query = new DefaultQuery();        query.setTypeName("ORA_TEST_POINTS");
         query.setMaxFeatures(3);
         FeatureCollection collection = ds.getFeatures(query);
         assertEquals(3, collection.size());

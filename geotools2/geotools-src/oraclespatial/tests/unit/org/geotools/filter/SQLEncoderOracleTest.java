@@ -1,22 +1,25 @@
-/* $Id: SQLEncoderOracleTest.java,v 1.3 2003/08/15 01:05:00 seangeo Exp $
+/* $Id: SQLEncoderOracleTest.java,v 1.4 2003/11/04 00:46:12 cholmesny Exp $
  *
  * Created on 31/07/2003
  */
 package org.geotools.filter;
 
+import java.util.HashMap;
+import java.util.logging.Logger;
+
+import junit.framework.TestCase;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import junit.framework.TestCase;
-import java.util.logging.Logger;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
- * @author $Author: seangeo $
- * @version $Id: SQLEncoderOracleTest.java,v 1.3 2003/08/15 01:05:00 seangeo Exp $ Last Modified: $Date: 2003/08/15 01:05:00 $
+ * @author $Author: cholmesny $
+ * @version $Id: SQLEncoderOracleTest.java,v 1.4 2003/11/04 00:46:12 cholmesny Exp $ Last Modified: $Date: 2003/11/04 00:46:12 $
  */
 public class SQLEncoderOracleTest extends TestCase {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
@@ -48,7 +51,7 @@ public class SQLEncoderOracleTest extends TestCase {
     }
 
     public void testGeometryFilterEncoder() throws Exception {
-        encoder = new SQLEncoderOracle("FID",-1);
+        encoder = new SQLEncoderOracle("FID",new HashMap());
 
         GeometryFilter filter = filterFactory.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
         filter.addLeftGeometry(filterFactory.createAttributeExpression(null, "GEOM"));
@@ -82,7 +85,7 @@ public class SQLEncoderOracleTest extends TestCase {
     }
     
     public void testFIDEncoding() throws Exception {
-        encoder = new SQLEncoderOracle("FID",-1);
+        encoder = new SQLEncoderOracle("FID",new HashMap());
         
         Filter filter = filterFactory.createFidFilter("FID.1");
         String value = encoder.encode(filter);
