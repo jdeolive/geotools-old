@@ -50,7 +50,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.6 2003/02/08 03:32:49 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.7 2003/02/09 09:54:16 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -109,6 +109,12 @@ public class MapPaneImpl extends PanelWidgetImpl implements
             
             // use absolute positioning
             this.setLayout(null);
+            
+            // extra stuff that should move out of this class
+            this.setBorder(
+                new javax.swing.border.TitledBorder("MapPane Map"));
+            this.setBackground(Color.BLACK);
+            this.setPreferredSize(new Dimension(300,300));
         }
     }
     
