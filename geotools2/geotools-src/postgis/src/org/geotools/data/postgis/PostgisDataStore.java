@@ -65,7 +65,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.14 2003/12/16 00:42:15 cholmesny Exp $
+ * @version $Id: PostgisDataStore.java,v 1.15 2004/01/07 23:31:56 seangeo Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -123,7 +123,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
     public PostgisDataStore(ConnectionPool connPool, String schema,
         String namespace, int optimizeMode) throws IOException {
-        super(connPool, schema, namespace);
+        super(connPool, schema, new HashMap(), namespace);
         useGeos = getUseGeos();
         OPTIMIZE_MODE = optimizeMode;
     }
