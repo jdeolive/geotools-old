@@ -69,6 +69,10 @@
       <id>filter</id>
       <version>0.1</version>
     </dependency>
+        <dependency>
+      <id>opengis-css</id>
+      <version>0.1</version>
+    </dependency>
     </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
