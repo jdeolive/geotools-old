@@ -105,7 +105,7 @@ public interface CV_Coverage extends Remote
      * org.opengis.gc.GC_GridGeometry#getGridToCoordinateSystem gridToCoordinateSystem}).
      *
      * This coordinate system is usually different than the grid coordinate system
-     * of the grid. grid coverage can be accessed (re-projected) with new coordinate
+     * of the grid. Grid coverage can be accessed (re-projected) with new coordinate
      * system with the {@link org.opengis.gp.GP_GridCoverageProcessor} component.
      * In this case, a new instance of a grid coverage is created.
      * <br><br>
@@ -115,8 +115,8 @@ public interface CV_Coverage extends Remote
      * gridToCoordinateSystem}) attribute should also be <code>null</code>
      * if the coordinate system is <code>null</code>.
      *
-     * @return the coordinate system used when accessing a coverage or grid
-     *         coverage with the <code>evaluate</code>  methods.
+     * @return the coordinate system used when accessing a coverage or
+     *         grid coverage with the <code>evaluate</code> methods.
      * @throws RemoteException if a remote method call failed.
      */
     CS_CoordinateSystem getCoordinateSystem() throws RemoteException;
@@ -205,7 +205,7 @@ public interface CV_Coverage extends Remote
      * The coordinate system of the point is the same as the grid coverage coordinate system.
      *
      * @param point Point at which to find the coverage values.
-     * @return a sequence of Boolean values for a given point in the coverage.
+     * @return a sequence of boolean values for a given point in the coverage.
      * @throws RemoteException if a remote method call failed.
      */
     boolean[] evaluateAsBoolean(PT_CoordinatePoint point) throws RemoteException;
