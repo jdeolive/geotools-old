@@ -61,7 +61,7 @@ import org.geotools.ct.AbstractMathTransform;
  * interpolation. If input coordinates are outside the grid range, then output
  * coordinates are extrapolated.
  *
- * @version $Id: LocalizationGridTransform2D.java,v 1.1 2002/08/03 11:06:03 desruisseaux Exp $
+ * @version $Id: LocalizationGridTransform2D.java,v 1.2 2002/08/06 14:11:56 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -98,7 +98,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      * Grid of coordinate points.
      * Points are stored as <code>(x,y)</code> pairs.
      */
-    private final float[] grid;
+    private final double[] grid;
     
     /**
      * Construct a localization grid using the specified data.
@@ -110,7 +110,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      *               that it will not be modified as long as this transformation is strongly
      *               reachable.
      */
-    protected LocalizationGridTransform2D(final int width, final int height, final float[] grid) {
+    protected LocalizationGridTransform2D(final int width, final int height, final double[] grid) {
         this.width  = width;
         this.height = height;
         this.grid   = grid;

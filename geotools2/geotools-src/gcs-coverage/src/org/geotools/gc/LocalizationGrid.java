@@ -67,7 +67,7 @@ import org.geotools.ct.MathTransform2D;
  * affine transform, then an instance of {@link AffineTransform} is returned. Otherwise,
  * a transform backed by the localization grid is returned.
  *
- * @version $Id: LocalizationGrid.java,v 1.2 2002/08/05 17:54:23 desruisseaux Exp $
+ * @version $Id: LocalizationGrid.java,v 1.3 2002/08/06 14:11:56 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -104,7 +104,7 @@ public class LocalizationGrid {
      * Grid of coordinate points.
      * Points are stored as <code>(x,y)</code> pairs.
      */
-    private float[] grid;
+    private double[] grid;
 
     /**
      * A global affine transform for the whole grid. This affine transform
@@ -134,7 +134,7 @@ public class LocalizationGrid {
         }
         this.width  = width;
         this.height = height;
-        this.grid   = new float[width * height * CP_LENGTH];
+        this.grid   = new double[width * height * CP_LENGTH];
         Arrays.fill(grid, Float.NaN);
     }
     
@@ -176,8 +176,8 @@ public class LocalizationGrid {
      */
     public synchronized Point2D getLocalizationPoint(final Point source) {
         final int offset = computeOffset(source.x, source.y);
-        return new Point2D.Float(grid[offset + X_OFFSET],
-                                 grid[offset + Y_OFFSET]);
+        return new Point2D.Double(grid[offset + X_OFFSET],
+                                  grid[offset + Y_OFFSET]);
     }
 
     /**
@@ -188,7 +188,7 @@ public class LocalizationGrid {
      * @throws IndexOutOfBoundsException If the source point is not in this grid's range.
      */
     public void setLocalizationPoint(final Point source, final Point2D target) {
-        setLocalizationPoint(source.x, source.y, (float)target.getX(), (float)target.getY());
+        setLocalizationPoint(source.x, source.y, target.getX(), target.getY());
     }
 
     /**
@@ -202,13 +202,13 @@ public class LocalizationGrid {
      * @param targetY  <var>y</var> coordinates in "real world" coordinates.
      * @throws IndexOutOfBoundsException If the source coordinates is not in this grid's range.
      */
-    public synchronized void setLocalizationPoint(int   sourceX, int   sourceY,
-                                                  float targetX, float targetY)
+    public synchronized void setLocalizationPoint(int    sourceX, int    sourceY,
+                                                  double targetX, double targetY)
     {
         final int offset = computeOffset(sourceX, sourceY);
         if (transform != null) {
             transform = null;
-            grid = (float[]) grid.clone();
+            grid = (double[]) grid.clone();
         }
         global = null;
         grid[offset + X_OFFSET] = targetX;
@@ -241,7 +241,7 @@ public class LocalizationGrid {
             final int offset = computeOffset(region.x, j);
             if (this.transform != null) {
                 this.transform = null;
-                grid = (float[]) grid.clone();
+                grid = (double[]) grid.clone();
             }
             transform.transform(grid, offset, grid, offset, region.width);
         }
@@ -254,7 +254,7 @@ public class LocalizationGrid {
      */
     public synchronized boolean isNaN() {
         for (int i=grid.length; --i>=0;) {
-            if (Float.isNaN(grid[i])) {
+            if (Double.isNaN(grid[i])) {
                 return true;
             }
         }
@@ -325,14 +325,14 @@ public class LocalizationGrid {
      * @return       0 if the array is unordered. Otherwise, returns <code>flags</code> with maybe
      *               one of {@link #INCREASING} or {@link #DECREASING} flags cleared.
      */
-    private static int testOrder(final float[] grid, int offset, int num, final int step, int flags)
+    private static int testOrder(final double[] grid, int offset, int num, final int step, int flags)
     {
         // We will check (num-1) combinaisons of coordinates.
         for (--num; --num>=0; offset += step) {
-            final float v1 = grid[offset];
-            if (Float.isNaN(v1)) continue;
+            final double v1 = grid[offset];
+            if (Double.isNaN(v1)) continue;
             while (true) {
-                final float v2 = grid[offset + step];
+                final double v2 = grid[offset + step];
                 final int required, clear;
                 if (v1 == v2) {
                     required =  EQUALS;      // "equals" must be accepted.
@@ -412,7 +412,7 @@ public class LocalizationGrid {
         for (int y=0; y<height; y++) {
             for (int x=0; x<width; x++) {
                 assert computeOffset(x,y)+offset == n : n;
-                final float z = grid[n];
+                final double z = grid[n];
                 sum_z  += z;
                 xx += x*x;
                 yy += y*y;
