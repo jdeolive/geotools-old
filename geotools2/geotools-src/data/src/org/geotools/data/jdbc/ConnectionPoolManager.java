@@ -1,4 +1,4 @@
-/* $Id: ConnectionPoolManager.java,v 1.1 2003/09/22 18:54:39 cholmesny Exp $
+/* $Id: ConnectionPoolManager.java,v 1.2 2003/11/21 18:51:20 jive Exp $
  * 
  * Created on 15/08/2003
  */
@@ -13,9 +13,9 @@ import javax.sql.ConnectionPoolDataSource;
 /** Provides a Singleton manager of connection pools.
  * 
  * @author Sean Geoghegan, Defence Science and Technology Organisation
- * @author $Author: cholmesny $
- * @version $Id: ConnectionPoolManager.java,v 1.1 2003/09/22 18:54:39 cholmesny Exp $
- * Last Modified: $Date: 2003/09/22 18:54:39 $ 
+ * @author $Author: jive $
+ * @version $Id: ConnectionPoolManager.java,v 1.2 2003/11/21 18:51:20 jive Exp $
+ * Last Modified: $Date: 2003/11/21 18:51:20 $ 
  */
 public class ConnectionPoolManager {
     /** The singleton instance of the ConnectionPoolManager. */
@@ -51,7 +51,7 @@ public class ConnectionPoolManager {
      * @param cpds The ConnectionPoolDataSource to get a ConnectionPool for.
      * @return The ConnectionPool.
      */
-    public synchronized ConnectionPool getConnectionPool(ConnectionPoolDataSource cpds) {
+    public synchronized ConnectionPool getConnectionPool(final ConnectionPoolDataSource cpds) {
         ConnectionPool connectionPool = (ConnectionPool) connectionPools.get(cpds);
         
         if (connectionPool == null){
@@ -61,7 +61,12 @@ public class ConnectionPoolManager {
         
         return connectionPool;
     }
-    
+    public synchronized void free( ConnectionPool pool ){
+        if( !pool.isClosed() ){
+            pool.close();
+        }
+        connectionPools.values().remove( pool );                
+    }
     public synchronized void closeAll() {
         for (Iterator iter = connectionPools.values().iterator(); iter.hasNext();) {
             ConnectionPool pool = (ConnectionPool) iter.next();
