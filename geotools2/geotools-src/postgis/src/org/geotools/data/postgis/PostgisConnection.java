@@ -31,26 +31,21 @@ import java.util.logging.Logger;
  *
  * This provides a base class to the database transactional classes.  
  *
- * @version $Id: PostgisConnection.java,v 1.3 2002/10/25 09:50:38 jmacgill Exp $
+ * @version $Id: PostgisConnection.java,v 1.4 2002/11/23 20:09:30 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class PostgisConnection implements javax.sql.DataSource {
 
     /** Standard logging instance */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
+    private static final Logger LOGGER = 
+        Logger.getLogger("org.geotools.defaultcore");
     
     /** Creates PostGIS-specific JDBC driver class. */ 
     private static final String POSTGIS_DRIVER_CLASS = "org.postgresql.Driver";
-    
     /** Creates PostGIS-specific JDBC driver path. */ 
     private static final String POSTGIS_DRIVER_PATH = "jdbc:postgresql";
 
-
-    private String host;
-
-    private String port;
-
-    private String dbName;
+    private String connectionPath;
 
     private String user = "test";
 
@@ -67,10 +62,20 @@ public class PostgisConnection implements javax.sql.DataSource {
      * @param dbName The database type; should be passed from the
      * database-specific subclass.
      */ 
-    public PostgisConnection ( String host, String port, String dbName) {
-        this.host = host;
-        this.port = port;
-        this.dbName = dbName;
+    public PostgisConnection (String host, String port, String dbName) {
+        connectionPath = 
+            POSTGIS_DRIVER_PATH + "://" + host + ":" + port + "/" + dbName;
+    }
+    
+    /**
+     * Constructor with all internal database driver classes, driver paths
+     * and database types.
+     *
+     * @param connectionPath The driver class; should be passed from the
+     * database-specific subclass.
+     */ 
+    public PostgisConnection (String connectionPath) {
+        connectionPath = POSTGIS_DRIVER_PATH + "://" + connectionPath;
     }
     
     
@@ -107,7 +112,6 @@ public class PostgisConnection implements javax.sql.DataSource {
         throws SQLException {
         
         // makes a new feature type bean to deal with incoming
-        String connectionPath = POSTGIS_DRIVER_PATH + "://" + host + ":" + port + "/" + dbName;
         Connection dbConnection = null;
         
         // Instantiate the driver classes
