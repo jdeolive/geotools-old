@@ -26,13 +26,16 @@
 
 package org.geotools.renderer;
 
+//geotools imports
 import org.geotools.feature.*;
 import org.geotools.data.*;
 import org.geotools.map.Map;
 import org.geotools.styling.*;
 
+//Java Topology Suite
 import com.vividsolutions.jts.geom.*;
 
+//standard java awt imports
 import java.awt.Color;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -43,8 +46,16 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 
+//util imports
 import java.util.HashMap;
+
+//Logging system
+import org.apache.log4j.Category;
+
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
+    
+    private static Category _log = Category.getInstance(FeatureTypeFlat.class.getName());
+    
     /**
      * Flag which controls behaviour for applying affine transformation
      * to the graphics object.  If true then the transform will be concatonated
@@ -71,18 +82,31 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         capLookup.put("square", new Integer(BasicStroke.CAP_SQUARE));
     }
     
+    /**
+     * graphics object to be rendered to
+     * controled by set output
+     */
     private Graphics2D graphics;
+    
+    /**
+     * the size of the output area in output units
+     */
     private Rectangle screenSize;
+    
+    /**
+     * the ratio required to scale the features to be rendered
+     * so that they fit into the output space.
+     */
     private double scaleDenominator;
     
-    /** Creates a new instance of AWTRenderer */
+    /** Creates a new instance of Java2DRenderer */
     public Java2DRenderer() {
     }
     
     /**
-     * Sets the flag which controls behaviour for applying affine 
+     * Sets the flag which controls behaviour for applying affine
      * transformation to the graphics object.
-     *  
+     *
      * @param flag If true then the transform will be concatonated
      * to the existing transform, if false it will be replaced.
      */
@@ -92,7 +116,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     
     /**
      * Flag which controls behaviour for applying affine transformation
-     * to the graphics object.  
+     * to the graphics object.
      *
      * @return a boolean flag. If true then the transform will be
      * concatonated to the existing transform, if false it will be replaced.
@@ -100,22 +124,42 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     public boolean gatConcatTransforms(){
         return concatTransforms;
     }
+    
+    /**
+     * Called before {@link render} this sets where any output will be sent
+     * @param g A graphics object for future rendering to be sent to, note
+     *        must be an instance of Graphics2D
+     * @param bounds the size of the output area, required so that scale can be
+     *        calculated.
+     */
     public void setOutput(Graphics g,Rectangle bounds){
         graphics = (Graphics2D)g;
         screenSize = bounds;
     }
     
+    /**
+     * Performs the actual rendering process to the graphics context set in
+     * setOutput.<p>
+     * The style parameter controls the appearence features, rules
+     * within the style object may cause some featrues to be rendered
+     * multiple times or not at all.
+     *
+     * @param features An array of featrues to be rendered
+     * @param map Controls the full extent of the input space. Used in the
+     *        calculation of scale.
+     * @param s A style object, contains a set of FeatureTypeStylers that are
+     *        to be applied in order to control the rendering process
+     */
     public void render(Feature features[], Envelope map,Style s){
         if(graphics==null) return;
-        System.out.println("renderering "+features.length+" features");
-        //GeometryTransformer transform = new GeometryTransformer(new AffineTransformer(e,component.getBounds()));
+        _log.info("renderering "+features.length+" features");
         
+        //set up the affine transform and calculate scale values
         AffineTransform at = new AffineTransform();
-        
         
         double scale = Math.min(screenSize.getHeight()/map.getHeight(),
         screenSize.getWidth()/map.getWidth());
-        
+        //TODO: angle is almost certanly not needed anc should be droped
         double angle = 0;//-Math.PI/8d;// rotation angle
         double tx = -map.getMinX()*scale; // x translation - mod by ian
         double ty = map.getMinY()*scale + screenSize.getHeight();// y translation
@@ -123,44 +167,55 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         double sc = scale*Math.cos(angle);
         double ss = scale*Math.sin(angle);
         
-        
         at = new AffineTransform(sc,-ss,ss,-sc,tx,ty);
-        Point2D testPoint = new Point2D.Double();
-        testPoint.setLocation(map.getMinX(),map.getMinY());
-        at.transform(testPoint,testPoint);
-        System.out.println("origin "+map.getMinX()+","+map.getMinY()+"\ntrans "
-        +testPoint.toString());
+        
+        /* If we are renderering to a component which has already set up some form
+         * of transformation then we can concatonate our transformation to it.
+         * An example of this is the ZoomPane component of the swinggui module.*/
         if(concatTransforms){
             graphics.getTransform().concatenate(at);
         }
         else{
             graphics.setTransform(at);
         }
-        
+        //extract the feature type stylers from the style object and process them
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
         processStylers(features, featureStylers);
     }
     
+    /**
+     * Apleies each feature type styler in turn to all of the features.
+     * This perhaps needs some explanation to make it absolutly clear,
+     * featureStylers[0] is applied to all features before featureStyler[1] is applied
+     * this can have important concequences as regards the painting order.<p>
+     * In most cases this is the desired efect, for example all line features may
+     * be rendered with a fat line and then a thin line, this produces a 'cased'
+     * effect without any strange overlaps.<p>
+     *
+     * This method is internal and should only be called by render.<p>
+     *
+     * @param features An array of features to be rendered
+     * @param featureStylers An array of feature stylers to be applied
+     **/
     private void processStylers(final Feature[] features, final FeatureTypeStyle[] featureStylers) {
         for(int i=0;i<featureStylers.length;i++){
             FeatureTypeStyle fts = featureStylers[i];
             for(int j=0;j<features.length;j++){
                 Feature feature = features[j];
-                System.out.println("fature is "+feature.getSchema().getTypeName()+" type styler is "+fts.getFeatureTypeName());
+                _log.info("fature is "+feature.getSchema().getTypeName()+
+                          " type styler is "+fts.getFeatureTypeName());
                 if(feature.getSchema().getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
                     //this styler is for this type of feature
                     //now find which rule applies
                     Rule[] rules = fts.getRules();
                     for(int k=0;k<rules.length;k++){
                         //does this rule apply?
+                        //TODO: the rule may be FAR more complex than this and code needs to
+                        //TODO: writen to support this, particularly the filtering aspects.
                         if(rules[k].getMinScaleDenominator()<scaleDenominator && rules[k].getMaxScaleDenominator()>scaleDenominator){
                             //yes it does
                             //this gives us a list of symbolizers
                             Symbolizer[] symbolizers = rules[k].getSymbolizers();
-                            //HACK: now this gets a little tricky...
-                            //HACK: each symbolizer could be a point, line, text, raster or polygon symboliser
-                            //HACK: but, if need be, a line symboliser can symbolise a polygon
-                            //HACK: this code ingores this potential problem for the moment
                             processSymbolizers(feature, symbolizers);
                         }
                     }
@@ -169,9 +224,15 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
     }
     
+    /**
+     * Applies each of a set of symbolizers in turn to a given feature.<p>
+     * This is an internal method and should only be called by processStylers.
+     *
+     * @param feature The feature to be rendered
+     * @param symbolizers An array of symbolizers which actualy perform the rendering
+     */
     private void processSymbolizers(final Feature feature, final Symbolizer[] symbolizers) {
         for(int m =0;m<symbolizers.length;m++){
-            //System.out.println("Using symbolizer "+symbolizers[m]);
             if (symbolizers[m] instanceof PolygonSymbolizer){
                 renderPolygon(feature,(PolygonSymbolizer)symbolizers[m]);
             }
@@ -179,33 +240,75 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 renderLine(feature,(LineSymbolizer)symbolizers[m]);
             }
             //else if...
+            //TODO: support other symbolizers
         }
     }
     
+    /**
+     * Renders the given feature as a polygon using the specided symbolizer.
+     * Geometry types other than inherently area types can be used.
+     * If a line is used then the line string is closed for filling (only)
+     * by connecting its end point to its start point.
+     *
+     * This is an internal method that should only be called by
+     * processSymbolizers
+     *
+     * TODO: the properties of a symbolizer may, in part, be dependent on
+     * attributes of the feature, this is not yet supported.
+     *
+     * @param feature The feature to render
+     * @param symbolizer The polygon symbolizer to apply
+     **/
     private void renderPolygon(Feature feature, PolygonSymbolizer symbolizer){
         Fill fill = symbolizer.getFill();
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature,geomName);
-        // Geometry scaled = transform.transformGeometry(geom);
+        
         GeneralPath path = createGeneralPath(geom);
-        //path.closePath();
+        
         if(fill!=null){
             graphics.setColor(Color.decode(fill.getColor()));
             graphics.fill(path);
         }
         if(symbolizer.getStroke() != null) {
             applyStroke(symbolizer.getStroke());
-            
-            //path = createGeneralPath(geom.getCoordinates());
             graphics.draw(path);
         }
-        //        System.out.println("Rendering a polygon with an outline colour of "+stroke.getColor()+
-        //            "and a fill colour of "+fill.getColor()+"\n at "+path.getCurrentPoint().toString());
     }
     
+    /**
+     * Renders the given feature as a line using the specided symbolizer.
+     *
+     * This is an internal method that should only be called by
+     * processSymbolizers
+     *
+     * Geometry types other than inherently linear types can be used.
+     * If a point geometry is used, it should be interprited as a line of zero
+     * length and two end caps.  If a polygon is used (or other "area" type)
+     * then its closed outline will be used as the line string
+     * (with no end caps).
+     *
+     * TODO: the properties of a symbolizer may, in part, be dependent on
+     * attributes of the feature, this is not yet supported.
+     *
+     * @param feature The feature to render
+     * @param symbolizer The polygon symbolizer to apply
+     **/
+    private void renderLine(Feature feature, LineSymbolizer symbolizer){
+        applyStroke(symbolizer.getStroke());
+        String geomName = symbolizer.geometryPropertyName();
+        Geometry geom = findGeometry(feature, geomName);
+        GeneralPath path = createGeneralPath(geom);
+        graphics.draw(path);
+    }
+    
+    /**
+     * Convenience method for applying a geotools Stroke object
+     * as a Graphics2D Stroke object
+     *
+     * @param stroke the Stroke to apply.
+     */
     private void applyStroke(org.geotools.styling.Stroke stroke){
-        // I'm not sure if this is right
-        // TODO: check this out
         double scale = graphics.getTransform().getScaleX();
         String joinType = stroke.getLineJoin();
         
@@ -229,12 +332,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
         float[] dashes = stroke.getDashArray();
         if(dashes!=null){
-            
             for(int i = 0;i<dashes.length;i++){
                 dashes[i] = (float)Math.max(1,dashes[i]/(float)scale);
             }
         }
         BasicStroke stroke2d;
+        //TODO: It should not be necessary divide each value by scale.
         if(dashes.length > 0){
             stroke2d = new BasicStroke(
             (float)stroke.getWidth()/(float)scale, capCode, joinCode,
@@ -249,14 +352,29 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         graphics.setColor(Color.decode(stroke.getColor()));
     }
     
+    /**
+     * Convinience method, converts a Geometry object into a GeneralPath
+     * @param geom The Geometry object to convert
+     * @return A GeneralPath that is equivelent to geom
+     */
     private GeneralPath createGeneralPath(final Geometry geom) {
         GeneralPath path = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
         addToPath(geom,path);
         return path;
     }
     
+    /**
+     * Used by createGeneralPath during the conversion of a geometry into
+     * a general path.
+     *
+     * If the Geometry is an instance of Polygon then all of its interior holes
+     * are processed and the resulting path is closed.
+     *
+     * @param geom the geomerty to be converted
+     * @param path the GeneralPath to add to
+     * @return path with geom added to it.
+     */
     private GeneralPath addToPath(final Geometry geom,final GeneralPath path){
-        System.out.println("Geom type is "+geom.getGeometryType()+" class is "+geom.getClass().getName());
         if(geom instanceof GeometryCollection){
             GeometryCollection gc = (GeometryCollection) geom;
             for(int i=0;i<gc.getNumGeometries();i++){
@@ -265,13 +383,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             return path;
         }
         if(geom instanceof com.vividsolutions.jts.geom.Polygon){
-            System.out.println("generating path for polygon");
             com.vividsolutions.jts.geom.Polygon poly;
             poly = (com.vividsolutions.jts.geom.Polygon)geom;
             addToPath(path,poly.getExteriorRing().getCoordinates());
             path.closePath();
             for(int i=1;i<poly.getNumInteriorRing();i++){
-                System.out.println("adding inner ring to polygon");
                 addToPath(path,poly.getInteriorRingN(i).getCoordinates());
                 path.closePath();
             }
@@ -283,6 +399,14 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         return path;
     }
     
+    /**
+     * Used by addToPath in the conversion of coversion of geometries into general paths.
+     * A moveTo is executed for the first coordinate then lineTo for all that
+     * remain. The path is not closed.
+     *
+     * @param path the path to add to, it is modifed by the method.
+     * @param coords an array of coordinates to add to the path
+     */
     private void addToPath(final GeneralPath path, final Coordinate[] coords) {
         path.moveTo((float)coords[0].x,(float)coords[0].y);
         for(int i=1;i<coords.length;i++){
@@ -290,22 +414,16 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
     }
     
-    
-    
-    
-    private void renderLine(Feature feature, LineSymbolizer symbolizer){
-        applyStroke(symbolizer.getStroke());
-        String geomName = symbolizer.geometryPropertyName();
-        Geometry geom = findGeometry(feature, geomName);
-        //Geometry scaled = transform.transformGeometry(geom);
-        
-        GeneralPath path = createGeneralPath(geom);
-        //System.out.println(path.getBounds());
-        
-        graphics.draw(path);
-        // System.out.println("Rendering a line with a colour of "+stroke.getColor());
-    }
-    
+    /**
+     * Extracts the named geometry from feature.
+     * If geomName is null then the features default geometry is used,
+     * if geomName can not be found in feature then null is returned.
+     *
+     * @param feature The feature to find the geometry in
+     * @param geomName the Name of the geometry to find, null if the default
+     *        geometry should be used.
+     * @return The geometry extracted from feature or null if this proved imposible
+     */
     private Geometry findGeometry(final Feature feature, final String geomName) {
         Geometry geom = null;
         if(geomName==null){
