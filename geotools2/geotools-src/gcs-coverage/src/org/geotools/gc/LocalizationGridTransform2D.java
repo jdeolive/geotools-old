@@ -71,7 +71,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * interpolation. If input coordinates are outside the grid range, then output
  * coordinates are extrapolated.
  *
- * @version $Id: LocalizationGridTransform2D.java,v 1.8 2003/02/28 16:37:47 desruisseaux Exp $
+ * @version $Id: LocalizationGridTransform2D.java,v 1.9 2003/03/12 22:46:07 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -419,7 +419,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      *
      *   <li>Next, compute a local affine transform and use if for transforming the point
      *       again. Recompute again the local affine transform and continue until the cell
-     *       (ix,iy) doesn't change.</li>
+     *       (x0,y0) doesn't change.</li>
      * </ul>
      *
      * @param source The "real world" coordinate to transform.
@@ -442,14 +442,14 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
         }
         try {
             tr.inverseTransform(source, target);
-            int ix = (int)target.x;
-            int iy = (int)target.y;
+            int previousX = (int)target.x;
+            int previousY = (int)target.y;
             for (int iter=0; iter<MAX_ITER; iter++) {
                 getAffineTransform(target.x, target.y, tr);
                 tr.inverseTransform(source, target);
-                final int nx = (int)target.x;
-                final int ny = (int)target.y;
-                if (ix==nx && iy==ny) {
+                final int ix = (int)target.x;
+                final int iy = (int)target.y;
+                if (previousX==ix && previousY==iy) {
                     // Computation converged.
                     if (target.x>=0 && target.x<width &&
                         target.y>=0 && target.y<height)
@@ -462,8 +462,8 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
                     }
                     return;
                 }
-                ix = nx;
-                iy = ny;
+                previousX = ix;
+                previousY = iy;
             }
             /*
              * No convergence found in the "ordinary" loop. The following code checks if
@@ -472,17 +472,37 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
              *
              *     <code>transform(target).distance(source)</code>.
              */
+            final int x0 = previousX;
+            final int y0 = previousY;
             global.inverseTransform(source, target);
             double x,y;
             double bestX = x = target.x;
             double bestY = y = target.y;
             double minSq = Double.POSITIVE_INFINITY;
             for (int iter=1-MAX_ITER; iter<MAX_ITER; iter++) {
+                previousX = (int)x;
+                previousY = (int)y;
                 getAffineTransform(x, y, tr);
                 tr.inverseTransform(source, target);
                 x = target.x;
                 y = target.y;
-                if (ix==(int)x  &&  iy==(int)y  &&  iter!=0) {
+                final int ix = (int)x;
+                final int iy = (int)y;
+                if (previousX==ix && previousY==iy) {
+                    // Computation converged.
+                    assert iter >= 0;
+                    if (x>=0 && x<width && y>=0 && y<height) {
+                        // Point is inside the grid. Check the precision.
+                        assert transform(target, null).distanceSq(source) < 1E-3 : target;
+                    } else {
+                        // Point is outside the grid. Use the global transform for uniformity.
+                        global.inverseTransform(source, target);
+                    }
+                    return;
+                }
+                if (iter == 0) {
+                    assert x0==ix && y0==iy;
+                } else if (x0==ix && y0==iy) {
                     // Loop detected.
                     if (bestX>=0 && bestX<width && bestY>=0 && bestY<height) {
                         target.x = bestX;
@@ -539,7 +559,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      * The inverse transform. This inner class is
      * the inverse of the enclosing math transform.
      *
-     * @version $Id: LocalizationGridTransform2D.java,v 1.8 2003/02/28 16:37:47 desruisseaux Exp $
+     * @version $Id: LocalizationGridTransform2D.java,v 1.9 2003/03/12 22:46:07 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D,
