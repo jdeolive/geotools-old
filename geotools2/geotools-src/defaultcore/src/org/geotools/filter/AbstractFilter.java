@@ -27,12 +27,12 @@ import org.geotools.feature.*;
  * Implements Filter interface, with constants and default behaviors for
  * methods.
  *
- * @version $Id: AbstractFilter.java,v 1.5 2002/07/22 21:41:58 jmacgill Exp $ 
+ * @version $Id: AbstractFilter.java,v 1.6 2002/07/25 17:16:40 ianturton Exp $ 
  * @author Rob Hranac, Vision for New York
  */
 public abstract class AbstractFilter implements Filter {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(AbstractFilter.class);
+    protected static org.apache.log4j.Logger _log =
+    org.apache.log4j.Logger.getLogger("filter");
     /** Defines filter type (all valid types defined below). */
     protected short filterType;
 
