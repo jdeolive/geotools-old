@@ -54,7 +54,7 @@ import org.apache.log4j.Category;
 
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
     
-    private static Category _log = Category.getInstance(org.geotools.feature.FeatureTypeFlat.class.getName());
+    private static Category _log = Category.getInstance("java2drendering");
     
     /**
      * Flag which controls behaviour for applying affine transformation
@@ -71,6 +71,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * Holds a lookup bewteen SLD names and java constants
      **/
     private static final java.util.HashMap capLookup = new java.util.HashMap();
+    /** 
+     * holds a list of wellknown marks 
+     */
+    static HashMap wellKnownMarks = new java.util.HashMap();
     
     static { //static block to populate the lookups
         joinLookup.put("miter", new Integer(BasicStroke.JOIN_MITER));
@@ -80,6 +84,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         capLookup.put("butt",   new Integer(BasicStroke.CAP_BUTT));
         capLookup.put("round",  new Integer(BasicStroke.CAP_ROUND));
         capLookup.put("square", new Integer(BasicStroke.CAP_SQUARE));
+        /**
+         * a list of wellknownshapes that we know about
+         * square, circle, triangle, star, cross, x
+         */
+        wellKnownMarks.put("Square","Square");
+        wellKnownMarks.put("Triangle","Triangle");
+        // TODO: implement the remaining symbols
     }
     
     /**
@@ -343,26 +354,50 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     
     private void renderMark(Geometry geom, Graphic graphic){
         Mark marks[] = graphic.getMarks();
-        // TODO: allow the use of more than the first mark
-        Fill fill = marks[0].getFill();
-        Stroke stroke = marks[0].getStroke();
-        _log.info("Drawing a "+marks[0].getWellKnownName()+" mark");
-        GeneralPath path = createGeneralPath(marks[0].getGeometry(geom,this.graphics.getTransform().getScaleX()));
-        _log.debug("mark "+marks[0].getGeometry(geom,this.graphics.getTransform().getScaleX()));
-        if(fill!=null){
-            graphics.setColor(Color.decode(fill.getColor()));
-            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,(float)fill.getOpacity()));
-            _log.debug("filling mark");
-            graphics.fill(path);
-            // shouldn't we reset the graphics when we'return finished?
-            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
+        Mark mark;
+        int size = 6;
+        double rotation = 0;
+
+        if(marks == null || marks.length==0){
+            _log.debug("filling default mark");
+            marks = new Mark[1];
+            marks[0] = new DefaultMark();
         }
-        if(stroke != null) {
-            applyStroke(stroke);
-            _log.debug("mark path is "+graphics.getTransform().createTransformedShape(path).getBounds2D().toString());
-            graphics.draw(path);
+        
+        for(int i = 0; i<marks.length; i++){
+            if(wellKnownMarks.containsKey(marks[i].getWellKnownName())){
+                mark = marks[i];
+                size = (int)graphic.getSize();
+                rotation = graphic.getRotation();
+                if(mark.getFill()!=null){
+                    fillMark(geom,mark,size,rotation);
+                }
+                if(mark.getStroke()!=null){
+                    drawMark(geom,mark,size,rotation);
+                }
+                return;
+            }
         }
+        mark = new DefaultMark();
+        fillMark(geom,mark,size,rotation);
+        drawMark(geom,mark,size,rotation);
     }
+    
+    private void drawMark(Geometry geom,Mark mark, int size, double rotation){
+        if(mark.getStroke()== null){
+            return;
+        }
+        //TODO: implement draw Mark
+        return;
+    }
+    private void fillMark(Geometry geom,Mark mark, int size, double rotation){
+        if(mark.getFill()== null){
+            return;
+        }
+        //TODO: implement fill Mark
+        return;
+    }    
+        
     /**
      * Convenience method for applying a geotools Stroke object
      * as a Graphics2D Stroke object
