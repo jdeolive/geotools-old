@@ -24,7 +24,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Factory for creating DefaultAttributeTypes.
  *
  * @author Ian Schneider
- * @version $Id: DefaultAttributeTypeFactory.java,v 1.6 2003/11/20 22:14:00 jive Exp $
+ * @version $Id: DefaultAttributeTypeFactory.java,v 1.7 2003/11/20 23:00:50 jive Exp $
  */
 public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
     /**
@@ -72,8 +72,8 @@ public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
             return new DefaultAttributeType.Textual(name,isNillable,fieldLength,defaultValue);
         } else if (java.util.Date.class.isAssignableFrom(clazz)) {
             return new DefaultAttributeType.Temporal(name,isNillable,fieldLength,defaultValue);
-        } else if (Geometry.class.isAssignableFrom( clazz )){
-            return new DefaultAttributeType.Geometric(name,clazz,isNillable, fieldLength,defaultValue,null);
+        //} else if (Geometry.class.isAssignableFrom( clazz )){
+        //    return new DefaultAttributeType.Geometric(name,clazz,isNillable, fieldLength,defaultValue,null);
         }
         
         return new DefaultAttributeType(name, clazz, isNillable,fieldLength,defaultValue);
