@@ -21,7 +21,11 @@
 package org.geotools.filter;
 
 // J2SE dependencies
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Logger;
+import org.xml.sax.Attributes;
 
 // Geotools dependencies
 import org.geotools.data.*;
@@ -31,7 +35,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: FilterFactory.java,v 1.3 2002/08/07 08:10:20 desruisseaux Exp $
+ * @version $Id: FilterFactory.java,v 1.4 2002/09/03 17:33:59 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFactory {
@@ -45,14 +49,14 @@ public class FilterFactory {
     private Filter currentFilter = null;
 
     /** The (limited) REGEXP pattern. */
-    private String currentState;
+    private String currentState = "uninitialized";
 
     /** The (limited) REGEXP pattern. */
     private short filterType;
 
-    /** the Attributes of the filter (only applicable to LIKE filters, I think)
-     */
-    private java.util.HashMap attributes = new java.util.HashMap();
+    /** the Attributes of the filter (only applicable to LIKE filters, I think) */
+    private HashMap attributes = new HashMap();
+
     /**
      * Constructor which flags the operator as between.
      */
@@ -70,7 +74,11 @@ public class FilterFactory {
     public void start(short filterType)
         throws IllegalFilterException {
 
-        if( AbstractFilter.isGeometryFilter(filterType) ) {
+        if( filterType == AbstractFilter.FID &&
+            !currentState.equals("fid") ) {
+            currentFilter = new FidFilter();            
+        }
+        else if( AbstractFilter.isGeometryFilter(filterType) ) {
             currentFilter = new GeometryFilter(filterType);            
         }
         else if( filterType == AbstractFilter.BETWEEN ) {
@@ -92,8 +100,8 @@ public class FilterFactory {
         }
         currentState = setInitialState(filterType);
         this.filterType = filterType;
-        LOGGER.finer("reset attributes");
-        attributes = new java.util.HashMap();
+
+        attributes = new HashMap();
     }
 
     /**
@@ -196,7 +204,10 @@ public class FilterFactory {
                 String wildcard = (String)attributes.get("wildCard");
                 String singleChar = (String)attributes.get("singleChar");
                 String escapeChar = (String)attributes.get("escapeChar");
-                ((LikeFilter) currentFilter).setPattern(expression,wildcard,singleChar,escapeChar);
+                ((LikeFilter) currentFilter).setPattern(expression,
+                                                        wildcard,
+                                                        singleChar,
+                                                        escapeChar);
                 currentState = "complete";
             }
             else {
@@ -215,7 +226,7 @@ public class FilterFactory {
      */
     public Filter create()
         throws IllegalFilterException {
-
+       
         if( isComplete() ) {
             return currentFilter;
         }
@@ -239,6 +250,9 @@ public class FilterFactory {
             ( filterType == AbstractFilter.LIKE) ) {
             return "attribute";
         }
+        else if( ( filterType == AbstractFilter.FID) ) {
+            return "fid";
+        }
         else if( ( AbstractFilter.isCompareFilter(filterType)) ||
                  ( AbstractFilter.isGeometryFilter(filterType))) {
             return "leftValue";
@@ -249,20 +263,30 @@ public class FilterFactory {
         }
 
     }
-    public void setAttributes(org.xml.sax.Attributes atts){
-        LOGGER.finer("received Attributes:");
-        for(int i=0;i<atts.getLength();i++){
-            LOGGER.finer(atts.getLocalName(i)+","+atts.getValue(i));
-            this.attributes.put(atts.getLocalName(i),atts.getValue(i));
+
+    public void setAttributes(Attributes atts){
+        LOGGER.finer("got attribute: " + atts.getLocalName(0) + 
+                     ", " + atts.getValue(0));
+        LOGGER.finer("current state: " + currentState);
+        if( currentState.equals("fid")) {
+            LOGGER.finer("is a fid");
+            ((FidFilter) currentFilter).addFid( atts.getValue(0));
+            LOGGER.finer("added fid");
         }
-        
+        else {
+            for(int i = 0; i < atts.getLength(); i++) {
+                this.attributes.put( atts.getLocalName(i),atts.getValue(i));
+            }
+        }
     }
+
     /**
      * Sets the multi wildcard for this LikeFilter.
      *
      */
     private boolean isComplete() {
-        if( currentState.equals("complete") ) {
+        if( currentState.equals("complete") ||
+            currentState.equals("fid") ) {
             return true;
         }
         else {

@@ -64,7 +64,6 @@ public class ParserTest
     /** Test suite for this test case */
     TestSuite suite = null;
 
-
     /** 
      * Constructor with test name.
      */
@@ -179,6 +178,16 @@ public class ParserTest
         LOGGER.fine("...flat feature created");
     }
 
+    public void test6()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test6.xml");
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
+    }          
+        
+
+
+    /*
     public void test1()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test1.xml");
@@ -214,6 +223,13 @@ public class ParserTest
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
     }    
+
+    public void test5()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test5.xml");
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
+    }          
         
     public void test8()
         throws Exception {
@@ -256,7 +272,7 @@ public class ParserTest
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
     }    
-
+    */
     public Filter parseDocument(String uri) 
         throws Exception {
         
@@ -271,7 +287,8 @@ public class ParserTest
         GMLFilterGeometry geometryFilter = new GMLFilterGeometry(filterFilter);
         GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
         LOGGER.fine("about to make parser");
-        //XMLReader parser = XMLReaderFactory.createXMLReader(/*"org.apache.xerces.parsers.SAXParser"*/); // uncomment to use xerces parser
+        //XMLReader parser = XMLReaderFactory.createXMLReader(/*"org.apache.xerces.parsers.SAXParser"*/); 
+        // uncomment to use xerces parser
         LOGGER.fine("just made parser");
         
         //parser.setContentHandler(documentFilter);

@@ -30,9 +30,10 @@
         <pathelement path="../core/src"/>
         <pathelement path="../defaultcore/src"/>
         <pathelement path="../gmldatasource/src"/>
+        <pathelement path="release/resources.jar"/>
         <pathelement path="src"/>
       </classpath>
-      <test fork="false" name="org.geotools.filter.ParserTest"/>
+      <test fork="false" name="org.geotools.filter.FilterSuite"/>
     </junit>
   </target>
   
