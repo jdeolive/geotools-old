@@ -74,6 +74,11 @@ import org.geotools.resources.Arguments;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
+// Extra operations
+import org.geotools.gp.jai.CombineDescriptor;
+import org.geotools.gp.jai.HysteresisDescriptor;
+import org.geotools.gp.jai.NodataFilterDescriptor;
+
 
 /**
  * Allows for different ways of accessing the grid coverage values.
@@ -83,7 +88,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.25 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.26 2003/07/18 13:49:56 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -222,7 +227,9 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new ConvolveOperation());
             DEFAULT.addOperation(new GradientMagnitudeOperation());
             DEFAULT.addOperation(new BilevelOperation("Threshold", "Binarize"));
-            DEFAULT.addOperation(new OperationJAI(org.geotools.gp.jai.Combine.OPERATION_NAME));
+            DEFAULT.addOperation(new OperationJAI(     CombineDescriptor.OPERATION_NAME));
+            DEFAULT.addOperation(new OperationJAI(  HysteresisDescriptor.OPERATION_NAME));
+            DEFAULT.addOperation(new OperationJAI(NodataFilterDescriptor.OPERATION_NAME));
         }
         return DEFAULT;
     }
@@ -494,7 +501,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.25 2003/07/11 16:57:47 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.26 2003/07/18 13:49:56 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

@@ -59,15 +59,10 @@ import javax.media.jai.iterator.WritableRectIter;
  * value = src0[x][y]*weight0 + src1[x][y]*weight1 + offset
  * </pre></blockquote>
  *
- * @version $Id: Combine.java,v 1.1 2003/07/11 16:57:48 desruisseaux Exp $
+ * @version $Id: Combine.java,v 1.2 2003/07/18 13:49:56 desruisseaux Exp $
  * @author Remi Eve
  */
 public class Combine extends PointOpImage {
-    /**
-     * The operation name.
-     */
-    public static final String OPERATION_NAME = "org.geotools.Combine";
-    
     /**
      * The weight of image <code>src0</code> for each bands.
      */

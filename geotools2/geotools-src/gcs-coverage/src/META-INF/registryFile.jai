@@ -2,7 +2,7 @@
 # The registry file for Geotools Grid Coverage implementation
 # This file is automatically parsed by JAI under initialization
 #
-# Version: $Id: registryFile.jai,v 1.2 2003/07/11 16:57:47 desruisseaux Exp $
+# Version: $Id: registryFile.jai,v 1.3 2003/07/18 13:49:56 desruisseaux Exp $
 #
 ############################################################################
 #
@@ -24,9 +24,13 @@
 # Image operation descriptors :
 #
 descriptor  org.geotools.gp.jai.CombineDescriptor
+descriptor  org.geotools.gp.jai.HysteresisDescriptor
+descriptor  org.geotools.gp.jai.NodataFilterDescriptor
 
 
 #
 # "rendered" factory objects
 #
-rendered  org.geotools.gp.jai.CombineCRIF  org.geotools  org.geotools.Combine Combine
+rendered  org.geotools.gp.jai.CombineCRIF       org.geotools  org.geotools.Combine       Combine
+rendered  org.geotools.gp.jai.HysteresisCRIF    org.geotools  org.geotools.Hysteresis    Hysteresis
+rendered  org.geotools.gp.jai.NodataFilterCRIF  org.geotools  org.geotools.NodataFilter  NodataFilter

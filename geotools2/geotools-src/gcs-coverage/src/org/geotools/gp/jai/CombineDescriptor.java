@@ -49,16 +49,21 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * The operation descriptor for the {@link Combine} operation.
  *
- * @version $Id: CombineDescriptor.java,v 1.1 2003/07/11 16:57:48 desruisseaux Exp $
+ * @version $Id: CombineDescriptor.java,v 1.2 2003/07/18 13:49:56 desruisseaux Exp $
  * @author Remi Eve
  */
 public final class CombineDescriptor extends OperationDescriptorImpl {
     /**
+     * The operation name.
+     */
+    public static final String OPERATION_NAME = "org.geotools.Combine";
+
+    /**
      * Construct the descriptor.
      */
     public CombineDescriptor() {
-        super(new String[][]{{"GlobalName",  Combine.OPERATION_NAME},
-                             {"LocalName",   Combine.OPERATION_NAME},
+        super(new String[][]{{"GlobalName",  OPERATION_NAME},
+                             {"LocalName",   OPERATION_NAME},
                              {"Vendor",      "Geotools 2"},
                              {"Description", "Combine two rendered images using a linear relation."},
                              {"DocURL",      "http://modules.geotools.org/gcs-coverage"},

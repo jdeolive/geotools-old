@@ -64,8 +64,15 @@
           <role>Java developper</role>
         </roles>
       </contributor>
+      <contributor>
+        <name>Lionel Flahaut</name>
+        <organization>2ie Technologie</organization>
+        <roles>
+          <role>Java developper</role>
+        </roles>
+      </contributor>
     </contributors>
-<build>
+  <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
     
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
