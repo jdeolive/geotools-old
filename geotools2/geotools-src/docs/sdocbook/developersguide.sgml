@@ -33,7 +33,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2002/12/08 19:58:57 $</date>
+    <date>$Date: 2002/12/10 21:26:14 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
@@ -178,7 +178,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id</emphasis> <emphasis>:$</emphasis>
+ * @version <emphasis>$Id: developersguide.sgml,v 1.22 2002/12/10 21:26:14 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
