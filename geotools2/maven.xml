@@ -302,5 +302,45 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
         
   </goal>
 
+  <goal
+    name="deploy-srcdist">
+
+    <m:user-check user="${maven.username}"/>
+
+    <!-- This needs to taken from the project properties -->
+    <property name="maven.homepage" value="/seis/raid1/Apache/htdocs/software/geotools/"/>
+    <property name="maven.dist.dir" value="target"/>
+
+    <echo>
+      siteAddress = ${pom.siteAddress}
+      siteDirectory = ${maven.homepage}
+      maven.dist.dir = ${maven.dist.dir}
+    </echo>
+
+    <!-- Create a tar.gz file -->
+    <ant:tar longfile="gnu" tarfile="${maven.dist.dir}/${maven.final.name}-src.tar" basedir=".." excludes="geotools2/target/**" includes="geotools2/**">
+    </ant:tar>
+
+    <ant:gzip 
+      zipfile="${maven.dist.dir}/${maven.final.name}-src.tar.gz"
+      src="${maven.dist.dir}/${maven.final.name}-src.tar"
+    />
+    
+    <ant:delete file="${maven.dist.dir}/${maven.final.name}-src.tar"/>
+
+    <!-- Make sure the destination directory exists before trying to copy -->
+    <exec dir="." executable="${maven.ssh.executable}">
+      <arg line="${pom.siteAddress} -l ${maven.username} 'mkdir -p ${maven.homepage}'"/>
+    </exec>
+
+    <exec dir="." executable="${maven.scp.executable}">
+      <arg value="${maven.dist.dir}/${maven.final.name}-src.tar.gz"/>
+      <arg value="${maven.username}@${pom.siteAddress}:${maven.homepage}"/>
+    </exec>
+
+    <delete file="${maven.final.name}-src.tar.gz"/>
+        
+  </goal>
+
 </project>
 
