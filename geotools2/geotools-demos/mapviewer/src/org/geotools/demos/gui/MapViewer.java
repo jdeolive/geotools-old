@@ -43,6 +43,9 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
+import org.geotools.styling.SLDParser;
+import org.geotools.styling.StyleFactory;
+import org.geotools.styling.StyledLayerDescriptor;
 
 
 /**
@@ -74,7 +77,7 @@ import com.vividsolutions.jts.geom.Point;
  * </pre></blockquote>
  *
  * @author Martin Desruisseaux
- * @version $Id: MapViewer.java,v 1.3 2004/03/26 19:06:51 aaime Exp $
+ * @version $Id: MapViewer.java,v 1.4 2004/04/05 13:55:20 jmacgill Exp $
  */
 public class MapViewer {
     /**
@@ -89,12 +92,13 @@ public class MapViewer {
         final MapContext context;
         switch (args.length) {
             default: // Fall through
-            case  1: context=viewer.loadContext(new File(args[0]).toURL()); break;
+            case  2: context=viewer.loadContext(new File(args[0]).toURL(),new File(args[1]).toURL()); break;
+            case  1: context=viewer.loadContext(new File(args[0]).toURL(), null); break;
             case  0: context=viewer.loadContext();                          break;
         }
         viewer.showMapPane(context);
     }
-
+    
     /**
      * Load the data from the shapefile <code>&quot;testData/statepop.shp&quot;</code>.
      * This file must be on the class path.
@@ -105,9 +109,9 @@ public class MapViewer {
      * @throws DataSource if an error occured while reading the data source.
      */
     protected MapContext loadContext() throws IOException, DataSourceException {
-        return loadContext(getClass().getClassLoader().getResource("org/geotools/sampleData/statepop.shp"));
+        return loadContext(getClass().getClassLoader().getResource("org/geotools/sampleData/statepop.shp"), null);
     }
-
+    
     /**
      * Load the data from the specified shapefile and construct a {@linkplain Context context}
      * with a default style.
@@ -117,29 +121,37 @@ public class MapViewer {
      * @throws IOException is a I/O error occured.
      * @throws DataSource if an error occured while reading the data source.
      */
-    protected MapContext loadContext(final URL url) throws IOException, DataSourceException {
-
+    protected MapContext loadContext(final URL url, final URL sld) throws IOException, DataSourceException {
+        
         // Load the file
         if (url == null) {
             throw new FileNotFoundException("Resource not found");
         }
         final DataStore store = new ShapefileDataStore(url);
         final FeatureSource features = store.getFeatureSource(store.getTypeNames()[0]);
-
+        
         // Create the style
-        final StyleBuilder builder = new StyleBuilder();
         final Style style;
-        Class geometryClass = features.getSchema().getDefaultGeometry().getType();
-        if(LineString.class.isAssignableFrom(geometryClass) || MultiLineString.class.isAssignableFrom(geometryClass)) {
-            style = builder.createStyle(builder.createLineSymbolizer());
-        } else if(Point.class.isAssignableFrom(geometryClass) || MultiPoint.class.isAssignableFrom(geometryClass)) {
-            style = builder.createStyle(builder.createPointSymbolizer());
-        } else {
-            style = builder.createStyle(builder.createPolygonSymbolizer(
-                     Color.ORANGE, Color.BLACK, 1));
+        if(sld != null){
+            SLDParser styleReader = new SLDParser(StyleFactory.createStyleFactory(),sld);
+            style = styleReader.readXML()[0];
         }
-         
-
+        else
+        {
+            final StyleBuilder builder = new StyleBuilder();
+            
+            Class geometryClass = features.getSchema().getDefaultGeometry().getType();
+            if(LineString.class.isAssignableFrom(geometryClass) || MultiLineString.class.isAssignableFrom(geometryClass)) {
+                style = builder.createStyle(builder.createLineSymbolizer());
+            } else if(Point.class.isAssignableFrom(geometryClass) || MultiPoint.class.isAssignableFrom(geometryClass)) {
+                style = builder.createStyle(builder.createPointSymbolizer());
+            } else {
+                style = builder.createStyle(builder.createPolygonSymbolizer(
+                Color.ORANGE, Color.BLACK, 1));
+            }
+        }
+        
+        
         // Create the context
         MapContext context = new DefaultMapContext();
         MapLayer layer = new DefaultMapLayer(features, style);
@@ -148,8 +160,8 @@ public class MapViewer {
         context.setTitle("Hello World");
         return context;
     }
-
-    /** 
+    
+    /**
      * Create and show the map pane.
      *
      * @param context The context to show.
@@ -160,7 +172,7 @@ public class MapViewer {
         mapPane.setMapContext(context);
         mapPane.setPaintingWhileAdjusting(false);
         mapPane.getRenderer().addLayer(new RenderedMapScale());
-
+        
         // Create the frame, add the map pane and a status bar.
         final JFrame frame = new JFrame(context.getTitle());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
