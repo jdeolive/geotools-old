@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Chris Holmes
- * @version $Id: WKTAttributeIO.java,v 1.4 2003/11/20 05:23:58 seangeo Exp $
+ * @version $Id: WKTAttributeIO.java,v 1.5 2003/11/24 00:19:32 cholmesny Exp $
  */
 public class WKTAttributeIO extends AbstractAttributeIO
     implements QueryDataListener, AttributeWriter, AttributeReader {
@@ -74,7 +74,7 @@ public class WKTAttributeIO extends AbstractAttributeIO
 
     /** Well Known Text writer (from JTS). */
     private static WKTWriter geometryWriter = new WKTWriter();
-    private int rowIndex = 1;
+    private int rowIndex = 0;
     private int columnIndex;
     private QueryData queryData;
     private ResultSet resultSet;
