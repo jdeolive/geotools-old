@@ -19,12 +19,12 @@
   <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
-  <siteAddress>www.geotools.org</siteAddress>
-  <siteDirectory/>
+  <siteAddress>modules.geotools.org</siteAddress>
+  <siteDirectory>/seis/raid1/Apache/htdocs/software/geotools/${pom.id}</siteDirectory>
   <distributionDirectory/>
   
   <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/${pom.id}</connection>
+    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot:geotools/geotools2/geotools-src/${pom.id}</connection>
     
         <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/${pom.id}/</url>
     </repository>
