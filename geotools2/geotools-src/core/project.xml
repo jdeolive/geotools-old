@@ -91,9 +91,11 @@
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
     <integrationUnitTestSourceDirectory/>
     <aspectSourceDirectories/>
-    <unitTestPatterns>
-      <unitTestPattern>include = **/*Test.java</unitTestPattern>
-    </unitTestPatterns>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+    </unitTest>
     <integrationUnitTestPatterns/>
     <jarResources/>
     <jars/>
