@@ -35,7 +35,7 @@ import org.geotools.vpf.Coordinate3DDouble;
  * <p>
  * Created: Wed Jan 29 10:06:37 2003
  * </p>
- * @version $Id: DataUtils.java,v 1.7 2003/03/26 15:28:45 kobit Exp $
+ * @version $Id: DataUtils.java,v 1.8 2003/03/27 14:28:01 kobit Exp $
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
  */
 
@@ -92,6 +92,7 @@ public class DataUtils implements DataTypesDefinition
 		result = new Integer(decodeInt(bytes));
 		break;
 	  case DATA_2_COORD_F:
+      {
         float[][] coords =
           new float[bytes.length/DATA_2_COORD_F_LEN][2];
         byte[] floatData = new byte[DATA_SHORT_FLOAT_LEN];
@@ -103,16 +104,57 @@ public class DataUtils implements DataTypesDefinition
           coords[i][1] = decodeFloat(floatData);
         } // end of for (int i = 0; i < coords.length; i++)
         result = new Coordinate2DFloat(coords);
-		break;
+      }
+      break;
 	  case DATA_2_COORD_R:
-        result = new Coordinate2DDouble();
-		break;
+      {
+        double[][] coords =
+          new double[bytes.length/DATA_2_COORD_R_LEN][2];
+        byte[] doubleData = new byte[DATA_LONG_FLOAT_LEN];
+        for (int i = 0; i < coords.length; i++)
+        {
+          copyArrays(doubleData, bytes, i*DATA_2_COORD_R_LEN);
+          coords[i][0] = decodeDouble(doubleData);
+          copyArrays(doubleData, bytes, i*(DATA_2_COORD_R_LEN+1));
+          coords[i][1] = decodeDouble(doubleData);
+        } // end of for (int i = 0; i < coords.length; i++)
+        result = new Coordinate2DDouble(coords);
+      }
+      break;
 	  case DATA_3_COORD_F:
-        result = new Coordinate3DFloat();
-		break;
+      {
+        float[][] coords =
+          new float[bytes.length/DATA_3_COORD_F_LEN][3];
+        byte[] floatData = new byte[DATA_SHORT_FLOAT_LEN];
+        for (int i = 0; i < coords.length; i++)
+        {
+          copyArrays(floatData, bytes, i*DATA_3_COORD_F_LEN);
+          coords[i][0] = decodeFloat(floatData);
+          copyArrays(floatData, bytes, i*(DATA_3_COORD_F_LEN+1));
+          coords[i][1] = decodeFloat(floatData);
+          copyArrays(floatData, bytes, i*(DATA_3_COORD_F_LEN+2));
+          coords[i][2] = decodeFloat(floatData);
+        } // end of for (int i = 0; i < coords.length; i++)
+        result = new Coordinate3DFloat(coords);
+      }
+      break;
 	  case DATA_3_COORD_R:
-        result = new Coordinate3DDouble();
-		break;
+      {
+        double[][] coords =
+          new double[bytes.length/DATA_3_COORD_R_LEN][3];
+        byte[] doubleData = new byte[DATA_LONG_FLOAT_LEN];
+        for (int i = 0; i < coords.length; i++)
+        {
+          copyArrays(doubleData, bytes, i*DATA_3_COORD_R_LEN);
+          coords[i][0] = decodeDouble(doubleData);
+          copyArrays(doubleData, bytes, i*(DATA_3_COORD_R_LEN+1));
+          coords[i][1] = decodeDouble(doubleData);
+          copyArrays(doubleData, bytes, i*(DATA_3_COORD_R_LEN+2));
+          coords[i][2] = decodeDouble(doubleData);
+        } // end of for (int i = 0; i < coords.length; i++)
+        result = new Coordinate3DDouble(coords);
+      }
+      break;
 	  case DATA_DATE_TIME:
 		result = new VPFDate(bytes);
 		break;

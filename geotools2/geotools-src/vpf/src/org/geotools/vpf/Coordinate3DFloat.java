@@ -31,11 +31,12 @@ package org.geotools.vpf;
  * @version 1.0.0
  */
 
-public class Coordinate3DFloat 
- implements Coordinate {
-  public Coordinate3DFloat() 
+public class Coordinate3DFloat extends CoordinateFloat {
+
+  public Coordinate3DFloat(float[][] coords)
   {
-    
+    super(coords);
   }
+
   
 }// Coordinate3DFloat

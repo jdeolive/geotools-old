@@ -30,6 +30,9 @@ import org.geotools.vpf.ifc.VPFRow;
 import org.geotools.vpf.util.DataUtils;
 import org.geotools.vpf.exc.VPFDataException;
 import org.geotools.vpf.Coordinate2DFloat;
+import org.geotools.vpf.Coordinate2DDouble;
+import org.geotools.vpf.Coordinate3DFloat;
+import org.geotools.vpf.Coordinate3DDouble;
 import org.geotools.vpf.TripletId;
 
 /**
@@ -39,7 +42,7 @@ import org.geotools.vpf.TripletId;
  * Created: Mon Feb 24 22:39:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFInputStream.java,v 1.6 2003/03/26 15:19:54 kobit Exp $
+ * @version $Id: VPFInputStream.java,v 1.7 2003/03/27 14:28:01 kobit Exp $
  */
 public abstract class VPFInputStream
   implements FileConstants, DataTypesDefinition
@@ -275,6 +278,7 @@ public abstract class VPFInputStream
         break;
 
       case DATA_2_COORD_F:
+      {
         float[][] data = new float[instancesCount][2];
         for (int i = 0; i < instancesCount; i++)
         {
@@ -282,8 +286,47 @@ public abstract class VPFInputStream
           data[i][1] = readFloat();
         } // end of for (int i = 0; i < instancesCount; i++)
         result = new Coordinate2DFloat(data);
-        break;
+      }
+      break;
         
+      case DATA_2_COORD_R:
+      {
+        double[][] data = new double[instancesCount][2];
+        for (int i = 0; i < instancesCount; i++)
+        {
+          data[i][0] = readDouble();
+          data[i][1] = readDouble();
+        } // end of for (int i = 0; i < instancesCount; i++)
+        result = new Coordinate2DDouble(data);
+      }
+      break;
+
+      case DATA_3_COORD_F:
+      {
+        float[][] data = new float[instancesCount][3];
+        for (int i = 0; i < instancesCount; i++)
+        {
+          data[i][0] = readFloat();
+          data[i][1] = readFloat();
+          data[i][2] = readFloat();
+        } // end of for (int i = 0; i < instancesCount; i++)
+        result = new Coordinate3DFloat(data);
+      }
+      break;
+        
+      case DATA_3_COORD_R:
+      {
+        double[][] data = new double[instancesCount][3];
+        for (int i = 0; i < instancesCount; i++)
+        {
+          data[i][0] = readDouble();
+          data[i][1] = readDouble();
+          data[i][2] = readDouble();
+        } // end of for (int i = 0; i < instancesCount; i++)
+        result = new Coordinate3DDouble(data);
+      }
+      break;
+
       default:
         
         break;

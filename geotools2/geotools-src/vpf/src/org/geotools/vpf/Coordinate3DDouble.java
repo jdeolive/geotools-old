@@ -31,11 +31,11 @@ package org.geotools.vpf;
  * @version 1.0.0
  */
 
-public class Coordinate3DDouble 
- implements Coordinate {
-  public Coordinate3DDouble() 
+public class Coordinate3DDouble extends CoordinateDouble {
+
+  public Coordinate3DDouble(double[][] coords) 
   {
-    
+    super(coords);
   }
   
 }// Coordinate3DDouble

@@ -19,10 +19,10 @@
 package org.geotools.vpf;
 
 /**
- * Class Coordinate2DDouble.java is responsible for 
+ * Class CoordinateFloat.java is responsible for 
  *
  * <p>
- * Created: Thu Jan 30 08:31:38 2003
+ * Created: Thu Mar 27 15:11:13 2003
  * </p>
  * @unittest on
  * @unittest_code "Put test code below"
@@ -31,11 +31,32 @@ package org.geotools.vpf;
  * @version 1.0.0
  */
 
-public class Coordinate2DDouble extends CoordinateDouble {
-  
-  public Coordinate2DDouble(double[][] coords)
-  {
-    super(coords);
-  }
+public class CoordinateFloat implements Coordinate {
 
-}// Coordinate2DDouble
+  protected float[][] coordinates;
+  
+  public CoordinateFloat(float[][] coords) 
+  {
+    coordinates = coords;
+  }
+  
+  public String toString()
+  {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < coordinates.length; i++)
+    {
+      sb.append("(");
+      for (int j = 0; j < coordinates[i].length; j++)
+      {
+        if (j > 0)
+        {
+          sb.append(", ");
+        } // end of if (j > 0)
+        sb.append(coordinates[i][j]);
+      } // end of for (int j = 0; j < coordinates[i].length; j++)
+      sb.append(")");
+    } // end of for (int i = 0; i < coordinates.length; i++)
+    return sb.toString();
+  }
+  
+}// CoordinateFloat
