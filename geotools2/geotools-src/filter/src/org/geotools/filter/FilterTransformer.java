@@ -13,6 +13,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.sax.*;
 import javax.xml.transform.stream.*;
 import org.geotools.filter.*;
+import org.geotools.gml.producer.GeometryTransformer;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
@@ -203,6 +204,7 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
         ContentHandler contentHandler;
         String defaultNamespace = null;
         String prefix = null;
+        GeometryTransformer geometryEncoder;
         
         public OutputVisitor(ContentHandler handler,String nsURI,String prefix) {
             this.contentHandler = handler;
@@ -210,6 +212,8 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
             if (prefix == "")
               prefix = null;
             this.prefix = prefix;
+            
+            geometryEncoder = new GeometryTransformer(handler);
         }
         
         void element(String element,String content) {
@@ -395,12 +399,7 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
             Object value = expression.getLiteral();
 
             if (Geometry.class.isAssignableFrom(value.getClass())) {
-                System.out.println("FIX ME");
-//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                PrintWriter out = new PrintWriter(baos,true);
-//                XMLEncoder.GeometryEncoder encoder = new XMLEncoder.GeometryEncoder(out);
-//                encoder.encode((Geometry) value);
-//                element
+                geometryEncoder.encode( (Geometry) value );
             } else {
                 element("Literal",value.toString());
             }
