@@ -42,6 +42,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
+import java.awt.image.RenderedImage;
+import java.awt.image.BufferedImage;
 
 // RMI and weak references
 import java.rmi.RemoteException;
@@ -77,7 +79,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Describes the valid range of grid coordinates and the math
  * transform to transform grid coordinates to real world coordinates.
  *
- * @version $Id: GridGeometry.java,v 1.6 2003/01/16 21:05:11 desruisseaux Exp $
+ * @version $Id: GridGeometry.java,v 1.7 2003/02/13 22:58:27 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -90,17 +92,22 @@ public class GridGeometry implements Dimensioned, Serializable {
     private static final long serialVersionUID = -8740895616121262893L;
     
     /**
-     * The valid coordinate range of a grid coverage. The lowest
-     * valid grid coordinate is zero. A grid with 512 cells can
-     * have a minimum coordinate of 0 and maximum of 512, with 511
-     * as the highest valid index.
+     * The valid coordinate range of a grid coverage, or <code>null</code> if none. The lowest
+     * valid grid coordinate is zero for {@link BufferedImage}, but may be non-zero for arbitrary
+     * {@link RenderedImage}. A grid with 512 cells can have a minimum coordinate of 0 and maximum
+     * of 512, with 511 as the highest valid index.
+     *
+     * @see RenderedImage#getMinX
+     * @see RenderedImage#getMinY
+     * @see RenderedImage#getWidth
+     * @see RenderedImage#getHeight
      */
     private final GridRange gridRange;
     
     /**
-     * The math transform (usually an affine transform). This math transform
-     * maps pixel center. A coordinate can be mapped from pixel coordinates
-     * to "real world" coordinates using the following line:
+     * The math transform (usually an affine transform), or <code>null</code> if none.
+     * This math transform maps pixel center to "real world" coordinate using the
+     * following line:
      *
      * <pre>gridToCoordinateSystem.transform(pixels, point);</pre>
      */
@@ -127,9 +134,17 @@ public class GridGeometry implements Dimensioned, Serializable {
     /**
      * Construct a new grid geometry from a math transform.
      *
-     * @param gridRange The valid coordinate range of a grid coverage.
+     * @param gridRange The valid coordinate range of a grid coverage, or <code>null</code> if
+     *        none. The lowest valid grid coordinate is zero for {@link BufferedImage}, but may
+     *        be non-zero for arbitrary {@link RenderedImage}. A grid with 512 cells can have a
+     *        minimum coordinate of 0 and maximum of 512, with 511 as the highest valid index.
      * @param gridToCoordinateSystem The math transform which allows for the transformations
      *        from grid coordinates (pixel's <em>center</em>) to real world earth coordinates.
+     *
+     * @see RenderedImage#getMinX
+     * @see RenderedImage#getMinY
+     * @see RenderedImage#getWidth
+     * @see RenderedImage#getHeight
      */
     public GridGeometry(final GridRange gridRange, final MathTransform gridToCoordinateSystem) {
         this.gridRange                  = gridRange;
@@ -137,15 +152,16 @@ public class GridGeometry implements Dimensioned, Serializable {
         this.gridToCoordinateSystem2D   = (gridToCoordinateSystem instanceof MathTransform2D) ?
                                           (MathTransform2D) gridToCoordinateSystem : null;
         this.gridFromCoordinateSystem2D = inverse(gridToCoordinateSystem2D);
-        
-        final int dimRange  = gridRange.getDimension();
-        final int dimSource = gridToCoordinateSystem.getDimSource();
-        final int dimTarget = gridToCoordinateSystem.getDimTarget();
-        if (dimRange != dimSource) {
-            throw new MismatchedDimensionException(dimRange, dimSource);
-        }
-        if (dimRange != dimTarget) {
-            throw new MismatchedDimensionException(dimRange, dimTarget);
+        if (gridRange!=null && gridToCoordinateSystem!=null) {
+            final int dimRange  = gridRange.getDimension();
+            final int dimSource = gridToCoordinateSystem.getDimSource();
+            final int dimTarget = gridToCoordinateSystem.getDimTarget();
+            if (dimRange != dimSource) {
+                throw new MismatchedDimensionException(dimRange, dimSource);
+            }
+            if (dimRange != dimTarget) {
+                throw new MismatchedDimensionException(dimRange, dimTarget);
+            }
         }
     }
     
@@ -266,7 +282,7 @@ public class GridGeometry implements Dimensioned, Serializable {
     private static MathTransform2D inverse(final MathTransform2D gridToCoordinateSystem2D)
             throws IllegalArgumentException
     {
-        if (gridToCoordinateSystem2D!=null) {
+        if (gridToCoordinateSystem2D != null) {
             try {
                 return (MathTransform2D) gridToCoordinateSystem2D.inverse();
             } catch (NoninvertibleTransformException exception) {
@@ -284,19 +300,34 @@ public class GridGeometry implements Dimensioned, Serializable {
      * Returns the number of dimensions.
      */
     public int getDimension() {
-        return gridRange.getDimension();
+        if (gridToCoordinateSystem != null) {
+            return gridToCoordinateSystem.getDimSource();
+        }
+        return getGridRange().getDimension();
     }
     
     /**
-     * Returns the valid coordinate range of a grid coverage.
-     * The lowest valid grid coordinate is zero. A grid with
-     * 512 cells can have a minimum coordinate of 0 and maximum
-     * of 512, with 511 as the highest valid index.
+     * Returns the valid coordinate range of a grid coverage. The lowest valid grid coordinate is
+     * zero for {@link BufferedImage}, but may be non-zero for arbitrary {@link RenderedImage}. A
+     * grid with 512 cells can have a minimum coordinate of 0 and maximum of 512, with 511 as the
+     * highest valid index.
+     *
+     * @return The grid range (never <code>null</code>).
+     * @throws InvalidGridGeometryException if this grid geometry has no grid range.
      *
      * @see GC_GridGeometry#getGridRange
+     * @see RenderedImage#getMinX
+     * @see RenderedImage#getMinY
+     * @see RenderedImage#getWidth
+     * @see RenderedImage#getHeight
      */
-    public GridRange getGridRange() {
-        return gridRange;
+    public GridRange getGridRange() throws InvalidGridGeometryException {
+        if (gridRange != null) {
+            return gridRange;
+        } else {
+            throw new InvalidGridGeometryException(Resources.format(
+                      ResourceKeys.ERROR_UNSPECIFIED_IMAGE_SIZE));
+        }
     }
     
     /**
@@ -306,14 +337,21 @@ public class GridGeometry implements Dimensioned, Serializable {
      * is given by {@link org.geotools.cv.Coverage#getCoordinateSystem}. If no math
      * transform is available, this method returns <code>null</code>.
      * <br><br>
-     * OpenGIS requires that the transform maps <em>pixel centers</em> to real world
-     * coordinates. This is different from some other systems that map pixel's upper
-     * left corner.
+     * <strong>Note:</strong> OpenGIS requires that the transform maps <em>pixel centers</em>
+     * to real world coordinates. This is different from some other systems that map pixel's
+     * upper left corner.
+     *
+     * @return The transform (never <code>null</code>).
+     * @throws InvalidGridGeometryException if this grid geometry has no transform.
      *
      * @see GC_GridGeometry#getGridToCoordinateSystem
      */
-    public MathTransform getGridToCoordinateSystem() {
-        return gridToCoordinateSystem;
+    public MathTransform getGridToCoordinateSystem() throws InvalidGridGeometryException {
+        if (gridToCoordinateSystem != null) {
+            return gridToCoordinateSystem;
+        } else {
+            throw new InvalidGridGeometryException();
+        }
     }
     
     /**
@@ -330,15 +368,15 @@ public class GridGeometry implements Dimensioned, Serializable {
      *         to real world earth coordinates, operating only on the first two dimensions.
      *         The returned transform is often an instance of {@link AffineTransform}, which
      *         make it convenient for interoperability with Java2D.
-     * @throws IllegalStateException if a two-dimensional transform is not available
+     * @throws InvalidGridGeometryException if a two-dimensional transform is not available
      *         for this grid geometry.
      */
-    public MathTransform2D getGridToCoordinateSystem2D() throws IllegalStateException {
-        if (gridToCoordinateSystem2D!=null) {
+    public MathTransform2D getGridToCoordinateSystem2D() throws InvalidGridGeometryException {
+        if (gridToCoordinateSystem2D != null) {
             return gridToCoordinateSystem2D;
         }
-        throw new IllegalStateException(Resources.format(
-                ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
+        throw new InvalidGridGeometryException(Resources.format(
+                  ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
     }
     
     /**
@@ -346,11 +384,11 @@ public class GridGeometry implements Dimensioned, Serializable {
      *
      * @param  point The point in logical coordinate system.
      * @return A new point in the grid coordinate system.
-     * @throws IllegalStateException if a two-dimensional inverse
+     * @throws InvalidGridGeometryException if a two-dimensional inverse
      *         transform is not available for this grid geometry.
      * @throws CannotEvaluateException if the transformation failed.
      */
-    final Point2D inverseTransform(final Point2D point) throws IllegalStateException {
+    final Point2D inverseTransform(final Point2D point) throws InvalidGridGeometryException {
         if (gridFromCoordinateSystem2D != null) {
             try {
                 return gridFromCoordinateSystem2D.transform(point, null);
@@ -358,7 +396,7 @@ public class GridGeometry implements Dimensioned, Serializable {
                 throw new CannotEvaluateException(point, exception);
             }
         }
-        throw new IllegalStateException(Resources.format(
+        throw new InvalidGridGeometryException(Resources.format(
                   ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
     }
     
@@ -432,7 +470,14 @@ public class GridGeometry implements Dimensioned, Serializable {
      * different implementations of the same class.
      */
     public int hashCode() {
-        return gridToCoordinateSystem.hashCode()*37 + gridRange.hashCode();
+        int code = (int)serialVersionUID;
+        if (gridToCoordinateSystem != null) {
+            code += gridToCoordinateSystem.hashCode();
+        }
+        if (gridRange != null) {
+            code += gridRange.hashCode();
+        }
+        return code;
     }
     
     /**
