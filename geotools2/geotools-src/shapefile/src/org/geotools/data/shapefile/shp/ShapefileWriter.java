@@ -27,7 +27,21 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- *
+ * ShapefileWriter allows for the storage of geometries in esris shp format.
+ * During writing, an index will also be created. To create a ShapefileWriter,
+ * do something like<br>
+ * <code>
+ *   GeometryCollection geoms;
+ *   File shp = new File("myshape.shp");
+ *   File shx = new File("myshape.shx");
+ *   ShapefileWriter writer = new ShapefileWriter(
+ *     shp.getChannel(),shx.getChannel()
+ *   );
+ *   writer.write(geoms,ShapeType.ARC);
+ * </code>
+ * This example assumes that each shape in the collection is a LineString.
+ *   
+ * @see org.geotools.data.shapefile.ShapefileDataStore
  * @author jamesm
  * @author aaime
  * @author Ian Schneider
