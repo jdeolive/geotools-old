@@ -23,11 +23,12 @@ package org.geotools.map;
  * Store context information about a map display.  This object is based on the
  * OGC Web Map Context Specification.
  *
- * @version $Id: ContextImpl.java,v 1.1 2002/12/24 19:15:50 camerons Exp $
+ * @version $Id: ContextImpl.java,v 1.2 2003/03/05 09:33:06 camerons Exp $
  * @author Cameron Shorter
  */
 
 import java.lang.Cloneable;
+import java.awt.Rectangle;
 import java.util.logging.Logger;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
@@ -80,42 +81,91 @@ public class ContextImpl implements Context {
 //            contactInformation);
 //    }
 
+    /**
+     * Returns a BoundingBox associated with this context.
+     */
     public BoundingBox getBbox() {
         return this.bbox;
     }
 
+    /**
+     * Returns a list of layers associated with this context.
+     */
     public LayerList getLayerList() {
         return this.layerList;
     }
 
+    /**
+     * Get the abstract which describes this interface, returns an empty
+     * string if this has not been set yet.
+     */
     public String getAbstract() {
-        return this._abstract;
+        if (this._abstract==null){
+            return "";
+        } else {
+            return this._abstract;
+        }
     }
 
+    /**
+     * Set an abstract which describes this context.
+     */
     public void setAbstract(final String _abstract) {
         this._abstract = _abstract;
     }
 
+    /**
+     * Get the contact information associated with this context, returns an
+     * empty string if contactInformation has not been set.
+     */
     public String getContactInformation() {
-        return this.contactInformation;
+        if (this.contactInformation==null){
+            return "";
+        } else {
+            return this.contactInformation;
+        }
     }
 
+    /**
+     * Set contact inforation associated with this class.
+     */
     public void setContactInformation(final String contactInformation) {
         this.contactInformation = contactInformation;
     }
 
+    /* Get an array of keywords associated with this context, returns an
+     * empty string if no keywords have been set */
     public String[] getKeywords() {
-        return this.keywords;
+        if (this.keywords==null){
+            return new String[0];
+        } else {
+            return this.keywords;
+        }
     }
 
+    /**
+     * Set an array of keywords to associate with this context.
+     */
     public void setKeywords(final String[] keywords) {
         this.keywords = keywords;
     }
 
+    /**
+     * Get the title, returns an empty string if it has not been set yet.
+     * @return the title, or an empty string if it has not been set.
+     */
     public String getTitle() {
-        return this.title;
+        if (this.title==null){
+            return "";
+        } else {
+            return this.title;
+        }
     }
 
+    /**
+     * Set the title of this context.
+     * @param title the title.
+     */
     public void setTitle(final String title) {
         this.title = title;
     }
