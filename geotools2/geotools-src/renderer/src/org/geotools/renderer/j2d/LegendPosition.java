@@ -47,13 +47,13 @@ import javax.media.jai.EnumeratedParameter;
  * Position of a legend relative to the widget's bounds.
  * The position may be one of the following constants:
  * <br><br>
- * <table cellpadding=8 bgcolor=floralwhite>
+ * <table border="2" cellpadding="8" bgcolor="floralwhite">
  * <tr><td>{@link #NORTH_WEST}</td>  <td>{@link  #NORTH}</td>  <td>{@link #NORTH_EAST}</td></tr>
  * <tr><td>{@link       #WEST}</td>  <td>{@link #CENTER}</td>  <td>{@link       #EAST}</td></tr>
  * <tr><td>{@link #SOUTH_WEST}</td>  <td>{@link  #SOUTH}</td>  <td>{@link #SOUTH_EAST}</td></tr>
  * </table>
  *
- * @version $Id: LegendPosition.java,v 1.2 2003/03/12 22:44:41 desruisseaux Exp $
+ * @version $Id: LegendPosition.java,v 1.3 2003/03/14 12:38:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class LegendPosition extends EnumeratedParameter {

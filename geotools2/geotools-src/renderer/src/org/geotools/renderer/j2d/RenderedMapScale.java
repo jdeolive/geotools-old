@@ -49,6 +49,7 @@ import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.Arrays;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
@@ -76,16 +77,30 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <ul>
  *   <li>In the particular case of {@linkplain ProjectedCoordinateSystem projected coordinate
  *       system}, the map scale is precise only at the latitude of "true scale", which is
- *       projection-dependent.</li>
+ *       projection-dependent. This behavior can be changed with a call to
+ *       {@link #setForceGeodesic}.</li>
  *   <li>In the particular case of {@linkplain GeographicCoordinateSystem geographic coordinate
  *       system}, the map scale is precise only at the position where it is drawn. The map scale
  *       is determined using orthodromic distance computation.</li>
  * </ul>
  *
- * @version $Id: RenderedMapScale.java,v 1.2 2003/03/12 22:44:42 desruisseaux Exp $
+ * @version $Id: RenderedMapScale.java,v 1.3 2003/03/14 12:38:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedMapScale extends RenderedLegend {
+    /**
+     * Round numbers for map scale, between 1 and 10. The map scale length in "real world"
+     * units will be rounded to one of those numbers at rendering time.
+     */
+    private static final double[] SNAP = {1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.0};
+
+    /**
+     * Tells if the map scale should use orthodromic distance computation even for
+     * {@linkplain ProjectedCoordinateSystem projected coordinate system}. Default
+     * value is <code>false</code>.
+     */
+    private boolean forceGeodesic = false;
+
     /**
      * Unité à utiliser pour représenter les distances.
      * La valeur par défaut sera des kilomètres ("km").
@@ -113,11 +128,11 @@ public class RenderedMapScale extends RenderedLegend {
     private int subDivisions = 3;
 
     /**
-     * Longueur désirée de l'échelle, en pixels. La longueur logique dépendra du facteur de
+     * Longueur maximale de l'échelle, en pixels. La longueur logique dépendra du facteur de
      * zoom de la carte; cette classe tentera de donner à l'échelle une longueur logique
      * qui correspond à un chiffre rond.
      */
-    private int preferredLength = 256;
+    private int maximumLength = 300;
 
     /**
      * Épaisseur de l'échelle en pixels. Cette épaisseur sera
@@ -133,7 +148,7 @@ public class RenderedMapScale extends RenderedLegend {
     /**
      * Couleur du texte des graduations et de l'étiquette de l'échelle.
      */
-    private Paint textColor = Color.WHITE;
+    private Paint foreground = Color.WHITE;
 
     /**
      * Couleur des rectangles extérieurs de l'échelle.
@@ -148,17 +163,39 @@ public class RenderedMapScale extends RenderedLegend {
     /**
      * Couleur de l'arrière plan de l'échelle, or <code>null</code> pour ne pas en mettre.
      */
-    private Paint backgroundColor = new Color(32,32,64,64);
+    private Paint background = new Color(32,32,64,64);
 
     /**
-     * Number of pixels between the background {@link #backgroundColor} and the map scale.
+     * Number of pixels between the background {@link #background} and the map scale.
      */
     private static final int backgroundMargin = 3;
 
     /**
-     * Construit une échelle qui sera située par défaut dans le coin
-     * inférieur gauche de la carte. La position de l'échelle peut être
-     * modifié par la méthode {@link #setPosition}.
+     * The glyph vectors for labels and the title. Will be constructed
+     * during the first rendering and reused as much as possible.
+     */
+    private transient GlyphVector[] tickGlyphs;
+
+    /**
+     * The bounds for each gylph vector in {@link #tickGlyphs}.
+     */
+    private transient Rectangle2D[] tickBounds;
+
+    /**
+     * The logical length computed during the last rendering. Used in order to
+     * determine if {@link #tickGlyphs} and {@link #tickBounds} still valids.
+     */
+    private transient double lastLogicalLength = Double.NaN;
+
+    /**
+     * The visual length (in pixels) during the last rendering. Used in order
+     * to make adjustement to {@link #tickBounds} during next rendering.
+     */
+    private transient double lastVisualLength = Double.NaN;
+
+    /**
+     * Construct a new map scale located in the lower left corner. The scale
+     * position can be changed with {@link #setPosition} and {@link #setMargin}.
      */
     public RenderedMapScale() {
         setPosition(LegendPosition.SOUTH_WEST);
@@ -166,21 +203,47 @@ public class RenderedMapScale extends RenderedLegend {
     }
 
     /**
-     * Retourne les unités qui seront utilisées pour exprimer les distances
-     * sur l'échelle. Par défaut, les distances seront exprimées en kilomètres.
+     * Tells if the map scale should use orthodromic distance computation even for
+     * {@linkplain ProjectedCoordinateSystem projected coordinate system}. Default
+     * value is <code>false</code>.
+     */
+    public boolean getForceGeodesic() {
+        return forceGeodesic;
+    }
+
+    /**
+     * Tells if the map scale should use orthodromic distance computation even for
+     * {@linkplain ProjectedCoordinateSystem projected coordinate system}.
+     * This method has no effect if the rendering coordinate system is
+     * {@linkplain GeographicCoordinateSystem geographic}.
+     */
+    public void setForceGeodesic(final boolean forceGeodesic) {
+        final boolean old;
+        synchronized (getTreeLock()) {
+            old = forceGeodesic;
+            this.forceGeodesic = forceGeodesic;
+        }
+        listeners.firePropertyChange("forceGeodesic", old, forceGeodesic);
+    }
+
+    /**
+     * Returns the map scale units. This is the units to be used for displaying numbers
+     * on the map scale. The conversion from rendering units is automatically performed
+     * at rendering time. Default map scale units are kilometres.
      *
-     * @return Les units de l'échelle (kilomètres par défaut).
+     * @return The map scale units (default to kilometres).
      */
     public Unit getUnits() {
         return units;
     }
 
     /**
-     * Modifie les unités à utiliser pour exprimer les distances sur l'échelle.
+     * Set the map scale units. This unit must be linear, even if the rendering coordinate
+     * system is geographic. Conversion from angular to linear unit will be performed at
+     * rendering time through orthodromic distance computation.
      *
-     * @param  units Nouvelles unités à utiliser pour exprimer
-     *         les distances. Cet argument ne doit pas être nul.
-     * @throws UnitException si les unités spécifiées ne sont pas valides.
+     * @param  units New map scale units. Must not be <code>null</code>.
+     * @throws UnitException if <code>units</code> is not compatible with the map scale.
      */
     public void setUnits(final Unit units) throws UnitException {
         if (units==null || !Unit.METRE.canConvert(units)) {
@@ -197,30 +260,30 @@ public class RenderedMapScale extends RenderedLegend {
     }
 
     /**
-     * Retourne la longueur désirée de l'échelle, en points. Lors des affichages à l'écran,
-     * les points correspondent aux pixels. La longueur logiques (par exemple en kilomètres)
-     * dépendra du facteur de zoom de la carte;  la classe <code>RenderedMapScale</code>
-     * tentera de donner à l'échelle une longueur logique qui correspond à un chiffre rond.
+     * Returns the maximum length of map scale in pixels. The actual size may be smaller,
+     * since <code>RenderedMapScale</code> will try to round the logical length (e.g. in
+     * order to format round labels in kilometres). The logical length is zoom dependent
+     * and will be computed at rendering time from the length in pixels.
      *
-     * @return The preferred length for the map scale, in dots.
+     * @return The maximum length for the map scale, in pixels (or dots).
      */
-    public int getPreferredLength() {
-        return preferredLength;
+    public int getMaximumLength() {
+        return maximumLength;
     }
 
     /**
-     * Modifie la longueur désirée de l'échelle, en pixels.
+     * Set the maximum length of map scale in pixels.
      *
-     * @param preferredLength The preferred length for the map scale, in dots.
+     * @param maximumLength The maximum length for the map scale, in pixels (or dots).
      */
-    public void setPreferredLength(final int preferredLength) {
+    public void setMaximumLength(final int maximumLength) {
         final int old;
         synchronized (getTreeLock()) {
-            old = this.preferredLength;
-            this.preferredLength = preferredLength;
+            old = this.maximumLength;
+            this.maximumLength = maximumLength;
             repaint();
         }
-        listeners.firePropertyChange("preferredLength", old, preferredLength);
+        listeners.firePropertyChange("maximumLength", old, maximumLength);
     }
 
     /**
@@ -247,6 +310,53 @@ public class RenderedMapScale extends RenderedLegend {
             repaint();
         }
         listeners.firePropertyChange("thickness", old, thickness);
+    }
+
+    /**
+     * Gets the background color.
+     *
+     * @return The background color, or <code>null</code> for a completly transparent background.
+     */
+    public Paint getBackground() {
+        return background;
+    }
+
+    /**
+     * Sets the background color.
+     *
+     * @param background The new background color, or <code>null</code>
+     *                   for a completly transparent background.
+     */
+    public void setBackground(final Paint background) {
+        final Paint old;
+        synchronized (getTreeLock()) {
+            old = background;
+            this.background = background;
+        }
+        listeners.firePropertyChange("background", old, background);
+    }
+
+    /**
+     * Gets the foreground color.
+     *
+     * @return The foreground color.
+     */
+    public Paint getForeground() {
+        return foreground;
+    }
+
+    /**
+     * Sets the foreground color.
+     *
+     * @param foreground The new foreground color.
+     */
+    public void setForeground(final Paint foreground) {
+        final Paint old;
+        synchronized (getTreeLock()) {
+            old = foreground;
+            this.foreground = foreground;
+        }
+        listeners.firePropertyChange("foreground", old, foreground);
     }
 
     /**
@@ -279,7 +389,7 @@ public class RenderedMapScale extends RenderedLegend {
      *         during the rendering process.
      */
     private void paintError(final RenderingContext context) throws TransformException {
-        context.getGraphics().setPaint(textColor);
+        context.getGraphics().setPaint(foreground);
         paint(context, Resources.getResources(getLocale()).getString(ResourceKeys.ERROR));
     }
 
@@ -297,9 +407,8 @@ public class RenderedMapScale extends RenderedLegend {
         assert Thread.holdsLock(getTreeLock());
         ////////////////////////////////////////////////////////////////////////////
         //////                                                                  ////
-        //////    BLOCK 1 - Compute the content. No painting occurs here.       ////
-        //////              No Graphics2D modification, except through          ////
-        //////              RenderingContext.setCoordinateSystem(...).          ////
+        //////    BLOCK 1 - Compute the map scale length. No painting occurs    ////
+        //////              here. No Graphics2D modification for now.           ////
         //////                                                                  ////
         ////////////////////////////////////////////////////////////////////////////
         /*
@@ -311,9 +420,9 @@ public class RenderedMapScale extends RenderedLegend {
          */
         final Rectangle bounds;
         if (horizontal) {
-            bounds = new Rectangle(0, 0, preferredLength, thickness);
+            bounds = new Rectangle(0, 0, maximumLength, thickness);
         } else {
-            bounds = new Rectangle(0, 0, thickness, preferredLength);
+            bounds = new Rectangle(0, 0, thickness, maximumLength);
         }
         translate(context, bounds, null);
         Point2D P1,P2;
@@ -326,9 +435,12 @@ public class RenderedMapScale extends RenderedLegend {
             P1 = new Point2D.Double(center, bounds.getMinY());
             P2 = new Point2D.Double(center, bounds.getMaxY());
         }
-        final CoordinateSystem mapCS = context.mapCS;
-        final MathTransform2D  toMap = (MathTransform2D)
-                                       context.getMathTransform(context.textCS, mapCS);
+        CoordinateSystem mapCS = context.mapCS;
+        if (forceGeodesic && (mapCS instanceof ProjectedCoordinateSystem)) {
+            mapCS = ((ProjectedCoordinateSystem) mapCS).getGeographicCoordinateSystem();
+        }
+        final MathTransform2D toMap = (MathTransform2D)
+                                      context.getMathTransform(context.textCS, mapCS);
         P1 = toMap.transform(P1, P1);
         P2 = toMap.transform(P2, P2);
         /*
@@ -370,35 +482,44 @@ public class RenderedMapScale extends RenderedLegend {
             paintError(context);
             return;
         }
-        final double scaleFactor = logicalLength / preferredLength;
+        final double scaleFactor = logicalLength / maximumLength;
         logicalLength /= subDivisions;
         if (true) {
             final double factor = XMath.pow10((int)Math.floor(XMath.log10(logicalLength)));
             logicalLength /= factor;
-            if      (logicalLength <= 1.0) logicalLength = 1.0;
-            else if (logicalLength <= 2.0) logicalLength = 2.0;
-            else if (logicalLength <= 2.5) logicalLength = 2.5;
-            else if (logicalLength <= 5.0) logicalLength = 5.0;
-            else if (logicalLength <= 7.5) logicalLength = 7.5;
-            else                           logicalLength =10.0;
+            int index = Arrays.binarySearch(SNAP, logicalLength);
+            if (index < 0) {
+                index = ~index - 1;  // Really ~, not -
+            }
+            logicalLength = SNAP[index];
             logicalLength *= factor;
         }
         final int visualLength = (int)Math.ceil(logicalLength / scaleFactor);
-        /*
-         * If the tick labels and/or the scale title changed, recreate them.
-         * Glyph vectors will be saved for faster rendering during the next
-         * paint event.
-         */
-        final GlyphVector[]   ticksText = new GlyphVector[subDivisions+2];
-        final Rectangle2D[] ticksBounds = new Rectangle2D[subDivisions+2];
+
+        ////////////////////////////////////////////////////////////////////////////
+        //////                                                                  ////
+        //////    BLOCK 2 - Compute the content. No painting occurs here.       ////
+        //////              No Graphics2D modification, except through          ////
+        //////              RenderingContext.setCoordinateSystem(...).          ////
+        //////                                                                  ////
+        ////////////////////////////////////////////////////////////////////////////
+        if (tickGlyphs == null) {
+            tickGlyphs = new GlyphVector[subDivisions+2];
+            tickBounds = new Rectangle2D[subDivisions+2];
+        }
+        if (horizontal) {
+            bounds.setRect(0, 0, visualLength*subDivisions, thickness);
+        } else {
+            bounds.setRect(0, 0, thickness, visualLength*subDivisions);
+        }
         context.setCoordinateSystem(context.textCS);
         final Graphics2D graphics = context.getGraphics();
-        if (true) {
-            if (horizontal) {
-                bounds.setRect(0, 0, visualLength*subDivisions, thickness);
-            } else {
-                bounds.setRect(0, 0, thickness, visualLength*subDivisions);
-            }
+        if (lastLogicalLength != logicalLength) {
+            /*
+             * If the tick labels and/or the scale title changed, recreate them.
+             * Glyph vectors will be saved for faster rendering during the next
+             * paint event.
+             */
             final FontRenderContext fontContext = graphics.getFontRenderContext();
             final Font           font = graphics.getFont();
             final StringBuffer buffer = new StringBuffer(16);
@@ -419,8 +540,8 @@ public class RenderedMapScale extends RenderedLegend {
                     LegendPosition.SOUTH_WEST.setLocation(rect, anchorX, anchorY);
                 }
                 bounds.add(rect);
-                ticksBounds[i] = rect;
-                ticksText[i] = glyphs;
+                tickBounds[i] = rect;
+                tickGlyphs[i] = glyphs;
                 buffer.setLength(0);
             }
             final String title = getTitle(mapCS);
@@ -429,14 +550,38 @@ public class RenderedMapScale extends RenderedLegend {
                 final GlyphVector glyphs = lfont.createGlyphVector(fontContext, title);
                 final Rectangle2D rect   = glyphs.getVisualBounds();
                 LegendPosition.SOUTH.setLocation(rect, 0.5*subDivisions*visualLength, -3);
-                ticksText  [subDivisions+1] = glyphs;
-                ticksBounds[subDivisions+1] = rect;
+                tickGlyphs[subDivisions+1] = glyphs;
+                tickBounds[subDivisions+1] = rect;
                 bounds.add(rect);
             }
+            lastLogicalLength = logicalLength;
+        } else {
+            /*
+             * The cached glyphs are still valids. However, the labels way have been
+             * translated because of a different visual length. Update the labels positions.
+             */
+            final double adjust = visualLength-lastVisualLength;
+            for (int i=0; i<tickBounds.length; i++) {
+                final Rectangle2D tick = tickBounds[i];
+                if (adjust != 0) {
+                    double x = tick.getX();
+                    double y = tick.getY();
+                    final double delta = adjust * (i==tickBounds.length-1 ? subDivisions*0.5 : i);
+                    if (horizontal) {
+                        x += delta;
+                    } else {
+                        y += delta;
+                    }
+                    tick.setRect(x, y, tick.getWidth(), tick.getHeight());
+                }
+                bounds.add(tick);
+            }
         }
+        lastVisualLength = visualLength;
+
         ////////////////////////////////////////////////////////////////////////////
         //////                                                                  ////
-        //////    BLOCK 2 - Paint the content.                                  ////
+        //////    BLOCK 3 - Paint the content.                                  ////
         //////                                                                  ////
         ////////////////////////////////////////////////////////////////////////////
         int minX = bounds.x;
@@ -445,14 +590,14 @@ public class RenderedMapScale extends RenderedLegend {
         final Stroke oldStroke = graphics.getStroke();
         final Paint   oldPaint = graphics.getPaint();
         graphics.setStroke(DEFAULT_STROKE);
-        if (backgroundColor != null) {
+        if (background != null) {
             minX          -=   backgroundMargin;
             minY          -=   backgroundMargin;
             bounds.x      -=   backgroundMargin;
             bounds.y      -=   backgroundMargin;
             bounds.width  += 2*backgroundMargin;
             bounds.height += 2*backgroundMargin;
-            graphics.setPaint(backgroundColor);
+            graphics.setPaint(background);
             graphics.fillRect(minX, minY, bounds.width, bounds.height);
         }
         final Rectangle2D.Double rect = new Rectangle2D.Double(0, 0, visualLength, thickness);
@@ -482,12 +627,12 @@ public class RenderedMapScale extends RenderedLegend {
          * l'échelle. Tous ces textes ont été préparés à l'avance un
          * peu plus haut.
          */
-        graphics.setPaint(textColor);
-        for (int i=0; i<ticksText.length; i++) {
-            if (ticksText[i] != null) {
-                final Rectangle2D pos = ticksBounds[i];
-                graphics.drawGlyphVector(ticksText[i], (float)pos.getMinX(),
-                                                       (float)pos.getMaxY());
+        graphics.setPaint(foreground);
+        for (int i=0; i<tickGlyphs.length; i++) {
+            if (tickGlyphs[i] != null) {
+                final Rectangle2D pos = tickBounds[i];
+                graphics.drawGlyphVector(tickGlyphs[i], (float)pos.getMinX(),
+                                                        (float)pos.getMaxY());
             }
         }
         context.setCoordinateSystem(context.mapCS);
@@ -501,7 +646,11 @@ public class RenderedMapScale extends RenderedLegend {
      * Efface les données qui avaient été conservées dans une cache interne.
      */
     void clearCache() {
-        format = null;
+        lastLogicalLength = Double.NaN;
+        lastVisualLength  = Double.NaN;
+        format     = null;
+        tickGlyphs = null;
+        tickBounds = null;
         super.clearCache();
     }
 }

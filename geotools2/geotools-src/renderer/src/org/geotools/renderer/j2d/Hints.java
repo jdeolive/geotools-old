@@ -46,6 +46,7 @@ import javax.media.jai.operator.ScaleDescriptor; // For Javadoc
 
 // Geotools Dependencies
 import org.geotools.renderer.geom.Isoline;
+import org.geotools.gp.GridCoverageProcessor;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CoordinateTransformationFactory;
 
@@ -56,7 +57,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * Rendering hints can be used to control some low-level details, like the expected
  * resolution.
  *
- * @version $Id: Hints.java,v 1.8 2003/02/26 12:06:06 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.9 2003/03/14 12:38:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
@@ -68,6 +69,14 @@ public final class Hints extends RenderingHints.Key {
      * declared here only for convenience.
      */
     public static final RenderingHints.Key JAI_INSTANCE = org.geotools.gp.Hints.JAI_INSTANCE;
+
+    /**
+     * Key for setting a {@link GridCoverageProcessor} instance other than the default.
+     * Grid coverage processor are used for resampling grid coverage when the rendering
+     * coordinate system is different than the grid coverage one.
+     */
+    public static final RenderingHints.Key GRID_COVERAGE_PROCESSOR =
+                                                new Hints(0, GridCoverageProcessor.class);
 
     /**
      * Key for setting a {@link CoordinateTransformationFactory} object other
@@ -86,7 +95,7 @@ public final class Hints extends RenderingHints.Key {
      * to speed up rendering. By convention, a resolution of 0 means the finest resolution
      * available.
      */
-    public static final RenderingHints.Key FINEST_RESOLUTION = new Hints(0, Number.class);
+    public static final RenderingHints.Key FINEST_RESOLUTION = new Hints(1, Number.class);
 
     /**
      * The required rendering resolution in unit of dots (1/72 of inch). This is the unit
@@ -95,7 +104,7 @@ public final class Hints extends RenderingHints.Key {
      * in order to gets a more acceptable resolution. This value should be greater than
      * {@link #FINEST_RESOLUTION}.
      */
-    public static final RenderingHints.Key REQUIRED_RESOLUTION = new Hints(1, Number.class);
+    public static final RenderingHints.Key REQUIRED_RESOLUTION = new Hints(2, Number.class);
 
     /**
      * {@link Boolean#TRUE} if the renderer is allowed to prefetch data before to
@@ -105,7 +114,7 @@ public final class Hints extends RenderingHints.Key {
      * @see RenderedLayer#prefetch
      * @see PlanarImage#prefetchTiles
      */
-    public static final RenderingHints.Key PREFETCH = new Hints(2, Boolean.class);
+    public static final RenderingHints.Key PREFETCH = new Hints(3, Boolean.class);
 
     /**
      * Base class of all values for this key.
