@@ -35,7 +35,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: FilterSAXParser.java,v 1.2 2002/10/24 16:55:31 ianturton Exp $
+ * @version $Id: FilterSAXParser.java,v 1.3 2002/12/13 19:43:09 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterSAXParser {
@@ -55,6 +55,7 @@ public class FilterSAXParser {
     /** the Attributes of the filter (only applicable to LIKE filters, I think) */
     private HashMap attributes = new HashMap();
 
+
     /**
      * Constructor which flags the operator as between.
      */
@@ -72,10 +73,10 @@ public class FilterSAXParser {
     public void start(short filterType)
         throws IllegalFilterException {
 
-        if( filterType == AbstractFilter.FID &&
-            !currentState.equals("fid") ) {
-            currentFilter = filterFactory.createFidFilter();            
-        }
+        if( filterType == AbstractFilter.FID && !currentState.equals("fid")) {
+	    LOGGER.finer("creating the FID filter");
+	    currentFilter = filterFactory.createFidFilter();            
+	}
         else if( AbstractFilter.isGeometryFilter(filterType) ) {
             currentFilter = filterFactory.createGeometryFilter(filterType);            
         }
@@ -226,6 +227,8 @@ public class FilterSAXParser {
         throws IllegalFilterException {
        
         if( isComplete() ) {
+	    LOGGER.finer("complete called, state = " + currentState);
+	    currentState = "complete"; //added by cholmes fid bug.
             return currentFilter;
         }
         else {
@@ -285,6 +288,7 @@ public class FilterSAXParser {
     private boolean isComplete() {
         if( currentState.equals("complete") ||
             currentState.equals("fid") ) {
+	
             return true;
         }
         else {
