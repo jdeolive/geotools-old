@@ -106,6 +106,11 @@ public class GtWmsServer implements WMSServer {
                     }
                     ShapefileDataSource sds = new ShapefileDataSource(url);
                     Envelope bbox = sds.getBbox(false);
+                    entry.bbox = new double[4]; 
+                    entry.bbox[0]=bbox.getMinX();
+                    entry.bbox[1]=bbox.getMinY();
+                    entry.bbox[2]=bbox.getMaxX();
+                    entry.bbox[3]=bbox.getMaxY();
                     
                     MemoryDataSource cache = new MemoryDataSource();
                     GeometryFilter filter = FilterFactory.createFilterFactory().createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
@@ -140,7 +145,12 @@ public class GtWmsServer implements WMSServer {
                     db.setLogin(user,passwd);
                     LOGGER.fine("set the login");
                     PostgisDataSource ds = new PostgisDataSource(db, table);
-                    
+                    Envelope bbox = ds.getBbox(false);
+                    entry.bbox = new double[4]; 
+                    entry.bbox[0]=bbox.getMinX();
+                    entry.bbox[1]=bbox.getMinY();
+                    entry.bbox[2]=bbox.getMaxX();
+                    entry.bbox[3]=bbox.getMaxY();
                     
                     Style style = new BasicPolygonStyle();//bad
                     
@@ -292,7 +302,7 @@ public class GtWmsServer implements WMSServer {
             Iterator layers = layerEntries.keySet().iterator();
             while (layers.hasNext()) {
                 LayerEntry layer = (LayerEntry) layerEntries.get(layers.next());
-                cap.addLayer(layer.id, layer.description, layer.srs, new double[] {-120, 36, -70, 42});
+                cap.addLayer(layer.id, layer.description, layer.srs, layer.bbox);
                 if (layer.styles != null){
                     Iterator loop = layer.styles.keySet().iterator();
                     while (loop.hasNext()){

@@ -17,31 +17,36 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *    
  */
-
 package org.geotools.wms.gtserver;
 
-
-import java.util.Properties;
 import java.util.HashMap;
+import java.util.Properties;
+
 
 /** A single entry for a Layer in the layers.xml file
  */
-public class LayerEntry
-{
-	/** The unique id of the Layer */
-	public String id;
-	/** A description for the layer */
-	public String description;
-        /** The native spatial reference system for this layer */
-        public String srs = "EPSG:4326";//should not be setting a default here
-	/** The classname for the DataSource to use to load maps for this layer */
-	public String datasource;
-	/** The properties for the DataSource */
-	public Properties properties;
-        /** The styles for this layer */
-        public HashMap styles;
-        /** The default style for this layer */
-        public String defaultStyle;
+public class LayerEntry {
+    /** The unique id of the Layer */
+    public String id;
+
+    /** A description for the layer */
+    public String description;
+
+    /** The native spatial reference system for this layer */
+    public String srs = "EPSG:4326"; //should not be setting a default here
+
+    /** The classname for the DataSource to use to load maps for this layer */
+    public String datasource;
+
+    /** The properties for the DataSource */
+    public Properties properties;
+
+    /** The styles for this layer */
+    public HashMap styles;
+
+    /** The default style for this layer */
+    public String defaultStyle;
+    
+    /** the bounding box of this layer */
+    double[] bbox;
 }
-
-
