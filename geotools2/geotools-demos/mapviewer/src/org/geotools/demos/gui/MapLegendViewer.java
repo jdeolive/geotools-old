@@ -103,13 +103,14 @@ import javax.swing.JToolBar;
  * </blockquote>
  *
  * @author Martin Desruisseaux
- * @version $Id: MapLegendViewer.java,v 1.3 2004/03/26 19:06:53 aaime Exp $
+ * @version $Id: MapLegendViewer.java,v 1.4 2004/04/10 14:25:41 aaime Exp $
  */
 public class MapLegendViewer extends JFrame {
     private MapContext context;
     private JFrame frame;
     private Legend legend;
     private StyledMapPane mapPane;
+    private File lastFolder;
 
     /**
      * Create and show the map pane.
@@ -276,13 +277,14 @@ public class MapLegendViewer extends JFrame {
      *
      */
     protected void addLayer() {
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = new JFileChooser(lastFolder);
         fileChooser.addChoosableFileFilter(new SimpleFileFilter("shp", "Shapefile (*.shp)"));
 
         int result = fileChooser.showOpenDialog(this);
 
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
+            lastFolder = file.getParentFile();
 
             try {
                 addLayer(file.toURL(), file.getName());
