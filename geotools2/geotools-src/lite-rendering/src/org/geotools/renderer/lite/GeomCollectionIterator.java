@@ -27,7 +27,7 @@ import java.awt.geom.PathIterator;
  * other, simpler iterator to work.
  *
  * @author Andrea Aime
- * @version $Id: GeomCollectionIterator.java,v 1.4 2003/07/12 10:56:42 aaime Exp $
+ * @version $Id: GeomCollectionIterator.java,v 1.5 2003/07/24 06:33:50 aaime Exp $
  */
 class GeomCollectionIterator implements PathIterator {
     private AffineTransform at;
@@ -55,6 +55,10 @@ class GeomCollectionIterator implements PathIterator {
             geoms[i] = gc.getGeometryN(i);
         }
 
+         if (at == null) {
+            at = new AffineTransform();
+        }
+        
         this.at = at;
         xScale = Math.sqrt((at.getScaleX() * at.getScaleX()) +
                 (at.getShearX() * at.getShearX()));

@@ -82,7 +82,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.13 2003/07/22 15:48:04 jmacgill Exp $
+ * @version $Id: LiteRenderer.java,v 1.14 2003/07/24 06:33:50 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -177,7 +177,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * graphics object.  If true then the transform will be concatenated to
      * the existing transform.  If false it will be replaced.
      */
-    private boolean concatTransforms = true;
+    private boolean concatTransforms = false;
     private Envelope mapExtent = null;
 
     /** Graphics object to be rendered to. Controlled by set output. */
