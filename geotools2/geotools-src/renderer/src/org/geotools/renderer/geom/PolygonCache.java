@@ -52,7 +52,7 @@ import org.geotools.renderer.array.ArrayData;
  * There is at most one instance of this class for each instance of {@link Polygon}. This
  * class is strictly for internal use by {@link PolygonPathIterator}.
  *
- * @version $Id: PolygonCache.java,v 1.2 2003/02/06 23:46:30 desruisseaux Exp $
+ * @version $Id: PolygonCache.java,v 1.3 2003/02/10 23:09:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: More work are needed: hold a strong reference to the array for some time before
@@ -167,8 +167,10 @@ final class PolygonCache {
             this.array = array = XArray.resize(array, length);
             if (newTransform.equals(transform)) {
                 lockCount++;
-                recomputed = false;
                 destination.setData(array, length, curves);
+                // No change to the 'recomputed' flag,  because this case occurs often
+                // during a single drawing process (for example Graphics2D.fill(shape)
+                // followed immediately by Graphics2D.draw(shape)).
                 return;
             }
             if (lockCount == 0) try {
@@ -250,9 +252,12 @@ final class PolygonCache {
 
     /**
      * Returns <code>true</code> if the last call of {@link #getRenderingArray} has recomputed
-     * the cache array. This information is for statistics purpose only.
+     * the cache array. This method reset the {@link #recomputed} flag to <code>false</code>.
+     * This information is for statistics purpose only.
      */
     final boolean recomputed() {
-        return recomputed;
+        final boolean r = recomputed;
+        recomputed = false;
+        return r;
     }
 }

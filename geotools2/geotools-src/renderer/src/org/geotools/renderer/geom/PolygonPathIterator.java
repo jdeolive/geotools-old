@@ -45,7 +45,7 @@ import org.geotools.renderer.array.ArrayData;
 /**
  * Itérateur balayant les points d'un polygone ou d'un isobath.
  *
- * @version $Id: PolygonPathIterator.java,v 1.2 2003/02/06 23:46:30 desruisseaux Exp $
+ * @version $Id: PolygonPathIterator.java,v 1.3 2003/02/10 23:09:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class PolygonPathIterator extends ArrayData implements PathIterator {
@@ -140,7 +140,7 @@ final class PolygonPathIterator extends ArrayData implements PathIterator {
                 if (index!=length || !polygon.isClosed()) {
                     synchronized (polygon) {
                         polygon.getCache().releaseRenderingArray(array);
-                        array = null;
+                        setData(null, 0, null);
                         index = 0;
                     }
                     if (polygons != null) {
@@ -150,10 +150,10 @@ final class PolygonPathIterator extends ArrayData implements PathIterator {
                                 final PolygonCache cache = polygon.getCache();
                                 cache.getRenderingArray(polygon, this, transform);
                                 if (array!=null && length!=0) {
-                                    return;
+                                    break;
                                 }
                                 cache.releaseRenderingArray(array);
-                                array = null;
+                                setData(null, 0, null);
                             }
                         }
                     }

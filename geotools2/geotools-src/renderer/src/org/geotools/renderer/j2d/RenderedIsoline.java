@@ -48,7 +48,8 @@ import javax.media.jai.GraphicsJAI;
 
 // Collections
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
@@ -71,17 +72,33 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.9 2003/02/06 23:46:30 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.10 2003/02/10 23:09:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
     /**
-     * Set to <code>false</code> to disable clipping acceleration.
-     * May be useful if you suspect that a bug is preventing proper
-     * rendering.
+     * The maximum number of clipped isolines to cache. This number can be set to <code>0</code>
+     * for disabling clipping acceleration, which may be useful if a bug is suspected to prevent
+     * proper rendering.
      */
-    private static final boolean ENABLE_CLIP = false;
-    // TODO: NEED TO DEBUG. NEED TO TRACE INTO RenderingContext.clip
+    private static final int CLIP_CACHE_SIZE = 8;
+
+    /**
+     * The threshold ratio for computing a new clip. When the width and height of the underlying
+     * {@link #isoline} bounding box divided by the width and height of the clip area is greater
+     * than this threshold, a new clip is performed for faster rendering.
+     *
+     * DEBUGGING TIPS: Set this scale to a value below 1 to <em>see</em> the clipping's
+     *                 effect in the window area.
+     */
+    private static final double CLIP_THRESHOLD = 4;
+
+    /**
+     * A factor slightly greater than 1 for computing the minimum size required for accepting
+     * a clipped isoline.  A greater isoline's bounding box is necessary since a bounding box
+     * too close to the clip's bounding box will make isoline contour apparent.
+     */
+    private static final double CLIP_EPS = 1.05;
 
     /**
      * Default color for fills.
@@ -105,10 +122,10 @@ public class RenderedIsoline extends RenderedLayer {
     private final Isoline isoline;
 
     /**
-     * Clipped isolines or polygons. A clipped isoline may be faster to renderer
-     * than the full isoline. This list contains {@link GeoShape} objects.
+     * List of clipped isolines. A clipped isoline may be faster to renderer
+     * than the full isoline. Most rencently used isolines are last in this list.
      */
-    private final List clipped = ENABLE_CLIP ? new ArrayList(4) : null;
+    private final List clipped = (CLIP_CACHE_SIZE!=0) ? new LinkedList() : null;
 
     /**
      * Color for contour lines. Default to panel's foreground (usually black).
@@ -186,9 +203,6 @@ public class RenderedIsoline extends RenderedLayer {
             setPreferredPixelSize(new XDimension2D.Double(TICKNESS*dx , TICKNESS*dy));
         }
         setPreferredArea(bounds);
-        if (clipped != null) {
-            clipped.add(isoline);
-        }
         setTools(new Tools());
     }
 
@@ -243,7 +257,7 @@ public class RenderedIsoline extends RenderedLayer {
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.9 2003/02/06 23:46:30 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.10 2003/02/10 23:09:40 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class IsolineRenderer implements Polygon.Renderer {
@@ -330,17 +344,14 @@ public class RenderedIsoline extends RenderedLayer {
     protected void paint(final RenderingContext context) throws TransformException {
         assert Thread.holdsLock(getTreeLock());
         /*
-         * If the rendering coordinate system changed since last time,
-         * then reproject the isoline and flush the cache.
+         * If the rendering coordinate system changed since last
+         * time, then reproject the isoline and flush the cache.
          */
         CoordinateSystem isolineCS = isoline.getCoordinateSystem();
         if (!context.mapCS.equals(isolineCS, false)) {
             isoline.setCoordinateSystem(context.mapCS);
-            if (clipped != null) {
-                clipped.clear();
-                clipped.add(isoline);
-            }
             isolineCS = isoline.getCoordinateSystem();
+            clearCache();
         }
         /*
          * Rendering acceleration: First performs the clip (if enabled),
@@ -348,7 +359,7 @@ public class RenderedIsoline extends RenderedLayer {
          */
         final Rectangle2D  bounds = isoline.getBounds2D();
         final AffineTransform  tr = context.getAffineTransform(context.mapCS, context.textCS);
-        final Isoline      toDraw = (clipped!=null) ? (Isoline)context.clip(clipped) : isoline;
+        final Isoline      toDraw = getIsoline(context.getPaintingArea(isolineCS).getBounds2D());
         if (toDraw != null) {
             final Graphics2D graphics = context.getGraphics();
             final Paint      oldPaint = graphics.getPaint();
@@ -388,11 +399,88 @@ public class RenderedIsoline extends RenderedLayer {
     }
 
     /**
+     * Returns an isoline approximatively clipped to the specified area. The clip is
+     * approximative in that the resulting isoline may extends outside the clip area.
+     * However, this method garanteed that the clipped isoline will contains at least
+     * the interior of the clip area, providing that the "master" isoline cover this
+     * area.
+     *
+     * @param  The clip area, in this {@linkplain #getCoordinateSystem isoline's
+     *         coordinate system}. Note: this rectangle will be overwritten with
+     *         a bigger one.
+     * @return An isoline, or <code>null</code> if no isoline intercepts the clip.
+     */
+    private Isoline getIsoline(final Rectangle2D clip) {
+        if (clipped == null) {
+            return isoline;
+        }
+        final double clipArea = clip.getWidth()*clip.getHeight();
+        scale(clip, CLIP_EPS);
+        Isoline     bestIsoline = isoline;
+        Rectangle2D bestBounds  = bestIsoline.getBounds2D();
+        double      bestRatio   = (bestBounds.getWidth()*bestBounds.getHeight()) / clipArea;
+        /*
+         * Find the isoline that best matches the clipped area.
+         */
+        for (final Iterator it=clipped.iterator(); it.hasNext();) {
+            final Isoline  candidate = (Isoline) it.next();
+            final Rectangle2D bounds = candidate.getBounds2D();
+            if (Renderer.contains(bounds, clip, true)) {
+                final double ratio = (bounds.getWidth()*bounds.getHeight()) / clipArea;
+                if (ratio < bestRatio) {
+                    bestRatio   = ratio;
+                    bestBounds  = bounds;
+                    bestIsoline = candidate;
+                }
+            }
+        }
+        /*
+         * If the isoline covers a widther area than necessary, clip it.
+         */
+        if (bestRatio >= CLIP_THRESHOLD*CLIP_THRESHOLD) {
+            scale(clip, 0.5*(CLIP_THRESHOLD+1));
+            bestIsoline = bestIsoline.clip(clip);
+            if (bestIsoline!=null && CLIP_THRESHOLD>1) {
+                clipped.add(bestIsoline);
+                while (clipped.size() >= CLIP_CACHE_SIZE) {
+                    clipped.remove(0);
+                }
+            }
+        }
+        return bestIsoline;
+    }
+
+    /**
+     * Discard cached data. Invoking this method should not affect
+     * the rendering appearance, but may slow down the next rendering.
+     */
+    void clearCache() {
+        if (clipped != null) {
+            clipped.clear();
+        }
+        super.clearCache();
+    }
+
+    /**
+     * Expand or shrunk a rectangle by some factor. A scale of 1 lets the rectangle
+     * unchanged. A scale of 2 make the rectangle two times wider and heigher. In
+     * any case, the rectangle's center doesn't move.
+     */
+    private static void scale(final Rectangle2D rect, final double scale) {
+        final double trans  = 0.5*(scale-1);
+        final double width  = rect.getWidth();
+        final double height = rect.getHeight();
+        rect.setRect(rect.getX()-trans*width,
+                     rect.getY()-trans*height,
+                     scale*width, scale*height);
+    }
+
+    /**
      * A default set of tools for {@link RenderedIsoline} layer. An instance of this
      * class is automatically registered at the {@link RenderedIsoline} construction
      * stage.
      *
-     * @version $Id: RenderedIsoline.java,v 1.9 2003/02/06 23:46:30 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.10 2003/02/10 23:09:40 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Tools extends org.geotools.renderer.j2d.Tools {

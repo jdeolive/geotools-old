@@ -40,7 +40,7 @@ import org.geotools.resources.renderer.ResourceKeys;
 /**
  * Classe enveloppant une portion seulement d'un tableau {@link CompressedArray}.
  *
- * @version $Id: SubCompressedArray.java,v 1.3 2003/01/29 23:18:08 desruisseaux Exp $
+ * @version $Id: SubCompressedArray.java,v 1.4 2003/02/10 23:09:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class SubCompressedArray extends CompressedArray {
@@ -79,7 +79,7 @@ final class SubCompressedArray extends CompressedArray {
         if (lower < 0) {
             throw new ArrayIndexOutOfBoundsException(lower);
         }
-        if (upper >= other.array.length) {
+        if (upper > other.array.length) {
             throw new ArrayIndexOutOfBoundsException(upper);
         }
     }

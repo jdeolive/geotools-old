@@ -53,7 +53,7 @@ import org.geotools.resources.XArray;
  * {@link #clip(Polygon, Polyline.Iterator)} pourra ensuite effectuer les clips à répétitions sur
  * une séries de polygones.
  *
- * @version $Id: Clipper.java,v 1.1 2003/02/07 23:04:50 desruisseaux Exp $
+ * @version $Id: Clipper.java,v 1.2 2003/02/10 23:09:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Clipper {
@@ -73,7 +73,7 @@ final class Clipper {
      * Région à couper. Il s'agit des mêmes coordonnées que {@link #mapClip},
      * mais projetés dans le système de coordonnées natif du polygone à couper.
      */
-    private final Rectangle2D clip= new Rectangle2D.Double();
+    private final Rectangle2D clip = new Rectangle2D.Double();
 
     /**
      * Coordonnées <var>x</var> et <var>y</var>
@@ -138,15 +138,15 @@ final class Clipper {
      *
      * @param  The polygon to clip.
      * @return The clip in polygon's internal coordinate system. Will never be null, but may
-     *         be empty if a transformation failed. Note: this method an internal rectangle.
-     *         <strong>Do not modify</strong>.
+     *         be empty if a transformation failed. Note: this method returns an internal
+     *         rectangle. <strong>Do not modify</strong>.
      */
     public Rectangle2D getInternalClip(final Polygon polygon) {
         try {
             final MathTransform2D tr;
             tr = Polygon.getMathTransform2D(polygon.getTransformationFromInternalCS(mapCS));
             if (tr != null) {
-                CTSUtilities.transform(tr, mapClip, clip);
+                CTSUtilities.transform((MathTransform2D) tr.inverse(), mapClip, clip);
             } else {
                 clip.setRect(mapClip);
             }
@@ -278,9 +278,9 @@ final class Clipper {
             try {
                 if (result == null) {
                     result = (Polygon) subpoly.clone();
-                    result.prependBorder(border, 0, borderLength);
+                    result.prependBorder(border, 0, borderLength, null);
                 } else {
-                    result.appendBorder(border, 0, borderLength);
+                    result.appendBorder(border, 0, borderLength, null);
                     result.append(subpoly); // 'subpoly.clone()' done by 'append'.
                 }
                 borderLength = 0;
@@ -527,6 +527,7 @@ final class Clipper {
                             x0 = x2;
                             y0 = y2;
                         }
+                        assert upper <= polygon.getPointCount() : upper;
                         result = attach(result, polygon.subpoly(lower, upper));
                     }
                     lower = upper;
@@ -596,6 +597,7 @@ final class Clipper {
              * restants s'ils étaient à l'intérieur du clip.
              */
             if (inside) {
+                assert upper <= polygon.getPointCount() : upper;
                 result = attach(result, polygon.subpoly(lower, upper));
             }
             if (polygonType != null) {
@@ -605,7 +607,7 @@ final class Clipper {
             }
             if (result != null) {
                 try {
-                    result.appendBorder(border, 0, borderLength);
+                    result.appendBorder(border, 0, borderLength, null);
                     result.close(polygonType);
                 } catch (TransformException exception) {
                     // Should not happen, since we are working

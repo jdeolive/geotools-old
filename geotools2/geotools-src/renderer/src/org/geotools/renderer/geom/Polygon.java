@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.5 2003/02/07 23:04:51 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.6 2003/02/10 23:09:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -1136,12 +1136,20 @@ public class Polygon extends GeoShape {
     final void setRenderingResolution(final float resolution) {
         int newResolution = 0;
         if (resolution != 0) {
-            // We could execute this code inconditionnaly, but 'setRenderingResolution(0)'
-            // is sometime invoked from non-synchronized block, immediately after cloning.
-            // The 'if' condition avoid the 'assert' in this methods and its dependencies,
-            // as well as the execution of the (potentially heavy) 'getMeanResolution()'.
+            /*
+             * NOTE 1:
+             *     We could execute this code inconditionnaly, but 'setRenderingResolution(0)'
+             *     is sometime invoked from non-synchronized block, immediately after cloning.
+             *     The 'if' condition avoid the 'assert' in this methods and its dependencies,
+             *     as well as the execution of the (potentially heavy) 'getMeanResolution()'.
+             *
+             * NOTE 2:
+             *     Must round 'newResolution' toward nearest integer (not toward 0), otherwise
+             *     rounding errors will be such that   'setResolution(getResolution())'   will
+             *     decrease 'resolution' by one, which will force uncessary cache invalidation.
+             */
             assert Thread.holdsLock(this);
-            newResolution = (int) ((resolution / getMeanResolution()) * RESOLUTION_FACTOR);
+            newResolution = Math.round((resolution / getMeanResolution()) * RESOLUTION_FACTOR);
             newResolution = Math.max(0, Math.min(0xFF, newResolution));
         }
         if ((byte)newResolution != renderingResolution) {
@@ -1151,11 +1159,12 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns the rendering resolution.
+     * Returns the rendering resolution. Value 0 means the best available resolution.
      */
     final float getRenderingResolution() {
         assert Thread.holdsLock(this);
-        return ((int)renderingResolution & 0xFF) * getMeanResolution() / RESOLUTION_FACTOR;
+        final float r = ((int)renderingResolution & 0xFF) * getMeanResolution() / RESOLUTION_FACTOR;
+        return Float.isNaN(r) ? 0 : r;
     }
 
     /**
@@ -1322,7 +1331,7 @@ public class Polygon extends GeoShape {
     public void prependBorder(final float[] border, final int lower, final int upper)
             throws TransformException
     {
-        addBorder(border, lower, upper, false);
+        prependBorder(border, lower, upper, getCoordinateSystem());
     }
 
     /**
@@ -1340,22 +1349,46 @@ public class Polygon extends GeoShape {
     public void appendBorder(final float[] border, final int lower, final int upper)
             throws TransformException
     {
-        addBorder(border, lower, upper, true);
+        appendBorder(border, lower, upper, getCoordinateSystem());
     }
 
     /**
-     * Implémentation de <code>prependBorder(...)</code> et <code>prependBorder(...)</code>.
+     * Prepend a border expressed in an arbitrary coordinate system.
+     * If <code>cs</code> is null, then the internal CS is assumed.
+     */
+    final void prependBorder(final float[] border, final int lower, final int upper,
+                             final CoordinateSystem cs)
+            throws TransformException
+    {
+        addBorder(border, lower, upper, cs, false);
+    }
+
+    /**
+     * Append a border expressed in an arbitrary coordinate system.
+     * If <code>cs</code> is null, then the internal CS is assumed.
+     */
+    final void appendBorder(final float[] border, final int lower, final int upper,
+                             final CoordinateSystem cs)
+            throws TransformException
+    {
+        addBorder(border, lower, upper, cs, true);
+    }
+
+    /**
+     * Implémentation de <code>appendBorder(...)</code> et <code>prependBorder(...)</code>.
      *
+     * @param cs The border coordinate system, or <code>null</code> for the internal CS.
      * @param append <code>true</code> pour effectuer l'opération <code>appendBorder</code>, ou
      *               <code>false</code> pour effectuer l'opération <code>prependBorder</code>.
      */
-    private synchronized void addBorder(float[] border, int lower, int upper, final boolean append)
+    private synchronized void addBorder(float[] border, int lower, int upper,
+                                        final CoordinateSystem cs, final boolean append)
             throws TransformException
     {
         if (interiorType != UNCLOSED) {
             throw new IllegalStateException(Resources.format(ResourceKeys.ERROR_POLYGON_CLOSED));
         }
-        final MathTransform2D transform = getMathTransform2D(coordinateTransform);
+        MathTransform2D transform = getMathTransform2D(getTransformationFromInternalCS(cs));
         if (transform != null) {
             final float[] oldBorder = border;
             border = new float[upper-lower];
@@ -1508,7 +1541,7 @@ public class Polygon extends GeoShape {
             final Statistics stats = getResolution();
             resolution = (stats!=null) ? (float)stats.mean() : Float.NaN;
         }
-        assert Float.isNaN(resolution) ? (getResolution()==null || getPointCount()==0) :
+        assert Float.isNaN(resolution) ||
                Math.abs(getResolution().mean()-resolution) <= EPS*resolution : resolution;
         return resolution;
     }
@@ -1973,7 +2006,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.5 2003/02/07 23:04:51 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.6 2003/02/10 23:09:37 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon

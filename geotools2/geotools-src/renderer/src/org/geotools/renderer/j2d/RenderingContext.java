@@ -37,6 +37,7 @@ import java.util.List;
 import java.awt.Shape;
 import java.awt.Rectangle;
 import java.awt.Graphics2D;
+import java.awt.Component; // For Javadoc
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -84,24 +85,13 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.9 2003/02/03 09:52:00 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.10 2003/02/10 23:09:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
  * @see RenderedLayer#paint
  */
 public final class RenderingContext {
-    /**
-     * Expansion factor for clip. When a clip for some rectangle is requested, a bigger
-     * clip will be computed in order to avoid recomputing a new one if user zoom up or
-     * apply translation. A scale of 2 means that rectangle two times wider and heigher
-     * will be computed.
-     *
-     * DEBUGGING TIPS: Set this scale to a value below 1 to <em>see</em> the clipping's
-     *                 effect in the window area.
-     */
-    private static final double CLIP_SCALE = 0.75;
-
     /**
      * The originating {@link Renderer}.
      */
@@ -152,7 +142,8 @@ public final class RenderingContext {
 
     /**
      * The device coordinate system. Each "unit" is a pixel of device-dependent size. When
-     * rendering on screen, this coordinate system is identical to {@link #textCS}. When
+     * rendering on screen, this coordinate system is often identical to {@link #textCS},
+     * except if only a clipped area of the widget is in process of being rendered. When
      * rendering on printer or some other devices, it depends of the device's resolution.
      * This coordinate system is rarely used.
      *
@@ -162,7 +153,7 @@ public final class RenderingContext {
     public final CoordinateSystem deviceCS;
 
     /**
-     * The painted area in the {@linkplain #deviceCS device coordinate system}, or
+     * The painted area in the {@linkplain #textCS Java2D coordinate system}, or
      * <code>null</code> if unknow. This field is built by {@link #addPaintedArea}
      * at rendering time.  The package-private method {@link RenderedLayer#update}
      * use and update this field.
@@ -170,21 +161,15 @@ public final class RenderingContext {
     Shape paintedArea;
 
     /**
-     * The widget bounding box, in coordinates of {@link #deviceCS}.
+     * The widget bounding box, in coordinates of {@link #textCS}.
      */
     private Rectangle bounds;
 
     /**
-     * The {@link #bounds} rectangle transformed into logical coordinates
-     * (according {@link #mapCS}). Will be computed only when first requested.
+     * The widget bounding box, in coordinates of {@link #mapCS}.
+     * Will be computed only when first needed.
      */
-//    private transient Rectangle2D logicalClip;
-
-    /**
-     * Objet à utiliser pour découper les polygones. Cet objet
-     * ne sera créé que la première fois où il sera demandé.
-     */
-//    private transient Clipper clipper;
+    private Shape mapBounds;
 
     /**
      * Construct a new <code>RenderingContext</code> for the specified {@link Renderer}.
@@ -208,8 +193,9 @@ public final class RenderingContext {
      * @param bounds   The drawing area in device coordinates.
      */
     final void init(final Graphics2D graphics, final Rectangle bounds) {
-        this.graphics = graphics;
-        this.bounds   = bounds;
+        this.graphics  = graphics;
+        this.bounds    = bounds;
+        this.mapBounds = null;
     }
 
     /**
@@ -223,11 +209,28 @@ public final class RenderingContext {
     }
 
     /**
-     * Returns the drawing area in device coordinates. For performance
-     * reason, this method do not clone the area. Do not modify it!
+     * Returns the painting area in the specified coordinate system. If the coordinate
+     * system is {@link #textCS}, then this method will usually returns the widget's
+     * bounds ((@link Component#getBounds}).
+     *
+     * @param  cs The coordinate system.
+     * @return The painting area.
      */
-    final Rectangle getZoomableBounds() {
-        return bounds;
+    public Shape getPaintingArea(CoordinateSystem cs) throws TransformException {
+        cs = CTSUtilities.getCoordinateSystem2D(cs);
+        if (textCS.equals(cs, false)) {
+            return bounds;
+        }
+        final boolean isMapCS = mapCS.equals(cs, false);
+        if (isMapCS && mapBounds!=null) {
+            return mapBounds;
+        }
+        final Shape csBounds;
+        csBounds = ((MathTransform2D)getMathTransform(textCS, cs)).createTransformedShape(bounds);
+        if (isMapCS) {
+            mapBounds = csBounds;
+        }
+        return csBounds;
     }
 
     /**
@@ -300,7 +303,8 @@ public final class RenderingContext {
      *       scale) changes.</li>
      *   <li><code>({@link #textCS}, {@link #deviceCS})</code>:
      *       {@linkplain AffineTransform Affine transform} from dots to device units. When
-     *       rendering target the screen, this transform is usually the identity transform.
+     *       rendering target the screen, this transform is usually the identity transform
+     *       (except if the current rendering occurs only in a clipped area of the widget).
      *       When printing, the affine transform is set up in such a way that rendering in
      *       Java2D is isolated from the printer resolution:  rendering in {@link #textCS}
      *       is performed as if printers always have a 72 DPI resolution (except that fractional
@@ -372,9 +376,9 @@ public final class RenderingContext {
         if (cs != null) {
             // Note: we invokes 'inverse()' instead of swapping 'sourceCS' and 'targetCS'
             // arguments in order to give a change to 'Renderer.getMathTransform' to uses
-            // its cache (the cache will never be used if the 'targetCS' is 'deviceCS').
+            // its cache (the cache will never be used if the 'targetCS' is 'textCS').
             final MathTransform2D transform = (MathTransform2D)
-                    renderer.getMathTransform(deviceCS, CTSUtilities.getCoordinateSystem2D(cs),
+                    renderer.getMathTransform(textCS, CTSUtilities.getCoordinateSystem2D(cs),
                                               "RenderingContext","addPaintedArea").inverse();
             if (!transform.isIdentity()) {
                 area = transform.createTransformedShape(area);
@@ -398,127 +402,5 @@ public final class RenderingContext {
             }
             ((Area) paintedArea).add((area instanceof Area) ? (Area) area : new Area(area));
         }
-    }
-
-    /**
-     * Clip a shape to the current widget's bounds.  The clip is only approximative
-     * in that the resulting shape may extends outside the widget's area.  However,
-     * it is garanteed that the resulting shape will contains at least the interior
-     * of the widget's area    (providing that the first shape in the supplied list
-     * cover this area). This method is used internally by some layers like  {@link
-     * IsolineLayer}.   Drawing a clipped shape may be faster than drawing the full
-     * shape, especially if clipped shapes are cached for reuse.
-     * <br><br>
-     * This method expect a <em>modifiable</em> list of {@link GeoShape} objects as argument.
-     * The first element in this list must be the "master" shape (the shape to clip) and will
-     * never be modified.   Elements at index greater than 0 may be added and removed at this
-     * this method's discression, so that the list is actually used as a cache for clipped
-     * <code>GeoShape</code> objects.
-     *
-     * <br><br>
-     * <strong>WARNING: This method is not yet debugged</strong>
-     *
-     * @param  shapes A modifiable list with the shape to clip at index 0.
-     * @return A possibly clipped shape. May be any element of the list or a new shape.
-     *         May be <code>null</code> if the "master" shape doesn't intercept the clip.
-     */
-    final GeoShape clip(final List shapes) {
-        return (GeoShape) shapes.get(0);
-//        if (shapes.isEmpty()) {
-//            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_EMPTY_LIST));
-//        }
-//        if (isPrinting) {
-//            return shapes.get(0);
-//        }
-//        /*
-//         * Gets the clip area expressed in MapPane's coordinate system
-//         * (i.e. gets bounds in "logical visual coordinates").
-//         */
-//        if (logicalClip==null) try {
-//            logicalClip = XAffineTransform.inverseTransform(fromWorld, bounds, logicalClip);
-//        } catch (NoninvertibleTransformException exception) {
-//            // (should not happen) Clip failed: conservatively returns the whole shape.
-//            Utilities.unexpectedException("org.geotools.renderer.j2d",
-//                                          "RenderingContext", "clip", exception);
-//            return shapes.get(0);
-//        }
-//        final CoordinateSystem targetCS = getViewCoordinateSystem();
-//        /*
-//         * Iterate through the list (starting from the last element)
-//         * until we found a shaoe capable to handle the clip area.
-//         */
-//        Contour shape;
-//        Rectangle2D clip;
-//        Rectangle2D bounds;
-//        Rectangle2D temporary=null;
-//        int index=shapes.size();
-//        do {
-//            shape = shapes.get(--index);
-//            clip  = logicalClip;
-//            /*
-//             * First, we need to know the clip in shape's coordinates.
-//             * The {@link org.geotools.renderer.j2d.IsolineLayer} usually keeps
-//             * isoline in the same coordinate system than the MapPane's
-//             * one. But a user could invoke this method in a more unusual
-//             * way, so we are better to check...
-//             */
-//            final CoordinateSystem sourceCS;
-//            synchronized (shape) {
-//                bounds   = shape.getCachedBounds();
-//                sourceCS = shape.getCoordinateSystem();
-//            }
-//            if (!targetCS.equals(sourceCS, false)) try {
-//                CoordinateTransformation toView = this.toView;
-//                if (!toView.getSourceCS().equals(sourceCS, false)) {
-//                    toView = Contour.getCoordinateTransformation(sourceCS, targetCS, "RenderingContext", "clip");
-//                }
-//                clip = temporary = CTSUtilities.transform((MathTransform2D)toView.getMathTransform(), clip, temporary);
-//            } catch (TransformException exception) {
-//                Utilities.unexpectedException("org.geotools.renderer.j2d",
-//                                              "RenderingContext", "clip", exception);
-//                continue; // A shape seems invalid. It will be ignored (and probably garbage collected soon).
-//            }
-//            /*
-//             * Now that both rectangles are using the same coordinate system,
-//             * test if the clip fall completly inside the shape. If yes,
-//             * then we should use this shape for clipping.
-//             */
-//            if (Layer.contains(bounds, clip, true)) {
-//                break;
-//            }
-//        } while (index!=0);
-//        /*
-//         * A clipped shape has been found (or we reached the begining
-//         * of the list). Check if the requested clip is small enough to
-//         * worth a clipping.
-//         */
-//        final double ratio2 = (bounds.getWidth()*bounds.getHeight()) / (clip.getWidth()*clip.getHeight());
-//        if (ratio2 >= CLIP_SCALE*CLIP_SCALE) {
-//            if (clipper == null) {
-//                clipper = new Clipper(scale(logicalClip, CLIP_SCALE), targetCS);
-//            }
-//            // Remove the last part of the list, which is likely to be invalide.
-//            shapes.subList(index+1, shapes.size()).clear();
-//            shape = shape.getClipped(clipper);
-//            if (shape != null) {
-//                shapes.add(shape);
-//                Contour.LOGGER.finer("Clip performed"); // TODO: give more precision
-//            }
-//        }
-//        return shape;
-    }
-
-    /**
-     * Expand or shrunk a rectangle by some factor. A scale of 1 lets the rectangle
-     * unchanged. A scale of 2 make the rectangle two times wider and heigher. In
-     * any case, the rectangle's center doesn't move.
-     */
-    private static Rectangle2D scale(final Rectangle2D rect, final double scale) {
-        final double trans  = 0.5*(scale-1);
-        final double width  = rect.getWidth();
-        final double height = rect.getHeight();
-        return new Rectangle2D.Double(rect.getX()-trans*width,
-                                      rect.getY()-trans*height,
-                                      scale*width, scale*height);
     }
 }

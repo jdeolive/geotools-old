@@ -91,7 +91,7 @@ import org.geotools.resources.XAffineTransform;
  *   <li>{@link #paint(Graphics2D, Shape, int)}</li>
  * </ul>
  *
- * @version $Id: RenderedMarks.java,v 1.1 2003/01/28 16:12:16 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.2 2003/02/10 23:09:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -361,7 +361,7 @@ public abstract class RenderedMarks extends RenderedLayer {
         final Graphics2D        graphics = context.getGraphics();
         final AffineTransform fromWorld  = context.getAffineTransform(context.mapCS, context.textCS);
         final AffineTransform fromPoints = context.getAffineTransform(context.textCS, context.deviceCS);
-        final Rectangle   zoomableBounds = context.getZoomableBounds();
+        final Rectangle   zoomableBounds = context.getPaintingArea(context.textCS).getBounds();
         final int                  count = getCount();
         if (count != 0) {
             /*
@@ -482,7 +482,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                         final PathIterator pit = shape.getPathIterator(null);
                         if (!pit.isDone() && pit.currentSegment(array)==PathIterator.SEG_MOVETO) {
                             pointIndex = 2;
-    testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
+testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
                                 switch (pit.currentSegment(buffer)) {
                                     case PathIterator.SEG_LINETO: {
                                         if (pointIndex >= array.length) {
@@ -523,12 +523,12 @@ public abstract class RenderedMarks extends RenderedLayer {
                         if (pointIndex > buffer.length) {
                             buffer = XArray.resize(buffer, pointIndex);
                         }
-                        final int length = pointIndex >> 1;
+                        final int length = pointIndex/2;
                         fromShape.transform(array, 0, buffer, 0, length);
                         if (length > X.length) X=XArray.resize(X, length);
                         if (length > Y.length) Y=XArray.resize(Y, length);
                         for (int j=0; j<length; j++) {
-                            final int k = (j << 1);
+                            final int k = (j*2);
                             X[j] = (int) Math.round(buffer[k+0]);
                             Y[j] = (int) Math.round(buffer[k+1]);
                         }
@@ -542,7 +542,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                      */
                     transformedShapes[shapeIndex++] = (transformedShape.intersects(zoomableBounds))
                                                     ? transformedShape : null;
-                    final Rectangle bounds=transformedShape.getBounds();
+                    final Rectangle bounds = transformedShape.getBounds();
                     if (boundingBox == null) {
                         boundingBox = bounds;
                     } else {
@@ -575,7 +575,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                 graphics.setPaint(oldPaint);
             }
         }
-        context.addPaintedArea(boundingBox, context.deviceCS);
+        context.addPaintedArea(boundingBox, context.textCS);
     }
 
     /**
@@ -638,7 +638,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      * User must subclass this method in order to add the desired functionalities
      * and register with {@link RenderedLayer#setTools}.
      *
-     * @version $Id: RenderedMarks.java,v 1.1 2003/01/28 16:12:16 desruisseaux Exp $
+     * @version $Id: RenderedMarks.java,v 1.2 2003/02/10 23:09:46 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Tools extends org.geotools.renderer.j2d.Tools {

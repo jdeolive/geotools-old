@@ -99,7 +99,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Polyline.java,v 1.5 2003/02/07 23:04:51 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.6 2003/02/10 23:09:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Polyline implements Serializable {
@@ -662,10 +662,10 @@ final class Polyline implements Serializable {
      *              point, alors cette méthode retourne <code>null</code>.
      */
     public static Polyline subpoly(Polyline scan, int lower, int upper) {
-        scan = getFirst(scan);
         if (lower == upper) {
             return null;
         }
+        scan = getFirst(scan);
         if (lower==0 && upper==getPointCount(scan)) {
             return scan;
         }
@@ -682,8 +682,8 @@ final class Polyline implements Serializable {
                  * à prendre en compte. Si ce n'est pas le cas, il sera ignoré en
                  * bloc.
                  */
-                int count=data.count();
-                if (count < lower) {
+                int count = data.count();
+                if (count <= lower) {
                     lower -= count;
                     upper -= count;
                     continue;
@@ -696,6 +696,8 @@ final class Polyline implements Serializable {
                 if (count > upper) {
                     count = upper;
                 }
+                assert lower >= 0 : lower;
+                assert count <= data.count() : count;
                 data = data.subarray(lower, count);
                 if (data != null) {
                     if (toAdd == null) {
@@ -1387,7 +1389,7 @@ final class Polyline implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Polyline.java,v 1.5 2003/02/07 23:04:51 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.6 2003/02/10 23:09:38 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1430,7 +1432,7 @@ final class Polyline implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Polyline.java,v 1.5 2003/02/07 23:04:51 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.6 2003/02/10 23:09:38 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {

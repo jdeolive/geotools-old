@@ -78,7 +78,7 @@ import org.geotools.resources.XAffineTransform;
  * Transformations to the {@linkplain RenderingContext#mapCS rendering coordinate system}
  * are performed on the fly at rendering time.
  *
- * @version $Id: RenderedLayer.java,v 1.7 2003/01/31 23:15:38 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.8 2003/02/10 23:09:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedLayer {
@@ -97,7 +97,7 @@ public abstract class RenderedLayer {
     /**
      * Forme géométrique englobant la région dans laquelle la couche a été dessinée lors du
      * dernier appel de la méthode {@link #paint}.  Les coordonnées de cette région doivent
-     * être en exprimées en coordonnées du périphérique ({@link RenderingContext#deviceCS}).
+     * être en exprimées en coordonnées de Java2D ({@link RenderingContext#textCS}).
      * La valeur <code>null</code> signifie qu'on peut considérer que cette couche occupe la
      * totalité de la surface dessinable.
      */
@@ -503,7 +503,8 @@ public abstract class RenderedLayer {
      *                      context.{@link RenderingContext#deviceCS deviceCS} )</code><br>
      * Returns a transform from the Java2D CS to the device CS. This transformation is
      * device dependent, but not zoom sensitive. When the output device is the screen,
-     * then this is the identity transform.</p></li>
+     * then this is the identity transform (except if the rendering occurs in a clipped
+     * area of the widget).</p></li>
      * </ul>
      *
      * <p>The {@link RenderingContext} object can takes care of configuring {@link Graphics2D}
@@ -550,8 +551,7 @@ public abstract class RenderedLayer {
      *
      * @param context Information relatives to the rendering context. Will be passed
      *        unchanged to {@link #paint}.
-     * @param clipBounds The area to paint, in device coordinates
-     *        ({@link RenderingContext#deviceCS}).
+     * @param clipBounds The area to paint, in Java2D coordinates ({@link RenderingContext#textCS}).
      */
     final void update(final RenderingContext context,
                       final Rectangle clipBounds)
@@ -571,14 +571,7 @@ public abstract class RenderedLayer {
                 context.getGraphics().setStroke(stroke);
                 context.paintedArea = null;
                 paint(context);
-                if (context.textCS == context.deviceCS) {
-                    /*
-                     * Keeps the bounding shape of the rendered area  only if rendering
-                     * was performed on the screen or any other device with an identity
-                     * default transform. This is usually not the case during printing.
-                     */
-                    this.paintedArea = context.paintedArea;
-                }
+                this.paintedArea = context.paintedArea;
                 context.paintedArea = null;
             }
         }
@@ -646,22 +639,22 @@ public abstract class RenderedLayer {
      * Invoked every time the {@link Renderer}'s zoom changed. A zoom change require two
      * updates to {@link #paintedArea}:
      * <ul>
-     *   <li>Since <code>paintedArea</code> is in {@link RenderingContext#deviceCS} and since
+     *   <li>Since <code>paintedArea</code> is in {@link RenderingContext#textCS} and since
      *       the transform between the Java2D and the rendering CS is zoom-dependent, a change
      *       of zoom requires a change of <code>paintedArea</code>.</li>
      * <li>Since the zoom change may bring some new area inside the widget bounds, this new
      *     area may need to be rendered and should be added to <code>paintedArea</code>.</li>
      * </ul>
      *
-     * Note: The <code>change</code> affine transform must be a change in the <strong>device
-     *       coordinate space</strong> ({@link RenderingContext#deviceCS}). But the transform
+     * Note: The <code>change</code> affine transform must be a change in the <strong>Java2D
+     *       coordinate space</strong> ({@link RenderingContext#textCS}). But the transform
      *       given by {@link org.geotools.gui.swing.ZoomPane#fireZoomChange} is in the rendering
      *       coordinate space ({@link RenderingContext#mapCS}). Conversion can be performed
      *       as this:
      *
-     *       Lets <var>C</var> by the change in rendering space, and <var>Z</var> be the
-     *       {@linkplain org.geotools.gui.swing.ZoomPane#zoom zoom}.  Then the change in
-     *       device space is <code>ZCZ<sup>-1</sup></code>.
+     *       Lets <var>C</var> by the change in Java2D space, and <var>Z</var> be the
+     *       {@linkplain org.geotools.gui.swing.ZoomPane#zoom zoom}.  Then the change
+     *       in Java2D space is <code>ZCZ<sup>-1</sup></code>.
      *
      *       Additionnaly, in order to avoir rounding error, it may be safe to expand slightly
      *       the transformed shape. It may be done with the following operations on the change
@@ -672,7 +665,7 @@ public abstract class RenderedLayer {
      *          translate(-x, -y);         // translate anchor to origin
      *       </pre></blockquote>
      *
-     * @param change The zoom <strong>change</strong> in <strong>device</strong> coordinate
+     * @param change The zoom <strong>change</strong> in <strong>Java2D</strong> coordinate
      *        system, or <code>null</code> if unknow. If <code>null</code>, then this layer
      *        will be fully redrawn during the next rendering.
      */

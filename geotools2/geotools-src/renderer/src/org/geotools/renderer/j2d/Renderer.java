@@ -101,7 +101,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.13 2003/02/02 21:47:45 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.14 2003/02/10 23:09:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -661,7 +661,7 @@ public class Renderer {
 
     /**
      * Indique si la région géographique <code>big</code> contient entièrement la sous-région
-     * <code>small</code> spécifiée. Un cas particuluer survient si un ou plusieurs bords de
+     * <code>small</code> spécifiée. Un cas particulier survient si un ou plusieurs bords de
      * <code>small</code> coïncide avec les bords correspondants de <code>big</code>. L'argument
      * <code>edge</code> indique si on considère qu'il y a inclusion ou pas dans ces circonstances.
      *
@@ -671,8 +671,7 @@ public class Renderer {
      *        de <code>big</code> et <code>small</code> conïncide, ou <code>false</code> pour exiger
      *        que <code>small</code> ne touche pas aux bords de <code>big</code>.
      */
-    private static boolean contains(final Rectangle2D big, final Rectangle2D small, final boolean edge)
-    {
+    static boolean contains(final Rectangle2D big, final Rectangle2D small, final boolean edge) {
         return edge ? (small.getMinX()>=big.getMinX() && small.getMaxX()<=big.getMaxX() && small.getMinY()>=big.getMinY() && small.getMaxY()<=big.getMaxY()):
                       (small.getMinX()> big.getMinX() && small.getMaxX()< big.getMaxX() && small.getMinY()> big.getMinY() && small.getMaxY()< big.getMaxY());
     }

@@ -50,7 +50,7 @@ import org.geotools.resources.XArray;
  * This class (like the whole <code>org.geotools.renderer.array</code> package)
  * is for internal use by {@link org.geotools.renderer.geom.Polygon} only.
  *
- * @version $Id: ArrayData.java,v 1.1 2003/02/06 23:46:29 desruisseaux Exp $
+ * @version $Id: ArrayData.java,v 1.2 2003/02/10 23:09:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ArrayData {
@@ -112,7 +112,7 @@ public class ArrayData {
      * @param curves The data returned by {@link #curves}.
      */
     public final void setData(final float[] array, final int length, final int[] curves) {
-        assert (array.length & 1)==0 : array.length;
+        assert array==null || (array.length & 1)==0 : array.length;
         assert (length & 1)==0 : length;
         this.array  = array;
         this.length = length;
@@ -141,7 +141,7 @@ public class ArrayData {
      */
     public final int[] curves() {
         if (curves != null) {
-            curves = XArray.resize(curves, length);
+            curves = XArray.resize(curves, curveLength);
         }
         return curves;
     }
@@ -226,6 +226,8 @@ public class ArrayData {
     private final void addCurve(final int index, final int type) {
         if (curves == null) {
             curves = new int[12];
+            assert curveLength == 0 : curveLength;
+            assert nextCurve   == 0 : nextCurve;
         } else if (curveLength >= curves.length) {
             curves = XArray.resize(curves, curveLength*2);
         }

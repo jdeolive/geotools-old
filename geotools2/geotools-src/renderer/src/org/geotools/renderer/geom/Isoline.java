@@ -93,7 +93,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Isoline.java,v 1.6 2003/02/07 23:04:51 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.7 2003/02/10 23:09:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -968,12 +968,13 @@ public class Isoline extends GeoShape implements Comparable {
      * isoline will try to share as much internal data as possible with <code>this</code> in order
      * to keep memory footprint low.
      *
-     * @param  clipper An object containing the clip area.
+     * @param  clip The clipping area in this {@linkplain #getCoordinateSystem isoline's coordinate
+               system}.
      * @return <code>null</code> if this isoline doesn't intersect the clip, <code>this</code>
      *         if no clip has been performed, or a new clipped isoline otherwise.
      */
-    private final Isoline clip(final Clipper clipper) {
-        assert Thread.holdsLock(this);
+    public synchronized Isoline clip(final Rectangle2D clip) {
+        final Clipper        clipper = new Clipper(clip, coordinateSystem);
         final Polygon[] clipPolygons = new Polygon[polygonCount];
         int         clipPolygonCount = 0;
         boolean              changed = false;
@@ -999,6 +1000,12 @@ public class Isoline extends GeoShape implements Comparable {
              isoline.setName(super.getName(null));
              if (coordinateSystem.equals(clipper.mapCS, false)) {
                 isoline.bounds = bounds.createIntersection(clipper.mapClip);
+                // Note: Bounds computed above may be bigger than the bounds usually computed
+                //       by 'getBounds2D()'.  However, this bigger bounds is conform to Shape
+                //       specification and is also desirable.  If the bounds was smaller than
+                //       the clip, the rendering code would wrongly believes that the clipped
+                //       isoline is inapropriate for the clipping area. It would slow down the
+                //       rendering, but would not affect the visual result.
              }
              return isoline;
         } else {
@@ -1181,7 +1188,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.6 2003/02/07 23:04:51 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.7 2003/02/10 23:09:36 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {
