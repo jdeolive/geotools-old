@@ -8,6 +8,9 @@
 package org.geotools.shapefile;
 
 import junit.framework.*;
+
+import org.apache.log4j.BasicConfigurator;
+
 /**
  *
  * @author jamesm
@@ -23,6 +26,7 @@ public class ShapefileSuite extends TestCase {
     }
     
     public static Test suite() {
+        BasicConfigurator.configure();
         TestSuite suite = new TestSuite("All Tests");
         suite.addTestSuite(ShapefileDataSourceTest.class);
         suite.addTestSuite(ShapefileTest.class);
