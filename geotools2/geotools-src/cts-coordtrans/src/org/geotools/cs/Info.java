@@ -84,7 +84,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version $Id: Info.java,v 1.3 2002/06/05 16:00:39 loxnard Exp $
+ * @version $Id: Info.java,v 1.4 2002/07/18 20:39:19 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -449,6 +449,14 @@ public class Info implements Serializable {
             throw new IllegalArgumentException(Resources.format(
                         ResourceKeys.ERROR_NON_ANGULAR_UNIT_$1, unit));
         }
+    }
+
+    /**
+     * Serialize a single instance of this object.
+     * This is an optimisation for speeding up RMI.
+     */
+    Object writeReplace() throws ObjectStreamException {
+        return pool.canonicalize(this);
     }
     
     /**
