@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author $Author: jive $
- * @version $Id: SQLEncoderOracle.java,v 1.10 2003/11/04 01:02:42 jive Exp $
+ * @version $Id: SQLEncoderOracle.java,v 1.11 2003/11/04 01:07:38 jive Exp $
  */
 public class SQLEncoderOracle extends SQLEncoder {
     /** The capabilities of the encoder */
@@ -85,12 +85,16 @@ public class SQLEncoderOracle extends SQLEncoder {
      * Keyed by ColumnName, value is Integer SRID number
      */
     private Map srids;
-
+    
     /** The FID Column name */
     private String fidColumn;
     private String currentGeomColumnName = null;
     boolean inGeomFilter = false;
 
+    public SQLEncoderOracle( String fidColumn, int defaultSRID ){
+        this( fidColumn, new HashMap() );
+        srids.put( null, new Integer( defaultSRID ));
+    }
     /**
      * Creates a new SQLEncoderOracle with a specified SRID.
      *
@@ -434,7 +438,11 @@ public class SQLEncoderOracle extends SQLEncoder {
             try {
                 int srid = -1;
                 Integer sridO = (Integer) srids.get(currentGeomColumnName);
-
+                
+                if( sridO == null){
+                    // try for default
+                    sridO = (Integer) srids.get(null);
+                }
                 if (sridO != null) {
                     srid = sridO.intValue();
                 }
