@@ -4,9 +4,10 @@ import java.awt.event.MouseEvent;
 import javax.swing.JComponent;
 import javax.swing.event.MouseInputAdapter;
 import org.geotools.gui.swing.MapPane;
-import org.geotools.map.*;
+import org.geotools.gui.tools.Tool;
+import org.geotools.map.AreaOfInterestModel;
 
-public class PanTool extends MouseInputAdapter {
+public class PanTool extends Tool {
 
     // Internal variables
     private JComponent mapPane;
