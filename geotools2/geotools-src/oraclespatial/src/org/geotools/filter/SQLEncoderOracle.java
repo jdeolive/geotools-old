@@ -15,12 +15,12 @@ import java.io.IOException;import java.util.Arrays;import java.util.HashMap;i
  * </p>
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
- * @author $Author: seangeo $
- * @version $Id: SQLEncoderOracle.java,v 1.6 2003/08/15 01:05:00 seangeo Exp $
+ * @author $Author: cholmesny $
+ * @version $Id: SQLEncoderOracle.java,v 1.7 2003/11/03 17:08:03 cholmesny Exp $
  */
 public class SQLEncoderOracle extends SQLEncoder {
     /** The capabilities of the encoder */
-    private static FilterCapabilities capabilities = SQLEncoder.getCapabilities();
+    private static FilterCapabilities capabilities = null;
 
     /** Logger - for logging */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter.SQLEncoderOracle");
@@ -36,17 +36,7 @@ public class SQLEncoderOracle extends SQLEncoder {
     private static final String TOLERANCE = "0.001";
 
     static {
-        capabilities.addType(AbstractFilter.GEOMETRY_BBOX);
-        capabilities.addType(AbstractFilter.GEOMETRY_CONTAINS);
-        capabilities.addType(AbstractFilter.GEOMETRY_CROSSES);
-        capabilities.addType(AbstractFilter.GEOMETRY_EQUALS);
-        capabilities.addType(AbstractFilter.GEOMETRY_INTERSECTS);
-        capabilities.addType(AbstractFilter.GEOMETRY_OVERLAPS);
-        capabilities.addType(AbstractFilter.GEOMETRY_TOUCHES);
-        capabilities.addType(AbstractFilter.GEOMETRY_WITHIN);        capabilities.addType(AbstractFilter.FID);
-
-        capabilities.addType(AbstractFilter.LIKE);
-
+    
         SDO_RELATE_MASK_MAP.put(new Short(AbstractFilter.GEOMETRY_CONTAINS), "contains");
         SDO_RELATE_MASK_MAP.put(new Short(AbstractFilter.GEOMETRY_CROSSES), "overlapbydisjoint");
         SDO_RELATE_MASK_MAP.put(new Short(AbstractFilter.GEOMETRY_EQUALS), "equal");
@@ -72,6 +62,27 @@ public class SQLEncoderOracle extends SQLEncoder {
      */
     public SQLEncoderOracle(String fidColumn,int srid) {
         this.srid = srid;        this.fidColumn = fidColumn;
+    }
+
+      /**
+     * Sets the capabilities of this filter.
+     *
+     * @return FilterCapabilities for this Filter
+     */
+    protected FilterCapabilities createFilterCapabilities() {
+        FilterCapabilities capabilities = super.createFilterCapabilities();
+        capabilities.addType(AbstractFilter.GEOMETRY_BBOX);
+        capabilities.addType(AbstractFilter.GEOMETRY_CONTAINS);
+        capabilities.addType(AbstractFilter.GEOMETRY_CROSSES);
+        capabilities.addType(AbstractFilter.GEOMETRY_EQUALS);
+        capabilities.addType(AbstractFilter.GEOMETRY_INTERSECTS);
+        capabilities.addType(AbstractFilter.GEOMETRY_OVERLAPS);
+        capabilities.addType(AbstractFilter.GEOMETRY_TOUCHES);
+        capabilities.addType(AbstractFilter.GEOMETRY_WITHIN);
+        capabilities.addType(AbstractFilter.FID);
+        capabilities.addType(AbstractFilter.LIKE);
+
+        return capabilities;
     }
 
     private void doBBoxFilter(GeometryFilter geomFilter) throws IOException {
