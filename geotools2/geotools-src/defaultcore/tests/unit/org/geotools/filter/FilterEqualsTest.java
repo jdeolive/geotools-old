@@ -21,15 +21,13 @@
 package org.geotools.filter;
 
 import java.util.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Hierarchy;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
 import junit.framework.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Unit test for testing filters equals method.
@@ -41,7 +39,7 @@ import org.geotools.feature.*;
 public class FilterEqualsTest extends TestCase {
     
     /** Standard logging instance */
-    private static Logger _log;
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
 
     private Expression testExp1;
     private Expression testExp2;
@@ -61,16 +59,13 @@ public class FilterEqualsTest extends TestCase {
      */
     public FilterEqualsTest(String testName) {
         super(testName);
-        //BasicConfigurator.configure();
-        _log = Logger.getLogger(FilterEqualsTest.class);
-        _log.getLoggerRepository().setThreshold(Level.INFO);
-        
     }        
     
     /** 
      * Main for test runner.
      */
     public static void main(String[] args) {
+        org.geotools.resources.Geotools.init();
         junit.textui.TestRunner.run(suite());
     }
     
@@ -94,13 +89,13 @@ public class FilterEqualsTest extends TestCase {
         if(set) return;
         set = true;
         // Create the schema attributes
-        _log.debug("creating flat feature...");
+        LOGGER.fine("creating flat feature...");
         AttributeType geometryAttribute = 
             new AttributeTypeDefault("testGeometry", LineString.class);
-        _log.debug("created geometry attribute");
+        LOGGER.fine("created geometry attribute");
         AttributeType booleanAttribute = 
             new AttributeTypeDefault("testBoolean", Boolean.class);
-        _log.debug("created boolean attribute");
+        LOGGER.fine("created boolean attribute");
         AttributeType charAttribute = 
             new AttributeTypeDefault("testCharacter", Character.class);
         AttributeType byteAttribute = 
@@ -121,26 +116,26 @@ public class FilterEqualsTest extends TestCase {
             new AttributeTypeDefault("testString2", String.class);
         // Builds the schema
         testSchema = new FeatureTypeFlat(geometryAttribute); 
-        _log.debug("created feature type and added geometry");
+        LOGGER.fine("created feature type and added geometry");
         testSchema = testSchema.setAttributeType(booleanAttribute);
-        _log.debug("added boolean to feature type");
+        LOGGER.fine("added boolean to feature type");
         testSchema = testSchema.setAttributeType(charAttribute);
-        _log.debug("added character to feature type");
+        LOGGER.fine("added character to feature type");
         testSchema = testSchema.setAttributeType(byteAttribute);
-        _log.debug("added byte to feature type");
+        LOGGER.fine("added byte to feature type");
         testSchema = testSchema.setAttributeType(shortAttribute);
-        _log.debug("added short to feature type");
+        LOGGER.fine("added short to feature type");
         testSchema = testSchema.setAttributeType(intAttribute);
-        _log.debug("added int to feature type");
+        LOGGER.fine("added int to feature type");
         testSchema = testSchema.setAttributeType(longAttribute);
-        _log.debug("added long to feature type");
+        LOGGER.fine("added long to feature type");
         testSchema = testSchema.setAttributeType(floatAttribute);
-        _log.debug("added float to feature type");
+        LOGGER.fine("added float to feature type");
         testSchema = testSchema.setAttributeType(doubleAttribute);
-        _log.debug("added double to feature type");
+        LOGGER.fine("added double to feature type");
         testSchema = testSchema.setAttributeType(stringAttribute);
         testSchema = testSchema.setAttributeType(stringAttribute2);
-        _log.debug("added string to feature type");
+        LOGGER.fine("added string to feature type");
         
         // Creates coordinates for the linestring
         Coordinate[] coords = new Coordinate[3];
@@ -165,7 +160,7 @@ public class FilterEqualsTest extends TestCase {
         // Creates the feature itself
         FeatureFactory factory = new FeatureFactory(testSchema);
         testFeature = factory.create(attributes);
-        _log.debug("...flat feature created");
+        LOGGER.fine("...flat feature created");
     
 
     }

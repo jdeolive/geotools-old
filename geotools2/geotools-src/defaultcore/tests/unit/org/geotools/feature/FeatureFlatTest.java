@@ -6,6 +6,8 @@ import com.vividsolutions.jts.geom.*;
 import java.util.*;
 import java.util.logging.Logger;
 
+import org.geotools.resources.*;
+
 public class FeatureFlatTest extends TestCase {
 
     /**
@@ -23,6 +25,7 @@ public class FeatureFlatTest extends TestCase {
     }
 
     public static void main(String[] args) {
+        Geotools.init();
         junit.textui.TestRunner.run(suite());
     }
 
