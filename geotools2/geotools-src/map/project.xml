@@ -22,10 +22,11 @@
     <developer>
       <name>Andrea Aime</name>
       <id>aaime</id>
-      <email>andrea.aime@aliceposta.it</email>
-      <organization>SATA</organization>
+      <email>aaime@users.sourceforge.net</email>
+      <organization>University of Modena and Reggio Emilia</organization>
       <roles>
-        <role>Mantainer</role>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
       </roles>
     </developer>
   </developers>
