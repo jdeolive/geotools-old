@@ -94,9 +94,10 @@ public class ShapefileWriter {
     writeHeaders(geometries);
     
     int offset = 50;
+    int lp = shapeBuffer.position();
     for (int i = 0, ii = geometries.getNumGeometries(); i < ii; i++) {
       Geometry g = geometries.getGeometryN(i);
-      
+
       // write to the shp
       int length = handler.getLength(g) / 2;
       shapeBuffer.order(ByteOrder.BIG_ENDIAN);
@@ -106,7 +107,14 @@ public class ShapefileWriter {
       shapeBuffer.putInt(type.id);
       handler.write(shapeBuffer,g);
       
-      // write to the s x
+      if (length * 2 != (shapeBuffer.position() - lp) - 8) {
+        throw new RuntimeException("expected " + length * 2 + " got " + (shapeBuffer.position() - lp));
+      }
+
+      lp = shapeBuffer.position();
+      System.out.flush();
+      
+      // write to the shx
       indexBuffer.putInt(offset);
       indexBuffer.putInt(length);
       offset += length + 4;

@@ -68,10 +68,13 @@ public class MultiPointHandler implements ShapeHandler {
     int length;
     
     if (shapeType == ShapeType.MULTIPOINT) {
+      // two doubles per coord (16 * numgeoms) + 40 for header
       length = (mp.getNumGeometries() * 16) + 40;
     } else if (shapeType == ShapeType.MULTIPOINTM) {
+      // add the additional MMin, MMax for 16, then 8 per measure
       length = (mp.getNumGeometries() * 16) + 40 + 16 + (8 * mp.getNumGeometries());
     } else if (shapeType == ShapeType.MULTIPOINTZ) {
+      // add the additional ZMin,ZMax, plus 8 per Z 
       length = (mp.getNumGeometries() * 16) + 40 + 16 + (8 * mp.getNumGeometries()) + 16 +
       (8 * mp.getNumGeometries());
     } else {
@@ -117,20 +120,25 @@ public class MultiPointHandler implements ShapeHandler {
   
   public void write(ByteBuffer buffer, Object geometry) {
     MultiPoint mp = (MultiPoint) geometry;
-
+    
+    int p = buffer.position();
+    
     Envelope box = mp.getEnvelopeInternal();
     buffer.putDouble(box.getMinX());
     buffer.putDouble(box.getMinY());
     buffer.putDouble(box.getMaxX());
     buffer.putDouble(box.getMaxY());
     
+    
     buffer.putInt(mp.getNumGeometries());
+    
     
     for (int t = 0, tt = mp.getNumGeometries(); t < tt; t++) {
       Coordinate c = (mp.getGeometryN(t)).getCoordinate();
       buffer.putDouble(c.x);
       buffer.putDouble(c.y);
     }
+    
     
     if (shapeType == ShapeType.MULTIPOINTZ) {
       double[] zExtreame = JTSUtilities.zMinMax(mp.getCoordinates());
@@ -142,6 +150,7 @@ public class MultiPointHandler implements ShapeHandler {
         buffer.putDouble(zExtreame[0]);
         buffer.putDouble(zExtreame[1]);
       }
+      
       
       for (int t = 0; t < mp.getNumGeometries(); t++) {
         Coordinate c = (mp.getGeometryN(t)).getCoordinate();
@@ -155,9 +164,12 @@ public class MultiPointHandler implements ShapeHandler {
       }
     }
     
-    if (shapeType == ShapeType.MULTIPOINTM) {
+    
+    
+    if (shapeType == ShapeType.MULTIPOINTM || shapeType == ShapeType.MULTIPOINTZ) {
       buffer.putDouble(-10E40);
       buffer.putDouble(-10E40);
+      
       
       for (int t = 0; t < mp.getNumGeometries(); t++) {
         buffer.putDouble(-10E40);

@@ -85,7 +85,7 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
     compare(one,two);
   }
   
-  void compare(FeatureCollection one,FeatureCollection two) throws Exception {
+  static void compare(FeatureCollection one,FeatureCollection two) throws Exception {
  
     
     if (one.size() != two.size()) {
@@ -108,7 +108,7 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
     
   }
   
-  void compare(Feature f1,Feature f2) throws Exception {
+  static void compare(Feature f1,Feature f2) throws Exception {
     
     if (f1.getNumberOfAttributes() != f2.getNumberOfAttributes()) {
       throw new Exception("Unequal number of attributes");

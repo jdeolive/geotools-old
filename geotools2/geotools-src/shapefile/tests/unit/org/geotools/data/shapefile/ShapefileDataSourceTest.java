@@ -161,11 +161,17 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     PrecisionModel pm = new PrecisionModel();
     for (int i = 0; i < wktResources.length; i++) {
       Geometry geom = readGeometry(wktResources[i]);
-      System.err.println("geometry write " + wktResources[i]);
-      runWriteReadTest(geom);
-//      make3D(geom);
-//      System.err.println("geometry write " + wktResources[i] + "3d");
-//      runWriteReadTest(geom);
+      String testName = wktResources[i];
+      try {
+        
+        runWriteReadTest(geom);
+        make3D(geom);
+        testName += "3d";
+        runWriteReadTest(geom);
+      } catch (Throwable e) {
+        throw new Exception("Error in " + testName,e); 
+      }
+      
     }
     
   }
@@ -173,58 +179,59 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
   private void make3D(Geometry g) {
     Coordinate[] c = g.getCoordinates();
     for (int i = 0, ii = c.length; i < ii; i++) {
-      c[i].z = 42; 
+      c[i].z = 42;
     }
   }
   
   private void runWriteReadTest(Geometry geom) throws Exception {
+    // make features
     FeatureTypeFactory factory = FeatureTypeFactory.newInstance("junk");
     factory.addType(AttributeTypeFactory.newAttributeType("a",Geometry.class));
-    
     FeatureType type = factory.getFeatureType();
     FeatureCollection features = FeatureCollections.newCollection();
     for (int i = 0, ii = 20; i < ii; i++) {
       
       features.add(type.create(new Object[] {
-        geom
+        geom.clone()
       }));
-      
-      URL parent = getTestResource("");
-      File data = new File(parent.getFile());
-      if (!data.exists())
-        throw new Exception("Couldn't setup temp file");
-      File tmpFile = new File(data, "tmp.shp");
-      tmpFile.createNewFile();
-      
-      ShapefileDataSource s = new ShapefileDataSource(tmpFile.toURL());
-      s.setFeatures(features);
-      
-      s = new ShapefileDataSource(tmpFile.toURL());
-      FeatureCollection fc = s.getFeatures();
-      FeatureIterator fci = fc.features();
-      
-      while (fci.hasNext()) {
-        Feature f = fci.next();
-        Geometry fromShape = f.getDefaultGeometry();
-        
-        if (fromShape instanceof GeometryCollection) {
-          if ( ! (geom instanceof GeometryCollection) ) {
-            fromShape = ((GeometryCollection)fromShape).getGeometryN(0);
-          }
-        }
-        try {
-          Coordinate[] c1 = geom.getCoordinates();
-          Coordinate[] c2 = fromShape.getCoordinates();
-          for (int cc = 0, ccc = c1.length; cc < ccc; cc++) {
-            assertTrue(c1[cc].equals3D(c2[cc])); 
-          }
-        } catch (Throwable t) {
-          fail("Bogus : " + Arrays.asList(geom.getCoordinates()) + " : " + Arrays.asList(fromShape.getCoordinates())); 
-        }
-        
-        
-      }
     }
+    
+    // set up file
+    File tmpFile = getTempFile();
+    
+    // write features
+    ShapefileDataSource s = new ShapefileDataSource(tmpFile.toURL());
+    s.setFeatures(features);
+    
+    // read features
+    s = new ShapefileDataSource(tmpFile.toURL());
+    FeatureCollection fc = s.getFeatures();
+    FeatureIterator fci = fc.features();
+    
+    // verify
+    while (fci.hasNext()) {
+      Feature f = fci.next();
+      Geometry fromShape = f.getDefaultGeometry();
+      
+      if (fromShape instanceof GeometryCollection) {
+        if ( ! (geom instanceof GeometryCollection) ) {
+          fromShape = ((GeometryCollection)fromShape).getGeometryN(0);
+        }
+      }
+      try {
+        Coordinate[] c1 = geom.getCoordinates();
+        Coordinate[] c2 = fromShape.getCoordinates();
+        for (int cc = 0, ccc = c1.length; cc < ccc; cc++) {
+          assertTrue(c1[cc].equals3D(c2[cc]));
+        }
+      } catch (Throwable t) {
+        fail("Bogus : " + Arrays.asList(geom.getCoordinates()) + " : " + Arrays.asList(fromShape.getCoordinates()));
+      }
+      
+      
+    }
+    
+    tmpFile.delete();
   }
   
 }

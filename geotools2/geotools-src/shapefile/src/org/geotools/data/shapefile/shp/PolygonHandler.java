@@ -190,7 +190,7 @@ public class PolygonHandler implements ShapeHandler {
     // quick optimization: if there's only one shell no need to check
     // for holes inclusion
     if(shells.size() == 1) {
-      return createMulti( (LinearRing) shells.get(0) );
+      return createMulti( (LinearRing) shells.get(0) , holes );
     }
     // if for some reason, there is only one hole, we just reverse it and carry on.
     else if (holes.size() == 1 && shells.size() == 0) {
@@ -325,9 +325,13 @@ public class PolygonHandler implements ShapeHandler {
   }
   
   private MultiPolygon createMulti(LinearRing single) {
+    return createMulti(single,java.util.Collections.EMPTY_LIST);
+  }
+  
+  private MultiPolygon createMulti(LinearRing single,List holes) {
     return geometryFactory.createMultiPolygon(
       new Polygon[] {
-        geometryFactory.createPolygon(single, new LinearRing[0])
+        geometryFactory.createPolygon(single, (LinearRing[]) holes.toArray(new LinearRing[holes.size()]))
       }
     );
   }
@@ -420,7 +424,7 @@ public class PolygonHandler implements ShapeHandler {
       }
     }
     
-    if (shapeType == ShapeType.POLYGONM) {
+    if (shapeType == ShapeType.POLYGONM || shapeType == ShapeType.POLYGONZ) {
       //m
       buffer.putDouble(-10E40);
       buffer.putDouble(-10E40);
@@ -440,6 +444,9 @@ public class PolygonHandler implements ShapeHandler {
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.7  2003/07/24 18:32:10  ianschneider
+ * more test updates, fixed Z type writing
+ *
  * Revision 1.6  2003/07/23 23:41:09  ianschneider
  * more testing updates
  *

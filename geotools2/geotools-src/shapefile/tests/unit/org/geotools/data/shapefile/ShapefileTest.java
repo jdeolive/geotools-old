@@ -11,7 +11,9 @@ import junit.framework.*;
 import java.net.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
+import java.util.*;
 import org.geotools.data.shapefile.shp.*;
+import org.geotools.feature.*;
 
 /**
  * @author Ian Schneider
@@ -50,6 +52,10 @@ public class ShapefileTest extends TestCaseSupport {
   public void testLoadingTwice() throws Exception {
     loadShapes(POINTTEST, 10);
     loadShapes(POINTTEST, 10);
+    loadShapes(STATEPOP,49);
+    loadShapes(STATEPOP,49);
+    loadShapes(POLYGONTEST, 2);
+    loadShapes(POLYGONTEST, 2);
   }
   
   /**
@@ -86,6 +92,45 @@ public class ShapefileTest extends TestCaseSupport {
     }
   }
   
+  public void testHolyPolygons() throws Exception {
+    Geometry g = readGeometry("holyPoly");
+    
+    FeatureTypeFactory factory = FeatureTypeFactory.newInstance("junk");
+    factory.addType(AttributeTypeFactory.newAttributeType("a",Geometry.class));
+    FeatureType type = factory.getFeatureType();
+    FeatureCollection features = FeatureCollections.newCollection();
+    features.add(type.create(new Object[] {g}));
+    
+    File tmpFile = getTempFile();
+    tmpFile.delete();
+    
+    // write features
+    ShapefileDataSource s = new ShapefileDataSource(tmpFile.toURL());
+    s.setFeatures(features);
+    
+    s = new ShapefileDataSource(tmpFile.toURL());
+    FeatureCollection fc = s.getFeatures();
+    
+    ShapefileReadWriteTest.compare(features,fc);
+  }
+  
+  
+  
+  public void testShapefileReaderRecord() throws Exception {
+    ShapefileReader reader = new ShapefileReader(getTestResourceChannel(STATEPOP));
+    ArrayList offsets = new ArrayList();
+    while (reader.hasNext()) {
+      ShapefileReader.Record record = reader.nextRecord();
+      offsets.add(new Integer(record.offset()));
+      Geometry geom = (Geometry) record.shape();
+      assertEquals(new Envelope(record.minX,record.maxX,record.minY,record.maxY), geom.getEnvelopeInternal());
+      record.toString();
+    }
+    reader = new ShapefileReader(getReadableFileChannel(STATEPOP));
+    for (int i = 0, ii = offsets.size(); i < ii; i++) {
+      reader.shapeAt( ((Integer)offsets.get(i)).intValue() ); 
+    }
+  }
   
   private void loadShapes(String resource,int expected) throws Exception {
     ShapefileReader reader = new ShapefileReader(getTestResourceChannel(resource));
