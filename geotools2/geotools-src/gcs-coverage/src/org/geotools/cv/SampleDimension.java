@@ -55,6 +55,11 @@ import java.rmi.server.RemoteObject;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
 
+// Logging
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
+
 // JAI dependencies
 import javax.media.jai.JAI;
 import javax.media.jai.CRIFImpl;
@@ -102,7 +107,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.16 2003/01/16 21:05:11 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.17 2003/02/18 19:28:34 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1020,9 +1025,18 @@ public class SampleDimension implements Serializable {
      */
     static {
         final OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
-        registry.registerDescriptor(new Descriptor());
-        registry.registerFactory(RenderedRegistryMode.MODE_NAME, "GC_SampleTranscoding",
-                                 "geotools.org", new CRIF());
+        try {
+            registry.registerDescriptor(new Descriptor());
+            registry.registerFactory(RenderedRegistryMode.MODE_NAME, "GC_SampleTranscoding",
+                                     "geotools.org", new CRIF());
+        } catch (IllegalArgumentException exception) {
+            final LogRecord record = Resources.getResources(null).getLogRecord(Level.SEVERE,
+                   ResourceKeys.ERROR_CANT_REGISTER_JAI_OPERATION_$1, "GC_SampleTranscoding");
+            record.setSourceClassName("SampleDimension");
+            record.setSourceMethodName("<classinit>");
+            record.setThrown(exception);
+            Logger.getLogger("org.geotools.gc").log(record);
+        }
     }
 
 

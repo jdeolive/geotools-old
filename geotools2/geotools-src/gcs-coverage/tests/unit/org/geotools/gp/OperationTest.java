@@ -56,10 +56,15 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link OperationJAI} implementation.
  *
- * @version $Id: OperationTest.java,v 1.4 2002/08/09 18:41:23 desruisseaux Exp $
+ * @version $Id: OperationTest.java,v 1.5 2003/02/18 19:28:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationTest extends GridCoverageTest {
+    /**
+     * Set to <code>true</code> in order to print diagnostic messages.
+     */
+    private static final boolean PRINT = false;
+
     /**
      * Returns the test suite.
      */
@@ -94,7 +99,8 @@ public class OperationTest extends GridCoverageTest {
      */
     public void testOperationJAI() {
         final OperationJAI operation = new OperationJAI("addConst");
-        final PrintWriter out = new PrintWriter(Arguments.getWriter(System.out));
+        final PrintWriter out;
+        out = new PrintWriter(PRINT ? Arguments.getWriter(System.out) : new StringWriter());
         if (true) try {
             operation.print(out, null);
         } catch (IOException exception) {

@@ -53,7 +53,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link CategoryList} implementation.
  *
- * @version $Id: CategoryListTest.java,v 1.3 2002/07/26 22:18:32 desruisseaux Exp $
+ * @version $Id: CategoryListTest.java,v 1.4 2003/02/18 19:28:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CategoryListTest extends TestCase {
@@ -61,6 +61,11 @@ public class CategoryListTest extends TestCase {
      * Small value for comparaisons.
      */
     private static final double EPS = 1E-9;
+
+    /**
+     * Set to <code>true</code> in order to print diagnostic messages.
+     */
+    private static final boolean PRINT = false;
 
     /**
      * Random number generator for this test.
@@ -149,8 +154,10 @@ public class CategoryListTest extends TestCase {
             new CategoryList(categories, null);
             fail("Argument check");
         } catch (IllegalArgumentException exception) {
-            System.out.println(exception.getLocalizedMessage());
-            // This is the expected exception.
+            if (PRINT) {
+                System.out.println(exception.getLocalizedMessage());
+                // This is the expected exception.
+            }
         }
         for (int i=0; i<categories.length; i++) {
             final Category cat = categories[i];
@@ -161,8 +168,10 @@ public class CategoryListTest extends TestCase {
             new CategoryList(categories, null);
             fail("Argument check");
         } catch (IllegalArgumentException exception) {
-            System.out.println(exception.getLocalizedMessage());
-            // This is the expected exception.
+            if (PRINT) {
+                System.out.println(exception.getLocalizedMessage());
+                // This is the expected exception.
+            }
         }
         // Remove the wrong category. Now, construction should succed.
         categories = (Category[]) XArray.resize(categories, categories.length-1);

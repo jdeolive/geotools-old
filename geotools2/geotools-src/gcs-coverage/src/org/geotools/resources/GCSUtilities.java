@@ -32,10 +32,14 @@
  */
 package org.geotools.resources;
 
+// J2SE dependencies
+import java.awt.image.RenderedImage;
+
 // Geotools dependencies
 import org.geotools.pt.Envelope;
 import org.geotools.gc.GridRange;
 import org.geotools.gc.GridGeometry;
+import org.geotools.gc.GridCoverage;
 import org.geotools.ct.MathTransform;
 import org.geotools.gc.InvalidGridGeometryException;
 
@@ -44,7 +48,7 @@ import org.geotools.gc.InvalidGridGeometryException;
  * A set of utilities methods for the Grid Coverage package. Those methods are not really
  * rigorous; must of them should be seen as temporary implementations.
  *
- * @version $Id: GCSUtilities.java,v 1.2 2003/02/16 23:12:16 desruisseaux Exp $
+ * @version $Id: GCSUtilities.java,v 1.3 2003/02/18 19:28:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GCSUtilities {
@@ -109,5 +113,26 @@ public final class GCSUtilities {
             upper[i] = (int)Math.ceil (envelope.getMaximum(i));
         }
         return new GridRange(lower, upper);
+    }
+
+    /**
+     * Returns <code>true</code> if the specified grid coverage or any of its source
+     * uses the following image.
+     */
+    public static boolean uses(final GridCoverage coverage, final RenderedImage image) {
+        if (coverage != null) {
+            if (coverage.getRenderedImage() == image) {
+                return true;
+            }
+            final GridCoverage[] sources = coverage.getSources();
+            if (sources != null) {
+                for (int i=0; i<sources.length; i++) {
+                    if (uses(sources[i], image)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
