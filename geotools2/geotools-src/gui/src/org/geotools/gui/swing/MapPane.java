@@ -2,6 +2,7 @@
  * Geotools - OpenSource mapping toolkit
  * (C) 2002, Center for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
+ * (C) 1998, Pêches et Océans Canada
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -32,137 +33,104 @@
  */
 package org.geotools.gui.swing;
 
-// Standards Java classes
-import java.awt.*;
-import java.awt.geom.*;
-import javax.swing.*;
-import java.util.EventObject;
+// J2SE dependencies
+import java.awt.geom.Rectangle2D;
 
-// Geotools classes
-import org.geotools.gui.swing.ZoomPane;
-import org.geotools.map.*;
-import org.geotools.map.events.AreaOfInterestChangedListener;
-import org.geotools.map.BoundingBoxImpl;
-
+// Geotools dependencies
+import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.GeographicCoordinateSystem;
+import org.geotools.ct.TransformException;
+import org.geotools.renderer.j2d.Renderer;
+import org.geotools.renderer.j2d.RenderedObject;
 import org.geotools.gui.swing.event.ZoomChangeEvent;
 import org.geotools.gui.swing.event.ZoomChangeListener;
-import org.geotools.renderer.*;
-import org.geotools.datasource.extents.EnvelopeExtent;
-import org.geotools.data.*;
-import org.geotools.feature.*;
-import org.geotools.styling.*;
 
-//JTS classes
-import com.vividsolutions.jts.geom.*;
 
 /**
- * Demonstration application displaying a triangle and a rectangle in a
- * zoomable pane. The class <CODE>org.geotools.swing.ZoomPane</CODE> takes
- * care of most of the internal mechanics. Developers must define only two
- * abstract methods: <CODE>getArea()</CODE>, which returns the logical bounds
- * of the painting area (it doesn't have to be in pixel units) and
- * <CODE>paintComponent(Graphics2D)</CODE> which performs the actual painting.
+ * A <i>Swing</i> component for displaying geographic features.
+ * <br><br>
+ * Since this class extends {@link ZoomPane},  the user can use mouse and keyboard
+ * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
+ * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * $Id: MapPane.java,v 1.6 2002/12/19 11:33:50 camerons Exp $
- * @version 1.0
+ * @version $Id: MapPane.java,v 1.7 2003/01/22 23:07:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class MapPane extends ZoomPane implements ZoomChangeListener, AreaOfInterestChangedListener{
-    
-    org.geotools.renderer.Java2DRenderer renderer = new Java2DRenderer();
-    org.geotools.map.Map map;
-    BoundingBox aoi;
+public abstract class MapPane extends ZoomPane {
     /**
-     * Constructs a demonstration zoom pane. This demo allows scale,
-     * translation and rotation. Scrolling the pane will repaint
-     * immediately (as opposed to waiting for the user to finish adjusting).
+     * The renderer targeting Java2D.
      */
-    public MapPane(Map map, BoundingBox aoi) {
-        super(UNIFORM_SCALE | TRANSLATE_X | TRANSLATE_Y | ROTATE | RESET | DEFAULT_ZOOM);
-        setPaintingWhileAdjusting(true);
-        this.map = map;
-        this.aoi = aoi;
-        //aoi = new DefaultAreaOfInterestModel(ext.getBounds(),null);
-        aoi.addAreaOfInterestChangedListener(this);
-        //transformation performed by renderer should be combined with
-        //transformation calculated by this component.
-        renderer.setConcatTransforms(true);
-    }
-    
-    private Envelope fullArea;
-    
-    public void setFullArea(Envelope e){
-        fullArea = e;
-    }
-    
+    private final Renderer renderer;
+
     /**
-     * Returns a bounding box containing the painted area in logical
-     * coordinates. Coordinates don't have to be in pixels. An
-     * affine transform will be automatically computed in order to
-     * fit logical coordinates into the frame.
+     * Objet "listener" ayant la charge de réagir aux différents
+     * événements qui intéressent cet objet <code>MapPane</code>.
+     */
+    private final Listeners listeners = new Listeners();
+
+    /**
+     * Classe ayant la charge de réagir aux différents événements qui intéressent cet
+     * objet <code>MapPane</code>.  Cette classe réagira entre autres aux changements
+     * du zoom.
+     */
+    private final class Listeners implements ZoomChangeListener {
+        public void zoomChanged(final ZoomChangeEvent event) {
+//            renderer.zoomChanged(event);
+        }
+    }
+
+    /**
+     * Construct a default map panel.
+     */
+    public MapPane() {
+        super(TRANSLATE_X | TRANSLATE_Y | UNIFORM_SCALE | DEFAULT_ZOOM | ROTATE | RESET);
+        renderer = new Renderer(this);
+        addZoomChangeListener(listeners);
+        setResetPolicy       (true);
+    }
+
+    /**
+     * Returns the view coordinate system. This is the "real world" coordinate system
+     * used for displaying all features. Note that underlying data doesn't need to be
+     * in this coordinate system: transformations will performed on the fly as needed
+     * at rendering time.
+     *
+     * @return The two dimensional coordinate system used for display.
+     *         Default to {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}.
+     */
+    public CoordinateSystem getCoordinateSystem() {
+        return renderer.getCoordinateSystem();
+    }
+
+    /**
+     * Set the view coordinate system. This is the "real world" coordinate system to use for
+     * displaying all features. Default is {@linkplain GeographicCoordinateSystem#WGS84  WGS
+     * 1984}.   Changing this coordinate system has no effect on any underlying data,  since
+     * transformation are performed only at rendering time.
+     *
+     * @param cs The view coordinate system. If this coordinate system has
+     *           more than 2 dimensions, then only the 2 first will be retained.
+     * @throws TransformException If <code>cs</code> can't be reduced to a two-dimensional
+     *         coordinate system., or if data can't be transformed for some other reason.
+     */
+    public void setCoordinateSystem(CoordinateSystem cs) throws TransformException {
+        renderer.setCoordinateSystem(cs);
+    }
+
+    /**
+     * Returns a bounding box that completely encloses all feature's preferred area.  This
+     * bounding box should be representative of the geographic area to drawn. User wanting
+     * to set a different default area should invokes {@link #setPreferredArea}. Coordinates
+     * are expressed in this {@linkplain #getCoordinateSystem viewer's coordinate system}.
+     *
+     * @return The enclosing area computed from available data, or <code>null</code>
+     *         if this area can't be computed.
+     *
+     * @see #getPreferredArea
+     * @see #setPreferredArea
+     * @see Renderer#getPreferredArea
      */
     public Rectangle2D getArea() {
-        if(fullArea == null) {
-            return this.getBounds();
-        }
-        //return this.getBounds();
-        
-        return new Rectangle2D.Double(fullArea.getMinX(), fullArea.getMinY(), fullArea.getWidth(), fullArea.getHeight());
+        return renderer.getPreferredArea();
     }
-    
-    /**
-     * Paints the area. For this demo, we paint the triangle and its bounding
-     * rectangle.  Instruction <CODE>graphics.transform(zoom)</CODE> MUST be
-     * executed before painting any zoomable components. Painting is done
-     * in the same logical coordinates as the coordinates system used by
-     * <CODE>getArea()</CODE>. Developers don't have to care about the window's
-     * size.
-     *
-     * If you want to paint a non-zoomable component (e.g. a text of
-     * fixed size and position), you can paint it before executing
-     * <CODE>graphics.transform(zoom)</CODE>.
-     */
-    protected void paintComponent(final Graphics2D graphics) {
-        // Apply the zoom, which is automatically computed by ZoomPane.
-        graphics.transform(zoom);
-        
-        renderer.setOutput(graphics, this.getBounds());
-        map.render(renderer, aoi.getAreaOfInterest());//and finally try and draw it!
-        
-    }
-    
-    /**
-     * Invoked when a zoom changes. Our implementation just applies the same
-     * transform on this <code>ZoomPane</code>. This simple implementation
-     * is enough when there is only one "master" zoom pane and one "slave".
-     * If we have two "master" (or two "slave") zoom panes, then a more
-     * sophisticated implementation is needed to avoid an infinite loop.
-     */
-    public void zoomChanged(final ZoomChangeEvent event) {
-        transform(event.getChange());
-    }
-    
-    /** Process an AreaOfInterestChangedEvent, probably involves a redraw.
-     * @param areaOfInterestChangedEvent The new extent.
-     */
-    public void areaOfInterestChanged(EventObject aoiEvent) {
-        Envelope e = aoi.getAreaOfInterest();
-        if(fullArea == null){
-            fullArea = e;
-        }
-        System.out.println("New AOI "+e);
-        Rectangle2D rect = new Rectangle2D.Double(e.getMinX(),e.getMinX(),e.getWidth(),e.getHeight());
-        System.out.println("rect is "+rect+" va is "+getVisibleArea());
-        if(!rect.equals(getVisibleArea())){
-            super.setVisibleArea(rect);
-        }
-    }
-    
-    
-    public void setVisibleArea(Rectangle2D rect) throws IllegalArgumentException{
-        System.out.println("set va called");
-        super.setVisibleArea(rect);
-        aoi.setAreaOfInterest(new Envelope(rect.getMinX(),rect.getMaxX(),rect.getMinY(),rect.getMaxY()),null);
-    }
-    
 }
