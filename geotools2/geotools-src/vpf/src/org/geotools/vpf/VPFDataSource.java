@@ -16,6 +16,7 @@
  */
 package org.geotools.vpf;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -24,16 +25,16 @@ import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Query;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.feature.FeatureType;
 import org.geotools.filter.Filter;
-import org.geotools.feature.FeatureCollectionDefault;
 
 
 /**
  * Class <code>VPFDataSource</code> implements
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFDataSource.java,v 1.10 2003/05/15 20:34:51 kobit Exp $
+ * @version $Id: VPFDataSource.java,v 1.11 2003/05/16 07:33:24 kobit Exp $
  */
 public class VPFDataSource extends AbstractDataSource implements DataSource {
     protected Logger log = Logger.getLogger("org.geotools.vpf");
@@ -90,6 +91,11 @@ public class VPFDataSource extends AbstractDataSource implements DataSource {
     }
 
     /**
+     * Data source utility methods.
+     *
+     * @return DOCUMENT ME!
+     */
+    /**
      * Retrieves the featureType that features extracted from this datasource
      * will be created with.
      *
@@ -98,5 +104,5 @@ public class VPFDataSource extends AbstractDataSource implements DataSource {
     public FeatureType getSchema() {
         return schema;
     }
+
 }
- // VPFDataSource

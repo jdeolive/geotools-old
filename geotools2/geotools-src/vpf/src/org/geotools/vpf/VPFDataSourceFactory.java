@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.vpf;
 
 import org.geotools.data.DataSource;
@@ -41,7 +40,8 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
     /**
      * Creates a new VPFDataSourceFactory object.
      */
-    public VPFDataSourceFactory() {}
+    public VPFDataSourceFactory() {
+    }
 
     // Implementation of org.geotools.data.DataSourceFactorySpi
 
@@ -54,8 +54,7 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
      *
      * @exception DataSourceException if an error occurs
      */
-    public DataSource createDataSource(Map hashMap)
-        throws DataSourceException {
+    public DataSource createDataSource(Map hashMap) throws DataSourceException {
         if (!canProcess(hashMap)) {
             return null;
         }
@@ -66,9 +65,8 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
             try {
                 return new VPFDataSource(file);
             } catch (IOException e) {
-                throw
-                    new DataSourceException("Unable to open VPF data base "+
-                                            file, e);
+                throw new DataSourceException("Unable to open VPF data base " +
+                    file, e);
             }
         } catch (URISyntaxException e) {
             return null;
@@ -77,11 +75,6 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
         // end of try-catch
     }
 
-    /**
-     * Describe <code><code>getDescription</code></code> method here.
-     *
-     * @return a <code><code>String</code></code> value
-     */
     public String getDescription() {
         return "Vector Product Format data source implementation.";
     }
