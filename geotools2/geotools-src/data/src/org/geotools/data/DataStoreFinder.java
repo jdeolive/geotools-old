@@ -73,9 +73,16 @@ public final class DataStoreFinder {
 
         while (ps.hasNext()) {
             DataStoreFactorySpi fac = (DataStoreFactorySpi) ps.next();
-
-            if (fac.canProcess(params)) {
-                return fac.createDataStore(params);
+            try {
+                if (fac.canProcess(params)) {
+                    return fac.createDataStore(params);
+                }
+            }
+            catch( Throwable t){
+                // Protect against DataStores that don't carefully
+                // code canProcess
+                // -ArcSDE do not handle non string values
+                continue;                
             }
         }
 
