@@ -18,8 +18,8 @@ package org.geotools.data;
 
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.FeatureCollection;
-import java.io.IOException;
 import org.geotools.feature.FeatureType;
+import java.io.IOException;
 
 
 /**
@@ -77,9 +77,18 @@ import org.geotools.feature.FeatureType;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureResults.java,v 1.3 2003/11/13 11:41:30 ianturton Exp $
+ * @version $Id: FeatureResults.java,v 1.4 2003/11/13 17:56:33 jive Exp $
  */
 public interface FeatureResults {
+    /**
+     * Returns the FeatureType of this FeatureResuls.
+     *
+     * @return A FeatureType for
+     *
+     * @throws IOException if their is a problem getting the FeatureType.
+     */
+    FeatureType getSchema() throws IOException;
+
     /**
      * Provides access to the Features, please note that FeatureReader is a
      * blocking api.
@@ -143,9 +152,6 @@ public interface FeatureResults {
      */
     int getCount() throws IOException;
     
-    /** Added by Ian T to get MemoryDataStoreTest to pass.
-     */
-    FeatureType getSchema();
     /**
      * Provides a stop-gap bridge to our existing Renderers.
      * 
@@ -168,7 +174,6 @@ public interface FeatureResults {
      *
      * @throws IOException If any problems occur aquiring Features
      */
-
     //@deprecated This method will be removed with as the Renderers convert
     FeatureCollection collection() throws IOException;
     
