@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -17,7 +18,7 @@ import org.geotools.gui.widget.Widget;
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
  * Tools process mouse events on behalf of widgets like MapPane and change
  * data in the Context (like the AreaOfInterest).
- * @version $Id: AbstractToolImpl.java,v 1.7 2003/03/28 19:08:45 camerons Exp $
+ * @version $Id: AbstractToolImpl.java,v 1.8 2003/03/28 21:22:31 camerons Exp $
  * @author Cameron Shorter
  */
 public abstract class AbstractToolImpl
@@ -96,7 +97,27 @@ public abstract class AbstractToolImpl
      * when this tool is deselected from a MapPane.
      */
     public void removeMouseListeners(){
+        
+        // remove mouseListeners
+        for (Iterator i=mouseListenerList.iterator();i.hasNext();)
+        {
+            Component component=(Component)i.next();
+            MouseListener[] listeners=component.getMouseListeners();
+            for (int j=0;j<listeners.length;j++){
+                component.removeMouseListener(listeners[j]);
+            }
+        }
         mouseListenerList.clear();
+
+        // remove mouseMotionListeners
+        for (Iterator i=mouseMotionListenerList.iterator();i.hasNext();)
+        {
+            Component component=(Component)i.next();
+            MouseMotionListener[] listeners=component.getMouseMotionListeners();
+            for (int j=0;j<listeners.length;j++){
+                component.removeMouseMotionListener(listeners[j]);
+            }
+        }
         mouseMotionListenerList.clear();
     }
 
