@@ -25,39 +25,25 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
-import java.net.URL;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.io.File;
-import java.io.IOException;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import org.opengis.cs.CS_CoordinateSystem;
-import org.geotools.ct.Adapters;
 import org.geotools.cs.CoordinateSystemFactory;
-import org.geotools.cs.Datum;
-import org.geotools.cs.FactoryException;
 import org.geotools.cs.HorizontalDatum;
+import org.geotools.ct.Adapters;
 import org.geotools.data.DataSource;
-import org.geotools.data.DataSourceException;
 import org.geotools.data.MemoryDataSource;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeDefault;
 import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureFactory;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFlat;
-import org.geotools.feature.FeatureFactory;
-import org.geotools.gml.GMLDataSource;
-import org.geotools.gui.tools.ToolFactory;
-import org.geotools.gui.tools.PanTool;
-import org.geotools.gui.tools.ZoomTool;
-import org.geotools.gui.tools.AbstractTool;
-import org.geotools.gui.widget.MapPane;
 import org.geotools.gui.swing.MapPaneImpl;
+import org.geotools.gui.tools.AbstractTool;
+import org.geotools.gui.tools.PanTool;
+import org.geotools.gui.tools.ToolFactory;
+import org.geotools.gui.tools.ZoomTool;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.map.ContextFactory;
@@ -66,12 +52,13 @@ import org.geotools.map.LayerList;
 import org.geotools.styling.SLDStyle;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
+import org.opengis.cs.CS_CoordinateSystem;
 
 /**
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.19 2003/03/22 10:46:01 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.20 2003/03/22 10:55:55 camerons Exp $
  *
  */
 
