@@ -3,10 +3,10 @@ package org.geotools.gui.widget;
 /**
  * A widget is a component which can be added to a display.  Typical widgets
  * include MapPane, Legend, PanButton, etc.
- * @version $Id: AbstractWidget.java,v 1.3 2003/02/07 11:08:01 camerons Exp $
+ * @version $Id: Widget.java,v 1.1 2003/02/08 03:30:34 camerons Exp $
  * @author Cameron Shorter
  */
-public interface AbstractWidget {
+public interface Widget {
     /**
      * Adds the specified mouse listener to receive mouse events from
      * this component.

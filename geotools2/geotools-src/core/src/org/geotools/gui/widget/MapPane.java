@@ -29,14 +29,14 @@ import org.geotools.map.events.LayerListListener;
 /**
  * This class provides core functionality for drawing a map.  A redraw is
  * required if any of the parameters in the associated Context changes.
- * @version $Id: MapPane.java,v 1.2 2003/01/30 10:14:37 camerons Exp $
+ * @version $Id: MapPane.java,v 1.3 2003/02/08 03:30:34 camerons Exp $
  * @author Cameron Shorter
  * @task TODO Should extend LayerListener as well.  Ie, if features inside a \
  * layer change, then a redraw is required.
  */
 
 public interface MapPane
-    extends AbstractWidget, BoundingBoxListener, LayerListListener  
+    extends Widget, BoundingBoxListener, LayerListListener  
 {
 
     /**

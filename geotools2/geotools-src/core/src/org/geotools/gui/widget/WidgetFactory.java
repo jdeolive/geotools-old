@@ -3,10 +3,11 @@ package org.geotools.gui.widget;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import org.geotools.gui.tools.AbstractTool;
+//import org.geotools.gui.widget.FrameWidget;
 import org.geotools.map.Context;
 /**
  * Factory for constructing Tool classes.
- * @version $Id: WidgetFactory.java,v 1.1 2003/02/06 09:54:42 camerons Exp $
+ * @version $Id: WidgetFactory.java,v 1.2 2003/02/08 03:30:34 camerons Exp $
  * @author Cameron Shorter
  */
 public abstract class WidgetFactory {
@@ -68,4 +69,9 @@ public abstract class WidgetFactory {
     public abstract org.geotools.gui.widget.MapPane createMapPane(
             AbstractTool tool,
             Context context) throws IllegalArgumentException;
+    
+    /**
+     * Create an instance of FrameWidget.
+     */
+    public abstract FrameWidget createFrameWidget();
 }
