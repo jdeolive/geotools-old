@@ -17,6 +17,7 @@
 package org.geotools.feature;
 
 import com.vividsolutions.jts.geom.Geometry;
+import java.math.*;
 
 
 /**
@@ -26,7 +27,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.10 2003/08/29 08:39:17 seangeo Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.11 2003/09/02 18:37:29 ianschneider Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -256,40 +257,107 @@ public class DefaultAttributeType implements AttributeType {
          */
         public Object parse(Object value)
             throws IllegalArgumentException, RuntimeException {
+                
+            // handle null values first
             if (value == null) {
                 return value;
             }
 
-            if (type == Byte.class) {
-                return Byte.decode(value.toString());
-            }
-
-            if (type == Short.class) {
-                return Short.decode(value.toString());
-            }
-
-            if (type == Integer.class) {
-                return Integer.decode(value.toString());
-            }
-
-            if (type == Float.class) {
-                return Float.valueOf(value.toString());
-            }
-
-            if (type == Double.class) {
-                return Double.valueOf(value.toString());
-            }
-
-            if (type == Long.class) {
-                return Long.decode(value.toString());
-            }
-
-            if (Number.class.isAssignableFrom(type)) {
-                return new Double(value.toString());
-            }
+            // no parse needed here if types are compatable
+            if (value.getClass() == type || type.isAssignableFrom(value.getClass()))
+                return value;
+            
+            // convert one Number to our preferred type
+            if (value instanceof Number) 
+                return convertNumber( (Number) value);
+            
+            // parse a String to our preferred type
+            // note, this is the final parsing attempt !
+            Object parsed = parseFromString(value.toString());
+            
+            if (parsed != null)
+                return parsed;
 
             throw new RuntimeException(
                 "DefaultAttributeType.Numeric is coded wrong");
+        }
+        
+        protected Object parseFromString(String value) throws IllegalArgumentException {
+            Number parsed = null;
+            
+            if (type == Byte.class) {
+                return Byte.decode(value);
+            }
+            
+            if (type == Short.class) {
+                return Short.decode(value);
+            }
+            
+            if (type == Integer.class) {
+                return Integer.decode(value);
+            }
+            
+            if (type == Float.class) {
+                return Float.valueOf(value);
+            }
+            
+            if (type == Double.class) {
+                return Double.valueOf(value);
+            }
+            
+            if (type == Long.class) {
+                return Long.decode(value);
+            }
+            
+            if (type == BigInteger.class) {
+                return new BigInteger(value);   
+            }
+            
+            if (type == BigDecimal.class) {
+                return new BigDecimal(value);   
+            }
+            
+            if (Number.class.isAssignableFrom(type)) {
+                return new Double(value);
+            }
+            
+            return null;
+        }
+        
+        protected Object convertNumber(Number number) {
+            if (type == Byte.class) {
+                return new Byte(number.byteValue());
+            }
+            
+            if (type == Short.class) {
+                return new Short(number.shortValue());
+            }
+            
+            if (type == Integer.class) {
+                return new Integer(number.intValue());
+            }
+            
+            if (type == Float.class) {
+                return new Float(number.floatValue());
+            }
+            
+            if (type == Double.class) {
+                return new Double(number.doubleValue());
+            }
+            
+            if (type == Long.class) {
+                return new Long(number.longValue());
+            }
+            
+            if (type == BigInteger.class) {
+                return BigInteger.valueOf(number.longValue());
+            }
+            
+            if (type == BigDecimal.class) {
+                return BigDecimal.valueOf(number.longValue());
+            }
+            
+            throw new RuntimeException("DefaultAttribute.Numeric cannot parse " + number);
         }
     }
 
@@ -313,6 +381,7 @@ public class DefaultAttributeType implements AttributeType {
             super(name, org.geotools.feature.Feature.class, nillable);
             this.featureType = type;
         }
+        
 
         /**
          * Whether the tested object is a Feature and its attributes validate
