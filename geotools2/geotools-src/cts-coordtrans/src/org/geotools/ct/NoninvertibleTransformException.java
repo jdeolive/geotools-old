@@ -35,47 +35,37 @@
  */
 package org.geotools.ct;
 
-// Resources
-import org.geotools.resources.cts.Resources;
-import org.geotools.resources.cts.ResourceKeys;
-
 
 /**
- * Thrown when a parameter was missing.
- * For example, this exception may be thrown when a map projection
- * was requested but the "semi_major" parameter was not specified.
+ * Thrown when {@link MathTransform#inverse}
+ * is invoked but the transform can't be inverted.
  *
  * @version 1.0
  * @author Martin Desruisseaux
  */
-public class MissingParameterException extends RuntimeException {
+public class NoninvertibleTransformException extends TransformException {
     /**
      * Serial number for interoperability with different versions.
      */
-    private static final long serialVersionUID = 3365753083955970327L;
+    private static final long serialVersionUID = 837363778691118990L;
     
     /**
-     * The missing parameter name.
+     * Constructs a new exception with no detail message.
      */
-    private final String parameter;
-    
-    /**
-     * Constructs an exception with the specified detail message.
-     *
-     * @param msg the detail message, or <code>null</code> to construct
-     *        a default message from the missing parameter name.
-     * @param parameter The missing parameter name.
-     */
-    public MissingParameterException(final String msg, final String parameter) {
-        super((msg!=null || parameter==null) ? msg : Resources.format(
-                ResourceKeys.ERROR_MISSING_PARAMETER_$1, parameter));
-        this.parameter = parameter;
+    public NoninvertibleTransformException() {
     }
     
     /**
-     * Returns the missing parameter name.
+     * Constructs a new exception with the specified detail message.
      */
-    public String getMissingParameterName() {
-        return parameter;
+    public NoninvertibleTransformException(final String message) {
+        super(message);
+    }
+    
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     */
+    public NoninvertibleTransformException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 }

@@ -35,47 +35,58 @@
  */
 package org.geotools.ct;
 
+// Geotools dependences
+import org.geotools.cs.Datum;
+import org.geotools.cs.CoordinateSystem;
+
 // Resources
+import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
 
 /**
- * Thrown when a parameter was missing.
- * For example, this exception may be thrown when a map projection
- * was requested but the "semi_major" parameter was not specified.
+ * Thrown when a coordinate transformation can't be created.
+ * It may be because there is no known path between source and coordinate systems,
+ * or because the requested transformation is not available in the environment.
  *
  * @version 1.0
  * @author Martin Desruisseaux
  */
-public class MissingParameterException extends RuntimeException {
+public class CannotCreateTransformException extends TransformException {
     /**
      * Serial number for interoperability with different versions.
      */
-    private static final long serialVersionUID = 3365753083955970327L;
+    private static final long serialVersionUID = 5368463308772454145L;
     
     /**
-     * The missing parameter name.
+     * Construct an exception with no detail message.
      */
-    private final String parameter;
-    
-    /**
-     * Constructs an exception with the specified detail message.
-     *
-     * @param msg the detail message, or <code>null</code> to construct
-     *        a default message from the missing parameter name.
-     * @param parameter The missing parameter name.
-     */
-    public MissingParameterException(final String msg, final String parameter) {
-        super((msg!=null || parameter==null) ? msg : Resources.format(
-                ResourceKeys.ERROR_MISSING_PARAMETER_$1, parameter));
-        this.parameter = parameter;
+    public CannotCreateTransformException() {
     }
     
     /**
-     * Returns the missing parameter name.
+     * Construct an exception with the specified detail message.
      */
-    public String getMissingParameterName() {
-        return parameter;
+    public CannotCreateTransformException(final String message) {
+        super(message);
+    }
+    
+    /**
+     * Construct an exception with a message stating that no transformation
+     * path has been found between the specified coordinate system.
+     */
+    public CannotCreateTransformException(final CoordinateSystem sourceCS,
+                                          final CoordinateSystem targetCS)
+    {
+        this(Resources.format(ResourceKeys.ERROR_NO_TRANSFORMATION_PATH_$2,
+                              getName(sourceCS), getName(targetCS)));
+    }
+    
+    /**
+     * Gets a display name for the specified coordinate system.
+     */
+    private static String getName(final CoordinateSystem cs) {
+        return Utilities.getShortClassName(cs)+'('+cs.getName(null)+')';
     }
 }

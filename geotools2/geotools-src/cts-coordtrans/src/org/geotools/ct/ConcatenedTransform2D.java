@@ -36,46 +36,40 @@
 package org.geotools.ct;
 
 // Resources
-import org.geotools.resources.cts.Resources;
-import org.geotools.resources.cts.ResourceKeys;
+import org.geotools.resources.Geometry;
+
+// J2SE dependencies
+import java.awt.Shape;
+import java.awt.geom.Point2D;
 
 
 /**
- * Thrown when a parameter was missing.
- * For example, this exception may be thrown when a map projection
- * was requested but the "semi_major" parameter was not specified.
+ * Concatened transform in which the resulting transform is two-dimensional.
  *
  * @version 1.0
  * @author Martin Desruisseaux
  */
-public class MissingParameterException extends RuntimeException {
+final class ConcatenedTransform2D extends ConcatenedTransform implements MathTransform2D {
     /**
      * Serial number for interoperability with different versions.
      */
-    private static final long serialVersionUID = 3365753083955970327L;
+    private static final long serialVersionUID = -7307709788564866500L;
     
     /**
-     * The missing parameter name.
+     * Construct a concatenated transform.
      */
-    private final String parameter;
-    
-    /**
-     * Constructs an exception with the specified detail message.
-     *
-     * @param msg the detail message, or <code>null</code> to construct
-     *        a default message from the missing parameter name.
-     * @param parameter The missing parameter name.
-     */
-    public MissingParameterException(final String msg, final String parameter) {
-        super((msg!=null || parameter==null) ? msg : Resources.format(
-                ResourceKeys.ERROR_MISSING_PARAMETER_$1, parameter));
-        this.parameter = parameter;
+    public ConcatenedTransform2D(final MathTransformFactory provider,
+                                 final MathTransform transform1,
+                                 final MathTransform transform2)
+    {
+        super(provider, transform1, transform2);
     }
     
     /**
-     * Returns the missing parameter name.
+     * Check if transforms are compatibles
+     * with this implementation.
      */
-    public String getMissingParameterName() {
-        return parameter;
+    protected boolean isValid() {
+        return super.isValid() && getDimSource()==2 && getDimTarget()==2;
     }
 }
