@@ -298,6 +298,8 @@ public class ArcGridRaster {
         st.whitespaceChars(' ',' ');
         st.whitespaceChars(' ','\t');
         st.whitespaceChars('\n','\n');
+        st.whitespaceChars('\r','\r');//linefeed (on windows only?)
+        st.whitespaceChars('\f','\f');//form feed (on printers????)
         st.eolIsSignificant(false);        
         st.ordinaryChars('E', 'E');
         
