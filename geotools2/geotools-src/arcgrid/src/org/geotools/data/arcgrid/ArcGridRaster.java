@@ -16,6 +16,7 @@
  */
 package org.geotools.data.arcgrid;
 
+import org.geotools.data.DataSourceException;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
@@ -34,283 +35,325 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.geotools.data.DataSourceException;
 
 /**
- * Class user for parsing an ArcGrid header (.arc, .asc) file 
+ * Class user for parsing an ArcGrid header (.arc, .asc) file
  *
- * @author <a href="mailto:ckl@dacelo.nl">Christiaan ten Klooster</a> 
+ * @author <a href="mailto:ckl@dacelo.nl">Christiaan ten Klooster</a>
  */
 public class ArcGridRaster {
+    /** Column number tag in the header file */
+    public static final String NCOLS = "NCOLS";
 
-	public static String NCOLS = "NCOLS";
-	public static String NROWS = "NROWS";
-	public static String XLLCORNER = "XLLCORNER";
-	public static String YLLCORNER = "YLLCORNER";
-	public static String CELLSIZE = "CELLSIZE";
-	public static String NODATA_VALUE = "NODATA_VALUE";
+    /** Row number tag in the header file */
+    public static final String NROWS = "NROWS";
 
-	private URL srcURL;
-	int maxValue = -20;
-	int minValue = 20;
+    /** x corner coordinate tag in the header file */
+    public static final String XLLCORNER = "XLLCORNER";
 
-	Map propertyMap;
+    /** y corner coordinate tag in the header file */
+    public static final String YLLCORNER = "YLLCORNER";
 
-	public int getMaxValue() {
-		return maxValue;
-	}
+    /** cell size tag in the header file */
+    public static final String CELLSIZE = "CELLSIZE";
 
-	public void setMaxValue(int maxValue) {
-		this.maxValue = maxValue;
-	}
+    /** no data tag in the header file */
+    public static final String NODATA_VALUE = "NODATA_VALUE";
 
-	public int getMinValue() {
-		return minValue;
-	}
+    /** header or data file url */
+    private URL srcURL;
 
-	public void setMinValue(int minValue) {
-		this.minValue = minValue;
-	}
+    /** max value found in the file */
+    private int maxValue = Integer.MIN_VALUE;
 
-	/**
-	 * Creates a new instance of ArcGridRaster
-	 *
-	 * @param srcURL URL of a ArcGridRaster 
-	 *
-	 * @throws FileNotFoundException if the header file does not exist
-	 * @throws IOException if some problem is encountered reading the file
-	 * @throws DataSourceException for problems related to the file content
-	 */
-	public ArcGridRaster(URL srcURL)
-		throws FileNotFoundException, IOException, DataSourceException {
+    /** min value found in the file */
+    private int minValue = Integer.MAX_VALUE;
 
-		this.srcURL = srcURL;
-		propertyMap = initMap();
+    /** set of properties found in the header file */
+    private Map propertyMap;
 
-		// parse file
-		File srcFile = new File(srcURL.getFile());
-		BufferedReader reader = new BufferedReader(new FileReader(srcFile));
-		parseHeader(propertyMap, reader);
+    /**
+     * Creates a new instance of ArcGridRaster
+     *
+     * @param srcURL URL of a ArcGridRaster
+     *
+     * @throws FileNotFoundException if the header file does not exist
+     * @throws IOException if some problem is encountered reading the file
+     * @throws DataSourceException for problems related to the file content
+     */
+    public ArcGridRaster(URL srcURL) throws FileNotFoundException, IOException, DataSourceException {
+        this.srcURL = srcURL;
+        propertyMap = initMap();
 
-		if (!fullPropertySet(propertyMap)) {
-			throw new DataSourceException("Needed properties missing in ArcGrid header file");
-		}
-	}
+        // parse file
+        File srcFile = new File(srcURL.getFile());
+        BufferedReader reader = new BufferedReader(new FileReader(srcFile));
+        parseHeader(propertyMap, reader);
 
-	/**
-	 * Returns a property value
-	 *
-	 * @param property use mnemonic constants
-	 *
-	 * @return the property value or null if the passed property is not recognized
-	 */
-	public Object getProperty(String property) {
-		return propertyMap.get(property);
-	}
+        if (!fullPropertySet(propertyMap)) {
+            throw new DataSourceException("Needed properties missing in ArcGrid header file");
+        }
+    }
 
-	public int getNRows() {
-		return ((Integer) propertyMap.get(NROWS)).intValue();
-	}
+    /**
+     * Max value
+     *
+     * @return the max value contained in the data file
+     */
+    public int getMaxValue() {
+        return maxValue;
+    }
 
-	public int getNCols() {
-		return ((Integer) propertyMap.get(NCOLS)).intValue();
-	}
+    /**
+     * Min value
+     *
+     * @return the min value contained in the data file
+     */
+    public int getMinValue() {
+        return minValue;
+    }
 
-	public double getXlCorner() {
-		return ((Double) propertyMap.get(XLLCORNER)).intValue();
-	}
+    /**
+     * Returns a property value
+     *
+     * @param property use mnemonic constants
+     *
+     * @return the property value or null if the passed property is not recognized
+     */
+    public Object getProperty(String property) {
+        return propertyMap.get(property);
+    }
 
-	public double getYlCorner() {
-		return ((Double) propertyMap.get(YLLCORNER)).doubleValue();
-	}
+    /**
+     * Returns the number of rows contained in the file
+     *
+     * @return number of rows
+     */
+    public int getNRows() {
+        return ((Integer) propertyMap.get(NROWS)).intValue();
+    }
 
-	public double getCellSize() {
-		return ((Double) propertyMap.get(CELLSIZE)).doubleValue();
-	}
+    /**
+     * Returns the number of columns contained in the file
+     *
+     * @return number of columns
+     */
+    public int getNCols() {
+        return ((Integer) propertyMap.get(NCOLS)).intValue();
+    }
 
-	public double getNoData() {
-		return ((Double) propertyMap.get(NODATA_VALUE)).doubleValue();
-	}
+    /**
+     * Returns the x cordinate of the ... corner
+     *
+     * @return x cordinate of the ... corner
+     */
+    public double getXlCorner() {
+        return ((Double) propertyMap.get(XLLCORNER)).intValue();
+    }
 
-	/**
-	 * Initializes the map with the known properties, makes it easier to parse the file
-	 *
-	 * @return the initialized map
-	 */
-	private Map initMap() {
-		Map map = new HashMap();
-		map.put(NCOLS, null);
-		map.put(NROWS, null);
-		map.put(XLLCORNER, null);
-		map.put(YLLCORNER, null);
-		map.put(CELLSIZE, null);
-		map.put(NODATA_VALUE, null);
+    /**
+     * Returns the y cordinate of the ... corner
+     *
+     * @return y cordinate of the ... corner
+     */
+    public double getYlCorner() {
+        return ((Double) propertyMap.get(YLLCORNER)).doubleValue();
+    }
 
-		return map;
-	}
+    /**
+     * Returns the cell size
+     *
+     * @return cell size
+     */
+    public double getCellSize() {
+        return ((Double) propertyMap.get(CELLSIZE)).doubleValue();
+    }
 
-	/**
-	 * Parses the reader for the known properties
-	 *
-	 * @param properties the map to be filled in
-	 * @param reader the source data
-	 *
-	 * @throws IOException for reading errors
-	 * @throws DataSourceException for unrecoverable data format violations
-	 */
-	private void parseHeader(Map properties, BufferedReader reader)
-		throws IOException, DataSourceException {
-		String currLine = reader.readLine();
+    /**
+     * Returns the no data (null) value
+     *
+     * @return no data (null) value
+     */
+    public double getNoData() {
+        return ((Double) propertyMap.get(NODATA_VALUE)).doubleValue();
+    }
 
-		while (currLine != null) {
-			// remove uneeded spaces
-			currLine = currLine.trim();
+    /**
+     * Initializes the map with the known properties, makes it easier to parse the file
+     *
+     * @return the initialized map
+     */
+    private Map initMap() {
+        Map map = new HashMap();
+        map.put(NCOLS, null);
+        map.put(NROWS, null);
+        map.put(XLLCORNER, null);
+        map.put(YLLCORNER, null);
+        map.put(CELLSIZE, null);
+        map.put(NODATA_VALUE, null);
 
-			// get key and value            
-			int firstSpaceIndex = currLine.indexOf(' ');
+        return map;
+    }
 
-			if (firstSpaceIndex == -1) {
-				throw new DataSourceException("Illegal line in ArcGrid header file");
-			}
+    /**
+     * Parses the reader for the known properties
+     *
+     * @param properties the map to be filled in
+     * @param reader the source data
+     *
+     * @throws IOException for reading errors
+     * @throws DataSourceException for unrecoverable data format violations
+     */
+    private void parseHeader(Map properties, BufferedReader reader)
+        throws IOException, DataSourceException {
+        String currLine = reader.readLine();
 
-			String key = currLine.substring(0, firstSpaceIndex).toUpperCase();
-			String value = currLine.substring(firstSpaceIndex).trim();
+        while (currLine != null) {
+            // remove uneeded spaces
+            currLine = currLine.trim();
 
-			// be tolerant about unknown keys, all we need is a subset of the
-			// knows keys, the others will be discarded
-			if (properties.containsKey(key)) {
-				Class propClass = getPropertyClass(key);
+            // get key and value            
+            int firstSpaceIndex = currLine.indexOf(' ');
 
-				try {
-					if (propClass == String.class) {
-						properties.put(key, value);
-					} else if (propClass == Integer.class) {
-						properties.put(key, Integer.valueOf(value));
-					} else if (propClass == Double.class) {
-						properties.put(key, Double.valueOf(value));
-					}
-				} catch (NumberFormatException nfe) {
-					throw new DataSourceException(
-						"Invalid property value in ArcGrid header file",
-						nfe);
-				}
-			}
+            if (firstSpaceIndex == -1) {
+                throw new DataSourceException("Illegal line in ArcGrid header file");
+            }
 
-			// read next line
-			currLine = reader.readLine();
+            String key = currLine.substring(0, firstSpaceIndex).toUpperCase();
+            String value = currLine.substring(firstSpaceIndex).trim();
 
-			if (key.equals(NODATA_VALUE))
-				break;
-		}
-	}
+            // be tolerant about unknown keys, all we need is a subset of the
+            // knows keys, the others will be discarded
+            if (properties.containsKey(key)) {
+                Class propClass = getPropertyClass(key);
 
-	/**
-	 * Checks wheter all of the properties in the map have been assigned
-	 *
-	 * @param properties the property map to be checked
-	 *
-	 * @return true if the map is filled in with values, false if at least one value is null
-	 */
-	private boolean fullPropertySet(Map properties) {
-		boolean full = true;
-		Collection values = properties.values();
+                try {
+                    if (propClass == String.class) {
+                        properties.put(key, value);
+                    } else if (propClass == Integer.class) {
+                        properties.put(key, Integer.valueOf(value));
+                    } else if (propClass == Double.class) {
+                        properties.put(key, Double.valueOf(value));
+                    }
+                } catch (NumberFormatException nfe) {
+                    throw new DataSourceException("Invalid property value in ArcGrid header file",
+                        nfe);
+                }
+            }
 
-		for (Iterator it = values.iterator(); it.hasNext();) {
-			if (it.next() == null) {
-				full = false;
+            // read next line
+            currLine = reader.readLine();
 
-				break;
-			}
-		}
+            if (key.equals(NODATA_VALUE)) {
+                break;
+            }
+        }
+    }
 
-		return full;
-	}
+    /**
+     * Checks wheter all of the properties in the map have been assigned
+     *
+     * @param properties the property map to be checked
+     *
+     * @return true if the map is filled in with values, false if at least one value is null
+     */
+    private boolean fullPropertySet(Map properties) {
+        boolean full = true;
+        Collection values = properties.values();
 
-	/**
-	 * Returns the class of the value associated with a key
-	 *
-	 * @param key
-	 *
-	 * @return the class of the value associated to the passed key
-	 */
-	private Class getPropertyClass(String key) {
-		Class propClass = null;
+        for (Iterator it = values.iterator(); it.hasNext();) {
+            if (it.next() == null) {
+                full = false;
 
-		if (key.equals(XLLCORNER)
-			|| key.equals(YLLCORNER)
-			|| key.equals(CELLSIZE)
-			|| key.equals(NODATA_VALUE)) {
-			propClass = Double.class;
-		} else {
-			propClass = Integer.class;
-		}
+                break;
+            }
+        }
 
-		return propClass;
-	}
+        return full;
+    }
 
-	/**
-	 * Returns the RenderedImage of the raster
-	 * @return RenderedImage
-	 */
-	public RenderedImage getImage() {
+    /**
+     * Returns the class of the value associated with a key
+     *
+     * @param key use one of the constants declared in this class
+     *
+     * @return the class of the value associated to the passed key
+     */
+    private Class getPropertyClass(String key) {
+        Class propClass = null;
 
-		BufferedImage image =
-			new BufferedImage(getNCols(), getNRows(), BufferedImage.TYPE_BYTE_INDEXED);
+        if (key.equals(XLLCORNER) || key.equals(YLLCORNER) || key.equals(CELLSIZE)
+                || key.equals(NODATA_VALUE)) {
+            propClass = Double.class;
+        } else {
+            propClass = Integer.class;
+        }
 
-		WritableRaster writableRaster = image.getRaster();
+        return propClass;
+    }
 
-		try {
-			int type = 0;
+    /**
+     * Returns the RenderedImage of the raster
+     *
+     * @return RenderedImage
+     */
+    public RenderedImage getImage() {
+        BufferedImage image = new BufferedImage(getNCols(), getNRows(),
+                BufferedImage.TYPE_BYTE_INDEXED);
 
-			InputStream in = srcURL.openStream();
-			Reader r = new BufferedReader(new InputStreamReader(in));
-			StreamTokenizer st = new StreamTokenizer(r);
-			st.parseNumbers();
-			st.wordChars('_', '_');
-			st.eolIsSignificant(false);
-			st.lowerCaseMode(true);
+        WritableRaster writableRaster = image.getRaster();
 
-			// skip header
-			for (int i = 0; i < 15; i++) {
-				type = st.nextToken();
-			}
+        try {
+            int type = 0;
 
-			if (type == StreamTokenizer.TT_NUMBER) {
-				st.pushBack(); // put it back if its a number - thats data
-			} else {
-				type = st.nextToken();
-			}
+            InputStream in = srcURL.openStream();
+            Reader r = new BufferedReader(new InputStreamReader(in));
+            StreamTokenizer st = new StreamTokenizer(r);
+            st.parseNumbers();
+            st.wordChars('_', '_');
+            st.eolIsSignificant(false);
+            st.lowerCaseMode(true);
 
-			st.ordinaryChars('E', 'E');
+            // skip header
+            for (int i = 0; i < 15; i++) {
+                type = st.nextToken();
+            }
 
-			// Read and write values.
-			int i1 = 0;
-			double d1 = 0;
+            if (type == StreamTokenizer.TT_NUMBER) {
+                st.pushBack(); // put it back if its a number - thats data
+            } else {
+                type = st.nextToken();
+            }
 
-			//System.out.println("");
-			for (int y = 0; y < getNRows(); y++) {
-				for (int x = 0; x < getNCols(); x++) {
-					st.nextToken();
-					d1 = st.nval;
-					type = st.nextToken();
+            st.ordinaryChars('E', 'E');
 
-					if ((type != StreamTokenizer.TT_NUMBER) && (type != StreamTokenizer.TT_EOF)) {
-						/* Either an exponent term number or end of file marker or something is wrong (eg. grid value is non-numeric)! */
-						st.nextToken();
-						d1 = d1 * Math.pow(10.0, st.nval);
-					} else {
-						st.pushBack();
-					}
+            // Read and write values.
+            int i1 = 0;
+            double d1 = 0;
 
-					i1 = new Double(255.0d * (d1 - minValue) / (maxValue - minValue)).intValue();
-					writableRaster.setSample(x, y, 0, i1);
-				}
-			}
+            //System.out.println("");
+            for (int y = 0; y < getNRows(); y++) {
+                for (int x = 0; x < getNCols(); x++) {
+                    st.nextToken();
+                    d1 = st.nval;
+                    type = st.nextToken();
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+                    if ((type != StreamTokenizer.TT_NUMBER) && (type != StreamTokenizer.TT_EOF)) {
+                        /* Either an exponent term number or end of file marker or something is wrong (eg. grid value is non-numeric)! */
+                        st.nextToken();
+                        d1 = d1 * Math.pow(10.0, st.nval);
+                    } else {
+                        st.pushBack();
+                    }
 
-		return image;
-	}
+                    i1 = new Double((255.0d * (d1 - minValue)) / (maxValue - minValue)).intValue();
+                    writableRaster.setSample(x, y, 0, i1);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return image;
+    }
 }
