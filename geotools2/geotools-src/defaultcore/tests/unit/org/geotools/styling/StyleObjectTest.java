@@ -18,7 +18,9 @@ package org.geotools.styling;
 
 import junit.framework.TestCase;
 
+import org.geotools.filter.Expression;
 import org.geotools.filter.FilterFactory;
+import org.geotools.util.Cloneable;
 
 
 /** Tests style cloning
@@ -64,7 +66,7 @@ public class StyleObjectTest extends TestCase {
         Style style = styleFactory.getDefaultStyle();
         style.addFeatureTypeStyle(fts);
         style.addFeatureTypeStyle(fts2);
-        Style clone = (Style) style.clone();
+        Style clone = (Style) ((Cloneable)style).clone();
         assertClone(style,clone);
         
         Style notEq = styleFactory.getDefaultStyle();
@@ -84,7 +86,7 @@ public class StyleObjectTest extends TestCase {
         fts.addRule(rule1);
         fts.addRule(rule2);
         
-        FeatureTypeStyle clone = (FeatureTypeStyle) fts.clone();
+        FeatureTypeStyle clone = (FeatureTypeStyle) ((Cloneable)fts).clone();
         assertClone(fts,clone);
         
         FeatureTypeStyle notEq = styleFactory.createFeatureTypeStyle();
@@ -103,17 +105,21 @@ public class StyleObjectTest extends TestCase {
                                 "shape");
         Rule rule = styleFactory.createRule();
         rule.setSymbolizers(new Symbolizer[]{ symb1,symb2});        
-        Rule clone = (Rule) rule.clone();
+        Rule clone = (Rule) ((Cloneable)rule).clone();
         assertClone(rule,clone);
+        
         
         Rule notEq = styleFactory.createRule();
         notEq.setSymbolizers(new Symbolizer[]{symb2});
         assertEqualsContract(clone,notEq,rule);
+        
+        clone.setSymbolizers(new Symbolizer[]{symb1});
+        assertTrue(!rule.equals(clone));   
     }
     
     public void testPointSymbolizer() throws Exception {
         PointSymbolizer pointSymb = styleFactory.createPointSymbolizer();
-        PointSymbolizer clone = (PointSymbolizer) pointSymb.clone();
+        PointSymbolizer clone = (PointSymbolizer) ((Cloneable)pointSymb).clone();
         assertClone(pointSymb,clone);
         
         PointSymbolizer notEq = styleFactory.getDefaultPointSymbolizer();
@@ -122,18 +128,89 @@ public class StyleObjectTest extends TestCase {
     }
     
     public void testTextSymbolizer() {
-//        TextSymbolizer textSymb = styleFactory.createTextSymbolizer();
-//        TextSymbolizer clone = (TextSymbolizer) textSymb.clone();
-//        assertClone(textSymb,clone);
-//        
-//        TextSymbolizer notEq = styleFactory.getDefaultTextSymbolizer();
-//        notEq.setGeometryPropertyName("something_else");
-//        assertEqualsContract(clone, notEq, textSymb);
+        TextSymbolizer textSymb = styleFactory.createTextSymbolizer();
+        Expression offset = filterFactory.createLiteralExpression(10);
+        textSymb.setLabelPlacement(styleFactory.createLinePlacement(offset));
+        TextSymbolizer clone = (TextSymbolizer) ((Cloneable)textSymb).clone();
+        assertClone(textSymb,clone);
+        
+        TextSymbolizer notEq = styleFactory.getDefaultTextSymbolizer();
+        Expression ancX = filterFactory.createLiteralExpression(10);
+        Expression ancY = filterFactory.createLiteralExpression(10);
+        AnchorPoint ancPoint = styleFactory.createAnchorPoint(ancX, ancY);
+        LabelPlacement placement = styleFactory.createPointPlacement(ancPoint, null, null);
+        notEq.setLabelPlacement(placement);
+        assertEqualsContract(clone, notEq, textSymb);
+    }
+    
+    public void testFont() {
+        Font font = styleFactory.getDefaultFont();
+        Font clone = (Font) ((Cloneable)font).clone();
+        assertClone(font,clone);
+        
+        Font other = styleFactory.createFont(filterFactory.createLiteralExpression("other"), 
+                        filterFactory.createLiteralExpression("normal"), 
+                        filterFactory.createLiteralExpression("BOLD"), 
+                        filterFactory.createLiteralExpression(12));
+        
+        assertEqualsContract(clone, other, font);
+    }
+    
+    public void testHalo() {
+        Halo halo = styleFactory.createHalo(styleFactory.getDefaultFill(), 
+                        filterFactory.createLiteralExpression(10));
+        Halo clone = (Halo) ((Cloneable) halo).clone();
+        assertClone(halo,clone);
+        
+        Halo other = styleFactory.createHalo(styleFactory.getDefaultFill(),
+                        filterFactory.createLiteralExpression(12));
+        assertEqualsContract(clone,other,halo);       
+    }
+    
+    public void testLinePlacement() throws Exception {
+        LinePlacement linePlacement = styleFactory.createLinePlacement(filterFactory.createLiteralExpression(12));
+        LinePlacement clone = (LinePlacement) ((Cloneable) linePlacement).clone();
+        assertClone(linePlacement,clone);
+        
+        LinePlacement other = styleFactory.createLinePlacement(filterFactory.createAttributeExpression(null, "NAME"));
+        assertEqualsContract(clone,other,linePlacement);    
+    }
+    
+    public void testAnchorPoint() {
+        AnchorPoint anchorPoint = styleFactory.createAnchorPoint(filterFactory.createLiteralExpression(1),
+                                    filterFactory.createLiteralExpression(2));
+        AnchorPoint clone = (AnchorPoint) ((Cloneable) anchorPoint).clone();
+        assertClone(anchorPoint,clone);
+        
+        AnchorPoint other = styleFactory.createAnchorPoint(filterFactory.createLiteralExpression(3),
+                                    filterFactory.createLiteralExpression(4));
+        assertEqualsContract(clone, other, anchorPoint);
+    }
+    
+    public void testDisplacement() {
+        Displacement displacement = styleFactory.createDisplacement(filterFactory.createLiteralExpression(1),
+                                    filterFactory.createLiteralExpression(2));
+        Displacement clone = (Displacement) ((Cloneable) displacement).clone();
+        assertClone(displacement,clone);
+    
+        Displacement other = styleFactory.createDisplacement(filterFactory.createLiteralExpression(3),
+                                    filterFactory.createLiteralExpression(4));
+        assertEqualsContract(clone, other, displacement);
+    }
+    
+    public void testPointPlacement() {
+        PointPlacement pointPl = styleFactory.getDefaultPointPlacement();
+        PointPlacement clone = (PointPlacement) ((Cloneable) pointPl).clone();
+        assertClone(pointPl,clone);
+        
+        PointPlacement other = (PointPlacement) ((Cloneable) pointPl).clone();
+        other.setRotation(filterFactory.createLiteralExpression(274.0));
+        assertEqualsContract(clone, other, pointPl);
     }
     
     public void testPolygonSymbolizer() {
         PolygonSymbolizer polygonSymb = styleFactory.createPolygonSymbolizer();
-        PolygonSymbolizer clone = (PolygonSymbolizer) polygonSymb.clone();
+        PolygonSymbolizer clone = (PolygonSymbolizer) ((Cloneable)polygonSymb).clone();
         assertClone(polygonSymb,clone);
         
         PolygonSymbolizer notEq = styleFactory.getDefaultPolygonSymbolizer();
@@ -143,7 +220,7 @@ public class StyleObjectTest extends TestCase {
     
     public void testLineSymbolizer() {
         LineSymbolizer lineSymb = styleFactory.createLineSymbolizer();
-        LineSymbolizer clone = (LineSymbolizer) lineSymb.clone();
+        LineSymbolizer clone = (LineSymbolizer) ((Cloneable)lineSymb).clone();
         assertClone(lineSymb,clone);
         
         LineSymbolizer notEq = styleFactory.getDefaultLineSymbolizer();
@@ -153,8 +230,11 @@ public class StyleObjectTest extends TestCase {
     
     public void testGraphic() {
         Graphic graphic = styleFactory.getDefaultGraphic();
-        Graphic clone = (Graphic) graphic.clone();
+        graphic.addMark(styleFactory.getDefaultMark());
+        Graphic clone = (Graphic) ((Cloneable)graphic).clone();
         assertClone(graphic,clone);
+        assertEqualsContract(clone,graphic);
+        assertEquals(clone.getSymbols().length,graphic.getSymbols().length);
         
         Graphic notEq = styleFactory.getDefaultGraphic();
         notEq.setGeometryPropertyName("geomprop");
@@ -163,21 +243,21 @@ public class StyleObjectTest extends TestCase {
     
     public void testExternalGraphic() {
         ExternalGraphic exGraphic = styleFactory.createExternalGraphic("http://somewhere", "image/png");
-        ExternalGraphic clone = (ExternalGraphic) exGraphic.clone();
+        ExternalGraphic clone = (ExternalGraphic) ((Cloneable)exGraphic).clone();
         assertClone(exGraphic,clone);
         
         ExternalGraphic notEq = styleFactory.createExternalGraphic("http://somewhereelse", "image/jpeg");
         assertEqualsContract(clone, notEq, exGraphic);
         
         // make sure it works for different format, same url
-        ExternalGraphic notEq2 = (ExternalGraphic) clone.clone();
+        ExternalGraphic notEq2 = (ExternalGraphic) ((Cloneable)clone).clone();
         notEq2.setFormat("image/jpeg");
         assertEqualsContract(clone,notEq2,exGraphic);
     }
     
     public void testMark() {
         Mark mark = styleFactory.getCircleMark();
-        Mark clone = (Mark) mark.clone();
+        Mark clone = (Mark) ((Cloneable)mark).clone();
         assertClone(mark,clone);
         
         Mark notEq = styleFactory.getStarMark();
@@ -186,7 +266,7 @@ public class StyleObjectTest extends TestCase {
     
     public void testFill() {
         Fill fill = styleFactory.getDefaultFill();
-        Fill clone = (Fill) fill.clone();
+        Fill clone = (Fill) ((Cloneable)fill).clone();
         assertClone(fill,clone);
         
         Fill notEq = styleFactory.createFill(filterFactory.createLiteralExpression("#FF0000"));
