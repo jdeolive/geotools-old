@@ -12,7 +12,7 @@ package org.geotools.styling;
  *
  * @author  iant
  *
- * @version $Id: SLDStyle.java,v 1.1 2002/05/27 13:31:51 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.2 2002/05/28 09:39:44 ianturton Exp $
  */
 
 import org.w3c.dom.*;
@@ -77,6 +77,7 @@ public class SLDStyle implements org.geotools.styling.Style {
     private void addFeatureTypeStyle(FeatureTypeStyle ft){
         fts.add(ft);
     }
+    
     public FeatureTypeStyle[] getFeatureTypeStyles() {
         return (FeatureTypeStyle[]) fts.toArray(new FeatureTypeStyle[0]);
     }
@@ -100,13 +101,7 @@ public class SLDStyle implements org.geotools.styling.Style {
         System.out.println("setting name "+name);
         this.name = name;
     }
-    
-    /** Getter for property abstractStr.
-     * @return Value of property abstractStr.
-     */
-    public java.lang.String getAbstractStr() {
-        return abstractStr;
-    }
+  
     
     /** Setter for property abstractStr.
      * @param abstractStr New value of property abstractStr.
@@ -174,6 +169,7 @@ public class SLDStyle implements org.geotools.styling.Style {
     private FeatureTypeStyle parseFeatureTypeStyle(Node style){
         System.out.println("Parsing featuretype style "+style.getNodeName());
         DefaultFeatureTypeStyle ft = new DefaultFeatureTypeStyle();
+
         ArrayList rules = new ArrayList();
         //System.out.println(""+style.toString());
         NodeList children = style.getChildNodes();
@@ -283,6 +279,8 @@ public class SLDStyle implements org.geotools.styling.Style {
     }
     public PolygonSymbolizer parsePolygonSymbolizer(Node root){
         DefaultPolygonSymbolizer symbol = new DefaultPolygonSymbolizer();
+        symbol.setFill((Fill)null);
+        symbol.setStroke((Stroke)null);
         NodeList children = root.getChildNodes();
         for(int i=0; i<children.getLength(); i++){
             Node child = children.item(i);
@@ -329,6 +327,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 System.out.println("processing attribute "+res);
                 
                 if(res.equalsIgnoreCase("stroke")){
+                    System.out.println("setting color "+child.getFirstChild().getNodeValue());
                     stroke.setColor(child.getFirstChild().getNodeValue());
                 }
                 if(res.equalsIgnoreCase("width")||res.equalsIgnoreCase("stroke-width")){
