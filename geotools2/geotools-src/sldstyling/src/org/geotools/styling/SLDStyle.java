@@ -24,7 +24,7 @@ package org.geotools.styling;
  * A class to read and parse an SLD file based on verion 0.7.2 of
  * the OGC Styled Layer Descriptor Spec.
  *
- * @version $Id: SLDStyle.java,v 1.9 2002/06/08 13:01:14 jmacgill Exp $
+ * @version $Id: SLDStyle.java,v 1.10 2002/06/18 11:20:11 ianturton Exp $
  * @author Ian Turton, CCG
  *
 
@@ -407,7 +407,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             if(child.getNodeName().equalsIgnoreCase("OnLineResource")){
                 _log.debug("online resource child is "+child);
                 _log.debug("seting ExtGraph uri "+child.getFirstChild().getNodeValue());
-                extgraph.setURI(child.getNodeValue());
+                extgraph.setURI(child.getFirstChild().getNodeValue());
             }
             if(child.getNodeName().equalsIgnoreCase("format")){
                 _log.debug("format child is "+child);
