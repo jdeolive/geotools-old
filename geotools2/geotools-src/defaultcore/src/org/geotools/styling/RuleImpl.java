@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: RuleImpl.java,v 1.8 2003/08/03 05:06:31 seangeo Exp $
+ * @version $Id: RuleImpl.java,v 1.9 2003/08/07 01:11:29 seangeo Exp $
  * @author James Macgill
  */
 import java.util.ArrayList;
@@ -186,11 +186,16 @@ public class RuleImpl implements org.geotools.styling.Rule, Cloneable {
         visitor.visit(this);
     }
     
-    /* (non-Javadoc)
+    /** Creates a deep copy clone of the rule.
      * @see org.geotools.styling.Rule#clone()
      */
-    public Object clone() throws CloneNotSupportedException {
-        Rule clone = (Rule) super.clone();
+    public Object clone() {
+        Rule clone;
+        try {
+            clone = (Rule) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e); // this should never happen.
+        }
         
         Graphic[] legends = new Graphic[graphics.size()];
         for (int i = 0; i < legends.length; i++) {

@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
 
 /**
- * @version $Id: StyleImpl.java,v 1.14 2003/08/03 05:06:31 seangeo Exp $
+ * @version $Id: StyleImpl.java,v 1.15 2003/08/07 01:11:30 seangeo Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style, Cloneable {
@@ -124,13 +124,18 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
         visitor.visit(this);
     }
     
-    /** Clones the Style.
+    /** Clones the Style.  Creates deep copy clone of the style.
      * 
      * @return the Clone of the style.
      * @see org.geotools.styling.Style#clone()
      */
-    public Object clone() throws CloneNotSupportedException {
-        Style clone = (Style) super.clone();
+    public Object clone() {
+        Style clone;
+        try {
+            clone = (Style) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e); // this should never happen since we implement Cloneable
+        }
         
         FeatureTypeStyle[] ftsArray = new FeatureTypeStyle[featureTypeStyleList.size()];
         

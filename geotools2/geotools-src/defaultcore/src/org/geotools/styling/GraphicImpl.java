@@ -42,7 +42,7 @@ import org.geotools.filter.Expression;
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.12 2003/08/03 05:06:31 seangeo Exp $
+ * @version $Id: GraphicImpl.java,v 1.13 2003/08/07 01:11:30 seangeo Exp $
  */
 public class GraphicImpl implements org.geotools.styling.Graphic {
     /** The logger for the default core module. */
@@ -331,10 +331,15 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
      * currently only shallow copy.
      * 
      * @return The deep copy clone.
-     * @throws CloneNotSupportedException If the implementing 
-     * class does not correctly support cloning.
+     * 
      */
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public Object clone()  {
+        Object clone;
+        try {
+            clone = super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e); // this should never happen.
+        }
+        return clone;
     }
 }

@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.10 2003/08/03 05:06:31 seangeo Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.11 2003/08/07 01:11:30 seangeo Exp $
  * @author James Macgill
  */
 public class FeatureTypeStyleImpl
@@ -127,8 +127,13 @@ protected FeatureTypeStyleImpl(Rule[] rules) {
     /** Creates a deep copy clone of the FeatureTypeStyle.
      * @see org.geotools.styling.FeatureTypeStyle#clone()
      */
-    public Object clone() throws CloneNotSupportedException {
-        FeatureTypeStyle clone = (FeatureTypeStyle) super.clone();
+    public Object clone() {
+        FeatureTypeStyle clone;
+        try {
+            clone = (FeatureTypeStyle) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e); // this should never happen.
+        }
         
         Rule[] ruleArray = new Rule[ruleList.size()];        
         for (int i = 0; i < ruleArray.length; i++) {
