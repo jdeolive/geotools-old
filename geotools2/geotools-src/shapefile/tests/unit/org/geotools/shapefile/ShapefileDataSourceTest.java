@@ -80,8 +80,8 @@ public class ShapefileDataSourceTest extends TestCase {
             System.out.println("Testing ability to load "+url);
             Shapefile shapefile = new Shapefile(url);
             url = new URL("file:///"+dataFolder+"/statepop");
-            DbaseFileReader dbf = new DbaseFileReader(url.getFile());
-            ShapefileDataSource datasource = new ShapefileDataSource(shapefile,dbf);
+            //DbaseFileReader dbf = new DbaseFileReader(url.getFile());
+            ShapefileDataSource datasource = new ShapefileDataSource(shapefile);
             FeatureCollection table = new FeatureCollectionDefault();
             table.setDataSource(datasource);
             EnvelopeExtent r = new EnvelopeExtent();
