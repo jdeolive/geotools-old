@@ -61,7 +61,7 @@ import java.sql.SQLException;
  *   </li>
  * </ul>
  *
- * @version $Id: CoordinateSystemModifiedEPSGFactory.java,v 1.1 2004/01/25 21:55:50 desruisseaux Exp $
+ * @version $Id: CoordinateSystemModifiedEPSGFactory.java,v 1.2 2004/01/25 22:05:33 desruisseaux Exp $
  * @author Rueben Schulz
  * @author Martin Desruisseaux
  */
@@ -162,12 +162,10 @@ public class CoordinateSystemModifiedEPSGFactory extends CoordinateSystemEPSGFac
              */
             int start = 0;
             while ((start=modified.indexOf(oldName, start)) >= 0) {
-                final int oldLength = oldName.length();
-                final int newLength = newName.length();
-                modified.replace(start, start+oldLength, newName);
-                start += newLength-oldLength;
+                modified.replace(start, start+oldName.length(), newName);
+                start += newName.length();
             }
         }
         return modified.toString();
-    }        
+    }
 }
