@@ -15,6 +15,7 @@
       <item name="Plugins" href="/plugins/index.html"/>
       <item name="Powered By" href="/powered.html"/>
     </menu> -->
+        
         <links><item name="geotools.org" href="http://www.geotools.org"></item>
       <item name="core" href="/../core"></item>
       <item name="defaultcore" href="/../defaultcore"></item>
@@ -28,7 +29,10 @@
                 
             </item>
             
-            <item name="cts" href="/../cts-coordtrans">
+            <item name="coordtrans" href="/../cts-coordtrans">
+                
+            </item>
+            <item name="sldstyling" href="/../sldstyling">
                 
             </item>
         </links>

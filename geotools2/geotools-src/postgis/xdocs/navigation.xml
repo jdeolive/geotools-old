@@ -18,6 +18,7 @@
     </menu> -->
         
         
+        
         <links><item name="geotools.org" href="http://www.geotools.org"></item>
       <item name="core" href="/../core"></item>
       <item name="defaultcore" href="/../defaultcore"></item>
@@ -31,6 +32,12 @@
                 
             </item>
             
+            <item name="coordtrans" href="/../cts-coordtrans">
+                
+            </item>
+            <item name="sldstyling" href="/../sldstyling">
+                
+            </item>
         </links>
     </body>
 </project>
