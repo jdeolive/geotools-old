@@ -36,7 +36,7 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.14 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: FeatureFlat.java,v 1.15 2002/08/09 09:50:29 ianturton Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFlat implements Feature {
@@ -294,9 +294,10 @@ public class FeatureFlat implements Feature {
         LOGGER.finer("has attribute: " + schema.hasAttributeType(xPath));
 
         if (schema.hasAttributeType(xPath)) {
-            LOGGER.finest("attribute: " + definition.toString());
+            
 
             definition = schema.getAttributeType(xPath);
+            LOGGER.finest("attribute: " + definition.toString());
             if (definition.getType().isAssignableFrom(attribute.getClass())) {
                 LOGGER.finest("position: " + definition.getPosition());
                 attributes[definition.getPosition()] = attribute;
