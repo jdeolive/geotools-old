@@ -58,7 +58,7 @@ import java.nio.channels.*;
  *       the same FeatureType, compatable Geometry classes, etc.</li>
  * </ol>
  * 
- * @version $Id: ShapefileDataSource.java,v 1.16 2003/07/23 00:59:58 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.17 2003/07/23 01:03:14 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  * @author aaimee
@@ -313,6 +313,7 @@ public class ShapefileDataSource extends AbstractDataSource {
    * query, and a bitset to record the selection.
    * The key piece of this is that the original types must be in the same
    * order they appear in the dbase header....
+   * @todo fix me, this is based on old query stuff which I (IanS) misunderstood
    */
   protected AttributeType[] determineAttributeTypes(AttributeType[] ds,Query q,int[] sel) {
     AttributeType[] attTypes;
@@ -458,11 +459,7 @@ public class ShapefileDataSource extends AbstractDataSource {
       writeStash = new Object[type.getAttributeTypes().length];
       id = getIDFactory();
       
-      System.out.println("MAPPING ");
-      for (int i = 0, ii = mapping.length; i < ii; i++) {
-        System.out.println(i + " -> " + mapping[i]);
-      }
-      System.out.println("type " + type);
+
     }
     
     public boolean hasNext() throws IOException {
