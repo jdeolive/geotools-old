@@ -1,11 +1,23 @@
 package org.geotools.data;
 
-import org.geotools.feature.*;
-import java.util.*;
-import java.io.*;
-import com.vividsolutions.jts.geom.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.filter.Filter;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 public class VeryBasicDataSource extends AbstractDataSource 
     implements DataSource {

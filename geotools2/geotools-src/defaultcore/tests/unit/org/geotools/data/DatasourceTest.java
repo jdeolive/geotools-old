@@ -1,10 +1,17 @@
 package org.geotools.data;
 
-import com.vividsolutions.jts.geom.*;
-import org.geotools.feature.*;
-import java.util.*;
-import junit.framework.*;
-import org.geotools.filter.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.geotools.feature.CollectionEvent;
+import org.geotools.feature.CollectionListener;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIndex;
+import org.geotools.filter.AbstractFilter;
+import org.geotools.filter.LiteralExpression;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 public class DatasourceTest extends TestCase implements CollectionListener {
 

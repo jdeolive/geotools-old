@@ -7,8 +7,9 @@
 
 package org.geotools.feature;
 
-import junit.framework.*;
-import org.geotools.feature.FeatureTypeFactory;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  *

@@ -7,15 +7,20 @@
 
 package org.geotools;
 
-import junit.framework.*;
-import org.geotools.data.*;
-import org.geotools.feature.*;
-import org.geotools.filter.*;
-import org.geotools.styling.*;
-
-import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.geotools.data.DatasourceTest;
+import org.geotools.data.MemoryDataSourceTest;
+import org.geotools.feature.FeatureFlatTest;
+import org.geotools.filter.ExpressionTest;
+import org.geotools.filter.FilterEqualsTest;
+import org.geotools.filter.FilterTest;
+import org.geotools.styling.StyleFactoryImplTest;
+import org.geotools.styling.TextSymbolTest;
 /**
  *
  * @author jamesm

@@ -16,12 +16,24 @@
  */
 package org.geotools.filter;
 
-import com.vividsolutions.jts.geom.*;
-import junit.framework.*;
-import org.geotools.data.*;
-import org.geotools.feature.*;
-import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.feature.IllegalAttributeException;
+import org.geotools.feature.SchemaException;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 
 /**
@@ -93,29 +105,29 @@ public class ExpressionTest extends TestCase {
         // Create the schema attributes
         LOGGER.finer("creating flat feature...");
 
-        AttributeType geometryAttribute = attFactory.newAttributeType("testGeometry",
+        AttributeType geometryAttribute = AttributeTypeFactory.newAttributeType("testGeometry",
                 LineString.class);
         LOGGER.finer("created geometry attribute");
 
-        AttributeType booleanAttribute = attFactory.newAttributeType("testBoolean",
+        AttributeType booleanAttribute = AttributeTypeFactory.newAttributeType("testBoolean",
                 Boolean.class);
         LOGGER.finer("created boolean attribute");
 
-        AttributeType charAttribute = attFactory.newAttributeType("testCharacter",
+        AttributeType charAttribute = AttributeTypeFactory.newAttributeType("testCharacter",
                 Character.class);
-        AttributeType byteAttribute = attFactory.newAttributeType("testByte",
+        AttributeType byteAttribute = AttributeTypeFactory.newAttributeType("testByte",
                 Byte.class);
-        AttributeType shortAttribute = attFactory.newAttributeType("testShort",
+        AttributeType shortAttribute = AttributeTypeFactory.newAttributeType("testShort",
                 Short.class);
-        AttributeType intAttribute = attFactory.newAttributeType("testInteger",
+        AttributeType intAttribute = AttributeTypeFactory.newAttributeType("testInteger",
                 Integer.class);
-        AttributeType longAttribute = attFactory.newAttributeType("testLong",
+        AttributeType longAttribute = AttributeTypeFactory.newAttributeType("testLong",
                 Long.class);
-        AttributeType floatAttribute = attFactory.newAttributeType("testFloat",
+        AttributeType floatAttribute = AttributeTypeFactory.newAttributeType("testFloat",
                 Float.class);
-        AttributeType doubleAttribute = attFactory.newAttributeType("testDouble",
+        AttributeType doubleAttribute = AttributeTypeFactory.newAttributeType("testDouble",
                 Double.class);
-        AttributeType stringAttribute = attFactory.newAttributeType("testString",
+        AttributeType stringAttribute = AttributeTypeFactory.newAttributeType("testString",
                 String.class);
 
         // Builds the schema

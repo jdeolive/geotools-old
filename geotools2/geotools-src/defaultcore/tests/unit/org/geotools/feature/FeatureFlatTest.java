@@ -1,12 +1,19 @@
 package org.geotools.feature;
 
-import junit.framework.*;
-import com.vividsolutions.jts.geom.*;
-
-import java.util.*;
+import java.util.Date;
 import java.util.logging.Logger;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.geotools.resources.Geotools;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 public class FeatureFlatTest extends TestCase {
 

@@ -9,9 +9,13 @@ package org.geotools.styling;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import junit.framework.*;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.geotools.feature.Feature;
-import org.geotools.filter.*;
+import org.geotools.filter.Expression;
 import org.geotools.filter.FilterFactory;
 
 /**

@@ -16,14 +16,19 @@
  */
 package org.geotools.data;
 
-import com.vividsolutions.jts.geom.Envelope;
-import java.util.*;
-import junit.framework.*;
-import org.geotools.data.DefaultQuery;
-import org.geotools.feature.*;
+import java.util.ArrayList;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollections;
+import org.geotools.feature.SampleFeatureFixtures;
 import org.geotools.filter.Filter;
-import java.util.HashSet;
-import java.util.Set;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /*

@@ -20,19 +20,21 @@
 
 package org.geotools.map;
 
-import com.vividsolutions.jts.geom.Envelope;
-import java.util.EventObject;
 import java.util.logging.Logger;
-import junit.framework.*;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.CoordinateSystemFactory;
-import org.geotools.cs.Datum;
 import org.geotools.cs.FactoryException;
 import org.geotools.cs.HorizontalDatum;
 import org.geotools.ct.MathTransform;
-import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.events.BoundingBoxEvent;
-import org.geotools.map.BoundingBoxImpl;
+import org.geotools.map.events.BoundingBoxListener;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Unit test for BoundingBox.
@@ -98,7 +100,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
         try {
             bbox1= new BoundingBoxImpl(envelope,cs);
         } catch (IllegalArgumentException e) {
-            this.fail("exception raised using default contructor");
+            fail("exception raised using default contructor");
         }
     }
 
@@ -108,7 +110,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
             BoundingBoxImpl bbox1=
                 new BoundingBoxImpl(null,(CoordinateSystem)null);
             // If an exception has not been raised yet, then fail the test.
-            this.fail("No exception when creating using a null contructor");
+            fail("No exception when creating using a null contructor");
         } catch (IllegalArgumentException e) {
         }
     }
@@ -119,7 +121,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
             BoundingBoxImpl bbox1=
                 new BoundingBoxImpl(envelope,(CoordinateSystem)null);
             // If an exception has not been raised yet, then fail the test.
-            this.fail("No exception when creating using a null Coord System");
+            fail("No exception when creating using a null Coord System");
         } catch (IllegalArgumentException e) {
         }
     }
@@ -130,7 +132,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
             BoundingBoxImpl bbox1=
                 new BoundingBoxImpl(null,cs);
             // If an exception has not been raised yet, then fail the test.
-            this.fail("No exception when creating using a null Bbox");
+            fail("No exception when creating using a null Bbox");
         } catch (IllegalArgumentException e) {
         }
     }
@@ -150,7 +152,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
             Thread.sleep(1000);
             //delay 1 sec to allow a new thread to call
             //areaOfInterestChangedEvent.
-            this.assertTrue("Event not sent after bbox change",changeEventSent);
+            assertTrue("Event not sent after bbox change",changeEventSent);
 
             changeEventSent=false;
             bbox1.removeAreaOfInterestChangedListener(this);
@@ -159,13 +161,13 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
             Thread.sleep(1000);
             //delay 1 sec to allow a new thread to call
             //areaOfInterestChangedEvent.
-            this.assertTrue("Event sent after de-registering for events",
+            assertTrue("Event sent after de-registering for events",
                 !changeEventSent);
 
         } catch (IllegalArgumentException e) {
-            this.fail("exception raised using default contructor");
+            fail("exception raised using default contructor");
         } catch (java.lang.InterruptedException e){
-            this.fail("exception in sleep: "+e);
+            fail("exception in sleep: "+e);
         }
     }
     
@@ -174,7 +176,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
         Envelope envelope1=new Envelope(10.0,10.0,20.0,20.0);
         bbox.setAreaOfInterest(envelope1);
         Envelope envelope2=bbox.getAreaOfInterest();
-        this.assertTrue("set/getEnvelope not working",
+        assertTrue("set/getEnvelope not working",
             envelope1.equals(envelope2));
     }
     
@@ -187,7 +189,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
         bbox.setAreaOfInterest(envelope1);
         envelope1.expandToInclude(1.0,2.0);
         Envelope envelope3=bbox.getAreaOfInterest();
-        this.assertTrue("Changing extracted Envelope changes internal values",
+        assertTrue("Changing extracted Envelope changes internal values",
             (envelope1!=envelope2)
             && envelope3.equals(envelope2));
     }
@@ -201,7 +203,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
         Envelope envelope3=bbox.getAreaOfInterest();
         Envelope envelope2=new Envelope(envelope3);
         envelope3.expandToInclude(1.0,1.0);
-        this.assertTrue("2Changing external Envelope changes internal values",
+        assertTrue("2Changing external Envelope changes internal values",
             (envelope2!=envelope3)
             && envelope2.equals(bbox.getAreaOfInterest()));
     }

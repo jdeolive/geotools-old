@@ -7,13 +7,16 @@
 
 package org.geotools.feature;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.*;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  *
@@ -107,11 +110,11 @@ public class AttributeTypeTest extends TestCase {
             type.validate(new Double(3));
         }
         catch(IllegalArgumentException iae){
-            this.fail();
+            fail();
         }
         try{
             type.validate(new Integer(3));
-            this.fail("Integer should not be validated by a Double type");
+            fail("Integer should not be validated by a Double type");
         }
         catch(IllegalArgumentException iae){
             
@@ -120,13 +123,13 @@ public class AttributeTypeTest extends TestCase {
             type.validate(null);
         }
         catch(IllegalArgumentException iae){
-            this.fail("null should have been allowed as type is Nillable");
+            fail("null should have been allowed as type is Nillable");
         }
         type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class, false);
         try{
             type.validate(null);
             type.validate((Double)null);
-            this.fail("null should not have been allowed as type is not Nillable");
+            fail("null should not have been allowed as type is not Nillable");
         }
         catch(IllegalArgumentException iae){
             
@@ -139,7 +142,7 @@ public class AttributeTypeTest extends TestCase {
             type.validate(new ArrayList());
         }
         catch(IllegalArgumentException iae){
-            this.fail("decended types should be allowed");
+            fail("decended types should be allowed");
         }
         
         

@@ -6,8 +6,12 @@
 
 package org.geotools.feature;
 
-import java.util.*;
-import junit.framework.*;
+import java.util.HashSet;
+import java.util.Set;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  *
@@ -88,7 +92,7 @@ public class FeatureTypeTest extends TestCase {
     assertEquals(ft,ft2);
     at.setName("Thingee");
     assertTrue(! ft.equals(at.getFeatureType()));
-    at = at.createTemplate(ft);
+    at = FeatureTypeFactory.createTemplate(ft);
     at.setNamespace("http://www.somewhereelse.net");
     assertTrue(! ft.equals(at.getFeatureType()));
     assertTrue(! ft.equals(null));

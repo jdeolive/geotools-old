@@ -9,8 +9,6 @@ package org.geotools.filter;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.geotools.filter.AttributeExpressionImpl;
-import org.geotools.filter.Expression;
 
 /**
  *

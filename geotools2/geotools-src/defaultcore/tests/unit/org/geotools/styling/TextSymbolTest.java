@@ -22,26 +22,22 @@
  */
 package org.geotools.styling;
 
-import com.vividsolutions.jts.geom.*;
-import junit.framework.*;
-import org.geotools.data.*;
-import org.geotools.feature.*;
-import org.geotools.filter.*;
-import org.geotools.map.*;
-import org.geotools.renderer.*;
-import org.geotools.styling.*;
-import java.awt.Color;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Panel;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.geom.*;
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
-import javax.imageio.*;
-import javax.swing.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.geotools.data.MemoryDataSource;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.filter.AttributeExpression;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 
 /**
@@ -86,11 +82,11 @@ public class TextSymbolTest extends TestCase {
         GeometryFactory geomFac = new GeometryFactory();
         MemoryDataSource datasource = new MemoryDataSource();
         AttributeType[] pointAttribute = new AttributeType[4];
-        pointAttribute[0] = attFactory.newAttributeType("centre",
+        pointAttribute[0] = AttributeTypeFactory.newAttributeType("centre",
                 com.vividsolutions.jts.geom.Point.class);
-        pointAttribute[1] = attFactory.newAttributeType("size", Double.class);
-        pointAttribute[2] = attFactory.newAttributeType("rotation", Double.class);
-        pointAttribute[3] = attFactory.newAttributeType("symbol", String.class);
+        pointAttribute[1] = AttributeTypeFactory.newAttributeType("size", Double.class);
+        pointAttribute[2] = AttributeTypeFactory.newAttributeType("rotation", Double.class);
+        pointAttribute[3] = AttributeTypeFactory.newAttributeType("symbol", String.class);
 
         FeatureTypeFactory feaTypeFactory = FeatureTypeFactory.newInstance("test");
         feaTypeFactory.addTypes(pointAttribute);
