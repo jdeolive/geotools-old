@@ -23,7 +23,7 @@ import java.util.Iterator;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.10 2003/09/22 17:47:20 cholmesny Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.11 2003/11/16 21:12:01 aaime Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     /** The name of this FeatureType. */
@@ -239,6 +239,9 @@ public class DefaultFeatureType implements FeatureType {
     }
 
     public boolean equals(FeatureType other) {
+        if(other == this)
+            return true;
+        
         if (other == null) {
             return false;
         }
