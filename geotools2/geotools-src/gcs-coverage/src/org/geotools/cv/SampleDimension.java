@@ -102,7 +102,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.12 2002/10/23 17:03:53 ianturton Exp $
+ * @version $Id: SampleDimension.java,v 1.13 2002/11/06 16:47:20 ianturton Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -289,12 +289,22 @@ public class SampleDimension implements Serializable {
      * @param other The other sample dimension.
      */
     protected SampleDimension(final SampleDimension other) {
-        inverse            = other.inverse;
-        categories         = other.categories;
-        isGeophysics       = other.isGeophysics;
-        hasQualitative     = other.hasQualitative;
-        hasQuantitative    = other.hasQuantitative;
-        sampleToGeophysics = other.sampleToGeophysics;
+        
+        if(other != null){
+            inverse            = other.inverse;
+            categories         = other.categories;
+            isGeophysics       = other.isGeophysics;
+            hasQualitative     = other.hasQualitative;
+            hasQuantitative    = other.hasQuantitative;
+            sampleToGeophysics = other.sampleToGeophysics;
+        }else{
+            inverse = null;
+            categories = null;
+            isGeophysics = false;
+            hasQualitative = false;
+            hasQuantitative = false;
+            sampleToGeophysics = null;
+        }
     }
     
     /**
@@ -794,7 +804,11 @@ public class SampleDimension implements Serializable {
             return this;
         }
         if (inverse == null) {
-            inverse = new SampleDimension(categories.inverse);
+            if(categories != null && categories.inverse != null){
+                inverse = new SampleDimension(categories.inverse);
+            }else{
+                inverse = new SampleDimension();
+            }
             inverse.inverse = this;
         }
         return inverse;
