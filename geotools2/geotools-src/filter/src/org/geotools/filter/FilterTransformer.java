@@ -6,22 +6,23 @@
 
 package org.geotools.filter;
 
-import com.vividsolutions.jts.geom.Geometry;
-import java.io.*;
-import java.util.*;
-import javax.xml.transform.*;
-import javax.xml.transform.sax.*;
-import javax.xml.transform.stream.*;
-import org.geotools.filter.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.transform.TransformerException;
+
 import org.geotools.gml.producer.GeometryTransformer;
 import org.geotools.xml.transform.TransformerBase;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * An XMLEncoder for Filters and Expressions.
  *
- * @version $Id: FilterTransformer.java,v 1.7 2004/02/06 21:15:01 ianschneider Exp $
+ * @version $Id: FilterTransformer.java,v 1.8 2004/02/23 14:50:03 aaime Exp $
  * @author Ian Schneider
  *
  */

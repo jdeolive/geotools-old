@@ -6,7 +6,6 @@
 
 package org.geotools.filter.parser;
 
-import java.util.List;
 
 /**
  *
