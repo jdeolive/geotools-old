@@ -18,13 +18,9 @@
 package org.geotools.vpf;
 
 /**
- * Class Coordinate.java is responsible for
- * 
- * <p>
- * Created: Thu Jan 30 08:19:24 2003
- * </p>
+ * Interface <code>Coordinate</code> defines 
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version 1.0.0
+ * @version $Id: Coordinate.java,v 1.3 2003/04/04 14:33:03 kobit Exp $
  */
 public interface Coordinate {} // Coordinate

@@ -21,6 +21,7 @@ import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSourceFactorySpi;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -62,7 +63,13 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
         try {
             File file = new File(new URI((String) hashMap.get("url")));
 
-            return new VPFDataSource(file);
+            try {
+                return new VPFDataSource(file);
+            } catch (IOException e) {
+                throw
+                    new DataSourceException("Unable to open VPF data base "+
+                                            file, e);
+            }
         } catch (URISyntaxException e) {
             return null;
         }

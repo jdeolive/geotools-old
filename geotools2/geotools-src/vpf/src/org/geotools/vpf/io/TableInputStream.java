@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.EOFException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ import java.util.List;
  * Class <code>TableInputStream</code> implements
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: TableInputStream.java,v 1.15 2003/04/04 09:15:48 kobit Exp $
+ * @version $Id: TableInputStream.java,v 1.16 2003/04/04 14:33:04 kobit Exp $
  */
 public class TableInputStream extends VPFInputStream implements FileConstants,
     DataTypesDefinition {
@@ -55,38 +56,32 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
     public static final int AHEAD_BUFFER_SIZE = 0;
 
     /**
-     * Creates a new TableInputStream object.
+     * Creates a new <code><code>TableInputStream</code></code> instance.
      *
-     * @param file DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @param file a <code><code>String</code></code> value
+     * @exception IOException if an error occurs
      */
     public TableInputStream(String file) throws IOException {
         super(file);
     }
 
     /**
-     * Creates a new TableInputStream object.
+     * Creates a new <code><code>TableInputStream</code></code> instance.
      *
-     * @param file DOCUMENT ME!
-     * @param byteOrder DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @param file a <code><code>String</code></code> value
+     * @param byteOrder a <code><code>char</code></code> value
+     * @exception IOException if an error occurs
      */
-    public TableInputStream(
-        String file,
-        char byteOrder
-    ) throws IOException {
+    public TableInputStream(String file, char byteOrder)
+        throws IOException {
         super(file, byteOrder);
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>readHeader</code> is used to perform 
      *
-     * @return DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
-     * @throws VPFHeaderFormatException DOCUMENT ME!
+     * @return a <code><code>VPFHeader</code></code> value
+     * @exception IOException if an error occurs
      */
     public VPFHeader readHeader() throws IOException {
         byte[] fourBytes = new byte[4];
@@ -96,18 +91,13 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
         if (order == LITTLE_ENDIAN_ORDER) {
             fourBytes = DataUtils.toBigEndian(fourBytes);
         }
-
-        // end of if (order == LITTLE_ENDIAN_ORDER)
         int length = DataUtils.decodeInt(fourBytes);
         char ctrl = readChar();
 
         if (ctrl != VPF_RECORD_SEPARATOR) {
-            throw new VPFHeaderFormatException(
-                "Header format does not fit VPF" + " file definition."
-            );
+            throw new
+                VPFHeaderFormatException("Header format does not fit VPF file definition.");
         }
-
-        // end of if (ctrl != VPF_RECORD_SEPARATOR)
         String description = readString("" + VPF_RECORD_SEPARATOR);
         String narrativeTable = readString("" + VPF_RECORD_SEPARATOR);
         ArrayList colDefs = new ArrayList();
@@ -119,24 +109,16 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
             ctrl = readChar();
 
             if (ctrl != VPF_FIELD_SEPARATOR) {
-                throw new VPFHeaderFormatException(
-                    "Header format does not fit VPF" + " file definition."
-                );
+                throw new
+                    VPFHeaderFormatException("Header format does not fit VPF file definition.");
             }
-
-            // end of if (ctrl != VPF_RECORD_SEPARATOR)
             colDef = readColumnDef();
         }
-
-        // end of while (colDef != null)
         if (colDefs.size() == 0) {
             colDefs = null;
         }
-
-        // end of if (colDefs.size() == 0)
-        return new TableHeader(
-            length, order, description, narrativeTable, colDefs
-        );
+        return new TableHeader(length, order, description, narrativeTable,
+                               colDefs);
     }
 
     private TableColumnDef readColumnDef()
@@ -146,37 +128,27 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
         if (ctrl == VPF_RECORD_SEPARATOR) {
             return null;
         }
-
-        // end of if (ctrl == VPF_RECORD_SEPARATOR)
         String name = ctrl + readString("=");
         char type = readChar();
         ctrl = readChar();
 
         if (ctrl != VPF_ELEMENT_SEPARATOR) {
-            throw new VPFHeaderFormatException(
-                "Header format does not fit VPF" + " file definition."
-            );
+            throw new
+                VPFHeaderFormatException("Header format does not fit VPF file definition.");
         }
-
-        // end of if (ctrl != VPF_RECORD_SEPARATOR)
         String elemStr = readString("" + VPF_ELEMENT_SEPARATOR);
 
         if (elemStr.equals("*")) {
             elemStr = "-1";
         }
-
-        // end of if (elemStr.equals("*"))
         int elements = Integer.parseInt(elemStr);
         char key = readChar();
         ctrl = readChar();
 
         if (ctrl != VPF_ELEMENT_SEPARATOR) {
-            throw new VPFHeaderFormatException(
-                "Header format does not fit VPF" + " file definition."
-            );
+            throw new
+                VPFHeaderFormatException("Header format does not fit VPF file definition.");
         }
-
-        // end of if (ctrl != VPF_RECORD_SEPARATOR)
         String colDesc =
             readString("" + VPF_ELEMENT_SEPARATOR + VPF_FIELD_SEPARATOR);
         String descTableName =
@@ -186,18 +158,15 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
         String narrTable =
             readString("" + VPF_ELEMENT_SEPARATOR + VPF_FIELD_SEPARATOR);
 
-        return new TableColumnDef(
-            name, type, elements, key, colDesc, descTableName, indexFile,
-            narrTable
-        );
+        return new TableColumnDef(name, type, elements, key, colDesc,
+                                  descTableName, indexFile, narrTable);
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>readRow</code> is used to perform 
      *
-     * @return DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @return a <code><code>VPFRow</code></code> value
+     * @exception IOException if an error occurs
      */
     public VPFRow readRow() throws IOException {
         //    condeb("Current file position: "+input.getFilePointer());
@@ -211,55 +180,44 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
             //      condeb("Reading field: "+tcd.getName()+", columnSize="+tcd.getColumnSize());
             Object value = null;
 
-            if (tcd.getColumnSize() < 0) {
-                value = readVariableSizeData(tcd.getType());
-            } // end of if (tcd.getColumnSize() <= 0)
-            else {
-                value =
-                    readFixedSizeData(
-                        tcd.getType(),
-                        tcd.getElementsNumber()
-                    );
+            try {
+                if (tcd.getColumnSize() < 0) {
+                    value = readVariableSizeData(tcd.getType());
+                } // end of if (tcd.getColumnSize() <= 0)
+                else {
+                    value = readFixedSizeData(tcd.getType(),
+                                              tcd.getElementsNumber());
+                }
+            } catch (EOFException e) {
+                return null;
             }
-
-            // end of if (tcd.getColumnSize() <= 0) else
-            RowField field = new RowField(value,
-                    tcd.getType()
-                );
+            RowField field = new RowField(value, tcd.getType());
             fieldsArr[i] = field;
-            fieldsMap.put(
-                tcd.getName(),
-                field
-            );
+            fieldsMap.put(tcd.getName(), field);
         }
-
-        // end of for (int i = 0; i < rowsDefs.size(); i++)
         return new TableRow(fieldsArr, fieldsMap);
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>tableSize</code> is used to perform 
      *
-     * @return DOCUMENT ME!
+     * @return an <code><code>int</code></code> value
      */
     public int tableSize() {
         return -1;
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>main</code> is used to perform 
      *
-     * @param args DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @param args a <code><code>String[]</code></code> value
+     * @exception IOException if an error occurs
      */
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.out.println("Put valid file name as parameter.");
             System.exit(1);
         }
-
-        // end of if (args.length <> 1)
         TableInputStream testInput = new TableInputStream(args[0]);
         TableHeader testHeader = (TableHeader) testInput.getHeader();
         System.out.println(testHeader.toString());
@@ -273,15 +231,10 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
                 TableColumnDef tcd = (TableColumnDef) fieldDefs.get(i);
                 System.out.println(tcd.getName() + "=" + row.get(i).toString());
             }
-
-            // end of for (int i = 0; i < fieldDefs.size(); i++)
             row = (TableRow) testInput.readRow();
         }
-
-        // end of while (row != null)
     }
 
-    // end of main()
 }
 
 

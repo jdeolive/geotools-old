@@ -31,6 +31,7 @@ import org.geotools.vpf.util.DataUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.EOFException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ import java.util.List;
  * VPFInputStream.java Created: Mon Feb 24 22:39:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFInputStream.java,v 1.8 2003/04/04 09:15:49 kobit Exp $
+ * @version $Id: VPFInputStream.java,v 1.9 2003/04/04 14:33:06 kobit Exp $
  */
 public abstract class VPFInputStream implements FileConstants,
     DataTypesDefinition {
@@ -204,13 +205,12 @@ public abstract class VPFInputStream implements FileConstants,
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>readRow</code> is used to perform 
+
      *
-     * @param index DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @param index an <code><code>int</code></code> value
+     * @return a <code><code>VPFRow</code></code> value
+     * @exception IOException if an error occurs
      */
     public VPFRow readRow(int index) throws IOException {
         setPosition(index);
@@ -219,13 +219,12 @@ public abstract class VPFInputStream implements FileConstants,
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>readRows</code> is used to perform 
+
      *
-     * @param rows DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @param rows a <code><code>VPFRow[]</code></code> value
+     * @return an <code><code>int</code></code> value
+     * @exception IOException if an error occurs
      */
     public int readRows(VPFRow[] rows) throws IOException {
         int counter = 0;
@@ -240,16 +239,6 @@ public abstract class VPFInputStream implements FileConstants,
         return counter;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param rows DOCUMENT ME!
-     * @param fromIndex DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
-     */
     public int readRows(
         VPFRow[] rows,
         int fromIndex
@@ -263,8 +252,6 @@ public abstract class VPFInputStream implements FileConstants,
             rows[counter++] = row;
             row = readRow();
         }
-
-        // end of while (row != null)
         return counter;
     }
 
@@ -280,8 +267,6 @@ public abstract class VPFInputStream implements FileConstants,
             if (ctrl == VPF_FIELD_SEPARATOR) {
                 unread(1);
             }
-
-            // end of if (ctrl == VPF_RECORD_SEPARATOR)
             return null;
         }
 
@@ -289,16 +274,12 @@ public abstract class VPFInputStream implements FileConstants,
             text.append(ctrl);
             ctrl = readChar();
         }
-
-        // end of while (terminators.indexOf(ctrl) != -1)
         if (text.toString().equals(STRING_NULL_VALUE)) {
             return null;
         } // end of if (text.equals("null"))
         else {
             return text.toString();
         }
-
-        // end of if (text.equals("null")) else
     }
 
     protected Object readVariableSizeData(char dataType)
@@ -308,10 +289,9 @@ public abstract class VPFInputStream implements FileConstants,
         return readFixedSizeData(dataType, instances);
     }
 
-    protected Object readFixedSizeData(
-        char dataType,
-        int instancesCount
-    ) throws IOException {
+    protected Object readFixedSizeData(char dataType, int instancesCount)
+        throws IOException {
+        
         Object result = null;
 
         switch (dataType) {
@@ -323,13 +303,6 @@ public abstract class VPFInputStream implements FileConstants,
             byte[] dataBytes =
                 new byte[instancesCount * DataUtils.getDataTypeSize(dataType)];
             input.read(dataBytes);
-
-            if (
-                DataUtils.isNumeric(dataType)
-                    && (byteOrder == LITTLE_ENDIAN_ORDER)
-            ) {
-                dataBytes = DataUtils.toBigEndian(dataBytes);
-            }
 
             result = DataUtils.decodeData(dataBytes, dataType);
 
@@ -370,8 +343,6 @@ public abstract class VPFInputStream implements FileConstants,
             if (dataSize > 0) {
                 input.read(tripletData, 1, dataSize);
             }
-
-            // end of if (dataSize > 0)
             result = new TripletId(tripletData);
 
             break;
@@ -383,8 +354,6 @@ public abstract class VPFInputStream implements FileConstants,
                 data[i][0] = readFloat();
                 data[i][1] = readFloat();
             }
-
-            // end of for (int i = 0; i < instancesCount; i++)
             result = new Coordinate2DFloat(data);
         }
 
@@ -397,8 +366,6 @@ public abstract class VPFInputStream implements FileConstants,
                 data[i][0] = readDouble();
                 data[i][1] = readDouble();
             }
-
-            // end of for (int i = 0; i < instancesCount; i++)
             result = new Coordinate2DDouble(data);
         }
 
@@ -412,8 +379,6 @@ public abstract class VPFInputStream implements FileConstants,
                 data[i][1] = readFloat();
                 data[i][2] = readFloat();
             }
-
-            // end of for (int i = 0; i < instancesCount; i++)
             result = new Coordinate3DFloat(data);
         }
 
@@ -427,8 +392,6 @@ public abstract class VPFInputStream implements FileConstants,
                 data[i][1] = readDouble();
                 data[i][2] = readDouble();
             }
-
-            // end of for (int i = 0; i < instancesCount; i++)
             result = new Coordinate3DDouble(data);
         }
 
@@ -462,15 +425,17 @@ public abstract class VPFInputStream implements FileConstants,
             if (byteOrder == LITTLE_ENDIAN_ORDER) {
                 dataBytes = DataUtils.toBigEndian(dataBytes);
             }
-
-            // end of if (byteOrder == LITTLE_ENDIAN_ORDER)
             return dataBytes;
         } // end of if (res == cnt)
         else {
-            throw new VPFDataException("Inssufficient bytes in input stream");
+            if (res < 1) {
+                throw new EOFException("No more bytes in input stream");
+            } else {
+                throw new
+                    VPFDataException("Inssufficient bytes in input stream : "+
+                                     res);
+            }
         }
-
-        // end of if (res == cnt) else
     }
 
     protected short readShort() throws IOException {

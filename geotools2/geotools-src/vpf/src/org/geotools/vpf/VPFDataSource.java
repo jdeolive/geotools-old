@@ -27,6 +27,7 @@ import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.feature.FeatureType;
 import org.geotools.filter.Filter;
 import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -45,14 +46,17 @@ public class VPFDataSource implements DataSource {
     protected Logger log = Logger.getLogger("org.geotools.vpf");
     protected File file = null;
     protected VPFDataBase dataBase = null;
+    protected FeatureType schema = null;
 
     /**
      * Creates a new VPFDataSource object.
      *
      * @param file DOCUMENT ME!
      */
-    public VPFDataSource(File file) {
+    public VPFDataSource(File file)
+        throws IOException {
         this.file = file;
+        dataBase = new VPFDataBase(file);
     }
 
     // Implementation of org.geotools.data.DataSource
@@ -83,10 +87,9 @@ public class VPFDataSource implements DataSource {
      *
      * @exception DataSourceException if an error occurs
      */
-    public void getFeatures(
-        FeatureCollection featureCollection,
-        Filter filter
-    ) throws DataSourceException {}
+    public void getFeatures(FeatureCollection featureCollection,
+                            Filter filter)
+        throws DataSourceException {}
 
     /**
      * Describe <code><code>addFeatures</code></code> method here.
@@ -170,7 +173,7 @@ public class VPFDataSource implements DataSource {
      * @return an <code><code>Envelope</code></code> value
      */
     public Envelope getBbox(boolean flag) {
-        return null;
+        return getBbox();
     }
 
     /**
@@ -179,7 +182,8 @@ public class VPFDataSource implements DataSource {
      * @return an <code><code>Envelope</code></code> value
      */
     public Envelope getBbox() {
-        return null;
+        return new Envelope(dataBase.getMinX(), dataBase.getMaxX(),
+                            dataBase.getMinY(), dataBase.getMaxY());
     }
 
     /**
@@ -268,7 +272,7 @@ public class VPFDataSource implements DataSource {
      * @return DOCUMENT ME!
      */
     public FeatureType getSchema() {
-        return null;
+        return schema;
     }
 
     /**
@@ -282,7 +286,7 @@ public class VPFDataSource implements DataSource {
      * @throws DataSourceException DOCUMENT ME!
      */
     public void setSchema(FeatureType schema) throws DataSourceException {
-        throw new DataSourceException("set schema method not supported");
+        this.schema = schema;
     }
 }
 

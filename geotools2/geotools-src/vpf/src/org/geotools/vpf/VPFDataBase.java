@@ -19,20 +19,17 @@ package org.geotools.vpf;
 
 import org.geotools.vpf.io.TableInputStream;
 import org.geotools.vpf.ifc.FileConstants;
+import org.geotools.vpf.ifc.VPFLibraryIfc;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 
 /**
- * Class VPFDataBase.java is responsible for
- * 
- * <p>
- * Created: Fri Apr 04 09:39:00 2003
- * </p>
+ * Class <code>VPFDataBase</code> is responsible for 
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version 1.0.0
+ * @version $Id: VPFDataBase.java,v 1.3 2003/04/04 14:33:03 kobit Exp $
  */
 public class VPFDataBase implements FileConstants {
     TableRow dataBaseInfo = null;
@@ -67,6 +64,51 @@ public class VPFDataBase implements FileConstants {
         vpfTable.close();
         libraries = (TableRow[]) al.toArray(new TableRow[al.size()]);
     }
+
+    public double getMinX() {
+        double xmin = libraries[0].get(VPFLibraryIfc.FIELD_XMIN).getAsDouble();
+        for (int i = 1; i < libraries.length; i++) {
+            double temp =
+                libraries[i].get(VPFLibraryIfc.FIELD_XMIN).getAsDouble();
+            xmin = Math.min(xmin, temp);
+        }
+        return xmin;
+    }
+
+    public double getMinY() {
+        double ymin = libraries[0].get(VPFLibraryIfc.FIELD_YMIN).getAsDouble();
+        for (int i = 1; i < libraries.length; i++) {
+            double temp =
+                libraries[i].get(VPFLibraryIfc.FIELD_YMIN).getAsDouble();
+            ymin = Math.min(ymin, temp);
+        }
+        return ymin;
+    }
+    
+    public double getMaxX() {
+        double xmax = libraries[0].get(VPFLibraryIfc.FIELD_XMAX).getAsDouble();
+        for (int i = 1; i < libraries.length; i++) {
+            double temp =
+                libraries[i].get(VPFLibraryIfc.FIELD_XMAX).getAsDouble();
+            xmax = Math.min(xmax, temp);
+        }
+        return xmax;
+    }
+
+    public double getMaxY() {
+        double ymax = libraries[0].get(VPFLibraryIfc.FIELD_YMAX).getAsDouble();
+        for (int i = 1; i < libraries.length; i++) {
+            double temp =
+                libraries[i].get(VPFLibraryIfc.FIELD_YMAX).getAsDouble();
+            ymax = Math.min(ymax, temp);
+        }
+        return ymax;
+    }
+
+    public static void main(String[] args) {
+         
+    }
+    
 }
 
 
