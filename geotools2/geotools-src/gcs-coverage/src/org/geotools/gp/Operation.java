@@ -42,6 +42,7 @@ import java.io.Serializable;
 import java.awt.RenderingHints;
 import java.awt.Color;
 import java.util.Locale;
+import java.lang.reflect.Array;
 
 // JAI dependencies
 import javax.media.jai.JAI;
@@ -72,7 +73,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.6 2002/08/09 18:37:56 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.7 2002/08/25 18:33:45 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -321,6 +322,7 @@ public abstract class Operation implements Serializable {
         
         final Resources resources = Resources.getResources(null);
         final TableWriter table = new TableWriter(out, " \u2502 ");
+        table.setMultiLinesCells(true);
         table.writeHorizontalSeparator();
         table.write(resources.getString(ResourceKeys.NAME));
         table.nextColumn();
@@ -329,7 +331,8 @@ public abstract class Operation implements Serializable {
         table.write(resources.getString(param!=null ? ResourceKeys.VALUE : ResourceKeys.DEFAULT_VALUE));
         table.nextLine();
         table.writeHorizontalSeparator();
-        
+
+        final Object[]   array1 = new Object[1];
         final String[]    names = descriptor.getParamNames();
         final Class []  classes = descriptor.getParamClasses();
         final Object[] defaults = descriptor.getParamDefaults();
@@ -353,16 +356,30 @@ public abstract class Operation implements Serializable {
             } else {
                 value = defaults[i];
             }
-            if (value != ParameterListDescriptor.NO_PARAMETER_DEFAULT) {
-                if (value instanceof GridCoverage) {
-                    value = ((GridCoverage) value).getName(null);
-                } else if (value instanceof Interpolation) {
-                    value = getInterpolationName((Interpolation) value);
-                } else if (value instanceof Color) {
-                    final Color c = (Color) value;
-                    value = "RGB["+c.getRed()+','+c.getGreen()+','+c.getBlue()+']';
+            final Object array;
+            if (value!=null && value.getClass().isArray()) {
+                array = value;
+            } else {
+                array = array1;
+                array1[0] = value;
+            }
+            final int length = Array.getLength(array);
+            for (int j=0; j<length; j++) {
+                value = Array.get(array, j);
+                if (value != ParameterListDescriptor.NO_PARAMETER_DEFAULT) {
+                    if (value instanceof GridCoverage) {
+                        value = ((GridCoverage) value).getName(null);
+                    } else if (value instanceof Interpolation) {
+                        value = getInterpolationName((Interpolation) value);
+                    } else if (value instanceof Color) {
+                        final Color c = (Color) value;
+                        value = "RGB["+c.getRed()+','+c.getGreen()+','+c.getBlue()+']';
+                    }
+                    if (j!=0) {
+                        table.write(lineSeparator);
+                    }
+                    table.write(String.valueOf(value));
                 }
-                table.write(String.valueOf(value));
             }
             table.nextLine();
         }

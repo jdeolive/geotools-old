@@ -29,9 +29,6 @@
  *     CANADA: Observatoire du Saint-Laurent
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
- *
- *    This package contains documentation from OpenGIS specifications.
- *    OpenGIS consortium's work is fully acknowledged here.
  */
 package org.geotools.gp;
 
@@ -51,12 +48,10 @@ import org.geotools.cv.SampleDimension;
 
 
 /**
- * Operation replacing the colormap of a {@link GridCoverage}. Only colors
- * at index allocated to geophysics parameter are changed. The new color
- * ramp will have colors ranging from <code>lowerColor</code> to
- * <code>upperColor</code>.
+ * Operation replacing the colormap of a {@link GridCoverage}.
+ * Only colors for geophysics category sample values are changed.
  *
- * @version $Id: ColormapOperation.java,v 1.3 2002/07/27 12:40:49 desruisseaux Exp $
+ * @version $Id: ColormapOperation.java,v 1.4 2002/08/25 18:33:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColormapOperation extends IndexColorOperation {
@@ -69,20 +64,20 @@ final class ColormapOperation extends IndexColorOperation {
               new String[]  // the names of each parameter.
               {
                   "Source",
-                  "LowerColor",
-                  "UpperColor"
+                  "Colors"
               },
               new Class[]   // the class of each parameter.
               {
                   GridCoverage.class,
-                  Color.class,
-                  Color.class
+                  Color[].class
               },
               new Object[] // The default values for each parameter.
               {
                   ParameterListDescriptor.NO_PARAMETER_DEFAULT,
-                  new Color( 16, 16, 16),
-                  new Color(240,240,240)
+                  new Color[] {
+                    new Color( 16, 16, 16),
+                    new Color(240,240,240)
+                  }
               },
               null // Defines the valid values for each parameter.
         ));
@@ -97,8 +92,12 @@ final class ColormapOperation extends IndexColorOperation {
                                      final SampleDimension band,
                                      final ParameterList parameters)
     {
-        final Color lowerColor = (Color) parameters.getObjectParameter("LowerColor");
-        final Color upperColor = (Color) parameters.getObjectParameter("UpperColor");
+        final Color[] colors = (Color[]) parameters.getObjectParameter("Colors");
+        if (colors.length != 2) {
+            throw new UnsupportedOperationException("Current version supports only 2 colors");
+        }
+        final Color lowerColor = colors[0];
+        final Color upperColor = colors[1];
         final Category categories[] = (Category[]) band.getCategories().toArray();
         for (int j=categories.length; --j>=0;) {
             final Category category = categories[j];
