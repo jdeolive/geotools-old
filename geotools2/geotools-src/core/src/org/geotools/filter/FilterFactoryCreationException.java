@@ -26,7 +26,7 @@ package org.geotools.filter;
  * the  implementation of the StyleFactory.
  *
  * @author Ian Turton, CCG
- * @version $Id: FilterFactoryCreationException.java,v 1.2 2003/08/07 19:55:22 cholmesny Exp $
+ * @version $Id: FilterFactoryCreationException.java,v 1.3 2003/08/07 21:30:36 cholmesny Exp $
  */
 public class FilterFactoryCreationException extends java.lang.Exception {
     /**
@@ -40,7 +40,7 @@ public class FilterFactoryCreationException extends java.lang.Exception {
     }
 
     /**
-     * Constructs an instance of <code>StyleFactoryCreationException</code>
+     * Constructs an instance of <code>FilterFactoryCreationException</code>
      * with the specified root cause.
      *
      * @param cause the root cause of the exceptions.
@@ -50,7 +50,7 @@ public class FilterFactoryCreationException extends java.lang.Exception {
     }
 
     /**
-     * Constructs an instance of <code>StyleFactoryCreationException</code>
+     * Constructs an instance of <code>FilterFactoryCreationException</code>
      * with the specified detail message and root cause.
      *
      * @param msg the detail message.

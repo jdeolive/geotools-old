@@ -43,7 +43,7 @@ import org.geotools.feature.Feature;
  * <p></p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: GeometryDistanceFilter.java,v 1.1 2003/06/02 23:26:14 cholmesny Exp $
+ * @version $Id: GeometryDistanceFilter.java,v 1.2 2003/08/07 21:30:36 cholmesny Exp $
  *
  * @task REVISIT: add units for distance.  Should it just be a string?  Or
  *       should it actually resolve the definition?
@@ -64,6 +64,8 @@ public interface GeometryDistanceFilter extends GeometryFilter {
      * Sets the distance allowed by this filter.
      *
      * @param distance the length beyond which this filter is valid or not.
+     *
+     * @throws IllegalFilterException for problems setting the distance.
      */
     void setDistance(double distance) throws IllegalFilterException;
 

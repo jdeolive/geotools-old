@@ -1,6 +1,7 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,53 +13,44 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
-
- package org.geotools.filter;
-
+package org.geotools.filter;
 
 /**
- * Defines a comparison filter (can be a math comparison or generic equals).
+ * Defines an exception for illegal filters.
  *
- * This filter implements a comparison - of some sort - between two expressions.
- * The comparison may be a math comparison or a generic equals comparison.  If
- * it is a math comparison, only math expressions are allowed; if it is an
- * equals comparison, any expression types are allowed.
- *
- * Note that this comparison does not attempt to restrict its expressions to be
- * meaningful.  This means that it considers itself a valid filter as long as
- * the expression comparison returns a valid result.  It does no checking to
- * see whether or not the expression comparison is meaningful with regard
- * to checking feature attributes.  In other words, this is a valid filter:
- * <b>5 < 2</b>, even though it will always return the same result and could
- * be simplified away.  It is up to the filter creator, therefore, to attempt
- * to simplify/make meaningful filter logic.
- * 
- * @version $Id: IllegalFilterException.java,v 1.3 2002/07/11 16:02:54 loxnard Exp $
  * @author Rob Hranac, Vision for New York
+ * @author Chris Holmes, TOPP
+ * @version $Id: IllegalFilterException.java,v 1.4 2003/08/07 21:30:36 cholmesny Exp $
  */
 public class IllegalFilterException extends Exception {
-
     /**
-     * Constructor with filter type.
+     * Constructor with a message.
      *
+     * @param message information on the error.
      */
-    public IllegalFilterException () {
-        super();
-    }
-
-            
-    /**
-     * Constructor with filter type.
-     *
-     */
-    public IllegalFilterException (String message) {
+    public IllegalFilterException(String message) {
         super(message);
     }
 
-            
+    /**
+     * Constructs an instance of <code>IllegalFilterException</code> with the
+     * specified root cause.
+     *
+     * @param cause the root cause of the exceptions.
+     */
+    public IllegalFilterException(Exception cause) {
+        super(cause);
+    }
+
+    /**
+     * Constructs an instance of <code>IllegalFilterException</code> with the
+     * specified detail message and root cause.
+     *
+     * @param msg the detail message.
+     * @param cause the root cause of the exceptions.
+     */
+    public IllegalFilterException(String msg, Exception cause) {
+        super(msg, cause);
+    }
 }
