@@ -74,7 +74,7 @@ import org.geotools.styling.*;
  * This current version supports 2 implementations during the transformation
  * from one design pattern to another.  The deprecated methods shall eventually
  * be removed.
- * @version $Id: Java2DRenderer.java,v 1.68 2003/03/09 10:44:49 camerons Exp $
+ * @version $Id: Java2DRenderer.java,v 1.69 2003/03/14 12:51:06 ianturton Exp $
  * @author James Macgill
  * @author Cameron Shorter
  * @task TODO Remove deprecated methods.
@@ -209,23 +209,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,J2Renderer
         mapExtent = map;
 
         //set up the affine transform and calculate scale values
-        AffineTransform at = new AffineTransform();
-
-        double scale = Math.min(screenSize.getHeight() / map.getHeight(), 
-                                screenSize.getWidth() / map.getWidth());
-
-        //TODO: angle is almost certainly not needed and should be dropped
-        double angle = 0; //-Math.PI/8d;// rotation angle
-        double tx = -map.getMinX() * scale; // x translation - mod by ian
-        double ty = (map.getMinY() * scale) + screenSize.getHeight(); // y translation
-
-        double sc = scale * Math.cos(angle);
-        double ss = scale * Math.sin(angle);
-
-
-        // TODO: if user space is geographic (i.e. in degrees) we need to transform it
-        // to Km/m here to calc the size of the pixel and hence the scaleDenominator
-        at = new AffineTransform(sc, -ss, ss, -sc, tx, ty);
+        AffineTransform at = setUpTransform(map, screenSize);
 
         /* If we are rendering to a component which has already set up some form
          * of transformation then we can concatenate our transformation to it.
@@ -282,26 +266,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,J2Renderer
 
 
                 //set up the affine transform and calculate scale values
-                AffineTransform at = new AffineTransform();
+                AffineTransform at = setUpTransform(mapExtent, screenSize);
 
-                double scale = Math.min(screenSize.getHeight() / mapExtent.getHeight(), 
-                                        screenSize.getWidth() / mapExtent.getWidth());
-
-                //TODO: angle is almost certainly not needed and should be dropped
-                double angle = 0; //-Math.PI/8d;// rotation angle
-                double tx = -mapExtent.getMinX() * scale; // x translation - mod by ian
-                double ty = (mapExtent.getMinY() * scale) + screenSize.getHeight(); // y translation
-
-                double sc = scale * Math.cos(angle);
-                double ss = scale * Math.sin(angle);
-
-
-                // TODO: if user space is geographic (i.e. in degrees) we need to
-                // transform it
-                // to Km/m here to calc the size of the pixel and hence the
-                // scaleDenominator
-                at = new AffineTransform(sc, -ss, ss, -sc, tx, ty);
-
+                
+                
+                if(LOGGER.isLoggable(Level.FINE)){
+                    LOGGER.fine("Affine Transform is " + at);
+                }
                 /* If we are rendering to a component which has already set up some
                  * form of transformation then we can concatenate our
                  * transformation to it. An example of this is the ZoomPane
@@ -330,6 +301,28 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,J2Renderer
         }
     }
 
+    private AffineTransform setUpTransform(Envelope mapExtent, Rectangle screenSize){
+        //double scale = Math.min(screenSize.getHeight() / mapExtent.getHeight(), 
+                //                        screenSize.getWidth() / mapExtent.getWidth());
+                double scaleX = screenSize.getWidth() / mapExtent.getWidth();
+                double scaleY = screenSize.getHeight() / mapExtent.getHeight();
+                //TODO: angle is almost certainly not needed and should be dropped
+                //double angle = 0; //-Math.PI/8d;// rotation angle
+                double tx = -mapExtent.getMinX() * scaleX; // x translation - mod by ian
+                double ty = (mapExtent.getMinY() * scaleY) + screenSize.getHeight(); // y translation
+
+                double sc = scaleX ;
+                double ss = 0.0d;
+
+
+                // TODO: if user space is geographic (i.e. in degrees) we need to
+                // transform it
+                // to Km/m here to calc the size of the pixel and hence the
+                // scaleDenominator
+                AffineTransform at = new AffineTransform(scaleX, 0.0d, 0.0d, -scaleY, tx, ty);
+                return at;
+    }
+    
     /**
      * @deprecated Use getDotToCoordinateSystem() to get an AffineTransform,
      * then transform coordinates in the calling system instead.
@@ -342,23 +335,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,J2Renderer
         }
 
         //set up the affine transform and calculate scale values
-        AffineTransform at = new AffineTransform();
-
-        double scale = Math.min(screenSize.getHeight() / map.getHeight(), 
-                                screenSize.getWidth() / map.getWidth());
-
-        //TODO: angle is almost certainly not needed and should be dropped
-        double angle = 0; //-Math.PI/8d;// rotation angle
-        double tx = -map.getMinX() * scale; // x translation - mod by ian
-        double ty = (map.getMinY() * scale) + screenSize.getHeight(); // y translation
-
-        double sc = scale * Math.cos(angle);
-        double ss = scale * Math.sin(angle);
-
-
-        // TODO: if user space is geographic (i.e. in degrees) we need to transform it
-        // to Km/m here to calc the size of the pixel and hence the scaleDenominator
-        at = new AffineTransform(sc, -ss, ss, -sc, tx, ty);
+        AffineTransform at = setUpTransform(map, screenSize);
 
         /* If we are rendering to a component which has already set up some form
          * of transformation then we can concatenate our transformation to it.

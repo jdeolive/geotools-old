@@ -382,7 +382,8 @@ public class RendererUtilities {
             return;
         }
 
-        double scale = graphic.getTransform().getScaleX();
+        double scaleX = graphic.getTransform().getScaleX();
+        double scaleY = graphic.getTransform().getScaleY();
 
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("line join = " + stroke.getLineJoin());
@@ -432,7 +433,8 @@ public class RendererUtilities {
 
         if (dashes != null) {
             for (int i = 0; i < dashes.length; i++) {
-                dashes[i] = (float) Math.max(1, dashes[i] / (float) scale);
+                /** @HACK This shouldn't just use the X scale */
+                dashes[i] = (float) Math.max(1, dashes[i] / (float) scaleX);
             }
         }
 
@@ -453,13 +455,14 @@ public class RendererUtilities {
         BasicStroke stroke2d;
 
         //TODO: It should not be necessary to divide each value by scale.
+        /** @HACK This shouldn't just use the X scale */
         if ((dashes != null) && (dashes.length > 0)) {
-            stroke2d = new BasicStroke(width / (float) scale, capCode, joinCode, 
-                                       (float) (Math.max(1, 10 / scale)), 
-                                       dashes, dashOffset / (float) scale);
+            stroke2d = new BasicStroke(width / (float) scaleX, capCode, joinCode, 
+                                       (float) (Math.max(1, 10 / scaleX)), 
+                                       dashes, dashOffset / (float) scaleX);
         } else {
-            stroke2d = new BasicStroke(width / (float) scale, capCode, joinCode, 
-                                       (float) (Math.max(1, 10 / scale)));
+            stroke2d = new BasicStroke(width / (float) scaleX, capCode, joinCode, 
+                                       (float) (Math.max(1, 10 / scaleX)));
         }
 
         graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
@@ -609,6 +612,7 @@ public class RendererUtilities {
 
                 double dx = coords[0] - previous[0];
                 double dy = coords[1] - previous[1];
+                /** @HACK This shouldn't just use the X scale */
                 double len = Math.sqrt((dx * dx) + (dy * dy)) * scaleX; // - imageWidth;
 
                 //if(len<=0){
@@ -749,7 +753,7 @@ public class RendererUtilities {
 
         double shearY = temp.getShearY();
         double scaleY = temp.getScaleY();
-
+        double scaleX = temp.getScaleX();
         double originalRotation = Math.atan(shearY / scaleY);
 
         if (LOGGER.isLoggable(Level.FINER)) {
@@ -766,8 +770,8 @@ public class RendererUtilities {
             LOGGER.finer("unitsize " + unitSize + " size = " + size + 
                          " -> scale " + drawSize);
         }
-
-        markAT.scale(drawSize, drawSize);
+        double xToyRatio = Math.abs(scaleX/scaleY);
+        markAT.scale(drawSize*xToyRatio, drawSize/xToyRatio);
         graphics.setTransform(markAT);
 
 
@@ -851,6 +855,7 @@ public class RendererUtilities {
 
         double shearY = temp.getShearY();
         double scaleY = temp.getScaleY();
+        double scaleX = temp.getScaleX();
 
         double originalRotation = Math.atan(shearY / scaleY);
 
@@ -862,7 +867,8 @@ public class RendererUtilities {
 
         double unitSize = 1.0; // getbounds is broken !!!
         double drawSize = (double) size / unitSize;
-        markAT.scale(drawSize, -drawSize);
+        double xToyRatio = Math.abs(scaleX/scaleY);
+        markAT.scale(drawSize*xToyRatio, -drawSize/xToyRatio);
 
         graphic.setTransform(markAT);
 
