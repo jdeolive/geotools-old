@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * Implementation of the DataStore service provider interface for Shapefiles.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: ShapefileDataStoreFactory.java,v 1.4 2004/02/11 20:41:27 ianschneider Exp $
+ * @version $Id: ShapefileDataStoreFactory.java,v 1.5 2004/02/11 20:45:03 ianschneider Exp $
  */
 public class ShapefileDataStoreFactory
     implements org.geotools.data.DataStoreFactorySpi {
@@ -75,7 +75,7 @@ public class ShapefileDataStoreFactory
      * @throws DataSourceException Thrown if the datastore which is created
      *         cannot be attached to the restore specified in params.
      */
-    public DataStore createDataStore(Map params) throws DataSourceException {
+    public DataStore createDataStore(Map params) throws IOException {
         DataStore ds = null;
 
 
@@ -86,10 +86,7 @@ public class ShapefileDataStoreFactory
         } catch (MalformedURLException mue) {
             throw new DataSourceException("Unable to attatch datastore to "
             + url, mue);
-        } catch (java.io.IOException ioe) {
-            throw new DataSourceException("Unable to locate/parse URL",ioe);
-            
-        }
+        } 
 
         return ds;
     }
