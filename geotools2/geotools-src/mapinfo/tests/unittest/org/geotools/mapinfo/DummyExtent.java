@@ -1,4 +1,4 @@
-package unittest.org.geotools.mapinfo;
+package org.geotools.mapinfo;
 
 import org.geotools.data.Extent;
 import org.geotools.feature.Feature;
@@ -38,5 +38,9 @@ public class DummyExtent implements Extent
 		return true;
 	}
 
+  public boolean containsExtent(Extent e) {
+      return true;
+  }
+  
 }
 
