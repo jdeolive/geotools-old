@@ -6,9 +6,9 @@
 
   <body>
     <links>
-      <item name="core" href="../../core"/>
-      <item name="defaultcore" href="../../defaultcore"/>
-      <item name="filter" href="../../filter"/>
+      <item name="core" href="http://www.geotools.org/gt2modules/core/target/docs/"/>
+      <item name="defaultcore" href="http://www.geotools.org/gt2modules/defaultcore/target/docs/"/>
+      <item name="filter" href="http://www.geotools.org/gt2modules/filter/target/docs/"/>
     </links>
     <!-- <menu name="Overview">
       <item name="Goals" href="/goals.html"/>
