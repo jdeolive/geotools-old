@@ -23,17 +23,20 @@ package org.geotools.gml;
 import java.util.ArrayList;
 import com.vividsolutions.jts.geom.*;
 
+import org.apache.log4j.Logger;
 
 /**
  * Creates a Polygon geometry.
  *
- * @version $Id: SubHandlerPolygon.java,v 1.5 2002/07/12 17:15:57 loxnard Exp $
+ * @version $Id: SubHandlerPolygon.java,v 1.6 2002/07/21 19:35:51 jmacgill Exp $
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
 
  */
 
 public class SubHandlerPolygon extends SubHandler {
+    
+    private static Logger _log = Logger.getLogger("gmldatasource");
     
     protected static com.vividsolutions.jts.algorithm.CGAlgorithms cga = 
         new com.vividsolutions.jts.algorithm.RobustCGAlgorithms();
@@ -89,10 +92,10 @@ public class SubHandlerPolygon extends SubHandler {
                      * points if necessary
                      */
                     if (cga.isCCW(points)){
-                        System.out.println("good hole found");
+                        log.debug("good hole found");
                         innerBoundaries.add(ring);
                     } else {
-                        System.out.println("bad hole found - fixing");
+                        log.debug("bad hole found - fixing");
                         Coordinate[] newPoints = new Coordinate[points.length];
                         for (int i = 0, j = points.length - 1; i < points.length; i++, j--){
                             newPoints[i] = points[j];
@@ -101,7 +104,7 @@ public class SubHandlerPolygon extends SubHandler {
                             ring = geometryFactory.createLinearRing(newPoints);
                             innerBoundaries.add(ring);
                         } catch (TopologyException e){
-                            System.err.println("Caught Topology exception in GMLPolygonHandler");
+                            log.warn("Caught Topology exception in GMLPolygonHandler");
                             ring=null;
                         }
                     }
@@ -115,7 +118,7 @@ public class SubHandlerPolygon extends SubHandler {
                     geometryFactory);
                     Coordinate[] points = outerBoundary.getCoordinates();
                     if (cga.isCCW(points)){
-                        System.out.println("bad outer ring - rebuilding");
+                        log.debug("bad outer ring - rebuilding");
                         Coordinate[] newPoints = new Coordinate[points.length];
                         for (int i = 0, j = points.length - 1; i < points.length; i++, j--){
                             newPoints[i]=points[j];
@@ -124,7 +127,7 @@ public class SubHandlerPolygon extends SubHandler {
                             outerBoundary =
                             geometryFactory.createLinearRing(newPoints);
                         } catch (TopologyException e){
-                            System.err.println("Caught Topology exception in " + 
+                            log.warn("Caught Topology exception in " + 
                             "GMLPolygonHandler");
                             outerBoundary = null;
                         }
@@ -136,10 +139,10 @@ public class SubHandlerPolygon extends SubHandler {
         } else if (message.equals("outerBoundaryIs")) {
             //  or, if we are getting notice of an inner/outer boundary marker,
             // set current location appropriately
-            System.out.println("new outer Boundary");
+           log.debug("new outer Boundary");
             location = OUTER_BOUNDARY;
         } else if (message.equals("innerBoundaryIs")) {
-            System.out.println("new InnerBoundary");
+            log.debug("new InnerBoundary");
             location = INNER_BOUNDARY;
         }
         
@@ -195,7 +198,7 @@ public class SubHandlerPolygon extends SubHandler {
         for (int i = 0; i < innerBoundaries.size(); i++){
             LinearRing hole = (LinearRing) innerBoundaries.get(i);
             if (hole.crosses(outerBoundary)){
-                System.err.println("Topology Error building polygon");
+                log.warn("Topology Error building polygon");
                 return null;
             }
         }

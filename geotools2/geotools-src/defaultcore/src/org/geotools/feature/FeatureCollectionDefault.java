@@ -26,17 +26,22 @@ import org.geotools.datasource.extents.*;
 
 import org.geotools.filter.*;
 
+//Logging system
+import org.apache.log4j.Logger;
+
 /**
  * The default feature collection holds and passes out features promiscuously
  * to requesting clients.  It does not guarantee that features are of a certain
  * type or that they follow a specific schema. 
  * 
- * @version $Id: FeatureCollectionDefault.java,v 1.5 2002/07/19 14:14:38 jmacgill Exp $
+ * @version $Id: FeatureCollectionDefault.java,v 1.6 2002/07/21 19:32:42 jmacgill Exp $
  * @author  James Macgill, CCG<br>
  * @author  Rob Hranac, VFNY<br>
  */
 public class FeatureCollectionDefault implements FeatureCollection {
 
+    private static Logger log = Logger.getLogger("defaultcore");
+    
     /* Internal feature storage list */
     private List features = new Vector();
 
@@ -164,7 +169,7 @@ public class FeatureCollectionDefault implements FeatureCollection {
             //TODO: move this code to its own method?
             if (toLoad[i] != null){
                 if (data != null){
-                    System.out.println("loading " + i);
+                    log.debug("loading " + i);
                     org.geotools.filter.GeometryFilter gf =
                       new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
                     ExpressionLiteral right = 
@@ -180,7 +185,7 @@ public class FeatureCollectionDefault implements FeatureCollection {
                 }
             }
         }
-        System.out.println("calling getfeatures");
+        log.debug("calling getfeatures");
         return getFeatures();
         }
         catch(IllegalFilterException ife){
