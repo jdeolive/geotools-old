@@ -8,8 +8,8 @@ title="Previous docbook stylesheet"
 alternate="yes"
 ?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
-<!--"file:/usr/share/sgml/simple4125/sdocbook.dtd"-->
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+<!--file:/usr/share/sgml/simple4125/sdocbook.dtd"-->
 <article id="index">
   <articleinfo>
     <title>Geotools2 Developer Guide</title>
@@ -20,7 +20,7 @@ alternate="yes"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/06/17 21:56:30 $</date>
+    <date>$Date: 2002/06/20 21:59:49 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -89,34 +89,6 @@ alternate="yes"
           <para></para>
         </listitem>
       </itemizedlist>
-    </section>
-
-    <section id="cvs">
-      <title>Code Versioning (using CVS)</title>
-
-      <para>To do:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Point to sourceforge CVS howto links.</para>
-        </listitem>
-
-        <listitem>
-          <para>Also point to some HOWTOs for windows users.</para>
-        </listitem>
-
-        <listitem>
-          <para>What is acceptable to commit to CVS, what is not. (Ie, code
-          should compile)</para>
-        </listitem>
-
-        <listitem>
-          <para>Talk about version numbering convention, use of branches, etc
-          (if we decide to do this).</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>To do:</para>
     </section>
 
     <section id="CodingStandards">
@@ -306,6 +278,12 @@ alternate="yes"
             <ulink url="http://www.openoffice.org">Open Office</ulink> and
             <ulink url="www.lyx.org">Lyx</ulink> look promising.</para>
           </listitem>
+
+          <listitem>
+            <para>Viewing SGML: Tomas has written a useful webpage for viewing
+            SGML pages at:
+            http://www.cartesia.org/modules.php?op=modload&#38;name=NS-Docbook&#38;file=index.</para>
+          </listitem>
         </itemizedlist>
       </section>
 
@@ -354,7 +332,7 @@ alternate="yes"
           </listitem>
 
           <listitem>
-            <para>How to use maven to build doc. </para>
+            <para>How to use maven to build doc.</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -363,6 +341,38 @@ alternate="yes"
 
   <section id="tools">
     <title>Development Tools</title>
+
+    <section>
+      <title id="ssh">ssh</title>
+
+      <para></para>
+    </section>
+
+    <section id="cvs">
+      <title>Code Versioning (using CVS)</title>
+
+      <para>To do:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Point to sourceforge CVS howto links.</para>
+        </listitem>
+
+        <listitem>
+          <para>Also point to some HOWTOs for windows users.</para>
+        </listitem>
+
+        <listitem>
+          <para>What is acceptable to commit to CVS, what is not. (Ie, code
+          should compile)</para>
+        </listitem>
+
+        <listitem>
+          <para>Talk about version numbering convention, use of branches, etc
+          (if we decide to do this).</para>
+        </listitem>
+      </itemizedlist>
+    </section>
 
     <section id="netbeans">
       <title>Netbeans</title>
@@ -377,12 +387,92 @@ alternate="yes"
       </section>
 
       <section>
+        <title id="netbeansprerequisites">Prerequisites</title>
+
+        <para>Before setting up Netbeans you need to:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Have ssh installed, and ssh key-value pairs set up so you do
+            not need a password to access sourceforge CVS repository.</para>
+          </listitem>
+
+          <listitem>
+            <para>Have CVS installed.</para>
+          </listitem>
+
+          <listitem>
+            <para>Have checked out the geotools2 CVS respository into a local
+            directory on your computer.</para>
+          </listitem>
+
+          <listitem>
+            <para>The geotools .jar files need to be created in the release
+            directory, which is done by running the ant or maven build
+            scripts.</para>
+          </listitem>
+        </itemizedlist>
+      </section>
+
+      <section>
         <title id="netbeansmodules">Adding Modules</title>
 
         <para>A few modules should be added to the standard netbeans install
-        to maximise geotools development.</para>
+        to help geotools development. Use the Tools-&#62;Update Center to
+        instal these modules:</para>
 
-        <para></para>
+        <itemizedlist>
+          <listitem>
+            <para>&#34;View over Filesystem&#34; is a &#34;must have&#34;
+            module of Netbeans. It allows you to mount each module within CVS
+            and is almost essential for geotools development within Netbeans.
+            The default Netbeans only allows you to mount one source directory
+            but geotools has a source directory for each geotools module.</para>
+          </listitem>
+
+          <listitem>
+            <para>&#34;XML Editor&#34; is useful for editing and validating
+            documentation and Geographic Markup Language (GML) files.</para>
+          </listitem>
+
+          <listitem>
+            <para>&#34;Poseidon&#34;. This is a Univeral Markup Language (UML)
+            editor which we occasionally use to explain ideas about design.
+            You can get away without installing this.</para>
+          </listitem>
+        </itemizedlist>
+      </section>
+
+      <section>
+        <title id="mounting">Mounting Directories</title>
+
+        <para>You will need to mount the geotools2 repository. In the Explorer
+        window, right click on Filesystems, select Mount-&#62;Version
+        Control-&#62;CVS. Select the geotools2 directory that you have already
+        booked out from CVS. Don&#39;t worry about the relative mount point,
+        it will be covered by the &#34;View over Filesystem&#34; section. You
+        shouldn&#39;t need to change the cvs and ssh parameters, they will
+        have been picked up correctly from when you booked geotools out from
+        CVS manually.</para>
+
+        <para>It is a good idea to update the Parser Database after mounting
+        the geotools directory. This enables filename auto-completion and
+        &#34;go to declaration&#34;.</para>
+
+        <para>You will need to mount all the geotools jar files. First, the
+        geotools jar files need to be created using ant or maven. Then in the
+        Netbeans Explorer, right click on Filesystems, select
+        Mount-&#62;Archive, then select <filename>geotools2/release/&#60;filename&#62;.jar</filename>.
+        Repeat for all the jar files in the <filename>geotools2/release</filename>
+        directory.</para>
+
+        <para>If you want to debug files using Netbeans, you will need to
+        mount the source module directories based on the root source directory
+        of that module. To do this, you will need to ensure the &#34;View over
+        FileSystem&#34; Netbeans module is installed select a
+        <filename>geotools2/geotools-src/&#60;module_name&#62;/src</filename>
+        directory in the Filesystem Explorer, select Tools-&#62;Mount As New
+        Filesystem.</para>
       </section>
 
       <section id="todo2">
