@@ -13,7 +13,7 @@ import org.geotools.map.Context;
  * initialsed by Widgets when the Widget assigns a Tool to the Widget.
  * Tools should be destroyed when the owning Widget is destroyed.
  */
-public abstract class Tool extends MouseInputAdapter {
+public abstract class Tool {
     /**
      * The widget from which this Tool gets MouseEvents.  The widget contains
      * information like widget size.
@@ -60,7 +60,8 @@ public abstract class Tool extends MouseInputAdapter {
      * @throws IllegalStateException if the widget has already been set to
      * another widget.
      */
-    public void setWidget(JComponent widget){
+    public void setWidget(JComponent widget) throws IllegalStateException
+    {
         if (this.widget==null){
             this.widget=widget;
         }else if (this.widget!=widget){
