@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
-<section>
-  <title id="documentoverview">Document overview.</title>
+<section id="documentoverview">
+  <title>Document overview.</title>
 
   <para>This Software Design Document is based on the <ulink
   url="http://www.pogner.demon.co.uk/mil_498/sdd-did.htm">MIL-STD 498 Software

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
-<section>
-  <title id="architecturaldesign">Geotools2 architectural design.</title>
+<section id="architecturaldesign">
+  <title>Geotools2 architectural design.</title>
 
-  <section>
-    <title id="geotoolscomponents">Geotools2 components.</title>
+  <section id="geotoolscomponents">
+    <title>Geotools2 components.</title>
 
-    <section>
-      <title id="modulesoverview">Geotools Packages</title>
+    <section id="modulesoverview">
+      <title>Geotools Packages</title>
 
       <figure>
         <title>Core Geotools2 packages</title>
@@ -148,8 +148,8 @@
     </section>
   </section>
 
-  <section>
-    <title id="conceptofexecution">Concept of execution.</title>
+  <section id="conceptofexecution">
+    <title>Concept of execution.</title>
 
     <itemizedlist>
       <listitem>
@@ -159,13 +159,13 @@
     </itemizedlist>
   </section>
 
-  <section>
-    <title id="interfacedesign">Interface design.</title>
+  <section id="interfacedesign">
+    <title>Interface design.</title>
 
     <para></para>
 
-    <section>
-      <title id="interfaceidentificationanddiagrams">Interface identification
+    <section id="interfaceidentificationanddiagrams">
+      <title>Interface identification
       and diagrams.</title>
 
       <para></para>
