@@ -101,7 +101,8 @@ public class ExpressionDefault implements Expression {
     }
 
     /**
-     * Checks to see if passed type is math.
+     * Checks to see if passed type is math. Modified by Ian to consider Integers and Doubles
+     * to be acceptable in MathExpressions
      *
      * @param expressionType Type of expression for check.
      * @return Whether or not this is a math expression type.
@@ -110,7 +111,9 @@ public class ExpressionDefault implements Expression {
         if( (expressionType == MATH_ADD) ||
             (expressionType == MATH_SUBTRACT) ||
             (expressionType == MATH_MULTIPLY) ||
-            (expressionType == MATH_DIVIDE) ) {
+            (expressionType == MATH_DIVIDE)  ||
+            (expressionType == LITERAL_DOUBLE) ||
+            (expressionType == LITERAL_INTEGER) ) {
             return true;
         }
         else {

@@ -106,12 +106,12 @@ public class ExpressionMath extends ExpressionDefault {
         
         
         // Checks to make sure both sub expressions exist.
-        if( leftValue == null | rightValue == null ) {
+        if( leftValue == null || rightValue == null ) {
             throw new MalformedFilterException("Attempted read math expression with missing sub expressions.");
         }
 
-        double leftValueDouble = ((Double) leftValue.getValue(feature)).doubleValue();
-        double rightValueDouble = ((Double) rightValue.getValue(feature)).doubleValue();
+        double leftValueDouble = ((Number) leftValue.getValue(feature)).doubleValue();
+        double rightValueDouble = ((Number) rightValue.getValue(feature)).doubleValue();
         // Standard return values.
         if( expressionType == MATH_ADD ) {
             return new Double(leftValueDouble + rightValueDouble);
