@@ -189,10 +189,10 @@ public final class ColorInterpretation extends EnumeratedParameter {
     }
     
     /**
-     * Resource key, used for building localized name. This key doesn't need to
-     * be serialized, since {@link #readResolve} canonicalize enums according their
-     * {@link #value}. Furthermore, its value is implementation-dependent (which is
-     * an other raison why it should not be serialized).
+     * Resource key, used for building localized name. This key doesn't need to be
+     * serialized, since {@link #readResolve} canonicalize enums according their
+     * {@link #getValue()}. Furthermore, its value is implementation-dependent
+     * (which is an other raison why it should not be serialized).
      */
     private transient final int key;
     
@@ -226,9 +226,12 @@ public final class ColorInterpretation extends EnumeratedParameter {
      * @return The enum for the specified color model and band number.
      * @throws IllegalArgumentException if the band number is not in the valid range.
      */
-    public static ColorInterpretation getEnum(final ColorModel model, final int band) throws IllegalArgumentException {
+    public static ColorInterpretation getEnum(final ColorModel model, final int band)
+        throws IllegalArgumentException
+    {
         if (band<0 || band>=model.getNumComponents()) {
-            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_BAND_NUMBER_$1, new Integer(band)));
+            throw new IllegalArgumentException(
+                    Resources.format(ResourceKeys.ERROR_BAD_BAND_NUMBER_$1, new Integer(band)));
         }
         if (model instanceof IndexColorModel) {
             return PALETTE_INDEX;
@@ -292,8 +295,11 @@ public final class ColorInterpretation extends EnumeratedParameter {
      * @throws ObjectStreamException is deserialization failed.
      */
     private Object readResolve() throws ObjectStreamException {
-        final int value = getValue();
-        if (value>=0 && value<ENUMS.length) return ENUMS[value]; // Canonicalize
-        else return ENUMS[0]; // Collapse unknow value to a single canonical one
+        int value = getValue();
+        if (value<0 || value>=ENUMS.length) {
+            // Collapse unknow value to a single canonical one
+            value = 0;
+        }
+        return ENUMS[value]; // Canonicalize
     }
 }
