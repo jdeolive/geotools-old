@@ -15,7 +15,7 @@ import java.util.*;
  * rest of geotools.
  *
  * @author ian
- * @version $Id: GMLDataSource.java,v 1.3 2002/03/11 15:52:26 ianturton Exp $
+ * @version $Id: GMLDataSource.java,v 1.4 2002/03/12 12:51:42 ianturton Exp $
  */
 public class GMLDataSource implements org.geotools.datasource.DataSource{
     boolean stopped=false;
@@ -33,10 +33,9 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
      * @return the names of the columns of the feature table
      */
     public String[] getColumnNames() {
-        if(gmlr != null){
-            
-        }
-        return null;
+        
+        return new String[]{"Geometry"};
+        
     }
     
     /** Loads Feature rows for the given Extent from the datasource
@@ -45,18 +44,17 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
      * @return List of features
      */
     public List load(Extent ex) throws DataSourceException {
-        System.out.println("loading gml datasource");
+
         if(ex instanceof EnvelopeExtent){
             List features = new ArrayList();
             EnvelopeExtent ee = (EnvelopeExtent)ex;
-            Envelope bounds = ee.getBounds();
-            System.out.println("about to load "+bounds);
+            
+            
             try{
                 BufferedReader in = new BufferedReader(new InputStreamReader(source.openStream()));
                 
                 gmlr = new GMLReader(in);
                 GeometryCollection shapes = gmlr.read();
-                System.out.println("got GC "+shapes.getNumGeometries());
                 int count = shapes.getNumGeometries();
                 for(int i=0;i<count;i++){
                     Feature feat = new Feature();
@@ -64,16 +62,15 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
                     Object [] row = new Object[1];
                     feat.row = row;
                     feat.row[0] = shapes.getGeometryN(i);
-                    if(ex.containsFeature(feat)){
+                    if(ee.containsFeature(feat)){
                         features.add(feat);
                     }
                 }
+                
             }
             catch(IOException ioe){
                 throw new DataSourceException("IO Exception loading data : "+ioe.getMessage());
             }
-
-            
             return features;
         }
         else{
