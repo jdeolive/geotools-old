@@ -46,7 +46,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
-import javax.vecmath.MismatchedSizeException;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
 
 // Components and events
 import java.awt.Container;
@@ -54,23 +55,30 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
 
 // Collections
+import java.util.Set;
+import java.util.Map;
 import java.util.List;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
 
-// Logging
+// Logging and miscellaneous
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
+import javax.vecmath.MismatchedSizeException;
 
 // Geotools dependencies
 import org.geotools.axis.Axis2D;
 import org.geotools.axis.Graduation;
 import org.geotools.axis.AbstractGraduation;
 import org.geotools.renderer.array.GenericArray;
+import org.geotools.resources.XMath;
 
 
 /**
@@ -79,8 +87,15 @@ import org.geotools.renderer.array.GenericArray;
  * perpendicular). This widget is not a replacement for full featured toolkit like
  * <A HREF="http://jgraph.sourceforge.net/">JGraph</A>; it just provides a mean to
  * quickly display a time serie.
+ * <br><br>
+ * Axis color and font can bet set with {@link #setForeground} and {@link #setFont}.
+ * A scroll pane can be created with {@link #createScrollPane}.
  *
- * @version $Id: Plot2D.java,v 1.1 2003/05/23 18:00:26 desruisseaux Exp $
+ * <p>&nbsp;</p>
+ * <p align="center"><img src="doc-files/Plot2D.png"></p>
+ * <p>&nbsp;</p>
+ *
+ * @version $Id: Plot2D.java,v 1.2 2003/06/02 21:55:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see <A HREF="http://jgraph.sourceforge.net/">JGraph</A>
@@ -92,10 +107,34 @@ public class Plot2D extends ZoomPane {
     private static final Stroke DEFAULT_STROKE = new BasicStroke(0);
 
     /**
-     * The set of <var>x</var> axis. There is usually only one axis,
-     * but more axis are allowed. If this list length is smaller than
-     * <code>series.size()</code>, then the last axis is reused for
-     * all remaining series.
+     * Default cycle of colors.
+     */
+    private static final Color[] DEFAULT_COLORS = new Color[] {
+        Color.BLUE, Color.RED, Color.ORANGE
+    };
+
+    /**
+     * The axis for a given series. Instance of this class are used as value in the {@link
+     * Plot2D#series} map. The <var>x</var> and <var>y</var> axis in this <code>Entry</code>
+     * <strong>must</strong> be listed in {@link Plot2D#xAxis} and {@link Plot2D#yAxis} as
+     * well, but those list order don't have to be the same than the {@link Plot2D#series}
+     * order.
+     */
+    private static final class Entry implements Serializable {
+        /** The <var>x</var> and <var>y</var> axis for a given series. */
+        public final Axis2D xAxis, yAxis;
+
+        /** Construct a new entry with the specified axis. */
+        public Entry(final Axis2D xAxis, final Axis2D yAxis) {
+            this.xAxis = xAxis;
+            this.yAxis = yAxis;
+        }
+    }
+
+    /**
+     * The set of <var>x</var> axis. There is usually only one axis, but more axis are allowed.
+     * All <code>Entry.xAxis</code> instance <strong>must</strong> appears in this list as well,
+     * but not necessarly in the same order.
      *
      * @see #newAxis
      * @see #addSeries(Series)
@@ -103,10 +142,9 @@ public class Plot2D extends ZoomPane {
     private final List xAxis = new ArrayList(3);
 
     /**
-     * The set of <var>y</var> axis. There is usually only one axis,
-     * but more axis are allowed. If this list length is smaller than
-     * <code>series.size()</code>, then the last axis is reused for
-     * all remaining series.
+     * The set of <var>y</var> axis. There is usually only one axis, but more axis are allowed.
+     * All <code>Entry.yAxis</code> instance <strong>must</strong> appears in this list as well,
+     * but not necessarly in the same order.
      *
      * @see #newAxis
      * @see #addSeries(Series)
@@ -114,18 +152,25 @@ public class Plot2D extends ZoomPane {
     private final List yAxis = new ArrayList(3);
 
     /**
-     * The set of series to plot.
+     * The set of series to plot. Keys are {@link Series} objects while values are
+     * <code>Entry</code> objects with the <var>x</var> and <var>y</var> axis to use
+     * for the series.
      *
      * @see #addSeries(Series)
      */
-    private final List series = new ArrayList();
+    private final Map series = new LinkedHashMap();
 
     /**
      * Immutable version of <code>series</code> to be returned by {@link #getSeries}.
      *
      * @see #getSeries
      */
-    private final List unmodifiableSeries = Collections.unmodifiableList(series);
+    private final Set unmodifiableSeries = Collections.unmodifiableSet(series.keySet());
+
+    /**
+     * The last axis added to <code>series</code>, or <code>null</code> if none.
+     */
+    private Entry previousAxis;
 
     /**
      * Title for next axis to be created for each dimension. Element 0 is the axis name for
@@ -138,6 +183,11 @@ public class Plot2D extends ZoomPane {
     private final String[] nextAxis = new String[2];
 
     /**
+     * Bounding box of data in all series, or <code>null</code> if it must be recomputed.
+     */
+    private transient Rectangle2D seriesBounds;
+
+    /**
      * Margin between widget border and the drawing area.
      */
     private int top=30, bottom=60, left=60, right=30;
@@ -146,6 +196,11 @@ public class Plot2D extends ZoomPane {
      * Horizontal (x) and vertival (y) offset to apply to any supplementary axis.
      */
     private int xOffset=20, yOffset=-20;
+
+    /**
+     * The widget's width and height when the graphics was rendered for the last time.
+     */
+    private int lastWidth, lastHeight;
 
     /**
      * The plot title.
@@ -160,16 +215,13 @@ public class Plot2D extends ZoomPane {
     /**
      * Listener class for various events.
      */
-    private final class Listeners extends ComponentAdapter {
+    private static final class Listeners extends ComponentAdapter {
         /**
          * When resized, force the widget to layout its axis.
          */
         public void componentResized(final ComponentEvent event) {
-            final Container c = (Container) event.getSource();
-            c.invalidate();
-            c.validate(); // Doesn't seems be automatically invoked as a result of 'invalidate'.
-                          // Is it a bug?  This 'validate'/'invalidate' stuff is pretty hard to
-                          // get working right!!!!!
+            final Plot2D c = (Plot2D) event.getSource();
+            c.layoutAxis(false);
         }
     }
 
@@ -247,7 +299,9 @@ public class Plot2D extends ZoomPane {
     public void addSeries(final String name, final Object x, final Object y)
             throws ClassCastException, MismatchedSizeException
     {
-        addSeries(new DefaultSeries(name, x, y));
+        final DefaultSeries series = new DefaultSeries(name, x, y);
+        series.color = DEFAULT_COLORS[this.series.size() % DEFAULT_COLORS.length];
+        addSeries(series);
     }
 
     /**
@@ -256,47 +310,56 @@ public class Plot2D extends ZoomPane {
      * @param series The serie to add.
      */
     public void addSeries(final Series series) {
+        final Axis2D xAxis;
+        final Axis2D yAxis;
         Rectangle2D bounds = null;
-        /*
-         * Si aucun axe n'a été définie, construit
-         * et ajoute de nouveau axes maintenant.
-         */
-        if (xAxis.isEmpty() || nextAxis[0]!=null) {
+        if (previousAxis==null || nextAxis[0]!=null) {
             if (bounds == null) {
                 bounds = series.getBounds2D();
             }
-            final Axis2D axis = new Axis2D();
-            final AbstractGraduation grad = (AbstractGraduation) axis.getGraduation();
+            xAxis = new Axis2D();
+            final AbstractGraduation grad = (AbstractGraduation) xAxis.getGraduation();
             grad.setMinimum(bounds.getMinX());
             grad.setMaximum(bounds.getMaxX());
             grad.setTitle(nextAxis[0]);
-            xAxis.add(axis);
-            invalidate();
+            this.xAxis.add(xAxis);
+            nextAxis[0] = null;
+        } else {
+            xAxis = previousAxis.xAxis;
         }
-        if (yAxis.isEmpty() || nextAxis[1]!=null) {
+        if (previousAxis==null || nextAxis[1]!=null) {
             if (bounds == null) {
                 bounds = series.getBounds2D();
             }
-            final Axis2D axis = new Axis2D();
-            final AbstractGraduation grad = (AbstractGraduation) axis.getGraduation();
+            yAxis = new Axis2D();
+            final AbstractGraduation grad = (AbstractGraduation) yAxis.getGraduation();
             grad.setMinimum(bounds.getMinY());
             grad.setMaximum(bounds.getMaxY());
             grad.setTitle(nextAxis[1]);
-            yAxis.add(axis);
-            invalidate();
+            this.yAxis.add(yAxis);
+            nextAxis[1] = null;
+        } else {
+            yAxis = previousAxis.yAxis;
         }
-        this.series.add(series);
+        if (bounds != null) {
+            previousAxis = new Entry(xAxis, yAxis);
+        }
+        this.series.put(series, previousAxis);
         if (title == null) {
             title = series.getName();
         }
-        validate();
+        seriesBounds = null;
+        if (bounds != null) {
+            // TODO: We should find a more flexible way.
+            reset();
+        }
     }
 
     /**
-     * Returns the list of all series. Series are painted in the order
-     * they are returned. The returned list is immutable.
+     * Returns the set of series to be draw.
+     * Series are painted in the order they are returned.
      */
-    public Collection getSeries() {
+    public Set getSeries() {
         return unmodifiableSeries;
     }
 
@@ -308,69 +371,75 @@ public class Plot2D extends ZoomPane {
      * @throws NoSuchElementException if this widget doesn't contains the specified series.
      */
     public Axis2D[] getAxis(final Series series) throws NoSuchElementException {
-        final int index = this.series.indexOf(series);
-        if (index >= 0) {
-            if (!xAxis.isEmpty() && !yAxis.isEmpty()) {
-                return new Axis2D[] {
-                    (Axis2D) xAxis.get(Math.min(index, xAxis.size()-1)),
-                    (Axis2D) yAxis.get(Math.min(index, yAxis.size()-1))
-                };
-            }
-            // Should not occurs. As a safety, an empty array still a reasonable output.
-            return new Axis2D[0];
+        final Entry entry = (Entry) this.series.get(series);
+        if (entry != null) {
+            assert xAxis.indexOf(entry.xAxis) >= 0 : xAxis;
+            assert yAxis.indexOf(entry.yAxis) >= 0 : yAxis;
+            return new Axis2D[] {
+                entry.xAxis,
+                entry.yAxis
+            };
         }
         throw new NoSuchElementException(series.getName());
     }
 
     /**
-     * Remove all series and axis previously displayed.
-     */
-    public void clear() {
-        series.clear();
-        xAxis .clear();
-        yAxis .clear();
-    }
-
-    /**
      * Returns a bounding box that contains the logical coordinates of
-     * all data that may be displayed in this <code>ZoomPane</code>.
+     * all data that may be displayed in this <code>Plot2D</code>.
      *
-     * @return A bounding box for the logical coordinates of every content
-     *         that is going to be drawn on this <code>ZoomPane</code>. If
-     *         this bounding box is unknow, then this method can returns
-     *         <code>null</code> (but this is not recommanded).
+     * @return A bounding box for the logical coordinates of every series
+     *         that is going to be drawn on this <code>Plot2D</code>.
      */
     public Rectangle2D getArea() {
-        double xmin = Double.POSITIVE_INFINITY;
-        double xmax = Double.NEGATIVE_INFINITY;
-        double ymin = Double.POSITIVE_INFINITY;
-        double ymax = Double.NEGATIVE_INFINITY;
-        for (final Iterator it=xAxis.iterator(); it.hasNext();) {
-            double value;
-            final Graduation grad = ((Axis2D) it.next()).getGraduation();
-            if ((value=grad.getMinimum()) < xmin) xmin=value;
-            if ((value=grad.getMaximum()) > xmax) xmax=value;
+        if (seriesBounds == null) {
+            final Rectangle2D bounds = new Rectangle2D.Double();
+            for (final Iterator it=series.keySet().iterator(); it.hasNext();) {
+                final Rectangle2D candidate = ((Series) it.next()).getBounds2D();
+                if (bounds.isEmpty()) {
+                    bounds.setRect(candidate);
+                } else {
+                    bounds.add(candidate);
+                }
+            }
+            if (!bounds.isEmpty()) {
+                seriesBounds = bounds;
+            }
         }
-        for (final Iterator it=yAxis.iterator(); it.hasNext();) {
-            double value;
-            final Graduation grad = ((Axis2D) it.next()).getGraduation();
-            if ((value=grad.getMinimum()) < ymin) ymin=value;
-            if ((value=grad.getMaximum()) > ymax) ymax=value;
-        }
-        if (xmin<=xmax && ymin<=ymax) {
-            return new Rectangle2D.Double(xmin, ymin, xmax-xmin, ymax-ymin);
-        }
-        return null;
+        return seriesBounds;
     }
 
     /**
-     * Returns the zoomable area in pixel coordinates.
+     * Returns the bounds used by at least one of the specified axis.
+     *
+     * @param xAxis The <var>x</var> axis, or <code>null</code>.
+     * @param yAxis The <var>y</var> axis, or <code>null</code>.
+     */
+    private Rectangle2D getBounds(final Axis2D xAxis, final Axis2D yAxis) {
+        final Rectangle2D bounds = new Rectangle2D.Double();
+        for (final Iterator it=series.entrySet().iterator(); it.hasNext();) {
+            final Map.Entry e = (Map.Entry) it.next();
+            final Entry entry = (Entry)  e.getValue();
+            if (entry.xAxis.equals(xAxis) || entry.yAxis.equals(yAxis)) {
+                final Rectangle2D candidate = ((Series) e.getKey()).getBounds2D();
+                if (bounds.isEmpty()) {
+                    bounds.setRect(candidate);
+                } else {
+                    bounds.add(candidate);
+                }
+            }
+        }
+        return bounds;
+    }
+
+    /**
+     * Returns the zoomable area in pixel coordinates. This area will not cover the
+     * full widget area, since some room will be left for painting axis and titles.
      */
     protected Rectangle getZoomableBounds(Rectangle bounds) {
         bounds = super.getZoomableBounds(bounds);
-        bounds.x += left;
-        bounds.y += top;
-        bounds.width -= (left + right);
+        bounds.x      += left;
+        bounds.y      +=  top;
+        bounds.width  -= (left + right);
         bounds.height -= (top + bottom);
         return bounds;
     }
@@ -381,33 +450,138 @@ public class Plot2D extends ZoomPane {
      * invoked.
      */
     public void reset() {
-        final Rectangle2D bounds = new Rectangle2D.Double();
-        for (final Iterator it=series.iterator(); it.hasNext();) {
-            final Rectangle2D candidate = ((Series) it.next()).getBounds2D();
-            if (bounds.isEmpty()) {
-                bounds.setRect(candidate);
-            } else {
-                bounds.add(candidate);
+        layoutAxis(true);
+        for (final Iterator it=xAxis.iterator(); it.hasNext();) {
+            final Axis2D axis = (Axis2D) it.next();
+            final Rectangle2D bounds = getBounds(axis, null);
+            if (!bounds.isEmpty()) {
+                final AbstractGraduation grad = (AbstractGraduation) axis.getGraduation();
+                grad.setMinimum(bounds.getMinX());
+                grad.setMaximum(bounds.getMaxX());
             }
         }
-        if (!bounds.isEmpty()) {
-            double min, max;
-            min = bounds.getMinX();
-            max = bounds.getMaxX();
-            for (final Iterator it=xAxis.iterator(); it.hasNext();) {
-                final AbstractGraduation grad = (AbstractGraduation) ((Axis2D) it.next()).getGraduation();
-                grad.setMinimum(min);
-                grad.setMaximum(max);
-            }
-            min = bounds.getMinY();
-            max = bounds.getMaxY();
-            for (final Iterator it=yAxis.iterator(); it.hasNext();) {
-                final AbstractGraduation grad = (AbstractGraduation) ((Axis2D) it.next()).getGraduation();
-                grad.setMinimum(min);
-                grad.setMaximum(max);
+        for (final Iterator it=yAxis.iterator(); it.hasNext();) {
+            final Axis2D axis = (Axis2D) it.next();
+            final Rectangle2D bounds = getBounds(null, axis);
+            if (!bounds.isEmpty()) {
+                final AbstractGraduation grad = (AbstractGraduation) axis.getGraduation();
+                grad.setMinimum(bounds.getMinY());
+                grad.setMaximum(bounds.getMaxY());
             }
         }
         super.reset();
+    }
+
+    /**
+     * Set axis location. This method is automatically invoked when the axis needs to be layout.
+     * This occur for example when new axis are added, or when the component has been resized.
+     *
+     * @param force If <code>true</code>, then axis orientation and position are reset to
+     *        their default value. If <code>false</code>, then this method try to preserve
+     *        axis orientation and position relative to widget's border.
+     */
+    private void layoutAxis(final boolean force) {
+        final int width  = getWidth();
+        final int height = getHeight();
+        final double  tx = width  - lastWidth;
+        final double  ty = height - lastHeight;
+        int axisCount = 0;
+        for (final Iterator it=xAxis.iterator(); it.hasNext();) {
+            final Axis2D axis = (Axis2D) it.next();
+            if (force) {
+                axis.setLabelClockwise(true);
+                axis.setLine(left, height-bottom, width-right, height-bottom);
+                translatePerpendicularly(axis, xOffset*axisCount, yOffset*axisCount);
+            } else {
+                resize(axis, tx, ty);
+            }
+            axisCount++;
+        }
+        axisCount = 0;
+        for (final Iterator it=yAxis.iterator(); it.hasNext();) {
+            final Axis2D axis = (Axis2D) it.next();
+            if (force) {
+                axis.setLabelClockwise(false);
+                axis.setLine(left, height-bottom, left, top);
+                translatePerpendicularly(axis, xOffset*axisCount, yOffset*axisCount);
+            } else {
+                resize(axis, tx, ty);
+            }
+            axisCount++;
+        }
+        lastWidth  = width;
+        lastHeight = height;
+    }
+
+    /**
+     * Translate an axis in a perpendicular direction to its orientation.
+     * The following rules applies:
+     *
+     * <ul>
+     *   <li>If the axis is vertical, then the axis is translated horizontally
+     *       by <code>tx</code> only. The <code>ty</code> argument is ignored.</li>
+     *   <li>If the axis is horizontal, then the axis is translated vertically
+     *       by <code>ty</code> only. The <code>tx</code> argument is ignored.</li>
+     *   <li>If the axis is diagonal, then the axis is translated using the
+     *       following formula (<var>theta</var> is the axis orientation relative
+     *       to the horizontal):
+     *       <br>
+     *       <blockquote><pre>
+     *          dx = tx*sin(theta)
+     *          dy = ty*cos(theta)
+     *       </pre></blockquote>
+     *    </li>
+     *  </ul>
+     */
+    private static void translatePerpendicularly(final Axis2D axis, final double tx, final double ty) {
+        final double x1 = axis.getX1();
+        final double y1 = axis.getY1();
+        final double x2 = axis.getX2();
+        final double y2 = axis.getY2();
+        double dy = (double) x2 - (double) x1; // Note: dx and dy are really
+        double dx = (double) y1 - (double) y2; //       swapped. Not an error.
+        double length = Math.sqrt(dx*dx + dy*dy);
+        dx *= tx/length;
+        dy *= ty/length;
+        axis.setLine(x1+dx, y1+dy, x2+dx, y2+dy);
+    }
+
+    /**
+     * Invoked when this component has been resized. This method adjust axis length will
+     * preserving their orientation and position relative to border.
+     *
+     * @param axis The axis to adjust.
+     * @param tx The change in component width.
+     * @param ty The change in component height.
+     */
+    private static void resize(final Axis2D axis, final double tx, final double ty) {
+        final Point2D P1 = axis.getP1();
+        final Point2D P2 = axis.getP2();
+        final Point2D anchor, moveable;
+        if (distanceSq(P1) <= distanceSq(P2)) {
+            anchor   = P1;
+            moveable = P2;
+        } else {
+            anchor   = P2;
+            moveable = P1;
+        }
+        final double  x = moveable.getX();
+        final double  y = moveable.getY();
+        final double dx = x-anchor.getX();
+        final double dy = y-anchor.getY();
+        final double length = XMath.hypot(dx, dy);
+        moveable.setLocation(x + tx*dx/length,
+                             y + ty*dy/length);
+        axis.setLine(P1, P2);
+    }
+
+    /**
+     * Returns the square of the distance between the specified point and the origin (0,0).
+     */
+    private static double distanceSq(final Point2D point) {
+        final double x = point.getX();
+        final double y = point.getY();
+        return x*x + y*y;
     }
 
     /**
@@ -420,8 +594,7 @@ public class Plot2D extends ZoomPane {
         Point2D.Double P2 = new Point2D.Double();
         try {
             /*
-             * Process horizontal axis first, then
-             * process the vertical axis.
+             * Process horizontal axis first, then process the vertical axis.
              */
             boolean processVerticalAxis = false;
             do {
@@ -462,71 +635,6 @@ public class Plot2D extends ZoomPane {
     }
 
     /**
-     * Validate this panel. This method is automatically invoked
-     * when the axis needs to be layout. This occur for example
-     * when new axis are added, or when the component has been
-     * resized.
-     *
-     * @task TODO: we should modify this method in order to preserve axis orientation,
-     *             since the orientation may have been set by user.
-     */
-    public void validate() {
-        super.validate();
-        final int width  = getWidth();
-        final int height = getHeight();
-        int axisCount = 0;
-        for (final Iterator it=xAxis.iterator(); it.hasNext();) {
-            final Axis2D axis = (Axis2D) it.next();
-            axis.setLabelClockwise(true);
-            axis.setLine(left, height-bottom, width-right, height-bottom);
-            translatePerpendicularly(axis, xOffset*axisCount, yOffset*axisCount);
-            axisCount++;
-        }
-        axisCount = 0;
-        for (final Iterator it=yAxis.iterator(); it.hasNext();) {
-            final Axis2D axis = (Axis2D) it.next();
-            axis.setLabelClockwise(false);
-            axis.setLine(left, height-bottom, left, top);
-            translatePerpendicularly(axis, xOffset*axisCount, yOffset*axisCount);
-            axisCount++;
-        }
-        reset(); // TODO: temporary patch.
-    }
-
-    /**
-     * Translate an axis in a perpendicular direction to its orientation.
-     * The following rules applies:
-     *
-     * <ul>
-     *   <li>If the axis is vertical, then the axis is translated horizontally
-     *       by <code>tx</code> only. The <code>ty</code> argument is ignored.</li>
-     *   <li>If the axis is horizontal, then the axis is translated vertically
-     *       by <code>ty</code> only. The <code>tx</code> argument is ignored.</li>
-     *   <li>If the axis is diagonal, then the axis is translated using the
-     *       following formula (<var>theta</var> is the axis orientation relative
-     *       to the horizontal):
-     *       <br>
-     *       <blockquote><pre>
-     *          dx = x*sin(theta)
-     *          dy = y*cos(theta)
-     *       </pre></blockquote>
-     *    </li>
-     *  </ul>
-     */
-    private static void translatePerpendicularly(final Axis2D axis, final double tx, final double ty) {
-        final double x1 = axis.getX1();
-        final double y1 = axis.getY1();
-        final double x2 = axis.getX2();
-        final double y2 = axis.getY2();
-        double dy = (double) x2 - (double) x1; // Note: dx and dy are really
-        double dx = (double) y1 - (double) y2; //       swapped. Not an error.
-        double length = Math.sqrt(dx*dx + dy*dy);
-        dx *= tx/length;
-        dy *= ty/length;
-        axis.setLine(x1+dx, y1+dy, x2+dx, y2+dy);
-    }
-
-    /**
      * Paints the axis and all series.
      */
     protected void paintComponent(final Graphics2D graphics) {
@@ -534,22 +642,24 @@ public class Plot2D extends ZoomPane {
         final AffineTransform oldTransform = graphics.getTransform();
         final Stroke          oldStroke    = graphics.getStroke();
         final Paint           oldPaint     = graphics.getPaint();
+        final Shape           oldClip      = graphics.getClip();
+        final Font            oldFont      = graphics.getFont();
         /*
          * Paint series first.
          */
         int axisCount = 0;
         graphics.clip(bounds);
-        graphics.setColor(Color.BLUE);
         graphics.setStroke(DEFAULT_STROKE);
         final int upperXAxis = xAxis.size()-1;
         final int upperYAxis = yAxis.size()-1;
         final AffineTransform zoomTr = graphics.getTransform();
-        for (final Iterator it=series.iterator(); it.hasNext();) {
-            final Axis2D xAxis = (Axis2D) this.xAxis.get(Math.min(axisCount, upperXAxis));
-            final Axis2D yAxis = (Axis2D) this.yAxis.get(Math.min(axisCount, upperYAxis));
-            final AffineTransform transform = Axis2D.createAffineTransform(xAxis, yAxis);
-            final Series series = (Series) it.next();
+        for (final Iterator it=series.entrySet().iterator(); it.hasNext();) {
+            final Map.Entry   e = (Map.Entry) it.next();
+            final Series series = (Series) e.getKey();
+            final Entry  entry  = (Entry)  e.getValue();
+            final AffineTransform transform = Axis2D.createAffineTransform(entry.xAxis, entry.yAxis);
             final Shape path = series.toShape(null);
+            graphics.setPaint(series.getColor());
             graphics.transform(transform);
             graphics.draw(path);
             graphics.setTransform(zoomTr);
@@ -558,10 +668,11 @@ public class Plot2D extends ZoomPane {
         /*
          * Paint axis on top of series.
          */
-        graphics.setClip(super.getZoomableBounds(bounds));
         graphics.setTransform(oldTransform);
         graphics.setStroke(DEFAULT_STROKE);
-        graphics.setPaint(Color.BLACK);
+        graphics.setPaint(getForeground());
+        graphics.setFont(getFont());
+        graphics.setClip(oldClip);
         for (final Iterator it=xAxis.iterator(); it.hasNext();) {
             ((Axis2D) it.next()).paint(graphics);
         }
@@ -569,13 +680,29 @@ public class Plot2D extends ZoomPane {
             ((Axis2D) it.next()).paint(graphics);
         }
         /*
-         * Paint axis the title.
+         * Paint the title.
          */
         if (title != null) {
-            graphics.setFont(titleFont);
-            graphics.drawString(title, getWidth()/2, 20);
+            final FontRenderContext    fc = graphics.getFontRenderContext();
+            final GlyphVector      glyphs = titleFont.createGlyphVector(fc, title);
+            final Rectangle2D titleBounds = glyphs.getVisualBounds();
+            graphics.drawGlyphVector(glyphs, (float)((getWidth()-titleBounds.getWidth())/2), 20);
         }
         graphics.transform(zoom); // Reset the zoom for the magnifier.
+        graphics.setPaint(oldPaint);
+        graphics.setFont(oldFont);
+    }
+
+    /**
+     * Remove all series and axis previously displayed.
+     */
+    public void clear() {
+        series.clear();
+        xAxis .clear();
+        yAxis .clear();
+        seriesBounds = null;
+        previousAxis = null;
+        Arrays.fill(nextAxis, null);
     }
 
     /**
@@ -583,7 +710,7 @@ public class Plot2D extends ZoomPane {
      * data to draw as a {@link Shape}. It also contains the {@link Paint} and {@link Stroke}
      * attributes.
      *
-     * @version $Id: Plot2D.java,v 1.1 2003/05/23 18:00:26 desruisseaux Exp $
+     * @version $Id: Plot2D.java,v 1.2 2003/06/02 21:55:46 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Series {
@@ -591,6 +718,11 @@ public class Plot2D extends ZoomPane {
          * Returns the name of this series.
          */
         public abstract String getName();
+
+        /**
+         * Returns the color for this series.
+         */
+        public abstract Paint getColor();
 
         /**
          * Returns the number of points in this series.
@@ -622,10 +754,16 @@ public class Plot2D extends ZoomPane {
 
     /**
      * Default implementation of {@link Plot2D.Series}.
+     *
+     * @version $Id: Plot2D.java,v 1.2 2003/06/02 21:55:46 desruisseaux Exp $
+     * @author Martin Desruisseaux
      */
     private static final class DefaultSeries extends GenericArray implements Series {
         /** The series name. */
         private final String name;
+
+        /** The color. */
+        Paint color = Color.BLUE;
 
         /** Construct a series with the given name and  (<var>x</var>,<var>y</var>) vectors. */
         public DefaultSeries(final String name, final Object x, final Object y) {
@@ -636,6 +774,11 @@ public class Plot2D extends ZoomPane {
         /** Returns the series name. */
         public String getName() {
             return name;
+        }
+
+        /** Returns the color for this series. */
+        public Paint getColor() {
+            return color;
         }
 
         /** Returns the number of points in this series. */

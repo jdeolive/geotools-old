@@ -222,7 +222,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * by the user through the scrollbars will be translated by calls to
  * {@link #transform}.</p>
  *
- * @version $Id: ZoomPane.java,v 1.10 2003/05/15 08:45:32 desruisseaux Exp $
+ * @version $Id: ZoomPane.java,v 1.11 2003/06/02 21:55:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ZoomPane extends JComponent implements DeformableViewer {
@@ -433,10 +433,10 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * List of operation types forming a group.  During creation of the
      * menus, the different groups will be separated by a menu separator.
      */
-    private static final short[] GROUP = {
-        (short) (TRANSLATE_X | TRANSLATE_Y),
-        (short) (SCALE_X | SCALE_Y | DEFAULT_ZOOM | RESET),
-        (short) (ROTATE)
+    private static final int[] GROUP = {
+        TRANSLATE_X | TRANSLATE_Y,
+        SCALE_X | SCALE_Y | DEFAULT_ZOOM | RESET,
+        ROTATE
     };
 
     /**
@@ -543,7 +543,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * contextual menu appear).  It will listen out for changes in the size
      * of the component (to adjust the zoom), etc.
      *
-     * @version 1.0
+     * @version $Id: ZoomPane.java,v 1.11 2003/06/02 21:55:46 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners extends MouseAdapter implements MouseWheelListener,
@@ -751,9 +751,11 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
          * zooms.
          */
         final Listeners listeners = new Listeners();
-        addComponentListener       (listeners);
-        super.addMouseListener     (listeners);
-        super.addMouseWheelListener(listeners);
+        addComponentListener  (listeners);
+        super.addMouseListener(listeners);
+        if ((type & (SCALE_X | SCALE_Y)) != 0) {
+            super.addMouseWheelListener(listeners);
+        }
         super.addMouseListener(mouseSelectionTracker);
         setAutoscrolls(true);
         setFocusable(true);
@@ -810,19 +812,21 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
                 else {
                     zoom.setToIdentity();
                 }
-                final AffineTransform transform = setVisibleArea(preferredArea,
-                                                                 zoomableBounds);
+                final AffineTransform transform = setVisibleArea(preferredArea, zoomableBounds,
+                                                  SCALE_X | SCALE_Y | TRANSLATE_X | TRANSLATE_Y);
                 change.concatenate(zoom);
                 zoom  .concatenate(transform);
                 change.concatenate(transform);
-                fireZoomChanged0  (change);
                 getVisibleArea(zoomableBounds); // Force update of 'visibleArea'
                 /*
                  * The three private versions 'fireZoomPane0', 'getVisibleArea'
                  * and 'setVisibleArea' avoid calling other methods of ZoomPane
                  * so as not to end up in an infinite loop.
                  */
-                repaint(zoomableBounds);
+                if (!change.isIdentity()) {
+                    fireZoomChanged0(change);
+                    repaint(zoomableBounds);
+                }
                 zoomIsReset = true;
                 log("reset", visibleArea);
             }
@@ -950,7 +954,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
     public void setVisibleArea(final Rectangle2D logicalBounds) 
            throws IllegalArgumentException {
         log("setVisibleArea", logicalBounds);
-        transform(setVisibleArea(logicalBounds, getZoomableBounds()));
+        transform(setVisibleArea(logicalBounds, getZoomableBounds(), 0));
     }
 
     /**
@@ -962,10 +966,12 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * @param  source Logical coordinates of the region to be displayed.
      * @param  dest Pixel coordinates of the region of the window in which to 
      *         draw (normally {@link #getZoomableBounds()}).
+     * @param  mask A mask to <code>OR</code> with the {@link #type} for determining which
+     *         kind of transformation are allowed. The {@link #type} is not modified.
      * @return Change to apply to the affine transform {@link #zoom}.
      * @throws IllegalArgumentException if <code>source</code> is empty.
      */
-    private AffineTransform setVisibleArea(Rectangle2D source, Rectangle2D dest)
+    private AffineTransform setVisibleArea(Rectangle2D source, Rectangle2D dest, int mask)
                                            throws IllegalArgumentException {
         /*
          * Verifies the validity of the rectangle <code>source</code>. An
@@ -974,7 +980,8 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
          * reduced by the user.
          */
         if (!isValid(source)) {
-            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_RECTANGLE_$1, source));
+            throw new IllegalArgumentException(Resources.format(
+                                               ResourceKeys.ERROR_BAD_RECTANGLE_$1, source));
         }
         if (!isValid(dest)) {
             return new AffineTransform();
@@ -1000,33 +1007,29 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
          * Standardizes the horizontal and vertical scales,
          * if such a standardization has been requested.
          */
-        if ((type & UNIFORM_SCALE) == UNIFORM_SCALE) {
-            if (fillPanel)
-            {
-                     if (sy * sourceWidth  > destWidth ) {
-                         sx = sy;
-                     }
-                else if (sx * sourceHeight > destHeight) {
+        mask |= type;
+        if ((mask & UNIFORM_SCALE) == UNIFORM_SCALE) {
+            if (fillPanel) {
+                if (sy * sourceWidth  > destWidth ) {
+                    sx = sy;
+                } else if (sx * sourceHeight > destHeight) {
                     sy = sx;
                 }
-            }
-            else
-            {
-                     if (sy * sourceWidth  < destWidth ) {
-                         sx=sy;
-                     }
-                else if (sx * sourceHeight < destHeight) {
-                    sy=sx;
+            } else {
+                if (sy * sourceWidth  < destWidth ) {
+                    sx = sy;
+                } else if (sx * sourceHeight < destHeight) {
+                    sy = sx;
                 }
             }
         }
         final AffineTransform change = AffineTransform.getTranslateInstance(
-                         (type & TRANSLATE_X) != 0 ? dest.getCenterX()    : 0,
-                         (type & TRANSLATE_Y) != 0 ? dest.getCenterY()    : 0);
-        change.scale    ((type & SCALE_X    ) != 0 ? sx                   : 1,
-                         (type & SCALE_Y    ) != 0 ? sy                   : 1);
-        change.translate((type & TRANSLATE_X) != 0 ? -source.getCenterX() : 0,
-                         (type & TRANSLATE_Y) != 0 ? -source.getCenterY() : 0);
+                         (mask & TRANSLATE_X) != 0 ? dest.getCenterX()    : 0,
+                         (mask & TRANSLATE_Y) != 0 ? dest.getCenterY()    : 0);
+        change.scale    ((mask & SCALE_X    ) != 0 ? sx                   : 1,
+                         (mask & SCALE_Y    ) != 0 ? sy                   : 1);
+        change.translate((mask & TRANSLATE_X) != 0 ? -source.getCenterX() : 0,
+                         (mask & TRANSLATE_Y) != 0 ? -source.getCenterY() : 0);
         XAffineTransform.round(change);
         return change;
     }
@@ -1613,16 +1616,17 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      */
     private void buildNavigationMenu(final JMenu menu, final JPopupMenu popup) {
         int groupIndex = 0;
+        boolean firstMenu = true;
         final ActionMap actionMap = getActionMap();
-        for (int i = 0; i < ACTION_ID.length; i++) {
+        for (int i=0; i<ACTION_ID.length; i++) {
             final Action action = actionMap.get(ACTION_ID[i]);
-            if (action != null && action.getValue(Action.NAME) != null) {
+            if (action!=null && action.getValue(Action.NAME)!=null) {
                 /*
                  * Checks whether the next item belongs to a new group.
                  * If this is the case, it will be necessary to add a separator
                  * before the next menu.
                  */
-                final int lastGroupIndex=groupIndex;
+                final int lastGroupIndex = groupIndex;
                 while ((ACTION_TYPE[i] & GROUP[groupIndex]) == 0) {
                     groupIndex = (groupIndex+1) % GROUP.length;
                     if (groupIndex == lastGroupIndex) {
@@ -1633,17 +1637,22 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
                  * Adds an item to the menu.
                  */
                 if (menu != null) {
-                    if (groupIndex != lastGroupIndex) menu.addSeparator();
+                    if (groupIndex!=lastGroupIndex && !firstMenu) {
+                        menu.addSeparator();
+                    }
                     final JMenuItem item = new JMenuItem(action);
                     item.setAccelerator((KeyStroke) action.getValue(Action.ACCELERATOR_KEY));
                     menu.add(item);
                 }
                 if (popup != null) {
-                    if (groupIndex != lastGroupIndex) popup.addSeparator();
+                    if (groupIndex!=lastGroupIndex && !firstMenu) {
+                        popup.addSeparator();
+                    }
                     final JMenuItem item = new JMenuItem(action);
                     item.setAccelerator((KeyStroke) action.getValue(Action.ACCELERATOR_KEY));
                     popup.add(item);
                 }
+                firstMenu = false;
             }
         }
     }
@@ -1653,7 +1662,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * place the user clicked when this menu was invoked.
      *
      * @author Martin Desruisseaux
-     * @version 1.0
+     * @version $Id: ZoomPane.java,v 1.11 2003/06/02 21:55:46 desruisseaux Exp $
      */
     private static final class PointPopupMenu extends JPopupMenu {
         /**
@@ -1779,7 +1788,9 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
             int rotation  = event.getUnitsToScroll();
             double scale  = 1 + (AMOUNT_SCALE - 1) * Math.abs(rotation);
             Point2D point = new Point2D.Double(event.getX(), event.getY());
-            if (rotation > 0) scale = 1 / scale;
+            if (rotation > 0) {
+                scale = 1 / scale;
+            }
             if (magnifier != null && magnifier.contains(point)) {
                 magnifierPower *= scale;
                 repaintMagnifier();
@@ -1834,7 +1845,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * class is not used because it is difficult to get {@link JViewport} to
      * cooperate with transformations already handled by {@link ZoomPane#zoom}.
      *
-     * @version 1.0
+     * @version $Id: ZoomPane.java,v 1.11 2003/06/02 21:55:46 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class ScrollPane extends JComponent implements PropertyChangeListener {
@@ -2015,7 +2026,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * <code>ZoomPane</code> object.
      *
      * @author Martin Desruisseaux
-     * @version 1.0
+     * @version $Id: ZoomPane.java,v 1.11 2003/06/02 21:55:46 desruisseaux Exp $
      */
     private final class Synchronizer implements ChangeListener, ZoomChangeListener {
         /**
@@ -2064,7 +2075,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
                      *   4) Transform back to the logical space.
                      *   5) Set the visible area to the resulting rectangle.
                      */
-                    Rectangle2D area=getArea();
+                    Rectangle2D area = getArea();
                     if (isValid(area)) {
                         area = XAffineTransform.transform(zoom, area, null);
                         double x = area.getX();
@@ -2085,10 +2096,10 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
                         area.setRect(x, y, width, height);
                         bounds = getBounds(bounds);
                         try {
-                            area=XAffineTransform.inverseTransform(zoom, area, area);
+                            area = XAffineTransform.inverseTransform(zoom, area, area);
                             try {
                                 isAdjusting = true;
-                                transform(setVisibleArea(area, bounds = getBounds(bounds)));
+                                transform(setVisibleArea(area, bounds=getBounds(bounds), 0));
                             } finally {
                                 isAdjusting = false;
                             }

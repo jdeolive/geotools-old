@@ -31,6 +31,7 @@ package org.geotools.gui.swing;
 // J2Se dependencies
 import java.awt.*;
 import javax.swing.*;
+import java.util.Random;
 import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
@@ -40,12 +41,13 @@ import junit.framework.*;
 
 // Geotools dependencies
 import org.geotools.resources.Arguments;
+import org.geotools.resources.ImageUtilities;
 
 
 /**
  * Tests a set of widgets.
  *
- * @version $Id: MiscellaneousWidgetTest.java,v 1.4 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: MiscellaneousWidgetTest.java,v 1.5 2003/06/02 21:55:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MiscellaneousWidgetTest extends TestCase {
@@ -156,9 +158,36 @@ public class MiscellaneousWidgetTest extends TestCase {
     /**
      * Test the {@link ColorBar}.
      */
-//    public void testColorBar() throws Exception {
-//        ColorBar test = new ColorBar();
-//        test.setColors(org.geotools.gc.GridCoverageTest.getExample(0));
-//        show(test, "ColorBar");
-//    }
+    public void testColorBar() {
+        ColorBar test = new ColorBar();
+        final int[] ARGB = new int[256];
+        ImageUtilities.expand(new Color[] {Color.RED, Color.ORANGE, Color.YELLOW, Color.CYAN},
+                              ARGB, 0, ARGB.length);
+        test.setColors(ImageUtilities.getIndexColorModel(ARGB));
+        show(test, "ColorBar");
+    }
+
+    /**
+     * Test the {@link Plot2D}.
+     */
+    public void testPlot2D() {
+        final Random random = new Random();
+        Plot2D test = new Plot2D(true, false);
+        test.newAxis(0, "Some x values");
+        test.newAxis(1, "Some y values");
+        for (int j=0; j<2; j++) {
+            final float[] x = new float[800];
+            final float[] y = new float[800];
+            for (int i=0; i<x.length; i++) {
+                x[i] = i/10f;
+                y[i] = (float)random.nextGaussian();
+                if (i!=0) {
+                    y[i] += y[i-1];
+                }
+            }
+            test.addSeries("Random values", x, y);
+        }
+        test.setPaintingWhileAdjusting(true);
+        show(test.createScrollPane(), "Plot2D");
+    }
 }
