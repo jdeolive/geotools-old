@@ -294,4 +294,29 @@ Module ${module} : ${status}
       </ant:fileset>
     </ant:copy>
         </postGoal>   
+
+        <!-- ================================================================== -->
+	<!-- Creates a geotools.jar of the core modules.                        -->
+	<!-- Needs more work, this is just an initial stab to get it working.   -->
+	<!-- ================================================================== -->
+    <goal name="coreJar">
+            <echo>Making core geotools.jar</echo>
+            <echo>build must be run first or this will create an empty jar.</echo>
+            <echo>We didn't want it automatically running every time you </echo>
+             <echo>need a new jar.  TODO: figure a better way to do this. </echo>
+              <ant:jar destfile="${basedir}/target/geotools.jar">
+            <ant:fileset dir="${basedir}/geotools-src/core/target/classes"/>
+
+             <ant:fileset dir="${basedir}/geotools-src/data/target/classes"/>
+             <ant:fileset dir="${basedir}/geotools-src/defaultcore/target/classes"/>
+             <ant:fileset dir="${basedir}/geotools-src/filter/target/classes"/>
+             <ant:fileset dir="${basedir}/geotools-src/cts-coordtrans/target/classes"/>
+             <ant:fileset dir="${basedir}/geotools-src/gcs-coverage/target/classes"/>
+             <ant:fileset dir="${basedir}/geotools-src/lite-rendering/target/classes"/>
+             <ant:fileset dir="${basedir}/geotools-src/resources/target/classes"/>
+             <ant:fileset dir="${basedir}/geotools-src/sldstyling/target/classes"/>
+             
+            </ant:jar>          
+        </goal>
+
 </project>
