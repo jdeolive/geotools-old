@@ -331,9 +331,12 @@ final class Resampler extends GridCoverage {
         targetImage.setParameterBlock(param); // Must be invoked before setOperationName.
         targetImage.setOperationName("Warp");
         
-        final RenderingHints hints = targetImage.getRenderingHints();
-        hints.add(ImageUtilities.getRenderingHints(targetImage));
-        targetImage.setRenderingHints(hints);
+        final RenderingHints imageLayout = ImageUtilities.getRenderingHints(targetImage);
+        if (imageLayout != null) {
+            final RenderingHints hints = targetImage.getRenderingHints();
+            hints.add(imageLayout);
+            targetImage.setRenderingHints(hints);
+        }
         
         assert sourceCoverage.getCoordinateSystem().equivalents(transformation.getSourceCS());
         assert targetCoverage.getCoordinateSystem().equivalents(transformation.getTargetCS());
