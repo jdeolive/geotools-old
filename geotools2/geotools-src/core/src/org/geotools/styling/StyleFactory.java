@@ -223,6 +223,8 @@ public abstract class StyleFactory {
     public abstract Graphic getDefaultGraphic();
 
     public abstract Font getDefaultFont();
+    
+    public abstract PointPlacement getDefaultPointPlacement();
 
     /**
      * Convenience method for logging a message with an exception.
