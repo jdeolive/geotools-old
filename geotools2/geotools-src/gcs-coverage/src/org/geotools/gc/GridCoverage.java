@@ -135,7 +135,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.24 2003/11/12 14:13:52 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.25 2003/11/14 22:21:26 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1052,6 +1052,17 @@ public class GridCoverage extends Coverage {
      * @task HACK: The "Piecewise" operation is disabled because javac 1.4.1_01 generate illegal
      *             bytecode. This bug is fixed in javac 1.4.2-beta. However, we still have an
      *             ArrayIndexOutOfBoundsException in JAI code...
+     *
+     * @task REVISIT: A special case (exactly one linear relationship with one NaN value mapping
+     *                exactly to the index value 0) was optimized to the "Rescale" operation in
+     *                previous version. This case is very common, which make this optimization a
+     *                usefull one. Unfortunatly, it had to be disabled because there is nothing
+     *                in the "Rescale" preventing some real number (not NaN) to maps to 0 through
+     *                the normal linear relationship. Note that the optimization worked well in
+     *                previous version except for the above-cited problem. We can very easily re-
+     *                enable it later if we know the range of values really stored in the image
+     *                (as of JAI's "extrema" operation). If would suffice to add a check making
+     *                sure that the range of transformed values doesn't contains 0.
      */
     protected GridCoverage createGeophysics(final boolean geo) {
         /*
@@ -1158,12 +1169,16 @@ testLinear: for (int i=0; i<numBands; i++) {
                     if (transform == null) {
                         // A "qualitative" category was found. Those categories maps NaN values,
                         // which need the special processing by our "SampleTranscode" operation.
-                        // As a special case, the "Rescale" operation will continue to work if
-                        // the NaN value maps to 0.
                         canPiecewise = false;
-                        if (category.geophysics(geo).getRange().getMinimum(true) == 0) {
-                            assert Double.isNaN(category.getRange().getMinimum()) : category;
-                            continue;
+                        if (false) {
+                            // As a special case, the "Rescale" operation  could continue to work
+                            // if the NaN value maps to 0. Unfortunatly, this optimization had to
+                            // be disabled for now for the reason explained in the REVISIT tag in
+                            // method's comments.
+                            if (category.geophysics(geo).getRange().getMinimum(true) == 0) {
+                                assert Double.isNaN(category.getRange().getMinimum()) : category;
+                                continue;
+                            }
                         }
                         canRescale = false;
                         break testLinear;
@@ -1342,7 +1357,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.24 2003/11/12 14:13:52 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.25 2003/11/14 22:21:26 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1371,7 +1386,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.24 2003/11/12 14:13:52 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.25 2003/11/14 22:21:26 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {
