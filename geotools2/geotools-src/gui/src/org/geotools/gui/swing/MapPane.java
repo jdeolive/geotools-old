@@ -40,6 +40,10 @@ import javax.swing.*;
 // Geotools classes
 import org.geotools.gui.swing.ZoomPane;
 import org.geotools.map.*;
+import org.geotools.map.events.AreaOfInterestChangedListener;
+import org.geotools.map.events.AreaOfInterestChangedEvent;
+import org.geotools.map.DefaultAreaOfInterestModel;
+
 import org.geotools.gui.swing.event.ZoomChangeEvent;
 import org.geotools.gui.swing.event.ZoomChangeListener;
 import org.geotools.renderer.*;
@@ -59,29 +63,36 @@ import com.vividsolutions.jts.geom.*;
  * of the painting area (it doesn't have to be in pixel units) and
  * <CODE>paintComponent(Graphics2D)</CODE> which performs the actual painting.
  *
- * $Id: MapPane.java,v 1.3 2002/07/15 11:20:58 loxnard Exp $
+ * $Id: MapPane.java,v 1.4 2002/07/22 09:30:19 jmacgill Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
-public class MapPane extends ZoomPane implements ZoomChangeListener {
+public class MapPane extends ZoomPane implements ZoomChangeListener, AreaOfInterestChangedListener{
     
     org.geotools.renderer.Java2DRenderer renderer = new Java2DRenderer();
     org.geotools.map.Map map;
-    org.geotools.datasource.extents.EnvelopeExtent ext;
+    AreaOfInterestModel aoi;
     /**
      * Constructs a demonstration zoom pane. This demo allows scale,
      * translation and rotation. Scrolling the pane will repaint
      * immediately (as opposed to waiting for the user to finish adjusting).
      */
-    public MapPane(Map map, EnvelopeExtent ext) {        
+    public MapPane(Map map, AreaOfInterestModel aoi) {
         super(UNIFORM_SCALE | TRANSLATE_X | TRANSLATE_Y | ROTATE | RESET | DEFAULT_ZOOM);
         setPaintingWhileAdjusting(true);
         this.map = map;
-        this.ext = ext;
-        
+        this.aoi = aoi;
+        //aoi = new DefaultAreaOfInterestModel(ext.getBounds(),null);
+        aoi.addAreaOfInterestChangedListener(this);
         //transformation performed by renderer should be combined with
         //transformation calculated by this component.
         renderer.setConcatTransforms(true);
+    }
+    
+    private Envelope fullArea;
+    
+    public void setFullArea(Envelope e){
+        fullArea = e;
     }
     
     /**
@@ -91,9 +102,12 @@ public class MapPane extends ZoomPane implements ZoomChangeListener {
      * fit logical coordinates into the frame.
      */
     public Rectangle2D getArea() {
+        if(fullArea == null) {
+            return this.getBounds();
+        }
         //return this.getBounds();
-        Envelope e = ext.getBounds();
-        return new Rectangle2D.Double(e.getMinX(), e.getMinY(), e.getWidth(), e.getHeight());
+        
+        return new Rectangle2D.Double(fullArea.getMinX(), fullArea.getMinY(), fullArea.getWidth(), fullArea.getHeight());
     }
     
     /**
@@ -111,9 +125,9 @@ public class MapPane extends ZoomPane implements ZoomChangeListener {
     protected void paintComponent(final Graphics2D graphics) {
         // Apply the zoom, which is automatically computed by ZoomPane.
         graphics.transform(zoom);
-
+        
         renderer.setOutput(graphics, this.getBounds());
-        map.render(renderer, ext.getBounds());//and finally try and draw it!
+        map.render(renderer, aoi.getAreaOfInterest());//and finally try and draw it!
         
     }
     
@@ -126,6 +140,29 @@ public class MapPane extends ZoomPane implements ZoomChangeListener {
      */
     public void zoomChanged(final ZoomChangeEvent event) {
         transform(event.getChange());
+    }
+    
+    /** Process an AreaOfInterestChangedEvent, probably involves a redraw.
+     * @param areaOfInterestChangedEvent The new extent.
+     */
+    public void areaOfInterestChanged(AreaOfInterestChangedEvent aoiEvent) {
+        Envelope e = aoiEvent.getAreaOfInterest();
+        if(fullArea == null){
+            fullArea = e;
+        }
+        System.out.println("New AOI "+e);
+        Rectangle2D rect = new Rectangle2D.Double(e.getMinX(),e.getMinX(),e.getWidth(),e.getHeight());
+        System.out.println("rect is "+rect+" va is "+getVisibleArea());
+        if(!rect.equals(getVisibleArea())){
+            super.setVisibleArea(rect);
+        }
+    }
+    
+    
+    public void setVisibleArea(Rectangle2D rect) throws IllegalArgumentException{
+        System.out.println("set va called");
+        super.setVisibleArea(rect);
+        aoi.setAreaOfInterest(new Envelope(rect.getMinX(),rect.getMaxX(),rect.getMinY(),rect.getMaxY()),null);
     }
     
 }
