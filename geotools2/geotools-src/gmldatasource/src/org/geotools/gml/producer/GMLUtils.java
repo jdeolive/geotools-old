@@ -41,6 +41,8 @@ class GMLUtils {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.gml.producer");
+    
+    /** Internal representation of URL used to represent GML */
     public static final String GML_URL = "http://www.opengis.net/gml";
 
     /** Internal representation of OGC SF Point */
@@ -64,69 +66,106 @@ class GMLUtils {
     /** Internal representation of OGC SF MultiGeometry */
     protected static final int MULTIGEOMETRY = 7;
 
+    /**
+     * @param geomType String format of the geometry to end
+     * @TODO work out what this is for
+     */
     public static String getGeometryEnd(String geomType) {
         return "<gml:" + geomType;
     }
 
+    /**
+     * 
+     */
     public static String getGeometryStart(String gid, String srs,
         String geomType) {
-        return "<gml:" + geomType + " gid=\"" + gid + "\" srsName=\"" +
-        "http://www.opengis.net/gml/srs/epsg.xml#" + srs + "\">";
+        LOGGER.entering("GMLUtils", "getGeometryStart", 
+        new Object[]{ gid, srs, geomType});
+        StringBuffer sb = new StringBuffer();
+        sb.append("<gml:");
+        sb.append(geomType);
+        sb.append(" gid=\"");
+        sb.append(gid);
+        sb.append("\" srsName=\"");
+        sb.append("http://www.opengis.net/gml/srs/epsg.xml#");
+        sb.append(srs);
+        sb.append("\">");
+        LOGGER.exiting("GMLUtils", "getGeometryStart", sb.toString());
+        return sb.toString();
     }
 
+    /**
+     * Gets the String representation for the given Geometry
+     *
+     * @param geometry a Geometry
+     *
+     * @return String representation of geometry
+     */
     public static String getGeometryName(Geometry geometry) {
+        LOGGER.entering("GMLUtils", "getGeometryName", geometry);
         Class geomClass = geometry.getClass();
+        String returnValue = null;
 
         if (geomClass.equals(Point.class)) {
-            return "Point";
+            returnValue = "Point";
         } else if (geomClass.equals(LineString.class)) {
-            return "LineString";
+            returnValue = "LineString";
         } else if (geomClass.equals(Polygon.class)) {
-            return "Polygon";
+            returnValue = "Polygon";
         } else if (geomClass.equals(MultiPoint.class)) {
-            return "MultiPoint";
+            returnValue = "MultiPoint";
         } else if (geomClass.equals(MultiLineString.class)) {
-            return "MultiLineString";
+            returnValue = "MultiLineString";
         } else if (geomClass.equals(MultiPolygon.class)) {
-            return "MultiPolygon";
+            returnValue = "MultiPolygon";
         } else if (geomClass.equals(GeometryCollection.class)) {
-            return "GeometryCollection";
+            returnValue = "GeometryCollection";
         } else {
             //HACK!!! throw exception
-            return null;
+            returnValue = null;
         }
+        
+        LOGGER.exiting("GMLUtils", "getGeometryName", returnValue);
+        return returnValue;
     }
 
+    /**
+     * Gets the internal representation for the given Geometry
+     *
+     * @param geometry a Geometry
+     *
+     * @return int representation of Geometry
+     */
     public static int getGeometryType(Geometry geometry) {
+        LOGGER.entering("GMLUtils", "getGeometryType", geometry);
         Class geomClass = geometry.getClass();
+        int returnValue = -1;
 
         if (geomClass.equals(Point.class)) {
-            LOGGER.finest("found point");
-
-            return POINT;
+            //LOGGER.finest("found point");
+            returnValue = POINT;
         } else if (geomClass.equals(LineString.class)) {
-            LOGGER.finest("found linestring");
-
-            return LINESTRING;
+            //LOGGER.finest("found linestring");
+            returnValue = LINESTRING;
         } else if (geomClass.equals(Polygon.class)) {
-            LOGGER.finest("found polygon");
-
-            return POLYGON;
+            //LOGGER.finest("found polygon");
+            returnValue = POLYGON;
         } else if (geomClass.equals(MultiPoint.class)) {
-            LOGGER.finest("found multiPoint");
-
-            return MULTIPOINT;
+            //LOGGER.finest("found multiPoint");
+            returnValue = MULTIPOINT;
         } else if (geomClass.equals(MultiLineString.class)) {
-            return MULTILINESTRING;
+            returnValue = MULTILINESTRING;
         } else if (geomClass.equals(MultiPolygon.class)) {
-            return MULTIPOLYGON;
+            returnValue = MULTIPOLYGON;
         } else if (geomClass.equals(GeometryCollection.class)) {
-            return MULTIGEOMETRY;
+            returnValue = MULTIGEOMETRY;
         } else {
-            return -1;
-
+            returnValue = -1;
             //HACK!!! throw exception.
         }
+        
+        LOGGER.exiting("GMLUtils", "getGeometryType", new Integer(returnValue));
+        return returnValue;
     }
 
     /**
@@ -142,6 +181,7 @@ class GMLUtils {
      *       characters straight out, doing translation on the fly.
      */
     public static String encodeXML(String inData) {
+        LOGGER.entering("GMLUtils", "encodeXML", inData);
         //return null, if null is passed as argument
         if (inData == null) {
             return null;
@@ -187,6 +227,7 @@ class GMLUtils {
             }
         }
 
+        LOGGER.exiting("GMLUtils", "encodeXML", buffer.toString());
         //return the encoded string
         return buffer.toString();
     }
