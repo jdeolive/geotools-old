@@ -20,20 +20,34 @@
 
 package org.geotools.wms;
 
-import org.geotools.feature.Feature;
-import java.io.OutputStream;
-
-/** An interface for formatting a list of geotools Feature objects into a stream. IE, application/vnd.ogc.gml requests that the feature information be formatted in Geography Markup Language (GML)
- * FeatureFormatters are attached to the WMSServlet on initialization, and an arbitrary number can be attached
- */
-public interface WMSFeatureFormatter
+public class CapabilitiesException extends Exception
 {
-	/** Gets the mime-type of the stream written to by formatFeatures()
-	 */
-	public String getMimeType();
+	/** The layer specified in the given call has a duplicate */
+	public static final int EXP_DUPLICATELAYER = 1;
+	/** The Layer specified in the given call is invalid */
+	public static final int EXP_INVALIDLAYER = 2;
 	
-	/** Formats the given array of Features as this Formatter's mime-type and writes it to the given OutputStream
-	 */
-	public void formatFeatures(Feature [] features, OutputStream out);
+	private int code;
+	
+	/** Constructs this Exception
+	 * @param code The relevant code of the error
+	 * @param msg A detailed message describing the error
+	 */	
+	public CapabilitiesException(int code, String msg)
+	{
+		super(msg);
+		this.code = code;
+	}
+	
+	/** Constructs this Exception
+	 * @param code The relevant code of the error
+	 * @param msg A detailed message describing the error
+	 * @param exp The exception which caused this exception to be thrown
+	 */	
+	public CapabilitiesException(int code, String msg, Exception exp)
+	{
+		super(msg+" : "+exp.getMessage());
+		this.code = code;
+	}	
 }
 

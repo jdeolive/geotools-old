@@ -1,4 +1,4 @@
-/*
+/**
  *    Geotools - OpenSource mapping toolkit
  *    (C) 2002, Centre for Computational Geography
  *
@@ -17,30 +17,21 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *    
  */
+
 package org.geotools.wms.gtserver;
 
-
 import java.util.Properties;
-
-/**
- * A single entry for a Layer in the layers.xml file.
- *
- * @version $Id: LayerEntry.java,v 1.2 2002/07/15 17:09:59 loxnard Exp $
- * @author Ray Gallagher
+/** A single entry for a Layer in the layers.xml file
  */
 public class LayerEntry
 {
-	/** The unique id of the Layer. */
+	/** The unique id of the Layer */
 	public String id;
-	/** A description for the layer. */
+	/** A description for the layer */
 	public String description;
-	/**
-         * The classname for the DataSource to use to load maps for
-         * this layer.
-         */
+	/** The classname for the DataSource to use to load maps for this layer */
 	public String datasource;
-	/** The properties for the DataSource. */
+	/** The properties for the DataSource */
 	public Properties properties;
 }
-
 

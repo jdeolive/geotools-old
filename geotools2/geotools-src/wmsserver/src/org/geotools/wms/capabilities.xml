@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?> 
 <!DOCTYPE WMT_MS_Capabilities SYSTEM "http://www.digitalearth.gov/wmt/xml/capabilities_1_1_1.dtd"> 
 
+<!-- This is a template file of the Capabilities XML Tags surrounded by <?GEO ?> are replaced with relevent information by the WMSServlet -->
+
 <WMT_MS_Capabilities version="1.1.1" updateSequence="0">
 
 <Service>
   <Name>OGC:WMS</Name> 
-  <Title>GeoTools Servlet Viewer 1.0</Title> 
-  <Abstract>First version of the WMS 1.1.1 compatible GeoTools Viewer</Abstract> 
+  <Title>GeoTools WMS</Title> 
+  <Abstract>WMS 1.1.1 Compatible GeoTools Map Server</Abstract> 
 
   <KeywordList>
     <Keyword>GeoTools</Keyword> 
@@ -41,6 +43,7 @@
 
 <GetMap>
   <Format>image/jpeg</Format> 
+  <?GEO MAPFORMATS ?>
   <DCPType>
     <HTTP>
       <Get>
@@ -49,22 +52,22 @@
   </DCPType>
 </GetMap>
 
+<?GEO GETFEATUREINFO ?>
+
 </Request>
 
 <Exception>
   <Format>application/vnd.ogc.se_xml</Format> 
+  <?GEO EXCEPTIONFORMATS ?>
 </Exception>
 
-<VendorSpecificCapabilities /> 
+<VendorSpecificCapabilities> 
+  <?GEO VENDORSPECIFICCAPABILITIES ?>
+</VendorSpecificCapabilities>
 
 <!-- Layers -->
 
-<Layer queryable="0" opaque="0" noSubsets="0">
-  <Name>WORLD</Name> 
-  <Title>Polygon layer of countries</Title> 
-  <SRS>EPSG:4326</SRS> 
-  <LatLonBoundingBox minx="-180" miny="-90" maxx="180" maxy="90" /> 
-</Layer>
+<?GEO LAYERS ?>
 
 </Capability>
 </WMT_MS_Capabilities>
