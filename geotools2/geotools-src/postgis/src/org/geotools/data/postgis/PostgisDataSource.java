@@ -43,7 +43,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.8 2002/12/10 22:27:49 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.9 2002/12/20 00:08:00 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class PostgisDataSource implements org.geotools.data.DataSource {
@@ -53,11 +53,14 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
     private static Map geometryTypeMap = new HashMap();
 
+    static {
+	initMaps();
+    }
+
   /**
      * The logger for the filter module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.postgis");
-    
     
     /** Factory for producing geometries (from JTS). */
     private static GeometryFactory geometryFactory = new GeometryFactory();
@@ -71,9 +74,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     /** The maximum features allowed by the server for any given response. */
     private static int maxFeatures = 1000;
 
-    /** The srid of the data in the table.  HACK: This won't
-	work if a schema is passed.  Add srid to schema? */
-    private static int srid;
+    /** The srid of the data in the table. */
+    private int srid;
 
  /** To create the sql where statement */
     private static SQLEncoderPostgis encoder = new SQLEncoderPostgis();
@@ -88,7 +90,6 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     /** A tablename. */
     private String tableName;
 
-
     /** To get the part of the filter incorporated into the sql where statement */
     private SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
 
@@ -97,47 +98,66 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	Geotools.init("Log4JFormatter", Level.FINER);
     }
 
-
     /**
-     * Initializes the database and request handler.
+     * Sets the table and datasource, rolls a new schema from the db.
      *
-     * @param response The query from the request object.
-     * @param maxFeatures The query from the request object.
+     * @param db The datasource holding the table.
+     * @param tableName the name of the table that holds the features.
      */
-    public PostgisDataSource (javax.sql.DataSource db, String tableName) {
+    public PostgisDataSource (javax.sql.DataSource db, String tableName) 
+	throws DataSourceException{
         // create the return response type
         this.db = db;
         this.tableName = tableName;
-
-        sqlTypeMap.put("varchar", String.class);
-        sqlTypeMap.put("int4", Integer.class);
-        sqlTypeMap.put("float4", Float.class);
-        sqlTypeMap.put("float8", Double.class);
-        sqlTypeMap.put("geometry", Geometry.class);
-
-        geometryTypeMap.put("GEOMETRY", Geometry.class);
-        geometryTypeMap.put("POINT", Point.class);
-        geometryTypeMap.put("LINESTRING", LineString.class);
-        geometryTypeMap.put("POLYGON", Polygon.class);
-        geometryTypeMap.put("MULTIPOINT", MultiPoint.class);
-        geometryTypeMap.put("MULTILINESTRING", MultiLineString.class);
-        geometryTypeMap.put("MULTIPOLYGON", MultiPolygon.class);
+	try {
+	    this.schema = makeSchema(tableName, db);
+	} catch (Exception e) {
+	    throw new DataSourceException("Couldn't make schema: " + e);
+	}
+	this.srid = getSrid();
     }
 
     /**
-     * Initializes the database and request handler.
+     * Sets the table and datasource, rolls a new schema from the db.
      *
-     * @param response The query from the request object.
-     * @param maxFeatures The query from the request object.
+     * @param db The datasource holding the table.
+     * @param tableName the name of the table that holds the features.
+     * @param maxFeatures The maximum numbers of features to return.
      */
+
     public PostgisDataSource (javax.sql.DataSource db, String tableName, 
-			      int maxFeatures) {
+			      int maxFeatures) throws DataSourceException {
         // create the return response type
-        this.db = db;
-        this.tableName = tableName;
+	this(db, tableName);
         this.maxFeatures = maxFeatures;
+    }
 
-        sqlTypeMap.put("varchar", String.class);
+   /**
+     * Sets the table, datasource and schema.  This is a convenience method
+     * for greater speed.  It does no type-checking on the schema, so 
+     * things will break if the schema passed in and that held by the 
+     * datasource don't match up.  
+     *
+     * @param db The datasource holding the table.
+     * @param tableName the name of the table that holds the features.
+     * @param schema the attributes and id held by this table of features.
+     * @tasks REVISIT: type-check the schema?  Would sacrifice the speed
+     * gained by passing in schema, so might not be worth it.
+     */
+    public PostgisDataSource(javax.sql.DataSource db, String tableName, 
+			     FeatureType schema) throws DataSourceException {
+	this.db = db;
+	this.tableName = tableName;
+	this.schema = schema;
+	this.srid = getSrid();
+    }
+
+    /**
+     * Initializes the mappings for mapping from sql columns to classes
+     * for attributes
+     */
+    private static void initMaps() {
+	     sqlTypeMap.put("varchar", String.class);
         sqlTypeMap.put("int4", Integer.class);
         sqlTypeMap.put("float4", Float.class);
         sqlTypeMap.put("float8", Double.class);
@@ -151,20 +171,18 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         geometryTypeMap.put("MULTILINESTRING", MultiLineString.class);
         geometryTypeMap.put("MULTIPOLYGON", MultiPolygon.class);
     }
-
 
     /* *************************************************************************
      * Some static methods to help with schema construction and SQL statement
      * creation.
      * ************************************************************************/
     /**
-     * Returns the full GML GetFeature response for each query and bounding box
+     * Creates a schema from the information in the tablename.
      *
-     * <p>Note that bounding box parameters are included because get feature
-     * requests may contain more than 1 generic query with a single unified 
-     * bounding box for each request.</p>
-     *
-     * @param genericQuery The query from the request object.
+     * @param tableName The name of the table that holds the features.
+     * @param db The datasource to generate a connection to the database 
+     * holding the table.
+     * @return the schema reflecting features held in the table.
      */ 
     public static FeatureType makeSchema(String tableName, 
                                           javax.sql.DataSource db) 
@@ -186,8 +204,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         //_log.debug("about to loop through cols");
         // loop through all columns
         for( int i = 1, n = metaData.getColumnCount(); i <= n; i++) {
-            LOGGER.finer("reading col: " + i);
-            LOGGER.finer("reading col: " + metaData.getColumnTypeName(i));
+            LOGGER.fine("reading col: " + i);
+            LOGGER.fine("reading col: " + metaData.getColumnTypeName(i));
             LOGGER.finer("reading col: " + metaData.getColumnName(i));
 
             columnTypeName = metaData.getColumnTypeName(i);
@@ -197,15 +215,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             if( columnTypeName.equals("geometry")) {
                 attributes[i - offset] = 
                     getGeometryAttribute(db, tableName, columnName);
-            }
-
-            // object id is ignored in the schema, since it is treated as a 
-            //  feature id
-            //else if (columnName.equals("gid")) {
-            //    offset++;
-            //}
-
-            else  {
+            } else  {
                 // set column name and type from database
                 attributes[i - offset] = 
                     new AttributeTypeDefault ( columnName,
@@ -213,20 +223,71 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 					       (columnTypeName));
             }
         }
+	closeResultSet(result);
 
-        try {
-            result.close();			
-            result.getStatement().close();			
-            result.getStatement().getConnection().close();			
-        }
-        catch (SQLException e) {
-            LOGGER.fine("Error closing result set.");
-        } 
-
-        //LOGGER.fine("the postgis-created schema is: " + FeatureTypeFactory.create(attributes).toString());
-        return FeatureTypeFactory.create(attributes);
+        //LOGGER.fine("the postgis-created schema is: " 
+	//+ FeatureTypeFactory.create(attributes).toString());
+        FeatureType retSchema =  FeatureTypeFactory.create(attributes);
+	if (retSchema.getClass().isAssignableFrom(FeatureTypeFlat.class)) {
+	    //((FeatureTypeFlat)retFeature).setSRID(srid); 
+	    // first way depends on static srid, which could change if another
+	    //object calls the static method.  querySRID is slower, as 
+	    //another connection must be made, but will be sure to get it right
+	  int srid = querySRID(db, tableName);
+	((FeatureTypeFlat)retSchema).setSRID(srid);
+	}
+	return retSchema;
     }
 
+    /**
+     * Convenience method to get the srid.  Grabs it from the schema if
+     * possible, if not then it queries the datasource.
+     *
+     * @return the srid of this schema.
+     */
+    private int getSrid() {
+	int srid = 0;
+	if (schema.getClass().isAssignableFrom(FeatureTypeFlat.class)) {
+	    srid = ((FeatureTypeFlat)schema).getSRID();
+	    if (srid != 0) return srid; //if 0 then it was not initialized, 
+	}    //so it should be found with querySRID.
+	try {
+	    srid = querySRID(db, tableName);  //this will slow things considerably
+	} catch (Exception e) {     //srid should be set in schema.
+	    //TODO: error checking here.
+	}
+	return srid;
+    }
+
+    /**
+     * Gets the srid from the geometry_columns table of the datasource.
+     *
+     * @param db The datasource used to generate the connection.
+     * @param tableName the name of the table to find the srid.
+     * @return the srid of the first geometry column of the table.
+     * @tasks REVISIT: only handles one geometry column, should take
+     * the column name if we have more than one srid per feature.
+     */
+    public static int querySRID(javax.sql.DataSource db, String tableName) 
+	throws Exception {
+	 String sqlStatement = "SELECT srid FROM GEOMETRY_COLUMNS WHERE " + 
+            "f_table_name='" + tableName + "';";
+
+        // retrieve the result set from the JDBC driver
+        //LOGGER.fine("about to make connection, SQL: " + sqlStatement);
+        Connection dbConnection = db.getConnection();
+        Statement statement = dbConnection.createStatement();
+        ResultSet result = statement.executeQuery(sqlStatement);
+	if( result.next()) {
+	    int retSrid = result.getInt("srid");
+	    closeResultSet(result);
+	    return retSrid;
+        } else {
+	    throw new DataSourceException("problem querying the db for srid " +
+					  "of " + tableName);
+	}
+
+    }
 
     /**
      * Returns an attribute type for a geometry column in a feature table.
@@ -235,14 +296,16 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * @param tableName The feature table name.
      * @param columnName The geometry column name.
      * @return Geometric attribute.
+     * @tasks REVISIT: combine with querySRID, as they use the same select 
+     * statement.
      */ 
     private static AttributeType getGeometryAttribute(javax.sql.DataSource db, 
                                                       String tableName, 
                                                       String columnName) 
         throws Exception {
-        
-        String sqlStatement = "SELECT type, srid FROM GEOMETRY_COLUMNS WHERE " 
-            + "f_table_name='" + tableName + "' AND f_geometry_column='" + 
+
+        String sqlStatement = "SELECT type FROM GEOMETRY_COLUMNS WHERE " + 
+            "f_table_name='" + tableName + "' AND f_geometry_column='" + 
             columnName + "';";
         String geometryType = null;
 
@@ -251,17 +314,15 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         Connection dbConnection = db.getConnection();
         Statement statement = dbConnection.createStatement();
         ResultSet result = statement.executeQuery(sqlStatement);
-        
-        // loop through entire result set or until maxFeatures are reached
+                
         //LOGGER.fine("about to read geometry type");
         if( result.next()) {
             geometryType = result.getString("type");
-	    srid = result.getInt("srid");
-
-            LOGGER.fine("geometry type is: " + geometryType);
+	    LOGGER.fine("geometry type is: " + geometryType);
         }
         
         closeResultSet(result);
+
         return new AttributeTypeDefault ( columnName,
                                           (Class) geometryTypeMap.get
 					  (geometryType));
@@ -274,7 +335,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      *
      * @return Full SQL statement.
      */ 
-    public static String makeSql(Filter filter, String tableName, FeatureType schema) {
+
+    public String makeSql(Filter filter, String tableName, FeatureType schema) {
         StringBuffer sqlStatement = new StringBuffer("SELECT");
         AttributeType[] attributeTypes = schema.getAttributeTypes();
 
@@ -290,24 +352,23 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
                 sqlStatement.append(",");
 	    }    
 	}
-	    encoder.setSRID(srid);
-	    String where = "";
-	    LOGGER.finer("about to encode");
-	    if (filter != null) {
-		try {    
-		    where = encoder.encode(filter);   
-		} catch (SQLEncoderException e) { 
-		    LOGGER.fine("Encoder error" + e.getMessage());
-		}
-		
+	encoder.setSRID(srid);
+	String where = "";
+	LOGGER.finer("about to encode");
+	if (filter != null) {
+	    try {    
+		where = encoder.encode(filter);   
+	    } catch (SQLEncoderException e) { 
+		LOGGER.fine("Encoder error" + e.getMessage());
 	    }
-	    sqlStatement.append(" FROM " + tableName +" "+ where + 
-				" LIMIT " + maxFeatures + ";").toString();
-	    LOGGER.finer("sql statement is " + sqlStatement);
-	    return sqlStatement.toString();            
+	    
+	}
+	sqlStatement.append(" FROM " + tableName +" "+ where + " LIMIT " 
+			    + maxFeatures + ";").toString();
+	LOGGER.fine("sql statement is " + sqlStatement);
+	return sqlStatement.toString();            
     }
     
-
 
     /**
      * Closes the result set.  Child class must remember to call.
@@ -359,7 +420,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             Statement statement = dbConnection.createStatement();
 
             // if no schema has been passed to the datasource, roll our own
-            if( schema == null) {
+            //LOGGER.info("schema = " + schema);
+	    if( schema == null) {
                 schema = makeSchema(tableName, db);
             }
             //LOGGER.fine("just made schema: " + schema.toString());
@@ -454,9 +516,12 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     }
 
     /**
-     * Returns a feature collection, based on the passed filter.
+     * Returns a feature collection, based on the passed filter.  The
+     * schema of the features passed in must match the schema
+     * of the datasource.  
      *
      * @param collection Add features to the PostGIS database.
+     * @tasks TODO: Check to make sure features passed in match schema.
      */ 
     public void addFeatures(FeatureCollection collection)
         throws DataSourceException {
@@ -487,14 +552,12 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		Statement statement = dbConnection.createStatement();
 		for (int i = 0; i < featureArr.length; i++){
 		    curAttributes = featureArr[i].getAttributes();
-		    
-		//need to change this...get names of cols from schema
+		    //need to change this...get names of cols from schema
 		    sql = "INSERT INTO " + tableName + 
 			" VALUES(";
-		    
-		    featureID = featureArr[i].getId(); 
-		    sql += addQuotes(featureID) + ", ";
-		    for (int j = 1; j < curAttributes.length; j++){
+		    //featureID = featureArr[i].getId(); 
+		    //sql += addQuotes(featureID) + ", ";
+		    for (int j = 0; j < curAttributes.length; j++){
 			if (j == geomPos) {
 			    geoText = geometryWriter.write((Geometry)curAttributes[j]);
 			    sql += "GeometryFromText('" + geoText + 
@@ -509,20 +572,19 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 			}
 		    }
 		    sql += ");";
-		    //_log.info("this sql statement = " + sql);
+		    LOGGER.finer("this sql statement = " + sql);
 		    statement.executeUpdate(sql);
 		}
 		statement.close();
 		dbConnection.close();
 	    } catch (SQLException e) {
-		//_log.info("Some sort of database connection error: " 
-		//+ e.getMessage());
+
+		LOGGER.finer("Some sort of database connection error: " + e.getMessage());
 	    }    
 	}
 
 
     }
-
 
 
     /**
@@ -552,15 +614,14 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     public void removeFeatures(Filter filter)
         throws DataSourceException {
 	Feature[] featureArr;
-        Object[] curAttributes;
+        //Object[] curAttributes;
         String sql = "";
         Object featureID;
-        String geomSql = "";
+        //String geomSql = "";
         String attrValue = "";
-        Object gidValue;
-        String gid = null;
-        AttributeType fidType;
-        String gidName;
+        Object fidValue;
+        String fid = null;
+        String fidName = schema.getAttributeTypes()[0].getName();
 
 	unpacker.unPackOR(filter);
 	String whereStmt = null;
@@ -575,22 +636,19 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		whereStmt = encoder.encode((AbstractFilter)encodableFilter);
 		sql = "DELETE from " + tableName + " " + whereStmt + ";";
 		//do actual delete
-		//_log.info("sql statment is " + sql);
+		LOGGER.finer("sql statment is " + sql);
 		statement.executeUpdate(sql);
-
 	    }
 	    
 	    if (unEncodableFilter != null) {
-		
 		featureArr = getFeatures(unEncodableFilter).getFeatures();
 		if (featureArr.length > 0) {
 		    sql = "DELETE FROM "  + tableName + " WHERE "; 
 		    for (int i = 0; i < featureArr.length; i++){
-			gidValue = featureArr[i].getId();
-			gid = addQuotes(gidValue);
-			//TODO: get this from first attribute of FeatureType
-			sql += "gid = " + gid;
-			//is there always going to be a field called gid?
+
+			fidValue = featureArr[i].getId();
+			fid = addQuotes(fidValue);
+			sql += fidName + " = " + fid;
 			if (i < featureArr.length - 1) {
 			    sql += " OR ";
 			} else {
@@ -598,7 +656,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 			}
 			
 		    }
-		    //_log.info("our delete says : " + sql);
+		    //LOGGER.info("our delete says : " + sql);
 		    statement.executeUpdate(sql);
 		}
             }
@@ -645,18 +703,10 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	Feature[] featureArr;
         Object[] curAttributes;
         String sql = "";
-        Object featureID;
-        String geomSql = "";
-        String attrValue = "";
-        Object gidValue;
-        String gid = null;
-        AttributeType fidType;
-        String gidName;
-	//        int gid = 0;
-        //int gidPos;
-
-
-	//check schema has filter???
+	Object fidValue;
+        String fid = null;
+	String fidName = schema.getAttributeTypes()[0].getName();
+	//check schema with filter???
 
 	unpacker.unPackOR(filter);
 	String whereStmt = null;
@@ -670,7 +720,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    if (encodableFilter != null) {
 		whereStmt = encoder.encode((AbstractFilter)encodableFilter);
 		sql = makeModifySql(type, value, whereStmt);
-		//_log.info("encoded modify is " + sql);
+		//LOGGER.info("encoded modify is " + sql);
 		statement.executeUpdate(sql);
 	    }
 	    
@@ -680,21 +730,22 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		if (featureArr.length > 0) {
 		   whereStmt = " WHERE "; 
 		    for (int i = 0; i < featureArr.length; i++){
-			gidValue = featureArr[i].getId();
-			gid = addQuotes(gidValue);
-			//TODO: get GID_NAME from first attribute of schema. 
-			whereStmt += "gid = " + gid;
-			//is there always going to be a field called gid?
+			//REVISIT: do away with id, just query first attribute?
+			fidValue = featureArr[i].getId();
+			fid = addQuotes(fidValue);
+			whereStmt += fidName + " = " + fid;
+
 			if (i < featureArr.length - 1) {
 			    whereStmt += " OR ";
 			}	
 		    }
 		    sql = makeModifySql(type, value, whereStmt);
-		    //_log.info("unencoded modify is : " + sql);
+		    
 		    statement.executeUpdate(sql);
 		}
             }
 
+       
 	    statement.close();
 	    dbConnection.close();    
         } catch (SQLException e) {
@@ -733,7 +784,11 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         return sql;
     }
 
-    
+
+    public FeatureType getSchema() {
+	return schema;
+    }
+
 
     /**
      * Stops this DataSource from loading.
