@@ -26,7 +26,7 @@ import org.geotools.feature.*;
 /**
  * Implements a default expression, with helpful variables and static methods.
  *
- * @version $Id: ExpressionDefault.java,v 1.6 2002/06/20 22:42:00 jmacgill Exp $
+ * @version $Id: ExpressionDefault.java,v 1.7 2002/06/21 13:49:51 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionDefault implements Expression {
@@ -118,8 +118,7 @@ public class ExpressionDefault implements Expression {
     }
 
     /**
-     * Checks to see if passed type is math. Modified by Ian to consider
-     * Integers and Doubles to be acceptable in MathExpressions.
+     * Checks to see if passed type is math.
      *
      * @param expressionType Type of expression for check.
      * @return Whether or not this is a math expression type.
@@ -128,9 +127,7 @@ public class ExpressionDefault implements Expression {
         if( (expressionType == MATH_ADD) ||
             (expressionType == MATH_SUBTRACT) ||
             (expressionType == MATH_MULTIPLY) ||
-            (expressionType == MATH_DIVIDE)  ||
-            (expressionType == LITERAL_DOUBLE) ||
-            (expressionType == LITERAL_INTEGER) ) {
+            (expressionType == MATH_DIVIDE) ) {
             return true;
         }
         else {

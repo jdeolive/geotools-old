@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * For example, the left value is the numerator and the right is the
  * denominator in an ExpressionMath division operation.
  *
- * @version $Id: ExpressionMath.java,v 1.5 2002/06/05 13:16:18 loxnard Exp $
+ * @version $Id: ExpressionMath.java,v 1.6 2002/06/21 13:49:51 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionMath extends ExpressionDefault {
@@ -76,11 +76,11 @@ public class ExpressionMath extends ExpressionDefault {
         throws IllegalFilterException {
         
         // Check to see if this is a valid math expression before adding.
-        if( isMathExpression( leftValue.getType() ) ) {
+        if( !isGeometryExpression( leftValue.getType() ) && leftValue.getType()!=LITERAL_STRING ) {
             this.leftValue = leftValue;
         }
         else {
-            throw new IllegalFilterException("Attempted to add non-math sub expression to math expression.");
+            throw new IllegalFilterException("Attempted to add Geometry or String expression to math expression.");
         }
     }
 
@@ -94,11 +94,11 @@ public class ExpressionMath extends ExpressionDefault {
         throws IllegalFilterException {
         
         // Check to see if this is a valid math expression before adding.
-        if( isMathExpression( rightValue.getType() ) ) {
+        if( !isGeometryExpression( rightValue.getType() ) && leftValue.getType()!=LITERAL_STRING ) {
             this.rightValue = rightValue;
         }
         else {
-            throw new IllegalFilterException("Attempted to add non-math sub expression to math expression.");
+            throw new IllegalFilterException("Attempted to add Geometry or String sub expression to math expression.");
         }
     }
 
