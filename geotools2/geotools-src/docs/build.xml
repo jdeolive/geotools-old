@@ -28,7 +28,10 @@
             extension=".html"
             style="${docbookXSL}"
             includes="*.sgml"
-            processor="trax"/>
+            processor="trax">
+            <param name="section.autolabel" expression="1"/>
+            <param name="toc.section.depth" expression="4"/>
+        </style>
     </target>
     <target name="anakia">
         <!-- Convert docbook to anakia -->
