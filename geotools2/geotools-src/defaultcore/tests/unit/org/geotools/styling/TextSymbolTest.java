@@ -119,13 +119,13 @@ public class TextSymbolTest extends TestCase {
         pointsym.setGeometryPropertyName("centre");
         pointsym.setGraphic(graphic);
         
-        RuleImpl rule3 = new RuleImpl();
-        rule3.setSymbolizers(new Symbolizer[]{pointsym});
-        FeatureTypeStyleImpl fts3 = new FeatureTypeStyleImpl();
-        fts3.setRules(new Rule[]{rule3});
-        fts3.setFeatureTypeName("testPoint");
+        RuleImpl rule = new RuleImpl();
+        rule.setSymbolizers(new Symbolizer[]{pointsym});
+        FeatureTypeStyleImpl fts = new FeatureTypeStyleImpl();
+        fts.addRule(rule); 
+        fts.setFeatureTypeName("testPoint");
         StyleImpl style = new StyleImpl();
-        style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts3});
+        style.addFeatureTypeStyle(fts); 
         
         map.addFeatureTable(ft,style);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
