@@ -4,7 +4,7 @@
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *    
+ *
  */
 
 package org.geotools.shapefile;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 /**
  * Wrapper for a Shapefile polygon.
  *
- * @version $Id: PolygonHandler.java,v 1.5 2002/07/12 13:55:35 loxnard Exp $
+ * @version $Id: PolygonHandler.java,v 1.6 2002/07/16 22:10:39 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class PolygonHandler implements ShapeHandler{
@@ -64,7 +64,7 @@ public class PolygonHandler implements ShapeHandler{
         //LinearRing[] rings = new LinearRing[numParts];
         ArrayList shells = new ArrayList();
         ArrayList holes = new ArrayList();
-      
+        
         int start, finish, length;
         for (int part = 0; part < numParts; part++){
             start = partOffsets[part];
@@ -107,8 +107,10 @@ public class PolygonHandler implements ShapeHandler{
                     minEnv = minShell.getEnvelopeInternal();
                 }
                 boolean isContained = false;
+                Coordinate[] coordList = tryRing.getCoordinates() ;
                 if (tryEnv.contains(testEnv)
-                && cga.isPointInPolygon(testPt, tryRing.getCoordinates())){
+                && (cga.isPointInPolygon(testPt,coordList ) ||
+                (pointInList(testPt,coordList)))) {
                     isContained = true;
                 }
                 // check if this new containing ring is smaller than the
@@ -133,11 +135,11 @@ public class PolygonHandler implements ShapeHandler{
             return polygons[0];
         }
         //it's a multi part
-        return geometryFactory.createMultiPolygon(polygons);        
+        return geometryFactory.createMultiPolygon(polygons);
     }
     
-     public void write(Geometry geometry, LEDataOutputStream file)throws IOException{
-         GeometryCollection multi;
+    public void write(Geometry geometry, LEDataOutputStream file)throws IOException{
+        GeometryCollection multi;
         if(geometry instanceof GeometryCollection){
             multi = (GeometryCollection) geometry;
         }
@@ -188,11 +190,43 @@ public class PolygonHandler implements ShapeHandler{
         }
         return (22 + (2 * numParts) + geometry.getNumPoints() * 8);
     }
+    
+    /**
+     * Test if a point is in a list of coordinates
+     * @param testPoint the point to test for
+     * @param pointList the list of points to look through
+     * @return true if testPoint is a point in the pointList list.
+     */
+    private boolean pointInList(Coordinate testPoint, Coordinate[] pointList) {
+        int t, numpoints;
+        Coordinate  p;
+        
+        numpoints = pointList.length;
+        //TODO: check if nan case needs to be delt with
+        //TODO: check if coordinate.equals3D or equals2D can be used instead.
+        for (t=0;t<numpoints; t++) {
+            p = pointList[t];
+            if ( (testPoint.x == p.x) && (testPoint.y == p.y) &&
+            ((testPoint.z == p.z) ||
+            (!(testPoint.z == testPoint.z)))  //nan test; x!=x iff x is nan
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.6  2002/07/16 22:10:39  jmacgill
+ * Applied bug fix patch supplied by Dave Blasby
+ *
+ * The bug occured if the first point in a hole's ring was on the boundary of
+ * an exterior ring.
+ *
  * Revision 1.5  2002/07/12 13:55:35  loxnard
+ *
  * Updated javadocs.
  *
  * Revision 1.4  2002/06/05 12:51:20  loxnard
