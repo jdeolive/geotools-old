@@ -30,7 +30,7 @@ import org.geotools.filter.*;
  * org.geotools.defaultcore.
  *
  * @author iant
- * @version $Id: StyleFactoryImpl.java,v 1.6 2003/05/23 20:06:51 jmacgill Exp $
+ * @version $Id: StyleFactoryImpl.java,v 1.7 2003/06/23 13:46:59 ianturton Exp $
  */
 public class StyleFactoryImpl extends StyleFactory {
     private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
@@ -514,11 +514,24 @@ public class StyleFactoryImpl extends StyleFactory {
         return style;
     }
 
+    /**
+     * Creates a default Text Symbolizer, using the defaultFill, defaultFont and defaultPointPlacement, 
+     * Sets the geometry attribute name to be geometry:text. No Halo is set.
+     * <b>The label is not set</b>
+     *
+     * @return A default TextSymbolizer
+     *
+     */
     public TextSymbolizer getDefaultTextSymbolizer() {
         return createTextSymbolizer(getDefaultFill(),
-            new Font[] { getDefaultFont() }, null, null, null, "gemoerty:text");
+            new Font[] { getDefaultFont() }, null, null, getDefaultPointPlacement(), "geometry:text");
     }
-
+    
+    /** Creates a defaultFont which is valid on all machines.
+     *  The font is of size 10, Style and Weight normal and uses a serif font.
+     *
+     * @return the default Font
+     */
     public Font getDefaultFont() {
         Font font = new FontImpl();
 
@@ -527,7 +540,7 @@ public class StyleFactoryImpl extends StyleFactory {
                     new Integer(10)));
             font.setFontStyle(filterFactory.createLiteralExpression("normal"));
             font.setFontWeight(filterFactory.createLiteralExpression("normal"));
-            font.setFontFamily(filterFactory.createLiteralExpression("Courier"));
+            font.setFontFamily(filterFactory.createLiteralExpression("serif"));
         } catch (org.geotools.filter.IllegalFilterException ife) {
             severe("getDefaultFont", "Failed to build defaultFont:", ife);
         }
@@ -549,7 +562,19 @@ public class StyleFactoryImpl extends StyleFactory {
 
         return gr;
     }
-
+    
+    /** returns a default PointPlacement with a 0,0 anchorPoint and a displacement of 0,0 and a rotation of 0
+     *
+     *  @return a default PointPlacement.
+     */
+    public PointPlacement getDefaultPointPlacement(){
+        
+    return this.createPointPlacement(
+            this.createAnchorPoint(filterFactory.createLiteralExpression(0), filterFactory.createLiteralExpression(0)),
+            this.createDisplacement(filterFactory.createLiteralExpression(0), filterFactory.createLiteralExpression(0)), 
+            filterFactory.createLiteralExpression(0));
+    }
+    
     public RasterSymbolizer createRasterSymbolizer(
         String geometryPropertyName, Expression opacity,
         ChannelSelection channel, Expression overlap, ColorMap colorMap,
