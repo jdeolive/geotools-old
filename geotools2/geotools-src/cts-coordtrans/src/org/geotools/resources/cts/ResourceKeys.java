@@ -121,6 +121,7 @@ public interface ResourceKeys
     public static final int ERROR_POINT_OUTSIDE_HEMISPHERE              =    98;
     public static final int ERROR_POLE_PROJECTION_$1                    =    76;
     public static final int ERROR_UNEXPECTED_PARAMETER_$1               =    86;
+    public static final int ERROR_UNITLESS_PARAMETER_$1                 =   103;
     public static final int ERROR_UNKNOW_TYPE_$1                        =    77;
     public static final int ERROR_UNMODIFIABLE_AFFINE_TRANSFORM         =    78;
     public static final int ERROR_UNPARSABLE_STRING_$2                  =    75;
