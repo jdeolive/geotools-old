@@ -13,11 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/10/24 09:37:49 $</date>
-
-    <abstract>
-      <para>Software Design Description of Geotools2.</para>
-    </abstract>
+    <date>$Id: design.sgml,v 1.3 2002/11/03 21:21:53 camerons Exp $</date>
   </articleinfo>
 
   <section>
@@ -57,6 +53,10 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       Software Design Description Data Item Description (SDD DID)</ulink>.
       MIL-STD 498 specifies a software development framework and the SDD DID
       specifies the heading structure and content for each section.</para>
+
+      <para>This document has been written to help Geotools 2 users develop a
+      high level understanding of the full Geotools system to help with
+      design, code and maintainence of Geotools 2 and derrived products.</para>
     </section>
   </section>
 
@@ -300,7 +300,9 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <title id="modulecore">core</title>
 
       <para>At the hart of GT2 is the core module, this module contains no
-      implementation code, just Java interfaces for all the key modules.</para>
+      implementation code, just Java interfaces for all the key modules. It is
+      anticipated that the core module will be extracted out of Geotools and
+      be put into it&#39;s own GeoInterfaces open source project.</para>
     </section>
 
     <section>
@@ -323,10 +325,165 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
     </section>
 
     <section>
+      <title id="gui">gui</title>
+
+      <para>gui - a suite of visual components for navigating and displaying
+      maps produced by a renderer.</para>
+
+      <section>
+        <title>Model-View-Controller</title>
+
+        <figure>
+          <title>Model View Controller</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/design/ModelViewController.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para>The Geotools2 dispay objects use a <emphasis>Model-View-Controller</emphasis>
+        design pattern. Context is the model, GeoWidgets like MapPane are the
+        viewers, and Tools like the ZoomTool are the controllers.</para>
+
+        <para>This design ensures the same data can be displayed in many ways
+        and the rendering technology is independant of the data.</para>
+
+        <para><emphasis>GeoWidgets</emphasis> register with data objects they
+        are interested in then redraw themselves when they recieve
+        <emphasis>dataChangedEvents</emphasis>. For example, the
+        <emphasis>Legend</emphasis> widget registers interest with the
+        <emphasis>LayerList</emphasis> object. When a new Layer is added,
+        removed or selected, the <emphasis>Legend</emphasis> recieves a
+        <emphasis>LayerListChangedEvent</emphasis> and redraws itself.</para>
+      </section>
+
+      <section>
+        <title>GeoWidgets</title>
+
+        <figure>
+          <title>Widget Factory</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/design/WidgetFactory.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para>Classes that display Geotools data are called
+        <emphasis>GeoWidgets</emphasis>. Examples include:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>MapPane, this is the main widget which displays an image of
+            geographic map.</para>
+          </listitem>
+
+          <listitem>
+            <para>LocatorMap, similar to the MapPane, but has a static basemap
+            and shows a box showing the <emphasis>area of interest</emphasis>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Legend, shows a list of layers.</para>
+          </listitem>
+
+          <listitem>
+            <para>etc.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>To create GeoWidgets, applications should use
+        <emphasis>WidgetFactory</emphasis>. This uses an Abstract Factory
+        design pattern which ensures that calling applications are not
+        dependant the rendering technology chosen.</para>
+      </section>
+
+      <section>
+        <title>Rendering</title>
+
+        <para>Rendering objects in Geotools2 are independant of data objects
+        and the calling applications. This design allows multiple
+        <emphasis>rendering</emphasis> implimentations. Consequently Geotools
+        can have rendering for Swing, AWT, and Palm Pilot technologies.</para>
+
+        <figure>
+          <title>Rendering</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/design/Rendering.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para>The swing rendering model uses cached RenderedFeatures to speed
+        up rendering. <emphasis>RenderedFeature</emphasis> speeds up rendering
+        by ensuring styling and coordinate transforms are only applied to
+        features one.</para>
+      </section>
+
+      <section>
+        <title>Tools</title>
+
+        <figure>
+          <title>Tools</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/design/Tools.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para><emphasis>Tools</emphasis> process key and mouse action events
+        for <emphasis>GeoWidgets</emphasis>. Different Tools can be applied to
+        <emphasis>GeoWidgets</emphasis> to trigger different behaviour. For
+        example, when a <emphasis>ZoomTool</emphasis> is applied to
+        <emphasis>MapPane</emphasis>, mouse click and drag will create a box
+        and then zoom the extent into that box. When <emphasis>PanTool</emphasis>
+        is used, the entire map drags around the screen during a click and
+        drag.</para>
+      </section>
+    </section>
+
+    <section>
+      <title>map</title>
+
+      <figure>
+        <title>Map Context</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/design/MapContext.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title id="modulejava2drenderer">java2drenderer</title>
+
+      <para>java2drenderer - an implementation of the rendering interface
+      which uses the Java2D API.</para>
+    </section>
+
+    <section>
       <title id="modulesldstyling">sldstyling</title>
 
       <para>An IO module which can read and write SLD XML documents by
       converting to and from the style objects implemented in defaultcore.</para>
+    </section>
+
+    <section>
+      <title id="modulesvgsupport">svgsupport</title>
+
+      <para>A module which extends the java2drenderer so that SVG files can be
+      created.</para>
     </section>
 
     <section>
@@ -373,20 +530,6 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
     </section>
 
     <section>
-      <title id="modulejava2drenderer">java2drenderer</title>
-
-      <para>java2drenderer - an implementation of the rendering interface
-      which uses the Java2D API.</para>
-    </section>
-
-    <section>
-      <title id="modulesvgsupport">svgsupport</title>
-
-      <para>A module which extends the java2drenderer so that SVG files can be
-      created.</para>
-    </section>
-
-    <section>
       <title id="modulects-coordtrans">cts-coordtrans</title>
 
       <para>cts-coordtrans - an implementation of the Coordinate
@@ -398,13 +541,6 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
 
       <para>gcs-coverage - an implementation of the Grid Coverages
       specification.</para>
-    </section>
-
-    <section>
-      <title id="modulegui">gui</title>
-
-      <para>gui - a suite of visual components for navigating and displaying
-      maps produced by a renderer (e.g. the java2drenderer).</para>
     </section>
 
     <section>
@@ -423,22 +559,6 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       code base and it envisioned that the wmsserver module will soon be
       extracted and become part of a separate project which still using the
       GT2 as a base.</para>
-    </section>
-  </section>
-
-  <section>
-    <title id="detaileddesign">Geotools2 detailed design.</title>
-
-    <section>
-      <title>Module XXX.</title>
-
-      <para></para>
-    </section>
-
-    <section>
-      <title>Module YYY.</title>
-
-      <para></para>
     </section>
   </section>
 
