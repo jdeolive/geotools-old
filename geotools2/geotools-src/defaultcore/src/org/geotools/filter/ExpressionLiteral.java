@@ -28,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: ExpressionLiteral.java,v 1.3 2002/07/12 12:38:42 loxnard Exp $
+ * @version $Id: ExpressionLiteral.java,v 1.4 2002/07/22 20:22:03 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionLiteral extends ExpressionDefault {
@@ -110,6 +110,23 @@ public class ExpressionLiteral extends ExpressionDefault {
         
     public String toString() {
         return literal.toString();        
+    }
+    
+    /** Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing which needs
+     * infomration from filter structure.
+     *
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the parents
+     * API is identical.
+     *
+     * @param visitor The visitor which requires access to this filter,
+     *                the method must call visitor.visit(this);
+     *
+     */
+    public void accept(FilterVisitor visitor) {
+        visitor.visit(this);
     }
     
 }

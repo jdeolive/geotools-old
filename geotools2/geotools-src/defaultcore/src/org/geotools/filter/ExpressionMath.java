@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * For example, the left value is the numerator and the right is the
  * denominator in an ExpressionMath division operation.
  *
- * @version $Id: ExpressionMath.java,v 1.3 2002/07/12 12:40:56 loxnard Exp $
+ * @version $Id: ExpressionMath.java,v 1.4 2002/07/22 20:22:03 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionMath extends ExpressionDefault {
@@ -150,5 +150,21 @@ public class ExpressionMath extends ExpressionDefault {
     
     }
         
+    /** Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing which needs
+     * infomration from filter structure.
+     *
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the parents
+     * API is identical.
+     *
+     * @param visitor The visitor which requires access to this filter,
+     *                the method must call visitor.visit(this);
+     *
+     */
+    public void accept(FilterVisitor visitor) {
+        visitor.visit(this);
+    }    
     
 }

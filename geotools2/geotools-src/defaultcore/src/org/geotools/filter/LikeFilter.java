@@ -27,7 +27,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilter.java,v 1.7 2002/07/22 16:31:36 jmacgill Exp $
+ * @version $Id: LikeFilter.java,v 1.8 2002/07/22 20:22:03 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LikeFilter extends AbstractFilter {
@@ -187,7 +187,7 @@ public class LikeFilter extends AbstractFilter {
      *                the method must call visitor.visit(this);
      *
      */
-    public void Accept(FilterVisitor visitor) {
+    public void accept(FilterVisitor visitor) {
         visitor.visit(this);
     }
     

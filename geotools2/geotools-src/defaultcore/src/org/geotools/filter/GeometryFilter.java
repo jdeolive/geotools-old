@@ -44,7 +44,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilter.java,v 1.5 2002/07/22 16:31:36 jmacgill Exp $
+ * @version $Id: GeometryFilter.java,v 1.6 2002/07/22 20:22:03 jmacgill Exp $
  * @author Rob Hranac, TOPP
  */
 public class GeometryFilter extends AbstractFilter {
@@ -233,8 +233,10 @@ public class GeometryFilter extends AbstractFilter {
      *                the method must call visitor.visit(this);
      *
      */
-    public void Accept(FilterVisitor visitor) {
+    public void accept(FilterVisitor visitor) {
         visitor.visit(this);
     }
+    
+    
     
 }

@@ -41,7 +41,7 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilter.java,v 1.3 2002/07/22 16:31:36 jmacgill Exp $
+ * @version $Id: CompareFilter.java,v 1.4 2002/07/22 20:21:55 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class CompareFilter extends AbstractFilter {
@@ -222,8 +222,10 @@ public class CompareFilter extends AbstractFilter {
      *                the method must call visitor.visit(this);
      *
      */
-    public void Accept(FilterVisitor visitor) {
+    public void accept(FilterVisitor visitor) {
         visitor.visit(this);
     }
 
+   
+    
 }
