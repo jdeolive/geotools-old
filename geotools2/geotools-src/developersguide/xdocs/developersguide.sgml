@@ -12,24 +12,20 @@ alternate="yes"
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 
-<!--Format for full docbook below -->
-<!--DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"-->
-<!--"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd"-->
-
 <!-- local dtd file -->
 <!--"file:/usr/java/xxe-m13p1-bin/dtd/docbook/docbookx.dtd"-->
 
 <article id="index">
+    <!-- $Header: /home/root/geotools/geotools2/geotools-src/developersguide/xdocs/Attic/developersguide.sgml,v 1.5 2002/06/15 19:08:36 camerons Exp $ -->
   <articleinfo>
     <title>Geotools2 Developer Guide</title>
 
     <author>
       <firstname>Cameron</firstname>
-
       <surname>Shorter</surname>
     </author>
 
-    <date>22 May 2002</date>
+    <date>$Date: 2002/06/15 19:08:36 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -166,10 +162,12 @@ alternate="yes"
       <title>Netbeans</title>
 
       <para>To do:</para>
-      <itemizedlist><listitem><para>Where to get it.</para></listitem><listitem><para>Aim
-      is to make geotools a module within Netbeans</para></listitem><listitem><para>How
-      to setup getools to fit the multiple directory structure</para></listitem><listitem><para>The
-      extra Netbeans modules that are useful and should be downloaded.</para></listitem></itemizedlist>
+      <itemizedlist>
+          <listitem><para>Where to get it.</para></listitem>
+          <listitem><para>Aim is to make geotools a module within Netbeans</para></listitem>
+          <listitem><para>How to setup getools to fit the multiple directory structure</para></listitem>
+          <listitem><para>The extra Netbeans modules that are useful and should be downloaded.</para></listitem>
+      </itemizedlist>
     </section>
   </section>
 </article>
