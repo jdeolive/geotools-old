@@ -9,7 +9,8 @@
       <item name="core" href="/../../../defaultcore/target/docs/"/>
       <item name="defaultcore" href="/../../../defaultcore/target/docs/"/>
       <item name="filter" href="/../../../filter/target/docs/"/>
-    </links>
+            <item name="algorithms" href="/../../../algorithms/target/docs/"></item>
+        </links>
     <!-- <menu name="Overview">
       <item name="Goals" href="/goals.html"/>
       <item name="Features" href="/features.html"/>
