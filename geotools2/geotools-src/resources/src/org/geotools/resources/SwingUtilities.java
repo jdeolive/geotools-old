@@ -72,7 +72,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  *       internal frames instead of frames.</li>
  * </ul>
  *
- * @version 1.0
+ * @version $Id: SwingUtilities.java,v 1.3 2002/09/01 22:33:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class SwingUtilities {
