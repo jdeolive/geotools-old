@@ -31,6 +31,7 @@ public interface ResourceKeys
     public static final int CYAN                                 =     6;
     public static final int DATA_TYPE_$2                         =    72;
     public static final int DEFAULT_VALUE                        =     7;
+    public static final int FALSE                                =    75;
     public static final int FILE_$1                              =     8;
     public static final int FILE_POSITION_$2                     =     9;
     public static final int GEOPHYSICS                           =    61;
@@ -49,6 +50,7 @@ public interface ResourceKeys
     public static final int RED                                  =    20;
     public static final int SATURATION                           =    21;
     public static final int TRANSPARENCY                         =    22;
+    public static final int TRUE                                 =    76;
     public static final int UNDEFINED                            =    23;
     public static final int UNTITLED                             =    24;
     public static final int VALUE                                =    68;

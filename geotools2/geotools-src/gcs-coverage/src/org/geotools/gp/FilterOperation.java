@@ -81,7 +81,7 @@ import org.geotools.cs.CoordinateSystem;
  * duplicated to fill a complete kernel.
  * </blockquote>
  *
- * @version $Id: FilterOperation.java,v 1.1 2003/03/30 22:43:41 desruisseaux Exp $
+ * @version $Id: FilterOperation.java,v 1.2 2003/04/17 11:39:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class FilterOperation extends OperationJAI {
@@ -152,8 +152,8 @@ final class FilterOperation extends OperationJAI {
     }
 
     /**
-     * Set a parameter. This method is overriden in order to apply some conversions
-     * from OpenGIS to JAI parameters.
+     * Set a parameter. This method override the {@link OperationJAI} method
+     * in order to apply some conversions from OpenGIS to JAI parameter names.
      *
      * @param block The parameter block in which to set a parameter.
      * @param name  The parameter OpenGIS name.

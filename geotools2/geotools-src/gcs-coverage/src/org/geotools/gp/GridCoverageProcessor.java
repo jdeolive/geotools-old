@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.19 2003/04/16 19:25:34 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.20 2003/04/17 11:39:34 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -196,6 +196,7 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new ConvolveOperation("LaplaceType2Filter", ConvolveOperation.LAPLACE_TYPE_2));
             DEFAULT.addOperation(new ConvolveOperation());
             DEFAULT.addOperation(new GradientMagnitudeOperation());
+            DEFAULT.addOperation(new ThresholdOperation());
         }
         return DEFAULT;
     }

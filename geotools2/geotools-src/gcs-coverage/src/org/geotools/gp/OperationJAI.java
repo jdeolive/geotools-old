@@ -95,7 +95,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.14 2003/03/30 22:43:41 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.15 2003/04/17 11:39:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -127,7 +127,7 @@ public class OperationJAI extends Operation {
     protected final OperationDescriptor descriptor;
     
     /**
-     * Construct an OpenGIS operation from a JAI operation. This convenience constructor
+     * Construct an OpenGIS operation from a JAI operation name. This convenience constructor
      * fetch the {@link OperationDescriptor} from the specified operation name using the
      * default {@link JAI} instance.
      *
@@ -138,30 +138,37 @@ public class OperationJAI extends Operation {
     }
     
     /**
-     * Construct an OpenGIS operation from a JAI operation.
+     * Construct an OpenGIS operation from a JAI operation descriptor.
+     * The OpenGIS operation will have the same name than the JAI operation.
      *
      * @param descriptor The operation descriptor. This descriptor
      *        must supports the "rendered" mode (which is the case
      *        for most JAI operations).
      */
     public OperationJAI(final OperationDescriptor descriptor) {
-        this(descriptor.getName(), descriptor, getParameterListDescriptor(descriptor));
+        this(null, descriptor, null);
     }
 
     /**
-     * Construct an OpenGIS operation from a JAI operation.
+     * Construct an OpenGIS operation backed by a JAI operation.
      *
-     * @param The operation name for {@link GridCoverageProcessor} registration.
-     *        May or may not be the same than JAI operation name.
+     * @param name The operation name for {@link GridCoverageProcessor} registration.
+     *        May or may not be the same than the JAI operation name. If <code>null</code>,
+     *        then the JAI operation name is used.
      * @param operationDescriptor The operation descriptor. This descriptor must supports
      *        supports the "rendered" mode (which is the case for most JAI operations).
-     * @param paramDescriptor The parameters descriptor.
+     * @param paramDescriptor The parameters descriptor. If <code>null</code>,
+     *        then it will be infered from the JAI's parameter descriptor.
+     *
+     * @throws NullPointerException if <code>operationDescriptor</code> is null.
      */
-    OperationJAI(final String name,
-                 final OperationDescriptor operationDescriptor,
-                 final ParameterListDescriptor paramDescriptor)
+    protected OperationJAI(final String name,
+                           final OperationDescriptor operationDescriptor,
+                           final ParameterListDescriptor paramDescriptor)
     {
-        super(name, paramDescriptor);
+        super((name!=null) ? name : operationDescriptor.getName(),
+              (paramDescriptor!=null) ? paramDescriptor
+                                      : getParameterListDescriptor(operationDescriptor));
         this.descriptor = operationDescriptor;
     }
     
@@ -177,9 +184,11 @@ public class OperationJAI extends Operation {
     }
 
     /**
-     * Returns the operation descriptor for the specified operation name.
+     * Returns the operation descriptor for the specified JAI operation name.
+     * This method uses the default {@link JAI} instance and looks for the
+     * <code>&quot;rendered&quot;</code> mode.
      */
-    static OperationDescriptor getOperationDescriptor(final String name) {
+    protected static OperationDescriptor getOperationDescriptor(final String name) {
         return (OperationDescriptor) JAI.getDefaultInstance().
                 getOperationRegistry().getDescriptor(RENDERED_MODE, name);
     }

@@ -65,6 +65,7 @@
       <LI><A HREF="#Resample">Resample</A></LI>
       <LI><A HREF="#Rescale">Rescale</A></LI>
       <LI><A HREF="#SelectSampleDimension">SelectSampleDimension</A></LI>
+      <LI><A HREF="#Threshold">Threshold</A></LI>
     </UL>
 
 
@@ -767,6 +768,48 @@
         <td>{@link java.lang.Integer}</td>
         <td align="center">Same as source</td>
         <td align="center">0</td>
+        <td align="center">N/A</td>
+      </tr>
+    </table>
+    <P><A HREF="#operation-list">Back to summary</A></P>
+
+
+
+
+
+
+    <P>&nbsp;</P>
+    <HR>
+    <P>&nbsp;</P>
+    <H2><A NAME="Threshold">Threshold</A></H2>
+    <P ALIGN="justify">A gray scale threshold classifies the grid coverage values
+    into a boolean value. The sample dimensions will be modified into a boolean
+    value and the dimension type of the source sample dimension will be represented
+    as 1 bit.</P>
+
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Threshold"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.BinarizeDescriptor Binarize}&quot;</CODE><BR>
+       <STRONG>Parameters:</STRONG></P>
+    <table border='3' cellpadding='6' bgcolor='F4F8FF'>
+      <tr bgcolor='#B9DCFF'>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Default value</th>
+        <th>Minimum value</th>
+        <th>Maximum value</th>
+      </tr>
+      <tr>
+        <td>"Source"</td>
+        <td>{@link org.geotools.gc.GridCoverage}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"threshold"</td>
+        <td><code>double</code></td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
     </table>

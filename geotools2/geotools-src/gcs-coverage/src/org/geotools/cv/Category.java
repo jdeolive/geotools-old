@@ -97,7 +97,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.12 2003/04/14 18:34:11 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.13 2003/04/17 11:39:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
@@ -123,20 +123,23 @@ public class Category implements Serializable {
      *             It is due to what looks like a bug in IndexColorModel constructor.
      *             Further investigation are needed.
      */
-    public static final Category NODATA = new Category(
-            Resources.format(ResourceKeys.NODATA), Color.BLACK, 0)
-    {
-        /**
-         * Returns the category name localized in the specified locale.
-         */
-        public String getName(final Locale locale) {
-            if (locale != null) {
-                return Resources.getResources(locale).getString(ResourceKeys.NODATA);
-            } else {
-                return super.getName(locale);
-            }
-        }
-    };
+    public static final Category NODATA = new Localized(ResourceKeys.NODATA, Color.BLACK, 0);
+
+    /**
+     * A default category for the boolean &quot;{@link Boolean#FALSE false}&quot; value. This
+     * default identity category uses sample value 0, the color {@linkplain Color#BLACK black}
+     * and the name "false" localized to the specified locale.
+     */
+    public static final Category FALSE = new Localized(ResourceKeys.FALSE, Color.BLACK,
+                                                       new Byte((byte)0));
+
+    /**
+     * A default category for the boolean &quot;{@link Boolean#TRUE true}&quot; value. This
+     * default identity category uses sample value 1, the color {@linkplain Color#WHITE white}
+     * and the name "true" localized to the specified locale.
+     */
+    public static final Category TRUE = new Localized(ResourceKeys.TRUE, Color.WHITE,
+                                                      new Byte((byte)1));
     
     /**
      * The category name (may not be localized).
@@ -923,5 +926,50 @@ public class Category implements Serializable {
      */
     private Object readResolve() throws ObjectStreamException {
         return pool.canonicalize(this);
+    }
+
+    /**
+     * A category with a localized name. Used for the pre-defined categories
+     * {@link #NODATA}, {@link #FALSE} and {@link #TRUE}.
+     *
+     * @version $Id: Category.java,v 1.13 2003/04/17 11:39:34 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     */
+    private static final class Localized extends Category {
+        /**
+         * The key for the localized string.
+         */
+        private final int key;
+
+        /**
+         * Construct a localized qualitative category.
+         * Used for the construction of the {@link #NODATA} category.
+         */
+        public Localized(final int key, final Color color, final int index) {
+            super(Resources.format(key), color, index);
+            this.key = key;
+        }
+
+        /**
+         * Construct a localized identity category.
+         * Used for the construction of the {@link #FALSE} and {@link #TRUE} categories.
+         */
+        public Localized(final int key, final Color color, final Byte index) {
+            super(Resources.format(key), new Color[]{color},
+                  new NumberRange(Byte.class, index, index),
+                  MathTransform1D.IDENTITY);
+            this.key = key;
+        }
+
+        /**
+         * Returns the category name localized in the specified locale.
+         */
+        public String getName(final Locale locale) {
+            if (locale != null) {
+                return Resources.getResources(locale).getString(key);
+            } else {
+                return super.getName(locale);
+            }
+        }
     }
 }
