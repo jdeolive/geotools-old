@@ -151,7 +151,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      *
      * @return The capabilities supported by this encoder.
      */
-    public FilterCapabilities getCapabilities(){
+    public static FilterCapabilities getCapabilities(){
 	return capabilities; //maybe clone?  Make immutable somehow
     }
 
