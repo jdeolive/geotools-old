@@ -37,7 +37,7 @@ import java.io.IOException;
 /**
  * Wrapper for a Shapefile arc.
  *
- * @version $Id: MultiLineHandler.java,v 1.4 2002/07/11 17:25:55 jmacgill Exp $
+ * @version $Id: MultiLineHandler.java,v 1.5 2002/07/11 18:10:23 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class MultiLineHandler implements ShapeHandler{
@@ -53,13 +53,21 @@ public class MultiLineHandler implements ShapeHandler{
      * @param file An inputstream attached to a shapefile
      * @param geometryFactory The factory to use when constructing
      *        the MultiLineString
+     * @throws IOException if anything goes wrong whilst reading from the file
+     * @throws TopologyException if the MultiLineString in the shapefile
+     *         cannot be represented within the Simple Feature Specifications
+     * @throws InvalidShapefileException if unexpected content is encountered
+     *         for example, if the type of the next shape in the Shapefile is
+     *         not actualy a MultiLineString
+     * @return The construced MultiLineString as a Geometry
      */
-    public Geometry read( LEDataInputStream file , GeometryFactory geometryFactory)
-    throws IOException,TopologyException,InvalidShapefileException {
+    public Geometry read(LEDataInputStream file, 
+                         GeometryFactory geometryFactory)
+    throws IOException, TopologyException, InvalidShapefileException {
         file.setLittleEndianMode(true);
         int shapeType = file.readInt();//ignored
         double box[] = new double[4];
-        for ( int i =0; i<4; i++ ){
+        for (int i = 0; i < 4; i++){
             box[i] = file.readDouble();
         }//we don't need the box....
         
@@ -70,22 +78,25 @@ public class MultiLineHandler implements ShapeHandler{
         
         //points = new Coordinate[numPoints];
         
-        for ( int i = 0; i < numParts; i++ ){
-            partOffsets[i]=file.readInt();
+        for (int i = 0; i < numParts; i++){
+            partOffsets[i] = file.readInt();
         }
         
         LineString lines[] = new LineString[numParts];
-        int start,finish,length;
-        for(int part=0;part<numParts;part++){
+        int start, finish, length;
+        for (int part = 0; part < numParts; part++){
             start = partOffsets[part];
-            if(part == numParts-1){finish = numPoints;}
-            else {
-                finish=partOffsets[part+1];
+            if (part == numParts - 1){
+                finish = numPoints;
             }
-            length = finish-start;
+            else {
+                finish = partOffsets[part + 1];
+            }
+            length = finish - start;
             Coordinate points[] = new Coordinate[length];
-            for(int i=0;i<length;i++){
-                points[i]=new Coordinate(file.readDouble(),file.readDouble());
+            for (int i = 0; i < length; i++){
+                points[i] = new Coordinate(file.readDouble(),
+                                           file.readDouble());
             }
             lines[part] = geometryFactory.createLineString(points);
             
@@ -97,11 +108,13 @@ public class MultiLineHandler implements ShapeHandler{
      * Writes a MultiLineString to the outputstream.
      * The output stream should be in the right position before this method
      * is called.
-     * @param Geometry the MultiLineString to write out.
+     * @param geometry the MultiLineString to write out.
      * @param file An ledataoutputstream attached to a shapefile
+     * @throws IOException if anything goes wrong whilst writing to the file
      */
-    public void write(Geometry geometry,LEDataOutputStream file)throws IOException{
-        MultiLineString multi = (MultiLineString)geometry;
+    public void write(Geometry geometry, LEDataOutputStream file)
+    throws IOException{
+        MultiLineString multi = (MultiLineString) geometry;
         file.setLittleEndianMode(true);
         file.writeInt(getShapeType());
         
@@ -118,14 +131,14 @@ public class MultiLineHandler implements ShapeHandler{
         
         LineString[] lines = new LineString[numParts];
         
-        for(int i = 0;i<numParts;i++){
-            lines[i] = (LineString)multi.getGeometryN(i);
+        for (int i = 0; i < numParts; i++){
+            lines[i] = (LineString) multi.getGeometryN(i);
             file.writeInt(lines[i].getNumPoints());
         }
         
-        for(int part = 0;part<numParts;part++){
+        for (int part = 0; part < numParts; part++){
             Coordinate[] points = lines[part].getCoordinates();
-            for(int i = 0;i<points.length;i++){
+            for (int i = 0; i < points.length; i++){
                 file.writeDouble(points[i].x);
                 file.writeDouble(points[i].y);
             }
@@ -134,7 +147,7 @@ public class MultiLineHandler implements ShapeHandler{
     
     /**
      * Gets the type of shape stored (Shapefile.ARC)
-     * @param int The constant Shapefile.ARC
+     * @return int The constant Shapefile.ARC
      */
     public int getShapeType(){
         return Shapefile.ARC;
@@ -142,18 +155,21 @@ public class MultiLineHandler implements ShapeHandler{
     
     /**
      * Gets the length (in terms of file length) of the record entry
-     * @param int The length of the header entry.
+     * @param geometry The MultiLineString to calculate the record length of
+     * @return int The length of the header entry.
      */
     public int getLength(Geometry geometry){
-        
-        return (44+(4*((GeometryCollection)geometry).getNumGeometries()));
+        return (44 + (4 * ((GeometryCollection) geometry).getNumGeometries()));
     }
-    
 }
 
 /*
  * $Log: MultiLineHandler.java,v $
+ * Revision 1.5  2002/07/11 18:10:23  jmacgill
+ * fixed javadoc errors
+ *
  * Revision 1.4  2002/07/11 17:25:55  jmacgill
+ *
  * updated javadocs
  *
  * Revision 1.3  2002/06/05 12:49:03  loxnard
