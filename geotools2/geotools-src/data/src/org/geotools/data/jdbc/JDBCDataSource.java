@@ -42,7 +42,7 @@ import java.sql.Connection;
  * 
  * @author Chris Holmes, TOPP
  * @author Sean Geoghegan
- * @version $Id: JDBCDataSource.java,v 1.1 2003/09/22 18:54:55 cholmesny Exp $
+ * @version $Id: JDBCDataSource.java,v 1.2 2003/11/03 23:08:24 cholmesny Exp $
  */
 public abstract class JDBCDataSource extends AbstractDataSource {
 
@@ -112,7 +112,7 @@ public abstract class JDBCDataSource extends AbstractDataSource {
     public void setFeatures(FeatureCollection features)
         throws DataSourceException {
 	if (!getMetaData().supportsSetFeatures()) {
-            throw new UnsupportedOperationException(supportMsg + "setFeatures");
+            throw new UnsupportedOperationException("Does not support setFeatures");
         }
 	boolean originalAutoCommit = getAutoCommit();
         setAutoCommit(false);
