@@ -24,12 +24,10 @@ import java.io.*;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Hierarchy;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
+
 import junit.framework.*;
 import com.vividsolutions.jts.geom.*;
+import java.util.logging.Logger;
 import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import org.geotools.data.*;
@@ -45,7 +43,7 @@ import org.geotools.gml.GMLFilterDocument;
 public class CapabilitiesTest extends TestCase {
     
     /** Standard logging instance */
-    private static Logger _log = Logger.getLogger("filter");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
     
     /** Feature on which to preform tests */
     private Filter gFilter;
@@ -65,7 +63,7 @@ public class CapabilitiesTest extends TestCase {
     boolean setup = false;
     public CapabilitiesTest(String testName) {
         super(testName);
-        _log.info("running CapabilitiesTests");
+        LOGGER.info("running CapabilitiesTests");
     }
     
     /**
@@ -80,7 +78,7 @@ public class CapabilitiesTest extends TestCase {
      * @return A test suite for this unit test.
      */
     public static Test suite() {
-        BasicConfigurator.configure();
+        
         //_log.getLoggerRepository().setThreshold(Level.DEBUG);
         
         TestSuite suite = new TestSuite(CapabilitiesTest.class);
@@ -94,7 +92,7 @@ public class CapabilitiesTest extends TestCase {
      * @throws IllegalFeatureException If problem setting up the feature.
      */
     protected void setUp() {
-        _log.info("Setting up FilterCapabilitiesTest");
+        LOGGER.info("Setting up FilterCapabilitiesTest");
 	if(setup) return;
         setup=true;
 	capabilities = new FilterCapabilities();
@@ -102,7 +100,7 @@ public class CapabilitiesTest extends TestCase {
 	    gFilter = new GeometryFilter(AbstractFilter.GEOMETRY_WITHIN);
 	    compFilter = new CompareFilter(AbstractFilter.COMPARE_LESS_THAN);
 	} catch (IllegalFilterException e) {
-	    _log.info("Bad filter " + e);
+	    LOGGER.info("Bad filter " + e);
 	}
 	capabilities.addType(AbstractFilter.LOGIC_OR);
 	capabilities.addType(AbstractFilter.LOGIC_AND);
@@ -145,7 +143,7 @@ public class CapabilitiesTest extends TestCase {
 	    logFilter = logFilter.and(gFilter);
 	    assertTrue(!(capabilities.fullySupports(logFilter)));
 	} catch (IllegalFilterException e) {
-	    _log.info("Bad filter " + e);
+	    LOGGER.info("Bad filter " + e);
 	}
     }
 		   

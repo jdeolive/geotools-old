@@ -7,9 +7,9 @@ package org.geotools.filter;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Logger;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
-import org.apache.log4j.Category;
 
 /**
  * Uses SAX to extact a GetFeature query from and incoming GetFeature request 
@@ -28,8 +28,7 @@ public class TestFilterHandler
 
 
     /** Standard logging class */
-    static Category _log = 
-        Category.getInstance(TestFilterHandler.class.getName());
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
     
     
     /********************************************************
@@ -157,7 +156,7 @@ public class TestFilterHandler
      */ 
     public void filter(Filter filter) {
         
-        _log.debug("found filter: " + filter.toString());
+        LOGGER.finer("found filter: " + filter.toString());
         this.filter = filter;
     }    
 

@@ -24,12 +24,9 @@ import java.io.*;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Hierarchy;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
 import junit.framework.*;
 import com.vividsolutions.jts.geom.*;
+import java.util.logging.Logger;
 import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import org.geotools.data.*;
@@ -47,7 +44,7 @@ import org.geotools.gml.GMLFilterDocument;
 public class DOMParserTest extends TestCase {
     
     /** Standard logging instance */
-    private static Logger _log = Logger.getLogger(DOMParserTest.class);
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
     
     /** Feature on which to preform tests */
     private Filter filter = null;
@@ -69,14 +66,16 @@ public class DOMParserTest extends TestCase {
     boolean setup = false;
     public DOMParserTest(String testName) {
         super(testName);
-        _log.info("running DOMParserTests");
+        LOGGER.info("running DOMParserTests");
         System.out.println("running DOMParserTests");
         dataFolder = System.getProperty("dataFolder");
         if(dataFolder==null){
             //then we are being run by maven
             dataFolder = System.getProperty("basedir");
-            dataFolder+="/tests/unit/testData";
+            dataFolder = "file:////"+ dataFolder+"/tests/unit/testData";//url.toString();
+            LOGGER.fine("data folder is "+dataFolder);
         }
+       
         
     }
     
@@ -92,8 +91,8 @@ public class DOMParserTest extends TestCase {
      * @return A test suite for this unit test.
      */
     public static Test suite() {
-        BasicConfigurator.configure();
-        _log.getLoggerRepository().setThreshold(Level.INFO);
+        
+        //_log.getLoggerRepository().setThreshold(Level.INFO);
         
         TestSuite suite = new TestSuite(DOMParserTest.class);
         return suite;
@@ -110,13 +109,13 @@ public class DOMParserTest extends TestCase {
         if(setup) return;
         setup=true;
         // Create the schema attributes
-        _log.debug("creating flat feature...");
+        LOGGER.finer("creating flat feature...");
         AttributeType geometryAttribute =
         new AttributeTypeDefault("testGeometry", LineString.class);
-        _log.debug("created geometry attribute");
+        LOGGER.finer("created geometry attribute");
         AttributeType booleanAttribute =
         new AttributeTypeDefault("testBoolean", Boolean.class);
-        _log.debug("created boolean attribute");
+        LOGGER.finer("created boolean attribute");
         AttributeType charAttribute =
         new AttributeTypeDefault("testCharacter", Character.class);
         AttributeType byteAttribute =
@@ -136,25 +135,25 @@ public class DOMParserTest extends TestCase {
         
         // Builds the schema
         testSchema = new FeatureTypeFlat(geometryAttribute);
-        _log.debug("created feature type and added geometry");
+        LOGGER.finer("created feature type and added geometry");
         testSchema = testSchema.setAttributeType(booleanAttribute);
-        _log.debug("added boolean to feature type");
+        LOGGER.finer("added boolean to feature type");
         testSchema = testSchema.setAttributeType(charAttribute);
-        _log.debug("added character to feature type");
+        LOGGER.finer("added character to feature type");
         testSchema = testSchema.setAttributeType(byteAttribute);
-        _log.debug("added byte to feature type");
+        LOGGER.finer("added byte to feature type");
         testSchema = testSchema.setAttributeType(shortAttribute);
-        _log.debug("added short to feature type");
+        LOGGER.finer("added short to feature type");
         testSchema = testSchema.setAttributeType(intAttribute);
-        _log.debug("added int to feature type");
+        LOGGER.finer("added int to feature type");
         testSchema = testSchema.setAttributeType(longAttribute);
-        _log.debug("added long to feature type");
+        LOGGER.finer("added long to feature type");
         testSchema = testSchema.setAttributeType(floatAttribute);
-        _log.debug("added float to feature type");
+        LOGGER.finer("added float to feature type");
         testSchema = testSchema.setAttributeType(doubleAttribute);
-        _log.debug("added double to feature type");
+        LOGGER.finer("added double to feature type");
         testSchema = testSchema.setAttributeType(stringAttribute);
-        _log.debug("added string to feature type");
+        LOGGER.finer("added string to feature type");
         
         GeometryFactory geomFac = new GeometryFactory();
         // Creates coordinates for the linestring
@@ -179,7 +178,7 @@ public class DOMParserTest extends TestCase {
         // Creates the feature itself
         FeatureFactory factory = new FeatureFactory(testSchema);
         testFeature = factory.create(attributes);
-        _log.debug("...flat feature created");
+        LOGGER.finer("...flat feature created");
     }
     
     public void test1()
@@ -246,7 +245,7 @@ public class DOMParserTest extends TestCase {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document dom = db.parse(uri);
-        _log.info("parsing "+uri);
+        LOGGER.info("parsing "+uri);
 
         // first grab a filter node
         NodeList nodes = dom.getElementsByTagName("Filter");
@@ -258,9 +257,9 @@ public class DOMParserTest extends TestCase {
                 child = list.item(i);
                 if(child == null || child.getNodeType() != Node.ELEMENT_NODE) continue;
                 filter = FilterXMLParser.parseFilter(child);
-                _log.debug("filter: " + filter.getClass().toString());
-                _log.info("parsed: " + filter.toString());
-                _log.debug("result "+filter.contains(testFeature));
+                LOGGER.finer("filter: " + filter.getClass().toString());
+                LOGGER.info("parsed: " + filter.toString());
+                LOGGER.finer("result "+filter.contains(testFeature));
             }
         }
         
