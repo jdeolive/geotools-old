@@ -135,6 +135,35 @@ public class SQLEncoderPostgis extends SQLEncoder
         this.defaultGeom = name;
     }
 
+     /**
+     * This should never be called. This can only happen if a subclass of
+     * AbstractFilter failes to implement its own version of
+     * accept(FilterVisitor);
+     *
+     * @param filter The filter to visit
+     *
+     * @throws RuntimeException for IO Encoding problems.
+     *
+     * @task REVISIT: I don't think Filter.NONE and Filter.ALL should be
+     *       handled here.  They should have their own methods, but they don't
+     *       have interfaces, so I don't know if that's possible.
+     */
+    public void visit(Filter filter) {
+        try {
+            //HACK: 12345 are Filter.NONE and Filter.ALL, they
+            //should have some better names though.
+            if (filter.getFilterType() == 12345) {
+                out.write("TRUE");
+            } else if (filter.getFilterType() == -12345) {
+                out.write("FALSE");
+            }
+
+            log.warning("exporting unknown filter type");
+        } catch (java.io.IOException ioe) {
+            throw new RuntimeException(IO_ERROR, ioe);
+        }
+    }
+
     /**
      * Turns a geometry filter into the postgis sql bbox statement.
      *
