@@ -24,6 +24,8 @@ package org.geotools.gui.swing;
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.Graphics;
@@ -52,7 +54,7 @@ import org.geotools.styling.Style;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.11 2003/03/12 09:31:58 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.12 2003/03/16 04:20:15 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -61,7 +63,8 @@ import org.geotools.styling.Style;
  */
 
 public class MapPaneImpl extends PanelWidgetImpl implements
-    BoundingBoxListener, LayerListListener, org.geotools.gui.widget.MapPane
+    BoundingBoxListener, LayerListListener, org.geotools.gui.widget.MapPane,
+    ComponentListener
 {
     /**
      * The current tool for this MapPane.
@@ -77,6 +80,11 @@ public class MapPaneImpl extends PanelWidgetImpl implements
      * The model which stores a list of layers and BoundingBox.
      */
     private Context context;
+    
+    /**
+     * A transform from screen coordinates to real world coordinates.
+     */
+    private DotToCoordinateTransformImpl dotToCoordinateTransform;
 
     /**
      * The class used for identifying for logging.
@@ -92,6 +100,7 @@ public class MapPaneImpl extends PanelWidgetImpl implements
      * tool is required.
      * @param context The context where layerList and boundingBox are kept.  If
      * context is null, an IllegalArguementException is thrown.
+     * @task TODO Move the "extra stuff" out of this method.
      */
     public MapPaneImpl(
             AbstractTool tool,
@@ -104,6 +113,10 @@ public class MapPaneImpl extends PanelWidgetImpl implements
             this.context.getBbox().addAreaOfInterestChangedListener(this);
             this.renderer=new Java2DRenderer(context);
             setTool(tool);
+            
+            // Create a transform for this mapPane.
+            this.dotToCoordinateTransform=new DotToCoordinateTransformImpl(
+                this, context);
             
             // A zero sized mapPane cannot be resized later and doesn't behave
             // very nicely
@@ -164,7 +177,6 @@ public class MapPaneImpl extends PanelWidgetImpl implements
      * @task TODO create a layerList.getCoordinateSystem method
      */
     public void paintComponent(Graphics graphics) {
-        LOGGER.info("rendering");
         super.paintComponent(graphics);
         if (context.getBbox().getAreaOfInterest()==null){
             Envelope bBox=context.getLayerList().getBbox(false);
@@ -191,6 +203,7 @@ public class MapPaneImpl extends PanelWidgetImpl implements
      */
     public void areaOfInterestChanged(
             EventObject areaOfInterestChangedEvent) {
+        dotToCoordinateTransform.updateTransform();
         repaint(getVisibleRect());
     }
     
@@ -213,13 +226,7 @@ public class MapPaneImpl extends PanelWidgetImpl implements
         super.processMouseEvent(
             new GeoMouseEvent(
                 event,
-                renderer.getDotToCoordinateSystem(
-                    new Rectangle(
-                        getInsets().left,
-                        getInsets().top,
-                        getWidth()-getInsets().left-getInsets().right,
-                        getHeight()-getInsets().top-getInsets().bottom)
-                    )));
+                dotToCoordinateTransform.getTransform()));
     }
 
     /**
@@ -233,12 +240,33 @@ public class MapPaneImpl extends PanelWidgetImpl implements
         super.processMouseMotionEvent(
             new GeoMouseEvent(
                 event,
-                renderer.getDotToCoordinateSystem(
-                    new Rectangle(
-                        getInsets().left,
-                        getInsets().top,
-                        getWidth()-getInsets().left-getInsets().right,
-                        getHeight()-getInsets().top-getInsets().bottom)
-                    )));
+                dotToCoordinateTransform.getTransform()));
     }
+    
+    /** Invoked when the component has been made invisible.
+     *
+     */
+    public void componentHidden(ComponentEvent e) {
+    }
+    
+    /** Invoked when the component's position changes.
+     *
+     */
+    public void componentMoved(ComponentEvent e) {
+    }
+    
+    /** Invoked when the component's size changes, update the
+     * screenToCoordinateTransform.
+     *
+     */
+    public void componentResized(ComponentEvent e) {
+        dotToCoordinateTransform.updateTransform();
+    }
+    
+    /** Invoked when the component has been made visible.
+     *
+     */
+    public void componentShown(ComponentEvent e) {
+    }
+    
 }
