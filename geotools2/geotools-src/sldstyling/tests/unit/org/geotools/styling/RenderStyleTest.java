@@ -48,14 +48,24 @@ public class RenderStyleTest extends TestCase {
         //same as the datasource test, load in some features into a table
         
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(50, 150, 50, 350);
+        EnvelopeExtent ex = new EnvelopeExtent(50, 200, 50, 350);
         
         GeometryFactory geomFac = new GeometryFactory();
-        LineString line = makeSampleLineString(geomFac);
+        LineString line = makeSampleLineString(geomFac,0,0);
         AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
         FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature");
         FeatureFactory lineFac = new FeatureFactory(lineType);
         Feature lineFeature = lineFac.create(new Object[]{line});
+        
+        LineString line2 = makeSampleLineString(geomFac,100,0);
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature2");
+        lineFac = new FeatureFactory(lineType);
+        Feature lineFeature2 = lineFac.create(new Object[]{line2});
+        
+        LineString line3 = makeSampleLineString(geomFac,150,0);
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature3");
+        lineFac = new FeatureFactory(lineType);
+        Feature lineFeature3 = lineFac.create(new Object[]{line3});
         
         Polygon polygon = makeSamplePolygon(geomFac);
         
@@ -82,6 +92,8 @@ public class RenderStyleTest extends TestCase {
         Feature pointFeature = pointFac.create(new Object[]{point});
         MemoryDataSource datasource = new MemoryDataSource();
         datasource.addFeature(lineFeature);
+        datasource.addFeature(lineFeature2);
+        datasource.addFeature(lineFeature3);
         datasource.addFeature(polygonFeature);
         datasource.addFeature(polygonFeature2);
         datasource.addFeature(pointFeature);
@@ -109,16 +121,16 @@ public class RenderStyleTest extends TestCase {
         Thread.sleep(5000);
     }
     
-    private LineString makeSampleLineString(final GeometryFactory geomFac) {
+    private LineString makeSampleLineString(final GeometryFactory geomFac, double xoff, double yoff) {
         Coordinate[] linestringCoordinates = new Coordinate[8];
-        linestringCoordinates[0] = new Coordinate(50.0d,50.0d);
-        linestringCoordinates[1] = new Coordinate(60.0d,50.0d);
-        linestringCoordinates[2] = new Coordinate(60.0d,60.0d);
-        linestringCoordinates[3] = new Coordinate(70.0d,60.0d);
-        linestringCoordinates[4] = new Coordinate(70.0d,70.0d);
-        linestringCoordinates[5] = new Coordinate(80.0d,70.0d);
-        linestringCoordinates[6] = new Coordinate(80.0d,80.0d);
-        linestringCoordinates[7] = new Coordinate(130.0d,300.0d);
+        linestringCoordinates[0] = new Coordinate(50.0d+xoff,50.0d+yoff);
+        linestringCoordinates[1] = new Coordinate(60.0d+xoff,50.0d+yoff);
+        linestringCoordinates[2] = new Coordinate(60.0d+xoff,60.0d+yoff);
+        linestringCoordinates[3] = new Coordinate(70.0d+xoff,60.0d+yoff);
+        linestringCoordinates[4] = new Coordinate(70.0d+xoff,70.0d+yoff);
+        linestringCoordinates[5] = new Coordinate(80.0d+xoff,70.0d+yoff);
+        linestringCoordinates[6] = new Coordinate(80.0d+xoff,80.0d+yoff);
+        linestringCoordinates[7] = new Coordinate(130.0d+xoff,300.0d+yoff);
         LineString line = geomFac.createLineString(linestringCoordinates);
         
         return line;
