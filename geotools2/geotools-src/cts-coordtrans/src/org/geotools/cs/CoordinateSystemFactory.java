@@ -67,6 +67,7 @@ import org.geotools.util.WeakHashSet;
 // J2SE and JAI dependencies
 import java.awt.geom.Point2D;
 import java.rmi.RemoteException;
+import java.rmi.ServerException;
 import java.rmi.server.RemoteObject;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListImpl;
@@ -139,10 +140,18 @@ public class CoordinateSystemFactory {
      *
      * @param name      Name to give new object.
      * @param datum     Horizontal datum for created coordinate system.
+     *
+     * @return The coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
      */
     public GeographicCoordinateSystem createGeographicCoordinateSystem(
-                                            final String name,
-                                            final HorizontalDatum datum)
+                                        final CharSequence    name,
+                                        final HorizontalDatum datum)
+        throws FactoryException
     {
         return createGeographicCoordinateSystem(name, Unit.DEGREE, datum,
                                                 PrimeMeridian.GREENWICH,
@@ -162,15 +171,23 @@ public class CoordinateSystemFactory {
      * @param axis0     Details of 0th ordinates.
      * @param axis1     Details of 1st ordinates.
      *
+     * @return The coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createGeographicCoordinateSystem
      */
     public GeographicCoordinateSystem createGeographicCoordinateSystem(
-                                            final String name,
-                                            final Unit unit,
-                                            final HorizontalDatum datum,
-                                            final PrimeMeridian meridian,
-                                            final AxisInfo axis0,
-                                            final AxisInfo axis1)
+                                        final CharSequence    name,
+                                        final Unit            unit,
+                                        final HorizontalDatum datum,
+                                        final PrimeMeridian   meridian,
+                                        final AxisInfo        axis0,
+                                        final AxisInfo        axis1)
+        throws FactoryException
     {
         return (GeographicCoordinateSystem) pool.canonicalize(
                 new GeographicCoordinateSystem(name, unit, datum, meridian, axis0, axis1));}
@@ -183,11 +200,19 @@ public class CoordinateSystemFactory {
      * @param  name Name to give new object.
      * @param  gcs Geographic coordinate system to base projection on.
      * @param  projection Projection from geographic to projected coordinate system.
+     *
+     * @return The coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
      */
     public ProjectedCoordinateSystem createProjectedCoordinateSystem(
-                                            final String name,
-                                            final GeographicCoordinateSystem gcs,
-                                            final Projection projection)
+                                        final CharSequence               name,
+                                        final GeographicCoordinateSystem gcs,
+                                        final Projection                 projection)
+        throws FactoryException
     {
         return createProjectedCoordinateSystem(name, gcs, projection,
                                                Unit.METRE, AxisInfo.X, AxisInfo.Y);
@@ -203,15 +228,23 @@ public class CoordinateSystemFactory {
      * @param  axis0 Details of 0th ordinates in returned PCS coordinates.
      * @param  axis1 Details of 1st ordinates in returned PCS coordinates.
      *
+     * @return The coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createProjectedCoordinateSystem
      */
     public ProjectedCoordinateSystem createProjectedCoordinateSystem(
-                                            final String name,
-                                            final GeographicCoordinateSystem gcs,
-                                            final Projection projection,
-                                            final Unit unit,
-                                            final AxisInfo axis0,
-                                            final AxisInfo axis1)
+                                        final CharSequence               name,
+                                        final GeographicCoordinateSystem gcs,
+                                        final Projection                 projection,
+                                        final Unit                       unit,
+                                        final AxisInfo                   axis0,
+                                        final AxisInfo                   axis1)
+        throws FactoryException
     {
         return (ProjectedCoordinateSystem) pool.canonicalize(
                 new ProjectedCoordinateSystem(name, gcs, projection, unit, axis0, axis1));
@@ -223,10 +256,18 @@ public class CoordinateSystemFactory {
      *
      * @param name  Name to give new object.
      * @param datum Datum to use for new coordinate system.
+     *
+     * @return The coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
      */
     public VerticalCoordinateSystem createVerticalCoordinateSystem(
-                                            final String name,
-                                            final VerticalDatum datum)
+                                        final CharSequence  name,
+                                        final VerticalDatum datum)
+        throws FactoryException
     {
         return createVerticalCoordinateSystem(name, datum, Unit.METRE, AxisInfo.ALTITUDE);
     }
@@ -239,13 +280,21 @@ public class CoordinateSystemFactory {
      * @param unit  Units to use for new coordinate system.
      * @param axis  Axis to use for new coordinate system.
      *
+     * @return The coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createVerticalCoordinateSystem
      */
     public VerticalCoordinateSystem createVerticalCoordinateSystem(
-                                            final String name,
-                                            final VerticalDatum datum,
-                                            final Unit unit,
-                                            final AxisInfo axis)
+                                        final CharSequence  name,
+                                        final VerticalDatum datum,
+                                        final Unit          unit,
+                                        final AxisInfo      axis)
+        throws FactoryException
     {
         return (VerticalCoordinateSystem) pool.canonicalize(
                 new VerticalCoordinateSystem(name, datum, unit, axis));
@@ -258,12 +307,20 @@ public class CoordinateSystemFactory {
      * @param head Coordinate system to use for earlier ordinates.
      * @param tail Coordinate system to use for later ordinates.
      *
+     * @return The coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createCompoundCoordinateSystem
      */
     public CompoundCoordinateSystem createCompoundCoordinateSystem(
-                                            final String name,
-                                            final CoordinateSystem head,
-                                            final CoordinateSystem tail)
+                                        final CharSequence     name,
+                                        final CoordinateSystem head,
+                                        final CoordinateSystem tail)
+        throws FactoryException
     {
         return (CompoundCoordinateSystem) pool.canonicalize(
                 new CompoundCoordinateSystem(name, head, tail));
@@ -281,13 +338,21 @@ public class CoordinateSystemFactory {
      * @param unit  Units to use for all axes in created CS.
      * @param axes  Axes to use in created CS.
      *
+     * @return The coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createLocalCoordinateSystem
      */
     public LocalCoordinateSystem createLocalCoordinateSystem(
-                                            final String name,
-                                            final LocalDatum datum,
-                                            final Unit unit,
-                                            final AxisInfo[] axes)
+                                        final CharSequence name,
+                                        final LocalDatum   datum,
+                                        final Unit         unit,
+                                        final AxisInfo[]   axes)
+        throws FactoryException
     {
         return (LocalCoordinateSystem) pool.canonicalize(
                 new LocalCoordinateSystem(name, datum, unit, axes));
@@ -301,12 +366,20 @@ public class CoordinateSystemFactory {
      * @param semiMinorAxis Polar radius in supplied linear units.
      * @param unit          Linear units of ellipsoid axes.
      *
+     * @return The ellipsoid.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createEllipsoid
      */
-    public Ellipsoid createEllipsoid(final String name,
-                                     final double semiMajorAxis,
-                                     final double semiMinorAxis,
-                                     final Unit unit)
+    public Ellipsoid createEllipsoid(final CharSequence name,
+                                     final double       semiMajorAxis,
+                                     final double       semiMinorAxis,
+                                     final Unit         unit)
+        throws FactoryException
     {
         return (Ellipsoid) pool.canonicalize(
                 new Ellipsoid(name, semiMajorAxis, semiMinorAxis, unit));
@@ -320,12 +393,20 @@ public class CoordinateSystemFactory {
      * @param inverseFlattening Eccentricity of ellipsoid.
      * @param unit              Linear units of major axis.
      *
+     * @return The ellipsoid.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createFlattenedSphere
      */
-    public Ellipsoid createFlattenedSphere(final String name,
-                                           final double semiMajorAxis,
-                                           final double inverseFlattening,
-                                           final Unit unit)
+    public Ellipsoid createFlattenedSphere(final CharSequence name,
+                                           final double       semiMajorAxis,
+                                           final double       inverseFlattening,
+                                           final Unit         unit)
+        throws FactoryException
     {
         return (Ellipsoid) pool.canonicalize(
                 Ellipsoid.createFlattenedSphere(name, semiMajorAxis, inverseFlattening, unit));
@@ -338,11 +419,19 @@ public class CoordinateSystemFactory {
      * @param unit      Angular units of longitude.
      * @param longitude Longitude of prime meridian in supplied angular units East of Greenwich.
      *
+     * @return The prime meridian.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createPrimeMeridian
      */
-    public PrimeMeridian createPrimeMeridian(final String name,
-                                             final Unit unit,
-                                             final double longitude)
+    public PrimeMeridian createPrimeMeridian(final CharSequence name,
+                                             final Unit         unit,
+                                             final double       longitude)
+        throws FactoryException
     {
         return (PrimeMeridian) pool.canonicalize(
                 new PrimeMeridian(name, unit, longitude));
@@ -369,11 +458,19 @@ public class CoordinateSystemFactory {
      *                       createProjectionParameterList}(classification)</code> and initialized
      *                       using a chain of <code>setParameter(...)</code> calls.
      *
+     * @return The projection.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createProjection
      */
-    public Projection createProjection(final String name,
-                                       final String classification,
+    public Projection createProjection(final CharSequence  name,
+                                       final String        classification,
                                        final ParameterList parameters)
+        throws FactoryException
     {
         return (Projection) pool.canonicalize(
                 new Projection(name, classification, parameters));
@@ -392,12 +489,20 @@ public class CoordinateSystemFactory {
      * @param translation    False easting and northing, in metres. If non-null, then
      *                       <code>"false_easting"</code> and <code>"false_northing"</code>
      *                       will be set according.
+     *
+     * @return The projection.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
      */
-    public Projection createProjection(final String name,
-                                       final String classification,
-                                       final Ellipsoid ellipsoid,
-                                       final Point2D centre,
-                                       final Point2D translation)
+    public Projection createProjection(final CharSequence name,
+                                       final String       classification,
+                                       final Ellipsoid    ellipsoid,
+                                       final Point2D      centre,
+                                       final Point2D      translation)
+        throws FactoryException
     {
         ParameterList param = createProjectionParameterList(classification);
         param = Projection.init(param, ellipsoid, centre, translation);
@@ -410,7 +515,7 @@ public class CoordinateSystemFactory {
      * @param  classification Classification string for projection (e.g. "Transverse_Mercator").
      * @return A default parameter list for the supplied projection class.
      *
-     * @see #createProjection(String, String, ParameterList)
+     * @see #createProjection(CharSequence, String, ParameterList)
      */
     public ParameterList createProjectionParameterList(final String classification) {
         return Projection.getParameterList(classification);
@@ -429,12 +534,20 @@ public class CoordinateSystemFactory {
      * @param ellipsoid Ellipsoid to use in new horizontal datum.
      * @param toWGS84   Suggested approximate conversion from new datum to WGS84.
      *
+     * @return The datum.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createHorizontalDatum
      */
-    public HorizontalDatum createHorizontalDatum(final String name,
+    public HorizontalDatum createHorizontalDatum(final CharSequence         name,
                                                  final DatumType.Horizontal type,
-                                                 final Ellipsoid ellipsoid,
-                                                 final WGS84ConversionInfo toWGS84)
+                                                 final Ellipsoid            ellipsoid,
+                                                 final WGS84ConversionInfo  toWGS84)
+        throws FactoryException
     {
         return (HorizontalDatum) pool.canonicalize(
                 new HorizontalDatum(name, type, ellipsoid, toWGS84));
@@ -446,8 +559,18 @@ public class CoordinateSystemFactory {
      *
      * @param name      Name to give new object.
      * @param ellipsoid Ellipsoid to use in new horizontal datum.
+     *
+     * @return The datum.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
      */
-    public HorizontalDatum createHorizontalDatum(final String name, final Ellipsoid ellipsoid) {
+    public HorizontalDatum createHorizontalDatum(final CharSequence name,
+                                                 final Ellipsoid    ellipsoid)
+        throws FactoryException
+    {
         return createHorizontalDatum(name, DatumType.Horizontal.OTHER, ellipsoid, null);
     }
     
@@ -457,9 +580,19 @@ public class CoordinateSystemFactory {
      * @param name Name to give new object.
      * @param type Type of vertical datum to create.
      *
+     * @return The datum.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createVerticalDatum
      */
-    public VerticalDatum createVerticalDatum(final String name, final DatumType.Vertical type) {
+    public VerticalDatum createVerticalDatum(final CharSequence       name,
+                                             final DatumType.Vertical type)
+        throws FactoryException
+    {
         return (VerticalDatum) pool.canonicalize(new VerticalDatum(name, type));
     }
     
@@ -469,9 +602,19 @@ public class CoordinateSystemFactory {
      * @param name Name to give new object.
      * @param localDatumType Type of local datum to create.
      *
+     * @return The datum.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occured during the object creation.
+     *         It may be for example a network error or a failure on the server
+     *         side.
+     *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createLocalDatum
      */
-    public LocalDatum createLocalDatum(final String name, final DatumType.Local type) {
+    public LocalDatum createLocalDatum(final CharSequence    name,
+                                       final DatumType.Local type)
+        throws FactoryException
+    {
         return (LocalDatum) pool.canonicalize(new LocalDatum(name, type));
     }
     
@@ -546,23 +689,31 @@ public class CoordinateSystemFactory {
          * Creates a compound coordinate system.
          */
         public CS_CompoundCoordinateSystem createCompoundCoordinateSystem(
-                                                final String name,
-                                                final CS_CoordinateSystem head,
-                                                final CS_CoordinateSystem tail)
+                                        final String              name,
+                                        final CS_CoordinateSystem head,
+                                        final CS_CoordinateSystem tail)
             throws RemoteException 
         {
-            return adapters.export(CoordinateSystemFactory.this.createCompoundCoordinateSystem(
-                    name, adapters.wrap(head), adapters.wrap(tail)));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createCompoundCoordinateSystem(
+                        name, adapters.wrap(head), adapters.wrap(tail)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
         
         /**
          * Creates a fitted coordinate system.
          */
         public CS_FittedCoordinateSystem createFittedCoordinateSystem(
-                                                final String name,
-                                                final CS_CoordinateSystem base,
-                                                final String toBaseWKT,
-                                                final CS_AxisInfo[] arAxes)
+                                        final String              name,
+                                        final CS_CoordinateSystem base,
+                                        final String              toBaseWKT,
+                                        final CS_AxisInfo[]       arAxes)
             throws RemoteException
         {
             throw new UnsupportedOperationException("Fitted CS not yet implemented");
@@ -572,14 +723,22 @@ public class CoordinateSystemFactory {
          * Creates a local coordinate system.
          */
         public CS_LocalCoordinateSystem createLocalCoordinateSystem(
-                                                final String name,
-                                                final CS_LocalDatum datum,
-                                                final CS_Unit unit,
-                                                final CS_AxisInfo[] arAxes)
+                                        final String        name,
+                                        final CS_LocalDatum datum,
+                                        final CS_Unit       unit,
+                                        final CS_AxisInfo[] arAxes)
             throws RemoteException
         {
-            return adapters.export(CoordinateSystemFactory.this.createLocalCoordinateSystem(
-                    name, adapters.wrap(datum), adapters.wrap(unit), adapters.wrap(arAxes)));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createLocalCoordinateSystem(
+                        name, adapters.wrap(datum), adapters.wrap(unit), adapters.wrap(arAxes)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
         
         /**
@@ -591,8 +750,16 @@ public class CoordinateSystemFactory {
                                             final CS_LinearUnit linearUnit)
             throws RemoteException
         {
-            return adapters.export(CoordinateSystemFactory.this.createEllipsoid(
-                    name, semiMajorAxis, semiMinorAxis, adapters.wrap(linearUnit)));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createEllipsoid(
+                        name, semiMajorAxis, semiMinorAxis, adapters.wrap(linearUnit)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
         
         /**
@@ -604,25 +771,41 @@ public class CoordinateSystemFactory {
                                                   final CS_LinearUnit linearUnit)
             throws RemoteException
         {
-            return adapters.export(CoordinateSystemFactory.this.createFlattenedSphere(
-                    name, semiMajorAxis, inverseFlattening, adapters.wrap(linearUnit)));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createFlattenedSphere(
+                        name, semiMajorAxis, inverseFlattening, adapters.wrap(linearUnit)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
         
         /**
          * Creates a projected coordinate system using a projection object.
          */
         public CS_ProjectedCoordinateSystem createProjectedCoordinateSystem(
-                                                final String name,
-                                                final CS_GeographicCoordinateSystem gcs,
-                                                final CS_Projection projection,
-                                                final CS_LinearUnit linearUnit,
-                                                final CS_AxisInfo axis0,
-                                                final CS_AxisInfo axis1)
+                                        final String                       name,
+                                        final CS_GeographicCoordinateSystem gcs,
+                                        final CS_Projection          projection,
+                                        final CS_LinearUnit          linearUnit,
+                                        final CS_AxisInfo                 axis0,
+                                        final CS_AxisInfo                 axis1)
             throws RemoteException
         {
-            return adapters.export(CoordinateSystemFactory.this.createProjectedCoordinateSystem(
-                    name, adapters.wrap(gcs), adapters.wrap(projection), adapters.wrap(linearUnit),
-                    adapters.wrap(axis0), adapters.wrap(axis1)));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createProjectedCoordinateSystem(
+                        name, adapters.wrap(gcs), adapters.wrap(projection), adapters.wrap(linearUnit),
+                        adapters.wrap(axis0), adapters.wrap(axis1)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
         
         /**
@@ -633,77 +816,142 @@ public class CoordinateSystemFactory {
                                               final CS_ProjectionParameter[] parameters)
             throws RemoteException
         {
-            return adapters.export(CoordinateSystemFactory.this.createProjection(
-                    name, wktProjectionClass, adapters.wrap(parameters)));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createProjection(
+                        name, wktProjectionClass, adapters.wrap(parameters)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
         
         /**
          * Creates horizontal datum from ellipsoid and Bursa-Wolf parameters.
          */
-        public CS_HorizontalDatum createHorizontalDatum(final String name,
+        public CS_HorizontalDatum createHorizontalDatum(final String       name,
                                                         final CS_DatumType horizontalDatumType,
                                                         final CS_Ellipsoid ellipsoid,
                                                         final CS_WGS84ConversionInfo toWGS84)
             throws RemoteException
         {
-            return adapters.export(CoordinateSystemFactory.this.createHorizontalDatum(
-                    name, (DatumType.Horizontal)adapters.wrap(horizontalDatumType),
-                    adapters.wrap(ellipsoid), adapters.wrap(toWGS84)));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createHorizontalDatum(
+                        name, (DatumType.Horizontal)adapters.wrap(horizontalDatumType),
+                        adapters.wrap(ellipsoid), adapters.wrap(toWGS84)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
         
         /**
          * Creates a prime meridian, relative to Greenwich.
          */
-        public CS_PrimeMeridian createPrimeMeridian(final String name,
+        public CS_PrimeMeridian createPrimeMeridian(final String         name,
                                                     final CS_AngularUnit angularUnit,
-                                                    final double longitude)
+                                                    final double         longitude)
             throws RemoteException
         {
-            return adapters.export(CoordinateSystemFactory.this.createPrimeMeridian(
-                    name, adapters.wrap(angularUnit), longitude));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createPrimeMeridian(
+                        name, adapters.wrap(angularUnit), longitude));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
         
         /**
          * Creates a GCS, which could be Lat/Lon or Lon/Lat.
          */
-        public CS_GeographicCoordinateSystem createGeographicCoordinateSystem(final String name, final CS_AngularUnit angularUnit, final CS_HorizontalDatum horizontalDatum, final CS_PrimeMeridian primeMeridian, final CS_AxisInfo axis0, final CS_AxisInfo axis1) throws RemoteException
-        {return adapters.export(CoordinateSystemFactory.this.createGeographicCoordinateSystem(name, adapters.wrap(angularUnit), adapters.wrap(horizontalDatum), adapters.wrap(primeMeridian), adapters.wrap(axis0), adapters.wrap(axis1)));}
+        public CS_GeographicCoordinateSystem createGeographicCoordinateSystem(
+                                        final String             name,
+                                        final CS_AngularUnit     angularUnit,
+                                        final CS_HorizontalDatum horizontalDatum,
+                                        final CS_PrimeMeridian   primeMeridian,
+                                        final CS_AxisInfo        axis0,
+                                        final CS_AxisInfo        axis1)
+            throws RemoteException
+        {
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createGeographicCoordinateSystem(name, adapters.wrap(angularUnit), adapters.wrap(horizontalDatum), adapters.wrap(primeMeridian), adapters.wrap(axis0), adapters.wrap(axis1)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
+        }
         
         /**
          * Creates a local datum.
          */
-        public CS_LocalDatum createLocalDatum(final String name,
+        public CS_LocalDatum createLocalDatum(final String       name,
                                               final CS_DatumType localDatumType)
             throws RemoteException
         {
-            return adapters.export(CoordinateSystemFactory.this.createLocalDatum(
-                    name, (DatumType.Local)adapters.wrap(localDatumType)));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createLocalDatum(
+                        name, (DatumType.Local)adapters.wrap(localDatumType)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
         
         /**
          * Creates a vertical datum from an enumerated type value.
          */
-        public CS_VerticalDatum createVerticalDatum(final String name,
+        public CS_VerticalDatum createVerticalDatum(final String       name,
                                                     final CS_DatumType verticalDatumType)
             throws RemoteException
         {
-            return adapters.export(CoordinateSystemFactory.this.createVerticalDatum(
-                    name, (DatumType.Vertical)adapters.wrap(verticalDatumType)));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createVerticalDatum(
+                        name, (DatumType.Vertical)adapters.wrap(verticalDatumType)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
         
         /**
          * Creates a vertical coordinate system from a datum and linear units.
          */
         public CS_VerticalCoordinateSystem createVerticalCoordinateSystem(
-                                                final String name,
-                                                final CS_VerticalDatum verticalDatum,
-                                                final CS_LinearUnit verticalUnit,
-                                                final CS_AxisInfo axis)
+                                        final String           name,
+                                        final CS_VerticalDatum verticalDatum,
+                                        final CS_LinearUnit    verticalUnit,
+                                        final CS_AxisInfo      axis)
             throws RemoteException
         {
-            return adapters.export(CoordinateSystemFactory.this.createVerticalCoordinateSystem(
-                    name, adapters.wrap(verticalDatum),
-                    adapters.wrap(verticalUnit), adapters.wrap(axis)));
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createVerticalCoordinateSystem(
+                        name, adapters.wrap(verticalDatum),
+                        adapters.wrap(verticalUnit), adapters.wrap(axis)));
+            } catch (FactoryException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                throw new ServerException(exception.getLocalizedMessage(), exception);
+            }
         }
     }
 }
