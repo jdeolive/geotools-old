@@ -1,6 +1,6 @@
 /*
  * Geotools 2 - OpenSource mapping toolkit
- * (C) 2003, Geotools Project Managment Committee (PMC)
+ * (C) 2003, 2004, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Fisheries and Oceans Canada
  *
@@ -75,7 +75,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * The USGS oblique/equatorial case of the {@linkplain Stereographic stereographic} 
  * projection. This is similar but <strong>NOT</strong> equal to EPSG code 9809.
  *
- * @version $Id: ObliqueStereographic.java,v 1.4 2004/02/23 12:28:22 desruisseaux Exp $
+ * @version $Id: ObliqueStereographic.java,v 1.5 2004/05/03 07:36:47 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -100,14 +100,14 @@ public class ObliqueStereographic extends Stereographic {
      */
     protected ObliqueStereographic(final Projection parameters) throws MissingParameterException {
         super(parameters);
-        if (Math.abs(latitudeOfOrigin) < EPS) {
+        if (Math.abs(latitudeOfOrigin) < EPS) {    //Equitorial
             cosphi0 = 1.0;
             sinphi0 = 0.0;
             chi1    = 0.0;
             cosChi1 = 1.0;
             sinChi1 = 0.0;
             latitudeOfOrigin = 0;
-        } else {
+        } else {                                   //Oblique
             cosphi0 = Math.cos(latitudeOfOrigin);
             sinphi0 = Math.sin(latitudeOfOrigin);
             chi1    = 2.0 * Math.atan(ssfn(latitudeOfOrigin, sinphi0)) - (Math.PI/2);
@@ -159,13 +159,17 @@ public class ObliqueStereographic extends Stereographic {
     protected Point2D inverseTransformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException
     {
-
         final double rho = Math.sqrt(x*x + y*y);
         final double ce = 2.0 * Math.atan2(rho*cosChi1, k0);
         final double cosce = Math.cos(ce);
         final double since = Math.sin(ce);
         final double chi = (Math.abs(rho)>=TOL) ? Math.asin(cosce*sinChi1 + (y*since*cosChi1 / rho)) : chi1;
-        final double t = Math.tan(Math.PI/4.0 + chi/2.0);
+        final double tp = Math.tan(Math.PI/4.0 + chi/2.0);
+        
+        //parts of (21-36) used to calculate longitude
+        final double t = x*since;
+        final double ct = rho*cosChi1*cosce - y*sinChi1*since;
+        
         /*
          * Compute latitude using iterative technique (3-4).
          */
@@ -173,10 +177,10 @@ public class ObliqueStereographic extends Stereographic {
         double phi0 = chi;
         for (int i=MAX_ITER;;) {
             final double esinphi = e*Math.sin(phi0);
-            final double phi = 2*Math.atan(t*Math.pow((1+esinphi)/(1-esinphi), halfe))-(Math.PI/2);
+            final double phi = 2*Math.atan(tp*Math.pow((1+esinphi)/(1-esinphi), halfe))-(Math.PI/2);
             if (Math.abs(phi-phi0) < TOL) {
-                x = (Math.abs(rho)<TOL) ? 0.0 :
-                     Math.atan2(x*since, rho*cosChi1*cosce - y*sinChi1*since);
+                x = (Math.abs(rho)<TOL) || (Math.abs(t)<TOL && Math.abs(ct)<TOL) ? 
+                     0.0 : Math.atan2(t, ct);
                 y = phi;
                 break;
             }
@@ -235,9 +239,9 @@ public class ObliqueStereographic extends Stereographic {
 
     /**
      * Provides the transform equations for the spherical case of the 
-     * oblique stereographic projection.
+     * Stereographic projection.
      *
-     * @version $Id: ObliqueStereographic.java,v 1.4 2004/02/23 12:28:22 desruisseaux Exp $
+     * @version $Id: ObliqueStereographic.java,v 1.5 2004/05/03 07:36:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -311,10 +315,10 @@ public class ObliqueStereographic extends Stereographic {
                 final double cosc = Math.cos(c);
                 final double sinc = Math.sin(c);
                 final double ct = rho*cosphi0*cosc - y*sinphi0*sinc; // (20-15)
-                final double t  = x*sinc;
-                y = Math.asin(cosc*sinphi0 + y*sinc*cosphi0/rho); // (20-14)
-                x = (Math.abs(ct)<TOL && Math.abs(t)<TOL) ? 0.0 :
-                    Math.atan2(t, ct);
+                final double t  = x*sinc;                            // (20-15)
+                y = Math.asin(cosc*sinphi0 + y*sinc*cosphi0/rho);    // (20-14)
+                x = (Math.abs(ct)<TOL && Math.abs(t)<TOL) ? 
+                     0.0 : Math.atan2(t, ct);
             }
 
             assert Math.abs(ptDst.getX()-x) <= EPS : x;
@@ -328,12 +332,16 @@ public class ObliqueStereographic extends Stereographic {
     }
 
 
-
     /**
-     * Provides the transform equations for the oblique EPSG case (EPSG code 9809).
+     * Provides the transform equations for the Oblique Stereographic (EPSG code 9809).
      * The formulas used below are not from the EPSG, but rather those of the 
-     * <code>libproj4</code> package written by Gerald Evenden. His work is
-     * acknowledged here and greatly appreciated. 
+     * "Oblique Stereographic Alternative" in the <code>libproj4</code> package 
+     * written by Gerald Evenden. His work is acknowledged here and greatly appreciated. 
+     * <br><br>
+     * 
+     * The forward equations used in libproj4 are the same as those given in the 
+     * UNB reports for the Double Stereographic. The inverse equations are similar,
+     * but use different methods to itterate the for the lattitude.
      * <br><br>
      * 
      * <strong>References:</strong><ul>
@@ -341,13 +349,19 @@ public class ObliqueStereographic extends Stereographic {
      *       <A HREF="http://members.bellatlantic.net/~vze2hc4d/proj4/">libproj4 Miscellanea</A><br>
      *        Relevent files are: <code>PJ_sterea.c</code>, <code>pj_gauss.c</code>,
      *        <code>pj_fwd.c</code>, <code>pj_inv.c</code> and <code>lib_proj.h</code></li>
-     *   <li>Gerald Evenden "Supplementary PROJ.4 Notes - Oblique Stereographic Alternative" available at
-     *       <A HREF="http://members.bellatlantic.net/~vze2hc4d/proj4/sterea.pdf">sterea.pdf</A></li>
+     *   <li>Gerald Evenden. <A HREF="http://members.bellatlantic.net/~vze2hc4d/proj4/sterea.pdf">
+     *       "Supplementary PROJ.4 Notes - Oblique Stereographic Alternative"</A></li>
      *   <li>"Coordinate Conversions and Transformations including Formulas",
      *       EPSG Guidence Note Number 7, Version 19.</li>
+     *   <li>Krakiwsky, E.J., D.B. Thomson, and R.R. Steeves. 1977. A Manual 
+     *       For Geodetic Coordinate Transformations in the Maritimes. 
+     *       Geodesy and Geomatics Engineering, UNB. Technical Report No. 48.</li>
+     *   <li>Thomson, D.B., M.P. Mepham and R.R. Steeves. 1977. 
+     *       The Stereographic Double Projection. 
+     *       Surveying Engineering, University of New Brunswick. Technical Report No. 46.</li>
      * </ul>
      *
-     * @version $Id: ObliqueStereographic.java,v 1.4 2004/02/23 12:28:22 desruisseaux Exp $
+     * @version $Id: ObliqueStereographic.java,v 1.5 2004/05/03 07:36:47 desruisseaux Exp $
      * @author Rueben Schulz
      */
     static final class EPSG extends ObliqueStereographic { 
@@ -425,19 +439,24 @@ public class ObliqueStereographic extends Stereographic {
                 throws ProjectionException
         {
             final double rho = Math.sqrt(x*x + y*y);
-            final double c = 2. * Math.atan2(rho, R2);
-            final double sinc = Math.sin(c);
-            final double cosc = Math.cos(c);
-
-            x = Math.atan2(x * sinc, rho * cosc0 * cosc - y * sinc0 * sinc);
-            y = (cosc * sinc0) + (y * sinc * cosc0 / rho);
-
-            if (Math.abs(y) >= 1.0) {
-                y = (y < 0.0) ? -Math.PI/2.0 : Math.PI/2.0;
+            
+            if (Math.abs(rho) < TOL) {
+                x = 0.0;
+                y = phic0;
             } else {
-                y = (Math.abs(rho)>=TOL) ? Math.asin(y) : phic0;
-            }           
+                final double ce = 2. * Math.atan2(rho, R2);
+                final double sinc = Math.sin(ce);
+                final double cosc = Math.cos(ce);
+                x = Math.atan2(x * sinc, rho * cosc0 * cosc - y * sinc0 * sinc);
+                y = (cosc * sinc0) + (y * sinc * cosc0 / rho);
 
+                if (Math.abs(y) >= 1.0) {
+                    y = (y < 0.0) ? -Math.PI/2.0 : Math.PI/2.0;
+                } else {
+                    y = Math.asin(y);
+                }           
+            }
+            
             // Begin pj_inv_gauss(...) method inlined
             x /= C;
             double num = Math.pow(Math.tan(.5 * y + Math.PI/4.0)/K, 1./C);
@@ -452,7 +471,7 @@ public class ObliqueStereographic extends Stereographic {
                 }
             }
             // End pj_inv_gauss(...) method inlined
-
+            
             if (ptDst != null) {
                 ptDst.setLocation(x,y);
                 return ptDst;
@@ -466,139 +485,5 @@ public class ObliqueStereographic extends Stereographic {
         private static double srat(double esinp, double exp) {
             return Math.pow((1.-esinp)/(1.+esinp), exp);
         }
-    }
-    
-    /*
-     * Provides the transform equations for the Oblique EPSG case. Uses 
-     * the equations from the 'EPSG Guidence Note Number 7'. Note that the inverse
-     * fails (calculates longitude - 180 degs) for coordinates greater that 90 
-     * degrees from the central meridian. Also warnings from the EPSG about 
-     * projections centred in the southern hemisphere are not clear and require 
-     * further examination.
-     *
-     * This code is only included for testing purposes and should not 
-     * be relied on. This will be removed or combined with EPSG above when test
-     * inconsistencies are resolved or I find better documentation about these 
-     * equations. Feb 2004.
-     *
-     * @version 
-     * @author Rueben Schulz
-     */
-    static final class EPSG2 extends ObliqueStereographic {
-                
-        /**
-         * Constants used for the Oblique EPSG
-         */
-        private final double R, n, c, chi0, sinchi0, coschi0;
-        
-        /*
-         * Constant used in the oblique transform. Equal to
-         * <code>2*R</code>.
-         */
-        private final double k0;
-                
-        /**
-         * Construct a new map projection from the suplied parameters.
-         *
-         * @param  parameters The parameter values in standard units.
-         * @param  sp2 Indicates if this is a 1 or 2 standard parallel case of the mercator projection.
-         * @throws MissingParameterException if a mandatory parameter is missing.
-         */
-        protected EPSG2(final Projection parameters) throws MissingParameterException 
-        {
-            super(parameters);
-            
-            //compute constants
-            
-            final double p0 = (1 - es) / Math.pow(1 - es*sinphi0*sinphi0,1.5);
-            final double v0 = 1 / Math.sqrt(1 - es*sinphi0*sinphi0);
-            R = Math.sqrt(p0*v0);
-            n = Math.sqrt(1 + (es*Math.pow(cosphi0,4)) / (1 - es));
-            
-            final double w1 = Math.pow(((1 + sinphi0) / (1 - sinphi0)) *
-            Math.pow((1-e*sinphi0) / (1 + e*sinphi0),e), n);
-            final double sinChi0 = (w1 - 1) / (w1 + 1);
-            c = (n + sinphi0) * (1 - sinChi0) / ((n - sinphi0) * (1 + sinChi0));
-            
-            final double w2 = c*w1;
-            chi0 = Math.asin((w2 - 1) / (w2 + 1));
-            sinchi0 = Math.sin(chi0);
-            coschi0 = Math.cos(chi0);
-            
-            k0 = 2*R;
-            
-        }
-        
-        /**
-	 * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
-         * and stores the result in <code>ptDst</code> using equations for a Sphere.
-	 */
-        protected Point2D transformNormalized(double x, double y, Point2D ptDst)
-                throws ProjectionException
-        {           
-            final double sinlat = Math.sin(y);
-            
-            //this is infinity when lat. = 90 deg.
-            final double w = c* Math.pow(((1 + sinlat) / (1 - sinlat)) *
-                                Math.pow((1-e*sinlat) / (1 + e*sinlat),e), n);
-            final double lambda = n*x;
-            final double chi = Math.asin((w-1) / (w+1));
-            final double sinchi = Math.sin(chi);
-            final double coschi = Math.cos(chi);
-            final double coslambda = Math.cos(lambda);
-            final double B = 1 + sinchi*sinchi0 + coschi*coschi0*coslambda;
-            
-            x = k0*coschi*Math.sin(lambda) / (B);
-            y = k0*(sinchi*coschi0 - coschi*sinchi0*coslambda) / (B);
-
-            if (ptDst != null) {
-                ptDst.setLocation(x,y);
-                return ptDst;
-            }
-            return new Point2D.Double(x,y);
-        }
-
-        /**
-         * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
-         * and stores the result in <code>ptDst</code> using equations for a sphere.
-         */
-        protected Point2D inverseTransformNormalized(double x, double y, Point2D ptDst)
-                throws ProjectionException
-        {        
-            final double g = k0*Math.tan(0.5*(Math.PI/2 - chi0));
-            final double h = 2*k0*Math.tan(chi0) + g;
-            final double i = Math.atan(x/(h + y));
-            final double j = Math.atan(x/(g - y)) - i;
-            final double chi = chi0 + 2*Math.atan((y - x*Math.tan(j/2)) / (2*R)); //*scaleFactor));
-            final double lambda = j + 2*i;   //geodetic longitude
-            
-            final double sinchi = Math.sin(chi);
-            final double psi0 = 0.5 * Math.log((1+sinchi)/(c*(1-sinchi)))/n;  //isometric latitude
-            double phi0 = 2*Math.atan(Math.exp(psi0)) - Math.PI/2;
-            
-            for (int count=MAX_ITER;;) {
-                final double esinphi = e*Math.sin(phi0);
-                final double psi = Math.log(Math.tan(phi0/2 + Math.PI/4)*
-                Math.pow((1-esinphi)/(1+esinphi),0.5*e));
-                final double phi = phi0 - (psi - psi0) * Math.cos(phi0)*(1-esinphi*esinphi)/(1-es);
-                if (Math.abs(phi-phi0) < TOL) {
-                    x = lambda/n + centralMeridian;
-                    y = phi;
-                    break;
-                }
-                phi0 = phi;
-                
-                if (--count < 0 ) {
-                    throw new ProjectionException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
-                }
-            }
-                    
-            if (ptDst != null) {
-                ptDst.setLocation(x,y);
-                return ptDst;
-            }
-            return new Point2D.Double(x,y);
-	}     
-        
-    }
+    }    
 }

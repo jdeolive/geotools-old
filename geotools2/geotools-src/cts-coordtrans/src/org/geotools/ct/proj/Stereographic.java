@@ -1,6 +1,6 @@
 /*
  * Geotools 2 - OpenSource mapping toolkit
- * (C) 2003, Geotools Project Managment Committee (PMC)
+ * (C) 2003, 2004, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Fisheries and Oceans Canada
  *
@@ -60,11 +60,11 @@ import org.geotools.resources.cts.ResourceKeys;
  * This implementation, and its subclasses, provides transforms for four cases of the  
  * stereographic projection:
  * <ul>
- *   <li><code>"Oblique_Stereographic"</code> (EPSG code 9809), alias "Double Stereographic"</code>
+ *   <li><code>"Oblique_Stereographic"</code> (EPSG code 9809), alias <code>"Double Stereographic"</code>
  *       in ESRI software</li>
  *   <li><code>"Stereographic"</code> in ESRI software (<strong>NOT</strong> EPSG code 9809)</li>
  *   <li><code>"Polar_Stereographic"</code> (EPSG code 9810, uses iteration for the inverse)</li>
- *   <li><code>"Polar_Stereographic_Series"</code> (EPSG code 9810, uses a series for the inverse.
+ *   <li><code>"Polar_Stereographic_Series"</code> (EPSG code 9810), uses a series for the inverse.
  *        This is a little bit faster, but may be a little bit less accurate)</li>
  * </ul>   
  *
@@ -107,10 +107,16 @@ import org.geotools.resources.cts.ResourceKeys;
  * <strong>References:</strong><ul>
  *   <li>John P. Snyder (Map Projections - A Working Manual,<br>
  *       U.S. Geological Survey Professional Paper 1395, 1987)</li>
- *   <li>Gerald Evenden "Coordinate Conversions and Transformations including Formulas",<br>
+ *   <li>"Coordinate Conversions and Transformations including Formulas",<br>
  *       EPSG Guidence Note Number 7, Version 19.</li>
- *   <li>"Supplementary PROJ.4 Notes - Oblique Stereographic Alternative" available at:
- *       <A HREF="http://members.bellatlantic.net/~vze2hc4d/proj4/sterea.pdf">sterea.pdf</A></li>
+ *   <li>Gerald Evenden. <A HREF="http://members.bellatlantic.net/~vze2hc4d/proj4/sterea.pdf">
+ *       "Supplementary PROJ.4 Notes - Oblique Stereographic Alternative"</A></li>
+ *   <li>Krakiwsky, E.J., D.B. Thomson, and R.R. Steeves. 1977. A Manual 
+ *       For Geodetic Coordinate Transformations in the Maritimes. 
+ *       Geodesy and Geomatics Engineering, UNB. Technical Report No. 48.</li>
+ *   <li>Thomson, D.B., M.P. Mepham and R.R. Steeves. 1977. 
+ *       The Stereographic Double Projection. 
+ *       Geodesy and Geomatics Engineereng, UNB. Technical Report No. 46.</li>
  * </ul>
  *
  * @see <A HREF="http://mathworld.wolfram.com/StereographicProjection.html">Stereographic projection on MathWorld</A>
@@ -119,7 +125,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/stereographic.html">Stereographic</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/random_issues.html#stereographic">Some Random Stereographic Issues</A>
  *
- * @version $Id: Stereographic.java,v 1.8 2004/02/24 14:14:42 desruisseaux Exp $
+ * @version $Id: Stereographic.java,v 1.9 2004/05/03 07:36:47 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -141,7 +147,7 @@ public abstract class Stereographic extends PlanarProjection {
      * default value is 90°N for <code>"Polar_Stereographic"</code> and 0° for
      * <code>"Oblique_Stereographic"</code>.
      *
-     * @version $Id: Stereographic.java,v 1.8 2004/02/24 14:14:42 desruisseaux Exp $
+     * @version $Id: Stereographic.java,v 1.9 2004/05/03 07:36:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -158,13 +164,7 @@ public abstract class Stereographic extends PlanarProjection {
          * inverse polar stereographic.
          */
         private final boolean EPSG;
-        
-        /*
-         * <code>true</code> if using an experimental, testing version of the 
-         * epsg oblique equations.
-         */
-        private final boolean EPSG2;
-        
+                
         /**
          * Construct a provider for polar or oblique stereographic using USGS equations.
          *
@@ -183,29 +183,11 @@ public abstract class Stereographic extends PlanarProjection {
          *              <code>false</code> for equatorial and oblique
          *              stereographic.
          * @param EPSG <code>true</code> for EPSG oblique equations or to use a series
-         *              for the polar inverse, or <code>false</code> for USGS equations.
+         *             for the polar inverse, or <code>false</code> for USGS equations.
          */
         public Provider(final boolean polar, final boolean EPSG) {
-            this(polar, EPSG, false);
-        }
-
-        /**
-         * Construct a provider for polar or oblique stereographic.
-         *
-         * @param polar <code>true</code> for polar stereographic, or
-         *              <code>false</code> for equatorial and oblique
-         *              stereographic.
-         * @param EPSG <code>true</code> for EPSG oblique equations or to use a series
-         *             for the polar inverse, or <code>false</code> for USGS equations.
-         * @param EPSG2 TEMPORARY PARAMETER USED FOR TESTING.
-         *
-         * @task TODO: Remove the EPSG2 parameter once the testing is finished
-         *             (or document it if we keep it).
-         */
-        public Provider(final boolean polar, final boolean EPSG, final boolean EPSG2) {
-            super(EPSG2 ? "Oblique_Stereographic2" :
-                  (EPSG ? (polar ? "Polar_Stereographic_Series" : "Oblique_Stereographic") :
-                          (polar ? "Polar_Stereographic"        : "Stereographic")), 
+            super(EPSG ? (polar ? "Polar_Stereographic_Series" : "Oblique_Stereographic") :
+                          (polar ? "Polar_Stereographic"        : "Stereographic"), 
                           ResourceKeys.STEREOGRAPHIC_PROJECTION);
             if (polar && !EPSG) {
                 //no default, allows default to be decided in PolarStereographic
@@ -213,7 +195,6 @@ public abstract class Stereographic extends PlanarProjection {
             }
             this.polar = polar;
             this.EPSG  = EPSG;
-            this.EPSG2 = EPSG2;
         }
 
         /**
@@ -251,11 +232,7 @@ public abstract class Stereographic extends PlanarProjection {
                 return new ObliqueStereographic.Spherical(parameters);
             } else {
                 if (EPSG) { 
-                    if (EPSG2) {
-                        return new ObliqueStereographic.EPSG2(parameters);
-                    } else {
-                        return new ObliqueStereographic.EPSG(parameters);
-                    }
+                    return new ObliqueStereographic.EPSG(parameters);
                 } else {
                     return new ObliqueStereographic(parameters);
                 }

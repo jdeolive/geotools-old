@@ -73,7 +73,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * This is a special case of oblique stereographic projection for 
  * {@link #latitudeOfOrigin} == 0.0.
  *
- * @version $Id: EquatorialStereographic.java,v 1.3 2004/02/23 12:28:22 desruisseaux Exp $
+ * @version $Id: EquatorialStereographic.java,v 1.4 2004/05/03 07:36:46 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -94,7 +94,7 @@ public class EquatorialStereographic extends ObliqueStereographic {
     protected EquatorialStereographic(final Projection parameters) throws MissingParameterException {
         super(parameters);
         assert super.k0 == k0;
-        latitudeOfOrigin = 0;
+        latitudeOfOrigin = 0.0;
     }
 
     /**
@@ -135,7 +135,7 @@ public class EquatorialStereographic extends ObliqueStereographic {
      * Provides the transform equations for the spherical case of the 
      * equatorial stereographic projection.
      *
-     * @version $Id: EquatorialStereographic.java,v 1.3 2004/02/23 12:28:22 desruisseaux Exp $
+     * @version $Id: EquatorialStereographic.java,v 1.4 2004/05/03 07:36:46 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -192,7 +192,7 @@ public class EquatorialStereographic extends ObliqueStereographic {
 
             final double rho = Math.sqrt(x*x + y*y);
             if (Math.abs(rho) < TOL) {
-                y = 0.0;
+                y = 0.0;                     //latitudeOfOrigin
                 x = 0.0;
             } else {
                 final double c = 2.0 * Math.atan(rho/k0);
@@ -201,8 +201,8 @@ public class EquatorialStereographic extends ObliqueStereographic {
                 y = Math.asin(y * sinc/rho); // (20-14)  with phi1=0
                 final double t  = x*sinc;
                 final double ct = rho*cosc;
-                x = (Math.abs(t)<TOL && Math.abs(ct)<TOL) ? 0.0 :
-                                        Math.atan2(t, ct);
+                x = (Math.abs(t)<TOL && Math.abs(ct)<TOL) ? 
+                     0.0 : Math.atan2(t, ct);
             }
 
             assert Math.abs(ptDst.getX()-x) <= EPS : x;

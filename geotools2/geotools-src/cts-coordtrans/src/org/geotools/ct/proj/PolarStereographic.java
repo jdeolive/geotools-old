@@ -73,7 +73,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * This default implementation uses USGS equation (i.e. iteration) for computing
  * the {@linkplain #inverseTransformNormalized inverse transform}.
  *
- * @version $Id: PolarStereographic.java,v 1.5 2004/02/24 14:24:14 desruisseaux Exp $
+ * @version $Id: PolarStereographic.java,v 1.6 2004/05/03 07:36:47 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -105,11 +105,7 @@ public class PolarStereographic extends Stereographic {
     protected PolarStereographic(final Projection parameters) throws MissingParameterException {
         super(parameters);
         southPole = (latitudeOfOrigin < 0);
-        if (southPole) {
-            latitudeOfOrigin = -(Math.PI/2);
-        } else {
-            latitudeOfOrigin = +(Math.PI/2);
-        }
+        latitudeOfOrigin = (southPole) ? -(Math.PI/2) : +(Math.PI/2);
         latitudeTrueScale = latitudeToRadians(parameters.getValue("latitude_true_scale",
                             southPole ? -90 : 90), true);
     
@@ -253,7 +249,7 @@ public class PolarStereographic extends Stereographic {
      * Provides the transform equations for the spherical case of the polar
      * stereographic projection.
      *
-     * @version $Id: PolarStereographic.java,v 1.5 2004/02/24 14:24:14 desruisseaux Exp $
+     * @version $Id: PolarStereographic.java,v 1.6 2004/05/03 07:36:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -378,7 +374,7 @@ public class PolarStereographic extends Stereographic {
      * accuracy. The default {@link PolarStereographic} implementation implementation
      * is an derivated work of Proj4, and is therefor better tested.
      *
-     * @version $Id: PolarStereographic.java,v 1.5 2004/02/24 14:24:14 desruisseaux Exp $
+     * @version $Id: PolarStereographic.java,v 1.6 2004/05/03 07:36:47 desruisseaux Exp $
      * @author Rueben Schulz
      */
     static final class Series extends PolarStereographic {

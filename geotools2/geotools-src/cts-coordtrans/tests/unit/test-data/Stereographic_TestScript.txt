@@ -1,3 +1,10 @@
+/////////////////////////////////////////////////////
+// The following contains test for both the USGS stereographic
+// and the EPSG Oblique Stereographic (Double Stereographic).
+// Note that these 2 projections should be the same for the 
+// Polar and Spherical cases.
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //Simple test cases for the Stereographic Projection
 //Spherical tests cases used the ArcInfo 'type 1' stereographic
@@ -25,10 +32,6 @@ set _Stereo11_ = PROJCS["Equitorial Stereographic", GEOGCS["WGS84", DATUM["WGS84
 set _Stereo12_ = PROJCS["Equitorial Stereographic", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Stereographic"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", -4.0], PARAMETER["latitude_of_origin", 0.0], PARAMETER["scale_factor", 0.91], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 set _Stereo13_ = PROJCS["Oblique Stereographic", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Stereographic"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", -55.0], PARAMETER["latitude_of_origin", 51.0], PARAMETER["scale_factor", 0.99], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 set _Stereo14_ = PROJCS["Oblique Stereographic", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Stereographic"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 64.0], PARAMETER["latitude_of_origin", -32.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
-
-//epsg oblique test
-set _Bessel_ = GEOGCS["Bessel 1841", DATUM["Bessel", SPHEROID["Bessel", 6377397.155, 299.15281]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
-set _Stereo15_ = PROJCS["Oblique Stereographic EPSG", GEOGCS["Bessel 1841", DATUM["Bessel", SPHEROID["Bessel", 6377397.155, 299.15281]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Oblique_Stereographic"], PARAMETER["semi_major", 6377397.155], PARAMETER["semi_minor", 6356078.96261866], PARAMETER["central_meridian", 5.387638889], PARAMETER["latitude_of_origin", 52.15616056], PARAMETER["scale_factor", 0.9999079], PARAMETER["false_easting", 155000.0], PARAMETER["false_northing", 463000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 
 ////////////////////////////////////////////
 //Spherical North
@@ -376,21 +379,14 @@ pt_source=(18.45, -33.9166666666)
 pt_target=(-4231988.1148,       -1174790.7406)
 
 
-//a test point from the EPSG guide book 7
-cs_source=_Bessel_
-cs_target=_Stereo15_
-test_tolerance=(1e-2, 1e-2)
-
-pt_source=(6.0,53.0)
-pt_target=(196105.283, 557057.739)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //More tests for the Stereographic Projection
-//These test the EPSG form of the equations and were 
+//These test the EPSG form of the equations (Oblique_Stereographic) and were 
 //calculated using the 'Double Stereographic' projection in ArcGIS 8.3
 //Note: there are some differences beteen what arcGIS calculates and
-//what we calculate.
+//what we calculate (7 test 'errors').
 //
 //Rueben Schulz
 //Feb 17, 2004
@@ -400,6 +396,15 @@ set _DStereo2_ = PROJCS["Oblique Stereographic", GEOGCS["WGS84", DATUM["WGS84", 
 set _DStereo3_ = PROJCS["Equitorial Stereographic", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Oblique_Stereographic"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 20.0], PARAMETER["latitude_of_origin", 0.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 set _DStereo4_ = PROJCS["Polar Stereographic (North)", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Polar_Stereographic"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 140.0], PARAMETER["latitude_of_origin", 90.0], PARAMETER["scale_factor", 0.8], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 set _DStereo5_ = PROJCS["Polar Stereographic (South)", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Polar_Stereographic"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 0.0], PARAMETER["latitude_of_origin", -90.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+
+//epsg oblique test
+set _Bessel_ = GEOGCS["Bessel 1841", DATUM["Bessel", SPHEROID["Bessel", 6377397.155, 299.15281]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
+set _DStereo10_ = PROJCS["Oblique Stereographic EPSG", GEOGCS["Bessel 1841", DATUM["Bessel", SPHEROID["Bessel", 6377397.155, 299.15281]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Oblique_Stereographic"], PARAMETER["semi_major", 6377397.155], PARAMETER["semi_minor", 6356078.96261866], PARAMETER["central_meridian", 5.387638889], PARAMETER["latitude_of_origin", 52.15616056], PARAMETER["scale_factor", 0.9999079], PARAMETER["false_easting", 155000.0], PARAMETER["false_northing", 463000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+
+//UNB test
+set _Nad27_=GEOGCS["NAD27",DATUM["North_American_Datum_1927",SPHEROID["Clarke 1866",6378206.4,294.978698213901,AUTHORITY["EPSG","7008"]],TOWGS84[-3,142,183,0,0,0,0],AUTHORITY["EPSG","6267"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Longitude",EAST], AXIS["Latitude",NORTH],AUTHORITY["EPSG","4267"]]
+set _DStereo11_= PROJCS["Oblique Stereographic EPSG", GEOGCS["NAD27",DATUM["North_American_Datum_1927",SPHEROID["Clarke 1866",6378206.4,294.978698213901,AUTHORITY["EPSG","7008"]],TOWGS84[-3,142,183,0,0,0,0],AUTHORITY["EPSG","6267"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Longitude",EAST], AXIS["Latitude",NORTH],AUTHORITY["EPSG","4267"]], PROJECTION["Oblique_Stereographic"], PARAMETER["semi_major", 6378206.4], PARAMETER["semi_minor", 6356583.8], PARAMETER["central_meridian", -66.5], PARAMETER["latitude_of_origin", 46.5], PARAMETER["scale_factor", 0.999912], PARAMETER["false_easting", 300000.0], PARAMETER["false_northing", 800000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _DStereo12_= PROJCS["Oblique Stereographic EPSG", GEOGCS["NAD27",DATUM["North_American_Datum_1927",SPHEROID["Clarke 1866",6378206.4,294.978698213901,AUTHORITY["EPSG","7008"]],TOWGS84[-3,142,183,0,0,0,0],AUTHORITY["EPSG","6267"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Longitude",EAST], AXIS["Latitude",NORTH],AUTHORITY["EPSG","4267"]], PROJECTION["Oblique_Stereographic"], PARAMETER["semi_major", 6378206.4], PARAMETER["semi_minor", 6356583.8], PARAMETER["central_meridian", -63.0], PARAMETER["latitude_of_origin", 47.25], PARAMETER["scale_factor", 0.999912], PARAMETER["false_easting", 700000.0], PARAMETER["false_northing", 400000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 
 
 ////////////////////////////////////////
@@ -527,8 +532,9 @@ pt_target=(0, 0)
 //pt_source=(0, -90)
 //Error: The operation was attempted on an empty geometry.::"esri.Point"
 
+
 //########################################################################
-//the following tests all failed. The commented out points are from
+//the following tests (south polar) all failed. The commented out points are from
 //arcGIS double stereographic. The new values are from the arcInfo stereographic.
 //Note that they should be the same for the polar case (I think???) 
 //Points calculated using double stereographic and stereographic are equal
@@ -569,9 +575,37 @@ pt_source=(0, -90)
 pt_target=(0, 0)
 
 
+////////////////////////////////////////
+//Other tests
+
+//a test point from the EPSG guide book 7
+cs_source=_Bessel_
+cs_target=_DStereo10_
+test_tolerance=(1e-2, 1e-2)
+
+pt_source=(6.0,53.0)
+pt_target=(196105.283, 557057.739)
+
+//examples from UNB reports
+cs_source=_Nad27_
+cs_target=_DStereo11_
+test_tolerance=(1e-2, 1e-2)
+
+pt_source=(-65.484292500000020, 47.056845555555560)
+pt_target=(377164.887, 862395.774)
+
+cs_source=_Nad27_
+cs_target=_DStereo12_
+test_tolerance=(1e-2, 1e-2)
+
+pt_source=(-64.49278166666670, 46.707818611111120)
+pt_target=(585855.446,340817.760)
+
+
+
 set _sphere3_ = GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6371000.0, 0]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
 set _DStereo6_ = PROJCS["Polar Stereographic (South)", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6371000.0, 0]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Polar_Stereographic"], PARAMETER["semi_major", 6371000.0], PARAMETER["semi_minor", 6371000.0], PARAMETER["central_meridian", 0.0], PARAMETER["latitude_of_origin", -90.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
-set _DStereo7_ = PROJCS["Equitorial Stereographic", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6371000.0, 0]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Polar_Stereographic"], PARAMETER["central_meridian", -45.0], PARAMETER["latitude_of_origin", 0.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _DStereo7_ = PROJCS["Equitorial Stereographic", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6371000.0, 0]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Oblique_Stereographic"], PARAMETER["central_meridian", -45.0], PARAMETER["latitude_of_origin", 0.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 set _DStereo8_ = PROJCS["Oblique Stereographic", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6371000.0, 0]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Oblique_Stereographic"], PARAMETER["central_meridian", -55.0], PARAMETER["latitude_of_origin", 70.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 set _DStereo9_ = PROJCS["Oblique Stereographic", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6371000.0, 0]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Oblique_Stereographic"], PARAMETER["central_meridian", 170.0], PARAMETER["latitude_of_origin", -22.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 
@@ -704,9 +738,19 @@ pt_target=(-3642974.56059216, 7151031.37033279)
 pt_source=(18.45, -33.9166666666)
 pt_target=(-9459391.5721868, -18919110.2925948)
 
-pt_source=(0, 90)
+//the long. of the the next 2 points were changed from arcGIS output (was 0)
+//we have differing views about what the long. of a pole should be.
+pt_source=(170, 90)
 pt_target=(-2.16631219873976E-10, 18890791.8607893)
 
-pt_source=(0, -90)
+pt_source=(170, -90)
 pt_target=(-9.85589165790218E-11, -8594587.5216062)
+
+cs_source=_DStereo9_
+cs_target=_sphere3_
+test_tolerance=(1e-5, 1e-5)
+
+pt_source=(-9.85589165790218E-11, -8594587.5216062)
+pt_target=(170, -90)
+
 
