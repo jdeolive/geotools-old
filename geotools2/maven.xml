@@ -51,8 +51,12 @@
   
   <goal name="build">
   
+    <echo>
+      looking for modules in: ${basedir}/geotools-src
+      
+    </echo>
     <reactor:execute
-      basedir="${maven.src.dir}/../geotools-src"
+      basedir="${basedir}/geotools-src"
       glob="*/project.xml"
       goals="clean,jar:install"
       banner="Building"
@@ -80,8 +84,8 @@
     -->
     
     <reactor:execute
-      basedir="${maven.src.dir}/../geotools-src"
-      glob="resources/project.xml,defaultcore/project.xml,core/project.xml,shapefile/project.xml,algorithms/project.xml,filter/project.xml,gmldatasource/project.xml,Java2DRendering/project.xml,cts-coordtrans/project.xml,gcs-coverage/project.xml,opengis/project.xml"
+      basedir="${basedir}/geotools-src"
+      glob="*/project.xml"
       goals="site:generate"
       banner="Generating site for"
       ignoreFailures="true"
@@ -99,7 +103,7 @@
   <goal name="site-front-end">
   
     <reactor:execute
-      basedir="${maven.src.dir}/../geotools-src"
+      basedir="${basedir}/geotools-src"
       glob="resources/project.xml,defaultcore/project.xml,core/project.xml"
       goals="noop"
       ignoreFailures="false"
