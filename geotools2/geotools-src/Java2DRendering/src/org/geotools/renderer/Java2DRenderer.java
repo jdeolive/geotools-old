@@ -50,7 +50,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.22 2002/06/18 13:36:35 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.23 2002/06/19 17:06:41 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -428,7 +428,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         double drawSize = (double)size/unitSize;
         _log.debug("unitsize "+unitSize+" size = "+size+" -> scale "+drawSize);
-        markAT.scale(drawSize,-drawSize);
+        markAT.scale(drawSize,drawSize);
         graphics.setTransform(markAT);
         graphics.drawImage(img,-img.getWidth()/2,-img.getHeight()/2,null);
         graphics.setTransform(temp);
