@@ -63,7 +63,7 @@ import org.geotools.resources.XAffineTransform;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.1 2003/01/27 22:52:05 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.2 2003/01/28 16:12:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -176,14 +176,14 @@ public class RenderedGridCoverage extends RenderedLayer {
      * @throws TransformException if the coverage can't be projected.
      */
     private GridCoverage getCoverage(CoordinateSystem targetCS) throws TransformException {
-        assert Thread.holdsLock(this);
+        assert Thread.holdsLock(getTreeLock());
         if (coverage == null) {
             return null;
         }
-        CoordinateSystem sourceCS;
         if (projectedCoverage == null) {
             projectedCoverage = coverage.geophysics(false);
         }
+        CoordinateSystem sourceCS;
         sourceCS = projectedCoverage.getCoordinateSystem();
         sourceCS = CTSUtilities.getCoordinateSystem2D(sourceCS);
         targetCS = CTSUtilities.getCoordinateSystem2D(targetCS);
@@ -203,7 +203,7 @@ public class RenderedGridCoverage extends RenderedLayer {
      * @see PlanarImage#prefetchTiles
      */
     protected void prefetch(Rectangle2D area) {
-        assert Thread.holdsLock(this);
+        assert Thread.holdsLock(getTreeLock());
         if (area!=null && !area.isEmpty() && projectedCoverage!=null && renderer!=null) try {
             final MathTransform2D transform = (MathTransform2D) renderer.getMathTransform(
                         getCoordinateSystem(), projectedCoverage.getCoordinateSystem(),
@@ -227,7 +227,7 @@ public class RenderedGridCoverage extends RenderedLayer {
      *         échoué.
      */
     protected void paint(final RenderingContext context) throws TransformException {
-        assert Thread.holdsLock(this);
+        assert Thread.holdsLock(getTreeLock());
         final GridCoverage coverage = getCoverage(context.mapCS);
         if (coverage != null) {
             final AffineTransform gridToCoordinate;
@@ -319,7 +319,7 @@ public class RenderedGridCoverage extends RenderedLayer {
      * class is automatically registered at the {@link RenderedGridCoverage} construction
      * stage.
      *
-     * @version $Id: RenderedGridCoverage.java,v 1.1 2003/01/27 22:52:05 desruisseaux Exp $
+     * @version $Id: RenderedGridCoverage.java,v 1.2 2003/01/28 16:12:15 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Tools extends org.geotools.renderer.j2d.Tools {

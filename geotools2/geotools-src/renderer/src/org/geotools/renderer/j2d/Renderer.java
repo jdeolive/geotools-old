@@ -92,13 +92,13 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 /**
  * A renderer for drawing map objects into a {@link Graphics2D}. A newly constructed
- * <code>Renderer</code> is initially empty. To make something appears, {@link RendererObject}s
+ * <code>Renderer</code> is initially empty. To make something appears, {@link RenderedLayer}s
  * must be added using one of <code>addLayer(...)</code> methods. The visual content depends of
- * the <code>RendererObject</code> subclass. It may be an isoline ({@link RenderedIsoline}),
+ * the <code>RenderedLayer</code> subclass. It may be an isoline ({@link RenderedIsoline}),
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.8 2003/01/27 22:52:09 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.9 2003/01/28 16:12:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -288,7 +288,7 @@ public class Renderer {
     protected final PropertyChangeSupport listeners;
 
     /**
-     * <code>true</code> if {@link #proxyListener} is currently registered into {@link #mapPane}.
+     * <code>true</code> if {@link #listenerProxy} is currently registered into {@link #mapPane}.
      */
     private boolean listenerRegistered;
 
@@ -296,7 +296,7 @@ public class Renderer {
      * Listener for events of interest to this renderer. Events may come
      * from any {@link RenderedLayer} or from the {@link Component}.
      */
-    private final ProxyListener proxyListener = new ProxyListener();
+    private final ListenerProxy listenerProxy = new ListenerProxy();
 
     /**
      * Classe ayant la charge de réagir aux différents événements qui intéressent cet
@@ -304,7 +304,7 @@ public class Renderer {
      * de l'ordre <var>z</var> ainsi qu'aux changements des coordonnées géographiques
      * d'une couche.
      */
-    private final class ProxyListener extends MouseAdapter implements ComponentListener,
+    private final class ListenerProxy extends MouseAdapter implements ComponentListener,
                                                                       PropertyChangeListener
     {
         /** Invoked when the mouse has been clicked on a component. */
@@ -384,7 +384,7 @@ public class Renderer {
         listeners = new PropertyChangeSupport(this);
         this.mapPane = owner;
         if (mapPane != null) {
-            mapPane.addComponentListener(proxyListener);
+            mapPane.addComponentListener(listenerProxy);
         }
     }
 
@@ -750,9 +750,11 @@ public class Renderer {
             layer.setVisible(true);
             changePreferredArea(null, layer.getPreferredArea(), layer.getCoordinateSystem(),
                                 "Renderer", "addLayer");
-            layer.addPropertyChangeListener(proxyListener);
+            layer.addPropertyChangeListener(listenerProxy);
         }
         updateListenerRegistration();
+        repaint(); // Must be invoked last
+        listeners.firePropertyChange("layers", (layerCount==1) ? EMPTY : null, null);
     }
 
     /**
@@ -780,7 +782,8 @@ public class Renderer {
             throw new IllegalArgumentException(
                         Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
         }
-        layer.removePropertyChangeListener(proxyListener);
+        repaint(); // Must be invoked first
+        layer.removePropertyChangeListener(listenerProxy);
         final CoordinateSystem layerCS = layer.getCoordinateSystem();
         final Rectangle2D    layerArea = layer.getPreferredArea();
         layer.setVisible(false);
@@ -800,6 +803,7 @@ public class Renderer {
         }
         changePreferredArea(layerArea, null, layerCS, "Renderer", "removeLayer");
         updateListenerRegistration();
+        listeners.firePropertyChange("layers", null, (layerCount!=0) ? null : EMPTY);
     }
 
     /**
@@ -811,9 +815,10 @@ public class Renderer {
      * @see #getLayerCount
      */
     public synchronized void removeAllLayers() {
+        repaint(); // Must be invoked first
         while (--layerCount>=0) {
             final RenderedLayer layer = layers[layerCount];
-            layer.removePropertyChangeListener(proxyListener);
+            layer.removePropertyChangeListener(listenerProxy);
             layer.setVisible(false);
             layer.clearCache();
             layer.renderer = null;
@@ -822,6 +827,7 @@ public class Renderer {
         layerCount = 0;
         setPreferredArea(null);
         clearCache();
+        listeners.firePropertyChange("layers", null, EMPTY);
     }
 
     /**
@@ -892,7 +898,7 @@ public class Renderer {
      * @see RenderingHints#KEY_COLOR_RENDERING
      * @see RenderingHints#KEY_INTERPOLATION
      */
-    public synchronized Object getRenderingHints(final RenderingHints.Key key) {
+    public synchronized Object getRenderingHint(final RenderingHints.Key key) {
         return hints.get(key);
     }
 
@@ -1146,7 +1152,7 @@ public class Renderer {
          */
         graphics.transform(zoom);
         graphics.addRenderingHints(hints);
-        context.setGraphics(graphics);
+        context.init(graphics, bounds);
         try {
             for (int i=0; i<layerCount; i++) {
                 try {
@@ -1159,7 +1165,27 @@ public class Renderer {
                 }
             }
         } finally {
-            context.setGraphics(null);
+            context.init(null, null);
+        }
+    }
+
+    /**
+     * Declare that the {@link Component} need to be repainted.
+     * This method can be invoked from any thread (it doesn't
+     * need to be the <cite>Swing</cite> thread).
+     */
+    final void repaint() {
+        final Component mapPane = this.mapPane;
+        if (mapPane != null) {
+            if (!EventQueue.isDispatchThread()) {
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        repaint();
+                    }
+                });
+                return;
+            }
+            mapPane.repaint();
         }
     }
 
@@ -1189,7 +1215,7 @@ public class Renderer {
     ////////                                                  ////////
     //////////////////////////////////////////////////////////////////
     /**
-     * Register {@link #proxyListener} if at least one layer has a tool, or unregister
+     * Register {@link #listenerProxy} if at least one layer has a tool, or unregister
      * it if no layer has tools. This method is automatically invoked when the "tools"
      * property change in a {@link RenderedLayer}.
      */
@@ -1227,9 +1253,9 @@ public class Renderer {
                  * do this check. It is not damageable to unregister twice, but it is
                  * damageable to register twice.
                  */
-                mapPane.removeMouseListener(proxyListener);
+                mapPane.removeMouseListener(listenerProxy);
                 if (hasTools) {
-                    mapPane.addMouseListener(proxyListener);
+                    mapPane.addMouseListener(listenerProxy);
                 }
                 /*
                  * Special processing for Swing's tool tip text. If there is no default
@@ -1271,7 +1297,7 @@ public class Renderer {
     }
 
     /**
-     * Returns the default tools to use when no {@linkplain RendererLayer#getTools layer's tools}
+     * Returns the default tools to use when no {@linkplain RenderedLayer#getTools layer's tools}
      * can do the job. If no default tools has been set, then returns <code>null</code>.
      *
      * @see Tools#getToolTipText
@@ -1283,7 +1309,7 @@ public class Renderer {
     }
 
     /**
-     * Set the default tools to use when no {@linkplain RendererLayer#getTools layer's tools}
+     * Set the default tools to use when no {@linkplain RenderedLayer#getTools layer's tools}
      * can do the job.
      *
      * @param tools The new tools, or <code>null</code> for removing any set of tools.

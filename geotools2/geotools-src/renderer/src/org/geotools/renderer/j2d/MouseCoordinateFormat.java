@@ -53,10 +53,10 @@ import org.geotools.cs.GeographicCoordinateSystem;
  * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system}), but
  * is usually two-dimensional.
  *
- * @version $Id: MouseCoordinateFormat.java,v 1.2 2003/01/26 22:30:40 desruisseaux Exp $
+ * @version $Id: MouseCoordinateFormat.java,v 1.3 2003/01/28 16:12:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class MouseCoordinateFormat extends CoordinateFormat {
+public class MouseCoordinateFormat extends CoordinateFormat {
     /**
      * The coordinate point to format.
      */
@@ -69,7 +69,7 @@ final class MouseCoordinateFormat extends CoordinateFormat {
 
     /**
      * Indique si la méthode {@link #format} doit écrire la valeur après la coordonnée.
-     * Les valeurs sont obtenues en appelant la méthode {@link RenderedLayer#getLabel}.
+     * Les valeurs sont obtenues en appelant la méthode {@link Tools#formatValue}.
      * Par défaut, les valeurs (si elles sont disponibles) sont écrites.
      */
     private boolean valueVisible = true;
@@ -87,7 +87,7 @@ final class MouseCoordinateFormat extends CoordinateFormat {
 
     /**
      * Indique si la méthode {@link #format} doit écrire la valeur après la coordonnée.
-     * Les valeurs sont obtenues en appelant la méthode {@link RenderedLayer#getLabel}.
+     * Les valeurs sont obtenues en appelant la méthode {@link Tools#formatValue}.
      * Par défaut, les valeurs (si elles sont disponibles) sont écrites.
      */
     public boolean isValueVisible() {
@@ -97,7 +97,7 @@ final class MouseCoordinateFormat extends CoordinateFormat {
     /**
      * Spécifie si la méthode {@link #format} doit aussi écrire la valeur après la
      * coordonnée. Si la valeur doit être écrite, elle sera déterminée en appelant
-     * {@link RenderedLayer#getLabel}.
+     * {@link Tools#formatValue}.
      */
     public void setValueVisible(final boolean valueVisible) {
         this.valueVisible = valueVisible;
@@ -110,7 +110,7 @@ final class MouseCoordinateFormat extends CoordinateFormat {
      * une valeur à la coordonnée (par exemple une couche qui représente une image satellitaire
      * de température) et que l'écriture des valeurs est autorisée (voir {@link #isValueVisible}),
      * alors la valeur sera écrite après les coordonnées. Ces valeurs sont obtenues par des appels
-     * à {@link RenderedLayer#getLabel}.
+     * à {@link Tools#formatValue}.
      *
      * @param  event Evénements contenant les coordonnées de la souris.
      * @return Chaîne de caractères représentant les coordonnées pointées

@@ -36,6 +36,7 @@ package org.geotools.renderer.j2d;
 
 // J2SE dependencies
 import java.util.Locale;
+import java.awt.Graphics2D; // For Javadoc
 import java.awt.RenderingHints;
 
 // JAI dependencies
@@ -53,7 +54,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * Rendering hints can be used to control some low-level details, like the expected
  * resolution.
  *
- * @version $Id: Hints.java,v 1.3 2003/01/27 22:52:04 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.4 2003/01/28 16:12:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {

@@ -51,6 +51,8 @@ import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CannotCreateTransformException;
+import org.geotools.ct.CoordinateTransformationFactory;
+import org.geotools.renderer.GeoShape;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.XAffineTransform;
@@ -76,13 +78,13 @@ import org.geotools.resources.renderer.ResourceKeys;
  * coordinate systems} and arrows are {@linkplain MathTransform transforms}):
  *
  * <p align="center">
- * {@link RenderedLayer#getCoordinateSystem layerCS} <img src="doc-files/right.png">
- * {@link #mapCS} <img src="doc-files/right.png">
- * {@link #textCS} <img src="doc-files/right.png">
- * {@link #deviceCS}
+ * {@link RenderedLayer#getCoordinateSystem layerCS}&nbsp;&nbsp;&nbsp;<img src="doc-files/right.png">
+ * &nbsp;&nbsp;&nbsp;{@link #mapCS}&nbsp;&nbsp;&nbsp;<img src="doc-files/right.png">
+ * &nbsp;&nbsp;&nbsp;{@link #textCS}&nbsp;&nbsp;&nbsp;<img src="doc-files/right.png">
+ * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.6 2003/01/27 22:52:11 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.7 2003/01/28 16:12:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -170,7 +172,7 @@ public final class RenderingContext {
     /**
      * The widget bounding box, in coordinates of {@link #deviceCS}.
      */
-//    private final Rectangle bounds;
+    private Rectangle bounds;
 
     /**
      * The {@link #bounds} rectangle transformed into logical coordinates
@@ -199,6 +201,18 @@ public final class RenderingContext {
     }
 
     /**
+     * Set the destination {@link Graphics2D}.
+     * Set it to <code>null</code> once the rendering is finished.
+     *
+     * @param graphics The destination graphics.
+     * @param bounds   The drawing area in device coordinates.
+     */
+    final void init(final Graphics2D graphics, final Rectangle bounds) {
+        this.graphics = graphics;
+        this.bounds   = bounds;
+    }
+
+    /**
      * Returns the graphics where painting occurs. This graphics is initialized with
      * an affine transform appropriate for rendering geographic features in the
      * {@link #mapCS} coordinate system. The affine transform can be changed in
@@ -209,11 +223,11 @@ public final class RenderingContext {
     }
 
     /**
-     * Set the destination {@link Graphics2D}. Set it to <code>null</code> once
-     * the rendering is finished.
+     * Returns the drawing area in device coordinates. For performance
+     * reason, this method do not clone the area. Do not modify it!
      */
-    final void setGraphics(final Graphics2D graphics) {
-        this.graphics = graphics;
+    final Rectangle getZoomableBounds() {
+        return bounds;
     }
 
     /**
@@ -228,8 +242,8 @@ public final class RenderingContext {
      *
      * @param cs The {@link #getGraphics() graphics} coordinate system.
      *           Should be {@link #mapCS}, {@link #textCS} or {@link #deviceCS}.
-     * @throw TransformException if this method failed to find an affine transform from the
-     *        specified coordinate system to the device coordinate system ({@link #deviceCS}).
+     * @throws TransformException if this method failed to find an affine transform from the
+     *         specified coordinate system to the device coordinate system ({@link #deviceCS}).
      *
      * @see #getGraphics
      * @see #getAffineTransform
@@ -384,45 +398,34 @@ public final class RenderingContext {
     }
 
     /**
-     * Returns the drawing area in point coordinates.
-     * For performance reason, this method do not clone
-     * the area. Do not modify it!
-     */
-//    public Rectangle getDrawingArea() {
-//        return bounds;
-//    }
-
-    /**
-     * Clip a contour to the current widget's bounds. The clip is only approximative
-     * in that the resulting contour may extends outside the widget's area. However,
-     * it is garanteed that the resulting contour will contains at least the interior
-     * of the widget's area (providing that the first contour in the supplied list
-     * cover this area).
-     *
-     * This method is used internally by some layers (like
-     * {@link org.geotools.renderer.j2d.IsolineLayer}) when computing and drawing a
-     * clipped contour may be faster than drawing the full contour (especially if
-     * clipped contours are cached for reuse).
+     * Clip a shape to the current widget's bounds.  The clip is only approximative
+     * in that the resulting shape may extends outside the widget's area.  However,
+     * it is garanteed that the resulting shape will contains at least the interior
+     * of the widget's area    (providing that the first shape in the supplied list
+     * cover this area). This method is used internally by some layers like  {@link
+     * IsolineLayer}.   Drawing a clipped shape may be faster than drawing the full
+     * shape, especially if clipped shapes are cached for reuse.
      * <br><br>
-     * This method expect a <em>modifiable</em> list of {@link Contour} objects as argument.
-     * The first element in this list must be the "master" contour (the contour to clip) and
-     * will never be modified.  Elements at index greater than 0 may be added and removed at
+     * This method expect a <em>modifiable</em> list of {@link GeoShape} objects as argument.
+     * The first element in this list must be the "master" shape (the shape to clip) and will
+     * never be modified.   Elements at index greater than 0 may be added and removed at this
      * this method's discression, so that the list is actually used as a cache for clipped
-     * <code>Contour</code> objects.
+     * <code>GeoShape</code> objects.
      *
      * <br><br>
      * <strong>WARNING: This method is not yet debugged</strong>
      *
-     * @param  contours A modifiable list with the contour to clip at index 0.
-     * @return A possibly clipped contour. May be any element of the list or a new contour.
-     *         May be <code>null</code> if the "master" contour doesn't intercept the clip.
+     * @param  shapes A modifiable list with the shape to clip at index 0.
+     * @return A possibly clipped shape. May be any element of the list or a new shape.
+     *         May be <code>null</code> if the "master" shape doesn't intercept the clip.
      */
-//    public Contour clip(final List<Contour> contours) {
-//        if (contours.isEmpty()) {
+    final GeoShape clip(final List shapes) {
+        return (GeoShape) shapes.get(0);
+//        if (shapes.isEmpty()) {
 //            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_EMPTY_LIST));
 //        }
 //        if (isPrinting) {
-//            return contours.get(0);
+//            return shapes.get(0);
 //        }
 //        /*
 //         * Gets the clip area expressed in MapPane's coordinate system
@@ -431,35 +434,35 @@ public final class RenderingContext {
 //        if (logicalClip==null) try {
 //            logicalClip = XAffineTransform.inverseTransform(fromWorld, bounds, logicalClip);
 //        } catch (NoninvertibleTransformException exception) {
-//            // (should not happen) Clip failed: conservatively returns the whole contour.
+//            // (should not happen) Clip failed: conservatively returns the whole shape.
 //            Utilities.unexpectedException("org.geotools.renderer.j2d",
 //                                          "RenderingContext", "clip", exception);
-//            return contours.get(0);
+//            return shapes.get(0);
 //        }
 //        final CoordinateSystem targetCS = getViewCoordinateSystem();
 //        /*
 //         * Iterate through the list (starting from the last element)
-//         * until we found a contour capable to handle the clip area.
+//         * until we found a shaoe capable to handle the clip area.
 //         */
-//        Contour contour;
+//        Contour shape;
 //        Rectangle2D clip;
 //        Rectangle2D bounds;
 //        Rectangle2D temporary=null;
-//        int index=contours.size();
+//        int index=shapes.size();
 //        do {
-//            contour = contours.get(--index);
-//            clip    = logicalClip;
+//            shape = shapes.get(--index);
+//            clip  = logicalClip;
 //            /*
-//             * First, we need to know the clip in contour's coordinates.
+//             * First, we need to know the clip in shape's coordinates.
 //             * The {@link org.geotools.renderer.j2d.IsolineLayer} usually keeps
 //             * isoline in the same coordinate system than the MapPane's
 //             * one. But a user could invoke this method in a more unusual
 //             * way, so we are better to check...
 //             */
 //            final CoordinateSystem sourceCS;
-//            synchronized (contour) {
-//                bounds   = contour.getCachedBounds();
-//                sourceCS = contour.getCoordinateSystem();
+//            synchronized (shape) {
+//                bounds   = shape.getCachedBounds();
+//                sourceCS = shape.getCoordinateSystem();
 //            }
 //            if (!targetCS.equals(sourceCS, false)) try {
 //                CoordinateTransformation toView = this.toView;
@@ -470,19 +473,19 @@ public final class RenderingContext {
 //            } catch (TransformException exception) {
 //                Utilities.unexpectedException("org.geotools.renderer.j2d",
 //                                              "RenderingContext", "clip", exception);
-//                continue; // A contour seems invalid. It will be ignored (and probably garbage collected soon).
+//                continue; // A shape seems invalid. It will be ignored (and probably garbage collected soon).
 //            }
 //            /*
 //             * Now that both rectangles are using the same coordinate system,
-//             * test if the clip fall completly inside the contour. If yes,
-//             * then we should use this contour for clipping.
+//             * test if the clip fall completly inside the shape. If yes,
+//             * then we should use this shape for clipping.
 //             */
 //            if (Layer.contains(bounds, clip, true)) {
 //                break;
 //            }
 //        } while (index!=0);
 //        /*
-//         * A clipped contour has been found (or we reached the begining
+//         * A clipped shape has been found (or we reached the begining
 //         * of the list). Check if the requested clip is small enough to
 //         * worth a clipping.
 //         */
@@ -492,15 +495,15 @@ public final class RenderingContext {
 //                clipper = new Clipper(scale(logicalClip, CLIP_SCALE), targetCS);
 //            }
 //            // Remove the last part of the list, which is likely to be invalide.
-//            contours.subList(index+1, contours.size()).clear();
-//            contour = contour.getClipped(clipper);
-//            if (contour != null) {
-//                contours.add(contour);
+//            shapes.subList(index+1, shapes.size()).clear();
+//            shape = shape.getClipped(clipper);
+//            if (shape != null) {
+//                shapes.add(shape);
 //                Contour.LOGGER.finer("Clip performed"); // TODO: give more precision
 //            }
 //        }
-//        return contour;
-//    }
+//        return shape;
+    }
 
     /**
      * Expand or shrunk a rectangle by some factor. A scale of 1 lets the rectangle

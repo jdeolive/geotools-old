@@ -64,8 +64,10 @@ import javax.media.jai.PlanarImage; // For Javadoc
 
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.ct.TransformException;
+import org.geotools.cs.CompoundCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
+import org.geotools.ct.TransformException;
+import org.geotools.ct.MathTransform;
 import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
@@ -77,10 +79,10 @@ import org.geotools.resources.renderer.ResourceKeys;
 /**
  * Base class for layers to be rendered using the Java2D renderer. Each layer can use
  * its own {@linkplain CoordinateSystem coordinate system} (CS) for its underlying data.
- * Transformations to the {@link RendereringContext#mapCS rendering coordinate system}
+ * Transformations to the {@linkplain RenderingContext#mapCS rendering coordinate system}
  * are performed on the fly at rendering time.
  *
- * @version $Id: RenderedLayer.java,v 1.5 2003/01/27 22:52:07 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.6 2003/01/28 16:12:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedLayer {
@@ -95,7 +97,7 @@ public abstract class RenderedLayer {
      * The default stroke to use if no stroke can be infered from
      * {@link #getPreferredPixelSize}.
      */
-    private static final Stroke DEFAULT_STROKE = new BasicStroke(0);
+    static final Stroke DEFAULT_STROKE = new BasicStroke(0);
 
     /**
      * The renderer that own this layer, or <code>null</code>
@@ -428,7 +430,7 @@ public abstract class RenderedLayer {
      *       profiter de cette spécification pour s'enregistrer auprès de {@link
      *       org.geotools.gui.swing.MapPane} comme étant intéressées à suivre les
      *       mouvements de la souris par exemple.</li>
-     *   <li><code>{@link Renderer#remove Renderer.remove}(this)</code>
+     *   <li><code>{@link Renderer#removeLayer Renderer.removeLayer}(this)</code>
      *       appelera <code>setVisible(false)</code>. Les classes dérivées peuvent
      *       profiter de cette spécification pour déclarer à
      *       {@link org.geotools.gui.swing.MapPane} qu'elles ne sont plus
@@ -489,10 +491,10 @@ public abstract class RenderedLayer {
 
     /**
      * Paint this object. This method is invoked by {@link Renderer} every time this layer needs
-     * to be repainted. By default, painting is done in the {@linkplain RendereringContext#mapCS
+     * to be repainted.   By default, painting is done in the {@linkplain RenderingContext#mapCS
      * rendering coordinate system} (usually "real world" metres).    This method is responsible
      * for transformations from its own  {@linkplain #getCoordinateSystem underlying CS}  to the
-     * {@linkplain RendereringContext#mapCS rendering CS} if needed. The {@link RenderingContext}
+     * {@linkplain RenderingContext#mapCS rendering CS} if needed.   The {@link RenderingContext}
      * object provides informations for such transformations:
      *
      * <ul>
@@ -513,6 +515,7 @@ public abstract class RenderedLayer {
      * Returns a transform from the Java2D CS to the device CS. This transformation is
      * device dependent, but not zoom sensitive. When the output device is the screen,
      * then this is the identity transform.</p></li>
+     * </ul>
      *
      * <p>The {@link RenderingContext} object can takes care of configuring {@link Graphics2D}
      * with the right transform for a limited set of particular CS (namely, only CS leading to
