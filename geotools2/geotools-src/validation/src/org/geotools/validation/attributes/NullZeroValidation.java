@@ -50,7 +50,7 @@ import org.geotools.validation.ValidationResults;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: NullZeroValidation.java,v 1.3 2004/04/15 18:18:01 dmzwiers Exp $
+ * @version $Id: NullZeroValidation.java,v 1.4 2004/04/16 00:40:25 dmzwiers Exp $
  */
 public class NullZeroValidation extends DefaultFeatureValidation {
     private String attributeName;
@@ -78,7 +78,6 @@ public class NullZeroValidation extends DefaultFeatureValidation {
      */
     public boolean validate(Feature feature, FeatureType type,
         ValidationResults results) { // throws Exception {
-System.out.println("TYPE = "+type.getTypeName());
 
         Object ft = feature.getAttribute(attributeName);
 
