@@ -96,7 +96,7 @@ import java.util.logging.Logger;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.10 2004/04/22 08:44:51 jive Exp $
+ * @version $Id: ValidationProcessor.java,v 1.11 2004/04/22 09:11:07 jive Exp $
  */
 public class ValidationProcessor {
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.validation");
@@ -373,6 +373,7 @@ public class ValidationProcessor {
     public void runIntegrityTests(Set typeRefs, Map stores, Envelope envelope,
         ValidationResults results) throws Exception {
     	if( integrityLookup == null || integrityLookup.size() == 0){
+    		LOGGER.fine("No tests defined by integrityLookup - validation not needed" );    		
     		return;
     	}
     	LOGGER.fine("Starting validation tests for:"+ typeRefs );
@@ -388,8 +389,11 @@ public class ValidationProcessor {
     	
     	// check for any tests that are to be performed on ALL features
     	//
-    	LOGGER.finer("Finding tests for everybody" );    	
-    	tests.addAll( (List) integrityLookup.get(ANYTYPENAME) );
+    	LOGGER.finer("Finding tests for everybody" );
+    	List anyTests = (List) integrityLookup.get(ANYTYPENAME);
+    	if( anyTests != null && !anyTests.isEmpty() ){
+    		tests.addAll( anyTests );
+    	}    	
     	LOGGER.finer("Found "+tests.size()+" tests (so far)" );
     	
         // for each modified FeatureTypeInfo
@@ -397,8 +401,11 @@ public class ValidationProcessor {
     	LOGGER.finer("Finding tests for modified typeRefs" );    	    	
         for (Iterator i=typeRefs.iterator(); i.hasNext(); ){
         	String typeRef = (String) i.next();
-        	LOGGER.finer("Finding tests for typeRef:"+typeRef );        	
-        	tests.addAll( (List) integrityLookup.get( typeRef ) );
+        	LOGGER.finer("Finding tests for typeRef:"+typeRef );
+        	List moreTests = (List) integrityLookup.get( typeRef );
+        	if( moreTests != null && !moreTests.isEmpty() ){
+        		tests.addAll( moreTests );
+        	}
         }
         
     	if( tests.isEmpty() ){
