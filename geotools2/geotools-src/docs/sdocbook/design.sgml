@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Id: design.sgml,v 1.3 2002/11/03 21:21:53 camerons Exp $</date>
+    <date>$Id: design.sgml,v 1.4 2002/11/04 11:07:48 camerons Exp $</date>
   </articleinfo>
 
   <section>
@@ -462,7 +462,23 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
         </mediaobject>
       </figure>
 
-      <para></para>
+      <para><emphasis>MapContext</emphasis> stores geographic information in a
+      series of <emphasis>MapState</emphasis> classes: Layers, Area of
+      Interest, Coordinate System etc. <emphasis>MapState</emphasis> classes
+      send events to interested objects when it&#39;s data changes.</para>
+
+      <para>Multiple <emphasis>MapContext</emphasis> objects can be created
+      using similar components in order to create widgets which share common
+      components. For example. A display may contain two <emphasis>MapPanes</emphasis>
+      which show the same area but use different basemaps. This would be
+      achieved by building two <emphasis>MapContexts</emphasis> which use the
+      same extent <emphasis>Envelope</emphasis> but use different
+      <emphasis>LayerLists</emphasis>.</para>
+
+      <para><emphasis>MapContext</emphasis> is based on the OGC Web Map
+      Context Specification which means <emphasis>MapContext</emphasis> can be
+      stored as XML and recreated by other applications which implement the
+      OGC Web Map Context Specification.</para>
     </section>
 
     <section>
