@@ -145,7 +145,8 @@ public class VeryBasicDataSource implements DataSource {
                     System.out.println("attribue "+val+" is "+row[val].getClass().getName());
                 }
                 System.out.println("Test Type is "+testType);
-                Feature feat = new FeatureFlat((FeatureTypeFlat) testType, row);
+                FeatureFactory fac = new FeatureFactory((FeatureTypeFlat) testType);
+                Feature feat = fac.create(row);
 
                 // Filter Feature Feature Filter
                 if (ex.containsFeature(feat)){

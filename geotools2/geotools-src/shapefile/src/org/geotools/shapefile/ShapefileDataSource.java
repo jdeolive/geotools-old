@@ -46,7 +46,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
                 
                 FeatureType shapefileType = new FeatureTypeFlat(geometryAttribute);
                 System.out.println("schema is "+shapefileType);
-                
+                FeatureFactory fac = new FeatureFactory(shapefileType);
                 int count = shapes.getNumGeometries();
                 //Feature[] features = new Feature[count];
                 for(int i=0;i<count;i++){
@@ -55,7 +55,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
                     Object [] row = new Object[1];
                     row[0] = (Geometry)shapes.getGeometryN(i);
                     System.out.println("adding geometry"+row[0]);
-                    Feature feature = new FeatureFlat((FeatureTypeFlat)shapefileType,row);
+                    Feature feature = fac.create(row);
                     if(ex.containsFeature(feature)){
                         ft.addFeatures(new Feature[]{feature});
                     }
