@@ -99,6 +99,11 @@
       <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
+    <dependency>
+      <id>sldstyling</id>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency>
         
         
     <dependency>
