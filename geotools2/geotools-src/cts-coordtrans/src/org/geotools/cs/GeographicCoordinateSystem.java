@@ -59,12 +59,13 @@ import java.rmi.RemoteException;
 
 /**
  * A coordinate system based on latitude and longitude.
- * Some geographic coordinate systems are <var>latitude</var>/<var>longiude</var>,
- * and some are <var>longitude</var>/<var>latitude</var>. You can find out
+ * Some geographic coordinate systems are
+ * <var>latitude</var>/<var>longiude</var>, and some are
+ * <var>longitude</var>/<var>latitude</var>. You can find out
  * which this is by examining the axes. You should also check the angular
  * units, since not all geographic coordinate systems use degrees.
  *
- * @version 1.00
+ * @version $Id: GeographicCoordinateSystem.java,v 1.3 2002/06/05 15:48:07 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -78,9 +79,10 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
     
     /**
      * A geographic coordinate system using WGS84 datum.
-     * This coordinate system use <var>longitude</var>/<var>latitude</var> ordinates
-     * with longitude values increasing north and latitude values increasing east.
-     * Angular units are degrees and prime meridian is Greenwich.
+     * This coordinate system uses <var>longitude</var>/<var>latitude</var>
+     * ordinates with longitude values increasing north and latitude values
+     * increasing east.  Angular units are degrees and prime meridian is
+     * Greenwich.
      */
     public static final GeographicCoordinateSystem WGS84 = (GeographicCoordinateSystem) pool.canonicalize(
                     new GeographicCoordinateSystem("WGS84", HorizontalDatum.WGS84));
@@ -111,8 +113,9 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
     }
     
     /**
-     * Creates a geographic coordinate system, which could be <var>latitude</var>/<var>longiude</var>
-     * or <var>longitude</var>/<var>latitude</var>.
+     * Creates a geographic coordinate system, which could be
+     * <var>latitude</var>/<var>longiude</var> or
+     * <var>longitude</var>/<var>latitude</var>.
      *
      * @param name      Name to give new object.
      * @param unit      Angular units for created coordinate system.
@@ -140,7 +143,7 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
     
     /**
      * Gets units for dimension within coordinate system.
-     * This angular unit is the same for all axis.
+     * This angular unit is the same for all axes.
      *
      * @param dimension Zero based index of axis.
      *
@@ -195,10 +198,11 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
     }
     
     /**
-     * Gets details on conversions to WGS84.  Some geographic coordinate systems
-     * provide several transformations into WGS84, which are designed to provide
-     * good accuracy in different areas of interest. The first conversion should
-     * provide acceptable accuracy over the largest possible area of interest.
+     * Gets details on conversions to WGS84.  Some geographic coordinate
+     * systems provide several transformations into WGS84, which are designed
+     * to provide good accuracy in different areas of interest. The first
+     * conversion should provide acceptable accuracy over the largest possible
+     * area of interest.
      *
      * @return A set of conversions info to WGS84. The default
      *         implementation returns an empty set.
@@ -211,12 +215,12 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
     }
     
     /**
-     * Returns  <code>true</code> if this coordinate system is equivalents to
+     * Returns <code>true</code> if this coordinate system is equivalent to
      * the specified coordinate system. Two coordinate systems are considered
      * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
      * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The default implementation compare datum, units and axis, but ignore
-     * name, alias and other meta-data informations.
+     * The default implementation compares datum, units and axis, but ignores
+     * name, alias and other meta-data information.
      *
      * @param  cs The coordinate system (may be <code>null</code>).
      * @return <code>true</code> if both coordinate systems are equivalent.
@@ -234,8 +238,8 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
@@ -256,7 +260,7 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
      * system. The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -274,19 +278,16 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
     /**
      * Wrap a {@link GeographicCoordinateSystem} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends HorizontalCoordinateSystem.Export implements CS_GeographicCoordinateSystem {
         /**
-         * Conversions infos. This array is constructed
-         * only the first time it is requested.
+         * Conversions infos. This array is only constructed
+         * the first time it is requested.
          */
         private transient WGS84ConversionInfo[] infos;
         
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);
@@ -323,7 +324,7 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
         }
         
         /**
-         * Returns the set of conversions infos.
+         * Returns the set of conversion infos.
          */
         private synchronized WGS84ConversionInfo[] getWGS84ConversionInfos() {
             if (infos==null) {

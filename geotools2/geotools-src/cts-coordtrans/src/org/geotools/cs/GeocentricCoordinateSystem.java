@@ -56,12 +56,12 @@ import java.rmi.RemoteException;
  * A 3D coordinate system, with its origin at the center of the Earth.
  * The <var>X</var> axis points towards the prime meridian.
  * The <var>Y</var> axis points East or West.
- * The <var>Z</var> axis points North or South. By default the
+ * The <var>Z</var> axis points North or South. By default, the
  * <var>Z</var> axis will point North, and the <var>Y</var> axis
  * will point East (e.g. a right handed system), but you should
  * check the axes for non-default values.
  *
- * @version 1.00
+ * @version $Id: GeocentricCoordinateSystem.java,v 1.3 2002/06/05 15:44:12 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -74,7 +74,7 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     private static final long serialVersionUID = -6577810243397267703L;
     
     /**
-     * The set of default axis orientation.
+     * The set of default axis orientations.
      * The <var>X</var> axis points towards the prime meridian.
      * The <var>Y</var> axis points East.
      * The <var>Z</var> axis points North.
@@ -87,7 +87,7 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     
     /**
      * The default geocentric coordinate system. Prime meridian is Greenwich,
-     * horizontal datum in WGS84 and linear units are metre.
+     * horizontal datum is WGS84 and linear units are metres.
      * The <var>X</var> axis points towards the prime meridian.
      * The <var>Y</var> axis points East.
      * The <var>Z</var> axis points North.
@@ -117,8 +117,8 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     private final AxisInfo[] axis;
     
     /**
-     * Construct a geocentric coordinate system with default
-     * axis. Unit are metres and prime meridian is greenwich.
+     * Constructs a geocentric coordinate system with default
+     * axis. Units are metres and prime meridian is greenwich.
      *
      * @param name  The coordinate system name.
      * @param datum The horizontal datum.
@@ -128,7 +128,7 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Construct a geocentric coordinate system with default axis.
+     * Constructs a geocentric coordinate system with default axis.
      * The <var>X</var> axis points towards the prime meridian.
      * The <var>Y</var> axis points East.
      * The <var>Z</var> axis points North.
@@ -147,13 +147,13 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Construct a geocentric coordinate system.
+     * Constructs a geocentric coordinate system.
      *
      * @param name     The coordinate system name.
      * @param unit     The linear unit.
      * @param datum    The horizontal datum.
      * @param meridian The prime meridian.
-     * @param axis     The axis info. This is usually an array of lenght 3.
+     * @param axis     The axis info. This is usually an array of length 3.
      */
     public GeocentricCoordinateSystem(final CharSequence    name,
                                       final Unit            unit,
@@ -174,7 +174,7 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Clone the specified axis array.
+     * Clones the specified axis array.
      */
     private static AxisInfo[] clone(final AxisInfo[] axis) {
         return Arrays.equals(axis, DEFAULT_AXIS) ? DEFAULT_AXIS : (AxisInfo[]) axis.clone();
@@ -190,7 +190,7 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Override {@link CoordinateSystem#getDatum()}.
+     * Overrides {@link CoordinateSystem#getDatum()}.
      */
     final Datum getDatum() {
         return getHorizontalDatum();
@@ -211,7 +211,7 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     /**
      * Gets units for dimension within coordinate system.
      * For a <code>GeocentricCoordinateSystem</code>, the
-     * units is the same for all axis.
+     * units are the same for all axes.
      *
      * @param dimension Zero based index of axis.
      *
@@ -247,12 +247,12 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Returns  <code>true</code> if this coordinate system is equivalents to
+     * Returns <code>true</code> if this coordinate system is equivalent to
      * the specified coordinate system. Two coordinate systems are considered
      * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
      * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The default implementation compare datum, units and axis, but ignore
-     * name, alias and other meta-data informations.
+     * The default implementation compares datum, units and axis, but ignores
+     * name, alias and other meta-data information.
      *
      * @param  cs The coordinate system (may be <code>null</code>).
      * @return <code>true</code> if both coordinate systems are equivalent.
@@ -269,8 +269,8 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
@@ -291,7 +291,7 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
      * system. The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -309,13 +309,10 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     /**
      * Wrap a {@link LocalCoordinateSystem} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends CoordinateSystem.Export implements CS_GeocentricCoordinateSystem {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

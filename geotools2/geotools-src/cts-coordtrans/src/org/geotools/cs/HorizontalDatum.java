@@ -51,7 +51,7 @@ import java.rmi.RemoteException;
 /**
  * Procedure used to measure positions on the surface of the Earth.
  *
- * @version 1.00
+ * @version $Id: HorizontalDatum.java,v 1.3 2002/06/05 15:52:06 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -116,7 +116,7 @@ public class HorizontalDatum extends Datum {
      * Gets the type of the datum as an enumerated code.
      *
      * Note: return type will be changed to {@link DatumType.Horizontal}
-     *       when we will be able to use generic types (with JDK 1.5).
+     *       when are able to use generic types (with JDK 1.5).
      *
      * @see org.opengis.cs.CS_HorizontalDatum#getDatumType()
      */
@@ -137,8 +137,8 @@ public class HorizontalDatum extends Datum {
      * Gets preferred parameters for a Bursa Wolf transformation into WGS84.
      * The 7 returned values correspond to (dx,dy,dz) in meters, (ex,ey,ez)
      * in arc-seconds, and scaling in parts-per-million.  This method will
-     * always returns <code>null</code> for horizontal datums with type
-     * {@link DatumType.Horizontal#OTHER}. This method may also returns
+     * always return <code>null</code> for horizontal datums with type
+     * {@link DatumType.Horizontal#OTHER}. This method may also return
      * <code>null</code> if no suitable transformation is available.
      *
      * @see org.opengis.cs.CS_HorizontalDatum#getWGS84Parameters()
@@ -148,8 +148,8 @@ public class HorizontalDatum extends Datum {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         super.addString(buffer, context);
@@ -163,8 +163,7 @@ public class HorizontalDatum extends Datum {
     }
     
     /**
-     * Compares the specified object
-     * with this datum for equality.
+     * Compares the specified object with this datum for equality.
      */
     public boolean equals(final Object object) {
         if (super.equals(object)) {
@@ -180,7 +179,7 @@ public class HorizontalDatum extends Datum {
      * The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -196,15 +195,12 @@ public class HorizontalDatum extends Datum {
     /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Wrap a {@link HorizontalDatum} object for use with OpenGIS.
+     * Wraps a {@link HorizontalDatum} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends Datum.Export implements CS_HorizontalDatum {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

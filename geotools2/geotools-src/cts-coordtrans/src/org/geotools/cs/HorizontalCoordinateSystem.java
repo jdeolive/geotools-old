@@ -52,7 +52,7 @@ import java.rmi.RemoteException;
 /**
  * A 2D coordinate system suitable for positions on the Earth's surface.
  *
- * @version 1.00
+ * @version $Id: HorizontalCoordinateSystem.java,v 1.3 2002/06/05 15:50:02 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -80,7 +80,7 @@ public abstract class HorizontalCoordinateSystem extends CoordinateSystem {
     private final AxisInfo axis1;
     
     /**
-     * Construct a coordinate system.
+     * Constructs a coordinate system.
      *
      * @param name  The coordinate system name.
      * @param datum The horizontal datum.
@@ -111,7 +111,7 @@ public abstract class HorizontalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Override {@link CoordinateSystem#getDatum()}.
+     * Overrides {@link CoordinateSystem#getDatum()}.
      */
     final Datum getDatum() {
         return getHorizontalDatum();
@@ -143,12 +143,12 @@ public abstract class HorizontalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Returns  <code>true</code> if this coordinate system is equivalents to
+     * Returns <code>true</code> if this coordinate system is equivalent to
      * the specified coordinate system. Two coordinate systems are considered
      * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
      * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The default implementation compare datum, units and axis, but ignore
-     * name, alias and other meta-data informations.
+     * The default implementation compares datum, units and axis, but ignores
+     * name, alias and other meta-data information.
      *
      * @param  cs The coordinate system (may be <code>null</code>).
      * @return <code>true</code> if both coordinate systems are equivalent.
@@ -167,8 +167,8 @@ public abstract class HorizontalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
@@ -185,7 +185,7 @@ public abstract class HorizontalCoordinateSystem extends CoordinateSystem {
      * system. The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -203,13 +203,10 @@ public abstract class HorizontalCoordinateSystem extends CoordinateSystem {
     /**
      * Wrap a {@link HorizontalCoordinateSystem} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     class Export extends CoordinateSystem.Export implements CS_HorizontalCoordinateSystem {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

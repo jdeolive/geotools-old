@@ -39,29 +39,29 @@ package org.geotools.cs;
 /**
  * Thrown to indicate that a factory operation could not complete because of
  * a failure in the backing store, or a failure to contact the backing store.
- * The most common raison is a failure to find the authority code, which is
+ * The most common reason is a failure to find the authority code, which is
  * indicated by {@link NoSuchAuthorityCodeException}.
  *
- * @version 1.0
+ * @version $Id: FactoryException.java,v 1.2 2002/06/05 15:39:57 loxnard Exp $
  * @author Martin Desruisseaux
  */
 public class FactoryException extends Exception {
     /**
-     * Construct an exception with no message.
+     * Constructs an exception with no message.
      */
     public FactoryException() {
         super();
     }
     
     /**
-     * Construct an exception with the specified detail message.
+     * Constructs an exception with the specified detail message.
      */
     public FactoryException(final String message) {
         super(message);
     }
     
     /**
-     * Construct an exception with the specified detail message
+     * Constructs an exception with the specified detail message
      * and a cause.
      */
     public FactoryException(final String message, final Throwable cause) {
