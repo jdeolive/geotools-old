@@ -48,13 +48,7 @@
  */
 package org.geotools.renderer.j2d;
 
-
-import java.awt.Component;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
+import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
 import org.geotools.data.FeatureSource;
@@ -62,11 +56,17 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.geotools.map.event.MapLayerEvent;
+import org.geotools.map.event.MapLayerListEvent;
+import org.geotools.map.event.MapLayerListListener;
 import org.geotools.map.event.MapLayerListener;
 import org.geotools.resources.XMath;
 import org.geotools.styling.Style;
-
-import com.vividsolutions.jts.geom.Envelope;
+import java.awt.Component;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.logging.Level;
 
 
 /**
@@ -75,9 +75,11 @@ import com.vividsolutions.jts.geom.Envelope;
  * RenderedLayer#repaint} automatically on changes.
  *
  * @author Martin Desruisseaux
- * @version $Id: StyledMapRenderer.java,v 1.2 2004/01/09 16:22:58 aaime Exp $
+ * @version $Id: StyledMapRenderer.java,v 1.3 2004/02/23 17:55:07 aaime Exp $
  */
 public class StyledMapRenderer extends Renderer {
+    private MapContext mapContext;
+
     /** The factory for rendered layers. */
     private final RenderedLayerFactory factory;
 
@@ -126,10 +128,18 @@ public class StyledMapRenderer extends Renderer {
      * </ul>
      * 
      *
-     * @param context The new context, or <code>null</code> for removing any previous context.
+     * @param mapContext The new context, or<code>null</code> for removing any previous context.
+     *
+     * @throws TransformException DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
+     * @throws IllegalAttributeException DOCUMENT ME!
      */
-    public synchronized void setMapContext(final MapContext mapContext) throws TransformException, IOException, IllegalAttributeException {
+    public synchronized void setMapContext(final MapContext mapContext)
+        throws TransformException, IOException, IllegalAttributeException {
         removeAllLayers();
+
+        this.mapContext = mapContext;
+
         if (mapContext != null) {
             final Envelope box = mapContext.getAreaOfInterest();
 
@@ -139,9 +149,37 @@ public class StyledMapRenderer extends Renderer {
             setCoordinateSystem(cs);
 
             MapLayer[] layers = mapContext.getLayers();
+
             for (int i = 0; i < layers.length; i++) {
                 addLayer(layers[i]);
             }
+
+            mapContext.addMapLayerListListener(new MapLayerListListener() {
+                    public void layerAdded(MapLayerListEvent event) {
+                        try {
+                            addLayer(event.getLayer());
+                        } catch (Exception e) {
+                            LOGGER.log(Level.SEVERE, "Error adding map layer", e);
+                        }
+                    }
+
+                    public void layerRemoved(MapLayerListEvent event) {
+                        removeLayer(event.getLayer());
+                    }
+
+                    public void layerChanged(MapLayerListEvent event) {
+                        // that's not necessary, we use the single layer listener
+                        // TODO: refactor in order to use this listener instead of
+                        // the layer specific one
+                    }
+
+                    public void layerMoved(MapLayerListEvent event) {
+                        MapLayer layer = event.getLayer();
+                        LayerEntry entry = (LayerEntry) renderedLayers.get(layer);
+                        int index = mapContext.indexOf(layer);
+                        setZOrder(entry.rendered, index);
+                    }
+                });
         }
     }
 
@@ -155,9 +193,11 @@ public class StyledMapRenderer extends Renderer {
      *
      * @throws TransformException if some feature in the layer use an incompatible coordinate
      *         system.
+     * @throws IOException DOCUMENT ME!
+     * @throws IllegalAttributeException DOCUMENT ME!
      * @throws AssertionError DOCUMENT ME!
      */
-    public synchronized void addLayer(final MapLayer layer)
+    protected synchronized void addLayer(final MapLayer layer)
         throws TransformException, IOException, IllegalAttributeException {
         removeLayer(layer);
 
@@ -166,7 +206,59 @@ public class StyledMapRenderer extends Renderer {
         final RenderedLayer[] rend = factory.create(source, style);
         final boolean visible = layer.isVisible();
         final int baseZOrder = renderedLayers.size();
+
+        setZOrder(rend, baseZOrder);
+
+        for (int j = 0; j < rend.length; j++) {
+            final RenderedLayer rendered = rend[j];
+            rendered.setVisible(visible);
+            addLayer(rendered);
+        }
+
+        final LayerEntry entry = new LayerEntry(layer, rend);
+
+        if (renderedLayers.put(layer, entry) != null) {
+            throw new AssertionError(); // Should never happen.
+        }
+
+        layer.addMapLayerListener(entry);
+    }
+
+    private void setZOrder(RenderedLayer[] rend, int baseZOrder) {
         final double zOrderScale = XMath.pow10((int) Math.ceil(XMath.log10(rend.length)));
+
+        for (int j = 0; j < rend.length; j++) {
+            final RenderedLayer rendered = rend[j];
+            rendered.setZOrder((float) (baseZOrder + (j / zOrderScale)));
+        }
+    }
+
+    /**
+     * Add a layer to this renderer. A single {@link Layer} may be converted into an arbitrary
+     * amount of {@link RenderedLayer}s. Those rendered layers will have {@linkPlain
+     * RenderedLayer#getZOrder z-order} values as 4.0, 4.1, 4.2, etc. where 4 is the layer number,
+     * and .0, .1, .2... is the rendered layer number for this particular layer.
+     *
+     * @param layer The layer to add.
+     * @param position DOCUMENT ME!
+     *
+     * @throws TransformException if some feature in the layer use an incompatible coordinate
+     *         system.
+     * @throws IOException DOCUMENT ME!
+     * @throws IllegalAttributeException DOCUMENT ME!
+     * @throws AssertionError DOCUMENT ME!
+     */
+    public synchronized void insertLayer(final MapLayer layer, int position)
+        throws TransformException, IOException, IllegalAttributeException {
+        removeLayer(layer);
+
+        final Style style = layer.getStyle();
+        final FeatureSource source = layer.getFeatureSource();
+        final RenderedLayer[] rend = factory.create(source, style);
+        final boolean visible = layer.isVisible();
+        final int baseZOrder = position;
+        final double zOrderScale = XMath.pow10((int) Math.ceil(XMath.log10(rend.length)));
+
         for (int j = 0; j < rend.length; j++) {
             final RenderedLayer rendered = rend[j];
             rendered.setVisible(visible);
@@ -175,6 +267,7 @@ public class StyledMapRenderer extends Renderer {
         }
 
         final LayerEntry entry = new LayerEntry(layer, rend);
+
         if (renderedLayers.put(layer, entry) != null) {
             throw new AssertionError(); // Should never happen.
         }
@@ -190,10 +283,12 @@ public class StyledMapRenderer extends Renderer {
      */
     public synchronized void removeLayer(final MapLayer layer) {
         final LayerEntry entry = (LayerEntry) renderedLayers.remove(layer);
+
         if (entry != null) {
             layer.removeMapLayerListener(entry);
 
             final RenderedLayer[] rendered = entry.rendered;
+
             for (int i = 0; i < rendered.length; i++) {
                 removeLayer(rendered[i]);
             }
@@ -223,7 +318,7 @@ public class StyledMapRenderer extends Renderer {
      * catching changes in collection and visibility.
      *
      * @author Martin Desruisseaux
-     * @version $Id: StyledMapRenderer.java,v 1.2 2004/01/09 16:22:58 aaime Exp $
+     * @version $Id: StyledMapRenderer.java,v 1.3 2004/02/23 17:55:07 aaime Exp $
      */
     private final class LayerEntry implements MapLayerListener {
         /** The layer. */
@@ -264,7 +359,19 @@ public class StyledMapRenderer extends Renderer {
             try {
                 if ((event.getReason() == MapLayerEvent.DATA_CHANGED)
                         || (event.getReason() == MapLayerEvent.STYLE_CHANGED)) {
-                    addLayer(layer);
+                    MapLayer[] layers = mapContext.getLayers();
+                    int position = 0;
+
+                    for (int i = 0; i < layers.length; i++) {
+                        if (layer == layers[i]) {
+                            position = i;
+
+                            break;
+                        }
+                    }
+
+                    removeLayer(layer);
+                    insertLayer(layer, position);
                 }
             } catch (Exception e) {
                 handleException("StyledMapRenderer", "layerChanged", e);
@@ -272,9 +379,17 @@ public class StyledMapRenderer extends Renderer {
         }
 
         public void layerShown(MapLayerEvent event) {
+            for (int i = 0; i < rendered.length; i++) {
+                RenderedLayer rl = rendered[i];
+                rl.setVisible(true);
+            }
         }
 
         public void layerHidden(MapLayerEvent event) {
+            for (int i = 0; i < rendered.length; i++) {
+                RenderedLayer rl = rendered[i];
+                rl.setVisible(false);
+            }
         }
     }
 }
