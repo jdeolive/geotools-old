@@ -856,7 +856,7 @@ public class StyleBuilder {
      * @return the new line symbolizer
      */
     public LineSymbolizer createLineSymbolizer() {
-        return sf.createLineSymbolizer();
+        return sf.getDefaultLineSymbolizer();
     }
 
     /**
@@ -1013,7 +1013,7 @@ public class StyleBuilder {
      * @return the new point symbolizer
      */
     public PointSymbolizer createPointSymbolizer() {
-        return sf.createPointSymbolizer();
+        return sf.getDefaultPointSymbolizer();
     }
 
     /**
