@@ -30,6 +30,7 @@ import java.lang.reflect.Array;
 import java.math.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +45,7 @@ import java.util.Map;
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
  * @author Ian Schneider
- * @version $Id: DefaultAttributeType.java,v 1.25 2004/02/11 21:29:25 ianschneider Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.26 2004/02/26 22:14:21 ianschneider Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -126,6 +127,13 @@ public class DefaultAttributeType implements AttributeType {
         return nillable;
     }
 
+    /** Return a safe Object copy.
+     * Obtain a duplicate Object if the object is mutable, or the same Object
+     * reference if it is immutable.
+     * @return A duplicated Object if the type is mutable or the same Object
+     *         if it is immutable or null if the passed Object is null.
+     * @throws IllegalAttributeException if the Object cannot be duplicated.
+     */
     public Object duplicate(Object src) throws IllegalAttributeException {
         if (src == null) {
             return null;
@@ -141,6 +149,10 @@ public class DefaultAttributeType implements AttributeType {
                 || src instanceof Short || src instanceof Long
                 || src instanceof Character || src instanceof Number) {
             return src;
+        }
+        
+        if (src instanceof Date) {
+            return new Date( ((Date)src).getTime() );
         }
 
         if (src instanceof Object[]) {
@@ -214,6 +226,8 @@ public class DefaultAttributeType implements AttributeType {
 
             return Collections.unmodifiableMap(copy);
         }
+        
+        
 
         //
         // I have lost hope and am returning the orgional reference
@@ -440,6 +454,14 @@ public class DefaultAttributeType implements AttributeType {
                 "Cannot parse " + value.getClass()
             );
         }
+        
+        /** Duplicate the given Object.
+         * In this case, since Number classes are immutable, lets return the
+         * Object.
+         */
+        public Object duplicate(Object o) {
+            return o;
+        }
 
         protected Object parseFromString(String value)
             throws IllegalArgumentException {
@@ -545,6 +567,16 @@ public class DefaultAttributeType implements AttributeType {
                 defaultValue);
             this.featureType = type;
         }
+        
+        public Object duplicate(Object o) throws IllegalAttributeException {
+            if (o instanceof org.geotools.feature.Feature) {
+                org.geotools.feature.Feature f = (org.geotools.feature.Feature) o;
+                return f.getFeatureType().duplicate(f);
+            }
+            if (o == null)
+                return o;
+            throw new IllegalAttributeException("Could not duplicate " + o.getClass().getName());
+        }
 
         /**
          * Whether the tested object is a Feature and its attributes validate
@@ -593,6 +625,15 @@ public class DefaultAttributeType implements AttributeType {
             // this also covers any other cases...
             return value.toString();
         }
+        
+        /** Duplicate as a String
+         * @return a String obtained by calling toString or null.
+         */
+        public Object duplicate(Object o) {
+            if (o == null)
+                return null;
+            return o.toString();
+        }
     }
 
     static class Temporal extends DefaultAttributeType {
@@ -615,7 +656,7 @@ public class DefaultAttributeType implements AttributeType {
             }
 
             if (value instanceof Number) {
-                return new java.util.Date(((Number) value).longValue());
+                return new Date(((Number) value).longValue());
             }
 
             if (value instanceof java.util.Calendar) {
@@ -628,6 +669,16 @@ public class DefaultAttributeType implements AttributeType {
                 throw new IllegalArgumentException("unable to parse " + value
                     + " as Date");
             }
+        }
+        
+        public Object duplicate(Object o) throws IllegalAttributeException {
+            if (o == null)
+                return null;
+            if (o instanceof Date) {
+                Date d = (Date) o;
+                return new Date(d.getTime());
+            }
+            throw new IllegalAttributeException("Cannot duplicate " + o.getClass().getName());
         }
     }
 
@@ -686,6 +737,15 @@ public class DefaultAttributeType implements AttributeType {
             // consider wkt/wkb/gml support?
             throw new RuntimeException(
                 "DefaultAttribute.Geometric cannot parse " + value);
+        }
+        
+        public Object duplicate(Object o) throws IllegalAttributeException {
+            if (o == null)
+                return o;
+            if (o instanceof Geometry) {
+                return ((Geometry)o).clone();
+            }
+            throw new IllegalAttributeException("Cannot duplicate " + o.getClass().getName());
         }
     }
 }
