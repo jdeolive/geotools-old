@@ -92,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.26 2003/08/11 20:04:16 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.27 2003/08/13 22:45:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -540,6 +540,10 @@ public abstract class RenderedLayer {
      * but at some later time depending on the widget implementation (e.g. <cite>Swing</cite>).
      * This <code>repaint()</code> method can be invoked from any thread; it doesn't need to be
      * the <cite>Swing</cite> thread.
+     * <br><br>
+     * Note that this method repaint only the area rendered during the last to {@link #paint}.
+     * If this layer now cover a wider area, then the area to repaint must be specified with
+     * a call to {@link #repaint(Rectangle2D)} instead.
      */
     public void repaint() {
         repaintComponent(paintedArea!=null ? paintedArea.getBounds() : null);

@@ -1,8 +1,7 @@
 /*
  * Geotools 2 - OpenSource mapping toolkit
  * (C) 2003, Geotools Project Managment Committee (PMC)
- * (C) 2001, Institut de Recherche pour le Développement
- * (C) 1998, Pêches et Océans Canada
+ * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -40,6 +39,9 @@ import java.util.Iterator;
 import java.awt.Component;
 import java.rmi.RemoteException;
 
+// JTS dependencies
+import com.vividsolutions.jts.geom.Envelope;
+
 // Geotools dependencies
 import org.geotools.map.Layer;
 import org.geotools.map.Context;
@@ -52,6 +54,7 @@ import org.geotools.feature.CollectionListener;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.resources.XMath;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.Adapters;
@@ -59,8 +62,10 @@ import org.geotools.ct.Adapters;
 
 /**
  * A renderer for rendering {@linkplain Style styled} {@linkplain Feature features}.
+ * This renderer listen for {@linkplain CollectionEvent feature collection changes}
+ * and invokes {@link RenderedLayer#repaint} automatically on changes.
  *
- * @version $Id: StyledRenderer.java,v 1.1 2003/08/13 18:18:30 desruisseaux Exp $
+ * @version $Id: StyledRenderer.java,v 1.2 2003/08/13 22:45:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class StyledRenderer extends Renderer {
@@ -95,8 +100,13 @@ public class StyledRenderer extends Renderer {
     }
 
     /**
-     * Set a new context as the current one. Invoking this method will remove
-     * all layers and replace them with new layers from the given context.
+     * Set a new context as the current one. This method performs the following steps:
+     * <ul>
+     *   <li>Remove all previous layers.</li>
+     *   <li>Set the coordinate system to the context CS.</li>
+     *   <li>Add all layers found in the context.</li>
+     *   <li>Register listeners for feature changes.</li>
+     * </ul>
      *
      * @param context The new context, or <code>null</code> for removing any previous context.
      */
@@ -125,8 +135,8 @@ public class StyledRenderer extends Renderer {
             e.initCause(cause);
             throw e;
         } catch (TransformException cause) {
-            // Should not happen since:
-            //   1) We removed all previous layer (so there is nothing to project)
+            // Should not happen because:
+            //   1) We removed all previous layer (so there is nothing left to project).
             //   2) New layers should have a coordinate system compatible with current one.
             IllegalStateException e=new IllegalStateException(Resources.getResources(getLocale()).
                                         getString(ResourceKeys.ERROR_ILLEGAL_COORDINATE_SYSTEM));
@@ -136,7 +146,11 @@ public class StyledRenderer extends Renderer {
     }
 
     /**
-     * Add a layer to this renderer.
+     * Add a layer to this renderer. A single {@link Layer} may be converted into an
+     * arbitrary amount of {@link RenderedLayer}s. Those rendered layers will have
+     * {@linkplain RenderedLayer#getZOrder z-order} values as 4.0, 4.1, 4.2, etc.
+     * where 4 is the layer number, and .0, .1, .2... is the rendered layer number
+     * for this particular layer.
      *
      * @param  layer The layer to add.
      * @throws TransformException if some feature in the layer use an incompatible
@@ -149,9 +163,13 @@ public class StyledRenderer extends Renderer {
         final Feature[]   features = (Feature[]) fc.toArray(new Feature[fc.size()]);
         final RenderedLayer[] rend = factory.create(features, style);
         final boolean   visibility = layer.getVisability();
+        final int       baseZOrder = renderedLayers.size();
+        final double   zOrderScale = XMath.pow10((int)Math.ceil(XMath.log10(rend.length)));
         for (int j=0; j<rend.length; j++) {
-            rend[j].setVisible(visibility);
-            addLayer(rend[j]);
+            final RenderedLayer rendered = rend[j];
+            rendered.setVisible(visibility);
+            rendered.setZOrder((float)(baseZOrder + j/zOrderScale));
+            addLayer(rendered);
         }
         final LayerEntry entry = new LayerEntry(layer, rend);
         if (renderedLayers.put(layer, entry) != null) {
@@ -193,7 +211,7 @@ public class StyledRenderer extends Renderer {
      * Map a {@link Layer} to a set of {@link RenderedLayer} and to the listeners
      * needed for catching changes in collection and visibility.
      *
-     * @version $Id: StyledRenderer.java,v 1.1 2003/08/13 18:18:30 desruisseaux Exp $
+     * @version $Id: StyledRenderer.java,v 1.2 2003/08/13 22:45:57 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class LayerEntry implements CollectionListener {
@@ -208,6 +226,11 @@ public class StyledRenderer extends Renderer {
         final RenderedLayer[] rendered;
 
         /**
+         * The feature bounds.
+         */
+        private Envelope bounds;
+
+        /**
          * Construct a new entry.
          *
          * @param rendered The rendered layers.
@@ -215,15 +238,25 @@ public class StyledRenderer extends Renderer {
         public LayerEntry(final Layer layer, final RenderedLayer[] rendered) {
             this.layer    = layer;
             this.rendered = rendered;
+            this.bounds   = layer.getFeatures().getBounds();
         }
 
         /**
-         * Tells that all rendered layers need to be repainted.
+         * Tells that all rendered layers need to be repainted. This method can be invoked
+         * from any thread; it doesn't need to be the <cite>Swing</cite> thread.
          */
         public void repaint() {
+            final Envelope envelope = layer.getFeatures().getBounds();
+            final boolean contained = bounds.contains(envelope);
             for (int i=0; i<rendered.length; i++) {
-                rendered[i].repaint();
+                final RenderedLayer layer = rendered[i];
+                if (contained) {
+                    layer.repaint();
+                } else {
+                    layer.repaint(null);
+                }
             }
+            bounds = envelope;
         }
 
         /**
@@ -242,6 +275,7 @@ public class StyledRenderer extends Renderer {
                     // Fall through
                 }
                 case CollectionEvent.FEATURES_ADDED: {
+                    // Remove all features for this layer, and re-add them.
                     try {
                         addLayer(layer);
                     } catch (TransformException exception) {
