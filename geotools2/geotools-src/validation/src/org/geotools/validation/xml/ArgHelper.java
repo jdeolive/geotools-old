@@ -1,9 +1,33 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 /* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
  * This code is licensed under the GPL 2.0 license, availible at the root
  * application directory.
  */
 package org.geotools.validation.xml;
 
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import org.geotools.filter.ExpressionDOMParser;
+import org.geotools.filter.Filter;
+import org.geotools.filter.FilterDOMParser;
+import org.geotools.gml.producer.GeometryTransformer;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -12,27 +36,16 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-
-import org.geotools.filter.ExpressionDOMParser;
-import org.geotools.filter.Filter;
-import org.geotools.filter.FilterDOMParser;
-import org.geotools.gml.producer.GeometryTransformer;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
 
 
 /**
  * ArgHelper purpose.
  *
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: jive $ (last modification)
- * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+ * @author $Author: dmzwiers $ (last modification)
+ * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
  */
 public class ArgHelper {
     private static final Mapping[] argumentTypeMappings = {
@@ -90,18 +103,18 @@ public class ArgHelper {
      * @throws NullPointerException DOCUMENT ME!
      */
     public static Object getArgumentInstance(String elementName, String value)
-	throws ValidationException {
-    	if (elementName == null) {
-    		throw new NullPointerException("A Typename must be specified.");
-    	}
+        throws ValidationException {
+        if (elementName == null) {
+            throw new NullPointerException("A Typename must be specified.");
+        }
 
-    	for (int i = 0; i < argumentTypeMappings.length; i++) {
-    		if (elementName.equals(argumentTypeMappings[i].getElementName())) {
-    			return argumentTypeMappings[i].getInstance(value);
-    		}
-    	}
+        for (int i = 0; i < argumentTypeMappings.length; i++) {
+            if (elementName.equals(argumentTypeMappings[i].getElementName())) {
+                return argumentTypeMappings[i].getInstance(value);
+            }
+        }
 
-    	return null;
+        return null;
     }
 
     /**
@@ -122,17 +135,19 @@ public class ArgHelper {
             throw new NullPointerException(
                 "An argument instance must be specified.");
         }
-        if(o instanceof Class){
-        	for (int i = 0; i < argumentTypeMappings.length; i++)
-        		if (argumentTypeMappings[i].isClass((Class)o)) {
-        			return argumentTypeMappings[i].getType();
-        		}
-        }else{
-        	for (int i = 0; i < argumentTypeMappings.length; i++)
-        		if (argumentTypeMappings[i].isClassInstance(o)) {
-                	return argumentTypeMappings[i].getType();
-            	}
+
+        if (o instanceof Class) {
+            for (int i = 0; i < argumentTypeMappings.length; i++)
+                if (argumentTypeMappings[i].isClass((Class) o)) {
+                    return argumentTypeMappings[i].getType();
+                }
+        } else {
+            for (int i = 0; i < argumentTypeMappings.length; i++)
+                if (argumentTypeMappings[i].isClassInstance(o)) {
+                    return argumentTypeMappings[i].getType();
+                }
         }
+
         return "";
     }
 
@@ -164,18 +179,19 @@ public class ArgHelper {
 
         return "";
     }
-    public static String getArgumentStringEncoding(Object o){
-    	if (o == null) {
-    		throw new NullPointerException(
-    		"An argument instance must be specified.");
-    	}
 
-    	for (int i = 0; i < argumentTypeMappings.length; i++)
-    		if (argumentTypeMappings[i].isClassInstance(o)) {
-    			return argumentTypeMappings[i].toString(o);
-    		}
+    public static String getArgumentStringEncoding(Object o) {
+        if (o == null) {
+            throw new NullPointerException(
+                "An argument instance must be specified.");
+        }
 
-    	return "";
+        for (int i = 0; i < argumentTypeMappings.length; i++)
+            if (argumentTypeMappings[i].isClassInstance(o)) {
+                return argumentTypeMappings[i].toString(o);
+            }
+
+        return "";
     }
 
     /**
@@ -186,8 +202,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected interface Mapping {
         /**
@@ -215,6 +231,7 @@ public class ArgHelper {
          */
         public abstract Object getInstance(Element value)
             throws ValidationException;
+
         /**
          * getInstance purpose.
          * 
@@ -228,7 +245,7 @@ public class ArgHelper {
          * @return The particular argument type expected.
          */
         public abstract Object getInstance(String value)
-		throws ValidationException;
+            throws ValidationException;
 
         /**
          * isClassInstance purpose.
@@ -242,6 +259,7 @@ public class ArgHelper {
          * @return true when they are compatible
          */
         public abstract boolean isClassInstance(Object obj);
+
         public abstract boolean isClass(Class c);
 
         /**
@@ -258,6 +276,7 @@ public class ArgHelper {
          *         otherwise.
          */
         public abstract String encode(Object obj) throws ValidationException;
+
         public abstract String toString(Object obj);
 
         /**
@@ -280,8 +299,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      *
      * @see Mapping
      */
@@ -327,32 +346,38 @@ public class ArgHelper {
 
             return null;
         }
-        public Object getInstance(String elem) {
-        	Element value;
-			try {
-				StringReader sr = new StringReader(elem);
-				value = ReaderUtils.loadConfig(sr);
-				sr.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			} catch (ParserConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			} catch (SAXException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
-			// value must be the node for "ogc:Filter"
-        	if ((value != null)
-			&& ((value = ReaderUtils.getFirstChildElement(value)) != null)) {
-        		return FilterDOMParser.parseFilter(value);
-        	}
 
-        	return null;
+        public Object getInstance(String elem) {
+            Element value;
+
+            try {
+                StringReader sr = new StringReader(elem);
+                value = ReaderUtils.loadConfig(sr);
+                sr.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+
+                return null;
+            } catch (ParserConfigurationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+
+                return null;
+            } catch (SAXException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+
+                return null;
+            }
+
+            // value must be the node for "ogc:Filter"
+            if ((value != null)
+                    && ((value = ReaderUtils.getFirstChildElement(value)) != null)) {
+                return FilterDOMParser.parseFilter(value);
+            }
+
+            return null;
         }
 
         /**
@@ -367,8 +392,9 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof Filter);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && Filter.class.equals(c));
+            return ((c != null) && Filter.class.equals(c));
         }
 
         /**
@@ -409,30 +435,31 @@ public class ArgHelper {
 
             return "<filter>\n" + sw.toString() + "</filter>\n";
         }
-        public String toString(Object obj){
-        	Filter f = null;
 
-        	if (obj == null) {
-        		throw new NullPointerException("Cannot encode a null Filter.");
-        	}
+        public String toString(Object obj) {
+            Filter f = null;
 
-        	if (!(obj instanceof Filter)) {
-        		throw new ClassCastException("Cannot cast "
-        				+ obj.getClass().toString() + " to a Filter.");
-        	}
+            if (obj == null) {
+                throw new NullPointerException("Cannot encode a null Filter.");
+            }
 
-        	f = (Filter) obj;
+            if (!(obj instanceof Filter)) {
+                throw new ClassCastException("Cannot cast "
+                    + obj.getClass().toString() + " to a Filter.");
+            }
 
-        	StringWriter sw = new StringWriter();
-        	org.geotools.filter.XMLEncoder xe = new org.geotools.filter.XMLEncoder(sw);
+            f = (Filter) obj;
 
-        	try {
-        		xe.encode(f);
-        	} catch (IOException e) {
-        		return null;
-        	}
+            StringWriter sw = new StringWriter();
+            org.geotools.filter.XMLEncoder xe = new org.geotools.filter.XMLEncoder(sw);
 
-        	return "<filter>\n" + sw.toString() + "</filter>\n";
+            try {
+                xe.encode(f);
+            } catch (IOException e) {
+                return null;
+            }
+
+            return "<filter>\n" + sw.toString() + "</filter>\n";
         }
     }
 
@@ -444,8 +471,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class GeometryMapping implements Mapping {
         /**
@@ -483,27 +510,32 @@ public class ArgHelper {
         public Object getInstance(Element value) {
             return (Geometry) ExpressionDOMParser.parseGML(value);
         }
-        
+
         public Object getInstance(String value) {
-        	Element elem;
-			try {
-				StringReader sr = new StringReader(value);
-				elem = ReaderUtils.loadConfig(sr);
-				sr.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			} catch (ParserConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			} catch (SAXException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
-			return (Geometry) ExpressionDOMParser.parseGML(elem);
+            Element elem;
+
+            try {
+                StringReader sr = new StringReader(value);
+                elem = ReaderUtils.loadConfig(sr);
+                sr.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+
+                return null;
+            } catch (ParserConfigurationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+
+                return null;
+            } catch (SAXException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+
+                return null;
+            }
+
+            return (Geometry) ExpressionDOMParser.parseGML(elem);
         }
 
         /**
@@ -518,8 +550,9 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof Geometry);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && Geometry.class.equals(c));
+            return ((c != null) && Geometry.class.equals(c));
         }
 
         /**
@@ -546,18 +579,19 @@ public class ArgHelper {
 
             return "<geometry>\n" + sw.toString() + "</geometry>\n";
         }
-        public String toString(Object obj){
-        	StringWriter sw = new StringWriter();
-        	GeometryTransformer transformer = new GeometryTransformer();
 
-        	try {
-        		transformer.transform(obj, sw);
-        		;
-        	} catch (TransformerException e) {
-        		return null;
-        	}
+        public String toString(Object obj) {
+            StringWriter sw = new StringWriter();
+            GeometryTransformer transformer = new GeometryTransformer();
 
-        	return "<geometry>\n" + sw.toString() + "</geometry>\n";
+            try {
+                transformer.transform(obj, sw);
+                ;
+            } catch (TransformerException e) {
+                return null;
+            }
+
+            return "<geometry>\n" + sw.toString() + "</geometry>\n";
         }
     }
 
@@ -569,8 +603,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class EnvelopeMapping implements Mapping {
         /**
@@ -636,19 +670,24 @@ public class ArgHelper {
 
             return null;
         }
+
         public Object getInstance(String bbox) throws ValidationException {
-        	if (bbox == null) {
-        		throw new NullPointerException(
-        		"The bounding Box element passed in was null");
-        	}
-        	try{
-        	String[] tmp = bbox.split(",");
-        	double minx = Double.parseDouble(tmp[0].trim());
-        	double maxx = Double.parseDouble(tmp[1].trim());
-        	double miny = Double.parseDouble(tmp[2].trim());
-        	double maxy = Double.parseDouble(tmp[3].trim());
-        	return new Envelope(minx, maxx, miny, maxy);
-        	}catch(Exception e){throw new ValidationException(e);}
+            if (bbox == null) {
+                throw new NullPointerException(
+                    "The bounding Box element passed in was null");
+            }
+
+            try {
+                String[] tmp = bbox.split(",");
+                double minx = Double.parseDouble(tmp[0].trim());
+                double maxx = Double.parseDouble(tmp[1].trim());
+                double miny = Double.parseDouble(tmp[2].trim());
+                double maxy = Double.parseDouble(tmp[3].trim());
+
+                return new Envelope(minx, maxx, miny, maxy);
+            } catch (Exception e) {
+                throw new ValidationException(e);
+            }
         }
 
         /**
@@ -663,8 +702,9 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof Envelope);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && Envelope.class.equals(c));
+            return ((c != null) && Envelope.class.equals(c));
         }
 
         /**
@@ -708,28 +748,29 @@ public class ArgHelper {
 
             return s;
         }
+
         public String toString(Object obj) {
-        	if (obj == null) {
-        		throw new NullPointerException(
-        		"The bounding Box obj passed in was null");
-        	}
+            if (obj == null) {
+                throw new NullPointerException(
+                    "The bounding Box obj passed in was null");
+            }
 
-        	if (!(obj instanceof Envelope)) {
-        		throw new ClassCastException(
-        		"Object of type Envelope was expected.");
-        	}
+            if (!(obj instanceof Envelope)) {
+                throw new ClassCastException(
+                    "Object of type Envelope was expected.");
+            }
 
-        	String s = "";
-        	Envelope e = (Envelope) obj;
+            String s = "";
+            Envelope e = (Envelope) obj;
 
-        	if (!e.isNull()) {
-        		s += e.getMinX();
-        		s += ("," + e.getMaxX());
-        		s += ("," + e.getMinY());
-        		s += ("," + e.getMaxY());
-        	}
+            if (!e.isNull()) {
+                s += e.getMinX();
+                s += ("," + e.getMaxX());
+                s += ("," + e.getMinY());
+                s += ("," + e.getMaxY());
+            }
 
-        	return s;
+            return s;
         }
     }
 
@@ -741,8 +782,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class ShortMapping implements Mapping {
         /**
@@ -787,13 +828,14 @@ public class ArgHelper {
 
             return new Short(ReaderUtils.getElementText(elem));
         }
-        public Object getInstance(String value) {
-        	if (value == null) {
-        		throw new NullPointerException(
-        		"The short element passed in was null");
-        	}
 
-        	return new Short(value);
+        public Object getInstance(String value) {
+            if (value == null) {
+                throw new NullPointerException(
+                    "The short element passed in was null");
+            }
+
+            return new Short(value);
         }
 
         /**
@@ -808,8 +850,10 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof Short);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && (Short.class.equals(c) || short.class.equals(c)));
+            return ((c != null)
+            && (Short.class.equals(c) || short.class.equals(c)));
         }
 
         /**
@@ -837,7 +881,10 @@ public class ArgHelper {
 
             return "<short>" + ((Short) obj).toString() + "</short>\n";
         }
-        public String toString(Object o){return o.toString();}
+
+        public String toString(Object o) {
+            return o.toString();
+        }
     }
 
     /**
@@ -848,8 +895,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class IntegerMapping implements Mapping {
         /**
@@ -893,12 +940,13 @@ public class ArgHelper {
 
             return new Integer(ReaderUtils.getElementText(elem));
         }
-        public Object getInstance(String value) {
-        	if (value == null) {
-        		throw new NullPointerException("The integer passed in was null");
-        	}
 
-        	return new Integer(value);
+        public Object getInstance(String value) {
+            if (value == null) {
+                throw new NullPointerException("The integer passed in was null");
+            }
+
+            return new Integer(value);
         }
 
         /**
@@ -913,8 +961,10 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof Integer);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && (Integer.class.equals(c) || int.class.equals(c)));
+            return ((c != null)
+            && (Integer.class.equals(c) || int.class.equals(c)));
         }
 
         /**
@@ -942,7 +992,10 @@ public class ArgHelper {
 
             return "<integer>" + ((Integer) obj).toString() + "</integer>\n";
         }
-        public String toString(Object o){return o.toString();}
+
+        public String toString(Object o) {
+            return o.toString();
+        }
     }
 
     /**
@@ -953,8 +1006,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class LongMapping implements Mapping {
         /**
@@ -998,12 +1051,13 @@ public class ArgHelper {
 
             return new Long(ReaderUtils.getElementText(elem));
         }
-        public Object getInstance(String value) {
-        	if (value == null) {
-        		throw new NullPointerException("The long passed in was null");
-        	}
 
-        	return new Long(value);
+        public Object getInstance(String value) {
+            if (value == null) {
+                throw new NullPointerException("The long passed in was null");
+            }
+
+            return new Long(value);
         }
 
         /**
@@ -1018,8 +1072,10 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof Long);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && (Long.class.equals(c) || long.class.equals(c)));
+            return ((c != null)
+            && (Long.class.equals(c) || long.class.equals(c)));
         }
 
         /**
@@ -1047,7 +1103,10 @@ public class ArgHelper {
 
             return "<long>" + ((Long) obj).toString() + "</long>\n";
         }
-        public String toString(Object o){return o.toString();}
+
+        public String toString(Object o) {
+            return o.toString();
+        }
     }
 
     /**
@@ -1058,8 +1117,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class FloatMapping implements Mapping {
         /**
@@ -1103,12 +1162,13 @@ public class ArgHelper {
 
             return new Float(ReaderUtils.getElementText(elem));
         }
-        public Object getInstance(String elem) {
-        	if (elem == null) {
-        		throw new NullPointerException("The float passed in was null");
-        	}
 
-        	return new Float(elem);
+        public Object getInstance(String elem) {
+            if (elem == null) {
+                throw new NullPointerException("The float passed in was null");
+            }
+
+            return new Float(elem);
         }
 
         /**
@@ -1123,8 +1183,10 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof Float);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && (Float.class.equals(c) || float.class.equals(c)));
+            return ((c != null)
+            && (Float.class.equals(c) || float.class.equals(c)));
         }
 
         /**
@@ -1152,7 +1214,10 @@ public class ArgHelper {
 
             return "<float>" + ((Float) obj).toString() + "</float>\n";
         }
-        public String toString(Object o){return o.toString();}
+
+        public String toString(Object o) {
+            return o.toString();
+        }
     }
 
     /**
@@ -1163,8 +1228,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class DoubleMapping implements Mapping {
         /**
@@ -1208,12 +1273,13 @@ public class ArgHelper {
 
             return new Double(ReaderUtils.getElementText(elem));
         }
-        public Object getInstance(String elem) {
-        	if (elem == null) {
-        		throw new NullPointerException("The double passed in was null");
-        	}
 
-        	return new Double(elem);
+        public Object getInstance(String elem) {
+            if (elem == null) {
+                throw new NullPointerException("The double passed in was null");
+            }
+
+            return new Double(elem);
         }
 
         /**
@@ -1228,8 +1294,10 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof Double);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && (Double.class.equals(c) || double.class.equals(c)));
+            return ((c != null)
+            && (Double.class.equals(c) || double.class.equals(c)));
         }
 
         /**
@@ -1257,7 +1325,10 @@ public class ArgHelper {
 
             return "<double>" + ((Double) obj).toString() + "</double>\n";
         }
-        public String toString(Object o){ return o.toString();}
+
+        public String toString(Object o) {
+            return o.toString();
+        }
     }
 
     /**
@@ -1268,8 +1339,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class DateMapping implements Mapping {
         /**
@@ -1322,20 +1393,21 @@ public class ArgHelper {
                 throw new ValidationException(e);
             }
         }
+
         public Object getInstance(String elem) throws ValidationException {
-        	if (elem == null) {
-        		throw new NullPointerException(
-        		"The dateTime passed in was null");
-        	}
+            if (elem == null) {
+                throw new NullPointerException(
+                    "The dateTime passed in was null");
+            }
 
-        	SimpleDateFormat sdf = new SimpleDateFormat(
-        	"yyyy-mm-dd'T'hh:mm:ssZ");
+            SimpleDateFormat sdf = new SimpleDateFormat(
+                    "yyyy-mm-dd'T'hh:mm:ssZ");
 
-        	try {
-        		return sdf.parse(elem);
-        	} catch (ParseException e) {
-        		throw new ValidationException(e);
-        	}
+            try {
+                return sdf.parse(elem);
+            } catch (ParseException e) {
+                throw new ValidationException(e);
+            }
         }
 
         /**
@@ -1350,8 +1422,9 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof Date);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && Date.class.equals(c));
+            return ((c != null) && Date.class.equals(c));
         }
 
         /**
@@ -1382,10 +1455,12 @@ public class ArgHelper {
 
             return "<dateTime>" + sdf.format((Date) obj) + "</dateTime>\n";
         }
-        public String toString(Object o){
-        	SimpleDateFormat sdf = new SimpleDateFormat(
-        	"yyyy-mm-dd'T'hh:mm:ssZ");
-        	return sdf.format((Date) o);
+
+        public String toString(Object o) {
+            SimpleDateFormat sdf = new SimpleDateFormat(
+                    "yyyy-mm-dd'T'hh:mm:ssZ");
+
+            return sdf.format((Date) o);
         }
     }
 
@@ -1397,8 +1472,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class URIMapping implements Mapping {
         /**
@@ -1447,16 +1522,17 @@ public class ArgHelper {
                 throw new ValidationException(e);
             }
         }
-        public Object getInstance(String value) throws ValidationException {
-        	if (value == null) {
-        		throw new NullPointerException("The anyUri passed in was null");
-        	}
 
-        	try {
-        		return new URI(value);
-        	} catch (URISyntaxException e) {
-        		throw new ValidationException(e);
-        	}
+        public Object getInstance(String value) throws ValidationException {
+            if (value == null) {
+                throw new NullPointerException("The anyUri passed in was null");
+            }
+
+            try {
+                return new URI(value);
+            } catch (URISyntaxException e) {
+                throw new ValidationException(e);
+            }
         }
 
         /**
@@ -1471,8 +1547,9 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof URI);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && URI.class.equals(c));
+            return ((c != null) && URI.class.equals(c));
         }
 
         /**
@@ -1500,7 +1577,10 @@ public class ArgHelper {
 
             return "<anyURI>" + ((URI) obj).toString() + "</anyURI>\n";
         }
-        public String toString(Object o){return o.toString();}
+
+        public String toString(Object o) {
+            return o.toString();
+        }
     }
 
     /**
@@ -1511,8 +1591,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class BooleanMapping implements Mapping {
         /**
@@ -1556,12 +1636,13 @@ public class ArgHelper {
 
             return new Boolean(ReaderUtils.getElementText(elem));
         }
-        public Object getInstance(String elem) {
-        	if (elem == null) {
-        		throw new NullPointerException("The boolean passed in was null");
-        	}
 
-        	return new Boolean(elem);
+        public Object getInstance(String elem) {
+            if (elem == null) {
+                throw new NullPointerException("The boolean passed in was null");
+            }
+
+            return new Boolean(elem);
         }
 
         /**
@@ -1576,8 +1657,10 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof Boolean);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && (Boolean.class.equals(c) || boolean.class.equals(c)));
+            return ((c != null)
+            && (Boolean.class.equals(c) || boolean.class.equals(c)));
         }
 
         /**
@@ -1605,7 +1688,10 @@ public class ArgHelper {
 
             return "<boolean>" + ((Boolean) obj).toString() + "</boolean>\n";
         }
-        public String toString(Object o){return o.toString();}
+
+        public String toString(Object o) {
+            return o.toString();
+        }
     }
 
     /**
@@ -1616,8 +1702,8 @@ public class ArgHelper {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: jive $ (last modification)
-     * @version $Id: ArgHelper.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+     * @author $Author: dmzwiers $ (last modification)
+     * @version $Id: ArgHelper.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
      */
     protected static class StringMapping implements Mapping {
         /**
@@ -1661,12 +1747,13 @@ public class ArgHelper {
 
             return new String(ReaderUtils.getElementText(elem));
         }
-        public Object getInstance(String value) {
-        	if (value == null) {
-        		throw new NullPointerException("The string passed in was null");
-        	}
 
-        	return new String(value);
+        public Object getInstance(String value) {
+            if (value == null) {
+                throw new NullPointerException("The string passed in was null");
+            }
+
+            return new String(value);
         }
 
         /**
@@ -1681,8 +1768,9 @@ public class ArgHelper {
         public boolean isClassInstance(Object c) {
             return ((c != null) && c instanceof String);
         }
+
         public boolean isClass(Class c) {
-        	return ((c != null) && String.class.equals(c));
+            return ((c != null) && String.class.equals(c));
         }
 
         /**
@@ -1710,6 +1798,9 @@ public class ArgHelper {
 
             return "<string>" + ((String) obj).toString() + "</string>\n";
         }
-        public String toString(Object o){return o.toString();}
+
+        public String toString(Object o) {
+            return o.toString();
+        }
     }
 }

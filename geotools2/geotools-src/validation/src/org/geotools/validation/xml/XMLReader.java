@@ -1,17 +1,24 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 /* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
  * This code is licensed under the GPL 2.0 license, availible at the root
  * application directory.
  */
 package org.geotools.validation.xml;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.geotools.validation.dto.ArgumentDTO;
 import org.geotools.validation.dto.PlugInDTO;
@@ -21,13 +28,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
+import javax.xml.parsers.ParserConfigurationException;
+
 
 /**
  * Load validation configuration from XML.
  *
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: jive $ (last modification)
- * @version $Id: XMLReader.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+ * @author $Author: dmzwiers $ (last modification)
+ * @version $Id: XMLReader.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
  */
 public class XMLReader {
     /**
@@ -106,14 +121,18 @@ public class XMLReader {
 
                 for (int i = 0; i < nl.getLength(); i++) {
                     elem = (Element) nl.item(i);
+
                     ArgumentDTO adto = null;
-                	try{
-                		adto = loadArg(elem,dto);
-                	}catch(ValidationException e){
-                		e.printStackTrace();
-                		// error
-                	}
-                    m.put(adto.getName(),adto);
+
+                    try {
+                        adto = loadArg(elem, dto);
+                    } catch (ValidationException e) {
+                        e.printStackTrace();
+
+                        // error
+                    }
+
+                    m.put(adto.getName(), adto);
                 }
             }
         } catch (IOException ioe) {
@@ -182,8 +201,8 @@ public class XMLReader {
             } else {
                 for (int i = 0; i < nl.getLength(); i++) {
                     try {
-                    	TestDTO t = loadTestDTO((Element) nl.item(i), plugIns);
-                        l.put(t.getName(),t);
+                        TestDTO t = loadTestDTO((Element) nl.item(i), plugIns);
+                        l.put(t.getName(), t);
                     } catch (ValidationException e) {
                         throw new ValidationException(
                             "An error occured loading a test in "
@@ -237,8 +256,11 @@ public class XMLReader {
         try {
             String pluginName = ReaderUtils.getChildText(elem, "plugin", true);
             dto.setPlugIn((PlugInDTO) plugIns.get(pluginName));
-            if(dto.getPlugIn()==null)
-            	throw new NullPointerException("Error - should have a plugin here");
+
+            if (dto.getPlugIn() == null) {
+                throw new NullPointerException(
+                    "Error - should have a plugin here");
+            }
         } catch (SAXException e) {
             throw new ValidationException("Error reading the plugin for the "
                 + dto.getName() + " test case.", e);
@@ -252,144 +274,158 @@ public class XMLReader {
 
             for (int i = 0; i < nl.getLength(); i++) {
                 elem = (Element) nl.item(i);
+
                 ArgumentDTO adto = null;
-                try{
-                	adto = loadArg(elem,dto.getPlugIn());
-                }catch(ValidationException e){
-                	e.printStackTrace();
-                	// error
+
+                try {
+                    adto = loadArg(elem, dto.getPlugIn());
+                } catch (ValidationException e) {
+                    e.printStackTrace();
+
+                    // error
                 }
-                if(adto == null || !adto.isFinal())
-                m.put(adto.getName(),adto);
+
+                if ((adto == null) || !adto.isFinal()) {
+                    m.put(adto.getName(), adto);
+                }
             }
         }
 
         return dto;
     }
-    
-    private static ArgumentDTO loadArg(Element elem, PlugInDTO dto) throws ValidationException{
-    	String key = "";
-    	boolean _fixed = false;
 
-    	try {
-    		_fixed = ReaderUtils.getBooleanAttribute(elem,"final",false);
-    		key = ReaderUtils.getChildText(elem, "name", true);
-    	} catch (SAXException e) {
-    		throw new ValidationException("Error reading argument for "
-    				+ dto.getName() + " :name required");
-    	}
+    private static ArgumentDTO loadArg(Element elem, PlugInDTO dto)
+        throws ValidationException {
+        String key = "";
+        boolean _fixed = false;
 
-    	NodeList nl2 = elem.getChildNodes();
-    	Element value = null;
+        try {
+            _fixed = ReaderUtils.getBooleanAttribute(elem, "final", false);
+            key = ReaderUtils.getChildText(elem, "name", true);
+        } catch (SAXException e) {
+            throw new ValidationException("Error reading argument for "
+                + dto.getName() + " :name required");
+        }
 
-    	for (int j = 0; j < nl2.getLength(); j++) {
-    		if (nl2.item(j).getNodeType() == Node.ELEMENT_NODE) {
-    			elem = (Element) nl2.item(j);
+        NodeList nl2 = elem.getChildNodes();
+        Element value = null;
 
-    			if (elem.getTagName().trim().equals("name")) {
-    				value = elem;
-    			} else {
-    				value = elem;
-    			}
-    		}
-    	}
+        for (int j = 0; j < nl2.getLength(); j++) {
+            if (nl2.item(j).getNodeType() == Node.ELEMENT_NODE) {
+                elem = (Element) nl2.item(j);
 
-    	if (value == null) {
-    		throw new ValidationException("Invalid Argument \""
-    				+ dto.getName() + "\" for argument \"" + key + "\"");
-    	}
+                if (elem.getTagName().trim().equals("name")) {
+                    value = elem;
+                } else {
+                    value = elem;
+                }
+            }
+        }
 
-    	ArgumentDTO adto = (ArgumentDTO)dto.getArgs().get(key);
-    	// elem whould have the value now
-    	Object val = ArgHelper.getArgumentInstance(value.getTagName().trim(), value);
-    	if(val==null)
-    		throw new ValidationException("Didn't find a real value for argument "+key);
-    	if(adto == null)
-    		adto = new ArgumentDTO();
-    	else
-    		adto = (ArgumentDTO)adto.clone();
-    		
-    	adto.setName(key);
-    	adto.setValue(val);
-    	adto.setFinal(_fixed);
-    	return adto;
+        if (value == null) {
+            throw new ValidationException("Invalid Argument \"" + dto.getName()
+                + "\" for argument \"" + key + "\"");
+        }
+
+        ArgumentDTO adto = (ArgumentDTO) dto.getArgs().get(key);
+
+        // elem whould have the value now
+        Object val = ArgHelper.getArgumentInstance(value.getTagName().trim(),
+                value);
+
+        if (val == null) {
+            throw new ValidationException(
+                "Didn't find a real value for argument " + key);
+        }
+
+        if (adto == null) {
+            adto = new ArgumentDTO();
+        } else {
+            adto = (ArgumentDTO) adto.clone();
+        }
+
+        adto.setName(key);
+        adto.setValue(val);
+        adto.setFinal(_fixed);
+
+        return adto;
     }
 
-	/**
-	 * loadPlugIns purpose.
-	 * 
-	 * <p>
-	 * Loads all the plugins in the directory
-	 * </p>
-	 *
-	 * @param plugInDir
-	 *
-	 * @return
-	 *
-	 * @throws ValidationException DOCUMENT ME!
-	 */
-	public static Map loadPlugIns(File plugInDir) throws ValidationException {
-	    Map r = null;
-	
-	    try {
-	        plugInDir = ReaderUtils.initFile(plugInDir, true);
-	
-	        File[] fileList = plugInDir.listFiles();
-	        r = new HashMap();
-	
-	        for (int i = 0; i < fileList.length; i++) {
-	            if (fileList[i].canWrite() && fileList[i].isFile()) {
-	                FileReader fr = new FileReader(fileList[i]);
-	                PlugInDTO dto = XMLReader.readPlugIn(fr);
-	                r.put(dto.getName(), dto);
-	                fr.close();
-	            }
-	        }
-	    } catch (IOException e) {
-	        throw new ValidationException("An io error occured while loading the plugin's",
-	            e);
-	    }
-	
-	    return r;
-	}
+    /**
+     * loadPlugIns purpose.
+     * 
+     * <p>
+     * Loads all the plugins in the directory
+     * </p>
+     *
+     * @param plugInDir
+     *
+     * @return
+     *
+     * @throws ValidationException DOCUMENT ME!
+     */
+    public static Map loadPlugIns(File plugInDir) throws ValidationException {
+        Map r = null;
 
-	/**
-	 * loadValidations purpose.
-	 * 
-	 * <p>
-	 * Loads all the validations in the directory
-	 * </p>
-	 *
-	 * @param validationDir
-	 * @param plugInDTOs Already loaded list of plug-ins to link.
-	 *
-	 * @return
-	 *
-	 * @throws ValidationException DOCUMENT ME!
-	 */
-	public static Map loadValidations(File validationDir, Map plugInDTOs)
-	    throws ValidationException {
-	    Map r = null;
-	
-	    try {
-	        validationDir = ReaderUtils.initFile(validationDir, true);
-	
-	        File[] fileList = validationDir.listFiles();
-	        r = new HashMap();
-	
-	        for (int i = 0; i < fileList.length; i++) {
-	            if (fileList[i].canWrite() && fileList[i].isFile()) {
-	                FileReader fr = new FileReader(fileList[i]);
-	                TestSuiteDTO dto = XMLReader.readTestSuite(fr, plugInDTOs);
-	                r.put(dto.getName(), dto);
-	                fr.close();
-	            }
-	        }
-	    } catch (IOException e) {
-	        throw new ValidationException("An io error occured while loading the plugin's",
-	            e);
-	    }
-	
-	    return r;
-	}
+        try {
+            plugInDir = ReaderUtils.initFile(plugInDir, true);
+
+            File[] fileList = plugInDir.listFiles();
+            r = new HashMap();
+
+            for (int i = 0; i < fileList.length; i++) {
+                if (fileList[i].canWrite() && fileList[i].isFile()) {
+                    FileReader fr = new FileReader(fileList[i]);
+                    PlugInDTO dto = XMLReader.readPlugIn(fr);
+                    r.put(dto.getName(), dto);
+                    fr.close();
+                }
+            }
+        } catch (IOException e) {
+            throw new ValidationException("An io error occured while loading the plugin's",
+                e);
+        }
+
+        return r;
+    }
+
+    /**
+     * loadValidations purpose.
+     * 
+     * <p>
+     * Loads all the validations in the directory
+     * </p>
+     *
+     * @param validationDir
+     * @param plugInDTOs Already loaded list of plug-ins to link.
+     *
+     * @return
+     *
+     * @throws ValidationException DOCUMENT ME!
+     */
+    public static Map loadValidations(File validationDir, Map plugInDTOs)
+        throws ValidationException {
+        Map r = null;
+
+        try {
+            validationDir = ReaderUtils.initFile(validationDir, true);
+
+            File[] fileList = validationDir.listFiles();
+            r = new HashMap();
+
+            for (int i = 0; i < fileList.length; i++) {
+                if (fileList[i].canWrite() && fileList[i].isFile()) {
+                    FileReader fr = new FileReader(fileList[i]);
+                    TestSuiteDTO dto = XMLReader.readTestSuite(fr, plugInDTOs);
+                    r.put(dto.getName(), dto);
+                    fr.close();
+                }
+            }
+        } catch (IOException e) {
+            throw new ValidationException("An io error occured while loading the plugin's",
+                e);
+        }
+
+        return r;
+    }
 }

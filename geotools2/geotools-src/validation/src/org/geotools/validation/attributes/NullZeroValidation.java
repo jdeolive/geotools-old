@@ -1,3 +1,19 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 /* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
  * This code is licensed under the GPL 2.0 license, availible at the root
  * application directory.
@@ -33,14 +49,16 @@ import org.geotools.validation.ValidationResults;
  * </p>
  *
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: jive $ (last modification)
- * @version $Id: NullZeroValidation.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+ * @author $Author: dmzwiers $ (last modification)
+ * @version $Id: NullZeroValidation.java,v 1.2 2004/02/17 17:19:15 dmzwiers Exp $
  */
 public class NullZeroValidation extends DefaultFeatureValidation {
     private String attributeName;
-    
-    public NullZeroValidation(){super();}
-    
+
+    public NullZeroValidation() {
+        super();
+    }
+
     /**
      * Implement validate.
      * 
@@ -54,14 +72,13 @@ public class NullZeroValidation extends DefaultFeatureValidation {
      *
      * @return false when null or 0 values are found in the attribute.
      *
-     * @throws Exception
-     *
      * @see org.geotools.validation.FeatureValidation#validate(org.geotools.feature.Feature,
      *      org.geotools.feature.FeatureType,
      *      org.geotools.validation.ValidationResults)
      */
     public boolean validate(Feature feature, FeatureType type,
-        ValidationResults results){// throws Exception {
+        ValidationResults results) { // throws Exception {
+
         Object ft = feature.getAttribute(attributeName);
 
         if (ft == null) {
@@ -100,15 +117,17 @@ public class NullZeroValidation extends DefaultFeatureValidation {
      * @see org.geotools.validation.Validation#getTypeRefs()
      */
     public String[] getTypeRefs() {
-        if( getTypeRef() == null ){
+        if (getTypeRef() == null) {
             return null;
         }
-        if( getTypeRef().equals("*")){
+
+        if (getTypeRef().equals("*")) {
             return ALL;
         }
-        return new String[]{ getTypeRef(), };
+
+        return new String[] { getTypeRef(), };
     }
-    
+
     /**
      * Access attributeName property.
      *
@@ -119,9 +138,11 @@ public class NullZeroValidation extends DefaultFeatureValidation {
     }
 
     /**
-     * set AttributeName to name. 
+     * set AttributeName to name.
+     *
      * @param name
-     */public void setAttributeName(String name) {
+     */
+    public void setAttributeName(String name) {
         attributeName = name;
     }
 }

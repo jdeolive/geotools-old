@@ -1,9 +1,27 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 /* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
  * This code is licensed under the GPL 2.0 license, availible at the root
  * application directory.
  */
 package org.geotools.validation;
 
+import org.geotools.validation.dto.ArgumentDTO;
+import org.geotools.validation.xml.ValidationException;
 import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -13,9 +31,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.geotools.validation.dto.ArgumentDTO;
-import org.geotools.validation.xml.ValidationException;
 
 
 /**
@@ -52,35 +67,39 @@ public class PlugIn {
         try {
             beanInfo = Introspector.getBeanInfo(type);
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
             throw new ValidationException("Could not use the '" + name
                 + "' plugIn:" + type.getName());
         }
-        if(config != null){
-        	defaults = transArgs(config);
+
+        if (config != null) {
+            defaults = transArgs(config);
         }
+
         plugInName = name;
         plugInDescription = description;
 
         propertyMap = propertyMap(beanInfo);
     }
 
-    private Map transArgs(Map config){
+    private Map transArgs(Map config) {
+        Map defaults = new HashMap();
+        Iterator i = config.keySet().iterator();
 
-    	Map defaults = new HashMap();
-    	Iterator i = config.keySet().iterator();
-    	while(i.hasNext()){
-    		String key = (String)i.next();
-    		Object o = config.get(key);
-    		if(o instanceof ArgumentDTO){
-    			defaults.put(key,((ArgumentDTO)o).getValue());
-    		}else{
-    			defaults.put(key,o);
-    		}
-    	}
-    	return defaults;
+        while (i.hasNext()) {
+            String key = (String) i.next();
+            Object o = config.get(key);
+
+            if (o instanceof ArgumentDTO) {
+                defaults.put(key, ((ArgumentDTO) o).getValue());
+            } else {
+                defaults.put(key, o);
+            }
+        }
+
+        return defaults;
     }
-    
+
     protected PropertyDescriptor propertyInfo(String name) {
         return (PropertyDescriptor) propertyMap.get(name);
     }
@@ -166,10 +185,12 @@ public class PlugIn {
         for (Iterator i = config.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             property = propertyInfo((String) entry.getKey());
+
             if (property == null) {
                 // error here
                 continue;
             }
+
             try {
                 property.getWriteMethod().invoke(bean,
                     new Object[] { entry.getValue() });

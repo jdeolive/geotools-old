@@ -1,22 +1,36 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 /* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
  * This code is licensed under the GPL 2.0 license, availible at the root
  * application directory.
  */
 package org.geotools.validation;
 
+import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureType;
-
-import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -80,8 +94,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * </p>
  *
  * @author bowens, Refractions Research, Inc.
- * @author $Author: jive $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.1 2004/02/13 03:07:59 jive Exp $
+ * @author $Author: dmzwiers $ (last modification)
+ * @version $Id: ValidationProcessor.java,v 1.2 2004/02/17 17:19:13 dmzwiers Exp $
  */
 public class ValidationProcessor {
     // These are no longer used for Integrity Validation tests
@@ -94,9 +108,8 @@ public class ValidationProcessor {
 
     //	of integrity validation tests
     protected ArrayList modifiedFeatureTypes; // a list of feature types that have been modified
-
     protected HashMap errors;
-    
+
     /**
      * ValidationProcessor constructor.
      * 
@@ -383,13 +396,13 @@ public class ValidationProcessor {
 
         // end for each modified featureType
     }
-	/**
-	 * Access errors property.
-	 * 
-	 * @return Returns the errors.
-	 */
-	public HashMap getErrors() {
-		return errors;
-	}
 
+    /**
+     * Access errors property.
+     *
+     * @return Returns the errors.
+     */
+    public HashMap getErrors() {
+        return errors;
+    }
 }
