@@ -50,7 +50,7 @@ import org.geotools.styling.Style;
 /**
  * A map pane which support styling.
  *
- * @version $Id: StyledMapPane.java,v 1.2 2003/08/28 10:41:14 desruisseaux Exp $
+ * @version $Id: StyledMapPane.java,v 1.3 2003/08/30 19:16:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class StyledMapPane extends MapPane {
@@ -142,7 +142,7 @@ public class StyledMapPane extends MapPane {
      *
      * <ul>
      *   <li>If a {@linkplain Context context} is set, then the context's
-     *       {@linkplain Context#getBounds bounding box} is returned.</li>
+     *       {@linkplain Context#getBoundingBox bounding box} is returned.</li>
      *   <li>Otherwise, the area of interest is computed from the layers currently
      *       registered in the {@linkplain #getRenderer renderer}.</li>
      * </ul>
@@ -151,7 +151,7 @@ public class StyledMapPane extends MapPane {
      *         or <code>null</code> if this area can't be computed.
      *
      * @see #setPreferredArea
-     * @see Context#getBounds
+     * @see Context#getBoundingBox
      * @see Renderer#getPreferredArea
      */
     public Rectangle2D getArea() {
