@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../project.xml</extend>
+  <name>geotools-data</name>
+  <id>data</id>
+  
+  <currentVersion>SNAPSHOT</currentVersion>
+<versions>
+<version>
+  <id>b1</id>
+  <name>2.0-b1</name> 
+  <tag>GT_2_0_B1</tag> 
+</version>
+</versions>
+  
+  <package>org.geotools</package>
+  <shortDescription>Common helper classes for datasources.</shortDescription>
+  <gumpRepositoryId>geotools</gumpRepositoryId>
+  <description>The exact purpose of this class is evolving, but it
+               is starting out as the place for utility classes used 
+               by more than one datasource, such as connection pooling
+               and abstract JDBC methods.</description>
+  
+  <developers>
+    <developer>
+          <name>Chris Holmes</name>
+          <id>cholmesny</id>
+          <email>cholmesny@users.sourceforge.net</email>
+          <organization>TOPP</organization>
+          <roles>
+            <role>Java Developer</role>
+          </roles>
+      </developer>
+    <developer>
+      <name>Sean Geoghegan</name>
+      <id>seangeo</id>
+      <email>seangeo@users.sourceforge.net</email>
+      <organization>Defence Science and Technology Organization</organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
+  <dependencies>
+    <dependency>
+      <artifactId>core</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency>
+        <dependency>
+      <id>JTS</id>
+      <version>1.3</version>
+      <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
+    </dependency>
+    <dependency>
+      <id>junit</id>
+      <version>3.8.1</version>
+      <type>test</type>
+      <url>http://junit.org/</url>
+    </dependency>
+    </dependencies>
+
+  <build>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <resources>
+          <resource>
+              <directory>${basedir}/tests/unit</directory>
+              <includes>
+                  <include>testData/</include>
+              </includes>
+          </resource>
+      </resources>
+    </unitTest>
+    </build>
+
+   
+</project>
+
