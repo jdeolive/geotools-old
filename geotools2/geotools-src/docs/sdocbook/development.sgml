@@ -68,7 +68,7 @@
       setup ssh and cvs for use with Sourceforge is explained in the documents
       at: <ulink url="https://sourceforge.net/docman/?group_id=1">https://sourceforge.net/docman/?group_id=1</ulink>
       (search for <emphasis>ssh</emphasis> and <emphasis>cvs</emphasis>). An
-      excellect CVS manual can be found at <ulink
+      excellent CVS manual can be found at <ulink
       url="http://cvsbook.red-bean.com/">http://cvsbook.red-bean.com/</ulink>.</para>
     </section>
 
@@ -107,7 +107,7 @@
           <listitem>
             <para>The last digit is for patches (bug fixes). It is used to
             indicate fixes in bugs only. No new features were made and full
-            compatiblity is preserved.</para>
+            compatibility is preserved.</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -189,7 +189,7 @@ cvs tag -R r2_3_4</programlisting>
           temporary directory, removed the <filename>geotools2/geotools-src/cts-transform</filename>
           directory, then imported <filename>geotools2/geotools-src</filename>.
           Afterwards, I imported <filename>geotools2/geotools-src/cts-transform</filename>
-          seperately.</para>
+          separately.</para>
         </listitem>
       </varlistentry>
     </variablelist>
@@ -428,7 +428,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.9 2003/01/11 03:01:01 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.10 2003/01/11 03:19:43 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -470,7 +470,7 @@ public class ThisClass {
       </listitem>
     </orderedlist>
 
-    <para>todo: Need to decide who owns the license.</para>
+    <para>to do: Need to decide who owns the license.</para>
   </section>
 
   <section id="CodingStandards">
@@ -508,7 +508,7 @@ public class ThisClass {
       <title>Class Naming Conventions</title>
 
       <figure>
-        <title>Interface and Class naming convensions</title>
+        <title>Interface and Class naming conventions</title>
 
         <mediaobject>
           <imageobject>
@@ -718,7 +718,7 @@ public class GMLDataSource {
     <example>
       <title>Minimising Logger output</title>
 
-      <programlisting>// Wastfull use of logging
+      <programlisting>// Wasteful use of logging
 LOGGER.finer(&#34;Value for A is &#34;+A);
 LOGGER.finer(&#34;Value for B is &#34;+B);
 LOGGER.finer(&#34;Value for C is &#34;+C);
@@ -969,7 +969,7 @@ org.geotools.cts.level = INFO</programlisting>
         jar for a module it depends on. An error caused by not having another
         GT2 module installed can be a little missleading, for example the
         error may look something like: Error: unable to download core-0.1.jar.
-        This is beacuse Maven failed to find core-0.1.jar in the local
+        This is because Maven failed to find core-0.1.jar in the local
         repository (where a full build should have put it) so it tried to
         download and fails. If you see an error like that either do a full
         build or change into the module which is missing (core in this case)
@@ -1005,11 +1005,11 @@ org.geotools.cts.level = INFO</programlisting>
 
         <para>geotools2\project.xml - the parent template project file which
         the module files extend geotools2\maven.xml - a control file which
-        marchels the building of ALL modules and will soon generate a full
+        marshals the building of ALL modules and will soon generate a full
         website geotools2\geotools-src\module\project.xml - the specific
         project file for a given module
         geotools2\geotools-src\module\build.properties - some control
-        properties that will eventually be inherited from a a parent, but not
+        properties that will eventually be inherited from a parent, but not
         yet. geotools2\geotools-src\module\target - folder generated during
         builds that contains all output (classes, jars and reports)
         geotools2\geotools-src\module\xdocs - contains files such as logos or
@@ -1034,7 +1034,7 @@ org.geotools.cts.level = INFO</programlisting>
         developer rights. Be sure to set the appropriate permissions so all
         can download it, and so other developers can modify it.</para>
 
-        <para>So, for example, we use JTS verion 1.0 in a number of modules,
+        <para>So, for example, we use JTS version 1.0 in a number of modules,
         you can find this jar online at:<ulink
         url="http://www.geotools.org/gt2modules/extbin/JTS/jars/JTS-1.0.jar">http://www.geotools.org/gt2modules/extbin/JTS/jars/JTS-1.0.jar</ulink></para>
 
@@ -1045,7 +1045,7 @@ org.geotools.cts.level = INFO</programlisting>
         following tag in its project.xml file:</para>
 
         <example>
-          <title>Sample project.xml dependany entry</title>
+          <title>Sample project.xml dependency entry</title>
 
           <programlisting>&#60;dependency&#62;
   &#60;id&#62;JTS&#60;/id&#62;
@@ -1059,7 +1059,7 @@ org.geotools.cts.level = INFO</programlisting>
 
         <para>Maven complicates things on the logging front, as it does a lot
         of redirection. By default the logs from testing end up in
-        /target/test-reports of each module sub-directory. There should be xml
+        /target/test-reports of each module sub-directory. There should be XML
         and txt files for the results of each test. Be sure to check both, as
         one of the wrinkles of maven makes it so the output isn&#39;t always
         exactly the same. To have maven display the logging as it tests
@@ -1069,7 +1069,7 @@ org.geotools.cts.level = INFO</programlisting>
         set it in the build.properties file (just add the line
         &#39;maven.junit.usefile=false&#39;). Another helpful testing hint: in
         order to run only one test, call &#39;maven test:single&#39; and set
-        the testcase property to the full name
+        the test case property to the full name
         (org.geotools.package.ClassTest) of the test to run. If you are having
         problems with logging output levels be sure to read section 2.5 on
         logging.</para>
@@ -1169,7 +1169,7 @@ public class HelloWorldTest extends TestCase {
     </example>
 
     <para>Testing with junit is as easy as copying HelloWorldTest.java and
-    adding more tests, and then excuting it. If you want more information,
+    adding more tests, and then executing it. If you want more information,
     look at the junit documentation or read one of the many <ulink
     url="http://www.junit.org">junit</ulink> tutorials.</para>
 
