@@ -64,7 +64,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.11 2003/12/04 00:31:57 cholmesny Exp $
+ * @version $Id: PostgisDataStore.java,v 1.12 2003/12/12 17:19:38 cholmesny Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -249,7 +249,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             srid = info.getSRID(geom);
             encoder.setDefaultGeometry(geom);
         }
-
+	encoder.setFidColumn(info.getFidColumnName());
         encoder.setSRID(srid);
 
         return new PostgisSQLBuilder(encoder);
