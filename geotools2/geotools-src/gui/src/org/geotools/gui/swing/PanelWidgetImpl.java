@@ -23,16 +23,16 @@ package org.geotools.gui.swing;
 
 import javax.swing.JPanel;
 import java.util.logging.Logger;
-import org.geotools.gui.widget.AbstractWidget;
+import org.geotools.gui.widget.PanelWidget;
 import java.awt.event.MouseListener;
 
 /**
  * This is the base widget class that all widgets inherit from.
- * @version $Id: PanelWidgetImpl.java,v 1.1 2003/02/08 01:27:11 camerons Exp $
+ * @version $Id: PanelWidgetImpl.java,v 1.2 2003/02/08 03:33:37 camerons Exp $
  * @author Cameron Shorter
  */
 
-public class PanelWidgetImpl extends JPanel implements AbstractWidget
+public class PanelWidgetImpl extends JPanel implements PanelWidget
 {
 
     /**
@@ -42,7 +42,7 @@ public class PanelWidgetImpl extends JPanel implements AbstractWidget
         "org.geotools.gui.swing.PanelWidgetImpl");
 
     /**
-     * Create an AbstractWidget.
+     * Create a Widget.
      * A MapPane marshals the drawing of maps.
      *
      */
