@@ -247,13 +247,13 @@ public class FilterTest extends TestCase {
         filter.setValue(testAttribute);
         
         // Test for false negative.
-        filter.setPattern("test*");
+        filter.setPattern(new ExpressionLiteral("test*"));
         _log.info( filter.toString());            
         _log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         // Test for false positive.
-        filter.setPattern("cows*");
+        filter.setPattern(new ExpressionLiteral("cows*"));
         _log.info( filter.toString());            
         _log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
@@ -391,7 +391,7 @@ public class FilterTest extends TestCase {
         right = new ExpressionLiteral(new Polygon(new LinearRing(coords2,new PrecisionModel(), 1),
                                                   null, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
-        _log.info( filter.toString());            
+        _log.info( filter.toString());
         _log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
