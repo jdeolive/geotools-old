@@ -33,7 +33,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2002/12/06 21:27:11 $</date>
+    <date>$Date: 2002/12/07 04:13:13 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
@@ -220,6 +220,8 @@ public class ThisClass {
           Exp $</para>
         </listitem>
       </orderedlist>
+
+      <para>todo: Need to decide who owns the license.</para>
     </section>
 
     <section id="CodingStandards">
@@ -240,10 +242,6 @@ public class ThisClass {
 
           <listitem>
             <para>Javadocs</para>
-          </listitem>
-
-          <listitem>
-            <para></para>
           </listitem>
         </itemizedlist>
       </section>
@@ -825,6 +823,164 @@ void example(int i) {
         to <xref linkend="CodingStandards" />.</para>
       </section>
 
+      <section>
+        <title>Modular documentation</title>
+
+        <para>Modular DocBook means content is broken up into smaller file
+        modules that are recombined for publication. The advantages of modular
+        documentation include:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Reusable content units.</para>
+          </listitem>
+
+          <listitem>
+            <para> Smaller file units to load into an editing program.</para>
+          </listitem>
+
+          <listitem>
+            <para>Distributed authoring.</para>
+          </listitem>
+
+          <listitem>
+            <para>Finer grain version control.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Geotools <emphasis>design</emphasis> documentation uses a main
+        document called <filename>design.xml</filename> which uses
+        <literal>&#60;xi:include&#62;</literal> tags to include sections from
+        other files.</para>
+
+        <example>
+          <title>Including sections into a master document</title>
+
+          <variablelist>
+            <varlistentry>
+              <term><filename>design.xml</filename></term>
+
+              <listitem>
+                <programlisting>&#60;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&#62;
+&#60;!DOCTYPE article PUBLIC &#34;-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN&#34;
+&#34;http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd&#34;&#62;
+&#60;article
+id=&#34;index&#34;&#62;
+  &#60;articleinfo&#62;
+    &#60;title&#62;Geotools2 Software Design Description&#60;/title&#62;
+  &#60;/articleinfo&#62;
+
+  &#60;section&#62;
+    &#60;title id=&#34;scope&#34;&#62;Scope&#60;/title&#62;
+
+    &#60;xi:include xmlns:xi=&#34;http://www.w3.org/2001/XInclude&#34;
+    href=&#34;systemoverview.sgml&#34;&#62;&#60;/xi:include&#62;
+  &#60;/section&#62;
+&#60;/article&#62;</programlisting>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><filename>license.sgml</filename></term>
+
+              <listitem>
+                <programlisting>&#60;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&#62;
+&#60;!DOCTYPE section PUBLIC &#34;-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN&#34;
+&#34;http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd&#34;&#62;
+&#60;section&#62;
+  &#60;title id=&#34;licence&#34;&#62;License.&#60;/title&#62;
+
+  &#60;para&#62;Copyright (c) 2002 Cameron Shorter. Permission is granted to copy,
+  distribute and/or modify this document under the terms of the &#60;ulink
+  url=&#34;http://www.fsf.org/copyleft/fdl.html&#34;&#62;GNU Free Documentation License&#60;/ulink&#62;,
+  Version 1.1 or any later version published by the Free Software Foundation;
+  with the Invariant Sections being with no Invariant Sections, with the
+  Front-Cover Texts being no Front-Cover Texts, and with the Back-Cover Texts
+  being no Back-Cover Texts.&#60;/para&#62;
+&#60;/section&#62;</programlisting>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </example>
+
+        <para>If you want to document a new module, you need to write a new
+        <filename>xxxmodule.sgml</filename> section file, and then add an
+        <literal>&#60;xi:include&#62;</literal> tag into <filename>design.xml</filename>.</para>
+
+        <para>todo: write about the location of &#60;section&#62; files.</para>
+      </section>
+
+      <section>
+        <title>Publishing docbook files</title>
+
+        <section>
+          <title>Publishing introduction</title>
+
+          <para>The problem with <literal>&#60;xi:include&#62;</literal> tags,
+          the master document, <filename>design.xml</filename>, is not valid
+          XML. Consequently, many XSLT engines do not work on the master
+          document.</para>
+        </section>
+
+        <section>
+          <title>Publishing master documents</title>
+
+          <para><filename>gtpublish</filename> can be used to publish all
+          docbook files, including those files which contain
+          <literal>&#60;xi:include&#62;</literal> tags. The downside is that
+          it is a unix shell script which depends on <filename>xsltproc</filename>.
+          If you are using linux then make sure you have <filename>xsltproc</filename>
+          installed then run the following:</para>
+
+          <example>
+            <title>Use of gtpulish</title>
+
+            <literallayout><computeroutput>$ cd ~/geotools/geotools-src/docs
+$ gtpubish
+$ netscape ~/geotools/geotools-src/docs/www/design.html</computeroutput></literallayout>
+          </example>
+
+          <para>I have not tested <filename>gtpublish</filename> on windows,
+          so if you work out how to do it, get back to me so we can update
+          this document. I suggest you install <ulink
+          url="http://www.cygwin.com/">cygwin</ulink> and gtpublish then try
+          and run gtpublish. See this link on <ulink
+          url="http://www.sagehill.net/xml/docbookxsl/ToolsSetup.html#InstallXsltproc">installing
+          xsltproc</ulink>.</para>
+        </section>
+
+        <section>
+          <title>Publishing using ant</title>
+
+          <para><filename>ant</filename> works all platforms and is probably
+          already installed on all developers computers. ant will process all
+          docbook files but will not expand <literal>&#60;xi:include&#62;</literal>
+          tags.</para>
+
+          <example>
+            <title>Use of ant for publishing license.smgl</title>
+
+            <literallayout><computeroutput>$ cd ~/geotools/geotools-src/docs
+$ ant
+$ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></literallayout>
+          </example>
+
+          <para>In version 1.5, ant has a bug which prevents it from
+          publishing more than one docbook document at a time. The workaround
+          is to run <filename>ant</filename> a number of times. Earlier
+          versions of <filename>ant</filename> have even more bugs and less
+          functionality.</para>
+        </section>
+
+        <section>
+          <title>Publishing using maven</title>
+
+          <para>Maven allows uses to process docbook to (arnika/velocity?) and
+          then to html. However at the time of writing, this functionality was
+          still very bug ridden. Hopefully it will improve soon.</para>
+        </section>
+      </section>
+
       <section id="docbookeditors">
         <title>Docbook Editors</title>
 
@@ -833,9 +989,9 @@ void example(int i) {
         <itemizedlist>
           <listitem>
             <para><ulink url="http://www.xmlmind.com/xmleditor/">XXE</ulink>
-            is a java based, What You See Is What You Mean (WYSIWYM) editor.
-            It provides a slightly clunky but workable GUI interface for
-            editing Docbook documents. It is well worth trying out.</para>
+            is a java based, <emphasis>What You See Is What You Mean (WYSIWYM)</emphasis>
+            editor. It provides a slightly clunky but workable GUI interface
+            for editing Docbook documents. It is well worth trying.</para>
           </listitem>
 
           <listitem>
@@ -894,6 +1050,14 @@ void example(int i) {
             about Docbook. At the time of writing, this reference referred to
             version 3 of Docbook, while the Simplified Docbook used by
             geotools is version 4.1.2.4.</para>
+          </listitem>
+
+          <listitem>
+            <para><ulink url="Using the Docbook XSL Stylesheets">Using the
+            Docbook XSL Stylesheets</ulink>, in particular, the section on
+            <ulink
+            url="http://www.sagehill.net/xml/docbookxsl/ModularDoc.html">writing
+            modular docbook files</ulink>.</para>
           </listitem>
         </itemizedlist>
       </section>
