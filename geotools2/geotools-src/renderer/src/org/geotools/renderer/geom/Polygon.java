@@ -112,7 +112,7 @@ import org.geotools.renderer.array.ArrayData;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.8 2003/02/19 17:35:52 jmacgill Exp $
+ * @version $Id: Polygon.java,v 1.9 2003/02/20 11:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -693,9 +693,7 @@ public class Polygon extends GeoShape {
     private boolean contains(final float x, final float y,
                              final CoordinateTransformation transformation)
     {
-        if (interiorType == UNCLOSED) {
-            return false;
-        }
+        assert interiorType!=UNCLOSED : interiorType;
         /*
          * Imagine a straight line starting at point (<var>x</var>,<var>y</var>)
          * and going to infinity to the right of this point (i.e., towards the <var>x</var>
@@ -843,6 +841,9 @@ public class Polygon extends GeoShape {
      * this method will always return <code>false</code>.
      */
     public synchronized boolean contains(double x, double y) {
+        if (interiorType == UNCLOSED) {
+            return false;
+        }
         // IMPLEMENTATION NOTE: The polygon's native point array ({@link #data}) and the
         // (x,y) point may use different coordinate systems. For efficiency reasons, the
         // (x,y) point is projected to the "native" polygon's coordinate system instead
@@ -1097,7 +1098,7 @@ public class Polygon extends GeoShape {
      * Returns a flattened path iterator for this polygon.
      */
     public PathIterator getPathIterator(final AffineTransform transform, final double flatness) {
-        if (!isFlattenedShape()) {
+        if (isFlattenedShape()) {
             return getPathIterator(transform);
         } else {
             return super.getPathIterator(transform, flatness);
@@ -1117,7 +1118,7 @@ public class Polygon extends GeoShape {
      * Returns <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
      * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
      */
-    final boolean checkFlattenedShape() {
+    private boolean checkFlattenedShape() {
         return coordinateTransform==null ||
                coordinateTransform.getMathTransform()==null ||
                !Polyline.hasBorder(data);
@@ -1705,24 +1706,6 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns the string to be used as the tooltip for the given location.
-     * If there is no such tooltip, returns <code>null</code>.
-     *
-     * @param  point Coordinates (usually mouse coordinates). Must be
-     *         specified in this polygon's coordinate system
-     *         (as returned by {@link #getCoordinateSystem}).
-     * @param  locale The desired locale for the tooltips.
-     * @return The tooltip text for the given location,
-     *         or <code>null</code> if there is none.
-     */
-    public String getToolTipText(final Point2D point, final Locale locale) {
-        if (interiorType == UNCLOSED) {
-            return null;
-        }
-        return super.getToolTipText(point, locale);
-    }
-
-    /**
      * Returns a copy of all coordinates of this polygon. Coordinates are usually
      * (<var>x</var>,<var>y</var>) or (<var>longitude</var>,<var>latitude</var>)
      * pairs, depending on the {@linkplain #getCoordinateSystem coordinate system
@@ -2013,7 +1996,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.8 2003/02/19 17:35:52 jmacgill Exp $
+     * @version $Id: Polygon.java,v 1.9 2003/02/20 11:18:08 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon

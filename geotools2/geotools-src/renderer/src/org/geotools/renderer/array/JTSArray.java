@@ -46,7 +46,7 @@ import org.geotools.resources.XArray;
  * A wrapper around an array of JTS {@link Coordinate}s. This array is
  * usually a reference to the internal array of a {@link LineString} object.
  *
- * @version $Id: JTSArray.java,v 1.1 2003/02/11 16:01:43 desruisseaux Exp $
+ * @version $Id: JTSArray.java,v 1.2 2003/02/20 11:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class JTSArray extends PointArray {
@@ -101,12 +101,12 @@ public final class JTSArray extends PointArray {
     }
 
     /**
-     * Returns an estimation of memory usage in bytes. This method count 24 bytes for each
-     * (x,y) points plus 12 bytes for internal fields (the {@link #array} reference plus
-     * {@link #lower} and {@link #upper} values).
+     * Returns an estimation of memory usage in bytes. This method count 32 bytes for each
+     * {@link Coordinate} object plus 12 bytes for internal fields (the {@link #array}
+     * reference plus {@link #lower} and {@link #upper} values).
      */
     public final long getMemoryUsage() {
-        return count()*24 + 12;
+        return count()*32 + 12;
     }
 
     /**

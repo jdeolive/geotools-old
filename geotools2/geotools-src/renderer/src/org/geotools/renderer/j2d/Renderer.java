@@ -45,17 +45,14 @@ import java.awt.IllegalComponentStateException;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.event.ComponentAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import javax.swing.JInternalFrame;
 import javax.swing.ToolTipManager;
 import javax.swing.JComponent;
-import javax.swing.Action;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.Locale;
@@ -74,6 +71,7 @@ import org.geotools.cs.AxisInfo;
 import org.geotools.cs.AxisOrientation;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.FittedCoordinateSystem;
+import org.geotools.cs.CompoundCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform2D;
@@ -101,7 +99,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.14 2003/02/10 23:09:47 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.15 2003/02/20 11:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -278,12 +276,6 @@ public class Renderer {
     ////////                                                  ////////
     //////////////////////////////////////////////////////////////////
     /**
-     * Default tools to use if there is no {@link RenderedLayer#getTools} for a specific job.
-     * Can be <code>null</code> if no default tools has been set.
-     */
-    private Tools tools;
-
-    /**
      * The component owner, or <code>null</code> if none. This is used for managing
      * repaint request (see {@link RenderedLayer#repaint}) or mouse events.
      */
@@ -297,11 +289,6 @@ public class Renderer {
     protected final PropertyChangeSupport listeners;
 
     /**
-     * <code>true</code> if {@link #listenerProxy} is currently registered into {@link #mapPane}.
-     */
-    private boolean listenerRegistered;
-
-    /**
      * Listener for events of interest to this renderer. Events may come
      * from any {@link RenderedLayer} or from the {@link Component}.
      */
@@ -313,16 +300,7 @@ public class Renderer {
      * de l'ordre <var>z</var> ainsi qu'aux changements des coordonnées géographiques
      * d'une couche.
      */
-    private final class ListenerProxy extends MouseAdapter implements ComponentListener,
-                                                                      PropertyChangeListener
-    {
-        /** Invoked when the mouse has been clicked on a component. */
-        public void mouseClicked(final MouseEvent event) {
-            if (event instanceof GeoMouseEvent) {
-                Renderer.this.mouseClicked((GeoMouseEvent)event);
-            }
-        }
-
+    private final class ListenerProxy extends ComponentAdapter implements PropertyChangeListener {
         /** Invoked when the component's size changes. */
         public void componentResized(final ComponentEvent event) {
             synchronized (Renderer.this) {
@@ -330,20 +308,14 @@ public class Renderer {
             }
         }
 
-        /** Invoked when the component's position changes. */
-        public void componentMoved(final ComponentEvent event) {
-        }
-
-        /** Invoked when the component has been made visible. */
-        public void componentShown(final ComponentEvent event) {
-            // It would be nice to invokes 'prefetch(...)' here, but we don't know
-            // yet for sure the widget bounds and the zoom.  We are better to wait
-            // until 'paint(...)' is invoked.
-        }
-
         /** Invoked when the component has been made invisible. */
         public void componentHidden(final ComponentEvent event) {
-            clearCache();
+            synchronized (Renderer.this) {
+                clearCache();
+            }
+            // As a symetrical approach, it would be nice to invokes 'prefetch(...)' inside
+            // 'componentShown(...)' too. But we don't know for sure what the widget bounds
+            // and the zoom will be. We are better to wait until 'paint(...)' is invoked.
         }
 
         /** Invoked when a {@link RenderedLayer}'s property is changed. */
@@ -359,12 +331,6 @@ public class Renderer {
                 }
                 if (propertyName.equalsIgnoreCase("zOrder")) {
                     layerSorted = false;
-                    return;
-                }
-                if (propertyName.equalsIgnoreCase("tools")) {
-                    if ((event.getOldValue()==null) != (event.getNewValue()==null)) {
-                        updateListenerRegistration();
-                    }
                     return;
                 }
                 if (propertyName.equalsIgnoreCase("coordinateSystem")) {
@@ -430,34 +396,55 @@ public class Renderer {
      * transformations will performed on the fly as needed at rendering time.
      *
      * @return The two dimensional coordinate system used for display.
-     *         Default to {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}.
      */
     public CoordinateSystem getCoordinateSystem() {
         return context.mapCS;
     }
 
     /**
-     * Set the view coordinate system. This is the "real world" coordinate
-     * system to use for displaying all {@link RenderedLayer}s. Default is
-     * {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}. Changing this
-     * coordinate system has no effect on any <code>RenderedLayer</code>'s
-     * underlying data, since transformation are performed only at rendering
-     * time.
+     * Set the view coordinate system. This is the "real world" coordinate system
+     * to use for displaying all {@link RenderedLayer}s. Layers are notified of the
+     * coordinate system change with {@link RenderedLayer#setCoordinateSystem}.
      *
-     * @param cs The view coordinate system. If this coordinate system has
-     *           more than 2 dimensions, then only the 2 first will be retained.
+     * If this method is never invoked, then the default is
+     * {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}.
+     *
+     * @param cs The view coordinate system. If the specified coordinate system has more
+     *           than two dimensions, then it must be a {@link CompoundCoordinateSystem}
+     *           with a two dimensional {@link CompoundCoordinateSystem#getHeadCS headCS}.
      * @throws TransformException If <code>cs</code> can't be reduced to a two-dimensional
-     *         coordinate system., or if data can't be transformed for some other reason.
+     *         coordinate system, or if data can't be transformed for some other reason.
      */
     public void setCoordinateSystem(CoordinateSystem cs) throws TransformException {
         cs = CTSUtilities.getCoordinateSystem2D(cs);
         final CoordinateSystem oldCS;
         synchronized (this) {
+            int changed = 0;
             oldCS = getCoordinateSystem();
-            if (!cs.equals(oldCS)) {
+            if (!cs.equals(oldCS, false)) {
+                try {
+                    while (changed < layerCount) {
+                        layers[changed].setCoordinateSystem(cs);
+                        changed++; // Incremente only if previous call succeed.
+                    }
+                } catch (TransformException exception) {
+                    // Roll back all CS changes.
+                    while (--changed >= 0) {
+                        try {
+                            layers[changed].setCoordinateSystem(oldCS);
+                        } catch (TransformException unexpected) {
+                            // Should not happen, since we are rolling
+                            // back to an old CS that previously worked.
+                            handleException("Renderer", "setCoordinateSystem", unexpected);
+                        }
+                    }
+                    clearCache();
+                    throw exception;
+                }
+                clearCache();
                 CoordinateSystem textCS = createFittedCoordinateSystem("textCS", cs, mapToText);
                 context = new RenderingContext(this, cs, textCS, textCS);
-                clearCache();
+                computePreferredArea("Renderer", "setCoordinateSystem");
             }
         }
         listeners.firePropertyChange("coordinateSystem", oldCS, cs);
@@ -510,6 +497,8 @@ public class Renderer {
             final RenderedLayer layer = layers[i];
             Rectangle2D bounds = layer.getPreferredArea();
             if (bounds != null) {
+                // In theory, the RendererLayer should use the same CS than this Renderer.
+                // However, as a safety, we will check for coordinate transformations anyway.
                 final CoordinateSystem coordinateSystem = layer.getCoordinateSystem();
                 try {
                     if (lastSystem==null || !lastSystem.equals(coordinateSystem, false)) {
@@ -680,11 +669,11 @@ public class Renderer {
      * Returns the preferred pixel size in "real world" coordinates. For image layers, this is
      * the size of image's pixels. For other kind of layers, "pixel size" are to be understood
      * as some dimension representative of the layer's resolution.  This method invokes {@link
-     * RenderedLayer#getPreferredPixelSize} for each layers and returns the finest resolution,
-     * transformed in this {@linkplain #getCoordinateSystem renderer's coordinate system}.
+     * RenderedLayer#getPreferredPixelSize} for each layers and returns the finest resolution.
      *
-     * @return The preferred pixel size in "real world" coordinates, or <code>null</code>
-     *         if no layer provided a transformable preferred pixel size.
+     * @return The preferred pixel size in "real world" coordinates (in this 
+     *         {@linkplain #getCoordinateSystem renderer's coordinate system})
+     *         or <code>null</code> if no layer provided a preferred pixel size.
      *
      * @task TODO: Transformations should use MathTransform.derivative(...)
      *             instead, but it is not yet implemented for projections.
@@ -704,7 +693,9 @@ public class Renderer {
                                                         "Renderer", "getPreferredPixelSize");
                 if (!transform.isIdentity()) {
                     /*
-                     * Create a pixel in the midle of the preferred area and transform it to
+                     * In theory, the RendererLayer should use the same CS than this Renderer.
+                     * However, as a safety, we will check for coordinate transformations anyway.
+                     * We create a pixel in the midle of the preferred area and transform it to
                      * this coordinate system.  TODO: we should use MathTransform.derivative
                      * instead, but is is not yet implemented for projections.
                      */
@@ -752,7 +743,8 @@ public class Renderer {
      *         will be ignored if <code>layer</code> has already been added to this
      *         <code>Renderer</code>.
      * @throws IllegalArgumentException If <code>layer</code> has already been added
-     *         to an other <code>Renderer</code>.
+     *         to an other <code>Renderer</code>, or if the layer can't be added for
+     *         some other reason.
      *
      * @see #removeLayer
      * @see #removeAllLayers
@@ -769,6 +761,15 @@ public class Renderer {
                             Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
             }
             layer.renderer = this;
+            try {
+                layer.setCoordinateSystem(getCoordinateSystem());
+            } catch (TransformException exception) {
+                layer.renderer = null;
+                final IllegalArgumentException e;
+                e = new IllegalArgumentException(exception.getLocalizedMessage());
+                e.initCause(exception);
+                throw e;
+            }
             /*
              * Ajoute la nouvelle couche dans le tableau {@link #layers}. Le tableau
              * sera agrandit si nécessaire et on déclarera qu'il a besoin d'être reclassé.
@@ -786,7 +787,6 @@ public class Renderer {
                                 "Renderer", "addLayer");
             layer.addPropertyChangeListener(listenerProxy);
         }
-        updateListenerRegistration();
         repaint(); // Must be invoked last
         listeners.firePropertyChange("layers", (layerCount==1) ? EMPTY : null, null);
     }
@@ -809,6 +809,7 @@ public class Renderer {
      */
     public synchronized void removeLayer(final RenderedLayer layer) throws IllegalArgumentException
     {
+        assert Thread.holdsLock(layer.getTreeLock());
         if (layer.renderer == null) {
             return;
         }
@@ -836,7 +837,6 @@ public class Renderer {
             }
         }
         changePreferredArea(layerArea, null, layerCS, "Renderer", "removeLayer");
-        updateListenerRegistration();
         listeners.firePropertyChange("layers", null, (layerCount!=0) ? null : EMPTY);
     }
 
@@ -852,6 +852,7 @@ public class Renderer {
         repaint(); // Must be invoked first
         while (--layerCount>=0) {
             final RenderedLayer layer = layers[layerCount];
+            assert Thread.holdsLock(layer.getTreeLock());
             layer.removePropertyChangeListener(listenerProxy);
             layer.setVisible(false);
             layer.clearCache();
@@ -1196,7 +1197,8 @@ public class Renderer {
             }
             if (prefetch) {
                 // Prepare data in separated threads.
-                prefetch(bounds, context.deviceCS);
+                context.init(null, bounds);
+                prefetch(context);
             }
         } catch (TransformException exception) {
             // Impossible to process to the rendering. Paint the stack
@@ -1225,6 +1227,7 @@ public class Renderer {
         } finally {
             context.init(null, null);
         }
+        graphics.setTransform(toDevice);
         /*
          * If this map took a long time to renderer, log a message.
          */
@@ -1277,67 +1280,6 @@ public class Renderer {
     ////////                                                  ////////
     //////////////////////////////////////////////////////////////////
     /**
-     * Register {@link #listenerProxy} if at least one layer has a tool, or unregister
-     * it if no layer has tools. This method is automatically invoked when the "tools"
-     * property change in a {@link RenderedLayer}.
-     */
-    private void updateListenerRegistration() {
-        assert Thread.holdsLock(this);
-        if (mapPane != null) {
-            boolean hasTools = (tools != null);
-            if (!hasTools) {
-                for (int i=layerCount; --i>=0;) {
-                    if (layers[i].getTools() != null) {
-                        hasTools = true;
-                        break;
-                    }
-                }
-            }
-            if (hasTools != listenerRegistered) {
-                /*
-                 * Since we are about to change Component registration,
-                 * make sure we are running in the AWT thread.
-                 */
-                if (!EventQueue.isDispatchThread()) {
-                    EventQueue.invokeLater(new Runnable() {
-                        public void run() {
-                            synchronized (Renderer.this) {
-                                updateListenerRegistration();
-                            }
-                        }
-                    });
-                    return;
-                }
-                /*
-                 * Before to register any listener, unregister unconditionnaly in order
-                 * to make sure we don't register the same listener twice.  It is safer
-                 * to do this because {@link javax.swing.event.EventListenerList} doesn't
-                 * do this check. It is not damageable to unregister twice, but it is
-                 * damageable to register twice.
-                 */
-                mapPane.removeMouseListener(listenerProxy);
-                if (hasTools) {
-                    mapPane.addMouseListener(listenerProxy);
-                }
-                /*
-                 * Special processing for Swing's tool tip text. If there is no default
-                 * tool tip, then we need to register the component manually if we want
-                 * 'Tools.getToolTipText()' to work, since Swing doesn't know about it.
-                 */
-                if (mapPane instanceof JComponent) {
-                    final JComponent swing = (JComponent) mapPane;
-                    if (hasTools && swing.getToolTipText()==null) {
-                        ToolTipManager.sharedInstance().registerComponent(swing);
-                    }
-                    // Store an information usefull to org.geotools.gui.swing.MapPane
-                    swing.putClientProperty("RendererHasTools", Boolean.valueOf(hasTools));
-                }
-                listenerRegistered = hasTools;
-            }
-        }
-    }
-
-    /**
      * Returns to locale for this renderer. The renderer will inherit
      * the locale of its {@link Component}, if he have one. Otherwise,
      * a default locale will be returned.
@@ -1359,35 +1301,8 @@ public class Renderer {
     }
 
     /**
-     * Returns the default tools to use when no {@linkplain RenderedLayer#getTools layer's tools}
-     * can do the job. If no default tools has been set, then returns <code>null</code>.
-     *
-     * @see Tools#getToolTipText
-     * @see Tools#getPopupMenu
-     * @see Tools#mouseClicked
-     */
-    public Tools getTools() {
-        return tools;
-    }
-
-    /**
-     * Set the default tools to use when no {@linkplain RenderedLayer#getTools layer's tools}
-     * can do the job.
-     *
-     * @param tools The new tools, or <code>null</code> for removing any set of tools.
-     */
-    public void setTools(final Tools tools) {
-        final Tools oldTools;
-        synchronized (this) {
-            oldTools = this.tools;
-            this.tools = tools;
-        }
-        listeners.firePropertyChange("tools", oldTools, tools);
-    }
-
-    /**
      * Returns the string to be used as the tooltip for a given mouse event. This method
-     * invokes {@link Tools#getToolTipText} for some registered {@linkplain RenderedLayer
+     * invokes {@link RenderedLayet#getToolTipText} for registered {@linkplain RenderedLayer
      * layers} in decreasing {@linkplain RenderedLayer#getZOrder z-order} until one is
      * found to returns a non-null string.
      *
@@ -1401,20 +1316,19 @@ public class Renderer {
         final RenderedLayer[] layers = this.layers;
         for (int i=layerCount; --i>=0;) {
             final RenderedLayer layer = layers[i];
-            final Tools tools = layer.getTools();
-            if (tools!=null && layer.contains(x,y)) {
-                final String tooltip = tools.getToolTipText(event);
+            if (layer.contains(x,y)) {
+                final String tooltip = layer.getToolTipText(event);
                 if (tooltip != null) {
                     return tooltip;
                 }
             }
         }
-        return (tools!=null) ? tools.getToolTipText(event) : null;
+        return null;
     }
 
     /**
      * Format a value for the current mouse position. This method invokes
-     * {@link Tools#formatValue} for some registered {@linkplain RenderedLayer
+     * {@link RenderedLayer#formatValue} for registered {@linkplain RenderedLayer
      * layers} in decreasing {@linkplain RenderedLayer#getZOrder z-order} until
      * one is found to returns <code>true</code>.
      *
@@ -1435,71 +1349,13 @@ public class Renderer {
         final RenderedLayer[] layers = this.layers;
         for (int i=layerCount; --i>=0;) {
             final RenderedLayer layer = layers[i];
-            final Tools tools = layer.getTools();
-            if (tools!=null && layer.contains(x,y)) {
-                if (tools.formatValue(event, toAppendTo)) {
+            if (layer.contains(x,y)) {
+                if (layer.formatValue(event, toAppendTo)) {
                     return true;
                 }
             }
         }
         return false;
-    }
-
-    /**
-     * Returns the popup menu to appears for a given mouse event. This method invokes
-     * {@link Tools#getPopupMenu} for some registered {@linkplain RenderedLayer layers}
-     * in decreasing {@linkplain RenderedLayer#getZOrder z-order} until one is found to
-     * returns a non-null menu.
-     *
-     * @param  event The mouse event.
-     * @return Actions for the popup menu, or <code>null</code> if there is none.
-     *         If the returned array is non-null but contains null elements,
-     *         then the null elements will be understood as menu separator.
-     */
-    public synchronized Action[] getPopupMenu(final GeoMouseEvent event) {
-        sortLayers();
-        final int x = event.getX();
-        final int y = event.getY();
-        final RenderedLayer[] layers = this.layers;
-        for (int i=layerCount; --i>=0;) {
-            final RenderedLayer layer = layers[i];
-            final Tools tools = layer.getTools();
-            if (tools!=null && layer.contains(x,y)) {
-                final Action[] menu = tools.getPopupMenu(event);
-                if (menu != null) {
-                    return menu;
-                }
-            }
-        }
-        return (tools!=null) ? tools.getPopupMenu(event) : null;
-    }
-
-    /**
-     * Invoked when user clicks on this <code>Renderer</code>. The default implementation
-     * invokes {@link Tools#mouseClicked} for some {@linkplain RenderedLayer layers} in
-     * decreasing {@linkplain RenderedLayer#getZOrder z-order} until one of them
-     * {@linkplain MouseEvent#consume consume} the event.
-     *
-     * @param  event The mouse event.
-     */
-    private synchronized void mouseClicked(final GeoMouseEvent event) {
-        sortLayers();
-        final int x = event.getX();
-        final int y = event.getY();
-        final RenderedLayer[] layers = this.layers;
-        for (int i=layerCount; --i>=0;) {
-            final RenderedLayer layer = layers[i];
-            final Tools tools = layer.getTools();
-            if (tools!=null && layer.contains(x,y)) {
-                tools.mouseClicked(event);
-                if (event.isConsumed()) {
-                    return;
-                }
-            }
-        }
-        if (tools != null) {
-            tools.mouseClicked(event);
-        }
     }
 
     /**
@@ -1547,38 +1403,20 @@ public class Renderer {
      * Hints that the given area might be painted in the near future. Some layers
      * may spawn a thread to compute the data while others may ignore the hint.
      *
-     * @param The area (in the <code>cs</code> coordinate system) that may need to
-     *        be painted. A <code>null</code> value means that all layers will need
-     *        to be fully painted soon.
-     * @param cs The coordinate system for <code>area</code>.
+     * @param  context Information relatives to the rendering context. This object contains
+     *         methods for querying the area to be painted in arbitrary coordinate system.
+     *         This temporary object will be destroy once the rendering is completed.
+     *         Consequently, do not keep a reference to it outside this <code>prefetch</code>
+     *         method.
      *
      * @see RenderedLayer#prefetch
      * @see PlanarImage#prefetchTiles
      */
-    private void prefetch(Rectangle2D area, final CoordinateSystem cs) {
+    private void prefetch(final RenderingContext context) {
         assert Thread.holdsLock(this);
-        Rectangle2D buffer = null;
         for (int i=layerCount; --i>=0;) {
             final RenderedLayer layer = layers[i];
-            Rectangle2D layerArea = area;
-            try {
-                if (area != null) {
-                    // Note: the 'getMathTransform(...)' method is faster when the targetCS is
-                    //       'context.mapCS'.  This is why we invoke 'MathTransform.inverse()'
-                    //       instead of swapping 'sourceCS' and 'targetCS' arguments.
-                    final MathTransform2D transform = (MathTransform2D)
-                                               getMathTransform(layer.getCoordinateSystem(), cs,
-                                                                "Renderer", "prefetch").inverse();
-                    if (!transform.isIdentity()) {
-                        layerArea = buffer = CTSUtilities.transform(transform, area, buffer);
-                    }
-                }
-                layer.prefetch(layerArea);
-            } catch (TransformException exception) {
-                // Can't transform the area. This is not a big deal, since
-                // 'prefetch' is nothing more than a hint. Continue the loop...
-                handleException("Renderer", "prefetch", exception);
-            }
+            layer.prefetch(context);
         }
     }
 
@@ -1592,7 +1430,8 @@ public class Renderer {
      * traçage sera plus lent, le temps que <code>Renderer</code> reconstruise les
      * caches internes.
      */
-    private synchronized void clearCache() {
+    private void clearCache() {
+        assert Thread.holdsLock(this);
         for (int i=layerCount; --i>=0;) {
             layers[i].clearCache();
         }
@@ -1600,11 +1439,19 @@ public class Renderer {
     }
 
     /**
-     * Préviens que cet afficheur sera bientôt détruit. Cette méthode peut être appelée lorsque
-     * cet objet <code>Renderer</code> est sur le point de ne plus être référencé.  Elle permet
-     * de libérer des ressources plus rapidement que si l'on attend que le ramasse-miettes fasse
-     * son travail. Après l'appel de cette méthode, on ne doit plus utiliser ni cet objet
-     * <code>Renderer</code> ni aucune des couches <code>RenderedLayer</code> qu'il contenait.
+     * Provides a hint that a renderer will no longer be accessed from a reference in user
+     * space. The results are equivalent to those that occur when the program loses its
+     * last reference to this renderer, the garbage collector discovers this, and finalize
+     * is called. This can be used as a hint in situations where waiting for garbage
+     * collection would be overly conservative.
+     * <br><br>
+     * <code>Renderer</code> defines this method to invoke {@link RenderedLayer#dispose} for
+     * all layers. The results of referencing a renderer or any of its layers after a call to
+     * <code>dispose()</code> are undefined. However, invoking this method more than once is
+     * safe.
+     *
+     * @see RenderedLayer#dispose
+     * @see PlanarImage#dispose
      */
     public synchronized void dispose() {
         final RenderedLayer[] layers = new RenderedLayer[layerCount];

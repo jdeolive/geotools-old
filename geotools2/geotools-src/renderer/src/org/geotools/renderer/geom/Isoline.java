@@ -93,7 +93,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Isoline.java,v 1.8 2003/02/19 21:08:16 jmacgill Exp $
+ * @version $Id: Isoline.java,v 1.9 2003/02/20 11:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -480,33 +480,6 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Returns the string to be used as the tooltip for the given location.
-     * If there is no such tooltip, it returns <code>null</code>. The default
-     * implementation searches for a polygon's tooltip at the given location.
-     *
-     * @param  point Coordinates (usually mouse coordinates). Must be
-     *         specified in this isoline's coordinate system
-     *         (as returned by {@link #getCoordinateSystem}).
-     * @param  locale The desired locale for the tooltips.
-     * @return The tooltip text for the given location,
-     *         or <code>null</code> if there is none.
-     */
-    public synchronized String getToolTipText(final Point2D point, final Locale locale) {
-        if (getCachedBounds().contains(point)) {
-            if (!sorted) {
-                sort();
-            }
-            for (int i=0; i<polygonCount; i++) {
-                final String name = polygons[i].getToolTipText(point, locale);
-                if (name != null) {
-                    return name;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
      * Paints this isoline using the specified {@link Polygon.Renderer}.
      * This method is faster than <code>graphics.draw(this)</code> since
      * it reuses internal cache when possible.
@@ -563,7 +536,7 @@ public class Isoline extends GeoShape implements Comparable {
      */
     public PathIterator getPathIterator(final AffineTransform transform, final double flatness) {
         assert flattened == checkFlattenedShape() : flattened;
-        if (!flattened) {
+        if (flattened) {
             return getPathIterator(transform);
         } else {
             return super.getPathIterator(transform, flatness);
@@ -574,7 +547,7 @@ public class Isoline extends GeoShape implements Comparable {
      * Returns <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
      * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
      */
-    final boolean checkFlattenedShape() {
+    private boolean checkFlattenedShape() {
         for (int i=polygonCount; --i>=0;) {
             if (!polygons[i].isFlattenedShape()) {
                 return false;
@@ -712,6 +685,31 @@ public class Isoline extends GeoShape implements Comparable {
             }
         }
         return Collections.EMPTY_SET;
+    }
+
+    /**
+     * Returns the polygon's name at the specified location.
+     *
+     * @param  point Coordinates in this isoline's coordinate system
+     *         (as returned by {@link #getCoordinateSystem}).
+     * @param  locale The desired locale for the polygon name.
+     * @return The polygon name at the given location,
+     *         or <code>null</code> if there is none.
+     */
+    public synchronized String getPolygonName(final Point2D point, final Locale locale) {
+        if (getCachedBounds().contains(point)) {
+            if (!sorted) {
+                sort();
+            }
+            for (int i=0; i<polygonCount; i++) {
+                final Polygon polygon = polygons[i];
+                final String name = polygon.getName(locale);
+                if (name!=null && polygon.contains(point)) {
+                    return name;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -1186,7 +1184,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.8 2003/02/19 21:08:16 jmacgill Exp $
+     * @version $Id: Isoline.java,v 1.9 2003/02/20 11:18:08 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {

@@ -91,7 +91,7 @@ import org.geotools.resources.XAffineTransform;
  *   <li>{@link #paint(Graphics2D, Shape, int)}</li>
  * </ul>
  *
- * @version $Id: RenderedMarks.java,v 1.2 2003/02/10 23:09:46 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.3 2003/02/20 11:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -168,7 +168,7 @@ public abstract class RenderedMarks extends RenderedLayer {
     /**
      * Indique si la marque pointée par l'index spécifié est visible. L'implémentation par
      * défaut retourne toujours <code>true</code>. Les classes dérivées peuvent redéfinir
-     * cette méthode si elles veulent que certaines marques ne soient pas visible sur la
+     * cette méthode si elles veulent que certaines marques ne soient pas visibles sur la
      * carte. Les classes dérivées ne sont pas tenues de retourner toujours la même valeur
      * pour un index donné. Par exemple deux appels consécutifs à <code>isVisible(23)</code>
      * pourraient retourner <code>true</code> la première fois et <code>false</code> la
@@ -630,193 +630,109 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
         super.clearCache();
     }
 
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////    EVENTS (note: may be moved out of this class in a future version)    ////////
+    /////////////////////////////////////////////////////////////////////////////////////////////
     /**
-     * A default set of tools for {@link RenderedMarks} layer. This set of tools
-     * overrides all {@link org.geotools.renderer.j2d.Tools} methods with signature
-     * <code>(GeoMouseEvent, ...)</code> and redirect them to an equivalent method
-     * with signature <code>(int)</code>, the integer value being the mark number.
-     * User must subclass this method in order to add the desired functionalities
-     * and register with {@link RenderedLayer#setTools}.
-     *
-     * @version $Id: RenderedMarks.java,v 1.2 2003/02/10 23:09:46 desruisseaux Exp $
-     * @author Martin Desruisseaux
+     * Point utilisé temporairement lors des mouvements de la souris.
      */
-    protected class Tools extends org.geotools.renderer.j2d.Tools {
-        /**
-         * Point utilisé temporairement lors des mouvements de la souris.
-         */
-        private transient Point2D point;
+    private transient Point2D point;
 
-        /**
-         * Default constructor.
-         */
-        protected Tools() {
-        }
+    /**
+     * Format a value for the specified mark. This method doesn't have to format the
+     * mouse coordinate (this is {@link MouseCoordinateFormat#format(GeoMouseEvent)}
+     * business).
+     *
+     * @param  index The mark index.
+     * @param  toAppendTo The destination buffer for formatting a value.
+     * @return <code>true</code> if this method has formatted a value, or <code>false</code>
+     *         otherwise. If this method returns <code>true</code>, then the next layers (with
+     *         smaller {@linkplain RenderedLayer#getZOrder z-order}) will not be queried.
+     *
+     * @deprecated This method may be removed in a future version.
+     */
+    boolean formatValue(int index, StringBuffer toAppendTo) {
+        return false;
+    }
 
-        /**
-         * Format a value for the specified mark. This method doesn't have to format the
-         * mouse coordinate (this is {@link MouseCoordinateFormat#format(GeoMouseEvent)}
-         * business).
-         *
-         * @param  index The mark index.
-         * @param  toAppendTo The destination buffer for formatting a value.
-         * @return <code>true</code> if this method has formatted a value, or <code>false</code>
-         *         otherwise. If this method returns <code>true</code>, then the next layers (with
-         *         smaller {@linkplain RenderedLayer#getZOrder z-order}) will not be queried.
-         */
-        protected boolean formatValue(int index, StringBuffer toAppendTo) {
-            return false;
-        }
-
-        /**
-         * Retourne le texte à afficher dans une bulle lorsque le curseur de la souris traîne
-         * sur une marque. L'implémentation par défaut retourne toujours <code>null</code>.
-         *
-         * @param  index Index de la marque sur laquelle traîne le curseur.
-         * @return Le texte à afficher lorsque la souris traîne sur cette station.
-         *         Ce texte peut être nul pour signifier qu'il ne faut pas en écrire.
-         */
-        protected String getToolTipText(int index) {
-            return null;
-        }
-
-        /**
-         * Returns a contextual menu for the specified mark. On Windows and Solaris platforms,
-         * this method is invoked when the user press the right button. The default
-         * implementation returns always <code>null</code>.
-         *
-         * @param  index The mark index.
-         * @return Actions for the popup menus, or <code>null</code> if none. If this array
-         *         is non-null but contains null elements, then the null elements will be
-         *         understood as menu separator.
-         */
-        protected Action[] getPopupMenu(int index) {
-            return null;
-        }
-
-        /**
-         * Méthode appellée chaque fois que le bouton de la souris a été cliqué
-         * sur cette marque. L'implémentation par défaut ne fait rien.
-         */
-        protected void mouseClicked(int index) {
-        }
-
-        /**
-         * Méthode appelée automatiquement pour construire une chaîne de caractères représentant
-         * la valeur pointée par la souris. Cette méthode identifie sur quelle station pointait
-         * la souris et appelle la méthode {@link #formatValue(int,StringBuffer)}.
-         *
-         * @param  event The mouse event.
-         * @param  toAppendTo The destination buffer for formatting a value.
-         * @return <code>true</code> if this method has formatted a value, or <code>false</code>
-         *         otherwise. If this method returns <code>true</code>, then the next layers (with
-         *         smaller {@linkplain RenderedLayer#getZOrder z-order}) will not be queried.
-         */
-        protected boolean formatValue(final GeoMouseEvent event,
-                                      final StringBuffer toAppendTo)
-        {
-            synchronized (getTreeLock()) {
-                final Shape[] transformedShapes = RenderedMarks.this.transformedShapes;
-                if (transformedShapes != null) {
-                    Shape shape;
-                    final Point2D point = this.point = event.getPixelCoordinate(this.point);
-                    for (int i=transformedShapes.length; --i>=0;) {
-                        if (isVisible(i) && (shape=transformedShapes[i])!=null) {
-                            if (shape.contains(point)) {
-                                if (formatValue(i, toAppendTo)) {
-                                    return true;
-                                }
+    /**
+     * Méthode appelée automatiquement pour construire une chaîne de caractères représentant
+     * la valeur pointée par la souris. Cette méthode identifie sur quelle station pointait
+     * la souris et appelle la méthode {@link #formatValue(int,StringBuffer)}.
+     *
+     * @param  event The mouse event.
+     * @param  toAppendTo The destination buffer for formatting a value.
+     * @return <code>true</code> if this method has formatted a value, or <code>false</code>
+     *         otherwise. If this method returns <code>true</code>, then the next layers (with
+     *         smaller {@linkplain RenderedLayer#getZOrder z-order}) will not be queried.
+     */
+    final boolean formatValue(final GeoMouseEvent event,
+                              final StringBuffer toAppendTo)
+    {
+        synchronized (getTreeLock()) {
+            final Shape[] transformedShapes = RenderedMarks.this.transformedShapes;
+            if (transformedShapes != null) {
+                Shape shape;
+                final Point2D point = this.point = event.getPixelCoordinate(this.point);
+                for (int i=transformedShapes.length; --i>=0;) {
+                    if (isVisible(i) && (shape=transformedShapes[i])!=null) {
+                        if (shape.contains(point)) {
+                            if (formatValue(i, toAppendTo)) {
+                                return true;
                             }
                         }
                     }
                 }
             }
-            return super.formatValue(event, toAppendTo);
         }
+        return super.formatValue(event, toAppendTo);
+    }
 
-        /**
-         * Retourne le texte à afficher dans une bulle lorsque le curseur
-         * de la souris traîne sur la carte. L'implémentation par défaut
-         * identifie la marque sur laquelle traîne le curseur et appelle
-         * {@link #getToolTipText(int)}.
-         *
-         * @param  event Coordonnées du curseur de la souris.
-         * @return Le texte à afficher lorsque la souris traîne sur cet élément.
-         *         Ce texte peut être nul pour signifier qu'il ne faut pas en écrire.
-         */
-        protected String getToolTipText(final GeoMouseEvent event) {
-            synchronized (getTreeLock()) {
-                final Shape[] transformedShapes = RenderedMarks.this.transformedShapes;
-                if (transformedShapes != null) {
-                    Shape shape;
-                    final Point2D point = this.point = event.getPixelCoordinate(this.point);
-                    for (int i=transformedShapes.length; --i>=0;) {
-                        if (isVisible(i) && (shape=transformedShapes[i])!=null) {
-                            if (shape.contains(point)) {
-                                final String text = getToolTipText(i);
-                                if (text != null) {
-                                    return text;
-                                }
+    /**
+     * Retourne le texte à afficher dans une bulle lorsque le curseur de la souris traîne
+     * sur une marque. L'implémentation par défaut retourne toujours <code>null</code>.
+     *
+     * @param  index Index de la marque sur laquelle traîne le curseur.
+     * @return Le texte à afficher lorsque la souris traîne sur cette station.
+     *         Ce texte peut être nul pour signifier qu'il ne faut pas en écrire.
+     *
+     * @deprecated This method may be removed in a future version.
+     */
+    protected String getToolTipText(int index) {
+        return null;
+    }
+
+    /**
+     * Retourne le texte à afficher dans une bulle lorsque le curseur
+     * de la souris traîne sur la carte. L'implémentation par défaut
+     * identifie la marque sur laquelle traîne le curseur et appelle
+     * {@link #getToolTipText(int)}.
+     *
+     * @param  event Coordonnées du curseur de la souris.
+     * @return Le texte à afficher lorsque la souris traîne sur cet élément.
+     *         Ce texte peut être nul pour signifier qu'il ne faut pas en écrire.
+     */
+    final String getToolTipText(final GeoMouseEvent event) {
+        synchronized (getTreeLock()) {
+            final Shape[] transformedShapes = RenderedMarks.this.transformedShapes;
+            if (transformedShapes != null) {
+                Shape shape;
+                final Point2D point = this.point = event.getPixelCoordinate(this.point);
+                for (int i=transformedShapes.length; --i>=0;) {
+                    if (isVisible(i) && (shape=transformedShapes[i])!=null) {
+                        if (shape.contains(point)) {
+                            final String text = getToolTipText(i);
+                            if (text != null) {
+                                return text;
                             }
                         }
                     }
                 }
             }
-            return super.getToolTipText(event);
         }
-
-        /**
-         * Méthode appellée chaque fois que le bouton de la souris a été cliqué
-         * sur cette couche. L'implémentation par défaut identifie la ou les
-         * marques sur lesquelles pointe le curseur de la souris et appelle
-         * {@link #mouseClicked(int)}.
-         */
-        protected void mouseClicked(final GeoMouseEvent event) {
-            synchronized (getTreeLock()) {
-                final Shape[] transformedShapes = RenderedMarks.this.transformedShapes;
-                if (transformedShapes != null) {
-                    Shape shape;
-                    final Point2D point = this.point = event.getPixelCoordinate(this.point);
-                    for (int i=transformedShapes.length; --i>=0;) {
-                        if (isVisible(i) && (shape=transformedShapes[i])!=null) {
-                            if (shape.contains(point)) {
-                                mouseClicked(i);
-                            }
-                        }
-                    }
-                }
-            }
-            super.mouseClicked(event);
-        }
-
-        /**
-         * Méthode appellée automatiquement chaque fois qu'il a été déterminé qu'un menu contextuel
-         * devrait être affiché. L'implémentation par défaut identifie la marque sur laquelle pointe
-         * le curseur et appelle {@link #getPopupMenu(int)}.
-         *
-         * @param  event Coordonnées du curseur de la souris.
-         * @return Menu contextuel à faire apparaître, ou <code>null</code>
-         *         si cette couche ne propose pas de menu contextuel.
-         */
-        protected Action[] getPopupMenu(final GeoMouseEvent event) {
-            synchronized (getTreeLock()) {
-                final Shape[] transformedShapes = RenderedMarks.this.transformedShapes;
-                if (transformedShapes != null) {
-                    Shape shape;
-                    final Point2D point = this.point = event.getPixelCoordinate(this.point);
-                    for (int i=transformedShapes.length; --i>=0;) {
-                        if (isVisible(i) && (shape=transformedShapes[i])!=null) {
-                            if (shape.contains(point)) {
-                                final Action[] menu = getPopupMenu(i);
-                                if (menu != null) {
-                                    return menu;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return super.getPopupMenu(event);
-        }
+        return super.getToolTipText(event);
     }
 }

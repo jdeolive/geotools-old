@@ -84,7 +84,7 @@ import org.geotools.math.Statistics;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: GeoShape.java,v 1.3 2003/02/06 23:46:29 desruisseaux Exp $
+ * @version $Id: GeoShape.java,v 1.4 2003/02/20 11:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GeoShape implements Shape, Cloneable, Serializable {
@@ -245,25 +245,6 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
     public abstract boolean intersects(final Shape shape);
 
     /**
-     * Returns the string to be used as the tooltip for the given location.
-     * If there is no such tooltip, returns <code>null</code>. This method
-     * is usually invoked as result of mouse events. Default implementation
-     * returns {@link #getName} if the specified coordinates is contained
-     * inside this shape, or <code>null</code> otherwise.
-     *
-     * @param  point Coordinates (usually mouse coordinates). Must be
-     *         specified in this shape's coordinate system (as returned
-     *         by {@link #getCoordinateSystem}).
-     * @param  locale The desired locale for the tool tips.
-     * @return The tooltip text for the given location, or <code>null</code>
-     *         if there is none.
-     */
-    public String getToolTipText(final Point2D point, final Locale locale) {
-        final String name = getName(locale);
-        return (name!=null && contains(point)) ? name : null;
-    }
-
-    /**
      * Return the number of points in this shape.
      */
     public abstract int getPointCount();
@@ -316,26 +297,6 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
     public PathIterator getPathIterator(final AffineTransform transform, final double flatness) {
         return new FlatteningPathIterator(getPathIterator(transform), flatness);
     }
-
-    /**
-     * Returns a shape approximatively equals to this shape clipped to the specified bounds.
-     * The clip is only approximative in that the resulting shape may extends outside the clip
-     * area. However, it is garanted that the resulting shape contains at least all the interior
-     * of the clip area.
-     *
-     * If this method can't performs the clip, or if it believe that it doesn't worth to do a clip,
-     * it returns <code>this</code>. If this shape doesn't intersect the clip area, then this method
-     * returns <code>null</code>. Otherwise, a new shape is created and returned. The new shape
-     * will try to share as much internal data as possible with <code>this</code> in order to keep
-     * memory footprint low.
-     *
-     * @param  clipper An object containing the clip area.
-     * @return <code>null</code> if this shape doesn't intersect the clip, <code>this</code>
-     *         if no clip has been performed, or a new clipped shape otherwise.
-     */
-//    GeoShape getClipped(final Clipper clipper) {
-//        return this;
-//    }
 
     /**
      * Return a string representation of this shape for debugging purpose.

@@ -72,7 +72,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.10 2003/02/10 23:09:40 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.11 2003/02/20 11:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -114,12 +114,10 @@ public class RenderedIsoline extends RenderedLayer {
     private static final double TICKNESS = 0.25;
 
     /**
-     * The isoline data. The {@linkplain Isoline#getCoordinateSystem isoline's coordinate
-     * system} is the one used for rendering when <code>paint(...)</code> was invoked for
-     * the last time.   It may not be the same than this {@linkplain #getCoordinateSystem
-     * layer's coordinate system}.
+     * The isoline data. The {@linkplain Isoline#getCoordinateSystem isoline's coordinate system}
+     * should matches the {@linkplain #getCoordinateSystem rendering coordinate system}.
      */
-    private final Isoline isoline;
+    private Isoline isoline;
 
     /**
      * List of clipped isolines. A clipped isoline may be faster to renderer
@@ -145,7 +143,7 @@ public class RenderedIsoline extends RenderedLayer {
     /**
      * The number of points in {@link #isoline}. For statistics purpose only.
      */
-    private final int numPoints;
+    private int numPoints;
 
     /**
      * The renderer to use for painting polygons.
@@ -154,17 +152,15 @@ public class RenderedIsoline extends RenderedLayer {
     private transient IsolineRenderer isolineRenderer;
 
     /**
-     * Construct a layer for the specified isoline. The layer's coordinate system will be
-     * set to the current {@linkplain Isoline#getCoordinateSystem isoline's coordinate
-     * system}.
+     * Construct a layer for the specified isoline.
+     *
+     * @param isoline The isoline, or <code>null</code> if none.
+     * @see #setIsoline
      */
-    public RenderedIsoline(Isoline isoline) {
-        isoline = (Isoline)isoline.clone(); // Remind: underlying data are shared, not cloned.
-        this.isoline   = isoline;
-        this.numPoints = isoline.getPointCount();
-        final CoordinateSystem isolineCS = isoline.getCoordinateSystem();
-        try {
-            setCoordinateSystem(isolineCS);
+    public RenderedIsoline(final Isoline isoline) {
+        if (isoline!=null) try {
+            setCoordinateSystem(isoline.getCoordinateSystem());
+            setIsoline(isoline);
         } catch (TransformException exception) {
             /*
              * Should not happen, since isoline use 2D coordinate systems. Rethrow it as an
@@ -176,16 +172,69 @@ public class RenderedIsoline extends RenderedLayer {
             e.initCause(exception);
             throw e;
         }
-        setZOrder(isoline.value);
-        /*
-         * Compute the preferred area and the preferred pixel size.
-         */
+    }
+
+    /**
+     * Set a new isoline for this layer.
+     *
+     * @param  isoline The new isoline, or <code>null</code> if none.
+     * @throws TransformException if the isoline can't be projected in the
+     *         {@linkplain #getCoordinateSystem rendering coordinate system}.
+     */
+    public void setIsoline(Isoline isoline) throws TransformException {
+        final Isoline oldIsoline;
+        synchronized (getTreeLock()) {
+            oldIsoline = this.isoline;
+            if (isoline != null) {
+                isoline = (Isoline)isoline.clone(); // Remind: underlying data are shared, not cloned.
+                isoline.setCoordinateSystem(getCoordinateSystem());
+                numPoints = isoline.getPointCount();
+                setZOrder(isoline.value);
+            } else {
+                setZOrder(0);
+                numPoints = 0;
+            }
+            this.isoline = isoline;
+            clearCache();
+            updatePreferences();
+        }
+        listeners.firePropertyChange("isoline", oldIsoline, isoline);
+    }
+
+    /**
+     * Set the rendering coordinate system for this layer.
+     *
+     * @param  cs The coordinate system.
+     * @throws TransformException If <code>cs</code> if the isoline
+     *         can't be projected to the specified coordinate system.
+     */
+    protected void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
+        synchronized (getTreeLock()) {
+            if (isoline != null) {
+                isoline.setCoordinateSystem(cs);
+            }
+            super.setCoordinateSystem(cs);
+            clearCache();
+            updatePreferences();
+        }
+    }
+ 
+    /*
+     * Compute the preferred area and the preferred pixel size.
+     */
+    private void updatePreferences() {
+        assert Thread.holdsLock(getTreeLock());
+        if (isoline == null) {
+            setPreferredArea(null);
+            setPreferredPixelSize(null);
+            return;
+        }
         final Rectangle2D  bounds = isoline.getBounds2D();
         final Statistics resStats = isoline.getResolution();
         if (resStats != null) {
             final double dx,dy;
-            final double   resolution = resStats.mean();
-            final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isolineCS);
+            final double resolution = resStats.mean();
+            Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isoline.getCoordinateSystem());
             if (ellipsoid != null) {
                 // Transforms the resolution into a pixel size in the middle of 'bounds'.
                 // Note: 'r' is the inverse of **apparent** ellipsoid's radius at latitude 'y'.
@@ -203,7 +252,6 @@ public class RenderedIsoline extends RenderedLayer {
             setPreferredPixelSize(new XDimension2D.Double(TICKNESS*dx , TICKNESS*dy));
         }
         setPreferredArea(bounds);
-        setTools(new Tools());
     }
 
     /**
@@ -257,7 +305,7 @@ public class RenderedIsoline extends RenderedLayer {
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.10 2003/02/10 23:09:40 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.11 2003/02/20 11:18:08 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class IsolineRenderer implements Polygon.Renderer {
@@ -451,17 +499,6 @@ public class RenderedIsoline extends RenderedLayer {
     }
 
     /**
-     * Discard cached data. Invoking this method should not affect
-     * the rendering appearance, but may slow down the next rendering.
-     */
-    void clearCache() {
-        if (clipped != null) {
-            clipped.clear();
-        }
-        super.clearCache();
-    }
-
-    /**
      * Expand or shrunk a rectangle by some factor. A scale of 1 lets the rectangle
      * unchanged. A scale of 2 make the rectangle two times wider and heigher. In
      * any case, the rectangle's center doesn't move.
@@ -476,37 +513,51 @@ public class RenderedIsoline extends RenderedLayer {
     }
 
     /**
-     * A default set of tools for {@link RenderedIsoline} layer. An instance of this
-     * class is automatically registered at the {@link RenderedIsoline} construction
-     * stage.
+     * Returns a tool tip text for the specified coordinates.
+     * The default implementation delegates to {@link Isoline#getPolygonName}.
      *
-     * @version $Id: RenderedIsoline.java,v 1.10 2003/02/10 23:09:40 desruisseaux Exp $
-     * @author Martin Desruisseaux
+     * @param  event The mouve event with geographic coordinétes.
+     * @return The tool tip text, or <code>null</code> if there
+     *         in no tool tips for this location.
      */
-    protected class Tools extends org.geotools.renderer.j2d.Tools {
-        /**
-         * Default constructor.
-         */
-        protected Tools() {
-        }
-
-        /**
-         * Returns a tool tip text for the specified coordinates.
-         * Default implementation delegate to {@link Isoline#getToolTipText}.
-         *
-         * @param  event The mouve event with geographic coordinétes.
-         * @return The tool tip text, or <code>null</code> if there
-         *         in no tool tips for this location.
-         */
-        protected String getToolTipText(final GeoMouseEvent event) {
-            final Point2D point = event.getMapCoordinate(null);
-            if (point != null) {
-                final String toolTips = isoline.getToolTipText(point, getLocale());
-                if (toolTips != null) {
-                    return toolTips;
-                }
+    String getToolTipText(final GeoMouseEvent event) {
+        final Point2D point = event.getMapCoordinate(null);
+        if (point != null) {
+            final String toolTips = isoline.getPolygonName(point, getLocale());
+            if (toolTips != null) {
+                return toolTips;
             }
-            return super.getToolTipText(event);
+        }
+        return super.getToolTipText(event);
+    }
+
+    /**
+     * Discard cached data. Invoking this method should not affect
+     * the rendering appearance, but may slow down the next rendering.
+     */
+    void clearCache() {
+        if (clipped != null) {
+            clipped.clear();
+        }
+        isolineRenderer = null;
+        super.clearCache();
+    }
+
+    /**
+     * Provides a hint that a layer will no longer be accessed from a reference in user
+     * space. The results are equivalent to those that occur when the program loses its
+     * last reference to this layer, the garbage collector discovers this, and finalize
+     * is called. This can be used as a hint in situations where waiting for garbage
+     * collection would be overly conservative.
+     */
+    public void dispose() {
+        synchronized (getTreeLock()) {
+            numPoints  = 0;
+            isoline    = null;
+            contour    = Color.BLACK;
+            foreground = Color.GRAY;
+            background = Color.WHITE;
+            super.dispose();
         }
     }
 }

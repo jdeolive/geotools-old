@@ -64,7 +64,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *   <li>Décimer la densité des marques en fonction du zoom.</li>
  * </ul>
  *
- * @version $Id: RenderedGridMarks.java,v 1.1 2003/01/28 16:12:15 desruisseaux Exp $
+ * @version $Id: RenderedGridMarks.java,v 1.2 2003/02/20 11:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedGridMarks extends RenderedMarks {
@@ -232,8 +232,7 @@ public abstract class RenderedGridMarks extends RenderedMarks {
      * @param decimateX Décimation selon <var>x</var>, ou 1 pour ne pas en faire.
      * @param decimateY Décimation selon <var>y</var>, ou 1 pour ne pas en faire.
      */
-    public void setDecimation(final int decimateX, final int decimateY)
-    {
+    public void setDecimation(final int decimateX, final int decimateY) {
         if (decimateX <=0) {
             throw new IllegalArgumentException(Resources.format(
                             ResourceKeys.ERROR_NOT_GREATER_THAN_ZERO_$1, new Integer(decimateX)));

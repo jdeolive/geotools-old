@@ -39,7 +39,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
-import javax.media.jai.PlanarImage; // Pour Javadoc
+import java.awt.image.RenderedImage;
+import javax.media.jai.PlanarImage;
 
 // Geotools dependencies
 import org.geotools.pt.Envelope;
@@ -52,9 +53,13 @@ import org.geotools.cv.PointOutsideCoverageException;
 import org.geotools.gc.GridRange;
 import org.geotools.gc.GridCoverage;
 import org.geotools.gp.GridCoverageProcessor;
+import org.geotools.gp.CannotReprojectException;
 import org.geotools.resources.CTSUtilities;
+import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.XDimension2D;
 import org.geotools.resources.XAffineTransform;
+import org.geotools.resources.renderer.Resources;
+import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
@@ -63,136 +68,176 @@ import org.geotools.resources.XAffineTransform;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.2 2003/01/28 16:12:15 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.3 2003/02/20 11:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
     /**
-     * The underlying grid coverage.
+     * Default value for the {@linkplain #getZOrder z-order}.
+     */
+    private static final float DEFAULT_Z_ORDER = Float.NEGATIVE_INFINITY;
+
+    /**
+     * The coverage given to {@link #setGridCoverage}. This coverage is
+     * either the same than {@link #coverage}, or one of its sources.
+     *
+     * @see #getGridCoverage
+     * @see #setGridCoverage
+     */
+    private GridCoverage sourceCoverage;
+
+    /**
+     * The grid coverage projected in this {@linkplain #getCoordinateSystem rendering
+     * coordinate system}. It may or may not be the same than {@link #sourceCoverage}.
      */
     private GridCoverage coverage;
-
-    /**
-     * The projected grid coverage. This coverage
-     * is computed only when first needed.
-     */
-    private transient GridCoverage projectedCoverage;
-
-    /**
-     * Coordonnées géographiques de l'image. Ces coordonnées
-     * sont extraites une fois pour toute afin de réduire le
-     * nombre d'objets créés lors des tracés de la carte.
-     */
-    private Rectangle2D geographicArea;
 
     /**
      * Point dans lequel mémoriser les coordonnées logiques d'un pixel
      * de l'image. Cet objet est utilisé temporairement pour obtenir la
      * valeur du paramètre géophysique d'un pixel.
+     *
+     * @see #formatValue
      */
     private transient Point2D point;
 
     /**
      * Valeurs sous le curseur de la souris. Ce tableau sera créé
      * une fois pour toute la première fois où il sera nécessaire.
+     *
+     * @see #formatValue
      */
     private transient double[] values;
 
     /**
      * Liste des bandes. Cette liste ne sera créée
      * que la première fois où elle sera nécessaire.
+     *
+     * @see #formatValue
      */
     private transient SampleDimension[] bands;
-
-    /**
-     * Construct an empty grid coverage layer.
-     */
-    public RenderedGridCoverage() {
-    }
 
     /**
      * Construct a new layer for the specified grid coverage.
      * It is legal to construct many layers for the same grid
      * coverage.
+     *
+     * @param coverage The grid coverage, or <code>null</code> if none.
      */
     public RenderedGridCoverage(final GridCoverage coverage) {
-        setCoverage(coverage);
-        setTools(new Tools());
-    }
-
-    /**
-     * Set the grid coverage. A <code>null</code> value
-     * will remove the current grid coverage.
-     */
-    public void setCoverage(final GridCoverage coverage) {
-        synchronized (getTreeLock()) {
-            if (coverage == null) {
-                clearCache();
-                this.coverage = null;
-                return;
-            }
-            try {
-                CoordinateSystem newCS = coverage.getCoordinateSystem();
-                newCS = CTSUtilities.getCoordinateSystem2D(newCS);
-                if (!getCoordinateSystem().equals(newCS)) {
-                    setCoordinateSystem(newCS);
-                }
-            } catch (TransformException exception) {
-                // Should not be very common, since GridCoverage are
-                // already supposed to use 2D coordinate system.
-                final IllegalArgumentException e;
-                e = new IllegalArgumentException(exception.getLocalizedMessage());
-                e.initCause(exception);
-                throw e;
-            }
-            clearCache();
-            this.coverage = coverage;
-            final Envelope envelope = coverage.getEnvelope();
-            final GridRange   range = coverage.getGridGeometry().getGridRange();
-            this.geographicArea = new Rectangle2D.Double(envelope.getMinimum(0),
-                                                         envelope.getMinimum(1),
-                                                         envelope.getLength (0),
-                                                         envelope.getLength (1));
-            setPreferredArea(geographicArea);
-            setZOrder(envelope.getDimension()>=3 ? (float)envelope.getCenter(2) : Float.NEGATIVE_INFINITY);
-            setPreferredPixelSize(new XDimension2D.Double(envelope.getLength(0)/range.getLength(0),
-                                                          envelope.getLength(1)/range.getLength(1)));
+        if (coverage == null) {
+            setZOrder(DEFAULT_Z_ORDER);
+        } else try {
+            setCoordinateSystem(coverage.getCoordinateSystem());
+            setGridCoverage(coverage);
+        } catch (TransformException exception) {
+            // Should not happen in most cases, since the GridCoverage's
+            // coordinate system usually has a two-dimensional head CS.
+            final IllegalArgumentException e;
+            e = new IllegalArgumentException(exception.getLocalizedMessage());
+            e.initCause(exception);
+            throw e;
         }
     }
 
     /**
-     * Returns the underlying grid coverage, or <code>null</code>
-     * if no grid coverage has been set.
+     * Set the grid coverage to renderer. This grid coverage will be automatically projected
+     * to the {@linkplain #getCoordinateSystem rendering coordinate system}, if needed.
+     *
+     * @param  newCoverage The new grid coverage, or <code>null</code> if none.
+     * @throws TransformException if the specified coverage can't be projected to
+     *         the current {@linkplain #getCoordinateSystem  rendering coordinate
+     *         system}.
      */
-    public GridCoverage getCoverage() {
+    public void setGridCoverage(final GridCoverage newCoverage) throws TransformException {
+        final GridCoverage oldCoverage;
+        synchronized (getTreeLock()) {
+            oldCoverage    = coverage;
+            coverage       = project(newCoverage, getCoordinateSystem());
+            sourceCoverage = newCoverage; // Must be set after 'coverage'.
+            if (coverage != oldCoverage) {
+                clearCache();
+                updatePreferences();
+            }
+        }
+        listeners.firePropertyChange("gridCoverage", oldCoverage, coverage);
+    }
+
+    /**
+     * Project the specified coverage.
+     *
+     * @param  coverage The grid coverage to project, or <code>null</code> if none.
+     * @param  targetCS The target coordinate system for the coverage.
+     * @throws TransformException if the specified coverage can't be projected to
+     *         the specified coordinate system.
+     */
+    private static GridCoverage project(GridCoverage coverage, CoordinateSystem targetCS)
+            throws TransformException
+    {
+        if (coverage != null) {
+            CoordinateSystem sourceCS;
+            coverage = coverage.geophysics(false);
+            sourceCS = coverage.getCoordinateSystem();
+            sourceCS = CTSUtilities.getCoordinateSystem2D(sourceCS);
+            targetCS = CTSUtilities.getCoordinateSystem2D(targetCS);
+            if (!sourceCS.equals(targetCS, false)) {
+                final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
+                try {
+                    coverage = processor.doOperation("Resample",         coverage,
+                                                     "CoordinateSystem", targetCS);
+                } catch (CannotReprojectException exception) {
+                    throw new TransformException(exception.getLocalizedMessage(), exception);
+                }
+            }
+        }
         return coverage;
     }
 
     /**
-     * Returns the grid coverage projected to the specified coordinate system.
-     *
-     * @param  targetCS The coordinate system for the coverage to be returned.
-     * @return The coverage projected in the specified coordinate system.
-     * @throws TransformException if the coverage can't be projected.
+     * Returns the grid coverage, or <code>null</code> if none. This is the grid coverage
+     * given to the last call of {@link #setGridCoverage}. The rendered grid coverage may
+     * not be the same, since a map projection may be applied at rendering time.
      */
-    private GridCoverage getCoverage(CoordinateSystem targetCS) throws TransformException {
+    public GridCoverage getGridCoverage() {
+        return sourceCoverage;
+    }
+
+    /**
+     * Set the rendering coordinate system for this layer.
+     *
+     * @param  cs The coordinate system.
+     * @throws TransformException If <code>cs</code> if the grid coverage
+     *         can't be resampled to the specified coordinate system.
+     */
+    protected void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
+        final GridCoverage newCoverage = project(sourceCoverage, cs);
+        synchronized (getTreeLock()) {
+            super.setCoordinateSystem(cs);
+            // Change the coverage only after the projection succed.
+            coverage = newCoverage;
+            updatePreferences();
+        }
+    }
+
+    /**
+     * Update the {@linkplain #getPreferredArea preferred area},
+     * {@linkplain #getPreferredPixelSize preferred pixel size}
+     * and {@linkplain #getZOrder z-order} properties.
+     */
+    private void updatePreferences() {
         assert Thread.holdsLock(getTreeLock());
         if (coverage == null) {
-            return null;
+            setPreferredArea(null);
+            setPreferredPixelSize(null);
+            setZOrder(DEFAULT_Z_ORDER);
+            return;
         }
-        if (projectedCoverage == null) {
-            projectedCoverage = coverage.geophysics(false);
-        }
-        CoordinateSystem sourceCS;
-        sourceCS = projectedCoverage.getCoordinateSystem();
-        sourceCS = CTSUtilities.getCoordinateSystem2D(sourceCS);
-        targetCS = CTSUtilities.getCoordinateSystem2D(targetCS);
-        if (!sourceCS.equals(targetCS, false)) {
-            final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
-            projectedCoverage = processor.doOperation("Resample", coverage.geophysics(false),
-                                                      "CoordinateSystem", targetCS);
-        }
-        return projectedCoverage;
+        final Envelope envelope = coverage.getEnvelope();
+        final GridRange   range = coverage.getGridGeometry().getGridRange();
+        setPreferredArea(envelope.getSubEnvelope(0, 2).toRectangle2D());
+        setZOrder(envelope.getDimension()>=3 ? (float)envelope.getCenter(2) : DEFAULT_Z_ORDER);
+        setPreferredPixelSize(new XDimension2D.Double(envelope.getLength(0)/range.getLength(0),
+                                                      envelope.getLength(1)/range.getLength(1)));
     }
 
     /**
@@ -202,16 +247,13 @@ public class RenderedGridCoverage extends RenderedLayer {
      *
      * @see PlanarImage#prefetchTiles
      */
-    protected void prefetch(Rectangle2D area) {
+    protected void prefetch(final RenderingContext context) {
         assert Thread.holdsLock(getTreeLock());
-        if (area!=null && !area.isEmpty() && projectedCoverage!=null && renderer!=null) try {
-            final MathTransform2D transform = (MathTransform2D) renderer.getMathTransform(
-                        getCoordinateSystem(), projectedCoverage.getCoordinateSystem(),
-                        "RenderedGridCoverage", "prefetch");
-            if (!transform.isIdentity()) {
-                area = CTSUtilities.transform(transform, area, null);
+        if (coverage!=null) try {
+            Rectangle2D area=context.getPaintingArea(coverage.getCoordinateSystem()).getBounds2D();
+            if (area!=null && !area.isEmpty()) {
+                coverage.prefetch(area);
             }
-            coverage.prefetch(area);
         } catch (TransformException exception) {
             Renderer.handleException("RenderedGridCoverage", "prefetch", exception);
             // Not a big deal, since this method is just a hint. Ignore...
@@ -228,8 +270,8 @@ public class RenderedGridCoverage extends RenderedLayer {
      */
     protected void paint(final RenderingContext context) throws TransformException {
         assert Thread.holdsLock(getTreeLock());
-        final GridCoverage coverage = getCoverage(context.mapCS);
         if (coverage != null) {
+            assert coverage.getCoordinateSystem().equals(context.mapCS, false);
             final AffineTransform gridToCoordinate;
             try {
                 gridToCoordinate = (AffineTransform) coverage.getGridGeometry()
@@ -241,20 +283,9 @@ public class RenderedGridCoverage extends RenderedLayer {
             final AffineTransform transform = new AffineTransform(gridToCoordinate);
             transform.translate(-0.5, -0.5); // Map to upper-left corner.
             context.getGraphics().drawRenderedImage(coverage.getRenderedImage(), transform);
-            context.addPaintedArea(geographicArea, getCoordinateSystem());
+            context.addPaintedArea(coverage.getEnvelope().getSubEnvelope(0, 2).toRectangle2D(),
+                                   coverage.getCoordinateSystem());
         }
-    }
-
-    /**
-     * Efface les informations qui avaient été
-     * sauvegardées dans la cache interne.
-     */
-    void clearCache() {
-        point             = null;
-        values            = null;
-        bands             = null;
-        projectedCoverage = null;
-        super.clearCache();
     }
 
     /**
@@ -269,20 +300,21 @@ public class RenderedGridCoverage extends RenderedLayer {
      * @return <code>true</code> if this method has formatted a value, or <code>false</code>
      *         otherwise.
      */
-    private boolean formatValue(final GeoMouseEvent event, final StringBuffer toAppendTo) {
+    boolean formatValue(final GeoMouseEvent event, final StringBuffer toAppendTo) {
         synchronized (getTreeLock()) {
-            if (coverage == null) {
+            if (sourceCoverage == null) {
                 return false;
             }
             try {
-                point = event.getCoordinate(getCoordinateSystem(), point);
+                point = event.getCoordinate(sourceCoverage.getCoordinateSystem(), point);
             } catch (TransformException exception) {
                 // Can't transform the point. It may occurs if the mouse cursor is
                 // far away from the area of coordinate system validity. Ignore...
                 return false;
             }
+            final Locale locale = getLocale();
             try {
-                values = coverage.evaluate(point, values);
+                values = sourceCoverage.evaluate(point, values);
             } catch (PointOutsideCoverageException exception) {
                 // Point is outside grid coverage. This is normal and we should not print any
                 // message here. We could test if the point is inside the grid coverage before
@@ -292,14 +324,13 @@ public class RenderedGridCoverage extends RenderedLayer {
                 return false;
             } catch (CannotEvaluateException exception) {
                 // The point can't be evaluated for some other reason. Append an error flag.
-                toAppendTo.append("ERROR");
+                toAppendTo.append(Resources.getResources(locale).getString(ResourceKeys.ERROR));
                 return true;
             }
             if (bands == null) {
-                bands = coverage.getSampleDimensions();
+                bands = sourceCoverage.getSampleDimensions();
             }
             boolean modified = false;
-            final Locale locale = getLocale();
             for (int i=0; i<values.length; i++) {
                 final String text = bands[i].getLabel(values[i], locale);
                 if (text != null) {
@@ -315,34 +346,39 @@ public class RenderedGridCoverage extends RenderedLayer {
     }
 
     /**
-     * A default set of tools for {@link RenderedGridCoverage} layer. An instance of this
-     * class is automatically registered at the {@link RenderedGridCoverage} construction
-     * stage.
-     *
-     * @version $Id: RenderedGridCoverage.java,v 1.2 2003/01/28 16:12:15 desruisseaux Exp $
-     * @author Martin Desruisseaux
+     * Efface les informations qui avaient été
+     * sauvegardées dans la cache interne.
      */
-    protected class Tools extends org.geotools.renderer.j2d.Tools {
-        /**
-         * Default constructor.
-         */
-        protected Tools() {
-        }
+    void clearCache() {
+        point  = null;
+        values = null;
+        bands  = null;
+        super.clearCache();
+    }
 
-        /**
-         * Format a value for the current mouse position. This method append in
-         * <code>toAppendTo</code> the value in each bands for the pixel at the
-         * mouse position. For example if the current image show Sea Surface
-         * Temperature (SST), then this method will format the temperature in
-         * geophysical units (e.g. "12°C").
-         *
-         * @param  event The mouse event.
-         * @param  toAppendTo The destination buffer for formatting a value.
-         * @return <code>true</code> if this method has formatted a value, or <code>false</code>
-         *         otherwise.
-         */
-        protected boolean formatValue(final GeoMouseEvent event, final StringBuffer toAppendTo) {
-            return RenderedGridCoverage.this.formatValue(event, toAppendTo);
+    /**
+     * Provides a hint that a layer will no longer be accessed from a reference in user
+     * space. The results are equivalent to those that occur when the program loses its
+     * last reference to this layer, the garbage collector discovers this, and finalize
+     * is called. This can be used as a hint in situations where waiting for garbage
+     * collection would be overly conservative.
+     */
+    public void dispose() {
+        synchronized (getTreeLock()) {
+            super.dispose();
+            /*
+             * We will not dispose the planar image if there is any
+             * chance that it is referenced outside of this class.
+             */
+            if (coverage != null) {
+                final RenderedImage image = coverage.getRenderedImage();
+                if (!GCSUtilities.uses(sourceCoverage.geophysics(false), image)) {
+                    if (image instanceof PlanarImage) {
+                        ((PlanarImage) image).dispose();
+                    }
+                }
+            }
+            coverage = sourceCoverage = null;
         }
     }
 }

@@ -24,6 +24,7 @@ public interface ResourceKeys
 {
     public static final int DEPRESSION                               =     4;
     public static final int ELEVATION                                =     5;
+    public static final int ERROR                                    =    14;
     public static final int FLAT                                     =     6;
     public static final int INITIALIZING_TRANSFORMATION_$2           =     3;
     public static final int PAINTING_$2                              =    10;

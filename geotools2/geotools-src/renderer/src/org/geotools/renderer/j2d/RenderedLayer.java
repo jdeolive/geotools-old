@@ -62,7 +62,6 @@ import javax.media.jai.PlanarImage; // For Javadoc
 
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.cs.CompoundCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.MathTransform;
@@ -70,16 +69,25 @@ import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.XAffineTransform;
+import org.geotools.resources.renderer.Resources;
+import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
- * Base class for layers to be rendered using the Java2D renderer. Each layer can use
- * its own {@linkplain CoordinateSystem coordinate system} (CS) for its underlying data.
- * Transformations to the {@linkplain RenderingContext#mapCS rendering coordinate system}
- * are performed on the fly at rendering time.
+ * Base class for layers to be rendered using the {@linkplain Renderer renderer for Java2D}.
+ * When a layer is being {@linkplain Renderer#addLayer(RenderedLayer) added} to a renderer,
+ * the following methods are automatically invoked:
  *
- * @version $Id: RenderedLayer.java,v 1.8 2003/02/10 23:09:46 desruisseaux Exp $
+ * <blockquote><pre>
+ * {@link #setCoordinateSystem setCoordinateSystem}({@link Renderer#getCoordinateSystem renderingCS});
+ * {@link #setVisible setVisible}(true);
+ * </pre></blockquote>
+ *
+ * @version $Id: RenderedLayer.java,v 1.9 2003/02/20 11:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see Renderer
+ * @see RenderingContext
  */
 public abstract class RenderedLayer {
     /**
@@ -95,6 +103,13 @@ public abstract class RenderedLayer {
     transient Renderer renderer;
 
     /**
+     * Système de coordonnées utilisé pour cette couche. Les méthodes {@link #getPreferredArea}
+     * et {@link #setPreferredArea} utilisent ce système de coordonnées. Ce champ ne doit jamais
+     * être nul.
+     */
+    private CoordinateSystem coordinateSystem = GeographicCoordinateSystem.WGS84;
+
+    /**
      * Forme géométrique englobant la région dans laquelle la couche a été dessinée lors du
      * dernier appel de la méthode {@link #paint}.  Les coordonnées de cette région doivent
      * être en exprimées en coordonnées de Java2D ({@link RenderingContext#textCS}).
@@ -102,13 +117,6 @@ public abstract class RenderedLayer {
      * totalité de la surface dessinable.
      */
     private transient Shape paintedArea;
-
-    /**
-     * Système de coordonnées utilisé pour cette couche. Les méthodes {@link #getPreferredArea}
-     * et {@link #setPreferredArea} utilisent ce système de coordonnées. Ce champ ne doit jamais
-     * être nul.
-     */
-    private CoordinateSystem coordinateSystem = GeographicCoordinateSystem.WGS84;
 
     /**
      * Coordonnées géographiques couvertes par cette couche. Ces coordonnées doivent
@@ -137,8 +145,9 @@ public abstract class RenderedLayer {
     private transient Stroke stroke;
 
     /**
-     * Indique si cette couche est visible. Les couches sont invisibles par défaut. L'appel
-     * de {@link Renderer#addLayer} appelera systématiquement <code>setVisible(true)</code>.
+     * Indique si cette couche est visible. Les couches sont invisibles par défaut.
+     * L'appel de {@link Renderer#addLayer(RenderedLayer)} appelera systématiquement
+     * <code>setVisible(true)</code>.
      *
      * @see #setVisible
      */
@@ -160,21 +169,13 @@ public abstract class RenderedLayer {
     private float zOrder = Float.POSITIVE_INFINITY;
 
     /**
-     * The tools for this layer, or <code>null</code> if none.
-     *
-     * @see #getTools
-     * @see #setTools
-     */
-    private Tools tools;
-
-    /**
      * Listeners to be notified about any changes in this layer's properties.
-     * Examples of properties that may change:
+     * Examples of properties that may change are:
+     * <code>"coordinateSystem"</code>,
      * <code>"preferredArea"</code>,
      * <code>"preferredPixelSize"</code>,
-     * <code>"zOrder"</code>,
-     * <code>"visible"</code> and
-     * <code>"tools"</code>.
+     * <code>"zOrder"</code> and
+     * <code>"visible"</code>.
      */
     protected final PropertyChangeSupport listeners;
 
@@ -185,24 +186,18 @@ public abstract class RenderedLayer {
      * everything else). Subclasses should invokes <code>setXXX</code> methods in order to
      * define properly this layer's properties.
      *
-     * @see #setZOrder
      * @see #setCoordinateSystem
      * @see #setPreferredArea
      * @see #setPreferredPixelSize
+     * @see #setZOrder
      */
     public RenderedLayer() {
         listeners = new PropertyChangeSupport(this);
     }
 
     /**
-     * Returns the lock for synchronisation.
-     */
-    final Object getTreeLock() {
-        return (renderer!=null) ? (Object)renderer : (Object)this;
-    }
-
-    /**
-     * Returns this layer's name. Default implementation returns class name and its z-order.
+     * Returns this layer's name. Default implementation returns the class name with
+     * the layer's {@linkplain #getZOrder z-order}.
      *
      * @param  locale The desired locale, or <code>null</code> for a default locale.
      * @return This layer's name.
@@ -215,9 +210,8 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Returns to locale for this layer. The renderer will inherit
-     * the locale of its {@link Renderer}, if he have one. Otherwise,
-     * a default locale will be returned.
+     * Returns to locale for this layer. The default implementation inherit the locale
+     * of its {@link Renderer}, if it has one. Otherwise, a default locale is returned.
      *
      * @see Renderer#getLocale
      * @see Component#getLocale
@@ -228,9 +222,12 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Returns the two-dimensional coordinate system for the underlying data.  This
-     * coordinate system is used by most methods like {@link #getPreferredArea} and
-     * {@link #getPreferredPixelSize}.
+     * Returns the two-dimensional rendering coordinate system. This is usually the
+     * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system}. This
+     * CS is always two-dimensional and is used by most methods like {@link #getPreferredArea}
+     * and {@link #getPreferredPixelSize}.
+     *
+     * @return The coordinate system for this rendered layer.
      *
      * @see #setCoordinateSystem
      * @see #getPreferredArea
@@ -242,46 +239,55 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Set the coordinate system for the underlying data. This method is usually invoked
-     * only once, at construction time.  If the specified coordinate system has more than
-     * two dimensions, then it must be a {@link CompoundCoordinateSystem} with a two
-     * dimensional {@link CompoundCoordinateSystem#getHeadCS headCS}.
+     * Set the rendering coordinate system for this layer. This method is usually invoked
+     * in any of the following cases:
+     * <ul>
+     *   <li>From this <code>RenderedLayer</code>'s constructor.</li>
+     *   <li>When this layer has just been added to a {@link Renderer}.</li>
+     *   <li>When {@link Renderer#setCoordinateSystem} has been invoked.</li>
+     * </ul>
+     * This method invalidate the {@linkplain #getPreferredArea preferred area} and
+     * the {@linkplain #getPreferredPixelSize preferred pixel size}  (i.e. set them
+     * to <code>null</code>). Subclasses should overrides this method and transform
+     * their internal data here, if needed.
      *
-     * @param  cs The coordinate system.
+     * @param  cs The coordinate system. If the specified coordinate system has more than
+     *            two dimensions, then it must be a {@link CompoundCoordinateSystem} with
+     *            a two dimensional {@link CompoundCoordinateSystem#getHeadCS headCS}.
      * @throws TransformException If <code>cs</code> can't be reduced to a two-dimensional
-     *         coordinate system. or if data can't be transformed for some other reason.
+     *         coordinate system, or if this method do not accept the new coordinate system
+     *         for some other reason. In case of failure, this method should keep the old CS
+     *         and leave this layer in a consistent state.
      */
     protected void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
         final CoordinateSystem oldCS;
         synchronized (getTreeLock()) {
             oldCS = coordinateSystem;
-            coordinateSystem = CTSUtilities.getCoordinateSystem2D(cs);
+            coordinateSystem   = CTSUtilities.getCoordinateSystem2D(cs);
+            preferredArea      = null;
+            preferredPixelSize = null;
         }
         listeners.firePropertyChange("coordinateSystem", oldCS, cs);
     }
 
     /**
-     * Retourne les coordonnées géographiques de cette couche. Les coordonnées retournées ne sont
-     * pas obligées d'englober toute la couche (quoique ce soit souvent le cas).  Elles indiquent
-     * plutôt la partie de la couche que l'on souhaite voir apparaître dans le zoom par défaut.
-     * Le rectangle retourné sera exprimé selon le système de coordonnées retourné par
-     * {@link #getCoordinateSystem}. Si cette couche n'a pas de limites géographiques bien
-     * définies (par exemple si elle n'est qu'une légende ou l'échelle de la carte), alors
-     * cette méthode peut retourner <code>null</code>.
+     * Returns the preferred area for this layer. This is the default area to show before any
+     * zoom is applied. This is usually (but not always) the bounding box of the underlying data.
      *
-     * @see #setPreferredArea
+     * @return The preferred area in the {@linkplain #getCoordinateSystem rendering coordinate
+     *         system}, or <code>null</code> if unknow or not applicable.
+     *
      * @see #getPreferredPixelSize
      * @see #getCoordinateSystem
      */
-    public final Rectangle2D getPreferredArea() {
+    public Rectangle2D getPreferredArea() {
         final Rectangle2D preferredArea = this.preferredArea;
         return (preferredArea!=null) ? (Rectangle2D) preferredArea.clone() : null;
     }
 
     /**
-     * Modifie les coordonnées géographiques de cette couche. L'appel de cette méthode ne modifie
-     * par le géoréférencement; elle affecte simplement la région qui sera affichée par défaut
-     * dans une fenêtre.
+     * Set the preferred area for this layer. This method do not change the georeferencing of
+     * the layer data. The preferred area change only the default area to be shown in a window.
      *
      * @see #getPreferredArea
      * @see #setPreferredPixelSize
@@ -298,18 +304,17 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Returns the preferred pixel size in "real world" coordinates. For image layers, this is
+     * Returns the preferred pixel size in rendering coordinates. For image layers, this is
      * the size of image's pixels. For other kind of layers, "pixel size" are to be understood
      * as some dimension representative of the layer's resolution.
      *
-     * @return The preferred pixel size in this {@linkplain #getCoordinateSystem layer's
+     * @return The preferred pixel size in this {@linkplain #getCoordinateSystem rendering
      *         coordinate system}, or <code>null</code> if none.
      *
-     * @see #setPreferredPixelSize
      * @see #getPreferredArea
      * @see #getCoordinateSystem
      */
-    public final Dimension2D getPreferredPixelSize() {
+    public Dimension2D getPreferredPixelSize() {
         final Dimension2D preferredPixelSize = this.preferredPixelSize;
         return (preferredPixelSize!=null) ? (Dimension2D) preferredPixelSize.clone() : null;
     }
@@ -344,7 +349,7 @@ public abstract class RenderedLayer {
      *
      * @see #setZOrder
      */
-    public final float getZOrder() {
+    public float getZOrder() {
         return zOrder;
     }
 
@@ -372,38 +377,11 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Returns the tools for this layer, or <code>null</code> if none.
-     * Tools are used for processing mouse and keyboard events. Tools
-     * may be changed at anytime, for example according some user selection.
-     *
-     * @see Tools#getToolTipText
-     * @see Tools#getPopupMenu
-     * @see Tools#mouseClicked
-     */
-    public final Tools getTools() {
-        return tools;
-    }
-
-    /**
-     * Set the tools for this layer.
-     *
-     * @param tools The new tools, or <code>null</code> for removing any set of tools.
-     */
-    public void setTools(final Tools tools) {
-        final Tools oldTools;
-        synchronized (getTreeLock()) {
-            oldTools = this.tools;
-            this.tools = tools;
-        }
-        listeners.firePropertyChange("tools", oldTools, tools);
-    }
-
-    /**
      * Determines whether this layer should be visible when its container is visible.
      *
      * @return <code>true</code> if the layer is visible, <code>false</code> otherwise.
      */
-    public final boolean isVisible() {
+    public boolean isVisible() {
         return visible;
     }
 
@@ -414,16 +392,10 @@ public abstract class RenderedLayer {
      * {@link Renderer}:
      *
      * <ul>
-     *   <li><code>{@link Renderer#addLayer Renderer.addLayer}(this)</code>
-     *       appelera <code>setVisible(true)</code>. Les classes dérivées peuvent
-     *       profiter de cette spécification pour s'enregistrer auprès de {@link
-     *       org.geotools.gui.swing.MapPane} comme étant intéressées à suivre les
-     *       mouvements de la souris par exemple.</li>
-     *   <li><code>{@link Renderer#removeLayer Renderer.removeLayer}(this)</code>
-     *       appelera <code>setVisible(false)</code>. Les classes dérivées peuvent
-     *       profiter de cette spécification pour déclarer à
-     *       {@link org.geotools.gui.swing.MapPane} qu'elles ne sont plus
-     *       intéressées à suivre les mouvements de la souris par exemple.</li>
+     *   <li><code>{@link Renderer#addLayer(RenderedLayer) Renderer.addLayer}(this)</code>
+     *       appelera <code>setVisible(true)</code>.</li>
+     *   <li><code>{@link Renderer#removeLayer(RenderedLayer) Renderer.removeLayer}(this)</code>
+     *       appelera <code>setVisible(false)</code>.</li>
      * </ul>
      */
     public void setVisible(final boolean visible) {
@@ -480,17 +452,16 @@ public abstract class RenderedLayer {
 
     /**
      * Paint this object. This method is invoked by {@link Renderer} every time this layer needs
-     * to be repainted.   By default, painting is done in the {@linkplain RenderingContext#mapCS
-     * rendering coordinate system} (usually "real world" metres).    This method is responsible
-     * for transformations from its own  {@linkplain #getCoordinateSystem underlying CS}  to the
-     * {@linkplain RenderingContext#mapCS rendering CS} if needed.   The {@link RenderingContext}
-     * object provides informations for such transformations:
+     * to be repainted. By default, painting is done in the {@linkplain RenderingContext#mapCS
+     * rendering coordinate system} (usually "real world" metres). This method is responsible for
+     * transformations from its own underlying data CS to the {@linkplain RenderingContext#mapCS
+     * rendering CS} if needed. The {@link RenderingContext} object provides informations for such
+     * transformations:
      *
      * <ul>
-     * <li><p><code>context.{@link RenderingContext#getMathTransform getMathTransform}(
-     *                      {@link #getCoordinateSystem getCoordinateSystem}(),
+     * <li><p><code>context.{@link RenderingContext#getMathTransform getMathTransform}(underlyingCS,
      *                      context.{@link RenderingContext#mapCS mapCS} )</code><br>
-     * Returns a transform from this layer's CS to the rendering CS.</p></li>
+     * Returns a transform from the underlying CS to the rendering CS.</p></li>
      *
      * <li><p><code>context.{@link RenderingContext#getMathTransform getMathTransform}(
      *                      context.{@link RenderingContext#mapCS mapCS},
@@ -509,7 +480,7 @@ public abstract class RenderedLayer {
      *
      * <p>The {@link RenderingContext} object can takes care of configuring {@link Graphics2D}
      * with the right transform for a limited set of particular CS (namely, only CS leading to
-     * an {@linkplain AffineTransform affine transform}). This convenient for switching between
+     * an {@linkplain AffineTransform affine transform}). This is convenient for switching between
      * {@linkplain RenderingContext#mapCS rendering CS} (the one used for drawing map features)
      * and {@linkplain RenderingContext#textCS Java2D CS} (the one used for rendering texts and
      * labels). Example:</p>
@@ -533,7 +504,7 @@ public abstract class RenderedLayer {
      * During the rendering process, implementations are encouraged to declare a (potentially
      * approximative) bounding shape of their painted area with calls to
      * {@link RenderingContext#addPaintedArea(Shape)}. This is an optional operation: providing
-     * those hints help {@link Renderer} to speed up future rendering and events processing.
+     * those hints only help {@link Renderer} to speed up future rendering and events processing.
      *
      * @param  context Information relatives to the rendering context. This object ontains the
      *         {@link Graphics2D} to use and methods for getting {@link MathTransform} objects.
@@ -553,8 +524,7 @@ public abstract class RenderedLayer {
      *        unchanged to {@link #paint}.
      * @param clipBounds The area to paint, in Java2D coordinates ({@link RenderingContext#textCS}).
      */
-    final void update(final RenderingContext context,
-                      final Rectangle clipBounds)
+    final void update(final RenderingContext context, final Rectangle clipBounds)
             throws TransformException
     {
         assert Thread.holdsLock(getTreeLock());
@@ -578,25 +548,64 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Hints that the given area might be painted in the near future.  Some implementations
-     * may spawn a thread to compute the data while others may ignore the hint. The default
+     * Hints that this layer might be painted in the near future. Some implementations may
+     * spawn a thread to compute the data while others may ignore the hint. The default
      * implementation does nothing.
      *
-     * @param The area (in this {@linkplain #getCoordinateSystem layer's coordinate system})
-     *        that may need to be painted. A <code>null</code> value means that the whole
-     *        layer may be painted soon.
+     * @param  context Information relatives to the rendering context. This object contains
+     *         methods for querying the area to be painted in arbitrary coordinate system.
+     *         This temporary object will be destroy once the rendering is completed.
+     *         Consequently, do not keep a reference to it outside this <code>prefetch</code>
+     *         method.
      *
      * @see PlanarImage#prefetchTiles
      */
-    protected void prefetch(final Rectangle2D area) {
+    protected void prefetch(final RenderingContext context) {
+    }
+
+    /**
+     * Format a value for the current mouse position. This method doesn't have to format the
+     * mouse coordinate (this is {@link MouseCoordinateFormat#format(GeoMouseEvent)} business).
+     * Instead, it is invoked for formatting a value at current mouse position. For example a
+     * remote sensing image of Sea Surface Temperature (SST) can format the temperature in
+     * geophysical units (e.g. "12°C"). The default implementation do nothing and returns
+     * <code>false</code>.
+     *
+     * @param  event The mouse event.
+     * @param  toAppendTo The destination buffer for formatting a value.
+     * @return <code>true</code> if this method has formatted a value, or <code>false</code>
+     *         otherwise. If this method returns <code>true</code>, then the next layers (with
+     *         smaller {@linkplain RenderedLayer#getZOrder z-order}) will not be queried.
+     *
+     * @see MouseCoordinateFormat#format(GeoMouseEvent)
+     */
+    boolean formatValue(final GeoMouseEvent event, final StringBuffer toAppendTo) {
+        return false;
+    }
+
+    /**
+     * Retourne le texte à afficher dans une bulle lorsque la souris traîne sur la couche.
+     * L'implémentation par défaut retourne toujours <code>null</code>, ce qui signifie que
+     * cette couche n'a aucun texte à afficher (les autres couches seront alors interrogées).
+     * Les classes dérivées peuvent redéfinir cette méthode pour retourner un texte après avoir
+     * vérifié que les coordonnées de <code>event</code> correspondent bien à un point de la
+     * couche.
+     *
+     * @param  event Coordonnées du curseur de la souris.
+     * @return Le texte à afficher lorsque la souris traîne sur la couche.
+     *         Ce texte peut être nul pour signifier qu'il ne faut rien écrire.
+     *
+     * @see Renderer#getToolTipText
+     */
+    String getToolTipText(final GeoMouseEvent event) {
+        return null;
     }
 
     /**
      * Tells if this layer <strong>may</strong> contains the specified point. This method
      * performs only a fast check. Subclasses will have to perform a more exhautive check
-     * in their {@link #mouseClicked}, {@link #getPopupMenu} and similar methods. The
-     * coordinate system is the {@link RenderingContext#textCS} used the last time this
-     * layer was rendered.
+     * in their event processing methods. The coordinate system is the
+     * {@link RenderingContext#textCS} used the last time this layer was rendered.
      *
      * @param  x <var>x</var> coordinate.
      * @param  y <var>y</var> coordinate.
@@ -609,30 +618,6 @@ public abstract class RenderedLayer {
             return (paintedArea==null) || paintedArea.contains(x,y);
         }
         return false;
-    }
-
-    /**
-     * Add a property change listener to the listener list. The listener is registered
-     * for all properties. For example, methods {@link #setVisible}, {@link #setZOrder},
-     * {@link #setPreferredArea}, {@link #setPreferredPixelSize} and {@link #setTools}
-     * will fire <code>"visible"</code>, <code>"zOrder"</code>, <code>"preferredArea"</code>
-     * <code>"preferredPixelSize"</code> and <code>"tools"</code> change events.
-     *
-     * @param listener The property change listener to be added
-     */
-    public void addPropertyChangeListener(final PropertyChangeListener listener) {
-        listeners.addPropertyChangeListener(listener);
-    }
-
-    /**
-     * Remove a property change listener from the listener list.
-     * This removes a <code>PropertyChangeListener</code> that
-     * was registered for all properties.
-     *
-     * @param listener The property change listener to be removed
-     */
-    public void removePropertyChangeListener(final PropertyChangeListener listener) {
-        listeners.removePropertyChangeListener(listener);
     }
 
     /**
@@ -691,6 +676,38 @@ public abstract class RenderedLayer {
     }
 
     /**
+     * Add a property change listener to the listener list.  The listener is registered for
+     * all properties. For example, methods {@link #setVisible}, {@link #setZOrder},
+     * {@link #setPreferredArea} and {@link #setPreferredPixelSize} will fire
+     * <code>"visible"</code>, <code>"zOrder"</code>, <code>"preferredArea"</code>
+     * and <code>"preferredPixelSize"</code> change events.
+     *
+     * @param listener The property change listener to be added
+     */
+    public void addPropertyChangeListener(final PropertyChangeListener listener) {
+        listeners.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Remove a property change listener from the listener list.
+     * This removes a <code>PropertyChangeListener</code> that
+     * was registered for all properties.
+     *
+     * @param listener The property change listener to be removed
+     */
+    public void removePropertyChangeListener(final PropertyChangeListener listener) {
+        listeners.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Returns the lock for synchronisation.
+     */
+    protected final Object getTreeLock() {
+        final Renderer renderer = this.renderer;
+        return (renderer!=null) ? (Object)renderer : (Object)this;
+    }
+
+    /**
      * Efface les données qui avaient été conservées dans une cache interne. L'appel
      * de cette méthode permettra de libérer un peu de mémoire à d'autres fins. Elle
      * sera appelée lorsque qu'on aura déterminé que la couche <code>this</code>  ne
@@ -705,13 +722,31 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Libère les ressources occupées par cette couche. Cette méthode est appelée automatiquement
-     * lorsqu'il a été déterminé que cette couche sera bientôt détruite.   Elle permet de libérer
-     * les ressources plus rapidement que si l'on attend que le ramasse-miettes fasse son travail.
+     * Provides a hint that a layer will no longer be accessed from a reference in user
+     * space. The results are equivalent to those that occur when the program loses its
+     * last reference to this layer, the garbage collector discovers this, and finalize
+     * is called. This can be used as a hint in situations where waiting for garbage
+     * collection would be overly conservative.
+     * <br><br>
+     * The results of referencing a layer after a call to <code>dispose()</code> are undefined.
+     * However, invoking this method more than once is safe.  Note that this method is invoked
+     * automatically by {@link Renderer#dispose}, but not from any {@link Renderer#removeLayer
+     * remove(...)} method (in order to allow moving layers between different renderers).
+     *
+     * @see Renderer#dispose
+     * @see PlanarImage#dispose
      */
-    protected void dispose() {
+    public void dispose() {
         synchronized (getTreeLock()) {
+            if (renderer != null) {
+                renderer.removeLayer(this);
+            }
             clearCache();
+            preferredArea      = null;
+            preferredPixelSize = null;
+            visible            = false;
+            zOrder             = Float.POSITIVE_INFINITY;
+            coordinateSystem   = GeographicCoordinateSystem.WGS84;
             final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
             for (int i=list.length; --i>=0;) {
                 listeners.removePropertyChangeListener(list[i]);
