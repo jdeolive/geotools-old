@@ -250,6 +250,6 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
      */
     public void areaOfInterestChanged(BoundingBoxEvent boundingBoxEvent) {
         changeEventSent=true;
-        transform=boundingBoxEvent.getTransform();
+        //transform=boundingBoxEvent.getTransform();
     }
 }
