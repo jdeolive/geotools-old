@@ -13,6 +13,7 @@ import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import org.geotools.styling.*;
 import org.geotools.map.*;
+import org.geotools.filter.*;
 import java.util.*;
 import junit.framework.*;
 import java.awt.Frame;
@@ -87,8 +88,8 @@ public class Rendering2DTest extends TestCase {
         
         DefaultLineSymbolizer linesym = new DefaultLineSymbolizer();
         DefaultStroke myStroke = new DefaultStroke();
-        myStroke.setColor("#0000ff");
-        myStroke.setWidth(5);
+        myStroke.setColor(new ExpressionLiteral("#0000ff"));
+        myStroke.setWidth(new ExpressionLiteral(new Integer(5)));
         linesym.setStroke(myStroke);
         
         DefaultPolygonSymbolizer polysym = new DefaultPolygonSymbolizer();
