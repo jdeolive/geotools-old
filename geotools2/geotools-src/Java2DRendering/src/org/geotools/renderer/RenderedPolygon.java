@@ -43,7 +43,8 @@ public class RenderedPolygon implements RenderedObject{
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = utils.findGeometry(feature, geomName);
 
-        if (geom.isEmpty()) {
+        if (geom==null||geom.isEmpty()) {
+            LOGGER.warning("No geometry specified");
             return;
         }
 
@@ -60,14 +61,17 @@ public class RenderedPolygon implements RenderedObject{
 
      **/
     public void render(Graphics2D graphics) {
-              
+        if(path==null){
+            return;
+        }
+        
         if (fill != null) {
             utils.applyFill(graphics, fill, feature); 
 
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("paint in renderPoly: " + graphics.getPaint());
             }
-
+            
             graphics.fill(path);
 
 

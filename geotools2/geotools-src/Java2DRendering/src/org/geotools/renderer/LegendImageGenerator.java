@@ -93,6 +93,7 @@ public class LegendImageGenerator {
             AttributeTypeFactory.newAttributeType("label",String.class)
         };
         try{
+            // @TODO: this fails if the style has a geometryPropertyName set for it's symbolizers
         fFac = FeatureTypeFactory.newFeatureType(
           new AttributeType[] {AttributeTypeFactory.newAttributeType("testGeometry",Geometry.class)},"legend"
         ); 
@@ -198,8 +199,10 @@ public class LegendImageGenerator {
                     }else{ // no legend graphic provided 
                         Symbolizer[] syms = rules[j].getSymbolizers();
                         for(int k=0;k<syms.length;k++){
+                            
                             if (syms[k] instanceof PolygonSymbolizer) {
-                                //System.out.println("building polygon");
+                                LOGGER.fine("geom name "+((PolygonSymbolizer)syms[k]).geometryPropertyName());
+                                LOGGER.fine("building polygon");
                                 Coordinate[] c = new Coordinate[5];
                                 c[0] = new Coordinate(hpadding, offset);
                                 c[1] = new Coordinate(hpadding+symbolWidth, offset);
@@ -224,7 +227,7 @@ public class LegendImageGenerator {
                                 }catch (IllegalAttributeException ife){
                                     throw new RuntimeException(ife);
                                 }
-                                //System.out.println("feature = "+feature);
+                                LOGGER.fine("feature = "+feature);
 
                             } else if (syms[k] instanceof LineSymbolizer){
                                 //System.out.println("building line");
@@ -241,7 +244,7 @@ public class LegendImageGenerator {
                                 }catch (IllegalAttributeException ife){
                                     throw new RuntimeException(ife);
                                 }
-                                //System.out.println("feature = "+feature);
+                                LOGGER.fine("feature = "+feature);
 
                             } else  if(syms[k] instanceof PointSymbolizer){
                                 //System.out.println("building point");
@@ -252,7 +255,7 @@ public class LegendImageGenerator {
                                 }catch (IllegalAttributeException ife){
                                     throw new RuntimeException(ife);
                                 }
-                                System.out.println("feature = "+feature);
+                                LOGGER.fine("feature = "+feature);
                                 
 
                             }
@@ -285,10 +288,10 @@ public class LegendImageGenerator {
         while (it.hasNext()) {
           
             RenderedObject r = (RenderedObject) it.next();
-//            System.out.println("DRAWING : " + r); 
+            LOGGER.fine("DRAWING : " + r); 
             r.render(graphics);
         }
-        LOGGER.fine("Image = "+image);
+        
         return image;
     }
     /** Getter for property style.
