@@ -64,7 +64,7 @@ import org.geotools.cs.CoordinateSystem;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.7 2003/01/15 21:47:19 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.8 2003/01/16 21:05:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -74,10 +74,11 @@ public class Adapters extends org.geotools.cv.Adapters {
      * Default constructor. A shared instance of <code>Adapters</code> can
      * be obtained with {@link org.geotools.gp.Adapters#getDefault()}.
      *
-     * @param CS The underlying adapters from the <code>org.geotools.ct</code> package.
+     * @param CTS The adapters from <cite>Coordinate Transformation Services</cite>
+     *            (package <code>org.geotools.ct</code>).
      */
-    protected Adapters(final org.geotools.ct.Adapters CT) {
-        super(CT);
+    protected Adapters(final org.geotools.ct.Adapters CTS) {
+        super(CTS);
     }
 
     /**
@@ -166,7 +167,7 @@ public class Adapters extends org.geotools.cv.Adapters {
             return ((GridGeometry.Export) geometry).getImplementation();
         }
         final GridGeometry result = new GridGeometry(wrap(geometry.getGridRange()),
-                                        CT.wrap(geometry.getGridToCoordinateSystem()));
+                                        CTS.wrap(geometry.getGridToCoordinateSystem()));
         result.proxy = geometry;
         return result;
     }
@@ -228,7 +229,7 @@ public class Adapters extends org.geotools.cv.Adapters {
             final GridCoverage gridCoverage = new GridCoverage(
                     bands[0].getDescription(null),
                     new ImageProxy(image, getPropertySource(grid)),
-                    CT.wrap(grid.getCoordinateSystem()),
+                    CTS.wrap(grid.getCoordinateSystem()),
                     wrap(grid.getGridGeometry()).getGridToCoordinateSystem(),
                     bands,
                     null,   // Sources GridCoverage (ignored)
@@ -250,7 +251,7 @@ public class Adapters extends org.geotools.cv.Adapters {
      * invoking {@link #dispose} will also dispose the serializable image,  which may
      * close socket connection.
      *
-     * @version $Id: Adapters.java,v 1.7 2003/01/15 21:47:19 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.8 2003/01/16 21:05:11 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ImageProxy extends RenderedImageAdapter {

@@ -54,7 +54,7 @@ import org.geotools.gc.GridCoverage;
  * with <code>org.opengis.gc</code> package.</FONT>
  * All methods accept null argument.
  *
- * @version $Id: Adapters.java,v 1.4 2003/01/10 11:24:11 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.5 2003/01/16 21:05:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters extends org.geotools.gc.Adapters {
@@ -67,10 +67,11 @@ public class Adapters extends org.geotools.gc.Adapters {
     /**
      * Default constructor.
      *
-     * @param CS The underlying adapters from the <code>org.geotools.ct</code> package.
+     * @param CTS The adapters from <cite>Coordinate Transformation Services</cite>
+     *            (package <code>org.geotools.ct</code>).
      */
-    protected Adapters(final org.geotools.ct.Adapters CT) {
-        super(CT);
+    protected Adapters(final org.geotools.ct.Adapters CTS) {
+        super(CTS);
     }
     
     /**

@@ -102,7 +102,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.15 2003/01/15 21:47:19 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.16 2003/01/16 21:05:11 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1176,7 +1176,7 @@ public class SampleDimension implements Serializable {
          * The unit information for this sample dimension.
          */
         public CS_Unit getUnits() throws RemoteException {
-            return adapters.CT.export(SampleDimension.this.getUnits());
+            return adapters.CTS.export(SampleDimension.this.getUnits());
         }
 
         /**

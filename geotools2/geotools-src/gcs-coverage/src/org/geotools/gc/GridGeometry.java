@@ -77,7 +77,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Describes the valid range of grid coordinates and the math
  * transform to transform grid coordinates to real world coordinates.
  *
- * @version $Id: GridGeometry.java,v 1.5 2002/10/17 21:11:03 desruisseaux Exp $
+ * @version $Id: GridGeometry.java,v 1.6 2003/01/16 21:05:11 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -542,7 +542,7 @@ public class GridGeometry implements Dimensioned, Serializable {
          * world earth coordinates. The transform is often an affine transformation.
          */
         public CT_MathTransform getGridToCoordinateSystem() {
-            return adapters.CT.export(GridGeometry.this.getGridToCoordinateSystem());
+            return adapters.CTS.export(GridGeometry.this.getGridToCoordinateSystem());
         }
     }
 }
