@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * A dom based parser to build filters as per OGC 01-067
  *
  * @author Ian Turton, CCG
- * @version $Id: FilterDOMParser.java,v 1.8 2003/07/30 22:23:16 cholmesny Exp $
+ * @version $Id: FilterDOMParser.java,v 1.9 2003/08/06 16:27:12 cholmesny Exp $
  *
  * @task TODO: split this class up into multiple methods.
  */
@@ -107,24 +107,24 @@ public class FilterDOMParser {
      * @task TODO: split up this insanely long method.
      */
     public static Filter parseFilter(Node root) {
-        LOGGER.fine("parsingFilter " + root.getNodeName());
+        LOGGER.finer("parsingFilter " + root.getNodeName());
 
         //NodeList children = root.getChildNodes();
         //LOGGER.finest("children "+children);
         if ((root == null) || (root.getNodeType() != Node.ELEMENT_NODE)) {
-            LOGGER.finer("bad node input ");
+            LOGGER.finest("bad node input ");
 
             return null;
         }
 
-        LOGGER.finer("processing root " + root.getNodeName());
+        LOGGER.finest("processing root " + root.getNodeName());
 
         Node child = root;
         String childName = child.getNodeName();
-        LOGGER.finer("looking up " + childName);
+        LOGGER.finest("looking up " + childName);
 
         if (comparisions.containsKey(childName)) {
-            LOGGER.finer("a comparision filter " + childName);
+            LOGGER.finest("a comparision filter " + childName);
 
             //boolean like = false;
             //boolean between = false;
@@ -140,7 +140,7 @@ public class FilterDOMParser {
                     Node sibling = fidElement.getNextSibling();
 
                     while (sibling != null) {
-                        LOGGER.info("Parsing another FidFilter");
+                        LOGGER.finer("Parsing another FidFilter");
 
                         if (sibling.getNodeType() == Node.ELEMENT_NODE) {
                             fidElement = (Element) sibling;
@@ -174,7 +174,7 @@ public class FilterDOMParser {
                     // first expression
                     //value = kid.getFirstChild();
                     //while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                    LOGGER.fine("add middle value -> " + value + "<-");
+                    LOGGER.finer("add middle value -> " + value + "<-");
                     bfilter.addMiddleValue(ExpressionDOMParser.parseExpression(
                             value));
 
@@ -188,7 +188,7 @@ public class FilterDOMParser {
                                 value = value.getNextSibling();
                             }
 
-                            LOGGER.fine("add left value -> " + value + "<-");
+                            LOGGER.finer("add left value -> " + value + "<-");
                             bfilter.addLeftValue(ExpressionDOMParser
                                 .parseExpression(value));
                         }
@@ -200,7 +200,7 @@ public class FilterDOMParser {
                                 value = value.getNextSibling();
                             }
 
-                            LOGGER.fine("add right value -> " + value + "<-");
+                            LOGGER.finer("add right value -> " + value + "<-");
                             bfilter.addRightValue(ExpressionDOMParser
                                 .parseExpression(value));
                         }
@@ -284,7 +284,7 @@ public class FilterDOMParser {
                     value = value.getNextSibling();
                 }
 
-                LOGGER.finer("add left value -> " + value + "<-");
+                LOGGER.finest("add left value -> " + value + "<-");
                 filter.addLeftValue(ExpressionDOMParser.parseExpression(value));
                 value = value.getNextSibling();
 
@@ -292,7 +292,7 @@ public class FilterDOMParser {
                     value = value.getNextSibling();
                 }
 
-                LOGGER.finer("add right value -> " + value + "<-");
+                LOGGER.finest("add right value -> " + value + "<-");
                 filter.addRightValue(ExpressionDOMParser.parseExpression(value));
 
                 return filter;
@@ -302,7 +302,7 @@ public class FilterDOMParser {
                 return null;
             }
         } else if (spatial.containsKey(childName)) {
-            LOGGER.finer("a spatial filter " + childName);
+            LOGGER.finest("a spatial filter " + childName);
 
             try {
                 short type = ((Integer) spatial.get(childName)).shortValue();
@@ -313,7 +313,7 @@ public class FilterDOMParser {
                     value = value.getNextSibling();
                 }
 
-                LOGGER.finer("add left value -> " + value + "<-");
+                LOGGER.finest("add left value -> " + value + "<-");
                 filter.addLeftGeometry(ExpressionDOMParser.parseExpression(
                         value));
                 value = value.getNextSibling();
@@ -322,14 +322,14 @@ public class FilterDOMParser {
                     value = value.getNextSibling();
                 }
 
-                LOGGER.finer("add right value -> " + value + "<-");
+                LOGGER.finest("add right value -> " + value + "<-");
 
                 if (!(value.getNodeName().equalsIgnoreCase("Literal")
                         || value.getNodeName().equalsIgnoreCase("propertyname"))) {
                     Element literal = value.getOwnerDocument().createElement("literal");
 
                     literal.appendChild(value);
-                    LOGGER.finer("Built new literal " + literal);
+                    LOGGER.finest("Built new literal " + literal);
                     value = literal;
                 }
 
@@ -343,11 +343,11 @@ public class FilterDOMParser {
                 return null;
             }
         } else if (logical.containsKey(childName)) {
-            LOGGER.finer("a logical filter " + childName);
+            LOGGER.finest("a logical filter " + childName);
 
             try {
                 short type = ((Integer) logical.get(childName)).shortValue();
-                LOGGER.finer("logic type " + type);
+                LOGGER.finest("logic type " + type);
 
                 LogicFilter filter = filterFactory.createLogicFilter(type);
                 NodeList map = child.getChildNodes();
@@ -360,7 +360,7 @@ public class FilterDOMParser {
                         continue;
                     }
 
-                    LOGGER.finer("adding to logic filter " + kid.getNodeName());
+                    LOGGER.finest("adding to logic filter " + kid.getNodeName());
                     filter.addFilter(parseFilter(kid));
                 }
 
