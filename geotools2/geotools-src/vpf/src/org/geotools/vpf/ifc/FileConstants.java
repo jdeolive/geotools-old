@@ -26,11 +26,16 @@ package org.geotools.vpf.ifc;
  * Created: Fri Dec 27 23:16:01 2002
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: FileConstants.java,v 1.2 2003/01/21 11:11:01 kobit Exp $
+ * @version $Id: FileConstants.java,v 1.3 2003/01/22 09:39:16 kobit Exp $
  */
 
 public interface FileConstants 
 {
+
+  //VPF Separators
+  public static final char VPF_ELEMENT_SEPARATOR = ',';
+  public static final char VPF_FIELD_SEPARATOR = ':';
+  public static final char VPF_RECORD_SEPARATOR = ';';
 
   // Key types
   /**

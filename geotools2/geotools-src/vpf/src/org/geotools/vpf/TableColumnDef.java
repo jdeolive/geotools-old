@@ -57,6 +57,21 @@ public class TableColumnDef
     this.narrTable = narrTable;
   }
 
+  public String toString()
+  {
+    StringBuffer buff = new StringBuffer(" ["+getClass().getName());
+    buff.append(" (name="+name+")");
+    buff.append(" (type="+type+")");
+    buff.append(" (elementsNumber="+elementsNumber+")");
+    buff.append(" (keyType="+keyType+")");
+    buff.append(" (colDesc="+colDesc+")");
+    buff.append(" (valDescTableName="+valDescTableName+")");
+    buff.append(" (thematicIdx="+thematicIdx+")");
+    buff.append(" (narrTable="+narrTable+")");
+    buff.append("]");
+    return buff.toString();
+  }
+
   /**
    * Gets the value of name
    *

@@ -51,6 +51,30 @@ public class TableHeader
     this.columnDefs = columnDefs;
   }
 
+  public String toString()
+  {
+    StringBuffer buff = new StringBuffer(" ["+getClass().getName());
+    buff.append(" (length="+length+")");
+    buff.append(" (byteOrder="+byteOrder+")");
+    buff.append(" (description="+description+")");
+    buff.append(" (narrativeTable="+narrativeTable+")");
+    buff.append(" (columnDefs=");
+    if (columnDefs == null)
+    {
+      buff.append("null)");
+    } // end of if (columnDefs == null)
+    else
+    {
+      for (int i = 0; i < columnDefs.size(); i++)
+      {
+        buff.append("\n"+columnDefs.get(i).toString());
+      } // end of for (int i = 0; i < columnDefs.size(); i++)
+      buff.append("\n)");
+    } // end of if (columnDefs == null) else
+    buff.append("]");
+    return buff.toString();
+  }
+
   /**
    * Gets the value of length
    *

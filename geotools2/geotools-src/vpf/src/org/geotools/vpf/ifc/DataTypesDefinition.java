@@ -26,7 +26,7 @@ package org.geotools.vpf.ifc;
  * Created: Thu Jan 02 17:26:02 2003
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: DataTypesDefinition.java,v 1.2 2003/01/21 11:11:01 kobit Exp $
+ * @version $Id: DataTypesDefinition.java,v 1.3 2003/01/22 09:39:16 kobit Exp $
  */
 
 public interface DataTypesDefinition 
@@ -36,15 +36,19 @@ public interface DataTypesDefinition
   /**
    * <code>LEAST_SIGNIF_FIRST</code> stores code for indicator
    * of byte order <code>least-significant-byte-first</code> used
-   * during creating table. 
+   * during creating table. It is little-endian byte order used
+   * on Intel x86 based PCs but not in JVM.
    */
   public static final char LEAST_SIGNIF_FIRST = 'L';
+  public static final char LITTLE_ENDIAN_ORDER = LEAST_SIGNIF_FIRST;
   /**
    * <code>MOST_SIGNIF_FIRST</code> stores code for indicator
    * of byte order <code>most-significant-byte-first</code> used
-   * during creating table. 
+   * during creating table. It is big-endian byte order used on
+   * Motorola CPU based machines and in JVM.
    */
   public static final char MOST_SIGNIF_FIRST = 'M';
+  public static final char BIG_ENDIAN_ORDER = MOST_SIGNIF_FIRST;
   
   // Data type codes
   public static final char DATA_TEXT          = 'T';
@@ -63,4 +67,7 @@ public interface DataTypesDefinition
   public static final char DATA_NULL_FIELD    = 'X';
   public static final char DATA_TRIPLED_ID    = 'K';
   
+  public static final String STRING_NULL_VALUE = "-";
+  public static final char CHAR_NULL_VALUE = '-';
+
 }// DataTypesDefinition
