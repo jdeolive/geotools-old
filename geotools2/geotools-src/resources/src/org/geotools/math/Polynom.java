@@ -28,57 +28,83 @@
  */
 package org.geotools.math;
 
+// J2SE dependencies
+import java.util.Arrays;
+import java.io.Serializable;
+
 // Geotools dependencies
 import org.geotools.resources.XMath;
+import org.geotools.resources.Utilities;
 
 
 /**
- * Compute the root of a polynomial equation.
+ * The coefficients of a polynomial equation. The equation must be in the form
  *
- * @version $Id: Polynom.java,v 1.1 2003/05/14 11:04:49 desruisseaux Exp $
+ * <code>y = c<sub>0</sub> +
+ *           c<sub>1</sub>&times;<var>x</var> +
+ *           c<sub>2</sub>&times;<var>x</var><sup>2</sup> +
+ *           c<sub>3</sub>&times;<var>x</var><sup>3</sup> + ... +
+ *           c<sub>n</sub>&times;<var>x</var><sup>n</sup></code>.
+ *
+ * The static method {@link #roots(double[])} can be used for computing the root of a polynomial
+ * equation without creating a <code>Polygon</code> object.
+ *
+ * @version $Id: Polynom.java,v 1.2 2003/05/15 08:45:46 desruisseaux Exp $
  * @author Ken Turkiwski
  * @author Martin Desruisseaux
  */
-public final class Polynom {
+public class Polynom implements Serializable {
+    /**
+     * Serial version UID for compatibility with different versions.
+     */
+    private static final long serialVersionUID = 6825019711186108990L;
+
     /**
      * The array when no real roots can be computed.
      */
     private static final double[] NO_REAL_ROOT = new double[0];
 
     /**
-     * Do not allows creation of instance of this class.
+     * The coefficients for this polynom.
      */
-    private Polynom() {
+    private final double[] c;
+
+    /**
+     * The roots of this polynom. Will be computed only when first requested.
+     */
+    private transient double[] roots;
+
+    /**
+     * Construct a polynom with the specified coefficients.
+     *
+     * @param c The coefficients. This array is copied.
+     */
+    public Polynom(final double[] c) {
+        int n = c.length;
+        while (n!=0 && c[--n]==0);
+        if (n==0) {
+            this.c = NO_REAL_ROOT;
+        } else {
+            this.c = new double[n];
+            System.arraycopy(c, 0, this.c, 0, n);
+        }
     }
 
     /**
-     * Find the roots of a polynomial equation. More specifically,
-     * this method solve the following equation:
-     *
-     * <blockquote><code>
-     * c[0] +
-     * c[1]*<var>x</var> +
-     * c[2]*<var>x</var><sup>2</sup> +
-     * c[3]*<var>x</var><sup>3</sup> +
-     * ... +
-     * c[n]*<var>x</var><sup>n</sup> == 0
-     * </code></blockquote>
-     *
-     * where <var>n</var> is the array length minus 1.
-     *
-     * @param  c The coefficients for the polynomial equation.
-     * @return The roots. This array may have any length up to <code>n-1</code>.
+     * Evaluate this polynomial equation for the specified <var>x</var> value.
+     * More specifically, this method compute
+     * <code>c<sub>0</sub> +
+     *       c<sub>1</sub>&times;<var>x</var> +
+     *       c<sub>2</sub>&times;<var>x</var><sup>2</sup> +
+     *       c<sub>3</sub>&times;<var>x</var><sup>3</sup> + ... +
+     *       c<sub>n</sub>&times;<var>x</var><sup>n</sup></code>.
      */
-    public static double[] findRoots(final double[] c) {
-        int n = c.length;
-        while (n!=0 && c[--n]==0);
-        switch (n) {
-            case 0: return NO_REAL_ROOT;
-            case 1: return new double[] {-c[0]/c[1]};
-            case 2: return quadraticRoots(c[0], c[1], c[2]);
-            case 3: return cubicRoots(c[0], c[1], c[2], c[3]);
-            default: throw new UnsupportedOperationException(String.valueOf(n));
+    public final double y(final double x) {
+        double sum = 0;
+        for (int i=c.length; --i>=0;) {
+            sum = sum*x + c[i];
         }
+        return sum;
     }
 
     /**
@@ -166,6 +192,50 @@ public final class Polynom {
     }
 
     /**
+     * Find the roots of this polynome.
+     *
+     * @return The roots.
+     */
+    public double[] roots() {
+        if (roots == null) {
+            roots = roots(c);
+        }
+        return (double[]) roots.clone();
+    }
+
+    /**
+     * Find the roots of a polynomial equation. More specifically,
+     * this method solve the following equation:
+     *
+     * <blockquote><code>
+     * c[0] +
+     * c[1]*<var>x</var> +
+     * c[2]*<var>x</var><sup>2</sup> +
+     * c[3]*<var>x</var><sup>3</sup> +
+     * ... +
+     * c[n]*<var>x</var><sup>n</sup> == 0
+     * </code></blockquote>
+     *
+     * where <var>n</var> is the array length minus 1.
+     *
+     * @param  c The coefficients for the polynomial equation.
+     * @return The roots. This array may have any length up to <code>n-1</code>.
+     * @throws UnsupportedOperationException if there is more coefficients than this method
+     *         can handle.
+     */
+    public static double[] roots(final double[] c) {
+        int n = c.length;
+        while (n!=0 && c[--n]==0);
+        switch (n) {
+            case 0:  return NO_REAL_ROOT;
+            case 1:  return new double[] {-c[0]/c[1]};
+            case 2:  return quadraticRoots(c[0], c[1], c[2]);
+            case 3:  return cubicRoots(c[0], c[1], c[2], c[3]);
+            default: throw new UnsupportedOperationException(String.valueOf(n));
+        }
+    }
+
+    /**
      * Display to the standard output the roots of a polynomial equation.
      * More specifically, this method solve the following equation:
      *
@@ -187,9 +257,47 @@ public final class Polynom {
         for (int i=0; i<c.length; i++) {
             r[i] = Double.parseDouble(c[i]);
         }
-        final double[] roots = findRoots(r);
+        final double[] roots = roots(r);
         for (int i=0; i<roots.length; i++) {
             System.out.println(roots[i]);
         }
+    }
+
+    /**
+     * Returns a hash value for this polynom.
+     */
+    public int hashCode() {
+        long code = c.length;
+        for (int i=c.length; --i>=0;) {
+            code = code*37 + Double.doubleToLongBits(c[i]);
+        }
+        return (int)code ^ (int)(code >>> 32);
+    }
+
+    /**
+     * Compare this polynom with the specified object for equality.
+     */
+    public boolean equals(final Object object) {
+        if (object!=null && object.getClass().equals(getClass())) {
+            final Polynom that = (Polynom) object;
+            return Arrays.equals(this.c, that.c);
+        }
+        return false;
+    }
+
+    /**
+     * Returns a string representation of this polynom.
+     */
+    public String toString() {
+        final StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(this));
+        buffer.append('[');
+        for (int i=0; i<c.length; i++) {
+            if (i!=0) {
+                buffer.append(", ");
+            }
+            buffer.append(c[i]);
+        }
+        buffer.append(']');
+        return buffer.toString();
     }
 }
