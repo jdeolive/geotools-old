@@ -13,7 +13,7 @@ public class ShapePolygon {
     protected static CGAlgorithms cga = new RobustCGAlgorithms();
     
     public static Geometry read( LEDataInputStream file , GeometryFactory geometryFactory)
-    throws IOException, InvalidShapefileException {
+    throws IOException, InvalidShapefileException, TopologyException {
         
         file.setLittleEndianMode(true);
         int shapeType = file.readInt();
@@ -52,7 +52,7 @@ public class ShapePolygon {
             for(int i=0;i<length;i++){
                 points[i]=new Coordinate(file.readDouble(),file.readDouble());
             }
-            LinearRing ring = new LinearRing(points,null,-1);
+            LinearRing ring = geometryFactory.createLinearRing(points);
             if(cga.isCCW(points)){
                 holes.add(ring);
             }
@@ -163,6 +163,9 @@ public class ShapePolygon {
 
 /*
  * $Log: ShapePolygon.java,v $
+ * Revision 1.3  2002/02/11 18:44:22  jmacgill
+ * replaced geometry constructions with calls to geometryFactory.createX methods
+ *
  * Revision 1.2  2002/02/11 18:28:41  jmacgill
  * rewrote to have static read and write methods
  *
