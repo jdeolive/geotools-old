@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,13 +38,17 @@ import java.util.Set;
  * visability.
  * 
  * <p>
- * Known Bugs:</p>
+ * Known Bugs:
+ * </p>
+ * 
  * <ul>
- * <li>Assumes a consistent FeatureType
- *     </li>
- * <li>Does not share Locking between two MemoryLockingDataSources serving up
- *     the same FeatureCollection.
- *     </li>
+ * <li>
+ * Assumes a consistent FeatureType
+ * </li>
+ * <li>
+ * Does not share Locking between two MemoryLockingDataSources serving up the
+ * same FeatureCollection.
+ * </li>
  * </ul>
  * 
  *
@@ -61,7 +63,7 @@ class MemoryLockingDataSource extends MemoryDataSource
     protected Map locks = new HashMap();
 
     /** Holds feature information over the course of a transaction. */
-    protected List transactionFeatures;
+    protected Map transactionFeatures;
 
     /** Holds our locking information over the course of a transaction. */
     protected Map transactionLocks;
@@ -98,11 +100,11 @@ class MemoryLockingDataSource extends MemoryDataSource
      *
      * @see org.geotools.data.MemoryDataSource#getFeaturesList()
      */
-    protected List getFeaturesList() {
+    protected Map getFeaturesMap() {
         if (transactionFeatures != null) {
             return transactionFeatures;
         } else {
-            return super.getFeaturesList();
+            return super.getFeaturesMap();
         }
     }
 
@@ -156,8 +158,8 @@ class MemoryLockingDataSource extends MemoryDataSource
         } else {
             // enter autocommit mode
             // 
-            transactionFeatures = new LinkedList(features);
-            transactionLocks = new HashMap(locks);
+            transactionFeatures = new HashMap( features );
+            transactionLocks = new HashMap( locks );
         }
     }
 
@@ -200,8 +202,8 @@ class MemoryLockingDataSource extends MemoryDataSource
         }
 
         endTransaction(); // need to remove MemoryLocks first :-)
-        features = new LinkedList(transactionFeatures);
-        locks = new HashMap(transactionLocks);
+        features = new HashMap( transactionFeatures );
+        locks = new HashMap( transactionLocks );
     }
 
     /**
@@ -228,8 +230,8 @@ class MemoryLockingDataSource extends MemoryDataSource
             throw new DataSourceException("Rollback requries a transaction");
         }
 
-        transactionFeatures = new LinkedList(features);
-        transactionLocks = new HashMap(locks);
+        transactionFeatures = new HashMap( features );
+        transactionLocks = new HashMap( locks );
         endTransaction();
     }
 
@@ -303,15 +305,15 @@ class MemoryLockingDataSource extends MemoryDataSource
 
         Feature feature;
         String fid;
-
-        for (Iterator i = getFeaturesList().iterator(); i.hasNext();) {
-            feature = (Feature) i.next();
-            fid = feature.getID();
-
-            if (fids.contains(fid)) {
-                modifyFeature(feature, type, value);
+        
+        for( Iterator i = fids.iterator(); i.hasNext(); ){
+            fid = (String) i.next();
+            if( getFeaturesMap().containsKey( fid ) ){
+                feature = (Feature) getFeaturesMap().get( fid );
+                
+                modifyFeature(feature, type, value);                    
             }
-        }
+        }        
     }
 
     protected void modifyFeature(Feature feature, AttributeType[] type,
@@ -352,11 +354,8 @@ class MemoryLockingDataSource extends MemoryDataSource
         super.setFeatures(collection); // check metadata
         ensureAuthorization();
 
-        List list = getFeaturesList();
-
-        while (!list.isEmpty())
-            list.remove(0);
-
+        getFeaturesMap().clear();
+        
         addFeatures(collection);
     }
 
@@ -412,7 +411,7 @@ class MemoryLockingDataSource extends MemoryDataSource
         Envelope internal;
         Feature feature;
 
-        for (Iterator i = getFeaturesList().iterator(); i.hasNext();) {
+        for (Iterator i = getFeaturesMap().values().iterator(); i.hasNext();) {
             feature = (Feature) i.next();
             internal = feature.getDefaultGeometry().getEnvelopeInternal();
             newBBox.expandToInclude(internal);
@@ -440,15 +439,12 @@ class MemoryLockingDataSource extends MemoryDataSource
         Feature feature;
         String fid;
 
-        for (Iterator i = getFeaturesList().iterator(); i.hasNext();) {
-            feature = (Feature) i.next();
-            fid = feature.getID();
-
-            if (fids.contains(fid)) {
-                i.remove();
-                getLocks().remove(fid);
-            }
-        }
+        for( Iterator i = fids.iterator(); i.hasNext(); ){
+            fid = (String) i.next();
+            
+            getFeaturesMap().remove( fid );
+            getLocks().remove( fid );
+        }        
     }
 
     //
@@ -458,11 +454,18 @@ class MemoryLockingDataSource extends MemoryDataSource
     /**
      * Grabs FeatureLock for subsequence locking operations.
      *
-     * @param lock Set to null for per transaction locking.
+     * @param featureLock Set FeatureLock.TRANSACTION for per transaction
+     *        locking.
+     *
+     * @throws NullPointerException When a featureLock is not provided
      *
      * @see org.geotools.data.LockingDataSource#setCurrentLock(org.geotools.data.FeatureLock)
      */
     public void setFeatureLock(FeatureLock featureLock) {
+        if (featureLock == null) {
+            throw new NullPointerException("FeatureLock required");
+        }
+
         lock = featureLock;
     }
 
@@ -595,7 +598,7 @@ class MemoryLockingDataSource extends MemoryDataSource
      *
      * @param authID
      *
-     * @throws DataSourceException 
+     * @throws DataSourceException
      *
      * @see org.geotools.data.LockingDataSource#refreshLock(java.lang.String)
      */
@@ -625,7 +628,7 @@ class MemoryLockingDataSource extends MemoryDataSource
      *
      * @param authID
      *
-     * @throws DataSourceException 
+     * @throws DataSourceException
      *
      * @see org.geotools.data.LockingDataSource#releaseLock(java.lang.String)
      */
@@ -685,7 +688,7 @@ class MemoryLockingDataSource extends MemoryDataSource
 
         int count = 0;
 
-        MemoryLock memoryLock = createMemoryLock( lock );
+        MemoryLock memoryLock = createMemoryLock(lock);
         String fid;
 
         for (Iterator i = fids.iterator(); i.hasNext();) {
@@ -1001,12 +1004,13 @@ class MemoryLockingDataSource extends MemoryDataSource
         return set;
     }
 
-    protected MemoryLock createMemoryLock(FeatureLock featureLock ) {
-        if (featureLock == FeatureLock.CURRENT_TRANSACTION ) {
+    protected MemoryLock createMemoryLock(FeatureLock featureLock) {
+        if (featureLock == FeatureLock.CURRENT_TRANSACTION) {
             // per transaction lock
             return MemoryLock.CURRENT_TRANSACTION;
         }
-        return new MemoryLock( featureLock );
+
+        return new MemoryLock(featureLock);
     }
 }
 
@@ -1025,8 +1029,8 @@ class MemoryLockingDataSource extends MemoryDataSource
  * @see org.geotools.data
  */
 class MemoryLock {
-    static final MemoryLock CURRENT_TRANSACTION =
-        new MemoryLock("CURRENT_TRANSACTION", 0);
+    static final MemoryLock CURRENT_TRANSACTION = new MemoryLock("CURRENT_TRANSACTION",
+            0);
     String authID;
     long duration;
     long expiry;
