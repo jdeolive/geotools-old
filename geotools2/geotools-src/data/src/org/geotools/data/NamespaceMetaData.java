@@ -16,10 +16,7 @@
  */
 package org.geotools.data;
 
-import java.util.List;
 import java.util.Set;
-
-import org.geotools.feature.FeatureType;
 
 /**
  * Captures Namespace information for Catalog.
@@ -49,7 +46,7 @@ import org.geotools.feature.FeatureType;
  * </p>
  * @author jgarnett, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: NamespaceMetaData.java,v 1.1 2004/01/10 00:41:46 jive Exp $
+ * @version $Id: NamespaceMetaData.java,v 1.2 2004/01/20 05:29:10 jive Exp $
  */
 public interface NamespaceMetaData extends MetaData {
     
@@ -80,7 +77,7 @@ public interface NamespaceMetaData extends MetaData {
      * 
      * @author jgarnett, Refractions Research, Inc.
      * @author $Author: jive $ (last modification)
-     * @version $Id: NamespaceMetaData.java,v 1.1 2004/01/10 00:41:46 jive Exp $
+     * @version $Id: NamespaceMetaData.java,v 1.2 2004/01/20 05:29:10 jive Exp $
      */
     public FeatureTypeMetaData getFeatureTypeMetaData( String typeName );
 

@@ -16,9 +16,9 @@
  */
 package org.geotools.data;
 
-import org.geotools.feature.FeatureType;
 import java.io.IOException;
-import java.util.logging.Logger;
+
+import org.geotools.feature.FeatureType;
 
 
 /**
@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  * ResultSetFIDReader should be used.
  *
  * @author Chris Holmes
- * @version $Id: DefaultFIDReader.java,v 1.3 2003/11/06 19:03:52 ianschneider Exp $
+ * @version $Id: DefaultFIDReader.java,v 1.4 2004/01/20 05:29:10 jive Exp $
  */
 public class DefaultFIDReader implements FIDReader {
     protected static final String CLOSE_MESG = "Close has already been called"
