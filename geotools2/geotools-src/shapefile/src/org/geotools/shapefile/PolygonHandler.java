@@ -115,7 +115,7 @@ public class PolygonHandler implements ShapeHandler{
             multi = (GeometryCollection)geometry;
         }
         else{
-            multi = geometryFactory.greateMultiPolygon(new Polygon[]{(Polygon)geometry});
+            multi = new MultiPolygon(new Polygon[]{(Polygon)geometry},geometry.getPrecisionModel(),geometry.getSRID());
         }
         file.setLittleEndianMode(true);
         file.writeInt(getShapeType());
@@ -165,6 +165,9 @@ public class PolygonHandler implements ShapeHandler{
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.3  2002/03/05 10:51:01  andyt
+ * removed use of factory from write method
+ *
  * Revision 1.2  2002/03/05 10:23:59  jmacgill
  * made sure geometries were created using the factory methods
  *
