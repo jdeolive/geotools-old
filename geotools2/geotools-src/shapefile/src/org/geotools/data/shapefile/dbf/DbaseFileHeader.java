@@ -161,7 +161,7 @@ public class DbaseFileHeader {
    * F          20
    * N          18
    * </PRE>
-   * @param inFieldName The name of the new field, must be less than 11 characters or it
+   * @param inFieldName The name of the new field, must be less than 10 characters or it
    * gets truncated.
    * @param inFieldType A character representing the dBase field, ( see above ).
    * Case insensitive.
