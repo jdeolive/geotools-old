@@ -50,7 +50,7 @@ import java.util.logging.Level;
  *
  * @author Ian Turton
  * @author Sean Geoghegan
- * @version $Id: SLDStyle.java,v 1.37 2003/08/14 11:24:57 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.38 2003/08/28 22:15:20 aaime Exp $
  */
 public class SLDStyle {
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -551,8 +551,8 @@ public class SLDStyle {
      * @return the pointsymbolizer
      */
     private PointSymbolizer parsePointSymbolizer(Node root) {
-        PointSymbolizer symbol = factory.createPointSymbolizer();
-        symbol.setGraphic(null);
+        PointSymbolizer symbol = factory.getDefaultPointSymbolizer();
+        // symbol.setGraphic(null);
 
         NodeList children = root.getChildNodes();
 
