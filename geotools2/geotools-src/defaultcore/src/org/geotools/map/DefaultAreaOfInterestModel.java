@@ -28,7 +28,7 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.10 2002/12/15 04:24:08 camerons Exp $
+ * @version $Id: DefaultAreaOfInterestModel.java,v 1.11 2002/12/19 09:52:12 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -37,13 +37,13 @@ import java.lang.Cloneable;
 import java.lang.IllegalArgumentException;
 import java.util.Vector;
 import java.util.EventObject;
-//import org.opengis.cs.*;
 import com.vividsolutions.jts.geom.Envelope;
 import javax.swing.event.EventListenerList;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.map.AreaOfInterestModel;
 import org.geotools.map.events.*;
 
-public class DefaultAreaOfInterestModel implements Cloneable{
+public class DefaultAreaOfInterestModel implements AreaOfInterestModel{
     
     private Envelope areaOfInterest;
     private CoordinateSystem coordinateSystem;
