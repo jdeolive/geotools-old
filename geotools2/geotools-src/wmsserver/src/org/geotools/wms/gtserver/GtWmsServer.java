@@ -109,7 +109,13 @@ public class GtWmsServer implements WMSServer {
                 (String) loop.next());
                 LOGGER.fine("Layer : " + entry.id);
                 LOGGER.fine("pre mod url is " + entry.properties.getProperty("url"));
-                URL home = new File(".").toURL();
+                URL home;
+                if(base != null){
+                    home = base;
+                }
+                else{
+                    home = new File(".").toURL();
+                }
                 URL url;
                 try{
                     url = new URL(entry.properties.getProperty(

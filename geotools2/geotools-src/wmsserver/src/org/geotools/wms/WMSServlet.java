@@ -244,7 +244,6 @@ public class WMSServlet extends HttpServlet {
                            throws ServletException, IOException {
         LOGGER.fine("Sending capabilities");
         LOGGER.fine("My path is " + request.getServletPath() + "?");
-
         try {
             // Get Capabilities object from server implementation
             Capabilities capabilities = server.getCapabilities();
