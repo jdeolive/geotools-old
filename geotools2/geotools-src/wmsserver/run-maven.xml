@@ -54,7 +54,7 @@
       </not>
     </and>
   </condition>
-  <condition property="maven" value="c:\program files\maven\bin\maven.bat">
+  <condition property="maven" value="maven.bat">
     <not>
         <equals arg1="${mavenbat}" arg2="$${mavenbat}"/>
     </not>
