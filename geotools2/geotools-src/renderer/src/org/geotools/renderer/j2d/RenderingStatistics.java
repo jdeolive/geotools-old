@@ -49,7 +49,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * painting is in process. They are used for logging messages and have no impact
  * on future rendering.
  *
- * @version $Id: RenderingStatistics.java,v 1.3 2003/02/23 21:27:38 desruisseaux Exp $
+ * @version $Id: RenderingStatistics.java,v 1.4 2003/03/02 22:16:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RenderingStatistics {
@@ -59,7 +59,7 @@ final class RenderingStatistics {
      * for tracking down performance bottleneck. Set this value to 0 for logging
      * all paint events.
      */
-    private static final int TIME_THRESHOLD = 100;
+    private static final int TIME_THRESHOLD = 250;
 
     /**
      * While a rendering is in process, the starting time in milliseconds ellapsed
