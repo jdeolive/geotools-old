@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." default="release" name="gmldatasource">
+<project basedir="." default="release" name="defaultcore">
 
   <!-- Runs default build; don't modify this target and run it as default -->
   <target name="release">
