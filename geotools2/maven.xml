@@ -73,7 +73,15 @@
         <preGoal name="checkstyle:init">
             <echo>preGoal in maven.xml is fudging checkstyle to use geotools config settings</echo>
             <j:set var="maven.checkstyle.properties" value="../../geotools_checks.xml"/>
-        </preGoal>    
+        </preGoal>
+        <goal name="mergeTestReports">
+            <echo>merging test reports into higher directory</echo>
+           <ant:copy todir="../../target/test-reports">
+               <ant:fileset dir="target/test-reports">
+               <ant:include name="*.xml"/>
+      </ant:fileset>
+    </ant:copy>
+        </goal>        
 	<goal name="build:log">
 		<echo file="../../buildReport.txt" append="true">
     ${pom.id}</echo>
@@ -99,8 +107,9 @@
       looking for modules in: ${basedir}/geotools-src
       reporting progress to ${gt2home}
     </echo>
+     <ant:delete dir="target/test-reports"/>
 		<echo file="${basedir}/buildReport.txt" append="false">GeoTools2 module build report ${DSTAMP}</echo>
-		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="build:log,clean,jar:install" banner="Building" postProcessing="true" ignoreFailures="true"/>
+		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="build:log,clean,jar:install,mergeTestReports" banner="Building" postProcessing="true" ignoreFailures="true"/>
 		<loadfile property="build.report" srcFile="${basedir}/buildReport.txt" failonerror="false"/>
 		<echo>BUILD REPORT (from buildReport.txt):
       Sucessfull modules should read 'cleaned, compiled, tested, INSTALLED HHMM'
@@ -116,7 +125,7 @@
 
     </echo>
        <ant:delete dir="target/test-reports"/>  <!-- one report folder for convenience of CC -->
-		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="clean,jar:install" banner="Building" postProcessing="true" ignoreFailures="false"/>
+		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="clean,jar:install,mergeTestReports" banner="Building" postProcessing="true" ignoreFailures="false"/>
 		<j:set var="ok" value="${reactorProjects}"/>
 		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" postProcessing="true" ignoreFailures="true"/>
 		<j:forEach var="module" items="${reactorProjects}">
