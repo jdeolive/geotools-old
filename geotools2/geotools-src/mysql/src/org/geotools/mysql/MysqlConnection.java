@@ -20,10 +20,11 @@
 
 package org.geotools.data.mysql;
 
-import java.io.*;
-import java.util.*;
-import java.sql.*;
-import org.apache.log4j.Category;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+//import org.apache.log4j.Category;
 
 
 /**
@@ -31,14 +32,14 @@ import org.apache.log4j.Category;
  *
  * This provides a base class to the database transactional classes.  
  *
- * @version $Id: MysqlConnection.java,v 1.1 2002/08/04 12:57:40 jmacgill Exp $
+ * @version $Id: MysqlConnection.java,v 1.2 2002/08/16 20:30:07 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, Vision for New York
  */
 public class MysqlConnection implements javax.sql.DataSource {
 
 
-    private static Category _log = Category.getInstance(MysqlConnection.class.getName());
+    //private static Category _log = Category.getInstance(MysqlConnection.class.getName());
     
     /** The Mysql-specific JDBC driver class using mm.mysql */ 
     private static final String MYSQL_DRIVER_CLASS = "org.gjt.mm.mysql.Driver";
@@ -46,15 +47,19 @@ public class MysqlConnection implements javax.sql.DataSource {
     /** The Mysql-specific JDBC driver path. */ 
     private static final String MYSQL_DRIVER_PATH = "jdbc:mysql";
 
-
+    /** the computer where the database to connect to resides */
     private String host;
 
+    /** The port to connect on */
     private String port;
 
+    /** The name of the database to connect to */
     private String dbName;
 
+    /** The name of the user to log in to the database */
     private String user = null;
 
+    /** The password of the user to log in to the database */
     private String password = null;
     
     /**
@@ -87,22 +92,34 @@ public class MysqlConnection implements javax.sql.DataSource {
         this.password = password;
     }
 
+    /**
+     * An accessor function to get the user to log in to the db.
+     *
+     * @return the user.
+     */
     public String getLoginUser(){
-	return user;
+       return user;
     }
 
+    /**
+     * An accessor function to get the password to log in to the db.
+     *
+     * @return a string of the password.
+     */
     public String getLoginPassword(){
-	return password;
+       return password;
     }
 
     /**
      * Retrieves a connection to the Mysql database, using the current
      * user and password;
      * 
+     * @return An open SQL connection with the database.
+     * @throws SQLException if there are any database problems.
      */ 
     public Connection getConnection()
         throws SQLException {
-        return getConnection(user, password);
+       return getConnection(user, password);
     }
 
 
@@ -112,23 +129,22 @@ public class MysqlConnection implements javax.sql.DataSource {
      *
      * @param user The string of the user to connect to the database with.
      * @param password The string of the corresponding password of user.
-     */ 
+     * @return An open SQL connection with the database.
+     * @throws SQLException if there are any database problems.
+    */ 
     public Connection getConnection(String user, String password)
         throws SQLException {
-        
-        // creates the string to connect with
+       // creates the string to connect with
         String connectionPath = MYSQL_DRIVER_PATH + "://" 
-   	                        + host + ":" + port + "/" + dbName;
-
+                                + host + ":" + port + "/" + dbName;
         Connection dbConnection = null;
-        
+   
         // Instantiate the driver classes
         try {
             Class.forName(MYSQL_DRIVER_CLASS);
             dbConnection = DriverManager.getConnection(connectionPath, 
-							user, password);
-        }
-        catch (ClassNotFoundException e) {
+                                                       user, password);
+        } catch (ClassNotFoundException e) {
             throw new SQLException("Mysql driver was not found.");
         }
 
@@ -137,18 +153,41 @@ public class MysqlConnection implements javax.sql.DataSource {
     }
     
     
-
+    /**
+     * An accessor function to get the length of timeout.
+     *
+     * @return the time out.
+     * @tasks TODO: implement this.
+     */
     public int getLoginTimeout() {
         return 10;
     }
 
+    /**
+     * A setter function to get the length of timeout.
+     *
+     * @param seconds the length of the time out.
+     * @tasks TODO: implement this.
+     */
     public void setLoginTimeout(int seconds) {
     }
 
+    /**
+     * An accessor function to get the log writer.
+     *
+     * @return a writer
+     * @tasks TODO: implement this.
+     */
     public PrintWriter getLogWriter() {
         return new PrintWriter(System.out);
     }
 
+    /**
+     * An setter method to set the log writer.
+     *
+     * @param out the writer to use for logging.
+     * @tasks TODO: implement this.
+     */
     public void setLogWriter(PrintWriter out) {
     }
 
