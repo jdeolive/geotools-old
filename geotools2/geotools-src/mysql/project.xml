@@ -52,6 +52,7 @@
                 <role>Java Developer</role>
             </roles>
         </developer>
+    </developers>
   <dependencies>
     <dependency>
       <id>log4j</id>
