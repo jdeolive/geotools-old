@@ -105,7 +105,7 @@ import org.geotools.resources.DescriptorNaming;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.11 2002/10/08 15:33:16 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.12 2002/10/08 15:36:10 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -641,7 +641,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.11 2002/10/08 15:33:16 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.12 2002/10/08 15:36:10 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {
