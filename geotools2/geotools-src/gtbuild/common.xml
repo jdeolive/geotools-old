@@ -2,9 +2,23 @@
     <target depends="release" name="all"> 
             <!-- WRITEME -->
     </target>
-
+    <target name="checkstyle" depends="checkstyle1,checkstyle2">
+        <!-- dummy target to call either of the dependancies depending on
+        value of checking used in init.
+        checking=true - checks to file
+        checking=screen - checks to file and screen
+        -->
+    </target>
      <!-- TODO: failOnViolation should be set to true eventualy -->
-    <target name="checkstyle" if="checking">
+    <target name="checkstyle1" if="toBeChecked">
+         <echo message="using ${licence.header} as header check file"/>
+         <checkstyle failOnViolation="false"> 
+            <fileset dir="src" includes="**/*.java"/>
+            
+            <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
+         </checkstyle>
+    </target>
+    <target name="checkstyle2" if="toBeCheckedToScreen">
          <echo message="using ${licence.header} as header check file"/>
          <checkstyle failOnViolation="false"> 
             <fileset dir="src" includes="**/*.java"/>
@@ -28,14 +42,17 @@
     <target depends="compile-test,checkstyle" name="test" if="testsuite">
 
         <junit fork="true" printsummary="true">
-            <formatter type="plain"/>
+            <!--formatter type="plain"/ -->
             <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
             <classpath>
                 <path path="src"/>
                 <path path="tests/unit/"/>
                 <path refid="compile.path"/>
             </classpath>
-            <test name="${testsuite}"/>
+
+
+            <test fork="false" name="${testsuite}"/>
+
         </junit>
     </target>
     <target depends="test" name="release">
@@ -99,8 +116,12 @@
                 <equals arg1="${extbin}" arg2="$${extbin}"/>
             </not>            
         </condition>
-        <!--echo message="${project.name} extbin = ${extbin}"/-->
-        <!--echo message="${project.name} has extbin = ${has.extbin}"/-->
+        <condition property="toBeChecked" >
+            <equals arg1="${checking}" arg2="true"/>
+        </condition>
+        <condition property="toBeCheckedToScreen" >
+            <equals arg1="${checking}" arg2="screen"/>
+        </condition>                
     </target>
     <target name="prepare-compile" depends="init,set-classpath,add-extbin" >
         <!--echo message="Prep-compile: ${project.name}" /-->
@@ -131,6 +152,7 @@
         <for-each startdir=".." locations="${dependancy}" target="release" inheritall="false" >
             <property name="releaseFolder" value="${releaseFolder}"/>
             <property name="lastBuildAttemptTime" value="${lastBuildAttemptTime}"/>
+            <property name="checking" value="false"/>
         </for-each>
     </target>
     
