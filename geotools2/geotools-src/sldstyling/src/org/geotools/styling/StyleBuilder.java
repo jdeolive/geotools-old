@@ -479,10 +479,14 @@ public class StyleBuilder {
 
         if (mark != null) {
             gr.setMarks(new Mark[] {mark});
+        } else {
+            gr.setMarks(new Mark[0]);
         }
 
         if (symbol != null) {
             gr.setSymbols(new Symbol[] {symbol});
+        } else {
+            gr.setSymbols(new Symbol[0]);
         }
 
         return gr;
@@ -1430,6 +1434,9 @@ public class StyleBuilder {
      * @return the expression
      */
     public Expression colorExpression(Color color) {
+        if(color == null)
+            return null;
+        
         String redCode = Integer.toHexString(color.getRed());
         String greenCode = Integer.toHexString(color.getGreen());
         String blueCode = Integer.toHexString(color.getBlue());
