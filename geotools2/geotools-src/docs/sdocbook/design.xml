@@ -48,9 +48,9 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Id: design.xml,v 1.5 2003/01/09 10:54:48 camerons Exp $</date>
+    <date>$Id: design.xml,v 1.6 2003/02/17 21:16:39 camerons Exp $</date>
 
-    <edition>$Id: design.xml,v 1.5 2003/01/09 10:54:48 camerons Exp $</edition>
+    <edition>$Id: design.xml,v 1.6 2003/02/17 21:16:39 camerons Exp $</edition>
   </articleinfo>
 
   <section>
@@ -80,34 +80,6 @@ id="index">
 
   <section>
     <title id="geotoolsdetaileddesign">Geotools2 detailed design.</title>
-
-    <section>
-      <title id="modulecore">core</title>
-
-      <para>At the hart of GT2 is the core module, this module contains no
-      implementation code, just Java interfaces for all the key modules. It is
-      anticipated that the core module will be extracted out of Geotools and
-      be put into it&#39;s own GeoInterfaces open source project.</para>
-    </section>
-
-    <section>
-      <title id="moduledefaultcore">defaultcore</title>
-
-      <para>Defaultcore provides an implementation of the key interfaces found
-      in the core module with the exception of datasource and rendering. The
-      defaultcore module contains code which uses the latest version of Java
-      (1.4) though it is envisioned that alternative implementations of core
-      could be made in future, perhaps to target J2ME.</para>
-
-      <para>The datasource and rendering interfaces are not implemented by the
-      defaultcore module as there will need to be multiple implementations
-      available so implementation is left to other modules. Note that although
-      the defaultcore module includes a full set of objects for representing
-      the SLD and Filter specification there is no code in these modules for
-      reading or writing such documents, instead an entirely programmatic
-      approach is assumed with IO for such specifications being left to other
-      modules.</para>
-    </section>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../defaultcore/sdocbook/gui.sgml"></xi:include>
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../defaultcore/sdocbook/map.sgml"></xi:include>
