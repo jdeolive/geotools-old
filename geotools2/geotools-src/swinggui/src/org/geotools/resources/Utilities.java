@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill
+ *     UNITED KINGDOM: James Macgill
  *             mailto:j.macgill@geog.leeds.ac.uk
  *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
@@ -51,22 +51,22 @@ import java.util.logging.LogRecord;
  */
 public final class Utilities {
     /**
-     * An array of strings containing only white spaces. String length are equal
-     * to their index + 1 in the <code>spacesFactory</code> array.  For example,
-     * <code>spacesFactory[4]</code> contains a string of length 5.  Strings are
-     * constructed only when first needed.
+     * An array of strings containing only white spaces. Strings' lengths are
+     * equal to their index + 1 in the <code>spacesFactory</code> array.
+     * For example, <code>spacesFactory[4]</code> contains a string of
+     * length 5.  Strings are constructed only when first needed.
      */
     private static final String[] spacesFactory = new String[20];
 
     /**
-     * Forbive object creation.
+     * Forbid object creation.
      */
     private Utilities() {
     }
 
     /**
      * Determines whether the character is a superscript. Most superscripts have
-     * unicode value from \\u2070 to \\u207F inclusive. Superscripts are the
+     * unicode values from \\u2070 to \\u207F inclusive. Superscripts are the
      * following symbols:
      *
      * <blockquote><code>
@@ -88,7 +88,7 @@ public final class Utilities {
 
     /**
      * Determines whether the character is a subscript. Most subscripts have
-     * unicode value from \\u2080 ti \\u208E inclusive. Subscripts are the
+     * unicode values from \\u2080 to \\u208E inclusive. Subscripts are the
      * following symbols:
      *
      * <blockquote><code>
@@ -180,16 +180,16 @@ public final class Utilities {
 
     /**
      * Returns a string of the specified length filled with white spaces.
-     * This method try to returns a pre-allocated string if possible.
+     * This method tries to return a pre-allocated string if possible.
      *
-     * @param  length The string length. Negative values are clamp to 0.
-     * @return A string of length <code>length</code> filled with with spaces.
+     * @param  length The string length. Negative values are clamped to 0.
+     * @return A string of length <code>length</code> filled with white spaces.
      */
     public static String spaces(int length) {
-        // No need to synchronize.   In the unlikely case where two threads
-        // call this method in the same time and the two calls create a new
-        // string,  the String.intern() call will take care to canonicalize
-        // the strings.
+        // No need to synchronize.  In the unlikely event of two threads
+        // calling this method at the same time and the two calls creating a
+        // new string, the String.intern() call will take care of
+        // canonicalizing the strings.
         final int last = spacesFactory.length-1;
         if (length<0) length=0;
         if (length <= last) {
@@ -211,7 +211,7 @@ public final class Utilities {
 
     /**
      * Returns a short class name for the specified class. This method will
-     * ommit the package name. For exemple, it will returns "String" instead
+     * omit the package name. For example, it will return "String" instead
      * of "java.lang.String" for a {@link String} object.
      *
      * @param  object The object (may be <code>null</code>).
@@ -227,7 +227,7 @@ public final class Utilities {
 
     /**
      * Returns a short class name for the specified object. This method will
-     * ommit the package name. For exemple, it will returns "String" instead
+     * omit the package name. For example, it will return "String" instead
      * of "java.lang.String" for a {@link String} object.
      *
      * @param  object The object (may be <code>null</code>).
@@ -246,16 +246,16 @@ public final class Utilities {
     }
 
     /**
-     * Invoked when an unexpected error occured. The action taken by this method
+     * Invoked when an unexpected error occurs. The action taken by this method
      * is implementation dependent. On JRE 1.4, it may record the error in the
      * logging. On JRE 1.3, it may just dump the stack trace on the error
      * stream.
      *
-     * @param paquet  The package where the error occured. This information may
-     *                be used to fetch an appropriate {@link Logger} for logging
-     *                the error.
-     * @param classe  The class name where the error occured.
-     * @param method  The method name where the error occured.
+     * @param paquet  The package where the error occurred. This information
+     *                may be used to fetch an appropriate {@link Logger} for
+     *                logging the error.
+     * @param classe  The class name where the error occurred.
+     * @param method  The method name where the error occurred.
      * @param error   The error.
      */
     public static void unexpectedException(final String   paquet,

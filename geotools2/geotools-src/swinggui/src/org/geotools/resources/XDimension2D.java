@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill
+ *     UNITED KINGDOM: James Macgill
  *             mailto:j.macgill@geog.leeds.ac.uk
  *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
@@ -39,7 +39,7 @@ import java.awt.geom.Dimension2D;
 
 /**
  * Implement float and double version of {@link Dimension2D}. This class
- * is only temporary; it will disaspear if <em>JavaSoft</em> implements
+ * is only temporary; it will disappear if <em>JavaSoft</em> implements
  * <code>Dimension2D.Float</code> and <code>Dimension2D.Double</code>.
  *
  * @version 1.0
@@ -54,7 +54,7 @@ public final class XDimension2D {
 
     /**
      * Implement float version of {@link Dimension2D}. This class is
-     * temporary;  it will disaspear if <em>JavaSoft</em> implements
+     * temporary;  it will disappear if <em>JavaSoft</em> implements
      * <code>Dimension2D.Float</code> and <code>Dimension2D.Double</code>.
      *
      * @version 1.0
@@ -78,7 +78,7 @@ public final class XDimension2D {
         }
 
         /**
-         * Construct a new dimension width the specified values.
+         * Construct a new dimension with the specified values.
          *
          * @param w The width.
          * @param h The height.
@@ -123,7 +123,7 @@ public final class XDimension2D {
 
     /**
      * Implement double version of {@link Dimension2D}. This class is
-     * temporary;  it will disaspear if <em>JavaSoft</em> implements
+     * temporary; it will disappear if <em>JavaSoft</em> implements
      * <code>Dimension2D.Float</code> and <code>Dimension2D.Double</code>.
      *
      * @version 1.0
@@ -147,7 +147,7 @@ public final class XDimension2D {
         }
 
         /**
-         * Construct a new dimension width the specified values.
+         * Construct a new dimension with the specified values.
          *
          * @param w The width.
          * @param h The height.

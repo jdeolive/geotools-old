@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill
+ *     UNITED KINGDOM: James Macgill
  *             mailto:j.macgill@geog.leeds.ac.uk
  *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
@@ -64,17 +64,18 @@ import java.lang.reflect.Field;
 
 
 /**
- * Resources compiler. This class is run from the command-line at compile-time
- * only. <code>ResourceCompiler</code> scan for <code>.properties</code> files
- * and copy their content to <code>.utf</code> files using UTF8 encoding. It
- * also check for key validity (making sure that the same set of keys is defined
- * in every language) and change values for {@link MessageFormat} compatibility.
- * Lastly, it create a <code>ResourceKeys.java</code> source file declaring
+ * Resource compiler. This class is run from the command line at compile time
+ * only. <code>ResourceCompiler</code> scans for <code>.properties</code> files
+ * and copies their content to <code>.utf</code> files using UTF8 encoding. It
+ * also checks for key validity (making sure that the same set of keys is
+ * defined in every language) and checks values for {@link MessageFormat}
+ * compatibility.
+ * Finally, it creates a <code>ResourceKeys.java</code> source file declaring
  * resource keys as integer constants.
  * <br><br>
- * <code>ResourceCompiler</code> and all <code>ResourceKeys</code> classes don't
- * need to be included in the final JAR file. They are used at compile-time only
- * and no other classes should keep reference to them.
+ * <code>ResourceCompiler</code> and all <code>ResourceKeys</code> classes
+ * don't need to be included in the final JAR file. They are used at
+ * compile time only and no other classes should keep reference to them.
  *
  * @version 1.0
  * @author Martin Desruisseaux
@@ -94,7 +95,7 @@ final class ResourceCompiler implements Comparator {
     private static final String CLASS_NAME = "ResourceKeys";
 
     /**
-     * File name prefix for properties and resources files.
+     * File name prefix for properties and resource files.
      */
     private static final String PREFIX = "resources";
 
@@ -104,36 +105,36 @@ final class ResourceCompiler implements Comparator {
     private static final String PROPERTIES_EXT = ".properties";
 
     /**
-     * Extension for resources files.
+     * Extension for resource files.
      */
     private static final String RESOURCES_EXT = ".utf";
 
     /**
      * Prefix for argument count in resource key names.
-     * For example a resource expecting one argument may
-     * has a key name like "HELLO_$1".
+     * For example, a resource expecting one argument may
+     * have a key name like "HELLO_$1".
      */
     private static final String ARGUMENT_COUNT_PREFIX = "_$";
 
     /**
      * Integer IDs allocated to resource keys. This map
-     * use <code>&lt;Integer,String&gt;</code> entries.
+     * uses <code>&lt;Integer,String&gt;</code> entries.
      */
     private final Map allocatedIDs = new HashMap();
 
     /**
-     * Resources keys and their localized values. This map
-     * use <code>&lt;String,String&gt;</code> entries.
+     * Resource keys and their localized values. This map
+     * uses <code>&lt;String,String&gt;</code> entries.
      */
     private final Map resources = new HashMap();
 
     /**
      * Construct a new <code>ResourceCompiler</code>.  This method will
-     * immediately looks for a <code>ResourceKeys.class</code> file. If
-     * one is found, integer keys are loaded in order to reuse same values.
+     * immediately look for a <code>ResourceKeys.class</code> file. If
+     * one is found, integer keys are loaded in order to reuse the same values.
      *
      * @param directory The resource directory. This directory should or
-     *                  will contains the following input and output files:
+     *                  will contain the following input and output files:
      *      <ul>
      *        <li><code>resources*.properties</code> (mandatory input)</li>
      *        <li><code>ResourceKeys.class</code>    (optional  input)</li>
@@ -169,7 +170,7 @@ final class ResourceCompiler implements Comparator {
             }
         } catch (ClassNotFoundException exception) {
             /*
-             * 'ResourceKeys.class' doesn't exists. This is okay
+             * 'ResourceKeys.class' doesn't exist. This is okay
              * (probably normal). We will create 'ResourceKeys.java'
              * later using automatic key values.
              */
@@ -177,7 +178,7 @@ final class ResourceCompiler implements Comparator {
     }
 
     /**
-     * Scan the specified directory and all subdirectory for resources.
+     * Scan the specified directory and all subdirectories for resources.
      *
      * @param  directory The root directory.
      * @throws IOException if an input/output operation failed.
@@ -209,9 +210,9 @@ final class ResourceCompiler implements Comparator {
 
     /**
      * Load all properties from a <code>.properties</code> file. Resource
-     * keys are checked for naming convention (i.e. resources expecting some
+     * keys are checked for naming conventions (i.e. resources expecting some
      * arguments must have a key ending with "_$n" where "n" is the number of
-     * arguments). This  method transform resource values in legal
+     * arguments). This method transforms resource values into legal
      * {@link MessageFormat} patterns when necessary.
      *
      * @param  file Resource file to read.
@@ -249,9 +250,9 @@ final class ResourceCompiler implements Comparator {
                 continue;
             }
             /*
-             * Check if the expected arguments count (according naming
-             * convention) matches the arguments count found in the
-             * MessageFormat's pattern.
+             * Check if the expected arguments count (according to naming
+             * conventions) matches the arguments count found in the
+             * MessageFormat pattern.
              */
             final int argumentCount;
             final int index = key.lastIndexOf(ARGUMENT_COUNT_PREFIX);
@@ -294,7 +295,7 @@ final class ResourceCompiler implements Comparator {
             }
         }
         /*
-         * Allocate an ID for each new keys.
+         * Allocate an ID for each new key.
          */
         final String[] keys = (String[]) resources.keySet().toArray(new String[resources.size()]);
         Arrays.sort(keys, this);
@@ -311,7 +312,7 @@ final class ResourceCompiler implements Comparator {
 
     /**
      * Write UTF file. Method {@link #loadPropertyFile} should
-     * be invoked before to <code>writeUTFFile</code>.
+     * be invoked beforehand to <code>writeUTFFile</code>.
      *
      * @param  file The destination file.
      * @throws IOException if an input/output operation failed.
@@ -336,7 +337,7 @@ final class ResourceCompiler implements Comparator {
 
     /**
      * Returns the class name for the specified source file.
-     * The returned class name to not include package name.
+     * The returned class name is not to include the package name.
      */
     private static String toClassName(final File file) {
         String name = file.getName();
@@ -348,11 +349,11 @@ final class ResourceCompiler implements Comparator {
     /**
      * Make a file path relative to the classpath.  The file path may be
      * relative (to current <code>chdir</code>) or absolute. This method
-     * find the canonical form of <code>path</code>  and compare it with
-     * canonical forms of every paths in the class path.  If a classpath
-     * matchs the begining of <code>path</code>,  then the corresponding
-     * part of <code>path</code> is removed.   If there is more than one
-     * matches, the one resulting in the shortest relative path is choosen.
+     * finds the canonical form of <code>path</code> and compares it with
+     * canonical forms of every path in the classpath.  If a classpath
+     * matches the beginning of <code>path</code>, then the corresponding
+     * part of <code>path</code> is removed.  If there is more than one
+     * match, the one resulting in the shortest relative path is chosen.
      */
     private static String toRelative(final File path) throws IOException {
         String bestpath = null;
@@ -375,8 +376,10 @@ final class ResourceCompiler implements Comparator {
     }
 
     /**
-     * Change a "normal" text string into a pattern compatible with {@link MessageFormat}.
-     * The main operation consist in changing ' for '', except for '{' and '}' strings.
+     * Change a "normal" text string into a pattern compatible with
+     * {@link MessageFormat}.
+     * The main operation consists of changing ' for '', except for '{' and '}'
+     * strings.
      */
     private static String toMessageFormatString(final String text) {
         int level =  0;
@@ -385,19 +388,19 @@ final class ResourceCompiler implements Comparator {
 search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
             switch (buffer.charAt(i)) {
                 /*
-                 * Les accolades ouvrantes et fermantes nous font monter et descendre
-                 * d'un niveau. Les guillemets ne seront doublés que si on se trouve
-                 * au niveau 0. Si l'accolade était entre des guillemets, il ne sera
-                 * pas pris en compte car il aura été sauté lors du passage précédent
-                 * de la boucle.
+                 * Left and right braces take us up or down a level.  Quotes
+                 * will only be doubled if we are at level 0.  If the brace
+                 * is between quotes it will not be taken into account as it
+                 * will have been skipped over during the previous pass through
+                 * the loop.
                  */
                 case '{' : level++; last=i; break;
                 case '}' : level--; last=i; break;
                 case '\'': {
                     /*
-                     * Si on détecte une accolade entre guillemets ('{' ou '}'),
-                     * on ignore tout ce bloc et on continue au caractère qui
-                     * suit le guillemet fermant.
+                     * If a brace ('{' or '}') is found between quotes,
+                     * the entire block is ignored and we continue with the
+                     * character following the closing quote.
                      */
                     if (i+2<buffer.length() && buffer.charAt(i+2)=='\'') {
                         switch (buffer.charAt(i+1)) {
@@ -407,16 +410,16 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
                     }
                     if (level<=0) {
                         /*
-                         * Si nous n'étions pas entre des accolades,
-                         * alors il faut doubler les guillemets.
+                         * If we weren't between braces, we must double the
+                         * quotes.
                          */
                         buffer.insert(i++, '\'');
                         continue search;
                     }
                     /*
-                     * Si on se trouve entre des accolades, on ne doit normalement pas
-                     * doubler les guillemets. Toutefois, le format {0,choice,...} est
-                     * une exception.
+                     * If we find ourselves between braces, we don't normally
+                     * need to double our quotes.  However, the format
+                     * {0,choice,...} is an exception.
                      */
                     if (last>=0 && buffer.charAt(last)=='{') {
                         int scan=last;
@@ -482,8 +485,8 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
     }
 
     /**
-     * Write a multi-lines text to the specified output stream.  All
-     * occurences of '\r' will be replaced by the line separator for
+     * Write a multi-line text to the specified output stream.  All
+     * occurrences of '\r' will be replaced with the line separator for
      * the underlying operating system.
      *
      * @param  out  The output stream.
@@ -499,7 +502,7 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
     }
 
     /**
-     * Create a source file for resources keys.
+     * Create a source file for resource keys.
      *
      * @param  file The destination file.
      * @throws IOException if an input/output operation failed.
@@ -510,7 +513,7 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
         writeMultiLines(out,
             "/*\n"                                                             +
             " * Geotools - OpenSource mapping toolkit\n"                       +
-            " * (C) 2002, Center for Computational Geography\n"                +
+            " * (C) 2002, Centre for Computational Geography\n"                +
             " * (C) 2001, Institut de Recherche pour le Développement\n"       +
             " *\n"                                                             +
             " *     THIS IS AN AUTOMATICALLY GENERATED FILE. DO NOT EDIT!\n"   +
@@ -526,9 +529,9 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
             "/**\n"                                                                  +
             " * Resource keys. This interface is used when compiling sources, but\n" +
             " * no dependencies to <code>ResourceKeys</code> should appear in any\n" +
-            " * resulting class files.  Since Java compiler inline final integers\n" +
+            " * resulting class files.  Since Java compiler inlines final integer\n" +
             " * values, using long identifiers will not bloat constant pools of\n"   +
-            " * classes compiled against the interface, providing that no class\n"   +
+            " * classes compiled against the interface, provided that no class\n"    +
             " * implements this interface.\n"                                        +
             " *\n"                                                                   +
             " * @see org.geotools.resources.ResourceBundle\n"                        +
@@ -569,11 +572,11 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
 
     /**
      * Compare two resource keys. Object <code>o1</code> and <code>o2</code>
-     * are usually  {@link String}  objects representing resource keys  (for
-     * example "<code>MISMATCHED_DIMENSION</code>").    This method compares
-     * strings as of  {@link String#compareTo},  except that string starting
-     * with one of the prefix enumetated in {@link #ORDER}  will appear last
-     * in the sorted array.
+     * are usually {@link String} objects representing resource keys (for
+     * example, "<code>MISMATCHED_DIMENSION</code>").  This method compares
+     * strings in the same manner as {@link String#compareTo}, except that
+     * strings starting with one of the prefixes enumerated in {@link #ORDER}
+     * will appear last in the sorted array.
      */
     public int compare(Object o1, Object o2) {
         if (o1 instanceof Map.Entry) o1 = ((Map.Entry) o1).getValue();
@@ -588,7 +591,7 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
     }
 
     /**
-     * Run the resources compilator.
+     * Run the resource compiler.
      *
      * @param  args Command-line arguments.
      * @throws IOException if an input/output operation failed.
