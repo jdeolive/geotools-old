@@ -49,7 +49,7 @@ import java.awt.geom.Line2D;
  * <code>contains</code> and <code>intersects</code> are faster, which make this
  * class more appropriate for using intensively inside a loop.
  *
- * @version $Id: XRectangle2D.java,v 1.3 2003/05/13 10:58:21 desruisseaux Exp $
+ * @version $Id: XRectangle2D.java,v 1.4 2003/05/28 20:48:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class XRectangle2D extends Rectangle2D implements Serializable {
@@ -102,10 +102,10 @@ public class XRectangle2D extends Rectangle2D implements Serializable {
      */
     private static final long serialVersionUID = -1918221103635749436L;
 
-    /** Minimal <var>x</var> coordinate. */ public double xmin;
-    /** Minimal <var>y</var> coordinate. */ public double ymin;
-    /** Maximal <var>x</var> coordinate. */ public double xmax;
-    /** Maximal <var>y</var> coordinate. */ public double ymax;
+    /** Minimal <var>x</var> coordinate. */ protected double xmin;
+    /** Minimal <var>y</var> coordinate. */ protected double ymin;
+    /** Maximal <var>x</var> coordinate. */ protected double xmax;
+    /** Maximal <var>y</var> coordinate. */ protected double ymax;
 
     /**
      * Construct a default rectangle. Initial coordinates are <code>(0,0,0,0)</code>.
@@ -115,6 +115,7 @@ public class XRectangle2D extends Rectangle2D implements Serializable {
     
     /**
      * Construct a rectangle with the specified location and dimension.
+     * This constructor uses the same signature than {@link Rectangle2D} for consistency.
      */
     public XRectangle2D(final double x, final double y, final double width, final double height) {
         this.xmin = x;
@@ -126,11 +127,30 @@ public class XRectangle2D extends Rectangle2D implements Serializable {
     /**
      * Construct a rectangle with the same coordinates than the supplied rectangle.
      *
-     * @param rect The rectangle. Use {@link #INFINITY} for initializing
-     *             this <code>XRectangle2D</code> with infinite bounds.
+     * @param rect The rectangle, or <code>null</code> in none (in which case this constructor
+     *             is equivalents to the no-argument constructor). Use {@link #INFINITY} for
+     *             initializing this <code>XRectangle2D</code> with infinite bounds.
      */
     public XRectangle2D(final Rectangle2D rect) {
-        setRect(rect);
+        if (rect != null) {
+            setRect(rect);
+        }
+    }
+
+    /**
+     * Create a rectangle using maximal <var>x</var> and <var>y</var> values
+     * rather than width and height. This factory avoid the problem of NaN
+     * values when extremums are infinite numbers.
+     */
+    public static XRectangle2D createFromExtremums(final double xmin, final double ymin,
+                                                   final double xmax, final double ymax)
+    {
+        final XRectangle2D rect = new XRectangle2D();
+        rect.xmin = xmin;
+        rect.ymin = ymin;
+        rect.xmax = xmax;
+        rect.ymax = ymax;
+        return rect;
     }
     
     /**

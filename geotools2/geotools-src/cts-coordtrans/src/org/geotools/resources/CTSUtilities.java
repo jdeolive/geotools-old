@@ -51,7 +51,7 @@ import java.awt.geom.AffineTransform;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.14 2003/05/13 10:58:49 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.15 2003/05/28 20:49:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -362,7 +362,7 @@ public final class CTSUtilities {
             dest.setRect(xmin, ymin, xmax-xmin, ymax-ymin);
             return dest;
         }
-        return new XRectangle2D(xmin, ymin, xmax-xmin, ymax-ymin);
+        return XRectangle2D.createFromExtremums(xmin, ymin, xmax, ymax);
     }
 
     /**

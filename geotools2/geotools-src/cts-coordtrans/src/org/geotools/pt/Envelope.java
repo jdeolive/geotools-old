@@ -389,7 +389,7 @@ public class Envelope implements Dimensioned, Cloneable, Serializable {
      */
     public Rectangle2D toRectangle2D() throws IllegalStateException {
         if (ord.length == 4) {
-            return new XRectangle2D(ord[0], ord[1], ord[2]-ord[0], ord[3]-ord[1]);
+            return XRectangle2D.createFromExtremums(ord[0], ord[1], ord[2], ord[3]);
         } else {
             throw new IllegalStateException(Resources.format(
                     ResourceKeys.ERROR_NOT_TWO_DIMENSIONAL_$1, new Integer(getDimension())));
