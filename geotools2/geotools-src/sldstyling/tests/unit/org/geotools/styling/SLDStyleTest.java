@@ -30,38 +30,38 @@ public class SLDStyleTest extends TestCase {
         TestSuite suite = new TestSuite(SLDStyleTest.class);
         return suite;
     }
-//    
-//    /** Test of setInput method, of class org.geotools.styling.SLDStyle. */
-//    public void testSetInput() {
-//        System.out.println("testSetInput");
-//        
-//        // Add your test code below by replacing the default call to fail.
-//        fail("The test case is empty.");
-//    }
-//    
-//    /** Test of readXML method, of class org.geotools.styling.SLDStyle. */
-//    public void testReadXML() {
-//        System.out.println("testReadXML");
-//        
-//        // Add your test code below by replacing the default call to fail.
-//        fail("The test case is empty.");
-//    }
-//    
-//    /** Test of readDOM method, of class org.geotools.styling.SLDStyle. */
-//    public void testReadDOM() {
-//        System.out.println("testReadDOM");
-//        
-//        // Add your test code below by replacing the default call to fail.
-//        fail("The test case is empty.");
-//    }
-//    
-//    /** Test of parseSLD method, of class org.geotools.styling.SLDStyle. */
-//    public void testParseSLD() {
-//        System.out.println("testParseSLD");
-//        
-//        // Add your test code below by replacing the default call to fail.
-//        fail("The test case is empty.");
-//    }
+    //
+    //    /** Test of setInput method, of class org.geotools.styling.SLDStyle. */
+    //    public void testSetInput() {
+    //        System.out.println("testSetInput");
+    //
+    //        // Add your test code below by replacing the default call to fail.
+    //        fail("The test case is empty.");
+    //    }
+    //
+    //    /** Test of readXML method, of class org.geotools.styling.SLDStyle. */
+    //    public void testReadXML() {
+    //        System.out.println("testReadXML");
+    //
+    //        // Add your test code below by replacing the default call to fail.
+    //        fail("The test case is empty.");
+    //    }
+    //
+    //    /** Test of readDOM method, of class org.geotools.styling.SLDStyle. */
+    //    public void testReadDOM() {
+    //        System.out.println("testReadDOM");
+    //
+    //        // Add your test code below by replacing the default call to fail.
+    //        fail("The test case is empty.");
+    //    }
+    //
+    //    /** Test of parseSLD method, of class org.geotools.styling.SLDStyle. */
+    //    public void testParseSLD() {
+    //        System.out.println("testParseSLD");
+    //
+    //        // Add your test code below by replacing the default call to fail.
+    //        fail("The test case is empty.");
+    //    }
     
     /** Test of parseStyle method, of class org.geotools.styling.SLDStyle. */
     public void testParseStyle() throws Exception{
@@ -93,5 +93,7 @@ public class SLDStyleTest extends TestCase {
     // for example:
     // public void testHello() {}
     
-    
+    public static void main(java.lang.String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 }
