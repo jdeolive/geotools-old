@@ -1,14 +1,15 @@
 package org.geotools.data.sde;
 
-import org.geotools.data.*;
-import org.geotools.feature.*;
-
 import java.io.IOException;
+
+import org.geotools.data.FeatureWriter;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureType;
 
 /**
  * will become to life shortly
  * @author Gabriel Roldan
- * @version $Id: SdeFeatureWriter.java,v 1.4 2003/11/17 17:12:41 groldan Exp $
+ * @version $Id: SdeFeatureWriter.java,v 1.5 2004/01/09 16:58:23 aaime Exp $
  */
 
 public class SdeFeatureWriter

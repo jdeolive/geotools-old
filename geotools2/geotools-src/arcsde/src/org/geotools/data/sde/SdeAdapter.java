@@ -16,17 +16,35 @@
  */
 package org.geotools.data.sde;
 
-import com.esri.sde.sdk.client.*;
-import com.vividsolutions.jts.geom.*;
-import org.geotools.data.*;
-import org.geotools.factory.*;
-import org.geotools.feature.*;
-import org.geotools.filter.*;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import org.geotools.data.DataSourceException;
+import org.geotools.data.Query;
+import org.geotools.factory.FactoryConfigurationError;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.DefaultAttributeTypeFactory;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.feature.SchemaException;
+import org.geotools.filter.Filter;
+import org.geotools.filter.GeometryEncoderSDE;
+import org.geotools.filter.SQLEncoderException;
+import org.geotools.filter.SQLEncoderSDE;
+import org.geotools.filter.SQLUnpacker;
+
+import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeFilter;
+import com.esri.sde.sdk.client.SeLayer;
+import com.esri.sde.sdk.client.SeSqlConstruct;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
 
 
 /**
@@ -34,7 +52,7 @@ import java.util.logging.Logger;
  * from geotool's Query's, mapping SDE types to Java ones and JTS Geometries, etc.
  *
  * @author Gabriel Roldán
- * @version $Id: SdeAdapter.java,v 1.9 2003/11/19 17:50:11 groldan Exp $
+ * @version $Id: SdeAdapter.java,v 1.10 2004/01/09 16:58:24 aaime Exp $
  */
 public class SdeAdapter
 {
@@ -210,7 +228,6 @@ public class SdeAdapter
         Object defValue;
 
         int nCols = wichCols.length;
-        DefaultAttributeTypeFactory attFactory = new DefaultAttributeTypeFactory();
         AttributeType[] attTypes = new AttributeType[nCols];
         AttributeType attribute = null;
         Class typeClass;
@@ -246,7 +263,7 @@ public class SdeAdapter
                 typeClass = (Class) sdeTypes.get(sdeType);
             }
 
-            attribute = attFactory.newAttributeType(wichCols[i].getName(),
+            attribute = DefaultAttributeTypeFactory.newAttributeType(wichCols[i].getName(),
                     typeClass, isNilable, fieldLen, defValue);
 
             attTypes[i] = attribute;
@@ -602,7 +619,7 @@ public class SdeAdapter
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 class SdeTypeDef
 {

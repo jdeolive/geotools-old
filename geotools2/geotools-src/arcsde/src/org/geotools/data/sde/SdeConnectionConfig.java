@@ -16,7 +16,8 @@
  */
 package org.geotools.data.sde;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -27,7 +28,7 @@ import java.util.*;
  * connection properties
  *
  * @author Gabriel Roldán
- * @version $Id: SdeConnectionConfig.java,v 1.4 2003/11/25 17:41:20 groldan Exp $
+ * @version $Id: SdeConnectionConfig.java,v 1.5 2004/01/09 16:58:24 aaime Exp $
  */
 public class SdeConnectionConfig
 {
@@ -266,7 +267,7 @@ public class SdeConnectionConfig
         throws IllegalArgumentException
     {
         throw new IllegalArgumentException("'" + paramValue + "'"
-            + ILLEGAL_ARGUMENT_MSG + paramValue);
+            + ILLEGAL_ARGUMENT_MSG + paramName);
     }
 
     /**
@@ -379,7 +380,7 @@ public class SdeConnectionConfig
   {
     StringBuffer sb = new StringBuffer(getClass().getName() + "[");
     sb.append("dbtype=");
-    sb.append(this.DBTYPE_PARAM_VALUE);
+    sb.append(SdeConnectionConfig.DBTYPE_PARAM_VALUE);
     sb.append(", server=");
     sb.append(this.serverName);
     sb.append(", port=");

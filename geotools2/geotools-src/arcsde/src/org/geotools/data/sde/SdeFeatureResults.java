@@ -16,20 +16,28 @@
  */
 package org.geotools.data.sde;
 
-import com.esri.sde.sdk.client.*;
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.data.*;
-import org.geotools.feature.*;
-import org.geotools.filter.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.NoSuchElementException;
+
+import org.geotools.data.DataSourceException;
+import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureResults;
+import org.geotools.data.Query;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollections;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.IllegalAttributeException;
+
+import com.esri.sde.sdk.client.SeException;
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeFeatureResults.java,v 1.9 2003/11/19 17:50:11 groldan Exp $
+ * @version $Id: SdeFeatureResults.java,v 1.10 2004/01/09 16:58:23 aaime Exp $
  */
 public class SdeFeatureResults implements FeatureResults
 {

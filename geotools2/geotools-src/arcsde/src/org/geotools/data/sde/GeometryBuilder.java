@@ -16,10 +16,30 @@
  */
 package org.geotools.data.sde;
 
-import com.esri.sde.sdk.client.*;
-import com.vividsolutions.jts.geom.*;
-import org.geotools.data.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.geotools.data.DataSourceException;
+
+import com.esri.sde.sdk.client.SDEPoint;
+import com.esri.sde.sdk.client.SeCoordinateReference;
+import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeShape;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -71,7 +91,7 @@ import java.util.*;
  * </p>
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
+ * @version $Id: GeometryBuilder.java,v 1.8 2004/01/09 16:58:24 aaime Exp $
  */
 public abstract class GeometryBuilder
 {
@@ -194,7 +214,6 @@ public abstract class GeometryBuilder
     {
         int numParts;
         int numSubParts = 1;
-        int numSubpartPoints;
         double[][][] sdeCoords;
 
         GeometryCollection gcol = null;
@@ -431,7 +450,7 @@ public abstract class GeometryBuilder
  * <code>Point</code>s from <code>SeShape</code> points and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
+ * @version $Id: GeometryBuilder.java,v 1.8 2004/01/09 16:58:24 aaime Exp $
  */
 class PointBuilder extends GeometryBuilder
 {
@@ -500,7 +519,7 @@ class PointBuilder extends GeometryBuilder
  * viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
+ * @version $Id: GeometryBuilder.java,v 1.8 2004/01/09 16:58:24 aaime Exp $
  */
 class MultiPointBuilder extends GeometryBuilder
 {
@@ -586,7 +605,7 @@ class MultiPointBuilder extends GeometryBuilder
  * <code>LineString</code>s from <code>SeShape</code> linestring and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
+ * @version $Id: GeometryBuilder.java,v 1.8 2004/01/09 16:58:24 aaime Exp $
  */
 class LineStringBuilder extends GeometryBuilder
 {
@@ -673,7 +692,7 @@ class LineStringBuilder extends GeometryBuilder
  * and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
+ * @version $Id: GeometryBuilder.java,v 1.8 2004/01/09 16:58:24 aaime Exp $
  */
 class MultiLineStringBuilder extends LineStringBuilder
 {
@@ -770,7 +789,7 @@ class MultiLineStringBuilder extends LineStringBuilder
  * <code>Polygon</code>s from <code>SeShape</code> polygon and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
+ * @version $Id: GeometryBuilder.java,v 1.8 2004/01/09 16:58:24 aaime Exp $
  */
 class PolygonBuilder extends GeometryBuilder
 {
@@ -911,7 +930,7 @@ class PolygonBuilder extends GeometryBuilder
  * viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
+ * @version $Id: GeometryBuilder.java,v 1.8 2004/01/09 16:58:24 aaime Exp $
  */
 class MultiPolygonBuilder extends PolygonBuilder
 {

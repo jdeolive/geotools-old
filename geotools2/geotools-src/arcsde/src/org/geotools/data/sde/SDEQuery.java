@@ -1,16 +1,28 @@
 package org.geotools.data.sde;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.esri.sde.sdk.client.*;
+import java.util.logging.Logger;
+
 import org.geotools.data.DataSourceException;
-import java.util.logging.*;
+
+import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeConnection;
+import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeExtent;
+import com.esri.sde.sdk.client.SeFilter;
+import com.esri.sde.sdk.client.SeLog;
+import com.esri.sde.sdk.client.SeObjectId;
+import com.esri.sde.sdk.client.SeQuery;
+import com.esri.sde.sdk.client.SeQueryInfo;
+import com.esri.sde.sdk.client.SeRow;
+import com.esri.sde.sdk.client.SeSqlConstruct;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Wrapper class extends SeQuery to hold a SeConnection until close() is
  * called.
  *
  * @author Gabriel Roldán
- * @version $Id: SDEQuery.java,v 1.4 2003/11/25 17:41:20 groldan Exp $
+ * @version $Id: SDEQuery.java,v 1.5 2004/01/09 16:58:22 aaime Exp $
  */
 public class SDEQuery
 {

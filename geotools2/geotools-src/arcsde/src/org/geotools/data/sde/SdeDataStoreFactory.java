@@ -1,14 +1,14 @@
 package org.geotools.data.sde;
 
-import org.geotools.data.DataStoreFactorySpi;
-import org.geotools.data.DataStore;
 import java.util.Map;
-import java.io.IOException;
 import java.util.logging.Logger;
+
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFactorySpi;
 
 /**
  * @author Gabriel Roldán
- * @version $Id: SdeDataStoreFactory.java,v 1.4 2003/11/25 17:41:20 groldan Exp $
+ * @version $Id: SdeDataStoreFactory.java,v 1.5 2004/01/09 16:58:24 aaime Exp $
  */
 
 public class SdeDataStoreFactory implements DataStoreFactorySpi

@@ -16,18 +16,25 @@
  */
 package org.geotools.data.sde;
 
-import com.esri.sde.sdk.client.*;
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.data.*;
-import org.geotools.feature.*;
 import java.util.logging.Logger;
+
+import org.geotools.data.DataSourceException;
+import org.geotools.data.FeatureReader;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.IllegalAttributeException;
+
+import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeRow;
+import com.esri.sde.sdk.client.SeShape;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author not attributable
- * @version $Id: SdeFeatureReader.java,v 1.9 2003/11/19 17:50:11 groldan Exp $
+ * @version $Id: SdeFeatureReader.java,v 1.10 2004/01/09 16:58:24 aaime Exp $
  */
 public class SdeFeatureReader implements FeatureReader
 {

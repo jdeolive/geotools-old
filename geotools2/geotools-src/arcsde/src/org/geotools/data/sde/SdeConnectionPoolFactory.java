@@ -16,16 +16,19 @@
  */
 package org.geotools.data.sde;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.logging.Logger;
+
 import org.geotools.data.DataSourceException;
-import java.util.*;
-import java.util.logging.*;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeConnectionPoolFactory.java,v 1.4 2003/11/25 17:41:20 groldan Exp $
+ * @version $Id: SdeConnectionPoolFactory.java,v 1.5 2004/01/09 16:58:24 aaime Exp $
  */
 public class SdeConnectionPoolFactory
 {

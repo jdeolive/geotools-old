@@ -16,10 +16,12 @@
  */
 package org.geotools.data.sde;
 
+import java.io.IOException;
+
 import org.geotools.data.AttributeReader;
 import org.geotools.feature.AttributeType;
-import java.io.IOException;
-import com.esri.sde.sdk.client.*;
+
+import com.esri.sde.sdk.client.SeRow;
 
 /**
  * Not used yet, since I'm thinking in a way for better streaming of attributes
@@ -32,7 +34,7 @@ import com.esri.sde.sdk.client.*;
 
  *
  * @author Gabriel Roldán
- * @version $Id: SdeAttributeReader.java,v 1.3 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: SdeAttributeReader.java,v 1.4 2004/01/09 16:58:24 aaime Exp $
  */
 public class SdeAttributeReader implements AttributeReader
 {

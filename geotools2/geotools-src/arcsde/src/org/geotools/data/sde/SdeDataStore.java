@@ -16,21 +16,42 @@
  */
 package org.geotools.data.sde;
 
-import com.esri.sde.sdk.client.*;
-import org.geotools.data.*;
-import org.geotools.factory.*;
-import org.geotools.feature.*;
-import org.geotools.filter.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.logging.Logger;
+
+import org.geotools.data.DataSourceException;
+import org.geotools.data.DataStore;
+import org.geotools.data.DefaultQuery;
+import org.geotools.data.EmptyFeatureReader;
+import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureResults;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.FeatureWriter;
+import org.geotools.data.LockingManager;
+import org.geotools.data.Query;
+import org.geotools.data.Transaction;
+import org.geotools.factory.FactoryConfigurationError;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.feature.SchemaException;
+import org.geotools.filter.Filter;
+
+import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeConnection;
+import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeLayer;
+import com.esri.sde.sdk.client.SeTable;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeDataStore.java,v 1.10 2003/12/11 19:31:47 jive Exp $
+ * @version $Id: SdeDataStore.java,v 1.11 2004/01/09 16:58:24 aaime Exp $
  */
 public class SdeDataStore
 implements DataStore

@@ -16,11 +16,25 @@
  */
 package org.geotools.data.sde;
 
-import com.esri.sde.sdk.client.*;
-import org.geotools.data.*;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.Vector;
+import java.util.logging.Logger;
+
+import org.geotools.data.DataSourceException;
+
+import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeConnection;
+import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeLayer;
+import com.esri.sde.sdk.client.SeTable;
 
 
 /**
@@ -71,7 +85,7 @@ import java.util.logging.*;
  * </p>
  *
  * @author Gabriel Roldán
- * @version $Id: SdeConnectionPool.java,v 1.10 2003/11/25 17:41:20 groldan Exp $
+ * @version $Id: SdeConnectionPool.java,v 1.11 2004/01/09 16:58:24 aaime Exp $
  */
 public class SdeConnectionPool {
     /** package's logger */
@@ -328,8 +342,6 @@ public class SdeConnectionPool {
     public SeConnection getConnection()
         throws DataSourceException, UnavailableConnectionException
     {
-        SeConnection conn = null;
-
         if (closed) {
             throw new IllegalStateException(
                 "The ConnectionPool has been closed.");
@@ -432,7 +444,7 @@ public class SdeConnectionPool {
             + "\n*****************");
         seConn.setConcurrency(SeConnection.SE_LOCK_POLICY);
 
-        SeConnection.SeStreamSpec stSpec = seConn.getStreamSpec();
+        // SeConnection.SeStreamSpec stSpec = seConn.getStreamSpec();
 
         /*
            System.out.println("getMinBufSize=" + stSpec.getMinBufSize());

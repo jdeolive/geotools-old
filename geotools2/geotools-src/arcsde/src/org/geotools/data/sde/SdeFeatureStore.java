@@ -16,20 +16,29 @@
  */
 package org.geotools.data.sde;
 
-import com.esri.sde.sdk.client.*;
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.data.*;
-import org.geotools.feature.*;
-import org.geotools.filter.*;
 import java.io.IOException;
 import java.util.logging.Logger;
+
+import org.geotools.data.AbstractFeatureStore;
+import org.geotools.data.DataSourceException;
+import org.geotools.data.DataStore;
+import org.geotools.data.DefaultQuery;
+import org.geotools.data.FeatureListener;
+import org.geotools.data.FeatureResults;
+import org.geotools.data.Query;
+import org.geotools.feature.FeatureType;
+import org.geotools.filter.Filter;
+
+import com.esri.sde.sdk.client.SeExtent;
+import com.esri.sde.sdk.client.SeLayer;
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
  * provides basic read access to ArcSDE Feature Classes
  *
  * @author Gabriel Roldán
- * @version $Id: SdeFeatureStore.java,v 1.1 2003/11/17 17:12:41 groldan Exp $
+ * @version $Id: SdeFeatureStore.java,v 1.2 2004/01/09 16:58:23 aaime Exp $
  */
 public class SdeFeatureStore
 extends AbstractFeatureStore
