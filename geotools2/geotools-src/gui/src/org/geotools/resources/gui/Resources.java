@@ -43,7 +43,7 @@ import org.geotools.resources.ResourceBundle;
  * never been created directly. Use the factory method {@link #getResources}
  * or use static methods instead.
  *
- * @version 1.0
+ * @version $Id: Resources.java,v 1.2 2002/07/25 13:55:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Resources extends ResourceBundle {
@@ -53,10 +53,7 @@ public class Resources extends ResourceBundle {
      * in user language.
      */
     public Resources() {
-        super(// Set 'true' in front of language to use as default.
-              false ? Resources_fr.FILEPATH :
-               true ? Resources_en.FILEPATH :
-               null);
+        super(Resources_en.FILEPATH);
     }
 
     /**

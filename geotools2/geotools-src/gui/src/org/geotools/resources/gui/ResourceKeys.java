@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *     THIS IS AN AUTOMATICALLY GENERATED FILE. DO NOT EDIT!
@@ -12,9 +12,9 @@ package org.geotools.resources.gui;
 /**
  * Resource keys. This interface is used when compiling sources, but
  * no dependencies to <code>ResourceKeys</code> should appear in any
- * resulting class files.  Since Java compiler inline final integers
+ * resulting class files.  Since Java compiler inlines final integer
  * values, using long identifiers will not bloat constant pools of
- * classes compiled against the interface, providing that no class
+ * classes compiled against the interface, provided that no class
  * implements this interface.
  *
  * @see org.geotools.resources.ResourceBundle
