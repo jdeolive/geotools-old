@@ -16,12 +16,13 @@
 </versions>
   
   <package>org.geotools</package>
-  <shortDescription>Common helper classes for datasources.</shortDescription>
+  <shortDescription>Interfaces and Helper implementations for importing data.</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description>The exact purpose of this class is evolving, but it
-               is starting out as the place for utility classes used 
-               by more than one datasource, such as connection pooling
-               and abstract JDBC methods.</description>
+  <description>This module contains all interfaces for importing data
+               into geotools.  The new DataStore and FeatureReader/Writer
+               model here replaces the old DataSource of core.  This module
+               also has the abstract and default implementations that 
+               individual data stores should base themselves on.</description>
   
   <developers>
     <developer>
@@ -30,6 +31,7 @@
           <email>cholmesny@users.sourceforge.net</email>
           <organization>TOPP</organization>
           <roles>
+            <role>Module Maintainer</role>
             <role>Java Developer</role>
           </roles>
       </developer>
@@ -42,6 +44,24 @@
         <role>Java Developer</role>
       </roles>
     </developer>
+     <developer>
+      <name>Jody Garnett</name>
+      <id>jive</id>
+      <email>jive@users.sourceforge.net</email>
+      <organization>Refractions</organization>
+            <roles>
+               <role>Java Developer</role>
+            </roles>
+        </developer>
+   <developer>
+        <name>Ian Schneider</name>
+        <id>en</id>
+        <email>ianschneiderw@ars.usda.gov</email>
+        <organization>USDA/ARS</organization>
+        <roles>
+          <role>Java Developer</role>
+        </roles>
+      </developer>
   </developers>
   <dependencies>
     <dependency>
