@@ -12,6 +12,7 @@ import org.geotools.datasource.Extent;
 import org.geotools.renderer.Renderer;
 import org.geotools.datasource.Feature;
 import org.opengis.cs.CS_CoordinateSystem;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  *
@@ -21,7 +22,7 @@ public interface Map {
     
     public void setCoordinateSystem(CS_CoordinateSystem cs);
     public void addFeatureTable(FeatureTable ft,Style style);
-    public void render(Renderer renderer,Extent extent);
+    public void render(Renderer renderer,Envelope envelope);
     
 }
 
