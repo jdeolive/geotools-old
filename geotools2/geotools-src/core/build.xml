@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="core">
+    <property file="build.ant.properties"/>
     <target depends="test" name="all">
         <!-- WRITEME -->
     </target>
 
     <target name="compile">
-        <javac debug="true"  srcdir="src">
+        <javac debug="true" srcdir="src">
             <!-- excludes="/datasource/"-->
             <classpath>
                 <fileset dir="..\..\extbin\core\lib\"/>
@@ -16,7 +17,7 @@
         </javac>
         </target>
         <target depends="compile" name="compile-test">
-        <javac debug="true" srcdir="tests/unit" >
+        <javac debug="true" srcdir="tests/unit">
          <!-- excludes="org/geotools/datasource/**"-->
             <classpath>
                 <fileset dir="..\..\extbin\core\lib\"/>
@@ -45,5 +46,8 @@
             <fileset dir="src" includes="**/*.class"/>
         </delete>
     </target>
-
+    <target depends="test" name="release">
+        <mkdir dir="${releaseFolder}"/>
+        <jar basedir="src/" jarfile="${releaseFolder}/core.jar"/>
+    </target>
 </project>
