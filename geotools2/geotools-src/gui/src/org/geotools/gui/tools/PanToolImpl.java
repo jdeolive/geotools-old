@@ -28,6 +28,8 @@ public class PanToolImpl extends MouseToolImpl implements PanTool {
 
     /**
      * Construct a PanTool.
+     * @version $Id: PanToolImpl.java,v 1.11 2003/03/21 18:36:49 camerons Exp $
+     * @author Cameron Shorter
      */
     public PanToolImpl(){
     }
@@ -68,19 +70,6 @@ public class PanToolImpl extends MouseToolImpl implements PanTool {
                 MathTransformFactory.getDefault().createAffineTransform(at);
             
             context.getBbox().transform(adapters.export(transform));
-
-            at.transform(minP,minP);
-            at.transform(maxP,maxP);
-
-            // Set the new AreaOfInterest
-            // Todo: Call context with a transform interface instead of setting
-            // the absolute AreaOfInterest.
-            context.getBbox().setAreaOfInterest(
-                new Envelope(
-                    minP.getX(), 
-                    maxP.getX(), 
-                    minP.getY(),
-                    maxP.getY()));
         } catch (TransformException t) {
             LOGGER.warning(
             "Transform exception prevented mouseClicks from being processed");
