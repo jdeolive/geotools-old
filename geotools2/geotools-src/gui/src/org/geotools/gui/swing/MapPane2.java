@@ -46,7 +46,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.8 2002/09/01 12:02:32 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.9 2002/09/19 20:31:05 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -101,8 +101,8 @@ public class MapPane2 extends JScrollPane implements
     public MapPane2(
             Tool tool,
             LayerList layerList,
-            AreaOfInterestModel areaOfInterestModel
-        ) {        
+            AreaOfInterestModel areaOfInterestModel)
+    {
         this.tool=tool;
         this.layerList=layerList;
         this.areaOfInterestModel=areaOfInterestModel;
@@ -150,6 +150,8 @@ public class MapPane2 extends JScrollPane implements
      * @task TODO create a layerList.getCoordinateSystem method
      */
     public void paintComponent(Graphics graphics) {
+        LOGGER.info("MapPane2.size="+this.getSize()); 
+        super.paintComponent(graphics);
         if (areaOfInterestModel.getAreaOfInterest()==null){
             Envelope bBox=layerList.getBbox(false);
             if (bBox!=null){
@@ -161,34 +163,36 @@ public class MapPane2 extends JScrollPane implements
             }else{
                 LOGGER.info("AreaOfInterest not calculated during rendering");
             }
-        }else{
-            renderer.setOutput(graphics,mapSize);
-            if ((layerList!=null)
-                && (layerList.getLayers()!=null)
-                && (areaOfInterestModel.getAreaOfInterest()!=null))
-            {
-                for (int i=0;i<layerList.getLayers().length;i++) {
-                    if ((layerList.getLayers()[i]!=null)&&
-                            layerList.getLayers()[i].getVisability())
-                    {
-                        try {
-                            FeatureCollection fc=new FeatureCollectionDefault(
-                            layerList.getLayers()[i].getDataSource());
-                            renderer.render(
-                                fc.getFeatures(new EnvelopeExtent(
+        }
+        LOGGER.info("AreaOfInterest="+areaOfInterestModel);
+        renderer.setOutput(graphics,mapSize);
+        if ((layerList!=null)
+            && (layerList.getLayers()!=null)
+            && (areaOfInterestModel.getAreaOfInterest()!=null))
+        {
+            for (int i=0;i<layerList.getLayers().length;i++) {
+                if ((layerList.getLayers()[i]!=null)&&
+                        layerList.getLayers()[i].getVisability())
+                {
+                    try {
+                        FeatureCollection fc=new FeatureCollectionDefault(
+                        layerList.getLayers()[i].getDataSource());
+                        renderer.render(
+                            fc.getFeatures(new EnvelopeExtent(
                                 areaOfInterestModel.getAreaOfInterest())),
-                                areaOfInterestModel.getAreaOfInterest(),
-                                layerList.getLayers()[i].getStyle());
-                        } catch (Exception exception) {
-                            LOGGER.warning(
-                                "Exception "
-                                + exception
-                                + " rendering layer "
-                                + layerList.getLayers()[i]);
-                        }
+                            areaOfInterestModel.getAreaOfInterest(),
+                            layerList.getLayers()[i].getStyle());
+                    } catch (Exception exception) {
+                        LOGGER.warning(
+                            "Exception "
+                            + exception
+                            + " rendering layer "
+                            + layerList.getLayers()[i]);
                     }
                 }
             }
+        }else{
+            LOGGER.info("No layers available to render.");
         }
     }
     
