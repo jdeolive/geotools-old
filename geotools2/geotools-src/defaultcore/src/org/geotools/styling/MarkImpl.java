@@ -19,10 +19,13 @@
  */
 package org.geotools.styling;
 
+// Geotools dependencies
+import org.geotools.util.Cloneable;
 import org.geotools.filter.Expression;
 
+
 /**
- * @version $Id: MarkImpl.java,v 1.11 2003/08/10 08:39:28 seangeo Exp $
+ * @version $Id: MarkImpl.java,v 1.12 2003/08/28 15:29:42 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class MarkImpl implements Mark, Cloneable {

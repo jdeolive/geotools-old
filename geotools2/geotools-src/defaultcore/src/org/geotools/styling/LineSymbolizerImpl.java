@@ -16,12 +16,16 @@
  */
 package org.geotools.styling;
 
+// Geotools dependencies
+import org.geotools.util.Cloneable;
+
+
 /**
  * Provides a representation of a LineSymbolizer in an SLD Document.  A
  * LineSymbolizer defines how a line geometry should be rendered.
  *
  * @author James Macgill
- * @version $Id: LineSymbolizerImpl.java,v 1.13 2003/08/20 21:13:46 cholmesny Exp $
+ * @version $Id: LineSymbolizerImpl.java,v 1.14 2003/08/28 15:29:42 desruisseaux Exp $
  */
 public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
     private Stroke stroke = null;

@@ -35,8 +35,11 @@
  */
 package org.geotools.styling;
 
+// J2SE dependencies
 import java.util.Iterator;
 
+// Geotools dependencies
+import org.geotools.util.Cloneable;
 import org.geotools.filter.Expression;
 
 
@@ -44,7 +47,7 @@ import org.geotools.filter.Expression;
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.14 2003/08/10 08:39:28 seangeo Exp $
+ * @version $Id: GraphicImpl.java,v 1.15 2003/08/28 15:29:42 desruisseaux Exp $
  */
 public class GraphicImpl implements Graphic, Cloneable {
     /** The logger for the default core module. */

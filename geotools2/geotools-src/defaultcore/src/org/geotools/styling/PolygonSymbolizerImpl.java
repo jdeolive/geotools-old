@@ -16,12 +16,16 @@
  */
 package org.geotools.styling;
 
+// Geotools dependencies
+import org.geotools.util.Cloneable;
+
+
 /**
  * Provides a representation of a PolygonSymbolizer in an SLD Document.  A
  * PolygonSymbolizer defines how a polygon geometry should be rendered.
  *
  * @author James Macgill, CCG
- * @version $Id: PolygonSymbolizerImpl.java,v 1.12 2003/08/20 21:13:46 cholmesny Exp $
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.13 2003/08/28 15:29:42 desruisseaux Exp $
  */
 public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     private Fill fill = new FillImpl();

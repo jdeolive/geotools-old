@@ -19,10 +19,15 @@
  */
 package org.geotools.styling;
 
-/** Provides a Java representation of an SLD TextSymbolizer that
- *  defines how text symbols should be rendered.
+
+// Geotools dependencies
+import org.geotools.util.Cloneable;
+
+/**
+ * Provides a Java representation of an SLD TextSymbolizer that
+ * defines how text symbols should be rendered.
  * 
- * @version $Id: TextSymbolizerImpl.java,v 1.15 2003/08/10 08:39:28 seangeo Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.16 2003/08/28 15:29:42 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer, Cloneable {
@@ -211,12 +216,10 @@ public class TextSymbolizerImpl implements TextSymbolizer, Cloneable {
      *
      */
     public Object clone() {
-        Object clone;
         try {
-            clone = super.clone();
+            return super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e); // this should never happen.
+            throw new AssertionError(e); // this should never happen.
         }
-        return clone;
     }
 }

@@ -16,8 +16,12 @@
  */
 package org.geotools.styling;
 
-import org.geotools.filter.Expression;
+// J2SE depedencies
 import java.util.Arrays;
+
+// Geotools dependencies
+import org.geotools.util.Cloneable;
+import org.geotools.filter.Expression;
 
 
 /**
@@ -25,7 +29,7 @@ import java.util.Arrays;
  * stroke defines how a line is rendered.
  *
  * @author James Macgill, CCG
- * @version $Id: StrokeImpl.java,v 1.12 2003/08/20 21:13:46 cholmesny Exp $
+ * @version $Id: StrokeImpl.java,v 1.13 2003/08/28 15:29:42 desruisseaux Exp $
  */
 public class StrokeImpl implements Stroke, Cloneable {
     private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory

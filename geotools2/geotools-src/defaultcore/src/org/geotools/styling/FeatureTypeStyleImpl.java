@@ -19,8 +19,12 @@
  */
 package org.geotools.styling;
 
+// Geotools dependencies
+import org.geotools.util.Cloneable;
+
+
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.12 2003/08/10 08:39:28 seangeo Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.13 2003/08/28 15:29:42 desruisseaux Exp $
  * @author James Macgill
  */
 public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
@@ -123,7 +127,8 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
         visitor.visit(this);
     }
 
-    /** Creates a deep copy clone of the FeatureTypeStyle.
+    /**
+     * Creates a deep copy clone of the FeatureTypeStyle.
      * @see org.geotools.styling.FeatureTypeStyle#clone()
      */
     public Object clone() {
@@ -131,7 +136,7 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
         try {
             clone = (FeatureTypeStyle) super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e); // this should never happen.
+            throw new AssertionError(e); // this should never happen.
         }
 
         Rule[] ruleArray = new Rule[ruleList.size()];
@@ -144,9 +149,10 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
         return clone;
     }
     
-    /** Overrides hashCode.
+    /**
+     * Overrides hashCode.
      * 
-     *  @return The hashcode.
+     * @return The hashcode.
      */
     public int hashCode() {
         final int PRIME = 1000003;

@@ -19,10 +19,15 @@
  */
 package org.geotools.styling;
 
-/** Provides a Java representation of the PointSymbolizer.
- *  This defines how points are to be rendered. 
+// Geotools dependencies
+import org.geotools.util.Cloneable;
+
+
+/**
+ * Provides a Java representation of the PointSymbolizer.
+ * This defines how points are to be rendered. 
  * 
- * @version $Id: PointSymbolizerImpl.java,v 1.10 2003/08/10 08:39:28 seangeo Exp $
+ * @version $Id: PointSymbolizerImpl.java,v 1.11 2003/08/28 15:29:42 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {

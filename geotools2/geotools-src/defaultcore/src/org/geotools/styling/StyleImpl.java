@@ -18,17 +18,19 @@
  */
 package org.geotools.styling;
 
-import java.util.ArrayList;
-import java.util.List;
-
 // J2SE dependencies
+import java.util.List;
+import java.util.ArrayList;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.LogRecord;
+
+// Geotools dependencies
+import org.geotools.util.Cloneable;
 
 
 /**
- * @version $Id: StyleImpl.java,v 1.16 2003/08/10 08:39:28 seangeo Exp $
+ * @version $Id: StyleImpl.java,v 1.17 2003/08/28 15:29:42 desruisseaux Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style, Cloneable {

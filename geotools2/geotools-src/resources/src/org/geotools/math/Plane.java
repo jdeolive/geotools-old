@@ -38,6 +38,9 @@ import java.io.Serializable;
 import javax.vecmath.Point3d;
 import javax.vecmath.MismatchedSizeException;
 
+// Geotools dependencies
+import org.geotools.util.Cloneable;
+
 
 /**
  * Equation of a plane in a three-dimensional space (<var>x</var>,<var>y</var>,<var>z</var>).
@@ -52,7 +55,7 @@ import javax.vecmath.MismatchedSizeException;
  * Those coefficients can be set directly, or computed by a linear regression of this plane
  * through a set of three-dimensional points.
  *
- * @version $Id: Plane.java,v 1.2 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: Plane.java,v 1.3 2003/08/28 15:32:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Howard Freeland
  */

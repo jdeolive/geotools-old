@@ -19,11 +19,16 @@
  */
 package org.geotools.styling;
 
-import java.net.MalformedURLException;
+// J2SE dependencies
 import java.net.URL;
+import java.net.MalformedURLException;
+
+// Geotools dependencies
+import org.geotools.util.Cloneable;
+
 
 /**
- * @version $Id: ExternalGraphicImpl.java,v 1.7 2003/08/10 08:38:58 seangeo Exp $
+ * @version $Id: ExternalGraphicImpl.java,v 1.8 2003/08/28 15:29:42 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class ExternalGraphicImpl implements ExternalGraphic, Symbol, Cloneable {
@@ -91,7 +96,7 @@ public class ExternalGraphicImpl implements ExternalGraphic, Symbol, Cloneable {
             return super.clone();
         } catch (CloneNotSupportedException e) {
             // This will never happen
-            throw new RuntimeException("External Graphic Clone failed"); 
+            throw new AssertionError(e); 
         }
     }
 

@@ -39,6 +39,9 @@ import java.awt.geom.Point2D;
 import javax.vecmath.MismatchedSizeException;
 import java.io.Serializable;
 
+// Geotools dependencies
+import org.geotools.util.Cloneable;
+
 
 /**
  * Equation of a line in a two dimensional space (<var>x</var>,<var>y</var>).
@@ -51,7 +54,7 @@ import java.io.Serializable;
  * can be computed for a given <var>x</var> value using the {@link #y} method. Method
  * {@link #x} compute the converse and should work even if the line is vertical.
  *
- * @version $Id: Line.java,v 1.6 2003/08/04 18:21:32 desruisseaux Exp $
+ * @version $Id: Line.java,v 1.7 2003/08/28 15:32:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Point2D

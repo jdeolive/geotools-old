@@ -35,6 +35,9 @@ package org.geotools.math;
 // Miscellaneous
 import java.util.Locale;
 import java.io.Serializable;
+
+// Geotools dependencies
+import org.geotools.util.Cloneable;
 import org.geotools.io.TableWriter;
 import org.geotools.resources.rsc.Resources;
 import org.geotools.resources.rsc.ResourceKeys;
@@ -64,7 +67,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * System.out.println(stats);
  * </pre></blockquote>
  *
- * @version $Id: Statistics.java,v 1.4 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: Statistics.java,v 1.5 2003/08/28 15:32:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Statistics implements Cloneable, Serializable {
@@ -378,7 +381,7 @@ public class Statistics implements Cloneable, Serializable {
      * <var>s<sub>3</sub></var>-<var>s<sub>2</sub></var>...,
      * which are stored in a {@link #getDeltaStatistics delta} statistics object.
      *
-     * @version $Id: Statistics.java,v 1.4 2003/05/13 10:58:20 desruisseaux Exp $
+     * @version $Id: Statistics.java,v 1.5 2003/08/28 15:32:20 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Delta extends Statistics {

@@ -19,16 +19,20 @@
  */
 package org.geotools.styling;
 
-
+// J2SE dependencies
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// Geotools dependencies
+import org.geotools.util.Cloneable;
 import org.geotools.filter.Filter;
 
-/** Provides the default implementation of Rule.
+
+/**
+ * Provides the default implementation of Rule.
  * 
- * @version $Id: RuleImpl.java,v 1.11 2003/08/10 14:24:08 seangeo Exp $
+ * @version $Id: RuleImpl.java,v 1.12 2003/08/28 15:29:42 desruisseaux Exp $
  * @author James Macgill
  */
 public class RuleImpl implements Rule, Cloneable {
@@ -194,7 +198,8 @@ public class RuleImpl implements Rule, Cloneable {
         visitor.visit(this);
     }
     
-    /** Creates a deep copy clone of the rule.
+    /**
+     * Creates a deep copy clone of the rule.
      * @see org.geotools.styling.Rule#clone()
      */
     public Object clone() {

@@ -27,11 +27,12 @@ package org.geotools.styling;
 import java.util.logging.Logger;
 
 // Geotools dependencies
+import org.geotools.util.Cloneable;
 import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FillImpl.java,v 1.8 2003/08/10 08:39:28 seangeo Exp $
+ * @version $Id: FillImpl.java,v 1.9 2003/08/28 15:29:42 desruisseaux Exp $
  * @author James Macgill, CCG
  */
 public class FillImpl implements Fill, Cloneable {
@@ -179,8 +180,8 @@ public class FillImpl implements Fill, Cloneable {
         visitor.visit(this);
     }
     
-    /** Returns a clone of the FillImpl.
-     * 
+    /**
+     * Returns a clone of the FillImpl.
      *  
      * @see org.geotools.styling.Fill#clone()
      */
@@ -197,9 +198,10 @@ public class FillImpl implements Fill, Cloneable {
         }
     }
 
-    /** Generates a hashcode for the FillImpl.
+    /**
+     * Generates a hashcode for the FillImpl.
      * 
-     *  @return The hashcode.
+     * @return The hashcode.
      */
     public int hashCode() {
         final int PRIME = 1000003;
