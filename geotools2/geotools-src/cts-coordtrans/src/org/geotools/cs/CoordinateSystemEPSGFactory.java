@@ -74,16 +74,18 @@ import org.geotools.units.Unit;
 import org.geotools.resources.Arguments;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
+import org.geotools.pt.AngleFormat; // For Javadoc
 
 
 /**
  * Default implementation for a coordinate system factory backed
  * by the EPSG database. The EPSG database is freely available at
  * <A HREF="http://www.epsg.org">http://www.epsg.org</a>. Current
- * version of this class requires EPSG database version 6.1.
- * <br><br>
+ * version of this class requires EPSG database version 6.
+ * <br>
+ * <h2>EPSG database installation</h2>
  * The EPSG database is available in MS Access format only (not our fault! We take it as EPSG
- * publish it). The <code>EPSG_v61.mdb</code> file can be stored anywhere on your system under
+ * publish it). The <code>EPSG_v6.mdb</code> file can be stored anywhere on your system under
  * any name, at your convenience. The database must be declared as an ODBC data source. Steps
  * to follow:
  *
@@ -93,8 +95,31 @@ import org.geotools.resources.cts.ResourceKeys;
  *   <li>Data source name should be "EPSG". Filename can be anything; click on the "Select..."
  *       button to select it.</li>
  * </ul>
+ * <br>
+ * <h2>Note about multi-radix units</h2>
+ * The EPSG database express many angles in some multi-radix units. For example, a lot of EPSG's
+ * angles are coded in the following format: <cite>sign - degrees - decimal point - minutes (two
+ * digits) - integer seconds (two digits) - fraction of seconds (any precision)</cite>. According
+ * this convention, the angle <code>40°30'N</code> would be coded as <code>40.30</code>
+ * (sexagesimal degree) instead of <code>40.5</code> (fractional degree). Unfortunatly,
+ * sexagesimal degrees have the following inconvenients:
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.8 2002/08/24 12:28:04 desruisseaux Exp $
+ * <ul>
+ *   <li>They are not suitable for computation purpose. For example, we can't compute the
+ *       difference between two angles using an ordinary substraction.</li>
+ *   <li>They make coordinate transformations harder. For example, we can't scale them with
+ *       an affine transform.</li>
+ *   <li>Their unit can't be formatted correctly in a Well Know Text (WKT).</li>
+ *   <li>What sexagesimal unit try to do is really the job of {@link AngleFormat}.</li>
+ * </ul>
+ *
+ * Consequently, the default implementation of <code>CoordinateSystemEPSGFactory</code> will
+ * <strong>not</strong> use sexagesimal degrees for coordinate systems. All axis will use
+ * fractional degrees instead, which are way more convenient for computation purpose (radians
+ * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
+ * the {@link #replaceAxisUnit} method.
+ *
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.9 2002/09/19 10:35:27 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -171,7 +196,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * @param connection The connection to the underlying EPSG database.
      */
     public CoordinateSystemEPSGFactory(final CoordinateSystemFactory factory,
-                                       final Connection connection)
+                                       final Connection           connection)
     {
         super(factory);
         this.connection = connection;
@@ -834,7 +859,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             final ResultSet result = stmt.executeQuery();
             while (result.next()) {
                 final WGS84ConversionInfo info = new WGS84ConversionInfo();
-                final Parameter[] param = getParameter(getString(result, 1, code));
+                final Parameter[] param = createParameter(getString(result, 1, code));
                 if ((param != null) && (param.length != 0)) {
                     final String areaOfUse    = result.getString(2); // Accept null.
                     final String methodOpCode = getString(result, 3, code);
@@ -957,8 +982,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 final String primeMeridian = getString(result, 4, code);
                 final String         datum = getString(result, 5, code);
                 final String       remarks = result.getString( 6);
-                final AxisInfo[] axisInfos = getAxisInfo(coordSysCode, dimension);
-                final Unit            unit = createUnit2D(coordSysCode);
+                final AxisInfo[] axisInfos = createAxisInfos(coordSysCode, dimension);
+                final Unit            unit = createUnitCS(coordSysCode);
                 final CharSequence     prp = pack(name, code, remarks);
                 final CoordinateSystem coordSys;
                 coordSys = factory.createGeographicCoordinateSystem(prp, unit,
@@ -1015,15 +1040,15 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
              * paranoiac check and verify if there is more records.
              */
             while (result.next()) {
-                final int          dimension =               getInt   (result, 1, code);
-                final String    coordSysCode =               getString(result, 2, code);
-                final String            name =               getString(result, 3, code);
-                final String     geoCoordSys =               getString(result, 4, code);
-                final String   operationName =               getString(result, 5, code);
-                final String  classification = fromEPSGtoOGC(getString(result, 6, code));
-                final Parameter[] parameters = getParameter (getString(result, 7, code));
+                final int          dimension =                 getInt   (result, 1, code);
+                final String    coordSysCode =                 getString(result, 2, code);
+                final String            name =                 getString(result, 3, code);
+                final String     geoCoordSys =                 getString(result, 4, code);
+                final String   operationName =                 getString(result, 5, code);
+                final String  classification = fromEPSGtoOGC  (getString(result, 6, code));
+                final Parameter[] parameters = createParameter(getString(result, 7, code));
                 final String         remarks = result.getString(8);
-                final AxisInfo[]   axisInfos = getAxisInfo(coordSysCode, dimension);
+                final AxisInfo[]   axisInfos = createAxisInfos(coordSysCode, dimension);
                 final CharSequence       prp = pack(name, code, remarks);
                 final ParameterList list = factory.createProjectionParameterList(classification);
                 for (int i=0; i<parameters.length; i++) {
@@ -1039,7 +1064,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 }
                 final Projection projection = factory.createProjection(operationName,
                                                                        classification, list);
-                final Unit unit = createUnit2D(coordSysCode);
+                final Unit unit = createUnitCS(coordSysCode);
                 final CoordinateSystem coordSys;
                 coordSys = factory.createProjectedCoordinateSystem(prp, gcs, projection, unit,
                                                                    axisInfos[0], axisInfos[1]);
@@ -1092,12 +1117,12 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 final String          name = getString(result, 3, code);
                 final String         datum = getString(result, 4, code);
                 final String       remarks = result.getString( 5);
-                final AxisInfo[] axisInfos = getAxisInfo(coordSysCode, dimension);
+                final AxisInfo[] axisInfos = createAxisInfos(coordSysCode, dimension);
                 final CharSequence     prp = pack(name, code, remarks);
                 final CoordinateSystem  coordSys;
                 coordSys = factory.createVerticalCoordinateSystem(prp,
                                         createVerticalDatum(datum),
-                                        createUnit2D(coordSysCode), axisInfos[0]);
+                                        createUnitCS(coordSysCode), axisInfos[0]);
                 returnValue = (VerticalCoordinateSystem)ensureSingleton(coordSys,returnValue,code);
             }
             result.close();
@@ -1172,7 +1197,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * @task HACK: WARNING!! The EPSG database use "ORDER" as a column name.
      *             This is tolerated by Access, but MySQL doesn't accept this name.
      */
-    private AxisInfo[] getAxisInfo(final String code, final int dimension)
+    private AxisInfo[] createAxisInfos(final String code, final int dimension)
             throws SQLException, FactoryException
     {
         final AxisInfo[] axis = new AxisInfo[dimension];
@@ -1211,19 +1236,20 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     }
     
     /**
-     * Returns the Unit for 1D and 2D coordinate system.
+     * Returns the Unit for 1D and 2D coordinate system. This method scan the unit of
+     * all axis for the specified coordinate system. All axis must use the same units.
      *
-     * @param  code The requested code.
+     * @param  code The coordinate system code.
      * @return The unit.
      * @throws SQLException if an error occured during database access.
      * @throws FactoryException if some other errors has occured.
      */
-    private Unit createUnit2D(String code) throws SQLException, FactoryException
+    private Unit createUnitCS(final String code) throws SQLException, FactoryException
     {
         Unit returnValue = null;
         final PreparedStatement stmt;
         // Note: can't use "Unit" key, because it is already used by "createUnit".
-        stmt = prepareStatement("Unit2D", "select UOM_CODE"
+        stmt = prepareStatement("UnitCS", "select UOM_CODE"
                                           + " from [Coordinate Axis]"
                                           + " where COORD_SYS_CODE = ?");
         stmt.setString(1, code);
@@ -1236,7 +1262,29 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         if (returnValue == null) {
              throw new NoSuchAuthorityCodeException(code);
         }
-        return returnValue;
+        return replaceAxisUnit(returnValue);
+    }
+
+    /**
+     * Replace the axis's unit for a coordinate system. This method is invoked by all
+     * <code>create...CoordinateSystem</code> methods,  but not by other methods like
+     * <code>createPrimeMeridian</code>. The default implementation replace sexagesimal
+     * degree units by the plain fractional degree units, which is much more suitable
+     * to computations (see <cite>Note about multi-radix units</cite> in this class's
+     * description).
+     * <br><br>
+     * If sexagesimal degrees are really wanted, subclasses can override this method
+     * and just returns <code>unit</code> with no change.
+     *
+     * @param  The unit declared in the EPSG database for a coordinate system.
+     * @return The unit to use: <code>unit</code> with no change, or a substitute
+     *         if <code>unit</code> was a multi-radix unit (e.g. sexagesimal degree).
+     */
+    protected Unit replaceAxisUnit(final Unit unit) {
+        if (Unit.DMS.equals(unit) || Unit.SEXAGESIMAL_DEGREE.equals(unit)) {
+            return Unit.DEGREE;
+        }
+        return unit;
     }
 
     /**
@@ -1284,7 +1332,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * @task HACK: This method has a temporary hack when PARAMETER_VALUE_FILE_RE
      *             is defined instead of PARAMETER_VALUE.
      */
-    private Parameter[] getParameter(final String code) throws SQLException, FactoryException {
+    private Parameter[] createParameter(final String code) throws SQLException, FactoryException {
         final List list = new ArrayList();
         final PreparedStatement stmt;
         stmt = prepareStatement("Parameter", "select COPU.PARAMETER_CODE,"
@@ -1310,12 +1358,11 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             final double value = result.getDouble(3);
             if (result.wasNull()) {
                 /*
-                 * This a temporary hack because sometimes PARAMETER_VALUE is not
-                 * defined, it is replaced by PARAMETER_VALUE_FILE_RE but I don't
-                 * know what to do with this one !
+                 * This a temporary hack because sometimes PARAMETER_VALUE is
+                 * not defined, it is replaced by PARAMETER_VALUE_FILE_RE.
                  */
                 result.close();
-                return null;
+                throw new UnsupportedOperationException("Not yet implemented");
             }
             final String  unit = getString(result, 4, code);
             list.add(new Parameter(name, value, createUnit(unit)));
