@@ -1,3 +1,4 @@
+
 /*
  *    Geotools2 - OpenSource mapping toolkit
  *    http://geotools.org
@@ -39,7 +40,7 @@ import javax.sql.PooledConnection;
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: cholmesny $
- * @version $Id: ConnectionPool.java,v 1.1 2003/09/22 18:54:39 cholmesny Exp $ Last Modified: $Date: 2003/09/22 18:54:39 $
+ * @version $Id: ConnectionPool.java,v 1.2 2003/11/05 15:37:02 cholmesny Exp $ Last Modified: $Date: 2003/11/05 15:37:02 $
  */
 public final class ConnectionPool {
     /** A logger */
@@ -77,7 +78,7 @@ public final class ConnectionPool {
         poolCleaner = new ConnectionPoolCleaner(DEFAULT_POOL_CLEANER_WAIT);
 
         Thread cleanerThread = new Thread(poolCleaner);
-
+        cleanerThread.setDaemon(true);
         cleanerThread.start();
     }
 
@@ -204,7 +205,7 @@ public final class ConnectionPool {
      *
      * @author Sean Geoghegan, Defence Science and Technology Organisation
      * @author $Author: cholmesny $
-     * @version $Id: ConnectionPool.java,v 1.1 2003/09/22 18:54:39 cholmesny Exp $ Last Modified: $Date: 2003/09/22 18:54:39 $
+     * @version $Id: ConnectionPool.java,v 1.2 2003/11/05 15:37:02 cholmesny Exp $ Last Modified: $Date: 2003/11/05 15:37:02 $
      */
     private class ConnectionListManager implements ConnectionEventListener {
         /**
@@ -268,7 +269,7 @@ public final class ConnectionPool {
      *
      * @author Sean Geoghegan, Defence Science and Technology Organisation
      * @author $Author: cholmesny $
-     * @version $Id: ConnectionPool.java,v 1.1 2003/09/22 18:54:39 cholmesny Exp $ Last Modified: $Date: 2003/09/22 18:54:39 $
+     * @version $Id: ConnectionPool.java,v 1.2 2003/11/05 15:37:02 cholmesny Exp $ Last Modified: $Date: 2003/11/05 15:37:02 $
      */
     private class ConnectionPoolCleaner implements Runnable {
         /** Time to wait between cleaning */
