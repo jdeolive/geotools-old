@@ -95,7 +95,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.12 2003/03/14 12:35:48 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.13 2003/03/30 17:31:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -508,8 +508,8 @@ public class OperationJAI extends Operation {
      *
      * @param  categories The quantitative categories from every sources.
      *         For unary operations like "GradientMagnitude", this array
-     *         as a length of 1. For binary operations like "add" and
-     *         "multiply", this array as a length of 2.
+     *         has a length of 1. For binary operations like "add" and
+     *         "multiply", this array has a length of 2.
      * @param  cs The coordinate system of the destination grid coverage.
      * @param  parameters The user-supplied parameters.
      * @return The quantative category to use in the destination image.
@@ -540,8 +540,8 @@ public class OperationJAI extends Operation {
      * </pre></blockquote>
      *
      * @param  units The units from every sources. For unary operations like
-     *         "GradientMagnitude", this array as a length of 1.  For binary
-     *         operations like "add" and "multiply",  this array as a length
+     *         "GradientMagnitude", this array has a length of 1. For binary
+     *         operations like "add" and "multiply", this array has a length
      *         of 2.
      * @param  cs The coordinate system of the destination grid coverage.
      * @param  parameters The user-supplied parameters.

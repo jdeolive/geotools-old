@@ -66,10 +66,10 @@ import org.geotools.resources.XAffineTransform;
  * to "geophysics" measurements. The normalization include dividing
  * by the distance between pixels.
  *
- * @version $Id: GradientMagnitude.java,v 1.4 2002/07/27 12:40:49 desruisseaux Exp $
+ * @version $Id: GradientMagnitudeOperation.java,v 1.1 2003/03/30 17:31:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class GradientMagnitude extends OperationJAI {
+final class GradientMagnitudeOperation extends OperationJAI {
     /**
      * The default scale factor to apply on the range computed by
      * {@link #deriveCategory}. For example a value of 0.04 means
@@ -101,7 +101,7 @@ final class GradientMagnitude extends OperationJAI {
     /**
      * Construct a default gradient magnitude operation.
      */
-    public GradientMagnitude() {
+    public GradientMagnitudeOperation() {
         super("GradientMagnitude");
     }
     
@@ -281,7 +281,7 @@ final class GradientMagnitude extends OperationJAI {
     
     /**
      * Derive the unit of data for a band in the destination image.
-     * This method compute the <code>sample/axis</code> where:
+     * This method compute <code>sample/axis</code> where:
      *
      * <ul>
      *   <li><code>sample</code> is the sample unit in source image.</li>
