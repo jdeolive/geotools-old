@@ -28,6 +28,8 @@ package org.geotools.styling;
 
 public class DefaultFill implements org.geotools.styling.Fill {
 
+    String color = "#808080";
+    
     /** Creates a new instance of DefaultFill */
     public DefaultFill() {
     }
@@ -47,7 +49,23 @@ public class DefaultFill implements org.geotools.styling.Fill {
      * @return The color of the Fill encoded as a hexidecimal RGB value.
      */
     public String getColor() {
-        return ("#808080");
+        return color;
+    }
+    /**
+     * This parameter gives the solid color that will be used for a Fill.<br>
+     * The color value is RGB-encoded using two hexidecimal digits per 
+     * primary-color component, in the
+     * order Red, Green, Blue, prifixed wih the hash (#) sign.  
+     * The hexidecimal digits beetween A and F may be in either uppoer 
+     * or lower case.  For example full red is encoded as "#ff0000" (with no
+     * quotation marks).  
+     *
+     * Note: in CSS this parameter is just called Fill and not Color
+     *
+     * @param The color of the Fill encoded as a hexidecimal RGB value.
+     */
+    public void setColor(String rgb) {
+        color = rgb;
     }
     
     /**

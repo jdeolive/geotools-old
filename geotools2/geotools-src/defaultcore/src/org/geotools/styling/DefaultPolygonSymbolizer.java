@@ -1,6 +1,6 @@
 /*
  * DefaultPolygonStyler.java
- *
+ * 
  * Created on April 11, 2002, 2:07 PM
  */
 
@@ -33,6 +33,9 @@ package org.geotools.styling;
  */
 public class DefaultPolygonSymbolizer implements org.geotools.styling.PolygonSymbolizer {
 
+    private Fill fill = new DefaultFill();
+    private Stroke stroke = new DefaultStroke();
+    
     /** Creates a new instance of DefaultPolygonStyler */
     public DefaultPolygonSymbolizer() {
     }
@@ -65,13 +68,22 @@ public class DefaultPolygonSymbolizer implements org.geotools.styling.PolygonSym
      * Provides the graphical-symbolization parameter to use to fill the area
      * of the geometry.
      *
-     * Note that the area should be filled first before the outline
-     * is rendered.
      *
      * @return The Fill style to use when rendering the area.
      */
     public Fill getFill() {
-        return new DefaultFill();
+        return fill;
+    }
+    
+    /**
+     * set the graphical-symbolization parameter to use to fill the area
+     * of the geometry.
+     *
+     *
+     * @param f The Fill style to use when rendering the area.
+     */
+    public void setFill(Fill f){
+        fill = f;
     }
     
     /**
@@ -81,7 +93,17 @@ public class DefaultPolygonSymbolizer implements org.geotools.styling.PolygonSym
      * @return The Stroke style to use when rendering lines.
      */
     public Stroke getStroke() {
-        return new DefaultStroke();
+        return stroke;
+    }
+    
+    /**
+     * set the graphical-symbolization parameter to use for the outline
+     * of the Polygon.
+     *
+     * @param s The Stroke style to use when rendering lines.
+     */
+    public void setStroke(Stroke s){
+        stroke = s;
     }
     
 }
