@@ -20,11 +20,15 @@
 package org.geotools.vpf;
 
 import org.geotools.vpf.ifc.DataTypesDefinition;
+import org.geotools.vpf.util.ImmutableList;
 import java.util.List;
 
 /**
- * TableHeader.java
- *
+ * This class contains definition of VPF standard table header
+ * according to specification found in:
+ * "Interface Standard for Vector Product Format." Objects of this
+ * type are immutable.
+ * 
  *
  * Created: Thu Jan 02 22:50:59 2003
  *
@@ -85,16 +89,6 @@ public class TableHeader
     return this.length;
   }
 
-//   /**
-//    * Sets the value of length
-//    *
-//    * @param argLength Value to assign to this.length
-//    */
-//   public void setLength(int argLength)
-//   {
-//     this.length = argLength;
-//   }
-
   /**
    * Gets the value of byteOrder
    *
@@ -104,16 +98,6 @@ public class TableHeader
   {
     return this.byteOrder;
   }
-
-//   /**
-//    * Sets the value of byteOrder
-//    *
-//    * @param argByteOrder Value to assign to this.byteOrder
-//    */
-//   public void setByteOrder(char argByteOrder)
-//   {
-//     this.byteOrder = argByteOrder;
-//   }
 
   /**
    * Gets the value of description
@@ -125,16 +109,6 @@ public class TableHeader
     return this.description;
   }
 
-//   /**
-//    * Sets the value of description
-//    *
-//    * @param argDescription Value to assign to this.description
-//    */
-//   public void setDescription(String argDescription)
-//   {
-//     this.description = argDescription;
-//   }
-
   /**
    * Gets the value of narrativeTable
    *
@@ -145,16 +119,6 @@ public class TableHeader
     return this.narrativeTable;
   }
 
-//   /**
-//    * Sets the value of narrativeTable
-//    *
-//    * @param argNarrativeTable Value to assign to this.narrativeTable
-//    */
-//   public void setNarrativeTable(String argNarrativeTable)
-//   {
-//     this.narrativeTable = argNarrativeTable;
-//   }
-
   /**
    * Gets the value of columnDefs
    *
@@ -162,17 +126,7 @@ public class TableHeader
    */
   public List getColumnDefs() 
   {
-    return this.columnDefs;
+    return new ImmutableList(this.columnDefs);
   }
 
-//   /**
-//    * Sets the value of columnDefs
-//    *
-//    * @param argColumnDefs Value to assign to this.columnDefs
-//    */
-//   public void setColumnDefs(List argColumnDefs)
-//   {
-//     this.columnDefs = argColumnDefs;
-//   }
-  
 } // TableHeader

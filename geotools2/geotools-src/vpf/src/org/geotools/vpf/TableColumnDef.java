@@ -22,7 +22,10 @@ package org.geotools.vpf;
 import org.geotools.vpf.ifc.DataTypesDefinition;
 
 /**
- * TableColumnDef.java
+ * This class contains definition of VPF standard table column definition
+ * according to specification found in:
+ * "Interface Standard for Vector Product Format." Objects of this
+ * type are immutable.
  *
  *
  * Created: Thu Jan 02 23:11:27 2003
@@ -82,16 +85,6 @@ public class TableColumnDef
     return this.name;
   }
 
-//   /**
-//    * Sets the value of name
-//    *
-//    * @param argName Value to assign to this.name
-//    */
-//   public void setName(String argName)
-//   {
-//     this.name = argName;
-//   }
-
   /**
    * Gets the value of type
    *
@@ -101,16 +94,6 @@ public class TableColumnDef
   {
     return this.type;
   }
-
-//   /**
-//    * Sets the value of type
-//    *
-//    * @param argType Value to assign to this.type
-//    */
-//   public void setType(char argType)
-//   {
-//     this.type = argType;
-//   }
 
   /**
    * Gets the value of elementsNumber
@@ -122,16 +105,6 @@ public class TableColumnDef
     return this.elementsNumber;
   }
 
-//   /**
-//    * Sets the value of elementsNumber
-//    *
-//    * @param argElementsNumber Value to assign to this.elementsNumber
-//    */
-//   public void setElementsNumber(int argElementsNumber)
-//   {
-//     this.elementsNumber = argElementsNumber;
-//   }
-
   /**
    * Gets the value of keyType
    *
@@ -141,16 +114,6 @@ public class TableColumnDef
   {
     return this.keyType;
   }
-
-//   /**
-//    * Sets the value of keyType
-//    *
-//    * @param argKeyType Value to assign to this.keyType
-//    */
-//   public void setKeyType(char argKeyType)
-//   {
-//     this.keyType = argKeyType;
-//   }
 
   /**
    * Gets the value of colDesc
@@ -162,16 +125,6 @@ public class TableColumnDef
     return this.colDesc;
   }
 
-//   /**
-//    * Sets the value of colDesc
-//    *
-//    * @param argColDesc Value to assign to this.colDesc
-//    */
-//   public void setColDesc(String argColDesc)
-//   {
-//     this.colDesc = argColDesc;
-//   }
-
   /**
    * Gets the value of valDescTableName
    *
@@ -181,16 +134,6 @@ public class TableColumnDef
   {
     return this.valDescTableName;
   }
-
-//   /**
-//    * Sets the value of valDescTableName
-//    *
-//    * @param argValDescTableName Value to assign to this.valDescTableName
-//    */
-//   public void setValDescTableName(String argValDescTableName)
-//   {
-//     this.valDescTableName = argValDescTableName;
-//   }
 
   /**
    * Gets the value of thematicIdx
@@ -202,16 +145,6 @@ public class TableColumnDef
     return this.thematicIdx;
   }
 
-//   /**
-//    * Sets the value of thematicIdx
-//    *
-//    * @param argThematicIdx Value to assign to this.thematicIdx
-//    */
-//   public void setThematicIdx(String argThematicIdx)
-//   {
-//     this.thematicIdx = argThematicIdx;
-//   }
-
   /**
    * Gets the value of narrTable
    *
@@ -222,14 +155,4 @@ public class TableColumnDef
     return this.narrTable;
   }
 
-//   /**
-//    * Sets the value of narrTable
-//    *
-//    * @param argNarrTable Value to assign to this.narrTable
-//    */
-//   public void setNarrTable(String argNarrTable)
-//   {
-//     this.narrTable = argNarrTable;
-//   }
-  
 } // TableColumnDef
