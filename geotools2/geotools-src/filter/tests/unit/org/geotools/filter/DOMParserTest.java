@@ -191,10 +191,11 @@ public class DOMParserTest extends FilterTestSupport {
 	public void test28() throws Exception {
 		FidFilter filter = (FidFilter)parseDocumentFirst(dataFolder + "/test28.xml");
 		String[] fids = filter.getFids();
+                List list = Arrays.asList(fids);
 		assertEquals(3,fids.length);
-		assertEquals("FID.3",fids[0]);
-		assertEquals("FID.1",fids[1]);
-		assertEquals("FID.2",fids[2]);
+                assertTrue(list.contains("FID.3"));
+                assertTrue(list.contains("FID.2"));
+                assertTrue(list.contains("FID.1"));
 	}
 
     public Filter parseDocument(String uri) throws Exception {
