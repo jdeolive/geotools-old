@@ -1,14 +1,46 @@
-/* *    Geotools2 - OpenSource mapping toolkit *    http://geotools.org *    (C) 2002, Geotools Project Managment Committee (PMC) * *    This library is free software; you can redistribute it and/or *    modify it under the terms of the GNU Lesser General Public *    License as published by the Free Software Foundation; *    version 2.1 of the License. * *    This library is distributed in the hope that it will be useful, *    but WITHOUT ANY WARRANTY; without even the implied warranty of *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU *    Lesser General Public License for more details. * */
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 package org.geotools.data.oracle;
 
-import java.util.ArrayList;import java.util.List;import java.util.logging.Logger;import oracle.sdoapi.OraSpatialManager;import oracle.sdoapi.adapter.GeometryAdapter;import oracle.sdoapi.adapter.GeometryInputTypeNotSupportedException;import oracle.sdoapi.adapter.GeometryOutputTypeNotSupportedException;import oracle.sdoapi.geom.CoordPoint;import oracle.sdoapi.geom.CoordPointImpl;import oracle.sdoapi.geom.CurveString;import oracle.sdoapi.geom.Geometry;import oracle.sdoapi.geom.InvalidGeometryException;import oracle.sdoapi.sref.SpatialReference;import com.vividsolutions.jts.geom.Coordinate;import com.vividsolutions.jts.geom.GeometryCollection;import com.vividsolutions.jts.geom.LinearRing;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+import oracle.sdoapi.OraSpatialManager;
+import oracle.sdoapi.adapter.GeometryAdapter;
+import oracle.sdoapi.adapter.GeometryInputTypeNotSupportedException;
+import oracle.sdoapi.adapter.GeometryOutputTypeNotSupportedException;
+import oracle.sdoapi.geom.CoordPoint;
+import oracle.sdoapi.geom.CoordPointImpl;
+import oracle.sdoapi.geom.CurveString;
+import oracle.sdoapi.geom.Geometry;
+import oracle.sdoapi.geom.InvalidGeometryException;
+import oracle.sdoapi.sref.SpatialReference;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LinearRing;
 
 /**
  * Adapter class that handles the conversion between SDO and JTS geometry classes.
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
- * @author $Author: seangeo $
- * @version $Id: AdapterJTS.java,v 1.4 2003/08/08 07:37:18 seangeo Exp $
+ * @author $Author: ianturton $
+ * @version $Id: AdapterJTS.java,v 1.5 2003/09/24 11:07:11 ianturton Exp $
  */
 public class AdapterJTS implements GeometryAdapter {
     /** Logger for logging messages */
@@ -95,12 +127,18 @@ public class AdapterJTS implements GeometryAdapter {
         if (!outputTypeSupported(outputType)) {
             throw new GeometryOutputTypeNotSupportedException("Output not supported");
         }
-
+        if(outputType == com.vividsolutions.jts.geom.Polygon.class){
+            outputType=com.vividsolutions.jts.geom.MultiPolygon.class;
+        }
+        if(outputType == com.vividsolutions.jts.geom.LineString.class){
+            outputType=com.vividsolutions.jts.geom.MultiLineString.class;
+        }
         com.vividsolutions.jts.geom.Geometry returnGeometry = sdoToJts(geom);
 
         if (!outputType.isInstance(returnGeometry)) {
             throw new GeometryOutputTypeNotSupportedException(
-                "AdapterJTS does not support converting" + "from " + geom.getClass().getName()                 + " to " + outputType.getName());
+                "AdapterJTS does not support converting" + "from " + geom.getClass().getName() 
+                + " to " + outputType.getName());
         }
 
         return sdoToJts(geom);
@@ -147,7 +185,8 @@ public class AdapterJTS implements GeometryAdapter {
     public Geometry importGeometry(Object inputSource)
         throws InvalidGeometryException, GeometryInputTypeNotSupportedException {
         if (!inputTypeSupported(inputSource.getClass())) {
-            throw new GeometryInputTypeNotSupportedException("AdapterJTS does not support "                 + inputSource.getClass().getName());
+            throw new GeometryInputTypeNotSupportedException("AdapterJTS does not support " 
+                + inputSource.getClass().getName());
         }
 
         return jtsToSdo((com.vividsolutions.jts.geom.Geometry) inputSource);
@@ -294,7 +333,73 @@ public class AdapterJTS implements GeometryAdapter {
         return sdoFactory.getSpatialReference();
     }
 
-//J-    /**     * Converts an SDO Geometry to a JTS Geomtry.     *     * @param geom The SDO Geometry.     *     * @return The JTS Geometry.     *     * @throws InvalidGeometryException If the geometry can no be converted.     */    private com.vividsolutions.jts.geom.Geometry sdoToJts(Geometry geom)        throws InvalidGeometryException {        Class geometryType = geom.getGeometryType();        com.vividsolutions.jts.geom.Geometry output = null;                if (geometryType.equals(oracle.sdoapi.geom.Point.class)) {            oracle.sdoapi.geom.Point point = (oracle.sdoapi.geom.Point) geom;            output = jtsFactory.createPoint(new Coordinate(point.getX(),                                                           point.getY(),                                                           point.getZ()));        } else if (geometryType.equals(oracle.sdoapi.geom.LineString.class)) {            oracle.sdoapi.geom.LineString line = (oracle.sdoapi.geom.LineString) geom;            output = jtsFactory.createLineString(coordPointsToCoordinates(line.getPointArray(),                                                                     line.getDimensionality()));        } else if (geometryType.equals(oracle.sdoapi.geom.CurveString.class)) {            oracle.sdoapi.geom.CurveString curve = (oracle.sdoapi.geom.CurveString) geom;            output = jtsFactory.createLineString(curveStringToCoordinates(curve));        } else if (geometryType.equals(oracle.sdoapi.geom.Polygon.class)) {            oracle.sdoapi.geom.Polygon polygon = (oracle.sdoapi.geom.Polygon) geom;            Coordinate[] exteriorRingCoords = curveStringToCoordinates(polygon.getExteriorRing());            LinearRing exterior = jtsFactory.createLinearRing(exteriorRingCoords);            LinearRing[] interiors = curveStringsToLinearRings(polygon.getInteriorRingArray());            output = jtsFactory.createPolygon(exterior, interiors);        } else if (geometryType.equals(oracle.sdoapi.geom.CurvePolygon.class)) {            oracle.sdoapi.geom.CurvePolygon curvePolygon = (oracle.sdoapi.geom.CurvePolygon) geom;            Coordinate[] exteriorRingCoords = curveStringToCoordinates(curvePolygon.getExteriorRing());            LinearRing exterior = jtsFactory.createLinearRing(exteriorRingCoords);            LinearRing[] interiors = curveStringsToLinearRings(curvePolygon.getInteriorRingArray());            output = jtsFactory.createPolygon(exterior, interiors);        } else if (oracle.sdoapi.geom.GeometryCollection.class.isAssignableFrom(geometryType)) {            // This is a catch all for geometry collections            oracle.sdoapi.geom.GeometryCollection geomCollection =                                     (oracle.sdoapi.geom.GeometryCollection) geom;            List geometries = new ArrayList(geomCollection.getNumGeometries());            for (int i = 0; i < geomCollection.getNumGeometries(); i++) {                geometries.add(sdoToJts(geomCollection.getGeometryAt(i)));            }            output = jtsFactory.buildGeometry(geometries);        } else {            String message = "Got a geometry that I don't know how to handle: "                             +  geometryType.getName();            LOGGER.warning(message);            throw new InvalidGeometryException(message);        }        /* Can set this at the end because it is just an internal ID number */        output.setSRID(geom.getSpatialReference().getID());        return output;    }//J+
+//J-
+    /**
+     * Converts an SDO Geometry to a JTS Geomtry.
+     *
+     * @param geom The SDO Geometry.
+     *
+     * @return The JTS Geometry.
+     *
+     * @throws InvalidGeometryException If the geometry can no be converted.
+     */
+    private com.vividsolutions.jts.geom.Geometry sdoToJts(Geometry geom)
+        throws InvalidGeometryException {
+        Class geometryType = geom.getGeometryType();
+        com.vividsolutions.jts.geom.Geometry output = null;
+        
+        if (geometryType.equals(oracle.sdoapi.geom.Point.class)) {
+            oracle.sdoapi.geom.Point point = (oracle.sdoapi.geom.Point) geom;
+            output = jtsFactory.createPoint(new Coordinate(point.getX(),
+                                                           point.getY(),
+                                                           point.getZ()));
+        } else if (geometryType.equals(oracle.sdoapi.geom.LineString.class)) {
+            oracle.sdoapi.geom.LineString line = (oracle.sdoapi.geom.LineString) geom;
+            com.vividsolutions.jts.geom.LineString jline = jtsFactory.createLineString(coordPointsToCoordinates(line.getPointArray(),
+                                                                     line.getDimensionality()));
+            output = jtsFactory.createMultiLineString(new com.vividsolutions.jts.geom.LineString[]{jline});
+        } else if (geometryType.equals(oracle.sdoapi.geom.CurveString.class)) {
+            oracle.sdoapi.geom.CurveString curve = (oracle.sdoapi.geom.CurveString) geom;
+            com.vividsolutions.jts.geom.LineString jline  = jtsFactory.createLineString(curveStringToCoordinates(curve));
+            output = jtsFactory.createMultiLineString(new com.vividsolutions.jts.geom.LineString[]{jline});
+        } else if (geometryType.equals(oracle.sdoapi.geom.Polygon.class)) {
+            oracle.sdoapi.geom.Polygon polygon = (oracle.sdoapi.geom.Polygon) geom;
+            Coordinate[] exteriorRingCoords = curveStringToCoordinates(polygon.getExteriorRing());
+            LinearRing exterior = jtsFactory.createLinearRing(exteriorRingCoords);
+            LinearRing[] interiors = curveStringsToLinearRings(polygon.getInteriorRingArray());
+            com.vividsolutions.jts.geom.Polygon poly = jtsFactory.createPolygon(exterior, interiors);
+            output = jtsFactory.createMultiPolygon(new com.vividsolutions.jts.geom.Polygon[]{poly});
+        } else if (geometryType.equals(oracle.sdoapi.geom.CurvePolygon.class)) {
+            oracle.sdoapi.geom.CurvePolygon curvePolygon = (oracle.sdoapi.geom.CurvePolygon) geom;
+            Coordinate[] exteriorRingCoords = curveStringToCoordinates(curvePolygon.getExteriorRing());
+            LinearRing exterior = jtsFactory.createLinearRing(exteriorRingCoords);
+            LinearRing[] interiors = curveStringsToLinearRings(curvePolygon.getInteriorRingArray());
+            com.vividsolutions.jts.geom.Polygon poly = jtsFactory.createPolygon(exterior, interiors);
+            output = jtsFactory.createMultiPolygon(new com.vividsolutions.jts.geom.Polygon[]{poly});
+        } else if (oracle.sdoapi.geom.GeometryCollection.class.isAssignableFrom(geometryType)) {
+            // This is a catch all for geometry collections
+            oracle.sdoapi.geom.GeometryCollection geomCollection = 
+                                    (oracle.sdoapi.geom.GeometryCollection) geom;
+            List geometries = new ArrayList(geomCollection.getNumGeometries());
+
+            for (int i = 0; i < geomCollection.getNumGeometries(); i++) {
+                geometries.add(sdoToJts(geomCollection.getGeometryAt(i)));
+            }
+
+            output = jtsFactory.buildGeometry(geometries);
+        } else {
+            String message = "Got a geometry that I don't know how to handle: " 
+                            +  geometryType.getName();
+            LOGGER.warning(message);
+            throw new InvalidGeometryException(message);
+        }
+
+        /* Can set this at the end because it is just an internal ID number */
+        output.setSRID(geom.getSpatialReference().getID());
+
+        return output;
+    }
+//J+
 
     /**
      * Converts an array of SDO CoordPoints to an Array of JTS Coordinates.
@@ -363,7 +468,68 @@ public class AdapterJTS implements GeometryAdapter {
         return rings;
     }
 
-    //J-    /**     * Converts a JTS Geometry to an SDO Geometry.     *     * @param geom The JTS geometry to convert.     *     * @return The SDO geometry.     *     * @throws InvalidGeometryException If the geometry created from the     * JTS geometry is invalid.     *     * @task REVISIT: Need to work out how to set the SRID properly. JTS stores     *       the SRID as an integer. When converting from an SDO to a JTS we     *       can just set this to the SRID from the SDO.  However, since SRIDs     *       need to map to the SRID table in Oracle, when converting from a     *       JTS we don't know if the SRID exists because it could have been     *       set on the JTS geom anywhere.  At this stage, just hope the     *       sdoFactory chooses a sensible default.     */    private oracle.sdoapi.geom.Geometry jtsToSdo(com.vividsolutions.jts.geom.Geometry geom)            throws InvalidGeometryException {        Class geometryType = geom.getClass();        oracle.sdoapi.geom.Geometry output = null;        if (geometryType.equals(com.vividsolutions.jts.geom.Point.class)) {            com.vividsolutions.jts.geom.Point point = (com.vividsolutions.jts.geom.Point) geom;            Coordinate coordinate = point.getCoordinate();            output = sdoFactory.createPoint(coordinatesToCoordPoint(coordinate, point.getDimension()));        } else if (geometryType.equals(com.vividsolutions.jts.geom.LineString.class)) {            com.vividsolutions.jts.geom.LineString line = (com.vividsolutions.jts.geom.LineString) geom;            output = lineStringJtsToSdo(line);        } else if (geometryType.equals(com.vividsolutions.jts.geom.Polygon.class)) {            com.vividsolutions.jts.geom.Polygon polygon = (com.vividsolutions.jts.geom.Polygon) geom;            oracle.sdoapi.geom.LineString exteriorRing = lineStringJtsToSdo(polygon.getExteriorRing());            oracle.sdoapi.geom.LineString[] interiorRings =                     new oracle.sdoapi.geom.LineString[polygon.getNumInteriorRing()];            for (int i = 0; i < polygon.getNumInteriorRing(); i++) {                interiorRings[i] = lineStringJtsToSdo(polygon.getInteriorRingN(i));            }            output = sdoFactory.createPolygon(exteriorRing, interiorRings);        } else if (GeometryCollection.class.isAssignableFrom(geom.getClass())) {            GeometryCollection geomCollection = (GeometryCollection) geom;            ArrayList sdoGeometries = new ArrayList();            for (int i = 0; i < geomCollection.getNumGeometries(); i++) {                sdoGeometries.add(jtsToSdo(geomCollection.getGeometryN(i)));            }            Geometry[] sdoGeomArray = (Geometry[]) sdoGeometries.toArray(new oracle.sdoapi.geom.Geometry[0]);            output = sdoFactory.createGeometryCollection(sdoGeomArray);        } else {            String message = "Got a geometry that I don't know how to handle: "                         + geometryType.getName();            LOGGER.warning(message);            throw new InvalidGeometryException(message);        }        return output;    }    //J+
+    //J-
+    /**
+     * Converts a JTS Geometry to an SDO Geometry.
+     *
+     * @param geom The JTS geometry to convert.
+     *
+     * @return The SDO geometry.
+     *
+     * @throws InvalidGeometryException If the geometry created from the
+     * JTS geometry is invalid.
+     *
+     * @task REVISIT: Need to work out how to set the SRID properly. JTS stores
+     *       the SRID as an integer. When converting from an SDO to a JTS we
+     *       can just set this to the SRID from the SDO.  However, since SRIDs
+     *       need to map to the SRID table in Oracle, when converting from a
+     *       JTS we don't know if the SRID exists because it could have been
+     *       set on the JTS geom anywhere.  At this stage, just hope the
+     *       sdoFactory chooses a sensible default.
+     */
+    private oracle.sdoapi.geom.Geometry jtsToSdo(com.vividsolutions.jts.geom.Geometry geom)
+            throws InvalidGeometryException {
+        Class geometryType = geom.getClass();
+        oracle.sdoapi.geom.Geometry output = null;
+
+        if (geometryType.equals(com.vividsolutions.jts.geom.Point.class)) {
+            com.vividsolutions.jts.geom.Point point = (com.vividsolutions.jts.geom.Point) geom;
+            Coordinate coordinate = point.getCoordinate();
+            output = sdoFactory.createPoint(coordinatesToCoordPoint(coordinate, point.getDimension()));
+        } else if (geometryType.equals(com.vividsolutions.jts.geom.LineString.class)) {
+            com.vividsolutions.jts.geom.LineString line = (com.vividsolutions.jts.geom.LineString) geom;
+            output = lineStringJtsToSdo(line);
+        } else if (geometryType.equals(com.vividsolutions.jts.geom.Polygon.class)) {
+            com.vividsolutions.jts.geom.Polygon polygon = (com.vividsolutions.jts.geom.Polygon) geom;
+            oracle.sdoapi.geom.LineString exteriorRing = lineStringJtsToSdo(polygon.getExteriorRing());
+            oracle.sdoapi.geom.LineString[] interiorRings = 
+                    new oracle.sdoapi.geom.LineString[polygon.getNumInteriorRing()];
+
+            for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
+                interiorRings[i] = lineStringJtsToSdo(polygon.getInteriorRingN(i));
+            }
+
+            output = sdoFactory.createPolygon(exteriorRing, interiorRings);
+        } else if (GeometryCollection.class.isAssignableFrom(geom.getClass())) {
+            GeometryCollection geomCollection = (GeometryCollection) geom;
+            ArrayList sdoGeometries = new ArrayList();
+
+            for (int i = 0; i < geomCollection.getNumGeometries(); i++) {
+                sdoGeometries.add(jtsToSdo(geomCollection.getGeometryN(i)));
+            }
+
+            Geometry[] sdoGeomArray = (Geometry[]) sdoGeometries.toArray(new oracle.sdoapi.geom.Geometry[0]);
+            output = sdoFactory.createGeometryCollection(sdoGeomArray);
+        } else {
+            String message = "Got a geometry that I don't know how to handle: " 
+                        + geometryType.getName();
+            LOGGER.warning(message);
+            throw new InvalidGeometryException(message);
+        }
+
+        return output;
+    }
+    //J+
 
     /**
      * Converts a JTS coordinate to an SDO CoordPoint.

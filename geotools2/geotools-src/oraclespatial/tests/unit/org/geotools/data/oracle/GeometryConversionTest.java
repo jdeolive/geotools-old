@@ -1,4 +1,4 @@
-/* $Id: GeometryConversionTest.java,v 1.1 2003/08/08 07:33:04 seangeo Exp $
+/* $Id: GeometryConversionTest.java,v 1.2 2003/09/24 11:07:11 ianturton Exp $
  *
  * Created on 4/08/2003
  */
@@ -7,6 +7,7 @@ package org.geotools.data.oracle;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import junit.framework.TestCase;
@@ -25,8 +26,8 @@ import oracle.sdoapi.geom.Geometry;
  * </p>
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
- * @author $Author: seangeo $
- * @version $Id: GeometryConversionTest.java,v 1.1 2003/08/08 07:33:04 seangeo Exp $ Last Modified: $Date: 2003/08/08 07:33:04 $
+ * @author $Author: ianturton $
+ * @version $Id: GeometryConversionTest.java,v 1.2 2003/09/24 11:07:11 ianturton Exp $ Last Modified: $Date: 2003/09/24 11:07:11 $
  */
 public class GeometryConversionTest extends TestCase {
     private GeometryFactory jtsFactory;
@@ -117,8 +118,9 @@ public class GeometryConversionTest extends TestCase {
                     -10.0, -5.0, -10.0, 5.0, 10.0, 5.0, 10.0, -5.0, -10.0, -5.0
                 });
         Geometry sdoIn = sdoFactory.createPolygon(sdoline, new oracle.sdoapi.geom.LineString[0]);
-        Polygon polygon = (Polygon) adapterJTS.exportGeometry(Polygon.class, sdoIn);
-
+        // Polygons are now returned as MultiPolygons
+        MultiPolygon polygons = (MultiPolygon) adapterJTS.exportGeometry(Polygon.class, sdoIn);
+        Polygon polygon = (Polygon)polygons.getGeometryN(0);
         assertEquals(0, polygon.getNumInteriorRing());
 
         LineString exterior = polygon.getExteriorRing();
