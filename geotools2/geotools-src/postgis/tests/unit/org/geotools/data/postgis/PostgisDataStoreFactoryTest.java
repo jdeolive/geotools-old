@@ -32,7 +32,7 @@ import junit.framework.TestCase;
  * 
  * @author jgarnett, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: PostgisDataStoreFactoryTest.java,v 1.2 2004/01/14 10:23:13 jive Exp $
+ * @version $Id: PostgisDataStoreFactoryTest.java,v 1.3 2004/01/14 10:24:59 jive Exp $
  */
 public class PostgisDataStoreFactoryTest extends TestCase {
     static PostgisDataStoreFactory factory
@@ -120,8 +120,13 @@ public class PostgisDataStoreFactoryTest extends TestCase {
         assertEquals( "cite", factory.USER.lookUp(map) );
         
         assertTrue( "canProcess", factory.canProcess(map));
-        DataStore temp = factory.createDataStore(map);
-        assertNotNull( "created", temp );
+        try {
+            DataStore temp = factory.createDataStore(map);
+            assertNotNull( "created", temp );
+        }
+        catch( DataSourceException expected){
+            assertEquals("Could not get connection",expected.getMessage());
+        }                        
     }
     public void testRemote() throws Exception {
         Map map = remote;
@@ -138,7 +143,7 @@ public class PostgisDataStoreFactoryTest extends TestCase {
         assertTrue( "canProcess", factory.canProcess(map));
         try {
             DataStore temp = factory.createDataStore(map);
-            fail("Should not have been able to create:"+temp);
+            assertNotNull( "created", temp );
         }
         catch( DataSourceException expected){
             assertEquals("Could not get connection",expected.getMessage());
