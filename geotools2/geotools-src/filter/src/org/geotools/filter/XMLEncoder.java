@@ -34,8 +34,12 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     public XMLEncoder() {
     }
     
-    public void visit(Filter filter) {
+    public void visit(AbstractFilter filter) {
         log.warn("exporting unknown filter type");
+    }
+    
+    public void visit(BetweenFilter filter) {
+        log.warn("exporting BetweenFilter");
     }
     
     public void visit(LogicFilter filter){
@@ -49,4 +53,28 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     public void visit(GeometryFilter filter){
         log.debug("exporting GeometryFilter");
     }
+    
+    public void visit(NullFilter filter) {
+        log.debug("exporting NullFilter");
+    }
+    
+    public void visit(LikeFilter filter) {
+        log.debug("exporting NullFilter");
+    }
+    
+    public void visit(ExpressionAttribute expression) {
+    }
+    
+    public void visit(ExpressionDefault expression) {
+    }
+    
+    public void visit(ExpressionLiteral expression) {
+    }
+    
+    public void visit(ExpressionMath expression) {
+    }
+    
+    public void visit(BBoxExpression expression) {
+    }
+    
 }
