@@ -102,7 +102,7 @@
     <para>The swing rendering model uses cached RenderedFeatures to speed up
     rendering. <emphasis>RenderedFeature</emphasis> speeds up rendering by
     ensuring styling and coordinate transforms are only applied to features
-    one.</para>
+    once.</para>
   </section>
 
   <section>
