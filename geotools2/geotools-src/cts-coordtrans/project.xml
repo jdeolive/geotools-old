@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <name>geotools-cts-coordtrans</name>
+  <id>cts-coordtrans</id>
+  <logo>/images/cts.gif</logo>
+  <currentVersion>0.1</currentVersion>
+  <organization>
+    <name>GeoTools</name>
+    <url>http://www.geotools.org</url>
+    <logo>/images/gtLogo.gif</logo>
+  </organization>
+  <inceptionYear>1996</inceptionYear>
+  <package>org.geotools</package>
+  <shortDescription>Coordinate Tranformation System</shortDescription>
+  <gumpRepositoryId>geotools</gumpRepositoryId>
+  <description>Implementation of OGC Coordinatre Transformation System</description>
+  <url>http://www.geotols.org/</url>
+  <cvsWebUrl/>
+  <issueTrackingUrl/>
+  <siteAddress>www.geotools.org</siteAddress>
+  <siteDirectory/>
+  <distributionDirectory/>
+  
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/cts-coordtrans</connection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/cts-coordtrans/</url>
+  </repository>
+  
+
+  <mailingLists/>
+  <developers>
+    
+    <developer>
+      <name>Martin Desruisseaux</name>
+      <id>desruisseaux</id>
+      <email>desruisseaux@users.sourceforge.net</email>
+      <organization>SeaGIS</organization>
+            <roles>
+                
+                <role>Java Developer</role>
+                <role>Module Maintainer</role>
+            </roles>
+        </developer>
+        
+    </developers>
+  <dependencies>
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.3</version>
+    </dependency>
+    
+       
+        <dependency>
+      <id>opengis-css</id>
+      <version>0.1</version>
+    </dependency>
+    </dependencies>
+  <build>
+    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
+      <sourceDirectory>src/</sourceDirectory>
+    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+    <integrationUnitTestSourceDirectory/>
+    <aspectSourceDirectories/>
+    <unitTestPatterns>
+      <unitTestPattern>include = **/*Test.java</unitTestPattern>
+    </unitTestPatterns>
+    <integrationUnitTestPatterns/>
+    <jarResources/>
+    <jars/>
+  </build>
+</project>
+
