@@ -121,13 +121,24 @@ public class LegendImageGenerator {
     }
     public BufferedImage getLegend(Color background){
         BufferedImage image = new BufferedImage(getWidth(),getHeight(),BufferedImage.TYPE_INT_RGB);
-        
+        Color fgcolor=Color.black;
         Graphics2D graphics = image.createGraphics();
         LOGGER.fine("bgcolor "+background);
         if(!(background==null)){
             graphics.setColor(background);
             graphics.fillRect(0,0, getWidth(),getHeight());
+            int red1 = Color.LIGHT_GRAY.getRed();
+            int blue1 = Color.LIGHT_GRAY.getBlue();
+            int green1 = Color.LIGHT_GRAY.getGreen();
             
+            int red2 = background.getRed();
+            int blue2 = background.getBlue();
+            int green2 = background.getGreen();
+            
+            if(red2<red1||blue2<blue1||green2<green1){
+                fgcolor = Color.white;
+            }
+                       
         }
         renderer.setScaleDenominator(getScale());
         renderer.render(graphics, new java.awt.Rectangle(0,0,getWidth(),getHeight()));
@@ -139,7 +150,11 @@ public class LegendImageGenerator {
         Feature feature=null, labelFeature=null;
         TextSymbolizer textSym = sFac.getDefaultTextSymbolizer();
         textSym.getFonts()[0].setFontSize(filFac.createLiteralExpression(12.0));
-        textSym.setFill(sFac.createFill(filFac.createLiteralExpression("#000000")));
+        String colorCode = "#" + Integer.toHexString(fgcolor.getRed()) +
+            Integer.toHexString(fgcolor.getGreen()) +
+            Integer.toHexString(fgcolor.getBlue());
+
+        textSym.setFill(sFac.createFill(filFac.createLiteralExpression(colorCode)));
         int offset = vpadding;
         int items=0;
         int hstep = (getWidth() - 2* hpadding)/2;
