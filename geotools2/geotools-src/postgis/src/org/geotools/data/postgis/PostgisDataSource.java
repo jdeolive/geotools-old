@@ -77,7 +77,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.35 2003/09/09 19:53:56 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.36 2003/10/02 22:37:51 jive Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -101,7 +101,7 @@ public class PostgisDataSource extends AbstractDataSource
     public static final String DEFAULT_FID_COLUMN = "oid";
 
     /** Error message prefix for sql connection errors */
-    private static final String CONN_ERROR = "Some sort of database connection error: ";
+    protected static final String CONN_ERROR = "Some sort of database connection error: ";
 
     /** Map of sql primitives to java primitives */
     private static Map sqlTypeMap = new HashMap();
@@ -117,7 +117,7 @@ public class PostgisDataSource extends AbstractDataSource
     private int srid;
 
     /** To create the sql where statement */
-    private SQLEncoderPostgis encoder = new SQLEncoderPostgis();
+    protected SQLEncoderPostgis encoder = new SQLEncoderPostgis();
 
     /** the name of the column to use for the featureId */
     private String fidColumn;
@@ -132,7 +132,7 @@ public class PostgisDataSource extends AbstractDataSource
     private Connection transConn;
 
     /** A tablename. */
-    private String tableName;
+    protected String tableName;
 
     /**
      * Sets the table and datasource, rolls a new schema from the db.
@@ -577,7 +577,7 @@ public class PostgisDataSource extends AbstractDataSource
      *
      * @throws DataSourceException if there were problems closing it.
      */
-    private static void close(Statement statement) throws DataSourceException {
+    protected static void close(Statement statement) throws DataSourceException {
         try {
             if (statement != null) {
                 statement.close(); //this automatically closes result sets.
@@ -710,7 +710,7 @@ public class PostgisDataSource extends AbstractDataSource
      *
      * @return the prepended feautre Id.
      */
-    private String createFid(String featureId) {
+    protected String createFid(String featureId) {
         String newFid;
 
         if (Character.isDigit(featureId.charAt(0))) {
@@ -1425,7 +1425,7 @@ public class PostgisDataSource extends AbstractDataSource
      * @throws DataSourceException IF an error occurs getting the connection.
      * @throws SQLException If there is something wrong with the connection.
      */
-    private Connection getTransactionConnection()
+    protected Connection getTransactionConnection()
         throws DataSourceException, SQLException {
         if (transConn == null) {
             transConn = getConnection();
