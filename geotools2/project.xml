@@ -237,6 +237,16 @@
                 <role>Java Developer</role>
 			</roles>
 		</developer>
+		<developer>
+			<name>Brent Owens</name>
+			<id>sploreg</id>
+			<email>sploreg@users.sourceforge.net</email>
+			<organization>Refractions Research</organization>
+			<roles>
+				<role>Java Developer</role>
+		    	<role>Module Maintainer</role>
+			</roles>
+		</developer> 		
 	</developers>
 	<dependencies>
           <dependency>
