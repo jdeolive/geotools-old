@@ -32,28 +32,42 @@
  */
 package org.geotools.io.coverage;
 
+// J2SE dependencies
+import java.io.PrintWriter;
+import java.io.IOException;
+
 // JUnit dependencies
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+// Geotools dependencies
+import org.geotools.gc.GridCoverageTest;
+import org.geotools.resources.Arguments;
+
 
 /**
  * Test the {@link PropertyParser} implementation.
  *
- * @version $Id: PropertyParserTest.java,v 1.2 2003/02/16 23:24:24 desruisseaux Exp $
+ * @version $Id: PropertyParserTest.java,v 1.3 2003/03/26 15:46:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParserTest extends TestCase {
     /**
-     * Set it to <code>true</code> for printing some diagnostic message to the standard output.
+     * Set to a non-null value for printing some diagnostic message to the standard output.
      */
-    private static final boolean PRINT = false;
+    private static PrintWriter out;
 
     /**
-     * Run the suit from the command line.
+     * Run the suit from the command line. Run the test with the
+     * "-print" option in order to print test to standard output.
      */
     public static void main(final String[] args) {
+        final Arguments arguments = new Arguments(args);
+        if (arguments.getFlag("-print")) {
+            out = arguments.out;
+        }
+        arguments.getRemainingArguments(0);
         org.geotools.resources.Geotools.init();
         junit.textui.TestRunner.run(suite());
     }
@@ -94,8 +108,8 @@ public class PropertyParserTest extends TestCase {
             fail(); // We should not get there.
         } catch (AmbiguousPropertyException exception) {
             // This is the expected exception.
-            if (PRINT) {
-                System.out.println(exception);
+            if (out != null) {
+                out.println(exception);
             }
         }
         parser.add("Alias 1", "Value 1"); // Already defined
@@ -113,8 +127,8 @@ public class PropertyParserTest extends TestCase {
             fail(); // We should not get there.
         } catch (AmbiguousPropertyException exception) {
             // This is the expected exception.
-            if (PRINT) {
-                System.out.println(exception);
+            if (out != null) {
+                out.println(exception);
             }
         }
         parser.add("Alias 2bis", "Value 2");
@@ -123,8 +137,8 @@ public class PropertyParserTest extends TestCase {
             fail(); // We should not get there.
         } catch (AmbiguousPropertyException exception) {
             // This is the expected exception.
-            if (PRINT) {
-                System.out.println(exception);
+            if (out != null) {
+                out.println(exception);
             }
         }
         /*
@@ -137,8 +151,8 @@ public class PropertyParserTest extends TestCase {
             fail(); // We should not get there.
         } catch (MissingPropertyException exception) {
             // This is the expected exception.
-            if (PRINT) {
-                System.out.println(exception);
+            if (out != null) {
+                out.println(exception);
             }
         }
         /*
@@ -156,13 +170,33 @@ public class PropertyParserTest extends TestCase {
             fail(); // We should not get there.
         } catch (PropertyException exception) {
             // This is the expected exception.
-            if (PRINT) {
-                System.out.println(exception);
+            if (out != null) {
+                out.println(exception);
             }
         }
-        if (PRINT) {
-            System.out.println();
-            System.out.println(parser);
+        if (out != null) {
+            out.println();
+            out.println(parser);
+        }
+    }
+
+    /**
+     * Test the formatting.
+     */
+    public void testFormat() throws IOException {
+        final PropertyParser parser = new PropertyParser();
+        parser.addAlias(PropertyParser.PROJECTION,    "Projection"  );
+        parser.addAlias(PropertyParser.ELLIPSOID,     "Ellipsoid"   );
+        parser.addAlias(PropertyParser.X_MINIMUM,     "Upper left X");
+        parser.addAlias(PropertyParser.Y_MAXIMUM,     "Upper left Y");
+        parser.addAlias(PropertyParser.X_RESOLUTION,  "Resolution X");
+        parser.addAlias(PropertyParser.Y_RESOLUTION,  "Resolution Y");
+        parser.addAlias(PropertyParser.WIDTH,         "Width"       );
+        parser.addAlias(PropertyParser.HEIGHT,        "Height"      );
+        parser.add(GridCoverageTest.getExample(0));
+        if (out != null) {
+            parser.listProperties(out);
+            out.flush();
         }
     }
 }
