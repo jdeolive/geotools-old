@@ -329,10 +329,12 @@ public class RendererUtilities {
             LOGGER.finer("size = " + size + " unitsize " + unitSize + 
                          " drawSize " + drawSize);
         }
-
+        // @hack while this seems right it gives the wrong answer as the fill should be distorted if scaleX != scaleY
+        // curently the fill is always square!
         AffineTransform at = graphic.getTransform();
-        double scaleX = drawSize / at.getScaleX();
-        double scaleY = drawSize / -at.getScaleY();
+        double xToYratio = at.getScaleX()/at.getScaleY();
+        double scaleX = (size / width ) / at.getScaleX();
+        double scaleY = (size / height) / -at.getScaleY();
 
         /* This is needed because the image must be a fixed size in pixels
          * but when the image is used as the fill it is transformed by the
@@ -610,15 +612,13 @@ public class RendererUtilities {
                                   coords[1]);
                 }
 
-                double dx = coords[0] - previous[0];
-                double dy = coords[1] - previous[1];
+                double dx = (coords[0] - previous[0]);
+                double dy = (coords[1] - previous[1]);
                 /** @HACK This shouldn't just use the X scale */
-                double len = Math.sqrt((dx * dx) + (dy * dy)) * scaleX; // - imageWidth;
+                double len = Math.sqrt((dx * scaleX * dx * scaleX) + (dy * scaleY * dy * scaleY)); // - imageWidth;
 
-                //if(len<=0){
-                //len=imageWidth-1;
-                //}
-                double theta = Math.atan2(dx, dy);
+                double xToYRatio = scaleX/scaleY;
+                double theta = Math.atan2(dx * scaleX, dy * scaleY);
                 dx = (Math.sin(theta) * imageWidth) / scaleX;
                 dy = (Math.cos(theta) * imageHeight) / scaleY;
 
@@ -1088,7 +1088,7 @@ public class RendererUtilities {
 
         double shearY = temp.getShearY();
         double scaleY = temp.getScaleY();
-
+        double scaleX = temp.getScaleX();
         double originalRotation = Math.atan(shearY / scaleY);
 
         if (LOGGER.isLoggable(Level.FINER)) {
@@ -1096,7 +1096,8 @@ public class RendererUtilities {
         }
 
         labelAT.rotate(rotation - originalRotation);
-
+        double xToyRatio = Math.abs(scaleX/scaleY);
+        labelAT.scale(xToyRatio, 1.0/xToyRatio);
         graphic.setTransform(labelAT);
 
         applyFill(graphic, fill, feature);
