@@ -35,7 +35,7 @@ package org.geotools.styling;
  * which are as close as possible.<p>
  *
  * @author James Macgill
- * @version $Revision: 1.3 $ $Date: 2002/03/28 10:54:10 $
+ * @version $Revision: 1.4 $ $Date: 2002/05/01 16:51:53 $
  */
 public interface Stroke {
     
@@ -86,7 +86,7 @@ public interface Stroke {
     public String getLineCap();
     
     /**
-     * This parameter encodes the dash pattern as a series of space separated floats.<br>
+     * This parameter encodes the dash pattern as a seqeuence of floats.<br>
      * The first number gives the length in pixels of the dash to draw, the second gives the amount of space to leave, and this pattern repeats.<br>
      * If an odd number of values is given, then the pattern is expanded by repeating it twice to give an even number of values.
      * The default is to draw an unbroken line.<br>
@@ -94,9 +94,9 @@ public interface Stroke {
      * For example, "2 1 3 2" would produce:<br>
      * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
      *
-     * @return The dash pattern as a String of float values in the form "dashlength gaplength ..."
+     * @return The dash pattern as an array of float values in the form "dashlength gaplength ..."
      */
-    public String getDashArray();
+    public float[] getDashArray();
     
     /**
      * This parameter encodes the dash pattern as a series of space separated floats.<br>
@@ -135,6 +135,9 @@ public interface Stroke {
 
 /*
  * $Log: Stroke.java,v $
+ * Revision 1.4  2002/05/01 16:51:53  jmacgill
+ * dash array is now returned as a float array and not a string of space seperated floats
+ *
  * Revision 1.3  2002/03/28 10:54:10  jmacgill
  * work in progress
  *

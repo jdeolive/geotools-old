@@ -116,10 +116,10 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     /**
      * This parameter controls how line strings should be joined together.
      *
-     * @return The join style.  This will be one of "mitre", "round" and "bevel".  There is no defined default.
+     * @return The join style.  This will be one of "miter", "round" and "bevel".  There is no defined default.
      */
     public String getLineJoin() {
-        return "mitre";
+        return "miter";
     }
     
     /**
