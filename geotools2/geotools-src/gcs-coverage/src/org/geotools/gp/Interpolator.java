@@ -75,7 +75,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * interpolation (use the standard {@link GridCoverage} class for that).
  * It should work for other kinds of interpolation however.
  *
- * @version $Id: Interpolator.java,v 1.7 2002/10/16 22:32:19 desruisseaux Exp $
+ * @version $Id: Interpolator.java,v 1.8 2003/05/04 22:33:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Interpolator extends GridCoverage {
@@ -149,7 +149,7 @@ final class Interpolator extends GridCoverage {
      */
     public static GridCoverage create(GridCoverage coverage, final Interpolation[] interpolations) {
         if (coverage instanceof Interpolator) {
-            coverage = coverage.getSources()[0];
+            coverage = ((Interpolator)coverage).getSource();
         }
         if (interpolations.length==0 || (interpolations[0] instanceof InterpolationNearest)) {
             return coverage;
@@ -240,15 +240,25 @@ final class Interpolator extends GridCoverage {
     }
 
     /**
-     * Apply to the specified grid coverage the same interpolation than this
-     * grid coverage. This method is invoked internally by {@link #geophysics}.
-     *
-     * @param  coverage The coverage for which to apply the interpolation.
-     * @return A coverage with the same data than <code>coverage</code> but
-     *         the same interpolation than <code>this</code>.
+     * Returns the source grid coverage.
      */
-    protected GridCoverage interpolate(final GridCoverage coverage) {
-        return create(coverage, getInterpolations());
+    private GridCoverage getSource() {
+        final GridCoverage[] sources = getSources();
+        assert sources.length == 1 : sources.length;
+        return sources[0];
+    }
+
+    /**
+     * Invoked by {@link #geophysics(boolean)} when the packed or geophysics companion of this
+     * grid coverage need to be created. This method apply to the new grid coverage the same
+     * interpolation than this grid coverage.
+     *
+     * @param  geo <code>true</code> to get a grid coverage with sample values equals to
+     *         geophysics values, or <code>false</code> to get the packed version.
+     * @return The newly created grid coverage.
+     */
+    protected GridCoverage doGeophysics(final boolean geo) {
+        return create(getSource().geophysics(geo), getInterpolations());
     }
     
     /**
@@ -603,7 +613,7 @@ final class Interpolator extends GridCoverage {
      * The default value is nearest neighbor. The new interpolation type operates
      * on all sample dimensions. See package description for more details.
      *
-     * @version $Id: Interpolator.java,v 1.7 2002/10/16 22:32:19 desruisseaux Exp $
+     * @version $Id: Interpolator.java,v 1.8 2003/05/04 22:33:15 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

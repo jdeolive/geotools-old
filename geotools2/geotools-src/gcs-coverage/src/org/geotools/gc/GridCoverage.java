@@ -46,6 +46,7 @@ import java.awt.image.RenderedImage;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.awt.image.WritableRenderedImage;
+import java.awt.image.RasterFormatException;
 import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.PixelInterleavedSampleModel;
 import java.awt.image.ComponentSampleModel;
@@ -58,6 +59,7 @@ import javax.media.jai.NullOpImage;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.ImageFunction;
+import javax.media.jai.LookupTableJAI;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.util.CaselessStringKey;
@@ -131,6 +133,7 @@ import org.geotools.cv.PointOutsideCoverageException;
 import org.geotools.units.Unit;
 import org.geotools.io.LineWriter;
 import org.geotools.util.WeakHashSet;
+import org.geotools.util.NumberRange;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
@@ -152,13 +155,25 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.17 2003/05/02 22:17:46 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.18 2003/05/04 22:33:15 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
  * @see GC_GridCoverage
  */
 public class GridCoverage extends Coverage {
+    /**
+     * Slight number for rounding errors in floating point comparaison.
+     */
+    private static final float EPS = 1E-5f;
+
+    /**
+     * <code>true</code> if we should apply a conservative policy for the "piecewise" operation.
+     * The conservative policy is to apply "piecewise" only if there is no ambiguity about what
+     * the user wants.
+     */
+    private static final boolean CONSERVATIVE_PIECEWISE = true;
+
     /**
      * Axis orientation of image's coordinate systems. In most images, <var>x</var> values are
      * increasing toward the right (<code>EAST</code>)  and <var>y</var> values are increasing
@@ -709,7 +724,7 @@ public class GridCoverage extends Coverage {
      * If the <code>GridCoverage</code> was produced using
      * {@link org.geotools.gp.GridCoverageProcessor} then it should return the source
      * grid coverage of the one used as input to <code>GridCoverageProcessor</code>.
-     * In general the <code>getSource()</code> method is intended to return the original
+     * In general the <code>getSources()</code> method is intended to return the original
      * <code>GridCoverage</code> on which it depends. This is intended to allow applications
      * to establish what <code>GridCoverage</code>s will be affected when others are updated,
      * as well as to trace back to the "raw data".
@@ -1007,18 +1022,6 @@ public class GridCoverage extends Coverage {
      * @see LookupDescriptor
      * @see RescaleDescriptor
      * @see PiecewiseDescriptor
-     *
-     * @task HACK: IndexColorModel seems to badly choose its sample model. As of JDK 1.4-rc1, it
-     *             construct a ComponentSampleModel, which is drawn very slowly to the screen. A
-     *             much faster sample model is PixelInterleavedSampleModel,  which is the sample
-     *             model used by BufferedImage for TYPE_BYTE_INDEXED. We should check if this is
-     *             fixed in future J2SE release.
-     *
-     * @task HACK: This method provides an optimisation for the case of a strictly linear
-     *             transformation: it use the JAI's "Rescale" operation, which is hardware
-     *             accelerated. Unfortunatly, bug #4726416 prevent us to use this optimisation
-     *             here. The optimisation is temporarly disabled, waiting for Sun to fix the
-     *             bug. It should be fixed in JAI 1.1.2.
      */
     public GridCoverage geophysics(final boolean geo) {
         if (geo == isGeophysics) {
@@ -1030,6 +1033,47 @@ public class GridCoverage extends Coverage {
         if (!GCSUtilities.hasTransform(sampleDimensions)) {
             return inverse=this;
         }
+        synchronized (this) {
+            inverse = doGeophysics(geo);
+            inverse = interpolate(inverse);
+            if (inverse.inverse == null) {
+                inverse.inverse = this;
+            } else if (inverse.inverse != this) {
+                final Locale locale = null;
+                throw new RasterFormatException(Resources.getResources(locale).getString(
+                          ResourceKeys.ERROR_COVERAGE_ALREADY_BOUND_$2,
+                          "doGeophysics", inverse.inverse.getName(locale)));
+            }
+            return inverse;
+        }
+    }
+
+    /**
+     * Invoked by {@link #geophysics(boolean)} when the packed or geophysics companion of this
+     * grid coverage need to be created. Subclasses may override this method in order to modify
+     * the object to be created.
+     *
+     * @param  geo <code>true</code> to get a grid coverage with sample values equals to
+     *         geophysics values, or <code>false</code> to get the packed version.
+     * @return The newly created grid coverage.
+     *
+     * @task HACK: IndexColorModel seems to badly choose its sample model. As of JDK 1.4-rc1, it
+     *             construct a ComponentSampleModel, which is drawn very slowly to the screen. A
+     *             much faster sample model is PixelInterleavedSampleModel,  which is the sample
+     *             model used by BufferedImage for TYPE_BYTE_INDEXED. We should check if this is
+     *             fixed in future J2SE release.
+     *
+     * @task HACK: This method provides an optimisation for the case of a linear transformations:
+     *             it use the JAI's "Rescale" or "Piecewise" operations, which may be hardware
+     *             accelerated. Unfortunatly, bug #4726416 prevent us to use this optimisation
+     *             with JAI 1.1.1. The optimisation is enabled only if we are running JAI 1.1.2.
+     *             This hack should be removed when JAI 1.1.2 will be widely available.
+     *
+     * @task HACK: The "Piecewise" operation is disabled because javac 1.4.1_01 generate illegal
+     *             bytecode. This bug is fixed in javac 1.4.2-beta. However, we still have an
+     *             ArrayIndexOutOfBoundsException in JAI code...
+     */
+    protected GridCoverage doGeophysics(final boolean geo) {
         /*
          * STEP 1 - Gets the source image and prepare the target sample dimensions.
          *          As a slight optimisation, we skip the "Null" operations since
@@ -1069,81 +1113,238 @@ public class GridCoverage extends Coverage {
         }
         layout = layout.setSampleModel(model).setColorModel(colors);
         ParameterBlock param = new ParameterBlock().addSource(image);
+        RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
+        boolean JAI_112;
+        try {
+            // HACK for JAI 1.1.1 compatibility
+            final Object key = JAI.class.getField("KEY_REPLACE_INDEX_COLOR_MODEL").get(null);
+            hints.put(key, Boolean.FALSE);
+            JAI_112 = true;
+        } catch (Exception exception) {
+            JAI_112 = false;
+            // We are not running JAI 1.1.2. Ignore this exception,
+            // since this key in know to not exist in earlier version.
+        }
         String operation = null; // Will be set in step 3 or 4.
         /*
          * STEP 3 - Check if the transcoding could be done with the JAI's "Lookup" operation.
          *          This is probably the fatest operation available for 'geophysics(true)'.
          */
-        
-        /*
-         * STEP 4 - Check if the transcoding could be done with the JAI's "Rescale" operation.
-         *          This operation require a completly linear relationship between the source
-         *          and the destination sample values.
-         *
-         * TODO:    This optimisation is temporarily disabled because of bug #4726416.
-         */
-        if (operation==null && false) try {
-            boolean isValid = true;
-            final double[] scale  = new double[numBands];
-            final double[] offset = new double[numBands];
-            for (int i=0; i<numBands; i++) {
-                final SampleDimension  sd = sampleDimensions[i].geophysics(false);
-                if (sd.getCategories().size() == 1) {
-                    MathTransform1D transform = sd.getSampleToGeophysics();
+        if (image.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE) {
+            final Object[] data;
+            final int datatype = model.getDataType();
+            /*
+             * Allocate the arrays for table data. The data will be transformed later.
+             */
+            switch (datatype) {
+                case DataBuffer.TYPE_FLOAT: {
+                    final float[][] table = new float[numBands][];
+                    final float[]  buffer = new float[256];
+                    for (int i=0; i<buffer.length; i++) {
+                        buffer[i] = i;
+                    }
+                    for (int i=0; i<numBands; i++) {
+                        table[i] = (i==0) ? buffer : (float[])buffer.clone();
+                    }
+                    data = table;
+                    break;
+                }
+                case DataBuffer.TYPE_DOUBLE: {
+                    final double[][] table = new double[numBands][];
+                    final double[]  buffer = new double[256];
+                    for (int i=0; i<buffer.length; i++) {
+                        buffer[i] = i;
+                    }
+                    for (int i=0; i<numBands; i++) {
+                        table[i] = (i==0) ? buffer : (double[])buffer.clone();
+                    }
+                    data = table;
+                    break;
+                }
+                default: {
+                    data = null;
+                }
+            }
+            if (data != null) try {
+                /*
+                 * Transform the data.
+                 */
+                for (int i=0; i<numBands; i++) {
+                    MathTransform1D transform;
+                    transform = sampleDimensions[i].geophysics(false).getSampleToGeophysics();
                     if (!geo) {
                         // We are going to convert geophysics values to packed one.
                         transform = (MathTransform1D) transform.inverse();
                     }
-                    offset[i] = transform.transform(0);
-                    scale [i] = transform.derivative(Double.NaN);
-                    if (!Double.isNaN(scale[i]) && !Double.isNaN(offset[i])) {
-                        continue;
+                    switch (datatype) {
+                        case DataBuffer.TYPE_FLOAT: {
+                            final float[] buffer = ((float[][])data)[i];
+                            transform.transform(buffer, 0, buffer, 0, buffer.length);
+                            break;
+                        }
+                        case DataBuffer.TYPE_DOUBLE: {
+                            final double[] buffer = ((double[][])data)[i];
+                            transform.transform(buffer, 0, buffer, 0, buffer.length);
+                            break;
+                        }
+                        default: {
+                            throw new AssertionError(datatype);
+                        }
                     }
                 }
-                isValid = false;
-                break;
+                /*
+                 * Create the operation.
+                 */
+                final LookupTableJAI table;
+                switch (datatype) {
+                    case DataBuffer.TYPE_FLOAT: {
+                        table = new LookupTableJAI((float[][])data);
+                        break;
+                    }
+                    case DataBuffer.TYPE_DOUBLE: {
+                        table = new LookupTableJAI((double[][])data);
+                        break;
+                    }
+                    default: {
+                        throw new AssertionError(datatype);
+                    }
+                }
+                operation = "Lookup";
+                param = param.add(table);
+            } catch (TransformException exception) {
+                // A value can't be constructed. Fallback on a more general operation.
+                // REVISIT: the more general operations are likely to fail too...
             }
-            if (isValid) {
-                operation = "Rescale";
-                param = param.add(scale).add(offset);
-            }
-        } catch (TransformException exception) {
-            // At least one band doesn't use a linear relation.
-            // Ignore the exception and fallback on the next case.
         }
         /*
-         * STEP 5 - Check if the transcoding could be done with the "Piecewise" operation.
-         *          Piecewise breakpoints are very similar to categories, except that all
-         *          transformations must be linear.
+         * STEP 4 - Check if the transcoding could be done with a JAI's "Rescale" or "Piecewise"
+         *          operations. The "Rescale" operation requires a completly linear relationship
+         *          between the source and the destination sample values. The "Piecewise" operation
+         *          is less strict: piecewise breakpoints are very similar to categories, but the
+         *          transformation for all categories still have to be linear.
          */
-        if (operation==null && false) try {
-            boolean isValid = true;
-            final float[][][] breakpoints = new float[numBands][][];
-            for (int i=0; i<numBands; i++) {
-                final SampleDimension sd = sampleDimensions[i].geophysics(false);
-                final List categories = sd.getCategories();
-                final float[] sourceBreakpoints = new float[categories.size()];
-                final float[] targetBreakpoints = new float[sourceBreakpoints.length];
-                breakpoints[i] = new float[][] {sourceBreakpoints, targetBreakpoints};
-                for (int j=0; j<sourceBreakpoints.length; j++) {
+        if (operation==null && JAI_112) try {
+            boolean     canRescale   = true; // 'true' if the "Rescale"   operation can be applied.
+            boolean     canPiecewise = true; // 'true' if the "Piecewise" operation can be applied.
+            double[]    scales       = null; // The first  argument for "Rescale".
+            double[]    offsets      = null; // The second argument for "Rescale".
+            float[][][] breakpoints  = null; // The only   argument for "Piecewise".
+testLinear: for (int i=0; i<numBands; i++) {
+                final SampleDimension  sd = sampleDimensions[i];
+                final List     categories = sd.getCategories();
+                final int   numCategories = categories.size();
+                float[] sourceBreakpoints = null;
+                float[] targetBreakpoints = null;
+                double expectedSource = Double.NaN;
+                double expectedTarget = Double.NaN;
+                int jbp = 0; // Break point index (vary with j)
+                for (int j=0; j<numCategories; j++) {
                     final Category category = (Category) categories.get(j);
-                    MathTransform1D transform = category.getSampleToGeophysics();
+                    MathTransform1D transform = category.geophysics(false).getSampleToGeophysics();
                     if (transform == null) {
-                        // TODO
-                    } else if (!geo) {
+                        // A "qualitative" category was found. Those categories maps NaN values,
+                        // which need the special processing done by our "SampleTranscode" op.
+                        canRescale   = false;
+                        canPiecewise = false;
+                        break testLinear;
+                    }
+                    if (!geo) {
                         // We are going to convert geophysics values to packed one.
                         transform = (MathTransform1D) transform.inverse();
                     }
-                    // TODO: continue hacking here...
+                    final double offset = transform.transform(0);
+                    final double scale  = transform.derivative(Double.NaN);
+                    if (Double.isNaN(scale) || Double.isNaN(offset)) {
+                        // One category doesn't use a linear transformation. We can't deal with
+                        // that with "Rescale" or "Piecewise". Fallback on our "SampleTranscode".
+                        canRescale   = false;
+                        canPiecewise = false;
+                        break testLinear;
+                    }
+                    // Allocate arrays the first time the loop is run up to this point.
+                    // Store scale and offset, and check if they still the same.
+                    if (j == 0) {
+                        if (i == 0) {
+                            scales      = new double[numBands];
+                            offsets     = new double[numBands];
+                            breakpoints = new float [numBands][][];
+                        }
+                        sourceBreakpoints = new float[numCategories * 2];
+                        targetBreakpoints = new float[numCategories * 2];
+                        breakpoints[i] = new float[][] {sourceBreakpoints, targetBreakpoints};
+                        offsets    [i] = offset;
+                        scales     [i] = scale;
+                    }
+                    if (offset!=offsets[i] || scale!=scales[i]) {
+                        canRescale = false;
+                    }
+                    // Compute breakpoints.
+                    final NumberRange range = category.getRange();
+                    final double    minimum = range.getMinimum(true);
+                    final double    maximum = range.getMaximum(true);
+                    final float   sourceMin = (float) minimum;
+                    final float   sourceMax = (float) maximum;
+                    final float   targetMin = (float)(minimum * scale + offset);
+                    final float   targetMax = (float)(maximum * scale + offset);
+                    assert sourceMin <= sourceMax : range;
+                    if (Math.abs(minimum - expectedSource) <= EPS) {
+                        if (Math.abs(targetMin - expectedTarget) <= EPS) {
+                            // This breakpoint is identical to the previous one. Do not
+                            // duplicate; overwrites the previous one since this one is
+                            // likely to be more accurate.
+                            jbp--;
+                        } else {
+                            // Found a discontinuity!!! The "piecewise" operation is not really
+                            // designed for such case. The behavior between the last breakpoint
+                            // and the current one may not be what the user expected.
+                            assert sourceBreakpoints[jbp-1] < sourceMin : expectedSource;
+                            if (CONSERVATIVE_PIECEWISE) {
+                                canPiecewise = false;
+                            }
+                        }
+                    } else if (j!=0) {
+                        // Found a gap between the last category and the current one. The
+                        // "piecewise" operation may not behave as the user expected  for
+                        // sample values falling in this gap.
+                        assert !(expectedSource > sourceMin) : expectedSource;
+                        if (CONSERVATIVE_PIECEWISE) {
+                            canPiecewise = false;
+                        }
+                    }
+                    sourceBreakpoints[jbp  ] = sourceMin;
+                    sourceBreakpoints[jbp+1] = sourceMax;
+                    targetBreakpoints[jbp  ] = targetMin;
+                    targetBreakpoints[jbp+1] = targetMax;
+                    jbp += 2;
+                    expectedSource = range.getMaximum(false);
+                    expectedTarget = expectedSource * scale + offset;
                 }
+                if (false) {
+                    // HACK: temporarily disabled because 'javac' 1.4.1_02 produces invalid
+                    //       bytecode. This bug is fixed in 'java' 1.4.2-beta. Furthermore,
+                    //       the "piecewise" operation throws an ArrayIndexOutOfBoundsException
+                    //       in JAI code for an unknow reason...
+                    breakpoints[i][0] = sourceBreakpoints = XArray.resize(sourceBreakpoints, jbp);
+                    breakpoints[i][1] = targetBreakpoints = XArray.resize(targetBreakpoints, jbp);
+                    assert XArray.isSorted(sourceBreakpoints);
+                } else {
+                    canPiecewise = false;
+                }
+            }
+            if (canRescale) {
+                operation = "Rescale";
+                param = param.add(scales).add(offsets);
+            } else if (canPiecewise) {
+                operation = "Piecewise";
+                param = param.add(breakpoints);
             }
         } catch (TransformException exception) {
             // At least one category doesn't use a linear relation.
-            // Ignore the exception and fallback on the general case.
+            // Ignore the exception and fallback on the next case.
         }
         /*
-         * Transcode the image sample values. The "SampleTranscode" operation is
-         * registered in the org.geotools.cv package in the SampleDimension class.
+         * STEP 5 - Transcode the image sample values. The "SampleTranscode" operation is
+         *          registered in the org.geotools.cv package in the SampleDimension class.
          */
         if (operation == null) {
             param = param.add(sampleDimensions);
@@ -1162,13 +1363,9 @@ public class GridCoverage extends Coverage {
             record.setSourceMethodName("geophysics");
             logger.log(record);
         }
-        inverse = new GridCoverage(getName(null), JAI.create(operation, param,
-                                   new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout)),
-                                   coordinateSystem, getGridGeometry(), null,
-                                   targetBands, new GridCoverage[]{this}, null);
-        inverse = interpolate(inverse);
-        inverse.inverse = this;
-        return inverse;
+        return new GridCoverage(getName(null), JAI.create(operation, param, hints),
+                                coordinateSystem, getGridGeometry(), null,
+                                targetBands, new GridCoverage[]{this}, null);
     }
 
     /**
@@ -1178,6 +1375,9 @@ public class GridCoverage extends Coverage {
      * @param  coverage The coverage for which to apply the interpolation.
      * @return A coverage with the same data than <code>coverage</code> but
      *         the same interpolation than <code>this</code>.
+     *
+     * @deprecated Override {@link #doGeophysics} instead. This method will be removed
+     *             in a future version.
      */
     protected GridCoverage interpolate(final GridCoverage coverage) {
         // This method is overriden by org.geotools.gp.Interpolator
@@ -1222,7 +1422,7 @@ public class GridCoverage extends Coverage {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.17 2003/05/02 22:17:46 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.18 2003/05/04 22:33:15 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1251,7 +1451,7 @@ public class GridCoverage extends Coverage {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.17 2003/05/02 22:17:46 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.18 2003/05/04 22:33:15 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {

@@ -71,6 +71,7 @@ public interface ResourceKeys
     public static final int ERROR_CANT_REGISTER_JAI_OPERATION_$1 =    73;
     public static final int ERROR_CANT_REPROJECT_$1              =    32;
     public static final int ERROR_CANT_TRANSFORM_ENVELOPE        =    33;
+    public static final int ERROR_COVERAGE_ALREADY_BOUND_$2      =    78;
     public static final int ERROR_EMPTY_ENVELOPE                 =    35;
     public static final int ERROR_ENVELOPE_MISMATCH              =    36;
     public static final int ERROR_FILE_HAS_TOO_FEW_DATA          =    37;

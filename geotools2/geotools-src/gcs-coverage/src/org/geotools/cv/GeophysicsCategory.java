@@ -56,7 +56,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * values.   By definition, the {@link #getSampleToGeophysics} method for this class returns
  * the identity transform, or <code>null</code> if this category is a qualitative one.
  *
- * @version $Id: GeophysicsCategory.java,v 1.6 2003/05/02 22:17:45 desruisseaux Exp $
+ * @version $Id: GeophysicsCategory.java,v 1.7 2003/05/04 22:33:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GeophysicsCategory extends Category {
@@ -104,24 +104,33 @@ final class GeophysicsCategory extends Category {
      * Returns the range of geophysics value.
      *
      * @return The range of geophysics values.
-     * @throws IllegalStateException if sample values
-     *         can't be transformed into geophysics values.
+     * @throws IllegalStateException if sample values can't be transformed into geophysics values.
+     *
+     * @task TODO: The algorithm for finding minimum and maximum values is very simple for
+     *             now and will not work if the transformation has local extremas. We would
+     *             need some more sophesticated algorithm for the most general cases. Such
+     *             a general algorithm would be usefull in the super-class constructor as well.
      */
     public NumberRange getRange() throws IllegalStateException {
         if (range == null) try {
-            double min, max;
-            min = inverse.transform.transform(inverse.range.getMinimum());
-            max = inverse.transform.transform(inverse.range.getMaximum());
-            boolean minIncluded = inverse.range.isMinIncluded();
-            boolean maxIncluded = inverse.range.isMaxIncluded();
-            if (min > max) {
-                final double tmp;
+            final MathTransform1D tr = inverse.transform;
+            final NumberRange r = inverse.range;
+            boolean minIncluded = r.isMinIncluded();
+            boolean maxIncluded = r.isMaxIncluded();
+            double min  = tr.transform(r.getMinimum());
+            double max  = tr.transform(r.getMaximum());
+            double min2 = tr.transform(r.getMinimum(!minIncluded));
+            double max2 = tr.transform(r.getMaximum(!maxIncluded));
+            if ((minIncluded ? min2 : min) > (maxIncluded ? max2 : max)) {
+                final double  tmp, tmp2;
                 final boolean tmpIncluded;
-                tmp = min;   tmpIncluded = minIncluded;
-                min = max;   minIncluded = maxIncluded;
-                max = tmp;   maxIncluded = tmpIncluded;
+                tmp=min;   tmp2=min2;  tmpIncluded=minIncluded;
+                min=max;   min2=max2;  minIncluded=maxIncluded;
+                max=tmp;   max2=tmp2;  maxIncluded=tmpIncluded;
             }
-            range = new NumberRange(min, minIncluded, max, maxIncluded);
+            assert Double.doubleToLongBits(minimum) == Double.doubleToLongBits(minIncluded ? min : min2);
+            assert Double.doubleToLongBits(maximum) == Double.doubleToLongBits(maxIncluded ? max : max2);
+            range = new Range(min, minIncluded, max, maxIncluded, min2, max2);
 
         } catch (TransformException cause) {
             IllegalStateException exception = new IllegalStateException(Resources.format(
@@ -151,8 +160,7 @@ final class GeophysicsCategory extends Category {
     }
     
     /**
-     * Returns a new category for the same range of sample values but
-     * a different color palette.
+     * Returns a new category for the same range of sample values but a different color palette.
      */
     public Category recolor(final Color[] colors) {
         assert !(inverse instanceof GeophysicsCategory) : inverse;
@@ -172,11 +180,73 @@ final class GeophysicsCategory extends Category {
     }
 
     /**
-     * If <code>false</code>, returns a category with the
-     * original sample values.
+     * If <code>false</code>, returns a category with the original sample values.
      */
     public Category geophysics(final boolean toGeophysics) {
         assert !(inverse instanceof GeophysicsCategory) : inverse;
         return inverse.geophysics(toGeophysics);
+    }
+
+
+
+
+    /**
+     * Range of geophysics values computed from the range of the {@linkplain #inverse indexed
+     * category}. The <code>inverse.transform</code> transformation is used for computing the
+     * inclusive and exclusive minimum and maximum values of this range.  We compute both the
+     * inclusive and exclusive values because we can't rely on the default implementation, which
+     * looks for the nearest representable number. For example is the range of index values is 0
+     * to 10 exclusive (or 0 to 9 inclusive) and the scale is 2, then the range of geophysics
+     * values is 0 to 20 exclusive or 0 to 18 inclusive, not 0 to 19.9999... The numbers between
+     * 18 and 20 is a "gray area" where we don't know for sure what the user intend to do.
+     *
+     * @version $Id: GeophysicsCategory.java,v 1.7 2003/05/04 22:33:14 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     *
+     * @see GeophysicsCategory#getRange
+     */
+    private static final class Range extends NumberRange {
+        /**
+         * Serial number for interoperability with different versions.
+         */
+        private static final long serialVersionUID = -1416908614729956928L;
+
+        /**
+         * The minimal value to be returned by {@link #getMinimum(boolean)} when the
+         * <code>inclusive</code> flag is the opposite of {@link #isMinIncluded()}.
+         */
+        private final double minimum2;
+
+        /**
+         * The maximal value to be returned by {@link #getMaximum(boolean)} when the
+         * <code>inclusive</code> flag is the opposite of {@link #isMaxIncluded()}.
+         */
+        private final double maximum2;
+
+        /**
+         * Construct a range of <code>double</code> values.
+         */
+        public Range(final double minimum,  final boolean isMinIncluded,
+                     final double maximum,  final boolean isMaxIncluded,
+                     final double minimum2, final double  maximum2)
+        {
+            super(minimum, isMinIncluded, maximum, isMaxIncluded);
+            this.minimum2 = minimum2;
+            this.maximum2 = maximum2;
+        }
+
+        /**
+         * Returns the minimum value with the specified inclusive or exclusive state.
+         */
+        public double getMinimum(final boolean inclusive) {
+            return (inclusive == isMinIncluded()) ? getMinimum() : minimum2;
+        }
+
+        /**
+         * Returns the maximum value with the specified inclusive or exclusive state.
+         */
+        public double getMaximum(final boolean inclusive) {
+            return (inclusive == isMaxIncluded()) ? getMaximum() : maximum2;
+        }
     }
 }

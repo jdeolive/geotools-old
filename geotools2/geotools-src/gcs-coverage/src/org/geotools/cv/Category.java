@@ -96,12 +96,12 @@ import org.geotools.resources.gcs.ResourceKeys;
  * use a logarithmic transform. General transformations are expressed with a
  * {@link MathTransform1D} object. In the special case where the transformation
  * is a linear one (as in the formula above), then a <code>Category</code> object
- * may be understood as one breakpoint in the JAI's {@linkplain PiecewiseDescriptor
- * piecewise} operation.
+ * may be understood as the interval between two breakpoints in the JAI's
+ * {@linkplain PiecewiseDescriptor piecewise} operation.
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.15 2003/05/02 22:17:45 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.16 2003/05/04 22:33:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see SampleDimension
@@ -540,6 +540,12 @@ public class Category implements Serializable {
      * @param  inverse The originating {@link Category}.
      * @param  isQuantitative <code>true</code> if the originating category is quantitative.
      * @throws TransformException if a transformation failed.
+     *
+     * @task TODO: The algorithm for finding minimum and maximum values is very simple for
+     *             now and will not work if the transformation has local extremas. We would
+     *             need some more sophesticated algorithm for the most general cases. Such
+     *             a general algorithm would be usefull in {@link GeophysicsCategory#getRange}
+     *             as well.
      */
     Category(final Category inverse, final boolean isQuantitative) throws TransformException {
         assert  (this    instanceof GeophysicsCategory);
@@ -748,6 +754,8 @@ public class Category implements Serializable {
      *
      * @return The range of sample values.
      *
+     * @see NumberRange#getMinimum(boolean)
+     * @see NumberRange#getMaximum(boolean)
      * @see SampleDimension#getMinimumValue()
      * @see SampleDimension#getMaximumValue()
      */
@@ -955,7 +963,7 @@ public class Category implements Serializable {
      * A category with a localized name. Used for the pre-defined categories
      * {@link #NODATA}, {@link #FALSE} and {@link #TRUE}.
      *
-     * @version $Id: Category.java,v 1.15 2003/05/02 22:17:45 desruisseaux Exp $
+     * @version $Id: Category.java,v 1.16 2003/05/04 22:33:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Localized extends Category {

@@ -83,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.14 2003/05/02 22:17:45 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.15 2003/05/04 22:33:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable {
@@ -516,10 +516,8 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
         if (range == null) {
             NumberRange range = null;
             for (int i=0; i<categories.length; i++) {
-                NumberRange extent = categories[i].getRange();
-                if (!Double.isNaN(((Number)extent.getMinValue()).doubleValue()) &&
-                    !Double.isNaN(((Number)extent.getMaxValue()).doubleValue()))
-                {
+                final NumberRange extent = categories[i].getRange();
+                if (!Double.isNaN(extent.getMinimum()) && !Double.isNaN(extent.getMaximum())) {
                     if (range != null) {
                         range = NumberRange.wrap(range.union(extent));
                     } else {
@@ -641,24 +639,23 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
             // Consequently, we can't map a category to this value.
             return null;
         }
-        assert i == Arrays.binarySearch(minimums, sample);
+        assert i == Arrays.binarySearch(minimums, sample) : i;
         // 'binarySearch' found the index of "insertion point" (~i). This means that
         // 'sample' is lower than 'Category.minimum' at this index. Consequently, if
         // this value fits in a category's range, it fits in the previous category (~i-1).
         i = ~i-1;
         if (i >= 0) {
             final Category category = categories[i];
-            assert sample > category.minimum;
+            assert sample > category.minimum : sample;
             if (sample <= category.maximum) {
                 return category;
             }
             if (overflowFallback != null) {
                 if (++i < categories.length) {
                     final Category upper = categories[i];
-                    // assertion: if 'upper.minimum' was smaller than 'value',
-                    //            it should has been found by 'binarySearch'.
-                    //            We use '!' in order to accept NaN values.
-                    assert !(upper.minimum <= sample);
+                    // ASSERT: if 'upper.minimum' was smaller than 'value', it should has been
+                    //         found by 'binarySearch'. We use '!' in order to accept NaN values.
+                    assert !(upper.minimum <= sample) : sample;
                     return (upper.minimum-sample < sample-category.maximum) ? upper : category;
                 }
                 return overflowFallback;
@@ -1145,6 +1142,16 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
                             minTr = category.inverse.minimum;
                         }
                     }
+                    /*
+                     * TODO: This assertion fails in some circonstance: during conversions from
+                     *       geophysics to sample values  and  when the sample value is outside
+                     *       the inclusive range but inside the exclusive range... In this case
+                     *       'getCategory(double)' may choose the wrong category. The fix would
+                     *       be to add new fiels in Category: we should have 'minInclusive' and
+                     *       'minExclusive' instead of just 'minimum',  and same for 'maximum'.
+                     *       The CategoryList.minimums array would still inclusive,   but tests
+                     *       for range inclusion should use the exclusive extremas.
+                     */
                     assert hasGaps || (category==nodata) || // Disable assertion in those cases
                            (Double.isNaN(value) ? Double.doubleToRawLongBits(value) == rawBits
                                                 : (value>=minimum && value<=maximum)) : value;
