@@ -77,6 +77,16 @@
       <version>2.0-B2-DEV</version>
     </dependency>
     <dependency>
+      <artifactId>gmldatasource</artifactId>
+      <groupId>gt2</groupId>
+      <version>2.0-B2-DEV</version>
+    </dependency>
+    <dependency>
+      <artifactId>filter</artifactId>
+      <groupId>gt2</groupId>
+      <version>2.0-B2-DEV</version>
+    </dependency>
+    <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
       <version>2.0-B2-DEV</version>
