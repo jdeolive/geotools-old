@@ -26,7 +26,7 @@ import org.geotools.feature.*;
 /**
  * Implements a default expression, with helpful variables and static methods.
  *
- * @version $Id: ExpressionDefault.java,v 1.5 2002/06/05 13:11:50 loxnard Exp $
+ * @version $Id: ExpressionDefault.java,v 1.6 2002/06/20 22:42:00 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionDefault implements Expression {
@@ -78,7 +78,7 @@ public class ExpressionDefault implements Expression {
      * Gets the type of this expression.
      */
     public short getType() {
-        return 0;
+        return expressionType;
     }
 
     /**
