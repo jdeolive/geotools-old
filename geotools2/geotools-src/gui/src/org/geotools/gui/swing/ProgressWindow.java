@@ -1,5 +1,7 @@
 /*
- * SEAS - Surveillance de l'Environnement Assistée par Satellites
+ * Geotools - OpenSource mapping toolkit
+ * (C) 2001, Institut de Recherche pour le Développement
+ * (C) 1999, Pêches et Océans Canada
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -11,16 +13,24 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *
  * Contacts:
+ *     UNITED KINGDOM: James Macgill
+ *             mailto:j.macgill@geog.leeds.ac.uk
+ *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
- *             Institut de Recherche pour le Développement
+ *             Institut de Recherche pour le Développement / US-Espace
  *             mailto:seasnet@teledetection.fr
  *
  *     CANADA: Observatoire du Saint-Laurent
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.gui.progress;
+package org.geotools.gui.swing;
 
 // J2SE dependencies
 import java.awt.Font;
@@ -47,8 +57,8 @@ import javax.swing.BoundedRangeModel;
 import java.lang.reflect.InvocationTargetException;
 
 // Geotools dependencies
+import org.geotools.util.ProgressListener;
 import org.geotools.resources.Utilities;
-import org.geotools.gui.swing.ExceptionMonitor;
 import org.geotools.resources.gui.Resources;
 import org.geotools.resources.gui.ResourceKeys;
 
@@ -60,7 +70,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * la lecture pour autant.
  *
  * <p>&nbsp;</p>
- * <p align="center"><img src="../swing/doc-files/SwingProgress.png"></p>
+ * <p align="center"><img src="doc-files/ProgressWindow.png"></p>
  * <p>&nbsp;</p>
  *
  * <p>Cette classe est conçue pour fonctionner correctement même si ses méthodes sont appellées
@@ -69,10 +79,10 @@ import org.geotools.resources.gui.ResourceKeys;
  * problèmes de synchronisation. En général, faire l'opération en arrière plan est recommandé
  * afin de permettre le rafraichissement de l'écran par <i>Swing</i>.</p>
  *
- * @version $Id: SwingProgress.java,v 1.1 2003/02/03 14:51:04 desruisseaux Exp $
+ * @version $Id: ProgressWindow.java,v 1.1 2003/02/03 15:31:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class SwingProgress extends Progress {
+public class ProgressWindow implements ProgressListener {
     /**
      * Largeur initiale de la fenêtre des progrès, en pixels.
      */
@@ -154,7 +164,7 @@ public class SwingProgress extends Progress {
      *        construite dans le même cadre que cette composante. Ce
      *        paramètre peut être nul s'il n'y a pas de parent.
      */
-    public SwingProgress(final Component parent) {
+    public ProgressWindow(final Component parent) {
         /*
          * Création de la fenêtre qui contiendra
          * les composantes affichant le progrès.
@@ -354,6 +364,20 @@ public class SwingProgress extends Progress {
     }
 
     /**
+     * Retourne la chaîne <code>margin</code> sans les
+     * éventuelles parenthèses qu'elle pourrait avoir
+     * de part et d'autre.
+     */
+    private static String trim(String margin) {
+        margin = margin.trim();
+        int lower = 0;
+        int upper = margin.length();
+        while (lower<upper && margin.charAt(lower+0)=='(') lower++;
+        while (lower<upper && margin.charAt(upper-1)==')') upper--;
+        return margin.substring(lower, upper);
+    }
+
+    /**
      * Interroge une des composantes de la boîte des progrès.
      * L'interrogation sera faite dans le thread de <i>Swing</i>.
      *
@@ -383,8 +407,8 @@ public class SwingProgress extends Progress {
      * Signale qu'une erreur inatendue est survenue.
      */
     private static void unexpectedException(final String method, final Exception exception) {
-        Utilities.unexpectedException("org.geotools.gui.progress",
-                                      "SwingProgress", method, exception);
+        Utilities.unexpectedException("org.geotools.gui.swing",
+                                      "ProgressWindow", method, exception);
     }
 
     /**
@@ -436,7 +460,7 @@ public class SwingProgress extends Progress {
      * tandis qu'une valeur négative signifie que l'on interroge l'état de la comosante
      * (dans ce cas, il faudra extrait l'état du champ {@link #text}).
      *
-     * @version $Id: SwingProgress.java,v 1.1 2003/02/03 14:51:04 desruisseaux Exp $
+     * @version $Id: ProgressWindow.java,v 1.1 2003/02/03 15:31:05 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private class Caller implements Runnable {
@@ -522,9 +546,9 @@ public class SwingProgress extends Progress {
                 case  STARTED: model.setRangeProperties(  0,1,0,100,false); window.setVisible(true); break;
                 case COMPLETE: model.setRangeProperties(100,1,0,100,false); window.setVisible(warningArea!=null); break;
             }
-            synchronized (SwingProgress.this) {
+            synchronized (ProgressWindow.this) {
                 if (window instanceof JDialog) {
-                    final JDialog window = (JDialog) SwingProgress.this.window;
+                    final JDialog window = (JDialog) ProgressWindow.this.window;
                     switch (task) {
                         case   +TITLE: window.setTitle(text);  return;
                         case   -TITLE: text=window.getTitle(); return;
@@ -535,7 +559,7 @@ public class SwingProgress extends Progress {
                                        return;
                     }
                 } else {
-                    final JInternalFrame window = (JInternalFrame) SwingProgress.this.window;
+                    final JInternalFrame window = (JInternalFrame) ProgressWindow.this.window;
                     switch (task) {
                         case   +TITLE: window.setTitle(text);     return;
                         case   -TITLE: text=window.getTitle();    return;
@@ -555,7 +579,7 @@ public class SwingProgress extends Progress {
                     final JScrollPane        scroll = new JScrollPane(warningArea);
                     final JPanel              panel = new JPanel(new BorderLayout());
                     final JPanel              title = new JPanel(new BorderLayout());
-                    SwingProgress.this.warningArea = warningArea;
+                    ProgressWindow.this.warningArea = warningArea;
                     warningArea.setFont(Font.getFont("Monospaced"));
                     warningArea.setEditable(false);
                     title.setBorder(BorderFactory.createEmptyBorder(0,HMARGIN,VMARGIN,HMARGIN));
@@ -564,17 +588,17 @@ public class SwingProgress extends Progress {
                     title.add(scroll,                                      BorderLayout.CENTER);
                     panel.add(title,                                       BorderLayout.CENTER);
                     if (window instanceof JDialog) {
-                        final JDialog window = (JDialog) SwingProgress.this.window;
+                        final JDialog window = (JDialog) ProgressWindow.this.window;
                         window.setContentPane(panel);
                         window.setResizable(true);
                     } else {
-                        final JInternalFrame window = (JInternalFrame) SwingProgress.this.window;
+                        final JInternalFrame window = (JInternalFrame) ProgressWindow.this.window;
                         window.setContentPane(panel);
                         window.setResizable(true);
                     }
                     window.setSize(WIDTH, HEIGHT+WARNING_HEIGHT);
                 }
-                final JTextArea warningArea=(JTextArea) SwingProgress.this.warningArea;
+                final JTextArea warningArea=(JTextArea) ProgressWindow.this.warningArea;
                 warningArea.append(text);
             }
         }

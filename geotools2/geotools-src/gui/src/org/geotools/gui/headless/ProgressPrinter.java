@@ -1,5 +1,7 @@
 /*
- * SEAS - Surveillance de l'Environnement Assistée par Satellites
+ * Geotools - OpenSource mapping toolkit
+ * (C) 2001, Institut de Recherche pour le Développement
+ * (C) 1999, Pêches et Océans Canada
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -11,16 +13,24 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *
  * Contacts:
+ *     UNITED KINGDOM: James Macgill
+ *             mailto:j.macgill@geog.leeds.ac.uk
+ *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
- *             Institut de Recherche pour le Développement
+ *             Institut de Recherche pour le Développement / US-Espace
  *             mailto:seasnet@teledetection.fr
  *
  *     CANADA: Observatoire du Saint-Laurent
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.gui.progress;
+package org.geotools.gui.headless;
 
 // Gestion des entrés/sorties
 import java.lang.System;
@@ -36,6 +46,7 @@ import java.text.NumberFormat;
 import java.text.BreakIterator;
 
 // Divers
+import org.geotools.util.ProgressListener;
 import org.geotools.resources.Arguments;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.gui.Resources;
@@ -49,10 +60,10 @@ import org.geotools.resources.gui.ResourceKeys;
  * ce qui est utile entre autre lors de la lecture d'un fichier de données durant laquelle
  * on veut signaler des anomalies mais sans arrêter la lecture pour autant.
  *
- * @version $Id: PrintProgress.java,v 1.1 2003/02/03 14:51:04 desruisseaux Exp $
+ * @version $Id: ProgressPrinter.java,v 1.1 2003/02/03 15:31:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class PrintProgress extends Progress {
+public class ProgressPrinter implements ProgressListener {
     /**
      * Nom de l'opération en cours. Le pourcentage sera écris à la droite de ce nom.
      */
@@ -100,8 +111,7 @@ public class PrintProgress extends Progress {
     private float lastPercent = -1;
 
     /**
-     * Format à utiliser pour
-     * écrire les pourcentages.
+     * Format à utiliser pour écrire les pourcentages.
      */
     private NumberFormat format;
 
@@ -129,7 +139,7 @@ public class PrintProgress extends Progress {
      * ({@link java.lang.System#out}) l'état d'avancement d'une opération.
      * La longueur par défaut des lignes sera de 80 caractères.
      */
-    public PrintProgress() {
+    public ProgressPrinter() {
         this(new PrintWriter(Arguments.getWriter(System.out)));
     }
 
@@ -138,7 +148,7 @@ public class PrintProgress extends Progress {
      * sortie spécifié l'état d'avancement d'une opération.
      * La longueur par défaut des lignes sera de 80 caractères.
      */
-    public PrintProgress(final PrintWriter out) {
+    public ProgressPrinter(final PrintWriter out) {
         this(out, 80);
     }
 
@@ -151,7 +161,7 @@ public class PrintProgress extends Progress {
      *        par {@link #warningOccurred} pour répartir sur plusieurs lignes des
      *        messages qui ferait plus que la longueur <code>lineLength</code>.
      */
-    public PrintProgress(final PrintWriter out, final int maxLength) {
+    public ProgressPrinter(final PrintWriter out, final int maxLength) {
         this.out = out;
         this.maxLength = maxLength;
         final String lineSeparator = System.getProperty("line.separator");
@@ -300,6 +310,13 @@ public class PrintProgress extends Progress {
     }
 
     /**
+     * Libère les ressources utilisées par cet objet.
+     * L'implémentation par défaut ne fait rien.
+     */
+    public void dispose() {
+    }
+
+    /**
      * Envoie un message d'avertissement. La première fois que cette méthode est appellée, le mot
      * "AVERTISSEMENTS" sera écrit en lettres majuscules au milieu d'une boîte. Si une source est
      * spécifiée (argument <code>source</code>), elle ne sera écrite qu'à la condition qu'elle
@@ -389,6 +406,20 @@ public class PrintProgress extends Progress {
         exception.printStackTrace(out);
         hasPrintedWarning = false;
         out.flush();
+    }
+
+    /**
+     * Retourne la chaîne <code>margin</code> sans les
+     * éventuelles parenthèses qu'elle pourrait avoir
+     * de part et d'autre.
+     */
+    private static String trim(String margin) {
+        margin = margin.trim();
+        int lower = 0;
+        int upper = margin.length();
+        while (lower<upper && margin.charAt(lower+0)=='(') lower++;
+        while (lower<upper && margin.charAt(upper-1)==')') upper--;
+        return margin.substring(lower, upper);
     }
 
     /**

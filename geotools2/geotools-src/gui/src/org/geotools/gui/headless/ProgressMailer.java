@@ -1,5 +1,7 @@
 /*
- * SEAS - Surveillance de l'Environnement Assistée par Satellites
+ * Geotools - OpenSource mapping toolkit
+ * (C) 2001, Institut de Recherche pour le Développement
+ * (C) 1999, Pêches et Océans Canada
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -11,16 +13,24 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *
  * Contacts:
+ *     UNITED KINGDOM: James Macgill
+ *             mailto:j.macgill@geog.leeds.ac.uk
+ *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
- *             Institut de Recherche pour le Développement
+ *             Institut de Recherche pour le Développement / US-Espace
  *             mailto:seasnet@teledetection.fr
  *
  *     CANADA: Observatoire du Saint-Laurent
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.gui.progress;
+package org.geotools.gui.headless;
 
 // Java Mail
 import javax.mail.Session;
@@ -47,6 +57,7 @@ import java.text.NumberFormat;
 import java.text.FieldPosition;
 
 // Geotools dependencies
+import org.geotools.util.ProgressListener;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.gui.Resources;
 import org.geotools.resources.gui.ResourceKeys;
@@ -56,10 +67,10 @@ import org.geotools.resources.gui.ResourceKeys;
  * Informe l'utilisateur des progrès d'une opération en envoyant
  * des courriers électroniques à intervalles régulier.
  *
- * @version $Id: MailProgress.java,v 1.1 2003/02/03 14:51:04 desruisseaux Exp $
+ * @version $Id: ProgressMailer.java,v 1.1 2003/02/03 15:31:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class MailProgress extends Progress {
+public class ProgressMailer implements ProgressListener {
     /**
      * Nom de l'opération en cours. Le pourcentage
      * sera écris à la droite de ce nom.
@@ -103,7 +114,7 @@ public class MailProgress extends Progress {
      * @param  address Adresse à laquelle envoyer les messages.
      * @throws AddressException si l'adresse spécifiée n'est pas dans un format valide.
      */
-    public MailProgress(final String host, final String address) throws AddressException {
+    public ProgressMailer(final String host, final String address) throws AddressException {
         this(Session.getDefaultInstance(properties(host)), new InternetAddress[] {
                 new InternetAddress(address)});
     }
@@ -114,7 +125,7 @@ public class MailProgress extends Progress {
      *
      * @param session Session à utiliser pour envoyer des courriels.
      */
-    public MailProgress(final Session session, final Address[] address) {
+    public ProgressMailer(final Session session, final Address[] address) {
         this.session = session;
         this.address = address;
         this.locale  = Locale.getDefault();
@@ -265,6 +276,13 @@ public class MailProgress extends Progress {
      */
     public synchronized void complete() {
         send("complete", 100);
+    }
+
+    /**
+     * Libère les ressources utilisées par cet objet.
+     * L'implémentation par défaut ne fait rien.
+     */
+    public void dispose() {
     }
 
     /**
