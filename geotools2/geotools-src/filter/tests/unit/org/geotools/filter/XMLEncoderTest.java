@@ -113,6 +113,18 @@ public class XMLEncoderTest extends FilterTestSupport {
         //LOGGER.fine("parsed filter is: " + test);
     }
 
+    public void test5() throws Exception {
+	Filter test = parseDocument(dataFolder + "/test5.xml");
+
+        //LOGGER.fine("parsed filter is: " + test);
+    }
+
+      public void test7() throws Exception {
+	Filter test = parseDocument(dataFolder + "/test7.xml");
+
+        //LOGGER.fine("parsed filter is: " + test);
+    }
+
     public void test8() throws Exception {
         Filter test = parseDocument(dataFolder + "/test8.xml");
 
