@@ -22,7 +22,6 @@ package org.geotools.feature;
 
 import java.util.*;
 import org.apache.log4j.Category;
-import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.data.*;
 
 /** 
@@ -37,7 +36,7 @@ import org.geotools.data.*;
  * they do not allow any nested elements, but they also restrict the
  * attribute objects to be very simple data types.</p>
  *
- * @version $Id: FeatureFactory.java,v 1.2 2002/06/04 16:36:39 loxnard Exp $
+ * @version $Id: FeatureFactory.java,v 1.3 2002/07/11 16:51:57 loxnard Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFactory {
@@ -48,9 +47,7 @@ public class FeatureFactory {
     FeatureType schema; 
 
     /**
-     * Constructor with geometry.
-     *
-     * @param geometry The geometry for this feature type.
+     * Constructor.
      */
     public FeatureFactory (FeatureType schema) {
         this.schema = schema;
@@ -69,7 +66,7 @@ public class FeatureFactory {
     public Feature create(Object[] attributes)
         throws IllegalFeatureException {
 
-        if(schema instanceof FeatureTypeFlat) {
+        if (schema instanceof FeatureTypeFlat) {
             return new FeatureFlat((FeatureTypeFlat) schema, attributes);
         }
         else {
