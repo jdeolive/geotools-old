@@ -38,10 +38,14 @@ import org.geotools.validation.ValidationResults;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 /**
- * @author Pati
+ * 
+ * Tests to see if a Geometry is contained within another Geometry.
+ * 
+ * <p>
+ * If only one Geometry is given, then this test checks to see if it 
+ * contains part of itself.
+ * </p>
  *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class ContainsIntegrity extends RelationIntegrity {
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.validation");
@@ -86,23 +90,30 @@ public class ContainsIntegrity extends RelationIntegrity {
 	/**
 	 * <b>validateMultipleLayers Purpose:</b> <br>
 	 * <p>
-	 * DOCUMENT ME!!
+	 * This validation tests for a geometry containing another geometry. 
+	 * Uses JTS' Geometry.contains(Geometry) method.
+	 * 
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>
 	 * <p>
-	 * DOCUMENT ME!!
+	 * The function filters the FeatureSources using the given bounding box.
+	 * It creates iterators over both filtered FeatureSources. It calls contains() using the
+	 * geometries in the FeatureSource layers. Tests the results of the method call against
+	 * the given expected results. Returns true if the returned results and the expected results 
+	 * are true, false otherwise.
+	 * 
 	 * </p>
 	 * 
 	 * Author: bowens<br>
 	 * Created on: Apr 27, 2004<br>
-	 * @param featureSourceA
-	 * @param featureSourceB
-	 * @param expected
-	 * @param results
-	 * @param bBox
-	 * @return
-	 * @throws Exception
+	 * @param featureSourceA - the FeatureSource to pull the original geometries from. This geometry is the one that is tested for containing the other
+	 * @param featureSourceB - the FeatureSource to pull the other geometries from - these geometries will be those that may be contained within the first geometry
+	 * @param expected - boolean value representing the user's expected outcome of the test
+	 * @param results - ValidationResults
+	 * @param bBox - Envelope - the bounding box within which to perform the contains()
+	 * @return boolean result of the test
+	 * @throws Exception - IOException if iterators improperly closed
 	 */
 	private boolean validateMultipleLayers(	FeatureSource featureSourceA, 
 											FeatureSource featureSourceB, 
@@ -168,22 +179,27 @@ public class ContainsIntegrity extends RelationIntegrity {
 	/**
 	 * <b>validateSingleLayer Purpose:</b> <br>
 	 * <p>
-	 * DOCUMENT ME!!
+	 * This validation tests for a geometry containing part of itself. 
+	 * Uses JTS' Geometry.contains(Geometry) method.
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>
 	 * <p>
-	 * DOCUMENT ME!!
-	 * </p>
+	 * The function filters the FeatureSource using the given bounding box.
+	 * It creates iterators over the filtered FeatureSource. It calls contains() using the
+	 * geometries in the FeatureSource layer. Tests the results of the method call against
+	 * the given expected results. Returns true if the returned results and the expected results 
+	 * are true, false otherwise.
 	 * 
+	 * </p>	 * 
 	 * Author: bowens<br>
 	 * Created on: Apr 27, 2004<br>
-	 * @param featureSourceA
-	 * @param expected
-	 * @param results
-	 * @param bBox
-	 * @return
-	 * @throws Exception
+	 * @param featureSourceA - the FeatureSource to pull the original geometries from. This geometry is the one that is tested for containing the other
+	 * @param expected - boolean value representing the user's expected outcome of the test
+	 * @param results - ValidationResults
+	 * @param bBox - Envelope - the bounding box within which to perform the contains()
+	 * @return boolean result of the test
+	 * @throws Exception - IOException if iterators improperly closed
 	 */
 	private boolean validateSingleLayer(FeatureSource featureSourceA, 
 										boolean expected, 
@@ -231,7 +247,7 @@ public class ContainsIntegrity extends RelationIntegrity {
 			}
 		}finally
 		{
-			/** Close the connections too the feature readers*/
+			/** Close the connections to the feature readers*/
 			try {
 				fr1.close();
 				if (fr2 != null)
