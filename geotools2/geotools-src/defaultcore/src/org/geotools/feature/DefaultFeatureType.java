@@ -23,7 +23,7 @@ import java.util.Iterator;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.15 2004/01/28 22:21:40 ianschneider Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.16 2004/02/11 21:38:54 ianschneider Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     /** The name of this FeatureType. */
@@ -51,6 +51,9 @@ public class DefaultFeatureType implements FeatureType {
     /** An feature type with no attributes */
     public static final FeatureType EMPTY = new DefaultFeatureType();
     
+    /** attname:string -> position:int */
+    private final java.util.Map attLookup;
+    
     /**
      * Constructs a new DefaultFeatureType.
      *
@@ -77,12 +80,15 @@ public class DefaultFeatureType implements FeatureType {
         this.ancestors = (FeatureType[]) superTypes.toArray(new FeatureType[superTypes
                 .size()]);
 
-        // do this first...
-        this.defaultGeomIdx = find(defaultGeom);
-
-        // before doing this
         this.defaultGeom = defaultGeom;
         
+        attLookup = new java.util.HashMap(this.types.length);
+        for (int i = 0, ii = this.types.length; i < ii; i++) {
+            attLookup.put(this.types[i].getName(),new Integer(i));
+        }
+        
+        this.defaultGeomIdx = find(defaultGeom);
+            
         hashCode = computeHash();
     }
     
@@ -97,6 +103,7 @@ public class DefaultFeatureType implements FeatureType {
         this.defaultGeomIdx = -1;
         this.defaultGeom = null;
         hashCode = computeHash();
+        attLookup = java.util.Collections.EMPTY_MAP;
     }
 
     /**
@@ -172,14 +179,12 @@ public class DefaultFeatureType implements FeatureType {
      *
      * @return True if attribute exists.
      */
-    public AttributeType getAttributeType(String xPath) {
-        for (int i = 0, ii = types.length; i < ii; i++) {
-            if (types[i].getName().equals(xPath)) {
-                return types[i];
-            }
-        }
-
-        return null;
+    public AttributeType getAttributeType(String xPath) {        
+        AttributeType attType = null;
+        int idx = find(xPath);
+        if (idx >= 0)
+            attType = types[idx];
+        return attType;
     }
 
     /**
@@ -190,13 +195,21 @@ public class DefaultFeatureType implements FeatureType {
      * @return -1 if not found, a zero-based index if found.
      */
     public int find(AttributeType type) {
-        for (int i = 0, ii = types.length; i < ii; i++) {
-            if (types[i].equals(type)) {
-                return i;
-            }
-        }
-
-        return -1;
+        if (type == null) return -1;
+        int idx = find(type.getName());
+        if (idx < 0 || !types[idx].equals(type))
+            idx = -1;
+        return idx;
+    }
+    
+    /**
+     * Find the position of an AttributeType which matches the given String.
+     * @param attName the name to look for
+     * @return -1 if not found, zero-based index otherwise
+     */
+    public int find(String attName) {
+        Integer idx = (Integer) attLookup.get(attName);
+        return idx == null ? -1 : idx.intValue();
     }
 
     /**
@@ -213,11 +226,6 @@ public class DefaultFeatureType implements FeatureType {
     public AttributeType[] getAttributeTypes() {
         return (AttributeType[]) types.clone();
     }
-
-    //Is this used?  Delete if everything compiles fine.
-    //public AttributeType getGeometry() {
-    //  return defaultGeom;
-    //}
 
     /**
      * Gets the global schema namespace.
