@@ -99,10 +99,14 @@ public class Aea extends org.geotools.proj4j.Projection {
         return eInverse(xy);
     }
     
-    public void setParams(ParamSet params)throws ProjectionException{
-        super.setParams(params);
+    protected void setup(ParamSet params){
         phi1 = params.getRadiansParam("lat_1");
         phi2 = params.getRadiansParam("lat_2");
+    }
+    
+    public void setParams(ParamSet params)throws ProjectionException{
+        super.setParams(params);
+        setup(params);
         double cosphi, sinphi;
         boolean secant;
         
