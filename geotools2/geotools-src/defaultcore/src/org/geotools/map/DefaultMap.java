@@ -8,10 +8,12 @@ package org.geotools.map;
 
 import java.util.Hashtable;
 import org.geotools.datasource.*;
+import org.geotools.datasource.extents.*;
 import org.geotools.featuretable.*;
 import org.geotools.renderer.*;
 import org.geotools.styling.*;
 import org.opengis.cs.*;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Geotools - OpenSource mapping toolkit
@@ -50,14 +52,14 @@ public class DefaultMap implements org.geotools.map.Map {
         tables.put(ft,style);
     }
     
-    public void render(Renderer renderer, Extent extent) {
+    public void render(Renderer renderer, Envelope envelope) {
         java.util.Enumeration layers = tables.keys();
         while(layers.hasMoreElements()){
             FeatureTable ft = (FeatureTable)layers.nextElement();
             Style style = (Style)tables.get(ft);
             try{
-                Feature[] features = ft.getFeatures(extent);//TODO: this could be a bottle neck
-                renderer.render(features,extent,style);
+                Feature[] features = ft.getFeatures(new EnvelopeExtent(envelope));//TODO: this could be a bottle neck
+                renderer.render(features,envelope,style);
             }
             catch(DataSourceException dse){
                 //HACK: should deal with this exception properly
