@@ -30,7 +30,7 @@ import org.geotools.validation.DefaultIntegrityValidation;
  */
 public abstract class RelationIntegrity extends DefaultIntegrityValidation 
 {
-	private final static String EMPTY = "";
+	protected final static String EMPTY = "";
     private String geomTypeRefA;
     private String geomTypeRefB = EMPTY;
 
@@ -98,7 +98,7 @@ public abstract class RelationIntegrity extends DefaultIntegrityValidation
      */
     public final void setGeomTypeRefB(String typeRefB) 
     {
-    	if (typeRefB.equals(""))
+    	if (typeRefB.equals("") || typeRefB == null)
     		typeRefB = EMPTY;
     	else
     		this.geomTypeRefB = typeRefB;
