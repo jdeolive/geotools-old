@@ -16,37 +16,50 @@
  */
 package org.geotools.renderer.j2d;
 
-
 // JTS dependencies
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
+
 import org.geotools.cs.CoordinateSystem;
+
 import org.geotools.ct.TransformException;
+
+import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.Query;
 
 // Geotools dependencies
+import org.geotools.feature.AttributeType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.IllegalAttributeException;
+
 import org.geotools.filter.Filter;
+
 import org.geotools.gc.GridCoverage;
+
 import org.geotools.renderer.geom.Geometry;
 import org.geotools.renderer.geom.JTSGeometries;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style;
+
 import org.geotools.resources.XArray;
+
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.RasterSymbolizer;
 import org.geotools.styling.Rule;
+import org.geotools.styling.StyleAttributeExtractor;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
+
 import org.geotools.util.NumberRange;
 import org.geotools.util.RangeSet;
+
 import java.io.IOException;
 
 // J2SE dependencies
@@ -57,13 +70,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-
 /**
  * A factory creating {@link RenderedLayer}s from {@link Feature}s and {@link Style}s.
  *
  * @author Andrea Aime
  * @author Martin Desruisseaux
- * @version $Id: RenderedLayerFactory.java,v 1.17 2003/12/04 23:19:47 aaime Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.18 2004/02/05 16:12:18 aaime Exp $
  */
 public class RenderedLayerFactory {
     /** The logger. */
@@ -125,7 +137,8 @@ public class RenderedLayerFactory {
      * @throws IllegalAttributeException if an attribute is read from the data that is incompatible
      *         with the feature type
      */
-    public RenderedLayer[] create(final FeatureSource featureSource,
+    public RenderedLayer[] createOld(
+        final FeatureSource featureSource,
         final org.geotools.styling.Style style)
         throws TransformException, IOException, IllegalAttributeException {
         FeatureReader fr = featureSource.getFeatures().reader();
@@ -133,8 +146,8 @@ public class RenderedLayerFactory {
         int currFeature = 0;
         while (fr.hasNext()) {
             if (currFeature >= features.length) {
-                features = (Feature[]) XArray.resize(features, (int) ((features.length * 3) / 2)
-                        + 1);
+                features =
+                    (Feature[]) XArray.resize(features, (int) ((features.length * 3) / 2) + 1);
             }
 
             features[currFeature] = fr.next();
@@ -147,6 +160,121 @@ public class RenderedLayerFactory {
     }
 
     /**
+         * Create an array of rendered layers from the specified feature and style.
+         *
+         * @param features The feature.
+         * @param SLDStyle The style to apply.
+         *
+         * @return The rendered layer array for the specified feature and style.
+         *
+         * @throws TransformException if a transformation was required and failed.
+         */
+    public RenderedLayer[] create (
+        final FeatureSource featureSource,
+        final org.geotools.styling.Style SLDStyle)
+        throws TransformException, IOException, IllegalAttributeException {
+        // ... the list that will contain all generated rendered layers
+        List renderedLayers = new ArrayList();
+
+        // ... and the first geometric layer
+        JTSGeometries geometries = new JTSGeometries(coordinateSystem);
+
+        // process the styles in order
+        FeatureTypeStyle[] featureStylers = SLDStyle.getFeatureTypeStyles();
+
+        for (int i = 0; i < featureStylers.length; i++) {
+            FeatureTypeStyle fts = featureStylers[i];
+            
+            // see what attributes we really need 
+//            StyleAttributeExtractor sae = new StyleAttributeExtractor();
+//            sae.visit(fts);
+//            String[] ftsAttributes = sae.getAttributeNames();
+//            String[] attributes = new String[ftsAttributes.length + 1];
+//            attributes[0] = featureSource.getSchema().getDefaultGeometry().getName();
+//            System.arraycopy(ftsAttributes, 0, attributes, 1, ftsAttributes.length);
+//            Query q = new DefaultQuery(featureSource.getSchema().getTypeName(), Filter.NONE, Integer.MAX_VALUE, attributes, "");
+
+            // get the features
+            FeatureReader reader = featureSource.getFeatures().reader();
+
+            RangeSet rs = new RangeSet(Double.class);
+            while (reader.hasNext()) {
+                Feature feature = reader.next();
+
+                // Prepare the else features map. Since we are preprocessing, we have to consider
+                // what the elseFilters may catch at each scale, so we build a set of scale ranges
+                // in which the elseFilter should apply by subtraction: we start with the full
+                // floating point range and subtract the ranges covered by filters, if the
+                // range set becomes empty, the feature is removed from the elseFeature map,
+                // otherwise a Geometry is created from each remaining scale range
+                rs.add(FULL_SCALE_RANGE);
+
+                // process the rules for the current feature type style
+                Rule[] rules = fts.getRules();
+
+                for (int j = 0; j < rules.length; j++) {
+                    // if this rule is not an else filter
+                    if (!rules[j].hasElseFilter()) {
+                        Filter filter = rules[j].getFilter();
+                        Symbolizer[] symbolizers = rules[j].getSymbolizers();
+                        List ruleFeatures = new ArrayList();
+                        NumberRange ruleRange = buildRuleRange(rules[j]);
+                        String ftsTypeName = fts.getFeatureTypeName();
+
+                        // if this rule matches, remove its range of scales from the 
+                        // one for the else features, then create the rendered geometries
+                        if (featureMatching(feature, ftsTypeName, filter)) {
+                            rs.remove(ruleRange);
+                            geometries =
+                                processSymbolizers(
+                                    feature,
+                                    symbolizers,
+                                    ruleRange,
+                                    renderedLayers,
+                                    geometries);
+                        }
+                    }
+                }
+
+                // is some scale range has not been covered by the rules, try with the else rules
+                if (!rs.isEmpty()) {
+                    for (int j = 0; j < rules.length; j++) {
+                        if (rules[j].hasElseFilter()) { // if this rule is an else filter
+                            NumberRange ruleRange = buildRuleRange(rules[j]);
+                            Symbolizer[] symbolizers = rules[j].getSymbolizers();
+
+                            for (Iterator rangeIt = rs.iterator(); rangeIt.hasNext();) {
+                                NumberRange featureRange = (NumberRange) rangeIt.next();
+                                NumberRange finalRange =
+                                    (NumberRange) featureRange.intersect(ruleRange);
+
+                                if ((finalRange != null) && !finalRange.isEmpty()) {
+                                    geometries =
+                                        processSymbolizers(
+                                            feature,
+                                            symbolizers,
+                                            finalRange,
+                                            renderedLayers,
+                                            geometries);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // add the current layer if not empty
+        if ((geometries != null) && (geometries.getGeometries().size() > 0)) {
+            renderedLayers.add(new SLDRenderedGeometries(geometries));
+        }
+
+        RenderedLayer[] layers = new RenderedLayer[renderedLayers.size()];
+
+        return (RenderedLayer[]) renderedLayers.toArray(layers);
+    }
+
+    /**
      * Create an array of rendered layers from the specified feature and style.
      *
      * @param features The feature.
@@ -156,8 +284,10 @@ public class RenderedLayerFactory {
      *
      * @throws TransformException if a transformation was required and failed.
      */
-    public RenderedLayer[] create(final Feature[] features,
-        final org.geotools.styling.Style SLDStyle) throws TransformException {
+    public RenderedLayer[] create(
+        final Feature[] features,
+        final org.geotools.styling.Style SLDStyle)
+        throws TransformException {
         // ... the list that will contain all generated rendered layers
         List renderedLayers = new ArrayList();
 
@@ -221,8 +351,13 @@ public class RenderedLayerFactory {
                     // now process the symbolizers on the catched features
                     for (Iterator it = ruleFeatures.iterator(); it.hasNext();) {
                         Feature feature = (Feature) it.next();
-                        geometries = processSymbolizers(feature, symbolizers, ruleRange,
-                                renderedLayers, geometries);
+                        geometries =
+                            processSymbolizers(
+                                feature,
+                                symbolizers,
+                                ruleRange,
+                                renderedLayers,
+                                geometries);
                     }
                 }
             }
@@ -233,7 +368,6 @@ public class RenderedLayerFactory {
 
                 for (int j = 0; j < rules.length; j++) {
                     if (rules[j].hasElseFilter()) { // if this rule is an else filter
-
                         NumberRange ruleRange = buildRuleRange(rules[j]);
                         Symbolizer[] symbolizers = rules[j].getSymbolizers();
 
@@ -245,11 +379,17 @@ public class RenderedLayerFactory {
 
                             for (Iterator rangeIt = rs.iterator(); rangeIt.hasNext();) {
                                 NumberRange featureRange = (NumberRange) rangeIt.next();
-                                NumberRange finalRange = (NumberRange) featureRange.intersect(ruleRange);
+                                NumberRange finalRange =
+                                    (NumberRange) featureRange.intersect(ruleRange);
 
                                 if ((finalRange != null) && !finalRange.isEmpty()) {
-                                    geometries = processSymbolizers(feature, symbolizers,
-                                            finalRange, renderedLayers, geometries);
+                                    geometries =
+                                        processSymbolizers(
+                                            feature,
+                                            symbolizers,
+                                            finalRange,
+                                            renderedLayers,
+                                            geometries);
                                 }
                             }
                         }
@@ -282,8 +422,12 @@ public class RenderedLayerFactory {
      *
      * @throws TransformException if a transformation was required and failed.
      */
-    private JTSGeometries processSymbolizers(Feature feature, Symbolizer[] symbolizers,
-        NumberRange scaleRange, List renderedLayers, JTSGeometries geometries)
+    private JTSGeometries processSymbolizers(
+        Feature feature,
+        Symbolizer[] symbolizers,
+        NumberRange scaleRange,
+        List renderedLayers,
+        JTSGeometries geometries)
         throws TransformException {
         for (int i = 0; i < symbolizers.length; i++) {
             Symbolizer symb = symbolizers[i];
@@ -328,7 +472,7 @@ public class RenderedLayerFactory {
         }
 
         if (feature.getFeatureType().isDescendedFrom(null, ftsTypeName)
-                || typeName.equalsIgnoreCase(ftsTypeName)) {
+            || typeName.equalsIgnoreCase(ftsTypeName)) {
             return (filter == null) || filter.contains(feature);
         }
 
@@ -394,8 +538,9 @@ public class RenderedLayerFactory {
         // if the symbolizer is a point or text symbolizer generate a suitable location to place the
         // point in order to avoid recomputing that location at each rendering step
         if ((s instanceof PointSymbolizer || s instanceof TextSymbolizer)
-                && !(geom instanceof Point)) {
-            com.vividsolutions.jts.geom.Geometry jtsGeom = (com.vividsolutions.jts.geom.Geometry) geom;
+            && !(geom instanceof Point)) {
+            com.vividsolutions.jts.geom.Geometry jtsGeom =
+                (com.vividsolutions.jts.geom.Geometry) geom;
 
             if (geom instanceof LineString && !(geom instanceof LinearRing)) {
                 // use the mid point to represent the point/text symbolizer anchor
