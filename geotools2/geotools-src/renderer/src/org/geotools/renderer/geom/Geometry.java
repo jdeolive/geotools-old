@@ -90,7 +90,7 @@ import org.geotools.math.Statistics;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.7 2003/07/11 16:59:02 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.8 2003/08/28 10:43:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -103,6 +103,12 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      * The logger for the renderer module.
      */
     static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.geom");
+
+    /**
+     * The default coordinate system for all geometries. This is the coordinate
+     * system used if no CS were explicitly specified at construction time.
+     */
+    public static final CoordinateSystem DEFAULT_COORDINATE_SYSTEM=GeographicCoordinateSystem.WGS84;
 
     /**
      * The resolved style for this geometry, or <code>null</code> if none.

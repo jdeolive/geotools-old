@@ -97,7 +97,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.10 2003/08/11 20:04:15 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.11 2003/08/28 10:43:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -175,7 +175,7 @@ public class GeometryCollection extends Geometry implements Comparable {
 
     /**
      * Construct an initially empty collection using the
-     * {@linkplain GeographicCoordinateSystem#WGS84 WGS84} coordinate system.
+     * {@linkplain #DEFAULT_COORDINATE_SYSTEM default coordinate system}.
      * Polygons can be added using one of the <code>add(...)</code> methods.
      *
      * @see #add(float[],int,int)
@@ -183,7 +183,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @see #add(Geometry)
      */
     public GeometryCollection() {
-        this(GeographicCoordinateSystem.WGS84);
+        this(DEFAULT_COORDINATE_SYSTEM);
     }
 
     /**
@@ -193,6 +193,8 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @param coordinateSystem The coordinate system to use for all
      *        points in this collection, or <code>null</code> if unknown.
      *
+     * @see #DEFAULT_COORDINATE_SYSTEM
+     * @see GeographicCoordinateSystem#WGS84
      * @see #add(float[],int,int)
      * @see #add(Shape)
      * @see #add(Geometry)
@@ -1405,7 +1407,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.10 2003/08/11 20:04:15 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.11 2003/08/28 10:43:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static abstract class Filtered extends AbstractCollection {

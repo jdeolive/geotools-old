@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.22 2003/07/23 14:17:32 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.23 2003/08/28 10:43:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -143,7 +143,7 @@ public class Polyline extends Geometry {
      * situation.
      */
     private static CoordinateTransformation lastCoordinateTransform =
-                    getIdentityTransform(GeographicCoordinateSystem.WGS84);
+                    getIdentityTransform(DEFAULT_COORDINATE_SYSTEM);
 
     /**
      * Un des maillons de la chaîne de polylignes, ou
