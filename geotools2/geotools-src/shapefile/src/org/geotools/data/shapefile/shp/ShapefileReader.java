@@ -54,6 +54,7 @@ public class ShapefileReader {
     int length;
     int number = 0;
     int offset;
+    int start = 0;
     /** The minimum X value. */    
     public double minX;
     /** The minimum Y value. */    
@@ -64,11 +65,15 @@ public class ShapefileReader {
     public double maxY;
     ShapeType type;
     int end = 0;
-    boolean ready = false;
+    Object shape = null;
     /** Fetch the shape stored in this record. */    
     public Object shape() {
-      buffer.order(ByteOrder.LITTLE_ENDIAN);
-      return handler.read(buffer,type);
+      if (shape == null) {
+        buffer.position(start);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        shape = handler.read(buffer,type);
+      }
+      return shape;
     }
     public int offset() {
       return offset;
@@ -322,7 +327,11 @@ public class ShapefileReader {
     record.number = recordNumber;
     // remember, we read one int already...
     record.end = buffer.position() + recordLength - 4;
-    record.ready = false;
+    // mark this position for the reader
+    record.start = buffer.position();
+    // clear any cached shape
+    record.shape = null;
+
     return record;
   }
   
