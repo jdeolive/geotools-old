@@ -178,14 +178,14 @@ public class DefaultMarkTest extends TestCase {
         renderer.setOutput(g, new Rectangle(0, 0, w, h));
         map.render(renderer, ex); //and finaly try and draw it!
 
-        URL base = getClass().getResource("testData/");
-        File file = new File(base.getPath(), "DefaultMarkTest.jpg");
-        FileOutputStream out = new FileOutputStream(file);
-        boolean fred = ImageIO.write(image, "JPEG", out);
+//        URL base = getClass().getResource("testData/");
+//        File file = new File(base.getPath(), "DefaultMarkTest.jpg");
+//        FileOutputStream out = new FileOutputStream(file);
+//        boolean fred = ImageIO.write(image, "JPEG", out);
 
-        if (!fred) {
-            System.out.println("Failed to write image to " + file.toString());
-        }
+//        if (!fred) {
+//            System.out.println("Failed to write image to " + file.toString());
+//        }
 
         // Thread.sleep(5000);
         frame.dispose();
