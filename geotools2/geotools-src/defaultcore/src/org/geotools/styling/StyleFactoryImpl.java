@@ -30,7 +30,7 @@ import org.geotools.filter.Expression;
  * org.geotools.defaultcore.
  *
  * @author iant
- * @version $Id: StyleFactoryImpl.java,v 1.9 2003/07/22 15:55:04 ianturton Exp $
+ * @version $Id: StyleFactoryImpl.java,v 1.10 2003/08/05 05:37:18 aaime Exp $
  */
 public class StyleFactoryImpl extends StyleFactory {
     private static final org.geotools.filter.FilterFactory filterFactory = 
@@ -141,8 +141,8 @@ public class StyleFactoryImpl extends StyleFactory {
     public Stroke createStroke(Expression color, Expression width, 
                                Expression opacity) {
         return createStroke(color, width, opacity, 
-                            filterFactory.createLiteralExpression("bevel"), 
-                            filterFactory.createLiteralExpression("square"), 
+                            filterFactory.createLiteralExpression("miter"), 
+                            filterFactory.createLiteralExpression("butt"), 
                             null, filterFactory.createLiteralExpression(0.0), 
                             null, null);
     }
@@ -333,9 +333,9 @@ public class StyleFactoryImpl extends StyleFactory {
                                  Expression opacity, Expression size, 
                                  Expression rotation) {
         Graphic graphic = new GraphicImpl();
+        graphic.setSymbols(symbols);
         graphic.setExternalGraphics(externalGraphics);
         graphic.setMarks(marks);
-        graphic.setSymbols(symbols);
 
         if (opacity == null) {
             throw new IllegalArgumentException(
