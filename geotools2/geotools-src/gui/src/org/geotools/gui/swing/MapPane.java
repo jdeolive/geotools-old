@@ -52,13 +52,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-// JTS dependencies
-import com.vividsolutions.jts.geom.Envelope;
-
 // Geotools dependencies
-import org.geotools.map.Layer;
-import org.geotools.map.Context;
-import org.geotools.map.BoundingBox;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.TransformException;
@@ -66,7 +60,6 @@ import org.geotools.renderer.j2d.Hints;
 import org.geotools.renderer.j2d.Renderer;
 import org.geotools.renderer.j2d.RenderedLayer;
 import org.geotools.renderer.j2d.GeoMouseEvent;
-import org.geotools.renderer.j2d.StyledRenderer;
 
 
 /**
@@ -75,7 +68,7 @@ import org.geotools.renderer.j2d.StyledRenderer;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.21 2003/08/13 22:44:46 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.22 2003/08/18 17:04:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MapPane extends ZoomPane {
@@ -101,16 +94,11 @@ public class MapPane extends ZoomPane {
     private static final Float REQUIRED_RESOLUTION = new Float(2);
 
     /**
-     * The renderer targeting Java2D. Will be constructed only when first requested.
-     * If {@link #setContext} is invoked before any call to {@link #getRenderer},
-     * then this method will actually be an instance of {@link StyledRenderer}.
+     * The renderer targeting Java2D. If the map pane is actually an instance
+     * of {@link StyledMapPane}, then the renderer will be an instance of
+     * {@link org.geotools.renderer.j2d.StyledRenderer}.
      */
-    private Renderer renderer;
-
-    /**
-     * The model which stores a list of layers and bounding box.
-     */
-    private Context context;
+    private final Renderer renderer;
 
     /**
      * List of popup menus created lately. The last menu used must appears first in the list.
@@ -162,12 +150,16 @@ public class MapPane extends ZoomPane {
      */
     public MapPane() {
         super(TRANSLATE_X | TRANSLATE_Y | UNIFORM_SCALE | DEFAULT_ZOOM | ROTATE | RESET);
-        ToolTipManager.sharedInstance().registerComponent(this);
         setResetPolicy(true);
+        renderer = createRenderer();
+        renderer.setRenderingHint(Hints.  FINEST_RESOLUTION,   FINEST_RESOLUTION);
+        renderer.setRenderingHint(Hints.REQUIRED_RESOLUTION, REQUIRED_RESOLUTION);
+        renderer.addPropertyChangeListener(listenerProxy);
+        ToolTipManager.sharedInstance().registerComponent(this);
     }
 
     /**
-     * Construct a map panel using the following coordinate system.
+     * Construct a map panel using the specified coordinate system.
      *
      * @param cs The rendering coordinate system.
      */
@@ -185,30 +177,12 @@ public class MapPane extends ZoomPane {
     }
 
     /**
-     * Initialize the renderer. This method must be
-     * invoked after the renderer has been created.
+     * Create the renderer for this map pane. This method
+     * is invoked by the constructor at creation time only.
+     * Class {@link StyledRenderer} will overrides this method.
      */
-    private void initRenderer() {
-        renderer.setRenderingHint(Hints.  FINEST_RESOLUTION,   FINEST_RESOLUTION);
-        renderer.setRenderingHint(Hints.REQUIRED_RESOLUTION, REQUIRED_RESOLUTION);
-        renderer.addPropertyChangeListener(listenerProxy);
-    }
-
-    /**
-     * Set a new context as the current one. Invoking this method will remove all layers
-     * in the {@linkplain #getRenderer renderer} and replace them with new layers from
-     * the given context.
-     *
-     * @param context The new context, or <code>null</code> for removing any previous context.
-     */
-    public void setContext(final Context context) {
-        this.context = context;
-        if (renderer == null) {
-            renderer = new StyledRenderer(this);
-            initRenderer();
-        }
-        ((StyledRenderer) renderer).setContext(context);
-        reset();
+    Renderer createRenderer() {
+        return new Renderer(this);
     }
 
     /**
@@ -221,11 +195,7 @@ public class MapPane extends ZoomPane {
      *         Default to {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}.
      */
     public CoordinateSystem getCoordinateSystem() {
-        if (renderer != null) {
-            return renderer.getCoordinateSystem();
-        } else {
-            return GeographicCoordinateSystem.WGS84;
-        }
+        return renderer.getCoordinateSystem();
     }
 
     /**
@@ -240,44 +210,22 @@ public class MapPane extends ZoomPane {
      *         coordinate system., or if data can't be transformed for some other reason.
      */
     public void setCoordinateSystem(CoordinateSystem cs) throws TransformException {
-        getRenderer().setCoordinateSystem(cs);
+        renderer.setCoordinateSystem(cs);
     }
 
     /**
      * Returns a bounding box representative of the geographic area to drawn.
-     * This method returns the first of the following area available:
-     *
-     * <ul>
-     *   <li>If an area was explicitly set with {@link #setPreferredArea}, this area
-     *       is returned.</li>
-     *   <li>Otherwise, if a {@linkplain Context context} is set, then the context's
-     *       {@linkplain Context#getBbox bounding box} is returned.</li>
-     *   <li>Otherwise, the area of interest is computed from the layers currently
-     *       registered in the {@linkplain #getRenderer renderer}.</li>
-     * </ul>
+     * The default implementation computes the area from all layers currently
+     * registered in the {@linkplain #getRenderer renderer}.
      *
      * @return The enclosing area to be drawn with the default zoom,
      *         or <code>null</code> if this area can't be computed.
      *
      * @see #setPreferredArea
-     * @see Context#getBbox
      * @see Renderer#getPreferredArea
      */
     public Rectangle2D getArea() {
-        if (context != null) {
-            final BoundingBox box = context.getBbox();
-            if (box != null) {
-                Envelope envelope = box.getAreaOfInterest();
-                if (envelope != null) {
-                    return new Rectangle2D.Double(envelope.getMinX(),  envelope.getMinY(),
-                                                  envelope.getWidth(), envelope.getHeight());
-                }
-            }
-        }
-        if (renderer != null) {
-            return renderer.getPreferredArea();
-        }
-        return null;
+        return renderer.getPreferredArea();
     }
 
     /**
@@ -289,11 +237,9 @@ public class MapPane extends ZoomPane {
      * @see Renderer#getPreferredPixelSize
      */
     protected Dimension2D getPreferredPixelSize() {
-        if (renderer != null) {
-            final Dimension2D size = renderer.getPreferredPixelSize();
-            if (size != null) {
-                return size;
-            }
+        final Dimension2D size = renderer.getPreferredPixelSize();
+        if (size != null) {
+            return size;
         }
         return super.getPreferredPixelSize();
     }
@@ -307,7 +253,6 @@ public class MapPane extends ZoomPane {
         return new Dimension(512,512);
     }
 
-
     /**
      * Returns the {@linkplain Renderer renderer} for this map pane.
      *
@@ -318,10 +263,6 @@ public class MapPane extends ZoomPane {
      * @see Renderer#getLayerCount
      */
     public Renderer getRenderer() {
-        if (renderer == null) {
-            renderer = new Renderer(this);
-            initRenderer();
-        }
         return renderer;
     }
 
@@ -331,9 +272,7 @@ public class MapPane extends ZoomPane {
      * @param graphics The graphics context.
      */
     protected void paintComponent(final Graphics2D graphics) {
-        if (renderer != null) {
-            renderer.paint(graphics, getZoomableBounds(null), zoom, false);
-        }
+        renderer.paint(graphics, getZoomableBounds(null), zoom, false);
     }
 
     /**
@@ -342,9 +281,7 @@ public class MapPane extends ZoomPane {
      * @param graphics The graphics context.
      */
     protected void printComponent(final Graphics2D graphics) {
-        if (renderer != null) {
-            renderer.paint(graphics, getZoomableBounds(null), zoom, true);
-        }
+        renderer.paint(graphics, getZoomableBounds(null), zoom, true);
     }
 
     /**
@@ -399,11 +336,9 @@ public class MapPane extends ZoomPane {
      * @see Renderer#getToolTipText
      */
     public String getToolTipText(final MouseEvent event) {
-        if (renderer != null) {
-            final String text = renderer.getToolTipText((GeoMouseEvent)event);
-            if (text != null) {
-                return text;
-            }
+        final String text = renderer.getToolTipText((GeoMouseEvent)event);
+        if (text != null) {
+            return text;
         }
         return super.getToolTipText(event);
     }
@@ -487,11 +422,8 @@ public class MapPane extends ZoomPane {
      * a {@link GeoMouseEvent}. Then, the default AWT's implementation is invoked in
      * order to pass this event to any registered {@link MouseListener} objects.
      */
-    protected void processMouseEvent(MouseEvent event) {
-        if (renderer != null) {
-            event = new GeoMouseEvent(event, renderer);
-        }
-        super.processMouseEvent(event);
+    protected void processMouseEvent(final MouseEvent event) {
+        super.processMouseEvent(new GeoMouseEvent(event, renderer));
     }
 
     /**
@@ -500,10 +432,7 @@ public class MapPane extends ZoomPane {
      * a {@link GeoMouseEvent}. Then, the default AWT's implementation is invoked in
      * order to pass this event to any registered {@link MouseMotionListener} objects.
      */
-    protected void processMouseMotionEvent(MouseEvent event) {
-        if (renderer != null) {
-            event = new GeoMouseEvent(event, renderer);
-        }
-        super.processMouseMotionEvent(event);
+    protected void processMouseMotionEvent(final MouseEvent event) {
+        super.processMouseMotionEvent(new GeoMouseEvent(event, renderer));
     }
 }
