@@ -1071,12 +1071,12 @@ public class SLDStyleFactory {
                 this.LOGGER.warning("Unable to load external svg file, " + mue.getMessage());
                 return null;
             }
-            catch(org.apache.batik.transcoder.TranscoderException te){
-                this.LOGGER.warning("Unable to render external svg file, " + te.getMessage());
-                return null;
-            }
+//            catch(org.apache.batik.transcoder.TranscoderException te){
+//                this.LOGGER.warning("Unable to render external svg file, " + te.getMessage());
+//                return null;
+//            }
             catch(Exception e){
-                this.LOGGER.warning("Unable to process external svg file, " + e.getMessage());
+                this.LOGGER.warning("Unable to process or render external svg file, " + e.getMessage());
                 return null;
             }
             

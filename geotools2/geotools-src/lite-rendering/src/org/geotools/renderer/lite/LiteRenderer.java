@@ -116,7 +116,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.34 2004/04/01 15:33:28 jmacgill Exp $
+ * @version $Id: LiteRenderer.java,v 1.35 2004/04/08 03:16:51 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -1327,11 +1327,11 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 img = magic.getImage();        
             }
             catch(IOException mue){
-                this.LOGGER.warning("Unable to load external svg file, " + mue.getMessage());
+                LOGGER.warning("Unable to load external svg file, " + mue.getMessage());
                 return false;
             }
-            catch(org.apache.batik.transcoder.TranscoderException te){
-                this.LOGGER.warning("Unable to render external svg file, " + te.getMessage());
+            catch(Exception te){
+                LOGGER.warning("Unable to render external svg file, " + te.getMessage());
                 return false;
             }
             
