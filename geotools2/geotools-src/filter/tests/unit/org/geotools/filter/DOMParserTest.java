@@ -243,6 +243,17 @@ public class DOMParserTest extends TestCase {
         Filter test = parseDocument(dataFolder+"/test14.xml");
     }    
     
+    public void test15()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test15.xml");
+    }
+    
+    
+    public void test16()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test16.xml");
+    }
+    
     public void test27() throws Exception {
         Filter test = parseDocument(dataFolder+"/test27.xml");
     }

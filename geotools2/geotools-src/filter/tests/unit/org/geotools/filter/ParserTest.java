@@ -287,7 +287,13 @@ public class ParserTest
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
     }    
-        
+    
+    public void test27()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test27.xml");
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
+    } 
     public Filter parseDocument(String uri) 
         throws Exception {
         
