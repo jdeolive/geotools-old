@@ -26,6 +26,7 @@ import java.util.*;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.*;
+import java.util.logging.Logger;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -92,6 +93,7 @@ public class WMSServlet extends HttpServlet {
     private static final int CACHE_SIZE = 200;
     private static Map allMaps = new LRUMap(CACHE_SIZE);
     private static Map nationalMaps = new HashMap();
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.wmsserver");
     
     /**
      * Override init() to set up data used by invocations of this servlet.
@@ -118,7 +120,7 @@ public class WMSServlet extends HttpServlet {
             }
             //pass in the context as well
             String real = getServletContext().getRealPath("");
-            System.out.println("setting base.url to " + real);
+            LOGGER.fine("setting base.url to " + real);
             prop.setProperty("base.url",real);
             server.init(prop);
         }
@@ -149,7 +151,7 @@ public class WMSServlet extends HttpServlet {
      * @param response HTTPServletResponse
      */
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("DoGet called from "+request.getRemoteAddr());
+        LOGGER.fine("DoGet called from "+request.getRemoteAddr());
         // Nullify caching
         
         //What's my address?
@@ -187,8 +189,8 @@ public class WMSServlet extends HttpServlet {
     /** Returns WMS 1.1.1 compatible response for a getCapabilities request
      */
     public void doGetCapabilities(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("Sending capabilities");
-        System.out.println("My path is " + request.getServletPath() +"?");
+        LOGGER.fine("Sending capabilities");
+        LOGGER.fine("My path is " + request.getServletPath() +"?");
         try {
             // Get Capabilities object from server implementation
             Capabilities capabilities = server.getCapabilities();
@@ -207,7 +209,7 @@ public class WMSServlet extends HttpServlet {
             doException(wmsexp.getCode(), wmsexp.getMessage(), request, response);
         }
         catch(Exception exp) {
-            System.out.println("Unexpected exception "+exp);
+            LOGGER.severe("Unexpected exception "+exp);
             exp.printStackTrace();
             doException(null, "Unknown exception : "+exp.getMessage(), request, response);
         }
@@ -217,7 +219,7 @@ public class WMSServlet extends HttpServlet {
     /** Returns WMS 1.1.1 compatible response for a getMap request
      */
     public synchronized void doGetMap(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("Sending Map");
+        LOGGER.fine("Sending Map");
         BufferedImage image;
         String exceptions = getParameter(request, PARAM_EXCEPTIONS);
         String format = getParameter(request, PARAM_FORMAT);
@@ -225,7 +227,7 @@ public class WMSServlet extends HttpServlet {
             format = DEFAULT_FORMAT;
         }
         CacheKey key = new CacheKey(request);
-        System.out.println("About to request map with key = " + key);
+        LOGGER.fine("About to request map with key = " + key);
         // this needs to be something nicer than request.getQueryString as it should ignore format and order and case
         if(((image = (BufferedImage)nationalMaps.get(key))==null) &&
             ((image = (BufferedImage)allMaps.get(key))==null)){
@@ -243,7 +245,7 @@ public class WMSServlet extends HttpServlet {
                 Color bgcolor = colorParam(getParameter(request, PARAM_BGCOLOR));
 
 
-                System.out.println("Checking params");
+                LOGGER.fine("Checking params");
 
                 // Check values
                 if (layers==null || layers.length==0) {
@@ -279,7 +281,7 @@ public class WMSServlet extends HttpServlet {
                 for (int i=0;i<4;i++)
                     dBbox[i] = doubleParam(sBbox[i]);
 
-                System.out.println("Params check out - getting image");
+                LOGGER.fine("Params check out - getting image");
 
                 // Get the image
                 image = server.getMap(layers, styles, srs, dBbox, width, height, trans, bgcolor);
@@ -298,15 +300,15 @@ public class WMSServlet extends HttpServlet {
                     }
                 }
                 Rectangle2D rbbox = new Rectangle2D.Double(dBbox[0], dBbox[1], dBbox[2]- dBbox[0], dBbox[3]-dBbox[1]);
-                System.out.println("layers "+rect+" request "+rbbox);
+                LOGGER.fine("layers "+rect+" request "+rbbox);
                 if(rbbox.getCenterX()==rect.getCenterX()&&rbbox.getCenterY()==rect.getCenterY()){
-                    System.out.println("Caching a national map with key " + key);
+                    LOGGER.fine("Caching a national map with key " + key);
                     nationalMaps.put(key, image);
                 }else{
-                    System.out.println("all maps cache with key " + key);
+                    LOGGER.fine("all maps cache with key " + key);
                     allMaps.put(key, image);
                 }
-                System.out.println("Got image - sending response as "+format+" ("+image.getWidth(null)+","+image.getHeight(null)+")");
+                LOGGER.fine("Got image - sending response as "+format+" ("+image.getWidth(null)+","+image.getHeight(null)+")");
                 }
             catch(WMSException wmsexp) {
                 doException(wmsexp.getCode(), wmsexp.getMessage(), request, response, exceptions);
@@ -460,7 +462,7 @@ public class WMSServlet extends HttpServlet {
         // Send to client
         if (exp_type==null || exp_type.trim().length()==0)
             exp_type = DEFAULT_EXCEPTION;
-        System.out.println("Its all gone wrong! "+sException);
+        LOGGER.severe("Its all gone wrong! "+sException);
         // Check the optional response code (mime-type of exception)
         //      if (exp_type.equalsIgnoreCase("application/vnd.ogc.se_xml") || exp_type.equalsIgnoreCase("text/xml")) {
         response.setContentType(exp_type);
@@ -493,12 +495,12 @@ public class WMSServlet extends HttpServlet {
         URL base,url;
         try{
             base = new File(home).toURL();
-            System.out.println("base set to " + base);
+            LOGGER.fine("base set to " + base);
             url = new URL(base,"capabilities.xml");
             
             
             InputStream is =url.openStream();
-            System.out.println("input stream " + is + " from url " + url);
+            LOGGER.fine("input stream " + is + " from url " + url);
             StringBuffer xml = new StringBuffer();
             int length = 0;
             byte [] b = new byte [100];
@@ -525,7 +527,7 @@ public class WMSServlet extends HttpServlet {
         
         // GetFeatureInfo
         String getFeatureInfo = "";
-        System.out.println("supports FI? " + cap.getSupportsGetFeatureInfo());
+        LOGGER.fine("supports FI? " + cap.getSupportsGetFeatureInfo());
         if (cap.getSupportsGetFeatureInfo()) {
             getFeatureInfo+="<GetFeatureInfo>\n";
             for(int i=0; i < featureFormatters.size(); i++){
@@ -536,7 +538,7 @@ public class WMSServlet extends HttpServlet {
                             "xlink:href=\"" + getUrl + "\"/>\n";
             getFeatureInfo+="</Get></HTTP></DCPType>\n";
             getFeatureInfo+="</GetFeatureInfo>\n";
-            System.out.println("feature info support = " + getFeatureInfo);
+            LOGGER.fine("feature info support = " + getFeatureInfo);
         }
         xml.replace(xml.toString().indexOf(XML_GETFEATUREINFO), xml.toString().indexOf(XML_GETFEATUREINFO)+ XML_GETFEATUREINFO.length(), getFeatureInfo);
         
@@ -688,11 +690,11 @@ public class WMSServlet extends HttpServlet {
         // Parse the string
         color = color.replace('#', ' ');
         try {
-            System.out.println("decoding "+color);
+            LOGGER.fine("decoding "+color);
             return new Color(Integer.parseInt(color.trim(), 16));
         }
         catch(NumberFormatException nfexp) {
-            System.out.println("Cannot decode "+color+", using default bgcolor");
+            LOGGER.severe("Cannot decode "+color+", using default bgcolor");
             return colorParam(DEFAULT_COLOR);
         }
     }
@@ -707,7 +709,7 @@ public class WMSServlet extends HttpServlet {
          CacheKey(HttpServletRequest request){
             
             String tmp = getParameter(request, PARAM_LAYERS);
-            System.out.println("layer string " + tmp);
+            LOGGER.fine("layer string " + tmp);
             String [] layers = commaSeparated(tmp);
             String srs = getParameter(request, PARAM_SRS);
             String bbox = getParameter(request, PARAM_BBOX);
@@ -718,33 +720,33 @@ public class WMSServlet extends HttpServlet {
             Color bgcolor = colorParam(getParameter(request, PARAM_BGCOLOR));
             // Check values
             if (layers==null || layers.length==0) {
-                System.out.println("No Layers defined");
+                LOGGER.severe("No Layers defined");
                 return;
             }
             if (styles!=null && styles.length!=layers.length) {
-                System.out.println("Invalid number of styles defined for passed layers");
+                LOGGER.severe("Invalid number of styles defined for passed layers");
                 return;
             }
             key = 0;
             for(int i = 0; i < layers.length; i++){
                 key += layers[i].toLowerCase().hashCode();
-                System.out.println("layer "+ layers[i] + " key = " + key);
+                LOGGER.fine("layer "+ layers[i] + " key = " + key);
                 if(i < styles.length){
                     key += styles[i].toLowerCase().hashCode();
-                    System.out.println("style "+ styles[i] + " key = " + key);
+                    LOGGER.fine("style "+ styles[i] + " key = " + key);
                 }
             }
             key*=37;
-            System.out.println("key = " + key);
+            LOGGER.fine("key = " + key);
             key += bgcolor.hashCode()*37;
-            System.out.println("color "+bgcolor+" key = " + key);
+            LOGGER.fine("color "+bgcolor+" key = " + key);
             key += srs.hashCode()*37;
-            System.out.println("srs "+srs+" key = " + key);
+            LOGGER.fine("srs "+srs+" key = " + key);
             key += bbox.hashCode()*37;
-            System.out.println("bbox "+bbox+" key = " + key);
+            LOGGER.fine("bbox "+bbox+" key = " + key);
             key += (width*37 + height)*37;
             
-            System.out.println("Key = " + key);
+            LOGGER.fine("Key = " + key);
          }
          
          public int hashCode(){
