@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." default="html" name="developersguide">
+<project basedir="." default="html-docs" name="developersguide">
+    <property file="build.ant.properties"/>
 
-  <!-- Now, set your module-specific build targets here -->
-  <target name="html">
+    <!-- Build html documentation from docbook -->
+    <target name="html-docs">
 
-  <style basedir="xdocs"
-      destdir="www"
-      extension=".html"
-      style="docbook-xsl/html/docbook.xsl"
-      includes="*.sgml"
-      />
-  </target>
+        <style
+            basedir="${sourceDocsDir}"
+            destdir="${destinationDocs}"
+            extension=".html"
+            style="${docbookXSL}"
+            includes="*.sgml"
+            processor="xalan"
+            classpath="bin"
+            />
+    </target>
 
 </project>
