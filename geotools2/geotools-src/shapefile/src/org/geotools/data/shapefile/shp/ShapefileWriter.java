@@ -35,8 +35,8 @@ import java.nio.ByteOrder;
  */
 public class ShapefileWriter {
   
-  WritableByteChannel shpChannel;
-  WritableByteChannel shxChannel;
+  FileChannel shpChannel;
+  FileChannel shxChannel;
   ByteBuffer shapeBuffer;
   ByteBuffer indexBuffer;
   ShapeHandler handler;
@@ -46,21 +46,42 @@ public class ShapefileWriter {
   int cnt;
   
   /** Creates a new instance of ShapeFileWriter */
-  public ShapefileWriter(WritableByteChannel shpChannel, WritableByteChannel shxChannel) {
+  public ShapefileWriter(FileChannel shpChannel, FileChannel shxChannel) {
     this.shpChannel = shpChannel;
     this.shxChannel = shxChannel;
   }
   
-  private void allocateBuffers(int geomCnt, int fileLength) throws IOException {
-    if (shpChannel instanceof FileChannel) {
-      FileChannel shpc = (FileChannel) shpChannel;
-      FileChannel shxc = (FileChannel) shxChannel;
-      shapeBuffer = shpc.map(FileChannel.MapMode.READ_WRITE,0, fileLength);
-      indexBuffer = shxc.map(FileChannel.MapMode.READ_WRITE,0, 100 + 8 * geomCnt);
-      indexBuffer.order(ByteOrder.BIG_ENDIAN);
-    } else {
-      throw new RuntimeException("Can only handle FileChannels - fix me!");
-    }
+//  private void allocateBuffers(int geomCnt, int fileLength) throws IOException {
+//    if (shpChannel instanceof FileChannel) {
+//      FileChannel shpc = (FileChannel) shpChannel;
+//      FileChannel shxc = (FileChannel) shxChannel;
+//      shapeBuffer = shpc.map(FileChannel.MapMode.READ_WRITE,0, fileLength);
+//      indexBuffer = shxc.map(FileChannel.MapMode.READ_WRITE,0, 100 + 8 * geomCnt);
+//      indexBuffer.order(ByteOrder.BIG_ENDIAN);
+//    } else {
+//      throw new RuntimeException("Can only handle FileChannels - fix me!");
+//    }
+//  }
+  
+  private void allocateBuffers() {
+    shapeBuffer = ByteBuffer.allocateDirect(64 * 1024);
+    indexBuffer = ByteBuffer.allocateDirect(100); 
+  }
+  
+  private void checkShapeBuffer(int size) {
+    if (shapeBuffer.capacity() < size) 
+        shapeBuffer = ByteBuffer.allocateDirect(size);
+  }
+  
+  private void drain() throws IOException {
+    shapeBuffer.flip();
+    indexBuffer.flip();
+    while (shapeBuffer.remaining() > 0)
+        shpChannel.write(shapeBuffer);
+    while (indexBuffer.remaining() > 0)
+        shxChannel.write(indexBuffer);
+    shapeBuffer.flip().limit(shapeBuffer.capacity());
+    indexBuffer.flip().limit(indexBuffer.capacity());
   }
   
   private void writeHeaders(GeometryCollection geometries,ShapeType type) throws IOException {
@@ -91,7 +112,8 @@ public class ShapefileWriter {
       } catch (ShapefileException se) {
         throw new RuntimeException("unexpected Exception",se);
       }
-      allocateBuffers(numberOfGeometries,fileLength);
+      if (shapeBuffer == null)
+        allocateBuffers();
       ShapefileHeader header = new ShapefileHeader();
       header.write(shapeBuffer, type, numberOfGeometries, fileLength/2, 
       bounds.getMinX(),bounds.getMinY(),bounds.getMaxX(),bounds.getMaxY());
@@ -101,13 +123,22 @@ public class ShapefileWriter {
       offset = 50;
       this.type = type;
       cnt = 0;
+      
+      shpChannel.position(0);
+      shxChannel.position(0);
+      drain();
   }
   
   public void writeGeometry(Geometry g) throws IOException {
       if (shapeBuffer == null)
           throw new IOException("Must write headers first");
       lp = shapeBuffer.position();
-      int length = handler.getLength(g) / 2;
+      int length = handler.getLength(g);
+      
+      checkShapeBuffer(length);
+      
+      length /= 2;
+      
       shapeBuffer.order(ByteOrder.BIG_ENDIAN);
       shapeBuffer.putInt(++cnt);
       shapeBuffer.putInt(length);
@@ -123,6 +154,9 @@ public class ShapefileWriter {
       indexBuffer.putInt(offset);
       indexBuffer.putInt(length);
       offset += length + 4;
+      
+      drain();
+      assert(shapeBuffer.position() == 0);
   }
   
   public void close() throws IOException {
@@ -130,7 +164,6 @@ public class ShapefileWriter {
     shxChannel.close();
   }
   
-  //ShapeFileDimentions =>    2=x,y ; 3=x,y,m ; 4=x,y,z,m
   public void write(GeometryCollection geometries, ShapeType type) throws IOException,ShapefileException {
     handler = type.getShapeHandler();
       
