@@ -21,6 +21,7 @@ import java.util.Iterator;
 import junit.framework.*;
 import org.geotools.data.DataSourceFinder;
 import org.geotools.data.DataSource;
+import org.geotools.data.gml.GMLDataSourceFactory;
 
 /**
  *
