@@ -137,7 +137,7 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
         try {
             out.write("<FeatureTypeStyle>\n");
             out.write("<FeatureTypeName>");
-            out.write(fts.getName());
+            out.write(fts.getFeatureTypeName());
             out.write("</FeatureTypeName>\n");
 
             Rule[] rules = fts.getRules();
