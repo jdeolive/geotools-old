@@ -241,6 +241,11 @@ public class XMLEncoderTest extends TestCase {
         LOGGER.fine("parsed filter is: " + test);
     }
 
+	public void test28() throws Exception {
+		Filter test = parseDocument(dataFolder + "/test28.xml");
+		LOGGER.fine("parsedfilter is: " + test);
+	}
+
     public Filter parseDocument(String uri) throws Exception {
         Filter filter = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
