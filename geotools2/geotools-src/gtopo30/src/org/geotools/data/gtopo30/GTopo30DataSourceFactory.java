@@ -90,6 +90,6 @@ public class GTopo30DataSourceFactory implements org.geotools.data.DataSourceFac
      *         datasource.
      */
     public String getDescription() {
-        return "ESRI(tm) ArcGrid ASCII files (*.asc)";
+        return "GTOPO30 global 30' DEM (*.dem)";
     }
 }
