@@ -16,13 +16,14 @@
  */
 package org.geotools.data;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
+import java.util.Iterator;
+
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
+import org.geotools.filter.AbstractFilter;
 import org.geotools.filter.AttributeExpression;
 import org.geotools.filter.BetweenFilter;
 import org.geotools.filter.CompareFilter;
@@ -33,7 +34,10 @@ import org.geotools.filter.FilterFactory;
 import org.geotools.filter.FunctionExpression;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.LikeFilter;
+import org.geotools.filter.LogicFilter;
 import org.geotools.filter.NullFilter;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 
 /**
@@ -291,6 +295,68 @@ public class DataUtilitiesTest extends DataTestCase {
         assertEquals( 2, s.getFeatures( rd12Filter ).getCount() );                             
     }
 
+    /**
+     * tests the policy of DataUtilities.mixQueries
+     * @throws Exception
+     */
+    public void testMixQueries() throws Exception
+	{
+    	Query firstQuery;
+    	Query secondQuery;
+
+    	firstQuery = new DefaultQuery("typeName", Filter.ALL, 100, new String[]{"att1", "att2", "att3"}, "handle");
+    	secondQuery = new DefaultQuery("typeName", Filter.ALL, 20, new String[]{"att1", "att2", "att4"}, "handle2");
+    	
+    	Query mixed = DataUtilities.mixQueries(firstQuery, secondQuery, "newhandle");
+    	
+    	//the passed handle
+    	assertEquals("newhandle", mixed.getHandle());
+    	//the lower of both
+    	assertEquals(20, mixed.getMaxFeatures());
+    	//att1, 2, 3 and 4
+    	assertEquals(4, mixed.getPropertyNames().length);
+
+    	//now use some filters
+    	Filter filter1 = null;
+    	Filter filter2 = null;
+    	FilterFactory ffac = FilterFactory.createFilterFactory();
+
+    	String typeSpec = "geom:Point,att1:String,att2:String,att3:String,att4:String";
+    	FeatureType testType = DataUtilities.createType("testType", typeSpec);
+    	System.err.println("created test type: " + testType);
+    	
+    	filter1 = ffac.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
+    	((CompareFilter)filter1).addLeftValue(ffac.createAttributeExpression(testType, "att1"));
+    	((CompareFilter)filter1).addRightValue(ffac.createLiteralExpression("val1"));
+    	
+    	filter2 = ffac.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
+    	((CompareFilter)filter2).addLeftValue(ffac.createAttributeExpression(testType, "att2"));
+    	((CompareFilter)filter2).addRightValue(ffac.createLiteralExpression("val2"));
+
+    	firstQuery = new DefaultQuery("typeName", filter1, 100, null, "handle");
+    	secondQuery = new DefaultQuery("typeName", filter2, 20, new String[]{"att1", "att2", "att4"}, "handle2");
+    	
+    	mixed = DataUtilities.mixQueries(firstQuery, secondQuery, "newhandle");
+    	
+    	//the passed handle
+    	assertEquals("newhandle", mixed.getHandle());
+    	//the lower of both
+    	assertEquals(20, mixed.getMaxFeatures());
+    	//att1, 2 and 4
+    	assertEquals(3, mixed.getPropertyNames().length);
+    	
+    	Filter mixedFilter = mixed.getFilter();
+    	assertNotNull(mixedFilter);
+    	assertTrue(mixedFilter instanceof LogicFilter);
+    	LogicFilter f = (LogicFilter)mixedFilter;
+    	
+    	assertEquals(AbstractFilter.LOGIC_AND, f.getFilterType());
+    	for(Iterator fit = f.getFilterIterator(); fit.hasNext(); )
+    	{
+    		Filter subFilter = (Filter)fit.next();
+    		assertTrue(filter1.equals(subFilter) || filter2.equals(subFilter));
+    	}
+	}
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(DataUtilitiesTest.class);
