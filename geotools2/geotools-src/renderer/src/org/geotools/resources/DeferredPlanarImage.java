@@ -89,7 +89,7 @@ import org.geotools.util.WeakValueHashMap;
  * prête, il lui suffit d'appeler une méthode <CODE>repaint(...)</CODE> pour mettre à
  * jour cette tuile.
  *
- * @version $Id: DeferredPlanarImage.java,v 1.1 2003/07/11 16:59:02 desruisseaux Exp $
+ * @version $Id: DeferredPlanarImage.java,v 1.2 2003/07/22 15:25:16 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -327,9 +327,9 @@ public final class DeferredPlanarImage extends PlanarImage
         int box  = 0;
         if (colorModel instanceof IndexColorModel) {
             final IndexColorModel colors = (IndexColorModel)colorModel;
-            fill = ImageUtilities.getTransparentPixel(colors);
+            fill = ColorUtilities.getTransparentPixel(colors);
             if (BOX_THICKNESS>0 && Math.min(sampleModel.getWidth(), sampleModel.getHeight())>=64) {
-                box = ImageUtilities.getColorIndex(colors, Color.DARK_GRAY, fill);
+                box = ColorUtilities.getColorIndex(colors, Color.DARK_GRAY, fill);
             } else {
                 // Avoid drawing the box if tiles are too small.
                 box = fill;

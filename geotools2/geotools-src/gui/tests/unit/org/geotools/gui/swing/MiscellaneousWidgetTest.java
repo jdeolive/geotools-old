@@ -41,13 +41,13 @@ import junit.framework.*;
 
 // Geotools dependencies
 import org.geotools.resources.Arguments;
-import org.geotools.resources.ImageUtilities;
+import org.geotools.resources.ColorUtilities;
 
 
 /**
  * Tests a set of widgets.
  *
- * @version $Id: MiscellaneousWidgetTest.java,v 1.5 2003/06/02 21:55:46 desruisseaux Exp $
+ * @version $Id: MiscellaneousWidgetTest.java,v 1.6 2003/07/22 15:26:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MiscellaneousWidgetTest extends TestCase {
@@ -161,9 +161,9 @@ public class MiscellaneousWidgetTest extends TestCase {
     public void testColorBar() {
         ColorBar test = new ColorBar();
         final int[] ARGB = new int[256];
-        ImageUtilities.expand(new Color[] {Color.RED, Color.ORANGE, Color.YELLOW, Color.CYAN},
+        ColorUtilities.expand(new Color[] {Color.RED, Color.ORANGE, Color.YELLOW, Color.CYAN},
                               ARGB, 0, ARGB.length);
-        test.setColors(ImageUtilities.getIndexColorModel(ARGB));
+        test.setColors(ColorUtilities.getIndexColorModel(ARGB));
         show(test, "ColorBar");
     }
 

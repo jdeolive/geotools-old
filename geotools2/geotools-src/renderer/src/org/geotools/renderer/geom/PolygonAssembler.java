@@ -93,7 +93,7 @@ import org.geotools.resources.XArray;
  *   <li>The loop is reexecuted from step 1 until no more polylines have been merged.</li>
  * </ol>
  *
- * @version $Id: PolygonAssembler.java,v 1.10 2003/06/25 15:14:15 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.11 2003/07/22 15:25:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: L'implémentation actuelle de cette méthode ne prend pas en compte les
@@ -968,7 +968,7 @@ final class PolygonAssembler implements Comparator {
             if (closed) break;
         }
         Polyline.LOGGER.log(LEVEL, "Reference point: "+startingPoint);
-        if (startingPoint.minDistanceSq > flatness*flatness) {
+        if (startingPoint.minDistanceSq > 8*flatness*flatness) {
             throw new IllegalStateException("Reference point is too far away"); // TODO: localize
         }
         updateFermions();
