@@ -303,15 +303,30 @@ public class FilterTest extends TestCase {
         _log.info( filter.toString());            
         _log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals("filter string doesn't match","[ testString2 is like .*cows.* ]",filter.toString());
-        /*
+        
         // test for multi char parameters
         
-        filter.setPattern(new ExpressionLiteral("!#co*ws**"),"xx","*","!#");
+        filter.setPattern(new ExpressionLiteral("!#coxxwsyyy"),"xx","yy","!#");
         _log.info( filter.toString());            
         _log.info( "contains feature: " + filter.contains(testFeature));
         
-        assertEquals("filter string doesn't match","[ testString is like co!.*ws.* ]",filter.toString());
-         */
+        assertEquals("filter string doesn't match","[ testString2 is like co.*ws.?y ]",filter.toString());
+        
+        // test for multi char parameters which are special
+        
+        filter.setPattern(new ExpressionLiteral("co.*ws.?\\.*"),".*",".?","\\");
+        _log.info( filter.toString());            
+        _log.info( "contains feature: " + filter.contains(testFeature));
+        
+        assertEquals("filter string doesn't match","[ testString2 is like co.*ws.?\\.\\* ]",filter.toString());
+        
+        // test for reading back in strings which are java regexs
+        
+        filter.setPattern(new ExpressionLiteral("co.*ws.?\\.\\*"),".*",".?","\\");
+        _log.info( filter.toString());            
+        _log.info( "contains feature: " + filter.contains(testFeature));
+        
+        assertEquals("filter string doesn't match","[ testString2 is like co.*ws.?\\.\\* ]",filter.toString());
     }
 
 
