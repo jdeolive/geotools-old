@@ -72,7 +72,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.11 2003/02/20 11:18:08 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.12 2003/02/28 22:26:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -305,7 +305,7 @@ public class RenderedIsoline extends RenderedLayer {
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.11 2003/02/20 11:18:08 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.12 2003/02/28 22:26:50 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class IsolineRenderer implements Polygon.Renderer {
@@ -391,6 +391,9 @@ public class RenderedIsoline extends RenderedLayer {
      */
     protected void paint(final RenderingContext context) throws TransformException {
         assert Thread.holdsLock(getTreeLock());
+        if (isoline == null) {
+            return;
+        }
         /*
          * If the rendering coordinate system changed since last
          * time, then reproject the isoline and flush the cache.
@@ -422,12 +425,15 @@ public class RenderedIsoline extends RenderedLayer {
                 final double   y = Unit.DEGREE.convert(bounds.getCenterY(), yUnit);
                 final double  dx = Unit.DEGREE.convert(R2/XAffineTransform.getScaleX0(tr), xUnit);
                 final double  dy = Unit.DEGREE.convert(R2/XAffineTransform.getScaleY0(tr), yUnit);
+                assert !Double.isNaN( x) && !Double.isNaN( y) : bounds;
+                assert !Double.isNaN(dx) && !Double.isNaN(dy) : tr;
                 r = ellipsoid.orthodromicDistance(x-dx, y-dy, x+dy, y+dy);
             } else {
                 // Assume a cartesian coordinate system.
                 final double R2 = 1.4142135623730950488016887242097; // sqrt(2)
                 r = R2/Math.sqrt((r=tr.getScaleX())*r + (r=tr.getScaleY())*r +
                                  (r=tr.getShearX())*r + (r=tr.getShearY())*r);
+                assert !Double.isNaN(r) : tr;
             }
             if (isolineRenderer == null) {
                 isolineRenderer = new IsolineRenderer();
@@ -521,11 +527,13 @@ public class RenderedIsoline extends RenderedLayer {
      *         in no tool tips for this location.
      */
     String getToolTipText(final GeoMouseEvent event) {
-        final Point2D point = event.getMapCoordinate(null);
-        if (point != null) {
-            final String toolTips = isoline.getPolygonName(point, getLocale());
-            if (toolTips != null) {
-                return toolTips;
+        if (isoline != null) {
+            final Point2D point = event.getMapCoordinate(null);
+            if (point != null) {
+                final String toolTips = isoline.getPolygonName(point, getLocale());
+                if (toolTips != null) {
+                    return toolTips;
+                }
             }
         }
         return super.getToolTipText(event);
