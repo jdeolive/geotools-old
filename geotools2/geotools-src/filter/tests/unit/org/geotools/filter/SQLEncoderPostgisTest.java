@@ -196,7 +196,7 @@ public class SQLEncoderPostgisTest extends TestCase {
         SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
         String out = encoder.encode((AbstractFilterImpl) gf);
         LOGGER.finer("Resulting SQL filter is \n" + out);
-        assertTrue(out.equals("WHERE testGeometry && GeometryFromText(" +
+        assertTrue(out.equals("WHERE \"testGeometry\" && GeometryFromText(" +
                 "'POLYGON ((0 0, 0 300, 300 300, 300 0, 0 0))'" + ", 2346)"));
     }
 
@@ -215,7 +215,7 @@ public class SQLEncoderPostgisTest extends TestCase {
         LOGGER.finer("Resulting SQL filter is \n" + out);
         assertTrue(out.equals("WHERE GeometryFromText(" +
                 "'POLYGON ((10 10, 10 300, 300 300, 300 10, 10 10))'" +
-                ", 2346) && testGeometry"));
+                ", 2346) && \"testGeometry\""));
     }
 
     public void test3() throws Exception {
