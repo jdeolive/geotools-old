@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Id: design.sgml,v 1.6 2002/11/10 08:27:09 camerons Exp $</date>
+    <date>$Id: design.sgml,v 1.7 2002/11/16 09:40:25 camerons Exp $</date>
   </articleinfo>
 
   <section>
@@ -64,6 +64,18 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>.
       You can download <emphasis>Poseidon</emphasis>, reverse engineer the
       code and interactively view diagrams, javadocs and code.</para>
+    </section>
+
+    <section>
+      <title id="licence">Licence.</title>
+
+      <para>Copyright (c) 2002 Cameron Shorter. Permission is granted to copy,
+      distribute and/or modify this document under the terms of the <ulink
+      url="http://www.fsf.org/copyleft/fdl.html">GNU Free Documentation
+      License</ulink>, Version 1.1 or any later version published by the Free
+      Software Foundation; with the Invariant Sections being with no Invariant
+      Sections, with the Front-Cover Texts being no Front-Cover Texts, and
+      with the Back-Cover Texts being no Back-Cover Texts.</para>
     </section>
   </section>
 
