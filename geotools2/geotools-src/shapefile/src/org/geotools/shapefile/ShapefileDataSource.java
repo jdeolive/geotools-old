@@ -51,7 +51,7 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.27 2003/05/11 15:25:48 aaime Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.28 2003/05/14 16:27:06 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -803,7 +803,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
   public static final void main(String[] args) throws Exception {
     File src = new File(args[0]);
     ShapefileDataSource ds = new ShapefileDataSource(src.toURL());
-    FeatureCollection features = ds.getFeatures(new QueryImpl(null, null));
+    FeatureCollection features = ds.getFeatures(Filter.NONE);
     Feature[] f = features.getFeatures();
     for (int i = 0, ii = f.length; i < ii; i++) {
       System.out.println(f[i]);
