@@ -17,7 +17,7 @@ import org.geotools.gui.widget.Widget;
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
  * Tools process mouse events on behalf of widgets like MapPane and change
  * data in the Context (like the AreaOfInterest).
- * @version $Id: AbstractToolImpl.java,v 1.5 2003/03/27 11:32:18 camerons Exp $
+ * @version $Id: AbstractToolImpl.java,v 1.6 2003/03/27 19:51:51 camerons Exp $
  * @author Cameron Shorter
  */
 public abstract class AbstractToolImpl
@@ -93,16 +93,8 @@ public abstract class AbstractToolImpl
      * when this tool is deselected from a MapPane.
      */
     public void removeMouseListeners(){
-        Component[] components=(Component[])mouseListenerList.toArray();
-        for (int i=1;i<components.length;i++){
-            components[i].removeMouseListener(this);
-            //components[i].removeMouseMotionListener(this);
-        }
-        components=(Component[])mouseMotionListenerList.toArray();
-        for (int i=1;i<components.length;i++){
-            components[i].removeMouseListener(this);
-            //components[i].removeMouseMotionListener(this);
-        }
+        mouseListenerList.clear();
+        mouseMotionListenerList.clear();
     }
 
     /**
