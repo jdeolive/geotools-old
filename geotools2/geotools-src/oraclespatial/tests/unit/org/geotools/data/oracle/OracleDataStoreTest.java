@@ -20,11 +20,13 @@ import junit.framework.TestCase;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureResults;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
+import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.ConnectionPoolManager;
@@ -131,7 +133,8 @@ public class OracleDataStoreTest extends TestCase {
         try {
             DataStore ds = new OracleDataStore(cPool, properties.getProperty("schema"));
             FeatureType ft = ds.getSchema("ORA_TEST_POINTS");
-            FeatureReader fr = ds.getFeatureReader(ft, Filter.NONE, Transaction.AUTO_COMMIT);
+            Query q = new DefaultQuery( "ORA_TEST_POINTS" );
+            FeatureReader fr = ds.getFeatureReader( q, Transaction.AUTO_COMMIT);
             int count = 0;
 
             while (fr.hasNext()) {
@@ -160,7 +163,8 @@ public class OracleDataStoreTest extends TestCase {
         writer.write();
         writer.close();
 
-        FeatureReader reader = ds.getFeatureReader(ds.getSchema("ORA_TEST_POINTS"),Filter.NONE, Transaction.AUTO_COMMIT);
+        Query q = new DefaultQuery( "ORA_TEST_POINTS" );
+        FeatureReader reader = ds.getFeatureReader( q, Transaction.AUTO_COMMIT);
         Feature readF = reader.next();
         
         assertEquals("Changed Feature", feature.getAttribute(0));
