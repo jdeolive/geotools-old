@@ -53,7 +53,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     }
     
     /**
-     * This parameter encodes the dash pattern as a series of space separated floats.<br>
+     * This parameter encodes the dash pattern as a series of floats.<br>
      * The first number gives the length in pixels of the dash to draw, the second gives the amount of space to leave, and this pattern repeats.<br>
      * If an odd number of values is given, then the pattern is expanded by repeating it twice to give an even number of values.
      * The default is to draw an unbroken line.<br>
@@ -61,10 +61,10 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * For example, "2 1 3 2" would produce:<br>
      * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
      *
-     * @return The dash pattern as a String of float values in the form "dashlength gaplength ..."
+     * @return The dash pattern as an array of float values in the form "dashlength gaplength ..."
      */
-    public String getDashArray() {
-        return null;//HACK: is this an aceptable return, or should it be "1 0"
+    public float[] getDashArray() {
+        return null;//HACK: is this an aceptable return? 
     }
     
     /**
