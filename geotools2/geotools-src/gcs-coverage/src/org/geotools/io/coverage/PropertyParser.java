@@ -35,7 +35,7 @@ package org.geotools.io.coverage;
 // Images
 import java.awt.Image;
 import java.awt.image.RenderedImage;
-import java.awt.image.RasterFormatException;
+import javax.imageio.IIOException;
 
 // Properties and parameters
 import javax.media.jai.DeferredData;
@@ -48,6 +48,10 @@ import javax.media.jai.ParameterListDescriptor;
 import java.io.*;
 import java.net.URL;
 
+// Formatting
+import java.text.NumberFormat;
+import java.text.ParseException;
+
 // Collections
 import java.util.Set;
 import java.util.Map;
@@ -55,7 +59,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.NoSuchElementException;
 import javax.media.jai.util.CaselessStringKey;
 
 // Logging
@@ -90,15 +93,16 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the following informations:
  *
  * <blockquote><pre>
- * ULX                = 217904.31
- * ULY                = 5663495.1
- * resolution         = 1000.0000
- * units              = meters
- * projection         = Mercator_1SP
- * central_meridian   = -15.2167
- * latitude_of_origin =  28.0667
- * false_easting      = 0.00000000
- * false_northing     = 0.00000000
+ * XPosition          = 217904.31
+ * YPosition          = 5663495.1
+ * XResolution        = 1000.0000
+ * YResolution        = 1000.0000
+ * Units              = meters
+ * Projection         = Mercator_1SP
+ * Central meridian   = -15.2167
+ * Latitude of origin =  28.0667
+ * False easting      = 0.00000000
+ * False northing     = 0.00000000
  * Ellipsoid          = Clarke 1866
  * Datum              = Clarke 1866
  * </pre></blockquote>
@@ -110,17 +114,36 @@ import org.geotools.resources.gcs.ResourceKeys;
  * then a subclass could override {@link #get(String,Object)} in order to translate
  * on the fly <code>"Projection"</code> key name into <code>"Projection Name"</code>.
  *
- * @version $Id: PropertyParser.java,v 1.3 2002/07/28 19:25:09 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.4 2002/08/18 19:59:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
     /**
      * Mapping between some commons projection names
      * and OpenGIS's projection class name.
+     *
+     * @task TODO: Need to find a more general way to map from GeoTiff
+     *             to OpengGIS coordinate system names.
      */
     private static final String[] PROJECTIONS= {
         "Mercator",            "Mercator_1SP",
         "Geographic (Lat/Lon)", null
+    };
+
+    /**
+     * Set of commonly used symbols for "metres".
+     */
+    private static final String[] METRES = {
+        "meter", "meters", "metre", "metres", "m"
+    };
+
+    /**
+     * Set of commonly used symbols for "degrees".
+     *
+     * @task TODO: Need a more general way to set unit symbols once the Unit API is completed.
+     */
+    private static final String[] DEGREES = {
+        "degree", "degrees", "deg", "°"
     };
     
     /**
@@ -155,6 +178,12 @@ public class PropertyParser {
      * or <code>null</code> for a default locale.
      */
     private Locale locale;
+
+    /**
+     * The object to use for reading numbers.
+     * Will be constructed only when first needed.
+     */
+    private transient NumberFormat numberFormat;
     
     /**
      * Construct a new <code>PropertyParser</code>
@@ -173,7 +202,9 @@ public class PropertyParser {
     }
     
     /**
-     * Clear this property set.
+     * Clear this property set. If the same <code>PropertyParser</code>
+     * object is used for parsing many files, then <code>clear()</code>
+     * should be invoked prior any <code>load(...)</code> method.
      */
     public synchronized void clear() {
         source           = null;
@@ -182,17 +213,11 @@ public class PropertyParser {
     }
     
     /**
-     * Returns the source file name or URL. This is the path specified
-     * during the last call to a <code>load(...)</code> method.
-     */
-    public String getSource() {
-        return source;
-    }
-    
-    /**
-     * Read all properties from a text file. Default implementation
-     * invokes {@link #parseLine} for each non-empty line found in
-     * the file.
+     * Read all properties from a text file. The default implementation invokes
+     * {@link #parseLine} for each non-empty line found in the stream.
+     * Note that this method do not invokes {@link #clear} prior the loading.
+     * Consequently, the loaded properties will be added to the set of existing
+     * properties.
      *
      * @param  in The file to read until EOF.
      * @throws IOException if an error occurs during loading.
@@ -205,9 +230,11 @@ public class PropertyParser {
     }
     
     /**
-     * Read all properties from an URL. Default implementation
-     * invokes {@link #parseLine} for each non-empty line found
-     * in the file.
+     * Read all properties from an URL. The default implementation invokes
+     * {@link #parseLine} for each non-empty line found in the stream.
+     * Note that this method do not invokes {@link #clear} prior the loading.
+     * Consequently, the loaded properties will be added to the set of existing
+     * properties.
      *
      * @param  in The URL to read until EOF.
      * @throws IOException if an error occurs during loading.
@@ -220,9 +247,13 @@ public class PropertyParser {
     }
     
     /**
-     * Read all properties from a stream. Default implementation
-     * invokes {@link #parseLine} for each non-empty line found
-     * in the stream.
+     * Read all properties from a stream. The default implementation invokes
+     * {@link #parseLine} for each non-empty line found in the stream.
+     * Note that this method do not invokes {@link #clear} prior the loading.
+     * Consequently, the loaded properties will be added to the set of existing
+     * properties.
+     *
+     * This method is not public because it doesn't set the {@link #source} field.
      *
      * @param in The stream to read until EOF. The stream will not be closed.
      * @throws IOException if an error occurs during loading.
@@ -241,7 +272,7 @@ public class PropertyParser {
                 }
             }
         }
-        if (comments.length()!=0) {
+        if (comments.length() != 0) {
             add((String)null, comments.toString());
         }
     }
@@ -261,7 +292,7 @@ public class PropertyParser {
      * the following call:
      *
      * <blockquote><pre>
-     * {@link #add add}("Ellipsoid", "WGS 1984");
+     * {@link #add(String,Object) add}("Ellipsoid", "WGS 1984");
      * </pre></blockquote>
      *
      * This method returns <code>true</code> if it has consumed the line, or
@@ -273,31 +304,68 @@ public class PropertyParser {
      * method returns <code>false</code>) if <code>parseLine</code> don't know
      * what to do with it. Non-consumed line will typically go up in a chain of
      * <code>parseLine</code> methods (if <code>PropertyParser</code> has been
-     * subclassed) until somebody consume it.
+     * subclassed) until someone consume it.
      *
      * @param  line The line to parse.
      * @return <code>true</code> if this method has consumed the line.
-     * @throws RasterFormatException if the line is badly formatted,
-     *         or if the line contains a property already stored.
+     * @throws IIOException if the line is badly formatted.
+     * @throws AmbiguousPropertyException if the line contains a property already stored.
      */
-    protected boolean parseLine(final String line) throws RasterFormatException {
+    protected boolean parseLine(final String line) throws IIOException {
         final int index = line.indexOf('=');
-        if (index>=0) {
+        if (index >= 0) {
             add(line.substring(0, index), line.substring(index+1));
             return true;
         }
         return false;
+    }
+
+    /**
+     * Trim a character string. Leading and trailing spaces are removed. Any succession of
+     * one ore more unicode whitespace characters (as of {@link Character#isSpaceChar(char)}
+     * are replaced by a single <code>'_'</code> character. Example:
+     *
+     *                       <pre>"This   is a   test"</pre>
+     * will be returned as   <pre>"This_is_a_test"</pre>
+     *
+     * @param  str The string to trim (may be <code>null</code>).
+     * @param  separator The separator to insert in place of succession of whitespaces.
+     *         Usually "_" for keys and " " for values.
+     * @return The trimed string, or <code>null</code> if <code>str</code> was null.
+     */
+    private static String trim(String str, final String separator) {
+        if (str != null) {
+            str = str.trim();
+            StringBuffer buffer = null;
+loop:       for (int i=str.length(); --i>=0;) {
+                if (Character.isSpaceChar(str.charAt(i))) {
+                    final int upper = i;
+                    do if (--i < 0) break loop;
+                    while (Character.isSpaceChar(str.charAt(i)));
+                    if (buffer == null) {
+                        buffer = new StringBuffer(str);
+                    }
+                    buffer.replace(i+1, upper+1, separator);
+                }
+            }
+            if (buffer != null) {
+                return buffer.toString();
+            }
+        }
+        return str;
     }
     
     /**
      * Add all properties from the specified image.
      *
      * @param  Image with properties to add to this <code>PropertyParser</code>.
-     * @throws RasterFormatException if a property is defined twice.
+     * @throws AmbiguousPropertyException if a property is defined twice.
      */
-    public synchronized void add(final RenderedImage image) throws RasterFormatException {
+    public synchronized void add(final RenderedImage image)
+        throws AmbiguousPropertyException
+    {
         if (image instanceof PropertySource) {
-            add((PropertySource) image);
+            add((PropertySource) image, null);
         } else {
             final String[] names = image.getPropertyNames();
             if (names!=null) {
@@ -308,69 +376,47 @@ public class PropertyParser {
             }
         }
     }
-    
+
     /**
-     * Add all properties from the specified property source.
-     *
-     * @param  properties Properties to add.
-     * @throws RasterFormatException if a property is defined twice.
-     */
-    public synchronized void add(final PropertySource properties) throws RasterFormatException {
-        add(properties, properties.getPropertyNames());
-    }
-    
-    /**
-     * Add all properties that beging with the supplied prefix.
+     * Add properties from the specified property source.
      *
      * @param  properties The properties source.
-     * @param  prefix The prefix for properties to add.
-     * @throws RasterFormatException if a property is defined twice.
+     * @param  prefix The prefix for properties to add, of <code>null</code> to add
+     *         all properties. If non-null, only properties begining with this prefix
+     *         will be added.
+     * @throws AmbiguousPropertyException if a property is defined twice.
      */
     public synchronized void add(final PropertySource properties, final String prefix)
-        throws RasterFormatException
+        throws AmbiguousPropertyException
     {
-        add(properties, properties.getPropertyNames(prefix));
-    }
-    
-    /**
-     * Add a set of properties from the specified property source.
-     *
-     * @param  properties The properties source.
-     * @param  names The list of property names to add.
-     * @throws RasterFormatException if a property is defined twice.
-     */
-    private void add(final PropertySource properties, final String[] names)
-        throws RasterFormatException
-    {
-        if (names!=null) {
+        final String[] names = (prefix!=null) ? properties.getPropertyNames(prefix) :
+                                                properties.getPropertyNames();
+        if (names != null) {
             for (int i=0; i<names.length; i++) {
-                final String name = names[i];
-                add(name, new DeferredProperty(properties, name, properties.getPropertyClass(name)));
+                final String  name = names[i];
+                final Class classe = properties.getPropertyClass(name);
+                add(name, new DeferredProperty(properties, name, classe));
             }
         }
     }
     
     /**
-     * Add a property for the specified key. Keys are case-insensitive.
-     * Calling this method with an illegal key-value pair thrown an
-     * {@link RasterFormatException} since properties are used for
-     * holding raster informations.
+     * Add a property for the specified key. The key is stored in a case-insensitive way and with
+     * a special processing for whitespaces. See {@link #get(String,Object)} for details.
      *
      * @param  key   The key for the property to add.
      * @param  value The value for the property to add.
-     * @throws RasterFormatException if a different value
+     * @throws AmbiguousPropertyException if a different value
      *         already exists for the specified key.
      */
-    public synchronized void add(String key, Object value) throws RasterFormatException {
-        if (key!=null) {
-            key=key.trim();
-        }
+    public synchronized void add(String key, Object value) throws AmbiguousPropertyException {
+        key = trim(key, "_");
         if (value==null || value==Image.UndefinedProperty) {
             return;
         }
         if (value instanceof CharSequence) {
-            final String text = value.toString().trim();
-            if (text.length()==0) return;
+            final String text = trim(value.toString(), " ");
+            if (text.length() == 0) return;
             value = text;
         }
         if (properties==null) {
@@ -379,15 +425,19 @@ public class PropertyParser {
         final CaselessStringKey caselessKey = (key!=null) ? new CaselessStringKey(key) : null;
         final String oldValue = (String) properties.get(caselessKey);
         if (oldValue != null && !oldValue.equals(value)) {
-            throw new RasterFormatException(Resources.getResources(locale).
-                        getString(ResourceKeys.ERROR_DUPLICATED_PROPERTY_$1, key));
+            throw new AmbiguousPropertyException(Resources.getResources(locale).
+                        getString(ResourceKeys.ERROR_DUPLICATED_PROPERTY_$1, key), key);
         }
         properties.put(caselessKey, value);
     }
-    
+
     /**
-     * Returns the property for the specified key, or a
-     * default value if the property was not found.
+     * Returns the property for the specified key, or a default value if the property
+     * was not found. The key is case-insensitive. Futhermore, trailing and leading spaces
+     * are ignored. Any succession of one ore more unicode whitespace characters (as of
+     * {@link Character#isSpaceChar(char)} are replaced by a single <code>'_'</code> character.
+     * For example, the key <code>"false&nbsp;&nbsp;easting"</code> is treated as
+     * <code>"false_easting"</code>.
      *
      * @param  key The key of the desired property. Keys are case-insensitive.
      * @param  The default value for <code>key</code>, or <code>null</code>.
@@ -396,9 +446,7 @@ public class PropertyParser {
      *         is <code>null</code>.
      */
     public synchronized Object get(String key, final Object defaultValue) {
-        if (key!=null) {
-            key = key.trim();
-        }
+        key = trim(key, "_");
         if (properties!=null) {
             final CaselessStringKey caselessKey = (key!=null) ? new CaselessStringKey(key) : null;
             Object value = properties.get(caselessKey);
@@ -419,55 +467,69 @@ public class PropertyParser {
      *
      * @param  key The key of the desired property. Keys are case-insensitive.
      * @return Value for the specified key (never <code>null</code>).
-     * @throws NoSuchElementException if no value exists for the specified key.
+     * @throws MissingPropertyException if no value exists for the specified key.
      */
-    public final Object get(final String key) throws NoSuchElementException {
+    public final Object get(final String key) throws MissingPropertyException {
         final Object value = get(key, null);
         if (value!=null && value!=Image.UndefinedProperty) {
             return value;
         }
-        throw new NoSuchElementException(Resources.getResources(locale).
-                getString(ResourceKeys.ERROR_UNDEFINED_PROPERTY_$1, key));
+        throw new MissingPropertyException(Resources.getResources(locale).
+                getString(ResourceKeys.ERROR_UNDEFINED_PROPERTY_$1, key), key);
     }
     
     /**
-     * Returns a property as a <code>double</code> value. Default implementation
+     * Returns a property as a <code>double</code> value. The default implementation
      * invokes <code>{@link #get(String) get}(key)</code> and parse the resulting
-     * value as of {@link Double#parseDouble}.
+     * value as of {@link NumberFormat#parse}.
      *
      * @param  key The key of the desired property. Keys are case-insensitive.
      * @return Value for the specified key as a <code>double</code>.
-     * @throws NoSuchElementException if no value exists for the specified key.
-     * @throws NumberFormatException if the value can't be parsed as a <code>double</code>.
+     * @throws MissingPropertyException if no value exists for the specified key.
+     * @throws PropertyException if the value can't be parsed as a <code>double</code>.
      */
-    public double getAsDouble(final String key)
-        throws NoSuchElementException, NumberFormatException
-    {
+    private double getAsDouble(final String key) throws PropertyException {
         final Object value = get(key);
         if (value instanceof Number) {
             return ((Number) value).doubleValue();
         }
-        return Double.parseDouble(value.toString());
+        try {
+            return getNumberFormat().parse(value.toString()).doubleValue();
+        } catch (ParseException exception) {
+            PropertyException e = new PropertyException(exception.getLocalizedMessage(), key);
+            e.initCause(exception);
+            throw e;
+        }
     }
     
     /**
-     * Returns a property as a <code>int</code> value. Default implementation
-     * invokes <code>{@link #get(String) get}(key)</code> and parse the resulting
-     * value as of {@link Integer#parseInt}.
+     * Returns a property as a <code>int</code> value.  The default implementation
+     * invokes <code>{@link #getAsDouble(String) getAsDouble}(key)</code> and make
+     * sure that the resulting value is an integer.
      *
      * @param  key The key of the desired property. Keys are case-insensitive.
      * @return Value for the specified key as an <code>int</code>.
-     * @throws NoSuchElementException if no value exists for the specified key.
-     * @throws NumberFormatException if the value can't be parsed as an <code>int</code>.
+     * @throws MissingPropertyException if no value exists for the specified key.
+     * @throws PropertyException if the value can't be parsed as an <code>int</code>.
      */
-    public int getAsInt(final String key)
-        throws NoSuchElementException, NumberFormatException
-    {
-        final Object value = get(key);
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
+    private int getAsInt(final String key) throws PropertyException {
+        final double value = getAsDouble(key);
+        final int  integer = (int) value;
+        if (value != integer) {
+            throw new PropertyException(Resources.getResources(locale).getString(
+                        ResourceKeys.ERROR_BAD_PARAMETER_$2, key, new Double(value)), key);
         }
-        return Integer.parseInt(value.toString());
+        return integer;
+    }
+
+    /**
+     * Get the object to use for parsing numbers.
+     */
+    private NumberFormat getNumberFormat() throws PropertyException {
+        if (numberFormat == null) {
+            numberFormat = NumberFormat.getNumberInstance(getLocale());
+        }
+        return numberFormat;
     }
     
     /**
@@ -485,24 +547,42 @@ public class PropertyParser {
     }
     
     /**
+     * Returns the source file name or URL. This is the path specified
+     * during the last call to a <code>load(...)</code> method.
+     */
+    public String getSource() {
+        return source;
+    }
+
+    /**
+     * Returns the locale to use when parsing property values as numbers. The default
+     * implementation returns {@link Locale#US}, since it is the locale used in most
+     * file formats.
+     */
+    public Locale getLocale() throws PropertyException {
+        return Locale.US;
+    }
+    
+    /**
      * Returns the units.  Default implementation fetchs the property
      * value for key <code>"Units"</code> and transform the resulting
      * string into an {@link Unit} object.
      *
-     * @throws NoSuchElementException if no value exists for the "Units" key.
+     * @throws MissingPropertyException if no value exists for the "Units" key.
+     * @throws PropertyException if the operation failed for some other reason.
      */
-    public synchronized Unit getUnits() throws NoSuchElementException {
+    public synchronized Unit getUnits() throws PropertyException {
         final Object value = get("Units");
         if (value instanceof Unit) {
             return (Unit) value;
         }
         final String text = value.toString();
-        if (contains(text, new String[]{"meter","meters","metre","metres","m"})) {
+        if (contains(text, METRES)) {
             return Unit.METRE;
-        } else if (contains(text, new String[]{"degree","degrees","deg","°"})) {
+        } else if (contains(text, DEGREES)) {
             return Unit.DEGREE;
         } else {
-            throw new NoSuchElementException("Unknow unit: "+text);
+            throw new PropertyException("Unknow unit: "+text, "Units");
         }
     }
     
@@ -511,9 +591,10 @@ public class PropertyParser {
      * value for key <code>"Datum"</code> and transform the resulting
      * string into a {@link HorizontalDatum} object.
      *
-     * @throws NoSuchElementException if no value exists for the "Datum" key.
+     * @throws MissingPropertyException if no value exists for the "Datum" key.
+     * @throws PropertyException if the operation failed for some other reason.
      */
-    public synchronized HorizontalDatum getDatum() throws NoSuchElementException {
+    public synchronized HorizontalDatum getDatum() throws PropertyException {
         final Object value = get("Datum");
         if (value instanceof HorizontalDatum) {
             return (HorizontalDatum) value;
@@ -532,9 +613,10 @@ public class PropertyParser {
      * value for key <code>"Ellipsoid"</code> and transform the resulting
      * string into an {@link Ellipsoid} object.
      *
-     * @throws NoSuchElementException if no value exists for the "Ellipsoid" key.
+     * @throws MissingPropertyException if no value exists for the "Ellipsoid" key.
+     * @throws PropertyException if the operation failed for some other reason.
      */
-    public synchronized Ellipsoid getEllipsoid() throws NoSuchElementException {
+    public synchronized Ellipsoid getEllipsoid() throws PropertyException {
         final Object value = get("Ellipsoid");
         if (value instanceof Ellipsoid) {
             return (Ellipsoid) value;
@@ -551,6 +633,9 @@ public class PropertyParser {
     /**
      * Check if the supplied ellipsoid is WGS 1984.
      * This is a temporary patch.
+     *
+     * @task TODO: parse the datum and ellipsoid names when CoordinateSystemAuthorityFactory
+     *             will be implemented. The current EPSG factory implementation may not be enough.
      */
     private static synchronized void checkEllipsoid(String text, final String source) {
         text = text.trim().replace('_', ' ');
@@ -589,10 +674,11 @@ public class PropertyParser {
      *
      * @return The projection, or <code>null</code> if the underlying coordinate
      *         system is not a {@link ProjectedCoordinateSystem}.
-     * @throws NoSuchElementException if no value exists for the "Projection" key.
-     * @throws NumberFormatException if a parameter value can't be parsed as a <code>double</code>.
+     * @throws MissingPropertyException if no value exists for the "Projection" key.
+     * @throws PropertyException if the operation failed for some other reason
+     *         (for example if a parameter value can't be parsed as a <code>double</code>).
      */
-    public synchronized Projection getProjection() throws NoSuchElementException {
+    public synchronized Projection getProjection() throws PropertyException {
         final Object value = get("Projection");
         if (value instanceof Projection) {
             return (Projection) value;
@@ -617,7 +703,7 @@ public class PropertyParser {
             final String name = paramNames[i];
             try {
                 paramValue = getAsDouble(name);
-            } catch (NoSuchElementException exception) {
+            } catch (MissingPropertyException exception) {
                 // Parameter is not defined. Lets it to
                 // its default value and continue...
                 continue;
@@ -633,8 +719,8 @@ public class PropertyParser {
             if ((semiMajorAxisDefined && parameters.getDoubleParameter("semi_major")!=semiMajor) ||
                 (semiMinorAxisDefined && parameters.getDoubleParameter("semi_minor")!=semiMinor))
             {
-                throw new RasterFormatException(Resources.getResources(locale).
-                        getString(ResourceKeys.ERROR_AMBIGIOUS_AXIS_LENGTH));
+                throw new AmbiguousPropertyException(Resources.getResources(locale).
+                          getString(ResourceKeys.ERROR_AMBIGIOUS_AXIS_LENGTH), "Projection");
             }
             parameters = parameters.setParameter("semi_major", semiMajor)
                                    .setParameter("semi_minor", semiMinor);
@@ -642,7 +728,8 @@ public class PropertyParser {
         try {
             return factory.createProjection(text, classification, parameters);
         } catch (FactoryException exception) {
-            NoSuchElementException e = new NoSuchElementException(exception.getLocalizedMessage());
+            final PropertyException e;
+            e = new PropertyException(exception.getLocalizedMessage(), "Projection");
             e.initCause(exception);
             throw e;
         }
@@ -653,9 +740,11 @@ public class PropertyParser {
      * system from the information provided by {@link #getUnits}, {@link #getDatum} and
      * {@link #getProjection}.
      *
-     * @throws NoSuchElementException if a required value is missing (e.g. "Projection", "Datum", etc.).
+     * @throws MissingPropertyException if a required value is missing
+     *        (e.g. "Projection", "Datum", etc.).
+     * @throws PropertyException if the operation failed for some other reason.
      */
-    public synchronized CoordinateSystem getCoordinateSystem() throws NoSuchElementException {
+    public synchronized CoordinateSystem getCoordinateSystem() throws PropertyException {
         if (coordinateSystem==null) {
             final Object value = get("CoordinateSystem", "Generated");
             if (value instanceof CoordinateSystem) {
@@ -678,7 +767,8 @@ public class PropertyParser {
                             text, gcs, getProjection(), units, AxisInfo.X, AxisInfo.Y);
                 }
             } catch (FactoryException exception) {
-                NoSuchElementException e = new NoSuchElementException(exception.getLocalizedMessage());
+                final PropertyException e;
+                e = new PropertyException(exception.getLocalizedMessage(), "CoordinateSystem");
                 e.initCause(exception);
                 throw e;
             }
@@ -691,9 +781,9 @@ public class PropertyParser {
      * in geographic coordinate system using WGS
      * 1984 datum.
      *
-     * @throws NoSuchElementException if the operation failed.
+     * @throws PropertyException if the operation failed.
      */
-    public synchronized Envelope getGeographicEnvelope() throws NoSuchElementException {
+    public synchronized Envelope getGeographicEnvelope() throws PropertyException {
         final Envelope         envelope = getEnvelope();
         final CoordinateSystem sourceCS = getCoordinateSystem();
         final CoordinateSystem targetCS = GeographicCoordinateSystem.WGS84;
@@ -702,34 +792,49 @@ public class PropertyParser {
             final CoordinateTransformation transformation = factory.createFromCoordinateSystems(sourceCS, targetCS);
             return CTSUtilities.transform(transformation.getMathTransform(), envelope);
         } catch (TransformException exception) {
-            NoSuchElementException e = new NoSuchElementException(Resources.getResources(locale).
-                                           getString(ResourceKeys.ERROR_CANT_TRANSFORM_ENVELOPE));
+            final PropertyException e;
+            e = new PropertyException(Resources.getResources(locale).
+                                   getString(ResourceKeys.ERROR_CANT_TRANSFORM_ENVELOPE), null);
             e.initCause(exception);
             throw e;
         }
     }
     
     /**
-     * Returns the envelope. Default implementation fetchs the property values
-     * for keys <code>"ULX"</code>, <code>"ULY"</code>, <code>"Resolution"</code>
-     * and transform the resulting strings into an {@link Envelope} object.
+     * Returns the envelope. Default implementation fetchs property values
+     * for the following keys:
+     * <ul>
+     *   <li>Upper left corner with keys <code>"ULX"</code> and <code>"ULY"</code>.</li>
+     *   <li>Pixel size with keys <code>"XResolution"</code> and <code>"YResolution"</code>.
+     *       If none of those keys are defined, then this method looks for
+     *       <code>"Resolution"</code>.</li>
+     * </ul>
+     *
+     * Those properties are then transformed into an {@link Envelope} object.
      * <br><br>
      * <STRONG>DO NOT RELY ON THE CURRENT IMPLEMENTATION</STRONG>.
      * This default implementation may be changed in a future version.
      * Always override this method if you want to be safe.
      *
-     * @throws NoSuchElementException if a required value is missing.
+     * @throws MissingPropertyException if a required value is missing.
+     * @throws PropertyException if the operation failed for some other reason.
      */
-    public synchronized Envelope getEnvelope() throws NoSuchElementException {
-        final double x = getAsDouble("ULX");
-        final double y = getAsDouble("ULY");
-        final double r = getAsDouble("Resolution");
+    public synchronized Envelope getEnvelope() throws PropertyException {
+        final double xp = getAsDouble("ULX");
+        final double yp = getAsDouble("ULY");
+        final double xr,yr;
+        if (get("XResolution", null)!=null || get("YResolution")!=null) {
+            xr = getAsDouble("XResolution");
+            yr = getAsDouble("YResolution");
+        } else {
+            xr = yr = getAsDouble("Resolution");
+        }
         final GridRange range = getGridRange();
         final int   dimension = range.getDimension();
         final double[]    min = new double[dimension];
         final double[]    max = new double[dimension];
-        min[0] = x; min[1] = y - r*range.getLength(1);
-        max[1] = y; max[0] = x + r*range.getLength(0);
+        min[0] = xp; min[1] = yp - yr*range.getLength(1);
+        max[1] = yp; max[0] = xp + xr*range.getLength(0);
         /*
          * TODO: What should we do with other dimensions?
          *       Open question...
@@ -739,22 +844,23 @@ public class PropertyParser {
     
     /**
      * Returns the grid range. Default implementation fetchs the property values
-     * for keys <code>"Image width"</code> and <code>"Image height"</code>,
-     * and transform the resulting strings into a {@link GridRange} object.
+     * for keys <code>"Image_width"</code> and <code>"Image_height"</code>, and
+     * transform the resulting strings into a {@link GridRange} object.
      * <br><br>
      * <STRONG>DO NOT RELY ON THE CURRENT IMPLEMENTATION</STRONG>.
      * This default implementation may be changed in a future version.
      * Always override this method if you want to be safe.
      *
-     * @throws NoSuchElementException if a required value is missing.
+     * @throws MissingPropertyException if a required value is missing.
+     * @throws PropertyException if the operation failed for some other reason.
      */
-    public synchronized GridRange getGridRange() throws NoSuchElementException {
+    public synchronized GridRange getGridRange() throws PropertyException {
         final int dimension = getCoordinateSystem().getDimension();
         final int[]   lower = new int[dimension];
         final int[]   upper = new int[dimension];
         Arrays.fill(upper, 1);
-        upper[0] = getAsInt("Image width" );
-        upper[1] = getAsInt("Image height");
+        upper[0] = getAsInt("Image_width" );
+        upper[1] = getAsInt("Image_height");
         return new GridRange(lower, upper);
     }
     
@@ -762,8 +868,10 @@ public class PropertyParser {
      * Returns the sample dimensions for each band of the {@link GridCoverage}
      * to be read. If sample dimensions are not know, then this method returns
      * <code>null</code>. The default implementation always returns <code>null</code>.
+     *
+     * @throws PropertyException if the operation failed.
      */
-    public SampleDimension[] getSampleDimensions() {
+    public SampleDimension[] getSampleDimensions() throws PropertyException {
         return null;
     }
     
@@ -772,7 +880,7 @@ public class PropertyParser {
      * to the given value. A value of <code>null</code> removes any previous
      * setting, and indicates that the parser should localize as it sees fit.
      */
-    final void setLocale(final Locale locale) {
+    final void setUserLocale(final Locale locale) {
         this.locale = locale;
     }
     
@@ -839,7 +947,7 @@ public class PropertyParser {
             buffer.write(", ");
             buffer.write(format.format(new Longitude(envelope.getMaximum(0))));
             buffer.write(lineSeparator);
-        } catch (RuntimeException exception) {
+        } catch (PropertyException exception) {
             // Ignore.
         }
         buffer.write('{');

@@ -67,7 +67,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * object, while the pixel values are read by a {@link ImageReader}
  * object.
  *
- * @version $Id: ExoreferencedGridCoverageReader.java,v 1.3 2002/07/28 19:25:09 desruisseaux Exp $
+ * @version $Id: ExoreferencedGridCoverageReader.java,v 1.4 2002/08/18 19:59:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ExoreferencedGridCoverageReader extends GridCoverageReader {
@@ -195,15 +195,7 @@ public class ExoreferencedGridCoverageReader extends GridCoverageReader {
      */
     public synchronized CoordinateSystem getCoordinateSystem(final int index) throws IOException {
         checkImageIndex(index);
-        try {
-            return properties.getCoordinateSystem();
-        } catch (RuntimeException exception) {
-            // RuntimeException includes many potential
-            // errors due to badly formatted input file.
-            // Failing to parse the properties is really
-            // a checked exception.
-            throw new IIOException(getString(ResourceKeys.ERROR_UNDEFINED_PROPERTY), exception);
-        }
+        return properties.getCoordinateSystem();
     }
     
     /**
@@ -220,15 +212,7 @@ public class ExoreferencedGridCoverageReader extends GridCoverageReader {
      */
     public synchronized Envelope getEnvelope(final int index) throws IOException {
         checkImageIndex(index);
-        try {
-            return properties.getEnvelope();
-        } catch (RuntimeException exception) {
-            // RuntimeException includes many potential
-            // errors due to badly formatted input file.
-            // Failing to parse the properties is really
-            // a checked exception.
-            throw new IIOException(getString(ResourceKeys.ERROR_UNDEFINED_PROPERTY), exception);
-        }
+        return properties.getEnvelope();
     }
     
     /**
@@ -246,23 +230,7 @@ public class ExoreferencedGridCoverageReader extends GridCoverageReader {
      */
     public synchronized GridRange getGridRange(final int index) throws IOException {
         checkImageIndex(index);
-        try {
-            return properties.getGridRange();
-        } catch (RuntimeException propertyError) {
-            try {
-                return super.getGridRange(index);
-            } catch (IIOException imageError) {
-                // We have been unable to fetch the grid range from the image file.
-                // Some file format doesn't hold any informations about grid range,
-                // so this failure may be normal. The "real" failure cause is then
-                // the failure to parse properties ('propertyError'). Consequently,
-                // we retrown the exception with 'propertyError' as its cause.
-                final IIOException error = new IIOException(
-                        imageError.getLocalizedMessage(), propertyError);
-                error.setStackTrace(imageError.getStackTrace());
-                throw imageError;
-            }
-        }
+        return properties.getGridRange();
     }
     
     /**
@@ -282,15 +250,7 @@ public class ExoreferencedGridCoverageReader extends GridCoverageReader {
      */
     public synchronized SampleDimension[] getSampleDimensions(final int index) throws IOException {
         checkImageIndex(index);
-        try {
-            return properties.getSampleDimensions();
-        } catch (RuntimeException exception) {
-            // RuntimeException includes many potential
-            // errors due to badly formatted input file.
-            // Failing to parse the properties is really
-            // a checked exception.
-            throw new IIOException(getString(ResourceKeys.ERROR_UNDEFINED_PROPERTY), exception);
-        }
+        return properties.getSampleDimensions();
     }
     
     /**
@@ -300,6 +260,6 @@ public class ExoreferencedGridCoverageReader extends GridCoverageReader {
      */
     public synchronized void setLocale(final Locale locale) {
         super.setLocale(locale);
-        properties.setLocale(locale);
+        properties.setUserLocale(locale);
     }
 }
