@@ -57,31 +57,7 @@ public class TableHeader
 
   public String toString()
   {
-    StringBuffer buff = new StringBuffer(" ["+getClass().getName());
-    buff.append(" (length="+length+")");
-    buff.append(" (byteOrder="+byteOrder+")");
-    buff.append(" (description="+description+")");
-    buff.append(" (narrativeTable="+narrativeTable+")");
-    buff.append(" (columnDefs=");
-    if (columnDefs == null)
-    {
-      buff.append("null)");
-    } // end of if (columnDefs == null)
-    else
-    {
-      for (int i = 0; i < columnDefs.size(); i++)
-      {
-        buff.append("\n"+columnDefs.get(i).toString());
-      } // end of for (int i = 0; i < columnDefs.size(); i++)
-      buff.append("\n)");
-    } // end of if (columnDefs == null) else
-    buff.append("]");
-    return buff.toString();
-  }
-
-  public String toStringDev()
-  {
-    StringBuffer buff = new StringBuffer("Tabel header:\n");
+    StringBuffer buff = new StringBuffer();
     buff.append(" length="+length+"\n");
     buff.append(" byteOrder="+byteOrder+"\n");
     buff.append(" description="+description+"\n");
@@ -95,12 +71,10 @@ public class TableHeader
     {
       for (int i = 0; i < columnDefs.size(); i++)
       {
-        TableColumnDef tcd = (TableColumnDef)columnDefs.get(i);
-        buff.append("\n"+tcd.toStringDef());
+        buff.append("\n"+columnDefs.get(i).toString());
       } // end of for (int i = 0; i < columnDefs.size(); i++)
-      buff.append("\n)");
+      buff.append("\n");
     } // end of if (columnDefs == null) else
-    buff.append("]");
     return buff.toString();
   }
 

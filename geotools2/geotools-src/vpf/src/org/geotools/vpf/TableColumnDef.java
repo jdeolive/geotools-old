@@ -61,38 +61,24 @@ public class TableColumnDef implements DataTypesDefinition
 
   public String toString()
   {
-    StringBuffer buff = new StringBuffer(" ["+getClass().getName());
-    buff.append(" (name="+name+")");
-    buff.append(" (type="+type+")");
-    buff.append(" (elementsNumber="+elementsNumber+")");
-    buff.append(" (keyType="+keyType+")");
-    buff.append(" (colDesc="+colDesc+")");
-    buff.append(" (valDescTableName="+valDescTableName+")");
-    buff.append(" (thematicIdx="+thematicIdx+")");
-    buff.append(" (narrTable="+narrTable+")");
-    buff.append("]");
-    return buff.toString();
-  }
-
-  public String toStringDef()
-  {
-    StringBuffer buff = new StringBuffer(" Column definition:\n");
-//     buff.append(" name="+name+"\n");
-//     buff.append(" type="+type+"\n");
-//     buff.append(" elementsNumber="+elementsNumber+"\n");
-//     buff.append(" keyType="+keyType+"\n");
-//     buff.append(" colDesc="+colDesc+"\n");
-//     buff.append(" valDescTableName="+valDescTableName+"\n");
-//     buff.append(" thematicIdx="+thematicIdx+"\n");
-//     buff.append(" narrTable="+narrTable+"\n");
-    buff.append(" name="+name+"   ");
-    buff.append(" type="+type+"   ");
-    buff.append(" elementsNumber="+elementsNumber+"\n");
-    buff.append(" keyType="+keyType+"\n");
-    buff.append(" colDesc="+colDesc+"\n");
-    buff.append(" valDescTableName="+valDescTableName+"\n");
-    buff.append(" thematicIdx="+thematicIdx+"\n");
-    buff.append(" narrTable="+narrTable+"\n");
+    StringBuffer buff = new StringBuffer();
+	StringBuffer sb = null;
+	sb = new StringBuffer(""+name); sb.setLength(16);
+	buff.append(sb);
+	sb = new StringBuffer(""+type); sb.setLength(5);
+	buff.append(sb);
+	sb = new StringBuffer(""+elementsNumber); sb.setLength(5);
+	buff.append(sb);
+	sb = new StringBuffer(""+keyType); sb.setLength(4);
+	buff.append(sb);
+	sb = new StringBuffer(""+colDesc); sb.setLength(75);
+	buff.append(sb);
+	sb = new StringBuffer(""+valDescTableName); sb.setLength(5);
+	buff.append(sb);
+	sb = new StringBuffer(""+thematicIdx); sb.setLength(5);
+	buff.append(sb);
+	sb = new StringBuffer(""+narrTable); sb.setLength(5);
+	buff.append(sb);
     return buff.toString();
   }
 

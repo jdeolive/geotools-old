@@ -71,30 +71,11 @@ public class TableRow
     return buff.toString();
   }
   
-  public String toStringDev()
+  public int fieldsCount()
   {
-    StringBuffer buff = new StringBuffer();
-    buff.append(" fields:");
-    if (fieldsMap == null)
-    {
-      buff.append("null)");
-    } // end of if (columnDefs == null)
-    else
-    {
-      Iterator it = fieldsMap.entrySet().iterator();
-      while (it.hasNext())
-      {
-        Map.Entry entry = (Map.Entry)it.next();
-        RowField field = (RowField)entry.getValue();
-        buff.append("\n"+
-                    entry.getKey().toString()+"="+
-                    field.toStringDev());
-      } // end of while (it.hasNext())
-      buff.append("\n)");
-    } // end of if (columnDefs == null) else
-    return buff.toString();
+	return fieldsArr.length;
   }
-  
+
   public RowField get(String name)
   {
     return (RowField)fieldsMap.get(name);

@@ -26,22 +26,6 @@ public class RowField implements DataTypesDefinition
 
   public String toString()
   {
-    StringBuffer buff = new StringBuffer(" ["+getClass().getName());
-    if (value != null)
-    {
-      buff.append(" (value="+value.toString()+")");
-    } // end of if (value != null)
-    else
-    {
-      buff.append(" (value=null)");
-    } // end of if (value != null) else
-    buff.append(" (type="+type+")");
-    buff.append("]");
-    return buff.toString();
-  }
-
-  public String toStringDev()
-  {
     if (value != null)
     {
       return value.toString()+" ("+type+")";
