@@ -16,35 +16,43 @@
  */
 package org.geotools.feature;
 
-/** A convenience class for dealing with FeatureCollection Iterators. DOES NOT
+/**
+ * A convenience class for dealing with FeatureCollection Iterators. DOES NOT
  * implement Iterator.
+ *
  * @author Ian Schneider
  */
 public class FeatureIterator {
-  
-  java.util.Iterator iterator;
-  
-  /** Create a new FeatureIterator using the Iterator from the given
-   * FeatureCollection.
-   * @param collection The FeatureCollection to perform the iteration on.
-   */  
-  public FeatureIterator(FeatureCollection collection) {
-    this.iterator = collection.iterator();
-  }
-  
-  /** Does another Feature exist in this Iteration.
-   * @return true if more Features exist, false otherwise.
-   */  
-  public boolean hasNext() {
-    return iterator.hasNext();
-  }
-  
-  /** Get the next Feature in this iteration.
-   * @throws NoSuchElementException If no more Features exist.
-   * @return The next Feature
-   */  
-  public Feature next() throws java.util.NoSuchElementException {
-    return (Feature) iterator.next();
-  }
-  
+    /** The iterator from the FeatureCollection to return features from. */
+    private java.util.Iterator iterator;
+
+    /**
+     * Create a new FeatureIterator using the Iterator from the given
+     * FeatureCollection.
+     *
+     * @param collection The FeatureCollection to perform the iteration on.
+     */
+    public FeatureIterator(FeatureCollection collection) {
+        this.iterator = collection.iterator();
+    }
+
+    /**
+     * Does another Feature exist in this Iteration.
+     *
+     * @return true if more Features exist, false otherwise.
+     */
+    public boolean hasNext() {
+        return iterator.hasNext();
+    }
+
+    /**
+     * Get the next Feature in this iteration.
+     *
+     * @return The next Feature
+     *
+     * @throws java.util.NoSuchElementException If no more Features exist.
+     */
+    public Feature next() throws java.util.NoSuchElementException {
+        return (Feature) iterator.next();
+    }
 }
