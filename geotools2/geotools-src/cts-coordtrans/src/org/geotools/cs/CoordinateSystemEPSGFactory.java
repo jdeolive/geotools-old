@@ -71,6 +71,7 @@ import javax.media.jai.util.CaselessStringKey;
 
 // Resources
 import org.geotools.units.Unit;
+import org.geotools.resources.Geotools;
 import org.geotools.resources.Arguments;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
@@ -119,7 +120,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.10 2002/10/17 18:13:26 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.11 2003/02/26 12:04:01 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -1339,7 +1340,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     private Parameter[] createParameter(final String code) throws SQLException, FactoryException {
         final List list = new ArrayList();
         final PreparedStatement stmt;
-        stmt = prepareStatement("Parameter", "select COPU.PARAMETER_CODE,"
+        stmt = prepareStatement("Parameter", "select "
                                        + " COP.PARAMETER_NAME,"
                                        + " COPV.PARAMETER_VALUE,"
                                        + " COPV.UOM_CODE"
@@ -1357,9 +1358,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         stmt.setString(2, code);
         final ResultSet result = stmt.executeQuery();
         while (result.next()) {
-            final String param = getString(result, 1, code);
-            final String  name = getString(result, 2, code);
-            final double value = result.getDouble(3);
+            final String  name = getString(result, 1, code);
+            final double value = result.getDouble(2);
             if (result.wasNull()) {
                 /*
                  * This a temporary hack because sometimes PARAMETER_VALUE is
@@ -1368,7 +1368,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 result.close();
                 throw new UnsupportedOperationException("Not yet implemented");
             }
-            final String  unit = getString(result, 4, code);
+            final String  unit = getString(result, 3, code);
             list.add(new Parameter(name, value, createUnit(unit)));
         }
         result.close();
@@ -1481,6 +1481,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      *             An arbitrary number of code can be specified on the command line.
      */
     public static void main(String [] args) {
+        Geotools.init(); // Use custom logger.
         final Arguments  arguments = new Arguments(args);
         final PrintWriter      out = arguments.out;
         final String     newDriver = arguments.getOptionalString("-driver");

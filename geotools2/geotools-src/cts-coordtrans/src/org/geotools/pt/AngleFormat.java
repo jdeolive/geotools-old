@@ -234,6 +234,7 @@ public class AngleFormat extends Format {
     private void readObject(final ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
+        in.defaultReadObject();
         dummy = new FieldPosition(0);
     }
     

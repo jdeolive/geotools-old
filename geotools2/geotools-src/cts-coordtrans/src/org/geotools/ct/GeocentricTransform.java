@@ -62,7 +62,7 @@ import javax.media.jai.ParameterList;
  * coordinate points. Input points must be longitudes, latitudes
  * and heights above the ellipsoid.
  *
- * @version $Id: GeocentricTransform.java,v 1.7 2003/01/17 22:28:03 desruisseaux Exp $
+ * @version $Id: GeocentricTransform.java,v 1.8 2003/02/26 12:04:02 desruisseaux Exp $
  * @author Frank Warmerdam
  * @author Martin Desruisseaux
  */
@@ -218,7 +218,6 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
             srcOff -= (numPts-1)*step;
             dstOff -= (numPts-1)*step;
         }
-        TransformException error=null;
         while (--numPts >= 0) {
             final double L = Math.toRadians(srcPts[srcOff++]); // Longitude
             final double P = Math.toRadians(srcPts[srcOff++]); // Latitude
@@ -252,7 +251,6 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
             srcOff -= (numPts-1)*step;
             dstOff -= (numPts-1)*step;
         }
-        TransformException error=null;
         while (--numPts >= 0) {
             final double L = Math.toRadians(srcPts[srcOff++]); // Longitude
             final double P = Math.toRadians(srcPts[srcOff++]); // Latitude
@@ -506,7 +504,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * Inverse of a geocentric transform.
      *
-     * @version $Id: GeocentricTransform.java,v 1.7 2003/01/17 22:28:03 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.8 2003/02/26 12:04:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements Serializable {
@@ -554,7 +552,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * The provider for {@link GeocentricTransform}.
      *
-     * @version $Id: GeocentricTransform.java,v 1.7 2003/01/17 22:28:03 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.8 2003/02/26 12:04:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

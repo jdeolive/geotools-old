@@ -51,7 +51,7 @@ import java.awt.geom.AffineTransform;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.9 2003/02/23 21:26:43 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.10 2003/02/26 12:04:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -246,7 +246,6 @@ public final class CTSUtilities {
             throws TransformException
     {
         final int sourceDim = transform.getDimSource();
-        final int targetDim = transform.getDimTarget();
         if (envelope.getDimension() != sourceDim) {
             throw new MismatchedDimensionException(sourceDim, envelope.getDimension());
         }
@@ -254,18 +253,18 @@ public final class CTSUtilities {
         Envelope           transformed = null;
         CoordinatePoint       targetPt = null;
         final CoordinatePoint sourcePt = new CoordinatePoint(sourceDim);
-        for (int i=sourceDim; --i>=0;) sourcePt.ord[i]=envelope.getMinimum(i);
-        
-  loop: do {
+        for (int i=sourceDim; --i>=0;) {
+            sourcePt.ord[i] = envelope.getMinimum(i);
+        }
+  loop: while (true) {
             // Transform a point and add the transformed
             // point to the destination envelope.
             targetPt = transform.transform(sourcePt, targetPt);
-            if (transformed!=null) {
+            if (transformed != null) {
                 transformed.add(targetPt);
             } else {
                 transformed = new Envelope(targetPt, targetPt);
             }
-            
             // Get the next point's coordinate.   The 'coordinateNumber' variable should
             // be seen as a number in base 3 where the number of digits is equals to the
             // number of dimensions. For example, a 4-D space would have numbers ranging
@@ -281,7 +280,6 @@ public final class CTSUtilities {
             }
             break;
         }
-        while (true);
         return transformed;
     }
     
