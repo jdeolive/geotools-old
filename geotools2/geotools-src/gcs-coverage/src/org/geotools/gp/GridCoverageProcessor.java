@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.15 2003/03/14 18:27:36 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.16 2003/03/25 22:43:22 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -167,6 +167,17 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new SelectSampleDimension.Operation());
         }
         return DEFAULT;
+    }
+
+    /**
+     * Returns a rendering hint.
+     *
+     * @param  key The hint key (e.g. {@link Hints#JAI_INSTANCE}).
+     * @return The hint value for the specified key, or null if
+     *         there is no hint for the specified key.
+     */
+    public final Object getRenderingHint(final RenderingHints.Key key) {
+        return (hints!=null) ? hints.get(key) : null;
     }
     
     /**
@@ -421,8 +432,8 @@ public class GridCoverageProcessor {
      * java org.geotools.gc.GridCoverageProcessor
      * </pre></blockquote>
      *
-     * <strong>Note to Windows users:</strong> If the output contains strange
-     * symbols, try to supply an "<code>-encoding</code>" arguments. Example:
+     * <strong>Note for Windows users:</strong> If the output contains strange
+     * symbols, try to supply an "<code>-encoding</code>" argument. Example:
      *
      * <blockquote><pre>
      * java org.geotools.gc.GridCoverageProcessor -encoding Cp850
