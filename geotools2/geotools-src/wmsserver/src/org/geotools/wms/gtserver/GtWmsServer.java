@@ -39,7 +39,8 @@ import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.data.DataSource;
 
-import org.apache.log4j.Category;
+//Logging system
+import java.util.logging.Logger;
 
 import org.geotools.wms.*;
 
@@ -54,8 +55,10 @@ public class GtWmsServer implements WMSServer {
     org.geotools.map.Map map;
     
     public static final String LAYERS_PROPERTY = "layersxml";
-    
-    private static Category _log = Category.getInstance(GtWmsServer.class.getName());
+    /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.shapefile");
     
     public GtWmsServer() {
         //		loadLayers();
@@ -117,12 +120,12 @@ public class GtWmsServer implements WMSServer {
                     System.out.println(host+" "+user+" "+passwd+" "+port+" "+database+" "+table);
                     
                     PostgisConnection db = new PostgisConnection(host,port,database);
-                    _log.info("created new db connection");
+                    LOGGER.info("created new db connection");
                     db.setLogin(user,passwd);
-                    _log.info("set the login");
+                    LOGGER.info("set the login");
                     PostgisDataSource ds = new PostgisDataSource(db, table);
                     
-           
+                    
                     Style style = new BasicPolygonStyle();//bad
                     
                     features.put(entry.id,ds);
@@ -132,7 +135,7 @@ public class GtWmsServer implements WMSServer {
             }
         }
         catch (Exception exp) {
-           System.out.println("Exception loading layers "+exp.getClass().getName()+" : "+exp.getMessage());
+            System.out.println("Exception loading layers "+exp.getClass().getName()+" : "+exp.getMessage());
         }
     }
     
