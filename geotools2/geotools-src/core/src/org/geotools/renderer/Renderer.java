@@ -23,9 +23,10 @@
 package org.geotools.renderer;
 import org.geotools.styling.*;
 import org.geotools.map.Map;
+import org.geotools.datasource.Extent;
 
 /**
- *
+ * this is very much work in progress
  * @author  jamesm
  */
 public interface Renderer {
@@ -35,7 +36,7 @@ public interface Renderer {
     
     //we could pass in somehting like
     
-    public void render(Map map,ViewPort port);
+    public void render(Map map,Extent visible);
     
     //is that enough to go on? lets assume it is.
 }
