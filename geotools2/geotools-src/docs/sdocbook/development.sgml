@@ -12,18 +12,74 @@
 
     <itemizedlist>
       <listitem>
-        <para>Java Software Development Kit version 1.4 or later</para>
+        <para>Java</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><ulink url="http://java.sun.com/downloads/">Java Software
+            Development Kit</ulink> standard edition (J2SE) version 1.4.1. or
+            later</para>
+          </listitem>
+
+          <listitem>
+            <para><ulink
+            url="http://java.sun.com/products/java-media/jai/current.html">Java
+            Advance Imaging Libraries</ulink> (JAI) are used by GeoTools when
+            rendering. The libraries should be installed into your JRE
+            libraries.</para>
+          </listitem>
+
+          <listitem>
+            <para><ulink
+            url="http://java.sun.com/products/java-media/jai/current.html">Java
+            Advanced Imaging Libraries I/O API,</ulink> version 1.0. These
+            libraries are used by GeoTools when rendering. The libraries
+            should be installed into your JRE libraries</para>
+          </listitem>
+        </itemizedlist>
       </listitem>
 
       <listitem>
-        <para>maven beta 10 or later.</para>
+        <para>maven</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><ulink url="http://maven.apache.org">Maven</ulink> is a
+            build tool used by the GeoTools project, you will need version 1.0
+            - beta 10 or higher.</para>
+          </listitem>
+        </itemizedlist>
       </listitem>
 
       <listitem>
-        <para>Java Advance Imaging Libraries (JAI) are used by GeoTools when
-        rendering. The libraries should be installed into your JRE libraries.
-        See the <ulink url="http://java.sun.com/products/java-media/jai/">Java
-        Advanced Imaging Libraries pages</ulink> for details.</para>
+        <para>Oracle proprietary libraries (optional)</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>In order to build the Oracle module, you need two libraries
+            (the JDBC driver and the Spatial Java Library) from Oracle. Unlike
+            most external libraries used in GeoTools, we cannot redistribute
+            them. However, you can obtain them from the Oracle website, free
+            of charge, after registering. Once you download the jars, you
+            should place them in the Oracle Maven repository directory:
+            HOME/.maven/repository/oracle/jars, where HOME is your home
+            directory.</para>
+
+            <itemizedlist>
+              <listitem>
+                <para><ulink
+                url="http://otn.oracle.com/software/tech/java/sqlj_jdbc/content.html">Oracle
+                JDBC Driver.</ulink></para>
+              </listitem>
+
+              <listitem>
+                <para><ulink
+                url="http://otn.oracle.com/software/products/spatial/content.html">Oracle
+                Spatial Java Library.</ulink></para>
+              </listitem>
+            </itemizedlist>
+          </listitem>
+        </itemizedlist>
       </listitem>
     </itemizedlist>
   </section>
@@ -43,37 +99,11 @@
   <section>
     <title>Language</title>
 
-    <para>This section describes the language(s) and compilers used by this
-    project.</para>
-
-    <section id="java">
-      <title>Java</title>
-
-      <para>This project is written in Java requires version 1.4 or greater.
-      To ensure the classes compile without errors, you need to specify that
-      you are using 1.4 or greater using the following options:</para>
-
-      <blockquote>
-        <para><command>javac -source 1.4 [other options] [files to compile]</command></para>
-      </blockquote>
-
-      <para>Make sure you update <link linkend="netbeanscompileoptions">compile
-      options in Netbeans</link> if you use Netbeans.</para>
-
-      <para>If you use <filename>ant</filename> for compiling, or building
-      javadocs or similar, then you will need to include something like:</para>
-
-      <para><command>&#60;javadoc source=&#34;1.4&#34;&#62;...</command></para>
-
-      <section>
-        <title>Java from Sun</title>
-
-        <para>So far, I have only tested this project with <ulink
-        url="http://java.sun.com">Sun&#39;s Software Development Kit (SDK)</ulink>.
-        If you try another java compiler then let me know how successful you
-        are and we can include it here.</para>
-      </section>
-    </section>
+    <para>GeoTools is written exclusively in Java. Make sure you update <link
+    linkend="netbeanscompileoptions">compile options in Netbeans</link> if you
+    use Netbeans. This project is built with Sun&#39;s Software Development
+    Kit (SDK). If you try another java compiler then let me know how
+    successful you are and we will include it here.</para>
   </section>
 
   <section id="configurationmanagement">
