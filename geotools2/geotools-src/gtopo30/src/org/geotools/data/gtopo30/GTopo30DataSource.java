@@ -81,7 +81,7 @@ public class GTopo30DataSource extends AbstractDataSource
             Color.WHITE
         };
     private String filename = null;
-
+    
     /**
      * Creates a new instance of GTopo30DataSource
      *
@@ -167,7 +167,7 @@ public class GTopo30DataSource extends AbstractDataSource
 
     public FeatureCollection getFeatures(Filter filter)
         throws DataSourceException {
-        FeatureCollection fc = new FeatureCollectionDefault();
+        FeatureCollection fc = FeatureCollections.newCollection();
         getFeatures(fc, filter);
 
         return fc;
@@ -311,14 +311,14 @@ public class GTopo30DataSource extends AbstractDataSource
 
         // last step, wrap, add the the feature collection and return
         try {
-            collection.addFeatures(new Feature[] { wrapGcInFeature(gc) });
+            collection.add(wrapGcInFeature(gc));
         } catch (Exception e) {
             throw new DataSourceException("Unexpected error", e);
         }
     }
 
     private Feature wrapGcInFeature(GridCoverage gc)
-        throws IllegalFeatureException, SchemaException {
+        throws IllegalAttributeException, SchemaException {
         // create surrounding polygon
         PrecisionModel pm = new PrecisionModel();
         Rectangle2D rect = gc.getEnvelope().toRectangle2D();
@@ -333,15 +333,15 @@ public class GTopo30DataSource extends AbstractDataSource
         Polygon bounds = new Polygon(ring, pm, 0);
 
         // create the feature type
-        AttributeTypeDefault geom = new AttributeTypeDefault("geom", Polygon.class);
-        AttributeTypeDefault grid = new AttributeTypeDefault("grid", GridCoverage.class);
+        AttributeType geom = AttributeTypeFactory.newAttributeType("geom", Polygon.class);
+        AttributeType grid = AttributeTypeFactory.newAttributeType("grid", GridCoverage.class);
         FeatureType schema = null;
-
-        schema = new FeatureTypeFlat(new AttributeType[] { geom, grid });
+	AttributeType[] attTypes =  { geom, grid };
+	//HACK - the name should not be gtopo, but instead the name of the file.
+        schema = FeatureTypeFactory.newFeatureType(attTypes, "gtopo");
 
         // create the feature
-        FeatureFactory factory = new FlatFeatureFactory(schema);
-        Feature feature = factory.create(new Object[] { bounds, gc });
+        Feature feature = schema.create(new Object[] { bounds, gc });
 
         return feature;
     }
