@@ -9,11 +9,12 @@ package org.geotools.shapefile;
 
 import junit.framework.*;
 import java.net.*;
-import cmp.LEDataStream.*;
+//import cmp.LEDataStream.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
 import java.util.ArrayList;
-import org.geotools.shapefile.dbf.*;
+import org.geotools.shapefile.dbf.DbaseFileHeader;
+import org.geotools.shapefile.dbf.DbaseFileReader;
 
 
 /**
@@ -31,12 +32,15 @@ public class DbaseFileTest extends TestCase {
     }
     
     public static Test suite() {
-        TestSuite suite = new TestSuite(ShapefileTest.class);
+        TestSuite suite = new TestSuite(DbaseFileTest.class);
         return suite;
     }
-    
-    public void testLoadingStatePop() {
-        
+    static DbaseFileReader dbf;
+    static DbaseFileHeader header;
+    static boolean setup = false;
+    public void setup() {
+        if(setup) return;
+        setup=true;
         String dataFolder = System.getProperty("dataFolder");
         if(dataFolder==null){
             //then we are being run by maven
@@ -44,15 +48,36 @@ public class DbaseFileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:////"+dataFolder+"/statepop");
+            File url = new File(dataFolder,"statepop");
             System.out.println("Testing ability to load "+url);
-            DbaseFileReader dbf = new DbaseFileReader(url.getFile());
-            assertEquals("Number of attributes found incorect",252,dbf.getNumFields());
+            dbf = new DbaseFileReader(url.toString());
+            
             }
         catch(Exception e){
             System.out.println(e);
             e.printStackTrace();
             fail("Load failed because of exception "+e.toString());
         }
+        if(dbf == null) {
+            fail("DbfReader is null");
+        }
     }
+    
+    public void testNumberofColsLoaded(){
+        setup();
+        assertEquals("Number of attributes found incorect",252,dbf.getNumFields()); 
+    }
+    
+    public void testNumberofRowsLoaded(){
+        setup();
+        assertEquals("Number of rows",49,dbf.getHeader().getNumRecords());
+    }
+    public void testDataLoaded() throws Exception{
+        setup();
+        Object[] attrs = new Object[dbf.getNumFields()];
+        dbf.read(attrs, 0);
+        assertEquals("Value of Column 0 is wrong",((String)attrs[0]),"Illinois");
+        assertEquals("Value of Column 4 is wrong",((Double)attrs[4]).doubleValue(),143986.61,0.001);
+    }
+    
 }
