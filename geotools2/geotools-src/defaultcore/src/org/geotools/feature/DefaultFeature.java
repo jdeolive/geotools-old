@@ -16,6 +16,8 @@
  */
 package org.geotools.feature;
 
+import java.rmi.server.UID;
+
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -33,14 +35,14 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.15 2004/02/11 21:37:02 ianschneider Exp $
+ * @version $Id: DefaultFeature.java,v 1.16 2004/04/08 15:57:35 aaime Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
 public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
 
     /** The unique id of this feature */
-    private final String featureId;
+    protected String featureId;
 
     /** Flat feature type schema for this feature. */
     private final DefaultFeatureType schema;
@@ -104,7 +106,7 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
      * @return an id for the feature.
      */
     String defaultID() {
-        return "feature-" + System.identityHashCode(this);
+        return "fid-" + (new UID()).toString();
     }
 
 
