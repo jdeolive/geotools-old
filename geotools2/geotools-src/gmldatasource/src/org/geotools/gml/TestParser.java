@@ -48,7 +48,7 @@ import org.geotools.feature.*;
  * own class.  The only requirement of your new class is that it implements 
  * <code>GMLHandlerJTS</code>.  That's it!</p>
  * 
- * @version $Id: TestParser.java,v 1.9 2002/07/25 09:35:50 jmacgill Exp $
+ * @version $Id: TestParser.java,v 1.10 2002/07/25 10:09:15 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class TestParser {
@@ -112,7 +112,7 @@ public class TestParser {
         System.out.println("Parsing the flat feature collection in this GML " +
         "resource:" + uri);
         
-        try {
+       // try {
             GMLDataSource data = new GMLDataSource(uri);
             FeatureCollectionDefault featureCollection = new FeatureCollectionDefault(data);
 
@@ -125,9 +125,9 @@ public class TestParser {
                 System.out.println("Parsed feature is ... "
                 + tempFeature.toString());
             }
-        } catch (DataSourceException e) {
-                System.out.println("TestParser->parseFeatures DataSourceException: "+e.toString());
-        }
+      //  } catch (DataSourceException e) {
+       //         System.out.println("TestParser->parseFeatures DataSourceException: "+e.toString());
+      //  }
         
         //parsedFeatures.
         
