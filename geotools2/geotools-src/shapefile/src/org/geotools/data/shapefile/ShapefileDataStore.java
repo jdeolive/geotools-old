@@ -53,9 +53,8 @@ import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 
-/**
- *
- * @author  Ian Schneider
+/** A DataStore implementation which allows reading and writing from Shapefiles.
+ * @author Ian Schneider
  * @todo fix file creation bug
  */
 public class ShapefileDataStore extends AbstractDataStore {
@@ -64,9 +63,12 @@ public class ShapefileDataStore extends AbstractDataStore {
     private URL dbfURL;
     private URL shxURL;
     
-    FeatureType schema;
+    private FeatureType schema;
     
-    /** Creates a new instance of ShapefileDataStore */
+    /** Creates a new instance of ShapefileDataStore.
+     * @param url The URL of the shp file to use for this DataSource.
+     * @throws MalformedURLException If computation of related URLs (dbf,shx) fails.
+     */
     public ShapefileDataStore(URL url) throws java.net.MalformedURLException {
         String filename = null;
         if (url == null) {
@@ -97,10 +99,17 @@ public class ShapefileDataStore extends AbstractDataStore {
         shxURL = new URL(filename + shxext);
     }
     
+    /**
+     * Determine if the location of this shapefile is local or remote.
+     * @return true if local, false if remote
+     */
     public boolean isLocal() {
         return shpURL.getProtocol().equals("file");
     }
     
+    /**
+     * Delete existing files.
+     */ 
     private void clear() {
         if (isLocal()) {
             delete(shpURL);
@@ -109,11 +118,19 @@ public class ShapefileDataStore extends AbstractDataStore {
         }
     }
     
+    /**
+     * Delete a URL (file)
+     */
     private void delete(URL u) {
         File f = new File(u.getFile());
         f.delete();
     }
     
+    /**
+     * Obtain a ReadableByteChannel from the given URL. If the url protocol is
+     * file, a FileChannel will be returned. Otherwise a generic channel will
+     * be obtained from the urls input stream.
+     */
     private static ReadableByteChannel getReadChannel(URL url) throws IOException {
         ReadableByteChannel channel = null;
         if (url.getProtocol().equals("file")) {
@@ -130,11 +147,16 @@ public class ShapefileDataStore extends AbstractDataStore {
         return channel;
     }
     
+    /**
+     * Obtain a WritableByteChannel from the given URL. If the url protocol is
+     * file, a FileChannel will be returned. Currently, this method will return
+     * a generic channel for remote urls, however both shape and dbf writing
+     * can only occur with a local FileChannel channel.
+     */
     private static WritableByteChannel getWriteChannel(URL url) throws IOException {
         WritableByteChannel channel;
         if (url.getProtocol().equals("file")) {
             File f = new File(url.getFile());
-            f.delete();
             if (!f.exists() && !f.createNewFile()) {
                 throw new IOException("Cannot create file " + f);
             }
@@ -147,6 +169,11 @@ public class ShapefileDataStore extends AbstractDataStore {
         return channel;
     }
     
+    /** Create a FeatureReader for the provided type name.
+     * @param typeName The name of the FeatureType to create a reader for.
+     * @throws IOException If an error occurs during creation
+     * @return A new FeatureReader.
+     */    
     protected FeatureReader getFeatureReader(String typeName) throws IOException {
         typeCheck(typeName);
         
@@ -159,6 +186,10 @@ public class ShapefileDataStore extends AbstractDataStore {
         }
     }
     
+    /** Convenience method for opening a ShapefileReader.
+     * @throws IOException If an error occurs during creation.
+     * @return A new ShapefileReader.
+     */    
     protected ShapefileReader openShapeReader() throws IOException {
         ReadableByteChannel rbc = getReadChannel(shpURL);
         if (rbc == null)
@@ -170,6 +201,10 @@ public class ShapefileDataStore extends AbstractDataStore {
         }
     }
     
+    /** Convenience method for opening a DbaseFileReader.
+     * @throws IOException If an error occurs during creation.
+     * @return A new DbaseFileReader
+     */    
     protected DbaseFileReader openDbfReader() throws IOException {
         ReadableByteChannel rbc = getReadChannel(dbfURL);
         if (rbc == null)
@@ -177,10 +212,19 @@ public class ShapefileDataStore extends AbstractDataStore {
         return new DbaseFileReader(rbc);
     }
     
+    /** Get an array of type names this DataStore holds.<BR/>ShapefileDataStore will
+     * always return a single name.
+     * @return An array of length one containing the single type held.
+     */    
     public String[] getTypeNames() {
         return new String[] { createFeatureTypeName() };
     }
     
+    /** Create the type name of the single FeatureType this DataStore represents.<BR/>
+     * For example, if the urls path is file:///home/billy/mytheme.shp, the type name
+     * will be mytheme.
+     * @return A name based upon the last path component of the url minus the extension.
+     */    
     protected String createFeatureTypeName() {
         String path = shpURL.getPath();
         int slash = Math.max(0,path.lastIndexOf('/') + 1);
@@ -191,12 +235,21 @@ public class ShapefileDataStore extends AbstractDataStore {
         return path.substring(slash,dot);
     }
     
+    /** A convenience method to check if a type name is correct.
+     * @param requested The type name requested.
+     * @throws IOException If the type name is not available
+     */    
     protected void typeCheck(String requested) throws IOException {
         if (! createFeatureTypeName().equals(requested)) {
             throw new IOException("No such type : " + requested);
         }
     }
     
+    /** Create a FeatureWriter for the given type name.
+     * @param typeName The typeName of the FeatureType to write
+     * @throws IOException If the typeName is not available or some other error occurs.
+     * @return A new FeatureWriter.
+     */    
     protected FeatureWriter getFeatureWriter(String typeName) throws IOException {
         typeCheck(typeName);
         
@@ -212,6 +265,12 @@ public class ShapefileDataStore extends AbstractDataStore {
         return new Writer(r,dbfURL,shpURL,shxURL);
     }
     
+    /** Obtain the FeatureType of the given name. ShapefileDataStore contains only one
+     * FeatureType.
+     * @param typeName The name of the FeatureType.
+     * @throws IOException If a type by the requested name is not present.
+     * @return The FeatureType that this DataStore contains.
+     */    
     public FeatureType getSchema(String typeName) throws IOException {
         typeCheck(typeName);
         if (schema == null) {
@@ -224,6 +283,10 @@ public class ShapefileDataStore extends AbstractDataStore {
         return schema;
     }
     
+    /** Create the AttributeTypes contained within this DataStore.
+     * @throws IOException If AttributeType reading fails
+     * @return An array of new AttributeTypes
+     */    
     protected AttributeType[] readAttributes() throws IOException {
         ShapefileReader shp = openShapeReader();
         DbaseFileReader dbf = openDbfReader();
@@ -252,23 +315,24 @@ public class ShapefileDataStore extends AbstractDataStore {
         return atts;
     }
     
+    /** Set the FeatureType of this DataStore. This method will delete any existing
+     * local resources or throw an IOException if the DataStore is remote.
+     * @param featureType The desired FeatureType.
+     * @throws IOException If the DataStore is remote.
+     */    
     public void createSchema(org.geotools.feature.FeatureType featureType) throws IOException {
-//        if (featureType == null)
-//            throw new NullPointerException("featureType");
-//        if (! isLocal() )
-//            throw new IOException("Cannot create schema for remote shapefile");
-//        try {
-//            if (! featureType.equals(getSchema(getTypeNames()[0]))) 
-//                clear();
-//        } catch (IOException ioe) {
-//            clear();
-//        }
+        if (! isLocal() )
+            throw new IOException("Cannot create FeatureType on remote shapefile");
         clear();
         schema = featureType;
     }
     
     
+    /** An AttributeReader implementation for Shapefile. Pretty straightforward.
+     *  <BR/>The default geometry is at position 0, and all dbf columns follow.
+     */    
     protected static class Reader extends AbstractAttributeIO implements AttributeReader {
+
         protected ShapefileReader shp;
         protected DbaseFileReader dbf;
         protected DbaseFileReader.Row row;
@@ -318,247 +382,64 @@ public class ShapefileDataStore extends AbstractDataStore {
         
     }
     
-    
-    
-    //    protected static class Writer implements FeatureWriter {
-    //
-    //        protected FeatureReader reader;
-    //        private ObjectOutputStream buffer;
-    //        private File bufferFile;
-    //        private Feature currentFeature;
-    //        private FeatureType featureType;
-    //        private Object[] emptyAtts;
-    //        private int[] stringLength;
-    //        private int[] stringFields;
-    //        private ShapeType shapeType;
-    //        private ShapeHandler handler;
-    //        private int shapefileLength = 100;
-    //        private int defaultGeometryIdx;
-    //        private int records = 0;
-    //        private URL dbfURL;
-    //        private URL shpURL;
-    //        private URL shxURL;
-    //        private Envelope bounds = new Envelope();
-    //
-    //        public Writer(FeatureReader reader,URL dbfURL,URL shpURL,URL shxURL) throws IOException {
-    //            this.reader = reader;
-    //            this.featureType = reader.getFeatureType();
-    //            this.dbfURL = dbfURL;
-    //            this.shpURL = shpURL;
-    //            this.shxURL = shxURL;
-    //
-    //            bufferFile = File.createTempFile("shapefile","ser");
-    //            bufferFile.deleteOnExit();
-    //            buffer = new ObjectOutputStream(new FileOutputStream(bufferFile));
-    //
-    //            emptyAtts = new Object[featureType.getAttributeCount()];
-    //            stringFields = new int[featureType.getAttributeCount()];
-    //
-    //            int cnt = 0;
-    //            for (int i = 0, ii = featureType.getAttributeCount(); i < ii; i++) {
-    //                if (CharSequence.class.isAssignableFrom(featureType.getAttributeType(i).getType()))
-    //                    stringFields[i] = cnt++;
-    //                else
-    //                    stringFields[i] = -1;
-    //            }
-    //            stringLength = new int[cnt];
-    //
-    //        }
-    //
-    //        protected void flush() throws IOException,ClassNotFoundException,DbaseFileException {
-    //            buffer.close();
-    //            if (records == 0) return;
-    //            ObjectInputStream bufferRead = new ObjectInputStream(new FileInputStream(bufferFile));
-    //            DbaseFileHeader dbaseHeader = createDbaseHeader();
-    //            DbaseFileWriter dbf = new DbaseFileWriter(dbaseHeader, getWriteChannel(dbfURL));
-    //            ShapefileWriter shp = new ShapefileWriter(getWriteChannel(shpURL), getWriteChannel(shxURL));
-    //            shp.writeHeaders(bounds, shapeType, records, shapefileLength);
-    //            final int fc = featureType.getAttributeCount() - 1;
-    //            Object[] cache = new Object[fc];
-    //            for (int i = 0; i < records; i++) {
-    //
-    //                Geometry g = (Geometry) bufferRead.readObject();
-    //                shp.writeGeometry(g);
-    //                for (int j = 0; j < fc; j++) {
-    //                    cache[j] = bufferRead.readObject();
-    //                }
-    //                dbf.write(cache);
-    //            }
-    //            shp.close();
-    //            dbf.close();
-    //        }
-    //
-    //        protected DbaseFileHeader createDbaseHeader() throws IOException, DbaseFileException {
-    //            DbaseFileHeader header = new DbaseFileHeader();
-    //            for (int i = 0, ii = featureType.getAttributeCount(); i < ii; i++) {
-    //                AttributeType type = featureType.getAttributeType(i);
-    //
-    //                Class colType = type.getType();
-    //                String colName = type.getName();
-    //
-    //                if((colType == Integer.class) || (colType == Short.class) || (colType == Byte.class)) {
-    //                    header.addColumn(colName, 'N', 16, 0);
-    //                } else if((colType == Double.class) || (colType == Float.class) || colType == Number.class) {
-    //                    header.addColumn(colName, 'N', 33, 16);
-    //                } else if(java.util.Date.class.isAssignableFrom(colType)) {
-    //                    header.addColumn(colName, 'D', 8, 0);
-    //                } else if (colType == Boolean.class) {
-    //                    header.addColumn(colName, 'L', 1, 0);
-    //                } else if(CharSequence.class.isAssignableFrom(colType)) {
-    //                    int len = stringLength[stringFields[i]];
-    //                    // Possible fix for GEOT-42 : ArcExplorer doesn't like 0 length
-    //                    // ensure that maxLength is at least 1
-    //                    header.addColumn(colName, 'C', Math.max(1,Math.min(255,len)), 0);
-    //                } else if (Geometry.class.isAssignableFrom(colType)) {
-    //                    continue;
-    //                } else {
-    //                    throw new IOException("Unable to write : " + colType.getName());
-    //                }
-    //            }
-    //            header.setNumRecords(records);
-    //            return header;
-    //        }
-    //
-    //        public void close() throws IOException {
-    //            if (reader == null)
-    //                throw new IOException("Writer closed");
-    //            try {
-    //                reader.close();
-    //            } finally {
-    //                reader = null;
-    //            }
-    //            try {
-    //                flush();
-    //            } catch (ClassNotFoundException cnfe) {
-    //                throw new DataSourceException("Classpath error",cnfe);
-    //            } catch (DbaseFileException dfe) {
-    //                throw new DataSourceException("Dbf error",dfe);
-    //            } finally {
-    //
-    //            }
-    //        }
-    //
-    //        public org.geotools.feature.FeatureType getFeatureType() {
-    //            return featureType;
-    //        }
-    //
-    //        public boolean hasNext() throws IOException {
-    //            if (reader == null)
-    //                throw new IOException("Writer closed");
-    //            return reader.hasNext();
-    //        }
-    //
-    //        public org.geotools.feature.Feature next() throws IOException {
-    //            if (reader == null)
-    //                throw new IOException("Writer closed");
-    //            if (reader.hasNext()) {
-    //                try {
-    //                    currentFeature = reader.next();
-    //                } catch (IllegalAttributeException iae) {
-    //                    throw new DataSourceException("Error in reading",iae);
-    //                }
-    //            }
-    //            try {
-    //                currentFeature = DataUtilities.template(getFeatureType(),emptyAtts);
-    //            } catch (IllegalAttributeException iae) {
-    //                throw new DataSourceException("Error creating empty Feature",iae);
-    //            }
-    //            return currentFeature;
-    //        }
-    //
-    //        public void remove() throws IOException {
-    //            if (reader == null)
-    //                throw new IOException("Writer closed");
-    //            // do nothing
-    //        }
-    //
-    //        public void write() throws IOException {
-    //            if (reader == null)
-    //                throw new IOException("Writer closed");
-    //
-    //            Geometry g = currentFeature.getDefaultGeometry();
-    //            if (shapeType == null) {
-    //                int dims = JTSUtilities.guessCoorinateDims(g.getCoordinates());
-    //
-    //                try {
-    //                    shapeType = JTSUtilities.getShapeType(g,dims);
-    //                    handler = shapeType.getShapeHandler();
-    //                } catch (ShapefileException se) {
-    //                    throw new RuntimeException("Unexpected Error",se);
-    //                }
-    //            }
-    //            g = JTSUtilities.convertToCollection(g, shapeType);
-    //            Envelope b = g.getEnvelopeInternal();
-    //            if (! b.isNull())
-    //                bounds.expandToInclude(b);
-    //            shapefileLength += handler.getLength(g) + 8;
-    //            buffer.writeObject(g);
-    //
-    //            for (int i = 0, ii = featureType.getAttributeCount(); i < ii; i++) {
-    //
-    //                Object o = currentFeature.getAttribute(i);
-    //                if (Geometry.class.isAssignableFrom(o.getClass()))
-    //                    continue;
-    //
-    //                int sidx = stringFields[i];
-    //                if (sidx >= 0) {
-    //                    CharSequence c = (CharSequence) currentFeature.getAttribute(i);
-    //                    int len = c == null ? 0 : c.length();
-    //                    stringLength[sidx] = Math.max(1,Math.max(stringLength[sidx],len));
-    //                }
-    //
-    //                try {
-    //                    buffer.writeObject(o);
-    //                } catch (IOException ioe) {
-    //                    throw new DataSourceException("Error writing buffer object of class " +
-    //                    currentFeature.getAttribute(i).getClass().getName(),ioe
-    //                    );
-    //                }
-    //            }
-    //
-    //            records++;
-    //        }
-    //
-    //    }
-    
+    /**
+     * A FeatureWriter for ShapefileDataStore. Uses a write and annotate 
+     * technique to avoid buffering attributes and geometries. Because the 
+     * shapefile and dbf require header information which can only be obtained 
+     * by reading the entire series of Features, the headers are updated after
+     * the initial write completes.
+     */
     protected static class Writer implements FeatureWriter {
         
+        // the FeatureReader to obtain the current Feature from
         protected FeatureReader reader;
         
+        // the current Feature
         private Feature currentFeature;
+        // the FeatureType we are representing
         private FeatureType featureType;
+        // an array for reuse in Feature creation
         private Object[] emptyAtts;
+        // an array for reuse in writing to dbf.
         private Object[] transferCache;
         
         private ShapeType shapeType;
         private ShapeHandler handler;
+        // keep track of shapefile length during write, starts at 100 bytes for
+        // required header
         private int shapefileLength = 100;
+        // hold the defaultGeometry index in the FeatureType
         private int defaultGeometryIdx;
+        // keep track of the number of records written
         private int records = 0;
+        // hold 1 if dbf should write the attribute at the index, 0 if not
         private byte[] writeFlags;
         private ShapefileWriter shpWriter;
         private DbaseFileWriter dbfWriter;
         private DbaseFileHeader dbfHeader;
         private FileChannel dbfChannel;
+        // keep track of bounds during write
         private Envelope bounds = new Envelope();
         
         public Writer(FeatureReader reader,URL dbfURL,URL shpURL,URL shxURL) throws IOException {
             this.reader = reader;
             this.featureType = reader.getFeatureType();
             
+            // set up buffers and write flags
             emptyAtts = new Object[featureType.getAttributeCount()];
             writeFlags = new byte[featureType.getAttributeCount()];
             int cnt = 0;
             for (int i = 0, ii = featureType.getAttributeCount(); i < ii; i++) {
+                // if its a geometry, we don't want to write it to the dbf...
                 if (! featureType.getAttributeType(i).isGeometry()) {
                     cnt++;
                     writeFlags[i] = (byte)1;
                 }
             }
-
+            // dbf transfer buffer
             transferCache = new Object[cnt];
             
-            
+            // open underlying writers
             shpWriter = new ShapefileWriter(
             (FileChannel) getWriteChannel(shpURL),
             (FileChannel) getWriteChannel(shxURL)
@@ -569,6 +450,9 @@ public class ShapefileDataStore extends AbstractDataStore {
 
         }
         
+        /**
+         * Go back and update the headers with the required info.
+         */
         protected void flush() throws IOException {
             shpWriter.writeHeaders(bounds, shapeType, records, shapefileLength);
             
@@ -577,6 +461,10 @@ public class ShapefileDataStore extends AbstractDataStore {
             dbfHeader.writeHeader(dbfChannel);
         }
         
+        /**
+         * Attempt to create a DbaseFileHeader for the FeatureType. Note, we 
+         * cannot set the number of records until the write has completed.
+         */
         protected DbaseFileHeader createDbaseHeader() throws IOException, DbaseFileException {
             DbaseFileHeader header = new DbaseFileHeader();
             for (int i = 0, ii = featureType.getAttributeCount(); i < ii; i++) {
@@ -608,10 +496,25 @@ public class ShapefileDataStore extends AbstractDataStore {
                     throw new IOException("Unable to write : " + colType.getName());
                 }
             }
-            header.setNumRecords(records);
             return header;
         }
         
+        /**
+         * In case someone doesn't close me.
+         */
+        protected void finalize() throws Throwable {
+            if (reader != null) {
+                try {
+                    close();
+                } catch (Exception e) {
+                    // oh well
+                }
+            }
+        }
+        
+        /**
+         * Release resources and flush the header information.
+         */
         public void close() throws IOException {
             if (reader == null)
                 throw new IOException("Writer closed");
@@ -662,13 +565,14 @@ public class ShapefileDataStore extends AbstractDataStore {
         public void remove() throws IOException {
             if (reader == null)
                 throw new IOException("Writer closed");
-            // do nothing
+            // do nothing, as we are writing over the file anyway
         }
         
         public void write() throws IOException {
             if (reader == null)
                 throw new IOException("Writer closed");
             
+            // writing of Geometry
             Geometry g = currentFeature.getDefaultGeometry();
             if (shapeType == null) {
                 int dims = JTSUtilities.guessCoorinateDims(g.getCoordinates());
@@ -689,15 +593,18 @@ public class ShapefileDataStore extends AbstractDataStore {
             shapefileLength += handler.getLength(g) + 8;
             shpWriter.writeGeometry(g);
             
+            
+            // writing of attributes
             int idx = 0;
             for (int i = 0, ii = featureType.getAttributeCount(); i < ii; i++) {
+                // skip geometries
                 if (writeFlags[i] > 0) {
                     transferCache[idx++] = currentFeature.getAttribute(i);
                 }
             }
-            
             dbfWriter.write(transferCache);
             
+            // one more
             records++;
         }
         
