@@ -1,5 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- $Id: howto-build.html,v 1.2 2002/04/27 18:40:12 camerons Exp $ -->
+<!-- $Id: howto-build.html,v 1.3 2002/05/07 19:08:34 warmerda Exp $ -->
 <HTML>
   <HEAD>
     <TITLE>How to Build GeoTools2</TITLE>
@@ -8,6 +8,7 @@
     <h1>How to Build GeoTools2</H1>
     <h2 id='toc'>Table of Contents</H2>
         <h3><a href='#intro'>Introduction</A></h2>
+        <h3><a href='#setup_ant'>Setting Up Ant</A></h2>
         <H3> <a href='#single'>Building a single module</a></H3>
         <h3> <a href='#all'>Building all of GeoTools</A></H3>
         <h3> <a href='#some'>Changing aspects of the build process</A></H3>
@@ -20,6 +21,22 @@
         Apache Ant is a Java-based build tool. In theory, it is kind of like Make, but without Make's wrinkles.
         Geotools2 requires ant version 1.4.1 or later and the optional.jar file.  More details are on the <a href="http://jakarta.apache.org/ant/">ant</A> site.</p>
     <a href='#toc'>back to contents</A>
+
+    <H2 id='setup_ant'>Setting up Ant</H2>
+        <p>A kit with Jakarta Ant 1.4.1 can be found at 
+           <a href="ftp://gdal.velocet.ca/pub/outgoing/jakarta-ant-1.4.1-geotools2.zip">ftp://gdal.velocet.ca/pub/outgoing/jakarta-ant-1.4.1-geotools2.zip</a>.
+        After unpacking this ensure that the ANT_HOME environment variable is
+        pointed to the unpacked directory (ie. setenv ANT_HOME ~/jakarta-ant-1.4.1) and add $ANT_HOME/bin to your path (ie. set path = ($path $ANT_HOME/bin).
+	This binary release includes optional.jar and junit.jar.</p>
+
+	<P>Otherwise ensure you have a current working version of 
+	<a href="http://jakarta.apache.org/ant/">ant</A>, and also copy 
+	optional.jar from the Ant site into $ANT_HOME/lib, and junit.jar
+	from <a href="http://www.junit.org/">www.junit.org</a> into 
+        $ANT_HOME/lib.</p>
+
+    <a href='#toc'>back to contents</A>
+
     <H2 id='single'>Building a single module</H2>
         <p>Inside each module is a pair of files that control the build process, <CODE>build.xml</code>
         and <CODE>build.ant.properties</CODE>. If you simply want to build the module then run <br><code>ant release</code><br>
