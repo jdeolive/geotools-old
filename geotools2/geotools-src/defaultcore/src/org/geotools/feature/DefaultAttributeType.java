@@ -44,7 +44,7 @@ import java.util.Map;
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
  * @author Ian Schneider
- * @version $Id: DefaultAttributeType.java,v 1.24 2004/02/09 19:57:52 aaime Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.25 2004/02/11 21:29:25 ianschneider Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -348,8 +348,7 @@ public class DefaultAttributeType implements AttributeType {
      *       hierarchy.  Better documentation as well.
      */
     static class Numeric extends DefaultAttributeType {
-        static final Object defaultValue = new Byte((byte) 0);
-
+        
         /**
          * Constructor with name, type and nillable.  Type should always be a
          * Number class.
