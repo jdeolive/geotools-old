@@ -12,7 +12,7 @@ import org.geotools.map.events.AreaOfInterestChangedListener;
  * displaying of the data.
  *
  * @author Cameron Shorter
- * @version $Id: AreaOfInterestModel.java,v 1.3 2002/07/13 20:53:47 camerons Exp $
+ * @version $Id: AreaOfInterestModel.java,v 1.4 2002/07/16 15:16:21 jmacgill Exp $
  */
 public interface AreaOfInterestModel {
     
@@ -38,6 +38,12 @@ public interface AreaOfInterestModel {
     void setAreaOfInterest(
             Envelope areaOfInterest,
             CS_CoordinateSystem coordinateSystem);
+    
+     /**
+     * Gets the current AreaOfInterest.
+     * @return Current AreaOfInterest
+     */
+    Envelope getAreaOfInterest();
 
     /**
      * Change the AreaOfInterest using relative parameters.

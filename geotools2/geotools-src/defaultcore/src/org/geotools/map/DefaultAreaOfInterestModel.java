@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.3 2002/07/14 11:57:05 camerons Exp $
+ * @version $Id: DefaultAreaOfInterestModel.java,v 1.4 2002/07/16 15:16:41 jmacgill Exp $
  * @author Cameron Shorter
  * 
  */
@@ -90,7 +90,12 @@ public class DefaultAreaOfInterestModel implements AreaOfInterestModel {
             }
         }
     }
- 
+    
+    /**
+     * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.
+     * @param areaOfInterest The new areaOfInterest.
+     * @param coordinateSystem The coordinate system being using by this model.
+     */
     public void setAreaOfInterest(
             Envelope areaOfInterest,
             CS_CoordinateSystem coordinateSystem)
@@ -98,6 +103,15 @@ public class DefaultAreaOfInterestModel implements AreaOfInterestModel {
         this.areaOfInterest = areaOfInterest;
         this.coordinateSystem = coordinateSystem;
         fireAreaOfInterestChangedListener();
+    }
+    
+    /**
+     * Gets the current AreaOfInterest.
+     * @return Current AreaOfInterest
+     * HACK: should return a clone as direct ref to aoi could be bad.
+     */
+    public Envelope getAreaOfInterest(){
+        return areaOfInterest;
     }
 
     /**
