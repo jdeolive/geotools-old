@@ -33,7 +33,7 @@ public class ProjectionFactory {
         try{
             pin = (Projection)Class.forName("org.geotools.proj4j.projections."+proj).newInstance();
         }catch(ClassNotFoundException e){
-            throw new ProjectionException("Projection "+proj+" is not supported\n"+e);
+            throw new ProjectionException("Projection "+proj+" is not supported\n");
         }
         catch(Exception ex){
             throw new ProjectionException("Error creating instance of "+proj+"\n"+ex);
