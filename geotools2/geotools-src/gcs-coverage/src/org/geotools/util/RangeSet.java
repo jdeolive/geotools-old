@@ -63,7 +63,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * All entries in this set can be seen as {@link Range} objects.
  * This class is not thread-safe.
  *
- * @version $Id: RangeSet.java,v 1.5 2003/08/10 20:27:06 desruisseaux Exp $
+ * @version $Id: RangeSet.java,v 1.6 2003/08/11 20:01:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Andrea Aime
  */
@@ -852,7 +852,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
             }
         }
         index /= 2; // Round toward 0 (odd index are maximum values).
-        assert ((Range) get(index)).contains(value) : value;
+        assert newRange(get(2*index), get(2*index+1)).contains(value) : value;
         return index;
     }
 
@@ -946,7 +946,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
      * An iterator for iterating through ranges in a {@link RangeSet}.
      * All elements are {@link Range} objects.
      *
-     * @version $Id: RangeSet.java,v 1.5 2003/08/10 20:27:06 desruisseaux Exp $
+     * @version $Id: RangeSet.java,v 1.6 2003/08/11 20:01:55 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Iterator implements java.util.Iterator {
