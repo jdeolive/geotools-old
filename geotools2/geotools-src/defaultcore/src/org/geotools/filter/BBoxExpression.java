@@ -23,6 +23,12 @@ public class BBoxExpression extends org.geotools.filter.ExpressionLiteral {
         expressionType = ExpressionDefault.LITERAL_GEOMETRY;
         setBounds(env);
     }
+    
+    /**
+     * Set the bbox for this expreson
+     * @task HACK: currently sets the SRID to null, which can cause
+     *             problems with JTS when it comes to doing spatial tests
+     */
     public void setBounds(Envelope env) throws IllegalFilterException{
         
         Coordinate[] c = new Coordinate[5];
