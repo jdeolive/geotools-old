@@ -37,7 +37,7 @@ import org.geotools.data.*;
  * do not allow any nested elements, but they also restrict the attribute
  * objects to be very simple data types.</p>
  *
- * @version $Id: FeatureTypeFlat.java,v 1.11 2002/07/04 10:54:17 ianturton Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.12 2002/07/11 17:12:04 loxnard Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat implements FeatureType {
@@ -47,7 +47,7 @@ public class FeatureTypeFlat implements FeatureType {
 
     /** List of allowed attribute classes: primitive wrappers and String. */
     protected static final List ALLOWED_TYPES = 
-        new ArrayList( java.util.Arrays.asList(new Class[] 
+        new ArrayList(java.util.Arrays.asList(new Class[] 
             { Boolean.class, 
               Character.class, 
               Byte.class, 
@@ -56,7 +56,7 @@ public class FeatureTypeFlat implements FeatureType {
               Long.class, 
               Float.class, 
               Double.class, 
-              String.class }) );
+              String.class }));
     
     /** Attribute types of this feature type. */
     protected AttributeType[] attributeTypes;
@@ -85,7 +85,6 @@ public class FeatureTypeFlat implements FeatureType {
      * Constructor with geometry only; minimum valid constructor.
      *
      * @param geometry The geometry for this feature type.
-     * @return Fully initialized flat feature type.
      */
     public FeatureTypeFlat (AttributeType geometry) {
         geometryPosition = 0;
@@ -104,7 +103,6 @@ public class FeatureTypeFlat implements FeatureType {
      * order.
      * 
      * @param attributeTypes The attribute types for this feature type.
-     * @return Fully initialized flat feature type.
      * @throws SchemaException If missing geometry, more than one geometry, or
      * attribute types do not conform to flat feature type definition.
      */
@@ -116,32 +114,32 @@ public class FeatureTypeFlat implements FeatureType {
         boolean isValid = true;
 
         // run through each attribute type
-        for( int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
 
             _log.info("starting attribute: " + attributeTypes[i].getName() + " [" + i + "]");
             _log.info("type: " + attributeTypes[i].getType());
-            _log.info("is a geometry: " + Geometry.class.isAssignableFrom( attributeTypes[i].getType()));
+            _log.info("is a geometry: " + Geometry.class.isAssignableFrom(attributeTypes[i].getType()));
 
             // if it is a conforming non-geometry, initialize feature type
-            if( isAllowed( attributeTypes[i])) {
+            if (isAllowed(attributeTypes[i])) {
             _log.info("is ok attribute");
                 
                 attributeTypes[i] = attributeTypes[i].setPosition(i);
-                _log.debug("Pos = "+attributeTypes[i].getPosition());
-                nameMap.put( attributeTypes[i].getName(), attributeTypes[i]);
+                _log.debug("Pos = " + attributeTypes[i].getPosition());
+                nameMap.put(attributeTypes[i].getName(), attributeTypes[i]);
             }
 
             // if it is a conforming geometry, initialize feature type
             // note that the validity check sets validity flag to false if
             // a geometry has already been assigned
-            else if( ( Geometry.class.
+            else if ((Geometry.class.
                        isAssignableFrom( attributeTypes[i].getType())) &&
-                     ( attributeTypes[i].getOccurrences() == 1)) {
+                     (attributeTypes[i].getOccurrences() == 1)) {
             _log.info("is ok geometry");
                 isValid = isValid && (geometryPosition == -1);
                 geometryPosition = i;
-                _log.debug("GeomPosition = "+geometryPosition);
-                nameMap.put( attributeTypes[i].getName(), attributeTypes[i]);
+                _log.debug("GeomPosition = " + geometryPosition);
+                nameMap.put(attributeTypes[i].getName(), attributeTypes[i]);
                 attributeTypes[i] = attributeTypes[i].setPosition(i);
             }
 
@@ -154,7 +152,7 @@ public class FeatureTypeFlat implements FeatureType {
 
         // check validity...note that a geometry must have been assigned
         // copy valid array (for immutability), otherwise throw exception
-        if( isValid && ( geometryPosition != -1)) {
+        if (isValid && ( geometryPosition != -1)) {
             this.attributeTypes = new AttributeType[n];
             System.arraycopy(attributeTypes, 0, this.attributeTypes, 0, n);
         }
@@ -169,7 +167,7 @@ public class FeatureTypeFlat implements FeatureType {
      * Static Helper methods to check, add and destroy attributes.           *
      * ***********************************************************************/
     private static boolean isAllowed(AttributeType attribute) {
-        if( ALLOWED_TYPES.contains(attribute.getType()) &&
+        if (ALLOWED_TYPES.contains(attribute.getType()) &&
             attribute.getOccurrences() == 1) {
             return true;
         }
@@ -179,7 +177,7 @@ public class FeatureTypeFlat implements FeatureType {
     }
 
     private static FeatureTypeFlat addAttribute(AttributeType attribute, FeatureTypeFlat schema) {
-        ArrayList tempAttributes = new ArrayList( Arrays.asList(schema.attributeTypes) );
+        ArrayList tempAttributes = new ArrayList(Arrays.asList(schema.attributeTypes));
         AttributeType tempAttribute = attribute.setPosition(tempAttributes.size());
 
         //_log.info("attributes size (before add): " + tempAttributes.size());
@@ -197,7 +195,7 @@ public class FeatureTypeFlat implements FeatureType {
     }
 
     private FeatureTypeFlat removeAttribute(String name, FeatureTypeFlat schema) {
-        ArrayList tempAttributes = new ArrayList( Arrays.asList(schema.attributeTypes) );
+        ArrayList tempAttributes = new ArrayList(Arrays.asList(schema.attributeTypes));
         AttributeType deadAttribute = (AttributeType) nameMap.get(name);
 
         tempAttributes.remove(deadAttribute.getPosition());
@@ -318,9 +316,9 @@ public class FeatureTypeFlat implements FeatureType {
 
         //_log.info("got attribute: " + attribute.toString());
         FeatureTypeFlat schemaCopy = (FeatureTypeFlat) this.clone();
-        if( isAllowed(attribute) ) {
+        if (isAllowed(attribute)) {
             //hack: the following line used to be in NOT form
-            if( hasAttributeType(attribute.getName()) ) {
+            if (hasAttributeType(attribute.getName())) {
                 //_log.info("attribute already exists");
                 int i = getAttributeType(attribute.getName()).getPosition();
                 attribute = attribute.setPosition(i);
@@ -331,10 +329,10 @@ public class FeatureTypeFlat implements FeatureType {
             //_log.info("size after added: " + schemaCopy.attributeTypes.length);
             //_log.info("added");
         }
-        else if( ( Geometry.class.
+        else if ((Geometry.class.
                    isAssignableFrom( attribute.getType())) &&
-                 ( attribute.getOccurrences() == 1) && 
-                 ( hasAttributeType(attribute.getName())) ) {
+                 (attribute.getOccurrences() == 1) && 
+                 (hasAttributeType(attribute.getName()))) {
                 //_log.info("attribute already exists");
                 int i = getAttributeType(attribute.getName()).getPosition();
                 attribute = attribute.setPosition(i);
@@ -345,7 +343,7 @@ public class FeatureTypeFlat implements FeatureType {
             String message = "Attribute type not allowed: " +
                 "name: " + attribute.getName() +
                 " type: " + attribute.getType() + 
-                " occurences: " + attribute.getOccurrences();
+                " occurrences: " + attribute.getOccurrences();
             throw new SchemaException(message);
         }
 
@@ -356,7 +354,7 @@ public class FeatureTypeFlat implements FeatureType {
     /**
      * Removes the attribute, if it exists.
      *
-     * @param attribute AttributeType to add to the feature type.
+     * @param xPath AttributeType to remove from the feature type.
      * @return A modified copy of this feature type.
      * @throws SchemaException When the attribute does not exist.
      */
@@ -365,7 +363,7 @@ public class FeatureTypeFlat implements FeatureType {
 
         FeatureTypeFlat schemaCopy = null;
         schemaCopy = (FeatureTypeFlat) this.clone();
-        if( hasAttributeType(name) && !getDefaultGeometry().getName().equals(xPath) ) {
+        if (hasAttributeType(name) && !getDefaultGeometry().getName().equals(xPath)) {
             schemaCopy = removeAttribute(name, schemaCopy);
         }
         else {
@@ -462,16 +460,11 @@ public class FeatureTypeFlat implements FeatureType {
      * @return Path to initial geometry as XPath.
      */
     public AttributeType getDefaultGeometry() {
-        _log.debug("geometry Position = "+geometryPosition);
+        _log.debug("geometry Position = " + geometryPosition);
         return this.attributeTypes[geometryPosition];
     }
 
-    /**
-     * Checks for attribute existence.
-     *
-     * @param xPath XPath pointer to attribute.
-     * @return True if attribute exists.
-     */
+  
     public AttributeType getAttributeType(String xPath) {
 
         //_log.info("has element: " + nameMap.containsValue(attributeTypes[1]));
@@ -494,39 +487,23 @@ public class FeatureTypeFlat implements FeatureType {
     }
 
 
-    /**
-     * Checks for attribute existence.
-     *
-     * @return True if attribute exists.
-     */
     public int attributeTotal() {
         return attributeTypes.length;
     }
     
-    /**
-     * Gets the number of occurrences of this attribute.
-     *
-     * @param position XPath pointer to attribute.
-     * @return Number of occurrences.
-     * @throws SchemaException If the attribute does not exist.
-     */
+    
     public AttributeType getAttributeType(int position) {
         return attributeTypes[position];
     }
 
 
-    /**
-     * Gets the number of occurrences of this attribute.
-     *
-     * @return Number of occurrences.
-     * @throws SchemaException If the attribute does not exist.
-     */
+   
     public Object clone() {
         //FeatureTypeFlat copy = new FeatureTypeFlat(attributeTypes[0]);
         FeatureTypeFlat copy = null;
-        try{
+        try {
             copy = new FeatureTypeFlat(attributeTypes);
-        }catch (SchemaException e){}
+        } catch (SchemaException e){}
         _log.debug("about to clone");
         _log.debug("instantiated new copy");
 
@@ -546,18 +523,13 @@ public class FeatureTypeFlat implements FeatureType {
         return copy;
     }
 
-    /**
-     * Gets the number of occurrences of this attribute.
-     *
-     * @return Number of occurrences.
-     * @throws SchemaException If the attribute does not exist.
-     */
+  
     public String toString() {
         StringBuffer returnString = new StringBuffer("\n" + namespace + "/" + name);
         returnString.append("\n occurrences: " + this.occurrences);
         returnString.append("\n position: " + this.position);
         returnString.append("\n attributes:");
-        for( int i = 0, n = attributeTypes.length; i < n; i++ ) {
+        for (int i = 0, n = attributeTypes.length; i < n; i++) {
             returnString.append("\n  " + this.attributeTypes[i].toString());
         } 
         return returnString.toString();
