@@ -5,8 +5,8 @@
             <version>14</version>
         </compliance>
         <style>
-            <description>Geotools Coding Convension</description>
-            <name>Geotools</name>
+            <description>Sun Java Coding Convention</description>
+            <name>Sun</name>
         </style>
     </general>
     <inspector>
@@ -54,25 +54,25 @@
             <variables>[a-z][\w]*</variables>
         </naming>
         <tips>
-            <adhereToNamingConvention>true</adhereToNamingConvention>
-            <alwaysOverrideEquals>true</alwaysOverrideEquals>
-            <alwaysOverrideHashCode>true</alwaysOverrideHashCode>
-            <avoidThreadGroups>true</avoidThreadGroups>
-            <declareCollectionComment>true</declareCollectionComment>
-            <dontIgnoreExceptions>true</dontIgnoreExceptions>
-            <dontSubstituteObjectEquals>true</dontSubstituteObjectEquals>
-            <neverDeclareException>true</neverDeclareException>
-            <neverDeclareThrowable>true</neverDeclareThrowable>
-            <neverInvokeWaitOutsideLoop>true</neverInvokeWaitOutsideLoop>
-            <neverReturnZeroArrays>true</neverReturnZeroArrays>
-            <neverUseEmptyFinally>true</neverUseEmptyFinally>
-            <obeyContractEquals>true</obeyContractEquals>
-            <overrideToString>true</overrideToString>
-            <referToObjectsByInterface>true</referToObjectsByInterface>
-            <replaceStructureWithClass>true</replaceStructureWithClass>
-            <stringLiterallI18n>true</stringLiterallI18n>
-            <useInterfaceOnlyForTypes>true</useInterfaceOnlyForTypes>
-            <wrongCollectionComment>true</wrongCollectionComment>
+            <adhereToNamingConvention>false</adhereToNamingConvention>
+            <alwaysOverrideEquals>false</alwaysOverrideEquals>
+            <alwaysOverrideHashCode>false</alwaysOverrideHashCode>
+            <avoidThreadGroups>false</avoidThreadGroups>
+            <declareCollectionComment>false</declareCollectionComment>
+            <dontIgnoreExceptions>false</dontIgnoreExceptions>
+            <dontSubstituteObjectEquals>false</dontSubstituteObjectEquals>
+            <neverDeclareException>false</neverDeclareException>
+            <neverDeclareThrowable>false</neverDeclareThrowable>
+            <neverInvokeWaitOutsideLoop>false</neverInvokeWaitOutsideLoop>
+            <neverReturnZeroArrays>false</neverReturnZeroArrays>
+            <neverUseEmptyFinally>false</neverUseEmptyFinally>
+            <obeyContractEquals>false</obeyContractEquals>
+            <overrideToString>false</overrideToString>
+            <referToObjectsByInterface>false</referToObjectsByInterface>
+            <replaceStructureWithClass>false</replaceStructureWithClass>
+            <stringLiterallI18n>false</stringLiterallI18n>
+            <useInterfaceOnlyForTypes>false</useInterfaceOnlyForTypes>
+            <wrongCollectionComment>false</wrongCollectionComment>
         </tips>
     </inspector>
     <internal>
@@ -111,7 +111,7 @@
                 <class>1</class>
                 <declaration>0</declaration>
                 <footer>1</footer>
-                <header>1</header>
+                <header>0</header>
                 <interface>1</interface>
                 <lastImport>2</lastImport>
                 <method>1</method>
@@ -135,14 +135,14 @@
         </blanklines>
         <braces>
             <empty>
-                <cuddle>true</cuddle>
+                <cuddle>false</cuddle>
                 <insertStatement>false</insertStatement>
             </empty>
             <insert>
-                <dowhile>true</dowhile>
-                <for>true</for>
-                <ifelse>false</ifelse>
-                <while>true</while>
+                <dowhile>false</dowhile>
+                <for>false</for>
+                <ifelse>true</ifelse>
+                <while>false</while>
             </insert>
             <remove>
                 <block>true</block>
@@ -167,20 +167,20 @@
             <javadoc>
                 <check>
                     <innerclass>false</innerclass>
-                    <tags>true</tags>
-                    <throwsTags>true</throwsTags>
+                    <tags>false</tags>
+                    <throwsTags>false</throwsTags>
                 </check>
                 <fieldsShort>true</fieldsShort>
                 <generate>
-                    <class>1</class>
-                    <constructor>1</constructor>
-                    <field>1</field>
-                    <method>1</method>
+                    <class>0</class>
+                    <constructor>0</constructor>
+                    <field>0</field>
+                    <method>0</method>
                 </generate>
-                <parseComments>true</parseComments>
+                <parseComments>false</parseComments>
                 <tags>
                     <in-line />
-                    <standard>@task</standard>
+                    <standard />
                 </tags>
                 <templates>
                     <method>
@@ -219,17 +219,16 @@
             <use>false</use>
         </footer>
         <header>
-            <keys>Geotools</keys>
+            <keys />
             <smartMode>0</smartMode>
-            <text>/*| *    Geotools2 - OpenSource mapping toolkit| *    http://geotools.org| *    (C) 2002, Geotools Project Managment Committee (PMC)| *| *    This library is free software; you can redistribute it and/or| *    modify it under the terms of the GNU Lesser General Public| *    License as published by the Free Software Foundation;| *    version 2.1 of the License.| *| *    This library is distributed in the hope that it will be useful,| *    but WITHOUT ANY WARRANTY; without even the implied warranty of| *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU| *    Lesser General Public License for more details.| *| */</text>
-            <use>true</use>
+            <use>false</use>
         </header>
         <history>
             <policy>disabled</policy>
         </history>
         <imports>
             <grouping>
-                <defaultDepth>0</defaultDepth>
+                <defaultDepth>3</defaultDepth>
                 <packages>*:0|gnu:2|java:2|javax:2</packages>
             </grouping>
             <policy>disabled</policy>
@@ -270,7 +269,7 @@
             <arrayBracketsAfterIdent>false</arrayBracketsAfterIdent>
             <forceFormatting>false</forceFormatting>
             <insertExpressionParentheses>true</insertExpressionParentheses>
-            <insertLoggingConditional>true</insertLoggingConditional>
+            <insertLoggingConditional>false</insertLoggingConditional>
             <insertTrailingNewline>true</insertTrailingNewline>
             <insertUID>false</insertUID>
         </misc>
@@ -347,19 +346,19 @@
                 </before>
                 <parameter>
                     <methodCall>false</methodCall>
-                    <methodCallNested>true</methodCallNested>
-                    <methodDeclaration>true</methodDeclaration>
+                    <methodCallNested>false</methodCallNested>
+                    <methodDeclaration>false</methodDeclaration>
                 </parameter>
             </always>
             <general>
-                <beforeOperator>true</beforeOperator>
+                <beforeOperator>false</beforeOperator>
                 <enable>true</enable>
                 <lineLength>80</lineLength>
             </general>
             <ondemand>
                 <after>
-                    <assignment>true</assignment>
-                    <leftParenthesis>true</leftParenthesis>
+                    <assignment>false</assignment>
+                    <leftParenthesis>false</leftParenthesis>
                     <parameter>false</parameter>
                     <types>
                         <extends>false</extends>
@@ -368,7 +367,7 @@
                     </types>
                 </after>
                 <before>
-                    <rightParenthesis>true</rightParenthesis>
+                    <rightParenthesis>false</rightParenthesis>
                 </before>
                 <groupingParentheses>false</groupingParentheses>
             </ondemand>
