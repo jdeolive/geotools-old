@@ -48,7 +48,7 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.24 2003/04/30 23:21:29 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.25 2003/05/05 22:08:32 cholmesny Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -322,7 +322,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
    * about which methods the datasource supports.
    */
   public org.geotools.data.DataSourceMetaData getMetaData() {
-      return null;
+      return new ShapefileMetaData();
   }
   
   private FeatureType getSchema(ShapefileReader shp,DbaseFileReader dbf) 
