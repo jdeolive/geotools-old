@@ -183,6 +183,10 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
   <!-- W E B S I T E                                                      -->
   <!-- ================================================================== -->
   
+  <preGoal name="site:generate">
+    <attainGoal name="pmd"/>
+  </preGoal>
+
   <goal name="allsite">
 
     <!--
@@ -215,7 +219,7 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
     <maven:reactor
       basedir="${basedir}/geotools-src"
       includes="*/project.xml"
-      goals="clean,jar:install,site:deploy"
+      goals="clean,site:deploy"
       banner="Deploying site for"
       ignoreFailures="true"
     />
