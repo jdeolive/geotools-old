@@ -15,5 +15,8 @@ public class XY {
     /** Creates a new instance of XY */
     public XY() {
     }
-
+    public XY(double x, double y){
+        this.x=x;
+        this.y=y;
+    }
 }
