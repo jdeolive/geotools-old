@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." default="html-docs" name="developerguide">
-    <property file="build.ant.properties"/>
-
+<project basedir="." default="html-docs" name="Documentation">
+    <target name="init">
+        <property name="dir.module" value="${basedir}"/>
+        <property file="../developersguide/build.ant.properties"/>
+        
+    </target>
+    
+        
     <!-- Build html documentation from docbook -->
-    <target name="html-docs">
-
+    <target name="html-docs" depends="init">
+        
         <!-- Copy this projects images into the release docs directory -->
-        <copy todir="${destinationDocs}/images/${project.name}">
-            <fileset dir="${sourceDocsDir}/images/${project.name}"/>
+        <copy todir="${dir.module}/${destinationDocs}/images/">
+            <fileset dir="${dir.module}/${sourceDocsDir}/images/"/>
         </copy>
 
         <!-- Copy docbook XSL images into the release docs directory -->
-        <copy todir="${destinationDocs}/images">
+        <copy todir="${dir.module}/${destinationDocs}/images">
             <fileset dir="${docbookImages}"/>
         </copy>
 
         <!-- Convert docbook to html -->
         <style
-            basedir="${sourceDocsDir}"
-            destdir="${destinationDocs}"
+            basedir="${dir.module}/${sourceDocsDir}"
+            destdir="${dir.module}/${destinationDocs}"
             extension=".html"
             style="${docbookXSL}"
             includes="*.sgml"
