@@ -21,6 +21,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.*;
+import org.apache.log4j.Logger;
+import org.apache.log4j.BasicConfigurator;
 
 /**
  *
@@ -30,6 +32,7 @@ public class RenderStyleTest extends TestCase {
     
     public RenderStyleTest(java.lang.String testName) {
         super(testName);
+        BasicConfigurator.configure();
     }
     
     public static void main(java.lang.String[] args) {
@@ -70,10 +73,18 @@ public class RenderStyleTest extends TestCase {
         FeatureFactory polygonFac2 = new FeatureFactory(polygonType2);
         
         Feature polygonFeature2 = polygonFac2.create(new Object[]{polygon2});
+        
+        Point point = makeSamplePoint(geomFac);
+        AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
+        FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("pointfeature");
+        FeatureFactory pointFac = new FeatureFactory(pointType);
+        
+        Feature pointFeature = pointFac.create(new Object[]{point});
         MemoryDataSource datasource = new MemoryDataSource();
         datasource.addFeature(lineFeature);
         datasource.addFeature(polygonFeature);
         datasource.addFeature(polygonFeature2);
+        datasource.addFeature(pointFeature);
         
         FeatureCollection ft = new FeatureCollectionDefault(datasource);
         
@@ -154,6 +165,11 @@ public class RenderStyleTest extends TestCase {
             fail("Error creating sample polygon for testing "+te);
         }
         return null;
+    }
+    private Point makeSamplePoint(final GeometryFactory geomFac) {
+        Coordinate c = new Coordinate(14.0d,14.0d);
+        Point point = geomFac.createPoint(c);
+        return point;
     }
 }
 

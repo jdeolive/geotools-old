@@ -12,6 +12,8 @@ import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import java.net.*;
 import java.io.*;
+import org.apache.log4j.Logger;
+import org.apache.log4j.BasicConfigurator;
 
 /**
  *
@@ -21,6 +23,7 @@ public class SLDStyleTest extends TestCase {
     
     public SLDStyleTest(java.lang.String testName) {
         super(testName);
+        BasicConfigurator.configure();
     }
     
     public static void main(java.lang.String[] args) {
