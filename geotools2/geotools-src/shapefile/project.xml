@@ -56,6 +56,10 @@
       <id>JTS</id>
       <version>1.0</version>
     </dependency>
+        <dependency>
+      <id>littleEndian</id>
+      <version>1.0</version>
+    </dependency>
     </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
