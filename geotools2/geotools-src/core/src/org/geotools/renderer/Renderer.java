@@ -18,8 +18,9 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
+ *     UNITED KINGDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
  */
+
 package org.geotools.renderer;
 
 import org.geotools.styling.Style;
@@ -27,22 +28,25 @@ import org.geotools.feature.Feature;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * this is very much work in progress
- * @author  jamesm
+ * This is very much work in progress.
+ *
+ * @version $Id: Renderer.java,v 1.12 2002/06/04 15:19:33 loxnard Exp $
+ * @author James Macgill
  */
+
 public interface Renderer {
 
     /**
-     * Render the provided features using the specified style.
-     * the features should fill the viewport but may well extend beyond it.
-     * Features should be cropped (if appropriate) to the specified viewport
+     * Renders the provided features using the specified style.
+     * The features should fill the viewport but may well extend beyond it.
+     * Features should be cropped (if appropriate) to the specified viewport.
      *
-     * TODO: Think more in whether Renderer should be called by Map of
+     * TODO: Think more in whether Renderer should be called by Map or
      * TODO: if Map should be called by Renderer
      *
      * @param f The features to render
      * @param viewport The visible extent to be rendered
-     * @param style The style defenition to apply to each feature
+     * @param style The style definition to apply to each feature
      */
     public void render(Feature f[], Envelope viewport, Style style);
 

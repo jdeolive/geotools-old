@@ -18,7 +18,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
+ *     UNITED KINGDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
  */
 
 package org.geotools.styling;
@@ -38,12 +38,13 @@ import java.net.URL;
  * strokes as set out by this interface.  For example, opacity may not be
  * supported.
  *
- * @author  jamesm
+ * @version $Id: ExternalGraphic.java,v 1.3 2002/06/04 15:21:15 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public interface ExternalGraphic {
 
     /**
-     * Provides the URL for where the external graphic resouce can be located.
+     * Provides the URL for where the external graphic resource can be located.
      * @return The URL of the ExternalGraphic
      */
     public URL getLocation();
@@ -52,7 +53,7 @@ public interface ExternalGraphic {
      * Provides the format of the external graphic.
      * @return The format of the external graphic.  Reported as its MIME type
      * in a String object.
-     **/
+     */
     public String getFormat();
     
 }
