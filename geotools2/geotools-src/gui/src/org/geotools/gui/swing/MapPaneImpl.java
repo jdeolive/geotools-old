@@ -59,7 +59,7 @@ import javax.swing.JPanel;
  * component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.25 2003/05/18 03:22:03 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.26 2003/05/23 21:37:45 crotwell Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults to
  *       1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -78,7 +78,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
     private Adapters adapters = Adapters.getDefault();
 
     /** A transform from screen coordinates to real world coordinates. */
-    private AffineTransform dotToCoordinateTransform;
+    private AffineTransform dotToCoordinateTransform = new AffineTransform();
 
     /**
      * Create a MapPane. A MapPane marshals the drawing of maps.
