@@ -16,7 +16,9 @@
  */
 package org.geotools.data.collection;
 
-import com.vividsolutions.jts.geom.Envelope;
+import java.io.IOException;
+import java.util.NoSuchElementException;
+
 import org.geotools.data.AbstractDataStore;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
@@ -32,9 +34,8 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
-import java.io.IOException;
-import java.util.NoSuchElementException;
-import java.util.logging.Level;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -148,12 +149,20 @@ public class CollectionDataStore extends AbstractDataStore {
      * @see org.geotools.data.AbstractDataStore#getBounds(java.lang.String,
      *      org.geotools.data.Query)
      */
-    protected Envelope getBounds(String featureTypeName, Query query)
+    protected Envelope getBounds(Query query)
         throws IOException {
+        String featureTypeName = query.getTypeName();
         if (!featureType.getTypeName().equals(featureTypeName)) {
             throw new SchemaNotFoundException(featureTypeName);
         }
 
+        return getBoundsInternal(query);
+    }
+
+    /**
+     * @param query
+     */
+    private Envelope getBoundsInternal(Query query) {
         FeatureIterator iterator = collection.features();
         Envelope envelope = null;
 
@@ -173,13 +182,15 @@ public class CollectionDataStore extends AbstractDataStore {
         }
 
         return envelope;
+        
     }
 
     /**
      * @see org.geotools.data.AbstractDataStore#getCount(java.lang.String, org.geotools.data.Query)
      */
-    protected int getCount(String featureTypeName, Query query)
+    protected int getCount(Query query)
         throws IOException {
+        String featureTypeName = query.getTypeName();
         if (!featureType.getTypeName().equals(featureTypeName)) {
             throw new SchemaNotFoundException(featureTypeName);
         } else {
@@ -209,12 +220,7 @@ public class CollectionDataStore extends AbstractDataStore {
             String typeName = featureType.getTypeName();
             Envelope bounds = null;
 
-            try {
-                bounds = getBounds(typeName, Query.ALL);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Error computin the bounding box of a feature collection",
-                    e);
-            }
+            bounds = getBoundsInternal(Query.ALL);
 
             switch (tce.getEventType()) {
             case CollectionEvent.FEATURES_ADDED:

@@ -499,8 +499,9 @@ public class MemoryDataStore extends AbstractDataStore {
      * @see org.geotools.data.AbstractDataStore#getBounds(java.lang.String,
      *      org.geotools.data.Query)
      */
-    protected Envelope getBounds(String typeName, Query query)
+    protected Envelope getBounds(Query query)
         throws IOException {
+        String typeName = query.getTypeName();
         FeatureType featureType = getSchema(typeName);
         Map contents = features(typeName);
         Iterator iterator = contents.values().iterator();
@@ -529,8 +530,9 @@ public class MemoryDataStore extends AbstractDataStore {
     /**
      * @see org.geotools.data.AbstractDataStore#getCount(java.lang.String, org.geotools.data.Query)
      */
-    protected int getCount(String typeName, Query query)
+    protected int getCount(Query query)
         throws IOException {
+        String typeName = query.getTypeName();
         FeatureType featureType = getSchema(typeName);
         Map contents = features(typeName);
         Iterator iterator = contents.values().iterator();
