@@ -69,6 +69,11 @@ public class QueryImpl implements Query {
         this.filter = filter;
     }
 
+    public QueryImpl(String typeName, Filter filter) {
+	this(filter);
+	this.typeName = typeName;
+    }
+
     /**
      * Constructor that sets the filter and properties
      *
