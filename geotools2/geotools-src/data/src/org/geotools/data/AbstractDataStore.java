@@ -16,6 +16,7 @@
  */
 package org.geotools.data;
 
+import org.geotools.cs.CoordinateSystem;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.SchemaException;
@@ -278,13 +279,62 @@ public abstract class AbstractDataStore implements DataStore {
             };
         }
     }
+    // Jody - Recomend moving to the following
+    // When we are ready for CoordinateSystem support
+    public FeatureReader getFeatureReader(Query query,Transaction transaction) throws IOException, SchemaException {
+        Filter filter = query.getFilter();
+        String typeName = query.getHandle();
+        String propertyNames[] = query.getPropertyNames();
+        CoordinateSystem cs = null;
+                
+        if (filter == null) {
+            throw new NullPointerException("getFeatureReader requires Filter: "
+                + "did you mean Filter.NONE?");
+        }
+        if( typeName == null ){
+            throw new NullPointerException(
+                "getFeatureReader requires typeName: "
+                + "use getTypeNames() for a list of available types");            
+        }       
+        if (transaction == null) {
+            throw new NullPointerException(
+                "getFeatureReader requires Transaction: "
+                + "did you mean to use Transaction.AUTO_COMMIT?");
+        }
+        FeatureType featureType = getSchema( query.getTypeName() );
+         
+        if( propertyNames != null || cs != null ){
+            featureType = DataUtilities.createSubType( featureType, propertyNames, cs );
+        }
+        if ( filter == Filter.ALL || filter.equals( Filter.ALL )) {
+            return new EmptyFeatureReader(featureType);
+        }
+        // This calls our subclass "simple" implementation
+        // All other functionality will be built as a reader around
+        // this class
+        //
+        FeatureReader reader = getFeatureReader(typeName);
+
+        if (!filter.equals( Filter.NONE ) ) {
+            reader = new FilteringFeatureReader(reader, filter);
+        }
+
+        if (transaction != Transaction.AUTO_COMMIT) {
+            Map diff = state(transaction).diff(typeName);
+            reader = new DiffFeatureReader(reader, diff);
+        }
+
+        if (!featureType.equals(reader.getFeatureType())) {
+            reader = new ReTypeFeatureReader(reader, featureType);
+        }
+
+        return reader;        
+    }
 
     /**
      * @see org.geotools.data.DataStore#getFeatureReader(org.geotools.feature.FeatureType,
      *      org.geotools.filter.Filter, org.geotools.data.Transaction)
-     */
-    // Recomend moving too the following
-    //public FeatureReader getFeatureReader(Query query,Transaction transaction) throws IOException        
+     */            
     public FeatureReader getFeatureReader(FeatureType featureType,
         Filter filter, Transaction transaction) throws IOException {
         if (filter == null) {
