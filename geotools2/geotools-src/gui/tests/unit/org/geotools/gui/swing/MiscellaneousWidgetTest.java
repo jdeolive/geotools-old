@@ -52,7 +52,7 @@ import org.geotools.resources.ColorUtilities;
 /**
  * Tests a set of widgets.
  *
- * @version $Id: MiscellaneousWidgetTest.java,v 1.7 2003/08/07 16:03:48 desruisseaux Exp $
+ * @version $Id: MiscellaneousWidgetTest.java,v 1.8 2003/08/07 16:57:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MiscellaneousWidgetTest extends TestCase {
@@ -111,20 +111,24 @@ public class MiscellaneousWidgetTest extends TestCase {
      * Show a component.
      */
     private void show(final Component component, final String title) {
-        final JFrame frame = new JFrame(title);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(component);
-        frame.setLocation(location, location);
-        frame.pack();
-        frame.show();
-        if (!keep) {
-            widgets.add(frame);
-        }
-        location += 30;
         try {
-            Thread.sleep(1000);
-        } catch (InterruptedException exception) {
-            // Ignore
+            final JFrame frame = new JFrame(title);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.getContentPane().add(component);
+            frame.setLocation(location, location);
+            frame.pack();
+            frame.show();
+            if (!keep) {
+                widgets.add(frame);
+            }
+            location += 30;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException exception) {
+                // Ignore
+            }
+        } catch (HeadlessException exception) {
+            // The test is running on a machine without display. Ignore.
         }
     }
 
