@@ -28,7 +28,7 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: BoundingBoxImpl.java,v 1.7 2003/03/22 10:23:37 camerons Exp $
+ * @version $Id: BoundingBoxImpl.java,v 1.8 2003/04/22 20:26:11 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT Probably should use CoordinatePoint or Point2D to store
  * points instead of using Envelope.  Also worth waiting to see what interface
@@ -46,11 +46,13 @@ import java.util.logging.Logger;
 import com.vividsolutions.jts.geom.Envelope;
 import javax.swing.event.EventListenerList;
 import org.geotools.ct.MathTransform;
+import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.Adapters;
 import org.geotools.pt.CoordinatePoint;
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.map.events.*;
+import org.geotools.map.events.BoundingBoxEvent;
+import org.geotools.map.events.BoundingBoxListener;
 import org.opengis.cs.CS_CoordinateSystem;
 import org.opengis.ct.CT_MathTransform;
 
@@ -87,7 +89,7 @@ public class BoundingBoxImpl implements BoundingBox{
             boolean sendEvent){
         listenerList.add(BoundingBoxListener.class, ecl);
         if (sendEvent){
-            fireAreaOfInterestChangedListener();
+            fireAreaOfInterestChangedListener(null);
         }
     }
 
@@ -113,13 +115,15 @@ public class BoundingBoxImpl implements BoundingBox{
      * Notify all listeners that have registered interest for
      * notification an AreaOfInterestChangedEvent.
      */
-    protected void fireAreaOfInterestChangedListener() {
+    protected void fireAreaOfInterestChangedListener(
+        MathTransform transform)
+    {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
-        EventObject ece = new EventObject(
-                this);
+        BoundingBoxEvent ece = new BoundingBoxEvent(
+                this, transform);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == BoundingBoxListener.class) {
                 ((BoundingBoxListener)
@@ -129,10 +133,10 @@ public class BoundingBoxImpl implements BoundingBox{
     }
     
     /**
-     * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.
-     * Note that this is the only method to change coordinateSystem.  A
-     * <code>setCoordinateSystem</code> method is not provided to ensure
-     * this class is not dependant on transform classes.
+     * Set a new AreaOfInterest and trigger a BoundingBoxEvent.
+     * A <code>setCoordinateSystem</code> method is not provided to ensure
+     * this class is not dependant on classes to transform between
+     * coordinate systems.
      * @param bbox The new areaOfInterest.
      * @param coordinateSystem The coordinate system being using by this model.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
@@ -141,12 +145,31 @@ public class BoundingBoxImpl implements BoundingBox{
             Envelope bbox,
             CoordinateSystem coordinateSystem) throws IllegalArgumentException
     {
+        MathTransform transform;
         if ((bbox==null) || (coordinateSystem==null) || bbox.isNull()){
             throw new IllegalArgumentException();
         }
+        
+        // Calculate the transform from the old to new bbox, or set transform
+        // to null if it is not available
+        if ((this.bBox==null)||(this.coordinateSystem!=coordinateSystem)){
+            transform=null;
+        }else {
+            AffineTransform at=new AffineTransform();
+            at.setToIdentity();
+            at.translate(bbox.getMinX(), bbox.getMinY());
+            // scaleFactor=newWidth/oldWidth
+            at.scale(
+                (bBox.getMaxX()-bBox.getMinX())
+                /(this.bBox.getMaxX()-this.bBox.getMinX()),
+                (bBox.getMaxY()-bBox.getMinY())
+                /(this.bBox.getMaxY()-this.bBox.getMinY()));              
+            at.translate(-this.bBox.getMinX(),-this.bBox.getMinY());
+            transform=MathTransformFactory.getDefault().createAffineTransform(at);
+        }
         this.bBox = new Envelope(bbox);
         this.coordinateSystem = coordinateSystem;
-        fireAreaOfInterestChangedListener();
+        fireAreaOfInterestChangedListener(transform);
     }
     
     /**
@@ -176,8 +199,7 @@ public class BoundingBoxImpl implements BoundingBox{
      * @param areaOfInterest The new areaOfInterest.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public void setAreaOfInterest(
-            Envelope bbox) throws IllegalArgumentException
+    public void setAreaOfInterest(Envelope bbox)
     {
         setAreaOfInterest(bbox,this.coordinateSystem);
     }
@@ -203,8 +225,9 @@ public class BoundingBoxImpl implements BoundingBox{
                 maxP.getOrdinate(0), 
                 minP.getOrdinate(1),
                 maxP.getOrdinate(1));
+            LOGGER.info("bBox="+bBox);
 
-            fireAreaOfInterestChangedListener();
+            fireAreaOfInterestChangedListener(transform);
         } catch (TransformException e) {
             LOGGER.warning("TransformException in BoundingBoxImpl");
         }

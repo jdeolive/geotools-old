@@ -29,7 +29,9 @@ import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.Datum;
 import org.geotools.cs.FactoryException;
 import org.geotools.cs.HorizontalDatum;
+import org.geotools.ct.MathTransform;
 import org.geotools.map.events.BoundingBoxListener;
+import org.geotools.map.events.BoundingBoxEvent;
 import org.geotools.map.BoundingBoxImpl;
 import org.opengis.cs.CS_CoordinateSystem;
 
@@ -44,6 +46,9 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
     
     /** flag to set and unset when an ChangeEvent is sent */
     private boolean changeEventSent=false;
+    
+    /** The transform sent by when AreaOfInterest changes */
+    private MathTransform transform=null;
 
     /** Test suite for this test case */
     private TestSuite suite = null;
@@ -208,6 +213,24 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
             (envelope2!=envelope3)
             && envelope2.equals(bbox.getAreaOfInterest()));
     }
+    
+    /**
+     * Test setAreaOfInterest sets up the correct transform.
+     * @task TODO finish this test
+     */
+    public void testSetAreaOfInterestTransform()
+    {
+        Envelope envelope1=new Envelope(10.0,10.0,20.0,20.0);
+        bbox.setAreaOfInterest(envelope1);
+        Envelope envelope2=new Envelope(30.0,30.0,40.0,40.0);
+        bbox.setAreaOfInterest(envelope1);
+        // setAreaOfInterest should trigger a BoundingBoxEvent which will 
+        // update this.transform.
+        // If we use this transform on envelope1, we should get envelope2.
+        //AffineTransform at=transform.
+        
+        
+    }
 
     /** Test Clonable */
     public void testClonable(){
@@ -221,11 +244,12 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
      * on transforms.
      */
     
-    /** Process an AreaOfInterestChangedEvent.
-     * @param areaOfInterestChangedEvent The new extent.
+    /** Process a BoundingBoxEvent.
+     * @param boundingBoxEvent The new extent.
      *
      */
-    public void areaOfInterestChanged(EventObject areaOfInterestChangedEvent) {
+    public void areaOfInterestChanged(BoundingBoxEvent boundingBoxEvent) {
         changeEventSent=true;
+        transform=boundingBoxEvent.getTransform();
     }
 }
