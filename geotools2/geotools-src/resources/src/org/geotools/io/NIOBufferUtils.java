@@ -35,7 +35,6 @@ public class NIOBufferUtils {
 				try {
 					Method getCleanerMethod =
 						buffer.getClass().getMethod("cleaner", null);
-                    System.out.println(getCleanerMethod);
 					getCleanerMethod.setAccessible(true);
                     Object cleaner = getCleanerMethod.invoke(buffer,  null);
                     Method clean = cleaner.getClass().getMethod("clean", null);
