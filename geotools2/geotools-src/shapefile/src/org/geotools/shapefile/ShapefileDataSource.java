@@ -62,7 +62,7 @@ public class ShapefileDataSource implements org.geotools.datasource.DataSource {
                 throw new DataSourceException("Topology Exception loading data : "+te.getMessage());
             }
             
-            return null;
+            return features;
         }
         else{
             return null;
