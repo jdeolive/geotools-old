@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill
+ *     UNITED KINGDOM: James Macgill
  *             mailto:j.macgill@geog.leeds.ac.uk
  *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
@@ -63,7 +63,7 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.JFormattedTextField;
-import org.geotools.swinggui.ExceptionMonitor;
+import org.geotools.swing.ExceptionMonitor;
 
 // Events
 import java.awt.event.KeyEvent;
@@ -93,9 +93,8 @@ import org.geotools.resources.Utilities;
 
 
 /**
- * Contrôle la position et la taille d'une forme rectangulaire que l'utilisateur
- * peut faire bouger avec la souris. Cette classe peut s'utiliser par exemple
- * comme suit:
+ * Controls the position and size of a rectangle which the user can move
+ * with their mouse. For example, this class can be used as follows:
  *
  * <blockquote><pre>
  * public class MyClass extends JPanel
@@ -103,16 +102,15 @@ import org.geotools.resources.Utilities;
  *     private final MouseReshapeTracker <em>slider</em>=new MouseReshapeTracker()
  *     {
  *         protected void {@link #clipChangeRequested clipChangeRequested}(double xmin, double xmax, double ymin, double ymax) {
- *             // Indique ce qu'il faut faire si l'utilisateur essaie de
- *             // déplacer le rectangle en dehors des limites permises.
- *             // Cette méthode est facultative.
+ *             // Indicates what must be done if the user tries to move the
+ *             // rectangle outside the permitted limits.
+ *             // This method is optional.
  *         }
  *
  *         protected void {@link #stateChanged stateChanged}(boolean isAdjusting) {
- *             // Méthode appellée automatiquement chaque fois
- *             // que l'utilisateur aura changée la position de
- *             // la visière. Codez ici ce qu'il faut faire dans
- *             // ce cas.
+ *             // Method automatically called each time the user
+ *             // changes the position of the rectangle.
+ *             // Code here what it should do in this case.
  *         }
  *     };
  *
@@ -142,177 +140,168 @@ import org.geotools.resources.Utilities;
 class MouseReshapeTracker extends MouseInputAdapter implements Shape
 {
     /**
-     * Largeur minimale que devrait
-     * avoir le rectangle, en pixels.
+     * Minimum width the rectangle should have, in pixels.
      */
     private static final int MIN_WIDTH=12;
 
     /**
-     * Hauteur minimale que devrait
-     * avoir le rectangle, en pixels.
+     * Minimum height the rectangle should have, in pixels.
      */
     private static final int MIN_HEIGHT=12;
 
     /**
-     * Distance en deça de laquelle on considèrera que l'utilisateur veut
-     * redimensionner le rectangle plutpôt que la déplacer. Cette distance
-     * est mesurée en pixels à partir d'un des bords du rectangle.
+     * Distance below which we believe the user wants to resize the rectangle
+     * rather than move it. This distance is measured in pixels from one of the
+     * rectangle's edges.
      */
     private static final int RESIZE_POS=4;
 
     /**
-     * Valeur minimale du rapport <code>(largeur du clip)/(largeur du
-     * rectangle)</code>. Cette valeur minimale ne sera prise en compte
-     * que lorsque l'utilisateur modifie la position du rectangle à l'aide
-     * de valeurs entrées dans les champs. Ce nombre doit obligatoire être
-     * supérieur ou égal à 1.
+     * Minimum value of the <code>(clipped rectangle size)/(full rectangle
+     * size)</code> ratio. This minimum value will only be taken into
+     * account when the user modifies the rectangle's position using the values
+     * entered in the fields. This number must be greater than or equal to 1.
      */
     private static final double MINSIZE_RATIO = 1.25;
 
     /**
-     * Coordonnée <var>x</var> minimale autorisée pour le rectangle. La
-     * valeur par défaut est {@link java.lang.Double#NEGATIVE_INFINITY}.
+     * Minimum <var>x</var> coordinate permitted for the rectangle. The default
+     * value is {@link java.lang.Double#NEGATIVE_INFINITY}.
      */
     private double xmin=Double.NEGATIVE_INFINITY;
 
     /**
-     * Coordonnée <var>y</var> minimale autorisée pour le rectangle. La
-     * valeur par défaut est {@link java.lang.Double#NEGATIVE_INFINITY}.
+     * Minimum <var>y</var> coordinate permitted for the rectangle. The default
+     * value is {@link java.lang.Double#NEGATIVE_INFINITY}.
      */
     private double ymin=Double.NEGATIVE_INFINITY;
 
     /**
-     * Coordonnée <var>x</var> maximale autorisée pour le rectangle. La
-     * valeur par défaut est {@link java.lang.Double#POSITIVE_INFINITY}.
+     * Maximum <var>x</var> coordinate permitted for the rectangle. The default
+     * value is {@link java.lang.Double#POSITIVE_INFINITY}.
      */
     private double xmax=Double.POSITIVE_INFINITY;
 
     /**
-     * Coordonnée <var>y</var> maximale autorisée pour le rectangle. La
-     * valeur par défaut est {@link java.lang.Double#POSITIVE_INFINITY}.
+     * Maximum <var>y</var> coordinate permitted for the rectangle. The default
+     * value is {@link java.lang.Double#POSITIVE_INFINITY}.
      */
     private double ymax=Double.POSITIVE_INFINITY;
 
     /**
-     * Le rectangle à contrôler. Les coordonnées de ce rectangle doivent
-     * être les coordonnées logiques (par exemple des coordonnées en mètres),
-     * et non les coordonnées pixels de l'écran. Un rectangle vide signifie
-     * qu'aucune région n'est présentement sélectionnée.
+     * The rectangle to control.  The coordinates of this rectangle must be
+     * logical coordinates (for example, coordinates in metres), and not
+     * screen pixel coordinates. An empty rectangle means that no region is
+     * currently selected.
      */
     private final RectangularShape logicalShape;
 
     /**
-     * Rectangle qui sera à dessiner dans la composante. Ce rectangle
-     * peut être différent de {@link #logicalShape} et ce dernier est
-     * si petit qu'il est préférable de le dessiner un peu plus large
-     * que ce qu'à demandé l'utilisateur. Dans ce cas, <code>drawnShape</code>
-     * servira de rectangle temporaire avec les coordonnées étendues.
-     * Note: ce rectangle doit être accéde en lecture seulement, sauf
-     * par {@link #update} qui est la seule méthode autorisée à faire
-     * sa mise à jour.
+     * Rectangle to be drawn in the component.  This rectange can be different
+     * to {@link #logicalShape} and the latter is so small that it is 
+     * preferable to draw it a little bit bigger than the user has requested.
+     * In this case, <code>drawnShape</code> will serve as a temporary
+     * rectangle with extended coordinates.
+     * Note: this rectangle should be read only, except in the case of 
+     * {@link #update} which is the only method permitted to update it.
      */
     private transient RectangularShape drawnShape;
 
     /**
-     * Transformation affine servant à passer des coordonnées logiques
-     * vers les coordonnées pixels.  Il est garantie qu'aucune méthode
-     * sauf {@link #setTransform} ne modifieront cette transformation.
+     * Affine transform which changes logical coordinates into pixel
+     * coordinates.  It is guaranteed that no method except 
+     * {@link #setTransform} will modify this transformation.
      */
     private final AffineTransform transform=new AffineTransform();
 
     /**
-     * Dernière coordonnée <em>relatives</em> de la souris. Cette information
-     * est exprimée en coordonnées logiques (d'après la transformation affine
-     * inverse de {@link #getTransform}). Les coordonnées sont relative au coin
-     * (<var>x</var>,<var>y</var>) du rectangle.
+     * Last <em>relative</em> mouse coordinates. This information is
+     * expressed in logical coordinates (according to the
+     * {@link #getTransform} inverse affine transform). The coordinates are
+     * relative to (<var>x</var>,<var>y</var>) corner of the rectangle.
      */
     private transient double mouseDX, mouseDY;
 
     /**
-     * Coordonnées <code>x</code>, <code>y</code>, <code>width</code>
-     * et <code>height</code> d'une boîte qui englobe complètement
-     * {@link #rectangle}. Ces coordonnées doivent être exprimées en
-     * <strong>pixels</strong>. Au besoin, la transformation affine
-     * {@link #getTransform} peut être utilisée pour passer des
-     * coordonnées pixels aux coordonnées logiques et inversement.
+     * <code>x</code>, <code>y</code>, <code>width</code>
+     * and <code>height</code> coordinates of a box which completely 
+     * encloses {@link #rectangle}. These coordinates must be expressed in
+     * <strong>pixels</strong>. If need be, the affine transform
+     * {@link #getTransform} can be used to change pixel coordinates into
+     * logical coordinates and vice versa.
      */
     private transient int x, y, width, height;
 
     /**
-     * Indique si le curseur de la souris
-     * se trouve sur le rectangle.
+     * Indicates whether the mouse pointer is over the rectangle.
      */
     private transient boolean mouseOverRect;
 
     /**
-     * Point utilisé en interne pour certains calculs,
-     * afin d'éviter de créer trop souvent plusieurs
-     * objets {@link Point2D} temporaires.
+     * Point used internally by certain calculations in order to avoid
+     * the frequent creation of several temporary {@link Point2D} objects.
      */
     private final transient Point2D.Double tmp=new Point2D.Double();
 
     /**
-     * Indique si l'utilisateur est en train de faire glisser le rectangle.
-     * Pour que ce champ prenne la valeur <code>true</code>, il faut que
-     * la souris ait pointé sur le rectangle au moment où l'utilisateur a
-     * appuyé sur le bouton de la souris.
+     * Indicates if the user is currently dragging the rectangle.
+     * For this field to become <code>true</code>, the mouse must
+     * have been over the rectangle as the user pressed the mouse button.
      */
     private transient boolean isDraging;
 
     /**
-     * Indique quels bords l'utilisateur est en train d'ajuster avec la souris.
-     * Ce champ est souvent identique à {@link #adjustingSides}. Mais
-     * contrairement à {@link #adjustingSides}, il désigne un bord de la forme
-     * {@link #logicalShape} et non un bord de la forme en pixels apparaissant
-     * à l'écran. C'est différent par exemple si la transformation affine
-     * {@link #transform} contient une rotation de 90°.
+     * Indicates which edges the user is currently adjusting with the mouse.
+     * This field is often identical to {@link #adjustingSides}. However,
+     * unlike {@link #adjustingSides}, it designates an edge of the shape
+     * {@link #logicalShape} and not an edge of the shape in pixels appearing
+     * on the screen. It is different, for example, if the affine transform
+     * {@link #transform} contains a 90° rotation.
      */
     private transient int adjustingLogicalSides;
 
     /**
-     * Indique quels bords l'utilisateur est en train d'ajuster avec
-     * la souris. Les valeurs permises sont des combinaisons binaires
-     * de {@link #NORTH}, {@link #SOUTH}, {@link #EAST} et {@link #WEST}.
+     * Indicates which edges the user is currently adjusting with the mouse.
+     * Permitted values are binary combinations of {@link #NORTH},
+     * {@link #SOUTH}, {@link #EAST} and {@link #WEST}.
      */
     private transient int adjustingSides;
 
     /**
-     * Indique quels bords sont autorisés à être ajustées. Les valeurs
-     * permises sont des combinaisons binaires de {@link #NORTH},
-     * {@link #SOUTH}, {@link #EAST} et {@link #WEST}.
+     * Indicates which edges are allowed to be adjusted.  Permitted
+     * values are binary combinations of {@link #NORTH},
+     * {@link #SOUTH}, {@link #EAST} and {@link #WEST}.
      */
     private int adjustableSides;
 
     /**
-     * Indique si la forme géométrique
-     * peut être déplacée.
+     * Indicates if the geometric shape can be moved.
      */
     private boolean moveable=true;
 
     /**
-     * Lorsque la position du bord gauche ou droit du rectangle est
-     * éditée manuellement, indique si la position du bord opposé
-     * doit être automatiquement ajusté. La valeur par défaut est
+     * When the position of the left or right-hand edge of the rectangle
+     * is manually edited, this indicates whether the position of the
+     * opposite edge should be automatically adjusted.  The default value is
      * <code>false</code>.
      */
     private boolean synchronizeX;
 
     /**
-     * Lorsque la position du bord haut ou bas du rectangle est
-     * éditée manuellement, indique si la position du bord opposé
-     * doit être automatiquement ajusté. La valeur par défaut est
+     * When the position of the top or bottom edge of the rectangle is
+     * manually edited, this indicates whether the position of the 
+     * opposite edge should be automatically adjusted.  The default value is
      * <code>false</code>.
      */
     private boolean synchronizeY;
 
-    /** Bit désignant le bord nord  */ private static final int NORTH = 1;
-    /** Bit désignant le bord sud   */ private static final int SOUTH = 2;
-    /** Bit désignant le bord est   */ private static final int EAST  = 4;
-    /** Bit désignant le bord ouest */ private static final int WEST  = 8;
+    /** Bit representing north  */ private static final int NORTH = 1;
+    /** Bit representing south   */ private static final int SOUTH = 2;
+    /** Bit representing east   */ private static final int EAST  = 4;
+    /** Bit representing west */ private static final int WEST  = 8;
 
     /**
-     * Codes des curseurs corresondant à une
-     * valeur de {@link adjustingSides} donnée.
+     * Cursor codes corresponding to a given {@link adjustingSides} value.
      */
     private static final int[] CURSORS=new int[]
     {
@@ -330,12 +319,12 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
     };
 
     /**
-     * Tableau servant à convertir les constantes <i>Swing</i> en
-     * combinaisons des constantes {@link #NORTH}, {@link #SOUTH},
-     * {@link #EAST} et {@link #WEST}. On ne peut pas utiliser
-     * directement les constantes <i>Swing</i> parce qu'elles
-     * ne correspondent malheureusement pas à des combinaisons
-     * binaires des quatres coins cardinaux.
+     * Lookup table which converts <i>Swing</i> constants into
+     * combinations of {@link #NORTH}, {@link #SOUTH},
+     * {@link #EAST} and {@link #WEST} constants. We cannot use
+     * <i>Swing</i> constants directly because, unfortunately, they do
+     * not correspond to the binary combinations of the four
+     * cardinal corners.
      */
     private static final int[] SWING_TO_CUSTOM=new int[]
     {
@@ -350,16 +339,15 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
     };
 
     /**
-     * Liste des champs de texte qui représenteront
-     * les coordonnées des bords du rectangle.
+     * List of text fields which represent the coordinates of the
+     * rectangle's edges.
      */
     private Control[] editors;
 
     /**
-     * Construit un objet capable de bouger et redimmensionner
-     * une forme rectangulaire en fonction des mouvements de
-     * la souris. Le rectangle sera par défaut située à la
-     * coordonnée (0,0) et aura une largeur et hauteur nulles.
+     * Constructs an object capable of moving and resizing a rectangular
+     * shape through mouse movements. The rectangle will be positioned, by
+     * default at the coordinates (0,0).  Its width and height will be null.
      */
     public MouseReshapeTracker() {
         this(new Rectangle2D.Double());

@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill
+ *     UNITED KINGDOM: James Macgill
  *             mailto:j.macgill@geog.leeds.ac.uk
  *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
@@ -51,8 +51,10 @@ import javax.swing.ActionMap;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.geotools.swinggui.event.ZoomChangeEvent;
-import org.geotools.swinggui.event.ZoomChangeListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import org.geotools.swing.event.ZoomChangeEvent;
+import org.geotools.swing.event.ZoomChangeListener;
 
 // Geometry
 import java.awt.Shape;
@@ -119,201 +121,220 @@ import org.geotools.resources.gui.ResourceKeys;
 
 
 /**
- * Classe de base des graphiques sur lesquels on pourra appliquer des zooms.
- * L'utilisateur pourra utiliser des touches du clavier, des menus ou la souris
- * pour effectuer les zooms.
+ * Base class for widget with a zoomable content. User can perform zooms using
+ * keyboard, menu or mouse. <code>ZoomPane</code> is an abstract class.
+ * Subclass must override at least two methods:
  *
- * <p>&nbsp;</p>
- * <p align="center"><img src="doc-files/ZoomPane.png"></p>
- * <p>&nbsp;</p>
+ * <ul>
+ *   <li>{@link #getArea()}, which must return a bounding box for the content
+ *       to paint. This area can be expressed in arbitrary units. For example,
+ *       an object wanting to display a geographic map with a content ranging
+ *       from 10° to 15°E and 40° to 45°N should override this method as
+ *       follows:
  *
- * Les classes concrètes dérivées de <code>ZoomPane</code> doivent
- * obligatoirement redéfinir la méthode {@link #getArea}, qui retourne les
- * coordonnées logiques de la région à tracer. Par exemple un objet
- * <code>ZoomPane</code> qui trace une carte dont les coordonnées géographiques
- * vont de 10° à 15°E et de 40° à 45°N pourrait redéfinir cette méthode comme
- * suit:
+ *       <pre>
+ *       &nbsp;public Rectangle2D getArea() {
+ *       &nbsp;    return new Rectangle2D.Double(10,40,5,5);
+ *       &nbsp;}
+ *       </pre></li>
  *
- * <blockquote><pre>
- * &nbsp;public Rectangle2D getArea() {
- * &nbsp;    return new Rectangle2D.Double(10,40,5,5);
- * &nbsp;}
- * </pre></blockquote>
+ *   <li>{@link #paintComponent(Graphics2D)}, which must paint the widget
+ *       content. Implementation must invoke
  *
- * Il faut aussi redéfinir la méthode {@link #paintComponent(Graphics2D)} pour
- * tracer une carte ou un graphique. Notez qu'après la ligne
- * <code>graphics.transform({link #zoom})</code>, par défaut l'axe des
- * <var>y</var> pointera vers le haut comme le veut la convention en géométrie.
+ *                    <code>graphics.transform({link #zoom})</code>
  *
- * <blockquote><pre>
- * &nbsp;protected void paintComponent(final Graphics2D graphics) {
- * &nbsp;    final AffineTransform textTr=graphics.getTransform();
- * &nbsp;    graphics.clip({link #getZoomableBounds getZoomableBounds}(null));
- * &nbsp;    graphics.transform({link #zoom});
- * &nbsp;    <strong>
- * &nbsp;    // Effectuer le traçage ici en coordonnées logiques.
- * &nbsp;    // Par défaut, l'axe des <var>y</var> pointera vers
- * &nbsp;    // le haut.  Pour écrire du texte, il faut utiliser
- * &nbsp;    // la transformation affine 'texteTr' (donc écrivez
- * &nbsp;    // le texte avant la ligne 'graphics.transform({link #zoom})'
- * &nbsp;    // ou après la ligne 'graphics.setTransform(textTr)').
- * &nbsp;    </strong>
- * &nbsp;    graphics.setTransform(textTr);
- * &nbsp;}
- * </pre></blockquote>
+ *       somewhere in its code in order to perform the zoom. Note that, by
+ *       default, the {@linkplain #zoom} is initialized in such a way that
+ *       the <var>y</var> axis points upwards, like the convention in
+ *       geometry. This is as opposed to the default Java2D axis orientation,
+ *       where the <var>y</var> axis points downwards. If the implementation
+ *       wants to paint text, it should do this with the default transform.
+ *       Example:
  *
- * Par défaut, la transformation affine {@link #zoom} sera initialisée de façon
- * à ce que les coordonnées logiques retournées par {@link #getPreferredArea}
- * couvrent l'ensemble de la surface visible de <code>ZoomPane</code>. Il est
- * possible d'indiquer à <code>ZoomPane</code> qu'il doit laisser une marge
- * libre autour de son contenu en spécifiant un cadre vide.
+ *       <pre>
+ *       &nbsp;protected void paintComponent(final Graphics2D graphics) {
+ *       &nbsp;    graphics.clip({link #getZoomableBounds getZoomableBounds}(null));
+ *       &nbsp;    final AffineTransform textTr=graphics.getTransform();
+ *       &nbsp;    graphics.transform({link #zoom});
+ *       &nbsp;    <strong>
+ *       &nbsp;    // Paint the widget here, using logical coordinates. The
+ *       &nbsp;    // coordinate system is the same as {@link #getArea()}'s one.
+ *       &nbsp;    </strong>
+ *       &nbsp;    graphics.setTransform(textTr);
+ *       &nbsp;    <strong>
+ *       &nbsp;    // Paint any text here, in <em>pixel</em> coordinates.
+ *       &nbsp;    </strong>
+ *       &nbsp;}
+ *       </pre></li>
+ * </ul>
  *
- * <blockquote><pre>
+ * Subclass can also override {@link #reset}, which sets up the initial
+ * {@linkplain #zoom}. The default implementation sets up the initial zoom
+ * in such a way that the following relations are approximately held:
+ *
+ * <blockquote>
+ * Logical coordinates provided by {@link #getPreferredArea()},
+ * after an affine transform described by {@link #zoom},
+ * match pixel coordinates provided by {@link #getZoomableBounds(Rectangle)}.
+ * </blockquote>
+ *
+ * The "preferred area" is initially the same as {@link #getArea()}. The user
+ * can specify a different preferred area with {@link #setPreferredArea}. The
+ * user can also reduce zoomable bounds by inserting an empty border around the
+ * widget,
+ * e.g.:
+ *
+ * <pre>
  * &nbsp;setBorder(BorderFactory.createEmptyBorder(top, left, bottom, right));
- * </pre></blockquote>
+ * </pre>
  *
- * Quelle que soit l'action faite par l'utilisateur, toutes les commandes de
- * zooms sont traduites par des appels à la méthode {@link #transform}. Les
- * classes dérivées peuvent redéfinir cette méthode si elles veulent prendre
- * des actions particulières pendant les zooms, par exemple modifier les
- * minimums et maximums des axes d'un graphique. Le tableau ci-dessous énumère
- * les touches du clavier affectées aux zooms:
+ * <p>&nbsp;</p>
+ * <h2>Zoom actions</h2>
+ * Whatever action is performed by the user, all zoom commands are translated
+ * by calls to {@link #transform}. Derived classes can redefine this method
+ * if they want to take particular actions during zooms, for example, modifying
+ * the minimum and maximum of a graph's axes.  The table below shows the 
+ * keyboard presses assigned to each zoom:
  *
  * <P><TABLE ALIGN=CENTER BORDER=2>
- * <TR><TD><IMG SRC="doc-files/keyboard/up.png"></TD>        <TD>Défilement vers le haut</TD>   <TD><code>"Up"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/down.png"></TD>      <TD>Défilement vers le bas</TD>    <TD><code>"Down"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/left.png"></TD>      <TD>Défilement vers la gauche</TD> <TD><code>"Left"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/right.png"></TD>     <TD>Défilement vers la droite</TD> <TD><code>"Right"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/pageDown.png"></TD>  <TD>Zoom avant</TD>                <TD><code>"ZoomIn"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/pageUp.png"></TD>    <TD>Zoom arrière</TD>              <TD><code>"ZoomOut"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/end.png"></TD>       <TD>Zoom rapproché</TD>            <TD><code>"Zoom"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/home.png"></TD>      <TD>Zoom par défaut</TD>           <TD><code>"Reset"</code></TD></TR>
- * <TR><TD>Ctrl+<IMG SRC="doc-files/keyboard/left.png"></TD> <TD>Rotation dans le sens inverse des aiguilles d'une montre</TD><TD><code>"RotateLeft"</code></TD></TR>
- * <TR><TD>Ctrl+<IMG SRC="doc-files/keyboard/right.png"></TD><TD>Rotation dans le sens des aiguilles d'une montre</TD>        <TD><code>"RotateRight"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/up.png"></TD>        <TD>Scroll up</TD>   <TD><code>"Up"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/down.png"></TD>      <TD>Scroll down</TD>    <TD><code>"Down"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/left.png"></TD>      <TD>Scroll left</TD> <TD><code>"Left"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/right.png"></TD>     <TD>Scroll right</TD> <TD><code>"Right"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/pageDown.png"></TD>  <TD>Zoom in</TD>                <TD><code>"ZoomIn"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/pageUp.png"></TD>    <TD>Zoom out</TD>              <TD><code>"ZoomOut"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/end.png"></TD>       <TD>Zoom</TD>            <TD><code>"Zoom"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/home.png"></TD>      <TD>Default zoom</TD>           <TD><code>"Reset"</code></TD></TR>
+ * <TR><TD>Ctrl+<IMG SRC="doc-files/keyboard/left.png"></TD> <TD>Anti-clockwise rotation</TD><TD><code>"RotateLeft"</code></TD></TR>
+ * <TR><TD>Ctrl+<IMG SRC="doc-files/keyboard/right.png"></TD><TD>Clockwise rotation</TD>        <TD><code>"RotateRight"</code></TD></TR>
  * </TABLE></P>
  *
- * Dans ce tableau, la dernière colonne donne les chaînes sous lesquelles
- * sont identifiées les différentes actions qui gèrent les zooms. Par exemple
- * pour obtenir l'action qui effectue le zoom avant, on pourrait écrire
+ * In this table, the last column gives the Strings by which the different
+ * actions which manage the zooms. For example, to zoom in, we must write
  * <code>{@link #getActionMap() getActionMap()}.get("ZoomIn")</code>.
  *
- * <p><strong>Note: Les objets {@link JScrollPane} ne conviennent pas pour
- * ajouter des barres de défilements à un objet <code>ZoomPane</code>.</strong>
- * Utilisez plutôt la méthode {@link #createScrollPane}. Encore une fois, tous
- * les déplacements faits par l'usager sur les barres de défilements seront
- * traduits par des appels à {@link #transform}. Notez aussi que si
- * {@link #setPreferredSize} n'a pas été appelée avec une dimension non-nulle,
- * alors par défaut {@link #getPreferredSize} retourne la taille (en pixels)
- * qu'occuperait la composante pour être affichée complètement avec le zoom
- * {@link #zoom} courant.</p>
+ * <p><strong>Note: {@link JScrollPane} objects are not suitable for adding
+ * scrollbars to a <code>ZoomPane</code>object.</strong>
+ * Instead, use {@link #createScrollPane}. Once more, all movements performed
+ * by the user through the scrollbars will be translated by calls to
+ * {@link #transform}.</p>
  *
  * @version 1.0
  * @author Martin Desruisseaux
  */
 public abstract class ZoomPane extends JComponent {
     /**
-     * Largeur et hauteur minimale de cette composante.
+     * Minimum width and height of this component.
      */
     private static final int MINIMUM_SIZE=10;
 
     /**
-     * Largeur et hauteur par défaut de cette composante.
+     * Default width and height of this component.
      */
     private static final int DEFAULT_SIZE = 400;
 
     /**
-     * Largeur et hauteur par défaut de la loupe.
+     * Default width and height of the magnifying glass.
      */
     private static final int DEFAULT_MAGNIFIER_SIZE = 150;
 
     /**
-     * Constante désignant les changements d'échelles selon l'axe des <var>x</var>.
+     * Constant indicating the scale changes on the <var>x</var> axis.
      */
     public static final int SCALE_X = (1 << 0);
 
     /**
-     * Constante désignant les changements d'échelles selon l'axe des <var>y</var>.
+     * Constant indicating the scale changes on the <var>y</var> axis.
      */
     public static final int SCALE_Y = (1 << 1);
 
     /**
-     * Constante désignant les changements d'échelles selon les deux axes
-     * <var>x</var> et <var>y</var>, avec comme condition supplémentaires
-     * que ces changements doivent être uniformes. Ce drapeau implique
-     * {@link #SCALE_X} et {@link #SCALE_Y}. L'inverse toutefois
-     * (<code>{@link #SCALE_X}|{@link #SCALE_Y}</code>) n'implique pas
+     * Constant indicating the scale changes on the <var>x</var> and
+     * <var>y</var> axes, with the added condition that these changes
+     * must be uniform.  This flag combines {@link #SCALE_X} and
+     * {@link #SCALE_Y}. The inverse, however, 
+     * (<code>{@link #SCALE_X}|{@link #SCALE_Y}</code>) doesn't involve
      * <code>UNIFORM_SCALE</code>.
      */
     public static final int UNIFORM_SCALE = SCALE_X | SCALE_Y | (1 << 2);
 
     /**
-     * Constante désignant une translations selon l'axe des <var>x</var>.
+     * Constant indicating the translations on the <var>x</var> axis.
      */
     public static final int TRANSLATE_X = (1 << 3);
 
     /**
-     * Constante désignant une translations selon l'axe des <var>y</var>.
+     * Constant indicating the translations on the <var>y</var> axis.
      */
     public static final int TRANSLATE_Y = (1 << 4);
 
     /**
-     * Constante désignant une rotation.
+     * Constant indicating a rotation.
      */
     public static final int ROTATE  = (1 << 5);
 
     /**
-     * Constante désignant le rétablissement de l'échelle, rotation et
-     * translation à une valeur par défaut qui fait apparaître la totalité
-     * du graphique dans la fenêtre. Cette commande se traduira par un appel
-     * à la méthode {@link #reset}.
+     * Constant indicating the resetting of scale, rotation and translation
+     * to a default value which makes the whole graphic appear in a window.
+     * This command is translated by a call to {@link #reset}.
      */
     public static final int RESET = (1 << 6);
 
     /**
-     * Constante désignant un zoom par défaut proche du zoom maximal permis.
-     * Ce zoom doit permettre de voir les détails du graphique sans être
-     * exagérément gros.
-     * Note: ce drapeau n'aura pas d'effet si au moins un des drapeaux
-     * {@link #SCALE_X} et {@link #SCALE_Y} n'est pas aussi spécifié.
+     * Constant indicating default zoom close to the maximum permitted zoom.
+     * This zoom should allow details of the graphic to be seen without being
+     * overly big.
+     * Note: this flag will only have any effect if at least one of the
+     * {@link #SCALE_X} and {@link #SCALE_Y} flags is not also specified.
      */
     public static final int DEFAULT_ZOOM = (1 << 7);
 
     /**
-     * Masque représentant la combinaison de tous les drapeaux.
+     * Mask representing the combination of all flags.
      */
     private static final int MASK = SCALE_X | SCALE_Y | UNIFORM_SCALE | TRANSLATE_X | TRANSLATE_Y | ROTATE | RESET | DEFAULT_ZOOM;
 
     /**
-     * Nombre de pixels par lequel déplacer le contenu
-     * de <code>ZoomPane</code> lors des translations.
+     * Number of pixels by which to move the content of
+     * <code>ZoomPane</code> during translations.
      */
     private static final double AMOUNT_TRANSLATE = 10;
 
     /**
-     * Facteur de zoom. Ce facteur
-     * doit être supérieur à 1.
+     * Zoom factor.  This factor must be greater than 1.
      */
     private static final double AMOUNT_SCALE = 1.03125;
 
     /**
-     * Angle de rotation.
+     * Rotation angle.
      */
     private static final double AMOUNT_ROTATE = Math.PI/90;
 
     /**
-     * Facteur par lequel multiplier les nombres de {@link #ACTION_AMOUNT}
-     * lorsque la touche "Shift" est tenue enfoncée.
+     * Factor by which to multiply the {@link #ACTION_AMOUNT} numbers
+     * when the "Shift" key is kept pressed.
      */
     private static final double ENHANCEMENT_FACTOR=7.5;
 
-    /** Drapeau indiquant qu'un traçage est en cours.             */ private static final int IS_PAINTING           = 0;
-    /** Drapeau indiquant qu'un traçage de la loupe est en cours. */ private static final int IS_PAINTING_MAGNIFIER = 1;
-    /** Drapeau indiquant qu'une impression est en cours.         */ private static final int IS_PRINTING           = 2;
+    /**
+     * Flag indicating that a paint is in progress.
+     */
+    private static final int IS_PAINTING = 0;
 
     /**
-     * Liste des clés qui identifiront les actions servant à faire des zooms.
-     * Ces clés identifient aussi la ressources à utiliser pour faire apparaître
-     * la description dans la langue de l'utilisateur.
+     * Flag indicating that a paint of the magnifying glass is in progress.
+     */
+    private static final int IS_PAINTING_MAGNIFIER = 1;
+
+    /**
+     * Flat indicating that a print is in progress.
+     */
+    private static final int IS_PRINTING = 2;
+
+    /**
+     * List of keys which will identify the zoom actions.
+     * These keys also identify the resources to use in order to make the 
+     * description appear in the user's language.
      */
     private static final String[] ACTION_ID = {
         /*[0] Left        */ "Left",
@@ -329,8 +350,8 @@ public abstract class ZoomPane extends JComponent {
     };
 
     /**
-     * Liste des clés des ressources, pour construire
-     * des menus dans la langue de l'utilisateur.
+     * List of resource keys, to construct the menus
+     * in the user's language.
      */
     private static final int[] RESOURCE_ID = {
         /*[0] Left        */ ResourceKeys.LEFT,
@@ -346,13 +367,12 @@ public abstract class ZoomPane extends JComponent {
     };
 
     /**
-     * Liste des codes des touches utilisées par défaut pour faire des zooms.
-     * Les éléments de ce tableau vont par paires. Les index pairs désignent
-     * le code de la touche du clavier, tandis que les index impairs désignent
-     * le modificateur (CTRL ou SHIFT par exemple). Pour obtenir l'objet
-     * {@link KeyStroke} pour une action numérotée <var>i</var>, on peut
-     * utiliser le code suivant:
-     *
+     * List of default keystrokes used to perform zooms.
+     * The elements of this table go in pairs.  The even indexes indicate
+     * the keystroke whilst the odd indexes indicate the modifier
+     * (CTRL or SHIFT for example). To obtain the {@link KeyStroke} object
+     * for a numbered action <var>i</var>, we can use the following code:
+     * 
      * <blockquote><pre>
      * final int key=DEFAULT_KEYBOARD[(i << 1)+0];
      * final int mdf=DEFAULT_KEYBOARD[(i << 1)+1];
@@ -373,8 +393,8 @@ public abstract class ZoomPane extends JComponent {
     };
 
     /**
-     * Connstantes indiquant le type d'action à
-     * effectuer: translation, zoom ou rotation.
+     * Connstants indicating the type of action to perform:
+     * translation, zoom or rotation.
      */
     private static final short[] ACTION_TYPE = {
         /*[0] Left        */ (short) TRANSLATE_X,
@@ -390,8 +410,8 @@ public abstract class ZoomPane extends JComponent {
     };
 
     /**
-     * Quantités par lesquelles translater, zoomer
-     * ou tourner le contenu de la fenêtre.
+     * Amounts by which to translate, zoom or rotate
+     * the contents of the window.
      */
     private static final double[] ACTION_AMOUNT = {
         /*[0] Left        */  +AMOUNT_TRANSLATE,
@@ -407,9 +427,8 @@ public abstract class ZoomPane extends JComponent {
     };
 
     /**
-     * Liste des types d'opérations formant un groupe. Lors de la création
-     * des menus, les différents groupes seront séparés par un séparateur
-     * de menus.
+     * List of operation types forming a group.  During creation of the
+     * menus, the different groups will be separated by a menu separator.
      */
     private static final short[] GROUP = {
         (short) (TRANSLATE_X | TRANSLATE_Y),
@@ -418,8 +437,8 @@ public abstract class ZoomPane extends JComponent {
     };
 
     /**
-     * Objet <code>ComponentUI</code> ayant la charge d'obtenir la taille
-     * préférée d'un objet <code>ZoomPane</code> ainsi que de le dessiner.
+     * <code>ComponentUI</code> object in charge of obtaining the preferred
+     * size of a <code>ZoomPane</code> object as well as drawing it.
      */
     private static final ComponentUI UI = new ComponentUI() {
         /**
@@ -431,7 +450,7 @@ public abstract class ZoomPane extends JComponent {
 
         /**
          * Returns the maximum size. We use the preferred
-         * size as a defailt maximum size.
+         * size as a default maximum size.
          */
         public Dimension getMaximumSize(final JComponent c) {
             return getPreferredSize(c);
@@ -447,9 +466,9 @@ public abstract class ZoomPane extends JComponent {
 
         /**
          * Override {@link ComponentUI#update} in order to handle painting of
-         * magnifier, which is a special case. Since magnifier is painted just
-         * after the normal component, we don't want to clear the background
-         * before painting magnifier.
+         * magnifying glass, which is a special case. Since the magnifying
+         * glass is painted just after the normal component, we don't want to
+         * clear the background before painting it.
          */
         public void update(final Graphics g, final JComponent c) {
             switch (((ZoomPane) c).flag) {
@@ -459,7 +478,7 @@ public abstract class ZoomPane extends JComponent {
         }
 
         /**
-         * Paint the component. This method basically delegate the
+         * Paint the component. This method basically delegates the
          * work to {@link ZoomPane#paintComponent(Graphics2D)}.
          */
         public void paint(final Graphics g, final JComponent c) {
@@ -475,17 +494,17 @@ public abstract class ZoomPane extends JComponent {
     };
 
     /**
-     * Objet ayant la charge de dessiner une boîte représentant la sélection de
-     * l'utilisateur. Nous retenons une référence vers cet objet afin de pouvoir
-     * l'enregistrer et le retirer à volonté de la liste des objets intéressés à
-     * être informés des mouvements de la souris.
+     * Object in charge of drawing a box representing the user's selection.  We
+     * retain a reference to this object in order to be able to register it and
+     * extract it at will from the list of objects interested in being notified
+     * of the mouse movements.
      */
     private final MouseListener mouseSelectionTracker=new MouseSelectionTracker()
     {
         /**
          * Returns the selection shape. This is usually a rectangle, but could
          * very well be an ellipse or any other kind of geometric shape. This
-         * method ask to {@link ZoomPane#getMouseSelectionShape} for the shape.
+         * method asks {@link ZoomPane#getMouseSelectionShape} for the shape.
          */
         protected Shape getModel(final MouseEvent event) {
             final Point2D point=new Point2D.Double(event.getX(), event.getY());
@@ -498,9 +517,9 @@ public abstract class ZoomPane extends JComponent {
         }
 
         /**
-         * Invoked when the user finished the selection. This method will
+         * Invoked when the user finishes the selection. This method will
          * delegate the action to {@link ZoomPane#mouseSelectionPerformed}.
-         * Default implementation will performs a zoom.
+         * Default implementation will perform a zoom.
          */
         protected void selectionPerformed(int ox, int oy, int px, int py) {
             try {
@@ -515,11 +534,11 @@ public abstract class ZoomPane extends JComponent {
     };
 
     /**
-     * Classe chargée d'être à l'écoute de différents évènements nécessaires au
-     * bon fonctionnement de {@link ZoomPane}. Cette classe surveillera les
-     * clics de la souris (pour eventuellement prendre le focus ou faire
-     * apparaître un menu contextuel), surveillera les changements de taille de
-     * la composante (pour ajuster le zoom), etc.
+     * Class responsible for listening out for the different events necessary
+     * for the smooth working of {@link ZoomPane}. This class will listen out
+     * for mouse clicks (in order to eventually claim the focus or make a
+     * contextual menu appear).  It will listen out for changes in the size
+     * of the component (to adjust the zoom), etc.
      *
      * @version 1.0
      * @author Martin Desruisseaux
@@ -536,41 +555,42 @@ public abstract class ZoomPane extends JComponent {
     }
 
     /**
-     * Transformation affine contenant les facteurs de zooms, de translations
-     * et de rotations. Lors du traçage d'une composante, cette transformation
-     * affine doit être combinée par un appel à
+     * Affine transform containing zoom factors, translations and rotations.
+     * During the painting of a component, this affine transform should be
+     * combined with a call to 
      * <code>{@link Graphics2D#transform(AffineTransform) Graphics2D.transform}(zoom)</code>.
      */
     protected final AffineTransform zoom=new AffineTransform();
 
     /**
-     * Indique si le zoom est le résultat de l'opération {@link #reset}.
+     * Indicates whether the zoom is the result of a {@link #reset} operation.
      */
     private boolean zoomIsReset;
 
     /**
-     * Types de zooms permis. Ce champ doit être une combinaison des constantes
-     * {@link #SCALE_X}, {@link #SCALE_Y}, {@link #TRANSLATE_X}, {@link #TRANSLATE_Y},
-     * {@link #ROTATE}, {@link #RESET} et {@link #DEFAULT_ZOOM}.
+     * Types of zoom permitted.  This field should be a combination of the
+     * constants {@link #SCALE_X}, {@link #SCALE_Y}, {@link #TRANSLATE_X},
+     * {@link #TRANSLATE_Y}, {@link #ROTATE}, {@link #RESET} and
+     * {@link #DEFAULT_ZOOM}.
      */
     private final int type;
 
     /**
-     * Stratégie à suivre pour calculer la transformation affine initiale.
-     * La valeur <code>true</code> indique que le contenu doit remplir tout
-     * le panneau, quitte à perdre des bouts sur certains bords. La valeur
-     * <code>false</code> indique au contraire qu'on doit faire apparaître
-     * tout le contenu, quitte à laisser des espaces vides dans le panneau.
+     * Strategy to follow in order to calculate the initial affine transform.
+     * The value <code>true</code> indicates that the content should fill the
+     * entire panel, even if it means losing some of the edges. The value
+     * <code>false</code> indicates, on the contrary, that we should display
+     * the entire contents, even if it means leaving blank spaces in the panel.
      */
     private boolean fillPanel=false;
 
     /**
-     * Rectangle représentant les coordonnées logiques de la région visible.
-     * Cette information est utilisée pour conserver la même région lorsque la
-     * taille ou la position de la composante change. Initialement, ce rectangle
-     * est vide. Il ne deviendra non-vide si {@link #reset} est appelée et que
-     * {@link #getPreferredArea} et {@link #getZoomableBounds} ont tout deux
-     * retourné des coordonnées valides.
+     * Rectangle representing the logical coordinates of the visible region.
+     * This information is used to keep the same region when the size or 
+     * position of the component changes.  Initially, this rectangle is empty.
+     * It will only stop being empty if {@link #reset} is called and 
+     * {@link #getPreferredArea} and {@link #getZoomableBounds} have both 
+     * returned valid coordinates.
      *
      * @see #getVisibleArea
      * @see #setVisibleArea
@@ -578,9 +598,9 @@ public abstract class ZoomPane extends JComponent {
     private final Rectangle2D visibleArea=new Rectangle2D.Double();
 
     /**
-     * Rectangle représentant les coordonnées logiques de la région à faire
-     * apparaître initialement, la première fois que la fenêtre est affichée.
-     * La valeur <code>null</code> indique de prendre {@link #getArea}.
+     * Rectangle representing the logical coordinates of the region to 
+     * display initially, the first time that the window is displayed.
+     * The value <code>null</code> indicates a call to {@link #getArea}.
      *
      * @see #getPreferredArea
      * @see #setPreferredArea
@@ -588,26 +608,25 @@ public abstract class ZoomPane extends JComponent {
     private Rectangle2D preferredArea;
 
     /**
-     * Menu à faire apparaître lorsque l'utilisateur clique avec le bouton
-     * droit de la souris. Ce menu contiendra des options de navigations.
+     * Menu to display when the user right clicks with their mouse.  This menu
+     * will contain the navigation options.
      *
      * @see #getPopupMenu
      */
     private transient PointPopupMenu navigationPopupMenu;
 
     /**
-     * Drapeau indiquant qu'elle partie du traçage est en cours. Les valeurs
-     * permises sont {@link #IS_PAINTING}, {@link #IS_PAINTING_MAGNIFIER} et
+     * Flag indicating which part of the paint is in progress.  The permitted
+     * values are {@link #IS_PAINTING}, {@link #IS_PAINTING_MAGNIFIER} and
      * {@link #IS_PRINTING}.
      */
     private transient int flag;
 
     /**
-     * Indique si cet objet <code>ZoomPane</code> doit être redessiné pendant
-     * que l'utilisateur déplace le glissoir des barres de défilement. La valeur
-     * par défaut est <code>false</code>, ce qui signifie que <code>ZoomPane</code>
-     * attendra que l'utilisateur ait relaché le glissoir avant de redessiner la
-     * composante.
+     * Indicates if this <code>ZoomPane</code> object should be repainted when
+     * the user adjusts the scrollbars.  The default value is <code>false</code>,
+     * which means that <code>ZoomPane</code> will wait until the user has 
+     * released the scrollbar before repainting the component.
      *
      * @see #isPaintingWhileAdjusting
      * @see #setPaintingWhileAdjusting
@@ -615,53 +634,52 @@ public abstract class ZoomPane extends JComponent {
     private boolean paintingWhileAdjusting;
 
     /**
-     * Rectangle dans lequel placer les coordonnées retournées par
-     * {@link #getZoomableBounds}. Cet objet est défini afin d'éviter
-     * d'allouer trop souvent des objets {@link Rectangle}.
+     * Rectangle in which to place the coordinates returned by
+     * {@link #getZoomableBounds}. This object is defined in order to avoid
+     * allocating objects too often {@link Rectangle}.
      */
     private transient Rectangle cachedBounds;
 
     /**
-     * Objet dans lequel enregistrer le résultat de {@link #getInsets}.
-     * Utilisé pour éviter que {@link #getZoomableBounds} n'alloue trop
-     * souvent des objets {@link Insets}.
+     * Object in which to record the result of {@link #getInsets}.
+     * Used in order to avoid {@link #getZoomableBounds} allocating
+     * {@link Insets} objects too often.
      */
     private transient Insets cachedInsets;
 
     /**
-     * Indique si l'usager est autorisé à faire apparaître
-     * la loupe. La valeur par défaut est <code>true</code>.
+     * Indicates whether the user is authorised to display
+     * the magnifying glass.  The default value is <code>true</code>.
      */
     private boolean magnifierEnabled=true;
 
     /**
-     * Facteur d'agrandissement à l'intérieur de la loupe.
-     * Ce facteur doit être supérieur à 1.
+     * Magnification factor inside the magnifying glass.
+     * This factor must be greater than 1.
      */
     private double magnifierPower=4;
 
     /**
-     * Forme géométrique dans laquelle faire l'agrandissement. Les
-     * coordonnées de cette forme doivent être exprimées en pixels.
-     * La valeur <code>null</code> signifie qu'aucune loupe ne sera
-     * dessinée.
+     * Geometric shape in which to magnify.  The coordinates of this
+     * shape should be expressed in pixels.  The value <code>null</code>
+     * means that no magnifying glass will be drawn.
      */
     private transient MouseReshapeTracker magnifier;
 
     /**
-     * Couleur de remplissage de la loupe.
+     * Colour with which to tint magnifying glass.
      */
     private final Color magnifierColor=new Color(197,204,221);
 
     /**
-     * Couleur du contour de la loupe.
+     * Colour of the magnifying glass's border.
      */
     private final Color magnifierBorder=new Color(102,102,153);
 
     /**
      * Construct a <code>ZoomPane</code>.
      *
-     * @param  type Allowed zoom type. It can be a bitwise combinaison of the
+     * @param  type Allowed zoom type. It can be a bitwise combination of the
      *         following constants:
      *             {@link #SCALE_X}, {@link #SCALE_Y}, {@link #UNIFORM_SCALE},
      *             {@link #TRANSLATE_X}, {@link #TRANSLATE_Y},
@@ -686,7 +704,7 @@ public abstract class ZoomPane extends JComponent {
                 final KeyStroke stroke = KeyStroke.getKeyStroke(keyboard, modifier);
                 final Action    action = new AbstractAction() {
                     /*
-                     * Action to perform when a keyboard has been it
+                     * Action to perform when a key has been hit
                      * or the mouse clicked.
                      */
                     public void actionPerformed(final ActionEvent event) {
@@ -718,11 +736,11 @@ public abstract class ZoomPane extends JComponent {
             }
         }
         /*
-         * Ajoute un objet qui aura la charge de surveiller
-         * les clics de la souris pour faire apparaître un
-         * menu contextuel, ainsi qu'un objet qui aura la
-         * charge de surveiller les mouvements de la souris
-         * pour appliquer des zooms.
+         * Adds an object which will be in charge of listening
+         * for mouse clicks in order to display a contextual
+         * menu, as well as an object which will be in charge of
+         * listening for mouse movements in order to perform
+         * zooms.
          */
         final Listeners listeners=new Listeners();
         addComponentListener       (listeners);
@@ -736,36 +754,35 @@ public abstract class ZoomPane extends JComponent {
     }
 
     /**
-     * Réinitialise la transformation affine {@link #zoom} de façon à annuler
-     * tout zoom, rotation et translation. L'implémentation par défait
-     * initialise la transformation affine {@link #zoom} de façon à faire
-     * pointer l'axe des <var>y</var> vers le haut et à faire apparaître dans
-     * le panneau l'ensemble de la région couverte par les coordonnées logiques
-     * {@link #getPreferredArea}.
-     * <br><br>
-     * Note pour les classes dérivées: <code>reset()</code> est <u>la seule</u>
-     * méthode de <code>ZoomPane</code> qui ne doit pas passer par
-     * {@link #transform(AffineTransform)} pour modifier le zoom. Cette
-     * exception est nécessaire pour éviter de tomber dans une boucle sans fin.
+     * Reinitializes the affine transform {@link #zoom} in order to cancel
+     * any zoom, rotation or translation.  The default implementation 
+     * initializes the affine transform {@link #zoom} in order to make the
+     * <var>y</var> axis point upwards and make the whole of the region covered
+     * by the {@link #getPreferredArea} logical coordinates appear in the panel.
+     *<br><br>
+     * Note: for the derived classes: <code>reset()</code> is <u>the only</u>
+     * method of <code>ZoomPane</code> which doesn't have to pass through
+     * {@link #transform(AffineTransform)} to modify the zoom.  This exception
+     * is necessary to avoid falling into an infinite loop.
      */
     public void reset() {
         reset(getZoomableBounds(), true);
     }
 
     /**
-     * Réinitialise la transformation affine {@link #zoom} de façon à annuler
-     * tout zoom, rotation et translation. L'argument <code>yAxisUpward</code>
-     * indique si l'axe des <var>y</var> doit pointer vers le haut. La valeur
-     * <code>false</code> le laisse pointer vers le bas. Cette méthode est
-     * offerte par commodité pour les classes dérivées qui souhaite redéfinir
+     * Reinitializes the affine transform {@link #zoom} in order to cancel
+     * any zoom, rotation or translation. The argument <code>yAxisUpward</code>
+     * indicates whether the <var>y</var> axis should point upwards.  The value
+     * <code>false</code> lets it point downwards. This method is offered
+     * for convenience sake for derived classes which want to redefine
      * {@link #reset()}.
      *
-     * @param zoomableBounds Coordonnées en pixels de la région de l'écran dans
-     *                       laquelle dessiner. Cet argument sera habituellement
+     * @param zoomableBounds Coordinates, in pixels, of the screen space in
+     *                       which to draw.  This argument will usually be
      *                       <code>{@link #getZoomableBounds(Rectangle)
      *                                     getZoomableBounds}(null)</code>.
-     * @param yAxisUpward    <code>true</code> s'il faut faire pointer l'axe des
-     *                       <var>y</var> vers le haut plutôt que vers le bas.
+     * @param yAxisUpward    <code>true</code> if the <var>y</var> axis should
+     *                       point upwards rather than downwards.
      */
     protected final void reset(final Rectangle zoomableBounds,
                                final boolean yAxisUpward) {
@@ -789,8 +806,9 @@ public abstract class ZoomPane extends JComponent {
                 fireZoomChanged0  (change);
                 getVisibleArea(zoomableBounds); // Force update of 'visibleArea'
                 /*
-                 * Les trois versions privées 'fireZoomPane0', 'getVisibleArea' et 'setVisibleArea' évitent
-                 * d'appeller d'autres méthodes de ZoomPane afin de ne pas tomber dans une boucle sans fin.
+                 * The three private versions 'fireZoomPane0', 'getVisibleArea'
+                 * and 'setVisibleArea' avoid calling other methods of ZoomPane
+                 * so as not to end up in an infinite loop.
                  */
                 repaint(zoomableBounds);
                 zoomIsReset=true;
@@ -801,10 +819,10 @@ public abstract class ZoomPane extends JComponent {
 
     /**
      * Set the policy for the zoom when the content is initially drawn
-     * or when user reset the zoom. Value <code>true</code> means that
-     * the panel should be initially completly filled, even if the content
-     * partially falls outside the panel's bound. Value <code>false</code>
-     * means that the full content should apear in the panel, even if some
+     * or when the user resets the zoom. Value <code>true</code> means that
+     * the panel should initially be completely filled, even if the content
+     * partially falls outside the panel's bounds. Value <code>false</code>
+     * means that the full content should appear in the panel, even if some
      * space is not used. Default value is <code>false</code>.
      */
     protected void setResetPolicy(final boolean fill) {
@@ -813,52 +831,52 @@ public abstract class ZoomPane extends JComponent {
 
     /**
      * Returns a bounding box that contains the logical coordinates of all
-     * data that may be displayed in this <code>ZoomPane</code>. For example
-     * if this <code>ZoomPane</code> will display a geographic map, then
-     * this method should returns the map's bounds in degrees of latitude
-     * and longitude. This bounding box is completly independent of any
-     * current zoom setting and will changes only if the content changes.
+     * data that may be displayed in this <code>ZoomPane</code>. For example,
+     * if this <code>ZoomPane</code> is to display a geographic map, then
+     * this method should return the map's bounds in degrees of latitude
+     * and longitude. This bounding box is completely independent of any
+     * current zoom setting and will change only if the content changes.
      *
-     * @return A bounding box for the logical coordinates of every content
-     *         that is going to be drawn on this <code>ZoomPane</code>. If
-     *         this bounding box is unknow, then this method can returns
-     *         <code>null</code> (but this is not recommanded).
+     * @return A bounding box for the logical coordinates of all contents
+     *         that are going to be drawn in this <code>ZoomPane</code>. If
+     *         this bounding box is unknown, then this method can return
+     *         <code>null</code> (but this is not recommended).
      */
     public abstract Rectangle2D getArea();
 
     /**
-     * Indique si les coordonnées logiques d'une région ont été définies. Cette
-     * méthode retourne <code>true</code> si {@link #setPreferredArea} a été
-     * appelée avec un argument non-nul.
+     * Indicates whether the logical coordinates of a region have been defined.
+     * This method returns <code>true</code> if {@link #setPreferredArea} has
+     * been called with a non null argument.
      */
     public final boolean hasPreferredArea() {
         return preferredArea!=null;
     }
 
     /**
-     * Retourne les coordonnées logiques de la région que l'on souhaite voir
-     * affichée la première fois que <code>ZoomPane</code> apparaîtra à l'écran.
-     * Cette région sera aussi affichée chaque fois qu'est appelée la méthode
-     * {link #reset}. L'implémentation par défaut procède comme suit:
+     * Returns the logical coordinates of the region that we want to see
+     * displayed the first time that <code>ZoomPane</code> appears on the
+     * screen.  This region will also be displayed each time the method
+     * {link #reset} is called. The default implementation goes as follows:
      *
      * <ul>
-     *   <li>Si une région déjà été définie par un appel à {@link #setPreferredArea},
-     *       alors cette région sera retournée.</li>
-     *   <li>Sinon, la région complète {@link #getArea} sera retournée.</li>
+     *   <li>If a region has already been defined by a call to
+     *       {@link #setPreferredArea}, this region will be returned.</li>
+     *   <li>If not, the whole region {@link #getArea} will be returned.</li>
      * </ul>
      *
-     * @return Les coordonnées logiques de la région à afficher initialement,
-     *         ou <code>null</code> si ces coordonnées sont inconnues.
+     * @return The logical coordinates of the region to be initially displayed,
+     *         or <code>null</code> if these coordinates are unknown.
      */
     public final Rectangle2D getPreferredArea() {
         return (preferredArea!=null) ? (Rectangle2D) preferredArea.clone() : getArea();
     }
 
     /**
-     * Spécifie les coordonnées logiques de la région que l'on souhaite voir
-     * affichée la première fois que <code>ZoomPane</code> apparaîtra à l'écran.
-     * Cette région sera aussi affichée chaque fois qu'est appelée la méthode
-     * {link #reset}.
+     * Specifies the logical coordinates of the region that we want to see
+     * displayed the first time that <code>ZoomPane</code> appears on the screen.
+     * This region will also be displayed the first time that the method
+     * {link #reset} is called.
      */
     public final void setPreferredArea(final Rectangle2D area) {
         if (area!=null) {
@@ -880,17 +898,17 @@ public abstract class ZoomPane extends JComponent {
     }
 
     /**
-     * Retourne les coordonnées logiques de la région visible à l'écran. Dans le
-     * cas d'une carte géographique par exemple, les coordonnées logiques
-     * peuvent être exprimées en degrés de latitudes/longitudes ou encore
-     * en mètres si une projection cartographique a été définie.
+     * Returns the logical coordinates of the region visible on the screen.
+     * In the case of a geographic map, for example, the logical coordinates
+     * can be expressed in degrees of latitude/longitude or even in metres
+     * if a cartographic projection has been defined.
      */
     public final Rectangle2D getVisibleArea() {
         return getVisibleArea(getZoomableBounds());
     }
 
     /**
-     * Implémentation de {@link #getVisibleArea()}.
+     * Implementation of {@link #getVisibleArea()}.
      */
     private Rectangle2D getVisibleArea(final Rectangle zoomableBounds) {
         if (zoomableBounds.isEmpty()) {
@@ -908,13 +926,13 @@ public abstract class ZoomPane extends JComponent {
     }
 
     /**
-     * Définit les limites de la partie visible, en coordonnées logiques. Cette
-     * méthode modifiera le zoom et la translation de façon à faire apparaître
-     * la région spécifiée. Si {@link #zoom} contient une rotation, cette
-     * rotation ne sera pas modifiée.
+     * Defines the limits of the visible part, in logical coordinates.  This
+     * method will modify the zoom and the translation in order to display the
+     * specified region. If {@link #zoom} contains a rotation, this rotation
+     * will not be modified.
      *
-     * @param  logicalBounds Coordonnées logiques de la région à faire apparaître.
-     * @throws IllegalArgumentException si <code>source</code> est vide.
+     * @param  logicalBounds Logical coordinates of the region to be displayed.
+     * @throws IllegalArgumentException if <code>source</code> is empty.
      */
     public final void setVisibleArea(final Rectangle2D logicalBounds) throws IllegalArgumentException {
         log("setVisibleArea", logicalBounds);
@@ -922,23 +940,23 @@ public abstract class ZoomPane extends JComponent {
     }
 
     /**
-     * Définit les limites de la partie visible, en coordonnées logiques. Cette
-     * méthode modifiera le zoom et la translation de façon à faire apparaître
-     * la région spécifiée. Si {@link #zoom} contient une rotation, cette
-     * rotation ne sera pas modifiée.
+     * Defines the limits of the visible part, in logical coordinates.  This
+     * method will modify the zoom and the translation in order to display the
+     * specified region.  If {@link #zoom} contains a rotation, this rotation
+     * will not be modified.
      *
-     * @param  source Coordonnées logiques de la région à faire apparaître.
-     * @param  dest Coordonnées pixels de la région de la fenêtre dans laquelle
-     *         dessiner (normalement {@link #getZoomableBounds()}).
-     * @return Changement à appliquer sur la transformation affine {@link #zoom}.
-     * @throws IllegalArgumentException si <code>source</code> est vide.
+     * @param  source Logical coordinates of the region to be displayed.
+     * @param  dest Pixel coordinates of the region of the window in which to 
+     *         draw (normally {@link #getZoomableBounds()}).
+     * @return Change to apply to the affine transform {@link #zoom}.
+     * @throws IllegalArgumentException if <code>source</code> is empty.
      */
     private AffineTransform setVisibleArea(Rectangle2D source, Rectangle2D dest) throws IllegalArgumentException {
         /*
-         * Vérifie la validité du rectangle <code>source</code>. Un rectangle
-         * invalide sera rejeté. Toutefois, on sera plus souple pour
-         * <code>dest</code> puisque la fenêtre peut avoir été réduite
-         * par l'utilisateur.
+         * Verifies the validity of the rectangle <code>source</code>. An
+         * invalid rectangle will be rejected. However, we will be more
+         * flexible for <code>dest</code> since the window could have been
+         * reduced by the user.
          */
         if (!isValid(source)) {
             throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_RECTANGLE_$1, source));
@@ -947,9 +965,9 @@ public abstract class ZoomPane extends JComponent {
             return new AffineTransform();
         }
         /*
-         * Convertit la destination en coordonnées logiques. On pourra
-         * ensuite appliquer un zoom et une translation qui amenerait
-         * <code>source</code> dans <code>dest</code>.
+         * Converts the destination into logical coordinates.  We can
+         * then perform a zoom and a translation which would put
+         * <code>source</code> in <code>dest</code>.
          */
         try {
             dest=XAffineTransform.inverseTransform(zoom, dest, null);
@@ -964,8 +982,8 @@ public abstract class ZoomPane extends JComponent {
               double           sx = destWidth/sourceWidth;
               double           sy = destHeight/sourceHeight;
         /*
-         * Uniformise les échelles horizontale et verticale,
-         * si une telle uniformisation a été demandée.
+         * Standardizes the horizontal and vertical scales,
+         * if such a standardization has been requested.
          */
         if ((type & UNIFORM_SCALE) == UNIFORM_SCALE) {
             if (fillPanel)
@@ -991,34 +1009,46 @@ public abstract class ZoomPane extends JComponent {
     }
 
     /**
-     * Retourne un rectangle délimitant la région de cette composante dans
-     * laquelle se feront les zooms. Cette méthode est appelée par toutes
-     * les opérations qui ont besoin de connaître les dimensions en pixels
-     * de <code>ZoomPanel</code>. <strong>Note: cette méthode retourne un
-     * rectangle caché en mémoire. Le rectangle retourné ne devrait <u>pas</u>
-     * être modifié</strong>.
+     * Returns the bounding box (in pixel coordinates) of the zoomable area.
+     * <strong>For performance reasons, this method reuses an internal cache.
+     * Never modify the returned rectangle!</strong>. This internal method
+     * is invoked by every method looking for this <code>ZoomPane</code>
+     * dimension.
      *
-     * @return Coordonnées en pixels de la région de la composante où se feront
-     *         les zooms.
+     * @return The bounding box of the zoomable area, in pixel coordinates
+     *         relative to this <code>ZoomPane</code> widget. <strong>Do not
+     *         change the returned rectangle!</strong>
      */
     private final Rectangle getZoomableBounds() {
-        return cachedBounds=getZoomableBounds(cachedBounds);
+        return cachedBounds = getZoomableBounds(cachedBounds);
     }
     
     /**
-     * Retourne un rectangle délimitant la région de cette composante dans
-     * laquelle seront déssinés les zooms. Cette méthode peut être appelée
-     * à l'intérieur de la méthode {@link #paintComponent(Graphics2D)} pour
-     * définir le clip, comme suit:
+     * Returns the bounding box (in pixel coordinates) of the zoomable area.
+     * This method is similar to {@link #getBounds(Rectangle)}, except that
+     * the zoomable area may be smaller than the whole widget area.
+     * For example, a chart needs to keep some space for axes around the
+     * zoomable area. Another difference is that pixel coordinates are
+     * relative to the widget, i.e. the (0,0) coordinate lies on the
+     * <code>ZoomPane</code> upper left corner, no matter what its location
+     * on screen.<br>
+     * <br>
+     * <code>ZoomPane</code> invokes <code>getZoomableBounds</code> when it
+     * needs to set up an initial {@link #zoom} value. Subclasses should also
+     * set the clip area to this bounding box in their
+     * {@link #paintComponent(Graphics2D)} method <em>before</em> setting the
+     * graphics transform. For example:
      *
      * <blockquote><pre>
      * graphics.clip(getZoomableBounds(null));
+     * graphics.transform({@link #zoom});
      * </pre></blockquote>
      *
-     * @param  bounds Rectangle dans lequel placer le résultat, ou
-     *         <code>null</code> pour en créer un nouveau.
-     * @return Coordonnées en pixels de la région de <code>ZoomPanel</code>
-     *         dans laquelle dessiner les zooms.
+     * @param  bounds An optional pre-allocated rectangle, or <code>null</code>
+     *                to create a new one. This argument is useful if the caller
+     *                wants to avoid allocating a new object on the heap.
+     * @return The bounding box of the zoomable area, in pixel coordinates
+     *         relative to this <code>ZoomPane</code> widget.
      */
     protected Rectangle getZoomableBounds(Rectangle bounds) {
         Insets insets;
@@ -1039,7 +1069,9 @@ public abstract class ZoomPane extends JComponent {
     /**
      * Returns the default size for this component.  This is the size
      * returned by {@link #getPreferredSize} if no preferred size has
-     * been explicitly set.
+     * been explicitly set with {@link #setPreferredSize}.
+     *
+     * @return The default size for this component.
      */
     protected Dimension getDefaultSize() {
         return getViewSize();
@@ -1048,8 +1080,8 @@ public abstract class ZoomPane extends JComponent {
     /**
      * Returns the preferred pixel size for a close zoom. For image rendering,
      * the preferred pixel size is the image's pixel size in logical units. For
-     * other kind of rendering, this "pixel" size should be some raisonable
-     * resolution. The default implementation compute a default value from
+     * other kinds of rendering, this "pixel" size should be some reasonable
+     * resolution. The default implementation computes a default value from
      * {@link #getArea}.
      */
     protected Dimension2D getPreferredPixelSize() {
@@ -1064,10 +1096,35 @@ public abstract class ZoomPane extends JComponent {
     }
 
     /**
-     * Change the zoom by applying and affine transform. The <code>change</code>
-     * transform must express a change if logical units, for example a
-     * translation in meters. This method is conceptually similar to the
-     * following code:
+     * Returns the current {@linkplain #zoom} scale factor. A value of
+     * 1/100 means that 100 metres are displayed as 1 pixel (provided
+     * that the logical coordinates of {@link #getArea} are expressed
+     * in metres). Scale factors for X and Y axes can be computed
+     * separately using the following equations:
+     *
+     * <table cellspacing=3><tr>
+     * <td width=50%><IMG src="doc-files/scaleX.png"></td>
+     * <td width=50%><IMG src="doc-files/scaleY.png"></td>
+     * </tr></table>
+     *
+     * This method combines scale along both axes, which is correct
+     * if this <code>ZoomPane</code> has been constructed with the
+     * {@link UNIFORM_SCALE} type.
+     */
+    public double getScaleFactor() {
+        final double m00 = zoom.getScaleX();
+        final double m11 = zoom.getScaleY();
+        final double m01 = zoom.getShearX();
+        final double m10 = zoom.getShearY();
+        return Math.sqrt(m00*m00 + m11*m11 + m01*m01 + m10*m10);
+    }
+
+    /**
+     * LINDA UP TO HERE
+     Change the {@linkplain #zoom} by applying and affine transform. The
+     * <code>change</code> transform must express a change if logical units,
+     * for example a translation in meters. This method is conceptually similar
+     * to the following code:
      *
      * <pre>
      * {@link #zoom}.{@link AffineTransform#concatenate(AffineTransform) concatenate}(change);
@@ -1279,7 +1336,7 @@ public abstract class ZoomPane extends JComponent {
      *               transformation plusieurs appels consécutifs de
      *               <code>fireZoomChanged</code>.
      */
-    protected synchronized void fireZoomChanged(final AffineTransform change) {
+    protected void fireZoomChanged(final AffineTransform change) {
         visibleArea.setRect(getVisibleArea());
         fireZoomChanged0(change);
     }
@@ -1395,7 +1452,7 @@ public abstract class ZoomPane extends JComponent {
      * contextuel et fera ignorer tous les appels à
      * <code>{@link #setMagnifierVisible setMagnifierVisible}(true)</code>.
      */
-    public synchronized void setMagnifierEnabled(final boolean enabled) {
+    public void setMagnifierEnabled(final boolean enabled) {
         magnifierEnabled=enabled;
         navigationPopupMenu=null;
         if (!enabled) {
@@ -1445,7 +1502,7 @@ public abstract class ZoomPane extends JComponent {
      *                visible et que <code>center</code> est non-nul, alors elle
      *                sera déplacée pour la centrer à la coordonnées spécifiée.
      */
-    private synchronized void setMagnifierVisible(final boolean visible, final Point center) {
+    private void setMagnifierVisible(final boolean visible, final Point center) {
         if (visible && magnifierEnabled) {
             if (magnifier==null) {
                 Rectangle bounds=getZoomableBounds(); // Do not modifiy the Rectangle!
@@ -1725,85 +1782,135 @@ public abstract class ZoomPane extends JComponent {
     }
 
     /**
-     * Classe ayant la charge de gérer les barres de défilements pour un
-     * objet {@link ZoomPane}. La classe {@link JScrollPane} standard n'est pas
-     * utilisée, car nous ne voulons pas que {@link JViewport} vienne se méler
-     * des translations que gère déjà {@link ZoomPane}.
+     * The scroll panel for {@link ZoomPane}. The standard {@link JScrollPane}
+     * class is not used because it is difficult to get {@link JViewport} to
+     * cooperate with transformation already handled by {@link ZoomPane#zoom}.
      *
      * @version 1.0
      * @author Martin Desruisseaux
      */
-    private final class ScrollPane extends JComponent {
+    private final class ScrollPane extends JComponent implements PropertyChangeListener {
         /**
-         * Barre de défilement horizontale.
+         * The horizontal scrolling bar, or <code>null</code> if none.
          */
-        private final BoundedRangeModel rangeModelX;
+        private final JScrollBar scrollbarX;
 
         /**
-         * Barre de défilement verticale.
+         * The vertical scrolling bar, or <code>null</code> if none.
          */
-        private final BoundedRangeModel rangeModelY;
+        private final JScrollBar scrollbarY;
 
         /**
-         * Construit un objet zoomable avec
-         * des barres de défilements.
+         * Construct a scroll pane for the enclosing {@link ZoomPane}.
          */
         public ScrollPane() {
             setOpaque(false);
             setLayout(new GridBagLayout());
-
-            final JScrollBar scrollbarX;
+            /*
+             * Setup the scroll bars.
+             */
             if ((type & TRANSLATE_X)!=0) {
                 scrollbarX=new JScrollBar(JScrollBar.HORIZONTAL);
                 scrollbarX.setUnitIncrement ((int) (AMOUNT_TRANSLATE));
                 scrollbarX.setBlockIncrement((int) (AMOUNT_TRANSLATE*ENHANCEMENT_FACTOR));
-                rangeModelX=scrollbarX.getModel();
             } else {
                 scrollbarX  = null;
-                rangeModelX = null;
             }
-
-            final JScrollBar scrollbarY;
             if ((type & TRANSLATE_Y)!=0) {
                 scrollbarY=new JScrollBar(JScrollBar.VERTICAL);
                 scrollbarY.setUnitIncrement ((int) (AMOUNT_TRANSLATE));
                 scrollbarY.setBlockIncrement((int) (AMOUNT_TRANSLATE*ENHANCEMENT_FACTOR));
-                rangeModelY=scrollbarY.getModel();
             } else {
                 scrollbarY  = null;
-                rangeModelY = null;
             }
-
-            final GridBagConstraints c=new GridBagConstraints();
-            final JComponent corner=new JPanel();
-            corner.setOpaque(true);
-
-            c.gridx=1; c.gridy=0; c.weighty=1;              c.fill=c.VERTICAL;   if (scrollbarY!=null) add(scrollbarY, c);
-            c.gridx=0; c.gridy=1; c.weighty=0; c.weightx=1; c.fill=c.HORIZONTAL; if (scrollbarX!=null) add(scrollbarX, c);
-            c.gridx=1;                         c.weightx=0; c.fill=c.BOTH;       if (scrollbarX!=null && scrollbarY!=null) add(corner, c);
-
-            c.weightx=c.weighty=1;
-            c.gridx=0; c.gridy=0; add(ZoomPane.this, c);
+            /*
+             * Add the scroll bars in the scroll pane.
+             */
+            final Rectangle bounds = getZoomableBounds(); // Cached Rectangle: do not modify.
+            final GridBagConstraints c = new GridBagConstraints();
+            if (scrollbarX!=null) {
+                c.gridx=0; c.weightx=1;
+                c.gridy=1; c.weighty=0;
+                c.fill=c.HORIZONTAL;
+                add(scrollbarX, c);
+            }
+            if (scrollbarY!=null) {
+                c.gridx=1; c.weightx=0;
+                c.gridy=0; c.weighty=1;
+                c.fill=c.VERTICAL;
+                add(scrollbarY, c);
+            }
+            if (scrollbarX!=null && scrollbarY!=null) {
+                final JComponent corner = new JPanel();
+                corner.setOpaque(true);
+                c.gridx=1; c.weightx=0;
+                c.gridy=1; c.weighty=0;
+                c.fill=c.BOTH;
+                add(corner, c);
+            }
+            c.fill=c.BOTH;
+            c.gridx=0; c.weightx=1;
+            c.gridy=0; c.weighty=1;
+            add(ZoomPane.this, c);
         }
 
         /**
-         * Méthode appelée automatiquement lorsque cet objet est ajouté
-         * dans un containeur. Cette méthode construira à ce moment les
-         * listeners qui lieront les zooms aux barres de défilements.
+         * Convenience method fetching a scroll bar model.
+         * Should be a static method, but compiler doesn't
+         * allow this.
+         */
+        private /*static*/ BoundedRangeModel getModel(final JScrollBar bar) {
+            return (bar!=null) ? bar.getModel() : null;
+        }
+
+        /**
+         * Invoked when this <code>ScrollPane</code>  is added in
+         * a {@link Container}. This method register all required
+         * listeners.
          */
         public void addNotify() {
             super.addNotify();
-            tieModels(rangeModelX, rangeModelY);
+            tieModels(getModel(scrollbarX), getModel(scrollbarY));
+            ZoomPane.this.addPropertyChangeListener("zoom.insets", this);
         }
 
         /**
-         * Méthode appelée automatiquement lorsque cet objet est retiré
-         * dans un containeur. Cette méthode détruira à ce moment les
-         * listeners qui liaient les zooms aux barres de défilements.
+         * Invoked when this <code>ScrollPane</code> is removed from
+         * a {@link Container}. This method unregister all listeners.
          */
         public void removeNotify() {
-            untieModels(rangeModelX, rangeModelY);
+            ZoomPane.this.removePropertyChangeListener("zoom.insets", this);
+            untieModels(getModel(scrollbarX), getModel(scrollbarY));
             super.removeNotify();
+        }
+
+        /**
+         * Invoked when the zoomable area changed. This method will adjust
+         * scroll bar's insets in order to keep scroll bars aligned in front
+         * of the zoomable area.
+         *
+         * Note: in current version, this is an undocumented capability.
+         *       Class {@link RangeBar} use it, but it is experimental.
+         *       It may change in a future version.
+         */
+        public void propertyChange(final PropertyChangeEvent event) {
+            final Insets old    = (Insets) event.getOldValue();
+            final Insets insets = (Insets) event.getNewValue();
+            final GridBagLayout layout = (GridBagLayout) getLayout();
+            if (scrollbarX!=null && (old.left!=insets.left || old.right!=insets.right)) {
+                final GridBagConstraints c = layout.getConstraints(scrollbarX);
+                c.insets.left  = insets.left;
+                c.insets.right = insets.right;
+                layout.setConstraints(scrollbarX, c);
+                scrollbarX.invalidate();
+            }
+            if (scrollbarY!=null && (old.top!=insets.top || old.bottom!=insets.bottom)) {
+                final GridBagConstraints c = layout.getConstraints(scrollbarY);
+                c.insets.top    = insets.top;
+                c.insets.bottom = insets.bottom;
+                layout.setConstraints(scrollbarY, c);
+                scrollbarY.invalidate();
+            }
         }
     }
 
@@ -1879,6 +1986,12 @@ public abstract class ZoomPane extends JComponent {
         private transient boolean isAdjusting;
 
         /**
+         * Cached <code>ZoomPane</code> bounds. Used in order
+         * to avoid two many object allocation on the heap.
+         */
+        private transient Rectangle bounds;
+
+        /**
          * Construit un objet qui synchronisera une paire de
          * {@link BoundedRangeModel} avec {@link ZoomPane}.
          */
@@ -1895,21 +2008,41 @@ public abstract class ZoomPane extends JComponent {
             if (!isAdjusting) {
                 final boolean valueIsAdjusting=((BoundedRangeModel) event.getSource()).getValueIsAdjusting();
                 if (paintingWhileAdjusting || !valueIsAdjusting) {
+                    /*
+                     * Scroll view coordinates are computed with the following
+                     * steps:
+                     *
+                     *   1) Get the logical coordinates for the whole area.
+                     *   2) Transform to pixel space using current zoom.
+                     *   3) Clip to the scroll bars position (in pixels).
+                     *   4) Transform back to the logical space.
+                     *   5) Set the visible area to the resulting rectangle.
+                     */
                     Rectangle2D area=getArea();
                     if (isValid(area)) {
                         area=XAffineTransform.transform(zoom, area, null);
                         double x=area.getX();
                         double y=area.getY();
                         double width, height;
-                        if (xm!=null) {x+=xm.getValue();  width=xm.getExtent();} else  width=area.getWidth();
-                        if (ym!=null) {y+=ym.getValue(); height=ym.getExtent();} else height=area.getHeight();
+                        if (xm!=null) {
+                            x    += xm.getValue();
+                            width = xm.getExtent();
+                        } else {
+                            width = area.getWidth();
+                        }
+                        if (ym!=null) {
+                            y     += ym.getValue();
+                            height = ym.getExtent();
+                        } else {
+                            height = area.getHeight();
+                        }
                         area.setRect(x, y, width, height);
+                        bounds = getBounds(bounds);
                         try {
                             area=XAffineTransform.inverseTransform(zoom, area, area);
                             try {
                                 isAdjusting=true;
-                                transform(setVisibleArea(area, getZoomableBounds()));
-                                // Invoke private version in order to avoid logging.
+                                transform(setVisibleArea(area, bounds=getBounds(bounds)));
                             } finally {
                                 isAdjusting=false;
                             }
@@ -1934,11 +2067,11 @@ public abstract class ZoomPane extends JComponent {
             if (!isAdjusting) {
                 Rectangle2D area=getArea();
                 if (isValid(area)) {
-                    area=XAffineTransform.transform(zoom, area, null);
+                    area = XAffineTransform.transform(zoom, area, null);
                     try {
                         isAdjusting=true;
-                        setRangeProperties(xm, (int) Math.round(-area.getX()),  getWidth(), 0, (int) Math.round(area.getWidth()),  false);
-                        setRangeProperties(ym, (int) Math.round(-area.getY()), getHeight(), 0, (int) Math.round(area.getHeight()), false);
+                        setRangeProperties(xm, area.getX(), getWidth(),  area.getWidth());
+                        setRangeProperties(ym, area.getY(), getHeight(), area.getHeight());
                     }
                     finally {
                         isAdjusting=false;
@@ -1957,13 +2090,12 @@ public abstract class ZoomPane extends JComponent {
      * {@link #getArea}.
      */
     private static void setRangeProperties(final BoundedRangeModel model,
-                                           final int value, final int extent,
-                                           final int min,   final int max,
-                                           final boolean isAdjusting) {
+                                           final double value, final int extent,
+                                           final double max) {
         if (model!=null) {
-            model.setRangeProperties(value, extent,
-                                     Math.min(min, value),
-                                     Math.max(max, value+extent), isAdjusting);
+            final int pos = (int) Math.round(-value);
+            model.setRangeProperties(pos, extent, Math.min(0, pos),
+                                     Math.max((int) Math.round(max), pos+extent), false);
         }
     }
 
@@ -2180,64 +2312,79 @@ public abstract class ZoomPane extends JComponent {
     }
 
     /**
-     * Méthode appélée lorsqu'une exception inatendue est survenue.
-     * L'implémentation par défaut enregistre la trace de l'exception
-     * dans le journal et réinitialise le zoom.
+     * Invoked when an affine transform that should be invertible is not.
+     * Default implementation log the stack trace and reset the zoom.
+     *
+     * @param methodName The caller's method name.
+     * @param exception  The exception.
      */
-    private void unexpectedException(final String method,
+    private void unexpectedException(final String methodName,
                                      final NoninvertibleTransformException exception) {
         zoom.setToIdentity();
-        Utilities.unexpectedException("org.geotools.gui", "ZoomPane", method, exception);
+        Utilities.unexpectedException("org.geotools.gui",
+                                      "org.geotools.swing.ZoomPane",
+                                      methodName, exception);
     }
 
     /**
-     * Méthode appélée lorsqu'une exception inatendue est survenue.
-     * L'implémentation par défaut enregistre la trace de l'exception dans le
-     * journal.
+     * Invoked when an unexpected exception occured.
+     * Default implementation log the stack trace.
+     *
+     * @param methodName The caller's method name.
+     * @param exception  The exception.
      */
-    private static void unexpectedException(final String method,
+    private static void unexpectedException(final String methodName,
                                             final RuntimeException exception) {
-        Utilities.unexpectedException("org.geotools.gui", "ZoomPane", method, exception);
+        Utilities.unexpectedException("org.geotools.gui",
+                                      "org.geotools.swing.ZoomPane",
+                                      methodName, exception);
     }
 
     /**
-     * Ecrit dans le journal les coordonnées d'un rectangle spécifié.
-     * Cette méthode est appelée par {@link #setPreferredArea} et
-     * {@link #setVisibleArea}.
+     * Convenience method logging an area setting from the
+     * <code>ZoomPane</code> class. This method is invoked
+     * from {@link #setPreferredArea} and {@link #setVisibleArea}.
+     *
+     * @param methodName The caller's method name (e.g. <code>"setArea"</code>).
+     * @param       area The coordinates to log (may be <code>null</code>).
      */
-    private void log(final String methodName, final Rectangle2D area) {
-        log("org.geotools.gui", "ZoomPane", methodName, area);
+    private static void log(final String methodName, final Rectangle2D area) {
+        log("org.geotools.swing.ZoomPane", methodName, area);
     }
 
     /**
      * Convenience method for logging events related to area setting.
-     * <code>ZoomPane</code> use this method for logging any
-     * [@link #setPreferredArea} and {@link #setVisibleArea}
-     * invocations with {@link Level#FINE}. Subclasses may use
-     * it for logging some other kinds of changes.
+     * Events are logged in the <code>"org.geotools.gui"</code> logger
+     * with {@link Level#FINE}. <code>ZoomPane</code> invokes this method
+     * for logging any [@link #setPreferredArea} and {@link #setVisibleArea}
+     * invocations. Subclasses may invokes this method for logging some other
+     * kinds of area changes.
      *
-     * @param packageName The logger (e.g. <code>"org.geotools.gui"</code>).
-     * @param   className The caller's class name (e.g. <code>"ZoomPane"</code>).
-     * @param  methodName The caller's method name (e.g. <code>"setArea"</code>).
-     * @param        area The coordinates to log (may be <code>null</code>).
+     * @param  className The fully qualified caller's class name
+     *                   (e.g. <code>"org.geotools.swing.ZoomPane"</code>).
+     * @param methodName The caller's method name (e.g. <code>"setArea"</code>).
+     * @param       area The coordinates to log (may be <code>null</code>).
      */
-    protected void log(final String packageName, final String className,
-                       final String methodName,  final Rectangle2D area) {
+    static void log(final String className,
+                    final String methodName,
+                    final Rectangle2D area) {
         final Double[] areaBounds;
         if (area!=null) {
-            areaBounds = new Double[] {new Double(area.getMinX()), new Double(area.getMaxX()),
-                                       new Double(area.getMinY()), new Double(area.getMaxY())};
+            areaBounds = new Double[] {
+                new Double(area.getMinX()), new Double(area.getMaxX()),
+                new Double(area.getMinY()), new Double(area.getMaxY())
+            };
         } else {
             areaBounds = new Double[4];
             Arrays.fill(areaBounds, new Double(Double.NaN));
         }
-        final Resources resources = Resources.getResources(getLocale());
+        final Resources resources = Resources.getResources(null);
         final LogRecord record = resources.getLogRecord(Level.FINE,
                                                         ResourceKeys.RECTANGLE_$4,
                                                         areaBounds);
         record.setSourceClassName ( className);
         record.setSourceMethodName(methodName);
-        Logger.getLogger(packageName).log(record);
+        Logger.getLogger("org.geotools.gui").log(record);
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill
+ *     UNITED KINGDOM: James Macgill
  *             mailto:j.macgill@geog.leeds.ac.uk
  *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.swinggui;
+package org.geotools.swing;
 
 // Geometry
 import java.awt.Shape;
@@ -55,21 +55,21 @@ import javax.swing.event.MouseInputAdapter;
 
 
 /**
- * Contrôleur permettant à l'utilisateur de sélectionner une région sur une
- * composante. L'utilisateur doit cliquer sur un point de la composante, puis
- * faire glisser le curseur de la souris en tenant le bouton enfoncé. Pendant
- * le glissement, la forme qui sera dessinée sera généralement un rectangle.
- * D'autres formes pourraient toutefois être utilisées, comme par exemple une
- * ellipse. Pour utiliser cette classe, il faut créer une classe dérivée qui
- * définisse les méthodes suivantes:
+ * Controller which allows the user to select a region on a component.
+ * The user must click on a point in the component, then drag the mouse
+ * pointer whilst keeping the button pressed. During the dragging,
+ * the shape which is drawn will normally be a rectangle.  Other shapes could
+ * always be used such as, for example, an ellipse.  To use this class, it
+ * is necessary to create a derivative?? class which defines the following
+ * methods:
  *
  * <ul>
- *   <li>{@link #selectionPerformed} (obligatoire)</li>
- *   <li>{@link #getModel} (facultatif)</li>
+ *   <li>{@link #selectionPerformed} (obligatory)</li>
+ *   <li>{@link #getModel} (optional)</li>
  * </ul>
  *
- * Ce contrôleur doit ensuite être enregistré auprés d'une et une
- * seule composante en utilisant la syntaxe suivante:
+ * This controller should then be registered with one, and only one, component
+ * using the following syntax:
  *
  * <blockquote><pre>
  * {@link Component} component=...
@@ -83,70 +83,63 @@ import javax.swing.event.MouseInputAdapter;
 abstract class MouseSelectionTracker extends MouseInputAdapter
 {
     /**
-     * Rectangle pointillé représentant la région en train de se faire
-     * sélectionner par l'utilisateur. Ce rectangle peut être vide. Ces
-     * coordonnées ne prendront une signification qu'entre les moments
-     * où l'utilisateur a appuyé sur le bouton de la souris et le moment
-     * où il l'a relâché pour délimiter une région. Par convention, la
-     * valeur <code>null</code> indique qu'une ligne doit être utilisée
-     * au lieu d'une forme rectangulaire. Les coordonnées sont toujours
-     * exprimées en pixels.
+     * Stippled rectangle representing the region which the user is currently
+     * selecting.  This rectangle can be empty.  These coordinates are only
+     * significant in the period between the user pressing the mouse button
+     * and then releasing it to outline a region. Conventionally, the
+     * <code>null</code> value indicates that a line should be used instead of
+     * a rectangular shape.  The coordinates are always expressed in pixels.
      */
     private transient RectangularShape mouseSelectedArea;
 
     /**
-     * Couleur à remplacer lors des traçage XOR sur un graphique.
-     * Cette couleur est spécifiée à {@link Graphics2D#setColor}.
+     * Colour to replace during XOR drawings on a graphique??.
+     * This colour is specified in {@link Graphics2D#setColor}.
      */
     private Color backXORColor=Color.white;
 
     /**
-     * Couleur remplacante lors des traçage XOR sur un graphique.
-     * Cette couleur est spécifiée à {@link Graphics2D#setXORMode}.
+     * Colour to replace with during the XOR drawings on a graphique??.
+     * This colour is specified in {@link Graphics2D#setXORMode}.
      */
     private Color lineXORColor=Color.black;
 
     /**
-     * Coordonnée <var>x</var> de la souris
-     * lorsque le bouton a été enfoncé.
+     * <var>x</var> coordinate of the mouse when the button is pressed.
      */
     private transient int ox;
 
     /**
-     * Coordonnée <var>y</var> de la souris
-     * lorsque le bouton a été enfoncé.
+     * <var>y</var> coordinate of the mouse when the button is pressed.
      */
     private transient int oy;
 
     /**
-     * Coordonnée <var>x</var> de la souris
-     * lors du dernier glissement.
+     * <var>x</var> coordinate of the mouse during the last drag.
      */
     private transient int px;
 
     /**
-     * Coordonnée <var>y</var> de la souris
-     * lors du dernier glissement.
+     * <var>y</var> coordinate of the mouse during the last drag.
      */
     private transient int py;
 
     /**
-     * Indique si une sélection est en cours.
+     * Indicates whether a selection is underway.
      */
     private transient boolean isDragging;
 
     /**
-     * Construit un objet qui permettra de sélectionner
-     * des régions rectangulaires à l'aide de la souris.
+     * Constructs an object which will allow rectangular regions to be selected
+     * using the mouse.
      */
     public MouseSelectionTracker() {
     }
 
     /**
-     * Spécifie les couleurs à utiliser pour tracer le contour d'une boîte
-     * lorsque l'utilisateur sélectionne une région. Toutes les couleurs
-     * <code>a</code> seront remplacées par les couleurs <code>b</code> et
-     * vis-versa.
+     * Specifies the colours to be used for drawing the outline of a box when
+     * the user selects a region.  All <code>a</code> colours will be replaced
+     * by <code>b</code> colours and vice versa.
      */
     public void setXORColors(final Color a, final Color b) {
         backXORColor=a;
@@ -154,80 +147,78 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
     }
 
     /**
-     * Retourne la forme géométrique à utiliser pour délimiter une région.
-     * Cette forme est généralement un rectangle mais pourrait aussi être
-     * une ellipse, une flèche ou d'autres formes encore. Les coordonnées
-     * de la forme retournée ne seront pas prises en compte. En fait, ces
-     * coordonnées seront régulièrement écrasées.  Seule compte la classe
-     * de la forme retournée (par exemple {@link java.awt.geom.Ellipse2D}
-     * vs {@link java.awt.geom.Rectangle2D}) et ses paramètres non-reliés
-     * à sa position (par exemple l'arrondissement des coins d'un rectangle).
+     * Returns the geometric shape to use for marking the boundaries of a
+     * region.  This shape is normally a rectangle but could also be an
+     * ellipse, an arrow or even other shapes. The coordinates of the
+     * returned shape will not be taken into account. In fact, these
+     * coordinates will regularly be crushed??. Only the class of the returned
+     * shape will count (for example, {@link java.awt.geom.Ellipse2D}
+     * vs {@link java.awt.geom.Rectangle2D}) and their parameters which are not
+     * linked to their position (for example, the rounding of a rectangle's
+     * corners).
+     * The shape returned will normally be from a class derived from
+     * {@link RectangularShape}, but could also be from the {@link Line2D}
+     * class. <strong>Any other class risks throwing a
+     * {@link ClassCastException} when executed</strong>.
      *
-     * La forme retournée sera généralement d'une classe dérivée de
-     * {@link RectangularShape}, mais peut aussi être de la classe
-     * {@link Line2D}. <strong>Tout autre classe risque de lancer une
-     * {@link ClassCastException} au moment de l'exécution</strong>.
+     * The default implementation always returns an object {@link Rectangle}.
      *
-     * L'implémentation par défaut retourne toujours un objet {@link Rectangle}.
-     *
-     * @param  event Coordonnée de la souris au moment ou le bouton a été
-     *         enfoncé. Cette information peut être utilisée par les classes
-     *         dérivées qui voudraient tenir compte de la position de la souris
-     *         avant de choisir une forme géométrique.
-     * @return Forme de la classe {link RectangularShape} ou {link Line2D}, ou
-     *         <code>null</code> pour indiquer qu'on ne veut pas faire de
-     *         sélection.
+     * @param  event Mouse coordinate when the button is pressed.  This
+     *         information can be used by the derived?? classes which voudraient?
+     *         take into account the position of the mouse before chosing a 
+     *         geometric shape.
+     * @return Forme ?? de la classe {link RectangularShape} ou {link Line2D}, or
+     *         <code>null</code> to indicate that we do not want to make a
+     *         selection.
      */
     protected Shape getModel(final MouseEvent event) {
         return new Rectangle();
     }
 
     /**
-     * Méthode appelée automatiquement après que l'utilisateur
-     * ait sélectionnée une région à l'aide de la souris. Toutes
-     * les coordonnées passées en paramètres sont exprimées en
-     * pixels.
+     * Method which is automatically called after the user selects
+     * a region with the mouse.  All coordinates passed in parameters??
+     * are expressed in pixels.
      *
-     * @param ox Coordonnée <var>x</var> de la souris lorsque
-     *        l'utilisateur a enfoncé le bouton de la souris.
-     * @param oy Coordonnée <var>y</var> de la souris lorsque
-     *        l'utilisateur a enfoncé le bouton de la souris.
-     * @param px Coordonnée <var>x</var> de la souris lorsque
-     *        l'utilisateur a relaché le bouton de la souris.
-     * @param py Coordonnée <var>y</var> de la souris lorsque
-     *        l'utilisateur a relaché le bouton de la souris.
+     * @param ox <var>x</var> coordinate of the mouse when the user
+     *        pressed the mouse button.
+     * @param oy <var>y</var> coordinate of the mouse when the user
+     *        pressed the mouse button.
+     * @param px <var>x</var> coordinate of the mouse when the user
+     *        released the mouse button.
+     * @param py <var>y</var> coordinate of the mouse when the user
+     *        released the mouse button.
      */
     protected abstract void selectionPerformed(int ox, int oy, int px, int py);
 
     /**
-     * Retourne la forme géométrique entourant la dernière région sélectionée
-     * par l'utilisateur. Une transformation affine facultative peut être
-     * spécifiée pour convertir en coordonnées logiques la région sélectionnée
-     * par l'utilisateur. La classe de la forme retournée dépend du model que
-     * retourne {@link #getModel}:
+     * Returns the geometric shape surrounding the last region to be selected
+     * by the user. An optional affine transform can be specified to convert
+     * the region selected by the user into logical coordinates. The class
+     * of the shape returned depends on the model returned by
+     * {@link #getModel}:
      *
      * <ul>
-     *   <li>Si le modèle est nul (ce qui signifie que cet objet
-     *       <code>MouseSelectionTracker</code> ne fait que dessiner une ligne
-     *       entre deux points), alors l'objet retourné sera de la classe
-     *       {@link Line2D}.</li>
-     *   <li>Si le modèle est non-nul, alors l'objet retourné peut être de la
-     *       même classe (le plus souvent {@link java.awt.geom.Rectangle2D}).
-     *       Il peut toutefois y avoir des situations ou l'objet retourné sera
-     *       d'une autre classe, par exemple si la transformation affine
-     *       <code>transform</code> effectue une rotation.</li>
+     *   <li>If the model is null (which means that this
+     *       <code>MouseSelectionTracker</code> object only draws a line
+     *       between points), the object returned will belong to the
+     *       {@link Line2D} class.</li>
+     *   <li>If the model is not null, the object returned can be from the
+     *       same class (most often {@link java.awt.geom.Rectangle2D}).
+     *       There could always be situations where the object returns is from
+     *       another class, for example if the affine transform
+     *       <code>transform</code> carries out a rotation.</li>
      * </ul>
      *
-     * @param  transform Transformation affine qui sert à convertir les
-     *         coordonnées logiques en coordonnées pixels. Il s'agit
-     *         généralement de la transformation affine qui est utilisée dans
-     *         une méthode <code>paint(...)</code> pour dessiner des formes
-     *         exprimées en coordonnées logiques.
-     * @return Une forme géométrique  entourant la dernière région sélectionée
-     *         par l'utilisateur, ou <code>null</code> si aucune sélection n'a
-     *         encore été faite.
-     * @throws NoninvertibleTransformException Si la transformation affine
-     *         <code>transform</code> ne peut pas être inversée.
+     * @param  transform Affine transform which converts logical coordinates
+     *         into pixel coordinates.  It is usually an affine transform which
+     *         is used in a <code>paint(...)</code> method to draw shapes
+     *         expressed in logical coordinates.
+     * @return A geometric shape enclosing the last region to be selected by
+     *         the user, or <code>null</code> if no selection has yet been
+     *         made.
+     * @throws NoninvertibleTransformException If the affine transform 
+     *         <code>transform</code> can't be inverted.
      */
     public Shape getSelectedArea(final AffineTransform transform) throws NoninvertibleTransformException {
         if (ox==px && oy==py) return null;
@@ -277,10 +268,10 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
     }
 
     /**
-     * Indique si on peut transformer la forme <code>shape</code> en appellant
-     * simplement sa méthode <code>shape.setFrame(...)</code> plutôt que
-     * d'utiliser l'artillerie lourde qu'est la méthode
-     * <code>transform.createTransformedShape(shape)</code>.
+     * Indicates whether uwe can transform <code>shape</code> simply
+     * by calling its <code>shape.setFrame(...)</code> method rather
+     * than by using the heavy artillery that is the
+     * <code>transform.createTransformedShape(shape)</code> method.
      */
     private static boolean canReshape(final RectangularShape shape,
                                       final AffineTransform transform) {
@@ -297,9 +288,10 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
     }
 
     /**
-     * Retourne un objet {@link Graphics2D} à utiliser pour dessiner dans
-     * la composante spécifiée. Il ne faudra pas oublier d'appeller {@link
-     * Graphics2D#dispose} lorsque le graphique ne sera plus nécessaire.
+     * Returns a {@link Graphics2D} object to be used for drawing in the 
+     * specified component.  We must not forget to call
+     * {@link Graphics2D#dispose} when the graphics object is no longer
+     * needed.
      */
     private Graphics2D getGraphics(final Component c) {
         final Graphics2D graphics=(Graphics2D) c.getGraphics();
@@ -309,13 +301,13 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
     }
 
     /**
-     * Informe ce controleur que le bouton de la souris vient d'être enfoncé.
-     * L'implémentation par défaut retient la coordonnée de la souris (qui
-     * deviendra un des coins du futur rectangle à dessiner) et prépare
-     * <code>this</code> à observer les déplacements de la souris.
+     * Informs this controller that the mouse button has been pressed.
+     * The default implementation retains the mouse coordinate (which will
+     * become one of the corners of the future rectangle to be drawn) 
+     * and prepares <code>this</code> to observe the mouse movements.
      *
-     * @throws ClassCastException si {@link #getModel} ne retourne pas une
-     *         forme de la classe {link RectangularShape} ou {link Line2D}.
+     * @throws ClassCastException if {@link #getModel} doesn't return a shape
+     *         from the class {link RectangularShape} or {link Line2D}.
      */
     public void mousePressed(final MouseEvent event) throws ClassCastException {
         if (!event.isConsumed() && (event.getModifiers() & MouseEvent.BUTTON1_MASK)!=0) {
@@ -340,11 +332,10 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
     }
 
     /**
-     * Informe ce controleur que la souris vient de glisser avec le bouton
-     * enfoncé. L'implémentation par défaut observe ce glissement pour déplacer
-     * un coin du rectangle servant à sélectionner une région. L'autre coin
-     * reste fixé à l'endroit où était la souris au moment ou le bouton a été
-     * enfoncé.
+     * Informs this controller that the mouse has been dragged.  The default
+     * implementation observes this drag to move a corner of the rectangle
+     * servant à select a region??. The other corner remains fixed at the point
+     * where the mouse was at the moment its button was pressed..
      */
     public void mouseDragged(final MouseEvent event) {
         if (isDragging) {
@@ -377,9 +368,9 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
     }
 
     /**
-     * Informe ce controleur que le bouton de la souris vient d'être relâché.
-     * L'implémentation par défaut appelle {@link #selectionPerformed} avec
-     * en paramètres les limites de la région sélectionnée.
+     * Informs this controller that the mouse button has been released.
+     * The default implementation calls {@link #selectionPerformed} with
+     * the bounds of the selected region as parameters.
      */
     public void mouseReleased(final MouseEvent event) {
         if (isDragging && (event.getModifiers() & MouseEvent.BUTTON1_MASK)!=0) {
@@ -402,15 +393,14 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
     }
 
     /**
-     * Informe ce controleur que la souris vient d'être déplacé sans que
-     * ce soit dans le contexte où l'utilisateur sélectionne une région.
-     * L'implémentation par défaut signale à la composante source que
-     * <code>this</code> n'est plus interessé à être informé des
-     * déplacements de la souris.
+     * Informs this controller that the mouse has been moved but not as a
+     * result of the user selecting a region.  The default implementation
+     * signals to the source component that <code>this</code> is no longer
+     * interested in being informed about mouse movements.
      */
     public void mouseMoved(final MouseEvent event) {
-        // Normalement pas nécessaire, mais il semble que ce
-        // "listener" reste parfois en place alors qu'il n'aurait pas dû.
+        // Normally not necessary, but it seems that this "listener"
+        // sometimes stays in place when it shouldn't.
         event.getComponent().removeMouseMotionListener(this);
     }
 }
