@@ -69,7 +69,7 @@ public final class DataStoreFinder {
      *         attached to the specified resource without errors.
      */
     public static DataStore getDataStore(Map params) throws IOException {
-        Iterator ps = getAvailableDataSources();
+        Iterator ps = getAvailableDataStores();
 
         while (ps.hasNext()) {
             DataStoreFactorySpi fac = (DataStoreFactorySpi) ps.next();
@@ -89,7 +89,7 @@ public final class DataStoreFinder {
      * @return An iterator over all discovered datastores which have registered
      *         factories.
      */
-    public static Iterator getAvailableDataSources() {
+    public static Iterator getAvailableDataStores() {
         return FactoryFinder.factories(DataStoreFactorySpi.class);
     }
 }
