@@ -130,5 +130,9 @@ public class EnvelopeExtent implements Extent {
         
         
     }
+    public String toString(){
+        return new String(bounds.getMinX()+","+bounds.getMinY()+
+        " "+bounds.getMaxX()+","+bounds.getMaxY());
+    }
 }
 
