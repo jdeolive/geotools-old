@@ -907,7 +907,6 @@ public final class NumberParser {
     return readJavaFormatString(s,start,end).doubleValue();
   }
   
-  
   private static NumberParser
   readJavaFormatString( CharSequence in,int start, int end) throws NumberFormatException {
     boolean isNegative = false;
@@ -917,10 +916,11 @@ public final class NumberParser {
     int ostart= start;
     int oend = end;
     
+    // added trimming for 'zero' character which sometimes gets passed in as junk
     boolean trimming = true;
     while (trimming && start < end) {
       switch ( in.charAt(start) ) {
-        case ' ': case '\n': case '\t': case '\r':
+          case ' ': case '\n': case '\t': case '\r': case 0:
           start ++;
           break;
         default:
@@ -930,7 +930,7 @@ public final class NumberParser {
     trimming = true;
     while (trimming && end > start) {
       switch ( in.charAt(end) ) {
-        case ' ': case '\n': case '\t': case '\r':
+          case ' ': case '\n': case '\t': case '\r': case 0:
           end --;
           break;
         default:
