@@ -43,7 +43,7 @@ import org.geotools.units.Unit;
  * A ellipsoid which is spherical. This ellipsoid implements a faster
  * {@link #orthodromicDistance} method.
  *
- * @version $Id: Spheroid.java,v 1.1 2002/07/11 23:56:07 desruisseaux Exp $
+ * @version $Id: Spheroid.java,v 1.2 2002/07/12 10:02:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Spheroid extends Ellipsoid {
@@ -61,18 +61,15 @@ final class Spheroid extends Ellipsoid {
     }
     
     /**
-     * Returns an <em>estimation</em> of orthodromic distance between two
-     * geographic coordinates. The orthodromic distance is the shortest
-     * distance between two points on a sphere's surface.  The orthodromic
-     * path is always on a great circle. Another possible distance measurement
-     * is the loxodromic distance, which is a longer distance on a path with
-     * a constant direction on the compass.
+     * Returns the orthodromic distance between two geographic coordinates.
+     * The orthodromic distance is the shortest distance between two points
+     * on a sphere's surface. The orthodromic path is always on a great circle.
      *
      * @param  x1 Longitude of first point (in degrees).
      * @param  y1 Latitude of first point (in degrees).
      * @param  x2 Longitude of second point (in degrees).
      * @param  y2 Latitude of second point (in degrees).
-     * @return The orthodromic distance (in the units of this ellipsoid).
+     * @return The orthodromic distance (in the units of this ellipsoid's axis).
      */
     public double orthodromicDistance(double x1, double y1, double x2, double y2) {
         /*
@@ -103,6 +100,8 @@ final class Spheroid extends Ellipsoid {
                                                                < getSemiMajorAxis()/1E+9 : delta;
         } catch (ArithmeticException exception) {
             // The ellipsoidal model do not converge. Give up the assertion test.
+            // Note: the assertion fails for illegal latitudes (i.e. abs(y1)>90°
+            //       or abs(y2)>90°).
         }
         return distance;
     }
