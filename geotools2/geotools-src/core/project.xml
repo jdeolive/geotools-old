@@ -5,7 +5,14 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-core</name>
   <id>core</id>
-  <currentVersion>2.0-B1</currentVersion>
+  <currentVersion>2.0-SNAPSHOT</currentVersion>
+<versions>
+<version>
+  <id>b1</id>
+  <name>2.0-b1</name> 
+  <tag>GT_2_0_B1</tag> 
+</version>
+</versions>
   <shortDescription>Core interfaces for GeoTools2</shortDescription>
   <description>
     The Core module contains the key interfaces that are implemented and used by other GeoTools modules.
