@@ -7,42 +7,85 @@
 package org.geotools.proj4j;
 
 
-/**
+/** 
+ * The abstract base class from which all projection implementations are derived.
+ * Subclasses should provide setup() and setDefaults() methods if required.
  *
- * @author  jamesm
+ * Calls to forward() and inverse() are passed on to doForward, doInverse in implementing classes.
+ *
+ * @author James Macgill
+ * @version $Revision: 1.10 $ $Date: 2002/03/05 23:53:27 $
  */
 public abstract class Projection implements Constants {
     
     
     String descr;
+    /** The set of parameters for this projection.
+     */    
     protected ParamSet params;
+    /** The Datum definition for this projection.
+     */    
     protected Datum datum;
     boolean over;   /* over-range flag */
-    boolean geoc;   /* geocentric latitude flag */
-    protected double
-    lam0, phi0, /* central longitude, latitude */
-    x0, y0, /* easting and northing */
-    k0,	/* general scaling factor */
-    to_meter, fr_meter; /* cartesian scaling */
+    boolean geoc;
     
+    /** Central longitude.
+     */
+    protected double lam0;
+    
+    /** Central latitude.
+     */
+    protected double phi0;
+    
+    /** False easting.
+     */
+    protected double x0;
+    
+    /** False northing.
+     */
+    protected double y0;
+    
+    /** Unknown standard param value.
+     * TODO: find definition.
+     */    
+    protected double
+    k0;
+    
+    /** To meters conversion factor.
+     * TODO: should use an instance of Unit.
+     */
+    protected double to_meter;
+    
+    /** From meters conversion factor.
+     * TODO: should use an instance of Unit.
+     */    
+    protected double fr_meter; 
+      
     
     boolean isLatLong;
+    /** Ellipse definition for this projection.
+     */    
     protected Ellipse ellipse;
     
+    /**
+     * Sets the ParamSet for this projection.  Called once to initialise the projection.
+     * @param ps The ParamSet to use.
+     * @throws ProjectionException Thrown if any of the required parameters are illegal or missing.
+     */    
     public void setParams(ParamSet ps)throws ProjectionException{
         this.params = ps;
         if(!params.contains("no_defs")){
             setDefaults();
         }
         isLatLong=false;
-        datum = new Datum(ps); // note this may modify elipse parameters in ps
+        datum = new Datum(ps); // note: this may modify ellipse parameters in ps
         ellipse = new Ellipse(ps);
         
         
         geoc = (ellipse.es!=0 && params.contains("geoc"));
         over = params.contains("over");//over ranging flag
-        lam0 = params.getFloatParam("lon_0");//centeral meridian
-        phi0 = params.getFloatParam("phi_0");//centeral latitude
+        lam0 = params.getFloatParam("lon_0");//central meridian
+        phi0 = params.getFloatParam("phi_0");//central latitude
         
         //false easting and northing
         x0 = params.getFloatParam("x_0");
@@ -82,6 +125,8 @@ public abstract class Projection implements Constants {
         }
     }
     
+    /** Sets any required parameters that are missing to their default values if possible.
+     */    
     public void setDefaults(){//general
         
         params.addParamIfNotSet("ellips=WGS84");
@@ -90,11 +135,18 @@ public abstract class Projection implements Constants {
     
     
     
-    public XY forward(LP lp) throws ProjectionException{
+    /** Performs a forwards projection.
+     * Following pre-processing, doForward(LP) is called in the concrete subclass.
+     * The result from doForward is post processed before being returned.
+     * @param lp The lat, long values to project.
+     * @return XY The xy coordinates of the projected lp.
+     * @throws ProjectionException Thrown if the projection is not possible or if the values in lp are invalid.
+     */    
+    public final XY forward(LP lp) throws ProjectionException{
         XY xy = new XY();
         double t;
         
-        /* check for forward and latitude or longitude overange */
+        /* Checks for forward and latitude or longitude over range */
         if ((t = Math.abs(lp.phi)-HALFPI) >  EPS || Math.abs(lp.lam) > 10.) {
             xy.x = xy.y = Double.MAX_VALUE;
             throw new ProjectionException("latitude or longitude exceeded limits "+lp.phi+" "+lp.lam);
@@ -115,7 +167,14 @@ public abstract class Projection implements Constants {
         }
         return xy;
     }
-    public LP inverse(XY xy) throws ProjectionException{
+    /** Performs an inverse projection.
+     * Following pre-processing, doInverse(XY) is called in the concrete subclass.
+     * The result from doInverse is post processed before being returned.
+     * @param xy The xy coordinates to un-project.
+     * @return LP The value of xy back projected to lat long values.
+     * @throws ProjectionException Thrown if inverse projection is not possible or if xy contains illegal values.
+     */    
+    public final LP inverse(XY xy) throws ProjectionException{
         LP lp = new LP();
         
         /* can't do as much preliminary checking as with forward */
@@ -136,9 +195,30 @@ public abstract class Projection implements Constants {
         return lp;
     }
     
+    /**
+     * Must be implemented by concrete subclasses of Projection.
+     * The method is called by forward() after some initial pre-processing of lp.
+     * @param lp The lat, long values to project.
+     * @return XY The xy coordinates of the projected lp.
+     * @throws ProjectionException Thrown if the projection is not possible or if the values in lp are invalid.
+     */    
     protected abstract XY doForward(LP lp) throws ProjectionException;
-    protected abstract LP doInverse(XY XY) throws ProjectionException;
+    /**
+     * Must be re-defined in concrete subclasses which support inverse projection.
+     * By default, this method throws a ProjectionException - Inverse Projection Not Supported.
+     * @param xy The xy coordinates to un-project.
+     * @return LP The value of xy back projected to lat long values.
+     * @throws ProjectionException Thrown if inverse projection is not possible or if xy contains illegal values.
+     */    
+    protected LP doInverse(XY xy) throws ProjectionException{
+        throw new ProjectionException("Inverse Projections not supported");
+    }
     
+    /**
+     * Compares the datum definition of this projection with that of test's datum.
+     * @param test The projection to compare datums with.
+     * @return True if the datums are equivalent.
+     */    
     public boolean isDatumEqual(Projection test){
         if( datum.datumType != test.datum.datumType ) {
             return false;
@@ -165,6 +245,10 @@ public abstract class Projection implements Constants {
     }
     
     
+    /**
+     * Tests to see if this is a 'dummy' projection.
+     * @return True if this projection is simply lat long.
+     */    
     public boolean isLatLong(){
         return isLatLong;
     }

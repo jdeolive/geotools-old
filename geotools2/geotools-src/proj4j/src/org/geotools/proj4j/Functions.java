@@ -7,16 +7,16 @@
 package org.geotools.proj4j;
 
 import java.util.StringTokenizer;
-/**
+/** A set of standard functions used by many projections.
  *
- * @author  James Macgill
+ * @author James Macgill
  */
 public class Functions implements Constants{
     
     
     
     
-    /* reduce argument to range +/- PI */
+   
     
     
     public static final double SPI =    3.14159265359;
@@ -75,7 +75,11 @@ public class Functions implements Constants{
         }
         throw new ProjectionException("non-convergent inverse meridinal dist");
     }
-    
+    /**
+     * Reduces argument to range +/- PI. 
+     * @param lon the value to adjust
+     * @return double the adjusted value
+     **/
     public static double adjlon(double lon) {
         if (Math.abs(lon) <= SPI) return( lon );
         lon += ONEPI;  /* adjust to 0..2pi rad */
@@ -84,13 +88,16 @@ public class Functions implements Constants{
         return lon ;
     }
     
-    //static final int MAX_WORK = 64;
     static final String sym = "NnEeSsWw";
     static final double[] vm = {
         .0174532925199433,
         .0002908882086657216,
         .0000048481368110953599
     };
+    /** Converts a degres minutes seconds string into a radians value.
+     * @param is The String to convert
+     * @return double The value of is in radians
+     */    
     public static double dmsToR(String is){
         int n=0, nl;
         String work;
@@ -164,6 +171,11 @@ public class Functions implements Constants{
     
     
     /* determine small q */
+    /** returns small q
+     * @param sinphi
+     * @param e
+     * @param one_es
+     * @return  */    
     public static double qsfn(double sinphi, double e, double one_es) {
         double con;
         if (e >= EPS) {
