@@ -116,6 +116,11 @@ public abstract class Unit implements Serializable {
      * Convenience constant for base unit of mass.
      */
     public static final Unit KILOGRAM = get("kg");
+
+    /**
+     * Unit of arc-second. Used by the EPSG database.
+     */
+    public static final Unit ARC_SECOND = DEGREE.scale(1.0/3600);
     
     /**
      * Convenience constant for "Degrees Minutes Secondes" unit.
