@@ -67,7 +67,7 @@ import org.geotools.resources.ComponentColorModelJAI;
  * This factory provides only one public static method: {@link #getColorModel}.  Instances
  * of {@link ColorModel} are shared among all callers in the running virtual machine.
  *
- * @version $Id: ColorModelFactory.java,v 1.5 2003/03/09 19:45:14 desruisseaux Exp $
+ * @version $Id: ColorModelFactory.java,v 1.6 2003/03/10 10:47:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColorModelFactory {
@@ -201,18 +201,6 @@ final class ColorModelFactory {
             // FloatDoubleColorModel. We provide it here just because we must end
             // with something.
             return RasterFactory.createComponentColorModel(type, colors, false, false, transparency);
-        }
-        if (numBands != 1) {
-            // It would be possible to support 2, 3, 4... bands. But is it
-            // really a good idea? This method is used by GridCoverage for
-            // creating a displayable image from a geophysics one.  We may
-            // ignore extra bands (by subclassing IndexColorModel), but it
-            // would involve useless computation every time the "thematic"
-            // image is computed since extra-bands are ignored...
-            java.util.logging.Logger.getLogger("org.geotools.cv").warning("ColorModel for "+
-                    "non-geophysics image with more than one band is broken in current "+
-                    "implementation. An exception is likely to be throw soon. Proposed fixes: "+
-                    "1) Use geophysics image  2) Use only one band  3) Contribute! Fix this bug!");
         }
         if (numBands==1 && categories.length==0) {
             // Construct a gray scale palette.
