@@ -31,7 +31,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionDefault;
-import org.geotools.gui.tools.Tool;
+import org.geotools.gui.tools.AbstractToolImpl;
 import java.util.EventObject;
 import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.BoundingBox;
@@ -49,7 +49,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.1 2003/01/29 08:19:46 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.2 2003/01/29 19:33:57 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -63,7 +63,7 @@ public class MapPaneImpl extends JPanel implements
     /**
      * The current tool for this MapPane.
      */
-    private Tool tool;
+    private AbstractToolImpl tool;
 
     /**
      * The class to use to render this MapPane.
@@ -91,7 +91,7 @@ public class MapPaneImpl extends JPanel implements
      * context is null, an IllegalArguementException is thrown.
      */
     public MapPaneImpl(
-            Tool tool,
+            AbstractToolImpl tool,
             Context context) throws IllegalArgumentException
     {
         if ((tool==null)||(context==null)){
@@ -118,7 +118,7 @@ public class MapPaneImpl extends JPanel implements
      * @param tool The tool to use for this mapPane.
      * @throws IllegalArgumentException if tool is null.
      */
-    public void setTool(Tool tool) throws IllegalArgumentException
+    public void setTool(AbstractToolImpl tool) throws IllegalArgumentException
     {
         if (tool==null){
             throw new IllegalArgumentException();
@@ -134,7 +134,7 @@ public class MapPaneImpl extends JPanel implements
      * is returned.
      * @return The tool assigned to this mapPane.
      */
-    public Tool getTool()
+    public AbstractToolImpl getTool()
     {
         return this.tool;
     }

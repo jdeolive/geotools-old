@@ -13,7 +13,7 @@ import org.geotools.map.Context;
  * initialsed by Widgets when the Widget assigns a Tool to the Widget.
  * Tools should be destroyed when the owning Widget is destroyed.
  */
-public abstract class Tool {
+public abstract class AbstractToolImpl {
     /**
      * The widget from which this Tool gets MouseEvents.  The widget contains
      * information like widget size.
