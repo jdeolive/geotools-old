@@ -79,8 +79,8 @@ public class PanToolImpl extends MouseToolImpl implements PanTool {
                 MathTransformFactory.getDefault().createAffineTransform(at);
 
             try {
-                maxP=mt.transform(maxP,maxP);
-                minP=mt.transform(minP, minP);
+                mt.transform(maxP,maxP);
+                mt.transform(minP, minP);
 
                 context.getBbox().setAreaOfInterest(
                     new Envelope(
