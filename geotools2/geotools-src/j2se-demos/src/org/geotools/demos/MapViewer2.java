@@ -61,7 +61,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.22 2003/03/27 11:32:18 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.23 2003/03/28 19:07:15 camerons Exp $
  *
  */
 
@@ -167,7 +167,8 @@ public class MapViewer2 {
         JMenuBar menuBar = new javax.swing.JMenuBar();
         JMenu toolMenu = new javax.swing.JMenu();
         JMenuItem panMenuItem = new javax.swing.JMenuItem();
-        JMenuItem zoomMenuItem = new javax.swing.JMenuItem();
+        JMenuItem zoomInMenuItem = new javax.swing.JMenuItem();
+        JMenuItem zoomOutMenuItem = new javax.swing.JMenuItem();
         JMenuItem noToolMenuItem = new javax.swing.JMenuItem();
 
         toolMenu.setText("Tool");
@@ -180,13 +181,21 @@ public class MapViewer2 {
         });
         toolMenu.add(panMenuItem);
         
-        zoomMenuItem.setText("Zoom");
-        zoomMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        zoomInMenuItem.setText("Zoom In");
+        zoomInMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                zoomActionPerformed(evt);
+                zoomInActionPerformed(evt);
             }
         });
-        toolMenu.add(zoomMenuItem);
+        toolMenu.add(zoomInMenuItem);
+        
+        zoomOutMenuItem.setText("Zoom Out");
+        zoomOutMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                zoomOutActionPerformed(evt);
+            }
+        });
+        toolMenu.add(zoomOutMenuItem);
         
         noToolMenuItem.setText("No Tool");
         noToolMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -220,9 +229,14 @@ public class MapViewer2 {
         context.getSelectedTool().setTool(toolFactory.createPanTool());
     }
 
-    private void zoomActionPerformed(java.awt.event.ActionEvent evt){
+    private void zoomInActionPerformed(java.awt.event.ActionEvent evt){
         ToolFactory toolFactory=ToolFactory.createFactory();
-        context.getSelectedTool().setTool(toolFactory.createZoomTool());
+        context.getSelectedTool().setTool(toolFactory.createZoomTool(2));
+    }
+
+    private void zoomOutActionPerformed(java.awt.event.ActionEvent evt){
+        ToolFactory toolFactory=ToolFactory.createFactory();
+        context.getSelectedTool().setTool(toolFactory.createZoomTool(0.5));
     }
 
     private void noToolActionPerformed(java.awt.event.ActionEvent evt){
