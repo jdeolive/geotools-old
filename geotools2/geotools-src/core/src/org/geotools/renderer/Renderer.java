@@ -25,6 +25,7 @@ import org.geotools.styling.*;
 import org.geotools.map.Map;
 import org.geotools.datasource.Extent;
 import org.geotools.datasource.Feature;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * this is very much work in progress
@@ -37,7 +38,7 @@ public interface Renderer {
     
     //we could pass in somehting like
     
-    public void render(Feature f[],Extent viewport,Style style);
+    public void render(Feature f[],Envelope viewport,Style style);
     
     //is that enough to go on? lets assume it is.
 }
