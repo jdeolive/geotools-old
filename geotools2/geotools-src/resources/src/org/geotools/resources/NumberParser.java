@@ -819,7 +819,7 @@ public final class NumberParser {
     boolean trimming = true;
     while (trimming && start < end) {
       switch ( s.charAt(start) ) {
-          case ' ': case '\n': case '\t': case '\r': case '0':
+          case ' ': case '\n': case '\t': case '\r': case 0:
           start ++;
           break;
         default:
@@ -829,7 +829,7 @@ public final class NumberParser {
     trimming = true;
     while (trimming && end > start) {
       switch ( s.charAt(end) ) {
-          case ' ': case '\n': case '\t': case '\r': case '0':
+          case ' ': case '\n': case '\t': case '\r': case 0:
           end --;
           break;
         default:
