@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." default="release" name="gmldatasource">
+
+  <property file="build.ant.properties"/>
+  <property name="dir.module" value="${basedir}"/>           
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="init" if="cond.Uninitialized">
+    <condition property="cond.Uninitialized" value="false"/>           
+    <ant antfile="common.xml" dir="../gtbuild" target="externalInit" inheritAll="true"/>
+  </target>
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="release">
+    <ant antfile="common.xml" dir="../gtbuild" target="all" inheritAll="true"/>
+  </target>
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="clean">
+    <ant antfile="common.xml" dir="../gtbuild" target="clean" inheritAll="true"/>
+  </target>
+
+  <!-- Now, set your module-specific build targets here -->
+  <target name="testme" depends="init">
+    <echo message="dir.test = ${dir.test}"/>
+  </target>
+
+  <!-- Tests the feature flat stuff -->
+  <target name="test" depends="release">
+    <property name="dir.module" value="${basedir}"/>           
+    <ant antfile="common.xml" dir="../gtbuild" target="taskdefs" inheritAll="true"/>
+    <ant antfile="common.xml" dir="../gtbuild" target="compile-test" inheritAll="true"/>
+    <junit fork="true" printsummary="withOutAndErr">
+      <formatter type="plain" usefile="false"/>
+      <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
+      <classpath>
+        <pathelement path="./tests/unit"/>
+        <pathelement path="../../extbin/core/lib/JTS.jar"/>
+        <pathelement path="../../extbin/core/lib/log4j.jar"/>
+        <pathelement path="../../extbin/gtbuild/lib/junit.jar"/>
+        <pathelement path="../core/src"/>
+        <pathelement path="../../extbin/postgis/lib/junit.jar"/>
+        <pathelement path="src"/>
+        <fileset dir="release"/>
+      </classpath>
+      <test fork="false" name="org.geotools.data.postgis.PostgisTestSuite"/>
+    </junit>
+  </target>
+
+
+</project>
