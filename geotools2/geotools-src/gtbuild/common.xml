@@ -1,0 +1,109 @@
+     <property file="build.ant.properties"/>
+    <target depends="release" name="all">
+        <!-- WRITEME -->
+    </target>
+    
+    <target depends="prepare-compile" description="compile the code for the package" name="compile">
+        <javac debug="true" srcdir="src">
+            <classpath refid="compile.path" />
+        </javac>
+    </target>
+    <target depends="compile" name="compile-test" if="testsuite">
+        <javac debug="true" srcdir="tests/unit/org">
+            <classpath>
+                <path path="src"/>
+                <path refid="compile.path" />
+            </classpath>
+        </javac>
+    </target>
+    <target depends="compile-test" name="test" if="testsuite">
+
+        <junit fork="true" printsummary="true">
+            <formatter type="plain"/>
+            <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
+            <classpath>
+                <path path="src"/>
+                <path path="tests/unit/"/>
+                <path refid="compile.path"/>
+            </classpath>
+            <test fork="true" name="${testsuite}"/>
+        </junit>
+    </target>
+    <target depends="test" name="release">
+        <mkdir dir="${releaseFolder}"/>
+        <jar basedir="src/" jarfile="${releaseFolder}/${project.name}.jar"/>
+        <antcall target="copy-extlib"/>
+    </target>
+    
+    <target name="copy-extlib" if="has.extbin">
+        <echo message="${project.name}: copying from ${extbin} to ${releaseFolder}"/>
+        <copy todir="${releaseFolder}">
+            <fileset dir="${extbin}"/>
+        </copy>
+    </target>
+
+    <target name="clean" depends="init"> 
+        <delete>
+            <fileset dir="src" includes="**/*.class"/>
+            <fileset dir="${releaseFolder}/" includes="*.jar"/>
+            <fileset dir="tests/unit/org/" includes="**/*.class"/>
+        </delete>
+    </target>
+
+    <target name="init">
+       
+
+        <path id="netbeans.ext">
+            <fileset dir="..\..\extbin\gtbuild\lib\"/>
+            <pathelement location="..\..\extbin\gtbuild\lib\nbantext.jar"/>
+        </path>
+        <taskdef classname="org.netbeans.nbbuild.ForEach" name="for-each">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>    
+        <taskdef classname="org.netbeans.nbbuild.CheckValue" name="check">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>
+
+        <echo message="${project.name} dependancies = ${dependancy}"/>
+        <condition property="has.dependancies" >
+            <not>
+                <equals arg1="${dependancy}" arg2="$${dependancy}"/>
+            </not>
+        </condition>
+        <echo message="${project.name} has dependancies = ${has.dependancies}"/>
+
+
+        <condition property="has.extbin" >           
+            <not>
+                <equals arg1="${extbin}" arg2="$${extbin}"/>
+            </not>            
+        </condition>
+        <echo message="${project.name} extbin = ${extbin}"/>
+        <echo message="${project.name} has extbin = ${has.extbin}"/>
+    </target>
+    <target name="prepare-compile" depends="init" >
+        <echo message="Prep-compile: ${project.name}" />
+        <mkdir dir="${releaseFolder}"/>
+        <echo message="${project.name} about to call dependancies ${has.dependancies}"/>
+        <antcall target="dependancies"/>
+        <path id="compile.path">
+            <fileset dir="..\..\extbin\gtbuild\lib\"/>
+            <fileset dir="${releaseFolder}"/>
+        </path>
+        
+        <antcall target="add-extbin"/>
+    </target>
+    <target name="add-extbin" if="has.extbin">
+        <echo message="adding ${extbin} to classpath"/>
+        <path id="compile.path">
+            <fileset dir="..\..\extbin\gtbuild\lib\"/>
+            <fileset dir="${releaseFolder}"/>
+            <fileset dir="${extbin}"/>
+        </path>
+    </target>
+    <target name="dependancies" if="has.dependancies" >
+        <echo message="${project.name}: about to build ${dependancy}"/>
+        <for-each startdir=".." locations="${dependancy}" target="release" inheritall="false" >
+            <property name="releaseFolder" value="${releaseFolder}"/>
+        </for-each>
+    </target>
