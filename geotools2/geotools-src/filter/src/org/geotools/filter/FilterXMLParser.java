@@ -41,8 +41,27 @@ public class FilterXMLParser {
                 short type = ((Integer)comparisions.get(childName)).shortValue();
                 CompareFilter filter = null;
                 if(type == AbstractFilter.BETWEEN) {
-                    filter = new BetweenFilter();
-                    between=true;
+                    BetweenFilter bfilter = new BetweenFilter();
+                    
+                    NodeList kids = child.getChildNodes();
+                    for(int i=0;i<kids.getLength();i++){
+                        Node kid = kids.item(i);
+                        Node value;
+                        if(kid.getNodeName().equalsIgnoreCase("LowerBoundary")){
+                            value = kid.getFirstChild();
+                            while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                            bfilter.addLeftValue(ExpressionXmlParser.parseExpression(value));
+                        }
+                        if(kid.getNodeName().equalsIgnoreCase("UpperBoundary")){
+                            value = kid.getFirstChild();
+                            while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                            bfilter.addRightValue(ExpressionXmlParser.parseExpression(value));
+                        }
+                        if(kid.getNodeName().equalsIgnoreCase("PropertyName")){
+                            bfilter.addMiddleValue(ExpressionXmlParser.parseExpression(kid));
+                        }
+                    }
+                    return bfilter;
                 }else if(type==AbstractFilter.LIKE){
                     String wildcard=null,single=null,escape=null,pattern=null;
                     Expression value=null;
@@ -57,6 +76,12 @@ public class FilterXMLParser {
                         if(res.equalsIgnoreCase("Literal")){
                             pattern = ExpressionXmlParser.parseExpression(kid).toString();
                         }
+                    }
+                    NamedNodeMap kids = child.getAttributes();
+                    for(int i=0;i<kids.getLength();i++){
+                        Node kid = kids.item(i);
+                        if(kid == null || kid.getNodeType() != Node.ELEMENT_NODE) continue;
+                        String res = kid.getNodeName();
                         if(res.equalsIgnoreCase("wildCard")){
                             wildcard = kid.getNodeValue();
                         }
@@ -73,6 +98,7 @@ public class FilterXMLParser {
                         lfilter.setPattern(pattern,wildcard,single,escape);
                         return lfilter;
                     }
+                    _log.error("Problem building like filter\n"+pattern+" "+wildcard+" "+single+" "+escape);
                     return null;
                 }else{                    
                     filter = new CompareFilter(type);
@@ -85,19 +111,14 @@ public class FilterXMLParser {
                 _log.debug("add left value -> "+value+"<-");
                 filter.addLeftValue(ExpressionXmlParser.parseExpression(value));
                 value = value.getNextSibling();
-                if(between){
-                    while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                    _log.debug("add middle value -> "+value+"<-");
-                    ((BetweenFilter)filter).addMiddleValue(ExpressionXmlParser.parseExpression(value));
-                    value = value.getNextSibling();
-                }
+                
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 _log.debug("add right value -> "+value+"<-");
                 filter.addRightValue(ExpressionXmlParser.parseExpression(value));
                 return filter;
                 
             }catch (IllegalFilterException ife){
-                _log.error("Unable to build expression ",ife);
+                _log.error("Unable to build filter ",ife);
                 return null;
             }
         } else if(spatial.containsKey(childName)){
@@ -113,10 +134,11 @@ public class FilterXMLParser {
                     
                     while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                     _log.debug("add right value -> "+value+"<-");
+        
                     filter.addRightGeometry(ExpressionXmlParser.parseExpression(value));
                     return filter;
                 }catch (IllegalFilterException ife){
-                _log.error("Unable to build expression ",ife);
+                _log.error("Unable to build filter ",ife);
                 return null;
             }
         } else if (logical.containsKey(childName)){
@@ -129,14 +151,16 @@ public class FilterXMLParser {
                 for(int i=0;i<map.getLength();i++){
                     Node kid=map.item(i);
                     if(kid == null || kid.getNodeType() != Node.ELEMENT_NODE) continue;
+                    _log.debug("adding to logic filter "+kid.getNodeName());
                     filter.addFilter(parseFilter(kid));
                 }
                 return filter;
              }catch (IllegalFilterException ife){
-                _log.error("Unable to build expression ",ife);
+                _log.error("Unable to build filter ",ife);
                 return null;
             }
         }
+        _log.info("unknown filter "+root);
         return null;
     }
     
