@@ -45,7 +45,22 @@
         </developer>
   </developers>
   <dependencies>
-  </dependencies>
+        <dependencies>
+    <dependency>
+      <id>core</id>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <id>defaultcore</id>
+      <version>0.1</version>
+    </dependency>
+        <dependency>
+      <id>log4j</id>
+      <version>1.2.3</version>
+    </dependency>
+        
+    </dependencies>
+    </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
     
