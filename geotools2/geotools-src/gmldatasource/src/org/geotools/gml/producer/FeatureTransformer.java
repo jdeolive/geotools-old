@@ -92,7 +92,7 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.17 2003/11/14 22:36:59 cholmesny Exp $
+ * @version $Id: FeatureTransformer.java,v 1.18 2004/01/19 22:58:25 cholmesny Exp $
  *
  * @todo Add support for schemaLocation
  */
@@ -109,6 +109,7 @@ public class FeatureTransformer extends TransformerBase {
     private boolean prefixGml = false;
     private String srsName;
     private String lockId;
+    private int numDecimals = 4;
 
     public void setCollectionNamespace(String nsURI) {
         collectionNamespace = nsURI;
@@ -124,6 +125,10 @@ public class FeatureTransformer extends TransformerBase {
 
     public String getCollectionPrefix() {
         return collectionPrefix;
+    }
+
+    public void setNumDecimals(int numDecimals) {
+        this.numDecimals = numDecimals;
     }
 
     public NamespaceSupport getFeatureNamespaces() {
@@ -214,6 +219,7 @@ public class FeatureTransformer extends TransformerBase {
         java.util.Enumeration prefixes = nsLookup.getPrefixes();
 
         //setGmlPrefixing(true);
+        t.setNumDecimals(numDecimals);
         t.setGmlPrefixing(prefixGml);
         t.setSrsName(srsName);
         t.setLockId(lockId);
@@ -271,6 +277,7 @@ public class FeatureTransformer extends TransformerBase {
         boolean prefixGml = false;
         String srsName = null;
         String lockId = null;
+        ContentHandler handler;
 
         /**
          * Constructor with handler.
@@ -287,7 +294,7 @@ public class FeatureTransformer extends TransformerBase {
             super(handler, prefix, ns, schemaLoc);
             geometryTranslator = new GeometryTransformer.GeometryTranslator(handler);
             this.types = types;
-
+            this.handler = handler;
             getNamespaceSupport().declarePrefix(geometryTranslator
                 .getDefaultPrefix(), geometryTranslator.getDefaultNamespace());
             memberString = geometryTranslator.getDefaultPrefix()
@@ -300,6 +307,11 @@ public class FeatureTransformer extends TransformerBase {
 
         void setSrsName(String srsName) {
             this.srsName = srsName;
+        }
+
+        void setNumDecimals(int numDecimals) {
+            geometryTranslator = new GeometryTransformer.GeometryTranslator(handler,
+                    numDecimals);
         }
 
         public void setLockId(String lockId) {
@@ -348,6 +360,7 @@ public class FeatureTransformer extends TransformerBase {
                     throw new IllegalArgumentException("Cannot encode " + o);
                 }
             } catch (IOException ioe) {
+                ioe.printStackTrace(System.out);
                 throw new RuntimeException("error reading FeatureResults", ioe);
             }
         }

@@ -47,6 +47,11 @@ public class GeometryTransformer extends TransformerBase {
             super(handler, "gml", GMLUtils.GML_URL);
         }
 
+        public GeometryTranslator(ContentHandler handler, int numDecimals) {
+            this(handler);
+            coordWriter = new CoordinateWriter(numDecimals);
+        }
+
         public void encode(Object o, String srsName)
             throws IllegalArgumentException {
             if (o instanceof Geometry) {
