@@ -256,41 +256,44 @@ public class PostgisTest extends TestCase {
         LOGGER.info("...ending type enforcement tests");
  	    
 	}
-/*
+
 
     //this needs to be updated to work with the feathers.leeds.ac.uk database.  But this
     //should give an idea of how to test the modify features.  It works on my local db.  CH
-    public void testModify() {
-	try {
-	    collection = FeatureCollections.newCollection();
-
-	    org.geotools.filter.GeometryFilter gf =
-	    new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-	    ExpressionLiteral right =
-		new BBoxExpression(new Envelope(235,305,235,305));
-	    gf.addRightGeometry(right);
-	    gf.addLeftGeometry(new ExpressionAttribute(schema, "geom"));
-	    doModifyTest("name", "modified", gf);
+    public void testModify() throws DataSourceException { 
+	try { 
+	    postgis.setAutoCommit(false);
+	     org.geotools.filter.GeometryFilter gf =
+		 filterFac.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+	     LiteralExpression right =
+		 filterFac.createBBoxExpression
+		 (new Envelope(428800,430300,428900,440400));
+	     gf.addRightGeometry(right);
+	     gf.addLeftGeometry(filterFac.createAttributeExpression
+				(schema, "the_geom"));
+	     doModifyTest("name", "modified", gf);
 	    
-        LikeFilter likeFilter = new LikeFilter();
-        likeFilter.setValue(new ExpressionAttribute(schema, "name"));        
-	likeFilter.setPattern(new ExpressionLiteral("*not*"),"*",".","!");
-	doModifyTest("name", "not me too!", likeFilter); 
+	     LikeFilter likeFilter = filterFac.createLikeFilter();
+		likeFilter.setValue
+		    (filterFac.createAttributeExpression(schema, "name"));        
+		likeFilter.setPattern
+		    (filterFac.createLiteralExpression("*4*"),"*",".","!");
+		doModifyTest("gid", new Integer(23), likeFilter); 
 
 
-	    Coordinate[] points = { new Coordinate(85, 85),
-				new Coordinate(85, 95),
-				new Coordinate(95, 95),
-				new Coordinate(95, 85),
-				 new Coordinate(85, 85) };
-	LinearRing shell = new LinearRing(points, new PrecisionModel(), srid);
-	Polygon testPoly = new Polygon(shell, new PrecisionModel(), srid);
+	     Coordinate[] points = { new Coordinate(85, 85),
+		 		new Coordinate(85, 95),
+			 	new Coordinate(95, 95),
+				 new Coordinate(95, 85),
+				  new Coordinate(85, 85) };
+ 	LinearRing shell = new LinearRing(points, new PrecisionModel(), srid);
+ 	Polygon testPoly = new Polygon(shell, new PrecisionModel(), srid);
 	//CompareFilter compFilter = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
 	//compFilter.addLeftValue(new ExpressionAttribute(schema, "gid"));
 	//compFilter.addRightValue(new ExpressionLiteral(new Integer(5)));
 	//doModifyTest("geom", testPoly, compFilter);
 		      
-
+	postgis.rollback();
 	} catch(IllegalFilterException fe) {
 	    LOGGER.info("...threw filter exception" + fe.getMessage());
 	    this.fail("...threw filter exception");	  
@@ -298,7 +301,7 @@ public class PostgisTest extends TestCase {
 	    
 	
     }
-*/   
+   
       private void doRemoveTest(Filter filter, int expectedDel) 
 	throws DataSourceException{
 	//TODO: implement tests that don't use get and add.
@@ -324,39 +327,34 @@ public class PostgisTest extends TestCase {
 	//to know the test put things back.
     }
     	   
-    /*
+    
     private void doModifyTest(String attributeName, Object newValue, 
 			      Filter filter) {
 	try {
-	    collection = FeatureCollections.newCollection();
-	    postgis.getFeatures(collection, filter);
-	    Object unModified = 
-		collection.getFeatures()[0].getAttribute(attributeName);
+
+	    collection = postgis.getFeatures(filter);
+	    Object unModified = collection.features().next().getAttribute(attributeName);
+	    LOGGER.fine("unmodified att is " + unModified + ", att is " +
+			  schema.getAttributeType(attributeName));
 	    postgis.modifyFeatures(schema.getAttributeType(attributeName), 
 				   newValue, filter);
 	    collection = FeatureCollections.newCollection();
 	    postgis.getFeatures(collection, filter);
-	    Feature[] featureArr = collection.getFeatures();
+	    FeatureIterator features = collection.features();
 	    postgis.modifyFeatures(schema.getAttributeType(attributeName), 
-				   unModified, filter);
+			 	   unModified, filter);
 	    //yes, this sets all the values back the value of the 
 	    //first one, but it's only a test.
-	    for (int i = 0; i < featureArr.length; i++) {
-		Object modified = featureArr[i].getAttribute(attributeName);
+	    while(features.hasNext()){
+		Object modified = features.next().getAttribute(attributeName);
 		assertTrue(newValue.equals(modified)); 
 	    }
 	} catch(DataSourceException dse) {
 	    LOGGER.info("...threw data source exception "+ dse);
 	    this.fail("...threw data source exception");
-	}    catch(SchemaException se) {
-	    LOGGER.info("...threw schema exception " + se);
-	    this.fail("...threw schema exception");
-	}   catch(IllegalFeatureException fe) {
-	    LOGGER.info("...threw feature exception" + fe);
-	    this.fail("...threw feature exception");
-	} 
+	}   
 
-	}*/
+	}
 
     private void addFeature(String name) throws Exception{
 	Coordinate[] points = { new Coordinate(45, 45),
@@ -389,9 +387,9 @@ public class PostgisTest extends TestCase {
     public void testRollbacks() throws Exception {
 	String rollbackName = "test rollback";
 	java.sql.Connection con = db.getConnection();
-	con.setAutoCommit(false); //this should change to startMultiTransaction
 	//for now client just handles connections commits
 	postgis = new PostgisDataSource(con, FEATURE_TABLE);
+	postgis.setAutoCommit(false); //this should change to startMultiTransaction
 	addFeature("test rollback");
 	//create ds on different connection, to make sure transactions are
 	//not committed until commit is called.
@@ -402,8 +400,8 @@ public class PostgisTest extends TestCase {
 		    " features before commit");
 	assertEquals(6,collection.size());
 
-	//db.commitTransaction();
-	con.commit();
+	postgis.commit();
+	//con.commit();
 	//db.getConnection().close();
 	collection = FeatureCollections.newCollection();
 	postgisCheck.getFeatures(collection,tFilter);
@@ -419,7 +417,7 @@ public class PostgisTest extends TestCase {
 	LOGGER.fine("there are " + collection.size() + 
 		    " features before rollback");
 	assertEquals(7,collection.size());
-	con.rollback();//db.rollbackTransaction();
+	postgis.rollback();//db.rollbackTransaction();
 	collection = FeatureCollections.newCollection();
 	postgisCheck.getFeatures(collection,tFilter);
 	LOGGER.fine("there are " + collection.size() + 
@@ -438,13 +436,13 @@ public class PostgisTest extends TestCase {
 	LOGGER.fine("there are " + collection.size() + 
 		    " features before commit");
 	assertEquals(7,collection.size());
-	con.commit();
+	postgis.commit();
 	collection = FeatureCollections.newCollection();
 	postgisCheck.getFeatures(collection,tFilter);
 	LOGGER.fine("there are " + collection.size() + 
 		    " features after commit");
 	assertEquals(6,collection.size());
-	con.close();
+	//con.close();
 	
 	}
     
