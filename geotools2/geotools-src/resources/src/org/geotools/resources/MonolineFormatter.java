@@ -33,6 +33,7 @@
 package org.geotools.resources;
 
 // Logging
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
@@ -85,10 +86,11 @@ import org.geotools.io.LineWriter;
  * #
  * #  source: If set, writes the source logger or the source class name.
  * #          The argument specifies the type of source to display. Valid
- * #          values are logger, logger:long, class and class:long.
+ * #          values are none, logger:short, logger:long, class:short and
+ * #          class:long.
  * ############################################################
  * org.geotools.resources.MonolineFormatter.time = HH:mm:ss.SSS
- * org.geotools.resources.MonolineFormatter.source = class
+ * org.geotools.resources.MonolineFormatter.source = class:short
  * </pre></blockquote>
  *
  * If the <code>MonolineFormatter</code> is wanted for the whole system
@@ -101,11 +103,10 @@ import org.geotools.io.LineWriter;
  * java.util.logging.ConsoleHandler.level = FINE
  * </pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.7 2002/09/04 08:12:20 desruisseaux Exp $
+ * @version $Id: MonolineFormatter.java,v 1.8 2003/03/04 22:29:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatter extends Formatter {
-
     /**
      * The string to write at the begining of all log headers (e.g. "[FINE core]")
      */
@@ -120,33 +121,32 @@ public class MonolineFormatter extends Formatter {
     /**
      * The default header width.
      */
-    private static final int DEFAULT_WIDTH = 10;
+    private static final int DEFAULT_WIDTH = 9;
 
-    /** Enumeration constants for source formatting. */
-    private static final int NO_SOURCE    = 0;
-    private static final int LOGGER_SHORT = 1;
-    private static final int LOGGER_LONG  = 2;
-    private static final int CLASS_SHORT  = 3;
-    private static final int CLASS_LONG   = 4;
+    /** Do not format source class name.       */ private static final int NO_SOURCE    = 0;
+    /** Explicit value for 'none'.             */ private static final int NO_SOURCE_EX = 1;
+    /** Format the source logger without base. */ private static final int LOGGER_SHORT = 2;
+    /** Format the source logger only.         */ private static final int LOGGER_LONG  = 3;
+    /** Format the class name without package. */ private static final int CLASS_SHORT  = 4;
+    /** Format the fully qualified class name. */ private static final int CLASS_LONG   = 5;
 
     /**
-     * The label to use in the <code>logging.properties</code>
-     * for setting the source format.
+     * The label to use in the <code>logging.properties</code> for setting the source format.
      */
-    private static String[] FORMAT_LABELS = new String[5];
+    private static String[] FORMAT_LABELS = new String[6];
     static {
-        FORMAT_LABELS[LOGGER_SHORT] = "logger";
+        FORMAT_LABELS[NO_SOURCE_EX] = "none";
+        FORMAT_LABELS[LOGGER_SHORT] = "logger:short";
         FORMAT_LABELS[LOGGER_LONG ] = "logger:long";
-        FORMAT_LABELS[ CLASS_SHORT] = "class";
-        FORMAT_LABELS[ CLASS_LONG ] = "class:long";
+        FORMAT_LABELS[ CLASS_SHORT] =  "class:short";
+        FORMAT_LABELS[ CLASS_LONG ] =  "class:long";
     }
 
     /**
      * The line separator. This is the value of the "line.separator"
      * property at the time the <code>MonolineFormatter</code> was created.
      */
-    private final String lineSeparator = 
-        System.getProperty("line.separator", "\n");
+    private final String lineSeparator = System.getProperty("line.separator", "\n");
 
     /**
      * The line separator for the message body. This line always begin with
@@ -168,8 +168,7 @@ public class MonolineFormatter extends Formatter {
      * The base logger name. This is used for shortening the logger name when 
      * formatting message. For example, if the base logger name is "org.geotools" 
      * and a log record come from the "org.geotools.core" logger, it will be 
-     * formatted as "[LEVEL core]"
-     * (i.e. the "org.geotools" part is ommited).
+     * formatted as "[LEVEL core]" (i.e. the "org.geotools" part is ommited).
      */
     private final String base;
 
@@ -234,7 +233,7 @@ public class MonolineFormatter extends Formatter {
         final LogManager manager = LogManager.getLogManager();
 	final String   classname = MonolineFormatter.class.getName();
         try {
-            setTimeFormat  (manager.getProperty(classname + ".time"  ));
+            setTimeFormat(manager.getProperty(classname + ".time"));
         } catch (IllegalArgumentException exception) {
             // Can't use the logging framework, since we are configuring it.
             // Display the exception name only, not the trace.
@@ -268,14 +267,32 @@ public class MonolineFormatter extends Formatter {
     }
 
     /**
-     * Set the format for displaying the source. The pattern may be one
-     * of the following: <code>"logger"</code> or <code>"class"</code>,
-     *  <code>"logger:long"</code> or <code>"class:long"</code>.
+     * Returns the format for displaying ellapsed time. This is the pattern specified
+     * to the last call to {@link #setTimeFormat}, or the patten specified in the
+     * <code>org.geotools.MonolineFormater.time</code> property in the
+     * <code>jre/lib/logging.properties</code> file.
+     *
+     * @return The time pattern, or <code>null</code> if time is not formatted.
+     */
+    public synchronized String getTimeFormat() {
+        return (timeFormat!=null) ? timeFormat.toPattern() : null;
+    }
+
+    /**
+     * Set the format for displaying the source. The pattern may be one of the following:
+     *
+     * <code>"none"</code>,
+     * <code>"logger:short"</code>,  <code>"class:short"</code>,
+     * <code>"logger:long"</code> or <code>"class:long"</code>.
+     *
+     * The difference between a <code>null</code> and <code>"none"</code> is that <code>null</code>
+     * may be replaced by a default value (see {@link Geotools#init()},   while <code>"none"</code>
+     * means that the user explicitly requested no source.
      *
      * @param format The format for displaying the source, or <code>null</code>
      *        to disable source formatting.
      */
-    private synchronized void setSourceFormat(String format) {
+    public synchronized void setSourceFormat(String format) {
         if (format != null) {
             format = format.trim().toLowerCase();
         }
@@ -286,6 +303,18 @@ public class MonolineFormatter extends Formatter {
             }
         }
         throw new IllegalArgumentException(format);
+    }
+
+    /**
+     * Returns the format for displaying the source. This is the pattern specified
+     * to the last call to {@link #setSourceFormat}, or the patten specified in the
+     * <code>org.geotools.MonolineFormater.source</code> property in the
+     * <code>jre/lib/logging.properties</code> file.
+     *
+     * @return The source pattern, or <code>null</code> if source is not formatted.
+     */
+    public String getSourceFormat() {
+        return FORMAT_LABELS[sourceFormat];
     }
 
     /**
@@ -315,7 +344,7 @@ public class MonolineFormatter extends Formatter {
             int offset = buffer.length();
             buffer.append(record.getLevel().getLocalizedName());
             offset = buffer.length() - offset;
-            buffer.append(Utilities.spaces(Math.max(1, margin-offset)));
+            buffer.append(Utilities.spaces(margin-offset));
         }
         /*
          * Add the source. It may be either the source logger or the source
@@ -335,6 +364,7 @@ public class MonolineFormatter extends Formatter {
                 // fall through
             }
             case LOGGER_LONG: {
+                buffer.append(' ');
                 buffer.append(logger);
                 break;
             }
@@ -347,6 +377,7 @@ public class MonolineFormatter extends Formatter {
                 // fall through
             }
             case CLASS_LONG: {
+                buffer.append(' ');
                 buffer.append(classname);
                 break;
             }
@@ -384,13 +415,33 @@ public class MonolineFormatter extends Formatter {
      * {@linkplain System#err standard error stream}). This action has no effect
      * on any loggers outside the <code>base</code> namespace.
      *
-     * @param  base The base logger name to apply the change on 
-     *             (e.g. "org.geotools").
+     * @param  base The base logger name to apply the change on (e.g. "org.geotools").
      * @return The registered <code>MonolineFormatter</code>, or <code>null</code>
      *         if none. The formatter output can be configured using the
      *         {@link #setTimeFormat} and {@link #setSourceFormat} methods.
      */
     public static MonolineFormatter init(final String base) {
+        return init(base, null);
+    }
+
+    /**
+     * Convenience method setting both a <code>MonolineFormatter</code> and the logger levels.
+     * This method behave like {@link #init(String)}, except that it accepts an optional level
+     * argument. If the level is non-null, then all {@link Handler}s using the monoline formatter
+     * will be set to the specified level. The logger named <code>base</code> will also be set to
+     * this level.
+     * <br><br>
+     * Note: Avoid this method as much as possible,  since it overrides user's level setting for
+     *       the <code>base</code> logger. A user trying to configure its logging properties may
+     *       find confusing to see his setting ignored.
+     *
+     * @param  base The base logger name to apply the change on (e.g. "org.geotools").
+     * @param  level The desired level, or <code>null</code> if no level should be set.
+     * @return The registered <code>MonolineFormatter</code>, or <code>null</code>
+     *         if none. The formatter output can be configured using the
+     *         {@link #setTimeFormat} and {@link #setSourceFormat} methods.
+     */
+    public static MonolineFormatter init(final String base, final Level level) {
         MonolineFormatter monoline = null;
         final Logger logger = Logger.getLogger(base);
         for (Logger parent=logger; parent.getUseParentHandlers();) {
@@ -415,6 +466,9 @@ public class MonolineFormatter extends Formatter {
                         }
                         try {
                             handler = new Stdout(handler, monoline);
+                            if (level != null) {
+                                handler.setLevel(level);
+                            }
                         } catch (UnsupportedEncodingException exception) {
                             unexpectedException(exception);
                         } catch (SecurityException exception) {
@@ -426,6 +480,9 @@ public class MonolineFormatter extends Formatter {
             }
         }
         logger.setUseParentHandlers(false);
+        if (level != null) {
+            logger.setLevel(level);
+        }
         return monoline;
     }
 
@@ -448,7 +505,6 @@ public class MonolineFormatter extends Formatter {
      * bug get fixed, then {@link #close} no longer need to be overriden.
      */
     private static final class Stdout extends StreamHandler {
-
         /**
          * Construct a handler.
          *

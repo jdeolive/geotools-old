@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.13 2003/03/02 22:16:02 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.14 2003/03/04 22:27:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -397,7 +397,7 @@ public abstract class RenderedLayer {
     /**
      * Set the <var>z-order</var> for this layer. Layers with highest <var>z-order</var>
      * will be painted on top of layers with lowest <var>z-order</var>. The specified
-     * <var>z-order</var> replaces the default value returned by {@link #getZValue}.
+     * <var>z-order</var> replaces the default value returned by {@link #getZOrder}.
      *
      * @throws IllegalArgumentException if the specified <code>zOrder</code> is {@link Float#NaN}.
      */

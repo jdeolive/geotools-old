@@ -65,6 +65,8 @@ import org.geotools.io.LineWriter;
  *
  * @version $Id: Log4JFormatter.java,v 1.3 2002/08/19 18:15:30 desruisseaux Exp 
  * @author Martin Desruisseaux
+ *
+ * @deprecated Use {@link MonolineFormatter} instead.
  */
 public class Log4JFormatter 
     extends Formatter {
