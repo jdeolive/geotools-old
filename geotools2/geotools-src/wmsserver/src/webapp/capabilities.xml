@@ -41,8 +41,7 @@
   </DCPType>
 </GetCapabilities>
 
-<GetMap>
-  <Format>image/jpeg</Format> 
+<GetMap> 
   <?GEO MAPFORMATS ?>
   <DCPType>
     <HTTP>
