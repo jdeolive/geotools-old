@@ -258,6 +258,15 @@ public class DOMParserTest extends TestCase {
         LOGGER.fine("parsed filter is " + test);
     }
 
+	public void test28() throws Exception {
+		FidFilter filter = (FidFilter)parseDocumentFirst(dataFolder + "/test28.xml");
+		String[] fids = filter.getFids();
+		assertEquals(3,fids.length);
+		assertEquals("FID.3",fids[0]);
+		assertEquals("FID.1",fids[1]);
+		assertEquals("FID.2",fids[2]);
+	}
+
     public Filter parseDocument(String uri) throws Exception {
         Filter filter = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -290,5 +299,40 @@ public class DOMParserTest extends TestCase {
         }
 
         return filter;
+    }
+
+    public Filter parseDocumentFirst(String uri) throws Exception {
+	        Filter filter = null;
+	        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	        DocumentBuilder db = dbf.newDocumentBuilder();
+	        Document dom = db.parse(uri);
+	        LOGGER.info("parsing " + uri);
+
+	        // first grab a filter node
+	        NodeList nodes = dom.getElementsByTagName("Filter");
+
+	        for (int j = 0; j < nodes.getLength(); j++) {
+	            Element filterNode = (Element) nodes.item(j);
+	            NodeList list = filterNode.getChildNodes();
+	            Node child = null;
+
+	            for (int i = 0; i < list.getLength(); i++) {
+	                child = list.item(i);
+
+	                if ((child == null) ||
+	                        (child.getNodeType() != Node.ELEMENT_NODE)) {
+	                    continue;
+	                }
+
+	                filter = FilterDOMParser.parseFilter(child);
+	                assertNotNull("Null filter returned", filter);
+	                LOGGER.finer("filter: " + filter.getClass().toString());
+	                LOGGER.info("parsed: " + filter.toString());
+	                LOGGER.finer("result " + filter.contains(testFeature));
+	                return filter;
+	            }
+	        }
+
+	        return filter;
     }
 }
