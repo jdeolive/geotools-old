@@ -42,13 +42,13 @@ public class Shapefile  {
     public static final int    ARC_M = 23;
     public static final int    UNDEFINED = -1;
     //Types 2,4,6,7 and 9 were undefined at time or writeing
-   
+    
     /**
      * Creates and initialises a shapefile from a url
      * @param url The url of the shapefile
      */
     public Shapefile(URL url)
-    throws java.io.IOException,ShapefileException {
+    throws java.io.IOException,ShapefileException,TopologyException {
         URLConnection uc = url.openConnection();
         int len = uc.getContentLength();
         if(len <=0){
@@ -73,42 +73,26 @@ public class Shapefile  {
      * Use Shapefile(String) if you don't want to use LEDataInputStream directly (recomened)
      * @param file A LEDataInputStream that conects to the shapefile to read
      */
-    public static GeometryCollection read(LEDataInputStream file, GeometryFactory geometryFactory) throws IOException,ShapefileException {
+    public static GeometryCollection read(LEDataInputStream file, GeometryFactory geometryFactory) throws IOException,ShapefileException,TopologyException {
         ShapefileHeader mainHeader = new ShapefileHeader(file);
         if(mainHeader.getVersion() < VERSION){System.err.println("Sf-->Warning, Shapefile format ("+mainHeader.getVersion()+") older that supported ("+VERSION+"), attempting to read anyway");}
-        if(mainHeader.getVersion() > VERSION){System.err.println("Sf-->Warning, Shapefile format ("+mainHeader.getVersion()+") newer that supported ("+VERSION+"), attempting to read anyway");}    
-
+        if(mainHeader.getVersion() > VERSION){System.err.println("Sf-->Warning, Shapefile format ("+mainHeader.getVersion()+") newer that supported ("+VERSION+"), attempting to read anyway");}
+        
         Geometry body;
-        RecordHeader header;
         ArrayList list = new ArrayList();
         int type=mainHeader.getShapeType();
-        
+        ShapefileShape handle = getShapeHandler(type);
         try{
-            for(;;){
-                try{
-                header = new RecordHeader(file);
-                switch(type){
-                    case(POINT):
-                        body = ShapePoint.read(file,geometryFactory);
-                        break;
-                    case(ARC):
-                        body = ShapeMultiLine.read(file,geometryFactory);
-                        break;
-                    case(POLYGON):
-                        body = ShapePolygon.read(file,geometryFactory);
-                        break;
-                    default:
-                        throw new ShapeTypeNotSupportedException("Sf-->Shape type "+getShapeTypeDescription(type)+" ["+type+"] not suported");
-                }
+            while(true){
+                file.setLittleEndianMode(false);
+                int recordNumber=file.readInt();
+                int contentLength=file.readInt();
+                body = handle.read(file,geometryFactory);
                 list.add(body);
-                }
-                catch(TopologyException te){
-                    list.add(geometryFactory.createGeometryCollection(new Geometry[0]));//invalid shape so add an empty collection?
-                }
             }
         }
         catch(EOFException e){
-
+            
         }
         return geometryFactory.createGeometryCollection((Geometry[])list.toArray(new Geometry[]{}));
     }
@@ -117,42 +101,41 @@ public class Shapefile  {
      * Saves a shapefile to and output stream.
      * @param file A LEDataInputStream that conects to the shapefile to read
      */
-    public  void writeShapefile(OutputStream os) throws IOException {
-        LEDataOutputStream file = null;
-        try{
-            BufferedOutputStream out = new BufferedOutputStream(os);
-            file = new LEDataOutputStream(out);
-        }catch(Exception e){System.err.println(e);}
+    public static void write(GeometryCollection geometries,LEDataOutputStream file) throws IOException {
+        ShapefileHeader mainHeader = new ShapefileHeader(geometries);
         //System.out.println("Writing header");
         mainHeader.write(file);
         int pos = 50; // header length in WORDS
         //records;
         //body;
         //header;
-        for(int i=0;i<records.size();i++){
+        int numShapes = geometries.getNumGeometries();
+        Geometry body;
+        ShapefileShape handle = Shapefile.getShapeHandler(geometries.getGeometryN(0));
+        for(int i=0;i<numShapes;i++){
             //System.out.println("Writing Record");
-            ShapeRecord item = (ShapeRecord)records.elementAt(i);
-            item.mainindex=pos;
-            item.header.write(file);
+            //ShapeRecord item = (ShapeRecord)records.elementAt(i);
+            body = geometries.getGeometryN(i);
+            file.setLittleEndianMode(false);
+            file.writeInt(i);
+            file.writeInt(handle.getLength(body));
             pos+=4; // length of header in WORDS
-            item.shape.write(file);
-            pos+=item.header.getContentLength(); // length of shape in WORDS
-            
+           // handle.write(
+            handle.write(body,file);
+            pos+=handle.getLength(body); // length of shape in WORDS
         }
         file.flush();
         file.close();
     }
-    
-    public synchronized void writeIndex(OutputStream os) throws IOException {
-        LEDataOutputStream file = null;
-        try{
-            BufferedOutputStream out = new BufferedOutputStream(os);
-            file = new LEDataOutputStream(out);
-        }catch(Exception e){System.err.println(e);}
+    /*
+    public synchronized void writeIndex(GeometryCollection geometries,LEDataOutputStream file) throws IOException {
+        ShapefileHeader mainHeader = new ShapefileHeader(geometries);
+        
         mainHeader.writeToIndex(file);
         int pos = 50;
         int len = 0;
         file.setLittleEndianMode(false);
+        
         for(int i=0;i<records.size();i++){
             //if(DEBUG)System.out.println("Writing index Record "+i);
             ShapeRecord item = (ShapeRecord)records.elementAt(i);
@@ -166,38 +149,11 @@ public class Shapefile  {
         file.flush();
         file.close();
     }
+    */
     
-    
-    
-    /**
-     * Gets the number of records stored in this shapefile
-     * @return Number of records
-     */
-    public int getRecordCount(){
-        return records.size();
-    }
-    
-    public Vector getRecords(){
-        return records;
-    }
-    
-    /**
-     * Gets the bounding box for the whole shape file.
-     * @return An array of four doubles in the form {x1,y1,x2,y2}
-     */
-    public double[] getBounds(){
-        return mainHeader.getBounds();
-    }
-    
-    /**
-     * Gets the type of shape stored in this shapefile.
-     * @return An int indicating the type
-     * @see #getShapeTypeDescription()
-     * @see #getShapeTypeDescription(int type)
-     */
-    public int getShapeType(){
-        return mainHeader.getShapeType();
-    }
+   
+  
+   
     
     /**
      * Returns a string for the shape type of index.
@@ -215,7 +171,35 @@ public class Shapefile  {
             default:return ("Undefined");
         }
     }
-     
+    
+    public static ShapefileShape getShapeHandler(Geometry geom){
+        if(geom instanceof Polygon) return new ShapePolygon();
+        if(geom instanceof MultiPolygon) return new ShapePolygon();
+        if(geom instanceof MultiLineString) return new ShapeMultiLine();
+        if(geom instanceof LineString) return new ShapeMultiLine();
+        
+        return null;
+    }
+    
+    public static ShapefileShape getShapeHandler(int type){
+        switch(type){
+            case Shapefile.POINT: return new ShapePoint();
+            case Shapefile.POLYGON: return new ShapePolygon();
+            case Shapefile.ARC: return new ShapeMultiLine();
+           
+        }
+         return null;
+    }
+    
+    public static int getShapeType(Geometry geom){
+        if(geom instanceof Point) return Shapefile.POINT;
+        if(geom instanceof Polygon) return Shapefile.POLYGON;
+        if(geom instanceof MultiPolygon) return Shapefile.POLYGON;
+        if(geom instanceof LineString) return Shapefile.ARC;
+        if(geom instanceof MultiLineString) return Shapefile.ARC;
+        return Shapefile.UNDEFINED;
+    }
+    
     public synchronized void readIndex(InputStream is) throws IOException {
         LEDataInputStream file = null;
         try{

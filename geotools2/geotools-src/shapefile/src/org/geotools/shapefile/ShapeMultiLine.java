@@ -1,5 +1,5 @@
 /*
- * $Id: ShapeMultiLine.java,v 1.2 2002/02/11 18:42:45 jmacgill Exp $
+ * $Id: ShapeMultiLine.java,v 1.3 2002/02/13 00:23:53 jmacgill Exp $
  *
  */
 
@@ -12,9 +12,9 @@ import com.vividsolutions.jts.geom.*;
 /**
  * Wrapper for a Shapefile arc.
  */
-public class ShapeMultiLine  {
-    
-    public static Geometry read( LEDataInputStream file , GeometryFactory geometryFactory) throws IOException {
+public class ShapeMultiLine implements ShapefileShape{
+    public ShapeMultiLine(){};
+    public Geometry read( LEDataInputStream file , GeometryFactory geometryFactory) throws IOException,TopologyException,InvalidShapefileException {
         file.setLittleEndianMode(true);
         int shapeType = file.readInt();//ignored
         double box[] = new double[4];
@@ -87,19 +87,22 @@ public class ShapeMultiLine  {
     /**
      * Get the type of shape stored (Shapefile.ARC)
      */
-    public static int getShapeType(){
+    public int getShapeType(){
         return Shapefile.ARC;
     }
     
-    public static int getLength(MultiLineString multi){
+    public int getLength(Geometry geometry){
         
-        return (44+(4*multi.getNumGeometries()));
+        return (44+(4*((GeometryCollection)geometry).getNumGeometries()));
     }
     
 }
 
 /*
  * $Log: ShapeMultiLine.java,v $
+ * Revision 1.3  2002/02/13 00:23:53  jmacgill
+ * First semi working JTS version of Shapefile code
+ *
  * Revision 1.2  2002/02/11 18:42:45  jmacgill
  * changed read and write statements so that they produce and take Geometry objects instead of specific MultiLine objects
  * changed parts[] array name to partOffsets[] for clarity and consistency with ShapePolygon

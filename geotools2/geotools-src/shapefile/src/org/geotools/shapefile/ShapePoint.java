@@ -7,9 +7,9 @@ import com.vividsolutions.jts.geom.*;
 /**
  * Wrapper for a Shapefile point.
  */
-public class ShapePoint  {
+public class ShapePoint  implements ShapefileShape{
     
-    public static Geometry read(LEDataInputStream file,GeometryFactory geometryFactory) throws IOException{
+    public Geometry read(LEDataInputStream file,GeometryFactory geometryFactory) throws IOException,TopologyException,InvalidShapefileException{
         file.setLittleEndianMode(true);
         int shapeType = file.readInt();
         double x = file.readDouble();
@@ -17,7 +17,7 @@ public class ShapePoint  {
         return geometryFactory.createPoint(new Coordinate(x,y));
     }
     
-    public static void write(Geometry geometry,LEDataOutputStream file)throws IOException{
+    public void write(Geometry geometry,LEDataOutputStream file)throws IOException{
         file.setLittleEndianMode(true);
         file.writeInt(getShapeType());
         Coordinate c = geometry.getCoordinates()[0];
@@ -29,7 +29,7 @@ public class ShapePoint  {
      * Returns the shapefile shape type value for a point
      * @return int Shapefile.POINT
      */
-    public static int getShapeType(){
+    public  int getShapeType(){
         return Shapefile.POINT;
     }
     
@@ -37,7 +37,7 @@ public class ShapePoint  {
      * Calcuates the record length of this object.
      * @return int The length of the record that this shapepoint will take up in a shapefile
      **/
-    public static int getLength(Coordinate c){
+    public int getLength(Geometry geometry){
         return 10;//the length of two doubles in 16bit words + the shapeType
     }
 }

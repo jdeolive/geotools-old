@@ -8,19 +8,21 @@ package org.geotools.shapefile;
 
 import cmp.LEDataStream.*;
 import java.io.*;
+import com.vividsolutions.jts.geom.*;
 
 /**
  *
  * @author  jamesm
  */
 public class ShapefileHeader{
-    private final static boolean DEBUG=false;
+    private final static boolean DEBUG=true;
     private int fileCode = -1;
     private int fileLength = -1;
     private int indexLength = -1;
     private int version = -1;
     private int shapeType = -1;
-    private double[] bounds = new double[4];
+    //private double[] bounds = new double[4];
+    private Envelope bounds;
     
     public ShapefileHeader(LEDataInputStream file) throws IOException {
         file.setLittleEndianMode(false);
@@ -39,9 +41,9 @@ public class ShapefileHeader{
         version=file.readInt();
         shapeType=file.readInt();
        
-        //read in the bounding box
+        //read in and for now ignore the bounding box
         for(int i = 0;i<4;i++){
-            bounds[i]=file.readDouble();
+            file.readDouble();
         }
         
         //skip remaining unused bytes
@@ -49,27 +51,27 @@ public class ShapefileHeader{
         file.skipBytes(32);
     }
     
-    public ShapefileHeader(int shapeType,double[] bbox,ShapefileShape[] shapes){
-        this.shapeType = shapeType;
+    public ShapefileHeader(GeometryCollection geometries){
+        ShapefileShape handle = Shapefile.getShapeHandler(geometries.getGeometryN(0));
+        int numShapes = geometries.getNumGeometries();
+        shapeType = handle.getShapeType();
         version = Shapefile.VERSION;
         fileCode = Shapefile.SHAPEFILE_ID;
-        bounds = bbox;
+        bounds = geometries.getEnvelopeInternal();
         fileLength = 0;
-        for(int i=0;i<shapes.length;i++){
-            fileLength+=shapes[i].getLength();
+        for(int i=0;i<numShapes;i++){
+            fileLength+=handle.getLength(geometries.getGeometryN(i));
             fileLength+=4;//for each header
         }
         fileLength+=50;//space used by this, the main header
-        indexLength = 50+(4*shapes.length);
+        indexLength = 50+(4*numShapes);
     }
     
     public void setFileLength(int fileLength){
         this.fileLength = fileLength;
     }
     
-    public void setBounds(double[] bbox){
-        bounds = bbox;
-    }
+ 
     
     public void write(LEDataOutputStream file)throws IOException {
         int pos = 0;
@@ -87,11 +89,12 @@ public class ShapefileHeader{
         pos+=4;
         file.writeInt(shapeType);
         pos+=4;
-        //read in the bounding box
-        for(int i = 0;i<4;i++){
-            pos+=8;
-            file.writeDouble(bounds[i]);
-        }
+        //write the bounding box
+        file.writeDouble(bounds.getMinX());
+        file.writeDouble(bounds.getMinY());
+        file.writeDouble(bounds.getMaxX());
+        file.writeDouble(bounds.getMaxY());
+        pos+=8*4;
         
         //skip remaining unused bytes
         //file.setLittleEndianMode(false);//well they may not be unused forever...
@@ -99,10 +102,11 @@ public class ShapefileHeader{
             file.writeDouble(0.0);//Skip unused part of header
             pos+=8;
         }
+        
         if(DEBUG)System.out.println("Sfh->Position "+pos);
     }
     
-    public void writeToIndex(LEDataOutputStream file)throws IOException {
+    /*public void writeToIndex(LEDataOutputStream file)throws IOException {
         int pos = 0;
         file.setLittleEndianMode(false);
         file.writeInt(fileCode);
@@ -131,7 +135,7 @@ public class ShapefileHeader{
             pos+=8;
         }
         if(DEBUG)System.out.println("Sfh->Index Position "+pos);
-    }
+    }*/
     
     public int getShapeType(){
         return shapeType;
@@ -141,7 +145,7 @@ public class ShapefileHeader{
         return version;
     }
     
-    public double[] getBounds(){
+    public Envelope getBounds(){
         return bounds;
     }
     

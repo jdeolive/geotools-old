@@ -9,10 +9,12 @@ import java.util.ArrayList;
 /**
  * Wrapper for a Shapefile polygon.
  */
-public class ShapePolygon {
+public class ShapePolygon implements ShapefileShape{
     protected static CGAlgorithms cga = new RobustCGAlgorithms();
     
-    public static Geometry read( LEDataInputStream file , GeometryFactory geometryFactory)
+    public ShapePolygon(){};
+    
+    public Geometry read( LEDataInputStream file , GeometryFactory geometryFactory)
     throws IOException, InvalidShapefileException, TopologyException {
         
         file.setLittleEndianMode(true);
@@ -146,10 +148,10 @@ public class ShapePolygon {
     }
     
     
-    public static int getShapeType(){
+    public int getShapeType(){
         return Shapefile.POLYGON;
     }
-    public static int getLength(Geometry geometry){
+    public int getLength(Geometry geometry){
         int numParts;
         if(geometry instanceof MultiPolygon){
             numParts = ((MultiPolygon)geometry).getNumGeometries();
@@ -163,6 +165,9 @@ public class ShapePolygon {
 
 /*
  * $Log: ShapePolygon.java,v $
+ * Revision 1.4  2002/02/13 00:23:53  jmacgill
+ * First semi working JTS version of Shapefile code
+ *
  * Revision 1.3  2002/02/11 18:44:22  jmacgill
  * replaced geometry constructions with calls to geometryFactory.createX methods
  *
