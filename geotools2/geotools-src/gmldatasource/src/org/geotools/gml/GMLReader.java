@@ -6,6 +6,7 @@
 
 package org.geotools.gml;
 import org.geotools.datasource.*;
+import org.geotools.gml.handlers.*;
 import java.io.*;
 import java.util.*;
 import org.xml.sax.helpers.*;
@@ -15,7 +16,7 @@ import com.vividsolutions.jts.geom.*;
 /** Reads and parses a GML file into a geometry collection
  *
  * @author ian
- * @version $Id: GMLReader.java,v 1.2 2002/03/06 17:55:13 ianturton Exp $
+ * @version $Id: GMLReader.java,v 1.3 2002/03/08 18:06:03 ianturton Exp $
  */
 public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     boolean stopped = false;
@@ -26,7 +27,7 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     GeometryFactory factory = new GeometryFactory();
     GMLHandler handler,head;
     
-    boolean coord = false;
+    
     /** Creates a new instance of GMLReader
      * @param in inputStream to be read
      * @throws DataSourceException if an IO Exception occurs
@@ -48,94 +49,145 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     /** Reads the inputstream
      * @throws DataSourceException
      * @return a geometry collection of the geometries read in
-     */    
+     */
     public GeometryCollection read()throws DataSourceException{
         try{
             parser.parse(in);
-            System.err.println(""+errCount+" errors encountered in getFeatures");
         }catch(Exception e){
+            e.printStackTrace();
             throw new DataSourceException("GMLReader reading error:"+e);
         }
         return (GeometryCollection) head.finish(factory);
     }
     
     /** allows for the read process to be stopped
-     */    
+     */
     public void stopLoading(){
         stopped=true;
     }
     /** called by parser when a new entity is found
-     */    
+     */
     public void startElement(String namespace, String localName, String qName, Attributes atts)
     throws SAXException{
-        System.out.println("Got Start of entity: "+qName);
-        for(int i=0;i<atts.getLength();i++){
-            System.out.println("attr:"+i+":"+atts.getQName(i));
-        }
         
-        if(localName.toLowerCase().startsWith("coord")){ 
-            coord=true;
-            return;
-        }
-        // we need to provide handlers for each of the primative geometries
-        // if it is not primative then we are inside a primative and probably in the process of
-        // building it.
+        /* at the start of each entity we need to find a handler for
+         * the entitiy and then push that on to the stack. For convience we
+         * also hold the reference in handler.
+         */
         
-            try{
-                handler = getGMLHandler(qName);
-                if(handler==null){
-                    System.err.println("Unknown Geometry type: "+qName);
-                    errCount++;
-                    if(errCount>20){
-                        throw new SAXException("Too many errors reading GML");
-                    }
-                }else{
-                    if(head==null) head=handler;
-                    handlers.push(handler);
+        
+        try{
+            
+            handler = getGMLHandler(qName);
+            if(handler==null){
+                System.err.println("Unknown Geometry type: "+qName);
+                errCount++;
+                if(errCount>0){
+                    throw new SAXException("Unknown Geometry type: "+qName);
                 }
-            }catch(GMLException e){
-                throw new SAXException(e);
+            }else{
+                if(head==null) head=handler;
+                handlers.push(handler);
+                System.out.println("start of "+qName+"\nstack:"+handlers);
+                
             }
+        }catch(GMLException e){
+            throw new SAXException(e);
+        }
         
     }
     /** called by parser when a charater string is found
-     */    
+     * at present we handle exactly two cases here either its a coordinate or an X,Y or Z inside a coord
+     */
     public void characters(char[] ch,int start, int length) throws SAXException{
         String s = new String(ch,start,length).trim();
-        System.out.println("->"+new String(ch,start,length).trim());
-        if(coord){
-            // parse to x and y add to handler
-            StringTokenizer st = new StringTokenizer(s,",");
-            if(st.countTokens()>2){
-                System.out.println("problem parsing coordinate "+s);
-            }else{
-                double x = Double.parseDouble(st.nextToken());
-                double y = Double.parseDouble(st.nextToken());
-                // the coordinate allways belongs to the current handler
-                handler.addCoordinate(new Coordinate(x,y));
-                coord=false;
+        
+        if(handler instanceof GMLCoordinatesHandler){
+            StringTokenizer outer = new StringTokenizer(s," ");
+            while(outer.hasMoreElements()){
+                // parse to x and y add to handler
+                String pair = outer.nextToken();
+                ((GMLCoordinatesHandler)handler).parseText(pair);
             }
+        }else if(handler instanceof GMLXYZHandler){
+            System.out.println("XYZ s="+s+"*");
+            ((GMLXYZHandler)handler).parseText(s);
         }
     }
     /** called by parser when an entitiy finishes
-     */    
+     * first we "capture" the info insider the handler for the entitiy we've
+     * just finished, e.g. geometry, coordinates, etc.
+     * then we need to remove the current handler from the top of the stack
+     * we can then add the info retieved to the new head of the stack.
+     */
     public void endElement(String namespace,String localName, String qName) throws SAXException{
-        System.out.println("end: "+qName);
+        
+        GMLHandler h ;
         if(handler!=null){
-            Geometry g = handler.finish(factory);
-            if(!(handler==head)){
+            
+            
+                System.out.println("****End of entity "+localName);
+                System.out.println("current stack:"+handlers);
+            
+            Coordinate[] coords = null;
+            Geometry g = null;
+            
+            if(handler instanceof GMLCoordinatesHandler){
+                coords = ((GMLCoordinatesHandler)handler).getCoordinates();
+                handler = (GMLHandler)handlers.pop();
+                if(coords!=null){
+                    for(int i=0;i<coords.length;i++){
+                        ((GMLHandler)handlers.peek()).addCoordinate(coords[i]);
+                    }
+                }
+                System.out.println("return stack:"+handlers);
+                return;
+                
+            }else if(handler instanceof GMLCoordHandler){
+                System.out.println("finishing CoordHandler");
+                Coordinate coord=((GMLCoordHandler)handler).getCoordinate();
+                handler = (GMLHandler)handlers.pop();
+                ((GMLHandler)handlers.peek()).addCoordinate(coord);
+                System.out.println("return stack:"+handlers);
+                return;
+            }else if(handler instanceof GMLXHandler){
+                System.out.println("about to get X");
+                double v = ((GMLXHandler)handler).getX();
+                System.out.println("got X "+v);
                 handler=(GMLHandler)handlers.pop();
-                handler.addGeometry(g);
+                System.out.println("post pop "+handler);
+                ((GMLCoordHandler)handlers.peek()).setX(v);
+                System.out.println("set X in coord");
+                System.out.println("return stack:"+handlers);
+                return;
+            }else if(handler instanceof GMLYHandler){
+                double v = ((GMLYHandler)handler).getY();
+                handler=(GMLHandler)handlers.pop();
+                ((GMLCoordHandler)handlers.peek()).setY(v);
+                System.out.println("return stack:"+handlers);
+                return;
+            }else if(handler instanceof GMLZHandler){
+                double v = ((GMLZHandler)handler).getZ();
+                handler=(GMLHandler)handlers.pop();
+                System.out.println("post pop "+handler);
+                ((GMLCoordHandler)handlers.peek()).setZ(v);
+                System.out.println("return stack:"+handlers);
                 return;
             }else{
-              System.out.println("finished top Feature Collection?");  
+                // its a geometry type
+                g = handler.finish(factory);
+                handler=(GMLHandler)handlers.pop();             
+                if(handlers.size()>0){
+                    ((GMLHandler)handlers.peek()).addGeometry(g);
+                } // when the stack is empty we'return finished and ready to return head.
+                System.out.println("return stack:"+handlers);
+                return;
             }
         }else{
             System.out.println("whoops handler == null in end element");
         }
     }
     private GMLHandler getGMLHandler(String name) throws GMLException{
-        System.out.println("getgmlhandler looking for "+name);
         int index = name.indexOf(':');
         String primativeName;
         if(index>0){
@@ -143,9 +195,9 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
         }else{
             primativeName=name;
         }
-        System.out.println("?shortened to "+primativeName);
+        
         String handleName="org.geotools.gml.handlers.GML"+Character.toUpperCase(primativeName.charAt(0))+primativeName.substring(1)+"Handler"; // convert to Java naming conventions
-        System.out.println("now looking for "+handleName);
+        
         GMLHandler h;
         try{
             h = (GMLHandler)Class.forName(handleName).newInstance();

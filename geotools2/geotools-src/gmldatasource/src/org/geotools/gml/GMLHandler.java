@@ -9,13 +9,19 @@ import com.vividsolutions.jts.geom.*;
 /** Specifys how a GML Geometry handler should behave
  *
  * @author ian
- * @version $Id: GMLHandler.java,v 1.2 2002/03/06 17:55:13 ianturton Exp $
+ * @version $Id: GMLHandler.java,v 1.3 2002/03/08 18:06:03 ianturton Exp $
  */
-public interface GMLHandler {
-
+public abstract class GMLHandler {
     
-    void addCoordinate(Coordinate c);
-    void addGeometry(Geometry g);
-    Geometry finish(GeometryFactory gf);
+    
+    public abstract void addCoordinate(Coordinate c);
+    public abstract void addGeometry(Geometry g);
+    public abstract Geometry finish(GeometryFactory gf);
+    
+    public String toString(){
+        String name = this.getClass().getName();
+        int index = name.lastIndexOf('.');
+        return name.substring(index+1);
+    }
 }
 
