@@ -82,7 +82,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.9 2003/07/17 21:12:21 jmacgill Exp $
+ * @version $Id: LiteRenderer.java,v 1.10 2003/07/17 21:35:07 jmacgill Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -608,6 +608,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @param feature The feature to render
      * @param symbolizer The polygon symbolizer to apply
+     * @todo REVISIT: No attempt is made to render 0 dimension (point) geometries
      */
     private void renderPolygon(Feature feature, PolygonSymbolizer symbolizer) {
         if (LOGGER.isLoggable(Level.FINEST)) {
@@ -618,11 +619,15 @@ public class LiteRenderer implements Renderer, Renderer2D {
         Fill fill = symbolizer.getFill();
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
-
+        
         if (geom.isEmpty()) {
             return;
         }
-
+        
+        if (geom.getDimension() < 1){
+            return;
+        }
+        
         Shape path = createPath(geom);
 
         if (fill != null) {
