@@ -40,11 +40,8 @@ import java.io.Serializable;
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
-import org.geotools.pt.CoordinatePoint;
-import org.geotools.pt.MismatchedDimensionException;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.AbstractMathTransform;
-import org.geotools.ct.TransformException;
 import org.geotools.ct.NoninvertibleTransformException;
 
 
@@ -57,11 +54,11 @@ import org.geotools.ct.NoninvertibleTransformException;
  * This class is really a special case of {@link MatrixTransform} using a 2&times;2 affine
  * transform. However, this specialized <code>LinearTransform1D</code> class is faster.
  *
- * @version $Id: LinearTransform1D.java,v 1.2 2002/07/12 14:35:36 desruisseaux Exp $
+ * @version $Id: LinearTransform1D.java,v 1.3 2002/07/18 09:10:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class LinearTransform1D extends AbstractMathTransform
-                           implements MathTransform1D, LinearTransform, Serializable
+class LinearTransform1D extends AbstractMathTransform
+                        implements MathTransform1D, LinearTransform, Serializable
 {
     /**
      * Serial number for interoperability with different versions.
@@ -91,19 +88,24 @@ final class LinearTransform1D extends AbstractMathTransform
      * @param scale  The <code>scale</code>  term in the linear equation.
      * @param offset The <code>offset</code> term in the linear equation.
      */
-    public LinearTransform1D(final double scale, final double offset) {
+    protected LinearTransform1D(final double scale, final double offset) {
         this.scale   = scale;
         this.offset  = offset;
     }
 
     /**
-     * Construct a new linear transform which is the inverse
-     * of the specified transform.
+     * Construct a new linear transform. The transformation equation is:
+     *
+     * <p><code>y&nbsp;=&nbsp;{@link #offset}&nbsp;+&nbsp;{@link #scale}*x</code></p>
+     *
+     * @param scale  The <code>scale</code>  term in the linear equation.
+     * @param offset The <code>offset</code> term in the linear equation.
      */
-    private LinearTransform1D(final LinearTransform1D inverse) {
-        this.offset  = -inverse.offset / inverse.scale;
-        this.scale   = 1 / inverse.scale;
-        this.inverse = inverse;
+    public static LinearTransform1D create(final double scale, final double offset) {
+        if (scale == 0) {
+            return new ConstantTransform1D(offset);
+        }
+        return new LinearTransform1D(scale, offset);
     }
     
     /**
@@ -135,7 +137,10 @@ final class LinearTransform1D extends AbstractMathTransform
             if (isIdentity()) {
                 inverse = this;
             } else if (scale != 0) {
-                inverse = new LinearTransform1D(this);
+                final LinearTransform1D inverse;
+                inverse = create(1/scale, -offset/scale);
+                inverse.inverse = this;
+                this.inverse = inverse;
             } else {
                 inverse = super.inverse();
             }
@@ -153,22 +158,22 @@ final class LinearTransform1D extends AbstractMathTransform
     /**
      * Gets the derivative of this function at a value.
      */
-    public double derivative(final double value) throws TransformException {
+    public double derivative(final double value) {
         return scale;
     }
     
     /**
      * Transforms the specified value.
      */
-    public double transform(double value) throws TransformException {
+    public double transform(double value) {
         return offset + scale*value;
     }
     
     /**
      * Transforms a list of coordinate point ordinal values.
      */
-    public void transform(float[] srcPts, int srcOff,
-                          float[] dstPts, int dstOff, int numPts)
+    public void transform(final float[] srcPts, int srcOff,
+                          final float[] dstPts, int dstOff, int numPts)
     {
         if (srcPts!=dstPts || srcOff>=dstOff) {
             while (--numPts >= 0) {

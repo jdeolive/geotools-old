@@ -64,7 +64,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <p align="center"><code>{@link #base}<sup>a&nbsp;+&nbsp;b*x</sup> =
  * {@link #base}<sup>a</sup>*({@link #base}<sup>b</sup>)<sup>x</sup></code></p>
  *
- * @version $Id: ExponentialTransform1D.java,v 1.1 2002/07/15 18:28:43 desruisseaux Exp $
+ * @version $Id: ExponentialTransform1D.java,v 1.2 2002/07/18 09:10:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see LogarithmicTransform1D
@@ -132,10 +132,10 @@ final class ExponentialTransform1D extends AbstractMathTransform implements Math
      */
     public static MathTransform1D create(final double base, final double scale) {
         if (base==0 || scale==0) {
-            return new LinearTransform1D(0, 0);
+            return LinearTransform1D.create(0, 0);
         }
         if (base==1) {
-            return new LinearTransform1D(0, scale);
+            return LinearTransform1D.create(0, scale);
         }
         return new ExponentialTransform1D(base, scale);
     }
@@ -265,15 +265,15 @@ final class ExponentialTransform1D extends AbstractMathTransform implements Math
             final double newPower = lnBase/other.lnBase;
             if (!Double.isNaN(newScale)) {
                 if (newPower == 1) {
-                    return new LinearTransform1D(newScale, 0);
+                    return LinearTransform1D.create(newScale, 0);
                 }
                 // TODO: Needs a transform here with the following equation:
                 //
                 //       y(x)  =  newScale * Math.pow(x, newPower);
             }
         } else if (scale > 0) {
-            return new LinearTransform1D(lnBase/other.lnBase,
-                                Math.log(scale)/other.lnBase + other.offset);
+            return LinearTransform1D.create(lnBase/other.lnBase,
+                                   Math.log(scale)/other.lnBase + other.offset);
         }
         return null;
     }
@@ -325,7 +325,7 @@ final class ExponentialTransform1D extends AbstractMathTransform implements Math
     /**
      * The provider for {@link ExponentialTransform1D} and {@link LogarithmicTransform1D}.
      *
-     * @version $Id: ExponentialTransform1D.java,v 1.1 2002/07/15 18:28:43 desruisseaux Exp $
+     * @version $Id: ExponentialTransform1D.java,v 1.2 2002/07/18 09:10:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

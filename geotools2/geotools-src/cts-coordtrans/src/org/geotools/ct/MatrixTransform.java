@@ -57,7 +57,7 @@ import javax.media.jai.util.Range;
 /**
  * Transforms multi-dimensional coordinate points using a {@link Matrix}.
  *
- * @version $Id: MatrixTransform.java,v 1.3 2002/07/15 18:28:44 desruisseaux Exp $
+ * @version $Id: MatrixTransform.java,v 1.4 2002/07/18 09:10:49 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -385,7 +385,7 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
     /**
      * The provider for {@link MatrixTransform}.
      *
-     * @version $Id: MatrixTransform.java,v 1.3 2002/07/15 18:28:44 desruisseaux Exp $
+     * @version $Id: MatrixTransform.java,v 1.4 2002/07/18 09:10:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
@@ -430,8 +430,8 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
             if (matrix.isAffine()) {
                 switch (matrix.getNumRow()) {
                     case 3: return new AffineTransform2D(matrix.toAffineTransform2D());
-                    case 2: return new LinearTransform1D(matrix.getElement(0,0),
-                                                         matrix.getElement(0,1));
+                    case 2: return LinearTransform1D.create(matrix.getElement(0,0),
+                                                            matrix.getElement(0,1));
                 }
             }
             return new MatrixTransform(matrix);

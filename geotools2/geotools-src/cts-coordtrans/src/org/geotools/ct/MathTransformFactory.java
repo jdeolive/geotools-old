@@ -100,7 +100,7 @@ import javax.vecmath.GMatrix;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.6 2002/07/15 18:28:43 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.7 2002/07/18 09:10:49 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -199,8 +199,8 @@ public class MathTransformFactory {
             // Affine transform are square.
             switch (matrix.getNumRow()) {
                 case 2: return (MathTransform) pool.canonicalize(
-                            new LinearTransform1D(matrix.getElement(0,0),   // scale
-                                                  matrix.getElement(0,1))); // offset
+                            LinearTransform1D.create(matrix.getElement(0,0),   // scale
+                                                     matrix.getElement(0,1))); // offset
                 case 3: return createAffineTransform(matrix.toAffineTransform2D());
             }
         }
@@ -587,7 +587,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.6 2002/07/15 18:28:43 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.7 2002/07/18 09:10:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {
