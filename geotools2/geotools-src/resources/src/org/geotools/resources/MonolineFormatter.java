@@ -37,12 +37,16 @@ import java.util.logging.Logger;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Formatter;
+import java.util.logging.LogManager;
 import java.util.logging.StreamHandler;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.SimpleFormatter;
 
-// Preferences
-import java.util.prefs.Preferences;
+// Formatting
+import java.util.Date;
+import java.util.TimeZone;
+import java.text.FieldPosition;
+import java.text.SimpleDateFormat;
 
 // Writer
 import java.io.IOException;
@@ -59,10 +63,10 @@ import org.geotools.io.LineWriter;
  * <code>MonolineFormatter</code> looks like:
  *
  * <blockquote><pre>
- * [core FINE] A log message logged with level FINE from the "org.geotools.core" 
- * logger.</pre></blockquote>
+ * [core FINE] A log message logged with level FINE from the "org.geotools.core" logger.
+ * </pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.5 2002/09/01 18:30:28 desruisseaux Exp $
+ * @version $Id: MonolineFormatter.java,v 1.6 2002/09/03 22:59:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatter extends Formatter {
@@ -70,18 +74,37 @@ public class MonolineFormatter extends Formatter {
     /**
      * The string to write at the begining of all log headers (e.g. "[FINE core]")
      */
-    private static final String PREFIX = "[";
+    private static final String PREFIX = "";
 
     /**
      * The string to write at the end of every log header (e.g. "[FINE core]").
      * It should includes the spaces between the header and the message body.
      */
-    private static final String SUFFIX = "] ";
+    private static final String SUFFIX = " - ";
 
     /**
-     * The defautl header width.
+     * The default header width.
      */
-    private static final int DEFAULT_WIDTH = 15;
+    private static final int DEFAULT_WIDTH = 10;
+
+    /** Enumeration constants for source formatting. */
+    private static final int NO_SOURCE    = 0;
+    private static final int LOGGER_SHORT = 1;
+    private static final int LOGGER_LONG  = 2;
+    private static final int CLASS_SHORT  = 3;
+    private static final int CLASS_LONG   = 4;
+
+    /**
+     * The label to use in the <code>logging.properties</code>
+     * for setting the source format.
+     */
+    private static String[] FORMAT_LABELS = new String[5];
+    static {
+        FORMAT_LABELS[LOGGER_SHORT] = "logger";
+        FORMAT_LABELS[LOGGER_LONG ] = "logger:long";
+        FORMAT_LABELS[ CLASS_SHORT] = "class";
+        FORMAT_LABELS[ CLASS_LONG ] = "class:long";
+    }
 
     /**
      * The line separator. This is the value of the "line.separator"
@@ -116,6 +139,25 @@ public class MonolineFormatter extends Formatter {
     private final String base;
 
     /**
+     * Time of <code>MonolineFormatter</code> creation,
+     * in milliseconds ellapsed since January 1, 1970.
+     */
+    private final long startMillis;
+
+    /**
+     * The format to use for formatting ellapsed time,
+     * or <code>null</code> if there is none.
+     */
+    private SimpleDateFormat timeFormat = null;
+
+    /**
+     * One of the following constants: {@link #NO_SOURCE},
+     * {@link #LOGGER_SHORT}, {@link #LOGGER_LONG},
+     * {@link #CLASS_SHORT} or {@link #CLASS_LONG}.
+     */
+    private int sourceFormat;
+
+    /**
      * Buffer for formatting messages. We will reuse this
      * buffer in order to reduce memory allocations.
      */
@@ -138,12 +180,60 @@ public class MonolineFormatter extends Formatter {
      *               "[LEVEL core]" (i.e. the "org.geotools" part is ommited).
      */
     public MonolineFormatter(final String base) {
-        this.base   = base.trim();
-        this.margin = getHeaderWidth();
-        final StringWriter str = new StringWriter();
+        this.startMillis = System.currentTimeMillis();
+        this.margin      = DEFAULT_WIDTH;
+        this.base        = base.trim();
+        StringWriter str = new StringWriter();
         writer = new LineWriter(str);
         buffer = str.getBuffer();
         buffer.append(PREFIX);
+
+        // Configure this formatter
+        final LogManager manager = LogManager.getLogManager();
+	final String   classname = MonolineFormatter.class.getName();
+        setTimeFormat  (manager.getProperty(classname + ".time"  ));
+        setSourceFormat(manager.getProperty(classname + ".source"));
+    }
+
+    /**
+     * Set the format for displaying ellapsed time. The pattern must matches
+     * the format specified in {@link SimpleDateFormat}. For example, the
+     * pattern <code>"HH:mm:ss.SSS"</code> will display the ellapsed time
+     * in hours, minutes, seconds and milliseconds.
+     *
+     * @param pattern The time patter, or <code>null</code> to disable time
+     *        formatting.
+     */
+    public synchronized void setTimeFormat(final String pattern) {
+        if (pattern == null) {
+            timeFormat = null;
+        } else if (timeFormat == null) {
+            timeFormat = new SimpleDateFormat(pattern);
+            timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        } else {
+            timeFormat.applyPattern(pattern);
+        }
+    }
+
+    /**
+     * Set the format for displaying the source. The pattern may be one
+     * of the following: <code>"logger"</code> or <code>"class"</code>,
+     *  <code>"logger:long"</code> or <code>"class:long"</code>.
+     *
+     * @param format The format for displaying the source, or <code>null</code>
+     *        to disable source formatting.
+     */
+    private synchronized void setSourceFormat(String format) {
+        if (format != null) {
+            format = format.trim().toLowerCase();
+        }
+        for (int i=0; i<FORMAT_LABELS.length; i++) {
+            if (Utilities.equals(FORMAT_LABELS[i], format)) {
+                sourceFormat = i;
+                return;
+            }
+        }
+        throw new IllegalArgumentException(format);
     }
 
     /**
@@ -153,32 +243,74 @@ public class MonolineFormatter extends Formatter {
      * @return a formatted log record
      */
     public synchronized String format(final LogRecord record) {
-        String logger = record.getLoggerName();
-        if (logger.startsWith(base)) {
-            int pos = base.length();
-            if (pos<logger.length()-1 && logger.charAt(pos)=='.') {
-                pos++;
-            }
-            logger = logger.substring(pos);
+        buffer.setLength(PREFIX.length());
+        /*
+         * Format the time (e.g. "00:00:12.365").  The time pattern can be set
+         * either programmatically with a call to setTimeFormat(String), or in
+         * the logging.properties file with the
+         * "org.geotools.resources.MonolineFormatter.time" property.
+         */
+        if (timeFormat != null) {
+            Date time = new Date(record.getMillis() - startMillis);
+            timeFormat.format(time, buffer, new FieldPosition(0));
+            buffer.append(' ');
         }
-        final String level = record.getLevel().getLocalizedName();
-        try {
-            buffer.setLength(PREFIX.length());
-            writer.write(logger);
-            writer.write(Utilities.spaces(Math.max(1, margin-(buffer.length()+level.length()+1))));
-            writer.write(level);
-            writer.write(SUFFIX);
-            writer.flush(); // Force the writting of whitespaces.
-            /*
-             * Now format the message. We will use a line separator made of the 
-             * usual EOL ("\r", "\n", or "\r\n", which is plateform specific) 
-             * following by some amout of space in order to align message body.
-             */
-            final int margin  = buffer.length();
-            assert margin >= this.margin;
-            if (bodyLineSeparator.length() != lineSeparator.length()+margin) {
-                bodyLineSeparator = lineSeparator + Utilities.spaces(margin);
+        /*
+         * Format the level (e.g. "FINE"). We do not provide
+         * the option to turn level off for now.
+         */
+        if (true) {
+            int offset = buffer.length();
+            buffer.append(record.getLevel().getLocalizedName());
+            offset = buffer.length() - offset;
+            buffer.append(Utilities.spaces(Math.max(1, margin-offset)));
+        }
+        /*
+         * Add the source. It may be either the source logger or the source
+         * class name.
+         */
+        String logger    = record.getLoggerName();
+        String classname = record.getSourceClassName();
+        switch (sourceFormat) {
+            case LOGGER_SHORT: {
+                if (logger.startsWith(base)) {
+                    int pos = base.length();
+                    if (pos<logger.length()-1 && logger.charAt(pos)=='.') {
+                        pos++;
+                    }
+                    logger = logger.substring(pos);
+                }
+                // fall through
             }
+            case LOGGER_LONG: {
+                buffer.append(logger);
+                break;
+            }
+            case CLASS_SHORT: {
+                int dot = classname.lastIndexOf('.');
+                if (dot >= 0) {
+                    classname = classname.substring(dot+1);
+                }
+                classname = classname.replace('$','.');
+                // fall through
+            }
+            case CLASS_LONG: {
+                buffer.append(classname);
+                break;
+            }
+        }
+        buffer.append(SUFFIX);
+        /*
+         * Now format the message. We will use a line separator made of the 
+         * usual EOL ("\r", "\n", or "\r\n", which is plateform specific) 
+         * following by some amout of space in order to align message body.
+         */
+        final int margin  = buffer.length();
+        assert margin >= this.margin;
+        if (bodyLineSeparator.length() != lineSeparator.length()+margin) {
+            bodyLineSeparator = lineSeparator + Utilities.spaces(margin);
+        }
+        try {
             writer.setLineSeparator(bodyLineSeparator);
             writer.write(formatMessage(record));
             writer.setLineSeparator(lineSeparator);
@@ -247,25 +379,6 @@ public class MonolineFormatter extends Formatter {
     private static void unexpectedException(final Exception e) {
         Utilities.unexpectedException("org.geotools.resources", 
                                       "MonolineFormatter", "init", e);
-    }
-
-    /**
-     * Returns the header width. This is the default value to use for 
-     * {@link #margin}, if no value has been explicitely set. This value can be 
-     * set in user's preferences.
-     */
-    private static int getHeaderWidth() {
-        return Preferences.userNodeForPackage(MonolineFormatter.class).
-            getInt("logging.header", 15);
-    }
-
-    /**
-     * Set the header width. This is the default value to use for {@link #margin}
-     * for next {@link MonolineFormatter} to be created.
-     */
-    static void setHeaderWidth(final int margin) {
-        Preferences.userNodeForPackage(MonolineFormatter.class).
-            putInt("logging.header", margin);
     }
 
     /**
