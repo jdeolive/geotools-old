@@ -138,22 +138,22 @@ public class MathTransformFactory {
         if (DEFAULT==null) {
             DEFAULT = new MathTransformFactory(new MathTransformProvider[] {
                 new              MatrixTransform.Provider(4,4), // Default to 4x4 matrix
-//              new           MercatorProjection.Provider(),
-//              new   LambertConformalProjection.Provider(),
-//              new      StereographicProjection.Provider(),      // Automatic
-//              new      StereographicProjection.Provider(true),  // Polar
-//              new      StereographicProjection.Provider(false), // Oblique
-//              new TransverseMercatorProjection.Provider(),      // Transverse Mercator
+                new           MercatorProjection.Provider(),
+                new   LambertConformalProjection.Provider(),
+                new      StereographicProjection.Provider(),      // Automatic
+                new      StereographicProjection.Provider(true),  // Polar
+                new      StereographicProjection.Provider(false), // Oblique
+                new TransverseMercatorProjection.Provider(),      // Transverse Mercator
                 new          GeocentricTransform.Provider(false), // Geographic to Geocentric
                 new          GeocentricTransform.Provider(true)   // Geocentric to Geographic
             });
             for (int i=DEFAULT.providers.length; --i>=0;) {
                 final MathTransformProvider provider = DEFAULT.providers[i];
-//              if (provider instanceof MapProjection.Provider) {
+                if (provider instanceof MapProjection.Provider) {
                     // Register only projections.
-//                  DescriptorNaming.PROJECTIONS.bind(provider.getClassName(),
-//                                                    provider.getParameterListDescriptor());
-//              }
+                    DescriptorNaming.PROJECTIONS.bind(provider.getClassName(),
+                                                      provider.getParameterListDescriptor());
+                }
             }
         }
         return DEFAULT;
