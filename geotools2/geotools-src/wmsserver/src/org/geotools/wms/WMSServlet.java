@@ -119,6 +119,22 @@ public class WMSServlet extends HttpServlet {
         catch(Exception exp) {
             throw new ServletException("Cannot instantiate WMSServer class specified in WEB.XML", exp);
         }
+        
+        // Try to load any feature formaters
+        try {
+            String formatList = config.getInitParameter("WMSFeatureFormatters");
+            if(formatList != null){
+                StringTokenizer items = new StringTokenizer(formatList,",");
+                while(items.hasMoreTokens()) {
+                    String item = items.nextToken();
+                    WMSFeatureFormatter format = (WMSFeatureFormatter)Class.forName(item).newInstance();
+                    featureFormatters.add(format);
+                }
+            }
+        }
+        catch(Exception exp) {
+            throw new ServletException("Cannot instantiate WMSFeatureFormater class specified in WEB.XML", exp);
+        }
     }
     
     /**
@@ -398,7 +414,7 @@ public class WMSServlet extends HttpServlet {
         // Send to client
         if (exp_type==null || exp_type.trim().length()==0)
             exp_type = DEFAULT_EXCEPTION;
-        System.out.println("Its all gone wrong "+sException);
+        System.out.println("Its all gone wrong! "+sException);
         // Check the optional response code (mime-type of exception)
         //      if (exp_type.equalsIgnoreCase("application/vnd.ogc.se_xml") || exp_type.equalsIgnoreCase("text/xml")) {
         response.setContentType(exp_type);
@@ -408,7 +424,7 @@ public class WMSServlet extends HttpServlet {
         pw.println("  <!DOCTYPE ServiceExceptionReport SYSTEM \"http://www.digitalearth.gov/wmt/xml/exception_1_1_0.dtd\"> ");
         pw.println("  <ServiceExceptionReport version=\"1.1.0\">");
         // Write exception code
-        pw.println("    <ServiceException"+(sCode!=null?" code="+sCode:"")+">"+sException+"</ServiceException>");
+        pw.println("    <ServiceException"+(sCode!=null?" code=\""+sCode+"\"":"")+">"+sException+"</ServiceException>");
         // Write footer
         pw.println("  </ServiceExceptionReport>");
         
@@ -454,8 +470,18 @@ public class WMSServlet extends HttpServlet {
         
         // GetFeatureInfo
         String getFeatureInfo = "";
+        System.out.println("supports FI? " + cap.getSupportsGetFeatureInfo());
         if (cap.getSupportsGetFeatureInfo()) {
-            
+            getFeatureInfo+="<GetFeatureInfo>\n";
+            for(int i=0; i < featureFormatters.size(); i++){
+                getFeatureInfo+=("<Format>" + ((WMSFeatureFormatter)featureFormatters.elementAt(i)).getMimeType() + "</Format>\n");
+            }
+            getFeatureInfo+="<DCPType><HTTP><Get>\n";
+            getFeatureInfo+="<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\" "+
+                            "xlink:href=\"" + getUrl + "\"/>\n";
+            getFeatureInfo+="</Get></HTTP></DCPType>\n";
+            getFeatureInfo+="</GetFeatureInfo>\n";
+            System.out.println("feature info support = " + getFeatureInfo);
         }
         xml.replace(xml.toString().indexOf(XML_GETFEATUREINFO), xml.toString().indexOf(XML_GETFEATUREINFO)+ XML_GETFEATUREINFO.length(), getFeatureInfo);
         

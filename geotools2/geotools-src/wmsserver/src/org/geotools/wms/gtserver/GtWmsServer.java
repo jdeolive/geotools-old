@@ -36,11 +36,17 @@ import org.geotools.renderer.*;
 import org.geotools.styling.*;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.data.DataSource;
+import org.geotools.data.MemoryDataSource;
+import org.geotools.filter.AbstractFilter;
+import org.geotools.filter.Filter;
+import org.geotools.filter.FilterFactory;
+import org.geotools.filter.GeometryFilter;
 
 import org.geotools.wms.*;
 
@@ -57,7 +63,7 @@ public class GtWmsServer implements WMSServer {
     public static final String LAYERS_PROPERTY = "layersxml";
     
     private static final Logger LOGGER = Logger.getLogger(
-                                                 "org.geotools.wmsserver");
+    "org.geotools.wmsserver");
     
     public GtWmsServer() {
         //		loadLayers();
@@ -99,11 +105,20 @@ public class GtWmsServer implements WMSServer {
                         url = file.toURL();
                     }
                     ShapefileDataSource sds = new ShapefileDataSource(url);
+                    Envelope bbox = sds.getBbox(false);
                     
-                    
+                    MemoryDataSource cache = new MemoryDataSource();
+                    GeometryFilter filter = FilterFactory.createFilterFactory().createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+                    filter.addLeftGeometry(FilterFactory.createFilterFactory().createBBoxExpression(bbox));
+                    FeatureCollection temp = sds.getFeatures(filter);
+                    Feature[] list = temp.getFeatures();
+                    LOGGER.info("Caching " +list.length + " features for region " + bbox.getMinX() );
+                    for(int i = 0; i < list.length; i++){
+                        cache.addFeature(list[i]);
+                    }
                     Style style = new BasicPolygonStyle();//bad
                     
-                    features.put(entry.id,sds);
+                    features.put(entry.id,cache);
                     styles.put(entry.id,style);
                 }
                 
@@ -204,7 +219,7 @@ public class GtWmsServer implements WMSServer {
                     StyleFactory factory = StyleFactory.createStyleFactory();
                     SLDStyle stylereader = new SLDStyle(factory,url);
                     layerstyle = stylereader.readXML();
-
+                    
                     System.out.println("sld loaded");
                 }
                 else{
@@ -256,7 +271,7 @@ public class GtWmsServer implements WMSServer {
                     }
                 }
             }
-            
+            cap.setSupportsGetFeatureInfo(true);
             // Send result back to server
             return cap;
         }
@@ -277,27 +292,36 @@ public class GtWmsServer implements WMSServer {
      * @return An array of Feature objects.
      */
     public Feature [] getFeatureInfo(String [] layer, String srs, double [] bbox, int width, int height, int featureCount, int x, int y) throws WMSException {
-       // throw new WMSException(null, "getFeatureInfo not supported");
+        // throw new WMSException(null, "getFeatureInfo not supported");
         try {
             System.out.println("setting up map");
             map = new DefaultMap();
             for(int i = 0; i < layer.length; i++){
                 
-              
+                
                 DataSource ds = (DataSource)features.get(layer[i]);
-                FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
-         //       map.addFeatureTable(fc,layerstyle);
+                
+                
+                System.out.println("map setup");
+                BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                Envelope env = new Envelope(bbox[0],bbox[2],bbox[1],bbox[3]);
+                System.out.println("setting up renderer");
+                Java2DRenderer renderer = new Java2DRenderer();
+                
+                renderer.setOutput(image.getGraphics(), new java.awt.Rectangle(width,height));
+                System.out.println("inverting coordinate");
+                Coordinate c = renderer.pixelToWorld(x,y,env);
+               
+                FilterFactory filterFac = FilterFactory.createFilterFactory();
+                GeometryFilter filter = filterFac.createGeometryFilter(AbstractFilter.GEOMETRY_WITHIN);
+                GeometryFactory geomFac = new GeometryFactory();
+
+                filter.addLeftGeometry(filterFac.createLiteralExpression(geomFac.createPoint(c)));
+                FeatureCollection fc = ds.getFeatures(filter);
+                Feature[] features = fc.getFeatures();
+                return features;
             }
-            System.out.println("map setup");
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            Envelope env = new Envelope(bbox[0],bbox[2],bbox[1],bbox[3]);
-            System.out.println("setting up renderer");
-            Java2DRenderer renderer = new Java2DRenderer();
             
-            renderer.setOutput(image.getGraphics(), new java.awt.Rectangle(width,height));
-            System.out.println("inverting coordinate");
-            Coordinate c = renderer.pixelToWorld(x,y,env);
-            System.out.println("returning image");
             return null;
         }
         catch(Exception exp) {
