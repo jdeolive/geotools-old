@@ -1,16 +1,31 @@
 /*
- * MemoryDataSource.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on May 2, 2002, 3:20 PM
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
 
 package org.geotools.data;
 
 /**
- * A memory based datasource
- * @author James
- * @author  iant
- * $Id: MemoryDataSource.java,v 1.1 2002/05/15 15:45:45 jmacgill Exp $
+ * A memory-based datasource.
+ *
+ * @version $Id: MemoryDataSource.java,v 1.2 2002/06/04 16:28:42 loxnard Exp $
+ * @author James Macgill, CCG
+ * @author Ian Turton, CCG
  */
 
 import org.geotools.data.*;
@@ -19,22 +34,28 @@ import org.geotools.datasource.extents.EnvelopeExtent;
 
 public class MemoryDataSource implements DataSource {
     EnvelopeExtent bbox = new EnvelopeExtent();
-    /** Creates a new instance of MemoryDataSource */
+    /**
+     * Creates a new instance of MemoryDataSource.
+     */
     public MemoryDataSource() {
     }
     
-    /** the feature store */
+    /**
+     * The feature store.
+     */
     private java.util.Vector features = new java.util.Vector();
     
-    /** Stops this DataSource from loading
+    /**
+     * Stops this DataSource from loading.
      */
     public void stopLoading() {
         //do nothing
     }
     
-    /** Loads Feature rows for the given Extent from the datasource
+    /**
+     * Loads Feature rows for the given Extent from the datasource.
      * @param ft featureTable to load features into
-     * @param ex an extent defining which features to load - null means all features
+     * @param ex an extent defining which features to load - null means all
      * @throws DataSourceException if anything goes wrong
      */
     public void importFeatures(FeatureCollection ft, Extent ex) throws DataSourceException {
@@ -46,9 +67,10 @@ public class MemoryDataSource implements DataSource {
         }
     }
     
-    /** Saves the given features to the datasource
+    /**
+     * Saves the given features to the datasource.
      * @param ft feature table to get features from
-     * @param ex extent to define which features to write - null means all
+     * @param ex an extent defining which features to write - null means all
      * @throws DataSourceException if anything goes wrong or if exporting is not supported
      */
     public void exportFeatures(FeatureCollection ft, Extent ex) throws DataSourceException {
@@ -60,11 +82,12 @@ public class MemoryDataSource implements DataSource {
         bbox.combine(new EnvelopeExtent(f.getDefaultGeometry().getEnvelopeInternal()));
     }
     
-    /** gets the extent of this data source using the speed of
+    /**
+     * Gets the extent of this datasource using the speed of
      * this datasource as set by the parameter.
      * @param quick if true then a quick (and possibly dirty) estimate of
-     * the extent is returned. If false then a slow but acurate extent
-     * will be returned
+     * the extent is returned. If false then a slow but accurate extent
+     * will be returned.
      * @return the extent of the datasource or null if unknown and too
      * expensive for the method to calculate.
      */
@@ -72,7 +95,8 @@ public class MemoryDataSource implements DataSource {
         return getExtent();
     }
     
-    /** gets the extent of this data source using the quick method
+    /**
+     * Gets the extent of this data source using the quick method
      * of knowing what the bounding box is.
      * @return the extent of the datasource or null if unknown and too
      * expensive for the method to calculate.

@@ -21,9 +21,9 @@
 package org.geotools.data;
 
 /** 
- * Thrown when there is an error in a datasource
- * @version $Id: DataSourceException.java,v 1.1 2002/05/14 22:06:20 robhranac Exp $
- * @author Ray
+ * Thrown when there is an error in a datasource.
+ * @version $Id: DataSourceException.java,v 1.2 2002/06/04 16:25:15 loxnard Exp $
+ * @author Ray Gallagher
  */
 public class DataSourceException extends Exception{
     
