@@ -14,22 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-/*
- *    Geotools2 - OpenSource mapping toolkit
- *    http://geotools.org
- *    (C) 2002, Geotools Project Managment Committee (PMC)
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- *
- */
 package org.geotools.data.jdbc;
 
 import java.io.IOException;
@@ -162,7 +146,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.20 2004/01/13 00:53:21 seangeo Exp $
+ * $Id: JDBCDataStore.java,v 1.21 2004/01/20 05:25:17 jive Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     
@@ -801,7 +785,7 @@ public abstract class JDBCDataStore implements DataStore {
      */
     protected final QueryData executeQuery(String tableName, String sqlQuery,
         Transaction transaction, int resultSetType, int concurrency) throws IOException {
-        LOGGER.info("About to execure query: " + sqlQuery);
+        LOGGER.fine("About to execure query: " + sqlQuery);
 
         Connection conn = null;
         Statement statement = null;

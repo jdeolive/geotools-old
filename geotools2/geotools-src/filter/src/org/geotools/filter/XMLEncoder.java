@@ -166,7 +166,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
      * @param filter The filter to visit
      */
     public void visit(Filter filter) {
-        LOGGER.warning("exporting unknown filter type");
+        LOGGER.warning("exporting unknown filter type:"+filter.getClass().getName());
     }
 
     /**

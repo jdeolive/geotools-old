@@ -250,8 +250,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
             } else if (filter.getFilterType() == -12345) {
                 out.write("FALSE");
             }
-
-            log.warning("exporting unknown filter type");
+            log.warning("exporting unknown filter type:"+filter.getClass().getName());
         } catch (java.io.IOException ioe) {
             throw new RuntimeException(IO_ERROR, ioe);
         }

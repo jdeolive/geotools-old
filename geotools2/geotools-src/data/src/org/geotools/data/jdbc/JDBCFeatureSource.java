@@ -36,6 +36,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Logger;
 
 
 /**
@@ -69,7 +70,13 @@ import java.sql.Statement;
  * @author Jody Garnett, Refractions Research
  */
 public class JDBCFeatureSource implements FeatureSource {
+    /** The logger for the filter module. */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.data.jdbc");
+    
+    /** FeatureType being provided */
     private FeatureType featureType;
+    
+    /** JDBCDataStore based dataStore used to aquire content */
     private JDBCDataStore dataStore;
 
     /**
@@ -385,7 +392,8 @@ public class JDBCFeatureSource implements FeatureSource {
             sql.append("SELECT COUNT(*) as cnt");
             sqlBuilder.sqlFrom(sql, typeName);
             sqlBuilder.sqlWhere(sql, filter);
-            System.out.println("SQL: " + sql);
+            
+            LOGGER.finest("SQL: " + sql);
 
             Statement statement = conn.createStatement();
             ResultSet results = statement.executeQuery(sql.toString());

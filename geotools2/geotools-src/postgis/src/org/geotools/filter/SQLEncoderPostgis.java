@@ -174,8 +174,7 @@ public class SQLEncoderPostgis extends SQLEncoder
             } else if (filter.getFilterType() == -12345) {
                 out.write("FALSE");
             }
-
-            LOGGER.warning("exporting unknown filter type");
+            LOGGER.warning("exporting unknown filter type:"+filter.getClass().getName());
         } catch (java.io.IOException ioe) {
             throw new RuntimeException("io error while writing", ioe);
         }
