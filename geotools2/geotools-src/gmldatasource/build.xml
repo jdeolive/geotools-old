@@ -19,10 +19,24 @@
 
   <!-- Tests the feature flat stuff -->
   <target name="test">
-    <property file="build.ant.properties"/>
-    
+    <property file="build.ant.properties"/>   
     <property name="dir.module" value="${basedir}"/>           
     <ant antfile="common.xml" dir="../gtbuild" target="test" inheritAll="true"/>
+    <junit fork="true" printsummary="withOutAndErr">
+      <formatter type="plain" usefile="false"/>
+      <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
+      <classpath>
+        <pathelement path="src"/>
+        <pathelement path="tests/unit"/>
+        <pathelement path="../defaultcore/src"/>
+        <pathelement path="../gmldatasource/src"/>
+        <pathelement path="../core/src"/>
+        <pathelement path="../../extbin/core/lib/JTS.jar"/>
+        <pathelement path="../../extbin/core/lib/log4j-1.2.3.jar"/>
+        <pathelement path="release/resources.jar"/>
+      </classpath>
+      <test fork="true" name="org.geotools.gml.GmlSuite"/>
+    </junit>
   </target>
   
 

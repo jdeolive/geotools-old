@@ -32,40 +32,44 @@ import org.geotools.data.*;
 import org.geotools.feature.*;
 
 /**
- * Defines a comparison filter (can be a math comparison or generic equals).
+ * Defines a feature ID filter, which holds a list of feature IDs.
  *
- * This filter implements a comparison - of some sort - between two expressions.
- * The comparison may be a math comparison or a generic equals comparison.  If
- * it is a math comparison, only math expressions are allowed; if it is an
- * equals comparison, any expression types are allowed.
+ * This filter stores a series of feature IDs, which are used to distinguish 
+ * features uniquely.
  *
- * @version $Id: FidFilter.java,v 1.1 2002/09/05 20:36:57 robhranac Exp $
+ * @version $Id: FidFilter.java,v 1.2 2002/09/17 18:08:04 robhranac Exp $
  * @author Rob Hranac, TOPP
  */
 public class FidFilter extends AbstractFilter {
 
-    /** The logger for the default core module. */
+    /** Logger for the default core module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
-    /** A list of the feature IDs. */
-    private Set fids = new HashSet();
+    /** List of the feature IDs. */
+    Set fids = new HashSet();
 
+
+    /** Empty constructor. */
+    public FidFilter () {}
 
     /**
      * Constructor with filter type.
      *
-     * @param filterType The type of comparison.
+     * @param initialFid The type of comparison.
      */
-    public FidFilter () {}
+    public FidFilter (String initialFid) {
+        filterType = AbstractFilter.FID;
+        addFid(initialFid);
+    }
 
 
     /**
-     * Adds the 'left' value to this filter.
+     * Adds a feature ID to the filter.
      *
-     * @param fid Expression for 'left' value.
+     * @param fid A single feature ID.
      */
     public void addFid(String fid) {
-        LOGGER.finer("got it: " + fid);
+        LOGGER.finest("got fid: " + fid);
         fids.add(fid);
     }
 
@@ -96,6 +100,20 @@ public class FidFilter extends AbstractFilter {
         }
         
         return "[ " + fidFilter.toString() + " ]";        
+    }
+
+    /**
+     * Returns a flag indicating object equality.
+     *
+     * @return String representation of the compare filter.
+     */
+    public boolean equals(Object filter) {
+        if(((FidFilter) filter).filterType == AbstractFilter.FID) {
+            return fids.equals(((FidFilter) filter).fids);        
+        }
+        else {
+            return false;        
+        }     
     }
 
     /** 
