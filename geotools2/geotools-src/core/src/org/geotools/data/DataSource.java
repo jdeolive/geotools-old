@@ -23,11 +23,13 @@ import org.geotools.filter.Filter;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.FeatureCollection;
 
+import com.vividsolutions.jts.geom.Envelope;
+
 /**
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: DataSource.java,v 1.5 2002/07/18 16:12:00 robhranac Exp $
+ * @version $Id: DataSource.java,v 1.6 2002/07/18 20:18:37 jmacgill Exp $
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  */
@@ -131,8 +133,9 @@ public interface DataSource {
      *
      * @return The bounding box of the datasource or null if unknown and too
      * expensive for the method to calculate.
+     * @task REVISIT: Consider changing return of getBbox to Filter once Filters can be unpacked
      */
-    Filter getBbox();
+    Envelope getBbox();
     
     /**
      * Gets the bounding box of this datasource using the speed of 
@@ -143,7 +146,8 @@ public interface DataSource {
      * will be returned
      * @return The extent of the datasource or null if unknown and too
      * expensive for the method to calculate.
+     * @task REVISIT:Consider changing return of getBbox to Filter once Filters can be unpacked
      */
-    Filter getBbox(boolean speed);
+    Envelope getBbox(boolean speed);
 }
 
