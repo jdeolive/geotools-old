@@ -111,6 +111,7 @@ public class RenderStyleTest extends TestCase {
         if(dataFolder==null){
             //then we are being run by maven
             dataFolder = System.getProperty("basedir");
+            if(dataFolder == null) dataFolder = ".";
             dataFolder+="/tests/unit/testData";
         }
         
