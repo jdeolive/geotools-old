@@ -39,17 +39,21 @@ import org.geotools.renderer.Java2DRenderer;
 
 import com.vividsolutions.jts.geom.Envelope;
 
+import org.apache.log4j.Logger;
+
 /**
- * @version $Id: GenerateSVG.java,v 1.3 2002/07/15 17:45:25 loxnard Exp $
+ * @version $Id: GenerateSVG.java,v 1.4 2002/07/20 18:59:17 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class GenerateSVG {
+    
+    private static Logger log = Logger.getLogger("svgsupport");
     
     /** Creates a new instance of GenerateSVG. */
     public GenerateSVG() {
     }
     
-    public void go(Map map,OutputStream out) throws IOException{
+    public void go(Map map,Envelope env,OutputStream out) throws IOException{
         // Get a DOMImplementation
         DOMImplementation domImpl =
         GenericDOMImplementation.getDOMImplementation();
@@ -63,14 +67,14 @@ public class GenerateSVG {
         
         // Create an instance of the SVG Generator
         SVGGraphics2D g2d = new SVGGraphics2D(ctx, true);
-        g2d.setSVGCanvasSize(new Dimension(100, 100));
+        g2d.setSVGCanvasSize(new Dimension(300, 300));
         
         Java2DRenderer renderer = new Java2DRenderer();
         renderer.setOutput(g2d, new Rectangle(g2d.getSVGCanvasSize()));
-        
-        map.render(renderer, new Envelope(0, 0, 100, 100));
-        
-        g2d.stream(new OutputStreamWriter(out));
+        log.debug("rendering map");
+        map.render(renderer, env);
+        log.debug("writing to file");
+        g2d.stream(new OutputStreamWriter(out,"UTF-8"));
         
     }
     

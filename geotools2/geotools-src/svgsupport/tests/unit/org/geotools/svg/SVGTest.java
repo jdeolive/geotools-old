@@ -20,7 +20,9 @@ import org.geotools.data.*;
 import org.geotools.gml.*;
 import org.geotools.feature.FeatureCollectionDefault;
 
-import org.geotools.datasource.extents.EnvelopeExtent;
+import com.vividsolutions.jts.geom.Envelope;
+
+import org.apache.log4j.BasicConfigurator;
 
 /**
  *
@@ -30,6 +32,7 @@ public class SVGTest extends TestCase {
     
     public SVGTest(java.lang.String testName) {
         super(testName);
+        BasicConfigurator.configure();
     }
     
     public static void main(java.lang.String[] args) {
@@ -49,8 +52,12 @@ public class SVGTest extends TestCase {
             DataSource ds = new GMLDataSource(url);
             FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
 
-            EnvelopeExtent r = new EnvelopeExtent();
-            r.setBounds(new com.vividsolutions.jts.geom.Envelope(-100, 100, 0, 100.0));
+            
+            
+            //EnvelopeExtent r = new EnvelopeExtent(ds.getBbox());
+            //r.setBounds(new com.vividsolutions.jts.geom.Envelope(-100, 100, 0, 100.0));
+
+            //fc.getFeatures(r);
             
             File f = new File(System.getProperty("dataFolder"),"simple.sld");
        
@@ -61,7 +68,7 @@ public class SVGTest extends TestCase {
        
             url = new URL("file:///"+dataFolder+"/simple.svg");
             FileOutputStream out = new FileOutputStream(url.getFile());
-            gen.go(map,out);
+            gen.go(map,new Envelope(0,30,0,30),out);
             
             
         
