@@ -29,58 +29,84 @@ package org.geotools.data;
  * be queried before attempting unsupported operations that would just throw
  * exceptions.
  *
- * @version $Id: DataSourceMetaData.java,v 1.1 2003/03/28 19:14:13 cholmesny Exp $
+ * @version $Id: DataSourceMetaData.java,v 1.2 2003/05/08 19:01:25 cholmesny Exp $
  * @author Chris Holmes, TOPP
  */
 
 public interface DataSourceMetaData {
     
     /**
-     * Retrieves whether this datasource supports basic transactions:
-     * updateFeatures, modifyFeatures, and removeFeatures.
+     * Retrieves whether this datasource supports addFeatures.
      *
-     * @return true if so, false otherwise.
+     * @return <tt>true</tt> the addFeatures method is supported, 
+     * <tt>false</tt> otherwise.
      */
-    boolean supportsTransactions();
+    boolean supportsAdd();
 
     /**
-     * Retrieves whether this datasource supports multi transaction operations:
-     * startMultiTransaction and endMultiTransaction
+     * Retrieves whether this datasource supports removeFeatures.
      *
-     * @return true if so, false otherwise.
+     * @return <tt>true</tt> the removeFeatures method is supported, 
+     * <tt>false</tt> otherwise.
      */
-    boolean supportsMultiTransactions();
+    boolean supportsRemove();
+
+     /**
+     * Retrieves whether this datasource supports removeFeatures.
+     *
+     * @return <tt>true</tt> the modifyFeatures method is supported, 
+     * <tt>false</tt> otherwise.
+     */
+    boolean supportsModify();
+
+    /**
+     * Retrieves whether this datasource implements the
+     * setAutoCommit(boolean) and rollback() methods of the DataSource
+     * Interface. 
+     *
+     * @return <tt>true</tt> if the rollback methods are supported, 
+     * <tt>false</tt> otherwise.
+     * @see DataSource#setAutoCommit(boolean)
+     * @see DataSource#rollback()
+     */
+    boolean supportsRollbacks();
 	
     /**
-     * Retrieves whether this datasource supports multi the setFeatures 
+     * Retrieves whether the datasource supports the {@link DataSource#setFeatures(FeatureCollection) setFeatures} operation. 
      * operation.
      *
-     * @return true if so, false otherwise.
+     * @return <tt>true</tt> if the setFeatures method is supported, 
+     * <tt>false</tt> otherwise.
      */
     boolean supportsSetFeatures();
 
 
-    /**
-     * Retrives whether this datasource supports the setSchema operation.
-     *
-     * @return true if so, false otherwise.
-     */
-    boolean supportsSetSchema();
-
-
+   
      /**
-     * Retrives whether this datasource supports the abortLoading operation.
+     * Retrieves whether this datasource supports the {@link DataSource#abortLoading() abortLoading} operation.
      *
-     * @return true if so, false otherwise.
+     * @return <tt>true</tt> if the abortLoading method is supported, 
+     * <tt>false</tt> otherwise.
      */
     boolean supportsAbort();
 
      /**
-     * Retrives whether this datasource returns meaningful results when
+     * Retrieves whether this datasource returns meaningful results when
      * getBBox is called.
      *
-     * @return true if so, false otherwise.
+     * @return <tt>true</tt> if the getBbox method is supported, 
+     * <tt>false</tt> otherwise.
      */
     boolean supportsGetBbox();
+
+    /**
+     * Retrieves whether the getBbox operation of the datasource will return
+     * relatively quickly.  Programmers who care about the speed of calculating
+     * the bounding box should query this method before calling getBbox.
+     *
+     * @return <tt>true</tt> if a getBbox call will return quickly, 
+     * <tt>false</tt> otherwise.
+     */
+    boolean hasFastBbox();
 }
 
