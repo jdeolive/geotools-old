@@ -45,8 +45,8 @@
   </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-      <sourceDirectory>src/</sourceDirectory>
-    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+      
+    
     <integrationUnitTestSourceDirectory/>
     <aspectSourceDirectories/>
     <unitTestPatterns>
