@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
  * @author  jamesm
  */
 public class XMLEncoder implements org.geotools.filter.FilterVisitor {
-     Document dom = new Document().
+     
      private static Logger log = Logger.getLogger("filter");
 
     
