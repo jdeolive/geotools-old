@@ -74,7 +74,7 @@ import java.util.Arrays;
  * 
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.9 2003/11/21 23:30:43 jive Exp $
+ * @version $Id: Query.java,v 1.10 2003/12/01 23:26:04 cholmesny Exp $
  */
 public interface Query {
     /** So getMaxFeatures does not return null we use a very large number. */
@@ -93,27 +93,33 @@ public interface Query {
      * filtering, and the a featureType with no attribtues.
      */
     final Query FIDS = new FIDSQuery();
-
     final String[] NO_NAMES = new String[0];
     final String[] ALL_NAMES = null;
+
     /**
      * The properties array is used to specify the attributes that should be
      * selected for the return feature collection.
+     * 
      * <ul>
-     * <li>ALL_NAMES: <code>null</code><br>
-     * If no properties are specified (getProperties returns
-     * ALL_NAMES or null) then the full schema should  be used (all attributes).
+     * <li>
+     * ALL_NAMES: <code>null</code><br>
+     * If no properties are specified (getProperties returns ALL_NAMES or
+     * null) then the full schema should  be used (all attributes).
      * </li>
-     * <li>NO_NAMES: <code>new String[0]</code><br>
+     * <li>
+     * NO_NAMES: <code>new String[0]</code><br>
      * If getProperties returns an array of size 0, then the datasource should
      * return features with no attributes, only their ids.
      * </li>
      * </ul>
-     * <p>The available properties can be determined with a getSchema
-     * call from the DataSource interface.  A datasource can use {@link
+     * 
+     * <p>
+     * The available properties can be determined with a getSchema call from
+     * the DataSource interface.  A datasource can use {@link
      * #retrieveAllProperties()} as a shortcut to determine if all its
      * available properties should be returned (same as checking to see if
      * getProperties is ALL_NAMES, but clearer)
+     * </p>
      * 
      * <p>
      * If properties that are not part of the datasource's schema are requested
@@ -226,6 +232,34 @@ public interface Query {
      * @return the version of the feature to return.
      */
     String getVersion();
+
+    /**
+     * Gets the Coordinate System to temporarily to override the coordinate
+     * system contained in the FeatureSource being queried.  The same
+     * coordinate values will be used, but the features created will appear in
+     * this Coordinate System. This change is not persistant at all, indeed it
+     * is only for the Features returned by this Query.  It may be used in
+     * conjunction with the reprojection Coordinate System, but this one will
+     * always be used first, the reprojection CS will perform its operation on
+     * this cs.
+     *
+     * @return The coordinate system to be returned for Features from this
+     *         Query (override the set coordinate system).
+     */
+    //CS_CoordinateSystem getOverrideCS();
+
+    /**
+     * Gets the coordinate System to reproject the data contained in the
+     * backend datastore to.  If the DataStore can optimize the reprojection
+     * it should, if not then a decorator on the reader should perform the
+     * reprojection on the fly.  If the datastore has the wrong CS then
+     * getOverrideCS() should be set to the CS to be used, this will perform
+     * the reprojection on that.
+     *
+     * @return The coordinate system that Features from the datasource should
+     *         be reprojected to.
+     */
+    //CS_CoordinateSystem getReprojectionCS();
 }
 
 
