@@ -58,7 +58,12 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
+      <artifactId>data</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <id>postgis-driver</id>
       <version>1.0</version>
       <url>http://postgis.refractions.net/download.php</url>
