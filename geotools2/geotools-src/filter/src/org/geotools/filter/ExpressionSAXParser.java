@@ -34,16 +34,16 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: ExpressionFactory.java,v 1.4 2002/09/18 14:29:41 robhranac Exp $
+ * @version $Id: ExpressionSAXParser.java,v 1.1 2002/10/23 15:32:23 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class ExpressionFactory {
+public class ExpressionSAXParser {
 
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** The attribute value, which must be an attribute expression. */
-    private ExpressionFactory expressionFactory = null;
+    private ExpressionSAXParser expressionFactory = null;
 
     /** The (limited) REGEXP pattern. */
     private Expression currentExpression = null;
@@ -66,7 +66,7 @@ public class ExpressionFactory {
     /**
      * Constructor which flags the operator as between.
      */
-    public ExpressionFactory (FeatureType schema) {
+    public ExpressionSAXParser (FeatureType schema) {
         this.schema = schema;
     }
 
@@ -87,7 +87,7 @@ public class ExpressionFactory {
             // if the expression is math, then create a factory for its
             // sub expressions, otherwise just instantiate the main expression
             if( ExpressionDefault.isMathExpression( convertType(declaredType) ) ) {
-                expressionFactory = new ExpressionFactory(schema);
+                expressionFactory = new ExpressionSAXParser(schema);
                 currentExpression = new ExpressionMath(convertType(declaredType));
                 LOGGER.finer("is math expression");
             }
@@ -143,7 +143,7 @@ public class ExpressionFactory {
                     ((ExpressionMath) currentExpression).
                         addLeftValue(expressionFactory.create());
                     currentState = "rightValue";
-                    expressionFactory = new ExpressionFactory(schema);
+                    expressionFactory = new ExpressionSAXParser(schema);
                     LOGGER.finer("just added left value: " + currentState);
                 }
                 else if( currentState.equals("rightValue") ) {

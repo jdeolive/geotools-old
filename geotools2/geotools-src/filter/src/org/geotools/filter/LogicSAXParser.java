@@ -28,10 +28,10 @@ import java.util.logging.Logger;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LogicFactory.java,v 1.2 2002/08/07 08:10:20 desruisseaux Exp $
+ * @version $Id: LogicSAXParser.java,v 1.1 2002/10/23 15:32:23 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class LogicFactory {
+public class LogicSAXParser {
 
     /**
      * The logger for the filter module.
@@ -45,7 +45,7 @@ public class LogicFactory {
     private List subFilters = new ArrayList();
 
     /** The (limited) REGEXP pattern. */
-    private LogicFactory logicFactory = null;
+    private LogicSAXParser logicFactory = null;
 
 
     private boolean isActive = false;
@@ -56,7 +56,7 @@ public class LogicFactory {
     /**
      * Constructor which flags the operator as between.
      */
-    public LogicFactory () {
+    public LogicSAXParser () {
         LOGGER.finer("made new logic factory");
     }
 
@@ -71,7 +71,7 @@ public class LogicFactory {
 
         LOGGER.finer("got a start element: " + logicType);
         if( this.logicType != -1) {
-            logicFactory = new LogicFactory();
+            logicFactory = new LogicSAXParser();
             logicFactory.start(logicType);
         }
         else if( !AbstractFilter.isLogicFilter(logicType)) {

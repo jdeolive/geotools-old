@@ -35,10 +35,10 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: FilterFactory.java,v 1.5 2002/09/17 17:33:56 robhranac Exp $
+ * @version $Id: FilterSAXParser.java,v 1.1 2002/10/23 15:32:23 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class FilterFactory {
+public class FilterSAXParser {
 
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
@@ -58,7 +58,7 @@ public class FilterFactory {
     /**
      * Constructor which flags the operator as between.
      */
-    public FilterFactory () {}
+    public FilterSAXParser () {}
 
 
     /**
