@@ -16,17 +16,11 @@
  */
 package org.geotools.renderer.style;
 
-import java.awt.Graphics2D;
-
-// J2SE dependencies
-import java.awt.Paint;
-import java.awt.Stroke;
-
 
 /**
  * Base class for all style targeting {@link Graphics2D}.
  *
- * @version $Id: Style2D.java,v 1.2 2003/06/13 18:21:45 aaime Exp $
+ * @version $Id: Style2D.java,v 1.3 2003/11/01 17:34:28 aaime Exp $
  */
 public abstract class Style2D extends Style {
 }

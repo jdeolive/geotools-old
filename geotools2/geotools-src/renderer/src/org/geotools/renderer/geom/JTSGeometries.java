@@ -62,7 +62,7 @@ import org.geotools.renderer.array.JTSArray;
  * A geometry collection backed by one or many JTS
  * {@link com.vividsolutions.jts.geom.Geometry} objects.
  *
- * @version $Id: JTSGeometries.java,v 1.5 2003/09/02 12:34:11 desruisseaux Exp $
+ * @version $Id: JTSGeometries.java,v 1.6 2003/11/01 17:34:28 aaime Exp $
  * @author Martin Desruisseaux
  */
 public class JTSGeometries extends GeometryCollection {
@@ -202,13 +202,8 @@ public class JTSGeometries extends GeometryCollection {
      *         be transformed in this collection's coordinate system.
      */
     private Geometry addSF(final SFSPoint geometry) throws TransformException {
-        final Coordinate[] coords;
-        if (geometry instanceof Point) {
-            coords = ((Point) geometry).getCoordinates();
-        } else {
-            coords = new Coordinate[] {geometry.getCoordinate()};
-        }
-        return add(geometry, new Polyline(new JTSArray(coords), getCoordinateSystem(geometry)));
+        Coordinate coord = geometry.getCoordinate();
+        return add(geometry, new org.geotools.renderer.geom.Point(coord, getCoordinateSystem(geometry)));
     }
 
     /**

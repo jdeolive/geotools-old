@@ -34,20 +34,17 @@
 package org.geotools.renderer.j2d;
 
 // J2SE dependencies
-import java.awt.Font;
 import java.awt.Shape;
 import java.awt.Paint;
 import java.awt.Stroke;
 import java.awt.Rectangle;
 import java.awt.Graphics2D;
-import java.awt.BasicStroke;
 import java.awt.font.GlyphVector;
 import java.awt.font.FontRenderContext;
 import java.awt.image.RenderedImage;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.Arrays;
@@ -60,9 +57,6 @@ import org.geotools.ct.TransformException;
 import org.geotools.units.Unit;
 import org.geotools.resources.XMath;
 import org.geotools.resources.XArray;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.CTSUtilities;
-import org.geotools.resources.XAffineTransform;
 
 
 /**
@@ -71,7 +65,7 @@ import org.geotools.resources.XAffineTransform;
  * Subclasses must override the {@link #getMarkIterator} method in order to returns informations
  * about marks.
  *
- * @version $Id: RenderedMarks.java,v 1.15 2003/10/09 09:41:36 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.16 2003/11/01 17:34:28 aaime Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -427,7 +421,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                      *            the mark. Instead, we keep a reference to the untransformed mark
                      *            (which is usually the same reference for all marks) and store the
                      *            affine transform to be used later.  Storing the affine transform
-                     *            always uses 6 floats, no matter how complex de shape is. Storing
+                     *            always uses 6 floats, no matter how complex the shape is. Storing
                      *            a transformed mark would take more memory for any kind of mark
                      *            with more then 3 points (plus the overhead for each new objects).
                      */
@@ -504,6 +498,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                     final String label = iterator.label();
                     if (label != null) {
                         glyphs = iterator.font().createGlyphVector(fontContext, label);
+                        // TODO: rename LegendPosition to TextPosition since it's that's what it's used for
                         LegendPosition labelPos = iterator.labelPosition();
                         Rectangle2D labelBounds = glyphs.getVisualBounds();
                         labelPos.setLocation(labelBounds, matrix[4], matrix[5]);
@@ -550,6 +545,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                     }
                     // STEP 1  -  Geographic areas
                     if (areaShapes != null) {
+                    	// TODO: this code is unreachable!
                         if (areaShapes == null) {
                             areaShapes = new Shape[markIndex.length];
                         }

@@ -27,7 +27,8 @@ import java.awt.*;
 /**
  * A style that contains the specification to renderer both the contour and the interior of a shape
  *
- * @author aaime
+ * @author Andrea Aime
+ * @version $Id: PolygonStyle2D.java,v 1.3 2003/11/01 17:34:28 aaime Exp $
  */
 public class PolygonStyle2D extends LineStyle2D {
     protected Paint fill;
@@ -60,7 +61,7 @@ public class PolygonStyle2D extends LineStyle2D {
      * @return the current fill composite or null if none
      */
     public Composite getFillComposite() {
-        return this.contourComposite;
+        return this.fillComposite;
     }
 
     /**
@@ -69,7 +70,7 @@ public class PolygonStyle2D extends LineStyle2D {
      *
      * @param contourComposite
      */
-    public void setFillComposite(Composite contourComposite) {
-        this.contourComposite = contourComposite;
+    public void setFillComposite(Composite fillComposite) {
+        this.fillComposite = fillComposite;
     }
 }

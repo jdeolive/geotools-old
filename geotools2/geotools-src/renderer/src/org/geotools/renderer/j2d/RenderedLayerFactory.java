@@ -22,15 +22,18 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // JTS dependencies
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.sfs.SFSCurve;
 import com.vividsolutions.jts.geom.sfs.SFSGeometry;
+import com.vividsolutions.jts.geom.sfs.SFSLinearRing;
+import com.vividsolutions.jts.geom.sfs.SFSPoint;
 
 // Geotools dependencies
 import org.geotools.feature.Feature;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
 import org.geotools.cs.CoordinateSystem;
@@ -54,7 +57,7 @@ import org.geotools.util.RangeSet;
 /**
  * A factory creating {@link RenderedLayer}s from {@link Feature}s and {@link Style}s.
  *
- * @version $Id: RenderedLayerFactory.java,v 1.14 2003/10/17 21:42:09 jmacgill Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.15 2003/11/01 17:34:28 aaime Exp $
  * @author Andrea Aime
  * @author Martin Desruisseaux
  */
@@ -261,7 +264,6 @@ public class RenderedLayerFactory {
 
             // if the symbolizer is a raster one we have to create
             // another rendered layer with the grid alone. 
-            // TODO: do the same for rendered marks
             if (symb instanceof RasterSymbolizer) {
                 if (geometries.getGeometries().size() > 0) {
                     renderedLayers.add(new SLDRenderedGeometries(geometries));
@@ -270,17 +272,7 @@ public class RenderedLayerFactory {
 
                 GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
                 renderedLayers.add(new RenderedGridCoverage(grid));
-            } 
-            else if (symb instanceof PointSymbolizer){
-                System.out.println("found a point symbolizer!");
-                renderedLayers.add(new StyledMark(feature));
-                //if (geometries.getGeometries().size() > 0) {
-                    //renderedLayers.add(new SLDRenderedMarks(geometries));
-                geometries = null;
-                //}
-                //do points
-            }
-            else {
+            } else {
                 SFSGeometry geometry = findGeometry(feature, symb);
 
                 if (geometry != null) {
@@ -344,22 +336,40 @@ public class RenderedLayerFactory {
         // TODO: fix the styles, should be the same method name and probably should be moved 
         // into an interface...
         if (s instanceof PolygonSymbolizer) {
-            geomName = ((PolygonSymbolizer) s).geometryPropertyName();
+            geomName = ((PolygonSymbolizer) s).getGeometryPropertyName();
         } else if (s instanceof PointSymbolizer) {
-            geomName = ((PointSymbolizer) s).geometryPropertyName();
+            geomName = ((PointSymbolizer) s).getGeometryPropertyName();
         } else if (s instanceof LineSymbolizer) {
-            geomName = ((LineSymbolizer) s).geometryPropertyName();
+            geomName = ((LineSymbolizer) s).getGeometryPropertyName();
         } else if (s instanceof TextSymbolizer) {
             geomName = ((TextSymbolizer) s).getGeometryPropertyName();
         }
 
+        // get the geometry
         SFSGeometry geom;
-
         if (geomName == null) {
             geom = f.getDefaultGeometry();
         } else {
             geom = (SFSGeometry) f.getAttribute(geomName);
         }
+        
+        // if the symbolizer is a point or text symbolizer generate a suitable location to place the
+        // point in order to avoid recomputing that location at each rendering step
+        if((s instanceof PointSymbolizer || s instanceof TextSymbolizer) && !(geom instanceof SFSPoint)) {
+			com.vividsolutions.jts.geom.Geometry jtsGeom = (com.vividsolutions.jts.geom.Geometry) geom;
+        	if(geom instanceof SFSCurve && !(geom instanceof SFSLinearRing)) {
+        		// use the mid point to represent the point/text symbolizer anchor
+        		Coordinate[] coordinates = jtsGeom.getCoordinates();
+				Coordinate start = coordinates[0];
+        		Coordinate end = coordinates[1];
+        		Coordinate mid = new Coordinate((start.x + end.x) / 2, (start.y + end.y) / 2);
+        		geom = new Point(mid, jtsGeom.getPrecisionModel(), 0);
+        	} else {
+	        	// otherwise use the centroid of the polygon
+	        	geom = jtsGeom.getCentroid();
+        	}
+        }
+        
 
         return geom;
     }

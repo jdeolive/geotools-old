@@ -53,10 +53,10 @@ import org.geotools.resources.XAffineTransform;
  * by {@link RenderedMarks}. It is designed for reuse with many different affine transforms and
  * shapes. This class is <strong>not</strong> thread-safe.
  *
- * @version $Id: TransformedShape.java,v 1.4 2003/07/22 03:19:03 jmacgill Exp $
+ * @version $Id: TransformedShape.java,v 1.5 2003/11/01 17:34:28 aaime Exp $
  * @author Martin Desruisseaux
  */
-final class TransformedShape extends AffineTransform implements Shape {
+public final class TransformedShape extends AffineTransform implements Shape {
     /**
      * The wrapped shape.
      */
