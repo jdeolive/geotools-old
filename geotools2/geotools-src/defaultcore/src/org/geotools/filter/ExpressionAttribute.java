@@ -29,7 +29,7 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: ExpressionAttribute.java,v 1.1 2002/06/22 19:08:30 jmacgill Exp $
+ * @version $Id: ExpressionAttribute.java,v 1.2 2002/07/04 10:48:43 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionAttribute extends ExpressionDefault {
@@ -101,7 +101,8 @@ public class ExpressionAttribute extends ExpressionDefault {
              (expressionType == ATTRIBUTE_INTEGER)) ||
             ((tempAttribute instanceof String) && 
              (expressionType == ATTRIBUTE_STRING)) ||
-            permissiveConstruction ) {
+            permissiveConstruction ||
+            expressionType == ATTRIBUTE_UNDECLARED) { // added by Ian - at build time the type is unknown and unknowable
             return tempAttribute;
         }
         else {
