@@ -13,19 +13,18 @@
     the GeoTools feature representation one must write an implementation of
     the DataStore interface.</para>
 
-    <para>Once a DataSource implementation is written, any data written in
-    that format becomes available not only for GeoTools users, but also for
-    projects built on top of GeoTools. </para>
+    <para>Once a DataStore implementation is written, any data written in that
+    format becomes available not only for GeoTools users, but also for
+    projects built on top of GeoTools.</para>
 
-    <para>Writing a new DataSource for GeoTools is one of the best ways to get
+    <para>Writing a new DataStore for GeoTools is one of the best ways to get
     involved in the project, as writing it will make clear many of the core
     concepts of the API. Finally, the modular nature of GeoTools allows new
     DataStores to quickly become part of the next release, so that new formats
     are quickly available to all GeoTools users.</para>
 
-    <para>The DataSource interface borrows most of its concepts and some of
-    its syntax from the OpenGIS Consortium (OGC) <link linkend="???">Web
-    Feature Service Specification</link>:</para>
+    <para>The DataStore interface borrows most of its concepts and some of its
+    syntax from the OpenGIS Consortium (OGC) Web Feature Server Specification:</para>
 
     <itemizedlist>
       <listitem>
@@ -47,8 +46,9 @@
   <sect1>
     <title>DataStore Implementation</title>
 
-    <para>In this we will build a simple a simple property file based
-    DataStore.</para>
+    <para>In this document we will build a simple a simple java property file
+    based DataStore, and in the process explore several aspects of DataStores
+    and their implementation.</para>
 
     <para>(If you want to follow a long with this tutoiral, start a new java
     project in your favourate IDE, and ensure that geotools2 is on you
@@ -101,7 +101,7 @@ rd2=2|wkt|road two</screen>
         </listitem>
       </itemizedlist>
 
-      <para>Create the file SimpleDataStore as follows:</para>
+      <para>To begin create the file PropertyDataStore as follows:</para>
 
       <programlisting>package org.geotools.data.tutorial;
 
@@ -111,7 +111,7 @@ import java.io.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 
-public class SimpleDataStore extends AbstractDataStore {
+public class PropertyDataStore extends AbstractDataStore {
 
 }</programlisting>
     </sect2>
@@ -119,8 +119,9 @@ public class SimpleDataStore extends AbstractDataStore {
     <sect2>
       <title>DataStore - getTypeNames()</title>
 
-      <para>A single DataStore may provide access to several different kinds
-      of information. This method provides a list of the available types.</para>
+      <para>A single DataStore may provide access to several different types
+      of information. The method getTypeNames provides a list of the available
+      types.</para>
 
       <para>For our purposes this will be the name of the property files in a
       directory.</para>
@@ -184,34 +185,13 @@ public String[] getTypeNames() {
     </sect2>
 
     <sect2>
-      <title>AbstractDataStore - GetFeatureReader( typeName )</title>
+      <title>AbstractDataStore - getFeatureReader( typeName )</title>
 
       <para>FeatureReader is the low-level api provided by DataStore for
-      accessing Feature content. This method provides access to a content of a
-      DataStore. This method is not part of the DataStore api.</para>
+      accessing Feature content.</para>
 
-      <para>FeatureReader is similar to the Java Iterator construct, with the
-      addition of FetureType (and IOExceptions).</para>
-
-      <para>FeatureReader interface:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>getFeatureType()</para>
-        </listitem>
-
-        <listitem>
-          <para>next()</para>
-        </listitem>
-
-        <listitem>
-          <para>hasNext()</para>
-        </listitem>
-
-        <listitem>
-          <para>close()</para>
-        </listitem>
-      </itemizedlist>
+      <para>The method getFeatureReader( typeName ) is required by
+      AbstractDataStore and is not part of the DataStore api</para>
 
       <para>Add getFeatureReader( typeName ):</para>
 
@@ -219,12 +199,21 @@ public String[] getTypeNames() {
     return new PropertiesFeatureReader( path, typeName );        
 }</programlisting>
 
-      <para>To implement our FeatureReader, we will need to do several things:
-      open a File, read through it line by line parsing Features as we go.</para>
+      <sect3>
+        <title>PropertyFeatureReader</title>
 
-      <para>Create the file PropertyFeatureReader as follows:</para>
+        <para>FeatureReader is similar to the Java Iterator construct, with
+        the addition of FetureType (and IOExceptions).</para>
 
-      <programlisting>package org.geotools.data.tutorial;
+        <para>FeatureReader interface:<itemizedlist><listitem><para>getFeatureType()</para></listitem><listitem><para>next()</para></listitem><listitem><para>hasNext()</para></listitem><listitem><para>close()</para></listitem></itemizedlist></para>
+
+        <para>To implement our FeatureReader, we will need to do several
+        things: open a File, read through it line by line parsing Features as
+        we go.</para>
+
+        <para>Create the file PropertyFeatureReader as follows:</para>
+
+        <para><programlisting>package org.geotools.data.tutorial;
 
 import java.io.*;
 import java.util.NoSuchElementException;
@@ -249,13 +238,10 @@ public class PropertiesFeatureReader implements FeatureReader {
             }
         }
         line = null;        
-    }C
-}
-</programlisting>
+    }
+}</programlisting></para>
 
-      <para>We will then implement the methods required for FeatureReader.</para>
-
-      <programlisting>public FeatureType getFeatureType() {
+        <para>We will then implement the methods required for FeatureReader:<programlisting>public FeatureType getFeatureType() {
     return type;
 }
 public Feature next()
@@ -281,7 +267,16 @@ public void close() throws IOException {
     reader = null;
     line = null;
 }
-</programlisting>
+</programlisting></para>
+      </sect3>
+
+      <sect3>
+        <title>PropertyAttributeReader</title>
+
+        <para>The AttributeReader interface is used to provide access to
+        individual attribtues from a storage medium. High level opperations
+        such as Joining make use of this capability.</para>
+      </sect3>
     </sect2>
 
     <sect2>
@@ -628,7 +623,7 @@ FeatureStore road = (FeatureStore) source;</programlisting>
           </listitem>
 
           <listitem>
-            <para>lockFeatures() - lock all </para>
+            <para>lockFeatures() - lock all</para>
           </listitem>
 
           <listitem>
