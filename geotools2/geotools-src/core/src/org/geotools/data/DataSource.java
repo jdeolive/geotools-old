@@ -19,8 +19,10 @@
  */
 package org.geotools.data;
 
+import java.util.Set;
 import org.geotools.filter.Filter;
 import org.geotools.feature.AttributeType;
+import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureCollection;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -29,9 +31,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: DataSource.java,v 1.6 2002/07/18 20:18:37 jmacgill Exp $
+ * @version $Id: DataSource.java,v 1.7 2003/03/28 19:27:19 cholmesny Exp $
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
+ * @author Chris Holmes, TOPP
  */
 public interface DataSource {
     
@@ -72,10 +75,11 @@ public interface DataSource {
      * Adds all features from the passed feature collection to the datasource.
      *
      * @param collection The collection from which to add the features.
+     * @return the FeatureIds of the newly added features.
      * @throws DataSourceException If anything goes wrong or if exporting is
      * not supported.
      */
-    void addFeatures(FeatureCollection collection)
+    Set addFeatures(FeatureCollection collection)
         throws DataSourceException;
     
     /**
@@ -117,10 +121,57 @@ public interface DataSource {
     void modifyFeatures(AttributeType type, Object value, Filter filter)
         throws DataSourceException;
     
+    /**
+     * Deletes the all the current Features of this datasource and adds the
+     * new collection.  Primarily used as a convenience method for file 
+     * datasources.  
+     * @param collection - the collection to be written
+     */
+    void setFeatures(FeatureCollection collection) throws DataSourceException;
+
+
+    /**
+     * Begins a transaction(add, remove or modify) that does not commit as 
+     * each modification call is made.  If an error occurs during a transaction
+     * after this method has been called then the datasource should rollback: 
+     * none of the transactions performed after this method was called should
+     * go through.
+     */
+    void startMultiTransaction() throws DataSourceException;
+
+    /**
+     * Ends a transaction after startMultiTransaction has been called.  Similar
+     * to a commit call in sql, it finalizes all of the transactions called
+     * after a startMultiTransaction.
+     */
+    void endMultiTransaction() throws DataSourceException;
 
     /**************************************************
       Data source utility methods.
      **************************************************/
+
+    /**
+     * Gets the DatasSourceMetaData object associated with this datasource.  
+     * This is the preferred way to find out which of the possible datasource
+     * interface methods are actually implemented, query the DataSourceMetaData
+     * about which methods the datasource supports.
+     */
+    DataSourceMetaData getMetaData();
+
+    /**
+     * Retrieves the featureType that features extracted from this datasource
+     * will be created with.
+     */
+    FeatureType getSchema();
+
+    /**
+     * Sets the schema that features extrated from this datasource will be 
+     * created with.  This allows the user to obtain the attributes he wants,
+     * by calling getSchema and then creating a new schema using the 
+     * attributeTypes from the currently used schema.  
+     * @param schema the new schema to be used to create features.
+     */
+    void setSchema(FeatureType schema) throws DataSourceException;
 
     /**
      * Stops this DataSource from loading.
@@ -133,7 +184,8 @@ public interface DataSource {
      *
      * @return The bounding box of the datasource or null if unknown and too
      * expensive for the method to calculate.
-     * @task REVISIT: Consider changing return of getBbox to Filter once Filters can be unpacked
+     * @task REVISIT: Consider changing return of getBbox to Filter once Filters
+     * can be unpacked
      */
     Envelope getBbox();
     
