@@ -73,7 +73,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.14 2003/03/20 22:49:34 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.15 2003/05/12 22:26:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -358,7 +358,7 @@ public class RenderedIsoline extends RenderedLayer {
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.14 2003/03/20 22:49:34 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.15 2003/05/12 22:26:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class IsolineRenderer implements Polygon.Renderer {
@@ -403,23 +403,8 @@ public class RenderedIsoline extends RenderedLayer {
          * <strong>Do not modify it, neither keep a reference to it after this method call</strong>
          * in order to avoid unexpected behaviour.
          */
-        public void paint(Polygon polygon) {
-            final InteriorType type = polygon.getInteriorType();
-            if (InteriorType.ELEVATION.equals(type)) {
-                graphics.setPaint(foreground);
-                graphics.fill(polygon);
-                if (foreground.equals(contour)) {
-                    return;
-                }
-            } else if (InteriorType.DEPRESSION.equals(type)) {
-                graphics.setPaint(background);
-                graphics.fill(polygon);
-                if (background.equals(contour)) {
-                    return;
-                }
-            }
-            graphics.setPaint(contour);
-            graphics.draw(polygon);
+        public void paint(final Polygon polygon) {
+            RenderedIsoline.this.paint(graphics, polygon);
         }
 
         /**
@@ -433,6 +418,36 @@ public class RenderedIsoline extends RenderedLayer {
         public void paintCompleted(final int rendered, final int recomputed, double resolution) {
             renderer.statistics.addIsoline(numPoints, rendered, recomputed, resolution);
         }
+    }
+        
+    /**
+     * Invoked automatically when a polygon is about to be draw. The default implementation
+     * draw or fill the polygon according the current {@linkplain #getBackground background},
+     * {@linkplain #getForeground foreground} and other settings.
+     *
+     * @param graphics The graphics in which to draw.
+     * @param polygon The polygon to draw. This polygon may exposes some internal state of
+     *        {@link Isoline}, for example decimation and clipping. <strong>Do not modify
+     *        this polygon, neither keep a reference to it after this method call</strong>
+     *        in order to avoid unexpected behaviour.
+     */
+    protected void paint(final Graphics2D graphics, final Polygon polygon) {
+        final InteriorType type = polygon.getInteriorType();
+        if (InteriorType.ELEVATION.equals(type)) {
+            graphics.setPaint(foreground);
+            graphics.fill(polygon);
+            if (foreground.equals(contour)) {
+                return;
+            }
+        } else if (InteriorType.DEPRESSION.equals(type)) {
+            graphics.setPaint(background);
+            graphics.fill(polygon);
+            if (background.equals(contour)) {
+                return;
+            }
+        }
+        graphics.setPaint(contour);
+        graphics.draw(polygon);
     }
 
     /**
