@@ -110,15 +110,27 @@ public abstract class TransformerBase {
      */
     public void transform(Object object, StreamResult result)
         throws TransformerException {
-        Transformer t = createTransformer();
-        Source xmlSource = new SAXSource(createXMLReader(object),
-                new InputSource());
-
-        try {
-            t.transform(xmlSource, result);
-        } catch (RuntimeException re) {
-            throw new TransformerException("Encoding Error", re);
+        
+        Task t = createTransformTask(object,result);
+        t.run();
+        if (t.checkError()) {
+            Exception e = t.getError();
+            if (! TransformerException.class.isAssignableFrom(e.getClass())) {
+                e = new TransformerException("Translator error",e);
+            }
+            throw (TransformerException) e;
         }
+    }
+    
+    /** Create a Transformation task. This is a Runnable task
+     * which supports aborting any processing. It will not start until the 
+     * run method is called. 
+     *
+     */
+    public Task createTransformTask(Object object,StreamResult result)
+        throws TransformerException {
+        
+        return new Task(object,result);
     }
     
     /**
@@ -136,7 +148,7 @@ public abstract class TransformerBase {
     /**
      * Create an XMLReader to use in the transformation.
      */
-    public XMLReader createXMLReader(Object object) {
+    public XMLReaderSupport createXMLReader(Object object) {
         return new XMLReaderSupport(this,object);
     }
 
@@ -198,6 +210,66 @@ public abstract class TransformerBase {
         nsDecl = enabled;
     }
     
+    /** A wrapper for a Transformation Task. Support aborting any translation
+     * activity. Because the Task is Runnable, exceptions must be checked
+     * asynchronously by using the checkError and getError methods.
+     */
+    public class Task implements Runnable {
+        
+        //private final Translator translator;
+        private final Transformer transformer;
+        private final Source xmlSource;
+        private final StreamResult result;
+        private final XMLReaderSupport reader;
+        private Exception error;
+        
+        public Task(Object object,StreamResult result) throws TransformerException {
+            transformer = createTransformer();
+            reader = createXMLReader(object);
+            
+            xmlSource = new SAXSource(createXMLReader(object),
+                new InputSource());
+
+            this.result = result;
+        }
+        
+        /** Did an error occur? 
+         * @return true if one did, false otherwise.
+         */
+        public boolean checkError() {
+            return error != null;
+        }
+        
+        /** Get any error which occurred.
+         * @return An Exception if checkError returns true, null otherwise.
+         */
+        public Exception getError() {
+            return error;
+        }
+        
+        /** Calls to the underlying translator to abort any calls to translation.
+         * Should return silently regardless of outcome.
+         */
+        public void abort() {
+            Translator t = reader.getTranslator();
+            if (t != null)
+                t.abort();
+        }
+        
+        /**
+         * Perform the translation. Exceptions are captured and can be obtained
+         * through the checkError and getError methods.
+         */
+        public void run() {
+            try {
+                transformer.transform(xmlSource, result);
+            } catch (Exception re) {
+                error = re;
+            }
+        }
+        
+        
+    }
 
     /**
      * Filter output from a ContentHandler and insert Namespace declarations in
@@ -288,6 +360,11 @@ public abstract class TransformerBase {
         protected final Attributes NULL_ATTS = new AttributesImpl();
         protected NamespaceSupport nsSupport = new NamespaceSupport();
         protected SchemaLocationSupport schemaLocation;
+        /**
+         * Subclasses should check this flag in case an abort message was sent
+         * and stop any internal iteration if false.
+         */
+        protected volatile boolean running = true;
 
         public TranslatorSupport(ContentHandler contentHandler, String prefix,
             String nsURI) {
@@ -302,6 +379,10 @@ public abstract class TransformerBase {
             String nsURI, SchemaLocationSupport schemaLocation) {
             this(contentHandler, prefix, nsURI);
             this.schemaLocation = schemaLocation;
+        }
+        
+        public void abort() {
+            running = false;
         }
         
         /**
@@ -431,16 +512,19 @@ public abstract class TransformerBase {
     protected static class XMLReaderSupport extends XMLFilterImpl {
         TransformerBase base;
         Object object;
+        Translator translator;
 
         public XMLReaderSupport(TransformerBase transfomerBase, Object object) {
             this.base = transfomerBase;
             this.object = object;
         }
+        
+        public final Translator getTranslator() {
+            return translator;
+        }
 
         public void parse(InputSource in) throws SAXException {
             ContentHandler handler = getContentHandler();
-
-            Translator translator;
 
             if (base.isNamespaceDeclartionEnabled()) {
                 AttributesImpl atts = new AttributesImpl();
