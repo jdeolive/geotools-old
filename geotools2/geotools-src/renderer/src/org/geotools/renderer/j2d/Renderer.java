@@ -99,7 +99,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.16 2003/02/23 21:27:38 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.17 2003/02/26 12:06:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -199,9 +199,8 @@ public class Renderer {
     /**
      * The affine transform from {@link RenderingContext#mapCS mapCS} to
      * {@link RenderingContext#textCS textCS} used in the last rendering.
-     * This transform is used by {@link GeoMouseEvent#getMapCoordinate}.
      */
-    final AffineTransform mapToText = new AffineTransform();
+    private final AffineTransform mapToText = new AffineTransform();
 
     /**
      * A set of {@link MathTransform}s from various source CS. The target CS must be
@@ -387,6 +386,15 @@ public class Renderer {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the current rendering context. Used by {@link GeoMouseEvent}
+     * in order to gets a "snapshot" of current coordinate system states.
+     */
+    final RenderingContext getRenderingContext() {
+        assert context.getGraphics() == null;
+        return context;
     }
 
     /**
@@ -1308,10 +1316,10 @@ public class Renderer {
     }
 
     /**
-     * Returns the string to be used as the tooltip for a given mouse event. This method
-     * invokes {@link RenderedLayet#getToolTipText} for registered {@linkplain RenderedLayer
-     * layers} in decreasing {@linkplain RenderedLayer#getZOrder z-order} until one is
-     * found to returns a non-null string.
+     * Returns the string to be used as the tooltip for a given mouse event.
+     * This method queries registered {@linkplain RenderedLayer layers} in decreasing
+     * {@linkplain RenderedLayer#getZOrder z-order} until one is found to returns a
+     * non-null string.
      *
      * @param  event The mouse event.
      * @return The tool tip text, or <code>null</code> if there is no tool tip for this location.

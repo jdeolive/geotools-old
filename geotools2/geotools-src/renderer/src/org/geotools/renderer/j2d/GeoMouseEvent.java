@@ -63,7 +63,7 @@ import org.geotools.resources.Utilities;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.6 2003/01/30 23:34:40 desruisseaux Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.7 2003/02/26 12:06:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GeoMouseEvent extends MouseEvent {
@@ -74,8 +74,16 @@ public final class GeoMouseEvent extends MouseEvent {
 
     /**
      * The renderer used by the viewer that emmited this event.
+     * This field is read by {@link MouseCoordinateFormat#format}.
      */
     final Renderer renderer;
+
+    /**
+     * A snapshot of the coordinate systems in use at the time this event were fired. Since
+     * all coordinate system fields are immutables, they are guarantee to be consistent with
+     * the mouse coordinates even if some {@link MouseListener} changed the renderer state.
+     */
+    private final RenderingContext context;
 
     /**
      * "Real world" two-dimensional coordinate of mouse location, in the user
@@ -108,6 +116,7 @@ public final class GeoMouseEvent extends MouseEvent {
               event.isPopupTrigger(),  // a boolean, true if this event is a trigger for a popup-menu
               event.getButton());      // which of the mouse buttons has changed state (JDK 1.4 only).
         this.renderer = renderer;
+        context = renderer.getRenderingContext();
     }
 
     /**
@@ -145,8 +154,11 @@ public final class GeoMouseEvent extends MouseEvent {
     public Point2D getMapCoordinate(Point2D dest) {
         dest = getPixelCoordinate(dest);
         try {
-            return renderer.mapToText.inverseTransform(dest, dest);
-        } catch (NoninvertibleTransformException exception) {
+            final MathTransform2D transform = (MathTransform2D) renderer.getMathTransform(
+                            context.textCS, context.mapCS, "GeoMouseEvent", "getMapCoordinate");
+            return transform.transform(dest, dest);
+        } catch (TransformException exception) {
+            // Should not happen, since the transform should be affine in most cases.
             Utilities.unexpectedException("org.geotools.renderer.j2d", "GeoMouseEvent",
                                           "getMapCoordinate", exception);
             dest.setLocation(Double.NaN, Double.NaN);
@@ -168,6 +180,9 @@ public final class GeoMouseEvent extends MouseEvent {
             throws TransformException
     {
         if (!cs.equals(coordinateSystem, false)) {
+            if (cs.equals(context.textCS, false)) {
+                return getPixelCoordinate(dest);
+            }
             /*
              * If the specified coordinate system is not the same than the one used the last time
              * this method was invoked, compute now the transformed coordinates and cache the value.
@@ -176,20 +191,19 @@ public final class GeoMouseEvent extends MouseEvent {
              * system for all layers. If layers have mixed coordinate systems, then we will have to
              * recompute the coordinates each time the CS change.
              */
-            Point2D mapPoint = getMapCoordinate(null);
+            Point2D point = getMapCoordinate(null);
             /*
-             * Note: the following method call is faster when the specified coordinate system is
+             * Note: the following method call is faster when the target coordinate system is
              * the renderer's CS, since it can reuse pre-computed math transforms from a cache.
-             * Inverting the returned transform in this case is both faster and consume less memory
-             * than swapping 'sourceCS' and 'targetCS' arguments.
+             * Inverting the returned transform in this case is both faster and consume less
+             * memory than swapping 'sourceCS' and 'targetCS' arguments.
              */
             cs = CTSUtilities.getCoordinateSystem2D(cs);
             final MathTransform2D transform = (MathTransform2D) renderer.getMathTransform(
-                                                cs, renderer.getCoordinateSystem(),
-                                                "GeoMouseEvent", "getCoordinate").inverse();
-            mapPoint = transform.transform(mapPoint, mapPoint);
-            px = mapPoint.getX();
-            py = mapPoint.getY();
+                            cs, context.mapCS, "GeoMouseEvent", "getCoordinate").inverse();
+            point = transform.transform(point, point);
+            px = point.getX();
+            py = point.getY();
             coordinateSystem = cs;
         }
         if (dest != null) {
@@ -229,32 +243,31 @@ public final class GeoMouseEvent extends MouseEvent {
             }
         }
         /*
-         * If the specified coordinate system is not the same than the one used the last time
-         * this method was invoked, compute now the transformed coordinates and cache the value.
+         * If the specified coordinate system (cs) is not the same than the one used the last time
+         * this method was invoked, compute now the transformed coordinates and cache the result.
          * Values are cached only for 2 dimensional coordinate systems.
          */
-        final Point2D mapPoint = getMapCoordinate(null);
-        final CoordinatePoint mapCoord;
+        final Point2D point = getMapCoordinate(null);
+        final CoordinatePoint coord;
         if (cs.getDimension() == 2) {
             if (dest != null) {
-                dest.setLocation(mapPoint);
+                dest.setLocation(point);
             } else {
-                dest = new CoordinatePoint(mapPoint);
+                dest = new CoordinatePoint(point);
             }
-            mapCoord = dest;
+            coord = dest;
         } else {
-            mapCoord = new CoordinatePoint(mapPoint);
+            coord = new CoordinatePoint(point);
         }
         /*
-         * Note: the following method call is faster when the specified coordinate system is
+         * Note: the following method call is faster when the target coordinate system is
          * the renderer's CS, since it can reuse pre-computed math transforms from a cache.
-         * Inverting the returned transform in this case is both faster and consume less memory
-         * than swapping 'sourceCS' and 'targetCS' arguments.
+         * Inverting the returned transform in this case is both faster and consume less
+         * memory than swapping 'sourceCS' and 'targetCS' arguments.
          */
         final MathTransform transform = renderer.getMathTransform(
-                                                 cs, renderer.getCoordinateSystem(),
-                                                 "GeoMouseEvent", "getCoordinate").inverse();
-        dest = transform.transform(mapCoord, dest);
+                        cs, context.mapCS, "GeoMouseEvent", "getCoordinate").inverse();
+        dest = transform.transform(coord, dest);
         if (dest.ord.length == 2) {
             assert cs.getDimension() == 2;
             coordinateSystem = cs;

@@ -53,7 +53,7 @@ import org.geotools.cs.GeographicCoordinateSystem;
  * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system}), but
  * is usually two-dimensional.
  *
- * @version $Id: MouseCoordinateFormat.java,v 1.4 2003/01/30 23:34:40 desruisseaux Exp $
+ * @version $Id: MouseCoordinateFormat.java,v 1.5 2003/02/26 12:06:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MouseCoordinateFormat extends CoordinateFormat {
@@ -68,8 +68,8 @@ public class MouseCoordinateFormat extends CoordinateFormat {
     private final StringBuffer buffer = new StringBuffer();
 
     /**
-     * Indique si la méthode {@link #format} doit écrire la valeur après la coordonnée.
-     * Les valeurs sont obtenues en appelant la méthode {@link Tools#formatValue}.
+     * Indique si la méthode {@link #format} doit écrire la valeur après la coordonnée. Les
+     * valeurs sont obtenues en appelant la méthode <code>RenderedLayer.formatValue(...)</code>.
      * Par défaut, les valeurs (si elles sont disponibles) sont écrites.
      */
     private boolean valueVisible = true;
@@ -95,7 +95,6 @@ public class MouseCoordinateFormat extends CoordinateFormat {
 
     /**
      * Indique si la méthode {@link #format} doit écrire la valeur après la coordonnée.
-     * Les valeurs sont obtenues en appelant la méthode {@link Tools#formatValue}.
      * Par défaut, les valeurs (si elles sont disponibles) sont écrites.
      */
     public boolean isValueVisible() {
@@ -104,8 +103,7 @@ public class MouseCoordinateFormat extends CoordinateFormat {
 
     /**
      * Spécifie si la méthode {@link #format} doit aussi écrire la valeur après la
-     * coordonnée. Si la valeur doit être écrite, elle sera déterminée en appelant
-     * {@link Tools#formatValue}.
+     * coordonnée.
      */
     public void setValueVisible(final boolean valueVisible) {
         this.valueVisible = valueVisible;
@@ -117,8 +115,7 @@ public class MouseCoordinateFormat extends CoordinateFormat {
      * lors du dernier appel de {@link #setCoordinateSystem}. Si une des couches peut ajouter
      * une valeur à la coordonnée (par exemple une couche qui représente une image satellitaire
      * de température) et que l'écriture des valeurs est autorisée (voir {@link #isValueVisible}),
-     * alors la valeur sera écrite après les coordonnées. Ces valeurs sont obtenues par des appels
-     * à {@link Tools#formatValue}.
+     * alors la valeur sera écrite après les coordonnées.
      *
      * @param  event Evénements contenant les coordonnées de la souris.
      * @return Chaîne de caractères représentant les coordonnées pointées

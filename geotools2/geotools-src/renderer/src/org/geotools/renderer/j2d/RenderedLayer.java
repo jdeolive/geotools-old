@@ -62,6 +62,7 @@ import javax.media.jai.PlanarImage; // For Javadoc
 
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.CompoundCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.MathTransform;
@@ -83,7 +84,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.10 2003/02/22 22:36:03 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.11 2003/02/26 12:06:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
