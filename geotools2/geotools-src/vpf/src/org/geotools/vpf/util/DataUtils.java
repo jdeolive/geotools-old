@@ -24,6 +24,10 @@ import java.io.IOException;
 import org.geotools.vpf.VPFDate;
 import org.geotools.vpf.ifc.DataTypesDefinition;
 import org.geotools.vpf.exc.VPFDataFormatException;
+import org.geotools.vpf.Coordinate2DFloat;
+import org.geotools.vpf.Coordinate2DDouble;
+import org.geotools.vpf.Coordinate3DFloat;
+import org.geotools.vpf.Coordinate3DDouble;
 
 /**
  * Class DataUtils.java is responsible for 
@@ -31,7 +35,7 @@ import org.geotools.vpf.exc.VPFDataFormatException;
  * <p>
  * Created: Wed Jan 29 10:06:37 2003
  * </p>
- * @version $Id: DataUtils.java,v 1.1 2003/01/29 16:15:02 kobit Exp $
+ * @version $Id: DataUtils.java,v 1.2 2003/01/30 12:51:16 kobit Exp $
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
  */
 
@@ -88,16 +92,16 @@ public class DataUtils implements DataTypesDefinition
 		result = new Integer(decodeInt(bytes));
 		break;
 	  case DATA_2_COORD_F:
-
+        result = new Coordinate2DFloat();
 		break;
 	  case DATA_2_COORD_R:
-
+        result = new Coordinate2DDouble();
 		break;
 	  case DATA_3_COORD_F:
-
+        result = new Coordinate3DFloat();
 		break;
 	  case DATA_3_COORD_R:
-
+        result = new Coordinate3DDouble();
 		break;
 	  case DATA_DATE_TIME:
 		result = new VPFDate(bytes);

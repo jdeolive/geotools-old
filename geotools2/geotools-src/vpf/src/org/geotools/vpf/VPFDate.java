@@ -23,7 +23,22 @@ public class VPFDate {
 
   public VPFDate(byte[] date)
   {
-	dateBin = date;
+	dateBin = (byte[])date.clone();
+    initialize();
+  }
+
+  public VPFDate(String date)
+  {
+    dateBin = new byte[date.length()];
+    for (int i = 0; i < date.length(); i++)
+    {
+      dateBin[i] = (byte)date.charAt(i);
+    } // end of for (int i = 0; i < date.length(); i++)
+    initialize();
+  }
+
+  protected void initialize()
+  {
 	for (int i = 0; i < dateBin.length; i++)
 	{
 	  if ((char)dateBin[i] == ' ')

@@ -53,6 +53,7 @@ public class TableInputStream extends InputStream
 {
   public static final int AHEAD_BUFFER_SIZE = 0;
   
+  protected String tableFile = null;
   protected PushbackInputStream input = null;
   protected TableHeader header = null;
   protected List rowsReadAhead = new LinkedList();
@@ -60,6 +61,7 @@ public class TableInputStream extends InputStream
   public TableInputStream(File file)
     throws IOException
   {
+    tableFile =file.toString();
     input = new PushbackInputStream(new FileInputStream(file));
     readHeader();
   }
@@ -74,6 +76,7 @@ public class TableInputStream extends InputStream
   public TableInputStream(String file)
     throws IOException
   {
+    tableFile = file;
     input = new PushbackInputStream(new FileInputStream(file));
     readHeader();
   }
@@ -147,7 +150,12 @@ public class TableInputStream extends InputStream
       throw new VPFHeaderFormatException("Header format does not fit VPF"+
                                          " file definition.");
     } // end of if (ctrl != VPF_RECORD_SEPARATOR)
-    int elements = Integer.parseInt(readString(""+VPF_ELEMENT_SEPARATOR));
+    String elemStr = readString(""+VPF_ELEMENT_SEPARATOR);
+    if (elemStr.equals("*"))
+    {
+      elemStr = "0";
+    } // end of if (elemStr.equals("*"))
+    int elements = Integer.parseInt(elemStr);
     char key = readChar();
     ctrl = readChar();
     if (ctrl != VPF_ELEMENT_SEPARATOR)
@@ -200,8 +208,17 @@ public class TableInputStream extends InputStream
   }
 
   public int readRows(TableRow[] rows)
+    throws IOException
   {
-    return 0;
+    int counter = 0;
+    TableRow row = readRow();
+    while (row != null && counter < rows.length)
+    {
+      rows[counter++] = row;
+      row = readRow();
+    } // end of while (row != null)
+
+    return counter;
   }
 
   public int read()

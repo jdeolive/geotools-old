@@ -25,8 +25,8 @@ package org.geotools.vpf.ifc;
  *
  * Created: Thu Jan 02 17:26:02 2003
  *
- * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: DataTypesDefinition.java,v 1.5 2003/01/28 15:15:10 kobit Exp $
+ * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
+ * @version $Id: DataTypesDefinition.java,v 1.6 2003/01/30 12:51:14 kobit Exp $
  */
 
 public interface DataTypesDefinition 
