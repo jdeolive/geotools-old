@@ -86,7 +86,7 @@ import org.geotools.util.NumberRange;
 import org.geotools.resources.XMath;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
-import org.geotools.resources.ImageUtilities;
+import org.geotools.resources.ColorUtilities;
 import org.geotools.resources.RemoteProxy;
 import org.geotools.resources.ClassChanger;
 import org.geotools.resources.gcs.Resources;
@@ -112,7 +112,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.30 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.31 2003/07/22 15:24:53 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -378,7 +378,7 @@ public class SampleDimension implements Serializable {
                 name = value.toString();
             }
             final NumberRange range = new NumberRange(value.getClass(), value, value);
-            final Color[] colors = ImageUtilities.subarray(palette, intValue, intValue+1);
+            final Color[] colors = ColorUtilities.subarray(palette, intValue, intValue+1);
             categoryList.add(new Category(name, colors, range, (MathTransform1D)null));
         }
         /*
@@ -408,7 +408,7 @@ public class SampleDimension implements Serializable {
                     max = ClassChanger.cast(max, classe);
                 }
                 final NumberRange range = new NumberRange(classe, min, max);
-                final Color[] colors = ImageUtilities.subarray(palette, lower, upper);
+                final Color[] colors = ColorUtilities.subarray(palette, lower, upper);
                 categoryList.add(new Category(name, colors, range, (MathTransform1D)null));
                 lower = upper;
             }
@@ -493,7 +493,7 @@ public class SampleDimension implements Serializable {
                 max = ClassChanger.cast(max, classe);
                 final NumberRange range = new NumberRange(classe, min, minIncluded,
                                                                   max, maxIncluded);
-                final Color[] colors = ImageUtilities.subarray(palette,
+                final Color[] colors = ColorUtilities.subarray(palette,
                                                      (int)Math.ceil (minimum),
                                                      (int)Math.floor(maximum));
                 categoryList.add(new Category(description!=null ? description : "(automatic)",

@@ -45,8 +45,8 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferShort;
 import java.awt.image.DataBufferUShort;
-import javax.media.jai.DataBufferFloat;  // JAI buffer
-import javax.media.jai.DataBufferDouble; // JAI buffer
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferDouble;
 
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
@@ -110,7 +110,7 @@ import org.geotools.resources.ComponentColorModelJAI;
  *       subclass setting the <code>padValue</code> field.</li>
  * </ul>
  *
- * @version $Id: RawBinaryImageReader.java,v 1.4 2003/05/13 10:59:53 desruisseaux Exp $
+ * @version $Id: RawBinaryImageReader.java,v 1.5 2003/07/22 15:24:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @deprecated Use Sun's RAW decoder provided with "Java Advanced Imaging Image I/O Tools"

@@ -60,7 +60,7 @@ import java.util.ArrayList;
 // Resources
 import org.geotools.io.LineFormat;
 import org.geotools.io.DefaultFileFilter;
-import org.geotools.resources.ImageUtilities;
+import org.geotools.resources.ColorUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -90,7 +90,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * The number of RGB codes doesn't have to match an {@link IndexColorModel}'s
  * map size. RGB codes will be automatically interpolated RGB values when needed.
  *
- * @version $Id: PaletteFactory.java,v 1.5 2003/07/11 16:57:48 desruisseaux Exp $
+ * @version $Id: PaletteFactory.java,v 1.6 2003/07/22 15:24:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PaletteFactory {
@@ -349,13 +349,13 @@ public class PaletteFactory {
                                                final int    upper)
         throws IOException
     {
-        final Color[] colors=getColors(name);
-        if (colors==null) {
+        final Color[] colors = getColors(name);
+        if (colors == null) {
             return (parent!=null) ? parent.getIndexColorModel(name, lower, upper) : null;
         }
-        final int[] ARGB = new int[1 << ImageUtilities.getBitCount(upper)];
-        ImageUtilities.expand(colors, ARGB, lower, upper);
-        return ImageUtilities.getIndexColorModel(ARGB);
+        final int[] ARGB = new int[1 << ColorUtilities.getBitCount(upper)];
+        ColorUtilities.expand(colors, ARGB, lower, upper);
+        return ColorUtilities.getIndexColorModel(ARGB);
     }
     
     /**

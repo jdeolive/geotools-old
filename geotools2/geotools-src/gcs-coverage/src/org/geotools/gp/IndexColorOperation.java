@@ -53,14 +53,14 @@ import javax.media.jai.ParameterList;
 import org.geotools.gc.GridCoverage;
 import org.geotools.cv.SampleDimension;
 import org.geotools.resources.GCSUtilities;
-import org.geotools.resources.ImageUtilities;
+import org.geotools.resources.ColorUtilities;
 
 
 /**
  * Operation applied only on image's colors. This operation work
  * only for source image using an {@link IndexColorModel}.
  *
- * @version $Id: IndexColorOperation.java,v 1.10 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: IndexColorOperation.java,v 1.11 2003/07/22 15:24:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class IndexColorOperation extends Operation {
@@ -118,7 +118,7 @@ abstract class IndexColorOperation extends Operation {
                 colorChanged = Arrays.equals(original, ARGB);
             }
             if (i==visibleBand) {
-                model = ImageUtilities.getIndexColorModel(ARGB, bands.length, visibleBand);
+                model = ColorUtilities.getIndexColorModel(ARGB, bands.length, visibleBand);
             }
         }
         if (!colorChanged) {

@@ -35,6 +35,17 @@
  */
 package org.geotools.gp;
 
+// J2SE dependencies
+import java.awt.Color;
+import java.awt.RenderingHints;
+import java.awt.color.ColorSpace;
+import java.awt.image.ColorModel;
+import java.awt.image.RenderedImage;
+import java.awt.image.renderable.ParameterBlock;
+import java.util.MissingResourceException;
+import java.util.Locale;
+import java.util.Arrays;
+
 // Java Advanced Imaging
 import javax.media.jai.JAI;
 import javax.media.jai.util.Range;
@@ -45,15 +56,6 @@ import javax.media.jai.OperationDescriptor;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
 import javax.media.jai.registry.RenderedRegistryMode;
-
-// Image (Java2D) and collections
-import java.awt.Color;
-import java.awt.RenderingHints;
-import java.awt.color.ColorSpace;
-import java.awt.image.ColorModel;
-import java.awt.image.RenderedImage;
-import java.awt.image.renderable.ParameterBlock;
-import java.util.Arrays;
 
 // Geotools dependencies
 import org.geotools.pt.Envelope;
@@ -73,15 +75,14 @@ import org.geotools.resources.ImageUtilities;
 
 /**
  * Wrap an {@link OperationDescriptor} for interoperability with
- * <A HREF="http://java.sun.com/products/java-media/jai/">Java Advanced
- * Imaging</A>. This class help to leverage the rich set of JAI operators
- * in an OpenGIS framework. <code>OperationJAI</code> inherits operation
- * name and argument types from {@link OperationDescriptor}, except source
- * argument type which is set to <code>{@link GridCoverage}.class</code>.
- * If there is only one source argument, il will be renamed "Source" for
- * better compliance to OpenGIS usage.
+ * <A HREF="http://java.sun.com/products/java-media/jai/">Java Advanced Imaging</A>.
+ * This class help to leverage the rich set of JAI operators in an OpenGIS framework.
+ * <code>OperationJAI</code> inherits operation name and argument types from
+ * {@link OperationDescriptor}, except source argument type which is set to
+ * <code>GridCoverage.class</code>. If there is only one source argument, il will be
+ * renamed <code>&quot;Source&quot;</code> for better compliance to OpenGIS usage.
  * <br><br>
- * The entry point for applying operation is the usual <code>doOperation</code>
+ * The entry point for applying operation is the usual {@link #doOperation doOperation}
  * method. The default implementation forward the call to other methods for
  * different bits of tasks, resulting in the following chain of calls:
  *
@@ -93,7 +94,7 @@ import org.geotools.resources.ImageUtilities;
  *   <li>{@link #deriveUnit}</li>
  * </ol>
  *
- * @version $Id: OperationJAI.java,v 1.21 2003/07/11 16:57:47 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.22 2003/07/22 15:24:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -129,7 +130,7 @@ public class OperationJAI extends Operation {
      * fetch the {@link OperationDescriptor} from the specified operation name using the
      * default {@link JAI} instance.
      *
-     * @param operationName JAI operation name (e.g. "GradientMagnitude").
+     * @param operationName JAI operation name (e.g. &quot;GradientMagnitude&quot;).
      */
     public OperationJAI(final String operationName) {
         this(getOperationDescriptor(operationName));
@@ -173,6 +174,9 @@ public class OperationJAI extends Operation {
     /**
      * Returns a name from the specified operation descriptor. If the
      * name begin with "org.geotools" prefix, the prefix will be ignored.
+     *
+     * @task TODO: Should be inlined in the constructor if only Sun was to fix RFE #4093999
+     *             ("Relax constraint on placement of this()/super() call in constructors").
      */
     private static String getName(final OperationDescriptor descriptor) {
         final String prefix = "org.geotools.";
@@ -182,16 +186,20 @@ public class OperationJAI extends Operation {
         }
         return name;
     }
-    
+
     /**
-     * Vérifie que la classe spécifiée implémente l'interface {@link RenderedImage}.
-     * Cette méthode est utilisée pour vérifier les classes des images sources et
-     * destinations.
+     * Returns the JAI instance to use for operations on {@link RenderedImage}.
+     *
+     * @param hints The rendering hints, or <code>null</code> if none.
      */
-    private static final void ensureValid(final Class classe) throws IllegalArgumentException {
-        if (!RenderedImage.class.isAssignableFrom(classe)) {
-            throw new IllegalArgumentException(classe.getName());
+    static JAI getJAI(final RenderingHints hints) {
+        if (hints != null) {
+            final Object value = hints.get(Hints.JAI_INSTANCE);
+            if (value instanceof JAI) {
+                return (JAI) value;
+            }
         }
+        return JAI.getDefaultInstance();
     }
 
     /**
@@ -214,10 +222,11 @@ public class OperationJAI extends Operation {
     {
         ensureValid(descriptor.getDestClass(RENDERED_MODE));
         final Class[] sourceClasses = descriptor.getSourceClasses(RENDERED_MODE);
-        for (int i=0; i<sourceClasses.length; i++) {
-            ensureValid(sourceClasses[i]);
+        if (sourceClasses != null) {
+            for (int i=0; i<sourceClasses.length; i++) {
+                ensureValid(sourceClasses[i]);
+            }
         }
-        
         final ParameterListDescriptor parent = descriptor.getParameterListDescriptor(RENDERED_MODE);
         final String[] sourceNames    = getSourceNames(descriptor);
         final String[] parentNames    = parent.getParamNames();
@@ -240,8 +249,27 @@ public class OperationJAI extends Operation {
                 defaults[i] = parentDefaults[i-numSources];
                 ranges  [i] = parent.getParamValueRange(names[i]);
             }
+            // Convert the first letter to upper-case, for consistency with OGC convention.
+            String name = names[i];
+            if (name.length()!=0) {
+                final char c = name.charAt(0);
+                if (!Character.isUpperCase(c)) {
+                    names[i] = Character.toUpperCase(c) + name.substring(1);
+                }
+            }
         }
         return new ParameterListDescriptorImpl(descriptor, names, classes, defaults, ranges);
+    }
+    
+    /**
+     * Vérifie que la classe spécifiée implémente l'interface {@link RenderedImage}.
+     * Cette méthode est utilisée pour vérifier les classes des images sources et
+     * destinations.
+     */
+    private static final void ensureValid(final Class classe) throws IllegalArgumentException {
+        if (!RenderedImage.class.isAssignableFrom(classe)) {
+            throw new IllegalArgumentException(classe.getName());
+        }
     }
 
     /**
@@ -249,6 +277,20 @@ public class OperationJAI extends Operation {
      */
     private static int length(final Object[] array) {
         return (array!=null) ? array.length : 0;
+    }
+    
+    /**
+     * Check if array <code>names</code> contains the element <code>name</code>.
+     * Search is done in case-insensitive manner. This method is efficient enough
+     * if <code>names</code> is very short (less than 10 entries).
+     */
+    private static boolean contains(final String[] names, final String name) {
+        for (int i=0; i<names.length; i++) {
+            if (name.equalsIgnoreCase(names[i])) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
@@ -265,17 +307,41 @@ public class OperationJAI extends Operation {
     }
     
     /**
-     * Check if array <code>names</code> contains the element <code>name</code>.
-     * Search is done in case-insensitive manner. This method is efficient enough
-     * if <code>names</code> is very short (less than 10 entries).
+     * Returns source name for the specified parameters. The default implementation ignores
+     * the parameters and fetch the sources from the {@link #descriptor} only.  This method
+     * is overrided by operations which accept an arbitrary number of sources, like
+     * {@link PolyadicOperation}
      */
-    private static boolean contains(final String[] names, final String name) {
-        for (int i=0; i<names.length; i++) {
-            if (name.equalsIgnoreCase(names[i])) {
-                return true;
-            }
+    String[] getSourceNames(final ParameterList parameters) {
+        return getSourceNames(descriptor);
+    }
+    
+    /**
+     * Returns the number of source grid coverages required for the operation. The
+     * default implementation fetch the information from the {@linkplain #descriptor}.
+     */
+    public int getNumSources() {
+        return descriptor.getNumSources();
+    }
+    
+    /**
+     * Returns the description of the processing operation. If there is no description,
+     * returns <code>null</code>. The default implementation fetch the description from
+     * the {@linkplain #descriptor}.
+     *
+     * @param locale The desired locale, or <code>null</code> for the default locale.
+     */
+    public String getDescription(Locale locale) {
+        if (locale == null) {
+            locale = Locale.getDefault();
         }
-        return false;
+        try {
+            return descriptor.getResourceBundle(locale).getString("Description");
+        } catch (MissingResourceException exception) {
+            // No description available. Returns 'null', which is
+            // a legal value according this method specification.
+            return null;
+        }
     }
 
     /**
@@ -337,18 +403,18 @@ public class OperationJAI extends Operation {
         final ParameterBlockJAI  block = new ParameterBlockJAI(descriptor, RENDERED_MODE);
         final String[]      paramNames = parameters.getParameterListDescriptor().getParamNames();
         final String[] blockParamNames = block.getParameterListDescriptor().getParamNames();
-        final String[]     sourceNames = getSourceNames(descriptor);
-        final GridCoverage[]   sources = new GridCoverage[descriptor.getNumSources()];
+        final String[]     sourceNames = getSourceNames(parameters);
+        final GridCoverage[]   sources = new GridCoverage[length(sourceNames)];
         for (int srcCount=0,i=0; i<paramNames.length; i++) {
             final String name  = paramNames[i];
             final Object value = parameters.getObjectParameter(name);
             if (contains(sourceNames, name)) {
-                GridCoverage source = ((GridCoverage) value);
+                GridCoverage source = (GridCoverage) value;
                 if (computeOnGeophysicsValues()) {
                     final GridCoverage old = source;
                     source = source.geophysics(true);
                     if (srcCount == MASTER_SOURCE_INDEX) {
-                        requireGeophysicsType = (old==source) ? Boolean.TRUE : Boolean.FALSE;
+                        requireGeophysicsType = Boolean.valueOf(old==source);
                     }
                 }
                 block.addSource(source.getRenderedImage());
@@ -435,10 +501,10 @@ public class OperationJAI extends Operation {
         GridCoverage source = sources[MASTER_SOURCE_INDEX];
         /*
          * Get the target SampleDimensions. If they are identical to the SampleDimensions of
-         * one of the source GridCoverage, then this GridCoverage will be use at the source.
-         * It will affect the target GridCoverage's name and the visible band.  Then, a new
-         * color model will be constructed from the new SampleDimensions, taking in account
-         * the visible band.
+         * one of the source GridCoverage, then this GridCoverage will be used at the master
+         * source. It will affect the target GridCoverage's name and the visible band. Then,
+         * a new color model will be constructed from the new SampleDimensions, taking in
+         * account the visible band.
          */
         final SampleDimension[][] list = new SampleDimension[sources.length][];
         for (int i=0; i<list.length; i++) {
@@ -744,7 +810,7 @@ public class OperationJAI extends Operation {
      *   <li>{@link OperationJAI#deriveUnit}</li>
      * </ul>
      *
-     * @version $Id: OperationJAI.java,v 1.21 2003/07/11 16:57:47 desruisseaux Exp $
+     * @version $Id: OperationJAI.java,v 1.22 2003/07/22 15:24:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected static final class Parameters {

@@ -65,6 +65,7 @@ public interface ResourceKeys
     public static final int ERROR_BAD_COORDINATE_$1              =    29;
     public static final int ERROR_BAD_GRID_RANGE_$3              =    30;
     public static final int ERROR_BAD_PARAMETER_$2               =    63;
+    public static final int ERROR_BAD_PARAMETER_TYPE_$2          =    81;
     public static final int ERROR_BAD_RANGE_$2                   =    31;
     public static final int ERROR_BAD_TRANSFORM_$1               =    64;
     public static final int ERROR_CANT_EVALUATE_$1               =    71;
@@ -88,7 +89,6 @@ public interface ResourceKeys
     public static final int ERROR_NO_IMAGE_INPUT                 =    43;
     public static final int ERROR_NO_IMAGE_READER                =    44;
     public static final int ERROR_NO_TRANSFORM2D_AVAILABLE       =    45;
-    public static final int ERROR_NUMBER_OF_BANDS_MISMATCH       =    79;
     public static final int ERROR_NUMBER_OF_BANDS_MISMATCH_$3    =    46;
     public static final int ERROR_OPERATION_ALREADY_BOUND_$1     =    47;
     public static final int ERROR_OPERATION_NOT_FOUND_$1         =    48;
@@ -99,6 +99,7 @@ public interface ResourceKeys
     public static final int ERROR_UNDEFINED_PROPERTY             =    53;
     public static final int ERROR_UNDEFINED_PROPERTY_$1          =    54;
     public static final int ERROR_UNEXPECTED_IMAGE_SIZE          =    55;
+    public static final int ERROR_UNEXPECTED_ROW_LENGTH_$3       =    79;
     public static final int ERROR_UNKNOW_INTERPOLATION_$1        =    56;
     public static final int ERROR_UNKNOW_PARAMETER_NAME_$1       =    57;
     public static final int ERROR_UNSPECIFIED_COORDINATE_SYSTEM  =    58;

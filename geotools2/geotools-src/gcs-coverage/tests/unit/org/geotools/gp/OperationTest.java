@@ -33,18 +33,23 @@
 package org.geotools.gp;
 
 // J2SE dependencies
-import java.awt.image.*;
-import java.awt.geom.*;
-import java.util.*;
 import java.io.*;
+import java.util.*;
+import java.awt.geom.*;
+import java.awt.image.*;
+import java.awt.image.renderable.ParameterBlock;
+import java.util.logging.Level;
 
 // JAI dependencies
 import javax.media.jai.*;
 
 // Geotools dependencies
+import org.geotools.pt.*;
+import org.geotools.cs.*;
 import org.geotools.cv.*;
 import org.geotools.gc.*;
 import org.geotools.gp.*;
+import org.geotools.gp.jai.*;
 import org.geotools.resources.Arguments;
 
 // JUnit dependencies
@@ -56,21 +61,19 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link OperationJAI} implementation.
  *
- * @version $Id: OperationTest.java,v 1.7 2003/05/13 10:59:54 desruisseaux Exp $
+ * @version $Id: OperationTest.java,v 1.8 2003/07/22 15:24:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationTest extends GridCoverageTest {
     /**
-     * Set to <code>true</code> in order to print diagnostic messages.
+     * The writer where to print diagnostic messages, or <code>null</code> if none.
      */
-    private static final boolean PRINT = false;
+    private static PrintWriter out = null;
 
     /**
-     * Returns the test suite.
+     * Small number for comparaison of floating point values.
      */
-    public static Test suite() {
-        return new TestSuite(OperationTest.class);
-    }
+    private static final double EPS = 1E-6;
 
     /**
      * Constructs a test case with the given name.
@@ -99,12 +102,16 @@ public class OperationTest extends GridCoverageTest {
      */
     public void testOperationJAI() {
         final OperationJAI operation = new OperationJAI("addConst");
-        final PrintWriter out;
-        out = new PrintWriter(PRINT ? Arguments.getWriter(System.out) : new StringWriter());
-        if (true) try {
-            operation.print(out, null);
+        Writer output = out;
+        if (output == null) {
+            output = new StringWriter();
+        }
+        try {
+            operation.print(output, null);
         } catch (IOException exception) {
-            exception.printStackTrace(out);
+            if (out != null) {
+                exception.printStackTrace(out);
+            }
             fail();
         }
         assertEquals("numSources",    1, operation.getNumSources());
@@ -132,5 +139,124 @@ public class OperationTest extends GridCoverageTest {
         final int[] ARGB = new int[colors.getMapSize()];
         colors.getRGBs(ARGB);
         return ARGB;
+    }
+
+    /**
+     * Returns an image of constant value.
+     */
+    private static GridCoverage getConstantCoverage(final byte value) {
+        final RenderedImage image = JAI.create("Constant",
+              new ParameterBlock().add(200f)  // Width
+                                  .add(200f)  // Height
+                                  .add(new Byte[] {new Byte(value)}), null);
+
+        return new GridCoverage(String.valueOf(value), image,
+                                GeographicCoordinateSystem.WGS84,
+                                new Envelope(new Rectangle2D.Float(-10, -10, 20, 20)));
+    }
+
+    /**
+     */
+    private static void assertEquals(final double value, final GridCoverage coverage) {
+        final Raster data = coverage.getRenderedImage().getData();
+        final int xmin = data.getMinX();
+        final int ymin = data.getMinY();
+        final int xmax = data.getWidth()  + xmin;
+        final int ymax = data.getHeight() + ymin;
+        for (int y=ymin; y<ymax; y++) {
+            for (int x=xmin; x<xmax; x++) {
+                assertEquals("Unexpected sample value in raster.",
+                             value, data.getSampleDouble(x,y,0), EPS);
+            }
+        }
+    }
+
+    /**
+     * Test the "Combine" operation.
+     */
+    public void testCombine() {
+        final double value0 = 10,  scale0 = 0.50;
+        final double value1 = 35,  scale1 = 2.00;
+        final double value2 = 52,  scale2 = 0.25,  offset = 4;
+        final GridCoverage   src0 = getConstantCoverage((byte) value0);
+        final GridCoverage   src1 = getConstantCoverage((byte) value1);
+        final GridCoverage   src2 = getConstantCoverage((byte) value2);
+        final Operation operation = new PolyadicOperation(CombineDescriptor.OPERATION_NAME);
+        final ParameterList param = operation.getParameterList();
+        param.setParameter("source0", src0);
+        param.setParameter("source1", src1);
+        param.setParameter("source2", src2);
+        try {
+            // We are not allowed to skip a source.
+            param.setParameter("source4", src2);
+            fail();
+        } catch (IllegalArgumentException exception) {
+            // This is the expected exception. Continue...
+            if (out != null) {
+                out.println(exception.getLocalizedMessage());
+            }
+        }
+        /*
+         * Set an invalid matrix (missing offset coefficient).
+         * The operation should detect that the matrix is invalid.
+         */
+        param.setParameter("matrix", new double[][] {
+            {scale0, scale1, scale2, offset},
+            {scale0, 0,      scale2}
+        });
+        GridCoverage result;
+        try {
+            result = operation.doOperation(param, null);
+            fail();
+        } catch (IllegalArgumentException exception) {
+            // This is the expected exception. Continue...
+            if (out != null) {
+                out.println(exception.getLocalizedMessage());
+            }
+        }
+        /*
+         * Set a valid matrix and test the operation.
+         */
+        param.setParameter("matrix", new double[][] {
+            {scale0, scale1, scale2, offset}
+        });
+        result = operation.doOperation(param, null);
+        assertEquals(value0*scale0 + value1*scale1 + value2*scale2 + offset, result);
+        /*
+         * New test with one source image omited.
+         */
+        param.setParameter("matrix", new double[][] {
+            {scale0, 0, scale2, offset}
+        });
+        result = operation.doOperation(param, null);
+        assertEquals(value0*scale0 + 0 + value2*scale2 + offset, result);
+        /*
+         * Test the dyalic case.
+         */
+        param.setParameter("source2", null);
+        param.setParameter("matrix", new double[][] {
+            {scale0, scale1, offset}
+        });
+        result = operation.doOperation(param, null);
+        assertEquals(value0*scale0 + value1*scale1 + offset, result);
+    }
+
+    /**
+     * Returns the test suite.
+     */
+    public static Test suite() {
+        return new TestSuite(OperationTest.class);
+    }
+
+    /**
+     * Run the suit from the command line.
+     */
+    public static void main(final String[] args) {
+        org.geotools.resources.Geotools.init(Level.INFO);
+        final Arguments arguments = new Arguments(args);
+        if (arguments.getFlag("-verbose")) {
+            out = arguments.out;
+        }
+        junit.textui.TestRunner.run(suite());
     }
 }

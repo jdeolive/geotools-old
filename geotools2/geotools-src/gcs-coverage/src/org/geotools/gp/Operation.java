@@ -45,7 +45,6 @@ import java.util.Locale;
 import java.lang.reflect.Array;
 
 // JAI dependencies
-import javax.media.jai.JAI;
 import javax.media.jai.KernelJAI;
 import javax.media.jai.util.Range;
 import javax.media.jai.Interpolation;
@@ -76,7 +75,7 @@ import org.geotools.resources.gcs.Resources;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.12 2003/07/04 13:46:36 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.13 2003/07/22 15:24:53 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -217,6 +216,13 @@ public abstract class Operation implements Serializable {
     public ParameterList getParameterList() {
         return new ParameterListImpl(descriptor);
     }
+
+    /**
+     * Returns the parameter list descriptor.
+     */
+    final ParameterListDescriptor getParameterListDescriptor() {
+        return descriptor;
+    }
     
     /**
      * Cast the specified object to an {@link Interpolation object}.
@@ -271,21 +277,6 @@ public abstract class Operation implements Serializable {
      */
     protected abstract GridCoverage doOperation(final ParameterList  parameters,
                                                 final RenderingHints hints);
-
-    /**
-     * Returns the JAI instance to use for operations on {@link RenderedImage}.
-     *
-     * @param hints The rendering hints, or <code>null</code> if none.
-     */
-    static JAI getJAI(final RenderingHints hints) {
-        if (hints != null) {
-            final Object value = hints.get(Hints.JAI_INSTANCE);
-            if (value instanceof JAI) {
-                return (JAI) value;
-            }
-        }
-        return JAI.getDefaultInstance();
-    }
 
     /**
      * Returns a hash value for this operation.

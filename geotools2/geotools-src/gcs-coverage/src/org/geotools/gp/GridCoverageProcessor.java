@@ -36,26 +36,14 @@
 package org.geotools.gp;
 
 // Collections
-import java.util.Set;
 import java.util.Map;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Collections;
-import java.util.AbstractSet;
-
-// Parameters
-import javax.media.jai.JAI;
-import javax.media.jai.TileCache;
-import javax.media.jai.Interpolation;
-import javax.media.jai.ParameterList;
-import javax.media.jai.ParameterListImpl;
-import javax.media.jai.ParameterListDescriptor;
-import javax.media.jai.util.CaselessStringKey;
+import java.util.Comparator;
 
 // Miscellaneous
 import java.io.Writer;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,12 +51,18 @@ import java.util.logging.LogRecord;
 import java.lang.ref.WeakReference;
 import java.awt.RenderingHints;
 
+// JAI parameters
+import javax.media.jai.JAI;
+import javax.media.jai.TileCache;
+import javax.media.jai.Interpolation;
+import javax.media.jai.ParameterList;
+import javax.media.jai.ParameterListDescriptor;
+import javax.media.jai.util.CaselessStringKey;
+
 // Geotools dependencies
 import org.geotools.cv.Coverage;
 import org.geotools.gc.GridCoverage;
-import org.geotools.ct.CoordinateTransformationFactory;
 import org.geotools.util.WeakValueHashMap;
-import org.geotools.resources.DescriptorNaming;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.Arguments;
 import org.geotools.resources.gcs.Resources;
@@ -88,7 +82,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.26 2003/07/18 13:49:56 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.27 2003/07/22 15:24:53 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -227,9 +221,9 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new ConvolveOperation());
             DEFAULT.addOperation(new GradientMagnitudeOperation());
             DEFAULT.addOperation(new BilevelOperation("Threshold", "Binarize"));
-            DEFAULT.addOperation(new OperationJAI(     CombineDescriptor.OPERATION_NAME));
             DEFAULT.addOperation(new OperationJAI(  HysteresisDescriptor.OPERATION_NAME));
             DEFAULT.addOperation(new OperationJAI(NodataFilterDescriptor.OPERATION_NAME));
+            DEFAULT.addOperation(new PolyadicOperation(CombineDescriptor.OPERATION_NAME));
         }
         return DEFAULT;
     }
@@ -501,7 +495,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.26 2003/07/18 13:49:56 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.27 2003/07/22 15:24:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {
@@ -605,6 +599,11 @@ public class GridCoverageProcessor {
     public void print(final Writer out) throws IOException {
         final String  lineSeparator = System.getProperty("line.separator", "\n");
         final Operation[] operations = getOperations();
+        Arrays.sort(operations, new Comparator() {
+            public int compare(final Object obj1, final Object obj2) {
+                return ((Operation)obj1).getName().compareTo(((Operation)obj2).getName());
+            }
+        });
         for (int i=0; i<operations.length; i++) {
             out.write(lineSeparator);
             operations[i].print(out, null);

@@ -47,7 +47,7 @@ import javax.media.jai.ParameterListDescriptorImpl;
 import org.geotools.cv.Category;
 import org.geotools.gc.GridCoverage;
 import org.geotools.cv.SampleDimension;
-import org.geotools.resources.ImageUtilities;
+import org.geotools.resources.ColorUtilities;
 
 
 /**
@@ -56,7 +56,7 @@ import org.geotools.resources.ImageUtilities;
  * are category names as {@link String}. Values are colors as <code>Color[]</code>. The
  * <code>null</code> key is a special value meaning "any quantitative category".
  *
- * @version $Id: RecolorOperation.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: RecolorOperation.java,v 1.4 2003/07/22 15:24:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RecolorOperation extends IndexColorOperation {
@@ -122,7 +122,7 @@ final class RecolorOperation extends IndexColorOperation {
             int upper = ((Number) range.getMaxValue()).intValue();
             if (!range.isMinIncluded()) lower++;
             if ( range.isMaxIncluded()) upper++;
-            ImageUtilities.expand(colors, ARGB, lower, upper);
+            ColorUtilities.expand(colors, ARGB, lower, upper);
             category = category.recolor(colors);
             if (!categories[j].equals(category)) {
                 categories[j] = category;

@@ -58,8 +58,8 @@ import javax.media.jai.ComponentSampleModelJAI;
 import org.geotools.util.WeakValueHashMap;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
-import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.ComponentColorModelJAI;
+import org.geotools.resources.ColorUtilities;
 
 
 /**
@@ -67,7 +67,7 @@ import org.geotools.resources.ComponentColorModelJAI;
  * This factory provides only one public static method: {@link #getColorModel}.  Instances
  * of {@link ColorModel} are shared among all callers in the running virtual machine.
  *
- * @version $Id: ColorModelFactory.java,v 1.7 2003/05/13 10:59:49 desruisseaux Exp $
+ * @version $Id: ColorModelFactory.java,v 1.8 2003/07/22 15:24:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColorModelFactory {
@@ -220,11 +220,11 @@ final class ColorModelFactory {
          */
         for (int i=0; i<categories.length; i++) {
             final Category category = categories[i];
-            ImageUtilities.expand(category.getColors(), ARGB,
+            ColorUtilities.expand(category.getColors(), ARGB,
                                   (int)Math.round(category.minimum),
                                   (int)Math.round(category.maximum)+1);
         }
-        return ImageUtilities.getIndexColorModel(ARGB, numBands, visibleBand);
+        return ColorUtilities.getIndexColorModel(ARGB, numBands, visibleBand);
     }
 
     /**

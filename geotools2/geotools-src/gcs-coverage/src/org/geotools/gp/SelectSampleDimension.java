@@ -54,7 +54,7 @@ import org.geotools.cs.CoordinateSystem;
 import org.geotools.cv.SampleDimension;
 import org.geotools.gc.GridCoverage;
 import org.geotools.resources.GCSUtilities;
-import org.geotools.resources.ImageUtilities;
+import org.geotools.resources.ColorUtilities;
 
 
 /**
@@ -63,7 +63,7 @@ import org.geotools.resources.ImageUtilities;
  * color model is to select a different visible band. Consequently, the "SelectSampleDimension"
  * name still appropriate in this context.
  *
- * @version $Id: SelectSampleDimension.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: SelectSampleDimension.java,v 1.4 2003/07/22 15:24:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class SelectSampleDimension extends GridCoverage {
@@ -202,7 +202,7 @@ final class SelectSampleDimension extends GridCoverage {
                 final IndexColorModel indexed = (IndexColorModel) colors;
                 final int[] ARGB = new int[indexed.getMapSize()];
                 indexed.getRGBs(ARGB);
-                colors = ImageUtilities.getIndexColorModel(ARGB, targetBands.length,
+                colors = ColorUtilities.getIndexColorModel(ARGB, targetBands.length,
                                                                  visibleTargetBand);
             } else {
                 colors = targetBands[visibleTargetBand]
@@ -224,7 +224,7 @@ final class SelectSampleDimension extends GridCoverage {
             operation = "BandSelect";
             params = params.add(bandIndices);
         }
-        image = org.geotools.gp.Operation.getJAI(hints).createNS(operation, params, hints);
+        image = OperationJAI.getJAI(hints).createNS(operation, params, hints);
         ((WritablePropertySource) image).setProperty("GC_VisibleBand", visibleBand);
         return new SelectSampleDimension(source, image, targetBands, bandIndices);
     }
@@ -244,7 +244,7 @@ final class SelectSampleDimension extends GridCoverage {
     /**
      * An operation for selecting bands.
      *
-     * @version $Id: SelectSampleDimension.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
+     * @version $Id: SelectSampleDimension.java,v 1.4 2003/07/22 15:24:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     final static class Operation extends org.geotools.gp.Operation {

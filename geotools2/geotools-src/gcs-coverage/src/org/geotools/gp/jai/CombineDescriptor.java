@@ -42,15 +42,20 @@ import javax.media.jai.OperationDescriptorImpl;
 import javax.media.jai.registry.RenderedRegistryMode;
 
 // Geotools dependencies
+import org.geotools.resources.Utilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
 
 /**
- * The operation descriptor for the {@link Combine} operation.
+ * The operation descriptor for the {@link Combine} operation. While this descriptor declare
+ * to support 0 {@link RenderedImage} sources, an arbitrary amount of sources can really be
+ * specified. The &quot;0&quot; should be understood as the <em>minimal</em> number of sources
+ * required.
  *
- * @version $Id: CombineDescriptor.java,v 1.2 2003/07/18 13:49:56 desruisseaux Exp $
+ * @version $Id: CombineDescriptor.java,v 1.3 2003/07/22 15:24:54 desruisseaux Exp $
  * @author Remi Eve
+ * @author Martin Desruisseaux
  */
 public final class CombineDescriptor extends OperationDescriptorImpl {
     /**
@@ -65,21 +70,41 @@ public final class CombineDescriptor extends OperationDescriptorImpl {
         super(new String[][]{{"GlobalName",  OPERATION_NAME},
                              {"LocalName",   OPERATION_NAME},
                              {"Vendor",      "Geotools 2"},
-                             {"Description", "Combine two rendered images using a linear relation."},
+                             {"Description", "Combine rendered images using a linear relation."},
                              {"DocURL",      "http://modules.geotools.org/gcs-coverage"},
                              {"Version",     "1.0"}},
-              new String[]   {RenderedRegistryMode.MODE_NAME}, 2,
-              new String[]   {"weights0",            // Argument names
-                              "weights1",
-                              "offsets"},
-              new Class []   {double[].class,        // Argument classes
-                              double[].class,
-                              double[].class},
-              new Object[]   {NO_PARAMETER_DEFAULT,  // Default values for parameters
-                              NO_PARAMETER_DEFAULT,
-                              new double[1]},
-              null                                   // Valid parameter values.
+              new String[]   {RenderedRegistryMode.MODE_NAME}, 0,        // Supported modes
+              new String[]   {"matrix", "transform"},                    // Parameter names
+              new Class []   {double[][].class, CombineTransform.class}, // Parameter classes
+              new Object[]   {NO_PARAMETER_DEFAULT, null},               // Default value
+              null                                                       // Valid parameter values
         );
+    }
+
+    /**
+     * Returns <code>true</code> if this operation supports the specified mode, and
+     * is capable of handling the given input source(s) for the specified mode. 
+     *
+     * @param modeName The mode name (usually "Rendered").
+     * @param param The parameter block for the operation to performs.
+     * @param message A buffer for formatting an error message if any.
+     */
+    protected boolean validateSources(final String      modeName,
+                                      final ParameterBlock param,
+                                      final StringBuffer message)
+    {
+        if (super.validateSources(modeName, param, message)) {
+            for (int i=param.getNumSources(); --i>=0;) {
+                final Object source = param.getSource(i);
+                if (!(source instanceof RenderedImage)) {
+                    message.append(Resources.format(ResourceKeys.ERROR_BAD_PARAMETER_TYPE_$2,
+                                   "source"+i, Utilities.getShortClassName(source)));
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -98,17 +123,15 @@ public final class CombineDescriptor extends OperationDescriptorImpl {
         if (!super.validateParameters(modeName, param, message))  {
             return false;
         }
-        final RenderedImage src1 = (RenderedImage)param.getSource(0);
-        final RenderedImage src2 = (RenderedImage)param.getSource(1);            
-        final int numBands1 = src1.getSampleModel().getNumBands();
-        final int numBands2 = src2.getSampleModel().getNumBands();
-        if (numBands1 != numBands2) {
-            message.append(Resources.format(ResourceKeys.ERROR_NUMBER_OF_BANDS_MISMATCH));
-            return false;
+        final double[][] matrix = (double[][]) param.getObjectParameter(0);
+        int numSamples = 1; // Begin at '1' for the offset value.
+        for (int i=param.getNumSources(); --i>=0;) {
+            numSamples += ((RenderedImage) param.getSource(i)).getSampleModel().getNumBands();
         }
-        for (int i=param.getNumParameters(); --i>=0;) {
-            if (Array.getLength(param.getObjectParameter(i)) == 0) {
-                message.append(Resources.format(ResourceKeys.ERROR_NUMBER_OF_BANDS_MISMATCH));
+        for (int i=0; i<matrix.length; i++) {
+            if (matrix[i].length != numSamples) {
+                message.append(Resources.format(ResourceKeys.ERROR_UNEXPECTED_ROW_LENGTH_$3,
+                        new Integer(i), new Integer(matrix[i].length), new Integer(numSamples)));
                 return false;
             }
         }

@@ -45,10 +45,10 @@ import java.awt.image.DataBuffer;
 import java.awt.image.SampleModel;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.awt.image.DataBufferFloat;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.spi.ImageReaderSpi;
-import javax.media.jai.DataBufferFloat; // JAI data buffer
 
 // Miscellaneous
 import java.awt.Point;

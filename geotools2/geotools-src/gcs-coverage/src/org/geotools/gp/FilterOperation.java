@@ -82,7 +82,7 @@ import org.geotools.cs.CoordinateSystem;
  * duplicated to fill a complete kernel.
  * </blockquote>
  *
- * @version $Id: FilterOperation.java,v 1.4 2003/07/04 13:46:36 desruisseaux Exp $
+ * @version $Id: FilterOperation.java,v 1.5 2003/07/22 15:24:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class FilterOperation extends OperationJAI {
@@ -124,7 +124,7 @@ final class FilterOperation extends OperationJAI {
            // "SampleDimension",
               "Xsize",
               "Ysize",
-              "maskShape" // Not an OpenGIS parameter.
+              "MaskShape" // Not an OpenGIS parameter.
           },
           new Class[]   // the class of each parameter.
           {

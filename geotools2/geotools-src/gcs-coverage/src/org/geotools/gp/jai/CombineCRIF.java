@@ -33,6 +33,8 @@
 package org.geotools.gp.jai;
 
 // J2SE dependencies
+import java.util.List;
+import java.util.Vector;
 import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
@@ -44,10 +46,17 @@ import javax.media.jai.CRIFImpl;
 /**
  * The image factory for the {@link Combine} operation.
  *
- * @version $Id: CombineCRIF.java,v 1.1 2003/07/11 16:57:48 desruisseaux Exp $
+ * @version $Id: CombineCRIF.java,v 1.2 2003/07/22 15:24:54 desruisseaux Exp $
  * @author Remi Eve
+ * @author Martin Desruisseaux
  */
 public final class CombineCRIF extends CRIFImpl {
+    /**
+     * Construct a default factory.
+     */
+    public CombineCRIF() {
+    }
+
     /**
      * Creates a {@link RenderedImage} representing the results of an imaging
      * operation for a given {@link ParameterBlock} and {@link RenderingHints}.
@@ -55,11 +64,38 @@ public final class CombineCRIF extends CRIFImpl {
     public RenderedImage create(final ParameterBlock param,
                                 final RenderingHints hints)
     {
-        final RenderedImage src0 = (RenderedImage) param.getSource(0);
-        final RenderedImage src1 = (RenderedImage) param.getSource(1);
-        final double[]  weights0 = (double[])param.getObjectParameter(0);
-        final double[]  weights1 = (double[])param.getObjectParameter(1);
-        final double[]   offsets = (double[])param.getObjectParameter(2);
-        return new Combine(src0, src1, weights0, weights1, offsets, hints);
+        final Vector             sources =                    param.getSources();
+        final double[][]          matrix = (double[][])       param.getObjectParameter(0);
+        final CombineTransform transform = (CombineTransform) param.getObjectParameter(1);
+        return transform==null && isDyadic(sources, matrix) ?
+               new Combine.Dyadic(sources, matrix, hints)   :
+               new Combine       (sources, matrix, transform, hints);
+    }
+
+    /**
+     * Returns <code>true</code> if the combine operation could be done through
+     * the optimized <code>Combine.Dyadic</code> class.
+     */
+    private static boolean isDyadic(final List sources, final double[][] matrix) {
+        if (sources.size() != 2) {
+            return false;
+        }
+        final RenderedImage src0 = (RenderedImage) sources.get(0);
+        final RenderedImage src1 = (RenderedImage) sources.get(1);
+        final int numBands0 = src0.getSampleModel().getNumBands();
+        final int numBands1 = src1.getSampleModel().getNumBands();
+        final int numBands  = matrix.length;
+        if (numBands!=numBands0 || numBands!=numBands1) {
+            return false;
+        }
+        for (int i=0; i<numBands; i++) {
+            final double[] row = matrix[i];
+            for (int j=numBands0+numBands1; --j>=0;) {
+                if (j!=i && j!=i+numBands0 && row[j]!=0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
