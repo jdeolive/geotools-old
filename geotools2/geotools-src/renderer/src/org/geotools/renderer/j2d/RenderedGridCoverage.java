@@ -56,6 +56,7 @@ import java.util.logging.LogRecord;
 // Geotools dependencies
 import org.geotools.pt.Envelope;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.CompoundCoordinateSystem;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.cv.SampleDimension;
@@ -81,7 +82,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.9 2003/03/02 22:16:01 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.10 2003/03/06 23:04:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -261,12 +262,29 @@ public class RenderedGridCoverage extends RenderedLayer {
             throws TransformException
     {
         if (coverage != null) {
-            CoordinateSystem sourceCS;
+            final CoordinateSystem sourceCS;
             coverage = coverage.geophysics(false);
             sourceCS = coverage.getCoordinateSystem();
-            sourceCS = CTSUtilities.getCoordinateSystem2D(sourceCS);
-            targetCS = CTSUtilities.getCoordinateSystem2D(targetCS);
-            if (!sourceCS.equals(targetCS, false)) {
+            if (!CTSUtilities.getCoordinateSystem2D(sourceCS).equals(
+                 CTSUtilities.getCoordinateSystem2D(targetCS), false))
+            {
+                final int sourceDim = sourceCS.getDimension();
+                final int targetDim = targetCS.getDimension();
+                if (sourceDim > targetDim) {
+                    /*
+                     * The display CS is always 2D. But the underlying coverage CS could be
+                     * 3D, 4D, etc. in which only the first 2 dimensions are displayed.  If
+                     * such a case occurs, then copy the "tail CS" from source CS to target
+                     * CS in order to make sure that both source and target CS have the same
+                     * dimension, as required by the "Resample" operation.
+                     */
+                    final CoordinateSystem tailCS = CTSUtilities.getSubCoordinateSystem(
+                                                    sourceCS, targetDim, sourceDim);
+                    if (tailCS != null) {
+                        targetCS = new CompoundCoordinateSystem(
+                                       targetCS.getName(null), targetCS, tailCS);
+                    }
+                }
                 final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
                 try {
                     coverage = processor.doOperation("Resample",         coverage,
