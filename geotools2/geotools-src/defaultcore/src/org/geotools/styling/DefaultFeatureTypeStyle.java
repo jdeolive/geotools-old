@@ -33,14 +33,14 @@ package org.geotools.styling;
  */
 public class DefaultFeatureTypeStyle implements org.geotools.styling.FeatureTypeStyle {
     private Rule[] ruleList;// Possibly not the best storage
-    
+    private String featureTypeName = "feature";
     /** Creates a new instance of DefaultFeatureTypeStyle */
     public DefaultFeatureTypeStyle() {
         ruleList = new Rule[0];
     }
-
+    
     public String getFeatureTypeName() {
-        return "feature";//HACK: - generic, catch all type name
+        return featureTypeName;//HACK: - generic, catch all type name
     }
     
     public Rule[] getRules() {
@@ -53,6 +53,10 @@ public class DefaultFeatureTypeStyle implements org.geotools.styling.FeatureType
     
     public void setRules(Rule[] rules){
         ruleList = rules;
+    }
+    
+    public void setFeatureTypeName(String name) {
+        featureTypeName=name;
     }
     
 }

@@ -31,6 +31,7 @@ public interface FeatureTypeStyle {
     //public String getTitle();
     //public String getAbstract();
     public String getFeatureTypeName();
+    public void setFeatureTypeName(String name);
     public String[] getSymantecTypeIdentifiers();
     public Rule[] getRules();
 }
