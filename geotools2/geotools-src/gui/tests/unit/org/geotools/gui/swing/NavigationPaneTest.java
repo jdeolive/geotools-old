@@ -50,6 +50,7 @@ public class NavigationPaneTest extends TestCase {
             Thread.sleep(100);
             aoi.changeRelativeAreaOfInterest(0.5f, 0.5f, 0.5f, 0.5f);
         }
+        frame.dispose();
     }
     
     
