@@ -27,5 +27,10 @@ public class LP {
         phi = Misc.dmsToR(tok.nextToken());
     }
     
+    public LP(String lam,String phi){
+        this.lam = Misc.dmsToR(lam);
+        this.phi = Misc.dmsToR(phi);
+    }
+    
     
 }
