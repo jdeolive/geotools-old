@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author $Author: cholmesny $
- * @version $Id: SQLEncoderOracle.java,v 1.8 2003/11/04 00:42:51 cholmesny Exp $
+ * @version $Id: SQLEncoderOracle.java,v 1.9 2003/11/04 00:43:29 cholmesny Exp $
  */
 public class SQLEncoderOracle extends SQLEncoder {
     /** The capabilities of the encoder */
@@ -64,7 +64,6 @@ public class SQLEncoderOracle extends SQLEncoder {
     private static final String TOLERANCE = "0.001";
 
     static {
-<<<<<<< SQLEncoderOracle.java
     
         SDO_RELATE_MASK_MAP.put(new Short(AbstractFilter.GEOMETRY_CONTAINS), "contains");
         SDO_RELATE_MASK_MAP.put(new Short(AbstractFilter.GEOMETRY_CROSSES), "overlapbydisjoint");
