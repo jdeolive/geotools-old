@@ -283,18 +283,19 @@ public class GtWmsServer implements WMSServer {
             if (!transparent) {
                 g.fillRect(0, 0, width, height);
             }
-            
-            renderer.setOutput(image.getGraphics(),
-            new java.awt.Rectangle(width, height));
-            LOGGER.fine("calling renderer");
-            
-            Date start = new Date();
-            map.render(renderer, env);
-            
-            Date end = new Date();
-            LOGGER.fine("returning image after render time of " +
-            (end.getTime() - start.getTime()));
-            //renderer = null;
+            synchronized(renderer){
+                renderer.setOutput(image.getGraphics(),
+                new java.awt.Rectangle(width, height));
+                LOGGER.fine("calling renderer");
+
+                Date start = new Date();
+                map.render(renderer, env);
+
+                Date end = new Date();
+                LOGGER.fine("returning image after render time of " +
+                (end.getTime() - start.getTime()));
+                //renderer = null;
+            }
             map = null;
             return image;
         } catch (Exception exp) {
