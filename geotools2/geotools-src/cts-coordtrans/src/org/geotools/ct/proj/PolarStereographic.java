@@ -73,7 +73,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * This default implementation uses USGS equation (i.e. iteration) for computing
  * the {@linkplain #inverseTransformNormalized inverse transform}.
  *
- * @version $Id: PolarStereographic.java,v 1.4 2004/02/23 12:28:23 desruisseaux Exp $
+ * @version $Id: PolarStereographic.java,v 1.5 2004/02/24 14:24:14 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -253,7 +253,7 @@ public class PolarStereographic extends Stereographic {
      * Provides the transform equations for the spherical case of the polar
      * stereographic projection.
      *
-     * @version $Id: PolarStereographic.java,v 1.4 2004/02/23 12:28:23 desruisseaux Exp $
+     * @version $Id: PolarStereographic.java,v 1.5 2004/02/24 14:24:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -367,12 +367,18 @@ public class PolarStereographic extends Stereographic {
 
     /**
      * Overides {@link PolarStereographic} to use the a series for the
-     * {@link #inverseTransformNormalized inverseTransformNormalized(...)} method.
-     * This is the equation specified by the EPSG. Allows for a 
-     * <code>"latitude_true_scale"<code> parameter to be used, but this parameter is
-     * not listed by the EPSG and is not given as a parameter by the provider.
+     * {@link #inverseTransformNormalized inverseTransformNormalized(...)}
+     * method. This is the equation specified by the EPSG. Allows for a 
+     * <code>"latitude_true_scale"<code> parameter to be used, but this
+     * parameter is not listed by the EPSG and is not given as a parameter
+     * by the provider.
+     * <br><br>
+     * Compared to the default {@link PolarStereographic} implementation, the series
+     * implementation is a little bit faster at the expense of a little bit less
+     * accuracy. The default {@link PolarStereographic} implementation implementation
+     * is an derivated work of Proj4, and is therefor better tested.
      *
-     * @version $Id: PolarStereographic.java,v 1.4 2004/02/23 12:28:23 desruisseaux Exp $
+     * @version $Id: PolarStereographic.java,v 1.5 2004/02/24 14:24:14 desruisseaux Exp $
      * @author Rueben Schulz
      */
     static final class Series extends PolarStereographic {
