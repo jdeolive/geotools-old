@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="geotools">
     <target name="modificationset">
-    <modificationset lastbuild="${lastGoodBuildTime}"
-        quietperiod="30"
-        dateformat="yyyy-MMM-dd HH:mm:ss">
+    <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastGoodBuildTime}" quietperiod="30">
 
-        <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools geotools2"
-            localworkingcopy="../.."/>
+        <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools geotools2" localworkingcopy="../.."/>
     </modificationset>
     </target>
     <target name="init">
@@ -52,4 +49,5 @@
     </target>
 
     <target depends="build" name="release"/>
+    <target depends="all,modificationset" name="masterbuild"/>
 </project>
