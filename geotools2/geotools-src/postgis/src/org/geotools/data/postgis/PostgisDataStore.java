@@ -59,7 +59,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.6 2003/11/21 23:29:44 jive Exp $
+ * @version $Id: PostgisDataStore.java,v 1.7 2003/11/23 01:32:00 jive Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -101,9 +101,11 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
     public PostgisDataStore(ConnectionPool connPool, String namespace)
         throws IOException {
-        super(connPool, namespace);
-
-        //featureTypes = retrieveFeatureTypes();
+        super(connPool, null, namespace);
+    }
+    
+    public PostgisDataStore(ConnectionPool connPool, String schema, String namespace ) throws IOException{
+        super( connPool, schema, namespace );            
     }
 
     /**
