@@ -72,12 +72,12 @@
       url="http://cvsbook.red-bean.com/">http://cvsbook.red-bean.com/</ulink>.</para>
     </section>
 
-    <section>
+    <section id="moduleversionnumbers">
       <title>Module version numbers</title>
 
       <para>Each geotools2 module contains it&#39;s own version number.
-      Version numbers are based on 3 digits, <emphasis>&#60;major&#62;.&#60;minor&#62;.&#60;bug
-      fixes&#62;</emphasis>. It looks like <emphasis>X.Y.Z</emphasis> .</para>
+      Version numbers are based on 3 digits, <emphasis>&#60;major&#62;.&#60;minor&#62;.&#60;patch&#62;</emphasis>.
+      It looks like <emphasis>2.3.4 </emphasis>.</para>
 
       <variablelist>
         <varlistentry>
@@ -102,15 +102,51 @@
         </varlistentry>
 
         <varlistentry>
-          <term>bug fix version</term>
+          <term>patch version</term>
 
           <listitem>
-            <para>The last digit is for bug fixes. It is used to indicate
-            fixes in bugs only. No new features were made and full
+            <para>The last digit is for patches (bug fixes). It is used to
+            indicate fixes in bugs only. No new features were made and full
             compatiblity is preserved.</para>
           </listitem>
         </varlistentry>
       </variablelist>
+
+      <para>The module version number is set in the <literal>&#60;currentVersion&#62;</literal>
+      tag in <filename>geotools2/geotools-src/&#60;module&#62;/project.xml</filename>.
+      Maven uses this value during the build process. [to do: verify this is
+      correct]</para>
+
+      <para>to do: Do we need to mention adding &#34;beta&#34; to a version
+      tag?</para>
+    </section>
+
+    <section id="taggingreleases">
+      <title>Tagging releases</title>
+
+      <para>Every time you increment the module version number, you need to
+      tag the relevant files in the repository. This usually involves tagging
+      all files in the module.</para>
+
+      <para>Tag names are based on the module version and look like
+      <emphasis>r&#60;major&#62;_&#60;minor&#62;_&#60;patch&#62;.</emphasis>
+      Eg: r2_3_4 .</para>
+
+      <para>Note that full stops from the version number are replaced with
+      underscores. This is because CVS doesn&#39;t allow full stops in tags.</para>
+
+      <para>The <emphasis>r</emphasis> in front of the tag stands for
+      <emphasis>release</emphasis> to distinguish itself from branch tags.</para>
+
+      <para>Typically, you would create a release tag with the following
+      statements in CVS:</para>
+
+      <example>
+        <title>CVS tagging a module</title>
+
+        <programlisting>cd geotools2/geotools-src/&#60;module&#62;
+cvs tag -R r2_3_4</programlisting>
+      </example>
     </section>
   </section>
 
@@ -392,7 +428,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.7 2003/01/10 19:23:29 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.8 2003/01/11 02:52:44 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
