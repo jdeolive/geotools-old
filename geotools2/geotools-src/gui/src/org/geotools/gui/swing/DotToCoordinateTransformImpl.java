@@ -25,6 +25,8 @@ package org.geotools.gui.swing;
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.geom.AffineTransform;
 import java.util.logging.Logger;
+import org.geotools.ct.MathTransform;
+import org.geotools.ct.MathTransformFactory;
 import org.geotools.gui.swing.MapPaneImpl;
 import org.geotools.map.Context;
 import org.opengis.cs.CS_CoordinateSystem;
@@ -33,7 +35,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * This class provides a transformation for Screen Coordinates to real world
  * Coordinates.  The transform needs to be updated whenever MapPane,
  * Context.boundingBox, or Context.coordinateSystem changes.
- * @version $Id: DotToCoordinateTransformImpl.java,v 1.1 2003/03/16 04:20:14 camerons Exp $
+ * @version $Id: DotToCoordinateTransformImpl.java,v 1.2 2003/03/18 10:15:53 camerons Exp $
  * @author Cameron Shorter
  * @task TODO Setup an internal hash map which provides
  * getTransform(CoordinateSystem).
@@ -41,7 +43,7 @@ import org.opengis.cs.CS_CoordinateSystem;
 
 public class DotToCoordinateTransformImpl
 {
-    private AffineTransform transform;
+    private MathTransform transform;
     private MapPaneImpl mapPane;
     private Context context;
     
@@ -63,7 +65,7 @@ public class DotToCoordinateTransformImpl
      * Get the transform from Screen to Real World Cordinates using
      * Coordinate System from Context.GetBoundingBox().GetCoordinateSystem().
      */
-    public AffineTransform getTransform() {
+    public MathTransform getTransform() {
         if (transform==null){
             updateTransform();
         }
@@ -75,7 +77,7 @@ public class DotToCoordinateTransformImpl
      * provided coordinate system.
      * @task This method has not been written yet.
      */
-    public AffineTransform getTransform(CS_CoordinateSystem cs) {
+    public MathTransform getTransform(CS_CoordinateSystem cs) {
         if (transform==null){
             updateTransform();
         }
@@ -121,7 +123,7 @@ public class DotToCoordinateTransformImpl
         // [y']=[0       -scaleY (maxY-bottomBorder)*scaleY+csMinY][y]
         // [1 ] [0       0       1                                ][1]
 
-        transform=new AffineTransform(
+        AffineTransform at=new AffineTransform(
             // m00: ScaleX
             scaleX,
             
@@ -140,5 +142,7 @@ public class DotToCoordinateTransformImpl
             // m12: TransformY
             (mapPane.getHeight()-mapPane.getInsets().bottom)*scaleY
             +aoi.getMinY());
+        
+        transform=MathTransformFactory.getDefault().createAffineTransform(at);
      }
 }
