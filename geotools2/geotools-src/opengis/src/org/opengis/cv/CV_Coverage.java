@@ -76,7 +76,7 @@ public interface CV_Coverage extends Remote
      * @return the names of each dimension in the coverage.
      * @throws RemoteException if a remote method call failed.
      */
-    String[] getdimensionNames() throws RemoteException;
+    String[] getDimensionNames() throws RemoteException;
 
     /**
      * Number of grid coverages which the grid coverage was derived from.
