@@ -40,7 +40,7 @@ import org.w3c.dom.*;
  *
  * It currently implements Style but it shouldn't!
  * 
- * @version $Id: SLDStyle.java,v 1.22 2002/10/14 17:09:48 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.23 2002/10/16 16:49:57 ianturton Exp $
  * @author Ian Turton
  */
 public class SLDStyle implements org.geotools.styling.Style {
@@ -142,7 +142,7 @@ public class SLDStyle implements org.geotools.styling.Style {
     public FeatureTypeStyle[] getFeatureTypeStyles() {
         return (FeatureTypeStyle[]) fts.toArray(new FeatureTypeStyle[0]);
     }
-    public void setFeatureTypeStyle(FeatureTypeStyle[] types) {
+    public void setFeatureTypeStyles(FeatureTypeStyle[] types) {
         fts = new ArrayList();
         for(int i=0;i<types.length;i++){
             fts.add(types[i]);
@@ -277,7 +277,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             LOGGER.finest("Parsing featuretype style " + style.getNodeName());
         }
 
-        FeatureTypeStyleImpl ft = new FeatureTypeStyleImpl();
+        FeatureTypeStyle ft = factory.createFeatureTypeStyle();
 
         ArrayList rules = new ArrayList();
         NodeList children = style.getChildNodes();
@@ -295,7 +295,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
 
             if (child.getNodeName().equalsIgnoreCase("Name")) {
-                ft.setName(child.getFirstChild().getNodeValue());
+                ft.setName(child.getFirstChild().getNodeValue()); 
             }
 
             if (child.getNodeName().equalsIgnoreCase("Title")) {
@@ -330,7 +330,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             LOGGER.finest("Parsing rule " + ruleNode.getNodeName());
         }
 
-        RuleImpl rule = new RuleImpl();
+        Rule rule = factory.createRule();
         ArrayList symbolizers = new ArrayList();
         NodeList children = ruleNode.getChildNodes();
 
@@ -346,17 +346,17 @@ public class SLDStyle implements org.geotools.styling.Style {
                 LOGGER.finest("processing " + child.getNodeName());
             }
 
-            if (child.getNodeName().equalsIgnoreCase("Name")) {
-                rule.setName(child.getFirstChild().getNodeValue());
-            }
-
-            if (child.getNodeName().equalsIgnoreCase("Title")) {
-                rule.setTitle(child.getFirstChild().getNodeValue());
-            }
-
-            if (child.getNodeName().equalsIgnoreCase("Abstract")) {
-                rule.setAbstract(child.getFirstChild().getNodeValue());
-            }
+//            if (child.getNodeName().equalsIgnoreCase("Name")) {
+//                rule.setName(child.getFirstChild().getNodeValue());
+//            }
+//
+//            if (child.getNodeName().equalsIgnoreCase("Title")) {
+//                rule.setTitle(child.getFirstChild().getNodeValue());
+//            }
+//
+//            if (child.getNodeName().equalsIgnoreCase("Abstract")) {
+//                rule.setAbstract(child.getFirstChild().getNodeValue());
+//            }
 
             if (child.getNodeName().equalsIgnoreCase("Filter")) {
                 NodeList list = child.getChildNodes();
@@ -383,15 +383,16 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
 
             if (child.getNodeName().equalsIgnoreCase("ElseFilter")) {
-                rule.setHasElseFilter();
+                rule.setIsElseFilter(true);
             }
 
             if (child.getNodeName().equalsIgnoreCase("LegendGraphic")) {
                 NodeList g = ((Element) child).getElementsByTagName("Graphic");
-
+                ArrayList legends = new ArrayList();
                 for (int k = 0; k < g.getLength(); k++) {
-                    rule.addLegendGraphic(parseGraphic(g.item(k)));
+                    legends.add(parseGraphic(g.item(k)));
                 }
+                rule.setLegendGraphic((Graphic[])legends.toArray(new Graphic[0]));
             }
 
             if (child.getNodeName().equalsIgnoreCase("LineSymbolizer")) {
@@ -498,14 +499,14 @@ public class SLDStyle implements org.geotools.styling.Style {
      * @return the TextSymbolizer
      */
     private TextSymbolizer parseTextSymbolizer(Node root) {
-        TextSymbolizerImpl symbol = new TextSymbolizerImpl();
+        TextSymbolizer symbol = factory.createTextSymbolizer();
         symbol.setFill(null);
-
+        ArrayList fonts = new ArrayList();
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
-
+            
             if ((child == null) || 
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
@@ -525,7 +526,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
 
             if (child.getNodeName().equalsIgnoreCase("Font")) {
-                symbol.addFont(parseFont(child));
+                fonts.add(parseFont(child));
             }
 
             if (child.getNodeName().equalsIgnoreCase("LabelPlacement")) {
@@ -536,7 +537,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 symbol.setHalo(parseHalo(child));
             }
         }
-
+        symbol.setFonts((Font[])fonts.toArray(new Font[0]));
         return symbol;
     }
 
@@ -577,8 +578,8 @@ public class SLDStyle implements org.geotools.styling.Style {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("processing graphic " + root);
         }
-        // TODO: I'm not happy about this line
-        GraphicImpl graphic = (GraphicImpl)factory.createGraphic();
+        
+        Graphic graphic = factory.createGraphic();
 
         NodeList children = root.getChildNodes();
 
@@ -616,7 +617,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
         }
 
-        return (Graphic) graphic;
+        return graphic;
     }
 
     private String parseGeometryName(Node root) {

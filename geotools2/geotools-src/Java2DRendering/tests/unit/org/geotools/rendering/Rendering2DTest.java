@@ -79,38 +79,36 @@ public class Rendering2DTest extends TestCase {
         FeatureCollection ft = new FeatureCollectionDefault(datasource);
         
         org.geotools.map.Map map = new DefaultMap();
-        
+        StyleFactory sFac = StyleFactory.createStyleFactory();
         //The following is complex, and should be built from
         //an SLD document and not by hand
-        DefaultPointSymbolizer pointsym = new DefaultPointSymbolizer();
+        PointSymbolizer pointsym = sFac.createPointSymbolizer();
         
-        DefaultLineSymbolizer linesym = new DefaultLineSymbolizer();
-        DefaultStroke myStroke = new DefaultStroke();
-        myStroke.setColor(new ExpressionLiteral("#0000ff"));
-        myStroke.setWidth(new ExpressionLiteral(new Integer(5)));
+        LineSymbolizer linesym = sFac.createLineSymbolizer();
+        Stroke myStroke = sFac.createStroke(new ExpressionLiteral("#0000ff"),new ExpressionLiteral(new Integer(5)));
         linesym.setStroke(myStroke);
         
-        DefaultPolygonSymbolizer polysym = new DefaultPolygonSymbolizer();
-        DefaultFill myFill = new DefaultFill();
-        myFill.setColor("#ff0000");
+        PolygonSymbolizer polysym = sFac.createPolygonSymbolizer();
+        Fill myFill = StyleFactory.createFill();
+        myFill.setColor(new ExpressionLiteral("#ff0000"));
         polysym.setFill(myFill);
-        DefaultRule rule = new DefaultRule();
+        Rule rule = sFac.createRule();
         rule.setSymbolizers(new Symbolizer[]{polysym});
-        DefaultFeatureTypeStyle fts = new DefaultFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
+        FeatureTypeStyle fts = sFac.createFeatureTypeStyle(new Rule[]{rule});
+        //fts.setRules(new Rule[]{rule});
         
-        DefaultRule rule2 = new DefaultRule();
+        Rule rule2 = sFac.createRule();
         rule2.setSymbolizers(new Symbolizer[]{linesym});
-        DefaultFeatureTypeStyle fts2 = new DefaultFeatureTypeStyle();
+        FeatureTypeStyle fts2 = sFac.createFeatureTypeStyle();
         fts2.setRules(new Rule[]{rule2});
         fts2.setFeatureTypeName("linefeature");
         
-        DefaultRule rule3 = new DefaultRule();
+        Rule rule3 = sFac.createRule();
         rule3.setSymbolizers(new Symbolizer[]{pointsym});
-        DefaultFeatureTypeStyle fts3 = new DefaultFeatureTypeStyle();
+        FeatureTypeStyle fts3 = sFac.createFeatureTypeStyle();
         fts3.setRules(new Rule[]{rule3});
         fts3.setFeatureTypeName("pointfeature");
-        DefaultStyle style = new DefaultStyle();
+        Style style = sFac.createStyle();
         style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts,fts2,fts3});
         
         map.addFeatureTable(ft,style);
