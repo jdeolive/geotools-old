@@ -39,7 +39,7 @@ import org.w3c.dom.*;
  * Styled Layer Descriptor Spec.
  *
  *
- * @version $Id: SLDStyle.java,v 1.33 2003/06/13 00:46:49 seangeo Exp $
+ * @version $Id: SLDStyle.java,v 1.34 2003/06/16 11:49:57 ianturton Exp $
  * @author Ian Turton
  * @author Sean Geoghegan <Sean.Geoghegan@dsto.defence.gov.au>
  */
@@ -118,10 +118,18 @@ public class SLDStyle {
      * Read the xml inputsource provided and create a Style object for each user style found
      * @return Style[] the styles constructed.
      */
-    public Style[] readXML() throws Exception{
+    public Style[] readXML() {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        try{
         DocumentBuilder db = dbf.newDocumentBuilder();
         dom = db.parse(instream);
+        }catch (javax.xml.parsers.ParserConfigurationException pce){
+            throw new RuntimeException(pce);
+        }catch (org.xml.sax.SAXException se){
+            throw new RuntimeException(se);
+        }catch (java.io.IOException ie){
+            throw new RuntimeException(ie);
+        }
         return readDOM(dom);
     }
 
@@ -129,7 +137,7 @@ public class SLDStyle {
      * Read the DOM provided and create a Style object for each user style found
      * @return Style[] the styles constructed.
      */
-    public Style[] readDOM(Document dom) throws Exception {
+    public Style[] readDOM(Document dom){
 		this.dom = dom;
         // for our next trick do something with the dom.
         NodeList nodes = dom.getElementsByTagName("UserStyle");
@@ -146,11 +154,15 @@ public class SLDStyle {
      * @param Node n the node which contains the style to be parsed.
      * @return the Style constructed.
      */
-    public Style parseStyle(Node n) throws Exception {
+    public Style parseStyle(Node n){
 		if ( dom == null ) {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			dom = db.newDocument();
+            try{
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder db = dbf.newDocumentBuilder();
+                dom = db.newDocument();
+            }catch (javax.xml.parsers.ParserConfigurationException pce){
+                throw new RuntimeException(pce);
+            }
 		}
 
 		Style style = factory.createStyle();
