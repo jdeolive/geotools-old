@@ -76,7 +76,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.32 2003/07/29 22:38:51 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.33 2003/08/14 15:28:17 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -102,6 +102,8 @@ public class PostgisDataSource extends AbstractDataSource
     /** Error message prefix for sql connection errors */
     private static final String CONN_ERROR = 
                           "Some sort of database connection error: ";
+    /** The sql column that contains the name of primary keys */
+    private static final int PK_COLUMN_NAME_COL = 4;
 
     /** Map of sql primitives to java primitives */
     private static Map sqlTypeMap = new HashMap();
@@ -349,7 +351,7 @@ public class PostgisDataSource extends AbstractDataSource
 
             if (pkeys.next()) {
                 //get the name of the primary key column
-                retString = pkeys.getString(4);
+                retString = pkeys.getString(PK_COLUMN_NAME_COL);
 
                 //REVISIT: Figure out what to do if there are multiple pks
             }
@@ -453,6 +455,7 @@ public class PostgisDataSource extends AbstractDataSource
 
                 //REVISIT, see getIdColumn note.
             } else if (fidColumn.equals(curAttName)) {
+                LOGGER.finest("skipping fid column");
                 //do nothing, already covered by fid
             } else {
                 sqlStatement.append(", \"" + curAttName + "\"");
@@ -1005,8 +1008,8 @@ public class PostgisDataSource extends AbstractDataSource
      */
     public void modifyFeatures(AttributeType type, Object value, Filter filter)
         throws DataSourceException {
-        AttributeType[] singleType = { type };
-        Object[] singleVal = { value };
+        AttributeType[] singleType = {type};
+        Object[] singleVal = {value};
         modifyFeatures(singleType, singleVal, filter);
     }
 
