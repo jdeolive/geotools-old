@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  *
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
- * @version $Id: SubHandlerPolygon.java,v 1.10 2003/09/06 18:24:58 jmacgill Exp $
+ * @version $Id: SubHandlerPolygon.java,v 1.11 2003/09/07 17:32:05 jmacgill Exp $
  */
 public class SubHandlerPolygon extends SubHandler {
     /** The logger for the GML module. */
@@ -61,8 +61,6 @@ public class SubHandlerPolygon extends SubHandler {
     /** Indicates that we are inside the outer boundary of the Polygon. */
     private int OUTER_BOUNDARY = 2;
     
-    /** Quick hack to fix parser bug */
-    private boolean innerBoundaryToAdd = true; 
 
     /**
      * Creates a new instance of GMLPolygonHandler.
@@ -97,13 +95,10 @@ public class SubHandlerPolygon extends SubHandler {
                     if (cga.isCCW(points)) {
                         LOGGER.finer("good hole found");
                         
-                        //HACK: workaround for parser bug, see:
-                        //http://sf.net/mailarchive/forum.php?thread_id=3086985&forum_id=3008
-                        if (innerBoundaryToAdd){
+ 
                         //System.out.println("inner boundary: " + message);
                         innerBoundaries.add(ring);
-                        innerBoundaryToAdd = false;
-                        }
+                        
                         
                     } else {
                         LOGGER.finer("bad hole found - fixing");
@@ -164,8 +159,6 @@ public class SubHandlerPolygon extends SubHandler {
         } else if (message.equals("innerBoundaryIs")) {
             LOGGER.finer("new InnerBoundary");
             location = INNER_BOUNDARY;
-            //for bug fix - remember that this inner boundary has not yet been added
-            innerBoundaryToAdd = true;
         }
     }
 
@@ -200,7 +193,7 @@ public class SubHandlerPolygon extends SubHandler {
         // otherwise, send this message to the subGeometry method for further
         // processing
         else {
-            this.subGeometry(message, GEOMETRY_END);
+//            this.subGeometry(message, GEOMETRY_END);
 
             return false;
         }
