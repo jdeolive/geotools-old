@@ -16,7 +16,6 @@
  */
 package org.geotools.filter;
 
-
 import org.xml.sax.Attributes;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,13 +28,18 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York<br>
  * @author Chris Holmes, TOPP
- * @version $Id: FilterSAXParser.java,v 1.5 2003/07/30 00:08:56 cholmesny Exp $
+ * @version $Id: FilterSAXParser.java,v 1.6 2003/08/11 17:25:39 cholmesny Exp $
  */
 public class FilterSAXParser {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
+
     /** factory for creating filters. */
-    private static final FilterFactory FILTER_FACT = FilterFactory.createFilterFactory();
+    private static final FilterFactory FILTER_FACT = FilterFactory
+        .createFilterFactory();
+
+    /** The number of attributes to be found in a like filter */
+    private static final int NUM_LIKE_ATTS = 3;
 
     /** The filter being currently constructed */
     private Filter curFilter = null;
@@ -109,13 +113,14 @@ public class FilterSAXParser {
     }
 
     /**
-     * Adds the passed in expression to the current filter.  Generally 
-     * created by the ExpressionSAXParser.  
+     * Adds the passed in expression to the current filter.  Generally  created
+     * by the ExpressionSAXParser.
      *
      * @param expression The value of the attribute for comparison.
      *
-     * @throws IllegalFilterException if the expression does not match what
-     * the current filter is expecting.
+     * @throws IllegalFilterException if the expression does not match what the
+     *         current filter is expecting.
+     *
      * @task REVISIT: split this method up.
      */
     public void expression(Expression expression) throws IllegalFilterException {
@@ -181,7 +186,7 @@ public class FilterSAXParser {
                 ((LikeFilter) curFilter).setValue(expression);
                 curState = "pattern";
             } else if (curState.equals("pattern")) {
-                if (attributes.size() != 3) {
+                if (attributes.size() != NUM_LIKE_ATTS) {
                     throw new IllegalFilterException(
                         "Got wrong number of attributes (expecting 3): "
                         + attributes.size() + "\n" + attributes);
@@ -213,12 +218,12 @@ public class FilterSAXParser {
     }
 
     /**
-     * Creates the filter held in the parser.  
+     * Creates the filter held in the parser.
      *
      * @return The current filter to be created by this parser.
      *
-     * @throws IllegalFilterException If called before the filter
-     * is in a complete state.
+     * @throws IllegalFilterException If called before the filter is in a
+     *         complete state.
      */
     public Filter create() throws IllegalFilterException {
         if (isComplete()) {
@@ -234,10 +239,10 @@ public class FilterSAXParser {
     }
 
     /**
-     * Sets the state that shall be expected next based on the fitlerType.
-     * So if a between, null or like is the currentFilter then attribute
-     * should be next, if an fid filter then fid should be next.  If it's
-     * a comparison, geometry or not, then leftValue should be next.
+     * Sets the state that shall be expected next based on the fitlerType. So
+     * if a between, null or like is the currentFilter then attribute should
+     * be next, if an fid filter then fid should be next.  If it's a
+     * comparison, geometry or not, then leftValue should be next.
      *
      * @param filterType An AbstractFilter short of the filter type.
      *
@@ -258,7 +263,7 @@ public class FilterSAXParser {
             return "leftValue";
         } else {
             throw new IllegalFilterException("Filter type: " + filterType
-					     + " is not recognized");
+                + " is not recognized");
         }
     }
 
