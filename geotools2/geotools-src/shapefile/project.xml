@@ -117,6 +117,23 @@
             </roles>
         </contributor>
     </contributors>
+    <build>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <resources>
+          <resource>
+              <directory>${basedir}/tests/unit</directory>
+              <includes>
+                  <include>**/*.shp</include>
+                  <include>**/*.dbf</include>
+                  <include>**/*.shx</include>
+              </includes>
+          </resource>
+      </resources>
+    </unitTest>
+    </build>
     
 </project>
 
