@@ -74,7 +74,7 @@ import org.geotools.resources.ImageUtilities;
  * "CRIF" stands for {@link java.awt.image.renderable.ContextualRenderedImageFactory}.
  * The image operation name is "GC_SampleTranscoding".
  *
- * @version $Id: ImageAdapter.java,v 1.7 2002/08/09 18:37:56 desruisseaux Exp $
+ * @version $Id: ImageAdapter.java,v 1.8 2002/08/12 10:13:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ImageAdapter extends PointOpImage {
@@ -91,9 +91,23 @@ final class ImageAdapter extends PointOpImage {
      *
      * @task HACK: This method provides an optimisation for the case of a strictly linear
      *             transformation: it use the JAI's "Rescale" operation, which is hardware
-     *             accelerated. Unfortunatly, bug #???? prevent us to use this optimisation
+     *             accelerated. Unfortunatly, bug #4726416 prevent us to use this optimisation
      *             here. The optimisation is temporarly disabled, waiting for Sun to fix the
      *             bug.
+     *
+     * @task TODO: An other possible optimization is to skip "Null" operations.
+     *             We could very well imagine the following scenario:
+     *
+     *             <pre>ImageAdapter  -->  NullOpImage  -->  ImageAdapter</pre>
+     *
+     *             The <code>NullOpImage</code> between the two <code>ImageAdapter</code> prevents
+     *             some optimization, like transforming two inverse <code>ImageAdapter</code> into
+     *             an identity operation. R  emoving the <code>NullOpImage</code> would make those
+     *             optimization possible.   Unfortunatly, sometime the <code>NullOpImage</code> is
+     *             not really "null", but change the <code>IndexColorModel</code>.   Removing this
+     *             operation remove also the colormap, which is not what we want. A better solution
+     *             need to be find. We should probably use <code>ColormapOpImage</code> instead of
+     *             <code>NullOpImage</code> for that.
      *
      * @param  image      The source image, or <code>null</code>.
      * @param  categories The category lists, one for each image's band.
@@ -111,12 +125,16 @@ final class ImageAdapter extends PointOpImage {
          * Slight optimisation: Skip the "Null" operations.
          * Such image may be the result of a "Colormap" operation.
          */
-        while (image instanceof NullOpImage) {
-            final NullOpImage op = (NullOpImage) image;
-            if (op.getNumSources() != 1) {
-                break;
+        if (false) {
+            // TODO: Current optimization is not appropriate: it loose the ColorModel!
+            //       We need a way to perform this optimization while preserving colors.
+            while (image instanceof NullOpImage) {
+                final NullOpImage op = (NullOpImage) image;
+                if (op.getNumSources() != 1) {
+                    break;
+                }
+                image = op.getSourceImage(0);
             }
-            image = op.getSourceImage(0);
         }
         /*
          * If this operation is the inverse of a previous operation,
