@@ -60,6 +60,14 @@ public class ProducerTest extends TestCase {
     private FeatureType schema;
     private FeatureFactory featureFactory;
     FeatureCollection table = null;
+    Feature polygonFeature = null;
+    Feature lineFeature = null;
+    Feature multiLineFeature = null;
+    Feature mPointFeature = null;
+    Feature mPolyFeature = null;
+    Feature mGeomFeature = null;
+    Object[] attributes = { "rail", null, "tronic" };
+    LineString line = null;
 
     public ProducerTest(java.lang.String testName) {
         super(testName);
@@ -75,13 +83,7 @@ public class ProducerTest extends TestCase {
         return suite;
     }
 
-    /**
-     * This needs to be redone, for now it is just a demo that will print some
-     * sample features.
-     *
-     * @throws Exception DOCUMENT ME!
-     */
-    public void testProducer() throws Exception {
+    public void setUp() throws Exception {
         System.setProperty("javax.xml.transform.TransformerFactory",
             "org.apache.xalan.processor.TransformerFactoryImpl");
 
@@ -132,7 +134,8 @@ public class ProducerTest extends TestCase {
         Point point = geomFactory.createPoint(new Coordinate(3, 35));
         Point[] pointArr = { point, point, point, point };
         MultiPoint multiPoint = new MultiPoint(pointArr, precModel, srid);
-        LineString line = new LineString(points, precModel, srid);
+        line = new LineString(points, precModel, srid);
+
         LineString[] lineArr = { line, line, line };
         MultiLineString multiLine = new MultiLineString(lineArr, precModel, srid);
         Geometry[] geomArr = { multiPoly, point, line, multiLine };
@@ -140,13 +143,9 @@ public class ProducerTest extends TestCase {
                 precModel, srid);
         Integer featureId = new Integer(32);
         String name = "inse<rt polygon444444";
-        Object[] attributes = { featureId, point, name };
-        Feature polygonFeature = null;
-        Feature lineFeature = null;
-        Feature multiLineFeature = null;
-        Feature mPointFeature = null;
-        Feature mPolyFeature = null;
-        Feature mGeomFeature = null;
+        attributes[0] = featureId;
+        attributes[1] = point;
+        attributes[2] = name;
 
         try {
             testFeature = schema.create(attributes, "rail.1");
@@ -165,7 +164,15 @@ public class ProducerTest extends TestCase {
         } catch (IllegalAttributeException ife) {
             LOGGER.warning("problem in setup " + ife);
         }
+    }
 
+    /**
+     * This needs to be redone, for now it is just a demo that will print some
+     * sample features.
+     *
+     * @throws Exception DOCUMENT ME!
+     */
+    public void testProducer() throws Exception {
         //table = ds.getFeatures();//new FeatureCollectionDefault();
         table = FeatureCollections.newCollection();
         table.add(testFeature);
@@ -180,12 +187,45 @@ public class ProducerTest extends TestCase {
 
         FeatureTransformer fr = new FeatureTransformer();
         fr.setIndentation(4);
-        fr.getFeatureTypeNamespaces().declareDefaultNamespace("test","http://www.geotools.org");
+        fr.getFeatureTypeNamespaces().declareDefaultNamespace("test",
+            "http://www.geotools.org");
 
         java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
         fr.transform(table, baos);
         LOGGER.fine("output is " + new String(baos.toByteArray()));
     }
 
-    
+    public void testNulls() throws Exception {
+        attributes[1] = line;
+        attributes[0] = null;
+        testFeature = schema.create(attributes, "rail.19");
+        table = FeatureCollections.newCollection();
+        table.add(testFeature);
+
+        FeatureTransformer fr = new FeatureTransformer();
+
+        fr.setIndentation(2);
+        fr.getFeatureTypeNamespaces().declareDefaultNamespace("gt2",
+            "http://www.geotools.org");
+
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        fr.transform(table, baos);
+        LOGGER.info("output is " + baos.toString());
+    }
+
+    public void testNullGeometry() throws Exception {
+        attributes[1] = null;
+        attributes[2] = "null geometry";
+        testFeature = schema.create(attributes, "rail.19");
+        table = FeatureCollections.newCollection();
+        table.add(testFeature);
+
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        FeatureTransformer fr = new FeatureTransformer();
+        fr.setIndentation(2);
+        fr.getFeatureTypeNamespaces().declareDefaultNamespace("gt2",
+            "http://www.geotools.org");
+        fr.transform(table, baos);
+        LOGGER.info("output is " + new String(baos.toByteArray()));
+    }
 }
