@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="gtbuild">
+    
+    <!-- once the reactor in maven is ready, this file will no longer be needed -->
+    
+    <target depends="install,sites" name="all">
+        <!-- WRITEME -->
+    </target>
+    
+    <target name="install">
+        <ant antfile="build-maven.xml" dir="..\core" inheritall="true" target="maven:install-jar"/>
+        <ant antfile="build-maven.xml" dir="..\filter" inheritall="true" target="maven:install-jar"/>
+        <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:install-jar"/>
+    </target>
+    
+    <target name="sites">
+        <ant antfile="build-maven.xml" dir="..\core" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\filter" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:site"/>
+    </target>
+    
+    
+</project>
