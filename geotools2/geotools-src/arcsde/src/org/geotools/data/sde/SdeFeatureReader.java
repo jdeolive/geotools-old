@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author not attributable
- * @version 0.1
+ * @version $Id: SdeFeatureReader.java,v 1.8 2003/11/14 17:21:05 groldan Exp $
  */
 public class SdeFeatureReader implements org.geotools.data.FeatureReader
 {

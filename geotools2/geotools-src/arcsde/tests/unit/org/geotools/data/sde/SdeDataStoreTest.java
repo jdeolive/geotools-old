@@ -36,7 +36,7 @@ import javax.xml.parsers.*;
  * SdeDatasource's test cases
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: SdeDataStoreTest.java,v 1.4 2003/11/14 17:21:05 groldan Exp $
  */
 public class SdeDataStoreTest extends TestCase
 {

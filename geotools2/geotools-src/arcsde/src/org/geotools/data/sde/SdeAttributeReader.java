@@ -32,7 +32,7 @@ import com.esri.sde.sdk.client.*;
 
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: SdeAttributeReader.java,v 1.3 2003/11/14 17:21:04 groldan Exp $
  */
 public class SdeAttributeReader implements AttributeReader
 {

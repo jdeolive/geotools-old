@@ -29,7 +29,7 @@ import java.util.*;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: SdeFeatureResults.java,v 1.7 2003/11/14 17:21:05 groldan Exp $
  */
 public class SdeFeatureResults implements FeatureResults
 {

@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
  * will become to life shortly
  * @author Gabriel Roldan
- * @version 0.1
+ * @version $Id: SdeFeatureWriter.java,v 1.3 2003/11/14 17:21:05 groldan Exp $
  */
 
 public class SdeFeatureWriter implements FeatureWriter

@@ -25,7 +25,7 @@ import org.geotools.data.DataSourceException;
  * <code>SdeConnectionPool instance's getMaxWaitTime()</code> milliseconds
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: UnavailableConnectionException.java,v 1.3 2003/11/14 17:21:05 groldan Exp $
  *
  * @task REVISIT: sure there are a better exception to use in somewhere... just
  *       take a look since it seems not very wise to have it here... may be in

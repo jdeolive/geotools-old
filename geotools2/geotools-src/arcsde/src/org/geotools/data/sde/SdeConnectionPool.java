@@ -38,7 +38,7 @@ import java.util.logging.*;
  * </p>
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: SdeConnectionPool.java,v 1.7 2003/11/14 17:21:04 groldan Exp $
  *
  * @task TODO: make it read a properties file to get connection pool
  *       information, such as min/max connections, expire time, etc.

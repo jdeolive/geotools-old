@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: SdeFeatureSource.java,v 1.4 2003/11/14 17:21:05 groldan Exp $
  */
 public class SdeFeatureSource implements FeatureSource
 {

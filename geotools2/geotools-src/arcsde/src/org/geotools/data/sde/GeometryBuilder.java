@@ -71,7 +71,7 @@ import java.util.*;
  * </p>
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
  */
 public abstract class GeometryBuilder
 {
@@ -427,7 +427,7 @@ public abstract class GeometryBuilder
  * <code>Point</code>s from <code>SeShape</code> points and viceversa
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
  */
 class PointBuilder extends GeometryBuilder
 {
@@ -495,7 +495,7 @@ class PointBuilder extends GeometryBuilder
  * viceversa
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
  */
 class MultiPointBuilder extends GeometryBuilder
 {
@@ -581,7 +581,7 @@ class MultiPointBuilder extends GeometryBuilder
  * <code>LineString</code>s from <code>SeShape</code> linestring and viceversa
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
  */
 class LineStringBuilder extends GeometryBuilder
 {
@@ -669,7 +669,7 @@ class LineStringBuilder extends GeometryBuilder
  * and viceversa
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
  */
 class MultiLineStringBuilder extends LineStringBuilder
 {
@@ -726,7 +726,7 @@ class MultiLineStringBuilder extends LineStringBuilder
  * <code>Polygon</code>s from <code>SeShape</code> polygon and viceversa
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
  */
 class PolygonBuilder extends GeometryBuilder
 {
@@ -867,7 +867,7 @@ class PolygonBuilder extends GeometryBuilder
  * viceversa
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
  */
 class MultiPolygonBuilder extends PolygonBuilder
 {

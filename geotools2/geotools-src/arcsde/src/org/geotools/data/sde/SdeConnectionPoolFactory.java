@@ -25,7 +25,7 @@ import java.util.logging.*;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version 0.1
+ * @version $Id: SdeConnectionPoolFactory.java,v 1.3 2003/11/14 17:21:04 groldan Exp $
  */
 public class SdeConnectionPoolFactory
 {

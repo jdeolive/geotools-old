@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 /**
  * @author not attributable
- * @version 0.1
+ * @version $Id: SdeDataStoreFactory.java,v 1.3 2003/11/14 17:21:04 groldan Exp $
  */
 
 public class SdeDataStoreFactory implements DataStoreFactorySpi
@@ -43,7 +43,7 @@ public class SdeDataStoreFactory implements DataStoreFactorySpi
   public SdeDataStoreFactory()
   {
   }
-    
+
     //HACK: to get data-exp merge to compile.
     public DataStore createNewDataStore(java.util.Map map){
 	return null;
