@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.43 2002/07/09 14:15:58 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.44 2002/07/09 16:26:00 jmacgill Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -867,7 +867,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             }else{
                 _log.debug("no graphic fill set");
             }
-            System.out.println("stroke color "+graphics.getColor());
+            //System.out.println("stroke color "+graphics.getColor());
         }
         catch(org.geotools.filter.MalformedFilterException mfe){
             //HACK: see above hack statement.  Not happy with having to catch these.
