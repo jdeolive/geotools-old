@@ -32,12 +32,12 @@ public class MathTest extends TestCase {
         TestSuite suite = new TestSuite(BetweenTest.class);
         return suite;
     }
-
+    FeatureType schema = null;
     public Feature[] sampleFeatures() throws Exception{
         AttributeType a1 = new AttributeTypeDefault("value",Integer.class).setPosition(0);
         AttributeType a2 = new AttributeTypeDefault("geometry",Geometry.class).setPosition(1);
         AttributeType a3 = new AttributeTypeDefault("name",String.class).setPosition(2);
-        FeatureType schema = new FeatureTypeFlat(new AttributeType[]{a1,a2,a3});
+        schema = new FeatureTypeFlat(new AttributeType[]{a1,a2,a3});
   
         FeatureFactory fFac = new FeatureFactory(schema);
         Feature[] f = new Feature[3];
@@ -62,21 +62,21 @@ public class MathTest extends TestCase {
         Feature[] f = sampleFeatures();
         
         //the following are intentionaly backwards
-        ExpressionAttribute e1 = new ExpressionAttribute("value",ExpressionDefault.ATTRIBUTE_STRING);
-        ExpressionAttribute e2 = new ExpressionAttribute("name",ExpressionDefault.ATTRIBUTE_INTEGER);
+        ExpressionAttribute e1 = new ExpressionAttribute(schema,"value");
+        ExpressionAttribute e2 = new ExpressionAttribute(schema,"name");
         boolean pass=false;
-        try{
-            e1.getValue(f[0]);
-        }
-        catch(MalformedFilterException ife){
+        Object value = null;
+           value =  e1.getValue(f[0]);
+        
+        if(value instanceof Integer){
             pass = true;
         }
         assertTrue("String expresion returned an Integer",pass);
         pass = false;
-        try{
-            e2.getValue(f[0]);
-        }
-        catch(MalformedFilterException ife){
+        
+        value = e2.getValue(f[0]);
+        
+        if(value instanceof String){
             pass = true;
         }
         assertTrue("Integer expresion returned a String",pass);
@@ -88,8 +88,8 @@ public class MathTest extends TestCase {
         
         Feature[] f = sampleFeatures();
         
-        ExpressionAttribute e1 = new ExpressionAttribute("value",ExpressionDefault.ATTRIBUTE_INTEGER);
-        ExpressionAttribute e2 = new ExpressionAttribute("name",ExpressionDefault.ATTRIBUTE_STRING);
+        ExpressionAttribute e1 = new ExpressionAttribute(schema,"value");
+        ExpressionAttribute e2 = new ExpressionAttribute(schema,"name");
         
         assertEquals(12d,((Integer)e1.getValue(f[0])).doubleValue(),0);
         assertEquals(3d,((Integer)e1.getValue(f[1])).doubleValue(),0);

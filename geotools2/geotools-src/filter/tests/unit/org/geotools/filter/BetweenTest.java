@@ -36,14 +36,16 @@ public class BetweenTest extends TestCase {
         //this should move out to a more configurable system run from scripts
         //but we can start with a set of hard coded tests
         
-        FilterBetween a = new FilterBetween();
-        a.addLeftValue(new ExpressionLiteral(new Double(5)));
-        a.addRightValue(new ExpressionLiteral(new Double(15)));
-        a.addMiddleValue(new ExpressionAttribute("value",ExpressionDefault.ATTRIBUTE_INTEGER));
+        BetweenFilter a = new BetweenFilter();
+        
         
         AttributeType a1 = new AttributeTypeDefault("value",Integer.class).setPosition(0);
         AttributeType a2 = new AttributeTypeDefault("geometry",Geometry.class).setPosition(1);
         FeatureType schema = new FeatureTypeFlat(new AttributeType[]{a1,a2});
+        
+        a.addLeftValue(new ExpressionLiteral(new Double(5)));
+        a.addRightValue(new ExpressionLiteral(new Double(15)));
+        a.addMiddleValue(new ExpressionAttribute(schema,"value"));
         
         System.out.println("a1 official name is "+a1.getName());
         FeatureFactory fFac = new FeatureFactory(schema);

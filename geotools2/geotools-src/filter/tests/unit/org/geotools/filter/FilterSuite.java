@@ -29,6 +29,7 @@ public class FilterSuite extends TestCase {
         suite.addTestSuite(LiteralTest.class);
         suite.addTestSuite(AttributeTest.class);
         suite.addTestSuite(BetweenTest.class);
+        suite.addTestSuite(MathTest.class);
         return suite;
     }
     
