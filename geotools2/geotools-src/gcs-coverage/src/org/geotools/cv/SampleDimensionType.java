@@ -44,6 +44,7 @@ import java.io.InvalidObjectException;
 import java.util.NoSuchElementException;
 
 // JAI dependencies
+import javax.media.jai.util.Range;
 import javax.media.jai.EnumeratedParameter;
 
 // OpenGIS dependencies
@@ -59,7 +60,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * This interface is applicable to any coverage type.
  * For grid coverages, the sample dimension refers to an individual band.
  *
- * @version $Id: SampleDimensionType.java,v 1.1 2002/10/16 22:32:19 desruisseaux Exp $
+ * @version $Id: SampleDimensionType.java,v 1.2 2002/10/17 21:11:03 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -241,6 +242,50 @@ public final class SampleDimensionType extends EnumeratedParameter {
     public static SampleDimensionType getEnum(final int value) throws NoSuchElementException {
         if (value>=0 && value<ENUMS.length) return ENUMS[value];
         throw new NoSuchElementException(String.valueOf(value));
+    }
+
+    /**
+     * Returns the enum for the smallest type capable to hold the specified range of values.
+     *
+     * @param  range The range of values.
+     * @return The enum for the specified range.
+     */
+    public static SampleDimensionType getEnum(final Range range) {
+        final Class type = range.getElementClass();
+        if (Double.class.isAssignableFrom(type)) {
+            return DOUBLE;
+        }
+        if (Float.class.isAssignableFrom(type)) {
+            return FLOAT;
+        }
+        long min = ((Number) range.getMinValue()).longValue();
+        long max = ((Number) range.getMaxValue()).longValue();
+        if (!range.isMinIncluded()) min++;
+        if (!range.isMaxIncluded()) max--;
+        return getEnum(min, max);
+    }
+
+    /**
+     * Returns the enum for the smallest type capable to hold the specified range of values.
+     *
+     * @param  min  The lower value, inclusive.
+     * @param  max  The upper value, <strong>inclusive</strong> as well.
+     * @return The enum for the specified range.
+     */
+    static SampleDimensionType getEnum(final long min, final long max) {
+        if (min >= 0) {
+            if (max < (1L <<  1)) return BIT;
+            if (max < (1L <<  2)) return DOUBLET;
+            if (max < (1L <<  4)) return NIBBLE;
+            if (max < (1L <<  8)) return UBYTE;
+            if (max < (1L << 16)) return USHORT;
+            if (max < (1L << 32)) return UINT;
+        } else {
+            if (min>=Byte   .MIN_VALUE && max<=Byte   .MAX_VALUE) return BYTE;
+            if (min>=Short  .MIN_VALUE && max<=Short  .MAX_VALUE) return SHORT;
+            if (min>=Integer.MIN_VALUE && max<=Integer.MAX_VALUE) return INT;
+        }
+        return FLOAT;
     }
 
     /**

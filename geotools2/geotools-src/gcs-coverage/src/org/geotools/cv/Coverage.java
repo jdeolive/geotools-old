@@ -141,7 +141,7 @@ import org.opengis.gc.GC_GridCoverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.10 2002/10/16 22:32:19 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.11 2002/10/17 21:11:03 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -759,7 +759,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.10 2002/10/16 22:32:19 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.11 2002/10/17 21:11:03 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends RemoteObject implements CV_Coverage, PropertySource {
@@ -781,9 +781,13 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
 
         /**
-         * Returns the underlying implementation.
+         * Returns the underlying implementation. Note: This method is not available or remote
+         * machine, since we don't implement {@link org.geotools.resources.RemoteProxy}.  This
+         * is because {@link Coverage} may not be serializable. For example,
+         * {@link org.geotools.gc.GridCoverage} will usually contains a non-serializable
+         * {@link java.awt.image.RenderedImage}.
          */
-        final Coverage unwrap() {
+        final Coverage getImplementation() {
             return Coverage.this;
         }
 

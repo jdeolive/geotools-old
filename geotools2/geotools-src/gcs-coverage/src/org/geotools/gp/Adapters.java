@@ -33,12 +33,21 @@
 package org.geotools.gp;
 
 // J2SE dependencies
+import java.io.IOException;
 import java.rmi.RemoteException;
 
+// JAI dependencies
+import javax.media.jai.Interpolation;
+
 // OpenGIS dependencies
+import org.opengis.cv.CV_Coverage;
 import org.opengis.gc.GC_GridRange;
 import org.opengis.gc.GC_GridGeometry;
 import org.opengis.gc.GC_GridCoverage;
+
+// Geotools dependencies
+import org.geotools.cv.Coverage;
+import org.geotools.gc.GridCoverage;
 
 
 /**
@@ -46,7 +55,7 @@ import org.opengis.gc.GC_GridCoverage;
  * with <code>org.opengis.gc</code> package.</FONT>
  * All methods accept null argument.
  *
- * @version $Id: Adapters.java,v 1.1 2002/09/15 21:50:59 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.2 2002/10/17 21:11:04 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters extends org.geotools.gc.Adapters {
@@ -73,5 +82,27 @@ public class Adapters extends org.geotools.gc.Adapters {
             DEFAULT = new Adapters(org.geotools.ct.Adapters.getDefault());
         }
         return DEFAULT;
+    }
+
+    /**
+     * Performs the wrapping of an OpenGIS's interface. This method is invoked by
+     * {@link #wrap(CV_Coverage)} and {@link #wrap(GC_GridCoverage)} if a Geotools
+     * object is not already presents in the cache.
+     *
+     * @param  The OpenGIS  object.
+     * @return The Geotools object. 
+     * @throws IOException if an operation failed while querying the OpenGIS object.
+     *         <code>IOException</code> is declared instead of {@link RemoteException}
+     *         because the {@link GridCoverage} implementation may needs to open a
+     *         socket connection in order to send image data through the network.
+     */
+    protected Coverage doWrap(final CV_Coverage coverage) throws IOException {
+        Coverage wrapped = super.doWrap(coverage);
+        if (coverage instanceof GridCoverage.Remote) {
+            final Interpolation interp = ((GridCoverage.Remote) coverage).getInterpolation();
+            wrapped = GridCoverageProcessor.getDefault().doOperation(
+                        "Interpolate", (GridCoverage) coverage, "Type", interp);
+        }
+        return wrapped;
     }
 }

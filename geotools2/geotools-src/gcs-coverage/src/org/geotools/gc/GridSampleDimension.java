@@ -35,37 +35,62 @@
  */
 package org.geotools.gc;
 
-// Geotools dependencies
-import org.geotools.cv.SampleDimension;
-import org.geotools.cv.ColorInterpretation;
+// J2SE dependencies
+import java.awt.image.RenderedImage;
 
 // JAI dependencies
 import javax.media.jai.Histogram;
+
+// Geotools dependencies
+import org.geotools.cv.SampleDimension;
+import org.geotools.cv.SampleDimensionType;
+import org.geotools.cv.ColorInterpretation;
 
 
 /**
  * Describes the band values for a grid coverage.
  *
- * @version $Id: GridSampleDimension.java,v 1.3 2002/07/26 23:18:18 desruisseaux Exp $
+ * @version $Id: GridSampleDimension.java,v 1.4 2002/10/17 21:11:04 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  */
 final class GridSampleDimension extends SampleDimension {
     /**
      * Band number for this sample dimension.
-     * TODO: Should be set from GridCoverage.
      */
-    private final int band = 0;
+    private final int band;
+
+    /**
+     * The grid value data type.
+     */
+    private final SampleDimensionType type;
     
     /**
      * Construct a sample dimension with a set of categories from an other sample dimension.
      *
-     * @param band The originating sample dimension.
+     * @param band  The originating sample dimension.
+     * @param image The image to be wrapped by {@link GridCoverage}.
+     * @param bandNumber The band number.
      */
-    public GridSampleDimension(final SampleDimension band) {
+    public GridSampleDimension(final SampleDimension band,
+                               final RenderedImage   image,
+                               final int             bandNumber)
+    {
         super(band);
+        this.band = bandNumber;
+        this.type = SampleDimensionType.getEnum(image.getSampleModel(), bandNumber);
     }
-    
+
+    /**
+     * Returns a code value indicating grid value data type.
+     * This will also indicate the number of bits for the data type.
+     *
+     * @return a code value indicating grid value data type.
+     */
+    public SampleDimensionType getSampleDimensionType() {
+        return type;
+    }
+
     /**
      * Returns the color interpretation of the sample dimension.
      * Since {@link CategoryList} are designed for indexed color

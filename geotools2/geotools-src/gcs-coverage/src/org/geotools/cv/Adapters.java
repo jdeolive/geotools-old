@@ -60,6 +60,7 @@ import org.geotools.pt.Envelope;
 import org.geotools.pt.CoordinatePoint;
 import org.geotools.ct.MathTransform1D;
 import org.geotools.resources.XArray;
+import org.geotools.resources.RemoteProxy;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -71,7 +72,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.3 2002/10/16 22:32:19 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.4 2002/10/17 21:11:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -229,7 +230,7 @@ public class Adapters {
      *
      * @param  palette The color palette as an array of RGB values.
      * @param  lower The first color index to transform into a {@link Color} object.
-     * @param  lower The last color index plus one to transform into a {@link Color} object.
+     * @param  upper The last color index plus one to transform into a {@link Color} object.
      * @return The palette in the specified range as an array of {@link Color} objects, or
      *         <code>null</code> if the <code>palette</code> do not cover fully the range
      *         from <code>lower</code> to <code>upper</code>.
@@ -248,6 +249,22 @@ public class Adapters {
         }
         return null;
     }
+
+    /**
+     * Returns <code>true</code> if at least one value of <code>values</code> is
+     * in the range <code>lower</code> inclusive to <code>upper</code> exclusive.
+     */
+    private static boolean rangeContains(final int lower, final int upper, final double[] values) {
+        if (values != null) {
+            for (int i=0; i<values.length; i++) {
+                final double v = values[i];
+                if (v>=lower && v<upper) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     
     /**
      * Returns a sample dimension from an OpenGIS's interface.
@@ -260,9 +277,23 @@ public class Adapters {
         if (dimension == null) {
             return null;
         }
-        if (dimension instanceof SampleDimension.Export) {
-            return ((SampleDimension.Export) dimension).unwrap();
+        if (dimension instanceof RemoteProxy) {
+            return (SampleDimension) ((RemoteProxy) dimension).getImplementation();
         }
+        return doWrap(dimension);
+    }
+
+    /**
+     * Returns a sample dimension from an OpenGIS's interface. This implementation is made
+     * available separatly from {@link #wrap(CV_SampleDimension)}  in order to allow tests
+     * with JUnit.
+     *
+     * @param  The OpenGIS  object.
+     * @return The Geotools object. 
+     * @throws RemoteException if an operation failed while querying the OpenGIS object.
+     */
+    final SampleDimension doWrap(final CV_SampleDimension dimension) throws RemoteException {
+        final int      sampleType   = dimension.getSampleDimensionType().value;
         final String[] names        = dimension.getCategoryNames();
         final double[] padValues    = dimension.getNoDataValue();
         final int[][]  palette      = dimension.getPalette();
@@ -272,50 +303,66 @@ public class Adapters {
          * Create an arbitrary amount of qualitative categories. This is the union of
          * 'names' and 'padValues'. Colors and fetched from the palette, if available.
          */
-        for (int i=0; i<namesCount; i++) {
-            categoryList.add(new Category(names[i], getColor(palette, i), i));
-        }
         if (padValues != null) {
-            boolean integerType = true;
-            for (int i=0; i<padValues.length; i++) {
-                final double value = padValues[i];
-                if (value != (int) value) {
-                    integerType = false;
-                    break;
-                }
-            }
             for (int i=0; i<padValues.length; i++) {
                 final String name;
-                final double value = padValues[i];
-                final int intValue = (int) Math.floor(value);
+                final double padValue = padValues[i];
+                final int    intValue = (int) Math.floor(padValue);
                 if (intValue>=0 && intValue<namesCount) {
-                    if (intValue == value) {
-                        // Already declared in the first loop
-                        // (when we added categories by name).
+                    if (intValue == padValue) {
+                        // Already declared in an upcomming loop
+                        // (when we will add categories by name).
                         continue;
                     }
                     name = names[intValue];
                 } else {
-                    name = String.valueOf(value);
+                    name = String.valueOf(padValue);
                 }
-                final Color color = getColor(palette, intValue);
-                final Category category;
-                if (integerType) {
-                    // The two following 'new' do not invoke the same constructor.
-                    category = new Category(name, color, intValue);
-                } else {
-                    category = new Category(name, color, value);
-                }
-                categoryList.add(category);
+                Number  value  = SampleDimensionType.wrapSample(padValue, sampleType, false);
+                Range   range  = new Range(value.getClass(), (Comparable)value, (Comparable)value);
+                Color[] colors = getColors(palette, intValue, intValue+1);
+                categoryList.add(new Category(name, colors, range, (MathTransform1D)null));
             }
         }
-        /*
-         * Create at most one quantitative category.   The range is from 'dimension.minimumValue'
-         * to 'dimension.maximumValue' inclusive, minus all ranges used by 'padValues'. Note that
-         * substractions way break a range into many smaller ranges. The naive algorithm used here
-         * try to keep the wider range.
-         */
-        if (namesCount == 0) {
+        if (namesCount != 0) {
+            int lower = 0;
+            for (int upper=1; upper<=names.length; upper++) {
+                final String name = names[lower];
+                if (upper!=names.length && name.equals(names[upper])) {
+                    // If there is a suite of categories with identical name,  create only one
+                    // category with range [lower..upper] instead of one new category for each
+                    // sample value.
+                    continue;
+                }
+                Number min = SampleDimensionType.wrapSample(lower,   sampleType, false);
+                Number max = SampleDimensionType.wrapSample(upper-1, sampleType, false);
+                if (min.equals(max)) {
+                    max = min;
+                }
+                Range   range  = new Range(min.getClass(), (Comparable)min, (Comparable)max);
+                Color[] colors = getColors(palette, lower, upper);
+                final Category category;
+                if (min!=max && !rangeContains(lower, upper, padValues)) {
+                    // If a category is used for a wide range of sample values, then we
+                    // assume that this is a quantitative category (e.g. "Height" in m).
+                    final double scale  = dimension.getScale();
+                    final double offset = dimension.getOffset();
+                    category = new Category(name, colors, range, scale, offset);
+                } else {
+                    // If a category is used for only one sample value, then we assume
+                    // that this is a qualitative category (e.g. "Forest", "Urban"...)
+                    category = new Category(name, colors, range, (MathTransform1D)null);
+                }
+                categoryList.add(category);
+                lower = upper;
+            }
+        } else {
+            /*
+             * Create at most one quantitative category. The range is from 'dimension.minimumValue'
+             * to 'dimension.maximumValue' inclusive, minus all ranges used by 'padValues'. Note
+             * that substractions way break a range into many smaller ranges. The naive algorithm
+             * used here try to keep the wider range.
+             */
             boolean minIncluded = true;
             boolean maxIncluded = true;
             double minimum = dimension.getMinimumValue();
@@ -349,7 +396,6 @@ public class Adapters {
             if (minimum < maximum) {
                 final double scale       = dimension.getScale();
                 final double offset      = dimension.getOffset();
-                final int    sampleType  = dimension.getSampleDimensionType().value;
                 final String description = dimension.getDescription();
                 final Number min         = SampleDimensionType.wrapSample(minimum, sampleType, false);
                 final Number max         = SampleDimensionType.wrapSample(maximum, sampleType, false);
@@ -401,7 +447,7 @@ public class Adapters {
             return null;
         }
         if (coverage instanceof Coverage.Export) {
-            return ((Coverage.Export) coverage).unwrap();
+            return ((Coverage.Export) coverage).getImplementation();
         }
         final Coverage wrapped = doWrap(coverage);
         wrapped.proxy = coverage;
@@ -470,7 +516,7 @@ public class Adapters {
      * on a remote machine. {@link RemoteException} are catched and rethrown as a
      * {@link CannotEvaluateException}.
      *
-     * @version $Id: Adapters.java,v 1.3 2002/10/16 22:32:19 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.4 2002/10/17 21:11:03 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class CoverageProxy extends Coverage {

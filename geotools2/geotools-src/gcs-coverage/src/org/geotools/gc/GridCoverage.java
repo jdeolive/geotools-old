@@ -78,7 +78,6 @@ import java.util.Date;
 import java.util.Arrays;
 import java.text.DateFormat;
 import java.text.FieldPosition;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.ServerException;
 import java.rmi.server.RemoteObject;
@@ -127,7 +126,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.8 2002/10/16 22:32:19 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.9 2002/10/17 21:11:03 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -442,7 +441,8 @@ public class GridCoverage extends Coverage {
             int nGeo = 0;
             int nInt = 0;
             for (int i=0; i<numBands; i++) {
-                SampleDimension sd  = new GridSampleDimension(sdBands!=null ? sdBands[i] : null);
+                SampleDimension sd = (sdBands!=null) ? sdBands[i] : null;
+                sd = new GridSampleDimension(sd, image, i);
                 sampleDimensions[i] = sd;
                 if (sd.geophysics(true ) == sd) nGeo++;
                 if (sd.geophysics(false) == sd) nInt++;
@@ -935,13 +935,16 @@ public class GridCoverage extends Coverage {
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Interface for OpenGIS's grid coverages capable to produces a {@link RenderedImage}.
-     * Socket connection are used for sending the rendered image through a network.
+     * Interface for OpenGIS's {@link GC_GridCoverage} capable to produce a
+     * {@link RenderedImage}. This interface can be used in order to export
+     * some {@link GridCoverage} functionalities over the network using RMI
+     * (<cite>Remote Method Invocation</cite>).  Socket connection are used
+     * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.8 2002/10/16 22:32:19 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.9 2002/10/17 21:11:03 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    protected static interface Renderable extends GC_GridCoverage {
+    public static interface Remote extends GC_GridCoverage {
         /**
          * Returns the underlying {@link RenderedImage} for this {@link GC_GridCoverage}.
          * This method usually returns an instance of {@link SerializableRenderedImage},
@@ -967,10 +970,10 @@ public class GridCoverage extends Coverage {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.8 2002/10/16 22:32:19 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.9 2002/10/17 21:11:03 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    protected class Export extends Coverage.Export implements GC_GridCoverage, Renderable {
+    protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {
         /**
          * The serialized {@link RenderedImage}, or <code>null</code> if this image
          * is not yet serialized.

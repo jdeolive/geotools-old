@@ -78,6 +78,7 @@ import org.geotools.ct.TransformException;
 import org.geotools.units.Unit;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.RemoteProxy;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -101,7 +102,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.10 2002/10/16 22:32:19 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.11 2002/10/17 21:11:03 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -337,6 +338,20 @@ public class SampleDimension implements Serializable {
         if (CategoryList.isScaled(categories, true )) return list.inverse;
         throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_MIXED_CATEGORIES));
     }
+
+    /**
+     * Returns a code value indicating grid value data type.
+     * This will also indicate the number of bits for the data type.
+     *
+     * @return a code value indicating grid value data type.
+     */
+    public SampleDimensionType getSampleDimensionType() {
+        final Range range = getRange();
+        if (range == null) {
+            return SampleDimensionType.FLOAT;
+        }
+        return SampleDimensionType.getEnum(range);
+    }
     
     /**
      * Get the sample dimension title or description.
@@ -395,7 +410,7 @@ public class SampleDimension implements Serializable {
                         ResourceKeys.ERROR_NON_INTEGER_CATEGORY));
             }
             if (names == null) {
-                names = new String[upper];
+                names = new String[upper+1];
             }
             Arrays.fill(names, lower, upper+1, category.getName(locale));
         }
@@ -611,6 +626,10 @@ public class SampleDimension implements Serializable {
      * @see Category#getRange
      * @see #getMinimumValue
      * @see #getMaximumValue
+     *
+     * @task TODO: We should do a better job in CategoryList.getRange() when selecting
+     *       the appropriate data type. SampleDimensionType.getEnum(Range) may be of
+     *       some help.
      */
     public Range getRange() {
         return (categories!=null) ? categories.getRange() : null;
@@ -815,8 +834,7 @@ public class SampleDimension implements Serializable {
      *
      * @task TODO: the 'band' and 'numBands' parameters should be specified at construction time.
      */
-    public ColorModel getColorModel(final int visibleBand, final int numBands)
-    {
+    public ColorModel getColorModel(final int visibleBand, final int numBands) {
         if (categories != null) {
             return categories.getColorModel(visibleBand, numBands);
         }
@@ -1027,7 +1045,7 @@ public class SampleDimension implements Serializable {
      * throwing {@link UnsupportedOperationException}). This class is suitable for RMI
      * use.
      */
-    final class Export extends RemoteObject implements CV_SampleDimension {
+    final class Export extends RemoteObject implements CV_SampleDimension, RemoteProxy {
         /**
          * The originating adapter.
          */
@@ -1043,7 +1061,7 @@ public class SampleDimension implements Serializable {
         /**
          * Returns the underlying implementation.
          */
-        public final SampleDimension unwrap() {
+        public final Serializable getImplementation() throws RemoteException {
             return SampleDimension.this;
         }
 
@@ -1061,7 +1079,7 @@ public class SampleDimension implements Serializable {
          *             the image's underlying {@link SampleModel}.
          */
         public CV_SampleDimensionType getSampleDimensionType() throws RemoteException {
-            throw new UnsupportedOperationException("Not yet implemented");
+            return adapters.export(SampleDimension.this.getSampleDimensionType());
         }
 
         /**

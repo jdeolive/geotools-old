@@ -64,7 +64,7 @@ import org.geotools.cs.CoordinateSystem;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.3 2002/10/16 22:32:19 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.4 2002/10/17 21:11:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -144,7 +144,7 @@ public class Adapters extends org.geotools.cv.Adapters {
             return null;
         }
         if (range instanceof GridRange.Export) {
-            return ((GridRange.Export) range).unwrap();
+            return ((GridRange.Export) range).getImplementation();
         }
         final GridRange result = new GridRange(range.getLo(), range.getHi());
         result.proxy = range;
@@ -163,7 +163,7 @@ public class Adapters extends org.geotools.cv.Adapters {
             return null;
         }
         if (geometry instanceof GridGeometry.Export) {
-            return ((GridGeometry.Export) geometry).unwrap();
+            return ((GridGeometry.Export) geometry).getImplementation();
         }
         final GridGeometry result = new GridGeometry(wrap(geometry.getGridRange()),
                                         CT.wrap(geometry.getGridToCoordinateSystem()));
@@ -198,10 +198,10 @@ public class Adapters extends org.geotools.cv.Adapters {
      *         socket connection in order to send image data through the network.
      *
      * @task REVISIT: What to do with interpolation? We can query the interpolation with
-     *                <code>GridCoverage.Renderable.getInterpolation()</code> and invoke
-     *                <code>GridCoverageProcessor.doOperation("Interpolate", ...),   but
-     *                the later would introduce a dependency to the "gp" package. An other
-     *                solution is to override this method in <code>org.geotools.gp.Adapters</code>.
+     *                <code>GridCoverage.Remote.getInterpolation()</code> and invoke
+     *                <code>GridCoverageProcessor.doOperation("Interpolate", ...), but
+     *                the later would introduce a dependency to the "gp" package. The current
+     *                design is to override this method in <code>org.geotools.gp.Adapters</code>.
      *
      * @task TODO: Implement a {@link RenderedImage} constructing tiles uppon request
      *             by invoking {@link GC_GridCoverage#getPackedDataBlock}. It would be
@@ -215,8 +215,8 @@ public class Adapters extends org.geotools.cv.Adapters {
                 bands[i] = wrap(grid.getSampleDimension(i));
             }
             final RenderedImage image;
-            if (coverage instanceof GridCoverage.Renderable) {
-                image = ((GridCoverage.Renderable) coverage).getRenderedImage();
+            if (coverage instanceof GridCoverage.Remote) {
+                image = ((GridCoverage.Remote) coverage).getRenderedImage();
             } else {
                 // Implementing the general case is possible using
                 // CV_GridCoverage.getPackedDataBlock(...), but it
@@ -248,7 +248,7 @@ public class Adapters extends org.geotools.cv.Adapters {
      * invoking {@link #dispose} will also dispose the serializable image,  which may
      * close socket connection.
      *
-     * @version $Id: Adapters.java,v 1.3 2002/10/16 22:32:19 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.4 2002/10/17 21:11:03 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ImageProxy extends RenderedImageAdapter {
