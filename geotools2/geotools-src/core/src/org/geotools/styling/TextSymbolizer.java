@@ -1,5 +1,4 @@
 /*
- *
  *    Geotools - OpenSource mapping toolkit
  *    (C) 2002, Centre for Computational Geography
  *
@@ -19,44 +18,42 @@
  *
  *
  * Contacts:
- *     UNITED KINGDOM: Ian Turton, ian@geog.leeds.ac.uk
- *
- * TextSymbolizer.java
- *
- * Created on 03 July 2002, 10:37
+ *     UNITED KINGDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
  */
 
 package org.geotools.styling;
 import org.geotools.filter.Expression;
 /**
- * $Id: TextSymbolizer.java,v 1.2 2002/07/05 15:28:31 ianturton Exp $
- * @author  iant
+ * $Id: TextSymbolizer.java,v 1.3 2002/07/12 15:45:19 loxnard Exp $
+ * @author Ian Turton, CCG
  */
 
 public interface TextSymbolizer extends Symbolizer {
     /**
-     * returns the label expression
+     * Returns the label expression.
      */
-    public Expression getLabel();
+    Expression getLabel();
     /** 
-     * returns a device independent Font object that is tobe used to render the 
-     * label
+     * Returns a device independent Font object that is to be used to render
+     * the label.
      */
-    public Font[] getFonts();
+    Font[] getFonts();
     /**
-     * A pointPlacement specifies how a text element should be rendered relative
-     * to its geometric point
+     * A pointPlacement specifies how a text element should be rendered
+     * relative to its geometric point.
      */
-    public LabelPlacement getLabelPlacement();
+    LabelPlacement getLabelPlacement();
     
-    /** A halo fills an extended area outside the glyphs of a rendered text label 
-     * to make the label easier to read over a background.
+    /**
+     * A halo fills an extended area outside the glyphs of a rendered
+     * text label to make the label easier to read over a background.
      */
-    public Halo getHalo();
+    Halo getHalo();
     
-    /** return the fill to be used to fill the text when rendered.
+    /**
+     * Returns the fill to be used to fill the text when rendered.
      */
-    public Fill getFill();
+    Fill getFill();
     
     /**
      * This property defines the geometry to be used for styling.<br>
@@ -75,5 +72,5 @@ public interface TextSymbolizer extends Symbolizer {
      * @return String The name of the attribute in the feature being styled 
      *  that should be used.  If null then the default geometry should be used.
      */
-    public String geometryPropertyName();    
+    String geometryPropertyName();    
 }
