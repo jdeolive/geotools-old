@@ -47,6 +47,7 @@ import com.vividsolutions.jts.geom.sfs.SFSLineString;
 import com.vividsolutions.jts.geom.sfs.SFSGeometryCollection;
 
 // Geotools dependencies
+import org.geotools.math.Statistics;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.cs.CoordinateSystem;
@@ -57,7 +58,7 @@ import org.geotools.renderer.array.JTSArray;
 /**
  * An {@link Isoline} backed by one or many JTS {@link Geometry} objects.
  *
- * @version $Id: JTSIsoline.java,v 1.2 2003/02/28 22:26:06 desruisseaux Exp $
+ * @version $Id: JTSIsoline.java,v 1.3 2003/03/05 21:50:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class JTSIsoline extends Isoline {
@@ -94,6 +95,29 @@ public class JTSIsoline extends Isoline {
     }
 
     /**
+     * Construct an isoline for the specified geometry. The {@link #value} is computed
+     * from the mean value of all {@link Coordinate#z} in the specified geometry.
+     *
+     * @param geometry The geometry to wrap, or <code>null</code> if none.
+     *
+     * @task TODO: The coordinate system currently default to WGS84. We should
+     *             find it from the SRID code.
+     */
+    public JTSIsoline(final SFSGeometry geometry) {
+        super((geometry!=null) ? (float)statistics(geometry).mean() : 0);
+        if (geometry!=null) try {
+            add(geometry);
+        } catch (TransformException exception) {
+            // Should not happen, since this isoline is suppose to be
+            // set to the same coordinate system than the geometry.
+            final IllegalArgumentException e;
+            e = new IllegalArgumentException(exception.getLocalizedMessage());
+            e.initCause(exception);
+            throw e;
+        }
+    }
+
+    /**
      * Returns the coordinate system for the specified JTS geometry.
      *
      * @task TODO: We should construct the coordinate system from SRID using
@@ -103,6 +127,45 @@ public class JTSIsoline extends Isoline {
         final int id = geometry.getSRID();
         // TODO: construct CS here.
         return getCoordinateSystem();
+    }
+
+    /**
+     * Compute statistics about the <var>z</var> values in the specified geometry.
+     * Statistics include minimum, maximum, mean value and standard deviation.
+     * Unknow classes are ignored.
+     *
+     * @param  geometry The geometry to analyse.
+     * @return The statistics.
+     */
+    private static Statistics statistics(final SFSGeometry geometry) {
+        if (geometry instanceof SFSPolygon) {
+            final SFSPolygon polygon = (SFSPolygon) geometry;
+            final Statistics stats = statistics(polygon.getExteriorRing());
+            final int n = polygon.getNumInteriorRing();
+            for (int i=0; i<n; i++) {
+                stats.add(statistics(polygon.getInteriorRingN(i)));
+            }
+            return stats;
+        }
+        final Statistics stats = new Statistics();
+        if (geometry instanceof SFSGeometryCollection) {
+            final SFSGeometryCollection collection = (SFSGeometryCollection) geometry;
+            final int n = collection.getNumGeometries();
+            for (int i=0; i<n; i++) {
+                stats.add(statistics(collection.getGeometryN(i)));
+            }
+        }
+        else if (geometry instanceof SFSPoint) {
+            stats.add(((SFSPoint) geometry).getCoordinate().z);
+        }
+        else if (geometry instanceof SFSLineString) {
+            final SFSLineString line = (SFSLineString) geometry;
+            final int n = line.getNumPoints();
+            for (int i=0; i<n; i++) {
+                stats.add(line.getCoordinateN(i).z);
+            }
+        }
+        return stats;
     }
 
     /**
@@ -173,7 +236,7 @@ public class JTSIsoline extends Isoline {
     private void addSF(final SFSPolygon geometry) throws TransformException {
         addSF(geometry.getExteriorRing());
         final int n = geometry.getNumInteriorRing();
-        for (int i=1; i<n; i++) {
+        for (int i=0; i<n; i++) {
             addSF(geometry.getInteriorRingN(i), InteriorType.DEPRESSION);
         }
     }
