@@ -60,11 +60,9 @@ public class MapInfoDataSourceTest extends TestCase {
             URL url = new URL("file:////"+dataFolder+"/statepop.mif");
             System.out.println("Testing ability to load "+url);
             MapInfoDataSource datasource = new MapInfoDataSource(url);
-	    Filter filter = null; //should be .getAllFeatures or 
-	    //getFeatures(Filter.ALL)...need semantic.
-            FeatureCollection table = datasource.getFeatures(filter);
-            Feature[] features = table.getFeatures();
-            System.out.println("No features loaded = "+features.length);
+	
+            FeatureCollection collection = datasource.getFeatures(Filter.NONE);
+            assertEquals("Wrong number of features loaded", 49,collection.size());
         }
         catch(DataSourceException e){
             System.out.println(e);

@@ -22,6 +22,7 @@ import javax.swing.event.EventListenerList;
 import org.geotools.data.DataSource;
 import org.geotools.map.events.LayerChangedEvent;
 import org.geotools.map.events.LayerListener;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.styling.Style;
 
 
@@ -29,7 +30,7 @@ import org.geotools.styling.Style;
  * Layer is an aggregation of both a FeatureCollection and Style.
  *
  * @author Cameron Shorter
- * @version $Id: LayerImpl.java,v 1.7 2003/07/10 16:39:54 ianturton Exp $
+ * @version $Id: LayerImpl.java,v 1.8 2003/07/17 07:09:53 ianschneider Exp $
  *
  * @task REVISIT: This class maybe should contain CoordinateSystem, which could
  *       either be set externally, or derived from one of its features.
@@ -38,7 +39,7 @@ public class LayerImpl implements Layer {
     static final private int VISIBILITY = 0;
     static final private int TITLE = 0;
     /** Specify the DataSource which provides the features for this layer. */
-    private DataSource dataSource;
+    private FeatureCollection features;
     /** Specify the style for this layer. */
     private Style style;
     /**
@@ -61,26 +62,19 @@ public class LayerImpl implements Layer {
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     protected LayerImpl(
-        DataSource dataSource,
+        FeatureCollection features,
         Style style
     ) throws IllegalArgumentException {
-        if ((style == null) || (dataSource == null)) {
+        if ((style == null) || (features == null)) {
             throw new IllegalArgumentException();
         } else {
-            this.dataSource = dataSource;
+            this.features = features;
             this.style = style;
             visability = true;
         }
     }
 
-    /**
-     * Get the dataSource for this layer.
-     *
-     * @return the DataSource used to create this layer.
-     */
-    public DataSource getDataSource() {
-        return dataSource;
-    }
+
 
     /**
      * Get the style for this layer.
@@ -150,6 +144,7 @@ public class LayerImpl implements Layer {
         }
     }
     
+    
     public void addLayerChangedListener(LayerListener llce) { 
         listenerList.add(LayerListener.class, llce); 
     }
@@ -182,4 +177,9 @@ public class LayerImpl implements Layer {
             }
         }
     }
+    
+    public FeatureCollection getFeatures() {
+      return features;
+    }
+    
 }

@@ -20,19 +20,12 @@
 
 package org.geotools.filter;
 
-import java.io.*;
-import java.util.*;
-import javax.xml.parsers.*;
-import org.w3c.dom.*;
 
 import junit.framework.*;
 import com.vividsolutions.jts.geom.*;
 import java.util.logging.Logger;
-import org.geotools.datasource.extents.*;
-import org.geotools.feature.*;
-import org.geotools.data.*;
-import org.geotools.gml.GMLFilterGeometry;
-import org.geotools.gml.GMLFilterDocument;
+import org.geotools.feature.IllegalAttributeException;
+import org.geotools.feature.SchemaException;
 
 
 /**
@@ -40,10 +33,10 @@ import org.geotools.gml.GMLFilterDocument;
  *
  * @author Chris Holmes, TOPP
  */
-public class SQLUnpackerTest extends TestCase {
+public class SQLUnpackerTest extends FilterTestSupport {
     
     /** Standard logging instance */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
+    //private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
     
     /** Filters on which to perform tests*/
     private BetweenFilterImpl btwnFilter;
@@ -64,10 +57,10 @@ public class SQLUnpackerTest extends TestCase {
     private String escape = "#";
     
     /** Schema on which to preform tests */
-    private static FeatureType testSchema = null;
+    //private static FeatureType testSchema = null;
     
     /** Schema on which to preform tests */
-    private static Feature testFeature = null;
+    //private static Feature testFeature = null;
 
     /** capabilities for unpacker */
     private FilterCapabilities capabilities;
@@ -78,7 +71,7 @@ public class SQLUnpackerTest extends TestCase {
     
     /** Test suite for this test case */
     TestSuite suite = null;
-    boolean setup = false;    
+
     
     /**
      * Constructor with test name.
@@ -115,8 +108,9 @@ public class SQLUnpackerTest extends TestCase {
      * @throws SchemaException If there is a problem setting up the schema.
      * @throws IllegalFeatureException If problem setting up the feature.
      */
-    protected void setUp() throws SchemaException, IllegalFilterException {
-        if(setup) return;
+    protected void setUp() throws SchemaException, IllegalAttributeException {
+        //if(setup) return;
+	super.setUp();
         setup=true;
         //_log.getLoggerRepository().setThreshold(Level.INFO);
 	//Set capabilities for the SQLUnpacker
@@ -134,53 +128,7 @@ public class SQLUnpackerTest extends TestCase {
 	unpacker = new SQLUnpacker(capabilities);
 
 
-        // Create the schema attributes
-        LOGGER.finer("creating flat feature...");
-        AttributeType geometryAttribute =
-        new AttributeTypeDefault("testGeometry", LineString.class);
-        LOGGER.finer("created geometry attribute");
-        AttributeType booleanAttribute =
-        new AttributeTypeDefault("testBoolean", Boolean.class);
-        LOGGER.finer("created boolean attribute");
-        AttributeType charAttribute =
-        new AttributeTypeDefault("testCharacter", Character.class);
-        AttributeType byteAttribute =
-        new AttributeTypeDefault("testByte", Byte.class);
-        AttributeType shortAttribute =
-        new AttributeTypeDefault("testShort", Short.class);
-        AttributeType intAttribute =
-        new AttributeTypeDefault("testInteger", Integer.class);
-        AttributeType longAttribute =
-        new AttributeTypeDefault("testLong", Long.class);
-        AttributeType floatAttribute =
-        new AttributeTypeDefault("testFloat", Float.class);
-        AttributeType doubleAttribute =
-        new AttributeTypeDefault("testDouble", Double.class);
-        AttributeType stringAttribute =
-        new AttributeTypeDefault("testString", String.class);
-        
-        // Builds the schema
-        testSchema = new FeatureTypeFlat(geometryAttribute);
-        LOGGER.finer("created feature type and added geometry");
-        testSchema = testSchema.setAttributeType(booleanAttribute);
-        LOGGER.finer("added boolean to feature type");
-        testSchema = testSchema.setAttributeType(charAttribute);
-        LOGGER.finer("added character to feature type");
-        testSchema = testSchema.setAttributeType(byteAttribute);
-        LOGGER.finer("added byte to feature type");
-        testSchema = testSchema.setAttributeType(shortAttribute);
-        LOGGER.finer("added short to feature type");
-        testSchema = testSchema.setAttributeType(intAttribute);
-        LOGGER.finer("added int to feature type");
-        testSchema = testSchema.setAttributeType(longAttribute);
-        LOGGER.finer("added long to feature type");
-        testSchema = testSchema.setAttributeType(floatAttribute);
-        LOGGER.finer("added float to feature type");
-        testSchema = testSchema.setAttributeType(doubleAttribute);
-        LOGGER.finer("added double to feature type");
-        testSchema = testSchema.setAttributeType(stringAttribute);
-        LOGGER.finer("added string to feature type");
-        
+	try {
 	attrExp1 = new AttributeExpressionImpl(testSchema, "testInteger");
 	attrExp2 = new AttributeExpressionImpl(testSchema, "testGeometry");
 	litExp1 = new LiteralExpressionImpl(new Integer(65));
@@ -208,7 +156,10 @@ public class SQLUnpackerTest extends TestCase {
 
 	nullFilter = new NullFilterImpl();
 	nullFilter.nullCheckValue(attrExp2);
-
+	} catch (IllegalFilterException e) {
+	    //should not happen.
+	    fail(e.getMessage());
+	}
     
 
 	 //    testFeature = factory.create(attributes);

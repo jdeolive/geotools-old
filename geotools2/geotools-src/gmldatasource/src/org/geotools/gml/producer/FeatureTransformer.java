@@ -95,9 +95,7 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
     private void walk(FeatureCollection collection) throws SAXException {
         contentHandler.startDocument();
 
-        FeatureCollectionIterator iteration = new FeatureCollectionIterator();
-
-        FeatureCollectionIterator.Handler handler;
+        FeatureCollectionIteration.Handler handler;
 
         if (prettyPrint) {
             handler = new PrettyOutputVisitor(contentHandler, ' ');
@@ -105,7 +103,7 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             handler = new BasicOutputVisitor(contentHandler);
         }
 
-        iteration.walk(handler, collection);
+        FeatureCollectionIteration.iteration(handler, collection);
 
         contentHandler.endDocument();
     }
@@ -197,7 +195,7 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
         }
     }
 
-    class BasicOutputVisitor implements FeatureCollectionIterator.Handler {
+    class BasicOutputVisitor implements FeatureCollectionIteration.Handler {
         protected CoordinateWriter coordWriter = new CoordinateWriter();
         final ContentHandler output;
         final Attributes atts = new org.xml.sax.helpers.AttributesImpl();
@@ -219,16 +217,20 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
 
                 AttributesImpl fcAtts = new AttributesImpl();
 
+                String ns = null;
+                
                 //String ns = "http://www.openplans.blorg/";
-                LOGGER.info("features is " + fc.getFeatures());
-                LOGGER.info("first feat is " + fc.getFeatures()[0]);
+                LOGGER.info("features size " + fc.size());
+                if (fc.size() > 0) {
+                LOGGER.info("first feat is " + fc.features().next());
                 LOGGER.info("schema is " +
-                    fc.getFeatures()[0].getSchema().getNamespace());
-
-                String ns = fc.getFeatures()[0].getSchema().getNamespace();
+                    fc.features().next().getFeatureType().getNamespace());
+                   
+                ns = fc.features().next().getFeatureType().getNamespace();
 
                 if (ns == null) {
                     ns = defaultNamespace;
+                }
                 }
 
                 fcAtts.addAttribute("", "xmlns", "xmlns", "xmlns", ns);
@@ -255,7 +257,7 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             try {
                 TB(--indent);
 
-                String name = f.getSchema().getTypeName();
+                String name = f.getFeatureType().getTypeName();
                 output.endElement("", name, name);
                 CR();
                 TB(--indent);
@@ -278,30 +280,53 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
                 e.printStackTrace();
             }
         }
+        
+        public void handleAttribute(AttributeType type, Object value) {
+          try {
+            TB(indent);
+            
+            String name = type.getName();
+            output.startElement("", name, name, atts);
 
-        public void handleAttribute(Feature f, AttributeType type) {
-            try {
-                TB(indent);
-
-                String name = type.getName();
-                output.startElement("", name, name, atts);
-
-                Object val = f.getAttribute(type.getName());
-
-                if (Geometry.class.isAssignableFrom(val.getClass())) {
-                    indent++;
-                    writeGeometry((Geometry) val, "dude");
-                } else {
-                    if (val != null) {
-                        String text = val.toString();
-                        text = GMLUtils.encodeXML(text);
-                        output.characters(text.toCharArray(), 0, text.length());
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (Geometry.class.isAssignableFrom(type.getType())) {
+              indent++;
+              writeGeometry((Geometry) value, "gid");
+            } else {
+              if (value != null) {
+                String text = value.toString();
+                text = GMLUtils.encodeXML(text);
+                output.characters(text.toCharArray(), 0, text.length());
+              }
             }
+            
+          } catch (Exception e) {
+            e.printStackTrace(); 
+          }
         }
+
+//        public void handleAttribute(Feature f, AttributeType type) {
+//            try {
+//                TB(indent);
+//
+//                String name = type.getName();
+//                output.startElement("", name, name, atts);
+//
+//                Object val = f.getAttribute(type.getName());
+//
+//                if (Geometry.class.isAssignableFrom(val.getClass())) {
+//                    indent++;
+//                    writeGeometry((Geometry) val, "dude");
+//                } else {
+//                    if (val != null) {
+//                        String text = val.toString();
+//                        text = GMLUtils.encodeXML(text);
+//                        output.characters(text.toCharArray(), 0, text.length());
+//                    }
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         public void handleFeature(Feature f) {
             try {
@@ -311,9 +336,9 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
                 CR();
                 TB(indent++);
 
-                String name = f.getSchema().getTypeName();
+                String name = f.getFeatureType().getTypeName();
                 AttributesImpl fidAtts = new org.xml.sax.helpers.AttributesImpl();
-                String fid = f.getId();
+                String fid = f.getID();
 
                 if (fid != null) {
                     fidAtts.addAttribute("", "fid", "fid", "fids", fid);
@@ -446,6 +471,8 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             TB(--indent);
         }
 
+        
+        
         /**
          * Writes a MultiLineString geometry.
          */

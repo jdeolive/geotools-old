@@ -23,7 +23,7 @@ import org.geotools.ct.TransformException;
 
 // Geotools dependencies
 import org.geotools.feature.Feature;
-import org.geotools.feature.IllegalFeatureException;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
 import org.geotools.renderer.geom.JTSGeometries;
@@ -55,7 +55,7 @@ import javax.media.jai.util.Range;
  *
  * @author Martin Desruisseaux
  * @author Andrea Aime
- * @version $Id: RenderedLayerFactory.java,v 1.5 2003/06/13 18:26:16 aaime Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.6 2003/07/17 07:09:56 ianschneider Exp $
  */
 public class RenderedLayerFactory {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.j2d");
@@ -217,13 +217,8 @@ public class RenderedLayerFactory {
                     geometries = new JTSGeometries();
                 }
 
-                try {
-                    GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
-                    renderedLayers.add(new RenderedGridCoverage(grid));
-                } catch (IllegalFeatureException ife) {
-                    // TODO: should we rethrow the exception or be tolerant?
-                    LOGGER.severe("Grid not found\n" + ife);
-                }
+                GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
+                renderedLayers.add(new RenderedGridCoverage(grid));
             } else {
                 SFSGeometry geometry = findGeometry(feature, symb);
 
@@ -246,7 +241,7 @@ public class RenderedLayerFactory {
      * @return true if the feature matches both
      */
     private boolean featureMatching(Feature feature, String ftsTypeName, Filter filter) {
-        String typeName = feature.getSchema().getTypeName();
+        String typeName = feature.getFeatureType().getTypeName();
 
         return ((typeName != null) && typeName.equalsIgnoreCase(ftsTypeName)) &&
         ((filter == null) || filter.contains(feature));
@@ -298,17 +293,7 @@ public class RenderedLayerFactory {
         if (geomName == null) {
             geom = f.getDefaultGeometry();
         } else {
-            try {
-                geom = (SFSGeometry) f.getAttribute(geomName);
-            } catch (IllegalFeatureException ife) {
-                // TODO: again, what should we do with this kind of errors?
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("Geometry " + geomName + " not found " + ife);
-                }
-
-                //hack: not sure if null is the right thing to return at this point
-                geom = null;
-            }
+            geom = (SFSGeometry) f.getAttribute(geomName);
         }
 
         return geom;

@@ -24,17 +24,37 @@ import java.util.EventObject;
  * instances (typically change events).
  *
  * @author Ray Gallagher
- * @version $Id: CollectionEvent.java,v 1.5 2003/05/07 16:53:04 jmacgill Exp $
+ * @version $Id: CollectionEvent.java,v 1.6 2003/07/17 07:09:52 ianschneider Exp $
  */
 public class CollectionEvent extends EventObject {
+  /*
+   * Design Notes:
+   *  - Must look at other classes for hints on how to implement nicely.
+   *
+   *
+   */
+  
+    public static final int FEATURES_ADDED = 0;
+    public static final int FEATURES_REMOVED = 1;
+    public static final int FEATURES_CHANGED = 2;
+    
+    private int type;
+    
     /**
      * Constructs a new CollectionEvent.
      *
      * @param source the collection which triggered the event
-     *
-     * @task TODO: potential for reason codes here later
      */
-    public CollectionEvent(Object source) {
-        super(source);
+    public CollectionEvent(FeatureCollection source) {
+      super(source);
+      this.type = FEATURES_CHANGED;
+    }
+    
+    public FeatureCollection getCollection() {
+      return (FeatureCollection) source;
+    }
+    
+    public int getEventType() {
+      return type; 
     }
 }

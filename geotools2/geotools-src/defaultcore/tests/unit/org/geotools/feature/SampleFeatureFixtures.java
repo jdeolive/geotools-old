@@ -20,10 +20,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import org.geotools.feature.AttributeType;
-import org.geotools.feature.AttributeTypeDefault;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
-import org.geotools.feature.FeatureTypeFlat;
 
 
 /**
@@ -48,8 +46,7 @@ public class SampleFeatureFixtures {
         try {
             FeatureType testType = createTestType();
             Object[] attributes = createAttributes();
-
-            return new FeatureFlat((FeatureTypeFlat) testType, attributes);
+            return testType.create(attributes);
         } catch (Exception e) {
             Error ae = new AssertionError(
                     "Sample Feature for tests has been misscoded");
@@ -87,40 +84,32 @@ public class SampleFeatureFixtures {
      * @throws SchemaException
      */
     private static FeatureType createTestType() throws SchemaException {
-        AttributeType geometryAttribute = new AttributeTypeDefault("testGeometry",
-                Point.class);
+      FeatureTypeFactory typeFactory = FeatureTypeFactory.newInstance("test");
+      typeFactory.addType(AttributeTypeFactory.newAttributeType("testGeometry",
+                Point.class));
 
-        AttributeType booleanAttribute = new AttributeTypeDefault("testBoolean",
-                Boolean.class);
+      typeFactory.addType(AttributeTypeFactory.newAttributeType("testBoolean",
+                Boolean.class));
 
-        AttributeType charAttribute = new AttributeTypeDefault("testCharacter",
-                Character.class);
-        AttributeType byteAttribute = new AttributeTypeDefault("testByte",
-                Byte.class);
-        AttributeType shortAttribute = new AttributeTypeDefault("testShort",
-                Short.class);
-        AttributeType intAttribute = new AttributeTypeDefault("testInteger",
-                Integer.class);
-        AttributeType longAttribute = new AttributeTypeDefault("testLong",
-                Long.class);
-        AttributeType floatAttribute = new AttributeTypeDefault("testFloat",
-                Float.class);
-        AttributeType doubleAttribute = new AttributeTypeDefault("testDouble",
-                Double.class);
-        AttributeType stringAttribute = new AttributeTypeDefault("testString",
-                String.class);
-
-        FeatureType testType = new FeatureTypeFlat(geometryAttribute);
-        testType = testType.setAttributeType(booleanAttribute);
-        testType = testType.setAttributeType(charAttribute);
-        testType = testType.setAttributeType(byteAttribute);
-        testType = testType.setAttributeType(shortAttribute);
-        testType = testType.setAttributeType(intAttribute);
-        testType = testType.setAttributeType(longAttribute);
-        testType = testType.setAttributeType(floatAttribute);
-        testType = testType.setAttributeType(doubleAttribute);
-        testType = testType.setAttributeType(stringAttribute);
-
-        return testType;
+      typeFactory.addType(AttributeTypeFactory.newAttributeType("testCharacter",
+                Character.class));
+      typeFactory.addType(AttributeTypeFactory.newAttributeType("testByte",
+                Byte.class));
+      typeFactory.addType(AttributeTypeFactory.newAttributeType("testShort",
+                Short.class));
+      typeFactory.addType(AttributeTypeFactory.newAttributeType("testInteger",
+                Integer.class));
+      typeFactory.addType(AttributeTypeFactory.newAttributeType("testLong",
+                Long.class));
+      typeFactory.addType(AttributeTypeFactory.newAttributeType("testFloat",
+                Float.class));
+      typeFactory.addType(AttributeTypeFactory.newAttributeType("testDouble",
+                Double.class));
+      typeFactory.addType(AttributeTypeFactory.newAttributeType("testString",
+                String.class));
+      typeFactory.setDefaultGeometry(typeFactory.get(0));
+      return typeFactory.getFeatureType();
     }
+    
+    
 }

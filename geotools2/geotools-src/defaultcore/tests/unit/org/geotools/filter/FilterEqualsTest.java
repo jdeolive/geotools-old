@@ -32,9 +32,9 @@ import java.util.logging.Logger;
 /**
  * Unit test for testing filters equals method.
  *
+ * @author Chris Holmes, TOPP
  * @author James MacGill, CCG
  * @author Rob Hranac, TOPP
- * @author Chris Holmes, TOPP
  */            
 public class FilterEqualsTest extends TestCase {
     
@@ -54,6 +54,13 @@ public class FilterEqualsTest extends TestCase {
     /** Schema on which to preform tests */
     private static FeatureType testSchema = null;
     boolean set = false;
+    
+    /** factory for attribute types */
+    private static AttributeTypeFactory attFactory = AttributeTypeFactory.newInstance();
+
+    FeatureTypeFactory feaTypeFactory = FeatureTypeFactory.newInstance("test");
+
+
     /** 
      * Constructor with test name.
      */
@@ -79,70 +86,79 @@ public class FilterEqualsTest extends TestCase {
         return suite;
     }
     
-    /** 
+  
+    /**
      * Sets up a schema and a test feature.
+     *
      * @throws SchemaException If there is a problem setting up the schema.
-     * @throws IllegalFeatureException If problem setting up the feature.
+     * @throws IllegalAttributeException If problem setting up the feature.
      */
-    protected void setUp() 
- throws SchemaException, IllegalFeatureException {
-        if(set) return;
+    protected void setUp() throws SchemaException, IllegalAttributeException {
+        if (set) {
+            return;
+        }
+
         set = true;
+
         // Create the schema attributes
-        LOGGER.fine("creating flat feature...");
-        AttributeType geometryAttribute = 
-            new AttributeTypeDefault("testGeometry", LineString.class);
-        LOGGER.fine("created geometry attribute");
-        AttributeType booleanAttribute = 
-            new AttributeTypeDefault("testBoolean", Boolean.class);
-        LOGGER.fine("created boolean attribute");
-        AttributeType charAttribute = 
-            new AttributeTypeDefault("testCharacter", Character.class);
-        AttributeType byteAttribute = 
-            new AttributeTypeDefault("testByte", Byte.class);
-        AttributeType shortAttribute = 
-            new AttributeTypeDefault("testShort", Short.class);
-        AttributeType intAttribute = 
-            new AttributeTypeDefault("testInteger", Integer.class);
-        AttributeType longAttribute = 
-            new AttributeTypeDefault("testLong", Long.class);
-        AttributeType floatAttribute = 
-            new AttributeTypeDefault("testFloat", Float.class);
-        AttributeType doubleAttribute = 
-            new AttributeTypeDefault("testDouble", Double.class);
-        AttributeType stringAttribute = 
-            new AttributeTypeDefault("testString", String.class);
-        AttributeType stringAttribute2 = 
-            new AttributeTypeDefault("testString2", String.class);
+        //LOGGER.debug("creating flat feature...");
+        AttributeType geometryAttribute = attFactory.newAttributeType("testGeometry",
+                LineString.class);
+
+        //LOGGER.debug("created geometry attribute");
+        AttributeType booleanAttribute = attFactory.newAttributeType("testBoolean",
+                Boolean.class);
+
+        //LOGGER.debug("created boolean attribute");
+        AttributeType charAttribute = attFactory.newAttributeType("testCharacter",
+                Character.class);
+        AttributeType byteAttribute = attFactory.newAttributeType("testByte",
+                Byte.class);
+        AttributeType shortAttribute = attFactory.newAttributeType("testShort",
+                Short.class);
+        AttributeType intAttribute = attFactory.newAttributeType("testInteger",
+                Integer.class);
+        AttributeType longAttribute = attFactory.newAttributeType("testLong",
+                Long.class);
+        AttributeType floatAttribute = attFactory.newAttributeType("testFloat",
+                Float.class);
+        AttributeType doubleAttribute = attFactory.newAttributeType("testDouble",
+                Double.class);
+        AttributeType stringAttribute = attFactory.newAttributeType("testString",
+                String.class);
+        AttributeType stringAttribute2 = attFactory.newAttributeType("testString2",
+                String.class);
+
         // Builds the schema
-        testSchema = new FeatureTypeFlat(geometryAttribute); 
-        LOGGER.fine("created feature type and added geometry");
-        testSchema = testSchema.setAttributeType(booleanAttribute);
-        LOGGER.fine("added boolean to feature type");
-        testSchema = testSchema.setAttributeType(charAttribute);
-        LOGGER.fine("added character to feature type");
-        testSchema = testSchema.setAttributeType(byteAttribute);
-        LOGGER.fine("added byte to feature type");
-        testSchema = testSchema.setAttributeType(shortAttribute);
-        LOGGER.fine("added short to feature type");
-        testSchema = testSchema.setAttributeType(intAttribute);
-        LOGGER.fine("added int to feature type");
-        testSchema = testSchema.setAttributeType(longAttribute);
-        LOGGER.fine("added long to feature type");
-        testSchema = testSchema.setAttributeType(floatAttribute);
-        LOGGER.fine("added float to feature type");
-        testSchema = testSchema.setAttributeType(doubleAttribute);
-        LOGGER.fine("added double to feature type");
-        testSchema = testSchema.setAttributeType(stringAttribute);
-        testSchema = testSchema.setAttributeType(stringAttribute2);
-        LOGGER.fine("added string to feature type");
-        
+	feaTypeFactory.addType(geometryAttribute);
+	
+        LOGGER.finest("created feature type and added geometry");
+        feaTypeFactory.addType(booleanAttribute);
+        LOGGER.finest("added boolean to feature type");
+        feaTypeFactory.addType(charAttribute);
+        LOGGER.finest("added character to feature type");
+        feaTypeFactory.addType(byteAttribute);
+        LOGGER.finest("added byte to feature type");
+        feaTypeFactory.addType(shortAttribute);
+        //LOGGER.finer("added short to feature type");
+       feaTypeFactory.addType(intAttribute);
+        //LOGGER.finer("added int to feature type");
+       feaTypeFactory.addType(longAttribute);
+        //LOGGER.finer("added long to feature type");
+       feaTypeFactory.addType(floatAttribute);
+        //LOGGER.finer("added float to feature type");
+       feaTypeFactory.addType(doubleAttribute);
+        //LOGGER.finer("added double to feature type");
+       feaTypeFactory.addType(stringAttribute);
+       feaTypeFactory.addType(stringAttribute2);
+        testSchema = feaTypeFactory.getFeatureType();
+        //LOGGER.finer("added string to feature type");
         // Creates coordinates for the linestring
         Coordinate[] coords = new Coordinate[3];
-        coords[0] = new Coordinate(1,2);
-        coords[1] = new Coordinate(3,4);
-        coords[2] = new Coordinate(5,6);
-        
+        coords[0] = new Coordinate(1, 2);
+        coords[1] = new Coordinate(3, 4);
+        coords[2] = new Coordinate(5, 6);
+
         // Builds the test feature
         Object[] attributes = new Object[11];
         attributes[0] = new LineString(coords, new PrecisionModel(), 1);
@@ -156,13 +172,11 @@ public class FilterEqualsTest extends TestCase {
         attributes[8] = new Double(100000.5);
         attributes[9] = "test string data";
         attributes[10] = "cow $10";
-        
-        // Creates the feature itself
-        FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
-        testFeature = factory.create(attributes);
-        LOGGER.fine("...flat feature created");
-    
 
+        // Creates the feature itself
+        //FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
+	testFeature = testSchema.create(attributes);
+        //LOGGER.finer("...flat feature created");
     }
 
     public void testLiteralExpressionImpl(){
@@ -212,17 +226,22 @@ public class FilterEqualsTest extends TestCase {
     public void testExpressionAttribute()
 	throws IllegalFilterException, SchemaException {
 	AttributeType[] testAttr2= { 
-	    new AttributeTypeDefault("testBoolean", Boolean.class),
-	    new AttributeTypeDefault("testString", String.class)
+	    attFactory.newAttributeType("testBoolean", Boolean.class),
+	    attFactory.newAttributeType("testString", String.class)
 		};
-	FeatureType testSchema2 = new FeatureTypeFlat(testAttr2); 
+	
+	FeatureType testSchema2 = FeatureTypeFactory.newFeatureType(testAttr2,"test2");
+	//FeatureType testSchema2 = feaTypeFactory.getFeatureType(); 
 	testExp1 = new AttributeExpressionImpl(testSchema, "testBoolean");
 	testExp2 = new AttributeExpressionImpl(testSchema, "testBoolean");
 	assertTrue(testExp1.equals(testExp2));
 	testExp3 = new AttributeExpressionImpl(testSchema, "testString");
 	assertTrue(!testExp1.equals(testExp3));
+
+	
 	testExp4 = new AttributeExpressionImpl(testSchema2, "testBoolean");
 	assertTrue(!testExp1.equals(testExp4));
+ 
 	testExp1 = new AttributeExpressionImpl(testSchema2, "testBoolean");
 	assertTrue(testExp1.equals(testExp4));
 		   

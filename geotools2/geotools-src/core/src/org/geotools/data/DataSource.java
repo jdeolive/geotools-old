@@ -31,7 +31,7 @@ import java.util.Set;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: DataSource.java,v 1.12 2003/05/16 15:49:06 jmacgill Exp $
+ * @version $Id: DataSource.java,v 1.13 2003/07/17 07:09:51 ianschneider Exp $
  */
 public interface DataSource {
     /**
@@ -274,7 +274,7 @@ public interface DataSource {
      * @deprecated Use the properties of the query object to accomplish the
      *             same functionality.
      */
-    void setSchema(FeatureType schema) throws DataSourceException;
+//    void setSchema(FeatureType schema) throws DataSourceException;
 
     /**
      * Stops this DataSource from loading.
@@ -297,7 +297,7 @@ public interface DataSource {
      * @task REVISIT: Consider changing return of getBbox to Filter once
      *       Filters can be unpacked
      */
-    Envelope getBbox() throws DataSourceException;
+    Envelope getBounds() throws DataSourceException;
 
     /**
      * Gets the bounding box of this datasource using the speed of this
@@ -316,5 +316,5 @@ public interface DataSource {
      *             check if the loading of the bounding box will take a long
      *             time.
      */
-    Envelope getBbox(boolean speed);
+//    Envelope getBbox(boolean speed);
 }

@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * filter must implement GMLHandlerJTS in order to receive the JTS objects
  * passed by this filter.</p>
  *
- * @version $Id: GMLFilterFeature.java,v 1.14 2003/06/13 00:53:13 seangeo Exp $
+ * @version $Id: GMLFilterFeature.java,v 1.15 2003/07/17 07:09:54 ianschneider Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
@@ -46,7 +46,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
     private GMLHandlerFeature parent;
     private boolean defaultGeom = false;
     /** Factory for the JTS geometries. */
-    private FeatureFlat currentFeature;// = new FeatureFlat();
+    private Feature currentFeature;// = new FeatureFlat();
 
     /** Stores current feature attributes. */
     private Vector attributes = new Vector();
@@ -241,28 +241,52 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
     throws SAXException {
 
         if (localName.endsWith("Member")  && !localName.endsWith("StringMember") && !localName.endsWith("polygonMember")) {
-            AttributeType attDef[] = new AttributeTypeDefault[attributes.size()];
-            for (int i = 0; i < attributes.size(); i++){
-                attDef[i] = new AttributeTypeDefault((String) attributeNames.get(i),attributes.get(i).getClass());
+            FeatureTypeFactory factory = FeatureTypeFactory.newInstance(typeName);
+//            AttributeType attDef[] = new AttributeTypeDefault[attributes.size()];
+//            for (int i = 0; i < attributes.size(); i++){
+//                attDef[i] = new AttributeTypeDefault((String) attributeNames.get(i),attributes.get(i).getClass());
+//            }
+//            try {
+//                FeatureType schema = FeatureTypeFactory.create(attDef).setTypeName(typeName);
+//                schema.setNamespace(namespaceURI);
+//                FlatFeatureFactory fac = new FlatFeatureFactory(schema);
+//                Feature feature = fac.create((Object []) attributes.toArray(),fid);
+//                //currentFeature.setAttributes((Object []) attributes.toArray());
+//                parent.feature(feature);
+//                //_log.debug("resetting attName at end of feature");
+//                attName = "";
+//            }
+//            catch (org.geotools.feature.SchemaException sve){
+//                //TODO: work out what to do in this case!
+//                //_log.error("Unable to create valid schema",sve);
+//            }
+//            catch (org.geotools.feature.IllegalFeatureException ife){
+//                //TODO: work out what to do in this case!
+//                //_log.error("Unable to build feature",ife);
+//            }
+//            insideFeature = false;
+            for (int i = 0, ii = attributes.size(); i < ii; i++) {
+              String name = (String) attributeNames.get(i);
+              Class clazz = attributes.get(i).getClass();
+              factory.addType(AttributeTypeFactory.newAttributeType( name,clazz));
             }
+            factory.setNamespace(namespaceURI);
             try {
-                FeatureType schema = FeatureTypeFactory.create(attDef).setTypeName(typeName);
-                schema.setNamespace(namespaceURI);
-                FlatFeatureFactory fac = new FlatFeatureFactory(schema);
-                Feature feature = fac.create((Object []) attributes.toArray(),fid);
-                //currentFeature.setAttributes((Object []) attributes.toArray());
-                parent.feature(feature);
-                //_log.debug("resetting attName at end of feature");
-                attName = "";
-            }
-            catch (org.geotools.feature.SchemaException sve){
+              Feature feature = factory.getFeatureType().create(attributes.toArray());
+              parent.feature(feature);
+            } catch (org.geotools.feature.SchemaException sve){
                 //TODO: work out what to do in this case!
                 //_log.error("Unable to create valid schema",sve);
+                
+              // UNBELIEVABLE !!!!!!!!!!!!!!!!!!!!!!!!!!! - IanS
             }
-            catch (org.geotools.feature.IllegalFeatureException ife){
+            catch (org.geotools.feature.IllegalAttributeException ife){
                 //TODO: work out what to do in this case!
                 //_log.error("Unable to build feature",ife);
+              
+              // UNBELIEVABLE !!!!!!!!!!!!!!!!!!!!!!!!!!! - IanS
             }
+            attName = "";
             insideFeature = false;
 
         } else if (insideAttribute) {

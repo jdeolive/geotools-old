@@ -1,30 +1,30 @@
-2003-07-08 11:34:09,083 INFO  org.apache.maven.plugin.PluginManager - Initializing Plugins!
-2003-07-08 11:34:10,200 INFO  org.apache.maven.plugin.PluginManager - Finished initializing Plugins!
-2003-07-08 11:34:15,815 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "available" element.
-2003-07-08 11:34:15,868 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "available" element.
-2003-07-08 11:34:15,872 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
-2003-07-08 11:34:16,085 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:16,100 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:21,781 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
-2003-07-08 11:34:21,785 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:21,789 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:23,011 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
-2003-07-08 11:34:23,015 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:23,026 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:23,842 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
-2003-07-08 11:34:23,868 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:23,872 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:25,085 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
-2003-07-08 11:34:25,089 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:25,094 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:25,413 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
-2003-07-08 11:34:25,423 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:25,426 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:25,624 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@b957ea. Reason: java.lang.NumberFormatException: For input string: "includes"
+2003-07-17 00:50:47,967 INFO  org.apache.maven.plugin.PluginManager - Initializing Plugins!
+2003-07-17 00:50:48,249 INFO  org.apache.maven.plugin.PluginManager - Finished initializing Plugins!
+2003-07-17 00:50:50,236 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "available" element.
+2003-07-17 00:50:50,260 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "available" element.
+2003-07-17 00:50:50,261 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
+2003-07-17 00:50:50,414 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:50,420 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:51,552 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
+2003-07-17 00:50:51,558 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:51,560 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:51,976 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
+2003-07-17 00:50:51,979 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:51,984 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:52,427 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
+2003-07-17 00:50:52,429 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:52,434 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:52,765 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
+2003-07-17 00:50:52,768 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:52,770 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:52,917 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
+2003-07-17 00:50:52,919 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:52,921 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,017 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@1712651. Reason: java.lang.NumberFormatException: For input string: "includes"
 java.lang.NumberFormatException: For input string: "includes"
 	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
-	at java.lang.Integer.parseInt(Integer.java:426)
-	at java.lang.Integer.valueOf(Integer.java:532)
+	at java.lang.Integer.parseInt(Integer.java:468)
+	at java.lang.Integer.valueOf(Integer.java:574)
 	at org.apache.commons.jexl.util.Coercion.coerceInteger(Coercion.java:95)
 	at org.apache.commons.jexl.parser.ASTArrayAccess.evaluateExpr(ASTArrayAccess.java:177)
 	at org.apache.commons.jexl.parser.ASTIdentifier.execute(ASTIdentifier.java:104)
@@ -61,11 +61,11 @@ java.lang.NumberFormatException: For input string: "includes"
 	at java.lang.reflect.Method.invoke(Method.java:324)
 	at com.werken.forehead.Forehead.run(Forehead.java:543)
 	at com.werken.forehead.Forehead.main(Forehead.java:573)
-2003-07-08 11:34:25,631 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@1f0b7d3. Reason: java.lang.NumberFormatException: For input string: "excludes"
+2003-07-17 00:50:53,023 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@1d33a6b. Reason: java.lang.NumberFormatException: For input string: "excludes"
 java.lang.NumberFormatException: For input string: "excludes"
 	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
-	at java.lang.Integer.parseInt(Integer.java:426)
-	at java.lang.Integer.valueOf(Integer.java:532)
+	at java.lang.Integer.parseInt(Integer.java:468)
+	at java.lang.Integer.valueOf(Integer.java:574)
 	at org.apache.commons.jexl.util.Coercion.coerceInteger(Coercion.java:95)
 	at org.apache.commons.jexl.parser.ASTArrayAccess.evaluateExpr(ASTArrayAccess.java:177)
 	at org.apache.commons.jexl.parser.ASTIdentifier.execute(ASTIdentifier.java:104)
@@ -102,13 +102,13 @@ java.lang.NumberFormatException: For input string: "excludes"
 	at java.lang.reflect.Method.invoke(Method.java:324)
 	at com.werken.forehead.Forehead.run(Forehead.java:543)
 	at com.werken.forehead.Forehead.main(Forehead.java:573)
-2003-07-08 11:34:25,653 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.OtherwiseTag doesn't support the nested "property" element.
-2003-07-08 11:34:25,671 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "patternset" element.
-2003-07-08 11:34:25,694 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@1de498. Reason: java.lang.NumberFormatException: For input string: "includes"
+2003-07-17 00:50:53,030 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.OtherwiseTag doesn't support the nested "property" element.
+2003-07-17 00:50:53,032 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "patternset" element.
+2003-07-17 00:50:53,042 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@8aeb74. Reason: java.lang.NumberFormatException: For input string: "includes"
 java.lang.NumberFormatException: For input string: "includes"
 	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
-	at java.lang.Integer.parseInt(Integer.java:426)
-	at java.lang.Integer.valueOf(Integer.java:532)
+	at java.lang.Integer.parseInt(Integer.java:468)
+	at java.lang.Integer.valueOf(Integer.java:574)
 	at org.apache.commons.jexl.util.Coercion.coerceInteger(Coercion.java:95)
 	at org.apache.commons.jexl.parser.ASTArrayAccess.evaluateExpr(ASTArrayAccess.java:177)
 	at org.apache.commons.jexl.parser.ASTIdentifier.execute(ASTIdentifier.java:104)
@@ -144,11 +144,11 @@ java.lang.NumberFormatException: For input string: "includes"
 	at java.lang.reflect.Method.invoke(Method.java:324)
 	at com.werken.forehead.Forehead.run(Forehead.java:543)
 	at com.werken.forehead.Forehead.main(Forehead.java:573)
-2003-07-08 11:34:25,702 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@8ae45a. Reason: java.lang.NumberFormatException: For input string: "excludes"
+2003-07-17 00:50:53,044 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@6835fb. Reason: java.lang.NumberFormatException: For input string: "excludes"
 java.lang.NumberFormatException: For input string: "excludes"
 	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
-	at java.lang.Integer.parseInt(Integer.java:426)
-	at java.lang.Integer.valueOf(Integer.java:532)
+	at java.lang.Integer.parseInt(Integer.java:468)
+	at java.lang.Integer.valueOf(Integer.java:574)
 	at org.apache.commons.jexl.util.Coercion.coerceInteger(Coercion.java:95)
 	at org.apache.commons.jexl.parser.ASTArrayAccess.evaluateExpr(ASTArrayAccess.java:177)
 	at org.apache.commons.jexl.parser.ASTIdentifier.execute(ASTIdentifier.java:104)
@@ -184,25 +184,27 @@ java.lang.NumberFormatException: For input string: "excludes"
 	at java.lang.reflect.Method.invoke(Method.java:324)
 	at com.werken.forehead.Forehead.run(Forehead.java:543)
 	at com.werken.forehead.Forehead.main(Forehead.java:573)
-2003-07-08 11:34:26,024 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
-2003-07-08 11:34:26,042 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:26,050 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:26,770 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
-2003-07-08 11:34:26,773 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:26,776 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:27,207 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
-2003-07-08 11:34:27,210 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:27,213 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
-2003-07-08 11:34:27,271 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
-2003-07-08 11:34:27,285 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "property" element.
-2003-07-08 11:34:27,296 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "mkdir" element.
-2003-07-08 11:34:27,308 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.WhenTag doesn't support the nested "javac" element.
-2003-07-08 11:34:32,934 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "copy" element.
-2003-07-08 11:34:32,941 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@19c5048. Reason: java.lang.NumberFormatException: For input string: "includes"
+2003-07-17 00:50:53,157 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,161 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,163 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,470 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,472 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,474 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,634 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,635 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,637 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,654 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "path" element.
+2003-07-17 00:50:53,659 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.ProjectTag doesn't support the nested "property" element.
+2003-07-17 00:50:53,667 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "mkdir" element.
+2003-07-17 00:50:53,671 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.WhenTag doesn't support the nested "javac" element.
+2003-07-17 00:50:53,779 INFO  com.werken.werkz.jelly.PostGoalTag - Running post goal: java:compile
+2003-07-17 00:50:53,780 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.PostGoalTag doesn't support the nested "echo" element.
+2003-07-17 00:50:53,811 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "copy" element.
+2003-07-17 00:50:53,813 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@190ef12. Reason: java.lang.NumberFormatException: For input string: "includes"
 java.lang.NumberFormatException: For input string: "includes"
 	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
-	at java.lang.Integer.parseInt(Integer.java:426)
-	at java.lang.Integer.valueOf(Integer.java:532)
+	at java.lang.Integer.parseInt(Integer.java:468)
+	at java.lang.Integer.valueOf(Integer.java:574)
 	at org.apache.commons.jexl.util.Coercion.coerceInteger(Coercion.java:95)
 	at org.apache.commons.jexl.parser.ASTArrayAccess.evaluateExpr(ASTArrayAccess.java:177)
 	at org.apache.commons.jexl.parser.ASTIdentifier.execute(ASTIdentifier.java:104)
@@ -263,14 +265,19 @@ java.lang.NumberFormatException: For input string: "includes"
 	at java.lang.reflect.Method.invoke(Method.java:324)
 	at com.werken.forehead.Forehead.run(Forehead.java:543)
 	at com.werken.forehead.Forehead.main(Forehead.java:573)
-2003-07-08 11:34:33,039 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "mkdir" element.
-2003-07-08 11:34:33,043 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "mkdir" element.
-2003-07-08 11:34:33,049 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "javac" element.
-2003-07-08 11:34:34,252 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "taskdef" element.
-2003-07-08 11:34:34,285 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "junit" element.
-2003-07-08 11:34:35,030 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "available" element.
-2003-07-08 11:34:35,033 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "jar" element.
-2003-07-08 11:34:35,412 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "echo" element.
-2003-07-08 11:34:35,458 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "property" element.
-2003-07-08 11:34:35,461 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "mkdir" element.
-2003-07-08 11:34:35,463 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "copy" element.
+2003-07-17 00:50:53,831 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "mkdir" element.
+2003-07-17 00:50:53,832 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "mkdir" element.
+2003-07-17 00:50:53,833 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "javac" element.
+2003-07-17 00:50:55,339 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "taskdef" element.
+2003-07-17 00:50:55,350 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class org.apache.commons.jelly.tags.core.IfTag doesn't support the nested "junit" element.
+2003-07-17 00:50:55,443 INFO  com.werken.werkz.jelly.PostGoalTag - Running post goal: test:test
+2003-07-17 00:50:55,443 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.PostGoalTag doesn't support the nested "echo" element.
+2003-07-17 00:50:55,452 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "available" element.
+2003-07-17 00:50:55,454 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "jar" element.
+2003-07-17 00:50:55,614 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "echo" element.
+2003-07-17 00:50:55,626 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "property" element.
+2003-07-17 00:50:55,627 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "mkdir" element.
+2003-07-17 00:50:55,628 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.GoalTag doesn't support the nested "copy" element.
+2003-07-17 00:50:55,631 INFO  com.werken.werkz.jelly.PostGoalTag - Running post goal: jar:install
+2003-07-17 00:50:55,631 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.PostGoalTag doesn't support the nested "tstamp" element.
+2003-07-17 00:50:55,636 ERROR org.apache.commons.jelly.tags.ant.AntTag - Class com.werken.werkz.jelly.PostGoalTag doesn't support the nested "echo" element.

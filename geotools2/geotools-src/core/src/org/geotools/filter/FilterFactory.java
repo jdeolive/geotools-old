@@ -23,12 +23,11 @@ import org.geotools.feature.FeatureType;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import org.geotools.factory.*;
 
 
-public abstract class FilterFactory {
-    /** The logger */
-    protected static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.filter");
+public abstract class FilterFactory implements Factory {
+
     private static FilterFactory factory = null;
 
     /**
@@ -36,61 +35,19 @@ public abstract class FilterFactory {
      *
      * @return an instance of the Filter factory
      */
-    public static FilterFactory createFilterFactory() { //throws FilterFactoryCreationException{ 
+    public static FilterFactory createFilterFactory() 
+    throws FactoryConfigurationError { 
 
-        if (factory != null) {
-            return factory;
-        }
+      if (factory == null) {
 
-        String factoryClass = System.getProperty("FilterFactoryImpl");
-        LOGGER.fine("loaded property = " + factoryClass);
+        factory = (FilterFactory) FactoryFinder.findFactory(
+          "org.geotools.filter.FilterFactory",
+          "org.geotools.filter.FilterFactoryImpl"
+        );
+      }
+      return factory;
 
-        FilterFactory sf = null;
-
-        if ((factoryClass != null) && (factoryClass != "")) {
-            //try{
-            sf = createFilterFactory(factoryClass);
-
-            if (sf != null) {
-                return sf;
-            }
-
-            //} catch (FilterFactoryCreationException e){
-            // do nothing yet or should we give up now
-            //  LOGGER.info("Failed to create " + factoryClass + " because \n" + e);
-            //}
-        } else {
-            sf = createFilterFactory("org.geotools.filter.FilterFactoryImpl");
-        }
-
-        factory = sf;
-
-        return sf;
-    }
-
-    public static FilterFactory createFilterFactory(String factoryClass) { // throws FilterFactoryCreationException{
-
-        try {
-            return factory = (FilterFactory) Class.forName(factoryClass)
-                                                  .newInstance();
-        } catch (ClassNotFoundException cnfe) {
-            severe("createFilterFactory",
-                "failed to find implementation " + factoryClass, cnfe);
-
-            //throw new FilterFactoryCreationException("Failed to find implementation " + factoryClass, cnfe); 
-        } catch (InstantiationException ie) {
-            severe("createFilterFactory",
-                "failed to insantiate implementation " + factoryClass, ie);
-
-            //  throw new FilterFactoryCreationException("Failed to insantiate implementation " + factoryClass, ie);
-        } catch (IllegalAccessException iae) {
-            severe("createFilterFactory",
-                "failed to access implementation " + factoryClass, iae);
-
-            //throw new FilterFactoryCreationException("Failed to access implementation " + factoryClass, iae);
-        }
-
-        return null;
+        
     }
 
     public abstract LogicFilter createLogicFilter(Filter filter1,
@@ -150,18 +107,5 @@ public abstract class FilterFactory {
 
     public abstract FunctionExpression createFunctionExpression(String name);
 
-    /**
-     * Convenience method for logging a message with an exception.
-     *
-     * @param method where occured
-     * @param message to report
-     * @param exception what the problem is.
-     */
-    protected static void severe(final String method, final String message,
-        final Exception exception) {
-        final LogRecord record = new LogRecord(Level.SEVERE, message);
-        record.setSourceMethodName(method);
-        record.setThrown(exception);
-        LOGGER.log(record);
-    }
+
 }

@@ -12,7 +12,7 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
+ *  
  */
 package org.geotools.data.postgis;
 
@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import com.vividsolutions.jts.io.*;
 import org.geotools.data.*;
-import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.feature.*;
 import org.geotools.filter.*;
 import org.geotools.filter.SQLEncoderException;
@@ -44,7 +43,7 @@ import org.geotools.resources.Geotools;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.27 2003/07/02 15:19:48 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.28 2003/07/17 07:09:56 ianschneider Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -72,6 +71,10 @@ public class PostgisDataSource extends AbstractDataSource
     /** The limit on a select statement. */
     private static final int HARD_MAX_FEATURES = 1000000;
     public static final String DEFAULT_FID_COLUMN = "oid";
+
+    /** Factory to create Attributes */
+    private static AttributeTypeFactory attFactory 
+	= AttributeTypeFactory.newInstance();
 
     /** The maximum features allowed by the server for any given response. */
     private int maxFeatures = HARD_MAX_FEATURES;
@@ -294,14 +297,16 @@ public class PostgisDataSource extends AbstractDataSource
                     // set column name and type from database
 		    LOGGER.finer("setting attribute to " + columnName);
 		    LOGGER.finer("with class " + (Class) sqlTypeMap.get(columnTypeName));
-                    attributes[i - offset] = new AttributeTypeDefault(columnName,
-                            (Class) sqlTypeMap.get(columnTypeName));
+                    Class type = (Class) sqlTypeMap.get(columnTypeName);
+		    attributes[i - offset] = 
+			AttributeTypeFactory.newAttributeType(columnName, type);
+		    
 		    LOGGER.finer("new att-type is " + attributes[i - offset]);
                 }
             }
             closeResultSet(result);
-            FeatureType retSchema = FeatureTypeFactory.create(attributes)
-                                                      .setTypeName(tableName);
+            FeatureType retSchema = 
+		FeatureTypeFactory.newFeatureType(attributes, tableName);
             return retSchema;
         } catch (SQLException e) {
             String message = "Some sort of database connection error";
@@ -438,8 +443,9 @@ public class PostgisDataSource extends AbstractDataSource
 		    " for geotools to work correctly";
 		throw new DataSourceException(msg);
 	    }
-	    return new AttributeTypeDefault(columnName,
-					    (Class) geometryTypeMap.get(geometryType));
+	    Class type =  (Class) geometryTypeMap.get(geometryType);
+	    return AttributeTypeFactory.newAttributeType(columnName, type);
+					   
 	} catch (SQLException e) {
 	    String message = "Some sort of database connection error: " +
 		e.getMessage();
@@ -514,12 +520,32 @@ public class PostgisDataSource extends AbstractDataSource
         return sqlStatement.toString();
     }
 
-    private AttributeType[] getAttTypes(Query query) {
+    private AttributeType[] getAttTypes(Query query) throws DataSourceException {
+
+	AttributeType[] schemaTypes = schema.getAttributeTypes();
 	if (query.retrieveAllProperties()) {
-            return schema.getAllAttributeTypes();
+	    
+            return schemaTypes;
         } else {
-            return query.getProperties();
-        }
+	    List attNames = Arrays.asList(query.getPropertyNames());
+	    AttributeType[] retAttTypes = new AttributeType[attNames.size()];
+	    int j = 0;
+	    for (int i = 0, n = schemaTypes.length; i < n; i++) {
+		String schemaTypeName = schemaTypes[i].getName();
+		if (attNames.contains(schemaTypeName)){
+		    retAttTypes[j] = schemaTypes[i];
+		    j++;
+		    attNames.remove(schemaTypeName);
+		}
+	    }
+	    //TODO: better error reporting, and completely test this method.
+	    if (attNames.size() > 0) {
+		String msg = "attempted to request a property, " + 
+		    attNames.get(0) + " that is not part of the schema ";
+		throw new DataSourceException(msg);
+	    }
+	    return retAttTypes;
+	}
     }
 
     /**
@@ -555,14 +581,16 @@ public class PostgisDataSource extends AbstractDataSource
         Filter filter = query.getFilter();
         int maxFeatures = query.getMaxFeatures();
         LOGGER.finer("query is " + query);
-	//HACK: check to make sure these match, if they don't fill in nulls.
+	//TODO: there's a good amount of code getting called twice needlessly,
+	//so figure out ways to just have it run once...
 	AttributeType[] attTypes = getAttTypes(query);
 	
-        List features = new ArrayList(); //initial capacity of maxFeauters?
+        //FeatureCollection features = FeatureCollections.newCollection(); 
+	//initial capacity of maxFeauters?
         //Would be good when maxFeatures is reached, but default of 10000000?
         try {
-	    FeatureType schema = FeatureTypeFactory.create(attTypes)
-		.setTypeName(tableName);
+	    FeatureType schema = 
+		FeatureTypeFactory.newFeatureType(attTypes, tableName);
             // retrieve the result set from the JDBC driver
             LOGGER.finer("using schema " + schema);
             Statement statement = dbConnection.createStatement();
@@ -580,12 +608,12 @@ public class PostgisDataSource extends AbstractDataSource
 
             // set up a factory, attributes, and a counter for feature creation
             //LOGGER.fine("about to prepare feature reading");
-            FeatureFactory factory = new FlatFeatureFactory(schema);
-            Object[] attributes = new Object[schema.attributeTotal()];
+            //FeatureFactory factory = new FlatFeatureFactory(schema);
+            Object[] attributes = new Object[schema.getAttributeCount()];
             String featureId;
             //AttributeType[] attTypes = schema.getAttributeTypes();
             int resultCounter = 0;
-            int totalAttributes = schema.attributeTotal();
+            int totalAttributes = schema.getAttributeCount();
             int col;
             Filter featureFilter = unpacker.getUnSupported();
 
@@ -607,17 +635,14 @@ public class PostgisDataSource extends AbstractDataSource
                         attributes[col] = result.getObject(col + 2);
                     }
                 }
-                Feature curFeature = factory.create(attributes, featureId);
+                Feature curFeature = schema.create(attributes, featureId);
                 if ((featureFilter == null) ||
                         featureFilter.contains(curFeature)) {
                     LOGGER.finest("adding feature: " + curFeature);
-                    features.add(curFeature);
+                    collection.add(curFeature);
                     resultCounter++;
                 }
             }
-            // add features to collection and close the result set
-            collection.addFeatures((Feature[]) features.toArray(
-                    new Feature[features.size()]));
             closeResultSet(result);
         } catch (SQLException e) {
             String message = "Some sort of database connection error: " +
@@ -663,18 +688,18 @@ public class PostgisDataSource extends AbstractDataSource
     public Set addFeatures(FeatureCollection collection)
         throws DataSourceException {
         Set curFids = getFidSet();
-        Feature[] featureArr = collection.getFeatures();
+        //Feature[] featureArr = collection.getFeatures();
 
-        if (featureArr.length > 0) {
+        if (collection.size() > 0) {
             try {
                 Statement statement = dbConnection.createStatement();
-
-                for (int i = 0; i < featureArr.length; i++) {
-                    String sql = makeInsertSql(tableName, featureArr[i]);
+		
+		//Use FeatureIterator when it's implemented.
+                for (Iterator i = collection.iterator(); i.hasNext();){
+		    String sql = makeInsertSql(tableName, (Feature)i.next());
                     LOGGER.finer("this sql statement = " + sql);
                     statement.executeUpdate(sql);
                 }
-
                 statement.close();
             } catch (SQLException e) {
                 String message = "Some sort of database connection error: " +
@@ -699,8 +724,8 @@ public class PostgisDataSource extends AbstractDataSource
 	    LOGGER.fine("entering fid set");
             Statement statement = dbConnection.createStatement();
             //FeatureType fidSchema = FeatureTypeFactory.create(new AttributeType[0]);
-            QueryImpl query = new QueryImpl();
-            query.setProperties(new AttributeType[0]);
+            DefaultQuery query = new DefaultQuery();
+            query.setPropertyNames(new String[0]);
             SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
 	    //TODO: redo unpacker - this has to be called first, or it breaks.
 	    unpacker.unPackAND(null);
@@ -740,13 +765,14 @@ public class PostgisDataSource extends AbstractDataSource
         String attrValue = new String();
         StringBuffer sql = new StringBuffer("INSERT INTO \"" 
 					    + tableName + "\"(");
-        FeatureType featureSchema = feature.getSchema();
-        AttributeType geometryAttr = featureSchema.getDefaultGeometry();
-        int geomPos = -1;
+        FeatureType featureSchema = feature.getFeatureType();
 
-        if (geometryAttr != null) {
-            geomPos = geometryAttr.getPosition();
-        }
+        //AttributeType geometryAttr = featureSchema.getDefaultGeometry();
+        //int geomPos = -1;
+
+        //if (geometryAttr != null) {
+	//  geomPos = featureSchema.find(geometryAttr);
+        //}
 
         AttributeType[] types = featureSchema.getAttributeTypes();
 
@@ -757,10 +783,10 @@ public class PostgisDataSource extends AbstractDataSource
 
         sql.append("VALUES (");
 
-        Object[] attributes = feature.getAttributes();
+        Object[] attributes = feature.getAttributes(null);
 
         for (int j = 0; j < attributes.length; j++) {
-            if (j == geomPos) {
+            if (types[j].isGeometry()) {
                 String geoText = geometryWriter.write((Geometry) attributes[j]);
                 sql.append("GeometryFromText('" + geoText + "', " + srid + ")");
             } else {
@@ -831,16 +857,16 @@ public class PostgisDataSource extends AbstractDataSource
             }
 
             if (unEncodableFilter != null) {
-                featureArr = getFeatures(unEncodableFilter).getFeatures();
-
-                if (featureArr.length > 0) {
+                FeatureCollection features = getFeatures(unEncodableFilter);
+		Iterator iter = features.iterator();
+                if (iter.hasNext()) {
                     sql = "DELETE FROM \"" + tableName + "\" WHERE ";
 
-                    for (int i = 0; i < featureArr.length; i++) {
-                        fid = formatFid(featureArr[i]);
+                    for (int i = 0; iter.hasNext(); i++) {
+                        fid = formatFid((Feature)iter.next());
                         sql += (fidColumn + " = " + fid);
 
-                        if (i < (featureArr.length - 1)) {
+                        if (iter.hasNext()) {
                             sql += " OR ";
                         } else {
                             sql += ";";
@@ -906,7 +932,7 @@ public class PostgisDataSource extends AbstractDataSource
             }
 
             if (unEncodableFilter != null) {
-                featureArr = getFeatures(unEncodableFilter).getFeatures();
+                featureArr = (Feature[]) getFeatures(unEncodableFilter).toArray();
 
                 if (featureArr.length > 0) {
                     whereStmt = " WHERE ";
@@ -949,7 +975,7 @@ public class PostgisDataSource extends AbstractDataSource
      * @return DOCUMENT ME!
      */
     private String formatFid(Feature feature) {
-        String fid = feature.getId();
+        String fid = feature.getID();
 
         if (fid.startsWith(tableName)) {
             //take out the tableName and the .

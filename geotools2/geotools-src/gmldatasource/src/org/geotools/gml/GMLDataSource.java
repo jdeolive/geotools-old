@@ -42,7 +42,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: GMLDataSource.java,v 1.23 2003/05/15 18:20:28 cholmesny Exp $
+ * @version $Id: GMLDataSource.java,v 1.24 2003/07/17 07:09:54 ianschneider Exp $
  * @author Ian Turton, CCG
  */
 public class GMLDataSource extends XMLFilterImpl
@@ -60,7 +60,7 @@ implements DataSource, GMLHandlerFeature {
     private URL url;
     
     /** Temporary storage for the features loaded from GML. */
-    private Vector features = new Vector();
+    private FeatureCollection features = FeatureCollections.newCollection();
     
     
     public GMLDataSource(String uri) throws DataSourceException {
@@ -129,15 +129,7 @@ implements DataSource, GMLHandlerFeature {
          throw new DataSourceException("Removal of features is not yet supported by this datasource");
     }
     
-    /** Gets the bounding box of this datasource using the default speed of
-     * this datasource as set by the implementer.
-     *
-     * @return The bounding box of the datasource or null if unknown and too
-     * expensive for the method to calculate.
-     */
-    public Envelope getBbox() {
-        return getBbox(false);
-    }
+
     
     /** Gets the bounding box of this datasource using the speed of
      * this datasource as set by the parameter.
@@ -149,34 +141,32 @@ implements DataSource, GMLHandlerFeature {
      * expensive for the method to calculate.
      * @task TODO: implement quick bbox.  This will return slow no matter what.
      */
-    public Envelope getBbox(boolean quick) {
-        if (quick == true){
-            return getBbox();
-        } else {
+    public Envelope getBounds() {
             //scan whole file
-            try {
-                GMLFilterFeature featureFilter = new GMLFilterFeature(this);
-                GMLFilterGeometry geometryFilter = new GMLFilterGeometry(featureFilter);
-                GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
-                //XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
-                SAXParserFactory fac = SAXParserFactory.newInstance();
-                SAXParser parser = fac.newSAXParser();
-                
-                ParserAdapter p = new ParserAdapter(parser.getParser());
-                p.setContentHandler(documentFilter);
-                p.parse(getInputSource());
-            }
-            catch (Exception e) {
-                return null;
-            }
-            Envelope bbox = new Envelope();
-            for ( int i = 0; i < features.size(); i++ ) {
-                Envelope bbox2;
-                bbox2 = ((Feature) features.get(i)).getDefaultGeometry().getEnvelopeInternal();
-                bbox.expandToInclude(bbox2);
-            }
-            return bbox;
-        }
+      try {
+        GMLFilterFeature featureFilter = new GMLFilterFeature(this);
+        GMLFilterGeometry geometryFilter = new GMLFilterGeometry(featureFilter);
+        GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
+        //XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
+        SAXParserFactory fac = SAXParserFactory.newInstance();
+        SAXParser parser = fac.newSAXParser();
+        
+        ParserAdapter p = new ParserAdapter(parser.getParser());
+        p.setContentHandler(documentFilter);
+        p.parse(getInputSource());
+      }
+      catch (Exception e) {
+        return null;
+      }
+//      Envelope bbox = new Envelope();
+//      for ( int i = 0; i < features.size(); i++ ) {
+//        Envelope bbox2;
+//        bbox2 = ((Feature) features.get(i)).getDefaultGeometry().getEnvelopeInternal();
+//        bbox.expandToInclude(bbox2);
+//      }
+//      return bbox;
+      return features.getBounds();
+        
     }
     
     /** Loads features from the datasource into the returned collection, based on
@@ -187,7 +177,7 @@ implements DataSource, GMLHandlerFeature {
      * @throws DataSourceException For all data source errors.
      */
     public FeatureCollection getFeatures(Filter filter) throws DataSourceException {
-        FeatureCollection fc = new FeatureCollectionDefault();
+        FeatureCollection fc = FeatureCollections.newCollection();
         getFeatures(fc,filter);
         return fc;
     }
@@ -243,21 +233,26 @@ implements DataSource, GMLHandlerFeature {
             throw new DataSourceException("Parsing error: " + e.getMessage());
         }
         
-        Iterator list = features.iterator();
+        FilteringIteration.filter(features,filter);
+        collection.addAll(features);
         
-        while(list.hasNext()){
-            if (!filter.contains((Feature) list.next())) {
-                list.remove();
-                LOGGER.finer("feature filtered out");
-            }
-        }
+//        Iterator list = features.iterator();
+//        
+//        while(list.hasNext()){
+//            if (!filter.contains((Feature) list.next())) {
+//                list.remove();
+//                LOGGER.finer("feature filtered out");
+//            }
+//        }
         
         
-        Feature[] typedFeatures = new Feature[features.size()];
-        for (int i = 0; i < features.size(); i++) {
-            typedFeatures[i] = (Feature) features.get(i);
-        }
-        collection.addFeatures(typedFeatures);
+//        Feature[] typedFeatures = new Feature[features.size()];
+//        for (int i = 0; i < features.size(); i++) {
+//            typedFeatures[i] = (Feature) features.get(i);
+//        }
+//        collection.addFeatures(typedFeatures);
+        
+        
         
     }
 

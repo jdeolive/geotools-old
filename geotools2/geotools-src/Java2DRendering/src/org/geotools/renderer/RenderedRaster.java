@@ -9,7 +9,6 @@ package org.geotools.renderer;
 import java.awt.Graphics2D;
 import java.util.logging.Logger;
 import org.geotools.feature.Feature;
-import org.geotools.feature.IllegalFeatureException;
 import org.geotools.gc.GridCoverage;
 import org.geotools.styling.RasterSymbolizer;
 
@@ -27,16 +26,10 @@ public class RenderedRaster implements RenderedObject {
     private GridCoverageRenderer gcr;
     /** Creates a new instance of RenderedRaster2 */
     public RenderedRaster(Feature feature, RasterSymbolizer symbolizer) {
-        try {
             GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
             gcr = new GridCoverageRenderer(grid);
             
-        } catch (IllegalFeatureException ife) {
-            LOGGER.severe("No grid in feature " + ife.getMessage());
-            renderable = false;
-            return;
-        }
-        renderable = true;
+        renderable = grid != null;
     }
     
     public boolean isRenderable() {

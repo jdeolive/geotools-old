@@ -7,7 +7,6 @@ package org.geotools.gml;
  * Created on 04 March 2002, 16:09
  */
 import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -59,27 +58,20 @@ public class GmlTest extends TestCase {
             
             
             
-            EnvelopeExtent r = new EnvelopeExtent();
-            r.setBounds(new com.vividsolutions.jts.geom.Envelope(-100, 100, 0, 100.0));
             
-            //table.requestExtent(r);
-            //try {
-            //fi = new SimpleIndex(table, "LONGITUDE");
-            
-            table.getFeatures(r);
             
             //}catch(DataSourceException exp) {
             //   System.out.println("Exception requesting Extent : "+exp.getClass().getName()+" : "+exp.getMessage());
             //   exp.printStackTrace();
             //}
             
-            assertEquals(7,table.getFeatures().length);
+            assertEquals(7,table.size());
             // TODO: add more tests here
-            Feature[] features = table.getFeatures();
-            System.out.println("Got "+ features.length + " features");
-            for(int i=0;i<features.length;i++){
+            Iterator i = table.iterator();
+            System.out.println("Got "+ table.size() + " features");
+            while(i.hasNext()){
                 
-                System.out.println("Feature: "+features[i].toString());
+                System.out.println("Feature: "+i.next());
             }
         }catch(Exception e){
             System.out.println(e);

@@ -6,7 +6,6 @@ import com.vividsolutions.jts.geom.*;
 import java.util.logging.Logger;
 import org.geotools.data.*;
 import org.geotools.feature.*;
-import org.geotools.datasource.extents.*;
 
 public class PostgisTestSuite extends TestCase {
 
@@ -17,7 +16,7 @@ public class PostgisTestSuite extends TestCase {
 
     DataSource postgis = null;
 
-    FeatureCollection collection = new FeatureCollectionDefault();
+    FeatureCollection collection = FeatureCollections.newCollection();
 
     public PostgisTestSuite(String testName){
         super(testName);

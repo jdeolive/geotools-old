@@ -20,11 +20,11 @@
 package org.geotools.map;
 
 import org.geotools.styling.Style;
-import org.geotools.data.DataSource;
+import org.geotools.feature.FeatureCollection;
 
 /**
  * Layer is an aggregation of both a FeatureCollection and Style.
- * @version $Id: Layer.java,v 1.4 2003/04/14 21:37:16 jmacgill Exp $
+ * @version $Id: Layer.java,v 1.5 2003/07/17 07:09:52 ianschneider Exp $
  * @author  Cameron Shorter
  */
 public interface Layer {
@@ -38,8 +38,11 @@ public interface Layer {
     /**
      * Get the dataSource for this layer.  If dataSource has not
      * been set yet, then null is returned.
+     *
+     * Ammended (IanS) changed to FeatureCollection
+     * 
      */
-    public DataSource getDataSource();
+    public FeatureCollection getFeatures();
     
     /**
      * Specify whether this layer is visable on a MapPane or whether the layer

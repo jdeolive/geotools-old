@@ -17,10 +17,10 @@
 package org.geotools.data;
 
 import com.vividsolutions.jts.geom.Envelope;
+import java.util.*;
 import junit.framework.*;
-import org.geotools.data.QueryImpl;
+import org.geotools.data.DefaultQuery;
 import org.geotools.feature.*;
-import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.filter.Filter;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,7 +54,7 @@ public class MemoryDataSourceTest extends TestCase {
         MemoryDataSource source = new MemoryDataSource();
         Feature f = SampleFeatureFixtures.createFeature();
         source.addFeature(f);
-        assertEquals(1, source.getFeatures(new QueryImpl()).size());
+        assertEquals(1, source.getFeatures(new DefaultQuery()).size());
     }
 
     /**
@@ -66,14 +66,15 @@ public class MemoryDataSourceTest extends TestCase {
         System.out.println("testAddFeatures");
 
         MemoryDataSource source = new MemoryDataSource();
-        Feature[] features = new Feature[2];
-        features[0] = SampleFeatureFixtures.createFeature();
-        features[1] = SampleFeatureFixtures.createFeature();
+        ArrayList features = new ArrayList(2);
+        
+        features.add(SampleFeatureFixtures.createFeature());
+        features.add(SampleFeatureFixtures.createFeature());
 
-        FeatureCollection fc = new FeatureCollectionDefault();
-        fc.addFeatures(features);
+        FeatureCollection fc = FeatureCollections.newCollection();
+        fc.addAll(features);
         source.addFeatures(fc);
-        assertEquals(2, source.getFeatures(new QueryImpl()).size());
+        assertEquals(2, source.getFeatures(new DefaultQuery()).size());
     }
 
     /**
@@ -102,9 +103,9 @@ public class MemoryDataSourceTest extends TestCase {
         MemoryDataSource source = new MemoryDataSource();
         Feature f = SampleFeatureFixtures.createFeature();
         source.addFeature(f);
-        assertEquals(1, source.getFeatures(new QueryImpl()).size());
-        assertEquals(1, source.getFeatures(new QueryImpl(Filter.NONE)).size());
-        assertEquals(0, source.getFeatures(new QueryImpl(Filter.ALL)).size());
+        assertEquals(1, source.getFeatures(new DefaultQuery()).size());
+        assertEquals(1, source.getFeatures(new DefaultQuery(Filter.NONE)).size());
+        assertEquals(0, source.getFeatures(new DefaultQuery(Filter.ALL)).size());
     }
 
     /**
@@ -123,9 +124,9 @@ public class MemoryDataSourceTest extends TestCase {
         f2.setAttribute("testString", "A different String");
         source.addFeature(f2);
 
-        assertEquals(2, source.getFeatures(new QueryImpl()).size());
+        assertEquals(2, source.getFeatures(new DefaultQuery()).size());
 
-        QueryImpl maxSet = new QueryImpl();
+        DefaultQuery maxSet = new DefaultQuery();
         maxSet.setMaxFeatures(1);
         assertEquals(1, source.getFeatures(maxSet).size());
         maxSet.setMaxFeatures(2);
@@ -145,7 +146,7 @@ public class MemoryDataSourceTest extends TestCase {
         MemoryDataSource source = new MemoryDataSource();
         Feature f = SampleFeatureFixtures.createFeature();
         source.addFeature(f);
-        assertEquals(f.getSchema(), source.getSchema());
+        assertEquals(f.getFeatureType(), source.getSchema());
     }
 
     /**

@@ -44,6 +44,8 @@ public class FilterTest extends TestCase {
     private static FeatureType testSchema = null;
     boolean set = false;
 
+      private static AttributeTypeFactory attFactory = AttributeTypeFactory.newInstance();
+
     /** Test suite for this test case */
     TestSuite suite = null;
 
@@ -84,9 +86,9 @@ public class FilterTest extends TestCase {
      * Sets up a schema and a test feature.
      *
      * @throws SchemaException If there is a problem setting up the schema.
-     * @throws IllegalFeatureException If problem setting up the feature.
+     * @throws IllegalAttributeException If problem setting up the feature.
      */
-    protected void setUp() throws SchemaException, IllegalFeatureException {
+    protected void setUp() throws SchemaException, IllegalAttributeException {
         if (set) {
             return;
         }
@@ -95,63 +97,62 @@ public class FilterTest extends TestCase {
 
         // Create the schema attributes
         //LOGGER.debug("creating flat feature...");
-        AttributeType geometryAttribute = new AttributeTypeDefault("testGeometry",
+        AttributeType geometryAttribute = attFactory.newAttributeType("testGeometry",
                 LineString.class);
 
         //LOGGER.debug("created geometry attribute");
-        AttributeType booleanAttribute = new AttributeTypeDefault("testBoolean",
+        AttributeType booleanAttribute = attFactory.newAttributeType("testBoolean",
                 Boolean.class);
 
         //LOGGER.debug("created boolean attribute");
-        AttributeType charAttribute = new AttributeTypeDefault("testCharacter",
+        AttributeType charAttribute = attFactory.newAttributeType("testCharacter",
                 Character.class);
-        AttributeType byteAttribute = new AttributeTypeDefault("testByte",
+        AttributeType byteAttribute = attFactory.newAttributeType("testByte",
                 Byte.class);
-        AttributeType shortAttribute = new AttributeTypeDefault("testShort",
+        AttributeType shortAttribute = attFactory.newAttributeType("testShort",
                 Short.class);
-        AttributeType intAttribute = new AttributeTypeDefault("testInteger",
+        AttributeType intAttribute = attFactory.newAttributeType("testInteger",
                 Integer.class);
-        AttributeType longAttribute = new AttributeTypeDefault("testLong",
+        AttributeType longAttribute = attFactory.newAttributeType("testLong",
                 Long.class);
-        AttributeType floatAttribute = new AttributeTypeDefault("testFloat",
+        AttributeType floatAttribute = attFactory.newAttributeType("testFloat",
                 Float.class);
-        AttributeType doubleAttribute = new AttributeTypeDefault("testDouble",
+        AttributeType doubleAttribute = attFactory.newAttributeType("testDouble",
                 Double.class);
-        AttributeType stringAttribute = new AttributeTypeDefault("testString",
+        AttributeType stringAttribute = attFactory.newAttributeType("testString",
                 String.class);
-        AttributeType stringAttribute2 = new AttributeTypeDefault("testString2",
+        AttributeType stringAttribute2 = attFactory.newAttributeType("testString2",
                 String.class);
 
         // Builds the schema
-        testSchema = new FeatureTypeFlat(geometryAttribute);
-
-        //LOGGER.finer("created feature type and added geometry");
-        testSchema = testSchema.setAttributeType(booleanAttribute);
-
-        //LOGGER.finer("added boolean to feature type");
-        testSchema = testSchema.setAttributeType(charAttribute);
-
-        //LOGGER.finer("added character to feature type");
-        testSchema = testSchema.setAttributeType(byteAttribute);
-
-        //LOGGER.finer("added byte to feature type");
-        testSchema = testSchema.setAttributeType(shortAttribute);
-
+	FeatureTypeFactory feaTypeFactory = FeatureTypeFactory.newInstance("test");
+	feaTypeFactory.addType(geometryAttribute);
+	 
+        LOGGER.finest("created feature type and added geometry");
+        feaTypeFactory.addType(booleanAttribute);
+        LOGGER.finest("added boolean to feature type");
+        feaTypeFactory.addType(charAttribute);
+        LOGGER.finest("added character to feature type");
+        feaTypeFactory.addType(byteAttribute);
+        LOGGER.finest("added byte to feature type");
+        feaTypeFactory.addType(shortAttribute);
         //LOGGER.finer("added short to feature type");
-        testSchema = testSchema.setAttributeType(intAttribute);
+       feaTypeFactory.addType(intAttribute);
 
         //LOGGER.finer("added int to feature type");
-        testSchema = testSchema.setAttributeType(longAttribute);
+       feaTypeFactory.addType(longAttribute);
 
         //LOGGER.finer("added long to feature type");
-        testSchema = testSchema.setAttributeType(floatAttribute);
+       feaTypeFactory.addType(floatAttribute);
 
         //LOGGER.finer("added float to feature type");
-        testSchema = testSchema.setAttributeType(doubleAttribute);
+       feaTypeFactory.addType(doubleAttribute);
 
         //LOGGER.finer("added double to feature type");
-        testSchema = testSchema.setAttributeType(stringAttribute);
-        testSchema = testSchema.setAttributeType(stringAttribute2);
+       feaTypeFactory.addType(stringAttribute);
+       feaTypeFactory.addType(stringAttribute2);
+       
+       testSchema = feaTypeFactory.getFeatureType();
 
         //LOGGER.finer("added string to feature type");
         // Creates coordinates for the linestring
@@ -175,9 +176,8 @@ public class FilterTest extends TestCase {
         attributes[10] = "cow $10";
 
         // Creates the feature itself
-        FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
-        testFeature = factory.create(attributes);
-
+        //FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
+	testFeature = testSchema.create(attributes);
         //LOGGER.finer("...flat feature created");
     }
 

@@ -21,10 +21,10 @@ import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.HorizontalDatum;
 import org.geotools.ct.Adapters;
-import org.geotools.data.DataSource;
 import org.geotools.styling.Style;
 import org.opengis.cs.CS_CoordinateSystem;
 import java.util.logging.Logger;
+import org.geotools.feature.FeatureCollection;
 
 
 /**
@@ -143,9 +143,9 @@ public class ContextFactoryImpl extends ContextFactory {
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public Layer createLayer(DataSource dataSource, Style style)
+    public Layer createLayer(FeatureCollection features, Style style)
         throws IllegalArgumentException {
-        return new LayerImpl(dataSource, style);
+        return new LayerImpl(features, style);
     }
 
     /**
@@ -156,4 +156,7 @@ public class ContextFactoryImpl extends ContextFactory {
     public LayerList createLayerList() {
         return new LayerListImpl();
     }
+    
+
+    
 }

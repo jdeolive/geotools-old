@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 
 /**
  *
@@ -84,18 +85,21 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
   }
   
   void compare(FeatureCollection one,FeatureCollection two) throws Exception {
-    Feature[] fs1 = one.getFeatures();
-    Feature[] fs2 = two.getFeatures();
+ 
     
-    if (fs1.length != fs2.length) {
-      throw new Exception("Number of Features unequal : " + fs1.length + " != " + fs2.length);
+    if (one.size() != two.size()) {
+      throw new Exception("Number of Features unequal : " + one.size() + " != " + two.size());
     }
     
-    for (int i = 0; i < fs1.length; i++) {
-      Feature f1 = fs1[i];
-      Feature f2 = fs2[i];
+    FeatureIterator fs1 = one.features();
+    FeatureIterator fs2 = two.features();
+    
+    int i = 0;
+    while (fs1.hasNext()) {
+      Feature f1 = fs1.next();
+      Feature f2 = fs2.next();
       
-      if ((i % 50) == 0) {
+      if ((i++ % 50) == 0) {
         System.out.print("*");
       }
       compare(f1, f2);
@@ -104,25 +108,25 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
   }
   
   void compare(Feature f1,Feature f2) throws Exception {
-    Object[] atts1 = f1.getAttributes();
-    Object[] atts2 = f2.getAttributes();
     
-    if (atts1.length != atts2.length) {
+    if (f1.getNumberOfAttributes() != f2.getNumberOfAttributes()) {
       throw new Exception("Unequal number of attributes");
     }
     
-    for (int i = 0; i < atts1.length; i++) {
-      if (atts1[i] instanceof Geometry && atts2[i] instanceof Geometry) {
-        Geometry g1 = ((Geometry) atts1[i]);
-        Geometry g2 = ((Geometry) atts2[i]);
+    for (int i = 0; i < f1.getNumberOfAttributes(); i++) {
+      Object att1 = f1.getAttribute(i);
+      Object att2 = f2.getAttribute(i);
+      if (att1 instanceof Geometry && att2 instanceof Geometry) {
+        Geometry g1 = ((Geometry) att1);
+        Geometry g2 = ((Geometry) att2);
         g1.normalize();
         g2.normalize();
         if (!g1.equalsExact(g2)) {
           throw new Exception("Different geometries (" + i + "):\n" + g1 + "\n" + g2);
         }
       } else {
-        if (!atts1[i].equals(atts2[i])) {
-          throw new Exception("Different attribute (" + i + "): [" + atts1[i] + "] - [" + atts2[i] + "]");
+        if (!att1.equals(att2)) {
+          throw new Exception("Different attribute (" + i + "): [" + att1 + "] - [" + att2 + "]");
         }
       }
     }

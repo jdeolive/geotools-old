@@ -19,10 +19,11 @@ package org.geotools.data;
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollectionDefault;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureType;
 import org.geotools.filter.Filter;
 import java.util.Set;
+import org.geotools.feature.FeatureCollections;
 
 
 /**
@@ -49,7 +50,7 @@ import java.util.Set;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.7 2003/06/13 19:37:21 jmacgill Exp $
+ * @version $Id: AbstractDataSource.java,v 1.8 2003/07/17 07:09:53 ianschneider Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** the meta data object containing information about this datasource. */
@@ -95,7 +96,7 @@ public abstract class AbstractDataSource implements DataSource {
      * @return A default query with the filter passed in.
      */
     protected Query makeDefaultQuery(Filter filter) {
-        return new QueryImpl(filter);
+        return new DefaultQuery(filter);
     }
 
     /**
@@ -111,7 +112,7 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public FeatureCollection getFeatures(Query query)
         throws DataSourceException {
-        FeatureCollection collection = new FeatureCollectionDefault();
+        FeatureCollection collection = FeatureCollections.newCollection();
         getFeatures(collection, query);
 
         return collection;
@@ -129,7 +130,7 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public FeatureCollection getFeatures(Filter filter)
         throws DataSourceException {
-        FeatureCollection collection = new FeatureCollectionDefault();
+        FeatureCollection collection = FeatureCollections.newCollection();
         getFeatures(collection, filter);
 
         return collection;
@@ -397,7 +398,7 @@ public abstract class AbstractDataSource implements DataSource {
      * @task REVISIT: Consider changing return of getBbox to Filter once
      *       Filters can be unpacked
      */
-    public Envelope getBbox() throws DataSourceException {
+    public Envelope getBounds() throws DataSourceException {
         if (!getMetaData().supportsGetBbox()) {
             throw new UnsupportedOperationException("This datasource does not" +
                 " support getBbox");
@@ -406,35 +407,6 @@ public abstract class AbstractDataSource implements DataSource {
         return null;
     }
 
-    /**
-     * Gets the bounding box of this datasource using the speed of this
-     * datasource as set by the parameter.
-     *
-     * @param speed If true then a quick (and possibly dirty) estimate of the
-     *        extent is returned. If false then a slow but
-     *        accurate extent                will be returned
-     *
-     * @return The extent of the datasource or null if unknown and too
-     *         expensive for the method to calculate.
-     *
-     * @throws RuntimeException DOCUMENT ME!
-     *
-     * @task REVISIT:Consider changing return of getBbox to Filter once Filters
-     *       can be unpacked
-     * @deprecated users can use <tt>DataSourceMetaData.hasFastBbox()</tt> to
-     *             check if the loading of the bounding box
-     *             will take a long                     time.
-     * @task TODO: remove this.
-     */
-    public Envelope getBbox(boolean speed) {
-        try {
-            return getBbox();
-        } catch (DataSourceException e) {
-            throw (RuntimeException)new RuntimeException(
-                "Error in getBbox.  This method should not" +
-                " be used any more, use getBbox()").initCause(e);
-        }
-    }
 
      /**
      * Sets the schema that features extrated from this datasource will be

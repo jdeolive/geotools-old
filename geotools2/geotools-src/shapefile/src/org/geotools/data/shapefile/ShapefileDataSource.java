@@ -30,7 +30,7 @@ import org.geotools.filter.Filter;
 import org.geotools.data.shapefile.dbf.*;
 import org.geotools.data.shapefile.shp.*;
 import org.geotools.data.Query;
-import org.geotools.data.QueryImpl;
+import org.geotools.data.DefaultQuery;
 
 import java.io.IOException;
 import java.io.FileInputStream;
@@ -49,9 +49,10 @@ import java.util.Date;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.charset.Charset;
+import org.geotools.feature.FeatureTypeFactory;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.12 2003/06/10 21:30:43 jmacgill Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.13 2003/07/17 07:09:56 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -172,7 +173,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       if (query.retrieveAllProperties()) {
         mapping = new int[dbf.getHeader().getNumFields() + 1];
       } else {
-        mapping = new int[query.getProperties().length]; 
+        mapping = new int[query.getPropertyNames().length]; 
       }
       //BitSet selector = new BitSet(dbf.getHeader().getNumFields());
       
@@ -184,15 +185,13 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       //FeatureMaker features = new FeatureMaker(dbf,shp,type,selector);
       FeatureMaker features = new FeatureMaker(dbf,shp,type,mapping);
       
-      // an array to copy features into
-      Feature[] array = new Feature[1];
       // read until done
       while (features.hasNext()) {
-        array[0] = features.next();
+        Feature f = features.next();
         // short circuit null filter!!!!
         // this wasn't done before
-        if (filter == null || filter.contains(array[0]))
-          collection.addFeatures(array);
+        if (filter == null || filter.contains(f))
+          collection.add(f);
       }
       shp.close();
       if (dbf != null)
@@ -204,8 +203,8 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     catch (com.vividsolutions.jts.geom.TopologyException te){
       throw new DataSourceException("Topology Exception loading data", te);
     }
-    catch (org.geotools.feature.IllegalFeatureException ife){
-      throw new DataSourceException("Illegal Feature Exception loading data",ife);
+    catch (org.geotools.feature.IllegalAttributeException ife){
+      throw new DataSourceException("Illegal Attribute Exception loading data",ife);
     }
     catch (org.geotools.data.shapefile.shp.InvalidShapefileException ise){
       throw new DataSourceException("Illegal Feature Exception loading data",ise);
@@ -236,7 +235,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
    */
   public FeatureType getSchema() throws DataSourceException{
     try {
-      return getSchema(null,null,new QueryImpl(),null);
+      return getSchema(null,null,new DefaultQuery(),null);
     } catch (InvalidShapefileException e) {
       throw new DataSourceException("Invalid Shapefile",e);
     } catch (IOException e) {
@@ -307,14 +306,14 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     for (int i = 0, ii = ds.length; i < ii; i++) {
       positions.put(ds[i].getName(), new Object[] {new Integer(i),ds[i]});
     }
-    AttributeType[] qat = q.getProperties();
+    String[] qat = q.getPropertyNames();
     ArrayList types = new ArrayList(qat.length);
     for (int i = 0, ii = qat.length; i < ii; i++) {
-      Object[] entry = (Object[]) positions.get(qat[i].getName());
+      Object[] entry = (Object[]) positions.get(qat[i]);
       sel[i] = entry == null ? -1 : ((Integer) entry[0]).intValue();
       
       if (sel[i] == -1) {
-        types.add(qat[i]);
+//        types.add(qat[i]);
       }
       else {
         types.add(entry[1]);
@@ -325,7 +324,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
   
   
   private AttributeType[] getAttributeTypes(DbaseFileReader dbf,ShapeType type) {
-    AttributeType geometryAttribute = new org.geotools.feature.AttributeTypeDefault(
+    AttributeType geometryAttribute = AttributeTypeFactory.newAttributeType(
     "the_geom",
     JTSUtilities.findBestGeometryClass(type)
     );
@@ -360,7 +359,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
           clazz = Double.class;
           break;
       }
-      atts[i + 1] = new org.geotools.feature.AttributeTypeDefault(header.getFieldName(i), clazz);
+      atts[i + 1] = AttributeTypeFactory.newAttributeType(header.getFieldName(i), clazz);
       
     }
     return atts;
@@ -376,13 +375,11 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       for (int i = 0, ii = sel.length; i < ii; i++) {
         sel[i] = i; 
       }
-      //sel = new BitSet(types.length - 1);
-      //sel.set(0,sel.size() - 1,true);
     }
     types = determineAttributeTypes(types, q, sel);
     
     try{
-      return new org.geotools.feature.FeatureTypeFlat(types);
+      return FeatureTypeFactory.newFeatureType(types,getTypeName());
     }
     catch(org.geotools.feature.SchemaException se){
       throw new DataSourceException("Schema Error",se);
@@ -412,9 +409,9 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     final int[] mapping;
     final DbaseFileReader dbf;
     final ShapefileReader shp;
-    final FlatFeatureFactory factory;
     final Object[] readStash;
     final Object[] writeStash;
+    final FeatureType type;
     final IDFactory id;
     int cnt = 0;
     
@@ -424,9 +421,9 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     public FeatureMaker(DbaseFileReader dbf,ShapefileReader shp,FeatureType type,int[] mapping) {
       this.dbf = dbf;
       this.shp = shp;
-      this.factory = new FlatFeatureFactory(type);;
       //this.selector = selector;
       this.mapping = mapping;
+      this.type = type;
       // must be same size as header, should change dbasereader in future...
       readStash = new Object[dbf.getHeader().getNumFields()];
       // these go to the factory...
@@ -446,7 +443,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       );
     }
     
-    public Feature next() throws IOException, IllegalFeatureException {
+    public Feature next() throws IOException, IllegalAttributeException {
       // read the geometry
       ShapefileReader.Record record = shp.nextRecord();
       DbaseFileReader.Row row = null;
@@ -471,26 +468,25 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       // becuase I know that FeatureFlat copies the array,
       // I've chosen to reuse it.
       // This could be changed.
-      return factory.create(writeStash,id.getFeatureID(++cnt));
+      return type.create(writeStash,id.getFeatureID(++cnt));
     }
     
   }
   
-  
+  private String getTypeName() {
+    String path = ShapefileDataSource.this.shpURL.getPath();
+    int dot = path.lastIndexOf('.');
+    if (dot < 0) dot = path.length();
+    int slash = path.lastIndexOf('/') + 1;
+    return path.substring(slash,dot);
+  } 
   
   public static interface IDFactory {
     String getFeatureID(int record);
   }
   
   public class DefaultIDFactory implements IDFactory {
-    final String file;
-    public DefaultIDFactory() {
-      String path = ShapefileDataSource.this.shpURL.getPath();
-      int dot = path.lastIndexOf('.');
-      if (dot < 0) dot = path.length();
-      int slash = path.lastIndexOf('/') + 1;
-      file = path.substring(slash,dot);
-    }
+    final String file =  getTypeName();
     public String getFeatureID(int record) {
       return file + "." + record;
     }
@@ -540,8 +536,12 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     
     // precondition: all features have the same schema
     // - currently ignoring this precondition
-    Feature[] features = featureCollection.getFeatures();
-    AttributeType[] types = features[0].getSchema().getAttributeTypes();
+    FeatureIterator it = featureCollection.features();
+    if (!it.hasNext()) 
+      return;
+    
+    AttributeType[] types = it.next().getFeatureType().getAttributeTypes();
+    
     
     // compute how many supported attributes are there.
     // TODO: handle Calendar, BigDecimal and BigInteger as well
@@ -597,21 +597,23 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
         "Unable to write : " + colType.getName());
       }
     }
-    header.setNumRecords(features.length);
+    header.setNumRecords(featureCollection.size());
     
     // write header
     DbaseFileWriter dbf = new DbaseFileWriter(header,getWriteChannel(dbfURL));
     
     // write rows.
     Object[] dbrow = new Object[numAttributes];
-    for(int i = 0; i < features.length; i++) {
-      Object[] atts = features[i].getAttributes();
+    Object[] attVals = new Object[types.length];
+    it = featureCollection.features();
+    while (it.hasNext()) {
+      it.next().getAttributes(attVals);
       int idx = 0;
       // make data for each column in this feature (row)
       for(int j = 0; j < types.length; j++) {
         // check for supported...
         if (supported[j] > 0)
-          dbrow[idx++] = forAttribute(atts[j],types[j].getType());
+          dbrow[idx++] = forAttribute(attVals[j],types[j].getType());
       }
       dbf.write(dbrow);
     }
@@ -651,12 +653,14 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
    *@param attributeNumber which of the column to test.
    */
   private int findMaxStringLength(FeatureCollection fc, int attributeNumber) {
-    Feature[] features = fc.getFeatures();
+    //Feature[] features = fc.getFeatures();
+    Iterator i = fc.iterator();
     
     int maxlen = 0;
     
-    for(int i = 0; i < features.length; i++) {
-      String s = (String) (features[i].getAttributes())[attributeNumber];
+    while (i.hasNext()) {
+      Feature f = (Feature) i.next();
+      String s = (String) (f.getAttribute(attributeNumber));
       if (s == null)
         continue;
       int len = s.length();
@@ -685,19 +689,27 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
    */
   public GeometryCollection makeShapeGeometryCollection(FeatureCollection fc) throws DataSourceException {
     GeometryCollection result;
-    Feature[] features = fc.getFeatures();
-    Geometry[] allGeoms = new Geometry[features.length];
+
+    Geometry[] allGeoms = new Geometry[fc.size()];
     
-    final ShapeType type = JTSUtilities.findBestGeometryType(features[0].getDefaultGeometry());
+    Iterator i = fc.iterator();
+    if (! i.hasNext())
+      throw new RuntimeException("Feature Collection is empty");
+    
+    Feature f1 = (Feature) i.next();
+    
+    final ShapeType type = JTSUtilities.findBestGeometryType(f1.getDefaultGeometry());
     
     if (type == ShapeType.NULL) {
       throw new DataSourceException(
       "Could not determine shapefile type - data is either all GeometryCollections or empty");
     }
     
-    for(int t = 0; t < features.length; t++) {
+    i = fc.iterator();
+    int t = 0;
+    while (i.hasNext()) {
       Geometry geom;
-      geom = features[t].getDefaultGeometry();
+      geom = ((Feature)i.next()).getDefaultGeometry();
       
       if (type == ShapeType.POINT) {
         
@@ -749,6 +761,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
         
         
       }
+      t++;
     } // end big crazy for loop
     
     result = new GeometryCollection(allGeoms, allGeoms[0].getPrecisionModel(),allGeoms[0].getSRID());
@@ -762,12 +775,10 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     File src = new File(args[0]);
     ShapefileDataSource ds = new ShapefileDataSource(src.toURL());
     FeatureCollection features = ds.getFeatures(Filter.NONE);
-    Feature[] f = features.getFeatures();
-    for (int i = 0, ii = f.length; i < ii; i++) {
-      System.out.println(f[i]);
+    Iterator i = features.iterator();
+    while (i.hasNext()) {
+      System.out.println(i.next());
     }
-    
-    
-    
+
   }
 }

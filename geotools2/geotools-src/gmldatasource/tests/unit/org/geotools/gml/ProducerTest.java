@@ -6,7 +6,6 @@ package org.geotools.gml;
  *
  */
 import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -75,19 +74,20 @@ public class ProducerTest extends TestCase {
             URL url = new URL("file:///"+dataFolder+"/testGML7Features.gml");
             System.out.println("Testing blorg to load "+url+" as Feature datasource");
             DataSource ds = new GMLDataSource(url);
+            
 
             AttributeType[] atts = {  
-	    new AttributeTypeDefault("geoid", Integer.class),
-	    new AttributeTypeDefault("geom", Geometry.class),
-	    new AttributeTypeDefault("name", String.class)};
+	    AttributeTypeFactory.newAttributeType("geoid", Integer.class),
+	    AttributeTypeFactory.newAttributeType("geom", Geometry.class),
+	    AttributeTypeFactory.newAttributeType("name", String.class)};
 	try {
-	schema = (new FeatureTypeFlat(atts)).setTypeName("rail");
+	schema = FeatureTypeFactory.newFeatureType(atts,"rail");
 	//schema = ((FeatureTypeFlat)schema).setNamespace("http://www.openplans.org/ch");
 	} catch (SchemaException e) {
 	    LOGGER.finer("problem with creating schema");
 	}
 	LOGGER.info("namespace is " + schema.getNamespace());
-	featureFactory = new FlatFeatureFactory(schema);
+	featureFactory = schema;
 
  
 	Coordinate[] points = { new Coordinate(15, 15),
@@ -116,17 +116,17 @@ public class ProducerTest extends TestCase {
 	attributes[1] = the_geom;
 	polygonFeature = featureFactory.create(attributes, null);
 	    
-	} catch (IllegalFeatureException ife) {
+	} catch (IllegalAttributeException ife) {
 	    LOGGER.warning("problem in setup " + ife);
 	}
 
 	//table = ds.getFeatures();//new FeatureCollectionDefault();
-	table = new FeatureCollectionDefault();
+	table = FeatureCollections.newCollection();
 	table.add(testFeature);
 	table.add(lineFeature);
 	table.add(polygonFeature);
 	    System.out.println("the feature collection is " + table + ", and "
-			       + "the first feat is " + table.getFeatures()[0]);
+			       + "the first feat is " + table.features().next());
 	    
 	    FeatureTransformer fr = new FeatureTransformer();
 	    fr.setPrettyPrint(true);

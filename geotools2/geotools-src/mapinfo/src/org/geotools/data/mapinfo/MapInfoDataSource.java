@@ -42,6 +42,7 @@ import org.geotools.data.Query;
 import org.geotools.feature.*;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureTypeFactory;
 
 import org.geotools.filter.*;
 
@@ -51,7 +52,7 @@ import org.geotools.styling.*;
 /**
  *
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * @author $author$
  */
 public class MapInfoDataSource extends AbstractDataSource implements DataSource {
@@ -143,9 +144,13 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
     private FeatureType polygonFeatureType;
     
     // Factories to use to build Features
-    private FlatFeatureFactory pointFactory;
-    private FlatFeatureFactory lineFactory;
-    private FlatFeatureFactory polygonFactory;
+//    private FlatFeatureFactory pointFactory;
+//    private FlatFeatureFactory lineFactory;
+//    private FlatFeatureFactory polygonFactory;
+  
+    private FeatureType pointType;
+    private FeatureType lineType;
+    private FeatureType polygonType;
     
     // Factory to use to build Geometries
     private GeometryFactory geomFactory;
@@ -262,18 +267,19 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
                 hColumnsTypes.set(i, "String");
             }
             
-            colAttribs.add(new AttributeTypeDefault((String) hColumnsNames.get(i), typeClass));
+            colAttribs.add(AttributeTypeFactory.newAttributeType((String) hColumnsNames.get(i), typeClass));
         }
         
         
         // Add default Geometry attribute type
-        colAttribs.add(0, new AttributeTypeDefault("point", Geometry.class));
+        colAttribs.add(0, AttributeTypeFactory.newAttributeType("point", Geometry.class));
         
         // create point feature Type & factory
         try {
-            pointFeatureType = new FeatureTypeFlat(
-            (AttributeType[]) colAttribs.toArray(new AttributeType[0]));
-            pointFactory = new FlatFeatureFactory(pointFeatureType);
+            pointType = FeatureTypeFactory.newFeatureType(
+            (AttributeType[]) colAttribs.toArray(new AttributeType[0]),
+            filename.toString() + "_point");
+            
         } catch (SchemaException schexp) {
             throw new DataSourceException("SchemaException setting up point factory : ", schexp);
         }
@@ -281,13 +287,13 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
         
         // Set up Line factory
         // Add default attribute type
-        colAttribs.set(0, new AttributeTypeDefault("line", Geometry.class));
+        colAttribs.set(0, AttributeTypeFactory.newAttributeType("line", Geometry.class));
         
         // create line feature Type & factory
         try {
-            lineFeatureType = new FeatureTypeFlat(
-            (AttributeType[]) colAttribs.toArray(new AttributeType[0]));
-            lineFactory = new FlatFeatureFactory(lineFeatureType);
+            lineType = FeatureTypeFactory.newFeatureType(
+            (AttributeType[]) colAttribs.toArray(new AttributeType[0]),
+            filename.toString() + "_line");
         } catch (SchemaException schexp) {
             throw new DataSourceException("SchemaException setting up line factory : ", schexp);
         }
@@ -295,13 +301,13 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
         
         // Set up Polygon factory
         // Add default attribute type
-        colAttribs.set(0, new AttributeTypeDefault("polygon", Geometry.class));
+        colAttribs.set(0, AttributeTypeFactory.newAttributeType("polygon", Geometry.class));
         
         // create polygon feature Type & factory
         try {
-            polygonFeatureType = new FeatureTypeFlat(
-            (AttributeType[]) colAttribs.toArray(new AttributeType[0]));
-            polygonFactory = new FlatFeatureFactory(polygonFeatureType);
+            polygonType = FeatureTypeFactory.newFeatureType(
+            (AttributeType[]) colAttribs.toArray(new AttributeType[0]),
+            filename.toString() + "_poly");
         } catch (SchemaException schexp) {
             throw new DataSourceException("SchemaException setting up polygon factory : ", schexp);
         }
@@ -611,7 +617,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
             
             //			midValues.putAll(shading);
             // Create Feature
-            feature = buildFeature(pointFeatureType, pointFactory, pointGeom, midValues);
+            feature = buildFeature(pointType, pointGeom, midValues);
             
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("Built point feature : " + x + " " + y);
@@ -665,7 +671,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
             
             //			midValues.putAll(shading);
             // Create Feature
-            feature = buildFeature(lineFeatureType, lineFactory, lineGeom, midValues);
+            feature = buildFeature(lineType, lineGeom, midValues);
             
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("Built line feature : " + x1 + " " + y1 + " - " + x2 + " " + y2);
@@ -736,7 +742,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
             
             //			midValues.putAll(shading);
             // Create Feature
-            feature = buildFeature(lineFeatureType, lineFactory, plineGeom, midValues);
+            feature = buildFeature(lineType, plineGeom, midValues);
             
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("Read polyline (" + coords.size() + ")");
@@ -824,7 +830,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
             
             //			midValues.putAll(shading);
             // Create Feature
-            feature = buildFeature(polygonFeatureType, polygonFactory, polyGeom, midValues);
+            feature = buildFeature(polygonType, polyGeom, midValues);
             
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("Read Region (" + polys.size() + ")");
@@ -852,9 +858,9 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
      *
      * @throws DataSourceException
      */
-    private Feature buildFeature(FeatureType featureType, FlatFeatureFactory factory, Geometry geom,
+    private Feature buildFeature(FeatureType featureType, Geometry geom,
     ArrayList attribs) throws DataSourceException {
-        int numAttribs = featureType.getAllAttributeTypes().length;
+        int numAttribs = featureType.getAttributeTypes().length;
         
         
         // add geometry to the attributes
@@ -868,9 +874,9 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
         
         // Create Feature
         try {
-            return factory.create(attribs.toArray());
-        } catch (IllegalFeatureException ifexp) {
-            throw new DataSourceException("IllegalFeatureException creating feature : ", ifexp);
+            return featureType.create(attribs.toArray());
+        } catch (IllegalAttributeException ifexp) {
+            throw new DataSourceException("IllegalAttributeException creating feature : ", ifexp);
         }
     }
     
@@ -1099,7 +1105,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
         Vector features = readMifMid();
         for(int i=0; i < features.size(); i++){
             if(filter == null || filter.contains((Feature)features.elementAt(i))){
-                collection.addFeatures(new Feature[]{(Feature)features.elementAt(i)});
+                collection.add(features.elementAt(i));
             }
         }
     }

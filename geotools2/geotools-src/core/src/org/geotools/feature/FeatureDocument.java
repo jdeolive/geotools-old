@@ -16,29 +16,13 @@
  */
 package org.geotools.feature;
 
-import sun.misc.Service;
-import java.util.Iterator;
-
-
-public class FeatureFactoryFinder {
-    private FeatureFactoryFinder() {
-    }
-
-    public static FeatureFactory getFeatureFactory(FeatureType type) {
-        Iterator ps = Service.providers(FeatureFactorySpi.class);
-
-        while (ps.hasNext()) {
-            FeatureFactorySpi fac = (FeatureFactorySpi) ps.next();
-
-            if (fac.canCreate(type)) {
-                return fac.getFactory(type);
-            }
-        }
-
-        return null;
-    }
-
-    public static Iterator getAvailableFeatureFactories() {
-        return Service.providers(FeatureFactorySpi.class);
-    }
+/**
+ *
+ * @version $Id: FeatureDocument.java,v 1.2 2003/07/17 07:09:52 ianschneider Exp $
+ * @author  Ian Schneider
+ */
+public interface FeatureDocument extends IndexedFeatureCollection, FeatureList {
+  
+  
+  
 }

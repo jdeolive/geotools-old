@@ -34,7 +34,7 @@ package org.geotools.data;
  *
  * @author jmacgill
  */
-public interface DataSourceFactorySpi {
+public interface DataSourceFactorySpi extends org.geotools.factory.Factory {
     /**
      * Construct a live data source using the params specifed.
      *

@@ -16,42 +16,18 @@
  */
 package org.geotools.filter;
 
-import com.vividsolutions.jts.geom.*;
 import junit.framework.*;
-import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
-import org.geotools.feature.*;
-import org.geotools.gml.GMLFilterDocument;
-import org.geotools.gml.GMLFilterGeometry;
-import org.geotools.resources.Geotools;
-import org.w3c.dom.*;
-import java.io.*;
-import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.parsers.*;
-
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Unit test for SQLEncoderPostgis.  This is a complimentary  test suite with
  * the filter test suite.
  *
- * @author James MacGill, CCG
  * @author Chris Holmes, TOPP
  */
-public class SQLEncoderPostgisTest extends TestCase {
-    /** Standard logging instance */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
-
-    /** Schema on which to preform tests */
-    private static FeatureType testSchema = null;
-
-    /** Schema on which to preform tests */
-    private static Feature testFeature = null;
-
-    static {
-        Geotools.init("Log4JFormatter", Level.FINER);
-    }
+public class SQLEncoderPostgisTest extends  FilterTestSupport {    
 
     /** Test suite for this test case */
     TestSuite suite = null;
@@ -93,95 +69,7 @@ public class SQLEncoderPostgisTest extends TestCase {
         return suite;
     }
 
-    /**
-     * Sets up a schema and a test feature.
-     *
-     * @throws SchemaException If there is a problem setting up the schema.
-     * @throws IllegalFeatureException If problem setting up the feature.
-     */
-    protected void setUp() throws SchemaException, IllegalFeatureException {
-        if (setup) {
-            return;
-        }
 
-        setup = true;
-
-        // Create the schema attributes
-        LOGGER.finer("creating flat feature...");
-
-        AttributeType geometryAttribute = new AttributeTypeDefault("testGeometry",
-                LineString.class);
-        LOGGER.finer("created geometry attribute");
-
-        AttributeType booleanAttribute = new AttributeTypeDefault("testBoolean",
-                Boolean.class);
-        LOGGER.finer("created boolean attribute");
-
-        AttributeType charAttribute = new AttributeTypeDefault("testCharacter",
-                Character.class);
-        AttributeType byteAttribute = new AttributeTypeDefault("testByte",
-                Byte.class);
-        AttributeType shortAttribute = new AttributeTypeDefault("testShort",
-                Short.class);
-        AttributeType intAttribute = new AttributeTypeDefault("testInteger",
-                Integer.class);
-        AttributeType longAttribute = new AttributeTypeDefault("testLong",
-                Long.class);
-        AttributeType floatAttribute = new AttributeTypeDefault("testFloat",
-                Float.class);
-        AttributeType doubleAttribute = new AttributeTypeDefault("testDouble",
-                Double.class);
-        AttributeType stringAttribute = new AttributeTypeDefault("testString",
-                String.class);
-
-        // Builds the schema
-        testSchema = new FeatureTypeFlat(geometryAttribute);
-        LOGGER.finer("created feature type and added geometry");
-        testSchema = testSchema.setAttributeType(booleanAttribute);
-        LOGGER.finer("added boolean to feature type");
-        testSchema = testSchema.setAttributeType(charAttribute);
-        LOGGER.finer("added character to feature type");
-        testSchema = testSchema.setAttributeType(byteAttribute);
-        LOGGER.finer("added byte to feature type");
-        testSchema = testSchema.setAttributeType(shortAttribute);
-        LOGGER.finer("added short to feature type");
-        testSchema = testSchema.setAttributeType(intAttribute);
-        LOGGER.finer("added int to feature type");
-        testSchema = testSchema.setAttributeType(longAttribute);
-        LOGGER.finer("added long to feature type");
-        testSchema = testSchema.setAttributeType(floatAttribute);
-        LOGGER.finer("added float to feature type");
-        testSchema = testSchema.setAttributeType(doubleAttribute);
-        LOGGER.finer("added double to feature type");
-        testSchema = testSchema.setAttributeType(stringAttribute);
-        LOGGER.finer("added string to feature type");
-
-        GeometryFactory geomFac = new GeometryFactory();
-
-        // Creates coordinates for the linestring
-        Coordinate[] coords = new Coordinate[3];
-        coords[0] = new Coordinate(1, 2);
-        coords[1] = new Coordinate(3, 4);
-        coords[2] = new Coordinate(5, 6);
-
-        // Builds the test feature
-        Object[] attributes = new Object[10];
-        attributes[0] = geomFac.createLineString(coords);
-        attributes[1] = new Boolean(true);
-        attributes[2] = new Character('t');
-        attributes[3] = new Byte("10");
-        attributes[4] = new Short("101");
-        attributes[5] = new Integer(1002);
-        attributes[6] = new Long(10003);
-        attributes[7] = new Float(10000.4);
-        attributes[8] = new Double(100000.5);
-        attributes[9] = "test string data";
-
-        // Creates the feature itself
-        FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
-        testFeature = factory.create(attributes);
-        LOGGER.finer("...flat feature created");
-    }
 
     public void test1() throws Exception {
         GeometryFilterImpl gf = new GeometryFilterImpl(AbstractFilter.GEOMETRY_BBOX);

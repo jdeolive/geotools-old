@@ -16,50 +16,17 @@
  */
 package org.geotools.feature;
 
-// J2SE dependencies
-import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.logging.Logger;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-
-// Geotools dependencies
-import org.geotools.data.DataSource;
-import org.geotools.data.Extent;
-import org.geotools.data.DataSourceException;
-import org.geotools.datasource.extents.EnvelopeExtent;
-import org.geotools.filter.FilterFactory;
-import org.geotools.filter.GeometryFilter;
-import org.geotools.filter.AbstractFilter;
-import org.geotools.filter.LiteralExpression;
-import org.geotools.filter.IllegalFilterException;
-
+import com.vividsolutions.jts.geom.*;
+import java.util.*;
 
 /**
- * The default feature collection holds and passes out features promiscuously
- * to requesting clients.  It does not guarantee that features are of a certain
- * type or that they follow a specific schema.
- *
- * @version $Id: FeatureCollectionDefault.java,v 1.12 2003/05/15 18:52:47 cholmesny Exp $
- * @author  James Macgill, CCG<br>
- * @author  Rob Hranac, VFNY<br>
+ * A basic implementation of FeatureCollection which use a LinkedHashSet for its
+ * internal storage. This preserves ordering and allows a faster iteration speed
+ * then a HashSet.
+ * @version $Id: DefaultFeatureCollection.java,v 1.2 2003/07/17 07:09:53 ianschneider Exp $
+ * @author  Ian Schneider
  */
-public class FeatureCollectionDefault implements FeatureCollection {
-  
-  /**
-   * The logger for the default core module.
-   */
-  private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-  
-  /**
-   * Shared filter factory (for extents filtering)
-   */
-  private static final FilterFactory factory = FilterFactory.createFilterFactory();
+public class DefaultFeatureCollection implements FeatureCollection {
   
   /* Internal feature storage list */
   private Set features = new LinkedHashSet();
@@ -67,222 +34,54 @@ public class FeatureCollectionDefault implements FeatureCollection {
   /* Internal listener storage list */
   private List listeners = new ArrayList(2);
   
-  /* Pointer to the datasource */
-  private DataSource data;
+  private Envelope bounds = null;
   
-  /* The currently loaded extent */
-  private Extent loadedExtent;
-  
-  /**
-   * Creates a new instance of DefaultFeatureTable
+  /** This class is protected to discourage direct usage... opurtunistic resuse
+   * is encouraged, but only for the purposes of testing or other specialized 
+   * uses. Normal creation should occur through
+   * org.geotools.core.FeatureCollections.newCollection().
+   * 
    *
    */
-  public FeatureCollectionDefault() {
-  }
-  
-  /** 
-   * Creates a new instance of DefaultFeatureTable
-   *
-   * @param data
-   */
-  public FeatureCollectionDefault(DataSource data){
-    setDataSource(data);
-  }
-  
-  
-  
-   /* ***********************************************************************
-    * Managing data source and extents.
-    * ***********************************************************************/
-  
-  /**
-   * Creates a new instance of DefaultFeatureTable.
-   *
-   * @param data
-   */
-  public void setDataSource(DataSource data) {
-    this.data = data;
-  }
-  
-  /**
-   * Creates a new instance of DefaultFeatureTable.
-   *
-   * @return The datasource that the Feature Collection is currently attached
-   *         to.
-   */
-  public DataSource getDataSource() {
-    return this.data;
-  }
-  
-  
-  /**
-   * Gets the loaded Extent of this FeatureTable.
-   * The Extent of current loaded Features in this table.
-   */
-  public void setExtent(Extent extent) {
-    this.loadedExtent = extent;
-  }
-  
-  
-  /**
-   * Gets the loaded Extent of this FeatureTable.
-   * The Extent of current loaded Features in this table.
-   */
-  public Extent getExtent() {
-    return this.loadedExtent;
-  }
-  
-   /**
-     * Gets the bounding box for the features in this feature collection.
-     *
-     * @return the envelope of the default geometries contained by this feature
-     * collection.
-     * @task TODO: do not recalculate each time.  Keep the calculated envelope
-     * in the object.  Would be nice to get rid of extent stuff first, so 
-     * it doesn't lead to confusion as to what's going on.
-     */
-    public Envelope getBoundingBox() {
-	Envelope bounding = new Envelope();
-	for (Iterator i = features.iterator(); i.hasNext();){
-	    Geometry geom = ((Feature)i.next()).getDefaultGeometry();
-	    bounding.expandToInclude(geom.getEnvelopeInternal());
-	}
-	return bounding;
-    }
+  protected DefaultFeatureCollection() {
     
-
-
-    /* ***********************************************************************
-     * Managing collection listeners.
-     * ***********************************************************************/
+  }
+  
+  public Envelope getBounds() {
+    if (bounds == null) {
+      bounds = new Envelope();
+      for (Iterator i = features.iterator(); i.hasNext();){
+        Envelope geometryBounds = ((Feature)i.next()).getBounds();
+        bounds.expandToInclude(geometryBounds);
+      }
+    }
+    return bounds;
+  }
+  
+  
   /**
    * Adds a listener for table events.
    */
-  public void addListener(CollectionListener spy) {
-    listeners.add(spy);
+  public void addListener(CollectionListener listener) {
+    listeners.add(listener);
   }
   
   /**
    * Removes a listener for table events.
    */
-  public void removeListener(CollectionListener spy) {
-    listeners.remove(spy);
+  public void removeListener(CollectionListener listener) {
+    listeners.remove(listener);
   }
   
   protected void fireChange() {
+    bounds = null;
+    
     CollectionEvent ce = new CollectionEvent(this);
     for (int i = 0, ii = listeners.size(); i < ii; i++) {
       ((CollectionListener) listeners.get(i)).collectionChanged(ce);
     }
   }
   
-  
-    /* ***********************************************************************
-     * Managing features via the datasource.
-     * ***********************************************************************/
-  /**
-   * Gets the features in the datasource inside the loadedExtent.
-   * Will not trigger a datasourceload.
-   * Functionally equivalent to getFeatures(getLoadedExtent());
-   *
-   * @see #getfeatures(Extent ex)
-   */
-  public Feature[] getFeatures() {
-    Feature[] list = (Feature[]) features.toArray(new Feature[features.size()]);
-    return list;
-  }
-  
-  
-  /**
-   * Gets the features in the datasource inside the Extent ex.
-   * This may trigger a load on the datasource.
-   */
-  public Feature[] getFeatures(Extent ex) throws DataSourceException {
-    try{
-      // TODO: 2
-      // Replace this idiom with a loadedExtent = loadedExtent.or(extent)
-      //  idiom.  I think?
-      Extent toLoad[];
-      if (loadedExtent != null){
-        toLoad = loadedExtent.difference(ex);
-      }
-      else {
-        toLoad = new Extent[]{ex};
-      }
-      
-      for (int i = 0; i < toLoad.length; i++){
-        //TODO: move this code to its own method?
-        if (toLoad[i] != null){
-          if (data != null){
-            LOGGER.finer("loading " + i);
-            GeometryFilter gf =
-            factory.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-            LiteralExpression right =
-            factory.createBBoxExpression(((EnvelopeExtent)toLoad[i]).getBounds());
-            gf.addRightGeometry(right);
-            data.getFeatures(this,gf);
-          }
-          if (loadedExtent == null){
-            loadedExtent = toLoad[i];
-          }
-          else {
-            loadedExtent = loadedExtent.combine(toLoad[i]);
-          }
-        }
-      }
-      LOGGER.finer("calling getfeatures");
-      return getFeatures();
-    }
-    catch(IllegalFilterException ife){
-      DataSourceException e = new DataSourceException(ife.toString());
-      e.initCause(ife);
-      throw e;
-    }
-  }
-  
-  
-  
-  /**
-   * Removes the features from this FeatureTable which fall into the
-   * specified extent, notifying TableChangedListeners that the table has
-   * changed.
-   * @param ex The extent defining which features to remove
-   */
-  public void removeFeatures(Extent ex) {
-    //TODO: remove the features
-  }
-  
-  /**
-   * Removes the features from this FeatureTable, notifying
-   * TableChangedListeners that the table has changed.
-   * @param features The Features to remove
-   */
-  public void removeFeatures(final Feature[] f) {
-    boolean change = false;
-    for (int i = 0; i < f.length; i++) {
-      change |= features.remove(f[i]);
-    }
-    if (change)
-      fireChange();
-  }
-  
-  /**
-   * Adds the given List of Features to this FeatureTable.
-   *
-   * @param features The List of Features to add
-   */
-  public void addFeatures(final Feature[] f) {
-    boolean change = false;
-    for (int i = 0; i < f.length; i++) {
-      change |= features.add(f[i]);
-    }
-    if (change)
-      fireChange();
-  }
-  
-  public void addFeatures(List features){
-    addAll(features);
-  }
   
   /** Ensures that this collection contains the specified element (optional
    * operation).  Returns <tt>true</tt> if this collection changed as a
@@ -317,8 +116,9 @@ public class FeatureCollectionDefault implements FeatureCollection {
    *
    */
   public boolean add(Object o) {
+    Feature f = (Feature) o;
     // This cast is neccessary to keep with the contract of Set!
-    boolean changed = features.add( (Feature) o);
+    boolean changed = features.add( f );
     if (changed)
       fireChange();
     return changed;
@@ -437,7 +237,25 @@ public class FeatureCollectionDefault implements FeatureCollection {
    *
    */
   public Iterator iterator() {
-    return features.iterator();
+    final Iterator iterator = features.iterator();
+    return new Iterator() {
+      public boolean hasNext() {
+        return iterator.hasNext(); 
+      }
+      
+      public Object next() {
+        return iterator.next(); 
+      }
+      
+      public void remove() {
+        iterator.remove();
+        fireChange();
+      }
+    };
+  }
+  
+  public FeatureIterator features() {
+    return new FeatureIterator(this);
   }
   
   /** Removes a single instance of the specified element from this
@@ -610,5 +428,6 @@ public class FeatureCollectionDefault implements FeatureCollection {
     return features.toArray(a);
   }
   
- 
+  
+  
 }

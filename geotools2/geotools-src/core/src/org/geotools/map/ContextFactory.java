@@ -22,6 +22,8 @@ import org.geotools.gui.tools.Tool;
 import org.geotools.styling.Style;
 import org.opengis.cs.CS_CoordinateSystem;
 import java.util.logging.Logger;
+import org.geotools.factory.*;
+import org.geotools.feature.FeatureCollection;
 
 
 /**
@@ -29,10 +31,8 @@ import java.util.logging.Logger;
  * It should not be called directly.  Instead it should be created from
  * ContextFactory, and ContextFactory methods should be called instead.
  */
-public abstract class ContextFactory {
-    /** The logger */
-    private static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.gui.tools.ContextFactory");
+public abstract class ContextFactory implements Factory {
+
     private static ContextFactory factory = null;
 
     /**
@@ -41,50 +41,17 @@ public abstract class ContextFactory {
      * @return An instance of ContextFactory, or null if ContextFactory could
      *         not be created.
      */
-    public static ContextFactory createFactory() {
+    public static ContextFactory createFactory() throws
+    FactoryConfigurationError {
         if (factory == null) {
-            String factoryClass = System.getProperty("ContextFactoryImpl");
-            LOGGER.fine("loaded property = " + factoryClass);
-
-            if ((factoryClass != null) && (factoryClass != "")) {
-                factory = createFactory(factoryClass);
-            }
-
-            if (factory == null) {
-                factory = createFactory("org.geotools.map.ContextFactoryImpl");
-            }
+            factory = (ContextFactory) FactoryFinder.findFactory(
+              "org.geotools.map.ContextFactory",
+              "org.geotools.map.ContextFactoryImpl");
         }
 
         return factory;
     }
 
-    /**
-     * Create an instance of the factory.
-     *
-     * @param factoryClass The name of the factory, eg:
-     *        "org.geotools.gui.tools.ContextFactoryImpl".
-     *
-     * @return An instance of the Factory, or null if the Factory could not be
-     *         created.
-     */
-    public static ContextFactory createFactory(String factoryClass) {
-        try {
-            return factory = (ContextFactory) Class.forName(factoryClass)
-                                                   .newInstance();
-        } catch (ClassNotFoundException e) {
-            LOGGER.warning("createFactory failed to find implementation " +
-                factoryClass + " , " + e);
-        } catch (InstantiationException e) {
-            LOGGER.warning("createFactory failed to insantiate implementation " +
-                factoryClass + " , " + e);
-        } catch (IllegalAccessException e) {
-            LOGGER.warning(
-                "createStyleFactory failed to access implementation " +
-                factoryClass + " , " + e);
-        }
-
-        return null;
-    }
 
     /**
      * Create a BoundingBox.
@@ -146,7 +113,7 @@ public abstract class ContextFactory {
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public abstract Layer createLayer(DataSource dataSource, Style style)
+    public abstract Layer createLayer(FeatureCollection features, Style style)
         throws IllegalArgumentException;
 
     /**

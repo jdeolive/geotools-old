@@ -16,10 +16,9 @@
  */
 package org.geotools.data;
 
-import sun.misc.Service;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.geotools.factory.FactoryFinder;
 
 
 /*
@@ -34,7 +33,6 @@ import java.util.logging.Logger;
  */
 public class DataSourceFinder {
     /** The logger for the data module. */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.data");
 
     private DataSourceFinder() {
     }
@@ -56,12 +54,10 @@ public class DataSourceFinder {
      */
     public static DataSource getDataSource(Map params)
         throws DataSourceException {
-        Iterator ps = Service.providers(DataSourceFactorySpi.class);
-        LOGGER.finer("Available Data Sources:");
+        Iterator ps = getAvailableDataSources();
 
         while (ps.hasNext()) {
             DataSourceFactorySpi fac = (DataSourceFactorySpi) ps.next();
-            LOGGER.finer(fac.getDescription());
 
             if (fac.canProcess(params)) {
                 return fac.createDataSource(params);
@@ -82,6 +78,6 @@ public class DataSourceFinder {
      *       available, we can probably work round this.
      */
     public static Iterator getAvailableDataSources() {
-        return Service.providers(DataSourceFactorySpi.class);
+        return FactoryFinder.factories(DataSourceFactorySpi.class);
     }
 }

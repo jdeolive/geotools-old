@@ -32,7 +32,7 @@ import org.geotools.filter.Filter;
  * and discarding when the max is reached.
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.4 2003/05/16 15:49:06 jmacgill Exp $
+ * @version $Id: Query.java,v 1.5 2003/07/17 07:09:51 ianschneider Exp $
  */
 public interface Query {
     /** So getMaxFeatures does not return null we use a very large number. */
@@ -44,7 +44,7 @@ public interface Query {
      * filtering, and the default featureType.
      */
     static final Query ALL = new Query() {
-            public final AttributeType[] getProperties() {
+            public final String[] getPropertyNames() {
                 return null;
             }
 
@@ -87,10 +87,7 @@ public interface Query {
      * 
      * <p>
      * If properties that are not part of the datasource's schema are requested
-     * then the datasource shall return a FeatureCollection with a schema
-     * including all the properties requested.  Each feature shall have
-     * <tt>null</tt> for the attributes of the AttributeTypes not  contained
-     * in the datasource's schema.
+     * then the datasource shall throw an exception.
      * </p>
      * 
      * <p>
@@ -105,8 +102,10 @@ public interface Query {
      * </p>
      *
      * @return the attributes to be used in the returned FeatureCollection.
+     *
+     * @task REVISIT: make a FidProperties object, instead of an array size 0.
      */
-    AttributeType[] getProperties();
+    String[] getPropertyNames();
 
     /**
      * Convenience method to determine if the query should use the full schema

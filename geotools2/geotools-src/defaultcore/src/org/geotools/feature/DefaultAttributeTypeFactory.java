@@ -17,25 +17,20 @@
 package org.geotools.feature;
 
 /**
- * Indicates client class has attempted to create an invalid feature.
- *
- * @author Rob Hranac, Vision for New York
- * @version $Id: IllegalFeatureException.java,v 1.4 2003/05/07 16:53:04 jmacgill Exp $
+ * @version $Id: DefaultAttributeTypeFactory.java,v 1.2 2003/07/17 07:09:53 ianschneider Exp $
+ * @author Ian Schneider
  */
-public class IllegalFeatureException extends Exception {
-    /**
-     * Constructor with no argument.
-     */
-    public IllegalFeatureException() {
-        super();
+public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
+  
+  protected AttributeType createAttributeType(String name, Class clazz, boolean isNillable) {
+    if (Number.class.isAssignableFrom(clazz)) {
+      return new DefaultAttributeType.Numeric(name,clazz,isNillable); 
     }
-
-    /**
-     * Constructor with message argument.
-     *
-     * @param message Reason for the exception being thrown
-     */
-    public IllegalFeatureException(String message) {
-        super(message);
-    }
+    return new DefaultAttributeType(name,clazz, isNillable);
+  }
+  
+  protected AttributeType createAttributeType(String name, FeatureType type, boolean isNillable) {
+    return new DefaultAttributeType.Feature(name,type,isNillable);
+  }
+  
 }

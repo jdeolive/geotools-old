@@ -19,7 +19,6 @@ package org.geotools.filter;
 import com.vividsolutions.jts.geom.*;
 import junit.framework.*;
 import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import org.geotools.gml.GMLFilterDocument;
 import org.geotools.gml.GMLFilterGeometry;
@@ -31,22 +30,13 @@ import javax.xml.parsers.*;
 
 
 /**
- * Unit test for expressions.  This is a complimentary test suite with the
- * filter test suite.
+ * Tests for the DOM parser.
  *
  * @author James MacGill, CCG
  * @author Rob Hranac, TOPP
+ * @author Chris Holmes, TOPP
  */
-public class DOMParserTest extends TestCase {
-    /** Standard logging instance */
-    private static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.defaultcore");
-
-    /** Schema on which to preform tests */
-    private static FeatureType testSchema = null;
-
-    /** Schema on which to preform tests */
-    private static Feature testFeature = null;
+public class DOMParserTest extends FilterTestSupport {
 
     /** Feature on which to preform tests */
     private Filter filter = null;
@@ -67,7 +57,7 @@ public class DOMParserTest extends TestCase {
         if (dataFolder == null) {
             //then we are being run by maven
             dataFolder = System.getProperty("basedir");
-            dataFolder = "file:////" + dataFolder + "/tests/unit/testData"; //url.toString();
+            dataFolder = "file:////" + dataFolder + "/tests/unit/testData"; 
             LOGGER.fine("data folder is " + dataFolder);
         }
     }
@@ -81,86 +71,16 @@ public class DOMParserTest extends TestCase {
         junit.textui.TestRunner.run(suite());
     }
 
-    /**
-     * Required suite builder.
-     *
-     * @return A test suite for this unit test.
-     */
-    public static Test suite() {
-        //_log.getLoggerRepository().setThreshold(Level.INFO);
-        TestSuite suite = new TestSuite(DOMParserTest.class);
-
-        return suite;
-    }
-
-    /**
-     * Sets up a schema and a test feature.
-     *
-     * @throws SchemaException If there is a problem setting up the schema.
-     * @throws IllegalFeatureException If problem setting up the feature.
-     */
-    protected void setUp() throws SchemaException, IllegalFeatureException {
-        if (setup) {
-            return;
-        }
-
-        setup = true;
-
-        // Create the schema attributes
-        LOGGER.finer("creating flat feature...");
-
-        AttributeType geometryAttribute = new AttributeTypeDefault("testGeometry",
-                LineString.class);
-        LOGGER.finer("created geometry attribute");
-
-        AttributeType booleanAttribute = new AttributeTypeDefault("testBoolean",
-                Boolean.class);
-        LOGGER.finer("created boolean attribute");
-
-        AttributeType charAttribute = new AttributeTypeDefault("testCharacter",
-                Character.class);
-        AttributeType byteAttribute = new AttributeTypeDefault("testByte",
-                Byte.class);
-        AttributeType shortAttribute = new AttributeTypeDefault("testShort",
-                Short.class);
-        AttributeType intAttribute = new AttributeTypeDefault("testInteger",
-                Integer.class);
-        AttributeType longAttribute = new AttributeTypeDefault("testLong",
-                Long.class);
-        AttributeType floatAttribute = new AttributeTypeDefault("testFloat",
-                Float.class);
-        AttributeType doubleAttribute = new AttributeTypeDefault("testDouble",
+    public void setUp()  throws SchemaException, 
+    IllegalAttributeException {
+	super.setUp();
+	FeatureTypeFactory feaTypeFactory = FeatureTypeFactory.createTemplate(testSchema);
+	AttributeType doubleAttribute2 = attFactory.newAttributeType("testZeroDouble",
                 Double.class);
-        AttributeType doubleAttribute2 = new AttributeTypeDefault("testZeroDouble",
-                Double.class);
-        AttributeType stringAttribute = new AttributeTypeDefault("testString",
-                String.class);
+	feaTypeFactory.addType(doubleAttribute2);
+	testSchema = feaTypeFactory.getFeatureType();
 
-        // Builds the schema
-        testSchema = new FeatureTypeFlat(geometryAttribute);
-        LOGGER.finer("created feature type and added geometry");
-        testSchema = testSchema.setAttributeType(booleanAttribute);
-        LOGGER.finer("added boolean to feature type");
-        testSchema = testSchema.setAttributeType(charAttribute);
-        LOGGER.finer("added character to feature type");
-        testSchema = testSchema.setAttributeType(byteAttribute);
-        LOGGER.finer("added byte to feature type");
-        testSchema = testSchema.setAttributeType(shortAttribute);
-        LOGGER.finer("added short to feature type");
-        testSchema = testSchema.setAttributeType(intAttribute);
-        LOGGER.finer("added int to feature type");
-        testSchema = testSchema.setAttributeType(longAttribute);
-        LOGGER.finer("added long to feature type");
-        testSchema = testSchema.setAttributeType(floatAttribute);
-        LOGGER.finer("added float to feature type");
-        testSchema = testSchema.setAttributeType(doubleAttribute);
-        LOGGER.finer("added double to feature type");
-        testSchema = testSchema.setAttributeType(doubleAttribute2);
-        LOGGER.finer("added double to feature type");
-        testSchema = testSchema.setAttributeType(stringAttribute);
-        LOGGER.finer("added string to feature type");
-
-        GeometryFactory geomFac = new GeometryFactory();
+	    GeometryFactory geomFac = new GeometryFactory();
 
         // Creates coordinates for the linestring
         Coordinate[] coords = new Coordinate[3];
@@ -179,13 +99,23 @@ public class DOMParserTest extends TestCase {
         attributes[6] = new Long(10003);
         attributes[7] = new Float(10000.4);
         attributes[8] = new Double(100000.5);
-        attributes[9] = new Double(0.0);
-        attributes[10] = "test string data";
-
+        attributes[9] = "test string data";
+	attributes[10] = new Double(0.0);
         // Creates the feature itself
-        FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
-        testFeature = factory.create(attributes);
-        LOGGER.finer("...flat feature created");
+        
+        testFeature = testSchema.create(attributes);
+    }
+
+    /**
+     * Required suite builder.
+     *
+     * @return A test suite for this unit test.
+     */
+    public static Test suite() {
+        //_log.getLoggerRepository().setThreshold(Level.INFO);
+        TestSuite suite = new TestSuite(DOMParserTest.class);
+
+        return suite;
     }
 
     public void test1() throws Exception {

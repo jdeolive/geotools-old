@@ -37,7 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.WeakHashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
@@ -46,7 +46,6 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import org.geotools.feature.Feature;
-import org.geotools.feature.IllegalFeatureException;
 
 import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.Fill;
@@ -66,7 +65,7 @@ public class RendererUtilities {
                                                  "org.geotools.rendering");
     private static final Canvas obs = new Canvas();
     static HashSet fontFamilies = null;
-    static HashMap loadedFonts = new HashMap();
+    static WeakHashMap loadedFonts = new WeakHashMap();
 
     /**
      * Holds a lookup bewteen SLD names and java constants.
@@ -146,7 +145,7 @@ public class RendererUtilities {
     /** Creates a new instance of RendererUtilities */
     public RendererUtilities() {
     }
-
+    
     /**
      * Extracts the named geometry from feature.
      * If geomName is null then the feature's default geometry is used.
@@ -164,17 +163,8 @@ public class RendererUtilities {
         if (geomName == null) {
             geom = feature.getDefaultGeometry();
         } else {
-            try {
-                geom = (Geometry) feature.getAttribute(geomName);
-            } catch (IllegalFeatureException ife) {
-                if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.fine("Geometry " + geomName + " not found " + ife);
-                }
-
-
-                //hack: not sure if null is the right thing to return at this point
-                geom = null;
-            }
+            geom = (Geometry) feature.getAttribute(geomName);
+            
         }
 
         return geom;

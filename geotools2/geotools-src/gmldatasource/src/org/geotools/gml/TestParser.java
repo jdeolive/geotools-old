@@ -27,7 +27,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
 import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
+
 import org.geotools.feature.*;
 
 
@@ -48,7 +48,7 @@ import org.geotools.feature.*;
  * own class.  The only requirement of your new class is that it implements 
  * <code>GMLHandlerJTS</code>.  That's it!</p>
  * 
- * @version $Id: TestParser.java,v 1.12 2003/07/02 17:35:47 jmacgill Exp $
+ * @version $Id: TestParser.java,v 1.13 2003/07/17 07:09:54 ianschneider Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class TestParser {
@@ -116,14 +116,10 @@ public class TestParser {
             GMLDataSource data = new GMLDataSource(uri);
             FeatureCollection featureCollection = data.getFeatures(Query.ALL);
 
-            Vector parsedFeatures =
-            new Vector(java.util.Arrays.asList(featureCollection.getFeatures()));
-            FeatureFlat tempFeature;
-
-            for (int i = 0; i < parsedFeatures.size(); i++) {
-                tempFeature = (FeatureFlat) parsedFeatures.get(i);
+            Iterator i = featureCollection.iterator();
+            while (i.hasNext()) {
                 System.out.println("Parsed feature is ... "
-                + tempFeature.toString());
+                + i.next());
             }
        } catch (DataSourceException e) {
                 System.out.println("TestParser->parseFeatures DataSourceException: "+e.toString());

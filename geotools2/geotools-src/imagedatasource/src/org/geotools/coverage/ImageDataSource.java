@@ -25,9 +25,12 @@ import org.geotools.data.AbstractDataSource;
 import org.geotools.data.Query;
 import org.geotools.data.DataSourceMetaData;
 import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollections;
+import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterFactory;
@@ -36,8 +39,8 @@ import org.geotools.filter.NullFilter;
 
 
 /**
- * $Id: ImageDataSource.java,v 1.6 2003/05/20 17:02:39 jmacgill Exp $
- *
+ * $Id: ImageDataSource.java,v 1.7 2003/07/17 07:09:55 ianschneider Exp $
+ * @todo : fix the typeName! -IanS
  * @author  iant
  */
 public class ImageDataSource extends AbstractDataSource 
@@ -50,17 +53,16 @@ public class ImageDataSource extends AbstractDataSource
     Envelope bbox;
     
     static org.geotools.feature.FeatureType schema;
-    static org.geotools.feature.FlatFeatureFactory factory;
     static com.vividsolutions.jts.geom.GeometryFactory geomFac = new com.vividsolutions.jts.geom.GeometryFactory();
     static {
-        org.geotools.feature.AttributeTypeDefault geom = new org.geotools.feature.AttributeTypeDefault("geom",com.vividsolutions.jts.geom.Polygon.class);
-        org.geotools.feature.AttributeTypeDefault grid = new org.geotools.feature.AttributeTypeDefault("grid",org.geotools.gc.GridCoverage.class);
+        AttributeType geom = AttributeTypeFactory.newAttributeType("geom",com.vividsolutions.jts.geom.Polygon.class);
+        AttributeType grid = AttributeTypeFactory.newAttributeType("grid",org.geotools.gc.GridCoverage.class);
         try{
-            schema = new org.geotools.feature.FeatureTypeFlat(new AttributeType[]{geom,grid});
+          // todo : fix the typeName! -IanS
+            schema = FeatureTypeFactory.newFeatureType(new AttributeType[]{geom,grid},"image");
         } catch (SchemaException e){
             System.err.println("Help - unexpected schema exception thrown\n\t"+e);
         }
-        factory = new org.geotools.feature.FlatFeatureFactory(schema);
     }
     /** Creates a new instance of PNGDatasource */
     public ImageDataSource(String name) throws java.io.IOException{
@@ -107,7 +109,7 @@ public class ImageDataSource extends AbstractDataSource
             filter = filter.not(); 
         }
         int numb = reader.getNumImages(true);
-        FeatureCollection features = new org.geotools.feature.FeatureCollectionDefault();
+        FeatureCollection features = FeatureCollections.newCollection();
         ArrayList featuresList = new ArrayList();
         for(int i=0; i<numb;i++){
             
@@ -135,12 +137,12 @@ public class ImageDataSource extends AbstractDataSource
             }
             com.vividsolutions.jts.geom.Polygon p = geomFac.createPolygon(r,null);
             try{
-                org.geotools.feature.Feature feature = factory.create(new Object[]{p,reader.getGridCoverage(i)});
+                Feature feature = schema.create(new Object[]{p,reader.getGridCoverage(i)});
                 System.out.println("created "+ feature);
                 if(filter.contains(feature)){
                     featuresList.add(feature);
                 }
-            } catch (org.geotools.feature.IllegalFeatureException ife){
+            } catch (org.geotools.feature.IllegalAttributeException ife){
                 throw new DataSourceException("",ife);
             }
         }
@@ -206,8 +208,8 @@ public class ImageDataSource extends AbstractDataSource
      */
     public FeatureCollection getFeatures(Filter filter) throws DataSourceException {
         try{
-            FeatureCollection collection = new org.geotools.feature.FeatureCollectionDefault();
-            collection.addFeatures((Feature[])loadFeatures(filter).toArray(new Feature[0]));
+            FeatureCollection collection = FeatureCollections.newCollection();
+            collection.addAll(loadFeatures(filter));
             return collection;
         } catch (java.io.IOException e){
             throw new DataSourceException("",e);
@@ -230,8 +232,8 @@ public class ImageDataSource extends AbstractDataSource
 	    filter = query.getFilter();
 	}
         try{
-            if(collection == null) collection = new org.geotools.feature.FeatureCollectionDefault();
-            collection.addFeatures((Feature[])loadFeatures(filter).toArray(new Feature[0]));
+            if(collection == null) collection = FeatureCollections.newCollection();
+            collection.addAll(loadFeatures(filter));
         } catch (java.io.IOException e){
             throw new DataSourceException("",e);
         }

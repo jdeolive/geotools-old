@@ -1,7 +1,6 @@
 package org.geotools.data;
 
 import com.vividsolutions.jts.geom.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import java.util.*;
 import junit.framework.*;
@@ -16,7 +15,8 @@ public class DatasourceTest extends TestCase implements CollectionListener {
         super(testName);
     }
     public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
+      System.setProperty("dataFolder", "../../../testData");
+      junit.textui.TestRunner.run(suite());
     }
     public static Test suite() {
         TestSuite suite = new TestSuite(DatasourceTest.class);
@@ -25,24 +25,22 @@ public class DatasourceTest extends TestCase implements CollectionListener {
     
     public void testLoad() throws java.lang.Exception {
         System.out.println("testLoad() called");
-        EnvelopeExtent r = new EnvelopeExtent();
-        r.setBounds(new Envelope(50, 360, 0, 180.0));
-        String dataFolder = System.getProperty("dataFolder");
-        if(dataFolder==null){
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder+="/tests/unit/testData";
-        }
-        String path =new java.io.File(dataFolder,"Furizibad.csv").getCanonicalFile().toString();
+        java.net.URL testData = getClass().getResource("/testData/Furizibad.csv");
+//        String dataFolder = System.getProperty("dataFolder");
+//        if(dataFolder==null){
+//            //then we are being run by maven
+//            dataFolder = System.getProperty("basedir");
+//            dataFolder+="/tests/unit/testData";
+//        }
+//        dataFolder = new java.io.File(dataFolder).getAbsolutePath();
+//        String path =new java.io.File(dataFolder,"Furizibad.csv").getCanonicalFile().toString();
         
-        DataSource ds = new VeryBasicDataSource(path);
-        //ft.setLoadMode(FeatureTable.MODE_LOAD_INTERSECT);
-        //ft.addListener(this);
-        // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(0, 360, 0, 180.0);
+        //DataSource ds = new VeryBasicDataSource(path);
+        DataSource ds = new VeryBasicDataSource(testData);
+        Envelope ex = new Envelope(0, 360, 0, 180.0);
         
         org.geotools.filter.GeometryFilter gf = filterFactory.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-        LiteralExpression right = filterFactory.createBBoxExpression(new Envelope(0, 360, 0, 180.0));
+        LiteralExpression right = filterFactory.createBBoxExpression(ex);
         gf.addRightGeometry(right);
         try{
             ft = ds.getFeatures(gf);
@@ -51,9 +49,8 @@ public class DatasourceTest extends TestCase implements CollectionListener {
             e.printStackTrace();
             fail(e.toString());
         }
-        System.out.println("Loaded: "+ft.getFeatures());
         
-        assertEquals(5,ft.getFeatures().length);
+        assertEquals(5,ft.size());
     }
     
     public void collectionChanged(CollectionEvent tce) {

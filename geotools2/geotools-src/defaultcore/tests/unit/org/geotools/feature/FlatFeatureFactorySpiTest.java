@@ -8,8 +8,7 @@
 package org.geotools.feature;
 
 import junit.framework.*;
-import org.geotools.feature.FeatureFactory;
-import org.geotools.feature.FeatureFactoryFinder;
+import org.geotools.feature.FeatureTypeFactory;
 
 /**
  *
@@ -27,9 +26,13 @@ public class FlatFeatureFactorySpiTest extends TestCase {
     }
     
     public void testObtainFactory(){
-        FeatureType type = SampleFeatureFixtures.createFeature().getSchema();
-        FeatureFactory fac = FeatureFactoryFinder.getFeatureFactory(type);
-        assertNotNull(fac);
+        FeatureTypeFactory factory = FeatureTypeFactory.newInstance("test");
+        assertNotNull(factory);
     }
+    
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
+
     
 }

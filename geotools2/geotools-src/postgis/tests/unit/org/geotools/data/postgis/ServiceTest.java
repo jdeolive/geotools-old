@@ -7,7 +7,6 @@ package org.geotools.data.postgis;
  * Created on 04 March 2002, 16:09
  */
 import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;

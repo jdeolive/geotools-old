@@ -20,7 +20,6 @@ package org.geotools.map;
 import com.vividsolutions.jts.geom.Envelope;
 import java.util.ArrayList;
 import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import org.geotools.renderer.*;
 import org.geotools.styling.*;
@@ -36,7 +35,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author James Macgill, CCG
- * @version $Id: DefaultMap.java,v 1.13 2003/06/05 11:21:20 ianturton Exp $
+ * @version $Id: DefaultMap.java,v 1.14 2003/07/17 07:09:53 ianschneider Exp $
  *
  * @deprecated Use ContextImpl instead.
  */
@@ -93,20 +92,10 @@ public class DefaultMap implements org.geotools.map.Map {
             FeatureCollection ft = (FeatureCollection) layers.next();
             Style style = (Style) tables.get(ft);
 
-            try {
-                LOGGER.finer("Envelope = " + envelope.toString());
 
-                Feature[] features =
-                    ft.getFeatures(new EnvelopeExtent(envelope)); //TODO: this could be a bottle neck
-                LOGGER.finest(
-                    "real renderer call " + features.length + " features"
-                );
-                renderer.render(features, envelope, style);
-            } catch (DataSourceException dse) {
-                //HACK: should deal with this exception properly
-                //HACK: or ensure that there is a method in feature table we can call without fear
-                System.err.println(dse);
-            }
+
+                renderer.render( (Feature[]) ft.toArray(new Feature[ft.size()]), envelope, style);
+            
         }
     }
 

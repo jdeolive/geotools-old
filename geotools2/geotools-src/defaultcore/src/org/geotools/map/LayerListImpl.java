@@ -17,7 +17,6 @@
 package org.geotools.map;
 
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.map.events.LayerListListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +24,7 @@ import java.util.EventObject;
 import java.util.List;
 //import java.util.logging.Logger;
 import javax.swing.event.EventListenerList;
+import org.geotools.feature.CollectionListener;
 
 
 /**
@@ -34,9 +34,9 @@ import javax.swing.event.EventListenerList;
  * data.
  *
  * @author Cameron Shorter
- * @version $Id: LayerListImpl.java,v 1.5 2003/05/16 21:10:19 jmacgill Exp $
+ * @version $Id: LayerListImpl.java,v 1.6 2003/07/17 07:09:53 ianschneider Exp $
  */
-public class LayerListImpl implements LayerList {
+public class LayerListImpl implements LayerList, CollectionListener {
     /** The class used for identifying for logging. */
     //private static final Logger LOGGER = Logger.getLogger("org.geotools.map");
 
@@ -45,11 +45,13 @@ public class LayerListImpl implements LayerList {
 
     /** Classes to notify if the LayerList changes */
     private EventListenerList listenerList = new EventListenerList();
+    
+    private Envelope bounds = null;
 
     /**
      * Create a Layer Model without any layers.
      */
-    protected LayerListImpl() {
+    public LayerListImpl() {
     }
 
     /**
@@ -181,36 +183,21 @@ public class LayerListImpl implements LayerList {
      *       Filters can be unpacked.
      */
     public Envelope getBbox() {
-        return getBbox(true);
-    }
-
-    /**
-     * Get the bounding box of all the layers in this LayerList. If all the
-     * layers cannot determine the bounding box in the speed required for each
-     * layer, then null is returned.
-     *
-     * @param quick When TRUE, specifies that the BBox should be determined
-     *        quickly, or return NULL if not determined in time.
-     *
-     * @return The bounding box of the datasource or null if unknown and too
-     *         expensive for the method to calculate.
-     *
-     * @task REVISIT: Consider changing return of getBbox to Filter once
-     *       Filters can be unpacked.
-     */
-    public Envelope getBbox(boolean quick) {
-        EnvelopeExtent Bbox = null;
+      if (bounds == null) {
+        bounds = new Envelope();
         Layer[] layerArray = (Layer[]) layers.toArray(new Layer[0]);
 
         for (int i = 0; i < layerArray.length; i++) {
-            if (Bbox == null) {
-                Bbox = new EnvelopeExtent(layerArray[i].getDataSource().getBbox(quick));
-            } else {
-                Bbox.combine(new EnvelopeExtent(layerArray[i].getDataSource()
-                                                             .getBbox(quick)));
-            }
+          bounds.expandToInclude(layerArray[i].getFeatures().getBounds());
         }
+      }
 
-        return Bbox.getBounds();
+      return bounds;
     }
+
+    
+    public void collectionChanged(org.geotools.feature.CollectionEvent tce) {
+      bounds = null;
+    }
+    
 }

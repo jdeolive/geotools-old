@@ -22,7 +22,7 @@ import com.vividsolutions.jts.geom.*;
 
 //geotools imports
 import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
+
 import org.geotools.feature.*;
 import org.geotools.filter.*;
 import org.geotools.gc.GridCoverage;
@@ -82,7 +82,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.6 2003/07/12 10:56:42 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.7 2003/07/17 07:09:55 ianschneider Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */

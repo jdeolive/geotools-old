@@ -16,16 +16,14 @@
  */
 package org.geotools.feature;
 
-import org.geotools.feature.FeatureType;
-
-
 /**
- * DOCUMENT ME!
  *
- * @author jamesm
+ * @author  Ian Schneider
  */
-public interface FeatureFactorySpi {
-    boolean canCreate(FeatureType type);
-
-    FeatureFactory getFactory(FeatureType type);
+public interface FeatureList extends FeatureCollection {
+  
+  Feature getFeature(int idx);
+  
+  void setFeature(int idx,Feature f);
+  
 }

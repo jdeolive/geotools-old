@@ -11,6 +11,8 @@ import junit.framework.*;
 import java.net.*;
 import java.nio.channels.ReadableByteChannel;
 import java.util.zip.*;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
 
 /**
  *
@@ -60,6 +62,10 @@ public abstract class TestCaseSupport extends TestCase {
   
   protected ReadableByteChannel getTestResourceChannel(String name) {
     return java.nio.channels.Channels.newChannel(getTestResourceAsStream(name));
+  }
+  
+  protected Feature firstFeature(FeatureCollection fc) {
+    return fc.features().next(); 
   }
   
   public static Test suite(Class c) {

@@ -28,7 +28,6 @@ public class FeaturePickler implements java.io.Serializable {
   
   private transient GeometryPickler pickler = new GeometryPickler();
   private transient FeatureType schema;
-  private transient FeatureFactory factory;
   private transient short handle;
   private transient Object[] cache;
   private transient byte[] types;
@@ -52,7 +51,7 @@ public class FeaturePickler implements java.io.Serializable {
   }
   
   private void initTypes(FeatureType schema) {
-    types = new byte[schema.attributeTotal()];
+    types = new byte[schema.getAttributeCount()];
     for (int i = 0; i < types.length; i++) {
       types[i] = getType(schema.getAttributeType(i).getType());
     }
@@ -87,13 +86,16 @@ public class FeaturePickler implements java.io.Serializable {
   
   private void writeObject(java.io.ObjectOutputStream stream)
   throws IOException {
-    stream.writeShort(schema.attributeTotal());
+    stream.writeShort(schema.getAttributeCount());
     for (int i = 0, ii = types.length; i < ii; i++) {
       AttributeType att = schema.getAttributeType(i);
       stream.writeUTF(att.getName());
       stream.writeObject(att.getType());
     }
   }
+  /*
+   * @todo fix typeName
+   */
   private void readObject(java.io.ObjectInputStream stream)
   throws IOException, ClassNotFoundException {
     final short len = stream.readShort();
@@ -101,22 +103,22 @@ public class FeaturePickler implements java.io.Serializable {
     for (int i = 0; i < len; i++) {
       String name = stream.readUTF();
       Class clazz = (Class) stream.readObject();
-      types[i] = new AttributeTypeDefault(name,clazz);
+      types[i] = AttributeTypeFactory.newAttributeType(name,clazz);
     }
     try {
-      schema = new FeatureTypeFlat(types);
+      // todo fix me!!!
+      schema = FeatureTypeFactory.newFeatureType(types,"pickled");
     } catch (SchemaException se) {
       throw new IOException("unexpected schema error" + se.getMessage()); 
     }
     initTypes(schema);
     cache = new Object[types.length];
-    factory = new FlatFeatureFactory(schema);
     pickler = new GeometryPickler();
   }
   
   public void writeFeature(Feature f,ObjectOutputStream output,Set clazzes)
   throws IOException {
-    Object[] atts = f.getAttributes();
+    Object[] atts = f.getAttributes(null);
     for (int i = 0, ii = atts.length; i < ii; i++) {
       switch (types[i]) {
         case STRING:
@@ -201,8 +203,8 @@ public class FeaturePickler implements java.io.Serializable {
   }
   
   public Feature readFeature(ObjectInputStream input)
-  throws IOException,ClassNotFoundException,IllegalFeatureException {
-    return factory.create(readAttributes(input));
+  throws IOException,ClassNotFoundException,IllegalAttributeException {
+    return schema.create(readAttributes(input));
   }
   
 

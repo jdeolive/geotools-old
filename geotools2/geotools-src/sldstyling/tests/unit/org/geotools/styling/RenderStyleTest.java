@@ -8,7 +8,6 @@ package org.geotools.styling;
 //import org.geotools.renderer.*;
 import org.geotools.data.*;
 import com.vividsolutions.jts.geom.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import org.geotools.styling.*;
 import org.geotools.map.*;
@@ -52,71 +51,64 @@ public class RenderStyleTest extends TestCase {
         //same as the datasource test, load in some features into a table
         
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(30, 350, 30, 350);
+        Envelope ex = new Envelope(30, 350, 30, 350);
+        
+        AttributeType[] types = new AttributeType[1];
         
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac,0,0);
-        AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
-        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature");
-        FlatFeatureFactory lineFac = new FlatFeatureFactory(lineType);
-        Feature lineFeature = lineFac.create(new Object[]{line});
+        types[0] = AttributeTypeFactory.newAttributeType("centerline", line.getClass());
+        FeatureType lineType = FeatureTypeFactory.newFeatureType(types,"linefeature");
+        Feature lineFeature = lineType.create(new Object[]{line});
         
         LineString line2 = makeSampleLineString(geomFac,100,0);
-        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature2");
-        lineFac = new FlatFeatureFactory(lineType);
-        Feature lineFeature2 = lineFac.create(new Object[]{line2});
+        lineType = FeatureTypeFactory.newFeatureType(types,"linefeature2");
+        Feature lineFeature2 = lineType.create(new Object[]{line2});
         
         LineString line3 = makeSampleLineString(geomFac,150,0);
-        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature3");
-        lineFac = new FlatFeatureFactory(lineType);
-        Feature lineFeature3 = lineFac.create(new Object[]{line3});
+        lineType = FeatureTypeFactory.newFeatureType(types,"linefeature3");
+        Feature lineFeature3 = lineType.create(new Object[]{line3});
         
         Polygon polygon = makeSamplePolygon(geomFac,0,0);
         
-        AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
-        FeatureType polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygon");
-        FlatFeatureFactory polygonFac = new FlatFeatureFactory(polygonType);
-        
-        Feature polygonFeature = polygonFac.create(new Object[]{polygon});
+        types[0] = AttributeTypeFactory.newAttributeType("edge", polygon.getClass());
+        FeatureType polygonType = FeatureTypeFactory.newFeatureType(types,"polygon");
+        Feature polygonFeature = polygonType.create(new Object[]{polygon});
         
         Polygon polygon2 = makeSamplePolygon(geomFac,0,150);
-        polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygontest2");
-        polygonFac = new FlatFeatureFactory(polygonType);
-        Feature polygonFeature2 = polygonFac.create(new Object[]{polygon2});
+        polygonType = FeatureTypeFactory.newFeatureType(types,"polygontest2");
+        Feature polygonFeature2 = polygonType.create(new Object[]{polygon2});
         
         Polygon polygon3 = makeSamplePolygon(geomFac,220,100);
-        polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygontest3");
-        polygonFac = new FlatFeatureFactory(polygonType);
-        Feature polygonFeature3 = polygonFac.create(new Object[]{polygon3});
+        polygonType = FeatureTypeFactory.newFeatureType(types,"polygontest3");
+        Feature polygonFeature3 = polygonType.create(new Object[]{polygon3});
         
         
         Point point = makeSamplePoint(geomFac,140.0,140.0);
-        AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
-        FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("pointfeature");
-        FlatFeatureFactory pointFac = new FlatFeatureFactory(pointType);
+        types[0] = AttributeTypeFactory.newAttributeType("centre", point.getClass());
+        FeatureType pointType = FeatureTypeFactory.newFeatureType(types,"pointfeature");
         
-        Feature pointFeature = pointFac.create(new Object[]{point});
-        MemoryDataSource datasource = new MemoryDataSource();
-        datasource.addFeature(lineFeature);
-        datasource.addFeature(lineFeature2);
-        datasource.addFeature(lineFeature3);
-        datasource.addFeature(polygonFeature);
-        datasource.addFeature(polygonFeature2);
-        datasource.addFeature(polygonFeature3);
-        datasource.addFeature(pointFeature);
+        Feature pointFeature = pointType.create(new Object[]{point});
         
-        FeatureCollection ft = new FeatureCollectionDefault(datasource);
+        FeatureCollection ft = FeatureCollections.newCollection();
+        ft.add(lineFeature);
+        ft.add(lineFeature2);
+        ft.add(lineFeature3);
+        ft.add(polygonFeature);
+        ft.add(polygonFeature2);
+        ft.add(polygonFeature3);
+        ft.add(pointFeature);
         
         org.geotools.map.Map map = new DefaultMap();
-        String dataFolder = System.getProperty("dataFolder");
-        if(dataFolder==null){
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            if(dataFolder == null) dataFolder = ".";
-            dataFolder+="/tests/unit/testData";
-        }
-        
-        File f = new File(dataFolder,"sample.sld");
+//        String dataFolder = System.getProperty("dataFolder");
+//        if(dataFolder==null){
+//            //then we are being run by maven
+//            dataFolder = System.getProperty("basedir");
+//            if(dataFolder == null) dataFolder = ".";
+//            dataFolder+="/tests/unit/testData";
+//        }
+        java.net.URL base = getClass().getResource("testData/");
+        File f = new File(base.getPath(),"sample.sld");
         
         System.out.println("testing reader using "+f.toString());
         StyleFactory factory = StyleFactory.createStyleFactory();
@@ -140,7 +132,7 @@ public class RenderStyleTest extends TestCase {
             renderer.setOutput(p.getGraphics(),p.getBounds());
             renderer.setInteractive(false);
             Date start = new Date();
-            map.render(renderer,ex.getBounds());//and finaly try and draw it!
+            map.render(renderer,ex);//and finaly try and draw it!
             Date end = new Date();
             System.out.println("Time to render to screen: " +(end.getTime() - start.getTime()));
             int[] wa={400,400,600},ha={400,600,400};
@@ -154,14 +146,15 @@ public class RenderStyleTest extends TestCase {
                 g.fillRect(0,0,w,h);
                 renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
                 start = new Date();
-                map.render(renderer,ex.getBounds());//and finaly try and draw it!
+                map.render(renderer,ex);//and finaly try and draw it!
                 end = new Date();
                 System.out.println("Time to render to image: " +(end.getTime() - start.getTime()));
-                File file = new File(dataFolder, "RenderStyleTest"+i+"_"+j+".jpg"); 
+                File file = new File(base.getPath(), "RenderStyleTest"+i+"_"+j+".jpg"); 
                 FileOutputStream out = new FileOutputStream(file);
                 ImageIO.write(image, "JPEG", out); 
             }
             //Thread.sleep(5000);
+            frame.dispose();
         }
         
     }

@@ -25,7 +25,7 @@ import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Query;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollectionDefault;
+import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureType;
 import org.geotools.filter.Filter;
 
@@ -34,7 +34,7 @@ import org.geotools.filter.Filter;
  * Class <code>VPFDataSource</code> implements
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFDataSource.java,v 1.1 2003/06/15 11:42:07 kobit Exp $
+ * @version $Id: VPFDataSource.java,v 1.2 2003/07/17 07:09:57 ianschneider Exp $
  */
 public class VPFDataSource extends AbstractDataSource implements DataSource {
     /**
@@ -84,7 +84,7 @@ public class VPFDataSource extends AbstractDataSource implements DataSource {
      */
     public FeatureCollection getFeatures(Filter filter)
         throws DataSourceException {
-        FeatureCollection fc = new FeatureCollectionDefault();
+        FeatureCollection fc = FeatureCollections.newCollection();
         getFeatures(fc, filter);
 
         return fc;

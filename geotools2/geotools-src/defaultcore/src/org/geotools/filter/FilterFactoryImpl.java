@@ -35,7 +35,7 @@ public class FilterFactoryImpl extends FilterFactory {
     /**
      * Creates a new instance of FilterFactoryImpl
      */
-    protected FilterFactoryImpl() {
+    public FilterFactoryImpl() {
     }
 
     public AttributeExpression createAttributeExpression(FeatureType schema) {
@@ -129,7 +129,6 @@ public class FilterFactoryImpl extends FilterFactory {
     }
 
     public FunctionExpression createFunctionExpression(String name) {
-        LOGGER.fine("trying to load name " + name);
 
         int index = -1;
 
@@ -141,16 +140,13 @@ public class FilterFactoryImpl extends FilterFactory {
 
         char c = name.charAt(0);
         name = name.replaceFirst("" + c, "" + Character.toUpperCase(c));
-        LOGGER.fine("now trying to load name " + name);
+
 
         try {
             return (FunctionExpression) Class.forName("org.geotools.filter." +
                 name + "Function").newInstance();
         } catch (Exception e) {
-            severe("createFunctionExpression",
-                "Unable to find " + name + "Function", e);
-
-            return null;
+            throw new RuntimeException("Unable to create class " + name + "Filter",e);
         }
     }
 

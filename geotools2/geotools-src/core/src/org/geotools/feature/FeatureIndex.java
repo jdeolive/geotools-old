@@ -17,21 +17,35 @@
 package org.geotools.feature;
 
 /**
- * An Index is built up around a FeatureTable, using one of the columns in
- * FeatureTable as a comparable reference. An object in a column can be any
+ * An Index is built up around a FeatureCollection, using one of the 
+ * attributes in the FeatureCollection as a comparable reference. 
+ * An object in a column can be any
  * object, but must either be a java base-type Object (Integer, String,
  * Character, etc.) or implement Comparable. An Index built on such a column
  * will sort its array of object references using FeatureComparator. Implement
  * this to perform more complex Index building.
  *
  * @author Ray Gallagher
- * @version $Id: FeatureIndex.java,v 1.5 2003/05/07 16:53:04 jmacgill Exp $
+ * @author Ian Schneider
+ * @version $Id: FeatureIndex.java,v 1.6 2003/07/17 07:09:52 ianschneider Exp $
  */
 public interface FeatureIndex extends CollectionListener {
-    /**
-     * Gets an array of references to the rows currently held by this Index.
-     *
-     * @return all the features referenced by this Index
+    /** Gets an "in order" Iterator of the Features as indexed.
+     * @return An Iterator of the Features within this index.
      */
-    Feature[] getFeatures();
+    java.util.Iterator getFeatures();
+    
+    /** Find all the Features within this index using a key.
+     * @return A FeatureCollection containing the matches. May be empty.
+     * @throws IllegalArgumentException If the key is incompatable with this index.
+     * @param key A key to look up the Features with.
+     */    
+    FeatureCollection find(Object key) throws IllegalArgumentException;
+    
+    /** Find the first Feature using the given key.
+     * @return A Feature, or null if none is found.
+     * @throws IllegalArgumentException If the key is incompatable with this index.
+     * @param key A key to look up the Feature with.
+     */    
+    Feature findFirst(Object key) throws IllegalArgumentException;
 }

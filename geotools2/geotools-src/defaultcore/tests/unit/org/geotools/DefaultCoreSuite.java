@@ -24,7 +24,6 @@ public class DefaultCoreSuite extends TestCase {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
     public DefaultCoreSuite(java.lang.String testName) {
         super(testName);
-        
     }        
     
     public static void main(java.lang.String[] args) {
@@ -36,10 +35,12 @@ public class DefaultCoreSuite extends TestCase {
         //_log = Logger.getLogger(DefaultCoreSuite.class);
        
         
-        TestSuite suite = new TestSuite("All defaultcore tests");
+        TestSuite suite = new TestSuite("All core tests");
         suite.addTestSuite(DatasourceTest.class);
+        suite.addTestSuite(MemoryDataSourceTest.class);
         suite.addTestSuite(FeatureFlatTest.class);
         suite.addTestSuite(ExpressionTest.class);
+        suite.addTestSuite(FilterEqualsTest.class);
         suite.addTestSuite(FilterTest.class);
         suite.addTestSuite(StyleFactoryImplTest.class);
         suite.addTestSuite(TextSymbolTest.class); 

@@ -37,9 +37,9 @@ import java.util.List;
  *
  * @author Chris Holmes
  */
-public class QueryImpl implements Query {
+public class DefaultQuery implements Query {
     /** The properties to fetch */
-    private AttributeType[] properties;
+    private String[] properties;
 
     /** The maximum numbers of features to fetch */
     private int maxFeatures = Query.DEFAULT_MAX;
@@ -56,7 +56,7 @@ public class QueryImpl implements Query {
     /**
      * No argument constructor.
      */
-    public QueryImpl() {
+    public DefaultQuery() {
     }
 
     /**
@@ -64,11 +64,11 @@ public class QueryImpl implements Query {
      *
      * @param filter the OGC filter to constrain the request.
      */
-    public QueryImpl(Filter filter) {
+    public DefaultQuery(Filter filter) {
         this.filter = filter;
     }
 
-    public QueryImpl(String typeName, Filter filter) {
+    public DefaultQuery(String typeName, Filter filter) {
 	this(filter);
 	this.typeName = typeName;
     }
@@ -79,7 +79,7 @@ public class QueryImpl implements Query {
      * @param filter the OGC filter to constrain the request.
      * @param properties an array of the properties to fetch.
      */
-    public QueryImpl(Filter filter, AttributeType[] properties) {
+    public DefaultQuery(Filter filter, String[] properties) {
         this(filter);
         this.properties = properties;
     }
@@ -93,9 +93,9 @@ public class QueryImpl implements Query {
      * @param properties an array of the properties to fetch.
      * @param handle the name to associate with the query.
      */
-    public QueryImpl(String typeName, Filter filter, int maxFeatures,
-        AttributeType[] properties, String handle) {
-        this(filter, properties);
+    public DefaultQuery(String typeName, Filter filter, int maxFeatures,
+        String[] propertyNames, String handle) {
+        this(filter, propertyNames);
         this.maxFeatures = maxFeatures;
         this.handle = handle;
     }
@@ -123,19 +123,8 @@ public class QueryImpl implements Query {
      *
      * @return the property names to be used in the returned FeatureCollection.
      *
-     * @task REVISIT: This could also return an AttributeType[].  This would
-     *       require our  setPropertyNames to either take AttributeTypes, or
-     *       property names with schemas.  It depends if we want to raise the
-     *       property not found error in the datasource, once the request is
-     *       made, or in the  construction of the query. <p>
-     * @task REVISIT: Another thing to think about, how does this fit in with
-     *       creating  features that want to leave fields blank?  Andrea
-     *       brought this up awhile ago, and we never came up with a good way
-     *       to do it, flags indicating whether a datasource should load the
-     *       features or not? I think this object is the place to do it, but
-     *       I'm not sure how.
      */
-    public AttributeType[] getProperties() {
+    public String[] getPropertyNames() {
         return properties;
     }
 
@@ -146,8 +135,8 @@ public class QueryImpl implements Query {
      *
      * @param properties The attribute Types to load from the datasouce.
      */
-    public void setProperties(AttributeType[] properties) {
-        this.properties = properties;
+    public void setPropertyNames(String[] propertyNames) {
+        this.properties = propertyNames;
     }
 
     /**
@@ -166,9 +155,9 @@ public class QueryImpl implements Query {
      *       all propertynames that match the schema, leave them out if they
      *       don't match.
      */
-    public void setProperties(FeatureType schema, List propertyNames)
+    public void setPropertyNames(List propertyNames)
         throws SchemaException {
-        this.properties = getValidProperties(schema, propertyNames);
+        this.properties = (String [])propertyNames.toArray();
     }
 
     /**
@@ -210,12 +199,12 @@ public class QueryImpl implements Query {
      * @task REVISIT: private?  package?  Somewhere in feature package? Someone
      *       might want to use it.
      */
-    public static AttributeType[] getValidProperties(FeatureType schema,
+    /*public static AttributeType[] getValidProperties(FeatureType schema,
         List propertyNames) throws SchemaException {
         if ((propertyNames == null) || (propertyNames.size() == 0)) {
             return schema.getAttributeTypes();
         } else {
-            AttributeType[] properties = new AttributeType[propertyNames.size()];
+            String[] properties = new AttributeType[propertyNames.size()];
             int i = 0;
 
             for (Iterator iter = propertyNames.iterator(); iter.hasNext();
@@ -247,7 +236,7 @@ public class QueryImpl implements Query {
 
             return properties;
         }
-    }
+	}*/
 
     /**
      * The optional maxFeatures can be used to limit the number of features

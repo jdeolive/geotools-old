@@ -30,7 +30,7 @@ import org.geotools.filter.*;
  * org.geotools.defaultcore.
  *
  * @author iant
- * @version $Id: StyleFactoryImpl.java,v 1.7 2003/06/23 13:46:59 ianturton Exp $
+ * @version $Id: StyleFactoryImpl.java,v 1.8 2003/07/17 07:09:54 ianschneider Exp $
  */
 public class StyleFactoryImpl extends StyleFactory {
     private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
@@ -38,7 +38,7 @@ public class StyleFactoryImpl extends StyleFactory {
     /**
      * Creates a new instance of StyleFactory
      */
-    protected StyleFactoryImpl() {
+    public StyleFactoryImpl() {
     }
 
     public Style createStyle() {
@@ -463,7 +463,7 @@ public class StyleFactoryImpl extends StyleFactory {
             fill.setOpacity(filterFactory.createLiteralExpression(
                     new Double(1.0)));
         } catch (org.geotools.filter.IllegalFilterException ife) {
-            severe("getDefaultFill", "Failed to build default fill:", ife);
+            throw new RuntimeException("Error creating fill",ife);
         }
 
         return fill;
@@ -502,9 +502,7 @@ public class StyleFactoryImpl extends StyleFactory {
             return stroke;
         } catch (IllegalFilterException ife) {
             //we should never be in here
-            severe("getDefaultStroke", "DefaultStroke constructor failed ", ife);
-
-            return null;
+            throw new RuntimeException("Error creating stroke",ife);
         }
     }
 
@@ -542,7 +540,7 @@ public class StyleFactoryImpl extends StyleFactory {
             font.setFontWeight(filterFactory.createLiteralExpression("normal"));
             font.setFontFamily(filterFactory.createLiteralExpression("serif"));
         } catch (org.geotools.filter.IllegalFilterException ife) {
-            severe("getDefaultFont", "Failed to build defaultFont:", ife);
+            throw new RuntimeException("Error creating font",ife);
         }
 
         return font;
@@ -557,7 +555,7 @@ public class StyleFactoryImpl extends StyleFactory {
             gr.setRotation(filterFactory.createLiteralExpression(
                     new Double(0.0)));
         } catch (IllegalFilterException ife) {
-            severe("getDefaultGraphic", "Failed to build default graphic", ife);
+            throw new RuntimeException("Error creating graphic",ife);
         }
 
         return gr;

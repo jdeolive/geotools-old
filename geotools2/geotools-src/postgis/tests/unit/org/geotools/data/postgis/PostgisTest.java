@@ -6,7 +6,6 @@ import java.util.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 import org.geotools.filter.*;
-import org.geotools.datasource.extents.*;
 import java.sql.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -29,7 +28,7 @@ public class PostgisTest extends TestCase {
 
     DataSource postgis = null;
     
-    FeatureCollection collection = new FeatureCollectionDefault();
+    FeatureCollection collection = FeatureCollections.newCollection();
     
     FeatureType schema;
 
@@ -98,8 +97,8 @@ public class PostgisTest extends TestCase {
         LOGGER.info("starting type enforcement tests...");
         try {
 	postgis.getFeatures(collection,tFilter);
-	LOGGER.info("there are " + collection.getFeatures().length + " feats");
-	assertEquals(6,collection.getFeatures().length);
+	LOGGER.info("there are " + collection.size() + " feats");
+	assertEquals(6,collection.size());
 	org.geotools.filter.GeometryFilter gf =
 	    filterFac.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
 	LiteralExpression right =
@@ -108,13 +107,12 @@ public class PostgisTest extends TestCase {
 	gf.addRightGeometry(right);
 	gf.addLeftGeometry(filterFac.createAttributeExpression
 			   (schema, "the_geom"));
-	FeatureCollection geomCollection = new FeatureCollectionDefault(); 
-	postgis.getFeatures(geomCollection, gf);
+	FeatureCollection geomCollection = postgis.getFeatures(gf);
 	LOGGER.info("we have this number of features: " 
-		    + collection.getFeatures().length);
+		    + collection.size());
 	LOGGER.info("we have this number of filtered features: " 
-		    + geomCollection.getFeatures().length);
-	assertEquals(2, geomCollection.getFeatures().length);
+		    + geomCollection.size());
+	assertEquals(2, geomCollection.size());
 
         }
         catch(DataSourceException dse) {
@@ -130,18 +128,17 @@ public class PostgisTest extends TestCase {
 	}
 
     public void testProperties() throws Exception{
-	QueryImpl query = new QueryImpl();
-	AttributeType[] attributes = { 
-	    new AttributeTypeDefault("gid", Integer.class), 
-	    new AttributeTypeDefault("name", String.class)};
-	query.setProperties(attributes);
+	DefaultQuery query = new DefaultQuery();
+	String[] attributes = { "gid", "name"};
+	//new AttributeTypeDefault("gid", Integer.class), 
+	//  new AttributeTypeDefault("name", String.class)};
+	query.setPropertyNames(attributes);
 	//FeatureType small = FeatureTypeFactory.create(attributes);
 	postgis = new PostgisDataSource(connection, FEATURE_TABLE);
-        collection = new FeatureCollectionDefault();
-	postgis.getFeatures(collection,tFilter);
-	Feature feature = collection.getFeatures()[0];
+        collection = postgis.getFeatures(tFilter);
+	Feature feature = (Feature)collection.iterator().next();
 	LOGGER.fine("feature is " + feature + ", and feature type is " +
-		     feature.getSchema());
+		     feature.getFeatureType());
 		     }
 
     public void testMaxFeatures(){ 
@@ -150,25 +147,24 @@ public class PostgisTest extends TestCase {
 	    new PostgisDataSource(connection, FEATURE_TABLE);
 	    schema = ((PostgisDataSource)postgis).getSchema();
 
- 	collection = new FeatureCollectionDefault(); 
-	QueryImpl query = new QueryImpl();
+	    //collection = FeatureCollections.newCollection(); 
+	DefaultQuery query = new DefaultQuery();
 	query.setMaxFeatures(4);
-	postgis.getFeatures(collection, query);
+	collection = postgis.getFeatures(query);
 	LOGGER.info("we have this number of filtered features: " 
-		    + collection.getFeatures().length);
-	assertEquals(4,collection.getFeatures().length);
+		    + collection.size());
+	assertEquals(4,collection.size());
 	LikeFilter likeFilter = filterFac.createLikeFilter();
 	likeFilter.setValue
 	    (filterFac.createAttributeExpression(schema, "name"));    	
 	likeFilter.setPattern
 	    (filterFac.createLiteralExpression("*7*"),"*",".","!");
 	
-	collection = new FeatureCollectionDefault();
-	QueryImpl q2 = new QueryImpl();
+	DefaultQuery q2 = new DefaultQuery();
 	q2.setMaxFeatures(3);
-	postgis.getFeatures(collection,q2);
-	LOGGER.info("there are " + collection.getFeatures().length + " feats");
-	assertEquals(3,collection.getFeatures().length);
+	collection = postgis.getFeatures(q2);
+	LOGGER.info("there are " + collection.size() + " feats");
+	assertEquals(3,collection.size());
 	}
         catch(DataSourceException dse) {
             LOGGER.info("...threw data source exception" + dse);
@@ -182,6 +178,7 @@ public class PostgisTest extends TestCase {
  	}
     
     public void testAdd() throws Exception{
+        postgis.setAutoCommit(false);
 	String name = "test_add";
 	addFeature(name);
 	//clean up...basically a delete, but without using a remove features.
@@ -208,8 +205,9 @@ public class PostgisTest extends TestCase {
     }
  
         public void testRemove() {
-	        LOGGER.info("starting type enforcement tests...");
-        try {
+	    LOGGER.info("starting type enforcement tests...");
+	    try {
+	    postgis.setAutoCommit(false);
             org.geotools.filter.GeometryFilter gf =
             filterFac.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
             LiteralExpression right =
@@ -254,7 +252,7 @@ public class PostgisTest extends TestCase {
             LOGGER.info("...threw filter exception " + fe);
             this.fail("...threw filter exception");
         }
-        //assertEquals(2,collection.getFeatures().length);
+        //assertEquals(2,collection.size());
         LOGGER.info("...ending type enforcement tests");
  	    
 	}
@@ -264,7 +262,7 @@ public class PostgisTest extends TestCase {
     //should give an idea of how to test the modify features.  It works on my local db.  CH
     public void testModify() {
 	try {
-	    collection = new FeatureCollectionDefault();
+	    collection = FeatureCollections.newCollection();
 
 	    org.geotools.filter.GeometryFilter gf =
 	    new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
@@ -306,13 +304,13 @@ public class PostgisTest extends TestCase {
 	//TODO: implement tests that don't use get and add.
 	FeatureCollection allFeatures = postgis.getFeatures(tFilter); 
 	     //tFilter is always true, selects all.
-	int totNumFeatures = allFeatures.getFeatures().length;
+	int totNumFeatures = allFeatures.size();
 	FeatureCollection delFeatures = postgis.getFeatures(filter); 
 	       //so we can replace the features
-	int numDelFeatures = delFeatures.getFeatures().length;
+	int numDelFeatures = delFeatures.size();
 	postgis.removeFeatures(filter);
 	FeatureCollection collection = postgis.getFeatures(tFilter); 
-	int numRemainingFeatures = collection.getFeatures().length;
+	int numRemainingFeatures = collection.size();
 	LOGGER.fine(expectedDel + " total features = " + totNumFeatures + 
 		    " and remaining feat " + numRemainingFeatures + 
 		    " and num deleted (from filt) = " + numDelFeatures);
@@ -320,23 +318,23 @@ public class PostgisTest extends TestCase {
 	//make sure proper number deleted.
 	postgis.addFeatures(delFeatures); //put them back in.
 	collection = postgis.getFeatures(tFilter); //get all again.
-	//assertEquals(totNumFeatures, collection.getFeatures().length); 
+	//assertEquals(totNumFeatures, collection.size()); 
 	//to be sure they aere all added back.
 	//yes this tests add more than delete, but it's important 
 	//to know the test put things back.
     }
     	   
-
+    /*
     private void doModifyTest(String attributeName, Object newValue, 
 			      Filter filter) {
 	try {
-	    collection = new FeatureCollectionDefault();
+	    collection = FeatureCollections.newCollection();
 	    postgis.getFeatures(collection, filter);
 	    Object unModified = 
 		collection.getFeatures()[0].getAttribute(attributeName);
 	    postgis.modifyFeatures(schema.getAttributeType(attributeName), 
 				   newValue, filter);
-	    collection = new FeatureCollectionDefault();
+	    collection = FeatureCollections.newCollection();
 	    postgis.getFeatures(collection, filter);
 	    Feature[] featureArr = collection.getFeatures();
 	    postgis.modifyFeatures(schema.getAttributeType(attributeName), 
@@ -358,10 +356,9 @@ public class PostgisTest extends TestCase {
 	    this.fail("...threw feature exception");
 	} 
 
-    }
+	}*/
 
     private void addFeature(String name) throws Exception{
-	Feature[] features = new Feature[1];
 	Coordinate[] points = { new Coordinate(45, 45),
 				new Coordinate(45, 55),
 				new Coordinate(55, 55),
@@ -381,13 +378,14 @@ public class PostgisTest extends TestCase {
 	Object[] attributes = { feaID, area, perimeter, testb_, 
 				testb_id, name, code, code, the_geom };
 	
-	 FlatFeatureFactory factory = new FlatFeatureFactory(schema);
-	 features[0] = factory.create(attributes, String.valueOf(feaID));
-	 FeatureCollection addCollection = new FeatureCollectionDefault();
-	 addCollection.addFeatures(features);
+	//FlatFeatureFactory factory = new FlatFeatureFactory(schema);
+	 Feature addFeature = schema.create(attributes, String.valueOf(feaID));
+	 FeatureCollection addCollection = FeatureCollections.newCollection();
+	 addCollection.add(addFeature);
 	 postgis.addFeatures(addCollection);
     }
 
+    //TODO: use postgis methods instead of the connections themselves.
     public void testRollbacks() throws Exception {
 	String rollbackName = "test rollback";
 	java.sql.Connection con = db.getConnection();
@@ -400,33 +398,33 @@ public class PostgisTest extends TestCase {
 	PostgisDataSource postgisCheck =  
 	    new PostgisDataSource(connection, FEATURE_TABLE); 
 	postgisCheck.getFeatures(collection,tFilter);
-	LOGGER.fine("there are " + collection.getFeatures().length + 
+	LOGGER.fine("there are " + collection.size() + 
 		    " features before commit");
-	assertEquals(6,collection.getFeatures().length);
+	assertEquals(6,collection.size());
 
 	//db.commitTransaction();
 	con.commit();
 	//db.getConnection().close();
-	collection = new FeatureCollectionDefault();
+	collection = FeatureCollections.newCollection();
 	postgisCheck.getFeatures(collection,tFilter);
-	LOGGER.fine("there are " + collection.getFeatures().length + 
+	LOGGER.fine("there are " + collection.size() + 
 		    " features after commit");
-	assertEquals(7,collection.getFeatures().length);
+	assertEquals(7,collection.size());
 	//db.startTransaction();
 	
 	addFeature("test2");
 	addFeature("test3");
-	collection = new FeatureCollectionDefault();
+	collection = FeatureCollections.newCollection();
 	postgisCheck.getFeatures(collection,tFilter);
-	LOGGER.fine("there are " + collection.getFeatures().length + 
+	LOGGER.fine("there are " + collection.size() + 
 		    " features before rollback");
-	assertEquals(7,collection.getFeatures().length);
+	assertEquals(7,collection.size());
 	con.rollback();//db.rollbackTransaction();
-	collection = new FeatureCollectionDefault();
+	collection = FeatureCollections.newCollection();
 	postgisCheck.getFeatures(collection,tFilter);
-	LOGGER.fine("there are " + collection.getFeatures().length + 
+	LOGGER.fine("there are " + collection.size() + 
 		    " features after rollback");
-	assertEquals(7,collection.getFeatures().length);
+	assertEquals(7,collection.size());
 	CompareFilter removeFilter = 
 	    filterFac.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
 	Expression testLiteral = 
@@ -435,17 +433,17 @@ public class PostgisTest extends TestCase {
 				  (schema, "name"));
 	removeFilter.addRightValue(testLiteral);
 	postgis.removeFeatures(removeFilter);
-	collection = new FeatureCollectionDefault();
+	collection = FeatureCollections.newCollection();
 	postgisCheck.getFeatures(collection,tFilter);
-	LOGGER.fine("there are " + collection.getFeatures().length + 
+	LOGGER.fine("there are " + collection.size() + 
 		    " features before commit");
-	assertEquals(7,collection.getFeatures().length);
+	assertEquals(7,collection.size());
 	con.commit();
-	collection = new FeatureCollectionDefault();
+	collection = FeatureCollections.newCollection();
 	postgisCheck.getFeatures(collection,tFilter);
-	LOGGER.fine("there are " + collection.getFeatures().length + 
+	LOGGER.fine("there are " + collection.size() + 
 		    " features after commit");
-	assertEquals(6,collection.getFeatures().length);
+	assertEquals(6,collection.size());
 	con.close();
 	
 	}

@@ -18,88 +18,33 @@ package org.geotools.styling;
 
 import org.geotools.filter.Expression;
 import java.net.URL;
-
-// J2SE dependencies
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
+import org.geotools.factory.*;
 
 
-public abstract class StyleFactory {
-    /** The logger */
-    protected static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.styling");
+public abstract class StyleFactory implements Factory {
+
     private static StyleFactory factory = null;
 
     /**
-     * creates an instance of a style factory
-     *
-     * @return an instance of the style factory
-     */
-    /**
      * Create an instance of the factory.
      *
      * @return An instance of the Factory, or null if the Factory could not be
      *         created.
      */
-    public static StyleFactory createStyleFactory() { // throws StyleFactoryCreationException{ 
+    public static StyleFactory createStyleFactory() 
+    throws FactoryConfigurationError {
 
-        if (factory != null) {
-            return factory;
+        if (factory == null) {
+            factory = (StyleFactory) FactoryFinder.findFactory(
+              "org.geotools.styling.StyleFactory", 
+              "org.geotools.styling.StyleFactoryImpl"
+            );
         }
 
-        String factoryClass = System.getProperty("StyleFactoryImpl");
-        LOGGER.fine("loaded property = " + factoryClass);
-
-        StyleFactory sf = null;
-
-        if ((factoryClass != null) && (factoryClass != "")) {
-            //try{
-            sf = createStyleFactory(factoryClass);
-
-            //            } catch (StyleFactoryCreationException e){
-            //                // do nothing yet or should we give up now
-            //                LOGGER.info("Failed to create " + factoryClass + " because \n" + e);
-            //            }
-        } else {
-            sf = createStyleFactory("org.geotools.styling.StyleFactoryImpl");
-        }
-
-        factory = sf;
-
-        return sf;
+        return factory;
     }
 
-    /**
-     * Create an instance of the factory.
-     *
-     * @param factoryClass The name of the factory, eg:
-     *        "org.geotools.styling.StyleFactoryImpl".
-     *
-     * @return An instance of the Factory, or null if the Factory could not be
-     *         created.
-     */
-    public static StyleFactory createStyleFactory(String factoryClass) {
-        try {
-            return factory = (StyleFactory) Class.forName(factoryClass)
-                                                 .newInstance();
-        } catch (ClassNotFoundException cnfe) {
-            RuntimeException ise = new IllegalStateException(
-                    "Unable to find StyleFactory implementation class " +
-                    factoryClass +
-                    ". Please check the classpath of your installation");
-            ise.initCause(cnfe);
-            throw ise;
-        } catch (InstantiationException ie) {
-            RuntimeException ise = new RuntimeException(
-                    "Error while instantiating " + factoryClass, ie);
-            throw ise;
-        } catch (IllegalAccessException iae) {
-            RuntimeException ise = new RuntimeException("StyleFactory class " +
-                    factoryClass + " has unusable access restrictions.", iae);
-            throw ise;
-        }
-    }
+    
 
     public abstract TextSymbolizer createTextSymbolizer(Fill fill,
         Font[] fonts, Halo halo, Expression label,
@@ -226,18 +171,5 @@ public abstract class StyleFactory {
     
     public abstract PointPlacement getDefaultPointPlacement();
 
-    /**
-     * Convenience method for logging a message with an exception.
-     *
-     * @param method DOCUMENT ME!
-     * @param message DOCUMENT ME!
-     * @param exception DOCUMENT ME!
-     */
-    protected static void severe(final String method, final String message,
-        final Exception exception) {
-        final LogRecord record = new LogRecord(Level.SEVERE, message);
-        record.setSourceMethodName(method);
-        record.setThrown(exception);
-        LOGGER.log(record);
-    }
+    
 }

@@ -132,6 +132,7 @@ public class StyleFactoryImplTest extends TestCase {
             
         assertNotNull("Failed to build stroke ",s);
         
+        
         assertEquals("Wrong color ", "#000000", s.getColor().getValue(feature).toString());
         assertEquals("Wrong width ", "2.0", s.getWidth().getValue(feature).toString());
         assertEquals("Wrong opacity ", "0.5", s.getOpacity().getValue(feature).toString());

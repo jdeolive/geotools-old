@@ -23,13 +23,14 @@ package org.geotools.data;
 /**
  * A memory-based datasource.
  *
- * @version $Id: MemoryDataSource.java,v 1.7 2003/05/16 15:29:20 jmacgill Exp $
+ * @version $Id: MemoryDataSource.java,v 1.8 2003/07/17 07:09:53 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Turton, CCG
  */
 
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Iterator;
 import org.geotools.feature.*;
 import org.geotools.filter.Filter;
 import com.vividsolutions.jts.geom.Envelope;
@@ -70,7 +71,7 @@ public class MemoryDataSource extends AbstractDataSource
     public String addFeature(Feature f){
         features.addElement(f);
         bbox.expandToInclude(f.getDefaultGeometry().getEnvelopeInternal());
-	return f.getId();
+	return f.getID();
     }
 
     
@@ -80,13 +81,13 @@ public class MemoryDataSource extends AbstractDataSource
      * @param collection The collection from which to add the features.
      * @throws DataSourceException If anything goes wrong or if exporting is
      * not supported.
-     * @task TODO: Implement addFeatures method
+     * @task TODO: test this.
      */
     public Set addFeatures(FeatureCollection collection) throws DataSourceException {
+
 	Set addedFeatures = new HashSet();
-	Feature[] featureArr = collection.getFeatures();
-	for(int i = 0; i < featureArr.length; i++) {
-	    addedFeatures.add(addFeature(featureArr[i]));
+	for (Iterator i = collection.iterator(); i.hasNext();){
+	    addedFeatures.add(addFeature((Feature)i.next()));
 	}
 	return addedFeatures;
     }
@@ -119,7 +120,7 @@ public class MemoryDataSource extends AbstractDataSource
          for (int i = 0; i < features.size() && i < query.getMaxFeatures(); i++){
             Feature f = (Feature) features.elementAt(i);
             if (filter.contains(f)){
-                collection.addFeatures(new Feature[]{f});
+                collection.add(f);
             }
         }
     }
@@ -137,7 +138,7 @@ public class MemoryDataSource extends AbstractDataSource
 	FeatureType featureType = null;
 	if (features.size() > 0) {
 	    Feature f = (Feature) features.elementAt(0);
-	    featureType = f.getSchema();
+	    featureType = f.getFeatureType();
 	}
 	return featureType;
     }

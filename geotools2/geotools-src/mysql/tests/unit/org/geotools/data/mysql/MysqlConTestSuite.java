@@ -6,7 +6,6 @@ import com.vividsolutions.jts.geom.*;
 import java.util.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
-import org.geotools.datasource.extents.*;
 import java.sql.*;
 import java.util.logging.Logger;
 

@@ -34,13 +34,12 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.SchemaException;
-import org.geotools.feature.FlatFeatureFactory;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollectionDefault;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.AttributeType;
-import org.geotools.feature.IllegalFeatureException;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSource;
@@ -52,9 +51,31 @@ import java.util.logging.Logger;
 /**
  * Connects to a Mysql database and returns properly formatted GML.
  *
- * <p>This standard class must exist for every supported datastore.</p>
+ * <p>This class is in a rather sorry state, as it has been neglected
+ * for far too long.  It was written before Mysql added spatial extensions
+ * for 4.1, and was an attempt to show how a non-spatially enabled db could
+ * be used - following the schemas of the Simple Features for SQL specification.
+ * <p>Since MySQL is now attempting OGC compliant spatial types, this class
+ * should be rewritten with those in mind.  This will make this class 
+ * extremely similar to the Postgis datasource, so if anyone is interested
+ * in rewriting this class, that module should be examined closely.  Most
+ * of the problems will likely come from Mysql itself, as it is not yet
+ * stable.  But it is good news that it will be spatially enabled, and even
+ * if it is a bit buggy, the sooner we are able to get it as a datasource
+ * the better.
  *
- * @version $Id: MysqlDataSource.java,v 1.4 2003/05/20 17:03:55 jmacgill Exp $
+ * <p>I'm keeping the datasource up to date with api changes, but am doing
+ * very little in terms of testing to make sure it is all still working, 
+ * I'm more concerned about it not breaking the build, and hopefully a 
+ * complete rewrite will come within a few months.  A good rewrite would
+ * consider writing some abstract JDBCDataSource classes, as there is 
+ * extreme overlap between this and postgis, and to a lesser, though still
+ * major, extent oraclespatial.  But it'd probably be easier to just start
+ * with a rewrite, and then figure out what common code can factor up.  I 
+ * suspect the sql encoding code, as well as the handling of connections,
+ * could easily be in an abstract class.
+ *
+ * @version $Id: MysqlDataSource.java,v 1.5 2003/07/17 07:09:55 ianschneider Exp $
  * @author Chris Holmes, Vision for New York
  * @author Rob Hranac, Vision for New York
  *
@@ -130,7 +151,7 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
         throws DataSourceException {
 	Filter filter = query.getFilter();
 	maxFeatures = query.getMaxFeatures();
-        List features = new ArrayList(maxFeatures);
+
 
 
         try {
@@ -153,12 +174,15 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
             }
             LOGGER.finer("about to prepare feature reading");
             // set up a factory, attributes, and a counter for feature creation
-            FlatFeatureFactory factory = new FlatFeatureFactory(schema);
-            Object[] attributes = new Object[schema.attributeTotal()];
-            int geometryPosition = schema.getDefaultGeometry().getPosition();
+            //FeatureFactory factory = new FeatureFactory(schema);
+            Object[] attributes = new Object[schema.getAttributeCount()];
+	    AttributeType[] attributeTypes = schema.getAttributeTypes();
+	    //int geometryPosition = schema.getDefaultGeometry().getPosition();
+
             int resultCounter = 0;
-            int numAttr = schema.attributeTotal(); //counter for getting attributes;
+            int numAttr = schema.getAttributeCount(); //counter for getting attributes;
             Geometry geom;
+	    
             String featureID;
             // loop through entire result set or until maxFeatures are reached
             while (result.next() && ( resultCounter < maxFeatures)) {
@@ -167,7 +191,7 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
                 featureID = result.getString(1); //the first column is always the feature ID;
                 for (int col = 0; col < numAttr; col++) {
                     LOGGER.finer("reading attribute: " + col);
-                    if (col == geometryPosition) {
+                    if (attributeTypes[col].isGeometry()) {
                         geom = geomDataCol.getGeometry( result.getInt(col + COLUMN_OFFSET));
                         if (geom == null) {
                             throw new DataSourceException("inconsistent database, " + 
@@ -179,20 +203,20 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
                     }
                 }
                 //The following line used to read: But featureID support is not yet in CVS
-                features.add( factory.create(attributes, featureID));
-                //features.add( factory.create(attributes));
-                resultCounter++;
+		Feature curFeature = schema.create(attributes, featureID);
+		if (filter == null || filter.contains(curFeature)) {
+		    collection.add(curFeature);
+		    LOGGER.finest("adding feature: " + curFeature);
+		    resultCounter++;
+		}
             }
-            filterFeatures(features, filter);
-            collection.addFeatures((Feature[]) features.
-                                   toArray(new Feature[features.size()]));
             result.close();
             statement.close();
             dbConnection.close();
         } catch (SQLException e) {
             LOGGER.warning("Some sort of database connection error: " + e.getMessage());
 
-         } catch (IllegalFeatureException e){
+         } catch (IllegalAttributeException e){
              LOGGER.warning("Had problems creating the feature: " + e.getMessage());
          }
 
@@ -207,7 +231,7 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
      * @param features The list to be tested.
      * @param filter The filter to test with.
      */
-    private void filterFeatures(List features, Filter filter){
+	/*private void filterFeatures(List features, Filter filter){
         List filteredFeatures = new ArrayList(maxFeatures);
         for (int i = 0; i < features.size(); i++){
             if (!filter.contains((Feature) features.get(i))){
@@ -215,24 +239,8 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
                 i--; //remove shifts index, so we must compensate
             }
         }
-    }
+	}*/
     
-    
-    /**
-     * Loads features from the datasource into the returned collection, based on
-     * the passed filter.
-     *
-     * @param filter An OpenGIS filter; specifies which features to retrieve.
-     * @return Collection The collection to put the features into.
-     * @throws DataSourceException For all data source errors.
-     */
-    public FeatureCollection getFeatures(Filter filter) 
-        throws DataSourceException {
-        FeatureCollection fc = new FeatureCollectionDefault();
-
-        getFeatures(fc, filter);
-        return fc;
-    }
 
     /**
      * Adds all features from the passed feature collection to the datasource.
@@ -243,11 +251,10 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
      */
     public Set addFeatures(FeatureCollection features)
         throws DataSourceException {
-        Feature[] featureArr;
+        Feature[] featureArr = new Feature[features.size()];
         AttributeType[] attributeTypes;
         int geomPos;
         int curFeature;
-        Object[] curAttributes;
         String sql = "";
         String featureID;
         String geomSql = "";
@@ -256,22 +263,25 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
         int gid;
         Geometry curGeom = null;
        
-        featureArr = features.getFeatures();
-        schema = featureArr[0].getSchema();
+	//TODO: This should use the feature iterator, this is just a 
+	//hack to get things working, but it should work fine.
+        featureArr = (Feature [])features.toArray(featureArr);
+        schema = featureArr[0].getFeatureType();
         attributeTypes = schema.getAttributeTypes(); 
         numAttributes = attributeTypes.length;     
-        geomPos = schema.getDefaultGeometry().getPosition();
+	Object[] curAttributes = new Object[schema.getAttributeCount()];
+        //geomPos = schema.getDefaultGeometry().getPosition();
         try { 
             Connection dbConnection = db.getConnection();
             Statement statement = dbConnection.createStatement();
             for (int i = 0; i < featureArr.length; i++){
-                curAttributes = featureArr[i].getAttributes();
+                curAttributes = featureArr[i].getAttributes(curAttributes);
                 sql = "INSERT INTO " + geomDataCol.getFeaTableName() + 
                     " VALUES(";
-                featureID = featureArr[i].getId(); 
+                featureID = featureArr[i].getID(); 
                 sql += addQuotes(featureID) + ", ";
                 for (int j = 0; j < curAttributes.length; j++){
-                if (j == geomPos) {
+                if (attributeTypes[j].isGeometry()) {
                     gid = createGID(featureID);
                     curGeom = (Geometry) curAttributes[j];
                     geomSql = makeGeomSql(curGeom, gid);
@@ -386,7 +396,7 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
      */ 
     private String makeModifySql(AttributeType type, Object value, Feature feature){
         String sql;
-        String id = addQuotes(feature.getId());
+        String id = addQuotes(feature.getID());
         //TODO error checking to make sure type matches schema
         sql = "UPDATE " + geomDataCol.getFeaTableName() + " SET " + 
             type.getName() + " = " + addQuotes(value) + " WHERE ID = " + id;
@@ -410,7 +420,7 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
         * all the data out and then examining it
         */
         FeatureCollection collection = getFeatures(filter);
-        return collection.getFeatures();
+        return (Feature [])collection.toArray(new Feature[collection.size()]);
     }
 
     /**
@@ -427,8 +437,7 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
     public void removeFeatures(Filter filter)
         throws DataSourceException {
         Feature[] featureArr;
-        Object[] curAttributes;
-        String sql = "";
+           String sql = "";
         Object featureID;
         String geomSql = "";
         String attrValue = "";
@@ -441,9 +450,9 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
         String feaTabName = geomDataCol.getFeaTableName();
 
         featureArr = getFilteredFeatures(filter);//this does a nasty import, make it nicer.
-        schema = featureArr[0].getSchema();
+        schema = featureArr[0].getFeatureType();
         gidName = schema.getDefaultGeometry().getName();  //this will not always exist
-        gidPos = schema.getDefaultGeometry().getPosition();
+        //gidPos = schema.getDefaultGeometry().getPosition();
         //if we make our filter db interaction more elegant, ie not importing everything.
         //possible solution is to have the geomDataCol store the schema and feature ID type and name
         try { 
@@ -453,12 +462,12 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
             ResultSet rs;
             //sql = "SELECT * FROM " + feaTabName;// +" WHERE ID = " + fid;
             //rs = stmtR.executeQuery(sql);
-            for (int i = 0; i < featureArr.length; i++){
-                curAttributes = featureArr[i].getAttributes();
-                fidValue = featureArr[i].getId();
+	    Object[] curAttributes = new Object[schema.getAttributeCount()];
+	    for (int i = 0; i < featureArr.length; i++){
+                curAttributes = featureArr[i].getAttributes(curAttributes);
+                fidValue = featureArr[i].getID();
                 fid = addQuotes(fidValue);
                 //rs.next();
-                //    gid = rs.getInt(gidPos + 2);
                 gid = createGID(fidValue); //TODO: make SFS SQL 92 compliant
                     sql = "DELETE FROM "  + feaTabName + " WHERE ID = " + fid;
                     //TODO: the field that contains ID will not always be named ID.
@@ -491,12 +500,10 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
     public void modifyFeatures(AttributeType type, Object value, Filter filter)
         throws DataSourceException {
             Feature[] featureArr;
-            FeatureCollection collection = new FeatureCollectionDefault();
-            int geomPos;
             int gid;
 
             featureArr = getFilteredFeatures(filter);
-            geomPos = schema.getDefaultGeometry().getPosition();
+            //geomPos = schema.getDefaultGeometry().getPosition();
             //be sure to load the schema in the constructor when we no longer 
             //do the nasty getFeatures.
 
@@ -504,10 +511,9 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
                 Connection dbConnection = db.getConnection();
                 Statement stmt = dbConnection.createStatement();
                 for (int i = 0; i < featureArr.length; i++){
-                    LOGGER.finer("type pos = " + type.getPosition() + ", geomPos = " + geomPos);
-                    if (Geometry.class.isAssignableFrom(type.getType())) {
-                        if ( featureArr[i].getId().equals("6")){
-                            gid = createGID(featureArr[i].getId()); //HACK
+		    if (Geometry.class.isAssignableFrom(type.getType())) {
+                        if ( featureArr[i].getID().equals("6")){
+                            gid = createGID(featureArr[i].getID()); //HACK
                             stmt.executeUpdate(makeDelGeomSql(gid));  //delete old row
                             stmt.executeUpdate(makeGeomSql((Geometry) value, gid)); //create new
                         }

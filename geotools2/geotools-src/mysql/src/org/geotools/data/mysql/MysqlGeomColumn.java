@@ -27,14 +27,13 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-//import org.apache.log4j.Category;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.AttributeType;
-import org.geotools.feature.AttributeTypeDefault;
+import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.feature.SchemaException;
@@ -53,9 +52,8 @@ import java.util.logging.Logger;
  * with the ID from the feature table.
  *
  *
- * @version $Id: MysqlGeomColumn.java,v 1.1 2002/09/13 15:12:55 cholmesny Exp $
+ * @version $Id: MysqlGeomColumn.java,v 1.2 2003/07/17 07:09:55 ianschneider Exp $
  * @author Chris Holmes, Vision for New York
- * tasks TODO: put MakeSchema from MysqlDataSource in this class.
  */
 public class MysqlGeomColumn {
     
@@ -90,6 +88,9 @@ public class MysqlGeomColumn {
     /** A map containing the raw geometric data, accessed by its geom ID*/
     private static Map gidMap = new HashMap();
     
+    /** factory for attribute types. */
+    private static AttributeTypeFactory attFactory = AttributeTypeFactory.newInstance();
+
     /** The catalog containing the feature table using this geometry column*/
     private String feaTabCatalog;
     
@@ -468,6 +469,7 @@ public class MysqlGeomColumn {
      * @return a FeatureType of the attributes.
      * @throws SQLException if there was database connectivity issues.
      * @throws SchemaException if there was problems creating the FeatureType.
+     * @todo Fix FeatureType name - IanS
      * tasks TODO: put this method MysqlGeomColumn or a SchemaFactory.
      */
     public static FeatureType makeSchema(ResultSetMetaData metaData, String geoColumn) 
@@ -486,14 +488,16 @@ public class MysqlGeomColumn {
             // set column name and type from database
             //TODO: use MysqlGeomColumn.getGeomType, once it's fully implemented
             if (columnName.equals(geoColumn)) {  //if it is a geomtry column, by name
-                attributes[i - COLUMN_OFFSET] = new AttributeTypeDefault(columnName, 
-                                                                      Geometry.class);
+                attributes[i - COLUMN_OFFSET] = 
+		    attFactory.newAttributeType(columnName, Geometry.class);
             } else {
                 colClass = (Class) sqlTypeMap.get(metaData.getColumnTypeName(i));
-                attributes[i - COLUMN_OFFSET] = new AttributeTypeDefault ( columnName, colClass );
+                attributes[i - COLUMN_OFFSET] = 
+		    attFactory.newAttributeType( columnName, colClass );
             }
-        }        
-        return FeatureTypeFactory.create(attributes);
+        }       
+        // @todo Fix FeatureType name - IanS 
+        return FeatureTypeFactory.newFeatureType(attributes,"mysql-feature");
     }
 
     

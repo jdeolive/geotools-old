@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: LayerList.java,v 1.6 2003/04/14 21:37:16 jmacgill Exp $
+ * @version $Id: LayerList.java,v 1.7 2003/07/17 07:09:52 ianschneider Exp $
  * @author Cameron Shorter
  * @task TODO: Add incrementOrder(layer) decrementOrderLayer
  * makeFirst(layer) makLast(Layer) and Layer getNext(Layer);
@@ -97,16 +97,5 @@ public interface LayerList {
      */
     public Envelope getBbox();
     
-    /**
-     * Get the bounding box of all the layers in this LayerList.
-     * If all the layers cannot determine the bounding box in the speed
-     * required for each layer, then null is returned.
-     * @return The bounding box of the datasource or null if unknown and too
-     * expensive for the method to calculate.
-     * @param quick When TRUE, specifies that the BBox should be determined
-     * quickly, or return NULL if not determined in time.
-     * @task REVISIT: Consider changing return of getBbox to Filter once Filters
-     * can be unpacked.
-     */
-    public Envelope getBbox(boolean quick);
+
 }

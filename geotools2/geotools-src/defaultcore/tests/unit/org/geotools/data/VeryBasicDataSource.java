@@ -4,35 +4,19 @@ import org.geotools.feature.*;
 import java.util.*;
 import java.io.*;
 import com.vividsolutions.jts.geom.*;
+import java.net.URL;
 import org.geotools.filter.Filter;
 
 public class VeryBasicDataSource extends AbstractDataSource 
     implements DataSource {
-    String sFilename = null;
     String [] sColumnNames = null;
-    boolean stopped = false;
+    volatile boolean stopped = false;
     GeometryFactory geomFac = new GeometryFactory();
+    URL url;
     
-    public VeryBasicDataSource(String filename) {
-        sFilename = filename;
-    }
-    
-   
-   
-    
-    /** gets the Column names (used by FeatureTable) for this DataSource
-     */
-    public String [] getColumnNames() {
-
-        System.out.println("getColumnNames returning "+sColumnNames);
-        return sColumnNames;
-    }
-    
-    /** Stops this DataSource from loading
-     */
-    public void stopLoading() {
-        stopped=true;
-        System.out.println("Stopped called on VBdatasource");
+    public VeryBasicDataSource(URL url) throws IOException {
+        this.url = url;
+        url.openStream().close();
     }
     
     
@@ -44,7 +28,6 @@ public class VeryBasicDataSource extends AbstractDataSource
      * @throws DataSourceException For all data source errors.
      */
     public void getFeatures(FeatureCollection ft, Query query) throws DataSourceException {
-       System.out.println("VeryBasicDataSource.load() called");
        Filter filter = null;
        if (query != null) {
 	   filter = query.getFilter();
@@ -54,17 +37,11 @@ public class VeryBasicDataSource extends AbstractDataSource
         
         // Open file
         try {
-            File f = new File(sFilename);
-            FileInputStream fi = new FileInputStream(f);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             StringBuffer sb = new StringBuffer();
-            int o=0;
-            byte b[] = new byte[100];
-            while (o>-1 && !stopped) {
-                o = fi.read(b, 0, 100);
-                if (o>-1) {
-                    String s = new String(b, 0, o);
-                    sb.append(s);
-                }
+            
+            while (reader.ready() && !stopped) {
+                sb.append(reader.readLine()).append('\n');
             }
             if (stopped) return;
             // Split up the string into rows
@@ -101,16 +78,15 @@ public class VeryBasicDataSource extends AbstractDataSource
                         p.y = (new Double(row[j].toString())).doubleValue();
                 }
                 
-                AttributeType geometryAttribute = new AttributeTypeDefault("theGeometry", geomFac.createPoint(p).getClass());
-                AttributeType stringAttribute = new AttributeTypeDefault("theString", String.class);
+                AttributeType geometryAttribute = AttributeTypeFactory.newAttributeType("theGeometry", geomFac.createPoint(p).getClass());
                 AttributeType[] attDefs = new AttributeType[row.length];
-                attDefs[0] = geometryAttribute.setPosition(0);
+                attDefs[0] = geometryAttribute;
                 
                 
                 for(int att=1;att<row.length;att++){
-                    attDefs[att] = stringAttribute.setPosition(att);
+                    attDefs[att] = AttributeTypeFactory.newAttributeType(sColumnNames[att],String.class);
                 }
-                FeatureType testType = FeatureTypeFactory.create(attDefs);
+                FeatureType testType = FeatureTypeFactory.newFeatureType(attDefs,"test");
                 //FeatureType testType = new FeatureTypeFlat(geometryAttribute); 
                 
                 System.out.println("adding P "+p);
@@ -120,14 +96,13 @@ public class VeryBasicDataSource extends AbstractDataSource
                     System.out.println("attribue "+val+" is "+row[val].getClass().getName());
                 }
                 System.out.println("Test Type is "+testType);
-                FlatFeatureFactory fac = new FlatFeatureFactory( testType);
-                Feature feat = fac.create(row);
+                Feature feat = testType.create(row);
 
                 // Filter Feature Feature Filter
                 System.out.println("filter test "+filter.toString()+" -> "+filter.contains(feat));
                 if (filter.contains(feat)){
                     System.out.println("Adding feature");
-                    ft.addFeatures(new Feature[] {feat}); 
+                    ft.add(feat); 
                 }
             }
             
@@ -135,7 +110,7 @@ public class VeryBasicDataSource extends AbstractDataSource
         catch(Exception exp) {
             System.out.println("Exception loading data");
             exp.printStackTrace();
-            throw new DataSourceException("Exception loading data : "+exp.getMessage());
+            throw new DataSourceException("Exception loading data : "+exp.getMessage(),exp);
         }
         
     }

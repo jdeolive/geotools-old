@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 // Geotools dependencies
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.Feature;
-import org.geotools.feature.IllegalFeatureException;
+import org.geotools.feature.IllegalAttributeException;
 
 /**
  * Defines a complex filter (could also be called logical filter).
@@ -34,7 +34,7 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: AttributeExpressionImpl.java,v 1.8 2003/04/11 20:08:27 jmacgill Exp $
+ * @version $Id: AttributeExpressionImpl.java,v 1.9 2003/07/17 07:09:53 ianschneider Exp $
  * @author Rob Hranac, TOPP
  */
 public class AttributeExpressionImpl 
@@ -119,14 +119,8 @@ public class AttributeExpressionImpl
      */
     public Object getValue(Feature feature) {
 
-        Object tempAttribute = null;
-        try {
-            tempAttribute = feature.getAttribute(attributePath);
-        }
-        catch (IllegalFeatureException e) {            
-            LOGGER.warning(attributePath + " not found in schema " + feature.getSchema());
-        }
-        return tempAttribute;
+        return feature.getAttribute(attributePath);
+        
     }
         
 

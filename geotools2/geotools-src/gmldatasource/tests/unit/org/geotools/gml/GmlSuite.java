@@ -7,7 +7,6 @@ package org.geotools.gml;
  * Created on 04 March 2002, 16:09
  */
 import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -28,8 +27,9 @@ public class GmlSuite extends TestCase {
         super(testName);
     }
     
-    public static void main(java.lang.String[] args) {
+    public static void main(java.lang.String[] args) throws java.io.IOException {
         junit.textui.TestRunner.run(suite());
+        
     }
     
     public static Test suite() {

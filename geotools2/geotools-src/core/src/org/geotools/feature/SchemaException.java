@@ -20,15 +20,16 @@ package org.geotools.feature;
  * Indicates client class has attempted to create an invalid schema.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: SchemaException.java,v 1.4 2003/05/07 16:53:04 jmacgill Exp $
+ * @version $Id: SchemaException.java,v 1.5 2003/07/17 07:09:52 ianschneider Exp $
  */
 public class SchemaException extends Exception {
     /**
      * Constructor with no argument.
      */
-    public SchemaException() {
-        super();
-    }
+  // ARRRGGGGHHHHH!!!!
+//    public SchemaException() {
+//        super();
+//    }
 
     /**
      * Constructor with message argument.

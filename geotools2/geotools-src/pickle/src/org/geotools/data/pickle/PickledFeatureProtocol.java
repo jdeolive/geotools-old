@@ -258,7 +258,7 @@ public abstract class PickledFeatureProtocol {
     
     
     protected short getHandle(Feature f) throws IOException {
-      FeatureType schema = f.getSchema();
+      FeatureType schema = f.getFeatureType();
       Short handle = (Short) handles.get(schema);
       
       // handle doesn't exist yet
@@ -293,7 +293,7 @@ public abstract class PickledFeatureProtocol {
         for (int i = 0; i < numberOfFeatures; i++) {
           fc.add(readFeature());
         }
-      } catch (IllegalFeatureException ife) {
+      } catch (IllegalAttributeException ife) {
         throw new SchemaException("IllegalFeatures " + ife);
       }
     }
@@ -315,7 +315,7 @@ public abstract class PickledFeatureProtocol {
       }
     }
     
-    protected Feature readFeature() throws IOException,ClassNotFoundException,SchemaException,IllegalFeatureException {
+    protected Feature readFeature() throws IOException,ClassNotFoundException,SchemaException,IllegalAttributeException {
       // read length in bytes
       dataIn.readInt(); 
       // read handle
@@ -341,7 +341,7 @@ public abstract class PickledFeatureProtocol {
       // now read!
       try {
         return readFeature();
-      } catch (IllegalFeatureException ife) {
+      } catch (IllegalAttributeException ife) {
         throw new SchemaException("IllegalFeatures " + ife.getMessage());
       }
     }
@@ -386,7 +386,7 @@ public abstract class PickledFeatureProtocol {
         for (int i = 0; i < numberOfFeatures; i++) {
           fc.add(readFeature());
         }
-      } catch (IllegalFeatureException ife) {
+      } catch (IllegalAttributeException ife) {
         throw new SchemaException("IllegalFeatures " + ife);
       }
     }
@@ -403,12 +403,12 @@ public abstract class PickledFeatureProtocol {
       // now read!
       try {
         return readFeature();
-      } catch (IllegalFeatureException ife) {
+      } catch (IllegalAttributeException ife) {
         throw new SchemaException("IllegalFeatures " + ife.getMessage());
       }
     }
     
-    protected Feature readFeature() throws IOException, ClassNotFoundException, SchemaException, IllegalFeatureException {
+    protected Feature readFeature() throws IOException, ClassNotFoundException, SchemaException, IllegalAttributeException {
       // read length in bytes
       featureBuffer.getInt(); 
       // read handle

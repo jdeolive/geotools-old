@@ -26,7 +26,7 @@ import org.geotools.data.MemoryDataSource;
 import org.geotools.data.DataSourceMetaData;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollectionDefault;
+import org.geotools.feature.FeatureCollections;
 import org.geotools.filter.AbstractFilter;
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterFactory;

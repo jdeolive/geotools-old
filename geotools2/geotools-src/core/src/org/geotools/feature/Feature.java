@@ -21,6 +21,7 @@
 package org.geotools.feature;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Envelope;
 
 /** 
  * <p>Represents a feature of arbitrary complexity.
@@ -113,70 +114,150 @@ import com.vividsolutions.jts.geom.Geometry;
  * valid representation of the feature.  They should also always include a 
  * valid schema that can be used to check the proposed attributes.  This
  * is necessary to ensure that the feature is always in a valid state,
- * relative to its schema.</ol>
+ * relative to its schema.
  *
- * @version $Id: Feature.java,v 1.6 2002/11/25 15:28:07 robhranac Exp $
+ * <li><b>hashCode() and equals(Object other)</b><br>
+ * Determining equality and equivalence for Feature instances is of utmost
+ * importance. This must be done in a constistent manner, as many other areas of
+ * geotools will rely on these relations. See java.lang.Object for details.
+ * </li></ol>
+ *
+ * @version $Id: Feature.java,v 1.7 2003/07/17 07:09:52 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Rob Hranac, TOPP
+ * @author Ian Schneider, USDA-ARS
  * @see org.geotools.datasource.FeatureType 
  * @see org.geotools.datasource.FeatureFlat
  */
 public interface Feature {
+    /*
+     * Redesign notes:
+     *
+     * getFeature(String xpath) + NULL_ATTRIBUTE
+     *  The throwing of an IllegalFeatureException is obviously an attempt to 
+     *  allow for the semantic that a Feature may have a given attribute, yet
+     *  the attribute may allow null values. I believe a better pattern is the 
+     *  "null object" approach (Ian).
+     *  
+     * getId -> getID 
+     *  standards naming
+     *
+     * getSchema -> getFeatureType
+     *  API clarity
+     *
+     * Object[] getAttributes() -> Object[] getAttributes(Object[])
+     *  Performance enhancements
+     *
+     * getFeature(int idx) 
+     *  Allow for faster access to features.
+     *
+     * getBounds()
+     *  Allows for bounds to be cached while geometries themselves may be softly
+     * held. Convenience.
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     */
+  
+    /**
+     * A "null" Object representing a null value for a given attribute.
+     */
+    static final Object NULL_ATTRIBUTE = new NULL();
+    
+    /** Not straight forward, this is a "null" object to represent the value null for a
+     * given attribute which is nullable.
+     */    
+    static final class NULL implements Comparable {
+      
+      /** Implementation of Comparable.
+       * @param o The other thing to compare to.
+       * @return 0 if null or this, 1 for all others.
+       */      
+      public int compareTo(Object o) {
+        if (o == null) return 0;
+        if (o == this) return 0;
+        return 1;
+      }
+      
+    }
+    
+    FeatureCollection getParent();
+    
+    void setParent(FeatureCollection collection);
 
     /** 
      * Gets a reference to the schema for this feature.
      *
-     * @return A copy of this feature's schema.
+     * @return A reference to this feature's schema.
      */
-    FeatureType getSchema();
+    FeatureType getFeatureType();
 
 
-    /* ***********************************************************************
-     * Attribute extraction methods.
-     * ***********************************************************************/
     /** 
      * Gets the unique feature ID for this feature.
      *
      * @return Unique identifier for this feature.
      */
-    public String getId();
+    public String getID();
 
-    /** 
+    /**
+     * Copy all the attributes of this Feature into the given array.
+     * If the argument array is null, a new one will be created.
      * Gets all attributes from this feature, returned as a complex object
-     * array.  This array comes with no metadata, so to interpret this 
+     * array.  This array comes with no metadata, so to interpret this
      * collection the caller class should ask for the schema as well.
-     *
-     * @return A copy of all feature attributes.
+     * @return The array passed in, or a new one if null.
+     * @param attributes An array to copy attributes into. May be null.
      */
-    Object[] getAttributes();
+    Object[] getAttributes(Object[] attributes);
 
-    /** 
+    /**
      * Gets an attribute for this feature at the location specified by xPath.
-     *
+     * Due to the complex nature of xpath, the
+     * return Object may be a single attribute, a FeatureCollection containing
+     * only Features, or a java.util.Collection containing either a mix
+     * of attributes, Features, and/or FeatureCollections.
      * @param xPath XPath representation of attribute location.
-     * @return A copy of the requested attribute.
-     * @throws IllegalFeatureException Requested attribute not found.
+     * @return A copy of the requested attribute, null if the requested xpath is not found, or
+     * NULL_ATTRIBUTE.
      */
-    Object getAttribute(String xPath)
-        throws IllegalFeatureException;
-
-    /** 
-     * Gets an attribute for this feature at the location specified by xPath
-     * and assumes that the attribute has multiple occurrences.  If it does
-     * not, will throw an exception.
-     *
-     * @param xPath XPath representation of attribute location.
-     * @return A copy of all requested feature attributes.
-     * @throws IllegalFeatureException Requested attribute does not have 
-     * multiple instance or does not exist.
+    Object getAttribute(String xPath);
+    
+    /** Gets an attribute by the given zero-based index.
+     * @return A copy of the requested attribute, or NULL_ATTRIBUTE.
+     * @param index The requested index. Must be 0 <= idx < getNumberOfAttributes().
      */
-    Object[] getAttributes(String xPath)
-        throws IllegalFeatureException;
+    Object getAttribute(int index);
+    
+    void setAttribute(int position,Object val) 
+    throws IllegalAttributeException,
+    ArrayIndexOutOfBoundsException;
+    
+    /** Get the number of attributes this feature has.
+     * This is simply a convenience method for calling
+     * getFeatureType().getNumberOfAttributes();
+     * @return The total number of attributes this Feature contains.
+     */
+    int getNumberOfAttributes();
+
+// IAN - this is out, see above
+//    /** 
+//     * Gets an attribute for this feature at the location specified by xPath
+//     * and assumes that the attribute has multiple occurrences.  If it does
+//     * not, will throw an exception.
+//     *
+//     * @param xPath XPath representation of attribute location.
+//     * @return A copy of all requested feature attributes.
+//     * @throws IllegalFeatureException Requested attribute does not have 
+//     * multiple instance or does not exist.
+//     */
+//    Object[] getAttributes(String xPath) throws IllegalFeatureException;
 
 
-    /* ***********************************************************************
-     * Attribute setting methods.
-     * ***********************************************************************/
     /** 
      * Sets all attributes for this feature, passed as a complex object
      * array.  Note that this array must conform to the internal schema
@@ -186,30 +267,24 @@ public interface Feature {
      * before adding them.
      *
      * @param attributes All feature attributes.
-     * @throws IllegalFeatureException Passed attributes do not match schema.
+     * @throws IllegalAttributeException Passed attributes do not match schema.
      */
-    void setAttributes(Object[] attributes)
-        throws IllegalFeatureException;
+    void setAttributes(Object[] attributes) throws IllegalAttributeException;
 
-    /** 
+    /**
      * Sets a single attribute for this feature, passed as a complex object.
      * If the attribute does not exist or the object does not conform to the
      * internal schema, an exception is thrown.  Checking this is, of
      * course, left to the feature to do internally.  Well behaved features
      * should always fully check the passed attributes against thier schema
      * before adding them.
-     *
      * @param xPath XPath representation of attribute location.
      * @param attribute Feature attribute to set.
-     * @throws IllegalFeatureException Passed attribute does not match schema.
+     * @throws IllegalAttributeException If the attribute is illegal for the path specified.
      */
-    void setAttribute(String xPath, Object attribute)
-        throws IllegalFeatureException;
+    void setAttribute(String xPath, Object attribute) throws IllegalAttributeException;
 
 
-    /* ***********************************************************************
-     * Geometry handling methods - for convenience only.                     *
-     * ***********************************************************************/
     /** 
      * Gets the default geometry for this feature.
      *
@@ -217,36 +292,17 @@ public interface Feature {
      */
     Geometry getDefaultGeometry();
 
-    /** 
-     * Sets the default geometry for this feature.
-     *
+    /** Sets the default geometry for this feature.
      * @param geometry The geometry to set.
-     * @throws IllegalFeatureException should this cause the Feature to become
-     *         illegal or if change is forbidden.
+     * @throws IllegalAttributeException If the AttributeType is not a geometry, or is invalid for some other reason.
      */
-    void setDefaultGeometry(Geometry geometry)
-        throws IllegalFeatureException;
+    void setDefaultGeometry(Geometry geometry) throws IllegalAttributeException;
     
-
-    /* ***********************************************************************
-     * Generic method for GoF visitors.                                      *
-     * ***********************************************************************/
-    /** 
-     * Used by FeatureVisitors to perform some action on this filter instance.
-     * Typicaly used by Feature decoders, but may also be used by any thing 
-     * which needs infomration from filter structure.
-     *
-     * Implementations should always call: visitor.visit(this);
-     *
-     * It is importatant that this is not left to a parent class unless the 
-     * parents API is identical.
-     *
-     * @param visitor The visitor which requires access to this feature,
-     *                the method must call visitor.visit(this);
-     *
+    /** Get the total bounds of this feature which is calculated by doing a
+     * union of the bounds of each geometry this feature is associated with.
+     * @return An Envelope containing the total bounds of this Feature.
      */
-    public void accept(FeatureVisitor visitor);
-
-
+    Envelope getBounds();
+    
 }
 
