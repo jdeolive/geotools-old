@@ -54,11 +54,9 @@ import org.geotools.feature.FeatureTypeFlat;
 import org.geotools.feature.FeatureFactory;
 import org.geotools.gml.GMLDataSource;
 import org.geotools.gui.swing.MapPaneImpl;
-//import org.geotools.gui.tools.ToolFactory;
-//import org.geotools.gui.tools.PanTool;
-import org.geotools.gui.tools.PanToolImpl;
+import org.geotools.gui.tools.ToolFactory;
+import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.AbstractTool;
-import org.geotools.gui.tools.AbstractToolImpl;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.BoundingBoxImpl;
 import org.geotools.map.Context;
@@ -75,7 +73,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.14 2003/02/03 21:06:01 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.15 2003/02/04 19:12:56 camerons Exp $
  *
  */
 
@@ -102,7 +100,7 @@ public class MapViewer2 extends JFrame {
      */
     private void initComponents() {//GEN-BEGIN:initComponents
 
-        //getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -122,8 +120,7 @@ public class MapViewer2 extends JFrame {
         MapPaneImpl mapPane;
         LayerList layerList;
         Layer layer;
-        //AbstractTool tool;
-        AbstractToolImpl tool;
+        AbstractTool tool;
         try {
             // Create a BoundingBox
             envelope=new Envelope(50,60,50,60);
@@ -166,9 +163,8 @@ public class MapViewer2 extends JFrame {
             this.getContentPane().setLayout(new BorderLayout());
 
             // Create MapPane and associate a Tool
-            //ToolFactory toolFactory=ToolFactory.createFactory();
-            //tool=toolFactory.createPanTool();
-            tool=new PanToolImpl();
+            ToolFactory toolFactory=ToolFactory.createFactory();
+            tool=toolFactory.createPanTool();
             mapPane = new MapPaneImpl(
                     tool,
                     context);
@@ -286,7 +282,7 @@ public class MapViewer2 extends JFrame {
         new MapViewer2().show();
     }
 
-    private MapPaneImpl mapPane;
+    //private MapPaneImpl mapPane;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }

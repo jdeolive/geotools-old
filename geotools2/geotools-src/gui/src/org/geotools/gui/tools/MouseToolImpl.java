@@ -6,11 +6,11 @@ import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.util.logging.Logger;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.JComponent;
 import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.gui.tools.AbstractToolImpl;
+import org.geotools.gui.widget.AbstractWidget;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
@@ -18,7 +18,9 @@ import org.geotools.pt.CoordinatePoint;
  * Abstract class for geotools Tools that use Mouse events.  Refer to Tool
  * javadocs for more information.
  */
-public abstract class MouseToolImpl extends AbstractToolImpl implements MouseListener {
+public abstract class MouseToolImpl extends AbstractToolImpl
+        implements MouseListener
+{
 
     private static final Logger LOGGER = Logger.getLogger(
         "org.geotools.gui.tools.MouseTool");
@@ -41,7 +43,7 @@ public abstract class MouseToolImpl extends AbstractToolImpl implements MouseLis
      * another widget.
      */
     public void setWidget(
-        JComponent widget,
+        AbstractWidget widget,
         MouseListener listener) throws IllegalStateException
     {
         super.setWidget(widget);

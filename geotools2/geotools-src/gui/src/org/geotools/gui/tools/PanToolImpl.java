@@ -11,33 +11,22 @@ import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.gui.tools.MouseToolImpl;
+import org.geotools.gui.widget.AbstractWidget;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
 
-public class PanToolImpl extends MouseToolImpl {
+public class PanToolImpl extends MouseToolImpl implements PanTool {
 
     private static final Logger LOGGER = Logger.getLogger(
-        "org.geotools.gui.tools.PanTool");
+        "org.geotools.gui.tools.PanToolImpl");
 
     /**
      * Construct a PanTool.
      */
-    public PanToolImpl() {
+    //protected PanToolImpl(){
+    public PanToolImpl(){
     }
-    
-//    /**
-//     * Construct a tool.
-//     * @context Where state data for this mapPane is stored.
-//     * @mapPane The mapPane from which this tool gets MouseEvents.
-//     * @thows IllegalArgumentException
-//     */
-//    public PanTool(
-//        Context context,
-//        JComponent mapPane) throws IllegalArgumentException
-//    {
-//        super(context,mapPane);
-//    }
     
     /**
      * Set up Click/Pan.
@@ -119,10 +108,7 @@ public class PanToolImpl extends MouseToolImpl {
      * @throws IllegalStateException if the widget has already been set to
      * another widget.
      */
-    public void setWidget(JComponent widget) throws IllegalStateException {
+    public void setWidget(AbstractWidget widget) throws IllegalStateException {
         super.setWidget(widget,this);
-        if (this.widget!=null){
-            widget.addMouseListener(this);
-        }
     }
 }

@@ -31,7 +31,8 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionDefault;
-import org.geotools.gui.tools.AbstractToolImpl;
+import org.geotools.gui.tools.AbstractTool;
+import java.awt.event.MouseListener;
 import java.util.EventObject;
 import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.BoundingBox;
@@ -49,7 +50,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.2 2003/01/29 19:33:57 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.3 2003/02/04 19:12:54 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -58,12 +59,12 @@ import org.geotools.data.DataSourceException;
  */
 
 public class MapPaneImpl extends JPanel implements
-    BoundingBoxListener, LayerListListener
+    BoundingBoxListener, LayerListListener, org.geotools.gui.widget.MapPane
 {
     /**
      * The current tool for this MapPane.
      */
-    private AbstractToolImpl tool;
+    private AbstractTool tool;
 
     /**
      * The class to use to render this MapPane.
@@ -91,7 +92,7 @@ public class MapPaneImpl extends JPanel implements
      * context is null, an IllegalArguementException is thrown.
      */
     public MapPaneImpl(
-            AbstractToolImpl tool,
+            AbstractTool tool,
             Context context) throws IllegalArgumentException
     {
         if ((tool==null)||(context==null)){
@@ -118,7 +119,7 @@ public class MapPaneImpl extends JPanel implements
      * @param tool The tool to use for this mapPane.
      * @throws IllegalArgumentException if tool is null.
      */
-    public void setTool(AbstractToolImpl tool) throws IllegalArgumentException
+    public void setTool(AbstractTool tool) throws IllegalArgumentException
     {
         if (tool==null){
             throw new IllegalArgumentException();
@@ -134,7 +135,7 @@ public class MapPaneImpl extends JPanel implements
      * is returned.
      * @return The tool assigned to this mapPane.
      */
-    public AbstractToolImpl getTool()
+    public AbstractTool getTool()
     {
         return this.tool;
     }
@@ -212,4 +213,47 @@ public class MapPaneImpl extends JPanel implements
     public void layerListChanged(EventObject layerListChangedEvent) {
         repaint(getVisibleRect());
     }
-}
+
+    /**
+     * Adds the specified mouse listener to receive mouse events from
+     * this component.
+     * If listener <code>l</code> is <code>null</code>,
+     * no exception is thrown and no action is performed.
+     *
+     * @param    l   the mouse listener
+     * @see      java.awt.event.MouseEvent
+     * @see      java.awt.event.MouseListener
+     * @see      #removeMouseListener
+     * @see      #getMouseListeners
+     * @since    JDK1.1
+     */
+    public synchronized void addMouseListener(Object l) {
+        super.addMouseListener((MouseListener)l);
+    }
+
+    /**
+     * Removes the specified mouse listener so that it no longer
+     * receives mouse events from this component. This method performs 
+     * no function, nor does it throw an exception, if the listener 
+     * specified by the argument was not previously added to this component.
+     * If listener <code>l</code> is <code>null</code>,
+     * no exception is thrown and no action is performed.
+     *
+     * @param    l   the mouse listener
+     * @see      java.awt.event.MouseEvent
+     * @see      java.awt.event.MouseListener
+     * @see      #addMouseListener
+     * @see      #getMouseListeners
+     * @since    JDK1.1
+     */
+    public synchronized void removeMouseListener(Object l) {
+        super.removeMouseListener((MouseListener)l);
+    }
+
+    /**
+     * Returns the current width of this component.
+     * @return the current width of this component
+     */
+    public int getWidth() {
+        return super.getWidth();
+    }}
