@@ -24,7 +24,7 @@ package org.geotools.styling;
  * A class to read and parse an SLD file based on verion 0.7.2 of
  * the OGC Styled Layer Descriptor Spec.
  *
- * @version $Id: SLDStyle.java,v 1.17 2002/07/05 20:21:11 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.18 2002/07/16 10:51:47 ianturton Exp $
  * @author Ian Turton, CCG
  *
  *
@@ -245,9 +245,29 @@ public class SLDStyle implements org.geotools.styling.Style {
             if( child.getNodeName().equalsIgnoreCase("Abstract")){
                 rule.setAbstract(child.getFirstChild().getNodeValue());
             }
-            if (child.getNodeName().equalsIgnoreCase("Filter")
-            || child.getNodeName().equalsIgnoreCase("ElseFilter")){
-                //TODO: set a filter
+            if (child.getNodeName().equalsIgnoreCase("Filter") ){
+                NodeList list = child.getChildNodes();
+                Node kid = null;
+                for(int k=0;k<list.getLength();k++){
+                    kid = list.item(k);
+                    if(kid == null || kid.getNodeType() != Node.ELEMENT_NODE) continue;
+                    Filter filter = FilterXMLParser.parseFilter(kid);
+                    _log.debug("filter: " + filter.getClass().toString());
+                    _log.info("parsed: " + filter.toString());
+                    // TODO: store filter somewhere
+                }
+            }
+            if(child.getNodeName().equalsIgnoreCase("ElseFilter")){
+                NodeList list = child.getChildNodes();
+                Node kid = null;
+                for(int k=0;k<list.getLength();k++){
+                    kid = list.item(k);
+                    if(kid == null || kid.getNodeType() != Node.ELEMENT_NODE) continue;
+                    Filter filter = FilterXMLParser.parseFilter(kid);
+                    _log.debug("filter: " + filter.getClass().toString());
+                    _log.info("parsed: " + filter.toString());
+                    // TODO: store filter somewhere
+                }
             }
             if( child.getNodeName().equalsIgnoreCase("LegendGraphic")){
                 NodeList g = ((Element)child).getElementsByTagName("Graphic");
