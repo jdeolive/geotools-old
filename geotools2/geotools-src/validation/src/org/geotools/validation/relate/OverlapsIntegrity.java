@@ -340,8 +340,18 @@ public class OverlapsIntegrity extends RelationIntegrity
 	}
 	
 	
-	
-	public Filter filterBBox(Envelope bBox, FeatureType ft)
+	/**
+	 * Construct a bounding box filter for the provided FeatureType.
+	 * <p>
+	 * This method is package visiable to allow for testing.
+	 * </p>
+	 * @param bBox
+	 * @param ft
+	 * @return
+	 * @throws FactoryConfigurationError
+	 * @throws IllegalFilterException
+	 */
+	Filter filterBBox(Envelope bBox, FeatureType ft)
 		throws FactoryConfigurationError, IllegalFilterException
 	{
 		FilterFactory ff = FilterFactory.createFilterFactory();

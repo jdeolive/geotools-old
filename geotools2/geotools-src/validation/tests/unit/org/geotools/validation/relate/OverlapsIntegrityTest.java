@@ -65,6 +65,33 @@ public class OverlapsIntegrityTest extends SpatialTestCase
 		super(arg0);
 	}
 
+	public void testOverlapFilter() throws Exception {
+		FeatureSource line = mds.getFeatureSource( "line" );
+		
+		Filter filter;
+		
+		filter = OverlapsIntegrity.filterBBox( new Envelope(), line.getSchema() );
+		assertEquals( "with empty envelope", 0, line.getFeatures( filter ).getCount() );
+		
+		filter = OverlapsIntegrity.filterBBox( new Envelope(-1,3,-2,3), line.getSchema() );
+		assertEquals( "with envelope", 0, line.getFeatures( filter ).getCount() );	
+		
+		Envelope all = line.getBounds();
+		if( all == null ){
+			// damm lets figure it out
+			all = line.getFeatures().getBounds();
+		}
+		int counter = 0;
+		filter = OverlapsIntegrity.filterBBox( all, line.getSchema() );
+		for( FeatureReader r=line.getFeatures().reader(); r.hasNext(); ){
+			System.out.println("Loop counter: " +  ++counter);
+			Feature victim = r.next();
+			System.out.println("Found line number: " + victim.getID());
+			assertTrue( "feature "+victim.getID(), filter.contains( victim ));
+		}
+		assertEquals( "count of all features", 4, line.getFeatures( filter ).getCount() );
+	}
+	
 	public void testValidate()
 	{
 		OverlapsIntegrity overlap = new OverlapsIntegrity();
