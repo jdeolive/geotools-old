@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project [
-    <!ENTITY common SYSTEM "..\gtbuild\common.xml">
+    <!ENTITY common SYSTEM "../gtbuild/common.xml">
 ]>
 
 <project basedir="." default="all" name="shapefile">
