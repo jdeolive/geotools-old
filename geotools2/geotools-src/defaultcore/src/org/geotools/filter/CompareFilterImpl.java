@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  * simplify/make meaningful filter logic.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: CompareFilterImpl.java,v 1.8 2003/07/23 16:16:57 cholmesny Exp $
+ * @version $Id: CompareFilterImpl.java,v 1.9 2003/07/23 18:19:43 cholmesny Exp $
  */
 public class CompareFilterImpl extends AbstractFilterImpl
     implements CompareFilter {
@@ -251,9 +251,9 @@ public class CompareFilterImpl extends AbstractFilterImpl
      *         otherwise.
      */
     public boolean equals(Object obj) {
-        if (obj.getClass() == this.getClass()) {
+        if (obj instanceof CompareFilterImpl) {
             CompareFilterImpl cFilter = (CompareFilterImpl) obj;
-
+            //todo - check for nulls here, or make immutable.
             return ((cFilter.getFilterType() == this.filterType)
             && cFilter.getLeftValue().equals(this.leftValue)
             && cFilter.getRightValue().equals(this.rightValue));
