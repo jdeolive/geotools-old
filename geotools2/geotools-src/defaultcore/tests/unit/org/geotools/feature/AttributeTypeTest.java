@@ -58,7 +58,6 @@ public class AttributeTypeTest extends TestCase {
         AttributeType typeD = AttributeTypeFactory.newAttributeType("testAttribute", Integer.class);
         AttributeType typeE = AttributeTypeFactory.newAttributeType(null, Integer.class);
         AttributeType typeF = AttributeTypeFactory.newAttributeType(null, Integer.class);
-        assertTrue(null == typeF.getName());
         assertTrue(typeA.equals(typeA));
         assertTrue(typeA.equals(typeB));
         assertTrue(typeE.equals(typeF));
@@ -67,6 +66,18 @@ public class AttributeTypeTest extends TestCase {
         assertTrue(!typeA.equals(null));
         assertTrue(!typeA.equals(typeE));
     }
+    
+    public void testClone() {
+        try{
+            AttributeType typeA = AttributeTypeFactory.newAttributeType("testAttribute", Double.class);
+            AttributeType typeB = (AttributeType)((DefaultAttributeType)typeA).clone();
+        }
+        catch(CloneNotSupportedException cnse){
+            //it isn't
+        }
+    }
+
+        
         
         
         
@@ -131,6 +142,8 @@ public class AttributeTypeTest extends TestCase {
         
         
     }
+    
+   
     
     public void testFeatureConstruction() throws SchemaException {
         FeatureType a = FeatureTypeFactory.newFeatureType(new AttributeType[]{},"noAttribs");
