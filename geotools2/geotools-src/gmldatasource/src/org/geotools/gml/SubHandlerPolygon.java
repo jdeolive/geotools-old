@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  *
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
- * @version $Id: SubHandlerPolygon.java,v 1.9 2003/08/14 18:36:47 cholmesny Exp $
+ * @version $Id: SubHandlerPolygon.java,v 1.10 2003/09/06 18:24:58 jmacgill Exp $
  */
 public class SubHandlerPolygon extends SubHandler {
     /** The logger for the GML module. */
@@ -60,6 +60,9 @@ public class SubHandlerPolygon extends SubHandler {
 
     /** Indicates that we are inside the outer boundary of the Polygon. */
     private int OUTER_BOUNDARY = 2;
+    
+    /** Quick hack to fix parser bug */
+    private boolean innerBoundaryToAdd = true; 
 
     /**
      * Creates a new instance of GMLPolygonHandler.
@@ -93,11 +96,18 @@ public class SubHandlerPolygon extends SubHandler {
                      */
                     if (cga.isCCW(points)) {
                         LOGGER.finer("good hole found");
+                        
+                        //HACK: workaround for parser bug, see:
+                        //http://sf.net/mailarchive/forum.php?thread_id=3086985&forum_id=3008
+                        if (innerBoundaryToAdd){
+                        //System.out.println("inner boundary: " + message);
                         innerBoundaries.add(ring);
+                        innerBoundaryToAdd = false;
+                        }
+                        
                     } else {
                         LOGGER.finer("bad hole found - fixing");
-
-                        Coordinate[] newPoints = new Coordinate[points.length];
+                         Coordinate[] newPoints = new Coordinate[points.length];
 
                         for (int i = 0, j = points.length - 1;
                                 i < points.length; i++, j--) {
@@ -124,7 +134,7 @@ public class SubHandlerPolygon extends SubHandler {
 
                     if (cga.isCCW(points)) {
                         LOGGER.finer("bad outer ring - rebuilding");
-
+                         //  System.out.println("rebuilding outer ring");
                         Coordinate[] newPoints = new Coordinate[points.length];
 
                         for (int i = 0, j = points.length - 1;
@@ -134,6 +144,8 @@ public class SubHandlerPolygon extends SubHandler {
 
                         try {
                             outerBoundary = geometryFactory.createLinearRing(newPoints);
+                            //System.out.println("outer boundary: " + message);
+                        
                         } catch (TopologyException e) {
                             LOGGER.warning("Caught Topology exception in "
                                 + "GMLPolygonHandler");
@@ -152,6 +164,8 @@ public class SubHandlerPolygon extends SubHandler {
         } else if (message.equals("innerBoundaryIs")) {
             LOGGER.finer("new InnerBoundary");
             location = INNER_BOUNDARY;
+            //for bug fix - remember that this inner boundary has not yet been added
+            innerBoundaryToAdd = true;
         }
     }
 
