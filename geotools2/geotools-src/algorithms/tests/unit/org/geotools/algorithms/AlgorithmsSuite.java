@@ -9,6 +9,8 @@ package org.geotools.algorithms;
 
 import junit.framework.*;
 
+import org.geotools.filter.AreaFunctionTest;
+
 /**
  *
  * @author jamesm
@@ -26,6 +28,7 @@ public class AlgorithmsSuite extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite("All Tests");
         suite.addTestSuite(RobustGeometryPropertiesTest.class);
+        suite.addTestSuite(AreaFunctionTest.class);
         return suite;
     }
 }
