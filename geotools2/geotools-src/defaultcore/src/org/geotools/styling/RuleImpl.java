@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: RuleImpl.java,v 1.3 2003/05/16 21:10:21 jmacgill Exp $
+ * @version $Id: RuleImpl.java,v 1.4 2003/06/13 00:40:21 seangeo Exp $
  * @author James Macgill
  */
 import java.util.ArrayList;
@@ -32,11 +32,11 @@ public class RuleImpl implements org.geotools.styling.Rule {
 
     private Symbolizer[] symbolizers;
     private List graphics = new ArrayList();
-    
+
     private String name = "name";
-    
+
     private String title = "title";
-    
+
     private String abstractStr = "Abstract";
     private Filter filter = null;
     private boolean hasElseFilter = false;
@@ -65,20 +65,21 @@ public class RuleImpl implements org.geotools.styling.Rule {
      *
      */
     public void setLegendGraphic(Graphic[] graphics) {
+		this.graphics.clear();
         for(int i=0;i<graphics.length;i++){
             addLegendGraphic(graphics[i]);
         }
     }
-    
-    
+
+
     public void setSymbolizers(Symbolizer[] syms){
         symbolizers = syms;
     }
-    
+
     public Symbolizer[] getSymbolizers() {
         return symbolizers;
     }
-    
+
     /**
      * Getter for property abstractStr.
      * @return Value of property abstractStr.
@@ -86,7 +87,7 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public java.lang.String getAbstract() {
         return abstractStr;
     }
-    
+
     /**
      * Setter for property abstractStr.
      * @param abstractStr New value of property abstractStr.
@@ -94,7 +95,7 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public void setAbstract(java.lang.String abstractStr) {
         this.abstractStr = abstractStr;
     }
-    
+
     /**
      * Getter for property name.
      * @return Value of property name.
@@ -102,7 +103,7 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public java.lang.String getName() {
         return name;
     }
-    
+
     /**
      * Setter for property name.
      * @param name New value of property name.
@@ -110,7 +111,7 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public void setName(java.lang.String name) {
         this.name = name;
     }
-    
+
     /**
      * Getter for property title.
      * @return Value of property title.
@@ -118,7 +119,7 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public java.lang.String getTitle() {
         return title;
     }
-    
+
     /**
      * Setter for property title.
      * @param title New value of property title.
@@ -126,15 +127,15 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public void setTitle(java.lang.String title) {
         this.title = title;
     }
-    
+
     public Filter getFilter() {
         return filter;
     }
-    
+
     public void setFilter(Filter filter){
         this.filter = filter;
     }
-    
+
     public boolean hasElseFilter() {
         return hasElseFilter;
     }
@@ -144,7 +145,7 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public void setHasElseFilter(){
         hasElseFilter = true;
     }
-    
+
     /** Getter for property maxScaleDenominator.
      * @return Value of property maxScaleDenominator.
      *
@@ -152,7 +153,7 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public double getMaxScaleDenominator() {
         return maxScaleDenominator;
     }
-    
+
     /** Setter for property maxScaleDenominator.
      * @param maxScaleDenominator New value of property maxScaleDenominator.
      *
@@ -160,7 +161,7 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public void setMaxScaleDenominator(double maxScaleDenominator) {
         this.maxScaleDenominator = maxScaleDenominator;
     }
-    
+
     /** Getter for property minScaleDenominator.
      * @return Value of property minScaleDenominator.
      *
@@ -168,7 +169,7 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public double getMinScaleDenominator() {
         return minScaleDenominator;
     }
-    
+
     /** Setter for property minScaleDenominator.
      * @param minScaleDenominator New value of property minScaleDenominator.
      *
@@ -176,7 +177,4 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public void setMinScaleDenominator(double minScaleDenominator) {
         this.minScaleDenominator = minScaleDenominator;
     }
-    
-    
-    
 }
