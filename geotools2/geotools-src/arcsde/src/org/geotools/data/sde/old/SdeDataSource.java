@@ -14,7 +14,7 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.data.sde;
+package org.geotools.data.sde.old;
 
 import com.esri.sde.sdk.client.*;
 import com.vividsolutions.jts.geom.Envelope;
@@ -32,7 +32,7 @@ import org.geotools.feature.SchemaException;
 import java.util.*;
 import java.util.logging.Logger;
 
-
+import org.geotools.data.sde.*;
 /**
  * this is the old style, memory consuming, ArcSDE  DataSource for geotools. By
  * now, it supports attribute filtering, as well as bounding box and  geometry
@@ -116,7 +116,7 @@ public class SdeDataSource extends AbstractDataSource
      *         <code>sdeTableName</code> is not found.
      * @throws NullPointerException DOCUMENT ME!
      */
-    protected SdeDataSource(SdeConnectionPool connPool, String sdeTableName)
+    public SdeDataSource(SdeConnectionPool connPool, String sdeTableName)
         throws DataSourceException
     {
         if (connPool == null)

@@ -70,45 +70,12 @@ public class SQLEncoderSDE extends SQLEncoder
         return capabilities; //maybe clone?  Make immutable somehow
     }
 
-    /** DOCUMENT ME! */
-    private List sdeSpatialFilters = new ArrayList();
-
-    /** DOCUMENT ME! */
-    private SeLayer sdeLayer;
-
     /**
-
      */
     public SQLEncoderSDE()
     {
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param layer DOCUMENT ME!
-     */
-    public void setLayer(SeLayer layer)
-    {
-        this.sdeLayer = layer;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws IllegalStateException DOCUMENT ME!
-     */
-    private String getLayerName()
-    {
-        if (sdeLayer == null)
-        {
-            throw new IllegalStateException("SDE layer name has not been set");
-        }
-
-        return sdeLayer.getName();
-    }
 
     /**
      * overriden just to avoid the "WHERE" keyword

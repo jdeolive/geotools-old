@@ -18,6 +18,7 @@ package org.geotools.data.sde;
 
 import com.esri.sde.sdk.client.*;
 import org.geotools.data.*;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.*;
 
@@ -54,7 +55,7 @@ public class SdeConnectionPool
     public static final int DEFAULT_INCREMENT = 1;
 
     /**
-     * default number of milliseconds a calling thread waits fo an available
+     * default interval in milliseconds a calling thread waits for an available
      * connection
      */
     private static final long DEFAULT_WAIT_TIME = 1000;
@@ -196,7 +197,7 @@ public class SdeConnectionPool
             else
                 availableConnections.add(seConnection);
 
-            LOGGER.finer(seConnection + " freed");
+            LOGGER.fine(seConnection + " freed");
         }
     }
 
@@ -327,9 +328,7 @@ public class SdeConnectionPool
         LOGGER.fine("Getting available connection.");
 
         SeConnection conn = (SeConnection) availableConnections.removeFirst();
-
         usedConnections.add(conn);
-
         LOGGER.finer(conn + " now in use");
 
         return conn;
@@ -390,27 +389,13 @@ public class SdeConnectionPool
         SeConnection.SeStreamSpec stSpec = seConn.getStreamSpec();
 
         /*
-
-                   System.out.println("getMinBufSize=" + stSpec.getMinBufSize());
-
-                   System.out.println("getMaxBufSize=" + stSpec.getMaxBufSize());
-
-
-
-                   System.out.println("getMaxArraySize=" + stSpec.getMaxArraySize());
-
-
-
-                   System.out.println("getMinObjects=" + stSpec.getMinObjects());
-
-
-
-                   System.out.println("getAttributeArraySize=" + stSpec.getAttributeArraySize());
-
-                   System.out.println("getShapePointArraySize=" + stSpec.getShapePointArraySize());
-
-                   System.out.println("getStreamPoolSize=" + stSpec.getStreamPoolSize());
-
+           System.out.println("getMinBufSize=" + stSpec.getMinBufSize());
+           System.out.println("getMaxBufSize=" + stSpec.getMaxBufSize());
+           System.out.println("getMaxArraySize=" + stSpec.getMaxArraySize());
+           System.out.println("getMinObjects=" + stSpec.getMinObjects());
+           System.out.println("getAttributeArraySize=" + stSpec.getAttributeArraySize());
+           System.out.println("getShapePointArraySize=" + stSpec.getShapePointArraySize());
+           System.out.println("getStreamPoolSize=" + stSpec.getStreamPoolSize());
          */
         stSpec.setMinBufSize(1024 * 1024);
 
@@ -427,37 +412,91 @@ public class SdeConnectionPool
         stSpec.setStreamPoolSize(10);
 
         /*
-
-                   System.out.println("********************************************");
-
-                   System.out.println("getMinBufSize=" + stSpec.getMinBufSize());
-
-                   System.out.println("getMaxBufSize=" + stSpec.getMaxBufSize());
-
-
-
-                   System.out.println("getMaxArraySize=" + stSpec.getMaxArraySize());
-
-
-
-                   System.out.println("getMinObjects=" + stSpec.getMinObjects());
-
-
-
-                   System.out.println("getAttributeArraySize=" + stSpec.getAttributeArraySize());
-
-                   System.out.println("getShapePointArraySize=" + stSpec.getShapePointArraySize());
-
-                   System.out.println("getStreamPoolSize=" + stSpec.getStreamPoolSize());
-
+           System.out.println("********************************************");
+           System.out.println("getMinBufSize=" + stSpec.getMinBufSize());
+           System.out.println("getMaxBufSize=" + stSpec.getMaxBufSize());
+           System.out.println("getMaxArraySize=" + stSpec.getMaxArraySize());
+           System.out.println("getMinObjects=" + stSpec.getMinObjects());
+           System.out.println("getAttributeArraySize=" + stSpec.getAttributeArraySize());
+           System.out.println("getShapePointArraySize=" + stSpec.getShapePointArraySize());
+           System.out.println("getStreamPoolSize=" + stSpec.getStreamPoolSize());
          */
         return seConn;
     }
 
     /**
+     * DOCUMENT ME!
+     *
+     * @param typeName DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws DataSourceException DOCUMENT ME!
+     */
+    public SeLayer getSdeLayer(String typeName) throws DataSourceException
+    {
+        Vector layers = getAvailableSdeLayers();
+        SeLayer layer = null;
+
+        try
+        {
+            for (Iterator it = layers.iterator(); it.hasNext();)
+            {
+                layer = (SeLayer) it.next();
+
+                if (layer.getQualifiedName().equals(typeName)
+                        || layer.getName().equals(typeName))
+                {
+                    break;
+                }
+
+                layer = null;
+            }
+        }
+        catch (SeException ex)
+        {
+            throw new DataSourceException(ex.getMessage(), ex);
+        }
+
+        return layer;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param tableName DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws DataSourceException DOCUMENT ME!
+     */
+    SeTable getSdeTable(String tableName) throws DataSourceException
+    {
+        SeTable table = null;
+        SeConnection sdeConn = null;
+
+        try
+        {
+            sdeConn = getConnection();
+            table = new SeTable(sdeConn, tableName);
+        }
+        catch (SeException ex)
+        {
+            throw new DataSourceException(ex.getMessage(), ex);
+        }
+        finally
+        {
+            release(sdeConn);
+        }
+
+        return table;
+    }
+
+    /**
      * gets the list of available SeLayers on the database
      *
-     * @return
+     * @return a <code>Vector&lt;SeLayer</code> with the registered
+     *         featureclasses on the ArcSDE database
      *
      * @throws DataSourceException
      */
@@ -505,15 +544,6 @@ public class SdeConnectionPool
         return config;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public Vector getDatabaseLayers()
-    {
-        return databaseLayers;
-    }
 
     /**
      * DOCUMENT ME!

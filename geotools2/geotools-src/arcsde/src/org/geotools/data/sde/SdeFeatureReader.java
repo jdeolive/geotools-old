@@ -18,97 +18,78 @@ package org.geotools.data.sde;
 
 import com.esri.sde.sdk.client.*;
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.data.DataSourceException;
-import org.geotools.data.Query;
-import org.geotools.feature.AttributeType;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureType;
-import org.geotools.feature.IllegalAttributeException;
-import org.geotools.filter.Filter;
-import org.geotools.filter.GeometryEncoderException;
-import org.geotools.filter.GeometryEncoderSDE;
-import org.geotools.filter.SQLEncoderException;
-import org.geotools.filter.SQLEncoderSDE;
-import org.geotools.filter.SQLUnpacker;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 import java.util.logging.Logger;
 
 
 /**
- * SdeDataSource's delegate for reading an sde resultset and constructing
- * Features
+ * DOCUMENT ME!
  *
- * @author Gabriel Roldán
+ * @author not attributable
  * @version 0.1
  */
-public class SdeFeatureReader implements FeatureReader
+public class SdeFeatureReader implements org.geotools.data.FeatureReader
 {
-    /** package's logger */
+    /** DOCUMENT ME! */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.data.sde");
 
-    /** built from the table name to prepend to feature ids */
-    private String fidPrefix;
+    /** DOCUMENT ME! */
+    private FeatureType type;
 
-    /** SDE datasource working on */
-    private SdeDataSource dataSource;
-
-    /** OGS query to filter features */
-    private Query query;
-
-    /** Extent of the query's result featureset */
-    private Envelope resultEnvelope = null;
-
-    /** generated SDE query, reused in each rewind() */
+    /** DOCUMENT ME! */
     private SeQuery sdeQuery;
 
-    /** SDE query's result set */
-    private SeRow sdeRow;
+    /** DOCUMENT ME! */
+    private SeRow stream;
 
-    /** type to query */
-    private FeatureType queryType;
+    /** DOCUMENT ME! */
+    private Envelope envelope;
 
-    /** creates JTS geometry based on SDE SeShape's objects */
     private GeometryBuilder geometryBuilder;
 
-    /** where in the iteration process we are */
-    private int currentIndex;
-
-    /** wether this reader is closed */
-    boolean closed = true;
-
-    /** To create the sql where statement */
-    private SQLEncoderSDE sqlEncoder = new SQLEncoderSDE();
-
-    /** To create the array of sde spatial filters */
-    private GeometryEncoderSDE geometryEncoder = new GeometryEncoderSDE();
+    private int currentIndex = 0;
+    private int maxFeatures;
+    private String fidPrefix;
 
     /**
      * Creates a new SdeFeatureReader object.
      *
-     * @param query DOCUMENT ME!
-     * @param dataSource DOCUMENT ME!
+     * @param type DOCUMENT ME!
+     * @param sdeQuery DOCUMENT ME!
+     * @param envelope DOCUMENT ME!
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public SdeFeatureReader(Query query, SdeDataSource dataSource)
-        throws DataSourceException
+    public SdeFeatureReader(FeatureType type, SeQuery sdeQuery,
+        Envelope envelope, int maxFeatures) throws DataSourceException
     {
-        //this.sdeConn = sdeConnection;
-        this.query = query;
-        this.dataSource = dataSource;
+        this.type = type;
+        this.sdeQuery = sdeQuery;
+        this.envelope = envelope;
+        this.maxFeatures = maxFeatures;
+        this.fidPrefix = type.getTypeName() + ".";
 
-        //create a FeatureType based on attributes specified in query
-        this.queryType = dataSource.getSchema(query);
+        try
+        {
+            sdeQuery.prepareQuery();
+            sdeQuery.execute();
+            this.stream = sdeQuery.fetch();
+        }
+        catch (SeException ex)
+        {
+            throw new DataSourceException("Can't execute the query: "
+                + ex.getMessage(), ex);
+        }
 
-        //if the geometry attribute has been queried, set up a GeometryBuilder
-        AttributeType geometryAttribute = queryType.getDefaultGeometry();
+        AttributeType geometryAttribute = type.getDefaultGeometry();
 
         if (geometryAttribute != null)
         {
             this.geometryBuilder = GeometryBuilder.builderFor(geometryAttribute
                     .getType());
         }
-        rewind();
     }
 
     /**
@@ -116,295 +97,84 @@ public class SdeFeatureReader implements FeatureReader
      *
      * @return DOCUMENT ME!
      */
-    public Envelope getResultEnvelope()
+    public FeatureType getFeatureType()
     {
-        return resultEnvelope;
+        return type;
+    }
+
+    /**
+     * Reads the feature currently pointed in the ArcSDE <code>SeRow</code>
+     * stream and advances to the next record, so <code>hasNext()</code> only
+     * needs to check if <code>stream != null</code>
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws java.io.IOException DOCUMENT ME!
+     * @throws org.geotools.feature.IllegalAttributeException DOCUMENT ME!
+     * @throws java.util.NoSuchElementException DOCUMENT ME!
+     * @throws java.lang.UnsupportedOperationException DOCUMENT ME!
+     */
+    public Feature next()
+        throws java.io.IOException,
+            org.geotools.feature.IllegalAttributeException,
+            java.util.NoSuchElementException
+    {
+      Feature feature = null;
+
+      if ((stream != null) && (currentIndex++ < maxFeatures))
+      {
+          try
+          {
+              feature = rowToFeature(stream, this.type);
+              stream = sdeQuery.fetch();
+          }
+          catch (SeException ex)
+          {
+              throw new DataSourceException("Exception fetching sde row", ex);
+          }
+
+          if (stream == null)
+          {
+              close();
+          }
+      }
+
+      return feature;
     }
 
     /**
      * DOCUMENT ME!
      *
      * @return DOCUMENT ME!
+     *
+     * @throws java.io.IOException DOCUMENT ME!
      */
-    public int size()
+    public boolean hasNext() throws java.io.IOException
     {
-        int size = -1;
+        return stream != null;
+    }
 
-        SeConnection sdeConn = null;
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws java.io.IOException DOCUMENT ME!
+     */
+    public void close() throws java.io.IOException
+    {
+        stream = null;
 
         try
         {
-            String[] qcols = { "count(*)" };
-            sdeConn = dataSource.getConnectionPool().getConnection();
-            this.sdeQuery = prepareQuery(query, qcols, sdeConn);
-            dataSource.getConnectionPool().release(sdeConn);
-            SeRow sdeRow = sdeQuery.fetch();
-            size = sdeRow.getInteger(0).intValue();
-            size = Math.min(size, query.getMaxFeatures());
+            sdeQuery.close();
         }
         catch (SeException ex)
         {
-        }
-        catch (Throwable dse)
-        {
-        }
-        finally
-        {
-            dataSource.getConnectionPool().release(sdeConn);
-        }
-
-        return size;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param query DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     */
-    private String[] getColumns(Query query) throws DataSourceException
-    {
-        //attributes to retrieve
-        String[] qcols = null;
-
-        if (query.retrieveAllProperties()) //retrieve all properties
-        {
-            FeatureType schema = dataSource.getSchema();
-            AttributeType[] atts = schema.getAttributeTypes();
-            qcols = new String[atts.length];
-            for (int i = 0; i < atts.length; i++)
-                qcols[i] = atts[i].getName();
-        }
-        else
-        {
-            qcols = query.getPropertyNames();
-        }
-
-        return qcols;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param query DOCUMENT ME!
-     * @param qcols DOCUMENT ME!
-     * @param sdeConn DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     */
-    private SeQuery prepareQuery(Query query, String[] qcols,
-        SeConnection sdeConn) throws DataSourceException
-    {
-        //prepare SDE query
-        SeQuery sdeQuery = null;
-
-        SeSqlConstruct sqlConstruct;
-
-        try
-        {
-            sdeQuery = createSeQuery(sdeConn, qcols);
-            sdeQuery.prepareQuery();
-            sdeQuery.execute();
-        }
-        catch (SeException ex)
-        {
-            throw new DataSourceException("Error preparing sde query: "
-                + ex.getMessage(), ex);
-        }
-
-        return sdeQuery;
-    }
-
-    /**
-     * here is where the hard work goes...
-     *
-     * @param sdeConn
-     * @param qcols DOCUMENT ME!
-     *
-     * @return
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     * @throws SeException DOCUMENT ME!
-     */
-    private SeQuery createSeQuery(SeConnection sdeConn, String[] qcols)
-        throws DataSourceException, SeException
-    {
-        SeQuery sdeQuery = null;
-        SeLayer sdeLayer = dataSource.getSdeLayer();
-        fidPrefix = sdeLayer.getQualifiedName() + ".";
-        SeSqlConstruct seSql = new SeSqlConstruct(sdeLayer.getName());
-        Filter filter = query.getFilter();
-        SQLUnpacker unpacker = new SQLUnpacker(sqlEncoder.getCapabilities());
-        unpacker.unPackAND(filter);
-
-        //unpacker.unPackOR(filter);
-        Filter sqlFilter = unpacker.getSupported();
-        Filter unsupportedFilter = unpacker.getUnSupported();
-        unpacker = new SQLUnpacker(geometryEncoder.getCapabilities());
-        unpacker.unPackAND(unsupportedFilter);
-        Filter geometryFilter = unpacker.getSupported();
-        unsupportedFilter = unpacker.getUnSupported();
-
-        //figure out which of the filter we can use.
-        if (sqlFilter != null)
-        {
-            try
-            {
-                sqlEncoder.setLayer(sdeLayer);
-                String where = sqlEncoder.encode(sqlFilter);
-                LOGGER.fine("applying where clause: '" + where + "'");
-                seSql.setWhere(where);
-            }
-            catch (SQLEncoderException sqle)
-            {
-                String message = "Encoder error" + sqle.getMessage();
-                LOGGER.warning(message);
-                throw new DataSourceException(message, sqle);
-            }
-        }
-
-        sdeQuery = new SeQuery(sdeConn, qcols, seSql);
-
-        if (geometryFilter != null)
-        {
-            try
-            {
-                geometryEncoder.setLayer(sdeLayer);
-                geometryEncoder.encode(geometryFilter);
-                SeFilter[] sdeSpatialFilters = geometryEncoder
-                    .getSpatialFilters();
-
-                if ((sdeSpatialFilters != null)
-                        && (sdeSpatialFilters.length > 0))
-                {
-                    LOGGER.fine("applying " + sdeSpatialFilters.length
-                        + " spatial filters ");
-
-                    sdeQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false,
-                        sdeSpatialFilters);
-                }
-            }
-
-            catch (GeometryEncoderException ex)
-            {
-                String message = "Encoder error" + ex.getMessage();
-                LOGGER.warning(message);
-                throw new DataSourceException(message, ex);
-            }
-        }
-
-        calculateResultEnvelope(sdeQuery, seSql);
-        return sdeQuery;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param sdeQuery DOCUMENT ME!
-     * @param seSql DOCUMENT ME!
-     */
-    private void calculateResultEnvelope(SeQuery sdeQuery, SeSqlConstruct seSql)
-    {
-        if (resultEnvelope == null)
-        {
-            try
-            {
-                SeQueryInfo queryInfo = new SeQueryInfo();
-                queryInfo.setConstruct(seSql);
-                //sdeQuery.prepareQueryInfo(queryInfo);
-                SeExtent ext = sdeQuery.calculateLayerExtent(queryInfo);
-
-                resultEnvelope = new Envelope(ext.getMinX(), ext.getMaxX(),
-                        ext.getMinY(), ext.getMaxY());
-            }
-            catch (SeException ex)
-            {
-                ex.printStackTrace();
-            }
+            LOGGER.warning("Error trying to close sde query: "
+                + ex.getMessage());
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return
-     *
-     * @throws DataSourceException
-     */
-    public boolean hasNext() throws DataSourceException
-    {
-        if (currentIndex >= query.getMaxFeatures())
-        {
-            close();
-            return false;
-        }
-
-        return sdeRow != null;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     */
-    public Feature next() throws DataSourceException
-    {
-        /*check again, perhaps the user calls next() without calling hasNext()
-         *first violating the filter
-         */
-        if (!hasNext())
-        {
-            throw new DataSourceException(
-                "there're no more features in this collection");
-        }
-
-        Feature feature = null;
-
-        if ((sdeRow != null) && (currentIndex++ < query.getMaxFeatures()))
-        {
-            try
-            {
-                feature = rowToFeature(sdeRow, queryType);
-                sdeRow = sdeQuery.fetch();
-            }
-            catch (SeException ex)
-            {
-                throw new DataSourceException("Exception fetching sde row", ex);
-            }
-            catch (IllegalAttributeException ex)
-            {
-                throw new DataSourceException("Can't create a feature from sde row",
-                    ex);
-            }
-
-            if (sdeRow == null)
-            {
-                close();
-            }
-        }
-
-        return feature;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param row
-     * @param type
-     *
-     * @return
-     *
-     * @throws IllegalAttributeException
-     * @throws SeException
-     * @throws DataSourceException DOCUMENT ME!
-     */
+    /////////////////////////////////////////////////////////////
     private Feature rowToFeature(SeRow row, FeatureType type)
         throws IllegalAttributeException, SeException, DataSourceException
     {
@@ -437,79 +207,4 @@ public class SdeFeatureReader implements FeatureReader
         return f;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     */
-    public void rewind() throws DataSourceException
-    {
-        LOGGER.fine("--------------rewind()-----------");
-        this.currentIndex = 0;
-        String[] qcols = getColumns(query);
-        SeConnection sdeConn = null;
-
-        try
-        {
-            sdeConn = dataSource.getConnectionPool().getConnection();
-            this.sdeQuery = prepareQuery(query, qcols, sdeConn);
-            sdeRow = sdeQuery.fetch();
-            dataSource.getConnectionPool().release(sdeConn);
-        }
-        catch (SeException ex)
-        {
-            throw new DataSourceException("Exception executing sde query: "
-                + ex.getMessage(), ex);
-        }
-        finally
-        {
-            dataSource.getConnectionPool().release(sdeConn);
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     */
-    public void close()
-    {
-        setClosed(true);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public boolean isClosed()
-    {
-        return closed;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param close DOCUMENT ME!
-     */
-    private void setClosed(boolean close)
-    {
-        this.closed = close;
-
-        if (close)
-        {
-            sdeRow = null;
-
-            if (sdeQuery != null)
-            {
-                try
-                {
-                    sdeQuery.close();
-                }
-                catch (Exception e)
-                {
-                }
-
-                sdeQuery = null;
-            }
-        }
-    }
 }

@@ -34,8 +34,8 @@ import java.util.logging.Logger;
  * <p>
  * Although not all filters support is coded yet, the strategy to filtering
  * queries for ArcSDE datasources is separated in two parts, the SQL where
- * clause construction, provided by <code>SQLEncoderSDE</code> and the
- * spatial filters (or spatial constraints, in SDE vocabulary) provided here;
+ * clause construction, provided by <code>SQLEncoderSDE</code> and the spatial
+ * filters (or spatial constraints, in SDE vocabulary) provided here;
  * mirroring the java SDE api approach
  * </p>
  *
@@ -52,29 +52,22 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
     static
     {
         /*
-
-                      capabilities.addType(AbstractFilter.LOGIC_AND);
-
-                      capabilities.addType(AbstractFilter.LOGIC_OR);
-
-                      capabilities.addType(AbstractFilter.LOGIC_NOT);
-
+           capabilities.addType(AbstractFilter.LOGIC_AND);
+           capabilities.addType(AbstractFilter.LOGIC_OR);
+           capabilities.addType(AbstractFilter.LOGIC_NOT);
          */
         capabilities.addType(AbstractFilter.GEOMETRY_BBOX);
-
         capabilities.addType(AbstractFilter.GEOMETRY_INTERSECTS);
-
         capabilities.addType(AbstractFilter.FID);
     }
 
     /** DOCUMENT ME! */
-    private List sdeSpatialFilters = new ArrayList();
+    private List sdeSpatialFilters = null;
 
     /** DOCUMENT ME! */
     private SeLayer sdeLayer;
 
     /**
-
      */
     public GeometryEncoderSDE()
     {
@@ -138,6 +131,8 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
      */
     public void encode(Filter filter) throws GeometryEncoderException
     {
+        sdeSpatialFilters = new ArrayList();
+
         if (capabilities.fullySupports(filter))
         {
             filter.accept(this);
@@ -168,13 +163,11 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
         else
         {
             String warning = "exporting unknown filter type, supported filters are:";
-
             log.warning(warning);
 
             StringBuffer msg = new StringBuffer(warning).append("BBox")
                                                         .append(", Intersects")
                                                         .append(", FID");
-
             throw new RuntimeException(msg.toString());
         }
     }
@@ -188,9 +181,7 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
     public void visit(FidFilter filter)
     {
         String[] fids = filter.getFids();
-
         SeShapeIdFilter idFilter;
-
         SeObjectId objectId;
 
         /**
@@ -198,15 +189,13 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
          *       filter (search equals, not equals, etc)
          */
         int searchMethod = SeFilter.METHOD_IDENTICAL;
-
         int nFids = (fids == null) ? 0 : fids.length;
 
         try
         {
             for (int i = 0; i < nFids; i++)
             {
-                objectId = new SeObjectId(Long.parseLong(fids[i]));
-
+                objectId = new SeObjectId(getNumericFid(fids[i]));
                 idFilter = new SeShapeIdFilter(getLayerName(),
                         sdeLayer.getSpatialColumn(), getLayerName(), objectId,
                         searchMethod);
@@ -214,8 +203,35 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
                 sdeSpatialFilters.add(idFilter);
             }
         }
-        catch (NumberFormatException ex)
+        catch (Exception ex)
         {
+          throw new RuntimeException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Returns the numeric identifier of a FeatureId, given by the full
+     * qualified name of the featureclass prepended to the ArcSDE feature id.
+     * ej: SDE.SDE.SOME_LAYER.1
+     *
+     * @param fid a geotools FeatureID
+     *
+     * @return an ArcSDE feature ID
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     */
+    private long getNumericFid(String fid) throws IllegalArgumentException
+    {
+        int dotIndex = fid.lastIndexOf('.');
+
+        try
+        {
+            return Long.parseLong(fid.substring(++dotIndex));
+        }
+        catch (Exception ex)
+        {
+            throw new IllegalArgumentException("FeatureID " + fid
+                + " does not contains a valid ArcSDE FID");
         }
     }
 
@@ -229,6 +245,7 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
     private void addBBoxFilter(GeometryFilter filter)
     {
         log.finer("exporting GeometryFilter");
+
         DefaultExpression left = (DefaultExpression) filter.getLeftGeometry();
         DefaultExpression right = (DefaultExpression) filter.getRightGeometry();
 
@@ -251,12 +268,16 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
             try
             {
                 GeometryBuilder gb = GeometryBuilder.builderFor(Polygon.class);
+                //obtain a valid bbox by intersecting the parameter one with
+                //the layer's extent, because SDE doesn't like coordinate filters
+                //that exceeds the valid layer's range
                 SeExtent seExtent = sdeLayer.getExtent();
                 SeShape extent = new SeShape(sdeLayer.getCoordRef());
                 extent.generateRectangle(seExtent);
 
                 Geometry layerEnv = gb.construct(extent);
                 bbox = bbox.intersection(layerEnv);
+
                 SeShape envShape = gb.construct(bbox, sdeLayer.getCoordRef());
 
                 SeFilter bboxFilter = new SeShapeFilter(getLayerName(),
