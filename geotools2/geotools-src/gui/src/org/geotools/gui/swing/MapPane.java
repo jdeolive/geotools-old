@@ -52,7 +52,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+// JTS dependencies
+import com.vividsolutions.jts.geom.Envelope;
+
 // Geotools dependencies
+import org.geotools.map.Layer;
+import org.geotools.map.Context;
+import org.geotools.map.BoundingBox;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.TransformException;
@@ -60,16 +66,16 @@ import org.geotools.renderer.j2d.Hints;
 import org.geotools.renderer.j2d.Renderer;
 import org.geotools.renderer.j2d.RenderedLayer;
 import org.geotools.renderer.j2d.GeoMouseEvent;
+import org.geotools.renderer.j2d.StyledRenderer;
 
 
 /**
- * A <i>Swing</i> component for displaying geographic features.
- * <br><br>
+ * A <cite>Swing</cite> component for displaying geographic features.
  * Since this class extends {@link ZoomPane},  the user can use mouse and keyboard
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.19 2003/07/11 16:59:33 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.20 2003/08/13 18:18:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MapPane extends ZoomPane {
@@ -97,7 +103,12 @@ public class MapPane extends ZoomPane {
     /**
      * The renderer targeting Java2D.
      */
-    private final Renderer renderer;
+    private final StyledRenderer renderer;
+
+    /**
+     * The model which stores a list of layers and bounding box.
+     */
+    private Context context;
 
     /**
      * List of popup menus created lately. The last menu used must appears first in the list.
@@ -107,14 +118,14 @@ public class MapPane extends ZoomPane {
     private transient LinkedList cachedMenus;
 
     /**
-     * Objet "listener" ayant la charge de réagir aux différents
-     * événements qui intéressent cet objet <code>MapPane</code>.
+     * A listener for various event of interest to this <code>MapPane</code>.
+     * We use a private inner class in order to avoid public access to listener methods.
      */
     private final ListenerProxy listenerProxy = new ListenerProxy();
 
     /**
-     * Classe ayant la charge de réagir aux différents événements qui intéressent cet
-     * objet <code>MapPane</code>.
+     * Listeners for various event of interest to this <code>MapPane</code>.
+     * We use a private inner class in order to avoid public access to listener methods.
      */
     private final class ListenerProxy implements PropertyChangeListener {
         /** Invoked when a {@link Renderer} property is changed. */
@@ -149,7 +160,7 @@ public class MapPane extends ZoomPane {
      */
     public MapPane() {
         super(TRANSLATE_X | TRANSLATE_Y | UNIFORM_SCALE | DEFAULT_ZOOM | ROTATE | RESET);
-        renderer = new Renderer(this);
+        renderer = new StyledRenderer(this);
         renderer.setRenderingHint(Hints.  FINEST_RESOLUTION,   FINEST_RESOLUTION);
         renderer.setRenderingHint(Hints.REQUIRED_RESOLUTION, REQUIRED_RESOLUTION);
         renderer.addPropertyChangeListener(listenerProxy);
@@ -173,6 +184,19 @@ public class MapPane extends ZoomPane {
             e = new IllegalArgumentException(exception.getLocalizedMessage());
             e.initCause(exception);
         }
+    }
+
+    /**
+     * Set a new context as the current one. Invoking this method will remove all layers
+     * in the {@linkplain #getRenderer renderer} and replace them with new layers from
+     * the given context.
+     *
+     * @param context The new context, or <code>null</code> for removing any previous context.
+     */
+    public void setContext(final Context context) {
+        this.context = context;
+        renderer.setContext(context);
+        reset();
     }
 
     /**
@@ -204,19 +228,36 @@ public class MapPane extends ZoomPane {
     }
 
     /**
-     * Returns a bounding box that completely encloses all feature's preferred area.  This
-     * bounding box should be representative of the geographic area to drawn. User wanting
-     * to set a different default area should invokes {@link #setPreferredArea}. Coordinates
-     * are expressed in this {@linkplain #getCoordinateSystem viewer's coordinate system}.
+     * Returns a bounding box representative of the geographic area to drawn.
+     * This method returns the first of the following area available:
      *
-     * @return The enclosing area computed from available data, or <code>null</code>
-     *         if this area can't be computed.
+     * <ul>
+     *   <li>If an area was explicitly set with {@link #setPreferredArea}, this area
+     *       is returned.</li>
+     *   <li>Otherwise, if a {@linkplain Context context} is set, then the context's
+     *       {@linkplain Context#getBbox bounding box} is returned.</li>
+     *   <li>Otherwise, the area of interest is computed from the layers currently
+     *       registered in the {@linkplain #getRenderer renderer}.</li>
+     * </ul>
      *
-     * @see #getPreferredArea
+     * @return The enclosing area to be drawn with the default zoom,
+     *         or <code>null</code> if this area can't be computed.
+     *
      * @see #setPreferredArea
+     * @see Context#getBbox
      * @see Renderer#getPreferredArea
      */
     public Rectangle2D getArea() {
+        if (context != null) {
+            final BoundingBox box = context.getBbox();
+            if (box != null) {
+                Envelope envelope = box.getAreaOfInterest();
+                if (envelope != null) {
+                    return new Rectangle2D.Double(envelope.getMinX(),  envelope.getMinY(),
+                                                  envelope.getWidth(), envelope.getHeight());
+                }
+            }
+        }
         return renderer.getPreferredArea();
     }
 
@@ -242,94 +283,6 @@ public class MapPane extends ZoomPane {
         return new Dimension(512,512);
     }
 
-    /**
-     * Add a new layer to this viewer. A <code>MapPane</code> do not draw anything as long as
-     * at least one layer hasn't be added. A {@link RenderedLayer} can be anything like an
-     * isobath, a remote sensing image, city locations, map scale, etc. The drawing order
-     * (relative to other layers) is determined by the {@linkplain RenderedLayer#getZOrder
-     * z-order} property.
-     *
-     * @param  layer Layer to add to this <code>MapPane</code>. This method call
-     *         will be ignored if <code>layer</code> has already been added to this
-     *         <code>MapPane</code>.
-     * @throws IllegalArgumentException If <code>layer</code> has already been added
-     *         to an other <code>MapPane</code>.
-     *
-     * @see #removeLayer
-     * @see #removeAllLayers
-     * @see #getLayers
-     * @see #getLayerCount
-     * @see Renderer#addLayer
-     */
-//    public void addLayer(final RenderedLayer layer) throws IllegalArgumentException {
-//        renderer.addLayer(layer);
-//    }
-
-    /**
-     * Remove a layer from this viewer. Note that if the layer is going to
-     * be added back to the same viewer later, then it is more efficient to invoke
-     * <code>{@link RenderedLayer#setVisible RenderedLayer.setVisible}(false)</code>.
-     *
-     * @param  layer The layer to remove. This method call will be ignored
-     *         if <code>layer</code> has already been removed from this
-     *         <code>MapPane</code>.
-     * @throws IllegalArgumentException If <code>layer</code> is owned by
-     *         an other <code>Renderer</code> than <code>this</code>.
-     *
-     * @see #addLayer
-     * @see #removeAllLayers
-     * @see #getLayers
-     * @see #getLayerCount
-     * @see Renderer#removeLayer
-     */
-//    public void removeLayer(final RenderedLayer layer) throws IllegalArgumentException {
-//        renderer.removeLayer(layer);
-//    }
-
-    /**
-     * Remove all layers from this viewer.
-     *
-     * @see #addLayer
-     * @see #removeLayer
-     * @see #getLayers
-     * @see #getLayerCount
-     * @see Renderer#removeAllLayers
-     */
-//    public void removeAllLayers() {
-//        renderer.removeAllLayers();
-//    }
-
-    /**
-     * Returns all registered layers. The returned array is sorted in increasing
-     * {@linkplain RenderedLayer#getZOrder z-order}: element at index 0 contains
-     * the first layer to be drawn.
-     *
-     * @return The sorted array of layers. May have a 0 length, but will never
-     *         be <code>null</code>. Change to this array, will not affect this
-     *         <code>MapPane</code>.
-     *
-     * @see #addLayer
-     * @see #removeLayer
-     * @see #removeAllLayers
-     * @see #getLayerCount
-     * @see Renderer#getLayers
-     */
-//    public RenderedLayer[] getLayers() {
-//        return renderer.getLayers();
-//    }
-
-    /**
-     * Returns the number of layers in this viewer.
-     *
-     * @see #getLayers
-     * @see #addLayer
-     * @see #removeLayer
-     * @see #removeAllLayers
-     * @see Renderer#getLayerCount
-     */
-//    public int getLayerCount() {
-//        return renderer.getLayerCount();
-//    }
 
     /**
      * Returns the {@linkplain Renderer renderer} for this map pane.
