@@ -48,79 +48,78 @@ import org.geotools.resources.XArray;
 
 
 /**
- * Classe ayant la charge d'effectuer un "clip" sur plusieurs polygones. Le constructeur reçoit
- * en argument un rectangle {@link Rectangle2D}, qui représente le contour du "clip". La méthode
- * {@link #clip(Polygon, Polyline.Iterator)} pourra ensuite effectuer les clips à répétitions sur
- * une séries de polygones.
+ * Class in charge of clipping several polygons.  The constructor receives a rectangle
+ * {@link Rectangle2D} as an argument. This rectangle represents the contour of the "clip".
+ * The {@link #clip(Polygon, Polyline.Iterator)} method can then repeatedly 'clip' a series of 
+ * polygons.
  *
- * @version $Id: Clipper.java,v 1.2 2003/02/10 23:09:35 desruisseaux Exp $
+ * @version $Id: Clipper.java,v 1.3 2003/02/19 19:16:03 jmacgill Exp $
  * @author Martin Desruisseaux
  */
 final class Clipper {
     /**
-     * Système de coordonnées de {@link #mapClip}.
+     * Coordinate system of {@link #mapClip}.
      */
     final CoordinateSystem mapCS;
 
     /**
-     * Région à couper.  Les coordonnées de cette région doivent être exprimées selon
-     * le système de coordonnées {@link #mapCS} (spécifié lors de la construction) et
-     * ne pas être modifiées. Ce rectangle doit être en lecture seule.
+     * Region to clip.  The coordinates of this region must be expressed according to the
+     * {@link #mapCS} coordinate system (specified at build time) and must not be modified.
+     * This rectangle must be read only.
      */
     final Rectangle2D mapClip;
 
     /**
-     * Région à couper. Il s'agit des mêmes coordonnées que {@link #mapClip},
-     * mais projetés dans le système de coordonnées natif du polygone à couper.
+     * Region to clip. The coordinates are the same as in {@link #mapClip},
+     * but projected in the native coordinate system of the polygon to be clipped.
      */
     private final Rectangle2D clip = new Rectangle2D.Double();
 
     /**
-     * Coordonnées <var>x</var> et <var>y</var>
-     * minimales et maximales de {@link #clip}.
+     * Minimum and maximum <var>x</var> and <var>y</var>
+     * coordinates of {@link #clip}.
      */
     private float xmin, ymin, xmax, ymax;
 
     /**
-     * Ligne représentant un segment d'un objet {@link Polygon}. Cet
-     * objet est créé une fois pour toute afin d'éviter d'avoir à le
-     * recréer trop souvent. Il est utilisé à l'interne pour balayer
-     * les coordonnées d'un objet {@link Polygon}.
+     * Line representing a segment of a {@link Polygon} object. This object
+     * is created just once in order to avoid having to recreate it too often.
+     * It is used internally to sweep the coordinates of a {@link Polygon} object.
      */
     private final Line2D.Float line = new Line2D.Float();
 
     /**
-     * Coordonnées à transmettre à {@link Polygon#appendBorder}. Ce tableau est réservé
-     * à un usage interne par {@link #clip(Polygon, Polyline.Iterator)}, qui le construira
-     * et le modifiera constament.
+     * Coordinates to transmit to {@link Polygon#appendBorder}. This table is reserved
+     * for internal use by {@link #clip(Polygon, Polyline.Iterator)}, which will constantly
+     * construct and modify it.
      */
     private float[] border = new float[16];
 
     /**
-     * Nombre d'éléments valides dans {@link #border}. Ce champs sera
-     * incrémenté selon les besoins par la méthode {@link #addBorder}.
+     * Number of valid elements in {@link #border}. This field will be incremented
+     * as necessary by the {@link #addBorder} method.
      */
     private int borderLength;
 
     /**
-     * Coordonnées des points d'intersections entre un polygone et {@link #clip}. Ce tableau est
-     * réservé à un usage interne par {@link #clip(Polygon, Polyline.Iterator)}, qui le construira
-     * et le modifiera constament.
+     * Coordinates of intersection points between a polygon and {@link #clip}. This table is
+     * reserved for internal use by {@link #clip(Polygon, Polyline.Iterator)}, which will
+     * constantly construct and modify it.
      */
     private float[] intersect = new float[8];
 
     /**
-     * Nombre d'éléments valides dans {@link #intersect}. Ce champs sera
-     * incrémenté selon les besoins par la méthode {@link #addIntersect}.
+     * Number of valid elements in {@link #intersect}. This field will be incremented
+     * as necessary by the {@link #addIntersect} method.
      */
     private int intersectLength;
 
     /**
-     * Construit un objet qui aurra la charge de couper
-     * les polygones apparaissant dans une certaine région.
+     * Constructs an object which will be responsable for clipping 
+     * polygons appearing in a particular region.
      *
-     * @param mapClip Les limites de la région à conserver.
-     * @param mapCS Système de coordonnées du <code>clip</code>.
+     * @param mapClip The limits of the region to keep.
+     * @param mapCS <code>clip</code>'s coordinate system.
      */
     public Clipper(final Rectangle2D mapClip, final CoordinateSystem mapCS) {
         this.mapCS   = mapCS;
@@ -163,9 +162,9 @@ final class Clipper {
     }
 
     /**
-     * Ajoute un point (<var>x0</var>,<var>y0</var>) à
-     * la fin de la bordure {@link #border}. Le tableau
-     * sera automatiquement agrandit selon les besoins.
+     * Adds a (<var>x0</var>,<var>y0</var>) point to
+     * the end of the border {@link #border}. The table will be
+     * automatically expanded as necessary.
      */
     private void addBorder(final float x0, final float y0) {
         if (borderLength >= 2) {
@@ -183,10 +182,9 @@ final class Clipper {
     }
 
     /**
-     * Ajoute un point (<var>x0</var>,<var>y0</var>) à
-     * la liste des intersections {@link #intersect}.
-     * Le tableau sera automatiquement agrandit selon
-     * les besoins.
+     * Adds a (<var>x0</var>,<var>y0</var>) point to
+     * the list of intersections {@link #intersect}.
+     * The table will be automatically expanded as necessary.
      */
     private void addIntersect(final float x0, final float y0) {
         if (intersectLength >= 2) {
@@ -204,18 +202,17 @@ final class Clipper {
     }
 
     /**
-     * Construit une bordure de façon à relier le point (<var>x0</var>,<var>y0</var>) au point
-     * (<var>x1</var>,<var>y1</var>) exclusivement sans couper le rectangle {@link #clip}. Les
-     * points nécessaires seront ajoutés au tableau {@link #border}.
+     * Constructs a border so as to link point (<var>x0</var>,<var>y0</var>) to point
+     * (<var>x1</var>,<var>y1</var>) exclusively without clipping the rectangle {@link #clip}. The
+     * necessary points will be added to the table {@link #border}.
      *
-     * @param clockwise Indique de quelle façon il faudra tourner autour du rectangle
-     *        {@link #clip} pour ajouter des points. Une valeur positive tournera dans
-     *        le sens des aiguilles d'une montre, tandis qu'une valeur négative tournera
-     *        dans le sens inverse. La valeur 0 n'aura aucun effet.
-     * @param x0 Coordonnées <var>x</var> du premier point détecté à l'extérieur de {@link #clip}.
-     * @param y0 Coordonnées <var>y</var> du premier point détecté à l'extérieur de {@link #clip}.
-     * @param x1 Coordonnées <var>x</var> du dernier point détecté à l'extérieur de {@link #clip}.
-     * @param y1 Coordonnées <var>y</var> du dernier point détecté à l'extérieur de {@link #clip}.
+     * @param clockwise Indicates how we should go round the rectangle {@link #clip} adding
+     *        the points.  A positive value will go clockwise, whilst a negative value
+     *        will go anticlockwise.  The value 0 will have no effect.
+     * @param x0 <var>x</var> coordinates of the first point detected outside {@link #clip}.
+     * @param y0 <var>y</var> coordinates of the first point detected outside {@link #clip}.
+     * @param x1 <var>x</var> coordinates of the last point detected outside {@link #clip}.
+     * @param y1 <var>y</var> coordinates of the last point detected outside {@link #clip}.
      */
     private void buildBorder(final double clockwise, float x0, float y0,
                              final float x1, final float y1)
@@ -262,9 +259,9 @@ final class Clipper {
     }
 
     /**
-     * Attache le polygone <code>subpoly</code> à la fin du polygone <code>result</code>.
-     * Entre les deux sera inséré la bordure {@link #border}, s'il y en a une. Cette
-     * méthode retourne le polygone résultant de la fusion.
+     * Attaches the polygon <code>subpoly</code> to the end of polygon <code>result</code>.
+     * The border {@link #border}, if there is one, will be inserted between the two. This
+     * method returns the polygon resulting from the merger.
      *
      * @param result  The first polygon, or <code>null</code>. This polygon will be modified.
      *                We usually create this polygon inside this method and reuse it in many
@@ -294,20 +291,19 @@ final class Clipper {
     }
 
     /**
-     * Retourne un polygone qui ne contient que les points de <code>polygon</code> qui apparaissent
-     * dans le rectangle spécifié au constructeur. Si aucun point du polygone n'appparaît à
-     * l'intérieur de <code>clip</code>, alors cette méthode retourne <code>null</code>. Si tous
-     * les points du polygone apparaissent à l'intérieur de <code>clip</code>, alors cette méthode
-     * retourne <code>polygon</code>. Sinon, cette méthode retourne un polygone qui contiendra les
-     * points qui apparaissent à l'intérieur de <code>clip</code>. Ces polygones partageront les
-     * mêmes données que <code>polygon</code> autant que possible, de sorte que la consomation
-     * de mémoire devrait rester raisonable.
+     * Returns a polygon which only contains the points of <code>polygon</code> that appear
+     * in the rectangle specified in the constructeur. If none of the polygon's points appear inside
+     * <code>clip</code>, this method returns <code>null</code>. If all the polygon's points
+     * appear inside <code>clip</code>, this method returns <code>polygon</code>. Otherwise, this
+     * method returns a polygon that contains the points that appear inside <code>clip</code>. 
+     * These polygons will share the same data as <code>polygon</code> where possible, so that
+     * memory consumption should remain reasonable.
      * <br><br>
-     * Note: avant d'appeller cette méthode, {@link #getInternalClip}
-     *       devra obligatoire avoir été appelée.
+     * Note: before calling this method, {@link #getInternalClip}
+     *       must have been called.
      *
-     * @param  polygon Polygone à couper dans une région.
-     * @return Polygone coupé.
+     * @param  polygon Polygon to clip in a region.
+     * @return Clipped polygon.
      */
     public Polygon clip(final Polygon polygon) {
         borderLength    = 0;
@@ -325,11 +321,11 @@ final class Clipper {
             throw e;
         }
         /*
-         * Obtient la première coordonnée du polygone. Cette première coordonnée sera mémorisée
-         * dans les variables <code>first[X/Y]</code> afin d'être réutilisée pour éventuellement
-         * fermer le polygone. On devra vérifier si cette première coordonnées est à l'intérieur
-         * ou à l'extérieur de la région d'intérêt. Cette vérification sert à initialiser la
-         * variable <code>inside</code>, qui servira pour le reste de cette méthode.
+         * Obtains the first coordinate of the polygon. This first coordinate will be memorised
+         * in the variables <code>first[X/Y]</code> so it can be reused to eventually close the
+         * polygon. We should check whether this first coordinate is inside or outside the region
+         * of interest.  This check serves to initialise the variable <code>inside</code>, which
+         * will serve for the rest of this method.
          */
         if (it.next(line)) {
             final float firstX = line.x2;
@@ -344,12 +340,11 @@ final class Clipper {
             int lower=0, upper=0;
             while (true) {
                 /*
-                 * Extrait la coordonnées suivantes. Le point <code>line.p2</code>
-                 * contiendra le point que l'on vient d'extraire, tandis que le
-                 * point <code>line.p1</code> sera la coordonnée qu'on avait lors
-                 * du passage précédent de cette boucle. Si toute les coordonnées
-                 * ont été balayées, on réutilisera le premier point pour refermer
-                 * le polygone.
+                 * Extracts the following coordinates. The point <code>line.p2</code>
+                 * will contain the point that we have just extracted, whilst
+                 * point <code>line.p1</code> will be the coordinate we had during the
+                 * previous pass through this loop.  If all the coordinates have been
+                 * swept, we will reuse the first point to reclose the polygon.
                  */
                 if (!it.next(line)) {
                     if ((line.x2!=firstX || line.y2!=firstY) && polygonType!=null) {
@@ -360,10 +355,9 @@ final class Clipper {
                 }
                 upper++;
                 /*
-                 * Vérifie si le segment (x1,y1)-(x2,y2) tourne dans le sens des aiguilles
-                 * d'une montre autour du rectangle. Les segments à l'intérieur du rectangle
-                 * ne seront pas pris en compte. Dans l'exemple ci-dessous, le segment va dans
-                 * le sens inverse des aiguilles d'une montre.
+                 * Checks whether the segment (x1,y1)-(x2,y2) goes clockwise round the rectangle.
+                 * The segments inside the rectangle will not be taken into account. In the 
+                 * example below, the segment goes anti-clockwise.
                  *
                  * +--------+
                  * |        |
@@ -405,34 +399,31 @@ final class Clipper {
                 else if (out1)    clockwise += dy/dx*(xmin-x1);
                 else if (out2)    clockwise += dy/dx*(x2-xmin);
                 /*
-                 * Vérifie maintenant si les points (x1,y1) et (x2,y2) sont tous deux à
-                 * l'extérieur du clip. Qu'il soit tout deux à l'extérieur ne veux pas
-                 * dire qu'il n'y a aucune intersections entre la ligne P1-P2 et le clip.
-                 * il faudra vérifier (on le ferra plus loin). Une première étape a déjà
-                 * été faite avec la condition <code>(outcode1 & outcode2)==0</code>, qui
-                 * a permis de vérifier que les deux points ne se trouvent pas du même côté
-                 * du rectangle.
+                 * Now checks whether the points (x1,y1) and (x2,y2) are both outside
+                 * the clip. If both are outside it does not mean that there are no 
+                 * intersections between the line P1-P2 and the clip. It is necessary to 
+                 * check (we will do this later).  A first stage has already been done
+                 * with the condition <code>(outcode1 & outcode2)==0</code>, which allowed
+                 * us to check that the two points are not from the same side of the rectangle.
                  */
                 final boolean lineInsideAndOutside = (inside != (outcode2==0));
                 final boolean lineCompletlyOutside = !lineInsideAndOutside &&
                                         (outcode1!=0 && outcode2!=0 && (outcode1 & outcode2)==0);
                 /*
-                 * Ajoute à la bordure les points d'intersections, s'il a été déterminé
-                 * que les points d'intersections doivent être ajoutés. Cette situation
-                 * se produit dans trois cas:
+                 * Adds the intersection points to the border, if it has been determined
+                 * that the intersection points should be added.  This situation occurs
+                 * in the following three cases:
                  *
-                 *  1) On vient d'entrer dans le clip. Le code plus bas construira toute
-                 *     la bordure qui précède l'entré. On complète cette bordure par le
-                 *     point d'intersection entre le clip et le polygone.
-                 *  2) On vient de sortir du clip. Le code plus bas mémorisera les données
-                 *     nécessaires au traçage du polygone qui se trouve entièrement à
-                 *     l'intérieur du clip. On complète ces données par le point d'intersection
-                 *     entre le clip et le polygone. Plus tard dans la boucle, une bordure sera
-                 *     ajoutée à la suite de ce point d'intersection, suivit d'un autre point
-                 *     d'intersection (étape 1).
-                 *  3) Il est possible qu'on ait traversé tout le clip d'un coups, sans
-                 *     "s'arrêter" à l'intérieur. Un code plus bas tentera de détecter
-                 *     cette situation particulière.
+                 *  1) We have just entered the clip. The code below will construct all
+                 *     the border that precedes the entrance. We complete this border with the
+                 *     intersection point between the clip and the polygon.
+                 *  2) We have just left the clip.  The code below will memorise the data
+                 *     needed to render the polygon that is found entirely inside the clip.
+                 *     We complete these data with the intersection point between the clip and
+                 *     the polygon. Later in the loop, a border will be added after this
+                 *     intersection point, followed by another intersection point (stage 1).
+                 *  3) It is possible that we have gone through the whole clip without
+                 *     stopping inside.  Code below will try to detect this particular situation.
                  */
                 intersectLength = 0;
                 if (lineInsideAndOutside || lineCompletlyOutside) {
@@ -458,11 +449,11 @@ final class Clipper {
                         if (v>=cymin && v<=cymax) addIntersect(xmin, v);
                     }
                     /*
-                     * Classe les points d'intersections en utilisant un classement à bulles.
-                     * Cette méthode est en théorie extrèmement contre-performante lorsqu'il
-                     * y a beaucoup de données à classer. Mais dans notre cas, il n'y aura
-                     * normalement jamais plus de 2 points à classer, ce qui rend cette
-                     * technique très avantageuse.
+                     * Classifies intersection points using a 'classement à bulles'.
+                     * This method is in theory extremely counter-productive when there is
+                     * a lot of data to classify.  But in our case, there will never normally
+                     * be more than 2 points to classify, which makes this technique very
+                     * advantageous.
                      */
                     boolean modified; do {
                         modified = false;
@@ -483,16 +474,16 @@ final class Clipper {
                 }
                 if (lineInsideAndOutside) {
                     /*
-                     * Une intersection a donc été trouvée. Soit qu'on vient d'entrer dans la région
-                     * d'intérêt, ou soit qu'on vient d'en sortir. La variable <code>inside</code>
-                     * indiquera si on vient d'entrer ou de sortir de la région <code>clip</code>.
+                     * An intersection has been found. We might have just entered the area of 
+                     * interest or just left it.  The variable <code>inside</code> will indicate
+                     * whether we have just entered or left the <code>clip</code> area.
                      */
                     inside = !inside;
                     if (inside) {
                         /*
-                         * Si on vient d'entrer dans la région d'intérêt {@link #clip}, alors vérifie
-                         * s'il faut ajouter des points pour contourner la bordure du clip. Ces points
-                         * seront effectivement mémorisés plus tard, lorsque l'on sortira du clip.
+                         * If we have just entered the area of interest {@link #clip}, checks whether
+                         * it should add points to surround the clip border. These points will be
+                         * effectively memorised later, when we leave the clip.
                          */
                         float xn,yn;
                         if (intersectLength >= 2) {
@@ -514,11 +505,11 @@ final class Clipper {
                         clockwise = 0;
                     } else {
                         /*
-                         * Si on vient de sortir de la région d'intérêt, alors on créera un nouveau
-                         * "sous-polygone" qui contiendra seulement les données qui apparaissent
-                         * dans la région (les données ne seront pas copiées; seul un jeu de
-                         * références sera effectué). Les coordonnées x0,y0 seront celles du
-                         * premier point en dehors du clip.
+                         * If we have just left the area of interest, we will create a new 
+                         * "sub-polygon" that will contain only the data that appears in the
+                         * region (the data will not be copied; only a reference game will be
+                         * carried out). The coordinates x0,y0 will be those of the first
+                         * point outside the clip.
                          */
                         if (intersectLength >= 2) {
                             x0 = intersect[intersectLength-2];
@@ -532,26 +523,26 @@ final class Clipper {
                     }
                     lower = upper;
                     /*
-                     * Ajoute les points d'intersections à la bordure.
-                     * La méthode {@link #addBorder} s'assurera au passage
-                     * qu'on ne répête pas deux fois les mêmes points.
+                     * Adds the intersection points to the border.
+                     * The method {@link #addBorder} will ensure that we do
+                     * not repeat the same points twice.
                      */
                     for (int i=0; i<intersectLength;) {
                         addBorder(intersect[i++], intersect[i++]);
                     }
                 } else if (lineCompletlyOutside) {
                     /*
-                     * On sait maintenant que les points (x1,y1) et (x2,y2) sont
-                     * tous deux à l'extérieur du clip. Mais ça ne veux pas dire
-                     * qu'il n'y a eu aucune intersection entre la ligne P1-P2 et
-                     * le clip. S'il y a au moins deux points d'intersections, la
-                     * ligne traverse le clip et on devra l'ajouter à la bordure.
+                     * We now know that the points (x1,y1) and (x2,y2) are both
+                     * outside the clip. But that doesn't mean that there was no 
+                     * intersection between the line P1-P2 and the clip.  If there
+                     * are at least two intersection points, the line goes through
+                     * the clip and we must add it to the border.
                      */
                     if (intersectLength >= 4) {
                         /*
-                         * D'abord, on refait le calcul de <code>clockwise</code>
-                         * (voir plus haut) mais en comptant seulement la composante
-                         * dû à la fin de la ligne (c'est-à-dire "if (out2) ...").
+                         * First of all, we recalculate <code>clockwise</code>
+                         * (see above) but only counting the component due at the
+                         * end of the line (i.e. "if (out2) ...").
                          */
                         double clockwise2 = 0;
                         if ((outcode1 & Rectangle2D.OUT_BOTTOM)==0 &&
@@ -582,9 +573,9 @@ final class Clipper {
                         y0 = intersect[intersectLength-1];
                         clockwise = clockwise2;
                         /*
-                         * Ajoute les points d'intersections à la bordure.
-                         * La méthode {@link #addBorder} s'assurera au passage
-                         * qu'on ne répête pas deux fois les mêmes points.
+                         * Adds the intersection points to the border.
+                         * The method {@link #addBorder} ensures that we do not
+                         * repeat the same points twice.
                          */
                         for (int i=0; i<intersectLength;) {
                             addBorder(intersect[i++], intersect[i++]);
@@ -593,8 +584,8 @@ final class Clipper {
                 }
             }
             /*
-             * A la fin de la boucle, ajoute les points
-             * restants s'ils étaient à l'intérieur du clip.
+             * At the end of the loop, adds the remaining points
+             * if they were inside the clip.
              */
             if (inside) {
                 assert upper <= polygon.getPointCount() : upper;
@@ -616,11 +607,10 @@ final class Clipper {
                 }
             } else if (borderLength != 0) {
                 /*
-                 * Si aucun polygone n'a été créé, mais qu'on a quand
-                 * même détecté des intersections (c'est-à-dire si le
-                 * zoom ne contient aucun point du polygone mais intercepte
-                 * une des lignes du polygone), alors on ajoutera les
-                 * points d'intersections et leurs bordures.
+                 * If no polygon has been created, but we have nevertheless
+                 * detected intersections (i.e. if the zoom doesn't contain
+                 * any point of the polygon but intercepts one of the polygon's
+                 * lines) then we will add the intersection points and their borders.
                  */
                 final float tmp[];
                 if (border.length == borderLength) {
@@ -635,11 +625,10 @@ final class Clipper {
                 result.close(polygonType);
             } else if (polygon.contains(clip.getCenterX(), clip.getCenterY())) {
                 /*
-                 * Si absolument aucun point du polygone ne se trouve à
-                 * l'intérieur du zoom, alors le zoom est soit complètement
-                 * à l'intérieur ou soit complètement à l'extérieur du polygone.
-                 * S'il est complètement à l'intérieur, on mémorisera un rectangle
-                 * qui couvrira tous le zoom.
+                 * If absolutely no point of the polygon is found inside the zoom
+                 * then the zoom is either completely inside or completely outside
+                 * the polygon.  If it is completely inside, we will memorise a rectangle
+                 * that will cover the whole zoom.
                  */
                 result = new Polygon(clip, polygon.getCoordinateSystem());
                 result.close(polygonType);
