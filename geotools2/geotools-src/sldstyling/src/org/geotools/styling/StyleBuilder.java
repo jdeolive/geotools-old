@@ -16,12 +16,9 @@
  */
 package org.geotools.styling;
 
-import org.geotools.filter.AttributeExpression;
 import org.geotools.filter.Expression;
 import org.geotools.filter.FilterFactory;
-import org.geotools.filter.IllegalFilterException;
 import java.awt.Color;
-import java.net.URL;
 
 
 /**
@@ -51,51 +48,118 @@ public class StyleBuilder {
     private StyleFactory sf;
     private FilterFactory ff;
 
+    /**
+     * use the default StyleFactory and FilterFactory
+     */
     public StyleBuilder() {
         sf = StyleFactory.createStyleFactory();
         ff = FilterFactory.createFilterFactory();
     }
 
+    /**
+     * Use the supplied StyleFactory when building styles
+     *
+     * @param styleFactory the StyleFactory to use in building Styles
+     */
     public StyleBuilder(StyleFactory styleFactory) {
         this.sf = styleFactory;
         ff = FilterFactory.createFilterFactory();
     }
 
+    /**
+     * Use the supplied FilterFactory when building styles
+     *
+     * @param filterFactory Use this FilterFactory to build the style
+     */
     public StyleBuilder(FilterFactory filterFactory) {
         this.ff = filterFactory;
         this.sf = StyleFactory.createStyleFactory();
     }
 
+    /**
+     * Use the supplied StyleFactory and FilterFactory when building styles
+     *
+     * @param styleFactory the StyleFactory to use
+     * @param filterFactory the FilterFactory to use
+     */
     public StyleBuilder(StyleFactory styleFactory, FilterFactory filterFactory) {
         this.sf = styleFactory;
         this.ff = filterFactory;
     }
 
+    /**
+     * getter for StyleFactory
+     *
+     * @return the StyleFactory being used
+     */
     public StyleFactory getStyleFactory() {
         return sf;
     }
 
+    /**
+     * getter for filterFactory
+     *
+     * @return the FilterFactory being used
+     */
     public FilterFactory getFilterFactory() {
         return ff;
     }
 
+    /**
+     * create a default Stroke
+     *
+     * @return the Stroke created
+     */
     public Stroke createStroke() {
         return sf.getDefaultStroke();
     }
 
+    /**
+     * create a default stroke with the supplied width
+     *
+     * @param width the width of the line
+     *
+     * @return the stroke created
+     */
     public Stroke createStroke(double width) {
         return createStroke(Color.BLACK, width);
     }
 
+    /**
+     * Create a default stroke with the supplied color
+     *
+     * @param color the color of the line
+     *
+     * @return the created stroke
+     */
     public Stroke createStroke(Color color) {
         return createStroke(color, 1);
     }
 
+    /**
+     * create a stroke with the supplied width and color
+     *
+     * @param color the color of the line
+     * @param width the width of the line
+     *
+     * @return the created stroke
+     */
     public Stroke createStroke(Color color, double width) {
         return sf.createStroke(colorExpression(color), literalExpression(width));
     }
 
-    public Stroke createStroke(Color color, double width, String lineJoin, String lineCap) {
+    /**
+     * create a stroke with color, width, linejoin type and lineCap type.
+     *
+     * @param color the color of the line
+     * @param width the width of the line
+     * @param lineJoin the type of join to be used at points along the line
+     * @param lineCap the type of cap to be used at the end of the line
+     *
+     * @return the stroke created
+     */
+    public Stroke createStroke(Color color, double width, String lineJoin,
+        String lineCap) {
         Stroke stroke = createStroke(color, width);
         stroke.setLineJoin(literalExpression(lineJoin));
         stroke.setLineCap(literalExpression(lineCap));
@@ -103,6 +167,16 @@ public class StyleBuilder {
         return stroke;
     }
 
+    /**
+     * create a dashed line of color and width
+     *
+     * @param color the color of the line
+     * @param width the width of the line
+     * @param dashArray an array of floats describing the length of line and
+     *        spaces
+     *
+     * @return the stroke created
+     */
     public Stroke createStroke(Color color, double width, float[] dashArray) {
         Stroke stroke = createStroke(color, width);
         stroke.setDashArray(dashArray);
@@ -110,49 +184,147 @@ public class StyleBuilder {
         return stroke;
     }
 
+    /**
+     * create a stroke with the color and width supplied
+     *
+     * @param color an Expression representing the color of the line
+     * @param width an Expression representing the width of the line
+     *
+     * @return the Stroke created
+     */
     public Stroke createStroke(Expression color, Expression width) {
         return sf.createStroke(color, width);
     }
 
+    /**
+     * create a stroke with color, width and opacity supplied
+     *
+     * @param color the color of the line
+     * @param width the width of the line
+     * @param opacity the opacity or <I>see throughness</I> of the line, 0 - is
+     *        transparent, 1 is completely drawn
+     *
+     * @return the stroke created
+     */
     public Stroke createStroke(Color color, double width, double opacity) {
-        return sf.createStroke(colorExpression(color), literalExpression(width),
-            literalExpression(opacity));
+        return sf.createStroke(colorExpression(color),
+            literalExpression(width), literalExpression(opacity));
     }
 
-    public Stroke createStroke(Expression color, Expression width, Expression opacity) {
+    /**
+     * create a stroke with color, width and opacity supplied
+     *
+     * @param color an Expression representing the color of the line
+     * @param width an Expression representing the width of the line
+     * @param opacity an Expression representing opacity the opacity or <I>see
+     *        throughness</I> of the line, 0 - is transparent, 1 is completely
+     *        drawn
+     *
+     * @return the stroke created
+     */
+    public Stroke createStroke(Expression color, Expression width,
+        Expression opacity) {
         return sf.createStroke(color, width, opacity);
     }
 
+    /**
+     * create a default fill 50% gray
+     *
+     * @return the fill created
+     */
     public Fill createFill() {
         return sf.getDefaultFill();
     }
 
+    /**
+     * create a fill of color
+     *
+     * @param fillColor the color of the fill
+     *
+     * @return the fill created
+     */
     public Fill createFill(Color fillColor) {
         return createFill(colorExpression(fillColor));
     }
 
+    /**
+     * create a fill of color
+     *
+     * @param fillColor an Expression representing the color of the fill
+     *
+     * @return the fill constructed
+     */
     public Fill createFill(Expression fillColor) {
         return sf.createFill(fillColor);
     }
 
+    /**
+     * create a fill with the supplied color and opacity
+     *
+     * @param fillColor the color to fill with
+     * @param opacity the opacity of the fill 0 - transparent, 1 - completly
+     *        filled
+     *
+     * @return the fill created
+     */
     public Fill createFill(Color fillColor, double opacity) {
-        return sf.createFill(colorExpression(fillColor), literalExpression(opacity));
+        return sf.createFill(colorExpression(fillColor),
+            literalExpression(opacity));
     }
 
+    /**
+     * create a fill with the supplied color and opacity
+     *
+     * @param color an expression representing the color to fill with
+     * @param opacity an expression representing the opacity of the fill 0 -
+     *        transparent, 1 - completly filled
+     *
+     * @return the fill created
+     */
     public Fill createFill(Expression color, Expression opacity) {
         return sf.createFill(color, opacity);
     }
 
-    public Fill createFill(Color color, Color backgroundColor, double opacity, Graphic fill) {
-        return sf.createFill(colorExpression(color), colorExpression(backgroundColor),
-            literalExpression(opacity), fill);
+    /**
+     * create a fill with color, background color and opacity supplied and uses
+     * the graphic supplied for the fill
+     *
+     * @param color the foreground color
+     * @param backgroundColor the background color
+     * @param opacity the opacity of the fill
+     * @param fill the graphic object to use to fill the fill
+     *
+     * @return the fill created
+     */
+    public Fill createFill(Color color, Color backgroundColor, double opacity,
+        Graphic fill) {
+        return sf.createFill(colorExpression(color),
+            colorExpression(backgroundColor), literalExpression(opacity), fill);
     }
 
-    public Fill createFill(Expression color, Expression backgroundColor, Expression opacity,
-        Graphic fill) {
+    /**
+     * create a fill with color, background color and opacity supplied and uses
+     * the graphic supplied for the fill
+     *
+     * @param color an Expression representing the foreground color
+     * @param backgroundColor an Expression representing the background color
+     * @param opacity an Expression representing the opacity of the fill
+     * @param fill the graphic object to use to fill the fill
+     *
+     * @return the fill created
+     */
+    public Fill createFill(Expression color, Expression backgroundColor,
+        Expression opacity, Graphic fill) {
         return sf.createFill(color, backgroundColor, opacity, fill);
     }
 
+    /**
+     * create the named mark
+     *
+     * @param wellKnownName the wellknown name of the mark
+     *
+     * @return the mark created
+     */
     public Mark createMark(String wellKnownName) {
         Mark mark = sf.createMark();
         mark.setWellKnownName(literalExpression(wellKnownName));
@@ -160,8 +332,18 @@ public class StyleBuilder {
         return mark;
     }
 
-    public Mark createMark(String wellKnownName, Color fillColor, Color borderColor,
-        double borderWidth) {
+    /**
+     * create the named mark with the colors etc supplied
+     *
+     * @param wellKnownName the well known name of the mark
+     * @param fillColor the color of the mark
+     * @param borderColor the outline color of the mark
+     * @param borderWidth the width of the outline
+     *
+     * @return the mark created
+     */
+    public Mark createMark(String wellKnownName, Color fillColor,
+        Color borderColor, double borderWidth) {
         Mark mark = sf.createMark();
         mark.setWellKnownName(literalExpression(wellKnownName));
         mark.setStroke(createStroke(borderColor, borderWidth));
@@ -170,7 +352,17 @@ public class StyleBuilder {
         return mark;
     }
 
-    public Mark createMark(String wellKnownName, Color borderColor, double borderWidth) {
+    /**
+     * create a mark with default fill (50% gray) and the supplied outline
+     *
+     * @param wellKnownName the well known name of the mark
+     * @param borderColor the outline color
+     * @param borderWidth the outline width
+     *
+     * @return the mark created
+     */
+    public Mark createMark(String wellKnownName, Color borderColor,
+        double borderWidth) {
         Mark mark = sf.createMark();
         mark.setWellKnownName(literalExpression(wellKnownName));
         mark.setStroke(createStroke(borderColor, borderWidth));
@@ -178,6 +370,14 @@ public class StyleBuilder {
         return mark;
     }
 
+    /**
+     * create a mark of the supplied color and a default outline (black)
+     *
+     * @param wellKnownName the well known name of the mark
+     * @param fillColor the color of the mark
+     *
+     * @return the created mark
+     */
     public Mark createMark(String wellKnownName, Color fillColor) {
         Mark mark = sf.createMark();
         mark.setWellKnownName(literalExpression(wellKnownName));
@@ -187,6 +387,15 @@ public class StyleBuilder {
         return mark;
     }
 
+    /**
+     * create a mark with the supplied fill and stroke
+     *
+     * @param wellKnownName the well known name of the mark
+     * @param fill the fill to use
+     * @param stroke the stroke to use
+     *
+     * @return the mark created
+     */
     public Mark createMark(String wellKnownName, Fill fill, Stroke stroke) {
         Mark mark = sf.createMark();
         mark.setWellKnownName(literalExpression(wellKnownName));
@@ -196,6 +405,16 @@ public class StyleBuilder {
         return mark;
     }
 
+    /**
+     * create a mark with the supplied fill and stroke
+     *
+     * @param wellKnownName an Expression representing the well known name of
+     *        the mark
+     * @param fill the fill to use
+     * @param stroke the stroke to use
+     *
+     * @return the mark created
+     */
     public Mark createMark(Expression wellKnownName, Fill fill, Stroke stroke) {
         Mark mark = sf.createMark();
         mark.setWellKnownName(wellKnownName);
@@ -205,15 +424,41 @@ public class StyleBuilder {
         return mark;
     }
 
+    /**
+     * wrapper for stylefactory method
+     *
+     * @param uri the uri of the image
+     * @param format mime type of the image
+     *
+     * @return the external graphic
+     */
     public ExternalGraphic createExternalGraphic(String uri, String format) {
         return sf.createExternalGraphic(uri, format);
     }
 
-    public ExternalGraphic createExternalGraphic(URL url, String format) {
+    /**
+     * wrapper for stylefactory method
+     *
+     * @param url the url of the image
+     * @param format mime type of the image
+     *
+     * @return the external graphic
+     */
+    public ExternalGraphic createExternalGraphic(java.net.URL url, String format) {
         return sf.createExternalGraphic(url, format);
     }
 
-    public Graphic createGraphic(ExternalGraphic externalGraphic, Mark mark, Symbol symbol) {
+    /**
+     * creates a graphic object
+     *
+     * @param externalGraphic an external graphic to use if displayable
+     * @param mark a mark to use
+     * @param symbol a symbol to use
+     *
+     * @return the graphic object
+     */
+    public Graphic createGraphic(ExternalGraphic externalGraphic, Mark mark,
+        Symbol symbol) {
         Graphic gr = sf.getDefaultGraphic();
 
         if (externalGraphic != null) {
@@ -231,8 +476,20 @@ public class StyleBuilder {
         return gr;
     }
 
-    public Graphic createGraphic(ExternalGraphic externalGraphic, Mark mark, Symbol symbol,
-        double opacity, double size, double rotation) {
+    /**
+     * creates a graphic object
+     *
+     * @param externalGraphic an external graphic to use if displayable
+     * @param mark a mark to use
+     * @param symbol a symbol to use
+     * @param opacity - the opacity of the graphic
+     * @param size - the size of the graphic
+     * @param rotation - the rotation from the top of the page of the graphic
+     *
+     * @return the graphic created
+     */
+    public Graphic createGraphic(ExternalGraphic externalGraphic, Mark mark,
+        Symbol symbol, double opacity, double size, double rotation) {
         ExternalGraphic[] egs = null;
         Mark[] marks = null;
         Symbol[] symbols = null;
@@ -253,76 +510,204 @@ public class StyleBuilder {
             literalExpression(size), literalExpression(rotation));
     }
 
-    public Graphic createGraphic(ExternalGraphic[] externalGraphics, Mark[] marks,
-        Symbol[] symbols, double opacity, double size, double rotation) {
-        return createGraphic(externalGraphics, marks, symbols, literalExpression(opacity),
-            literalExpression(size), literalExpression(rotation));
+    /**
+     * creates a graphic object
+     *
+     * @param externalGraphics an array of external graphics to use if
+     *        displayable
+     * @param marks an array of marks to use
+     * @param symbols an array of symbols to use
+     * @param opacity - the opacity of the graphic
+     * @param size - the size of the graphic
+     * @param rotation - the rotation from the top of the page of the graphic
+     *
+     * @return the graphic created
+     */
+    public Graphic createGraphic(ExternalGraphic[] externalGraphics,
+        Mark[] marks, Symbol[] symbols, double opacity, double size,
+        double rotation) {
+        return createGraphic(externalGraphics, marks, symbols,
+            literalExpression(opacity), literalExpression(size),
+            literalExpression(rotation));
     }
 
-    public Graphic createGraphic(ExternalGraphic[] externalGraphics, Mark[] marks,
-        Symbol[] symbols, Expression opacity, Expression size, Expression rotation) {
-        if (externalGraphics == null) {
-            externalGraphics = new ExternalGraphic[0];
+    /**
+     * creates a graphic object
+     *
+     * @param externalGraphics an array of external graphics to use if
+     *        displayable
+     * @param marks an array of marks to use
+     * @param symbols an array of symbols to use
+     * @param opacity - an Expression representing the opacity of the graphic
+     * @param size - an Expression representing the size of the graphic
+     * @param rotation - an Expression representing the rotation from the top
+     *        of the page of the graphic
+     *
+     * @return the graphic created
+     */
+    public Graphic createGraphic(ExternalGraphic[] externalGraphics,
+        Mark[] marks, Symbol[] symbols, Expression opacity, Expression size,
+        Expression rotation) {
+        ExternalGraphic[] exg = externalGraphics;
+
+        if (exg == null) {
+            exg = new ExternalGraphic[0];
         }
 
-        if (marks == null) {
-            marks = new Mark[0];
+        Mark[] m = marks;
+
+        if (m == null) {
+            m = new Mark[0];
         }
 
-        if (symbols == null) {
-            symbols = new Symbol[0];
+        Symbol[] s = symbols;
+
+        if (s == null) {
+            s = new Symbol[0];
         }
 
-        return sf.createGraphic(externalGraphics, marks, symbols, opacity, size, rotation);
+        return sf.createGraphic(exg, m, s, opacity, size, rotation);
     }
 
+    /**
+     * wrapper round Stylefactory Method
+     *
+     * @param x - the x coordinate of the anchor
+     * @param y - the y coordinate of the anchor
+     *
+     * @return the AnchorPoint created
+     */
     public AnchorPoint createAnchorPoint(double x, double y) {
         return sf.createAnchorPoint(literalExpression(x), literalExpression(y));
     }
 
+    /**
+     * wrapper round Stylefactory Method
+     *
+     * @param x - an Expression representing the x coordinate of the anchor
+     * @param y - an Expression representing the y coordinate of the anchor
+     *
+     * @return the AnchorPoint created
+     */
     public AnchorPoint createAnchorPoint(Expression x, Expression y) {
         return sf.createAnchorPoint(x, y);
     }
 
+    /**
+     * wrapper round Stylefactory Method
+     *
+     * @param x - the x displacement
+     * @param y - the y displacement
+     *
+     * @return the Displacement created
+     */
     public Displacement createDisplacement(double x, double y) {
         return sf.createDisplacement(literalExpression(x), literalExpression(y));
     }
 
+    /**
+     * wrapper round Stylefactory Method
+     *
+     * @param x - an Expression representing the x displacement
+     * @param y - an Expression representing the y displacement
+     *
+     * @return the Displacement created
+     */
     public Displacement createDisplacement(Expression x, Expression y) {
         return sf.createDisplacement(x, y);
     }
 
+    /**
+     * wrapper round Stylefactory Method
+     *
+     * @return the default pointplacement
+     */
     public PointPlacement createPointPlacement() {
         return sf.getDefaultPointPlacement();
     }
 
-    public PointPlacement createPointPlacement(double anchorX, double anchorY, double rotation) {
+    /**
+     * wrapper round Stylefactory Method
+     *
+     * @param anchorX - the X coordinate
+     * @param anchorY - the Y coordinate
+     * @param rotation - the rotaion of the label
+     *
+     * @return the pointplacement created
+     */
+    public PointPlacement createPointPlacement(double anchorX, double anchorY,
+        double rotation) {
         AnchorPoint anchorPoint = createAnchorPoint(anchorX, anchorY);
 
-        return sf.createPointPlacement(anchorPoint, null, literalExpression(rotation));
+        return sf.createPointPlacement(anchorPoint, null,
+            literalExpression(rotation));
     }
 
+    /**
+     * wrapper round Stylefactory Method
+     *
+     * @param anchorX - the X coordinate
+     * @param anchorY - the Y coordinate
+     * @param displacementX - the X distance from the anchor
+     * @param displacementY - the Y distance from the anchor
+     * @param rotation - the rotaion of the label
+     *
+     * @return the pointplacement created
+     */
     public PointPlacement createPointPlacement(double anchorX, double anchorY,
         double displacementX, double displacementY, double rotation) {
         AnchorPoint anchorPoint = createAnchorPoint(anchorX, anchorY);
-        Displacement displacement = createDisplacement(displacementX, displacementY);
+        Displacement displacement = createDisplacement(displacementX,
+                displacementY);
 
-        return sf.createPointPlacement(anchorPoint, displacement, literalExpression(rotation));
+        return sf.createPointPlacement(anchorPoint, displacement,
+            literalExpression(rotation));
     }
 
-    public PointPlacement createPointPlacement(AnchorPoint anchorPoint, Displacement displacement,
-        Expression rotation) {
+    /**
+     * wrapper round Stylefactory Method
+     *
+     * @param anchorPoint - the anchor point of the label
+     * @param displacement - the displacement of the label
+     * @param rotation - an Expresson representing the rotation of the label
+     *
+     * @return the pointplacement created
+     */
+    public PointPlacement createPointPlacement(AnchorPoint anchorPoint,
+        Displacement displacement, Expression rotation) {
         return sf.createPointPlacement(anchorPoint, displacement, rotation);
     }
 
+    /**
+     * wrapper round Stylefactory Method
+     *
+     * @param offset - the distance between the line and the label
+     *
+     * @return the LinePlacement created
+     */
     public LinePlacement createLinePlacement(double offset) {
         return sf.createLinePlacement(literalExpression(offset));
     }
 
+    /**
+     * wrapper round Stylefactory Method
+     *
+     * @param offset - an Expression representing the distance between the line
+     *        and the label
+     *
+     * @return the LinePlacement created
+     */
     public LinePlacement createLinePlacement(Expression offset) {
         return sf.createLinePlacement(offset);
     }
 
+    /**
+     * create a geotools font object from a java font
+     *
+     * @param font - the font to be converted
+     *
+     * @return - the geotools font
+     */
     public Font createFont(java.awt.Font font) {
         Expression family = literalExpression(font.getFamily());
         Expression style;
@@ -340,9 +725,18 @@ public class StyleBuilder {
             style = literalExpression(FONT_STYLE_NORMAL);
         }
 
-        return sf.createFont(family, style, weight, literalExpression(font.getSize2D()));
+        return sf.createFont(family, style, weight,
+            literalExpression(font.getSize2D()));
     }
 
+    /**
+     * create font of supplied family and size
+     *
+     * @param fontFamily - the font family
+     * @param fontSize - the size of the font in points
+     *
+     * @return the font object created
+     */
     public Font createFont(String fontFamily, double fontSize) {
         Expression family = literalExpression(fontFamily);
         Expression style = literalExpression(FONT_STYLE_NORMAL);
@@ -351,7 +745,18 @@ public class StyleBuilder {
         return sf.createFont(family, style, weight, literalExpression(fontSize));
     }
 
-    public Font createFont(String fontFamily, boolean italic, boolean bold, double fontSize) {
+    /**
+     * create font of supplied family, size and weight/style
+     *
+     * @param fontFamily - the font family
+     * @param italic - should the font be italic?
+     * @param bold - should the font be bold?
+     * @param fontSize - the size of the font in points
+     *
+     * @return the new font object
+     */
+    public Font createFont(String fontFamily, boolean italic, boolean bold,
+        double fontSize) {
         Expression family = literalExpression(fontFamily);
         Expression style;
         Expression weight;
@@ -371,90 +776,253 @@ public class StyleBuilder {
         return sf.createFont(family, style, weight, literalExpression(fontSize));
     }
 
-    public Font createFont(Expression fontFamily, Expression fontStyle, Expression fontWeight,
-        Expression fontSize) {
+    /**
+     * wrapper round StyleFactory method
+     *
+     * @param fontFamily - Expression representing Font family
+     * @param fontStyle - Expression representing Font style
+     * @param fontWeight - Expression representing Font weight
+     * @param fontSize - Expression representing Font size
+     *
+     * @return the new font object
+     */
+    public Font createFont(Expression fontFamily, Expression fontStyle,
+        Expression fontWeight, Expression fontSize) {
         return sf.createFont(fontFamily, fontStyle, fontWeight, fontSize);
     }
 
+    /**
+     * wrapper round StyleFactory method to create default halo
+     *
+     * @return the new halo
+     */
     public Halo createHalo() {
         return sf.createHalo(createFill(Color.WHITE), literalExpression(1));
     }
 
+    /**
+     * wrapper round StyleFactory method to create halo
+     *
+     * @param color - the color of the halo
+     * @param radius - the width of the halo
+     *
+     * @return the new halo
+     */
     public Halo createHalo(Color color, double radius) {
         return sf.createHalo(createFill(color), literalExpression(radius));
     }
 
+    /**
+     * wrapper round StyleFactory method to create halo
+     *
+     * @param color - the color of the halo
+     * @param opacity - the opacity of the halo fill 0 - transparent 1 - solid
+     * @param radius - the width of the halo
+     *
+     * @return the new halo
+     */
     public Halo createHalo(Color color, double opacity, double radius) {
-        return sf.createHalo(createFill(color, opacity), literalExpression(radius));
+        return sf.createHalo(createFill(color, opacity),
+            literalExpression(radius));
     }
 
+    /**
+     * wrapper round StyleFactory method to create halo
+     *
+     * @param fill - the fill of the halo
+     * @param radius - the width of the halo
+     *
+     * @return the new halo
+     */
     public Halo createHalo(Fill fill, double radius) {
         return sf.createHalo(fill, literalExpression(radius));
     }
 
+    /**
+     * wrapper round StyleFactory method to create halo
+     *
+     * @param fill - the fill of the halo
+     * @param radius - an Expression representing the width of the halo
+     *
+     * @return the new halo
+     */
     public Halo createHalo(Fill fill, Expression radius) {
         return sf.createHalo(fill, radius);
     }
 
+    /**
+     * create a default line symboliser
+     *
+     * @return the new line symbolizer
+     */
     public LineSymbolizer createLineSymbolizer() {
         return sf.createLineSymbolizer();
     }
 
+    /**
+     * create a new line symbolizer
+     *
+     * @param width the width of the line
+     *
+     * @return the new line symbolizer
+     */
     public LineSymbolizer createLineSymbolizer(double width) {
         return createLineSymbolizer(createStroke(width), null);
     }
 
+    /**
+     * create a LineSymbolizer
+     *
+     * @param color - the color of the line
+     *
+     * @return the new line symbolizer
+     */
     public LineSymbolizer createLineSymbolizer(Color color) {
         return createLineSymbolizer(createStroke(color), null);
     }
 
+    /**
+     * create a LineSymbolizer
+     *
+     * @param color - the color of the line
+     * @param width - the width of the line
+     *
+     * @return the new line symbolizer
+     */
     public LineSymbolizer createLineSymbolizer(Color color, double width) {
         return createLineSymbolizer(createStroke(color, width), null);
     }
 
+    /**
+     * create a LineSymbolizer
+     *
+     * @param color - the color of the line
+     * @param width - the width of the line
+     * @param geometryPropertyName - the name of the geometry to be drawn
+     *
+     * @return the new line symbolizer
+     */
     public LineSymbolizer createLineSymbolizer(Color color, double width,
         String geometryPropertyName) {
-        return createLineSymbolizer(createStroke(color, width), geometryPropertyName);
+        return createLineSymbolizer(createStroke(color, width),
+            geometryPropertyName);
     }
 
+    /**
+     * create a LineSymbolizer
+     *
+     * @param stroke - the stroke to be used to draw the line
+     *
+     * @return the new line symbolizer
+     */
     public LineSymbolizer createLineSymbolizer(Stroke stroke) {
         return sf.createLineSymbolizer(stroke, null);
     }
 
-    public LineSymbolizer createLineSymbolizer(Stroke stroke, String geometryPropertyName) {
+    /**
+     * create a LineSymbolizer
+     *
+     * @param stroke - the stroke to be used to draw the line
+     * @param geometryPropertyName - the name of the geometry to be drawn
+     *
+     * @return the new line symbolizer
+     */
+    public LineSymbolizer createLineSymbolizer(Stroke stroke,
+        String geometryPropertyName) {
         return sf.createLineSymbolizer(stroke, geometryPropertyName);
     }
 
+    /**
+     * create a default polygon symbolizer
+     *
+     * @return the new polygon symbolizer
+     */
     public PolygonSymbolizer createPolygonSymbolizer() {
         return sf.createPolygonSymbolizer();
     }
 
+    /**
+     * create a polygon symbolizer
+     *
+     * @param fillColor - the color to fill the polygon
+     *
+     * @return the new polygon symbolizer
+     */
     public PolygonSymbolizer createPolygonSymbolizer(Color fillColor) {
         return createPolygonSymbolizer(null, createFill(fillColor));
     }
 
-    public PolygonSymbolizer createPolygonSymbolizer(Color fillColor, Color borderColor,
+    /**
+     * create a polygon symbolizer
+     *
+     * @param fillColor - the color to fill the polygon
+     * @param borderColor - the outline color of the polygon
+     * @param borderWidth - the width of the outline
+     *
+     * @return the new polygon symbolizer
+     */
+    public PolygonSymbolizer createPolygonSymbolizer(Color fillColor,
+        Color borderColor, double borderWidth) {
+        return createPolygonSymbolizer(createStroke(borderColor, borderWidth),
+            createFill(fillColor));
+    }
+
+    /**
+     * create a polygon symbolizer
+     *
+     * @param borderColor - the outline color of the polygon
+     * @param borderWidth - the width of the outline
+     *
+     * @return the new polygon symbolizer
+     */
+    public PolygonSymbolizer createPolygonSymbolizer(Color borderColor,
         double borderWidth) {
-        return createPolygonSymbolizer(createStroke(borderColor, borderWidth), createFill(fillColor));
+        return createPolygonSymbolizer(createStroke(borderColor, borderWidth),
+            null);
     }
 
-    public PolygonSymbolizer createPolygonSymbolizer(Color borderColor, double borderWidth) {
-        return createPolygonSymbolizer(createStroke(borderColor, borderWidth), null);
-    }
-
+    /**
+     * create a polygon symbolizer
+     *
+     * @param stroke - the stroke to use to outline the polygon
+     * @param fill - the fill to use to color the polygon
+     *
+     * @return the new polygon symbolizer
+     */
     public PolygonSymbolizer createPolygonSymbolizer(Stroke stroke, Fill fill) {
         return createPolygonSymbolizer(stroke, fill, null);
     }
 
+    /**
+     * create a polygon symbolizer
+     *
+     * @param stroke - the stroke to use to outline the polygon
+     * @param fill - the fill to use to color the polygon
+     * @param geometryPropertyName - the name of the geometry to be drawn
+     *
+     * @return the new polygon symbolizer
+     */
     public PolygonSymbolizer createPolygonSymbolizer(Stroke stroke, Fill fill,
         String geometryPropertyName) {
         return sf.createPolygonSymbolizer(stroke, fill, geometryPropertyName);
     }
 
+    /**
+     * create a default point symbolizer
+     *
+     * @return the new point symbolizer
+     */
     public PointSymbolizer createPointSymbolizer() {
         return sf.createPointSymbolizer();
     }
 
+    /**
+     * create a point symbolizer
+     *
+     * @param graphic - the graphic object to draw at the point
+     *
+     * @return the new point symbolizer
+     */
     public PointSymbolizer createPointSymbolizer(Graphic graphic) {
         PointSymbolizer ps = sf.createPointSymbolizer();
         ps.setGraphic(graphic);
@@ -462,34 +1030,100 @@ public class StyleBuilder {
         return ps;
     }
 
-    public PointSymbolizer createPointSymbolizer(Graphic graphic, String geometryPropertyName) {
+    /**
+     * create a point symbolizer
+     *
+     * @param graphic - the graphic object to draw at the point
+     * @param geometryPropertyName - the name of the geometry to be drawn
+     *
+     * @return the new point symbolizer
+     */
+    public PointSymbolizer createPointSymbolizer(Graphic graphic,
+        String geometryPropertyName) {
         return sf.createPointSymbolizer(graphic, geometryPropertyName);
     }
 
-    public TextSymbolizer createTextSymbolizer(Color color, Font font, String attributeName)
-        throws IllegalFilterException {
-        return createTextSymbolizer(createFill(color), new Font[] { font }, null,
-            attributeExpression(attributeName), null, null);
+    /**
+     * create a textsymbolizer
+     *
+     * @param color the color of the text
+     * @param font the font to use
+     * @param attributeName the attribute to use for the label
+     *
+     * @return the new textsymbolizer
+     *
+     * @throws org.geotools.filter.IllegalFilterException - if the attribute
+     *         name does not exist
+     */
+    public TextSymbolizer createTextSymbolizer(Color color, Font font,
+        String attributeName) throws org.geotools.filter.IllegalFilterException {
+        return createTextSymbolizer(createFill(color), new Font[] { font },
+            null, attributeExpression(attributeName), null, null);
     }
 
-    public TextSymbolizer createTextSymbolizer(Color color, Font[] fonts, String attributeName)
-        throws IllegalFilterException {
+    /**
+     * create a textsymbolizer
+     *
+     * @param color the color of the text
+     * @param fonts an array of fonts to use from the first to last
+     * @param attributeName the attribute to use for the label
+     *
+     * @return the new textsymbolizer
+     *
+     * @throws org.geotools.filter.IllegalFilterException - if the attribute
+     *         name does not exist
+     */
+    public TextSymbolizer createTextSymbolizer(Color color, Font[] fonts,
+        String attributeName) throws org.geotools.filter.IllegalFilterException {
         return createTextSymbolizer(createFill(color), fonts, null,
             attributeExpression(attributeName), null, null);
     }
 
-    public TextSymbolizer createStaticTextSymbolizer(Color color, Font font, String label) {
-        return createTextSymbolizer(createFill(color), new Font[] { font }, null,
+    /**
+     * create a textsymbolizer which doesn't change
+     *
+     * @param color the color of the text
+     * @param font the font to use
+     * @param label the label to use
+     *
+     * @return the new textsymbolizer
+     */
+    public TextSymbolizer createStaticTextSymbolizer(Color color, Font font,
+        String label) {
+        return createTextSymbolizer(createFill(color), new Font[] { font },
+            null, literalExpression(label), null, null);
+    }
+
+    /**
+     * create a textsymbolizer which doesn't change
+     *
+     * @param color the color of the text
+     * @param fonts an array of fonts to use from the first to last
+     * @param label the label to use
+     *
+     * @return the new textsymbolizer
+     */
+    public TextSymbolizer createStaticTextSymbolizer(Color color, Font[] fonts,
+        String label) {
+        return createTextSymbolizer(createFill(color), fonts, null,
             literalExpression(label), null, null);
     }
 
-    public TextSymbolizer createStaticTextSymbolizer(Color color, Font[] fonts, String label) {
-        return createTextSymbolizer(createFill(color), fonts, null, literalExpression(label), null,
-            null);
-    }
-
-    public TextSymbolizer createTextSymbolizer(Fill fill, Font[] fonts, Halo halo,
-        Expression label, LabelPlacement labelPlacement, String geometryPropertyName) {
+    /**
+     * create a text symbolizer
+     *
+     * @param fill - the fill to color the text
+     * @param fonts - an array of fonts to use from the first to last
+     * @param halo - the halo to be applied to the text
+     * @param label - Expression representing the label
+     * @param labelPlacement - where to place the label
+     * @param geometryPropertyName - the name of the geometry to use
+     *
+     * @return the new textsymbolizer
+     */
+    public TextSymbolizer createTextSymbolizer(Fill fill, Font[] fonts,
+        Halo halo, Expression label, LabelPlacement labelPlacement,
+        String geometryPropertyName) {
         TextSymbolizer ts = sf.createTextSymbolizer();
 
         if (fill != null) {
@@ -519,25 +1153,67 @@ public class StyleBuilder {
         return ts;
     }
 
+    /**
+     * create a Feature type styler
+     *
+     * @param symbolizer - the symbolizer to use
+     *
+     * @return the new feature type styler
+     */
     public FeatureTypeStyle createFeatureTypeStyle(Symbolizer symbolizer) {
         return createFeatureTypeStyle(null, symbolizer, Double.NaN, Double.NaN);
     }
 
+    /**
+     * create a simple styling rule
+     *
+     * @param symbolizer - the symbolizer to use
+     *
+     * @return the new rule
+     */
     public Rule createRule(Symbolizer symbolizer) {
         return createRule(symbolizer, Double.NaN, Double.NaN);
     }
 
+    /**
+     * reate a simple styling rule
+     *
+     * @param symbolizers - an array of symbolizers to use
+     *
+     * @return the new rule
+     */
     public Rule createRule(Symbolizer[] symbolizers) {
         return createRule(symbolizers, Double.NaN, Double.NaN);
     }
 
+    /**
+     * create a simple styling rule, see the SLD Spec for more details of
+     * scaleDenominators
+     *
+     * @param symbolizer - the symbolizer to use
+     * @param minScaleDenominator - the minimim scale to draw the feature at
+     * @param maxScaleDenominator - the maximum scale to draw the feature at
+     *
+     * @return the new rule
+     */
     public Rule createRule(Symbolizer symbolizer, double minScaleDenominator,
         double maxScaleDenominator) {
-        return createRule(new Symbolizer[] { symbolizer }, Double.NaN, Double.NaN);
+        return createRule(new Symbolizer[] { symbolizer }, Double.NaN,
+            Double.NaN);
     }
 
-    public Rule createRule(Symbolizer[] symbolizers, double minScaleDenominator,
-        double maxScaleDenominator) {
+    /**
+     * create a simple styling rule, see the SLD Spec for more details of
+     * scaleDenominators
+     *
+     * @param symbolizers - an array of symbolizers to use
+     * @param minScaleDenominator - the minimim scale to draw the feature at
+     * @param maxScaleDenominator - the maximum scale to draw the feature at
+     *
+     * @return the new rule
+     */
+    public Rule createRule(Symbolizer[] symbolizers,
+        double minScaleDenominator, double maxScaleDenominator) {
         Rule r = sf.createRule();
         r.setSymbolizers(symbolizers);
 
@@ -556,35 +1232,101 @@ public class StyleBuilder {
         return r;
     }
 
+    /**
+     * create a Feature type styler see the SLD Spec for more details of
+     * scaleDenominators
+     *
+     * @param symbolizer - the symbolizer to use
+     * @param minScaleDenominator - the minimim scale to draw the feature at
+     * @param maxScaleDenominator - the maximum scale to draw the feature at
+     *
+     * @return the new feature type styler
+     */
     public FeatureTypeStyle createFeatureTypeStyle(Symbolizer symbolizer,
         double minScaleDenominator, double maxScaleDenominator) {
-        return createFeatureTypeStyle(null, symbolizer, minScaleDenominator, maxScaleDenominator);
+        return createFeatureTypeStyle(null, symbolizer, minScaleDenominator,
+            maxScaleDenominator);
     }
 
+    /**
+     * create a Feature type styler see the SLD Spec for more details of
+     * scaleDenominators
+     *
+     * @param symbolizers - an array of symbolizers to use
+     * @param minScaleDenominator - the minimim scale to draw the feature at
+     * @param maxScaleDenominator - the maximum scale to draw the feature at
+     *
+     * @return the new feature type styler
+     */
     public FeatureTypeStyle createFeatureTypeStyle(Symbolizer[] symbolizers,
         double minScaleDenominator, double maxScaleDenominator) {
-        return createFeatureTypeStyle(null, symbolizers, minScaleDenominator, maxScaleDenominator);
+        return createFeatureTypeStyle(null, symbolizers, minScaleDenominator,
+            maxScaleDenominator);
     }
 
-    public FeatureTypeStyle createFeatureTypeStyle(String featureTypeStyleName,
-        Symbolizer symbolizer) {
-        return createFeatureTypeStyle(featureTypeStyleName, symbolizer, Double.NaN, Double.NaN);
+    /**
+     * create a Feature type styler
+     *
+     * @param featureTypeStyleName - name for the feature type styler
+     * @param symbolizer - the symbolizer to use
+     *
+     * @return the new feature type styler
+     */
+    public FeatureTypeStyle createFeatureTypeStyle(
+        String featureTypeStyleName, Symbolizer symbolizer) {
+        return createFeatureTypeStyle(featureTypeStyleName, symbolizer,
+            Double.NaN, Double.NaN);
     }
 
-    public FeatureTypeStyle createFeatureTypeStyle(String featureTypeStyleName,
-        Symbolizer[] symbolizers) {
-        return createFeatureTypeStyle(featureTypeStyleName, symbolizers, Double.NaN, Double.NaN);
+    /**
+     * create a Feature type styler
+     *
+     * @param featureTypeStyleName - name for the feature type styler
+     * @param symbolizers - an array of symbolizers to use
+     *
+     * @return the new feature type styler
+     */
+    public FeatureTypeStyle createFeatureTypeStyle(
+        String featureTypeStyleName, Symbolizer[] symbolizers) {
+        return createFeatureTypeStyle(featureTypeStyleName, symbolizers,
+            Double.NaN, Double.NaN);
     }
 
-    public FeatureTypeStyle createFeatureTypeStyle(String featureTypeStyleName,
-        Symbolizer symbolizer, double minScaleDenominator, double maxScaleDenominator) {
-        return createFeatureTypeStyle(featureTypeStyleName, new Symbolizer[] { symbolizer },
-            minScaleDenominator, maxScaleDenominator);
+    /**
+     * create a Feature type styler see the SLD Spec for more details of
+     * scaleDenominators
+     *
+     * @param featureTypeStyleName - name for the feature type styler
+     * @param symbolizer - the symbolizer to use
+     * @param minScaleDenominator - the minimim scale to draw the feature at
+     * @param maxScaleDenominator - the maximum scale to draw the feature at
+     *
+     * @return the new feature type styler
+     */
+    public FeatureTypeStyle createFeatureTypeStyle(
+        String featureTypeStyleName, Symbolizer symbolizer,
+        double minScaleDenominator, double maxScaleDenominator) {
+        return createFeatureTypeStyle(featureTypeStyleName,
+            new Symbolizer[] { symbolizer }, minScaleDenominator,
+            maxScaleDenominator);
     }
 
-    public FeatureTypeStyle createFeatureTypeStyle(String featureTypeStyleName,
-        Symbolizer[] symbolizers, double minScaleDenominator, double maxScaleDenominator) {
-        Rule r = createRule(symbolizers, minScaleDenominator, maxScaleDenominator);
+    /**
+     * create a Feature type styler see the SLD Spec for more details of
+     * scaleDenominators
+     *
+     * @param featureTypeStyleName - name for the feature type styler
+     * @param symbolizers - an array of symbolizers to use
+     * @param minScaleDenominator - the minimim scale to draw the feature at
+     * @param maxScaleDenominator - the maximum scale to draw the feature at
+     *
+     * @return the new feature type styler
+     */
+    public FeatureTypeStyle createFeatureTypeStyle(
+        String featureTypeStyleName, Symbolizer[] symbolizers,
+        double minScaleDenominator, double maxScaleDenominator) {
+        Rule r = createRule(symbolizers, minScaleDenominator,
+                maxScaleDenominator);
 
         // setup the feature type style
         FeatureTypeStyle fts = sf.createFeatureTypeStyle();
@@ -597,24 +1339,61 @@ public class StyleBuilder {
         return fts;
     }
 
+    /**
+     * create a new style
+     *
+     * @param symbolizer - the symbolizer to use
+     *
+     * @return the new style
+     */
     public Style createStyle(Symbolizer symbolizer) {
         return createStyle(null, symbolizer, Double.NaN, Double.NaN);
     }
 
+    /**
+     * create a new style
+     *
+     * @param symbolizer - the symbolizer to use
+     * @param minScaleDenominator - the minimim scale to draw the feature at
+     * @param maxScaleDenominator - the maximum scale to draw the feature at
+     *
+     * @return the new style
+     */
     public Style createStyle(Symbolizer symbolizer, double minScaleDenominator,
         double maxScaleDenominator) {
-        return createStyle(null, symbolizer, minScaleDenominator, maxScaleDenominator);
+        return createStyle(null, symbolizer, minScaleDenominator,
+            maxScaleDenominator);
     }
 
+    /**
+     * create a new style
+     *
+     * @param featureTypeStyleName - the name to use for the feature type style
+     * @param symbolizer - the symbolizer to use
+     *
+     * @return the new style
+     */
     public Style createStyle(String featureTypeStyleName, Symbolizer symbolizer) {
-        return createStyle(featureTypeStyleName, symbolizer, Double.NaN, Double.NaN);
+        return createStyle(featureTypeStyleName, symbolizer, Double.NaN,
+            Double.NaN);
     }
 
-    public Style createStyle(String featureTypeStyleName, Symbolizer symbolizer,
-        double minScaleDenominator, double maxScaleDenominator) {
+    /**
+     * create a new style
+     *
+     * @param featureTypeStyleName - the name to use for the feature type style
+     * @param symbolizer - the symbolizer to use
+     * @param minScaleDenominator - the minimim scale to draw the feature at
+     * @param maxScaleDenominator - the maximum scale to draw the feature at
+     *
+     * @return the new style
+     */
+    public Style createStyle(String featureTypeStyleName,
+        Symbolizer symbolizer, double minScaleDenominator,
+        double maxScaleDenominator) {
         // create the feature type style
-        FeatureTypeStyle fts = createFeatureTypeStyle(featureTypeStyleName, symbolizer,
-                minScaleDenominator, maxScaleDenominator);
+        FeatureTypeStyle fts = createFeatureTypeStyle(featureTypeStyleName,
+                symbolizer, minScaleDenominator, maxScaleDenominator);
 
         // and finally create the style
         Style style = sf.createStyle();
@@ -623,10 +1402,22 @@ public class StyleBuilder {
         return style;
     }
 
+    /**
+     * create a new default style
+     *
+     * @return the new style
+     */
     public Style createStyle() {
         return sf.createStyle();
     }
 
+    /**
+     * convert an awt color in to a literal expression representing the color
+     *
+     * @param color the color to encode
+     *
+     * @return the expression
+     */
     public Expression colorExpression(Color color) {
         String redCode = Integer.toHexString(color.getRed());
         String greenCode = Integer.toHexString(color.getGreen());
@@ -649,10 +1440,24 @@ public class StyleBuilder {
         return ff.createLiteralExpression(colorCode);
     }
 
+    /**
+     * create a literal expression representing the value
+     *
+     * @param value the value to be encoded
+     *
+     * @return the expression
+     */
     public Expression literalExpression(double value) {
         return ff.createLiteralExpression(value);
     }
 
+    /**
+     * create a literal expression representing the value
+     *
+     * @param value the value to be encoded
+     *
+     * @return the expression
+     */
     public Expression literalExpression(String value) {
         Expression result = null;
 
@@ -663,9 +1468,20 @@ public class StyleBuilder {
         return result;
     }
 
+    /**
+     * create an attribute expression
+     *
+     * @param attributeName the attribute to use
+     *
+     * @return the new expression
+     *
+     * @throws org.geotools.filter.IllegalFilterException if the attribute name
+     *         does not exist
+     */
     public Expression attributeExpression(String attributeName)
-        throws IllegalFilterException {
-        AttributeExpression attribute = ff.createAttributeExpression(null);
+        throws org.geotools.filter.IllegalFilterException {
+        org.geotools.filter.AttributeExpression attribute = 
+            ff.createAttributeExpression(null);
         attribute.setAttributePath(attributeName);
 
         return attribute;

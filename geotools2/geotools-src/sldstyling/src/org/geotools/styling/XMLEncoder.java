@@ -20,14 +20,6 @@ import java.io.IOException;
 
 
 // J2SE dependencies
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
-import org.geotools.filter.Expression;
-import org.geotools.filter.Filter;
-
 
 /**
  * Exports a filter as a OGC XML Filter document.  This class is does not
@@ -35,7 +27,7 @@ import org.geotools.filter.Filter;
  * It was also written before the 1.0 filter spec, so some of it may be not up
  * to date.
  *
- * @author James Macgill, PSU
+ * @author Ian Turton, ccg
  *
  * @task HACK: Logging errors, very bad!  We need a filter visitor exception,
  *       or have visit methods throw illegal filter exceptions, or io
@@ -48,253 +40,311 @@ import org.geotools.filter.Filter;
  */
 public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     /** The logger for the filter module. */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.style");
+    private static final java.util.logging.Logger LOGGER = 
+        java.util.logging.Logger.getLogger("org.geotools.style");
     private org.geotools.filter.XMLEncoder filterEncoder;
-    
-    
-    
+
     /** To write the xml representations of filters to */
-    private Writer out;
-    
+    private java.io.Writer out;
+
     /**
      * Constructor with writer to write filters to.
      *
      * @param out where to write the xml representation of filters.
      */
-    public XMLEncoder(Writer out) {
+    public XMLEncoder(java.io.Writer out) {
         this.out = out;
         filterEncoder = new org.geotools.filter.XMLEncoder(out);
     }
-    
+
     /**
      * Creates a new instance of XMLEncoder
      *
      * @param out The writer to write to.
-     * @param filter the filter to encode.
+     * @param style the style to encode.
+     *
+     * @throws IOException - if a problem occurs with the writer
      */
-    public XMLEncoder(Writer out, Style style) throws java.io.IOException{
+    public XMLEncoder(java.io.Writer out, Style style)
+        throws IOException {
         this.out = out;
         filterEncoder = new org.geotools.filter.XMLEncoder(out);
         encode(style);
     }
-    
+
     /**
      * Encodes the filter to the current writer.
      *
-     * @param filter the filter to encode.
+     * @param style the filter to encode.
      *
-     * @throws java.io.IOException if there are problems writing to out.
+     * @throws IOException if there are problems writing to out.
      */
-    public void encode(Style style) throws java.io.IOException{
+    public void encode(Style style) throws IOException {
         out.write("<StyledLayerDescriptor version=\"1.0.0\">\n");
         style.accept(this);
         out.write("</StyledLayerDescriptor>\n");
     }
-    
+
     /**
      * Encodes the expression to the current writer.
      *
      * @param expression the expression to encode.
      */
-    private void encode(Expression expression) {
-        if(expression!=null) expression.accept(filterEncoder);
+    private void encode(org.geotools.filter.Expression expression) {
+        if (expression != null) {
+            expression.accept(filterEncoder);
+        }
     }
-    
-    public void encodeCssParam(String name, Expression expression){
-        try{
-            out.write("<CssParameter name='"+name+"'>\n");
+
+    public void encodeCssParam(String name,
+        org.geotools.filter.Expression expression) {
+        try {
+            out.write("<CssParameter name='" + name + "'>\n");
             encode(expression);
             out.write("</CssParameter>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    
-    public void visit(Style style){
-        try{
+
+    public void visit(Style style) {
+        try {
             out.write("<NamedLayer>\n");
+
             String title = style.getTitle();
             String abs = style.getAbstract();
             String name = style.getName();
-            out.write("<Title>"+title+"</Title>\n");
-            out.write("<Name>"+name+"</Name>\n");
-            out.write("<Abstract>"+abs+"</Abstract>\n");
+            out.write("<Title>" + title + "</Title>\n");
+            out.write("<Name>" + name + "</Name>\n");
+            out.write("<Abstract>" + abs + "</Abstract>\n");
             out.write("<UserLayer>\n");
+
             FeatureTypeStyle[] fts = style.getFeatureTypeStyles();
-            for(int i=0;i<fts.length;i++){
+
+            for (int i = 0; i < fts.length; i++) {
                 visit(fts[i]);
             }
+
             out.write("</UserLayer>\n");
             out.write("</NamedLayer>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(FeatureTypeStyle fts){
-        try{
+
+    public void visit(FeatureTypeStyle fts) {
+        try {
             out.write("<FeatureTypeStyle>\n");
             out.write("<FeatureTypeName>");
             out.write(fts.getName());
             out.write("</FeatureTypeName>\n");
-            Rule rules[] = fts.getRules();
-            for(int i=0;i<rules.length;i++){
+
+            Rule[] rules = fts.getRules();
+
+            for (int i = 0; i < rules.length; i++) {
                 rules[i].accept(this);
             }
+
             out.write("</FeatureTypeStyle>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    
-    public void visit(Rule rule){
-        try{
+
+    public void visit(Rule rule) {
+        try {
             out.write("<Rule>\n");
-            out.write("<Name>"+rule.getName()+"</Name>\n");
-            out.write("<Abstract>"+rule.getAbstract()+"</Abstract>\n");
-            out.write("<Title>"+rule.getTitle()+"</Title>\n");
-            if(rule.getMaxScaleDenominator()!=Double.POSITIVE_INFINITY)out.write("<MaxScaleDenominator>"+rule.getMaxScaleDenominator()+"</MaxScaleDenominator>");
-            if(rule.getMinScaleDenominator()!=0.0)out.write("<MinScaleDenominator>"+rule.getMinScaleDenominator()+"</MinScaleDenominator>");
-            Filter filter = rule.getFilter();
-            if(filter!=null){
+            out.write("<Name>" + rule.getName() + "</Name>\n");
+            out.write("<Abstract>" + rule.getAbstract() + "</Abstract>\n");
+            out.write("<Title>" + rule.getTitle() + "</Title>\n");
+
+            if (rule.getMaxScaleDenominator() != Double.POSITIVE_INFINITY) {
+                out.write("<MaxScaleDenominator>" +
+                    rule.getMaxScaleDenominator() + "</MaxScaleDenominator>");
+            }
+
+            if (rule.getMinScaleDenominator() != 0.0) {
+                out.write("<MinScaleDenominator>" +
+                    rule.getMinScaleDenominator() + "</MinScaleDenominator>");
+            }
+
+            org.geotools.filter.Filter filter = rule.getFilter();
+
+            if (filter != null) {
                 out.write("<Filter>");
                 filter.accept(filterEncoder);
                 out.write("</Filter>");
             }
-            if(rule.hasElseFilter()){
+
+            if (rule.hasElseFilter()) {
                 out.write("<ElseFilter/>");
             }
+
             Graphic[] gr = rule.getLegendGraphic();
-            for(int i=0;i<gr.length;i++){
+
+            for (int i = 0; i < gr.length; i++) {
                 gr[i].accept(this);
             }
+
             Symbolizer[] sym = rule.getSymbolizers();
-            for(int i=0;i<sym.length;i++){
+
+            for (int i = 0; i < sym.length; i++) {
                 sym[i].accept(this);
             }
+
             out.write("</Rule>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(Graphic gr){
-        try{
+
+    public void visit(Graphic gr) {
+        try {
             out.write("<Graphic>\n");
+
             String geom = gr.getGeometryPropertyName();
-            if(geom!=null&&!geom.trim().equals("")){
-                out.write("<GeometryProperty>"+geom+"</GeometryProperty>\n");
+
+            if ((geom != null) && !geom.trim().equals("")) {
+                out.write("<GeometryProperty>" + geom +
+                    "</GeometryProperty>\n");
             }
+
             out.write("<Size>\n");
-            
+
             encode(gr.getSize());
             out.write("</Size>\n");
-            
+
             out.write("<Opacity>\n");
             encode(gr.getOpacity());
             out.write("</Opacity>\n");
             out.write("<Rotation>\n");
             encode(gr.getRotation());
             out.write("</Rotation>\n");
+
             Symbol[] symbols = gr.getSymbols();
-            for(int i=0;i<symbols.length;i++){
+
+            for (int i = 0; i < symbols.length; i++) {
                 symbols[i].accept(this);
             }
+
             out.write("</Graphic>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(PointSymbolizer sym){
-        try{
+
+    public void visit(PointSymbolizer sym) {
+        try {
             out.write("<PointSymbolizer>\n");
-            if(sym.geometryPropertyName()!=null){
-                out.write("<Geometry>\n\t<ogc:PropertyName>"+sym.geometryPropertyName()+
-            "</ogc:PropertyName>\n</Geometry>\n");
+
+            if (sym.geometryPropertyName() != null) {
+                out.write("<Geometry>\n\t<ogc:PropertyName>" +
+                    sym.geometryPropertyName() +
+                    "</ogc:PropertyName>\n</Geometry>\n");
             }
+
             sym.getGraphic().accept(this);
             out.write("</PointSymbolizer>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    public void visit(LineSymbolizer sym){
-        try{
+
+    public void visit(LineSymbolizer sym) {
+        try {
             out.write("<LineSymbolizer>\n");
-            if(sym.geometryPropertyName()!=null){
-                out.write("<Geometry>\n\t<ogc:PropertyName>"+sym.geometryPropertyName()+
-            "</ogc:PropertyName>\n</Geometry>\n");
+
+            if (sym.geometryPropertyName() != null) {
+                out.write("<Geometry>\n\t<ogc:PropertyName>" +
+                    sym.geometryPropertyName() +
+                    "</ogc:PropertyName>\n</Geometry>\n");
             }
+
             sym.getStroke().accept(this);
             out.write("</LineSymbolizer>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     public void visit(Symbolizer sym) {
         throw new IllegalStateException("visiting an unknown symbolizer");
     }
-    
-    
-    
-    public void visit(Fill fill){
-        try{
+
+    public void visit(Fill fill) {
+        try {
             out.write("<Fill>\n");
-            if(fill.getGraphicFill()!=null)fill.getGraphicFill().accept(this);
-            encodeCssParam("fill",fill.getColor());
-            encodeCssParam("fill-opacity",fill.getOpacity());
+
+            if (fill.getGraphicFill() != null) {
+                fill.getGraphicFill().accept(this);
+            }
+
+            encodeCssParam("fill", fill.getColor());
+            encodeCssParam("fill-opacity", fill.getOpacity());
             out.write("</Fill>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(Stroke stroke){
-        try{
+
+    public void visit(Stroke stroke) {
+        try {
             out.write("<Stroke>\n");
-            if(stroke.getGraphicFill()!=null)stroke.getGraphicFill().accept(this);
-            if(stroke.getGraphicStroke()!=null)stroke.getGraphicStroke().accept(this);
-            
-            encodeCssParam("stroke",stroke.getColor());
-            encodeCssParam("stroke-linecap",stroke.getLineCap());
-            encodeCssParam("stroke-linejoin",stroke.getLineJoin());
-            encodeCssParam("stroke-opacity",stroke.getOpacity());
-            encodeCssParam("stroke-width",stroke.getWidth());
-            encodeCssParam("stroke-dashoffset",stroke.getDashOffset());
+
+            if (stroke.getGraphicFill() != null) {
+                stroke.getGraphicFill().accept(this);
+            }
+
+            if (stroke.getGraphicStroke() != null) {
+                stroke.getGraphicStroke().accept(this);
+            }
+
+            encodeCssParam("stroke", stroke.getColor());
+            encodeCssParam("stroke-linecap", stroke.getLineCap());
+            encodeCssParam("stroke-linejoin", stroke.getLineJoin());
+            encodeCssParam("stroke-opacity", stroke.getOpacity());
+            encodeCssParam("stroke-width", stroke.getWidth());
+            encodeCssParam("stroke-dashoffset", stroke.getDashOffset());
+
             float[] dash = stroke.getDashArray();
             StringBuffer sb = new StringBuffer();
-            for(int i=0;i<dash.length;i++){
-                sb.append(dash[i]+" ");
+
+            for (int i = 0; i < dash.length; i++) {
+                sb.append(dash[i] + " ");
             }
-            out.write("<CssParameter name='stroke-dasharray'>"+sb.toString()+"</CssParameter>\n");
+
+            out.write("<CssParameter name='stroke-dasharray'>" + sb.toString() +
+                "</CssParameter>\n");
             out.write("</Stroke>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(TextSymbolizer sym){
-        try{
+
+    public void visit(TextSymbolizer sym) {
+        try {
             out.write("<TextSymbolizer>\n");
-            if(sym.getGeometryPropertyName()!=null){
-                out.write("<Geometry>\n\t<ogc:PropertyName>"+sym.getGeometryPropertyName()+
-            "</ogc:PropertyName>\n</Geometry>\n");
+
+            if (sym.getGeometryPropertyName() != null) {
+                out.write("<Geometry>\n\t<ogc:PropertyName>" +
+                    sym.getGeometryPropertyName() +
+                    "</ogc:PropertyName>\n</Geometry>\n");
             }
+
             out.write("<Label>\n");
             encode(sym.getLabel());
             out.write("</Label>\n");
             out.write("<Font>\n");
+
             Font[] fonts = sym.getFonts();
-            for(int i=0;i<fonts.length;i++){
-                encodeCssParam("font-family",fonts[i].getFontFamily());
+
+            for (int i = 0; i < fonts.length; i++) {
+                encodeCssParam("font-family", fonts[i].getFontFamily());
             }
-            encodeCssParam("font-size",fonts[0].getFontSize());
-            encodeCssParam("font-style",fonts[0].getFontStyle());
-            encodeCssParam("font-weight",fonts[0].getFontWeight());
+
+            encodeCssParam("font-size", fonts[0].getFontSize());
+            encodeCssParam("font-style", fonts[0].getFontStyle());
+            encodeCssParam("font-weight", fonts[0].getFontWeight());
             out.write("</Font>\n");
             out.write("<Label>\n");
             sym.getLabelPlacement().accept(this);
@@ -302,53 +352,69 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             sym.getHalo().accept(this);
             sym.getFill().accept(this);
             out.write("<TextSymbolizer>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(PolygonSymbolizer sym){
-        try{
+
+    public void visit(PolygonSymbolizer sym) {
+        try {
             out.write("<PolygonSymbolizer>\n");
-            out.write("<Geometry>\n\t<ogc:PropertyName>"+sym.geometryPropertyName()+
-            "</ogc:PropertyName>\n</Geometry>\n");
-            if(sym.getFill()!=null)sym.getFill().accept(this);
-            if(sym.getStroke()!=null)sym.getStroke().accept(this);
+            out.write("<Geometry>\n\t<ogc:PropertyName>" +
+                sym.geometryPropertyName() +
+                "</ogc:PropertyName>\n</Geometry>\n");
+
+            if (sym.getFill() != null) {
+                sym.getFill().accept(this);
+            }
+
+            if (sym.getStroke() != null) {
+                sym.getStroke().accept(this);
+            }
+
             out.write("</PolygonSymbolizer>");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(Mark mark){
-        try{
+
+    public void visit(Mark mark) {
+        try {
             out.write("<Mark>\n");
             out.write("<WellKnownName>\n");
             mark.getWellKnownName().accept(filterEncoder);
             out.write("</WellKnownName>\n");
-            if(mark.getFill()!=null) mark.getFill().accept(this);
-            if(mark.getStroke()!=null) mark.getStroke().accept(this);
+
+            if (mark.getFill() != null) {
+                mark.getFill().accept(this);
+            }
+
+            if (mark.getStroke() != null) {
+                mark.getStroke().accept(this);
+            }
+
             out.write("</Mark>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(ExternalGraphic exgr){
-        try{
+
+    public void visit(ExternalGraphic exgr) {
+        try {
             out.write("<ExternalGraphic>\n");
-            out.write("<Format>"+exgr.getFormat()+"</Format>\n");
-            out.write("<OnlineResource xmlns:xlink='http://www.w3.org/1999/xlink"
-            +"xlink:type='simple' xlink='");
-            out.write(exgr.getLocation().toString()+"'/>");
+            out.write("<Format>" + exgr.getFormat() + "</Format>\n");
+            out.write(
+                "<OnlineResource xmlns:xlink='http://www.w3.org/1999/xlink" +
+                "xlink:type='simple' xlink='");
+            out.write(exgr.getLocation().toString() + "'/>");
             out.write("</ExternalGraphic>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(PointPlacement pp){
-        try{
+
+    public void visit(PointPlacement pp) {
+        try {
             out.write("<LabelPlacement>\n");
             out.write("<PointPlacement>\n");
             pp.getAnchorPoint().accept(this);
@@ -358,13 +424,13 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             out.write("</Rotation>\n");
             out.write("</PointPlacement>\n");
             out.write("</LabelPlacement>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(AnchorPoint ap){
-        try{
+
+    public void visit(AnchorPoint ap) {
+        try {
             out.write("<AnchorPoint>\n");
             out.write("<AnchorPointX>\n");
             encode(ap.getAnchorPointX());
@@ -373,13 +439,13 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             encode(ap.getAnchorPointY());
             out.write("</AnchorPointY>\n");
             out.write("</AnchorPoint>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(Displacement dis){
-        try{
+
+    public void visit(Displacement dis) {
+        try {
             out.write("<Displacement>\n");
             out.write("<DisplacementX>\n");
             encode(dis.getDisplacementX());
@@ -388,12 +454,13 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             encode(dis.getDisplacementY());
             out.write("</DisplacementY>\n");
             out.write("</Displacement>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    public void visit(LinePlacement lp){
-        try{
+
+    public void visit(LinePlacement lp) {
+        try {
             out.write("<LabelPlacement>\n");
             out.write("<LinePlacement>\n");
             out.write("<PerpendicularOffset>\n");
@@ -401,22 +468,21 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             out.write("</PerpendicularOffset>\n");
             out.write("</LinePlacement>\n");
             out.write("</LabelPlacement>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public void visit(Halo halo){
-        try{
+
+    public void visit(Halo halo) {
+        try {
             out.write("<Halo>\n");
             halo.getFill().accept(this);
             out.write("<Radius>\n");
             encode(halo.getRadius());
             out.write("</Radius>\n");
             out.write("</Halo>\n");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    
 }
