@@ -160,7 +160,7 @@ public class FeatureTableModelTest extends TestCase {
         attributesB[9] = "feature B";
         
         // Creates the feature itself
-        FeatureFactory factory = new FeatureFactory(testSchema);
+        FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
         testFeatures = new Feature[2];
         testFeatures[0] = factory.create(attributesA);
         testFeatures[1] = factory.create(attributesB);

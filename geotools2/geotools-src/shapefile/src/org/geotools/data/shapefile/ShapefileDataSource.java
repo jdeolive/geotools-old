@@ -51,7 +51,7 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.5 2003/05/19 20:51:29 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.6 2003/05/20 17:05:34 jmacgill Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -405,7 +405,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     final BitSet selector;
     final DbaseFileReader dbf;
     final ShapefileReader shp;
-    final FeatureFactory factory;
+    final FlatFeatureFactory factory;
     final Object[] readStash;
     final Object[] writeStash;
     final IDFactory id;
@@ -417,7 +417,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     public FeatureMaker(DbaseFileReader dbf,ShapefileReader shp,FeatureType type,BitSet selector) {
       this.dbf = dbf;
       this.shp = shp;
-      this.factory = new FeatureFactory(type);;
+      this.factory = new FlatFeatureFactory(type);;
       this.selector = selector;
       // must be same size as header, should change dbasereader in future...
       readStash = new Object[dbf.getHeader().getNumFields()];

@@ -62,7 +62,7 @@ public class DefaultMarkTest extends TestCase {
         pointAttribute[2] = new AttributeTypeDefault("rotation",Double.class);
         pointAttribute[3] = new AttributeTypeDefault("name",String.class);
         FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("testPoint");
-        FeatureFactory pointFac = new FeatureFactory(pointType);
+        FlatFeatureFactory pointFac = new FlatFeatureFactory(pointType);
         
         AttributeType[] labelAttribute = new AttributeType[4];
         labelAttribute[0] = new AttributeTypeDefault("centre", com.vividsolutions.jts.geom.Point.class);
@@ -70,7 +70,7 @@ public class DefaultMarkTest extends TestCase {
         labelAttribute[2] = new AttributeTypeDefault("X",Double.class);
         labelAttribute[3] = new AttributeTypeDefault("Y",Double.class);
         FeatureType labelType = new FeatureTypeFlat(labelAttribute).setTypeName("labelPoint");
-        FeatureFactory labelFac = new FeatureFactory(labelType);
+        FlatFeatureFactory labelFac = new FlatFeatureFactory(labelType);
         String[] marks = {"Circle","Triangle","Cross","Star","X","Square","Arrow"};
         double size = 6;
         double rotation = 0;

@@ -58,42 +58,42 @@ public class RenderStyleTest extends TestCase {
         LineString line = makeSampleLineString(geomFac,0,0);
         AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
         FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature");
-        FeatureFactory lineFac = new FeatureFactory(lineType);
+        FlatFeatureFactory lineFac = new FlatFeatureFactory(lineType);
         Feature lineFeature = lineFac.create(new Object[]{line});
         
         LineString line2 = makeSampleLineString(geomFac,100,0);
         lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature2");
-        lineFac = new FeatureFactory(lineType);
+        lineFac = new FlatFeatureFactory(lineType);
         Feature lineFeature2 = lineFac.create(new Object[]{line2});
         
         LineString line3 = makeSampleLineString(geomFac,150,0);
         lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature3");
-        lineFac = new FeatureFactory(lineType);
+        lineFac = new FlatFeatureFactory(lineType);
         Feature lineFeature3 = lineFac.create(new Object[]{line3});
         
         Polygon polygon = makeSamplePolygon(geomFac,0,0);
         
         AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
         FeatureType polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygon");
-        FeatureFactory polygonFac = new FeatureFactory(polygonType);
+        FlatFeatureFactory polygonFac = new FlatFeatureFactory(polygonType);
         
         Feature polygonFeature = polygonFac.create(new Object[]{polygon});
         
         Polygon polygon2 = makeSamplePolygon(geomFac,0,150);
         polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygontest2");
-        polygonFac = new FeatureFactory(polygonType);
+        polygonFac = new FlatFeatureFactory(polygonType);
         Feature polygonFeature2 = polygonFac.create(new Object[]{polygon2});
         
         Polygon polygon3 = makeSamplePolygon(geomFac,220,100);
         polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygontest3");
-        polygonFac = new FeatureFactory(polygonType);
+        polygonFac = new FlatFeatureFactory(polygonType);
         Feature polygonFeature3 = polygonFac.create(new Object[]{polygon3});
         
         
         Point point = makeSamplePoint(geomFac,140.0,140.0);
         AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
         FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("pointfeature");
-        FeatureFactory pointFac = new FeatureFactory(pointType);
+        FlatFeatureFactory pointFac = new FlatFeatureFactory(pointType);
         
         Feature pointFeature = pointFac.create(new Object[]{point});
         MemoryDataSource datasource = new MemoryDataSource();

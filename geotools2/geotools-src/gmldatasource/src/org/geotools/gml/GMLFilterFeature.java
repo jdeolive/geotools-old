@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * filter must implement GMLHandlerJTS in order to receive the JTS objects
  * passed by this filter.</p>
  *
- * @version $Id: GMLFilterFeature.java,v 1.12 2003/05/14 20:22:17 cholmesny Exp $
+ * @version $Id: GMLFilterFeature.java,v 1.13 2003/05/20 17:06:34 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
@@ -245,7 +245,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
             try {
                 FeatureType schema = FeatureTypeFactory.create(attDef).setTypeName(typeName);
                 schema.setNamespace(namespaceURI);
-                FeatureFactory fac = new FeatureFactory(schema);
+                FlatFeatureFactory fac = new FlatFeatureFactory(schema);
                 Feature feature = fac.create((Object []) attributes.toArray());
                 //currentFeature.setAttributes((Object []) attributes.toArray());
                 parent.feature(feature);

@@ -66,7 +66,7 @@ public class TextTest extends TestCase {
         pointAttribute[1] = new AttributeTypeDefault("size",Double.class);
         pointAttribute[2] = new AttributeTypeDefault("rotation",Double.class);
         FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("testPoint");
-        FeatureFactory pointFac = new FeatureFactory(pointType);
+        FlatFeatureFactory pointFac = new FlatFeatureFactory(pointType);
         for(int j=0;j<rows;j++){
             double angle =0.0;
             for(int i=0; i<points; i++){
@@ -89,7 +89,7 @@ public class TextTest extends TestCase {
         lineAttribute[1] = new AttributeTypeDefault("size",Double.class);
         lineAttribute[2] = new AttributeTypeDefault("perpendicularoffset",Double.class);
         FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("testLine");
-        FeatureFactory lineFac = new FeatureFactory(lineType);
+        FlatFeatureFactory lineFac = new FlatFeatureFactory(lineType);
         rows = 2;
         points = 3;
         

@@ -36,7 +36,7 @@ import org.geotools.filter.NullFilter;
 
 
 /**
- * $Id: ImageDataSource.java,v 1.5 2003/05/08 19:09:04 cholmesny Exp $
+ * $Id: ImageDataSource.java,v 1.6 2003/05/20 17:02:39 jmacgill Exp $
  *
  * @author  iant
  */
@@ -50,7 +50,7 @@ public class ImageDataSource extends AbstractDataSource
     Envelope bbox;
     
     static org.geotools.feature.FeatureType schema;
-    static org.geotools.feature.FeatureFactory factory;
+    static org.geotools.feature.FlatFeatureFactory factory;
     static com.vividsolutions.jts.geom.GeometryFactory geomFac = new com.vividsolutions.jts.geom.GeometryFactory();
     static {
         org.geotools.feature.AttributeTypeDefault geom = new org.geotools.feature.AttributeTypeDefault("geom",com.vividsolutions.jts.geom.Polygon.class);
@@ -60,7 +60,7 @@ public class ImageDataSource extends AbstractDataSource
         } catch (SchemaException e){
             System.err.println("Help - unexpected schema exception thrown\n\t"+e);
         }
-        factory = new org.geotools.feature.FeatureFactory(schema);
+        factory = new org.geotools.feature.FlatFeatureFactory(schema);
     }
     /** Creates a new instance of PNGDatasource */
     public ImageDataSource(String name) throws java.io.IOException{

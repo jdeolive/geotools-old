@@ -34,7 +34,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.SchemaException;
-import org.geotools.feature.FeatureFactory;
+import org.geotools.feature.FlatFeatureFactory;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureCollection;
@@ -54,7 +54,7 @@ import java.util.logging.Logger;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: MysqlDataSource.java,v 1.3 2003/05/08 19:09:40 cholmesny Exp $
+ * @version $Id: MysqlDataSource.java,v 1.4 2003/05/20 17:03:55 jmacgill Exp $
  * @author Chris Holmes, Vision for New York
  * @author Rob Hranac, Vision for New York
  *
@@ -153,7 +153,7 @@ public class MysqlDataSource extends AbstractDataSource implements DataSource {
             }
             LOGGER.finer("about to prepare feature reading");
             // set up a factory, attributes, and a counter for feature creation
-            FeatureFactory factory = new FeatureFactory(schema);
+            FlatFeatureFactory factory = new FlatFeatureFactory(schema);
             Object[] attributes = new Object[schema.attributeTotal()];
             int geometryPosition = schema.getDefaultGeometry().getPosition();
             int resultCounter = 0;

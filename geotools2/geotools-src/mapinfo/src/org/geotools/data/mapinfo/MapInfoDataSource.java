@@ -51,7 +51,7 @@ import org.geotools.styling.*;
 /**
  *
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @author $author$
  */
 public class MapInfoDataSource extends AbstractDataSource implements DataSource {
@@ -143,9 +143,9 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
     private FeatureType polygonFeatureType;
     
     // Factories to use to build Features
-    private FeatureFactory pointFactory;
-    private FeatureFactory lineFactory;
-    private FeatureFactory polygonFactory;
+    private FlatFeatureFactory pointFactory;
+    private FlatFeatureFactory lineFactory;
+    private FlatFeatureFactory polygonFactory;
     
     // Factory to use to build Geometries
     private GeometryFactory geomFactory;
@@ -273,7 +273,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
         try {
             pointFeatureType = new FeatureTypeFlat(
             (AttributeType[]) colAttribs.toArray(new AttributeType[0]));
-            pointFactory = new FeatureFactory(pointFeatureType);
+            pointFactory = new FlatFeatureFactory(pointFeatureType);
         } catch (SchemaException schexp) {
             throw new DataSourceException("SchemaException setting up point factory : ", schexp);
         }
@@ -287,7 +287,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
         try {
             lineFeatureType = new FeatureTypeFlat(
             (AttributeType[]) colAttribs.toArray(new AttributeType[0]));
-            lineFactory = new FeatureFactory(lineFeatureType);
+            lineFactory = new FlatFeatureFactory(lineFeatureType);
         } catch (SchemaException schexp) {
             throw new DataSourceException("SchemaException setting up line factory : ", schexp);
         }
@@ -301,7 +301,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
         try {
             polygonFeatureType = new FeatureTypeFlat(
             (AttributeType[]) colAttribs.toArray(new AttributeType[0]));
-            polygonFactory = new FeatureFactory(polygonFeatureType);
+            polygonFactory = new FlatFeatureFactory(polygonFeatureType);
         } catch (SchemaException schexp) {
             throw new DataSourceException("SchemaException setting up polygon factory : ", schexp);
         }
@@ -852,7 +852,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
      *
      * @throws DataSourceException
      */
-    private Feature buildFeature(FeatureType featureType, FeatureFactory factory, Geometry geom,
+    private Feature buildFeature(FeatureType featureType, FlatFeatureFactory factory, Geometry geom,
     ArrayList attribs) throws DataSourceException {
         int numAttribs = featureType.getAllAttributeTypes().length;
         

@@ -103,7 +103,7 @@ public class MysqlTestSuite extends TestCase {
 	Geometry geom = new Point(new Coordinate(6, 10), new PrecisionModel(), 1);
 	Object[] attributes = { new Integer(numBulbs), geom};
 	try{
-	    FeatureFactory factory = new FeatureFactory(new FeatureTypeFlat(lampAttr));
+	    FlatFeatureFactory factory = new FlatFeatureFactory(new FeatureTypeFlat(lampAttr));
 	    features[0] = factory.create(attributes, String.valueOf(feaID));
 	    collection = new FeatureCollectionDefault();
 	    collection.addFeatures(features);

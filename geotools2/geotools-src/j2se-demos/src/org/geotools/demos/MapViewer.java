@@ -29,12 +29,12 @@ import org.geotools.data.MemoryDataSource;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeDefault;
 import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureFactory;
+import org.geotools.feature.FlatFeatureFactory;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFlat;
 import org.geotools.feature.IllegalFeatureException;
 import org.geotools.gui.swing.MapPaneImpl;
-import org.geotools.gui.swing.ToolMenu;
+//import org.geotools.gui.swing.ToolMenu;
 import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.Tool;
 import org.geotools.gui.tools.ToolFactory;
@@ -60,7 +60,7 @@ import javax.swing.*;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.16 2003/05/17 23:16:43 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.17 2003/05/20 17:05:46 jmacgill Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
@@ -152,7 +152,7 @@ public class MapViewer {
                 }
             });
 
-        ToolMenu toolMenu=new ToolMenu(context.getToolList());
+//        ToolMenu toolMenu=new ToolMenu(context.getToolList());
         menuBar.add(toolMenu);
         frame.setJMenuBar(menuBar);
         frame.getContentPane().setLayout(new BorderLayout());
@@ -254,24 +254,24 @@ public class MapViewer {
         AttributeType lineAttribute = new AttributeTypeDefault("centerline",
                 line.getClass());
         FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
-        FeatureFactory lineFac = new FeatureFactory(lineType);
+        FlatFeatureFactory lineFac = new FlatFeatureFactory(lineType);
         Feature lineFeature = lineFac.create(new Object[] { line });
 
         LineString line2 = makeSampleLineString(geomFac, xoff + 2, yoff);
         lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
-        lineFac = new FeatureFactory(lineType);
+        lineFac = new FlatFeatureFactory(lineType);
 
         Feature lineFeature2 = lineFac.create(new Object[] { line2 });
 
         LineString line3 = makeSampleLineString(geomFac, xoff + 4, yoff);
         lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
-        lineFac = new FeatureFactory(lineType);
+        lineFac = new FlatFeatureFactory(lineType);
 
         Feature lineFeature3 = lineFac.create(new Object[] { line3 });
 
         LineString line4 = makeSampleLineString2(geomFac);
         lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
-        lineFac = new FeatureFactory(lineType);
+        lineFac = new FlatFeatureFactory(lineType);
 
         Feature lineFeature4 = lineFac.create(new Object[] { line4 });
 

@@ -381,7 +381,7 @@ public class PostgisTest extends TestCase {
 	Object[] attributes = { feaID, area, perimeter, testb_, 
 				testb_id, name, code, code, the_geom };
 	
-	 FeatureFactory factory = new FeatureFactory(schema);
+	 FlatFeatureFactory factory = new FlatFeatureFactory(schema);
 	 features[0] = factory.create(attributes, String.valueOf(feaID));
 	 FeatureCollection addCollection = new FeatureCollectionDefault();
 	 addCollection.addFeatures(features);

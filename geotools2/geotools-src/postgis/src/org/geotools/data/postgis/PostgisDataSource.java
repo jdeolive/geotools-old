@@ -44,7 +44,7 @@ import org.geotools.resources.Geotools;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.24 2003/05/13 19:17:03 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.25 2003/05/20 17:04:23 jmacgill Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -560,7 +560,7 @@ public class PostgisDataSource extends AbstractDataSource
 
             // set up a factory, attributes, and a counter for feature creation
             //LOGGER.fine("about to prepare feature reading");
-            FeatureFactory factory = new FeatureFactory(schema);
+            FlatFeatureFactory factory = new FlatFeatureFactory(schema);
             Object[] attributes = new Object[schema.attributeTotal()];
             String featureId;
             //AttributeType[] attTypes = schema.getAttributeTypes();
