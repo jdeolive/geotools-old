@@ -6,9 +6,10 @@
 
 package org.geotools.gml.handlers;
 import com.vividsolutions.jts.geom.*;
-/**
+/** Handler for Coord elements
  *
- * @author  ian
+ * @author ian
+ * @version $Id: GMLCoordHandler.java,v 1.2 2002/03/11 14:41:36 ianturton Exp $
  */
 public class GMLCoordHandler extends org.geotools.gml.GMLHandler {
     double x=0.0;
@@ -18,15 +19,26 @@ public class GMLCoordHandler extends org.geotools.gml.GMLHandler {
     public GMLCoordHandler() {
     }
 
+    /** does nothing
+     * @param gf
+     * @return
+     */    
     public Geometry finish(GeometryFactory gf) {
         return null;
     }
     
+    /** does nothing
+     */    
     public void addGeometry(Geometry g) {
     }
     
+    /** does nothing
+     */    
     public void addCoordinate(Coordinate c) {
     }
+    /** returns a coordinate represented by the handler
+     * @return the coordinate
+     */    
     public Coordinate getCoordinate(){
         return new Coordinate(x,y,z);
     }

@@ -7,16 +7,25 @@
 package org.geotools.gml.handlers;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.algorithm.*;
-/**
+/** handler for innerBoundaryIs tags
  *
- * @author  ian
+ * @author ian
+ * @version $Id: GMLInnerBoundaryIsHandler.java,v 1.2 2002/03/11 14:41:47 ianturton Exp $
  */
 public class GMLInnerBoundaryIsHandler extends org.geotools.gml.GMLHandler {
+    /** needed to perform counter clockwise test
+     */    
     protected static CGAlgorithms cga = new RobustCGAlgorithms();
     LinearRing ring;
     /** Creates a new instance of GMLInnerBoundaryIsHandler */
     public GMLInnerBoundaryIsHandler() {
     }
+    /** finish the polygon and return it
+     * @param gf geometry factory to use to build polygon
+     *
+     * @return the polygon
+     *
+     */    
     public Geometry finish(GeometryFactory gf) {
         Coordinate[] points = ring.getCoordinates();
         LinearRing r;
@@ -44,10 +53,15 @@ public class GMLInnerBoundaryIsHandler extends org.geotools.gml.GMLHandler {
         }
     }
     
+    /** not used
+     */    
     public void addGeometry(Geometry g) {
         ring=(LinearRing)g;
     }
     
+    /** adds a coordinate
+     * @param c the coordinate
+     */    
     public void addCoordinate(Coordinate c) {
     }
     

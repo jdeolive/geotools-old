@@ -7,9 +7,11 @@
 package org.geotools.gml.handlers;
 
 import com.vividsolutions.jts.geom.*;
-/**
+/** Handler class to deal with gml:box elements
+ * builds a polygon from two corner coordinates
  *
- * @author  ian
+ * @author ian
+ * @version $Id: GMLBoxHandler.java,v 1.2 2002/03/11 14:41:36 ianturton Exp $
  */
 public class GMLBoxHandler extends org.geotools.gml.GMLHandler {
     Envelope e = new Envelope();
@@ -17,6 +19,12 @@ public class GMLBoxHandler extends org.geotools.gml.GMLHandler {
     public GMLBoxHandler() {
     }
     
+    /** builds and returns the polygon
+     * @param gf geometry factory to be used to build the polygon
+     *
+     * @return the polygon
+     *
+     */    
     public Geometry finish(GeometryFactory gf) {
         Coordinate[] c = new Coordinate[5];
         c[0]=new Coordinate(e.getMinX(),e.getMinY());
@@ -35,9 +43,15 @@ public class GMLBoxHandler extends org.geotools.gml.GMLHandler {
         
     }
     
+    /** does nothing
+     * @param g geometry
+     */    
     public void addGeometry(Geometry g) {
     }
     
+    /** sets a corner
+     * @param c the coordinate of the corner
+     */    
     public void addCoordinate(Coordinate c) {
         e.expandToInclude(c);
     }

@@ -8,16 +8,23 @@ package org.geotools.gml.handlers;
 
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.algorithm.*;
-/**
+/** Handler for OuterBoundaryIs elements
  *
- * @author  ian
+ * @author ian
+ * @version $Id: GMLOuterBoundaryIsHandler.java,v 1.2 2002/03/11 14:41:47 ianturton Exp $
  */
 public class GMLOuterBoundaryIsHandler extends org.geotools.gml.GMLHandler {
+    /** need to check for clockwiseness of the linearring
+     */    
     protected static CGAlgorithms cga = new RobustCGAlgorithms();
     LinearRing ring;
     /** Creates a new instance of GMLOuterBoundaryIsHandler */
     public GMLOuterBoundaryIsHandler() {
     }
+    /** build the LinearRing
+     * @param gf geomerty factory for the build
+     * @return the clockwise linearRing
+     */    
     public Geometry finish(GeometryFactory gf) {
         Coordinate[] points = ring.getCoordinates();
         LinearRing r;
@@ -45,10 +52,15 @@ public class GMLOuterBoundaryIsHandler extends org.geotools.gml.GMLHandler {
         }
     }
     
+    /** not used
+     * @param g
+     */    
     public void addGeometry(Geometry g) {
         ring=(LinearRing)g;
     }
     
+    /**
+     * @param c  */    
     public void addCoordinate(Coordinate c) {
     }
     

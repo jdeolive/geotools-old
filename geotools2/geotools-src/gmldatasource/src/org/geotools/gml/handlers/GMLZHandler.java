@@ -6,9 +6,10 @@
 
 package org.geotools.gml.handlers;
 import com.vividsolutions.jts.geom.*;
-/**
+/** handler for Z elements
  *
- * @author  ian
+ * @author ian
+ * @version $Id: GMLZHandler.java,v 1.2 2002/03/11 14:41:47 ianturton Exp $
  */
 public class GMLZHandler extends GMLXYZHandler {
     double z = Double.NaN;
@@ -16,13 +17,19 @@ public class GMLZHandler extends GMLXYZHandler {
     public GMLZHandler() {
     }
 
+    /** not used
+     */    
     public Geometry finish(GeometryFactory gf) {
         return null;
     }
     
+    /** not used
+     */    
     public void addGeometry(Geometry g) {
     }
     
+    /** not used
+     */    
     public void addCoordinate(Coordinate c) {
     }
     
@@ -39,6 +46,8 @@ public class GMLZHandler extends GMLXYZHandler {
     public void setZ(double z) {
         this.z = z;
     }
+    /** convert string to z value
+     * @param s  */    
         public void parseText(String s){
         try{
             setZ(Double.parseDouble(s));
