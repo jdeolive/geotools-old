@@ -10,12 +10,12 @@ import javax.swing.JComponent;
 import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
-import org.geotools.gui.tools.MouseTool;
+import org.geotools.gui.tools.MouseToolImpl;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
 
-public class PanToolImpl extends MouseTool {
+public class PanToolImpl extends MouseToolImpl {
 
     private static final Logger LOGGER = Logger.getLogger(
         "org.geotools.gui.tools.PanTool");

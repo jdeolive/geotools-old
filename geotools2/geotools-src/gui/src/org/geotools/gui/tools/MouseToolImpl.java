@@ -18,7 +18,7 @@ import org.geotools.pt.CoordinatePoint;
  * Abstract class for geotools Tools that use Mouse events.  Refer to Tool
  * javadocs for more information.
  */
-public abstract class MouseTool extends AbstractToolImpl implements MouseListener {
+public abstract class MouseToolImpl extends AbstractToolImpl implements MouseListener {
 
     private static final Logger LOGGER = Logger.getLogger(
         "org.geotools.gui.tools.MouseTool");
@@ -26,7 +26,7 @@ public abstract class MouseTool extends AbstractToolImpl implements MouseListene
     /**
      * Construct a MouseTool.
      */
-    public MouseTool() {
+    public MouseToolImpl() {
         super();
     }
     
