@@ -58,7 +58,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.83 2003/06/23 11:08:59 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.84 2003/07/10 16:23:59 ianturton Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -102,7 +102,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
      * The ratio required to scale the features to be rendered so that they fit
      * into the output space.
      */
-    private double scaleDenominator;
+    private double scaleDenominator= Double.NaN;
     private Feature[] cachedFeatures;
     private FeatureTypeStyle[] cachedFeatureStylers;
 
@@ -211,8 +211,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
         } else {
             graphics.setTransform(at);
         }
-
-        scaleDenominator = 1 / graphics.getTransform().getScaleX();
+        
+        setScaleDenominator(1 / graphics.getTransform().getScaleX());
+        
 
         //extract the feature type stylers from the style object and process them
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
@@ -287,8 +288,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
                 } else {
                     graphics.setTransform(at);
                 }
-
-                scaleDenominator = 1 / graphics.getTransform().getScaleX();
+                
+                setScaleDenominator(1 / graphics.getTransform().getScaleX());
+                
 
                 //extract the feature type stylers from the style object and
                 //process them
@@ -380,8 +382,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
     }
 
     private boolean isWithInScale(Rule r) {
-        return ((r.getMinScaleDenominator() - tolerance) <= scaleDenominator) &&
-        ((r.getMaxScaleDenominator() + tolerance) > scaleDenominator);
+        return ((r.getMinScaleDenominator() - tolerance) <= getScaleDenominator()) &&
+        ((r.getMaxScaleDenominator() + tolerance) > getScaleDenominator());
     }
 
     /**
@@ -602,4 +604,21 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
     }
+    
+    /** Getter for property scaleDenominator.
+     * @return Value of property scaleDenominator.
+     *
+     */
+    public double getScaleDenominator() {
+        return scaleDenominator;
+    }
+    
+    /** Setter for property scaleDenominator.
+     * @param scaleDenominator New value of property scaleDenominator.
+     *
+     */
+    protected void setScaleDenominator(double scaleDenominator) {
+        this.scaleDenominator = scaleDenominator;
+    }
+    
 }
