@@ -52,7 +52,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.7 2003/05/23 20:06:50 jmacgill Exp $
+ * @version $Id: GraphicImpl.java,v 1.8 2003/06/13 00:42:47 seangeo Exp $
  */
 public class GraphicImpl implements org.geotools.styling.Graphic {
     /** The logger for the default core module. */
@@ -106,7 +106,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     }
 
     public void setExternalGraphics(ExternalGraphic[] externalGraphics) {
-        this.externalGraphics = new ArrayList();
+        this.externalGraphics.clear();
 
         for (int i = 0; i < externalGraphics.length; i++) {
             addExternalGraphic(externalGraphics[i]);
@@ -136,7 +136,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     }
 
     public void setMarks(Mark[] marks) {
-        this.marks = new ArrayList();
+        this.marks.clear();
 
         for (int i = 0; i < marks.length; i++) {
             addMark(marks[i]);
@@ -173,7 +173,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     }
 
     public void setSymbols(Symbol[] symbols) {
-        this.symbols = new ArrayList();
+        this.symbols.clear();
 
         for (int i = 0; i < symbols.length; i++) {
             addSymbol(symbols[i]);
@@ -227,7 +227,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     /**
      * This paramteter gives the absolute size of the graphic in pixels encoded
      * as a floating point number.
-     * 
+     *
      * <p>
      * The default size of an image format (such as GIFD) is the inherent size
      * of the image.  The default size of a format without an inherent size
