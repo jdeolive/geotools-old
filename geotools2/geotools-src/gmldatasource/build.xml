@@ -11,6 +11,7 @@
                 <fileset dir="..\..\extbin\gmldatasource\lib\"/>
                 <fileset dir="..\..\extbin\core\lib\"/>
                 <fileset dir="../core/release/"/>
+                <fileset dir="../defaultcore/release/"/> 
             </classpath>
         </javac>
     </target>
@@ -21,6 +22,7 @@
                 <fileset dir="..\..\extbin\gmldatasource\lib\"/>
                 <fileset dir="..\..\extbin\gtbuild\lib\"/>
                 <fileset dir="../core/release/"/>
+                <fileset dir="../defaultcore/release/"/>
                 <path path="src"/>
             </classpath>
         </javac>
@@ -34,11 +36,13 @@
                 <fileset dir="..\..\extbin\core\lib\"/>
                 <fileset dir="..\..\extbin\gmldatasource\lib\"/>
                 <fileset dir="..\..\extbin\gtbuild\lib\"/>
-                <fileset dir="../core/release/"/>
+                <fileset dir="..\core\release"/>
+                <fileset dir="..\defaultcore\release/"/> 
                 <path path="src"/>
                 <path path="tests/unit/"/>
+                
             </classpath>
-            <test name="org.geotools.gml.GMLDataSourceTest"/>
+            <test fork="true" name="org.geotools.gml.GMLDataSourceTest"/>
         </junit>
     </target>
     <target depends="test" name="release">
