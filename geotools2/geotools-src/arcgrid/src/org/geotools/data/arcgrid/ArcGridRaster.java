@@ -94,7 +94,7 @@ public class ArcGridRaster {
         propertyMap = initMap();
         
         // parse file
-        File srcFile = new File(srcURL.getFile());
+        File srcFile = new File(java.net.URLDecoder.decode(srcURL.getFile(),"UTF-8"));
         BufferedReader reader = new BufferedReader(new FileReader(srcFile));
         parseHeader(propertyMap, reader);
         

@@ -124,7 +124,7 @@ public class ArcGridRenderTest extends TestCaseSupport {
 		map.render(renderer, ex); //and finaly try and draw it!
 
                 java.net.URL base = getClass().getResource("testData/");
-                File file = new File(base.getPath(), filename); 
+                File file = new File(java.net.URLDecoder.decode(base.getPath(),"UTF-8"), filename); 
                 System.out.println("Writing to " + file.getAbsolutePath());
 		FileOutputStream out = new FileOutputStream(file);
 		ImageIO.write(image, "JPEG", out);
