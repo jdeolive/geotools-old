@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import oracle.jdbc.driver.OracleConnection;
+import oracle.jdbc.OracleConnection;
 import oracle.sdoapi.OraSpatialManager;
 import oracle.sdoapi.adapter.AdapterSDO;
 import oracle.sdoapi.adapter.GeometryInputTypeNotSupportedException;
