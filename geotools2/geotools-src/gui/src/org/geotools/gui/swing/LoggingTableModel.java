@@ -69,7 +69,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * This model is used by {@link LoggingPanel} for displaying logging messages in
  * a {@link javax.swing.JTable}.
  *
- * @version $Id: LoggingTableModel.java,v 1.6 2003/06/03 18:09:26 desruisseaux Exp $
+ * @version $Id: LoggingTableModel.java,v 1.7 2003/06/25 12:58:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class LoggingTableModel extends Handler implements TableModel {
@@ -296,13 +296,13 @@ final class LoggingTableModel extends Handler implements TableModel {
             for (int i=0; i<row.length; i++) {
                 final String value;
                 switch (columnNames[i]) {
-                    case ResourceKeys.LOGGER:      value=record.getLoggerName(); break;
-                    case ResourceKeys.CLASS:       value=getShortClassName(record.getSourceClassName()); break;
-                    case ResourceKeys.METHOD:      value=record.getSourceMethodName(); break;
+                    case ResourceKeys.LOGGER:      value=record.getLoggerName();                          break;
+                    case ResourceKeys.CLASS:       value=getShortClassName(record.getSourceClassName());  break;
+                    case ResourceKeys.METHOD:      value=record.getSourceMethodName();                    break;
                     case ResourceKeys.TIME_OF_DAY: value=dateFormat.format(new Date(record.getMillis())); break;
-                    case ResourceKeys.LEVEL:       value=record.getLevel().getLocalizedName(); break;
-                    case ResourceKeys.MESSAGE:     value=getFormatter().formatMessage(record); break;
-                    default: throw new AssertionError(i);
+                    case ResourceKeys.LEVEL:       value=record.getLevel().getLocalizedName();            break;
+                    case ResourceKeys.MESSAGE:     value=getFormatter().formatMessage(record);            break;
+                    default:                       throw new AssertionError(i);
                 }
                 row[i] = value;
             }
@@ -316,11 +316,14 @@ final class LoggingTableModel extends Handler implements TableModel {
      * Returns the class name in a shorter form (without package).
      */
     private static String getShortClassName(String name) {
-        final int dot = name.lastIndexOf('.');
-        if (dot >= 0) {
-            name = name.substring(dot+1);
+        if (name != null) {
+            final int dot = name.lastIndexOf('.');
+            if (dot >= 0) {
+                name = name.substring(dot+1);
+            }
+            name = name.replace('$','.');
         }
-        return name.replace('$','.');
+        return name;
     }
     
     /**
