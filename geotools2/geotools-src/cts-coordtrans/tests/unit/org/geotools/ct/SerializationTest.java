@@ -17,8 +17,12 @@
  */
 package org.geotools.ct;
 
-// J2SE and Geotools dependencies
+// J2SE dependencies
 import java.io.*;
+import java.sql.*;
+import java.util.logging.*;
+
+// Geotools dependencies
 import org.geotools.cs.*;
 import org.geotools.ct.*;
 
@@ -53,14 +57,24 @@ public class SerializationTest extends TestCase {
      * Tests the serialization of a {@link CoordinateTransformation} object.
      */
     public void testCoordinateTransformation() throws Exception {
-        CoordinateSystemAuthorityFactory csf = CoordinateSystemEPSGFactory.getDefault();
-        CoordinateSystem cs1 = csf.createCoordinateSystem( "4326" );
-        CoordinateSystem cs2 = csf.createCoordinateSystem( "4322" );
-        CoordinateTransformationFactory ctf = CoordinateTransformationFactory.getDefault();
-        CoordinateTransformation ct = ctf.createFromCoordinateSystems( cs1, cs2 );
-        ObjectOutputStream so = new ObjectOutputStream( new ByteArrayOutputStream() );
-        so.writeObject(ct);
-        so.flush();
-        so.close();
+        try {
+            CoordinateSystemAuthorityFactory csf = CoordinateSystemEPSGFactory.getDefault();
+            CoordinateSystem cs1 = csf.createCoordinateSystem( "4326" );
+            CoordinateSystem cs2 = csf.createCoordinateSystem( "4322" );
+            CoordinateTransformationFactory ctf = CoordinateTransformationFactory.getDefault();
+            CoordinateTransformation ct = ctf.createFromCoordinateSystems( cs1, cs2 );
+            ObjectOutputStream so = new ObjectOutputStream( new ByteArrayOutputStream() );
+            so.writeObject(ct);
+            so.flush();
+            so.close();
+        } catch (SQLException exception) {
+            LogRecord record = new LogRecord(Level.WARNING,
+                    "Can't connect to the EPSG database. "+
+                    "Ignoring, since it is not the purpose of this test.");
+            record.setSourceClassName ("SerializationTest");
+            record.setSourceMethodName("testCoordinateTransformation");
+            record.setThrown(exception);
+            Logger.getLogger("org.geotools.ct").log(record);
+        }
     }
 }
