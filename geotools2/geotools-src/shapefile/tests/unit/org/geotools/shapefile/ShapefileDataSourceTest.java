@@ -15,6 +15,7 @@ import java.io.*;
 import java.net.*;
 
 import junit.framework.*;
+import org.geotools.shapefile.shapefile.*;
 
 /**
  *

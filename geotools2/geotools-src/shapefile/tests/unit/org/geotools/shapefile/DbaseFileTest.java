@@ -13,6 +13,8 @@ import cmp.LEDataStream.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
 import java.util.ArrayList;
+import org.geotools.shapefile.dbf.*;
+
 
 /**
  *
@@ -45,8 +47,7 @@ public class DbaseFileTest extends TestCase {
             URL url = new URL("file:////"+dataFolder+"/statepop");
             System.out.println("Testing ability to load "+url);
             DbaseFileReader dbf = new DbaseFileReader(url.getFile());
-            ArrayList attribs = dbf.read();
-            assertEquals("Number of attributes found incorect",252,attribs.size());
+            assertEquals("Number of attributes found incorect",252,dbf.getNumFields());
             }
         catch(Exception e){
             System.out.println(e);
