@@ -20,17 +20,20 @@
 package org.geotools.map;
 
 /**
- * Stores Extent and Coordinate System associated with a Map Context.
+ * Stores Extent and CoordinateSystem associated with a Map Context.
  * Note that there is no setCoordinateSystem, this is to ensure that this object
  * doesn't depend on CoordinateTransform classes.  If you want to change
  * CoordinateSystem, use the setExtent(extent,coordinateSystem) method and
- * transform the coordinates in the calling application.
+ * transform the coordinates in the calling application.<br>
+ * Extent and CoordinateSystem are cloned during construction and when returned.
+ * This is to ensure only this class can change their values.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.7 2002/12/03 19:39:08 camerons Exp $
+ * @version $Id: DefaultAreaOfInterestModel.java,v 1.8 2002/12/15 01:49:10 camerons Exp $
  * @author Cameron Shorter
  * 
  */
 
+import java.lang.Cloneable;
 import java.lang.IllegalArgumentException;
 import java.util.Vector;
 import java.util.EventObject;
@@ -40,7 +43,7 @@ import javax.swing.event.EventListenerList;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.map.events.*;
 
-public class DefaultAreaOfInterestModel {
+public class DefaultAreaOfInterestModel implements Cloneable{
     
     private Envelope areaOfInterest;
     private CoordinateSystem coordinateSystem;
@@ -48,16 +51,19 @@ public class DefaultAreaOfInterestModel {
    
     /**
      * Initialise the model.
+     * @param bbox The extent associated with this class.
+     * @param coordinateSystem The coordinate system associated with this class.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     public DefaultAreaOfInterestModel(
-            Envelope areaOfInterest,
+            Envelope bbox,
             CoordinateSystem coordinateSystem) throws IllegalArgumentException
     {
-        if ((areaOfInterest==null) || (coordinateSystem==null)){
+        if ((bbox==null) || (coordinateSystem==null)){
             throw new IllegalArgumentException();
         }
-        this.areaOfInterest = areaOfInterest;
+        //this.areaOfInterest = new Envelope(bbox);
+        this.areaOfInterest = bbox;
         this.coordinateSystem = coordinateSystem;
     }
     
@@ -170,6 +176,15 @@ public class DefaultAreaOfInterestModel {
      */
     public CoordinateSystem getCoordinateSystem() {
         return this.coordinateSystem;
+    }
+
+    /*
+     * Create a copy of this class
+     */
+    public Object clone() {
+        return new DefaultAreaOfInterestModel(
+            this.areaOfInterest,
+            this.coordinateSystem);
     }
     
     /**
