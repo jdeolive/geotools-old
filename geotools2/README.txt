@@ -35,7 +35,7 @@ You can find out more about each of the major modules by going to http//modules.
 NOTE
 ====
 The details contained in the rest of this file are provided as a quick start reference.  For full details on requirements and build process please see the developers' guide at:
-http//geotools.sourceforge.net/gt2docs/developersguide.html
+http://geotools.sourceforge.net/gt2docs/developersguide.html
 
 REQUIREMENTS
 ============
@@ -45,12 +45,12 @@ The Java Advanced Imaging Libraries (JAI)
 The Java Advanced Imaging Image I/O Tools
 
 The JAI and the JAI I/O Tools are standard extensions to Java created by SUN.  They have versions specific to different platforms so we cannot distribute them as part of the release. You can obtain the latest versions of both of these from:
-http//java.sun.com/products/java-media/jai/current.html
+http://java.sun.com/products/java-media/jai/current.html
 
 BUILDING
 ========
 In order to build GeoTools you will need a copy of Maven.  Maven is a project management tool from the Apache group.  You can obtain a copy of maven from: 
-http//maven.apache.org/start/download.html
+http://maven.apache.org/start/download.html
 
 At the time of writing, the build process was known to work with Maven Beta 10.
 
