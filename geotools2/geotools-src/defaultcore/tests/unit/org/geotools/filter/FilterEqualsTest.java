@@ -158,7 +158,7 @@ public class FilterEqualsTest extends TestCase {
         attributes[10] = "cow $10";
         
         // Creates the feature itself
-        FeatureFactory factory = new FeatureFactory(testSchema);
+        FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
         testFeature = factory.create(attributes);
         LOGGER.fine("...flat feature created");
     

@@ -68,7 +68,7 @@ public class TextSymbolTest extends TestCase {
         pointAttribute[2] = new AttributeTypeDefault("rotation",Double.class);
         pointAttribute[3] = new AttributeTypeDefault("symbol",String.class);
         FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("testPoint");
-        FeatureFactory pointFac = new FeatureFactory(pointType);
+        FlatFeatureFactory pointFac = new FlatFeatureFactory(pointType);
         
         Point point;
         Feature pointFeature;

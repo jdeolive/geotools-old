@@ -120,7 +120,7 @@ public class VeryBasicDataSource extends AbstractDataSource
                     System.out.println("attribue "+val+" is "+row[val].getClass().getName());
                 }
                 System.out.println("Test Type is "+testType);
-                FeatureFactory fac = new FeatureFactory( testType);
+                FlatFeatureFactory fac = new FlatFeatureFactory( testType);
                 Feature feat = fac.create(row);
 
                 // Filter Feature Feature Filter
