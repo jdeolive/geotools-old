@@ -58,7 +58,7 @@ public class GtWmsServer implements WMSServer {
     /**
      * The logger for the filter module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.shapefile");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.wmsserver");
     
     public GtWmsServer() {
         //		loadLayers();
