@@ -50,7 +50,7 @@ import org.geotools.resources.cts.ResourceKeys;
 
 // J2SE utilities
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Locale;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -84,7 +84,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version $Id: Info.java,v 1.4 2002/07/18 20:39:19 desruisseaux Exp $
+ * @version $Id: Info.java,v 1.5 2002/07/24 10:59:31 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -94,25 +94,14 @@ public class Info implements Serializable {
     /**
      * Serial number for interoperability with different versions.
      */
-    private static final long serialVersionUID = -771181600202966524L;
+    private static final long serialVersionUID = -391073894118270236L;
     
     /**
      * Set of weak references to existing coordinate systems.
      * This set is used in order to return a pre-existing object
      * instead of creating a new one.
      */
-    static final WeakHashSet pool=new WeakHashSet();
-
-    /**
-     * Keys of properties held by {@link Info} objects.
-     */
-    private static final String[] PROPERTY_KEYS = {
-        "authority",
-        "authorityCode",
-        "alias",
-        "abbreviation",
-        "remarks"
-    };
+    static final WeakHashSet pool = new WeakHashSet();
     
     /**
      * The non-localized object name.
@@ -125,7 +114,7 @@ public class Info implements Serializable {
      * of property <code>"authorityCode"</code>. May be <code>null</code>
      * if there are no properties for this object.
      */
-    private final String[] properties;
+    private final Map properties;
     
     /**
      * OpenGIS object returned by {@link #cachedOpenGIS}.
@@ -151,15 +140,8 @@ public class Info implements Serializable {
         ensureNonNull("name", name);
         this.name = name.toString();
         if (name instanceof Map) {
-            final Map map = (Map) name;
-            properties = new String[PROPERTY_KEYS.length];
-            for (int i=0; i<PROPERTY_KEYS.length; i++) {
-                final Object value = map.get(PROPERTY_KEYS[i]);
-                if (value instanceof CharSequence) {
-                    properties[i] = value.toString();
-                }
-            }
-            proxy = map.get("proxy");
+            properties = new InfoProperties((Map) name);
+            proxy = properties.get("proxy");
         } else {
             properties = null;
         }
@@ -265,17 +247,10 @@ public class Info implements Serializable {
      * Gets the property for the specified key,
      * or <code>null</code> if there is none.
      *
-     * @param key The key. Search is case-insensitive.
+     * @param key The key.
      */
     private String getProperty(final String key) {
-        if (properties!=null) {
-            for (int i=Math.min(properties.length, PROPERTY_KEYS.length); --i>=0;) {
-                if (PROPERTY_KEYS[i].equalsIgnoreCase(key)) {
-                    return properties[i];
-                }
-            }
-        }
-        return null;
+        return (properties!=null) ? (String) properties.get(key) : null;
     }
     
     /**
@@ -302,9 +277,12 @@ public class Info implements Serializable {
     /**
      * Returns a <em>Well Known Text</em> (WKT) for this info.
      * "Well known text" are part of OpenGIS's specification.
+     *
+     * @see org.opengis.cs.CS_Info#getWKT()
      */
     public String toString() {
-        return toString(null);
+        final String WKT = getProperty("WKT");
+        return (WKT!=null) ? WKT : toString(null);
     }
     
     /**

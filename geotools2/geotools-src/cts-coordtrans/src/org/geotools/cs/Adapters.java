@@ -88,7 +88,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <code>org.opengis.cs</code> package.</FONT>  All methods accept
  * null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version $Id: Adapters.java,v 1.4 2002/07/11 23:56:38 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.5 2002/07/24 10:59:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters {
@@ -342,10 +342,13 @@ public class Adapters {
      * @throws IllegalArgumentException if the coordinate system
      *         doesn't have the expected number of dimensions.
      */
-    private static void checkDimension(final CS_CoordinateSystem cs, final int expected) throws RemoteException, IllegalArgumentException {
+    private static void checkDimension(final CS_CoordinateSystem cs, final int expected)
+            throws RemoteException, IllegalArgumentException
+    {
         final int dimension = cs.getDimension();
         if (dimension != expected) {
-            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_ILLEGAL_CS_DIMENSION_$1, new Integer(dimension)));
+            throw new IllegalArgumentException(Resources.format(
+                        ResourceKeys.ERROR_ILLEGAL_CS_DIMENSION_$1, new Integer(dimension)));
         }
     }
     
@@ -366,7 +369,7 @@ public class Adapters {
         if (info instanceof Info.Export) {
             return ((Info.Export)info).unwrap();
         }
-        return new Info(new InfoProperties(info));
+        return new Info(new InfoProperties.Adapter(info));
     }
     
     /**
@@ -403,14 +406,17 @@ public class Adapters {
      * Returns a compound coordinate system for an OpenGIS interface.
      * @throws RemoteException if a remote call fails.
      */
-    public CompoundCoordinateSystem wrap(final CS_CompoundCoordinateSystem cs) throws RemoteException {
+    public CompoundCoordinateSystem wrap(final CS_CompoundCoordinateSystem cs)
+            throws RemoteException
+    {
         if (cs==null) {
             return null;
         }
         if (cs instanceof CoordinateSystem.Export) {
             return (CompoundCoordinateSystem) ((CoordinateSystem.Export)cs).unwrap();
         }
-        return new CompoundCoordinateSystem(new InfoProperties(cs), wrap(cs.getHeadCS()), wrap(cs.getTailCS()));
+        return new CompoundCoordinateSystem(new InfoProperties.Adapter(cs),
+                                            wrap(cs.getHeadCS()), wrap(cs.getTailCS()));
     }
     
     /**
@@ -431,14 +437,16 @@ public class Adapters {
             axes [i] = wrap(cs.getAxis (i));
             units[i] = wrap(cs.getUnits(i));
         }
-        return new LocalCoordinateSystem(new InfoProperties(cs), datum, units, axes);
+        return new LocalCoordinateSystem(new InfoProperties.Adapter(cs), datum, units, axes);
     }
     
     /**
      * Returns a geocentric coordinate system for an OpenGIS interface.
      * @throws RemoteException if a remote call fails.
      */
-    public GeocentricCoordinateSystem wrap(final CS_GeocentricCoordinateSystem cs) throws RemoteException {
+    public GeocentricCoordinateSystem wrap(final CS_GeocentricCoordinateSystem cs)
+            throws RemoteException
+    {
         if (cs==null) {
             return null;
         }
@@ -454,14 +462,17 @@ public class Adapters {
             axes[i] = wrap(cs.getAxis(i));
             // Accept null value.
         }
-        return new GeocentricCoordinateSystem(new InfoProperties(cs), unit, datum, meridian, axes);
+        return new GeocentricCoordinateSystem(new InfoProperties.Adapter(cs),
+                                              unit, datum, meridian, axes);
     }
     
     /**
      * Returns a vertical coordinate system for an OpenGIS interface.
      * @throws RemoteException if a remote call fails.
      */
-    public VerticalCoordinateSystem wrap(final CS_VerticalCoordinateSystem cs) throws RemoteException {
+    public VerticalCoordinateSystem wrap(final CS_VerticalCoordinateSystem cs)
+            throws RemoteException
+    {
         if (cs==null) {
             return null;
         }
@@ -472,14 +483,16 @@ public class Adapters {
         final VerticalDatum datum = wrap(cs.getVerticalDatum());
         final Unit           unit = wrap(cs.getVerticalUnit());
         final AxisInfo       axis = wrap(cs.getAxis(0));
-        return new VerticalCoordinateSystem(new InfoProperties(cs), datum, unit, axis);
+        return new VerticalCoordinateSystem(new InfoProperties.Adapter(cs), datum, unit, axis);
     }
     
     /**
      * Returns a horizontal coordinate system for an OpenGIS interface.
      * @throws RemoteException if a remote call fails.
      */
-    public HorizontalCoordinateSystem wrap(final CS_HorizontalCoordinateSystem cs) throws RemoteException {
+    public HorizontalCoordinateSystem wrap(final CS_HorizontalCoordinateSystem cs)
+            throws RemoteException
+    {
         if (cs==null) {
             return null;
         }
@@ -488,14 +501,17 @@ public class Adapters {
         if (cs instanceof HorizontalCoordinateSystem.Export) {
             return (HorizontalCoordinateSystem) ((HorizontalCoordinateSystem.Export)cs).unwrap();
         }
-        throw new UnsupportedOperationException("Unknown CS not yet implemented"); // HorizontalCoordinateSystem is abstract
+        // HorizontalCoordinateSystem is abstract
+        throw new UnsupportedOperationException("Unknown CS not yet implemented");
     }
     
     /**
      * Returns a geographic coordinate system for an OpenGIS interface.
      * @throws RemoteException if a remote call fails.
      */
-    public GeographicCoordinateSystem wrap(final CS_GeographicCoordinateSystem cs) throws RemoteException {
+    public GeographicCoordinateSystem wrap(final CS_GeographicCoordinateSystem cs)
+            throws RemoteException
+    {
         if (cs==null) {
             return null;
         }
@@ -508,14 +524,17 @@ public class Adapters {
         final PrimeMeridian meridian = wrap(cs.getPrimeMeridian());
         final AxisInfo         axis0 = wrap(cs.getAxis(0));
         final AxisInfo         axis1 = wrap(cs.getAxis(1));
-        return new GeographicCoordinateSystem(new InfoProperties(cs), unit, datum, meridian, axis0, axis1);
+        return new GeographicCoordinateSystem(new InfoProperties.Adapter(cs),
+                                              unit, datum, meridian, axis0, axis1);
     }
     
     /**
      * Returns a projected coordinate system for an OpenGIS interface.
      * @throws RemoteException if a remote call fails.
      */
-    public ProjectedCoordinateSystem wrap(final CS_ProjectedCoordinateSystem cs) throws RemoteException {
+    public ProjectedCoordinateSystem wrap(final CS_ProjectedCoordinateSystem cs)
+            throws RemoteException
+    {
         if (cs==null) {
             return null;
         }
@@ -528,7 +547,8 @@ public class Adapters {
         final Unit                      unit = wrap(cs.getLinearUnit());
         final AxisInfo                 axis0 = wrap(cs.getAxis(0));
         final AxisInfo                 axis1 = wrap(cs.getAxis(1));
-        return new ProjectedCoordinateSystem(new InfoProperties(cs), gcs, projection, unit, axis0, axis1);
+        return new ProjectedCoordinateSystem(new InfoProperties.Adapter(cs),
+                                             gcs, projection, unit, axis0, axis1);
     }
     
     /**
@@ -546,7 +566,8 @@ public class Adapters {
         for (int i=0; i<parameters.length; i++) {
             parameters[i] = projection.getParameter(i);
         }
-        return new Projection(new InfoProperties(projection), projection.getClassName(), wrap(parameters));
+        return new Projection(new InfoProperties.Adapter(projection), projection.getClassName(),
+                                                         wrap(parameters));
     }
     
     /**
@@ -560,7 +581,8 @@ public class Adapters {
         if (meridian instanceof Info.Export) {
             return (PrimeMeridian) ((Info.Export)meridian).unwrap();
         }
-        return new PrimeMeridian(new InfoProperties(meridian), wrap(meridian.getAngularUnit()), meridian.getLongitude());
+        return new PrimeMeridian(new InfoProperties.Adapter(meridian),
+                                 wrap(meridian.getAngularUnit()), meridian.getLongitude());
     }
     
     /**
@@ -574,7 +596,7 @@ public class Adapters {
         if (ellipsoid instanceof Info.Export) {
             return (Ellipsoid) ((Info.Export)ellipsoid).unwrap();
         }
-        final CharSequence        name = new InfoProperties(ellipsoid);
+        final CharSequence        name = new InfoProperties.Adapter(ellipsoid);
         final double     semiMajorAxis = ellipsoid.getSemiMajorAxis();
         final double     semiMinorAxis = ellipsoid.getSemiMinorAxis();
         final double inverseFlattening = ellipsoid.getInverseFlattening();
@@ -616,7 +638,7 @@ public class Adapters {
         if (datum instanceof Datum.Export) {
             return (Datum) ((Datum.Export)datum).unwrap();
         }
-        return new Datum(new InfoProperties(datum), wrap(datum.getDatumType()));
+        return new Datum(new InfoProperties.Adapter(datum), wrap(datum.getDatumType()));
     }
     
     /**
@@ -630,7 +652,7 @@ public class Adapters {
         if (datum instanceof Datum.Export) {
             return (LocalDatum) ((Datum.Export)datum).unwrap();
         }
-        return new LocalDatum(new InfoProperties(datum), 
+        return new LocalDatum(new InfoProperties.Adapter(datum), 
                               (DatumType.Local) wrap(datum.getDatumType()));
     }
     
@@ -645,7 +667,7 @@ public class Adapters {
         if (datum instanceof Datum.Export) {
             return (HorizontalDatum) ((Datum.Export)datum).unwrap();
         }
-        return new HorizontalDatum(new InfoProperties(datum),
+        return new HorizontalDatum(new InfoProperties.Adapter(datum),
                                    (DatumType.Horizontal) wrap(datum.getDatumType()),
                                    wrap(datum.getEllipsoid()),
                                    wrap(datum.getWGS84Parameters()));
@@ -662,7 +684,7 @@ public class Adapters {
         if (datum instanceof Datum.Export) {
             return (VerticalDatum) ((Datum.Export)datum).unwrap();
         }
-        return new VerticalDatum(new InfoProperties(datum),
+        return new VerticalDatum(new InfoProperties.Adapter(datum),
                                  (DatumType.Vertical) wrap(datum.getDatumType()));
     }
     
@@ -714,7 +736,8 @@ public class Adapters {
         }
         paramNames   = (String[]) XArray.resize(paramNames,   count);
         paramClasses = (Class []) XArray.resize(paramClasses, count);
-        final ParameterList list = new ParameterListImpl(new ParameterListDescriptorImpl(null, paramNames, paramClasses, null, null));
+        final ParameterList list = new ParameterListImpl(new ParameterListDescriptorImpl(null,
+                                                         paramNames, paramClasses, null, null));
         for (int i=0; i<paramNames.length; i++) {
             list.setParameter(paramNames[i], parameters[i].value);
         }
