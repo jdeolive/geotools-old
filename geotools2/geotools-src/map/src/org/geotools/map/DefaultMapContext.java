@@ -513,8 +513,8 @@ public class DefaultMapContext implements MapContext {
 
         MapLayer layer = (MapLayer) layerList.remove(sourcePosition);
         layerList.add(destPosition, layer);
-        fireMapLayerListListenerLayerMoved(new MapLayerListEvent(this, layer, sourcePosition,
-                destPosition));
+        fireMapLayerListListenerLayerMoved(new MapLayerListEvent(this, layer, Math.min(sourcePosition, destPosition),
+            Math.max(sourcePosition, destPosition)));
     }
 
     /**
