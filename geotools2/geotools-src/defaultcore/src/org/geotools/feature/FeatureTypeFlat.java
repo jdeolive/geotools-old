@@ -96,7 +96,7 @@ public class FeatureTypeFlat implements FeatureType {
 
             _log.info("starting attribute: " + attributeTypes[i].getName() + " [" + i + "]");
             _log.info("type: " + attributeTypes[i].getType());
-            _log.info("is ass: " + Geometry.class.isAssignableFrom( attributeTypes[i].getType()));
+            _log.info("is a geometry: " + Geometry.class.isAssignableFrom( attributeTypes[i].getType()));
 
             // if it is a conforming non-geometry, initialize feature type
             if( isAllowed( attributeTypes[i])) {
@@ -114,6 +114,7 @@ public class FeatureTypeFlat implements FeatureType {
             _log.info("is ok geometry");
                 isValid = isValid && (geometryPosition == -1);
                 geometryPosition = i;
+                _log.debug("GeomPosition = "+geometryPosition);
                 nameMap.put( attributeTypes[i].getName(), attributeTypes[i]);
                 attributeTypes[i] = attributeTypes[i].setPosition(i);
             }
@@ -433,6 +434,7 @@ public class FeatureTypeFlat implements FeatureType {
      * @return Path to initial geometry as XPath.
      */
     public AttributeType getDefaultGeometry() {
+        _log.debug("geometry Position = "+geometryPosition);
         return this.attributeTypes[geometryPosition];
     }
 
@@ -492,8 +494,8 @@ public class FeatureTypeFlat implements FeatureType {
      */
     public Object clone() {
         FeatureTypeFlat copy = new FeatureTypeFlat(attributeTypes[0]);
-        //_log.info("about to clone");
-        //_log.info("instantiated new copy");
+        _log.debug("about to clone");
+        _log.debug("instantiated new copy");
 
         copy.attributeTypes = new AttributeType[attributeTypes.length];
         System.arraycopy(this.attributeTypes, 0, copy.attributeTypes, 0, attributeTypes.length);
@@ -504,6 +506,7 @@ public class FeatureTypeFlat implements FeatureType {
         copy.namespace = this.namespace;
         copy.occurrences = this.occurrences;
         copy.position = this.position;
+        copy.geometryPosition = this.geometryPosition;
         copy.nameMap = (HashMap) nameMap.clone();
         //_log.info("test geometry there: " + nameMap.get("testGeometry"));
 

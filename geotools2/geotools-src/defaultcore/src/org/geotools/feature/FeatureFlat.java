@@ -238,7 +238,8 @@ public class FeatureFlat implements Feature {
      */
     public Geometry getDefaultGeometry() {
         AttributeType gType = schema.getDefaultGeometry();
-        _log.info("fetching geometry from "+gType.getPosition()+" "+attributes[gType.getPosition()]);
+        _log.debug("schema "+schema+" \n gType = "+gType);
+        _log.info("fetching geometry from "+gType.getPosition()+" -> "+attributes[gType.getPosition()]);
         return (Geometry) ((Geometry) attributes[gType.getPosition()]).clone();
     }
 
