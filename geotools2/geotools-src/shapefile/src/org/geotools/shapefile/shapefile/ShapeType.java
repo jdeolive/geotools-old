@@ -87,6 +87,22 @@ public final class ShapeType {
     return true;
   }
   
+  public boolean isPointType() {
+    return id % 10 == 1; 
+  }
+  
+  public boolean isLineType() {
+    return id % 10 == 3; 
+  }
+  
+  public boolean isPolygonType() {
+    return id % 10 == 5; 
+  }
+  
+  public boolean isMultiPointType() {
+    return id % 10 == 8; 
+  }
+  
   /** Determine the ShapeType for the id.
    * @param id The id to search for.
    * @return The ShapeType for the id.
