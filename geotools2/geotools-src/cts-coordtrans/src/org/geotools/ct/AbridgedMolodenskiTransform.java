@@ -57,7 +57,7 @@ import org.geotools.resources.XAffineTransform;
  * Transforms a three dimensional geographic points using
  * abridged versions of formulas derived by Molodenski.
  *
- * @version $Id: AbridgedMolodenskiTransform.java,v 1.2 2002/07/10 18:19:29 desruisseaux Exp $
+ * @version $Id: AbridgedMolodenskiTransform.java,v 1.3 2002/10/08 15:33:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -66,6 +66,12 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
      * Serial number for interoperability with different versions.
      */
     //private static final long serialVersionUID = ?;
+
+    /**
+     * <code>true</code> for a 3D transformation, or
+     * <code>false</code> for a 2D transformation.
+     */
+    private final boolean source3D, target3D;
     
     /**
      * X,Y,Z shift in meters
@@ -73,30 +79,15 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     private final double dx, dy, dz;
     
     /**
-     * Source equatorial radius in meters.
+     * Source equatorial (<var>a</var>) and polar (<var>b/<var>) radius in meters.
      */
-    private final double a;
+    private final double a, b;
     
     /**
-     * Source polar radius in meters
+     * Difference in the semi-major (<code>da=a1-a2</code>) and semi-minor
+     * (<code>db=b1-b2</code>) axes of the first and second ellipsoids.
      */
-    private final double b;
-    
-    /**
-     * Source flattening factor.
-     */
-    private final double f;
-    
-    /**
-     * Difference in the semi-major axes (a1 - a2)
-     * of the first and second ellipsoids.
-     */
-    private final double da;
-    
-    /**
-     * Difference in the flattening of the two ellipsoids.
-     */
-    private final double df;
+    private final double da, db;
     
     /**
      * Square of the eccentricity of the ellipsoid.
@@ -109,11 +100,13 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     private final double adf;
     
     /**
-     * Construct a transform.
+     * Construct a transform from the specified datum.
      */
     protected AbridgedMolodenskiTransform(final HorizontalDatum source,
-                                          final HorizontalDatum target)
+                                          final HorizontalDatum target,
+                                          final boolean source3D, final boolean target3D)
     {
+        double f, df;
         final WGS84ConversionInfo srcInfo = source.getWGS84Parameters();
         final WGS84ConversionInfo tgtInfo = source.getWGS84Parameters();
         final Ellipsoid      srcEllipsoid = source.getEllipsoid();
@@ -125,7 +118,37 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
         b  =     srcEllipsoid.getSemiMinorAxis();
         f  = 1 / srcEllipsoid.getInverseFlattening();
         da = a - tgtEllipsoid.getSemiMajorAxis();
+        db = b - tgtEllipsoid.getSemiMinorAxis();
         df = f - 1/tgtEllipsoid.getInverseFlattening();
+        e2  = 1 - (b*b)/(a*a);
+        adf = (a*df) + (f*da);
+        this.source3D = source3D;
+        this.target3D = target3D;
+    }
+    
+    /**
+     * Construct a transform from the specified parameters.
+     */
+    protected AbridgedMolodenskiTransform(final ParameterList parameters) {
+        final int dim = parameters.getIntParameter("dim");
+        switch (dim) {
+            case 2:  source3D=target3D=false; break;
+            case 3:  source3D=target3D=true;  break;
+            default: throw new IllegalArgumentException(Resources.format(
+                                ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2, "dim", new Integer(dim)));
+        }
+        final double ta, tb, f, df;
+        dx = parameters.getDoubleParameter("dx");
+        dy = parameters.getDoubleParameter("dy");
+        dz = parameters.getDoubleParameter("dz");
+        a  = parameters.getDoubleParameter("src_semi_major");
+        b  = parameters.getDoubleParameter("src_semi_minor");
+        ta = parameters.getDoubleParameter("tgt_semi_major");
+        tb = parameters.getDoubleParameter("tgt_semi_minor");
+        da = a - ta;
+        db = b - tb;
+        f  = a/(a-b);
+        df = f - ta/(ta-tb);
         e2  = 1 - (b*b)/(a*a);
         adf = (a*df) + (f*da);
     }
@@ -138,21 +161,28 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     {
         int step = 0;
         if (srcPts==dstPts && srcOff<dstOff && srcOff+numPts*getDimSource()>dstOff) {
+            if (source3D != target3D) {
+                // TODO: we need to figure out a general way to handle this case
+                //       (overwritting the source array  while source and target
+                //       dimensions are not the same).   This case occurs enough
+                //       in the CTS implementation...
+                throw new UnsupportedOperationException();
+            }
             step = -getDimSource();
             srcOff -= (numPts-1)*step;
             dstOff -= (numPts-1)*step;
         }
-        final double rho = Double.NaN; // TODO: Definition???
         while (--numPts >= 0) {
             double x = Math.toRadians(srcPts[srcOff++]);
             double y = Math.toRadians(srcPts[srcOff++]);
-            double z = srcPts[srcOff++];
+            double z = (source3D) ? srcPts[srcOff++] : 0;
             final double sinX = Math.sin(x);
             final double cosX = Math.cos(x);
             final double sinY = Math.sin(y);
             final double cosY = Math.cos(y);
             final double sin2Y = sinY*sinY;
             final double nu = a / Math.sqrt(1 - e2*sin2Y);
+            final double rho = nu * (1 - e2) / (1 - e2*sin2Y);
             
             // Note: Computation of 'x' and 'y' ommit the division by sin(1"), because
             //       1/sin(1") / (60*60*180/PI) = 1.0000000000039174050898603898692...
@@ -161,11 +191,13 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
             //       of about 8E-7 arc seconds, probably close to rounding errors anyway.
             y += (dz*cosY - sinY*(dy*sinX + dx*cosX) + adf*Math.sin(2*y)) / rho;
             x += (dy*cosX - dx*sinX) / (nu*cosY);
-            z += dx*cosY*cosX + dy*cosY*sinX + dz*sinY + adf*sin2Y - da;
             
             dstPts[dstOff++] = Math.toDegrees(x);
             dstPts[dstOff++] = Math.toDegrees(y);
-            dstPts[dstOff++] = z;
+            if (target3D) {
+                z += dx*cosY*cosX + dy*cosY*sinX + dz*sinY + adf*sin2Y - da;
+                dstPts[dstOff++] = z;
+            }
             srcOff += step;
             dstOff += step;
         }
@@ -187,18 +219,17 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     }
     
     /**
-     * Gets the dimension of input points, which is 3.
+     * Gets the dimension of input points.
      */
     public int getDimSource() {
-        return 3;
+        return source3D ? 3 : 2;
     }
     
     /**
-     * Gets the dimension of output points, which
-     * is the same than {@link #getDimSource()}.
+     * Gets the dimension of output points.
      */
     public final int getDimTarget() {
-        return getDimSource();
+        return target3D ? 3 : 2;
     }
     
     /**
@@ -211,7 +242,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
                           37*(Double.doubleToLongBits(a ) +
                           37*(Double.doubleToLongBits(b ) +
                           37*(Double.doubleToLongBits(da) +
-                          37*(Double.doubleToLongBits(df)))))));
+                          37*(Double.doubleToLongBits(db)))))));
         return (int) code ^ (int) (code >>> 32);
     }
     
@@ -232,7 +263,9 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
                    Double.doubleToLongBits(this.a ) == Double.doubleToLongBits(that.a ) &&
                    Double.doubleToLongBits(this.b ) == Double.doubleToLongBits(that.b ) &&
                    Double.doubleToLongBits(this.da) == Double.doubleToLongBits(that.da) &&
-                   Double.doubleToLongBits(this.df) == Double.doubleToLongBits(that.df);
+                   Double.doubleToLongBits(this.db) == Double.doubleToLongBits(that.db) &&
+                   this.source3D == that.source3D &&
+                   this.target3D == that.target3D;
         }
         return false;
     }
@@ -248,7 +281,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
         addParameter(buffer, "src_semi_major",   a);
         addParameter(buffer, "src_semi_minor",   b);
         addParameter(buffer, "tgt_semi_major",   a-da);
-//      addParameter(buffer, "tgt_semi_minor",   b);  // TODO
+        addParameter(buffer, "tgt_semi_minor",   b-db);
         buffer.append(']');
         return buffer.toString();
     }
@@ -256,7 +289,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     /**
      * The provider for {@link AbridgedMolodenskiTransform}.
      *
-     * @version $Id: AbridgedMolodenskiTransform.java,v 1.2 2002/07/10 18:19:29 desruisseaux Exp $
+     * @version $Id: AbridgedMolodenskiTransform.java,v 1.3 2002/10/08 15:33:16 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
@@ -265,9 +298,10 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
          */
         public Provider() {
             super("Abridged_Molodenski", ResourceKeys.ABRIDGED_MOLODENSKI_TRANSFORM, null);
-            put("dim",            Double.NaN, POSITIVE_RANGE);
+            putInt("dim",         3, POSITIVE_RANGE);
             put("dx",             Double.NaN, null);
             put("dy",             Double.NaN, null);
+            put("dz",             0,          null);
             put("src_semi_major", Double.NaN, POSITIVE_RANGE);
             put("src_semi_minor", Double.NaN, POSITIVE_RANGE);
             put("tgt_semi_major", Double.NaN, POSITIVE_RANGE);
@@ -281,8 +315,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
          * @return A {@link MathTransform} object of this classification.
          */
         public MathTransform create(final ParameterList parameters) {
-            // TODO
-            return null;
+            return new AbridgedMolodenskiTransform(parameters);
         }
     }
 }
