@@ -4,7 +4,7 @@ import org.geotools.feature.*;
 import java.util.*;
 import java.io.*;
 import com.vividsolutions.jts.geom.*;
-
+import org.geotools.filter.Filter;
 
 public class VeryBasicDataSource implements DataSource {
     String sFilename = null;
@@ -75,9 +75,57 @@ public class VeryBasicDataSource implements DataSource {
      * features
      * @throws DataSourceException if anything goes wrong
      */
-    public void importFeatures(FeatureCollection ft, Extent ex) throws DataSourceException {
-        System.out.println("VeryBasicDataSource.load() called");
-        
+    
+    
+    /** Stops this DataSource from loading.
+     */
+    public void abortLoading() {
+    }
+    
+    /** Adds all features from the passed feature collection to the datasource.
+     *
+     * @param collection The collection from which to add the features.
+     * @throws DataSourceException If anything goes wrong or if exporting is
+     * not supported.
+     */
+    public void addFeatures(FeatureCollection collection) throws DataSourceException {
+    }
+    
+    /** Gets the bounding box of this datasource using the default speed of
+     * this datasource as set by the implementer.
+     *
+     * @return The bounding box of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     * @task REVISIT: Consider changing return of getBbox to Filter once Filters can be unpacked
+     */
+    public Envelope getBbox() {
+        return new Envelope();
+    }
+    
+    /** Gets the bounding box of this datasource using the speed of
+     * this datasource as set by the parameter.
+     *
+     * @param speed If true then a quick (and possibly dirty) estimate of
+     * the extent is returned. If false then a slow but accurate extent
+     * will be returned
+     * @return The extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     * @task REVISIT:Consider changing return of getBbox to Filter once Filters can be unpacked
+     */
+    public Envelope getBbox(boolean speed) {
+        return new Envelope();
+    }
+    
+    /** Loads features from the datasource into the returned collection, based on
+     * the passed filter.
+     *
+     * @param filter An OpenGIS filter; specifies which features to retrieve.
+     * @return Collection The collection to put the features into.
+     * @throws DataSourceException For all data source errors.
+     */
+    public FeatureCollection getFeatures(Filter filter) throws DataSourceException {
+       System.out.println("VeryBasicDataSource.load() called");
+        FeatureCollectionDefault ft = new FeatureCollectionDefault();
         Vector Features = new Vector();
         
         // Open file
@@ -94,7 +142,7 @@ public class VeryBasicDataSource implements DataSource {
                     sb.append(s);
                 }
             }
-            if (stopped) return;
+            if (stopped) return null;
             // Split up the string into rows
             StringTokenizer st = new StringTokenizer(sb.toString(), "\n");
             Vector rows = new Vector();
@@ -152,8 +200,10 @@ public class VeryBasicDataSource implements DataSource {
                 Feature feat = fac.create(row);
 
                 // Filter Feature Feature Filter
-                if (ex.containsFeature(feat)){
-                    ft.addFeatures(new Feature[] {feat});
+                System.out.println("filter test "+filter.toString()+" -> "+filter.contains(feat));
+                if (filter.contains(feat)){
+                    System.out.println("Adding feature");
+                    ft.addFeatures(new Feature[] {feat}); 
                 }
             }
             
@@ -163,6 +213,55 @@ public class VeryBasicDataSource implements DataSource {
             exp.printStackTrace();
             throw new DataSourceException("Exception loading data : "+exp.getMessage());
         }
+        return ft;
+    }
+    
+    /** Loads features from the datasource into the passed collection, based on
+     * the passed filter.  Note that all data sources must support this method
+     * at a minimum.
+     *
+     * @param collection The collection to put the features into.
+     * @param filter An OpenGIS filter; specifies which features to retrieve.
+     * @throws DataSourceException For all data source errors.
+     */
+    public void getFeatures(FeatureCollection collection, Filter filter) throws DataSourceException {
+
+    }
+    
+    /** Modifies the passed attribute types with the passed objects in all
+     * features that correspond to the passed OGS filter.  A convenience
+     * method for single attribute modifications.
+     *
+     * @param type The attributes to modify.
+     * @param value The values to put in the attribute types.
+     * @param filter An OGC filter to note which attributes to modify.
+     * @throws DataSourceException If modificaton is not supported, if
+     * the object type do not match the attribute type.
+     */
+    public void modifyFeatures(AttributeType type, Object value, Filter filter) throws DataSourceException {
+    }
+    
+    /** Modifies the passed attribute types with the passed objects in all
+     * features that correspond to the passed OGS filter.
+     *
+     * @param type The attributes to modify.
+     * @param value The values to put in the attribute types.
+     * @param filter An OGC filter to note which attributes to modify.
+     * @throws DataSourceException If modificaton is not supported, if
+     * the attribute and object arrays are not eqaul length, or if the object
+     * types do not match the attribute types.
+     */
+    public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter) throws DataSourceException {
+    }
+    
+    /** Removes all of the features specificed by the passed filter from the
+     * collection.
+     *
+     * @param filter An OpenGIS filter; specifies which features to remove.
+     * @throws DataSourceException If anything goes wrong or if deleting is
+     * not supported.
+     */
+    public void removeFeatures(Filter filter) throws DataSourceException {
     }
     
 }

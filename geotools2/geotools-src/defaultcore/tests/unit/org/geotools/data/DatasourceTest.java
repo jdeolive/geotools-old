@@ -5,6 +5,7 @@ import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import java.util.*;
 import junit.framework.*;
+import org.geotools.filter.*;
 
 public class DatasourceTest extends TestCase implements CollectionListener {
     private static org.apache.log4j.Logger _log =
@@ -23,7 +24,7 @@ public class DatasourceTest extends TestCase implements CollectionListener {
         return suite;
     }
     
-    public void testLoad() throws java.io.IOException {
+    public void testLoad() throws java.lang.Exception {
         System.out.println("testLoad() called");
         EnvelopeExtent r = new EnvelopeExtent();
         r.setBounds(new Envelope(50, 360, 0, 180.0));
@@ -35,19 +36,24 @@ public class DatasourceTest extends TestCase implements CollectionListener {
         }
         String path =new java.io.File(dataFolder,"Furizibad.csv").getCanonicalFile().toString();
         
-        ft = new FeatureCollectionDefault(new VeryBasicDataSource(path));
+        DataSource ds = new VeryBasicDataSource(path);
         //ft.setLoadMode(FeatureTable.MODE_LOAD_INTERSECT);
-        ft.addListener(this);
+        //ft.addListener(this);
         // Request extent
         EnvelopeExtent ex = new EnvelopeExtent(0, 360, 0, 180.0);
+        
+        org.geotools.filter.GeometryFilter gf = new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+        ExpressionLiteral right = new BBoxExpression(new Envelope(0, 360, 0, 180.0));
+        gf.addRightGeometry(right);
         try{
-            ft.getFeatures(ex);
+            ft = ds.getFeatures(gf);
         }
         catch(DataSourceException e){
             e.printStackTrace();
             fail(e.toString());
         }
         System.out.println("Loaded: "+ft.getFeatures());
+        
         assertEquals(5,ft.getFeatures().length);
     }
     
