@@ -6,7 +6,7 @@
   <name>geotools-opengis</name>
   <id>opengis</id>
   <groupId>opengis</groupId>
-  <currentVersion>2.0-SNAPSHOT</currentVersion>
+  <currentVersion>SNAPSHOT</currentVersion>
 <versions>
 <version>
   <id>b1</id>

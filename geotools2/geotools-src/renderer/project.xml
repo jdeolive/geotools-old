@@ -5,7 +5,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-renderer</name>
   <id>renderer</id>
-  <currentVersion>2.0-SNAPSHOT</currentVersion>
+  <currentVersion>SNAPSHOT</currentVersion>
   <shortDescription>Rendering module</shortDescription>
   <description>Rendering module (include a Java2D renderer).</description>
 
@@ -64,32 +64,32 @@
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
         <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>cts-coordtrans</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>gcs-coverage</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>sldstyling</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency> 
     <dependency>
       <id>vecmath</id>

@@ -6,7 +6,7 @@
   <name>geotools-svgsupport</name>
   <id>svgsupport</id>
   
-  <currentVersion>2.0-SNAPSHOT</currentVersion>
+  <currentVersion>SNAPSHOT</currentVersion>
 <versions>
 <version>
   <id>b1</id>
@@ -39,7 +39,7 @@
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <id>JTS</id>
@@ -49,47 +49,47 @@
     <dependency>
       <artifactId>filter</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>sldstyling</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>gcs-coverage</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>cts-coordtrans</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>gmldatasource</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>lite-rendering</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <id>batik+util</id>

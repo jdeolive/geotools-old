@@ -6,7 +6,7 @@
   <name>geotools-gmldatasource</name>
   <id>gmldatasource</id>
   
-  <currentVersion>2.0-SNAPSHOT</currentVersion>
+  <currentVersion>SNAPSHOT</currentVersion>
 <versions>
 <version>
   <id>b1</id>
@@ -80,7 +80,7 @@
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     
     
@@ -88,12 +88,12 @@
         <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
         <dependency>
       <id>JTS</id>

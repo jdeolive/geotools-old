@@ -5,7 +5,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-core</name>
   <id>core</id>
-  <currentVersion>2.0-SNAPSHOT</currentVersion>
+  <currentVersion>SNAPSHOT</currentVersion>
 <versions>
 <version>
   <id>b1</id>

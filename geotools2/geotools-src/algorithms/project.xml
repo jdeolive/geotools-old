@@ -6,7 +6,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <id>algorithms</id>
  
-  <currentVersion>2.0-SNAPSHOT</currentVersion>
+  <currentVersion>SNAPSHOT</currentVersion>
   
   <package>org.geotools</package>
   <shortDescription>Useful Algorithms</shortDescription>
@@ -47,17 +47,17 @@
         <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
   

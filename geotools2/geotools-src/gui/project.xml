@@ -5,7 +5,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-gui</name>
   <id>gui</id>
-  <currentVersion>2.0-SNAPSHOT</currentVersion>
+  <currentVersion>SNAPSHOT</currentVersion>
   <package>org.geotools</package>
   <shortDescription>gui module</shortDescription>
   
@@ -62,7 +62,7 @@
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <id>JTS</id>
@@ -72,37 +72,37 @@
     <dependency>
       <artifactId>cts-coordtrans</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>gcs-coverage</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>lite-rendering</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>renderer</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <id>sldstyling</id>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
         
         

@@ -6,7 +6,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <id>docs</id>
   <logo>/images/docs.gif</logo>
-  <currentVersion>2.0-SNAPSHOT</currentVersion>
+  <currentVersion>SNAPSHOT</currentVersion>
   <organization>
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>

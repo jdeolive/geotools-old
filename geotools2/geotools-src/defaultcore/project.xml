@@ -6,7 +6,7 @@
   <name>geotools-defaultcore</name>
   <id>defaultcore</id>
   
-  <currentVersion>2.0-SNAPSHOT</currentVersion>
+  <currentVersion>SNAPSHOT</currentVersion>
 <versions>
 <version>
   <id>b1</id>
@@ -108,7 +108,7 @@
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
         <dependency>
       <id>JTS</id>
@@ -123,14 +123,14 @@
        <dependency>
         <artifactId>cts-coordtrans</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
         
 
         <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
 
         <dependency>
