@@ -59,6 +59,7 @@ import java.lang.reflect.InvocationTargetException;
 // Geotools dependencies
 import org.geotools.util.ProgressListener;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.SwingUtilities;
 import org.geotools.resources.gui.Resources;
 import org.geotools.resources.gui.ResourceKeys;
 
@@ -79,7 +80,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * problèmes de synchronisation. En général, faire l'opération en arrière plan est recommandé
  * afin de permettre le rafraichissement de l'écran par <i>Swing</i>.</p>
  *
- * @version $Id: ProgressWindow.java,v 1.1 2003/02/03 15:31:05 desruisseaux Exp $
+ * @version $Id: ProgressWindow.java,v 1.2 2003/03/28 14:28:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ProgressWindow implements ProgressListener {
@@ -325,7 +326,7 @@ public class ProgressWindow implements ProgressListener {
     public synchronized void warningOccurred(final String source, String margin,
                                              final String warning)
     {
-        final StringBuffer buffer=new StringBuffer(warning.length()+16);
+        final StringBuffer buffer = new StringBuffer(warning.length()+16);
         if (source != lastSource) {
             lastSource = source;
             if (warningArea != null) {
@@ -388,27 +389,8 @@ public class ProgressWindow implements ProgressListener {
      */
     private String get(final int task) {
         final Caller caller = new Caller(-task);
-        if (EventQueue.isDispatchThread()) {
-            caller.run();
-        } else try {
-            EventQueue.invokeAndWait(caller);
-        } catch (InterruptedException exception) {
-            unexpectedException("get", exception); // Should not happen
-        } catch (InvocationTargetException exception) {
-            final Throwable e=exception.getTargetException();
-            if (e instanceof Error)            throw (Error)            e;
-            if (e instanceof RuntimeException) throw (RuntimeException) e;
-            unexpectedException("get", exception); // Should not happen
-        }
+        SwingUtilities.invokeAndWait(caller);
         return caller.text;
-    }
-
-    /**
-     * Signale qu'une erreur inatendue est survenue.
-     */
-    private static void unexpectedException(final String method, final Exception exception) {
-        Utilities.unexpectedException("org.geotools.gui.swing",
-                                      "ProgressWindow", method, exception);
     }
 
     /**
@@ -460,7 +442,7 @@ public class ProgressWindow implements ProgressListener {
      * tandis qu'une valeur négative signifie que l'on interroge l'état de la comosante
      * (dans ce cas, il faudra extrait l'état du champ {@link #text}).
      *
-     * @version $Id: ProgressWindow.java,v 1.1 2003/02/03 15:31:05 desruisseaux Exp $
+     * @version $Id: ProgressWindow.java,v 1.2 2003/03/28 14:28:12 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private class Caller implements Runnable {
@@ -597,6 +579,7 @@ public class ProgressWindow implements ProgressListener {
                         window.setResizable(true);
                     }
                     window.setSize(WIDTH, HEIGHT+WARNING_HEIGHT);
+                    window.setVisible(true); // Seems required in order to force relayout.
                 }
                 final JTextArea warningArea=(JTextArea) ProgressWindow.this.warningArea;
                 warningArea.append(text);
