@@ -1,0 +1,41 @@
+#!/bin/sh
+# $Id: gtpublish,v 1.1 2002/12/05 20:24:38 camerons Exp $
+# Publish docbook files and docbook files which contain
+# <xi:include> tags into html files.
+# Results are stored in the ${target} directory.
+# Note, you will need to install xsltproc.  With a bit of luck, it should
+# already be installed as part of your linux distrubution.
+#
+# This script expects to be installed in the geotools directory structure.
+# It needs to be run from this directory.
+#
+# Original Author: Cameron Shorter cameron@shorter.net
+#
+
+source="sdocbook"
+target="www"
+#xsl=/home/cameron/work/geotools2/extbin/gtbuild/docbook-xsl/html/docbook.xsl 
+xsl=../../extbin/gtbuild/docbook-xsl/html/docbook.xsl 
+
+sourceFiles="${source}/*.sgml ${source}/*.xml"
+mkdir -p ${target}
+
+# copy the image files
+mkdir -p ${target}/images
+for file in `find ${source}/images -print | grep -v "/CVS"`; do
+    targetFile=`echo $file | sed -e"s/^.*images/images/"`
+    mkdir -p ${target}/`dirname ${targetFile}`
+    cp ${file} ${target}/${targetFile}
+done
+
+# translate the docbook files
+for file in $sourceFiles; do
+    baseFile=`basename $file`
+    baseFile=`echo $baseFile | sed -e"s/\.sgml$//"`
+    baseFile=`echo $baseFile | sed -e"s/\.xml$//"`
+    xsltproc --novalid --xinclude \
+        --param section.autolabel 1 \
+        --param toc.section.depth 5 \
+        -o ${target}/$baseFile.html ${xsl} ${file}
+done
+
