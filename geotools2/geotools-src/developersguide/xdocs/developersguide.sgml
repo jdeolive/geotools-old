@@ -20,7 +20,7 @@ alternate="yes"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/06/23 20:53:10 $</date>
+    <date>$Date: 2002/07/03 21:30:13 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -45,6 +45,11 @@ alternate="yes"
 
     <itemizedlist>
       <listitem>
+        <para>Move this section into a new document called &#34;Geotools2
+        Design&#34;.</para>
+      </listitem>
+
+      <listitem>
         <para>Key design structure (core interfaces, data sources, rendering,
         tools)</para>
       </listitem>
@@ -57,15 +62,54 @@ alternate="yes"
       <listitem>
         <para>Directory structure</para>
       </listitem>
-
-      <listitem>
-        <para></para>
-      </listitem>
     </itemizedlist>
   </section>
 
   <section id="development">
     <title>Development</title>
+
+    <section>
+      <title id="requirements">Requirements</title>
+
+      <para>Before developing geotools2, you should download the following:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>java 1.4 or later</para>
+        </listitem>
+
+        <listitem>
+          <para>ant</para>
+        </listitem>
+
+        <listitem>
+          <para>maven</para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title id="java">Java</title>
+
+      <para>Some geotools modules depend on classes in Java Development Kit
+      1.4 or greater. Even when compiling with version 1.4, you will need to
+      specificly tell the compiler that you are using version 1.4, otherwise
+      the compiler will expect new java keywords are class names instead. If
+      you compile from the command line, you should use the following:</para>
+
+      <para><command>javac -source 1.4 [other options] [files to compile]</command></para>
+
+      <para>Make sure you update <link linkend="netbeanscompileoptions">compile
+      options in Netbeans</link> if you use Netbeans.</para>
+
+      <para>So far, I have only tested Geotools with Sun&#39;s Java Run Time
+      Environment. If you try another Run Time Environment, then let me know
+      how successful you are and we can include it here.</para>
+    </section>
 
     <section id="building">
       <title>Building</title>
@@ -415,6 +459,20 @@ alternate="yes"
             scripts.</para>
           </listitem>
         </itemizedlist>
+      </section>
+
+      <section>
+        <title id="netbeanscompileoptions">Compile Options</title>
+
+        <para>As <link linkend="java">mentioned</link>, geotools needs to be
+        compiled with a recent Java compiler. This is done from the following
+        windows:</para>
+
+        <para><command>Tools -&#62;Options -&#62;Building -&#62; Compiler
+        Types</command><command> -&#62;External Compiler</command></para>
+
+        <para>Set <command>&#34;Enable JDK 1.4 source</command>&#34; to
+        &#34;True&#34;.</para>
       </section>
 
       <section>
