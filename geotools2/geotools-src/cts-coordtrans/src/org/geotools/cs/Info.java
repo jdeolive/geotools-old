@@ -85,7 +85,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version $Id: Info.java,v 1.8 2002/10/17 18:14:37 desruisseaux Exp $
+ * @version $Id: Info.java,v 1.9 2002/10/18 20:14:44 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -347,7 +347,7 @@ public class Info implements Serializable {
         final Locale locale = null;
         final StringBuffer buffer = new StringBuffer(40);
         buffer.append("[\"");
-        buffer.append(getName(locale));
+        buffer.append(getWKTName(locale));
         buffer.append('"');
         buffer.insert(0, addString(buffer, context));
         if (properties!=null) {
@@ -365,6 +365,14 @@ public class Info implements Serializable {
         }
         buffer.append(']');
         return buffer.toString();
+    }
+
+    /**
+     * Returns the name to place into the WKT.
+     * To be overriden by {@link Projection} only.
+     */
+    String getWKTName(final Locale locale) {
+        return getName(locale);
     }
     
     /**

@@ -52,6 +52,7 @@ import javax.media.jai.ParameterListImpl;
 import javax.media.jai.ParameterListDescriptor;
 
 // J2SE dependencies
+import java.util.Locale;
 import java.awt.geom.Point2D;
 import java.rmi.RemoteException;
 
@@ -59,7 +60,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version $Id: Projection.java,v 1.9 2002/10/13 00:17:37 desruisseaux Exp $
+ * @version $Id: Projection.java,v 1.10 2002/10/18 20:14:44 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -179,7 +180,16 @@ public class Projection extends Info {
         }
         return copy;
     }
-    
+
+    /**
+     * Returns the name to place into the WKT. {@link Projection} is special case,
+     * since it should write the classification name instead of the usual name.
+     * This is used by {@link Info#toString}.
+     */
+    String getWKTName(final Locale locale) {
+        return getClassName();
+    }
+
     /**
      * Gets the projection classification name (e.g. "Transverse_Mercator").
      *

@@ -97,7 +97,7 @@ import org.geotools.util.WeakHashSet;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.9 2002/10/17 18:14:37 desruisseaux Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.10 2002/10/18 20:14:41 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -960,7 +960,9 @@ public class CoordinateSystemFactory {
             throws RemoteException
         {
             try {
-                return adapters.export(CoordinateSystemFactory.this.createGeographicCoordinateSystem(name, adapters.wrap(angularUnit), adapters.wrap(horizontalDatum), adapters.wrap(primeMeridian), adapters.wrap(axis0), adapters.wrap(axis1)));
+                return adapters.export(CoordinateSystemFactory.this.createGeographicCoordinateSystem(
+                        name, adapters.wrap(angularUnit), adapters.wrap(horizontalDatum),
+                        adapters.wrap(primeMeridian), adapters.wrap(axis0), adapters.wrap(axis1)));
             } catch (FactoryException exception) {
                 throw serverException(exception);
             }
