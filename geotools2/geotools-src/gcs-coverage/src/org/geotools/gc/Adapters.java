@@ -64,7 +64,7 @@ import org.geotools.cs.CoordinateSystem;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.8 2003/01/16 21:05:11 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.9 2003/04/29 18:28:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -112,8 +112,9 @@ public class Adapters extends org.geotools.cv.Adapters {
      *
      * @param  The Geotools object.
      * @return The OpenGIS  object. 
+     * @throws RemoteException if the OpenGIS object can't be exported.
      */
-    public GC_GridCoverage export(final GridCoverage coverage) {
+    public GC_GridCoverage export(final GridCoverage coverage) throws RemoteException {
         return (GC_GridCoverage) super.export(coverage);
     }
 
@@ -124,8 +125,9 @@ public class Adapters extends org.geotools.cv.Adapters {
      *
      * @param  The Geotools object.
      * @return The OpenGIS  object. 
+     * @throws RemoteException if the OpenGIS object can't be exported.
      */
-    protected CV_Coverage doExport(final Coverage coverage) {
+    protected CV_Coverage doExport(final Coverage coverage) throws RemoteException {
         if (coverage instanceof GridCoverage) {
             return ((GridCoverage) coverage).new Export(this);
         } else {
@@ -251,7 +253,7 @@ public class Adapters extends org.geotools.cv.Adapters {
      * invoking {@link #dispose} will also dispose the serializable image,  which may
      * close socket connection.
      *
-     * @version $Id: Adapters.java,v 1.8 2003/01/16 21:05:11 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.9 2003/04/29 18:28:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ImageProxy extends RenderedImageAdapter {

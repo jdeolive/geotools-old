@@ -64,7 +64,7 @@ import javax.media.jai.ParameterListDescriptorImpl;
  * <code>org.opengis.ct</code> package.</FONT>  All methods accept
  * null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version $Id: Adapters.java,v 1.4 2003/01/20 23:16:16 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.5 2003/04/29 18:28:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters extends org.geotools.cs.Adapters {
@@ -105,8 +105,9 @@ public class Adapters extends org.geotools.cs.Adapters {
     
     /**
      * Returns an OpenGIS interface for a math transform.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CT_MathTransform export(final MathTransform transform) {
+    public CT_MathTransform export(final MathTransform transform) throws RemoteException {
         if (transform == null) {
             return null;
         }
@@ -124,22 +125,31 @@ public class Adapters extends org.geotools.cs.Adapters {
     
     /**
      * Returns an OpenGIS interface for a math transform.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CT_CoordinateTransformation export(final CoordinateTransformation transform) {
+    public CT_CoordinateTransformation export(final CoordinateTransformation transform)
+            throws RemoteException 
+    {
         return (transform!=null) ? (CT_CoordinateTransformation)transform.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a math transform factory.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CT_MathTransformFactory export(final MathTransformFactory factory) {
+    public CT_MathTransformFactory export(final MathTransformFactory factory)
+            throws RemoteException
+    {
         return (factory!=null) ? (CT_MathTransformFactory)factory.toOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a coordinate transformation factory.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CT_CoordinateTransformationFactory export(final CoordinateTransformationFactory factory) {
+    public CT_CoordinateTransformationFactory export(final CoordinateTransformationFactory factory)
+            throws RemoteException 
+    {
         return (factory!=null) ? (CT_CoordinateTransformationFactory)factory.toOpenGIS(this) : null;
     }
     

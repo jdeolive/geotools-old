@@ -71,7 +71,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.rmi.RemoteException;
 import java.rmi.ServerException;
-import java.rmi.server.RemoteObject;
+import java.rmi.server.UnicastRemoteObject;
 import java.lang.ref.WeakReference;
 
 // Geotools dependencies (CTS)
@@ -141,7 +141,7 @@ import org.opengis.gc.GC_GridCoverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.14 2003/02/14 23:38:12 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.15 2003/04/29 18:28:47 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -771,10 +771,10 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.14 2003/02/14 23:38:12 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.15 2003/04/29 18:28:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    protected class Export extends RemoteObject implements CV_Coverage, PropertySource {
+    protected class Export extends UnicastRemoteObject implements CV_Coverage, PropertySource {
         /**
          * The originating adapter.
          */
@@ -785,9 +785,11 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          * the enclosing {@link Coverage} object. The cached <code>Export</code> instance
          * can be queried with {@link Adapters#export(Coverage)}.
          *
-         * @param adapters The originating adapter.
+         * @param  adapters The originating adapter.
+         * @throws RemoteException if this object can't be exported through RMI.
          */
-        protected Export(final Adapters adapters) {
+        protected Export(final Adapters adapters) throws RemoteException {
+            super(); // TODO: Fetch the port number from the adapter.
             this.adapters = adapters;
             proxy = new WeakReference(this);
         }

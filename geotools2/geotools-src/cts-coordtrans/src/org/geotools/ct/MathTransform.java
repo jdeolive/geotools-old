@@ -51,7 +51,7 @@ import org.geotools.resources.cts.ResourceKeys;
 // J2SE, JAI and Java3D dependencies
 import java.rmi.RemoteException;
 import java.rmi.ServerException;
-import java.rmi.server.RemoteObject;
+import java.rmi.server.UnicastRemoteObject;
 import java.awt.geom.AffineTransform;
 import javax.media.jai.PerspectiveTransform;
 //import javax.media.j3d.Transform3D;
@@ -67,7 +67,7 @@ import javax.media.jai.PerspectiveTransform;
  * from observations, the transformation is accurate to within the
  * limitations of those observations.
  *
- * @version $Id: MathTransform.java,v 1.4 2003/01/15 21:46:34 desruisseaux Exp $
+ * @version $Id: MathTransform.java,v 1.5 2003/04/29 18:28:17 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -282,10 +282,10 @@ public interface MathTransform {
  * for methods throwing {@link UnsupportedOperationException}). This
  * class is suitable for RMI use.
  *
- * @version 1.0
+ * @version $Id: MathTransform.java,v 1.5 2003/04/29 18:28:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class MathTransformExport extends RemoteObject implements CT_MathTransform {
+final class MathTransformExport extends UnicastRemoteObject implements CT_MathTransform {
     /**
      * The originating adapter.
      */
@@ -299,7 +299,10 @@ final class MathTransformExport extends RemoteObject implements CT_MathTransform
     /**
      * Construct a remote object.
      */
-    protected MathTransformExport(final Object adapters, final MathTransform transform) {
+    protected MathTransformExport(final Object adapters, final MathTransform transform)
+            throws RemoteException
+    {
+        super(); // TODO: Fetch the port number from the adapter.
         this.adapters  = (Adapters)adapters;
         this.transform = transform;
     }

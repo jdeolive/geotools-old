@@ -67,7 +67,7 @@ import javax.media.jai.ParameterList;
  * Conversions to, and conversions between, projected spatial coordinate
  * systems often do not preserve distances, areas and angles.
  *
- * @version $Id: ProjectedCoordinateSystem.java,v 1.9 2003/04/22 11:02:34 desruisseaux Exp $
+ * @version $Id: ProjectedCoordinateSystem.java,v 1.10 2003/04/29 18:28:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -283,7 +283,7 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      */
-    final Object toOpenGIS(final Object adapters) {
+    final Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
@@ -304,7 +304,7 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
             super(adapters);
         }
         

@@ -52,7 +52,7 @@ import org.geotools.resources.cts.ResourceKeys;
 import java.util.Locale;
 import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.rmi.server.RemoteObject;
+import java.rmi.server.UnicastRemoteObject;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
 
@@ -70,7 +70,7 @@ import java.lang.ref.Reference;
  * If the transformation depends on empirically derived parameters (as in datum
  * transformations), then this is an ISO transformation.
  *
- * @version $Id: CoordinateTransformation.java,v 1.5 2003/01/15 21:46:34 desruisseaux Exp $
+ * @version $Id: CoordinateTransformation.java,v 1.6 2003/04/29 18:28:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -326,20 +326,20 @@ public class CoordinateTransformation extends Info {
      *         since the returned object do not implements CS_Info. The
      *         package-private access do the trick.
      */
-    Object toOpenGIS(final Object adapters) {
+    Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
     /**
-     * Returns an OpenGIS interface for this info.
-     * This method first look in the cache. If no
-     * interface was previously cached, then this
-     * method create a new adapter  and cache the
-     * result.
+     * Returns an OpenGIS interface for this info. This method first look in the cache.
+     * If no interface was previously cached, then this method create a new adapter and
+     * cache the result.
      *
-     * @param adapters The originating {@link Adapters}.
+     * @param  adapters The originating {@link Adapters}.
+     * @return The OpenGIS interface for this info.
+     * @throws RemoteException if the object can't be exported.
      */
-    final synchronized Object cachedOpenGIS(final Object adapters) {
+    final synchronized Object cachedOpenGIS(final Object adapters) throws RemoteException {
         if (proxy!=null) {
             if (proxy instanceof Reference) {
                 final Object ref = ((Reference) proxy).get();
@@ -372,10 +372,10 @@ public class CoordinateTransformation extends Info {
      * {@link UnsupportedOperationException}). This class
      * is suitable for RMI use.
      *
-     * @version 1.0
+     * @version $Id: CoordinateTransformation.java,v 1.6 2003/04/29 18:28:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    final class Export extends RemoteObject implements CT_CoordinateTransformation {
+    final class Export extends UnicastRemoteObject implements CT_CoordinateTransformation {
         /**
          * The originating adapter.
          */
@@ -384,7 +384,8 @@ public class CoordinateTransformation extends Info {
         /**
          * Construct a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
+            super(); // TODO: Fetch the port number from the adapter.
             this.adapters = (Adapters)adapters;
         }
         

@@ -57,7 +57,7 @@ import java.rmi.RemoteException;
  * geographic or a projected coordinate system with a horizontal datum.
  * The other is a one-dimensional coordinate system with a vertical datum.
  *
- * @version $Id: CompoundCoordinateSystem.java,v 1.8 2003/03/28 10:22:52 desruisseaux Exp $
+ * @version $Id: CompoundCoordinateSystem.java,v 1.9 2003/04/29 18:28:14 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -279,7 +279,7 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      */
-    final Object toOpenGIS(final Object adapters) {
+    final Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
@@ -300,7 +300,7 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
             super(adapters);
         }
         

@@ -36,7 +36,7 @@
 package org.geotools.cs;
 
 // J2SE dependencies
-import java.rmi.server.RemoteObject;
+import java.rmi.server.UnicastRemoteObject;
 import java.rmi.ServerException;
 import java.rmi.RemoteException;
 import java.sql.SQLException; // For JavaDoc
@@ -68,7 +68,7 @@ import org.geotools.units.Unit;
  * A commonly used authority is EPSG, which is also
  * used in the GeoTIFF standard.
  *
- * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.8 2003/01/20 23:16:07 desruisseaux Exp $
+ * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.9 2003/04/29 18:28:15 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -345,18 +345,18 @@ public abstract class CoordinateSystemAuthorityFactory {
     }
 
     /**
-     * Returns an OpenGIS interface for this info.
-     * This method first looks in the cache. If no
-     * interface was previously cached, then this
-     * method creates a new adapter  and caches the
-     * result.
+     * Returns an OpenGIS interface for this info. This method first looks in the cache.
+     * If no interface was previously cached, then this method creates a new adapter and
+     * caches the result.
      *
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      *
-     * @param adapters The originating {@link Adapters}.
+     * @param  adapters The originating {@link Adapters}.
+     * @return The OpenGIS interface for this info.
+     * @throws RemoteException if the object can't be exported.
      */
-    final synchronized Object toOpenGIS(final Object adapters) {
+    final synchronized Object toOpenGIS(final Object adapters) throws RemoteException {
         if (proxy != null) {
             if (proxy instanceof Reference) {
                 final Object ref = ((Reference) proxy).get();
@@ -387,7 +387,7 @@ public abstract class CoordinateSystemAuthorityFactory {
      * for methods throwing {@link UnsupportedOperationException}). This
      * class is suitable for RMI use.
      */
-    private final class Export extends RemoteObject implements CS_CoordinateSystemAuthorityFactory {
+    private final class Export extends UnicastRemoteObject implements CS_CoordinateSystemAuthorityFactory {
         /**
          * The originating adapter.
          */
@@ -396,7 +396,8 @@ public abstract class CoordinateSystemAuthorityFactory {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
+            super(); // TODO: Fetch the port number from the adapter.
             this.adapters = (Adapters)adapters;
         }
         

@@ -85,7 +85,6 @@ import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.rmi.RemoteException;
 import java.rmi.ServerException;
-import java.rmi.server.RemoteObject;
 import java.io.NotSerializableException;
 import java.io.StringWriter;
 import java.io.IOException;
@@ -137,7 +136,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.14 2003/04/16 19:25:31 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.15 2003/04/29 18:28:49 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1064,7 +1063,7 @@ public class GridCoverage extends Coverage {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.14 2003/04/16 19:25:31 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.15 2003/04/29 18:28:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1093,7 +1092,7 @@ public class GridCoverage extends Coverage {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.14 2003/04/16 19:25:31 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.15 2003/04/29 18:28:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {
@@ -1108,9 +1107,10 @@ public class GridCoverage extends Coverage {
          * in the enclosing {@link GridCoverage} object. The cached <code>Export</code>
          * instance can be queried with {@link Adapters#export(GridCoverage)}.
          *
-         * @param adapters The originating adapter.
+         * @param  adapters The originating adapter.
+         * @throws RemoteException if this object can't be exported through RMI.
          */
-        protected Export(final Adapters adapters) {
+        protected Export(final Adapters adapters) throws RemoteException {
             super(adapters);
         }
 

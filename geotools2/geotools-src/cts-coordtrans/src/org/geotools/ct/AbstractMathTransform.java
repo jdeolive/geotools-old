@@ -47,6 +47,7 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.IllegalPathStateException;
 import javax.vecmath.SingularMatrixException;
+import java.rmi.RemoteException;
 
 // OpenGIS dependencies
 import org.opengis.pt.PT_Matrix;
@@ -76,7 +77,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Subclasses must declare <code>implements&nbsp;MathTransform2D</code>
  * themself if they know to maps two-dimensional coordinate systems.
  *
- * @version $Id: AbstractMathTransform.java,v 1.9 2003/01/20 23:16:16 desruisseaux Exp $
+ * @version $Id: AbstractMathTransform.java,v 1.10 2003/04/29 18:28:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractMathTransform implements MathTransform {
@@ -582,8 +583,9 @@ public abstract class AbstractMathTransform implements MathTransform {
      * @return A {@link CT_MathTransform} object. The returned type
      *         is a generic {@link Object} in order to avoid too early
      *         class loading of OpenGIS interface.
+     * @throws RemoteException if the object can't be exported.
      */
-    final Object cachedOpenGIS(final Object adapters) {
+    final Object cachedOpenGIS(final Object adapters) throws RemoteException {
         if (proxy!=null) {
             if (proxy instanceof Reference) {
                 final Object ref = ((Reference) proxy).get();
@@ -620,7 +622,7 @@ public abstract class AbstractMathTransform implements MathTransform {
      * of the enclosing {@link MathTransform}. It is serializable only if the enclosing
      * math transform is also serializable.
      *
-     * @version $Id: AbstractMathTransform.java,v 1.9 2003/01/20 23:16:16 desruisseaux Exp $
+     * @version $Id: AbstractMathTransform.java,v 1.10 2003/04/29 18:28:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected abstract class Inverse extends AbstractMathTransform implements Serializable {

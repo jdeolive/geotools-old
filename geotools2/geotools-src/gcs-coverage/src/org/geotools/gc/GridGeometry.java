@@ -47,7 +47,6 @@ import java.awt.image.BufferedImage;
 
 // RMI and weak references
 import java.rmi.RemoteException;
-import java.rmi.server.RemoteObject;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
 
@@ -79,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Describes the valid range of grid coordinates and the math
  * transform to transform grid coordinates to real world coordinates.
  *
- * @version $Id: GridGeometry.java,v 1.8 2003/02/14 15:46:47 desruisseaux Exp $
+ * @version $Id: GridGeometry.java,v 1.9 2003/04/29 18:28:49 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -615,9 +614,16 @@ public class GridGeometry implements Dimensioned, Serializable {
         /**
          * The math transform allows for the transformations from grid coordinates to real
          * world earth coordinates. The transform is often an affine transformation.
+         *
+         * @task REVISIT: This method should throws RemoteException. However, it is not allowed
+         *                since GridGeometry is not a remote interface. Should it be a remote one?
          */
         public CT_MathTransform getGridToCoordinateSystem() {
-            return adapters.CTS.export(GridGeometry.this.getGridToCoordinateSystem());
+            try {
+                return adapters.CTS.export(GridGeometry.this.getGridToCoordinateSystem());
+            } catch (RemoteException exception) {
+                throw new RuntimeException(exception.getLocalizedMessage(), exception);
+            }
         }
     }
 }

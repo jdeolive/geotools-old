@@ -97,7 +97,7 @@ import org.geotools.ct.MathTransform;
  * A default instance of the <code>Adapters</code> classes is provided in the
  * {@link org.geotools.ct.Adapters#getDefault() org.geotools.ct} package.
  *
- * @version $Id: Adapters.java,v 1.9 2003/01/20 23:16:06 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.10 2003/04/29 18:28:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.ct.Adapters#getDefault()
@@ -140,15 +140,21 @@ public class Adapters extends org.geotools.pt.Adapters {
     
     /**
      * Returns an OpenGIS interface for a coordinate system authority factory.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_CoordinateSystemAuthorityFactory export(final CoordinateSystemAuthorityFactory factory) {
+    public CS_CoordinateSystemAuthorityFactory export(final CoordinateSystemAuthorityFactory factory)
+            throws RemoteException
+    {
         return (factory!=null) ? (CS_CoordinateSystemAuthorityFactory)factory.toOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a coordinate system factory.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_CoordinateSystemFactory export(final CoordinateSystemFactory factory) {
+    public CS_CoordinateSystemFactory export(final CoordinateSystemFactory factory)
+            throws RemoteException
+    {
         return (factory!=null) ? (CS_CoordinateSystemFactory)factory.toOpenGIS(this) : null;
     }
     
@@ -158,8 +164,10 @@ public class Adapters extends org.geotools.pt.Adapters {
      * the corresponding interface. For example, a call with an argument
      * of type {@link GeographicCoordinateSystem} will return an object
      * implementing the {@link CS_GeographicCoordinateSystem} interface.
+     *
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_Info export(final Info info) {
+    public CS_Info export(final Info info) throws RemoteException {
         return (info!=null) ? (CS_Info)info.cachedOpenGIS(this) : null;
     }
     
@@ -167,71 +175,100 @@ public class Adapters extends org.geotools.pt.Adapters {
      * Returns an OpenGIS interface for a coordinate system. If the argument
      * is a <code>CoordinateSystem</code> subclass, the returned object will
      * implement the corresponding interface.
+     *
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_CoordinateSystem export(final CoordinateSystem cs) {
+    public CS_CoordinateSystem export(final CoordinateSystem cs) throws RemoteException {
         return (cs!=null) ? (CS_CoordinateSystem)cs.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a fitted coordinate system.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_FittedCoordinateSystem export(final FittedCoordinateSystem cs) {
+    public CS_FittedCoordinateSystem export(final FittedCoordinateSystem cs)
+            throws RemoteException
+    {
         return (cs!=null) ? (CS_FittedCoordinateSystem)cs.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a compound coordinate system.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_CompoundCoordinateSystem export(final CompoundCoordinateSystem cs) {
+    public CS_CompoundCoordinateSystem export(final CompoundCoordinateSystem cs)
+            throws RemoteException
+    {
         return (cs!=null) ? (CS_CompoundCoordinateSystem)cs.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a local coordinate system.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_LocalCoordinateSystem export(final LocalCoordinateSystem cs) {
+    public CS_LocalCoordinateSystem export(final LocalCoordinateSystem cs)
+            throws RemoteException
+    {
         return (cs!=null) ? (CS_LocalCoordinateSystem)cs.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a geocentric coordinate system.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_GeocentricCoordinateSystem export(final GeocentricCoordinateSystem cs) {
+    public CS_GeocentricCoordinateSystem export(final GeocentricCoordinateSystem cs)
+            throws RemoteException
+    {
         return (cs!=null) ? (CS_GeocentricCoordinateSystem)cs.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a vertical coordinate system.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_VerticalCoordinateSystem export(final VerticalCoordinateSystem cs) {
+    public CS_VerticalCoordinateSystem export(final VerticalCoordinateSystem cs)
+            throws RemoteException
+    {
         return (cs!=null) ? (CS_VerticalCoordinateSystem)cs.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a horizontal coordinate system.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_HorizontalCoordinateSystem export(final HorizontalCoordinateSystem cs) {
+    public CS_HorizontalCoordinateSystem export(final HorizontalCoordinateSystem cs)
+            throws RemoteException
+    {
         return (cs!=null) ? (CS_HorizontalCoordinateSystem)cs.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a geographic coordinate system.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_GeographicCoordinateSystem export(final GeographicCoordinateSystem cs) {
+    public CS_GeographicCoordinateSystem export(final GeographicCoordinateSystem cs)
+            throws RemoteException
+    {
         return (cs!=null) ? (CS_GeographicCoordinateSystem)cs.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a projected coordinate system.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_ProjectedCoordinateSystem export(final ProjectedCoordinateSystem cs) {
+    public CS_ProjectedCoordinateSystem export(final ProjectedCoordinateSystem cs)
+            throws RemoteException
+    {
         return (cs!=null) ? (CS_ProjectedCoordinateSystem)cs.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a projection.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_Projection export(final Projection projection) {
+    public CS_Projection export(final Projection projection)
+            throws RemoteException
+    {
         return (projection!=null) ? (CS_Projection)projection.cachedOpenGIS(this) : null;
     }
     
@@ -265,15 +302,17 @@ public class Adapters extends org.geotools.pt.Adapters {
     
     /**
      * Returns an OpenGIS interface for a prime meridian.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_PrimeMeridian export(final PrimeMeridian meridian) {
+    public CS_PrimeMeridian export(final PrimeMeridian meridian) throws RemoteException {
         return (meridian!=null) ? (CS_PrimeMeridian)meridian.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for an ellipsoid.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_Ellipsoid export(final Ellipsoid ellipsoid) {
+    public CS_Ellipsoid export(final Ellipsoid ellipsoid) throws RemoteException {
         return (ellipsoid!=null) ? (CS_Ellipsoid)ellipsoid.cachedOpenGIS(this) : null;
     }
     
@@ -286,29 +325,33 @@ public class Adapters extends org.geotools.pt.Adapters {
     
     /**
      * Returns an OpenGIS interface for a datum.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_Datum export(final Datum datum) {
+    public CS_Datum export(final Datum datum) throws RemoteException {
         return (datum!=null) ? (CS_Datum)datum.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a local datum.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_LocalDatum export(final LocalDatum datum) {
+    public CS_LocalDatum export(final LocalDatum datum) throws RemoteException {
         return (datum!=null) ? (CS_LocalDatum)datum.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a horizontal datum.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_HorizontalDatum export(final HorizontalDatum datum) {
+    public CS_HorizontalDatum export(final HorizontalDatum datum) throws RemoteException {
         return (datum!=null) ? (CS_HorizontalDatum)datum.cachedOpenGIS(this) : null;
     }
     
     /**
      * Returns an OpenGIS interface for a vertical datum.
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_VerticalDatum export(final VerticalDatum datum) {
+    public CS_VerticalDatum export(final VerticalDatum datum) throws RemoteException {
         return (datum!=null) ? (CS_VerticalDatum)datum.cachedOpenGIS(this) : null;
     }
     
@@ -349,8 +392,10 @@ public class Adapters extends org.geotools.pt.Adapters {
      * Returns an OpenGIS interface for a unit. The returned interface may
      * extend {@link CS_LinearUnit} or {@link CS_AngularUnit} according to
      * the specified unit.
+     *
+     * @throws RemoteException if the object can't be exported.
      */
-    public CS_Unit export(final Unit unit) {
+    public CS_Unit export(final Unit unit) throws RemoteException {
         if (unit == null) {
             return null;
         }

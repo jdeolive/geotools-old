@@ -65,7 +65,7 @@ import java.rmi.RemoteException;
  * which this is by examining the axes. You should also check the angular
  * units, since not all geographic coordinate systems use degrees.
  *
- * @version $Id: GeographicCoordinateSystem.java,v 1.7 2003/03/28 10:22:53 desruisseaux Exp $
+ * @version $Id: GeographicCoordinateSystem.java,v 1.8 2003/04/29 18:28:15 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -277,7 +277,7 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      */
-    final Object toOpenGIS(final Object adapters) {
+    final Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
@@ -304,7 +304,7 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
             super(adapters);
         }
         

@@ -64,7 +64,7 @@ import java.rmi.RemoteException;
  * the measurement of the shape and the size of the Earth to approximate
  * the geoid as close as possible.
  *
- * @version $Id: Ellipsoid.java,v 1.10 2003/02/05 22:57:42 desruisseaux Exp $
+ * @version $Id: Ellipsoid.java,v 1.11 2003/04/29 18:28:15 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -458,7 +458,7 @@ public class Ellipsoid extends Info {
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      */
-    final Object toOpenGIS(final Object adapters) {
+    final Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
@@ -479,7 +479,7 @@ public class Ellipsoid extends Info {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
             super(adapters);
         }
         

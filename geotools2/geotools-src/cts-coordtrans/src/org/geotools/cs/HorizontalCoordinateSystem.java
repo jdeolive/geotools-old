@@ -52,7 +52,7 @@ import java.rmi.RemoteException;
 /**
  * A 2D coordinate system suitable for positions on the Earth's surface.
  *
- * @version $Id: HorizontalCoordinateSystem.java,v 1.7 2003/03/28 10:22:53 desruisseaux Exp $
+ * @version $Id: HorizontalCoordinateSystem.java,v 1.8 2003/04/29 18:28:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -207,7 +207,7 @@ public abstract class HorizontalCoordinateSystem extends CoordinateSystem {
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      */
-    Object toOpenGIS(final Object adapters) {
+    Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
@@ -228,7 +228,7 @@ public abstract class HorizontalCoordinateSystem extends CoordinateSystem {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
             super(adapters);
         }
         

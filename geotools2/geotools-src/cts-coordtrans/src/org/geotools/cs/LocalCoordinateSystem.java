@@ -66,7 +66,7 @@ import javax.vecmath.MismatchedSizeException;
  * (E.g. from a database of transformations, which is created and
  * maintained from real-world measurements.)
  *
- * @version $Id: LocalCoordinateSystem.java,v 1.8 2003/03/28 10:22:53 desruisseaux Exp $
+ * @version $Id: LocalCoordinateSystem.java,v 1.9 2003/04/29 18:28:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -271,7 +271,7 @@ public class LocalCoordinateSystem extends CoordinateSystem {
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      */
-    final Object toOpenGIS(final Object adapters) {
+    final Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
@@ -292,7 +292,7 @@ public class LocalCoordinateSystem extends CoordinateSystem {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
             super(adapters);
         }
         

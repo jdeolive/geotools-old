@@ -59,7 +59,7 @@ import java.lang.ref.WeakReference;
 // Remote Method Invocation
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.RemoteObject;
+import java.rmi.server.UnicastRemoteObject;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
@@ -85,7 +85,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version $Id: Info.java,v 1.10 2003/01/20 23:16:11 desruisseaux Exp $
+ * @version $Id: Info.java,v 1.11 2003/04/29 18:28:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -525,21 +525,25 @@ public class Info implements Serializable {
      *
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
+     *
+     * @param  adapters The originating {@link Adapters}.
+     * @return The OpenGIS interface for this info.
+     * @throws RemoteException if the object can't be exported.
      */
-    Object toOpenGIS(final Object adapters) {
+    Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
     /**
-     * Returns an OpenGIS interface for this info.
-     * This method first looks in the cache. If no
-     * interface was previously cached, then this
-     * method creates a new adapter  and caches the
-     * result.
+     * Returns an OpenGIS interface for this info. This method first looks in the cache.
+     * If no interface was previously cached, then this method creates a new adapter and
+     * caches the result.
      *
-     * @param adapters The originating {@link Adapters}.
+     * @param  adapters The originating {@link Adapters}.
+     * @return The OpenGIS interface for this info.
+     * @throws RemoteException if the object can't be exported.
      */
-    final synchronized Object cachedOpenGIS(final Object adapters) {
+    final synchronized Object cachedOpenGIS(final Object adapters) throws RemoteException {
         if (proxy!=null) {
             if (proxy instanceof Reference) {
                 final Object ref = ((Reference) proxy).get();
@@ -570,7 +574,7 @@ public class Info implements Serializable {
      * for methods throwing {@link UnsupportedOperationException}). This
      * class is suitable for RMI use.
      */
-    class Export extends RemoteObject implements RemoteProxy, CS_Info {
+    class Export extends UnicastRemoteObject implements RemoteProxy, CS_Info {
         /**
          * The originating adapter.
          */
@@ -579,7 +583,8 @@ public class Info implements Serializable {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
+            super(); // TODO: Fetch the port number from the adapter.
             this.adapters = (Adapters)adapters;
         }
         
@@ -667,7 +672,9 @@ public class Info implements Serializable {
         /**
          * Constructs an abstract unit.
          */
-        public AbstractUnit(final Adapters adapters, final double scale) {
+        public AbstractUnit(final Adapters adapters, final double scale)
+                throws RemoteException
+        {
             super(adapters);
             this.scale = scale;
         }
@@ -687,7 +694,9 @@ public class Info implements Serializable {
         /**
          * Constructs a linear unit.
          */
-        public LinearUnit(final Adapters adapters, final double metersPerUnit) {
+        public LinearUnit(final Adapters adapters, final double metersPerUnit)
+                throws RemoteException
+        {
             super(adapters, metersPerUnit);
         }
         
@@ -706,7 +715,9 @@ public class Info implements Serializable {
         /**
          * Constructs an angular unit.
          */
-        public AngularUnit(final Adapters adapters, final double radiansPerUnit) {
+        public AngularUnit(final Adapters adapters, final double radiansPerUnit)
+                throws RemoteException
+        {
             super(adapters, radiansPerUnit);
         }
         

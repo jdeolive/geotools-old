@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
  * behavior (such as the rate of change of the orientation of the coordinate
  * axes).
  *
- * @version $Id: Datum.java,v 1.7 2003/01/20 23:16:08 desruisseaux Exp $
+ * @version $Id: Datum.java,v 1.8 2003/04/29 18:28:15 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -154,7 +154,7 @@ public class Datum extends Info {
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      */
-    Object toOpenGIS(final Object adapters) {
+    Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
@@ -175,7 +175,7 @@ public class Datum extends Info {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
             super(adapters);
         }
         

@@ -48,7 +48,7 @@ import java.rmi.RemoteException;
 /**
  * Procedure used to measure vertical distances.
  *
- * @version $Id: VerticalDatum.java,v 1.3 2002/06/05 16:21:43 loxnard Exp $
+ * @version $Id: VerticalDatum.java,v 1.4 2003/04/29 18:28:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -108,7 +108,7 @@ public class VerticalDatum extends Datum {
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      */
-    final Object toOpenGIS(final Object adapters) {
+    final Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
@@ -129,7 +129,7 @@ public class VerticalDatum extends Datum {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
             super(adapters);
         }
     }

@@ -55,7 +55,7 @@ import java.rmi.RemoteException;
  * any other math transform to inject itself into the base coordinate
  * system.
  *
- * @version $Id: FittedCoordinateSystem.java,v 1.2 2003/02/15 13:23:03 desruisseaux Exp $
+ * @version $Id: FittedCoordinateSystem.java,v 1.3 2003/04/29 18:28:15 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -249,7 +249,7 @@ public class FittedCoordinateSystem extends CoordinateSystem {
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      */
-    final Object toOpenGIS(final Object adapters) {
+    final Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
@@ -270,7 +270,7 @@ public class FittedCoordinateSystem extends CoordinateSystem {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
             super(adapters);
         }
         

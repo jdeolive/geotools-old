@@ -61,7 +61,7 @@ import java.rmi.RemoteException;
  * will point East (e.g. a right handed system), but you should
  * check the axes for non-default values.
  *
- * @version $Id: GeocentricCoordinateSystem.java,v 1.8 2003/03/28 10:22:52 desruisseaux Exp $
+ * @version $Id: GeocentricCoordinateSystem.java,v 1.9 2003/04/29 18:28:15 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -315,7 +315,7 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
      */
-    final Object toOpenGIS(final Object adapters) {
+    final Object toOpenGIS(final Object adapters) throws RemoteException {
         return new Export(adapters);
     }
     
@@ -336,7 +336,7 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
         /**
          * Constructs a remote object.
          */
-        protected Export(final Object adapters) {
+        protected Export(final Object adapters) throws RemoteException {
             super(adapters);
         }
         

@@ -71,7 +71,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.9 2003/04/10 20:41:08 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.10 2003/04/29 18:28:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -124,9 +124,10 @@ public class Adapters {
      * Returns an OpenGIS interface for a sample dimension.
      *
      * @param  The Geotools object.
-     * @return The OpenGIS  object. 
+     * @return The OpenGIS  object.
+     * @throws RemoteException if the OpenGIS object can't be exported.
      */
-    public CV_SampleDimension export(final SampleDimension dimension) {
+    public CV_SampleDimension export(final SampleDimension dimension) throws RemoteException {
         if (dimension == null) {
             return null;
         }
@@ -138,8 +139,9 @@ public class Adapters {
      *
      * @param  The Geotools object.
      * @return The OpenGIS  object. 
+     * @throws RemoteException if the OpenGIS object can't be exported.
      */
-    public CV_Coverage export(final Coverage coverage) {
+    public CV_Coverage export(final Coverage coverage) throws RemoteException {
         if (coverage == null) {
             return null;
         }
@@ -161,8 +163,9 @@ public class Adapters {
      *
      * @param  The Geotools object.
      * @return The OpenGIS  object. 
+     * @throws RemoteException if the OpenGIS object can't be exported.
      */
-    protected CV_Coverage doExport(final Coverage coverage) {
+    protected CV_Coverage doExport(final Coverage coverage) throws RemoteException {
         return coverage.new Export(this);
     }
 
@@ -336,7 +339,7 @@ public class Adapters {
      * on a remote machine. {@link RemoteException} are catched and rethrown as a
      * {@link CannotEvaluateException}.
      *
-     * @version $Id: Adapters.java,v 1.9 2003/04/10 20:41:08 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.10 2003/04/29 18:28:46 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class CoverageProxy extends Coverage {
