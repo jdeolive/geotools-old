@@ -90,7 +90,7 @@ import org.geotools.resources.cts.ResourceKeys;
  *       button to select it.</li>
  * </ul>
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.5 2002/07/30 17:24:12 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.6 2002/07/31 10:19:29 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -128,8 +128,16 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     /**
      * Maps EPSG parameter names to OGC parameter names.
      * For example, "False easting" (the EPSG name) is mapped to "false_easting" (the OGC name).
+     * For now, this map is shared among all instances of {@link CoordinateSystemEPSGFactory}.
+     * A future version may keep on map for each factory instance, which would allow some
+     * customization.
      */
-    private final Map namesMap = new HashMap();
+    private static final Map namesMap = new HashMap();
+    static {
+        for (int i=0; i<DEFAULT_PARAM_MAP.length;) {
+            namesMap.put(new CaselessStringKey(DEFAULT_PARAM_MAP[i++]), DEFAULT_PARAM_MAP[i++]);
+        }
+    }
 
     /**
      * A pool of prepared statements. Key are {@link String} object related to their
@@ -156,9 +164,6 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         super(factory);
         this.connection = connection;
         Info.ensureNonNull("connection", connection);
-        for (int i=0; i<DEFAULT_PARAM_MAP.length;) {
-            namesMap.put(new CaselessStringKey(DEFAULT_PARAM_MAP[i++]), DEFAULT_PARAM_MAP[i++]);
-        }
     }
     
     /**
@@ -385,7 +390,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * @param name the string at the EPSG format.
      * @return the String at OGC format.
      */
-    private String fromEPSGtoOGC(final String name) {
+    private static String fromEPSGtoOGC(final String name) {
         final String ogcName = (String) namesMap.get(new CaselessStringKey(name));
         if (ogcName != null) {
             return ogcName;
@@ -967,7 +972,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 final AxisInfo[]   axisInfos = getAxisInfo(coordSysCode, dimension);
                 final ParameterList list = factory.createProjectionParameterList(classification);
                 for (int i=0; i<parameters.length; i++) {
-                    parameters[i].setParameter(list, this);
+                    parameters[i].setParameter(list);
                 }
                 final GeographicCoordinateSystem gcs;
                 gcs = createGeographicCoordinateSystem(geoCoordSys);
@@ -1294,11 +1299,10 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
          * parameter can't be set, a warning is logged but the process continue.
          *
          * @param list The parameter list in which to copy this parameter.
-         * @param caller The caller.
          */
-        final void setParameter(final ParameterList list, final CoordinateSystemEPSGFactory caller)
+        final void setParameter(final ParameterList list)
         {
-            final String ogcName = caller.fromEPSGtoOGC(name);
+            final String ogcName = fromEPSGtoOGC(name);
             double standardValue = value;
             if (Unit.METRE.canConvert(unit)) {
                 standardValue = Unit.METRE.convert(standardValue, unit);

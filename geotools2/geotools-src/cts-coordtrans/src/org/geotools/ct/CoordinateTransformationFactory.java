@@ -35,6 +35,19 @@
  */
 package org.geotools.ct;
 
+// J2SE dependencies
+import java.util.Arrays;
+import java.rmi.RemoteException;
+import java.rmi.ServerException;
+import java.rmi.server.RemoteObject;
+import java.awt.geom.AffineTransform;
+import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;
+
+// JAI dependencies
+import javax.media.jai.ParameterList;
+import javax.vecmath.SingularMatrixException;
+
 // OpenGIS dependencies
 import org.opengis.cs.CS_CoordinateSystem;
 import org.opengis.ct.CT_CoordinateTransformation;
@@ -67,21 +80,12 @@ import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
-// J2SE and JAI dependencies
-import java.util.Arrays;
-import java.rmi.RemoteException;
-import java.rmi.ServerException;
-import java.rmi.server.RemoteObject;
-import java.awt.geom.AffineTransform;
-import javax.media.jai.ParameterList;
-import javax.vecmath.SingularMatrixException;
-
 
 /**
  * Creates coordinate transformations.
  *
- * @version 1.0
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: CoordinateTransformationFactory.java,v 1.3 2002/07/31 10:19:29 desruisseaux Exp $
+ * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
  * @see org.opengis.ct.CT_CoordinateTransformationFactory
@@ -104,6 +108,12 @@ public class CoordinateTransformationFactory {
      * The underlying math transform factory.
      */
     private final MathTransformFactory factory;
+
+    /**
+     * OpenGIS object returned by {@link #toOpenGIS}.
+     * It may be a hard or a weak reference.
+     */
+    private transient Object proxy;
     
     /**
      * Construct a coordinate transformation factory.
@@ -1038,16 +1048,33 @@ public class CoordinateTransformationFactory {
     private static String getTemporaryName(final CoordinateSystem source) {
         return "Temporary-" + (++temporaryID);
     }
-    
+
     /**
-     * Returns an OpenGIS interface for this transform factory.
-     * The returned object is suitable for RMI use.
+     * Returns an OpenGIS interface for this info.
+     * This method first looks in the cache. If no
+     * interface was previously cached, then this
+     * method creates a new adapter  and caches the
+     * result.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
+     *
+     * @param adapters The originating {@link Adapters}.
      */
-    final Object toOpenGIS(final Object adapters) {
-        return new Export(adapters);
+    final synchronized Object toOpenGIS(final Object adapters) {
+        if (proxy != null) {
+            if (proxy instanceof Reference) {
+                final Object ref = ((Reference) proxy).get();
+                if (ref != null) {
+                    return ref;
+                }
+            } else {
+                return proxy;
+            }
+        }
+        final Object opengis = new Export(adapters);
+        proxy = new WeakReference(opengis);
+        return opengis;
     }
     
     /**

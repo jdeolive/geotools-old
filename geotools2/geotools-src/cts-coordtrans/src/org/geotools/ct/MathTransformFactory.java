@@ -35,6 +35,20 @@
  */
 package org.geotools.ct;
 
+// J2SE dependencies
+import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.rmi.RemoteException;
+import java.rmi.server.RemoteObject;
+import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;
+
+// JAI and Java3D dependencies
+import javax.media.jai.ParameterList;
+import javax.vecmath.GMatrix;
+
 // OpenGIS dependencies
 import org.opengis.pt.PT_Matrix;
 import org.opengis.ct.CT_Parameter;
@@ -51,16 +65,6 @@ import org.geotools.util.WeakHashSet;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 import org.geotools.resources.DescriptorNaming;
-
-// J2SE, JAI and vecmath dependencies
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.rmi.RemoteException;
-import java.rmi.server.RemoteObject;
-import javax.media.jai.ParameterList;
-import javax.vecmath.GMatrix;
 
 
 /**
@@ -100,7 +104,7 @@ import javax.vecmath.GMatrix;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.8 2002/07/24 17:14:21 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.9 2002/07/31 10:19:29 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -123,6 +127,12 @@ public class MathTransformFactory {
      * List of registered math transforms.
      */
     private final MathTransformProvider[] providers;
+
+    /**
+     * OpenGIS object returned by {@link #toOpenGIS}.
+     * It may be a hard or a weak reference.
+     */
+    private transient Object proxy;
     
     /**
      * Construct a factory using the specified providers.
@@ -566,16 +576,33 @@ public class MathTransformFactory {
     {
         return new MatrixTransform.Provider(numRow, numCol);
     }
-    
+
     /**
-     * Returns an OpenGIS interface for this transform factory.
-     * The returned object is suitable for RMI use.
+     * Returns an OpenGIS interface for this info.
+     * This method first looks in the cache. If no
+     * interface was previously cached, then this
+     * method creates a new adapter  and caches the
+     * result.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
+     *
+     * @param adapters The originating {@link Adapters}.
      */
-    final Object toOpenGIS(final Object adapters) {
-        return new Export(adapters);
+    final synchronized Object toOpenGIS(final Object adapters) {
+        if (proxy != null) {
+            if (proxy instanceof Reference) {
+                final Object ref = ((Reference) proxy).get();
+                if (ref != null) {
+                    return ref;
+                }
+            } else {
+                return proxy;
+            }
+        }
+        final Object opengis = new Export(adapters);
+        proxy = new WeakReference(opengis);
+        return opengis;
     }
     
     
@@ -592,7 +619,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.8 2002/07/24 17:14:21 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.9 2002/07/31 10:19:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {

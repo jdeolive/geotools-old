@@ -41,6 +41,8 @@ import java.rmi.ServerException;
 import java.rmi.RemoteException;
 import java.sql.SQLException; // For JavaDoc
 import java.io.IOException;   // For JavaDoc
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 
 // OpenGIS dependencies
 import org.opengis.cs.CS_Ellipsoid;
@@ -66,7 +68,7 @@ import org.geotools.units.Unit;
  * A commonly used authority is EPSG, which is also
  * used in the GeoTIFF standard.
  *
- * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.5 2002/07/30 17:08:56 desruisseaux Exp $
+ * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.6 2002/07/31 10:19:29 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -77,6 +79,12 @@ public abstract class CoordinateSystemAuthorityFactory {
      * The underlying factory used for objects creation.
      */
     protected final CoordinateSystemFactory factory;
+
+    /**
+     * OpenGIS object returned by {@link #toOpenGIS}.
+     * It may be a hard or a weak reference.
+     */
+    private transient Object proxy;
     
     /**
      * Constructs an authority factory using the
@@ -335,16 +343,33 @@ public abstract class CoordinateSystemAuthorityFactory {
      */
     public void dispose() throws FactoryException {
     }
-    
+
     /**
      * Returns an OpenGIS interface for this info.
-     * The returned object is suitable for RMI use.
+     * This method first looks in the cache. If no
+     * interface was previously cached, then this
+     * method creates a new adapter  and caches the
+     * result.
      *
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
+     *
+     * @param adapters The originating {@link Adapters}.
      */
-    final Object toOpenGIS(final Object adapters) {
-        return new Export(adapters);
+    final synchronized Object toOpenGIS(final Object adapters) {
+        if (proxy != null) {
+            if (proxy instanceof Reference) {
+                final Object ref = ((Reference) proxy).get();
+                if (ref != null) {
+                    return ref;
+                }
+            } else {
+                return proxy;
+            }
+        }
+        final Object opengis = new Export(adapters);
+        proxy = new WeakReference(opengis);
+        return opengis;
     }
     
     

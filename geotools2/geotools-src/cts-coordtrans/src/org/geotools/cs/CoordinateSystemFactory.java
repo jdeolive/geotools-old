@@ -35,6 +35,18 @@
  */
 package org.geotools.cs;
 
+// J2SE dependencies
+import java.awt.geom.Point2D;
+import java.rmi.RemoteException;
+import java.rmi.ServerException;
+import java.rmi.server.RemoteObject;
+import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;
+
+// JAI dependencies
+import javax.media.jai.ParameterList;
+import javax.media.jai.ParameterListImpl;
+
 // OpenGIS dependencies
 import org.opengis.cs.CS_Unit;
 import org.opengis.cs.CS_AxisInfo;
@@ -64,14 +76,6 @@ import org.opengis.cs.CS_WGS84ConversionInfo;
 import org.geotools.units.Unit;
 import org.geotools.util.WeakHashSet;
 
-// J2SE and JAI dependencies
-import java.awt.geom.Point2D;
-import java.rmi.RemoteException;
-import java.rmi.ServerException;
-import java.rmi.server.RemoteObject;
-import javax.media.jai.ParameterList;
-import javax.media.jai.ParameterListImpl;
-
 
 /**
  * Builds up complex objects from simpler objects or values.
@@ -90,7 +94,7 @@ import javax.media.jai.ParameterListImpl;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.5 2002/07/29 18:00:24 desruisseaux Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.6 2002/07/31 10:19:29 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -109,7 +113,13 @@ public class CoordinateSystemFactory {
      * instead of creating a new one.
      */
     private final WeakHashSet pool;
-    
+
+    /**
+     * OpenGIS object returned by {@link #toOpenGIS}.
+     * It may be a hard or a weak reference.
+     */
+    private transient Object proxy;
+
     /**
      * Constructs a new factory with the specified pool.
      */
@@ -606,16 +616,33 @@ public class CoordinateSystemFactory {
     {
         return (LocalDatum) pool.canonicalize(new LocalDatum(name, type));
     }
-    
+
     /**
      * Returns an OpenGIS interface for this info.
-     * The returned object is suitable for RMI use.
+     * This method first looks in the cache. If no
+     * interface was previously cached, then this
+     * method creates a new adapter  and caches the
+     * result.
      *
      * Note: The returned type is a generic {@link Object} in order
      *       to avoid premature class loading of OpenGIS interface.
+     *
+     * @param adapters The originating {@link Adapters}.
      */
-    final Object toOpenGIS(final Object adapters) {
-        return new Export(adapters);
+    final synchronized Object toOpenGIS(final Object adapters) {
+        if (proxy != null) {
+            if (proxy instanceof Reference) {
+                final Object ref = ((Reference) proxy).get();
+                if (ref != null) {
+                    return ref;
+                }
+            } else {
+                return proxy;
+            }
+        }
+        final Object opengis = new Export(adapters);
+        proxy = new WeakReference(opengis);
+        return opengis;
     }
     
     
