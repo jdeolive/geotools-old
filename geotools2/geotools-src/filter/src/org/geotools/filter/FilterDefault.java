@@ -3,7 +3,8 @@
  */
 package org.geotools.filter;
 
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 
 /**
  * Implements Filter interface, with constants and default behaviors for methods

@@ -5,7 +5,8 @@ package org.geotools.filter;
 
 import java.util.*;
 
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 
 /**
  * Defines a logic filter (the only filter type that contains other filters).
