@@ -39,6 +39,7 @@ import javax.swing.JFrame;
 import javax.swing.JDialog;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableColumn;
@@ -51,6 +52,8 @@ import javax.swing.event.ChangeEvent;
 
 // AWT
 import java.awt.Color;
+import java.awt.Frame;
+import java.awt.Dialog;
 import java.awt.Component;
 import java.awt.BorderLayout;
 
@@ -77,16 +80,13 @@ import org.geotools.resources.SwingUtilities;
  * can be constructed with the following code:
  *
  * <blockquote>
- * {@link JFrame} frame = new JFrame("Geotools's logging panel");
- * frame.getContentPane().add(new LoggingPanel("org.geotools"));
- * frame.pack();
- * frame.show();
+ * new LoggingPanel("org.geotools").{@link #show(Component) show}(null);
  * </blockquote>
  *
  * This panel is initially set to listen to messages of level {@link Level#CONFIG} or higher.
  * This level can be changed with <code>{@link #getHandler}.setLevel(aLevel)</code>.
  *
- * @version $Id: LoggingPanel.java,v 1.2 2002/09/01 22:36:02 desruisseaux Exp $
+ * @version $Id: LoggingPanel.java,v 1.3 2002/09/01 22:47:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LoggingPanel extends JPanel {
@@ -283,6 +283,15 @@ public class LoggingPanel extends JPanel {
 
     /**
      * Convenience method showing this logging panel into a frame.
+     * Different kinds of frame can be constructed according <code>owner</code> class:
+     *
+     * <ul>
+     *   <li>If <code>owner</code> or one of its parent is a {@link JDesktopPane},
+     *       then <code>panel</code> is added into a {@link JInternalFrame}.</li>
+     *   <li>If <code>owner</code> or one of its parent is a {@link Frame} or a {@link Dialog},
+     *       then <code>panel</code> is added into a {@link JDialog}.</li>
+     *   <li>Otherwise, <code>panel</code> is added into a {@link JFrame}.</li>
+     * </ul>
      *
      * @param  owner The owner, or <code>null</code> to show
      *         this logging panel in a top-level window.
