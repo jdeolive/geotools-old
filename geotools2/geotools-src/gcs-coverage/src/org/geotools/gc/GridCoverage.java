@@ -122,7 +122,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.4 2002/07/26 23:18:18 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.5 2002/07/27 12:41:28 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -788,6 +788,29 @@ public class GridCoverage extends Coverage {
     //  }
 
     /**
+     * Returns grid data as a rendered image.
+     */
+    public RenderedImage getRenderedImage() {
+        return image;
+    }
+    
+    /**
+     * Hints that the given area may be needed in the near future. Some implementations
+     * may spawn a thread or threads to compute the tiles while others may ignore the hint.
+     *
+     * @param area A rectangle indicating which geographic area to prefetch.
+     *             This area's coordinates must be expressed according the
+     *             grid coverage's coordinate system, as given by
+     *             {@link #getCoordinateSystem}.
+     */
+    public void prefetch(final Rectangle2D area) {
+        final Point[] tileIndices=image.getTileIndices(gridGeometry.inverseTransform(area));
+        if (tileIndices!=null) {
+            image.prefetchTiles(tileIndices);
+        }
+    }
+
+    /**
      * If <code>true</code>, returns a <code>GridCoverage</code> with sample values
      * equals to geophysics values. In any such <cite>geophysics grid coverage</cite>,
      * {@link SampleDimension#getSampleToGeophysics sampleToGeophysics} is the identity
@@ -855,6 +878,7 @@ public class GridCoverage extends Coverage {
                 inverse = new GridCoverage(getName(null), selectedImage,
                                            coordinateSystem, gridGeometry, null, null,
                                            selectedBands, new GridCoverage[]{this}, null);
+                inverse = createReplace(inverse);
                 inverse.inverse = this;
             }
         }
@@ -862,25 +886,12 @@ public class GridCoverage extends Coverage {
     }
 
     /**
-     * Returns grid data as a rendered image.
+     * Invoked when a new <code>GridCoverage</code> is derivate from this one.
+     * This is usually a result of a call to {@link #geophysics}. This method
+     * gives a chance to subclasses to create an instance of their own class.
+     * The default implementation returns <code>coverage</code> with no change.
      */
-    public RenderedImage getRenderedImage() {
-        return image;
-    }
-    
-    /**
-     * Hints that the given area may be needed in the near future. Some implementations
-     * may spawn a thread or threads to compute the tiles while others may ignore the hint.
-     *
-     * @param area A rectangle indicating which geographic area to prefetch.
-     *             This area's coordinates must be expressed according the
-     *             grid coverage's coordinate system, as given by
-     *             {@link #getCoordinateSystem}.
-     */
-    public void prefetch(final Rectangle2D area) {
-        final Point[] tileIndices=image.getTileIndices(gridGeometry.inverseTransform(area));
-        if (tileIndices!=null) {
-            image.prefetchTiles(tileIndices);
-        }
+    protected GridCoverage createReplace(final GridCoverage coverage) {
+        return coverage;
     }
 }
