@@ -8,8 +8,7 @@ title="Previous docbook stylesheet"
 alternate="yes"
 ?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
-"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
-
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 <!--"file:/usr/share/sgml/simple4125/sdocbook.dtd"-->
 <article id="index">
   <articleinfo>
@@ -21,7 +20,7 @@ alternate="yes"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/06/16 11:05:24 $</date>
+    <date>$Date: 2002/06/17 21:56:30 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -52,7 +51,7 @@ alternate="yes"
 
       <listitem>
         <para>Design Drivers (Our design goals: modular, derives structure
-        from netbeans, support multiple version of java, ..)</para>
+        from netbeans, support multiple version of java, ...)</para>
       </listitem>
 
       <listitem>
@@ -228,11 +227,11 @@ alternate="yes"
         <para>Documentation for geotools is written using <ulink
         url="http://www.oasis-open.org/committees/docbook/xml/simple/">Simplified
         Docbook</ulink> format. Simplified Docbook is a subset of Docbook XML,
-        a versitile format used by the <ulink url="http://www.linuxdoc.org">Linux
-        Documentation Project</ulink> (among others) which can be easilly
-        converted into numerous output formats, like HTML, pdf, etc.</para>
+        a versatile format used by the <ulink url="http://www.linuxdoc.org">Linux
+        Documentation Project</ulink> (among others) which can be easily
+        converted into numerous output formats, like HTML, PDF, etc.</para>
 
-        <para>Using Docbook ensures documentation content is kept seperate
+        <para>Using Docbook ensures documentation content is kept separate
         from presentation so content can written once and published in
         numerous formats and styles.</para>
 
@@ -266,14 +265,14 @@ alternate="yes"
         </figure>
 
         <para>Documentation will be stored in
-        <computeroutput><filename>geotools2/geotools_src/&#60;module_name&#62;/docbook/&#60;module_name&#62;.sgml</filename></computeroutput></para>
+        <computeroutput><filename>geotools2/geotools_src/&#60;module_name&#62;/sdocbook/&#60;module_name&#62;.SGML</filename></computeroutput></para>
 
-        <para>Related images are stored in <filename>geotools2/geotools_src/&#60;module_name&#62;/docbook/images/&#60;module_name&#62;/*.png</filename>.</para>
+        <para>Related images are stored in <filename>geotools2/geotools_src/&#60;module_name&#62;/sdocbook/images/&#60;module_name&#62;/*.PNG</filename>.</para>
 
         <para>Documentation from all the project&#39;s modules is likely to be
         build in one target directory. Therefore, to ensure module&#39;s
         images do not overwrite each other, images are stored in a directory
-        below the images directory: <filename>images/&#60;module_name&#62;/*.png</filename>.</para>
+        below the images directory: <filename>images/&#60;module_name&#62;/*.PNG</filename>.</para>
       </section>
 
       <section id="docbookeditors">
@@ -330,14 +329,14 @@ alternate="yes"
             <para><ulink
             url="http://www.oasis-open.org/committees/docbook/xml/simple/sdocbook/elements.html">The
             Simplified Docbook Summary</ulink> provides a list of all the XML
-            tags you can use, and the dependancy between these tags.</para>
+            tags you can use, and the dependency between these tags.</para>
           </listitem>
 
           <listitem>
             <para><ulink
             url="http://www.oasis-open.org/docbook/documentation/reference/html/docbook.html">Docbook,
             the Definitive Guide</ulink> provides comprehensive documentation
-            about Docbook. At the time of writing, this reference refered to
+            about Docbook. At the time of writing, this reference referred to
             version 3 of Docbook, while the Simplified Docbook used by
             geotools is based on version 4.1.2.5.</para>
           </listitem>
@@ -355,7 +354,7 @@ alternate="yes"
           </listitem>
 
           <listitem>
-            <para>How to use maven to build doc.</para>
+            <para>How to use maven to build doc. </para>
           </listitem>
         </itemizedlist>
       </section>
@@ -368,26 +367,48 @@ alternate="yes"
     <section id="netbeans">
       <title>Netbeans</title>
 
-      <para>To do:</para>
+      <section id="netbeansoverview">
+        <title>Introduction</title>
 
-      <itemizedlist>
-        <listitem>
-          <para>Where to get it.</para>
-        </listitem>
+        <para><ulink url="http://www.netbeans.org">Netbeans</ulink> is a free
+        java IDE which also provides a framework for adding extra
+        functionality. Geotools2 is developed using the same modular structure
+        as netbeans and can be integrated into netbeans in the future.</para>
+      </section>
 
-        <listitem>
-          <para>Aim is to make geotools a module within Netbeans</para>
-        </listitem>
+      <section>
+        <title id="netbeansmodules">Adding Modules</title>
 
-        <listitem>
-          <para>How to setup getools to fit the multiple directory structure</para>
-        </listitem>
+        <para>A few modules should be added to the standard netbeans install
+        to maximise geotools development.</para>
 
-        <listitem>
-          <para>The extra Netbeans modules that are useful and should be
-          downloaded.</para>
-        </listitem>
-      </itemizedlist>
+        <para></para>
+      </section>
+
+      <section id="todo2">
+        <title>to do</title>
+
+        <para>To do:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Where to get it.</para>
+          </listitem>
+
+          <listitem>
+            <para></para>
+          </listitem>
+
+          <listitem>
+            <para>How to setup getools to fit the multiple directory structure</para>
+          </listitem>
+
+          <listitem>
+            <para>The extra Netbeans modules that are useful and should be
+            downloaded.</para>
+          </listitem>
+        </itemizedlist>
+      </section>
     </section>
   </section>
 </article>
