@@ -1,14 +1,18 @@
-/**
- * Geotools - OpenSource mapping toolkit (C) 2002, Centre for Computational
- * Geography This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; version 2.1 of the License. This
- * library is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
- * more details. You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
  */
 package org.geotools.renderer;
 
@@ -22,7 +26,6 @@ import org.geotools.gc.GridCoverage;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
 import org.geotools.styling.*;
-import org.opengis.ct.CT_MathTransform;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -56,7 +59,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.77 2003/05/05 11:02:31 camerons Exp $
+ * @version $Id: Java2DRenderer.java,v 1.78 2003/05/06 20:14:39 camerons Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -219,8 +222,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
         }
     }
 
-
-    /** Render features based on the LayerList, BoundBox and Style specified in
+    /**
+     * Render features based on the LayerList, BoundBox and Style specified in
      * this.context.
      *
      * @param graphics The graphics object to draw to.
@@ -228,12 +231,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
      *        pixels).
      * @param transform A transform which converts World coordinates to Screen
      *        coordinates.
-     * @task TODO Use AffineTransform variable.
      *
+     * @task TODO Use AffineTransform variable.
      */
     public void paint(Graphics2D graphics, Rectangle paintArea,
         AffineTransform transform) {
-            
         Date start = new Date();
 
         if ((graphics == null) || (paintArea == null)) {
