@@ -84,13 +84,15 @@ import org.geotools.resources.gui.ResourceKeys;
  * Coordinates can be formatted in any coordinate system, as long as a transform
  * exists from the {@linkplain MapPane#getCoordinateSystem map pane's coordinate
  * system} and the {@linkplain MouseCoordinateFormat#getCoordinateSystem format's
- * coordinate system}. The later can be set as below:
+ * coordinate system}. If no transformation path is found, the coordinate will be
+ * formatted as &quot;ERROR&quot;. The status bar CS can be set to matches the
+ * map pane CS as below:
  *
  * <blockquote><pre>
- * {@link #getCoordinateFormat}.setCoordinateSystem(...);
+ * {@link #getCoordinateFormat}.setCoordinateSystem(mapPane.getCoordinateSystem());
  * </pre></blockquote>
  *
- * @version $Id: StatusBar.java,v 1.5 2003/07/18 13:28:53 desruisseaux Exp $
+ * @version $Id: StatusBar.java,v 1.6 2003/09/18 13:45:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class StatusBar extends JComponent implements MouseMotionListener {
@@ -400,7 +402,7 @@ public class StatusBar extends JComponent implements MouseMotionListener {
     /**
      * Classe chargée de réagir au progrès de la lecture.
      *
-     * @version $Id: StatusBar.java,v 1.5 2003/07/18 13:28:53 desruisseaux Exp $
+     * @version $Id: StatusBar.java,v 1.6 2003/09/18 13:45:45 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class ProgressListener implements IIOReadProgressListener, Runnable {
