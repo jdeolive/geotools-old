@@ -39,13 +39,8 @@ package org.geotools.ct;
 import java.io.Serializable;
 
 // Geotools dependencies
-import org.geotools.pt.Matrix;
-import org.geotools.pt.CoordinatePoint;
-import org.geotools.pt.MismatchedDimensionException;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.AbstractMathTransform;
-import org.geotools.ct.TransformException;
-import org.geotools.ct.NoninvertibleTransformException;
 
 
 /**
@@ -56,7 +51,7 @@ import org.geotools.ct.NoninvertibleTransformException;
  *
  * This transform is the inverse of {@link ExponentialTransform1D}.
  *
- * @version $Id: LogarithmicTransform1D.java,v 1.1 2002/07/15 18:28:43 desruisseaux Exp $
+ * @version $Id: LogarithmicTransform1D.java,v 1.2 2002/07/18 09:19:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see ExponentialTransform1D
@@ -141,14 +136,14 @@ final class LogarithmicTransform1D extends AbstractMathTransform implements Math
     /**
      * Gets the derivative of this function at a value.
      */
-    public double derivative(final double value) throws TransformException {
+    public double derivative(final double value) {
         return 1 / (lnBase * value);
     }
     
     /**
      * Transforms the specified value.
      */
-    public double transform(final double value) throws TransformException {
+    public double transform(final double value) {
         return Math.log(value)/lnBase + offset;
     }
 

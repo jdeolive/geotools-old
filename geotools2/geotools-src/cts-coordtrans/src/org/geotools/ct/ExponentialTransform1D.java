@@ -43,13 +43,8 @@ import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
 
 // Geotools dependencies
-import org.geotools.pt.Matrix;
-import org.geotools.pt.CoordinatePoint;
-import org.geotools.pt.MismatchedDimensionException;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.AbstractMathTransform;
-import org.geotools.ct.TransformException;
-import org.geotools.ct.NoninvertibleTransformException;
 import org.geotools.resources.cts.ResourceKeys;
 
 
@@ -64,7 +59,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <p align="center"><code>{@link #base}<sup>a&nbsp;+&nbsp;b*x</sup> =
  * {@link #base}<sup>a</sup>*({@link #base}<sup>b</sup>)<sup>x</sup></code></p>
  *
- * @version $Id: ExponentialTransform1D.java,v 1.2 2002/07/18 09:10:49 desruisseaux Exp $
+ * @version $Id: ExponentialTransform1D.java,v 1.3 2002/07/18 09:19:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see LogarithmicTransform1D
@@ -167,14 +162,14 @@ final class ExponentialTransform1D extends AbstractMathTransform implements Math
     /**
      * Gets the derivative of this function at a value.
      */
-    public double derivative(final double value) throws TransformException {
+    public double derivative(final double value) {
         return lnBase * transform(value);
     }
     
     /**
      * Transforms the specified value.
      */
-    public double transform(final double value) throws TransformException {
+    public double transform(final double value) {
         return scale * Math.pow(base, value);
     }
     
@@ -325,7 +320,7 @@ final class ExponentialTransform1D extends AbstractMathTransform implements Math
     /**
      * The provider for {@link ExponentialTransform1D} and {@link LogarithmicTransform1D}.
      *
-     * @version $Id: ExponentialTransform1D.java,v 1.2 2002/07/18 09:10:49 desruisseaux Exp $
+     * @version $Id: ExponentialTransform1D.java,v 1.3 2002/07/18 09:19:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
