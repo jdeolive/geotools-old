@@ -67,6 +67,13 @@
                <role>Bug Fixer</role>
             </roles>
     </contributor>
+    <contributor>
+      <name>Colin Combe</name>
+      <organization></organization>
+            <roles>
+               <role>Bug Fixer</role>
+            </roles>
+    </contributor>
   </contributors>
 
   <dependencies>
