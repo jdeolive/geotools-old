@@ -64,7 +64,7 @@
       <version>1.2.1</version>
     </dependency>
         <dependency>
-      <id>opengis-css</id>
+      <id>core</id>
       <version>0.1</version>
     </dependency>
     </dependencies>
