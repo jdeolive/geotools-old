@@ -14,7 +14,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/09/19 20:02:54 $</date>
+    <date>$Date: 2002/09/21 22:23:04 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -34,6 +34,93 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
 
   <section id="design">
     <title>Design</title>
+
+    <section>
+      <title id="jamesinsert">JamesInsert</title>
+
+      <para>The GeoTools2 (GT2) project is divided into a number of separate
+      module, each of which implements a specific requirement. Only a subset
+      of these modules is usually required to build an application based on
+      GT2.</para>
+
+      <para>At the hart of GT2 is the core module, this module contains no
+      implementation code, just Java interfaces for all the key modules.</para>
+
+      <para>The next important module is the defaultcore which provides an
+      implementation of the key interfaces found in the core module with the
+      exception of datasource and rendering. The defaultcore module contains
+      code which uses the latest version of Java (1.4) though it is envisioned
+      that alternative implementations of core could be made in future,
+      perhaps to target J2ME.</para>
+
+      <para>The datasource and rendering interfaces are not implemented by the
+      defaultcore module as there will need to be multiple implementations
+      available so implementation is left to other modules. Note that although
+      the defaultcore module includes a full set of objects for representing
+      the SLD and Filter specification there is no code in these modules for
+      reading or writing such documents, instead an entirely programmatic
+      approach is assumed with IO for such specifications being left to other
+      modules.</para>
+
+      <para>After core and defaultcore come a series of other modules which
+      provide targeted implementations of the remaining parts of the core api.
+      These include:</para>
+
+      <para>sldstyling - an IO module which can read and write SLD XML
+      documents by converting to and from the style objects implemented in
+      defaultcore</para>
+
+      <para>filter - an IO module which can read and write Filter Encoding XML
+      documents by converting to and from the filter objects implemented in
+      defaultcore</para>
+
+      <para>postgis - a datasource implementation for pulling spatial and
+      attribute data from a PostGIS database. (taking advantage of the spatial
+      capabilities of PostGIS)</para>
+
+      <para>mysql - a datasource implementation for pulling spatial and
+      attribute data from a MySQL database. (working around the lack of
+      spatial capability in MySQL)</para>
+
+      <para>gmldatasource - a datasource implementation which can parse GML 2
+      encoded information.</para>
+
+      <para>mapinfo - a datasource implementation which can read MIF/MID files</para>
+
+      <para>shapefile - a datasource implementation which can read Shapefiles</para>
+
+      <para>java2drenderer - an implementation of the rendering interface
+      which uses the Java2D API.</para>
+
+      <para>svgsupport - a module which extends the java2drenderer so that SVG
+      files can be created</para>
+
+      <para>cts-coordtrans - an implementation of the Coordinate
+      Transformation specifications</para>
+
+      <para>gcs-coverage - an implementation of the Grid Coverages
+      specification</para>
+
+      <para>gui - a suite of visual components for navigating and displaying
+      maps produced by a renderer (e.g. the java2drenderer)</para>
+
+      <para>algorithms - a suite of algorithms for analyzing and manipulating
+      geographic objects</para>
+
+      <para>wmsserver - an implementation of the OGC WMS spec, including
+      support for SLD</para>
+
+      <para>A WFS has been implemented as a separate project using the GT2
+      codebase and it envisioned that the wmsserver module will soon be
+      extracted and become part of a separate project which still using the
+      GT2 as a base.</para>
+
+      <para>Some more details of the above modules, including JavaDoc API can
+      be found at: modules.geotools.org/core</para>
+
+      <para>That site is generated automatically, though due to current work
+      on updating the build process the site is currently our of date.</para>
+    </section>
 
     <section>
       <title id="modulardesign">Modular Design</title>
