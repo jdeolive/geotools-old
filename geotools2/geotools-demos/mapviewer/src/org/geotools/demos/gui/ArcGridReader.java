@@ -27,7 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 import org.geotools.data.arcgrid.ArcGridDataSource;
-import org.geotools.gui.swing.StyledMapPane2;
+import org.geotools.gui.swing.StyledMapPane;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.styling.ColorMap;
@@ -58,7 +58,7 @@ public class ArcGridReader {
         RasterSymbolizer rs = sb.createRasterSymbolizer(colorMap, 1.0);
         mc.addLayer(dataSource.getFeatures(), sb.createStyle(rs));
 
-        StyledMapPane2 mapPane = new StyledMapPane2();
+        StyledMapPane mapPane = new StyledMapPane();
         mapPane.setMapContext(mc);
 
         JFrame frame = new JFrame();

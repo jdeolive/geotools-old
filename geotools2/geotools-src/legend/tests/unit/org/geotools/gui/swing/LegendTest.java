@@ -18,7 +18,7 @@
  * SLDStyleSuite.java
  * JUnit based test
  *
- * $Id: LegendTest.java,v 1.1 2004/02/21 10:05:44 aaime Exp $
+ * $Id: LegendTest.java,v 1.2 2004/03/26 19:06:53 aaime Exp $
  */
 package org.geotools.gui.swing;
 
@@ -163,7 +163,7 @@ public class LegendTest extends TestCase {
             System.out.println("creating Map Pane");
 
             // Create MapPane
-            StyledMapPane2 mapPane = new StyledMapPane2();
+            StyledMapPane mapPane = new StyledMapPane();
             mapPane.setMapContext(context);
             System.out.println("Creating Map Pane Done");
             mapPane.setBackground(Color.WHITE);

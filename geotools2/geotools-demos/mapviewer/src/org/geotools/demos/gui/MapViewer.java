@@ -30,7 +30,7 @@ import org.geotools.data.DataStore;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.gui.swing.StatusBar;
-import org.geotools.gui.swing.StyledMapPane2;
+import org.geotools.gui.swing.StyledMapPane;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.DefaultMapLayer;
 import org.geotools.map.MapContext;
@@ -74,7 +74,7 @@ import com.vividsolutions.jts.geom.Point;
  * </pre></blockquote>
  *
  * @author Martin Desruisseaux
- * @version $Id: MapViewer.java,v 1.2 2004/02/05 16:07:53 aaime Exp $
+ * @version $Id: MapViewer.java,v 1.3 2004/03/26 19:06:51 aaime Exp $
  */
 public class MapViewer {
     /**
@@ -156,7 +156,7 @@ public class MapViewer {
      */
     protected void showMapPane(final MapContext context) throws Exception {
         // Create the map pane and add a map scale layer to it.
-        final StyledMapPane2 mapPane = new StyledMapPane2();
+        final StyledMapPane mapPane = new StyledMapPane();
         mapPane.setMapContext(context);
         mapPane.setPaintingWhileAdjusting(false);
         mapPane.getRenderer().addLayer(new RenderedMapScale());

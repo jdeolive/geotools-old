@@ -50,7 +50,7 @@ import java.awt.geom.Rectangle2D;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.map.MapContext;
 import org.geotools.renderer.j2d.Renderer;
-import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.renderer.j2d.StyledMapRenderer;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -59,7 +59,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * A map pane which support styling.
  *
  * @author Martin Desruisseaux
- * @version $Id: StyledMapPane.java,v 1.4 2004/03/14 18:44:21 aaime Exp $
+ * @version $Id: StyledMapPane.java,v 1.5 2004/03/26 19:06:50 aaime Exp $
  */
 public class StyledMapPane extends MapPane {
     /** The model which stores a list of layers and bounding box. */
@@ -88,7 +88,7 @@ public class StyledMapPane extends MapPane {
      * @return DOCUMENT ME!
      */
     Renderer createRenderer() {
-        return new StyledRenderer(this);
+        return new StyledMapRenderer(this);
     }
 
     /**
@@ -111,7 +111,7 @@ public class StyledMapPane extends MapPane {
     public void setMapContext(final MapContext context)
         throws Exception {
         this.context = context;
-        ((StyledRenderer) getRenderer()).setMapContext(context);
+        ((StyledMapRenderer) getRenderer()).setMapContext(context);
         reset();
     }
 

@@ -26,7 +26,7 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.gui.swing.Legend;
 import org.geotools.gui.swing.StatusBar;
-import org.geotools.gui.swing.StyledMapPane2;
+import org.geotools.gui.swing.StyledMapPane;
 import org.geotools.gui.swing.sldeditor.SLDEditor;
 import org.geotools.gui.swing.worker.BlockingSwingWorker;
 import org.geotools.map.DefaultMapContext;
@@ -103,13 +103,13 @@ import javax.swing.JToolBar;
  * </blockquote>
  *
  * @author Martin Desruisseaux
- * @version $Id: MapLegendViewer.java,v 1.2 2004/02/27 14:10:55 aaime Exp $
+ * @version $Id: MapLegendViewer.java,v 1.3 2004/03/26 19:06:53 aaime Exp $
  */
 public class MapLegendViewer extends JFrame {
     private MapContext context;
     private JFrame frame;
     private Legend legend;
-    private StyledMapPane2 mapPane;
+    private StyledMapPane mapPane;
 
     /**
      * Create and show the map pane.
@@ -120,7 +120,7 @@ public class MapLegendViewer extends JFrame {
         context = new DefaultMapContext();
 
         // Create the map pane and add a map scale layer to it.
-        mapPane = new StyledMapPane2();
+        mapPane = new StyledMapPane();
         mapPane.setMapContext(context);
         mapPane.setPaintingWhileAdjusting(false);
         mapPane.getRenderer().addLayer(new RenderedMapScale());
