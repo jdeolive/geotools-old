@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.Map;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.gml.GMLDataSource;
 
 /**
  *
