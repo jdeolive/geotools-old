@@ -9,5 +9,17 @@
   </target>
 
   <!-- Now, set your module-specific build targets here -->
+  
+  <target name="war">
+   <war warfile="gt2wms.war" webxml="src/WEB-INF/web.xml">
+ 
+  <lib dir="release">
+    
+  </lib>
+ 
+  <zipfileset dir="tests/unit/testData/maps/" 
+              prefix="maps"/>
+</war>
+</target>
 
 </project>
