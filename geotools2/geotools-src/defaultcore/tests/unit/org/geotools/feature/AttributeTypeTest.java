@@ -104,10 +104,7 @@ public class AttributeTypeTest extends TestCase {
         }
         try{
             type.validate(new Integer(3));
-            /*
-             * Removal of type check in DefaultAttributeType means this test now fails
             fail("Integer should not be validated by a Double type");
-             */
         }
         catch(IllegalArgumentException iae){
             
