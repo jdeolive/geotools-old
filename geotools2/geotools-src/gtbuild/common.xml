@@ -169,6 +169,7 @@
         <path path="${dir.module}/tests/unit"/>
         <path path="${dir.module}/../../extbin/core/lib/JTS.jar"/>
         <path path="${dir.module}/../../extbin/core/lib/log4j.jar"/>
+        <path path="${dir.module}/../../extbin/gtbuild/lib/junit.jar"/>
         <path path="${dir.module}/../core/src"/>
       </classpath>
     </javac>
