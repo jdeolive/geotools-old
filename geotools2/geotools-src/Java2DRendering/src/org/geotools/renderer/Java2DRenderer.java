@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.28 2002/06/27 16:26:29 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.29 2002/07/01 11:33:29 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -110,6 +110,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         wellKnownMarks.add("Circle");
         wellKnownMarks.add("Star");
         wellKnownMarks.add("X");
+        wellKnownMarks.add("Arrow");
         
         supportedGraphicFormats.add("image/gif");
         supportedGraphicFormats.add("image/jpg");
@@ -786,13 +787,14 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                         c=2*hx;
                         m=2*hy;
                         for(int i=0;;i++){
-                            _log.debug("plotting at ("+x+","+y+")");
-                            at2.setToTranslation(midx,midy);
-                            at2.rotate(-theta);
+                            _log.debug("plotting at ("+x+","+y+") @"+(((Math.PI/2.0)-theta+Math.PI)*180d/Math.PI)+" degrees");
+                            //at2.setToTranslation(midx,midy);
+                            at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
+                            
                             at2.scale(scaleX,scaleY);
                             op = new AffineTransformOp(at2,hints);
                             image2 =  op.filter(image, null);
-                            graphic.drawImage(image2,x,y,null);
+                            graphic.drawImage(image2,x-midx,y-midy,null);
                             if( Math.abs(x-endX)<=xInc ) break;
                             x += xInc;
                             d += m;
@@ -805,13 +807,14 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                         c=2*hy;
                         m=2*hx;
                         for(int i=0;;i++){
-                            _log.debug("plotting at ("+x+","+y+")");
-                            at2.setToTranslation(midx,midy);
-                            at2.rotate(theta);
+                            _log.debug("plotting at ("+x+","+y+") @"+(((Math.PI/2.0)-theta+Math.PI)*180d/Math.PI)+" degrees");
+                            //at2.setToTranslation(midx,midy);
+                            at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
+                            
                             at2.scale(scaleX,scaleY);
                             op = new AffineTransformOp(at2,hints);
                             image2 =  op.filter(image, null);
-                            graphic.drawImage(image2,x,y,null);
+                            graphic.drawImage(image2,x-midx,y-midy,null);
                             if( Math.abs(y-endY)<=yInc ) break;
                             y+= yInc;
                             d += m;

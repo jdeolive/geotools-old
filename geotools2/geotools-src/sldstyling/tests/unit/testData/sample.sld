@@ -69,6 +69,13 @@ A styling layer used for the unit tests of sldstyler
             </GraphicFill>    
           </Stroke>
         </LineSymbolizer>
+        <LineSymbolizer>
+          <Stroke>
+            <CssParameter name="width">
+                    <literal>1</literal>
+            </CssParameter>
+          </Stroke>
+        </LineSymbolizer>
     </Rule>
     </FeatureTypeStyle>
     <FeatureTypeStyle>
@@ -84,15 +91,22 @@ A styling layer used for the unit tests of sldstyler
             <CssParameter name="stroke-width">10</CssParameter>
             <GraphicStroke>
                 <Graphic>
-                    <size>15</size>
+                    <size>10</size>
                     <mark>
-                        <wellknownname>triangle</wellknownname>
+                        <wellknownname>arrow</wellknownname>
                         <fill>
                             <CssParameter name="fill">#0000FF</CssParameter>
                         </fill>
                     </mark>
                 </Graphic>
             </GraphicStroke>    
+          </Stroke>
+        </LineSymbolizer>
+        <LineSymbolizer>
+          <Stroke>
+            <CssParameter name="width">
+                    <literal>1</literal>
+            </CssParameter>
           </Stroke>
         </LineSymbolizer>
     </Rule>

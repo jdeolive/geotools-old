@@ -48,7 +48,7 @@ public class RenderStyleTest extends TestCase {
         //same as the datasource test, load in some features into a table
         
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(50, 200, 50, 350);
+        EnvelopeExtent ex = new EnvelopeExtent(40, 200, 30, 350);
         
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac,0,0);
