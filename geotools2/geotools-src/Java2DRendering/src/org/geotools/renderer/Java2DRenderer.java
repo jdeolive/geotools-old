@@ -17,7 +17,6 @@
 package org.geotools.renderer;
 
 import com.vividsolutions.jts.geom.*;
-import org.apache.commons.collections.LRUMap;
 import org.geotools.data.*;
 import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.feature.*;
@@ -59,7 +58,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.80 2003/05/14 23:12:22 ianschneider Exp $
+ * @version $Id: Java2DRenderer.java,v 1.81 2003/06/12 15:39:05 ianschneider Exp $
  *
  * @task TODO Remove deprecated methods.
  */
