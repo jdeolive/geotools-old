@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
  * <b>"ESRI(r) Shapefile - A Technical Description"</b><br>
  * <i>'An ESRI White Paper. May 1997'</i></a><p>
  *
- * @version $Id: Shapefile.java,v 1.9 2002/07/19 13:04:31 jmacgill Exp $
+ * @version $Id: Shapefile.java,v 1.10 2002/07/19 16:00:54 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -146,7 +146,8 @@ public class Shapefile  {
             log.debug("End of Shapefile reached, EOF caught");
         }
          catch(org.geotools.shapefile.InvalidShapefileException e) {
-             log.warn("Truncating feature loading. Some features may not have been read",e);
+             log.warn("Truncating feature loading. Some features may not have been read");
+             log.debug("",e);
         }
         return geometryFactory.createGeometryCollection((Geometry[]) list.toArray(new Geometry[]{}));
     }
