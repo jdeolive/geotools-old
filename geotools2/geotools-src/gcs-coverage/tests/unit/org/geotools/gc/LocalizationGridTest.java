@@ -51,7 +51,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link GridLocalization} implementation.
  *
- * @version $Id: LocalizationGridTest.java,v 1.3 2002/08/06 14:11:28 desruisseaux Exp $
+ * @version $Id: LocalizationGridTest.java,v 1.4 2002/08/08 18:36:07 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -257,8 +257,10 @@ public class LocalizationGridTest extends TestCase {
             }
         }
         final int n = width*height;
-        assertEquals("sum_x" , (n * (width -1))/2,           sum_x );
-        assertEquals("sum_y" , (n * (height-1))/2,           sum_y );
-        assertEquals("sum_xy", (n * (width-1)*(height-1))/4, sum_xy);
+        assertEquals("sum_x" , (n * (width -1))/2,              sum_x );
+        assertEquals("sum_y" , (n * (height-1))/2,              sum_y );
+        assertEquals("sum_xy", (n * (width-1)*(height-1))/4,    sum_xy);
+        assertEquals("sum_xx", (n * (width -0.5)*(width -1))/3, sum_xx, 1E-6);
+        assertEquals("sum_yy", (n * (height-0.5)*(height-1))/3, sum_yy, 1E-6);
     }
 }

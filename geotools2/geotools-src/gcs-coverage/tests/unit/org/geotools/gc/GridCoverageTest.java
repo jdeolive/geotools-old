@@ -54,7 +54,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link GridCoverage} implementation.
  *
- * @version $Id: GridCoverageTest.java,v 1.2 2002/07/27 22:09:29 desruisseaux Exp $
+ * @version $Id: GridCoverageTest.java,v 1.3 2002/08/08 18:36:07 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GridCoverageTest extends TestCase {
@@ -139,7 +139,7 @@ public class GridCoverageTest extends TestCase {
         }, Unit.get("°C"));
         assertEquals(3, BEGIN_VALID);
 
-        image = new BufferedImage(120, 80, BufferedImage.TYPE_BYTE_GRAY);
+        image = new BufferedImage(120, 80, BufferedImage.TYPE_BYTE_INDEXED);
         WritableRaster raster = image.getRaster();
         for (int i=raster.getWidth(); --i>=0;) {
             for (int j=raster.getHeight(); --j>=0;) {
