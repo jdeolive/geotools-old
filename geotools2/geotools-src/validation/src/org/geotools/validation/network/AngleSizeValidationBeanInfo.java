@@ -22,12 +22,9 @@
  */
 package org.geotools.validation.network;
 
-import org.geotools.validation.DefaultFeatureValidationBeanInfo;
-import org.geotools.validation.DefaultIntegrityValidationBeanInfo;
-
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
-import java.util.ResourceBundle;
+
+import org.geotools.validation.DefaultIntegrityValidationBeanInfo;
 
 
 /**
@@ -39,7 +36,7 @@ import java.util.ResourceBundle;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: AngleSizeValidationBeanInfo.java,v 1.1 2004/02/17 20:11:51 dmzwiers Exp $
+ * @version $Id: AngleSizeValidationBeanInfo.java,v 1.2 2004/04/08 21:39:03 dmzwiers Exp $
  */
 public class AngleSizeValidationBeanInfo
     extends DefaultIntegrityValidationBeanInfo {

@@ -22,7 +22,8 @@
  */
 package org.geotools.validation.network;
 
-import com.vividsolutions.jts.geom.Envelope;
+import java.util.Map;
+
 import org.geotools.data.FeatureResults;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.Feature;
@@ -37,7 +38,8 @@ import org.geotools.graph.traverse.GraphVisitor;
 import org.geotools.graph.traverse.SimpleGraphWalker;
 import org.geotools.validation.DefaultIntegrityValidation;
 import org.geotools.validation.ValidationResults;
-import java.util.Map;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -49,7 +51,7 @@ import java.util.Map;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: OrphanNodeValidation.java,v 1.3 2004/02/17 20:11:51 dmzwiers Exp $
+ * @version $Id: OrphanNodeValidation.java,v 1.4 2004/04/08 21:39:03 dmzwiers Exp $
  */
 public class OrphanNodeValidation extends DefaultIntegrityValidation {
     /** the FeatureSource name datastoreId:typename */

@@ -37,7 +37,7 @@ import java.util.ResourceBundle;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: GazetteerNameValidationBeanInfo.java,v 1.2 2004/02/17 17:19:15 dmzwiers Exp $
+ * @version $Id: GazetteerNameValidationBeanInfo.java,v 1.3 2004/04/08 21:39:11 dmzwiers Exp $
  */
 public class GazetteerNameValidationBeanInfo
     extends DefaultFeatureValidationBeanInfo {
@@ -79,7 +79,7 @@ public class GazetteerNameValidationBeanInfo
             pd[i].setExpert(false);
             pd[i + 1] = createPropertyDescriptor("gazetteer",
                     GazetteerNameValidation.class, resourceBundle);
-            pd[i + 1].setExpert(true);
+            pd[i + 1].setExpert(false);
         } catch (IntrospectionException e) {
             pd = pd2;
 

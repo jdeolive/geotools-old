@@ -22,14 +22,15 @@
  */
 package org.geotools.validation.xml;
 
-import org.geotools.validation.dto.ArgumentDTO;
-import org.geotools.validation.dto.PlugInDTO;
-import org.geotools.validation.dto.TestDTO;
-import org.geotools.validation.dto.TestSuiteDTO;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.geotools.validation.dto.ArgumentDTO;
+import org.geotools.validation.dto.PlugInDTO;
+import org.geotools.validation.dto.TestDTO;
+import org.geotools.validation.dto.TestSuiteDTO;
 
 
 /**
@@ -58,7 +59,7 @@ import java.util.Map;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: XMLWriter.java,v 1.3 2004/04/07 17:49:10 dmzwiers Exp $
+ * @version $Id: XMLWriter.java,v 1.4 2004/04/08 21:39:10 dmzwiers Exp $
  */
 public class XMLWriter {
     public static void writePlugIn(PlugInDTO dto, Writer w) {

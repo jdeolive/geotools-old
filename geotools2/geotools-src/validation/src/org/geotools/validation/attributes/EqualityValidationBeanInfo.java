@@ -37,7 +37,7 @@ import java.util.ResourceBundle;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: EqualityValidationBeanInfo.java,v 1.2 2004/02/17 17:19:15 dmzwiers Exp $
+ * @version $Id: EqualityValidationBeanInfo.java,v 1.3 2004/04/08 21:39:10 dmzwiers Exp $
  */
 public class EqualityValidationBeanInfo extends DefaultFeatureValidationBeanInfo {
     /**
@@ -78,10 +78,10 @@ public class EqualityValidationBeanInfo extends DefaultFeatureValidationBeanInfo
             pd[i].setExpert(false);
             pd[i + 1] = createPropertyDescriptor("expected",
                     EqualityValidation.class, resourceBundle);
-            pd[i + 1].setExpert(true);
+            pd[i + 1].setExpert(false);
             pd[i + 2] = createPropertyDescriptor("filter",
                     EqualityValidation.class, resourceBundle);
-            pd[i + 2].setExpert(true);
+            pd[i + 2].setExpert(false);
         } catch (IntrospectionException e) {
             pd = pd2;
 

@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
-import org.geotools.validation.DefaultFeatureValidation;
 import org.geotools.validation.ValidationResults;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -49,7 +48,7 @@ import com.vividsolutions.jts.geom.Point;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineNoSelfOverlappingValidation.java,v 1.4 2004/02/25 18:40:55 dmzwiers Exp $
+ * @version $Id: LineNoSelfOverlappingValidation.java,v 1.5 2004/04/08 21:39:10 dmzwiers Exp $
  */
 public class LineNoSelfOverlappingValidation extends LineAbstractValidation {
     /** The logger for the validation module. */
