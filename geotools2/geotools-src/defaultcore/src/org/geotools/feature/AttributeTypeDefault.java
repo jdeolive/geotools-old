@@ -27,7 +27,7 @@ import java.util.*;
  * sufficient for all simple (ie. non-schema) attribute implementations
  * of this interface.
  *
- * @version $Id: AttributeTypeDefault.java,v 1.6 2002/07/11 16:45:07 loxnard Exp $
+ * @version $Id: AttributeTypeDefault.java,v 1.7 2003/02/12 18:55:23 cholmesny Exp $
  * @author Rob Hranac, VFNY
  */
 public class AttributeTypeDefault implements AttributeType {
@@ -43,7 +43,9 @@ public class AttributeTypeDefault implements AttributeType {
     
     /** Storage position of this attribute in the array. */
     private int position = -1;
-    
+
+    /** Indicates if nulls are allowed for this attribute */
+    private boolean nillable = true;
     
     /**
      * Constructor with name and type.
@@ -128,7 +130,25 @@ public class AttributeTypeDefault implements AttributeType {
         return position;
     }
 
-    
+    /**
+     * Returns whether nulls are allowed for this attribute.
+     *
+     * @return true if nulls are permitted, false otherwise.
+     */
+    public boolean isNillable() {
+	return nillable;
+    }
+
+    /**
+     * Sets the nillable field, to indicate if nulls are allowed.
+     * The default is true.
+     *
+     * @param nillable the new value to set nillable.
+     */
+    public void setNillable(boolean nillable) {
+	this.nillable = nillable;
+    }
+
     public Object clone()
         throws CloneNotSupportedException {
         return super.clone();
