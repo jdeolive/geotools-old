@@ -172,6 +172,9 @@ public class LegendImageGenerator {
                     if((name==null||name.equalsIgnoreCase("title"))&&rules[j].getFilter()!=null){
                         name = rules[j].getFilter().toString();
                     }
+                    if(name.equalsIgnoreCase("title")){
+                        continue;
+                    }
                     Graphic[] g = rules[j].getLegendGraphic();
 
                     if(g != null && g.length>0){
@@ -190,7 +193,8 @@ public class LegendImageGenerator {
 
                             if(rp.isRenderable()) break;
                         }
-                        rp.render(graphics);  
+                        rendered.add(rp);
+//                        rp.render(graphics);  
                     }else{ // no legend graphic provided 
                         Symbolizer[] syms = rules[j].getSymbolizers();
                         for(int k=0;k<syms.length;k++){
@@ -281,7 +285,7 @@ public class LegendImageGenerator {
         while (it.hasNext()) {
           
             RenderedObject r = (RenderedObject) it.next();
-            System.out.println("DRAWING : " + r); 
+//            System.out.println("DRAWING : " + r); 
             r.render(graphics);
         }
         LOGGER.fine("Image = "+image);
