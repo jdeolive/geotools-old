@@ -5,7 +5,7 @@
  */
 
 package org.geotools.styling;
-import java.util.ArrayList;
+import java.util.*;
 /**
  *
  * @author  iant
@@ -13,9 +13,10 @@ import java.util.ArrayList;
 public class DefaultGraphic implements org.geotools.styling.Graphic {
     ArrayList externalGraphics = new ArrayList();
     ArrayList marks = new ArrayList();
-    
+    private static org.apache.log4j.Category _log = 
+        org.apache.log4j.Category.getInstance("defaultcore.styling");
     double opacity = 1.0;
-    double size = 1;
+    double size = 6;
     double rotation = 0.0;
     
     /** Creates a new instance of DefaultGraphic */
@@ -23,6 +24,10 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
         
     }
     
+    public DefaultGraphic(String extgraphic){
+        ExternalGraphic eg = new DefaultExternalGraphic(extgraphic);
+        externalGraphics.add(eg);
+    }
     /**
      * Privides a list of external graphics which can be used to represent
      * this graphic.
@@ -43,6 +48,10 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
         }
     }
     
+    public void addExternalGraphic(ExternalGraphic g){
+        externalGraphics.add(g);
+    }
+    
     /**
      * Provides a list of suitible marks which can be used to represent this
      * graphic.
@@ -61,6 +70,11 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
         }
     }
     
+    public void addMark(Mark m){
+        if(m == null) return;
+        marks.add(m);
+        m.setSize(size);
+    }
         
     /**
      * This specifies the level of translucency to use when rendering the graphic.<br>
@@ -108,6 +122,10 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      */
     public void setRotation(double rotation) {
         this.rotation = rotation;
+        Iterator i = marks.iterator();
+        while(i.hasNext()){
+            ((Mark)i.next()).setRotation(rotation);
+        }
     }
     
     /** Setter for property size.
@@ -115,6 +133,10 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      */
     public void setSize(double size) {
         this.size = size;
+        Iterator i = marks.iterator();
+        while(i.hasNext()){
+            ((Mark)i.next()).setSize(size);
+        }
     }
     
 }

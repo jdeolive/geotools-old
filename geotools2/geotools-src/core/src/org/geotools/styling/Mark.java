@@ -67,5 +67,8 @@ public interface Mark {
      * the coordinates of the point to be displayed.
      **/
     public com.vividsolutions.jts.geom.Geometry getGeometry(com.vividsolutions.jts.geom.Geometry geometry,double scale);
+    
+    public void setSize(double size);
+    public void setRotation(double rotation);
 }
 

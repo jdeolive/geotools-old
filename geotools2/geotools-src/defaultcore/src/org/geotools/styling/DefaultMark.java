@@ -13,16 +13,24 @@ import java.util.StringTokenizer;
  * @author  iant
  */
 public class DefaultMark implements Mark {
+    private static org.apache.log4j.Category _log = 
+        org.apache.log4j.Category.getInstance("defaultcore.styling");    
     Fill fill = new DefaultFill();
     Stroke stroke = new DefaultStroke();
     String wellKnownName = "Square";
     Polygon shape;
+    double size = 6.0;
+    double rotation = 0.0;
     private GeometryFactory geometryFactory = new GeometryFactory();
     /** Creates a new instance of DefaultMark */
     public DefaultMark() {
+        
         setShape(wellKnownName);
     }
-    
+    public DefaultMark(String name){
+        
+        setShape(name);
+    }
     
     
     
@@ -46,11 +54,14 @@ public class DefaultMark implements Mark {
     }
     public boolean setShape(String wellKnownName){
         for(int i=0;i<knownShapes.length;i++){
+            _log.debug("comparing "+wellKnownName+" with "+knownShapes[i]);
             if(wellKnownName.equalsIgnoreCase(knownShapes[i])){
                 this.wellKnownName=knownShapes[i];
+                _log.info("setting mark to "+wellKnownName);
                 return setShape(knownShapesPoints[i]);
             }
         }
+        wellKnownName ="";
         return false;
     }
     
@@ -99,11 +110,15 @@ public class DefaultMark implements Mark {
         this.stroke = stroke;
     }
     
+    public void setSize(double size){
+        this.size = size;
+    }
     /** Setter for property wellKnownName.
      * @param wellKnownName New value of property wellKnownName.
      */
-    public void setWellKnownName(java.lang.String wellKnownName) {
+    public boolean setWellKnownName(java.lang.String wellKnownName) {
         this.wellKnownName = wellKnownName;
+        return setShape(wellKnownName);
     }
     /**
      * returns the actual geometry to render by combining the stored geometry of the mark with
@@ -123,7 +138,8 @@ public class DefaultMark implements Mark {
             for (int i = 0; i < points.length; i++){
                 double x = points[i].x;
                 double y = points[i].y;
-                newPoints[i] = new Coordinate(centre.x+(x/scale),centre.y+(y/scale));
+                newPoints[i] = new Coordinate(centre.x+(size*x/scale),centre.y+(size*y/scale));
+                // TODO: replace with an affineTransform to handle tanslation,scale and rotation
             }
             try{
                 
@@ -138,6 +154,19 @@ public class DefaultMark implements Mark {
         //TODO: implement line + polygon point methods
         return null;
     }
-    static String[] knownShapes = {"Square"};
-    static String[][] knownShapesPoints = {{"-3,-3","-3,3","3,3","3,-3","-3,-3"}};
+    
+    public void setRotation(double rotation) {
+        this.rotation = rotation;
+    }
+    /** 
+     * a list of wellknownshapes that we know about 
+     * square, circle, triangle, star, cross, x
+     */
+    static String[] knownShapes = {"Square","triangle"};
+    /** 
+     * the coordinates of the wellknownshapes as a unit shape centred on 0,0
+     */
+    static String[][] knownShapesPoints = {{"-.5,-.5","-.5,.5",".5,.5",".5,-.5","-.5,-.5"},
+        {"0,.5","-.5,-.5",".5,-.5","0,.5"} // these numbers are not right TODO: calculate triangle properly
+    };
 }
