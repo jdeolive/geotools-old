@@ -33,6 +33,8 @@ public abstract class RelationIntegrity extends DefaultIntegrityValidation
 	protected final static String EMPTY = "";
     private String geomTypeRefA;
     private String geomTypeRefB = EMPTY;
+    protected boolean expected = false;			// what the user expects this test to return
+    											// they could expect it to fail and return false, therefore they would enter false
 
     /**
      * PointCoveredByLineValidation constructor.
@@ -102,6 +104,21 @@ public abstract class RelationIntegrity extends DefaultIntegrityValidation
     		typeRefB = EMPTY;
     	else
     		this.geomTypeRefB = typeRefB;
+    }
+    
+    
+	public final void setExpected(String exp)
+    {
+    	if (exp == null)
+    		expected = false;
+    	else if (exp.equalsIgnoreCase("true") || exp.equalsIgnoreCase("t"))
+    		expected = true;
+    	else
+    		expected = false;
+    }
+    
+    public final boolean isExpected() {
+   		return expected;
     }
 
 }
