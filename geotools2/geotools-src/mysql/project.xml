@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <name>geotools-core</name>
+  <id>core</id>
+  <logo>/images/core.gif</logo>
+  <currentVersion>0.1</currentVersion>
+  <organization>
+    <name>GeoTools</name>
+    <url>http://www.geotools.org</url>
+    <logo>/images/gtLogo.gif</logo>
+  </organization>
+  <inceptionYear>1996</inceptionYear>
+  <package>org.geotools</package>
+  <shortDescription>Core interfaces for GeoTools2</shortDescription>
+  <gumpRepositoryId>geotools</gumpRepositoryId>
+  <description>
+    The Core module contains the key interfaces that are implemented and used by other GeoTools modules.
+    Other than Exceptions and Events the Core module contains no actual code, instead that is provided
+    by other modules.  See the defaultcore module for standard implemenations of the interfaces defined
+    here.
+  </description>
+  <url>http://www.geotools.org/</url>
+  <cvsWebUrl/>
+  <issueTrackingUrl/>
+  <siteAddress>www.geotools.org</siteAddress>
+  <siteDirectory/>
+  <distributionDirectory/>
+  
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/core</connection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/core/</url>
+  </repository>
+  
+
+  <mailingLists/>
+  <developers>
+    <developer>
+      <name>James Macgill</name>
+      <id>jmacgill</id>
+      <email>jmacgill@users.sourceforge.net</email>
+      <organization>CCG</organization>
+            <roles>
+                <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    <developer>
+      <name>Ian Turton</name>
+      <id>ianturton</id>
+      <email>ianturton@users.sourceforge.net</email>
+      <organization>CCG</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+      <name>Linda Oxnard</name>
+      <id>loxnard</id>
+      <email>loxnard@users.sourceforge.net</email>
+      <organization>None</organization>
+            <roles>
+                <role>Doc Editor</role>
+            </roles>
+        </developer>
+        <developer>
+      <name>Cameron Shorter</name>
+      <id>camerons</id>
+      <email>cameronsl@users.sourceforge.net</email>
+      <organization>None</organization>
+            <roles>
+                
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    </developers>
+  <dependencies>
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.3</version>
+    </dependency>
+    <dependency>
+      <id>JTS</id>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <id>opengis-css</id>
+      <version>0.1</version>
+    </dependency>   
+    </dependencies>
+  <build>
+    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
+      <sourceDirectory>src/</sourceDirectory>
+    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+    <integrationUnitTestSourceDirectory/>
+    <aspectSourceDirectories/>
+    <unitTestPatterns>
+      <unitTestPattern>include = **/*Test.java</unitTestPattern>
+    </unitTestPatterns>
+    <integrationUnitTestPatterns/>
+    <jarResources/>
+    <jars/>
+  </build>
+</project>
+

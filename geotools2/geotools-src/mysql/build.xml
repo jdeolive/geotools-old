@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="release" name="mysql">
+
+  <property file="build.ant.properties"/>
+  <property name="dir.module" value="${basedir}"/>           
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target if="cond.Uninitialized" name="init">
+    <condition property="cond.Uninitialized" value="false"/>           
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="externalInit"/>
+  </target>
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="release">
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="all"/>
+  </target>
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="clean">
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="clean"/>
+  </target>
+
+  <!-- Now, set your module-specific build targets here -->
+  <target depends="init" name="testme">
+    <echo message="dir.test = ${dir.test}"/>
+  </target>
+
+</project>
