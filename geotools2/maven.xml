@@ -328,6 +328,43 @@ Module ${module} : ${status}
              <ant:fileset dir="${basedir}/geotools-src/opengis/target/classes"/>             
             </ant:jar>          
         </goal>
+        
+        <goal name="buildSrcRelease">
+        <ant:delete dir="${basedir}/srcRelease"/>
+        <ant:copy todir="${basedir}/srcRelease">
+           <ant:fileset dir=".">
+             <ant:include name="project.xml"/>
+             <ant:include name="build.properties"/>
+             <ant:include name="run-maven.xml"/>
+             <ant:include name="maven.xml"/>
+           </ant:fileset>
+        </ant:copy>   
+        <maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="moveSrc" banner="copying src for" ignoreFailures="true" postProcessing="true"/>
+        
+        </goal>
+        <goal name="moveSrc">
+            
+                
+          <!--  <j:if te${maven.stable}</echo> -->
+            <!-- this will be called for each module but only applied to modules which have maven.stable set to true -->
+            <j:set var="stable" value="${maven..module.stable}"/>
+            <j:if test="${stable == true}">
+             <echo message="${pom.id} is stable"/>
+            <!-- <ant:copy todir="../../srcRelease/${pom.artifactId}/src">
+               <ant:fileset dir="src">
+               <ant:include name="**"/>
+             </ant:fileset> -->
+             <ant:copy todir="../../srcRelease/geotools-src/${pom.artifactId}/">
+               <ant:fileset dir=".">
+                 <ant:include name="src/**"/>
+                 <ant:include name="project.xml"/>
+                 <ant:include name="build.properties"/>
+                 <ant:include name="run-maven.xml"/>
+               </ant:fileset>
+             
+            </ant:copy>
+            </j:if>
+    </goal>
 
 </project>
  
