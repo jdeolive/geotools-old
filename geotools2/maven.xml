@@ -96,6 +96,23 @@
 
   </goal>
   
+  <goal name="deploy-site">
+
+    <!--
+      ||
+      || Deploy the documentation for each of the commons projects.
+      ||
+    -->
+
+    <reactor:execute
+      basedir="${basedir}/geotools-src"
+      glob="*/project.xml"
+      goals="clean,site:deploy"
+      banner="Deploying site for"
+      ignoreFailures="true"
+    />
+  </goal>
+
   <!-- ================================================================== -->
   <!-- F R O N T  E N D  W E B S I T E                                    -->
   <!-- ================================================================== -->
@@ -104,8 +121,8 @@
   
     <reactor:execute
       basedir="${basedir}/geotools-src"
-      glob="resources/project.xml,defaultcore/project.xml,core/project.xml"
-      goals="noop"
+      glob="*/project.xml"
+      goals="reactor:noop"
       ignoreFailures="false"
     />
     
