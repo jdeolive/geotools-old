@@ -25,7 +25,7 @@ package org.geotools.styling;
   * TODO:This is unfinished as it currently returns fixed values with no way
   * to change them.
   *
-  * @version $Id: DefaultStroke.java,v 1.9 2002/06/04 17:55:51 loxnard Exp $
+  * @version $Id: DefaultStroke.java,v 1.10 2002/07/11 18:06:13 loxnard Exp $
   * @author James Macgill, CCG
   */
 
@@ -44,7 +44,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     
     /** Creates a new instance of DefaultStroke */
     public DefaultStroke() {
-        try{
+        try {
             color = new ExpressionLiteral("#000000");
             dashArray = null;//HACK: is this an acceptable return?
             dashOffset = new ExpressionLiteral(new Integer(0));
@@ -54,10 +54,10 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
             lineJoin = new ExpressionLiteral("miter");
             opacity = new ExpressionLiteral(new Integer(1));
             width = new ExpressionLiteral(new Integer(1));
-        } catch(IllegalFilterException ife){
+        } catch (IllegalFilterException ife){
             //we should never be in here
             //TODO: log this as a fatal exception
-            System.err.println("DefaultStroke constructor failed "+ife);
+            System.err.println("DefaultStroke constructor failed " + ife);
         }
     }
     
@@ -92,7 +92,9 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * @param c The color of the stroke encoded as a hexidecimal RGB value.
      */
     public void setColor(Expression c) {
-        if(c == null) return;
+        if(c == null) {
+           return;
+        }
         color = c;
     }
     
@@ -113,9 +115,11 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * "dashlength gaplength ..."
      */
     public float[] getDashArray() {
-        if(dashArray == null) return new float[0];
+        if (dashArray == null) {
+            return new float[0];
+        }
         float[] newArray = new float[dashArray.length];
-        System.arraycopy(dashArray,0,newArray,0,dashArray.length);
+        System.arraycopy(dashArray, 0, newArray, 0, dashArray.length);
         return newArray;
     }
     
@@ -141,8 +145,6 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     
     /**
      * This param determines where the dash pattern should start from.
-     * @param offset The distance into the dash pattern that should act as
-     *        the start.
      */
     public Expression getDashOffset() {
         return dashOffset;
@@ -154,7 +156,9 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      *        the start.
      */
     public void setDashOffset(Expression offset){
-        if(offset == null) return;
+        if (offset == null) {
+            return;
+        }
         dashOffset = offset;
     }
     
@@ -234,7 +238,9 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      *        There is no defined default.
      */
     public void setLineCap(Expression cap) {
-        if(cap==null) return;
+        if (cap == null) {
+            return;
+        }
         lineCap = cap;
     }
     
@@ -255,7 +261,9 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * "bevel". There is no defined default.
      */
     public void setLineJoin(Expression join) {
-        if(join == null) return;
+        if (join == null) {
+            return;
+        }
         lineJoin = join;
     }
     
@@ -290,7 +298,9 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * transparent and 1.0 is completely opaque.
      */
     public void setOpacity(Expression level) {
-        if(level == null) return;
+        if (level == null) {
+            return;
+        }
         opacity = level;
     }
     
@@ -313,13 +323,15 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * The default is 1.0.  Fractional numbers are allowed but negative
      * numbers are not.
      *
-     * @param pixels The width of the stroke in pixels.  This may be fractional
+     * @param expr The width of the stroke in pixels.  This may be fractional
      * but not negative.
      */
     
     
     public void setWidth(Expression expr){
-        if(expr == null) return;
+        if (expr == null) {
+            return;
+        }
         width = expr;
     }
     
