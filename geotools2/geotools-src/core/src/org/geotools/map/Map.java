@@ -8,6 +8,9 @@ package org.geotools.map;
 
 import org.geotools.styling.*;
 import org.geotools.featuretable.*;
+import org.geotools.datasource.Extent;
+import org.geotools.renderer.Renderer;
+import org.geotools.datasource.Feature;
 import org.opengis.cs.CS_CoordinateSystem;
 
 /**
@@ -18,6 +21,7 @@ public interface Map {
     
     public void setCoordinateSystem(CS_CoordinateSystem cs);
     public void addFeatureTable(FeatureTable ft,Style style);
+    public void render(Renderer renderer,Extent extent);
     
 }
 
