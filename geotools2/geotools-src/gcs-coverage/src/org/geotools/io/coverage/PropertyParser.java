@@ -134,7 +134,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * For example, the {@link #getCoordinateSystem} method constructs a {@link CoordinateSystem}
  * object using available informations.
  *
- * @version $Id: PropertyParser.java,v 1.12 2003/03/26 15:45:28 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.13 2003/03/30 15:43:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -531,8 +531,7 @@ public class PropertyParser {
     /**
      * The symbol to use as a separator. The full version (<code>separator</code>)
      * will be used for formatting with {@link #listProperties}, while the trimed
-     * version (<code>trimseparator</code>) will be used for parsing with {@link
-     * #parseLine}.
+     * version (<code>trimseparator</code>) will be used for parsing with {@link #parseLine}.
      *
      * @see #getSeparator
      * @see #setSeparator
@@ -613,7 +612,8 @@ public class PropertyParser {
     /**
      * Returns the characters to use as separator between keys and values. Leading and trailing
      * spaces will be keep when formatting with {@link #listProperties}, but will be ignored
-     * when parsing with {@link #parseLine}. The default value is <code>"&nbsp;=&nbsp;".
+     * when parsing with {@link #parseLine}. The default value is
+     * <code>&quot;&nbsp;=&nbsp;&quot;</code>.
      */
     public String getSeparator() {
         return separator;
@@ -846,9 +846,7 @@ public class PropertyParser {
      * @see #add(String,Object)
      * @see #listProperties
      */
-    public synchronized void add(final GridCoverage coverage)
-            throws AmbiguousPropertyException
-    {
+    public synchronized void add(final GridCoverage coverage) throws AmbiguousPropertyException {
         if (naming == null) {
             return;
         }
@@ -881,9 +879,7 @@ public class PropertyParser {
      * @see #add(PropertySource,String)
      * @see #add(String,Object)
      */
-    public synchronized void add(final RenderedImage image)
-        throws AmbiguousPropertyException
-    {
+    public synchronized void add(final RenderedImage image) throws AmbiguousPropertyException {
         if (image instanceof PropertySource) {
             // This version allow the use of deferred properties.
             add((PropertySource) image, null);
@@ -944,8 +940,7 @@ public class PropertyParser {
      * @see #add(PropertySource,String)
      * @see #parseLine
      */
-    public synchronized void add(String alias, final Object value)
-        throws AmbiguousPropertyException
+    public synchronized void add(String alias, final Object value) throws AmbiguousPropertyException
     {
         final AliasKey aliasAsKey;
         if (alias != null) {
@@ -961,9 +956,7 @@ public class PropertyParser {
      * {@link #add(GridCoverage)}, which iterates through each {@link AliasKey} declared in
      * {@link #naming}.
      */
-    private void add(final AliasKey aliasAsKey, Object value)
-        throws AmbiguousPropertyException
-    {
+    private void add(final AliasKey aliasAsKey, Object value) throws AmbiguousPropertyException {
         assert isValid();
         if (value==null || value==Image.UndefinedProperty) {
             return;
@@ -1055,8 +1048,7 @@ public class PropertyParser {
      * @see #contains
      * @see #get
      */
-    public synchronized void addAlias(final Key key, String alias)
-        throws AmbiguousPropertyException
+    public synchronized void addAlias(final Key key, String alias) throws AmbiguousPropertyException
     {
         alias = trim(alias.trim(), " ");
         final AliasKey aliasAsKey = new AliasKey(alias);
@@ -2076,7 +2068,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.12 2003/03/26 15:45:28 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.13 2003/03/30 15:43:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -2108,8 +2100,9 @@ loop:       for (int i=str.length(); --i>=0;) {
         }
 
         /**
-         * Returns the value for this key from the specified grid coverage. For example the key
-         * {@link X_MINIMUM} will returns <code>coverage.getEnvelope().getMinimum(0)</code>.
+         * Returns the value for this key from the specified grid coverage.
+         * For example the key {@link PropertyParser#X_MINIMUM} will returns
+         * <code>coverage.getEnvelope().getMinimum(0)</code>.
          *
          * @param coverage The grid coverage from which to fetch the value.
          * @return The value, or <code>null</code> if none.
@@ -2147,7 +2140,7 @@ loop:       for (int i=str.length(); --i>=0;) {
     /**
      * A key for properties derived from {@link Envelope} and/or {@link GridRange}.
      *
-     * @version $Id: PropertyParser.java,v 1.12 2003/03/26 15:45:28 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.13 2003/03/30 15:43:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class EnvelopeKey extends Key {
@@ -2257,7 +2250,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * A key for properties derived from {@link Projection}.
      * The key name must be the projection parameter name.
      *
-     * @version $Id: PropertyParser.java,v 1.12 2003/03/26 15:45:28 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.13 2003/03/30 15:43:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ProjectionKey extends Key {
@@ -2294,7 +2287,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.12 2003/03/26 15:45:28 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.13 2003/03/30 15:43:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {
