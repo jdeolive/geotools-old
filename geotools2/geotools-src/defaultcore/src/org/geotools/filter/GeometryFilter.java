@@ -44,7 +44,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilter.java,v 1.3 2002/07/13 11:37:17 jmacgill Exp $
+ * @version $Id: GeometryFilter.java,v 1.4 2002/07/19 13:13:18 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
 public class GeometryFilter extends AbstractFilter {
@@ -123,46 +123,46 @@ public class GeometryFilter extends AbstractFilter {
     public boolean contains(Feature feature) {
         
         // Checks for error condition
-        if (leftGeometry == null || rightGeometry == null) {
-            return false;
+        Geometry right = null;
+        if (rightGeometry != null) {
+            right = (Geometry) rightGeometry.getValue(feature);
+        }else{
+            right = feature.getDefaultGeometry();
         }
-
+        Geometry left = null;
+        
+        if(leftGeometry != null ){
+            left = (Geometry) leftGeometry.getValue(feature);
+        }else{
+            left = feature.getDefaultGeometry();
+        }
         // Handles all normal geometry cases
-        else if (filterType == GEOMETRY_EQUALS) {
-            return ((Geometry) leftGeometry.getValue(feature)).
-                equals((Geometry) rightGeometry.getValue(feature));
+        if (filterType == GEOMETRY_EQUALS) {
+            return left.equals(right);
         }
         else if (filterType == GEOMETRY_DISJOINT) {
-            return ((Geometry) leftGeometry.getValue(feature)).
-                disjoint((Geometry) rightGeometry.getValue(feature));
+            return left.disjoint(right);
         }
         else if (filterType == GEOMETRY_INTERSECTS) {
-            return ((Geometry) leftGeometry.getValue(feature)).
-                intersects((Geometry) rightGeometry.getValue(feature));
+            return left.intersects(right);
         }
         else if (filterType == GEOMETRY_CROSSES) {
-            return ((Geometry) leftGeometry.getValue(feature)).
-                crosses((Geometry) rightGeometry.getValue(feature));
+            return left.crosses(right);
         }
         else if (filterType == GEOMETRY_WITHIN) {
-            return ((Geometry) leftGeometry.getValue(feature)).
-                within((Geometry) rightGeometry.getValue(feature));
+            return left.within(right);
         }
         else if (filterType == GEOMETRY_CONTAINS) {
-            return ((Geometry) leftGeometry.getValue(feature)).
-                contains((Geometry) rightGeometry.getValue(feature));
+            return left.contains(right);
         }
         else if (filterType == GEOMETRY_OVERLAPS) {
-            return ((Geometry) leftGeometry.getValue(feature)).
-                overlaps((Geometry) rightGeometry.getValue(feature));
+            return left.overlaps(right);
         }
         else if (filterType == GEOMETRY_BEYOND) {
-            return ((Geometry) leftGeometry.getValue(feature)).
-                within((Geometry) rightGeometry.getValue(feature));
+            return left.within(right);
         }
         else if (filterType == GEOMETRY_BBOX) {
-            return ((Geometry) leftGeometry.getValue(feature)).
-                within((Geometry) rightGeometry.getValue(feature));
+            return left.within(right);
         }
 
         // Note that this is a pretty permissive logic
@@ -210,7 +210,13 @@ public class GeometryFilter extends AbstractFilter {
         else if (filterType == GEOMETRY_BBOX) {
             operator = " bbox ";
         }
-        
+        if(leftGeometry == null && rightGeometry == null){
+            return "[ " + "null" + operator + "null" + " ]";
+        }else if(leftGeometry == null){
+            return "[ " + "null" + operator + rightGeometry.toString() + " ]";
+        }else if (rightGeometry == null){
+            return "[ " + leftGeometry.toString() + operator + "null" + " ]";
+        }
         return "[ " + leftGeometry.toString() + operator + rightGeometry.toString() + " ]";        
     }
             
