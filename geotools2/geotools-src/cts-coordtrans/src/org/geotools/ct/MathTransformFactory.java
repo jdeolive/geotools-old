@@ -100,7 +100,7 @@ import javax.vecmath.GMatrix;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.7 2002/07/18 09:10:49 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.8 2002/07/24 17:14:21 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -195,9 +195,10 @@ public class MathTransformFactory {
          * If the user is requesting a 2D transform, delegate to the
          * highly optimized java.awt.geom.AffineTransform class.
          */
+        final int numRow = matrix.getNumRow();
         if (matrix.isAffine()) {
             // Affine transform are square.
-            switch (matrix.getNumRow()) {
+            switch (numRow) {
                 case 2: return (MathTransform) pool.canonicalize(
                             LinearTransform1D.create(matrix.getElement(0,0),   // scale
                                                      matrix.getElement(0,1))); // offset
@@ -205,10 +206,14 @@ public class MathTransformFactory {
             }
         }
         /*
-         * General case (slower). May not be a real
-         * affine transform. We accept it anyway...
+         * The 1D and 2D cases have their own optimized identity transform, which is why
+         * the test for identity must come after the 'isAffine()' test. If the transform
+         * is not an identity, fallback to the general case (slower).  May not be a real
+         * affine transform, but accept it anyway...
          */
-        return (MathTransform) pool.canonicalize(new MatrixTransform(matrix));
+        return (MathTransform) pool.canonicalize(matrix.isIdentity() ?
+                                (MathTransform) new IdentityTransform(numRow-1) :
+                                (MathTransform) new MatrixTransform(matrix));
     }
     
     /**
@@ -587,7 +592,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.7 2002/07/18 09:10:49 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.8 2002/07/24 17:14:21 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {

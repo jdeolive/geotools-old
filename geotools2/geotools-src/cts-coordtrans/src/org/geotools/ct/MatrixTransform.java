@@ -57,7 +57,7 @@ import javax.media.jai.util.Range;
 /**
  * Transforms multi-dimensional coordinate points using a {@link Matrix}.
  *
- * @version $Id: MatrixTransform.java,v 1.4 2002/07/18 09:10:49 desruisseaux Exp $
+ * @version $Id: MatrixTransform.java,v 1.5 2002/07/24 17:14:21 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -68,12 +68,12 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
     private static final long serialVersionUID = -2104496465933824935L;
     
     /**
-     * the number of rows.
+     * The number of rows.
      */
     private final int numRow;
     
     /**
-     * the number of columns.
+     * The number of columns.
      */
     private final int numCol;
     
@@ -385,7 +385,7 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
     /**
      * The provider for {@link MatrixTransform}.
      *
-     * @version $Id: MatrixTransform.java,v 1.4 2002/07/18 09:10:49 desruisseaux Exp $
+     * @version $Id: MatrixTransform.java,v 1.5 2002/07/24 17:14:21 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
@@ -433,6 +433,11 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
                     case 2: return LinearTransform1D.create(matrix.getElement(0,0),
                                                             matrix.getElement(0,1));
                 }
+            }
+            if (matrix.isIdentity()) {
+                // The 1D and 2D cases have their own optimized identity transform,
+                // which is why this test must come after the 'isAffine()' test.
+                return new IdentityTransform(matrix.getNumRow()-1);
             }
             return new MatrixTransform(matrix);
         }

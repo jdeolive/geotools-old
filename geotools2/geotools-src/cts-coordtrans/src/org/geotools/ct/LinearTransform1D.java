@@ -55,7 +55,7 @@ import org.geotools.pt.CoordinatePoint;
  * This class is really a special case of {@link MatrixTransform} using a 2&times;2 affine
  * transform. However, this specialized <code>LinearTransform1D</code> class is faster.
  *
- * @version $Id: LinearTransform1D.java,v 1.5 2002/07/22 18:23:08 desruisseaux Exp $
+ * @version $Id: LinearTransform1D.java,v 1.6 2002/07/24 17:14:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class LinearTransform1D extends AbstractMathTransform
@@ -105,6 +105,9 @@ class LinearTransform1D extends AbstractMathTransform
     public static LinearTransform1D create(final double scale, final double offset) {
         if (scale == 0) {
             return new ConstantTransform1D(offset);
+        }
+        if (scale==1 && offset==0) {
+            return IdentityTransform1D.ONE;
         }
         return new LinearTransform1D(scale, offset);
     }
