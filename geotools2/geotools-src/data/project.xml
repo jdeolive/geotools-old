@@ -53,8 +53,8 @@
     </developer>
     <developer>
       <name>Ian Schneider</name>
-      <id>en</id>
-      <email>ianschneiderw@ars.usda.gov</email>
+      <id>ianschneider</id>
+      <email>ianschneider@users.sourceforge.net</email>
       <organization>USDA/ARS</organization>
       <roles>
         <role>Java Developer</role>
