@@ -179,13 +179,15 @@ public class ProducerTest extends TestCase {
             + "the first feat is " + table.features().next());
 
         FeatureTransformer fr = new FeatureTransformer();
-        fr.setPrettyPrint(true);
-        fr.setDefaultNamespace("http://www.openplans.org/ch");
+        //fr.setPrettyPrint(true);
+        //fr.setDefaultNamespace("http://www.openplans.org/ch");
 
         //increase the capacity if the output gets longer.
         LogOutputStream out = new LogOutputStream(10000);
+         fr.setIndentation(2);
+        fr.getFeatureTypeNamespaces().declareDefaultNamespace("xxx", "http://www.geotools.org");
         fr.transform(table, out);
-        LOGGER.fine("output is " + out.toString());
+        LOGGER.info("output is " + out.toString());
     }
 
     /** 
