@@ -52,6 +52,13 @@ public class SdeFeatureResults implements FeatureResults
     }
 
     /**
+     * Calls through to source.getSchame( query )
+     */
+    public FeatureType getSchema() throws IOException {
+        return source.getSchema(query);        
+    }
+    
+    /**
      * DOCUMENT ME!
      *
      * @return DOCUMENT ME!

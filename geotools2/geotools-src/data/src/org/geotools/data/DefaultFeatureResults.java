@@ -17,10 +17,15 @@
 package org.geotools.data;
 
 import com.vividsolutions.jts.geom.Envelope;
+
+import org.geotools.feature.DefaultFeatureType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
+import org.geotools.feature.FeatureType;
 import org.geotools.feature.IllegalAttributeException;
+import org.geotools.feature.SchemaException;
+
 import java.io.IOException;
 
 
@@ -51,6 +56,29 @@ public class DefaultFeatureResults implements FeatureResults {
     public DefaultFeatureResults(FeatureSource source, Query query) {
         this.query = query;
         this.featureSource = source;
+    }
+    /**
+     * FeatureSchema for provided query.
+     * <p>
+     * If query.retrieveAllProperties() is <code>true</code> the FeatureSource
+     * getSchema() will be returned.
+     * </p>
+     * <p>
+     * If query.getPropertyNames() is used to limit the result of the Query
+     * a sub type will be returned based on FeatureSource.getSchema().
+     * </p>
+     */
+    public FeatureType getSchema() throws IOException {
+        if( query.retrieveAllProperties() ){
+            return featureSource.getSchema();
+        }
+        else {
+            try {
+                return DataUtilities.createSubType( featureSource.getSchema(), query.getPropertyNames() );
+            } catch (SchemaException e) {
+                throw new DataSourceException( "Could not create schema", e );
+            }
+        }
     }
 
     /**

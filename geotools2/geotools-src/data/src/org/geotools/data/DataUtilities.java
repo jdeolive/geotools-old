@@ -26,6 +26,7 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.DefaultFeatureType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
@@ -49,9 +50,11 @@ import org.geotools.filter.MathExpression;
 import org.geotools.filter.NullFilter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -525,6 +528,28 @@ public class DataUtilities {
 	    return true;
     }
 
+    public static FeatureType createSubType( FeatureType featureType, String properties[]) throws SchemaException{
+        if( properties == null ){
+            return featureType;
+        }
+        boolean same = featureType.getAttributeCount() == properties.length;
+        for( int i=0; i<featureType.getAttributeCount() && same; i++ ){
+                same = featureType.getAttributeType( i ).getName().equals( properties[i] );
+        }
+        if( same ){
+            return featureType;
+        }
+        
+        AttributeType types[] = new AttributeType[ properties.length ];
+        for( int i=0; i<properties.length;i++){
+            types[i]= featureType.getAttributeType( properties[i] );            
+        }
+        return FeatureTypeFactory.newFeatureType(
+            types,
+            featureType.getTypeName(),
+            featureType.getNamespace()
+        );
+    }
     /**
      * Utility method for FeatureType construction.
      * 
