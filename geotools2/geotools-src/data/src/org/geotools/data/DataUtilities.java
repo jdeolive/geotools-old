@@ -724,7 +724,7 @@ public class DataUtilities {
      * Returns AttributeType based on String specification (based on UML).
      * 
      * <p>
-     * Will parse a String of the form: <i>"name:Type"</i>
+     * Will parse a String of the form: <i>"name:Type:hint"</i>
      * </p>
      * 
      * <p>
@@ -749,7 +749,9 @@ public class DataUtilities {
      * </li>
      * </ul>
      * 
-     *
+     * <p>
+     * Where <i>hint</i> is "nilable".
+     * </p>
      * @param typeSpec
      *
      * @return
@@ -758,12 +760,36 @@ public class DataUtilities {
      */
     static AttributeType createAttribute(String typeSpec)
         throws SchemaException {
-        int split = typeSpec.indexOf(':');
-        String name = typeSpec.substring(0, split);
-        String type = typeSpec.substring(split + 1);
+            
+        int split = typeSpec.indexOf(":");       
+        
+        String name;
+        String type;
+        String hint = null;
+        if( split == -1 ){
+            name = typeSpec;
+            type = "String";                        
+        }
+        else {                       
+            name = typeSpec.substring(0, split );
 
+            int split2 = typeSpec.indexOf( ":", split+1 );            
+            if( split2 == -1 ){
+                type = typeSpec.substring( split+1 );
+            }
+            else {                
+                type = typeSpec.substring( split+1, split2 );
+                hint = typeSpec.substring( split2+1 );                
+            }            
+        }
+        System.out.println( "name:"+name);
+        System.out.println( "type:"+type);
+        System.out.println( "hint:"+hint);
         try {
-            return AttributeTypeFactory.newAttributeType(name, type(type));
+            if( hint != null && hint.indexOf("nillable") != -1 ){
+                return AttributeTypeFactory.newAttributeType(name, type(type), true );
+            }
+            return AttributeTypeFactory.newAttributeType(name, type(type) );
         } catch (ClassNotFoundException e) {
             throw new SchemaException("Could not type " + name + " as:" + type);
         }
