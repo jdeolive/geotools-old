@@ -60,6 +60,15 @@
         <role>Java Developer</role>
       </roles>
     </developer>
+    <developer>
+      <name>Sean Geoghegan</name>
+      <id>seangeo</id>
+      <email>seangeo@users.sourceforge.net</email>
+      <organization>Defence Science and Technology Organization</organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
     </developers>
   <dependencies>
     <dependency>
