@@ -45,7 +45,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilterImpl.java,v 1.9 2003/03/31 20:55:48 aaime Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.10 2003/05/12 22:09:31 jmacgill Exp $
  * @author Rob Hranac, TOPP
  * @tasks: REVISIT: make this class (and all filters) immutable, implement  
  * cloneable and return new filters when calling addLeftGeometry and addRightG
@@ -167,7 +167,7 @@ public class GeometryFilterImpl
         
         if(leftGeometry != null ){
             Object o = leftGeometry.getValue(feature);
-            LOGGER.finer("leftGeom = " + o.toString()); 
+            //LOGGER.finer("leftGeom = " + o.toString()); 
             left = (Geometry) o;
         }else{
             left = feature.getDefaultGeometry();
