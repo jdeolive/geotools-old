@@ -7,13 +7,35 @@ id="index">
   <articleinfo>
     <title>Geotools2 Developer Guide</title>
 
-    <author>
-      <firstname>Cameron</firstname>
+    <authorgroup>
+      <author>
+        <firstname>Cameron</firstname>
 
-      <surname>Shorter</surname>
-    </author>
+        <surname>Shorter</surname>
+      </author>
 
-    <date>$Id: developersguide.sgml,v 1.14 2002/11/22 05:06:15 camerons Exp $</date>
+      <author>
+        <firstname>James</firstname>
+
+        <surname>Macgill</surname>
+      </author>
+
+      <author>
+        <firstname>Martin</firstname>
+
+        <surname>Desruisseaux</surname>
+      </author>
+
+      <editor>
+        <firstname>Cameron</firstname>
+
+        <surname>Shorter</surname>
+      </editor>
+    </authorgroup>
+
+    <date>$Date: 2002/11/23 03:51:29 $</date>
+
+    <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp $</edition>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>

@@ -7,13 +7,41 @@ id="index">
   <articleinfo>
     <title>Geotools2 Software Design Description</title>
 
-    <author>
-      <firstname>Cameron</firstname>
+    <authorgroup>
+      <author>
+        <firstname>Cameron</firstname>
 
-      <surname>Shorter</surname>
-    </author>
+        <surname>Shorter</surname>
+      </author>
 
-    <date>$Id: design.sgml,v 1.9 2002/11/22 19:35:29 camerons Exp $</date>
+      <author>
+        <firstname>James</firstname>
+
+        <surname>Macgill</surname>
+      </author>
+
+      <author>
+        <firstname>Martin</firstname>
+
+        <surname>Desruisseaux</surname>
+      </author>
+
+      <author>
+        <firstname>Rob</firstname>
+
+        <surname>Hranac</surname>
+      </author>
+
+      <editor>
+        <firstname>Cameron</firstname>
+
+        <surname>Shorter</surname>
+      </editor>
+    </authorgroup>
+
+    <date>$Id: design.sgml,v 1.10 2002/11/23 03:51:29 camerons Exp $</date>
+
+    <edition>$Id: design.sgml,v 1.10 2002/11/23 03:51:29 camerons Exp $</edition>
   </articleinfo>
 
   <section>
@@ -66,15 +94,15 @@ id="index">
       <emphasis>Poseidon</emphasis>, reverse engineer the code and
       interactively view diagrams, javadocs and code.</para>
 
-      <table colsep="0" role="" rowsep="0">
+      <table role="" rowsep="0" colsep="0">
         <title>Legend for UML class diagrams</title>
 
-        <tgroup colsep="0" rowsep="0" cols="2">
+        <tgroup rowsep="0" cols="2" colsep="0">
           <tbody>
             <row>
-              <entry><mediaobject><imageobject><imagedata align="left"
-              format="PNG" fileref="images/design/PackageIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
+              <entry><mediaobject><imageobject><imagedata
+              fileref="images/design/PackageIcon.png" format="PNG"
+              align="left" revisionflag="off" /></imageobject></mediaobject></entry>
 
               <entry>Package</entry>
             </row>
@@ -89,9 +117,9 @@ id="index">
             </row>
 
             <row>
-              <entry><mediaobject><imageobject><imagedata align="left"
-              format="PNG" fileref="images/design/InterfaceIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
+              <entry><mediaobject><imageobject><imagedata
+              fileref="images/design/InterfaceIcon.png" format="PNG"
+              align="left" revisionflag="off" /></imageobject></mediaobject></entry>
 
               <entry>Interfaces. An Interface is restricted to only contain
               operations but no attributes. Also, operations are abstract and
@@ -99,8 +127,8 @@ id="index">
             </row>
 
             <row>
-              <entry><mediaobject><imageobject><imagedata align="left"
-              format="PNG" fileref="images/design/ClassIcon.png"
+              <entry><mediaobject><imageobject><imagedata
+              fileref="images/design/ClassIcon.png" format="PNG" align="left"
               revisionflag="off" /></imageobject></mediaobject></entry>
 
               <entry>Classes. Classes hold operations and attributes and have
@@ -109,27 +137,27 @@ id="index">
             </row>
 
             <row>
-              <entry><mediaobject><imageobject><imagedata align="left"
-              format="PNG" fileref="images/design/InheritanceIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
+              <entry><mediaobject><imageobject><imagedata
+              fileref="images/design/InheritanceIcon.png" format="PNG"
+              align="left" revisionflag="off" /></imageobject></mediaobject></entry>
 
               <entry>Inheritance relations. Between interfaces or between
               classes.</entry>
             </row>
 
             <row>
-              <entry><mediaobject><imageobject><imagedata align="left"
-              format="PNG" fileref="images/design/RealizationIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
+              <entry><mediaobject><imageobject><imagedata
+              fileref="images/design/RealizationIcon.png" format="PNG"
+              align="left" revisionflag="off" /></imageobject></mediaobject></entry>
 
               <entry>Implementation relations. Only between interfaces and
               classes.</entry>
             </row>
 
             <row>
-              <entry><mediaobject><imageobject><imagedata align="left"
-              format="PNG" fileref="images/design/AssociationIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
+              <entry><mediaobject><imageobject><imagedata
+              fileref="images/design/AssociationIcon.png" format="PNG"
+              align="left" revisionflag="off" /></imageobject></mediaobject></entry>
 
               <entry>Association relations. Associations are relations between
               classes. They often include navigation arrows, and multiplicity
