@@ -366,29 +366,41 @@ public class Legend extends javax.swing.JPanel implements MapLayerListListener, 
         legendTree.repaint();
     }
 
-    /**
-     * Used to force the tree to recontruct it's model from the context and repaint itself
-     */
     public void contextChanged() {
+        MapLayer selection = getSelectedLayer();
         DefaultTreeModel treeModel = contructTreeModelAndLayerList(context);
 
         if (treeModel != null) {
             legendTree.setModel(treeModel);
+            if(selection != null) 
+                setSelectedLayer(selection);
         }
 
-        legendTree.repaint();
         LOGGER.fine("recontruct done");
     }
 
-    public void styleChanged() {
-        DefaultTreeModel treeModel = contructTreeModelAndLayerList(context);
-
-        if (treeModel != null) {
-            legendTree.setModel(treeModel);
+    /**
+     * @param selection
+     */
+    private boolean setSelectedLayer(MapLayer selection) {
+        DefaultMutableTreeNode root = getRoot();
+        DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getFirstChild();
+        while(child != null) {
+            if(((LegendLayerNodeInfo) child.getUserObject()).getMapLayer() == selection) {
+                legendTree.setSelectionPath(new TreePath(child.getPath()));
+                return true;
+            }
+            child = child.getNextSibling();
         }
+        return false;
+    }
 
-        legendTree.repaint();
-        LOGGER.fine("recontruct done");
+    /**
+     * @param selection
+     */
+    private void setSelectedObject(Object selection) {
+        // TODO Auto-generated method stub
+        
     }
 
     public void layerAdded(org.geotools.map.event.MapLayerListEvent event) {
@@ -397,8 +409,8 @@ public class Legend extends javax.swing.JPanel implements MapLayerListListener, 
 
     public void layerChanged(org.geotools.map.event.MapLayerListEvent event) {
         if (event.getMapLayerEvent() != null) {
-            if (event.getMapLayerEvent().getReason() == MapLayerEvent.STYLE_CHANGED) {
-                styleChanged();
+            if (event.getMapLayerEvent().getReason() == MapLayerEvent.STYLE_CHANGED || event.getMapLayerEvent().getReason() == MapLayerEvent.VISIBILITY_CHANGED) {
+                contextChanged();
             }
         }
     }
