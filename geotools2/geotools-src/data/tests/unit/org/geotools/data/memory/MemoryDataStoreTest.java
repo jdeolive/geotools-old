@@ -316,19 +316,19 @@ public class MemoryDataStoreTest extends DataTestCase {
         FeatureType type = data.getSchema("road");
         FeatureReader reader;
 
-        reader = data.getFeatureReader(type, Filter.NONE,
+        reader = data.getFeatureReader( new DefaultQuery("road"),
                 Transaction.AUTO_COMMIT);
         assertFalse(reader instanceof FilteringFeatureReader);
         assertEquals(type, reader.getFeatureType());
         assertEquals(roadFeatures.length, count(reader));
 
-        reader = data.getFeatureReader(type, Filter.ALL, Transaction.AUTO_COMMIT);
+        reader = data.getFeatureReader( new DefaultQuery( "road", Filter.ALL ), Transaction.AUTO_COMMIT);
         assertTrue(reader instanceof EmptyFeatureReader);
 
         assertEquals(type, reader.getFeatureType());
         assertEquals(0, count(reader));
 
-        reader = data.getFeatureReader(type, rd1Filter,
+        reader = data.getFeatureReader( new DefaultQuery( "road", rd1Filter ),
                 Transaction.AUTO_COMMIT);
         assertTrue(reader instanceof FilteringFeatureReader);
         assertEquals(type, reader.getFeatureType());
@@ -341,17 +341,17 @@ public class MemoryDataStoreTest extends DataTestCase {
         FeatureType type = data.getSchema("road");
         FeatureReader reader;
 
-        reader = data.getFeatureReader(type, Filter.ALL, t);
+        reader = data.getFeatureReader( new DefaultQuery( "road", Filter.ALL ), t);
         assertTrue(reader instanceof EmptyFeatureReader);
         assertEquals(type, reader.getFeatureType());
         assertEquals(0, count(reader));
 
-        reader = data.getFeatureReader(type, Filter.NONE, t);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t);
         assertTrue(reader instanceof DiffFeatureReader);
         assertEquals(type, reader.getFeatureType());
         assertEquals(roadFeatures.length, count(reader));
 
-        reader = data.getFeatureReader(type, rd1Filter, t);
+        reader = data.getFeatureReader(new DefaultQuery( "road", rd1Filter ), t);
         assertTrue(reader instanceof DiffFeatureReader);
         assertEquals(type, reader.getFeatureType());
         assertEquals(1, count(reader));
@@ -368,23 +368,23 @@ public class MemoryDataStoreTest extends DataTestCase {
             }
         }
 
-        reader = data.getFeatureReader(type, Filter.ALL, t);
+        reader = data.getFeatureReader(new DefaultQuery( "road", Filter.ALL ), t);
         assertEquals(0, count(reader));
 
-        reader = data.getFeatureReader(type, Filter.NONE, t);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t);
         assertEquals(roadFeatures.length - 1, count(reader));
 
-        reader = data.getFeatureReader(type, rd1Filter, t);
+        reader = data.getFeatureReader(new DefaultQuery( "road", rd1Filter), t);
         assertEquals(0, count(reader));
 
         t.rollback();
-        reader = data.getFeatureReader(type, Filter.ALL, t);
+        reader = data.getFeatureReader(new DefaultQuery( "road", Filter.ALL ), t);
         assertEquals(0, count(reader));
 
-        reader = data.getFeatureReader(type, Filter.NONE, t);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t);
         assertEquals(roadFeatures.length, count(reader));
 
-        reader = data.getFeatureReader(type, rd1Filter, t);
+        reader = data.getFeatureReader(new DefaultQuery( "road", rd1Filter), t);
         assertEquals(1, count(reader));
     }
 
@@ -641,8 +641,7 @@ public class MemoryDataStoreTest extends DataTestCase {
         FINAL[i] = newRoad;
 
         // start of with ORIGINAL                        
-        reader = data.getFeatureReader(road, Filter.NONE,
-                Transaction.AUTO_COMMIT);
+        reader = data.getFeatureReader( new DefaultQuery("road"), Transaction.AUTO_COMMIT);
         assertTrue(covers(reader, ORIGIONAL));
 
         // writer 1 removes road.rd1 on t1
@@ -655,10 +654,10 @@ public class MemoryDataStoreTest extends DataTestCase {
         }
 
         // still have ORIGIONAL and t1 has REMOVE
-        reader = data.getFeatureReader(road, Filter.NONE,
+        reader = data.getFeatureReader(new DefaultQuery("road"),
                 Transaction.AUTO_COMMIT);
         assertTrue(covers(reader, ORIGIONAL));
-        reader = data.getFeatureReader(road, Filter.NONE, t1);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t1);
         assertTrue(covers(reader, REMOVE));
 
         // close writer1
@@ -667,10 +666,10 @@ public class MemoryDataStoreTest extends DataTestCase {
         writer1.close();
 
         // We still have ORIGIONAL and t1 has REMOVE
-        reader = data.getFeatureReader(road, Filter.NONE,
+        reader = data.getFeatureReader(new DefaultQuery("road"),
                 Transaction.AUTO_COMMIT);
         assertTrue(covers(reader, ORIGIONAL));
-        reader = data.getFeatureReader(road, Filter.NONE, t1);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t1);
         assertTrue(covers(reader, REMOVE));
 
         // writer 2 adds road.rd4 on t2
@@ -681,10 +680,10 @@ public class MemoryDataStoreTest extends DataTestCase {
         writer2.write();
 
         // We still have ORIGIONAL and t2 has ADD
-        reader = data.getFeatureReader(road, Filter.NONE,
+        reader = data.getFeatureReader(new DefaultQuery("road"),
                 Transaction.AUTO_COMMIT);
         assertTrue(covers(reader, ORIGIONAL));
-        reader = data.getFeatureReader(road, Filter.NONE, t2);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t2);
         assertTrue(coversLax(reader, ADD));
 
         // close writer2
@@ -693,10 +692,10 @@ public class MemoryDataStoreTest extends DataTestCase {
         writer2.close();
 
         // Still have ORIGIONAL and t2 has ADD
-        reader = data.getFeatureReader(road, Filter.NONE,
+        reader = data.getFeatureReader(new DefaultQuery("road"),
                 Transaction.AUTO_COMMIT);
         assertTrue(covers(reader, ORIGIONAL));
-        reader = data.getFeatureReader(road, Filter.NONE, t2);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t2);
         assertTrue(coversLax(reader, ADD));
 
         // commit t1
@@ -707,12 +706,12 @@ public class MemoryDataStoreTest extends DataTestCase {
 
         // We now have REMOVE, as does t1 (which has not additional diffs)
         // t2 will have FINAL
-        reader = data.getFeatureReader(road, Filter.NONE,
+        reader = data.getFeatureReader(new DefaultQuery("road"),
                 Transaction.AUTO_COMMIT);
         assertTrue(covers(reader, REMOVE));
-        reader = data.getFeatureReader(road, Filter.NONE, t1);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t1);
         assertTrue(covers(reader, REMOVE));
-        reader = data.getFeatureReader(road, Filter.NONE, t2);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t2);
         assertTrue(coversLax(reader, FINAL));
 
         // commit t2
@@ -721,14 +720,14 @@ public class MemoryDataStoreTest extends DataTestCase {
         t2.commit();
 
         // We now have Number( remove one and add one)
-        reader = data.getFeatureReader(road, Filter.NONE,
+        reader = data.getFeatureReader( new DefaultQuery("road"),
                 Transaction.AUTO_COMMIT);
-        reader = data.getFeatureReader(road, Filter.NONE,
+        reader = data.getFeatureReader(new DefaultQuery("road"),
                 Transaction.AUTO_COMMIT);
         assertTrue(coversLax(reader, FINAL));
-        reader = data.getFeatureReader(road, Filter.NONE, t1);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t1);
         assertTrue(coversLax(reader, FINAL));
-        reader = data.getFeatureReader(road, Filter.NONE, t2);
+        reader = data.getFeatureReader(new DefaultQuery("road"), t2);
         assertTrue(coversLax(reader, FINAL));
     }
 
