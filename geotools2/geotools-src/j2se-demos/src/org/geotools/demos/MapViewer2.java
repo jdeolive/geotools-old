@@ -55,7 +55,6 @@ import org.geotools.gml.GMLDataSource;
 import org.geotools.gui.tools.ToolFactory;
 import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.AbstractTool;
-import org.geotools.gui.widget.FrameWidget;
 import org.geotools.gui.widget.MapPane;
 import org.geotools.gui.swing.MapPaneImpl;
 import org.geotools.gui.widget.WidgetFactory;
@@ -75,7 +74,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.17 2003/02/23 11:27:21 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.18 2003/02/25 11:13:13 camerons Exp $
  *
  */
 
@@ -101,7 +100,7 @@ public class MapViewer2 {
 
         BoundingBox bbox;
         Envelope envelope;
-        org.geotools.gui.widget.MapPane mapPane;
+        MapPaneImpl mapPane;
         LayerList layerList;
         Layer layer;
         AbstractTool tool;
@@ -150,23 +149,25 @@ public class MapViewer2 {
 
             // Create MapPane
             WidgetFactory widgetFactory=WidgetFactory.createFactory();
-            mapPane=widgetFactory.createMapPane(
-                    tool,
-                    context);
+//            mapPane=widgetFactory.createMapPane(
+//                    tool,
+//                    context);
+            mapPane=new MapPaneImpl(tool,context);
 
-            // Create FrameWidget
-            FrameWidget frameWidget=widgetFactory.createFrameWidget();
-            frameWidget.addWindowListener(new java.awt.event.WindowAdapter() {
+            // Create frame
+//            frame frame=widgetFactory.createframe();
+            JFrame frame=new JFrame();
+            frame.addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowClosing(java.awt.event.WindowEvent evt) {
                     exitForm(evt);
                 }
             });
-            frameWidget.setBorderLayout();
-            frameWidget.addPanelWidget(
-                mapPane);
-            frameWidget.setTitle("Click on map to pan");
-            frameWidget.pack();
-            frameWidget.show();
+            frame.getContentPane().setLayout(new BorderLayout());
+            frame.getContentPane().add(
+                mapPane,"North");
+            frame.setTitle("Click on map to pan");
+            frame.pack();
+            frame.show();
          } catch (Exception e){
             LOGGER.warning("Exception: "+e+" initialising MapView.");
         }

@@ -24,7 +24,7 @@ public class PanToolImpl extends MouseToolImpl implements PanTool {
     /**
      * Construct a PanTool.
      */
-    protected PanToolImpl(){
+    public PanToolImpl(){
     }
     
     /**

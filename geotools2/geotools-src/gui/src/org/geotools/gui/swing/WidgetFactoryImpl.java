@@ -9,6 +9,9 @@ import org.geotools.map.Context;
  * An implementation of WidgetFactory to be used to construct widgets.  This
  * class should not be called directly.  Instead it should be created from
  * WidgetFactory, and WidgetFactory methods should be called instead.
+ * @deprecated Creating a WidgetFactory was becoming too difficult because
+ * swing libraries did not implement an interface and hence we ran into a
+ * multiple inheritance problem.  Our widgets now just extend swing components.
  */
 public class WidgetFactoryImpl extends WidgetFactory {
 

@@ -33,7 +33,8 @@ import org.geotools.gui.widget.PanelWidget;
  * A frame which can contain other widgets.
  *
  * @author Cameron Shorter
- * @version $Id: FrameWidgetImpl.java,v 1.2 2003/02/12 23:34:02 camerons Exp $
+ * @version $Id: FrameWidgetImpl.java,v 1.3 2003/02/25 11:13:13 camerons Exp $
+ * @deprecated Use JFrame instead.
  *
  */
 

@@ -28,8 +28,9 @@ import java.awt.event.MouseListener;
 
 /**
  * This is the base widget class that all widgets inherit from.
- * @version $Id: PanelWidgetImpl.java,v 1.4 2003/02/21 19:27:35 camerons Exp $
+ * @version $Id: PanelWidgetImpl.java,v 1.5 2003/02/25 11:13:13 camerons Exp $
  * @author Cameron Shorter
+ * @deprecated Use JPanel instead.
  */
 
 public class PanelWidgetImpl extends JPanel implements PanelWidget
