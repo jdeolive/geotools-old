@@ -424,7 +424,6 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
      *      java.lang.Object, org.geotools.filter.Filter)
      */
     public void setFeatures(FeatureReader reader) throws IOException {
-	LOGGER.info("setFeatures called " + reader);
         String typeName = getSchema().getTypeName();
         FeatureWriter writer = getDataStore().getFeatureWriter(typeName,
                 getTransaction());
@@ -434,7 +433,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
         try {
             while (writer.hasNext()) {
                 feature = writer.next();
-		LOGGER.info("removing feature " + feature);
+		LOGGER.finer("removing feature " + feature);
                 writer.remove();
             }
 
@@ -455,7 +454,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
                         + typeName + " out of provided feature: "
                         + feature.getID(), writeProblem);
                 }
-		LOGGER.info("writing feature " + newFeature);
+		LOGGER.finer("writing feature " + newFeature);
                 writer.write();
             }
         } finally {
