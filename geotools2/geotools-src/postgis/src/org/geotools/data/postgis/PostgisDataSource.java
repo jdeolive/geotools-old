@@ -31,19 +31,19 @@ import org.geotools.filter.*;
 import org.geotools.filter.SQLUnpacker;
 import org.geotools.filter.SQLEncoderPostgis;
 import org.geotools.filter.SQLEncoderException;
-
+import org.geotools.resources.Geotools;
 import org.geotools.datasource.extents.EnvelopeExtent;
-
 
 //Logging system
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Connects to a Postgis database and returns properly formatted GML.
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.5 2002/10/10 23:29:35 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.6 2002/10/16 17:56:15 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class PostgisDataSource implements org.geotools.data.DataSource {
@@ -104,10 +104,13 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     private String tableName;
 
 
-
     /** To get the part of the filter incorporated into the sql where statement */
     private SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
 
+
+    static {
+	Geotools.init("Log4JFormatter", Level.FINER);
+    }
 
 
     /**
@@ -177,7 +180,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      *
      * @param genericQuery The query from the request object.
      */ 
-    private static FeatureType makeSchema(String tableName, 
+    public static FeatureType makeSchema(String tableName, 
                                           javax.sql.DataSource db) 
         throws Exception {
         
@@ -249,7 +252,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
                                                       String columnName) 
         throws Exception {
         
-        String sqlStatement = "SELECT type FROM GEOMETRY_COLUMNS WHERE " + 
+        String sqlStatement = "SELECT type, srid FROM GEOMETRY_COLUMNS WHERE " + 
             "f_table_name='" + tableName + "' AND f_geometry_column='" + 
             columnName + "';";
         String geometryType = null;
@@ -266,7 +269,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             geometryType = result.getString("type");
 	    srid = result.getInt("srid");
 
-            //LOGGER.fine("geometry type is: " + geometryType);
+            LOGGER.fine("geometry type is: " + geometryType);
         }
         
         closeResultSet(result);
@@ -298,16 +301,17 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	}
 	    encoder.setSRID(srid);
 	    String where = "";
+	    LOGGER.finer("about to encode");
 	    if (filter != null) {
 		try {    
 		    where = encoder.encode((AbstractFilter)filter);   
 		} catch (SQLEncoderException e) { 
 		    LOGGER.fine("Encoder error" + e.getMessage());
 		}
-		//_log.debug("where statement is " + where);
+		
 	    }
 	    sqlStatement.append(" FROM " + tableName +" "+ where + " LIMIT " + maxFeatures + ";").toString();
-	    
+	    LOGGER.finer("sql statement is " + sqlStatement);
 	    return sqlStatement.toString();            
     }
     
