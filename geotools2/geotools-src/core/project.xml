@@ -64,6 +64,16 @@
                 <role>Doc Editor</role>
             </roles>
         </developer>
+        <developer>
+      <name>Cameron Shorter</name>
+      <id>jmacgill</id>
+      <email>cameronsl@users.sourceforge.net</email>
+      <organization>None</organization>
+            <roles>
+                
+                <role>Java Developer</role>
+            </roles>
+        </developer>
     </developers>
   <dependencies>
     <dependency>
