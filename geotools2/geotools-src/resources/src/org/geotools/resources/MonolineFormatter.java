@@ -103,7 +103,7 @@ import org.geotools.io.LineWriter;
  * java.util.logging.ConsoleHandler.level = FINE
  * </pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.13 2003/07/24 12:41:29 desruisseaux Exp $
+ * @version $Id: MonolineFormatter.java,v 1.14 2003/07/24 14:11:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatter extends Formatter {
@@ -445,31 +445,39 @@ public class MonolineFormatter extends Formatter {
     public static MonolineFormatter init(final String base, final Level level) {
         MonolineFormatter monoline = null;
         final Logger logger = Logger.getLogger(base);
-        for (Logger parent=logger; parent.getUseParentHandlers();) {
-            parent = parent.getParent();
-            if (parent == null) {
-                break;
-            }
-            final Handler[] handlers = parent.getHandlers();
+        Logger scan = logger;
+        do {
+            final Handler[] handlers = scan.getHandlers();
             for (int i=0; i<handlers.length; i++) {
                 /*
-                 * Search for a ConsoleHandler. Search is performed in the target 
-                 * handler and all its parent loggers. When a ConsoleHandler is 
-                 * found, it will be replaced by the Stdout handler for 'logger' 
+                 * Search for a ConsoleHandler. Search is performed in the target
+                 * handler and all its parent loggers.   When a ConsoleHandler is
+                 * found,  it will be replaced by the Stdout handler for 'logger'
                  * only.
                  */
                 Handler handler = handlers[i];
                 if (handler.getClass().equals(ConsoleHandler.class)) {
                     final Formatter formatter = handler.getFormatter();
                     if (formatter instanceof MonolineFormatter) {
+                        /*
+                         * A MonolineFormatter already existed. Set the level only for the first
+                         * instance  (only one instance should exists anyway),   for consistency
+                         * with the fact that this method returns only one MonolineFormatter for
+                         * further configuration.
+                         */
                         if (monoline == null) {
                             monoline = (MonolineFormatter) formatter;
                             if (level != null) {
                                 handler.setLevel(level);
                             }
                         }
-                    }
-                    if (formatter.getClass().equals(SimpleFormatter.class)) {
+                    } else if (formatter.getClass().equals(SimpleFormatter.class)) {
+                        /*
+                         * A ConsoleHandler using the SimpleFormatter has been found. Replace
+                         * the SimpleFormatter by MonolineFormatter, creating it if necessary.
+                         * If the handler creation fail with an exception, then we will continue
+                         * to use the old J2SE handler instead.
+                         */
                         if (monoline == null) {
                             monoline = new MonolineFormatter(base);
                         }
@@ -487,18 +495,29 @@ public class MonolineFormatter extends Formatter {
                 }
                 logger.addHandler(handler);
             }
-        }
+        } while ((scan=scan.getParent())!=null && scan.getUseParentHandlers());
         /*
-         * If no formatter has been found, create a new
-         * one and add the handler to the logger.
+         * If no formatter has been found, create a new one and add the handler to the logger.
+         * If the creation fail with an exception, then we will continue to use the old J2SE
+         * handler instead.
          */
         if (monoline == null) {
             monoline = new MonolineFormatter(base);
-            Handler handler = new Stdout(monoline);
-            if (level != null) {
-                handler.setLevel(level);
+            try {
+                final Handler handler = new Stdout(monoline);
+                if (level != null) {
+                    handler.setLevel(level);
+                }
+                logger.addHandler(handler);
+            } catch (SecurityException exception) {
+                /*
+                 * Returns without any change to the J2SE configuration. Note that the returned
+                 * MonolineFormatter is really a dummy one, since we failed to register it.  It
+                 * will not prevent to program to work; just produces different logging outputs.
+                 */
+                unexpectedException(exception);
+                return monoline;
             }
-            logger.addHandler(handler);
         }
         logger.setUseParentHandlers(false);
         if (level != null) {
