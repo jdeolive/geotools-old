@@ -43,39 +43,73 @@
     <dependency>
       <id>core</id>
       <version>0.1</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
     </dependency>
         <dependency>
       <id>defaultcore</id>
       <version>0.1</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
     </dependency>
     <dependency>
       <id>resources</id>
       <version>0.1</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
     </dependency>
     <dependency>
       <id>sldstyling</id>
       <version>0.1</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
     </dependency> 
     <dependency>
       <id>shapefile</id>
       <version>0.1</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
     </dependency>  
     <dependency>
       <id>postgis</id>
       <version>0.1</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
     </dependency>   
         
         <dependency>
       <id>filter</id>
       <version>0.1</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
     </dependency>
-        <dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.0</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
     </dependency>
-        <dependency>
+    <dependency>
       <id>java2drendering</id>
       <version>0.1</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
+    </dependency>
+    <dependency>
+      <id>littleEndian</id>
+      <version>1.0</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
     </dependency>
   </dependencies>
   
