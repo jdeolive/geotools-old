@@ -19,8 +19,8 @@ import java.util.Iterator;
 
 
 import junit.framework.*;
-import org.geotools.data.DataSourceFinder;
-import org.geotools.data.DataSource;
+import org.geotools.data.DataStoreFinder;
+import org.geotools.data.DataStore;
 
 /**
  *
@@ -39,11 +39,11 @@ public class ServiceTest extends TestCaseSupport {
   }
   
   public void testIsAvailable() {
-    Iterator list = DataSourceFinder.getAvailableDataSources();
+    Iterator list = DataStoreFinder.getAvailableDataStores();
     boolean found = false;
     while(list.hasNext()){
-      DataSourceFactorySpi fac = (DataSourceFactorySpi)list.next();
-      if(fac instanceof ShapefileDataSourceFactory){
+      DataStoreFactorySpi fac = (DataStoreFactorySpi)list.next();
+      if(fac instanceof ShapefileDataStoreFactory){
         found=true;
         assertNotNull(fac.getDescription());
         break;
@@ -52,10 +52,12 @@ public class ServiceTest extends TestCaseSupport {
     assertTrue("ShapefileDataSourceFactory not registered", found);
   }
   
-  public void testShapefileDataSource() throws Exception{
+  public void testShapefileDataStore() throws Exception{
     HashMap params = new HashMap();
+    params.put("url", getTestResource(TEST_FILE));
+    DataStore ds = DataStoreFinder.getDataStore(params);
+    assertNotNull(ds);
     params.put("url", getTestResource(TEST_FILE).toString());
-    DataSource ds = DataSourceFinder.getDataSource(params);
     assertNotNull(ds);
   }
   
