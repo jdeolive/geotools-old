@@ -33,13 +33,24 @@ import org.geotools.styling.*;
 
 import com.vividsolutions.jts.geom.*;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Rectangle;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 
 import java.util.HashMap;
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
+    /**
+     * Flag which controls behaviour for applying affine transformation
+     * to the graphics object.  If true then the transform will be concatonated
+     * to the existing transform, if false it will be replaced.
+     */
+    private boolean concatTransforms = false;
     
     /**
      * Holds a lookup bewteen SLD names and java constants
@@ -68,6 +79,27 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     public Java2DRenderer() {
     }
     
+    /**
+     * Sets the flag which controls behaviour for applying affine 
+     * transformation to the graphics object.
+     *  
+     * @param flag If true then the transform will be concatonated
+     * to the existing transform, if false it will be replaced.
+     */
+    public void setConcatTransforms(boolean flag){
+        concatTransforms = flag;
+    }
+    
+    /**
+     * Flag which controls behaviour for applying affine transformation
+     * to the graphics object.  
+     *
+     * @return a boolean flag. If true then the transform will be
+     * concatonated to the existing transform, if false it will be replaced.
+     */
+    public boolean gatConcatTransforms(){
+        return concatTransforms;
+    }
     public void setOutput(Graphics g,Rectangle bounds){
         graphics = (Graphics2D)g;
         screenSize = bounds;
@@ -98,7 +130,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         at.transform(testPoint,testPoint);
         System.out.println("origin "+map.getMinX()+","+map.getMinY()+"\ntrans "
         +testPoint.toString());
-        graphics.setTransform(at);
+        if(concatTransforms){
+            graphics.getTransform().concatenate(at);
+        }
+        else{
+            graphics.setTransform(at);
+        }
         
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
         processStylers(features, featureStylers);
@@ -109,6 +146,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             FeatureTypeStyle fts = featureStylers[i];
             for(int j=0;j<features.length;j++){
                 Feature feature = features[j];
+                System.out.println("fature is "+feature.getTypeName()+" type styler is "+fts.getFeatureTypeName());
                 if(feature.getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
                     //this styler is for this type of feature
                     //now find which rule applies
@@ -133,7 +171,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     
     private void processSymbolizers(final Feature feature, final Symbolizer[] symbolizers) {
         for(int m =0;m<symbolizers.length;m++){
-            System.out.println("Using symbolizer "+symbolizers[m]);
+            //System.out.println("Using symbolizer "+symbolizers[m]);
             if (symbolizers[m] instanceof PolygonSymbolizer){
                 renderPolygon(feature,(PolygonSymbolizer)symbolizers[m]);
             }
@@ -149,7 +187,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature,geomName);
         // Geometry scaled = transform.transformGeometry(geom);
-        GeneralPath path = createGeneralPath(geom.getCoordinates());
+        GeneralPath path = createGeneralPath(geom);
         //path.closePath();
         if(fill!=null){
             graphics.setColor(Color.decode(fill.getColor()));
@@ -190,8 +228,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             capCode = java.awt.BasicStroke.CAP_SQUARE;
         }
         float[] dashes = stroke.getDashArray();
-        for(int i = 0;i<dashes.length;i++){
-            dashes[i] = (float)Math.max(1,dashes[i]/(float)scale);
+        if(dashes!=null){
+            
+            for(int i = 0;i<dashes.length;i++){
+                dashes[i] = (float)Math.max(1,dashes[i]/(float)scale);
+            }
         }
         BasicStroke stroke2d;
         if(dashes.length > 0){
@@ -208,14 +249,49 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         graphics.setColor(Color.decode(stroke.getColor()));
     }
     
-    private GeneralPath createGeneralPath(final Coordinate[] coords) {
+    private GeneralPath createGeneralPath(final Geometry geom) {
         GeneralPath path = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
+        addToPath(geom,path);
+        return path;
+    }
+    
+    private GeneralPath addToPath(final Geometry geom,final GeneralPath path){
+        System.out.println("Geom type is "+geom.getGeometryType()+" class is "+geom.getClass().getName());
+        if(geom instanceof GeometryCollection){
+            GeometryCollection gc = (GeometryCollection) geom;
+            for(int i=0;i<gc.getNumGeometries();i++){
+                addToPath(gc.getGeometryN(i), path);
+            }
+            return path;
+        }
+        if(geom instanceof com.vividsolutions.jts.geom.Polygon){
+            System.out.println("generating path for polygon");
+            com.vividsolutions.jts.geom.Polygon poly;
+            poly = (com.vividsolutions.jts.geom.Polygon)geom;
+            addToPath(path,poly.getExteriorRing().getCoordinates());
+            path.closePath();
+            for(int i=1;i<poly.getNumInteriorRing();i++){
+                System.out.println("adding inner ring to polygon");
+                addToPath(path,poly.getInteriorRingN(i).getCoordinates());
+                path.closePath();
+            }
+        }
+        else{
+            Coordinate[] coords = geom.getCoordinates();
+            addToPath(path, coords);
+        }
+        return path;
+    }
+    
+    private void addToPath(final GeneralPath path, final Coordinate[] coords) {
         path.moveTo((float)coords[0].x,(float)coords[0].y);
         for(int i=1;i<coords.length;i++){
             path.lineTo((float)coords[i].x,(float)coords[i].y);
         }
-        return path;
     }
+    
+    
+    
     
     private void renderLine(Feature feature, LineSymbolizer symbolizer){
         applyStroke(symbolizer.getStroke());
@@ -223,7 +299,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         Geometry geom = findGeometry(feature, geomName);
         //Geometry scaled = transform.transformGeometry(geom);
         
-        GeneralPath path = createGeneralPath(geom.getCoordinates());
+        GeneralPath path = createGeneralPath(geom);
         //System.out.println(path.getBounds());
         
         graphics.draw(path);
