@@ -28,7 +28,7 @@ import org.geotools.styling.Style;
  * Layer is an aggregation of both a FeatureCollection and Style.
  *
  * @author Cameron Shorter
- * @version $Id: LayerImpl.java,v 1.9 2003/08/05 20:04:39 jmacgill Exp $
+ * @version $Id: LayerImpl.java,v 1.10 2003/08/08 02:41:45 seangeo Exp $
  *
  * @task REVISIT: This class maybe should contain CoordinateSystem, which could
  *       either be set externally, or derived from one of its features.
@@ -171,7 +171,7 @@ public class LayerImpl implements Layer {
         //(Layer[])layers.toArray(new Layer[0]));
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == LayerListener.class) {
-                ((LayerListener) listeners[i + 1]).LayerChanged(llce);
+                ((LayerListener) listeners[i + 1]).layerChanged(llce);
             }
         }
     }
