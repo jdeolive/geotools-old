@@ -24,7 +24,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureResults;
-import org.geotools.data.MaxFeatureReader;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
@@ -93,7 +92,7 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.16 2003/11/13 02:45:10 cholmesny Exp $
+ * @version $Id: FeatureTransformer.java,v 1.17 2003/11/14 22:36:59 cholmesny Exp $
  *
  * @todo Add support for schemaLocation
  */
@@ -108,6 +107,8 @@ public class FeatureTransformer extends TransformerBase {
     private SchemaLocationSupport schemaLocation = new SchemaLocationSupport();
     private int maxFeatures = -1;
     private boolean prefixGml = false;
+    private String srsName;
+    private String lockId;
 
     public void setCollectionNamespace(String nsURI) {
         collectionNamespace = nsURI;
@@ -138,6 +139,33 @@ public class FeatureTransformer extends TransformerBase {
     }
 
     /**
+     * Used to set the srsName attribute of the Geometries to be turned to xml.
+     * For now we can only have all with the same srsName.
+     *
+     * @param srsName DOCUMENT ME!
+     *
+     * @task REVISIT: once we have better srs support in our feature model this
+     *       should be rethought, as it's a rather blunt approach.
+     */
+    public void setSrsName(String srsName) {
+        this.srsName = srsName;
+    }
+
+    /**
+     * Used to set a lockId attribute after a getFeatureWithLock.
+     *
+     * @param lockId DOCUMENT ME!
+     *
+     * @task REVISIT: Ian, this is probably the most wfs specific addition. If
+     *       you'd like I can subclass and add it there.  It has to be added
+     *       as an attribute to FeatureCollection, to report a
+     *       GetFeatureWithLock
+     */
+    public void setLockId(String lockId) {
+        this.lockId = lockId;
+    }
+
+    /**
      * If Gml Prefixing is enabled then attributes with names that could be
      * prefixed with gml, such as description, pointProperty, and name, will
      * be.  So if an attribute called name is encountered, instead of
@@ -153,8 +181,8 @@ public class FeatureTransformer extends TransformerBase {
      * @param prefixGml DOCUMENT ME!
      *
      * @task REVISIT: only prefix name, description, and boundedBy if they
-     *       occur in their proper places.  Right now names always get gml prefixed
-     *       if the gmlPrefixing is on, which is less than ideal.
+     *       occur in their proper places.  Right now names always get gml
+     *       prefixed if the gmlPrefixing is on, which is less than ideal.
      * @task REVISIT: The other approach is to allow for generic mapping, users
      *       would set which attributes they wanted to have different
      *       prefixes.
@@ -187,6 +215,8 @@ public class FeatureTransformer extends TransformerBase {
 
         //setGmlPrefixing(true);
         t.setGmlPrefixing(prefixGml);
+        t.setSrsName(srsName);
+        t.setLockId(lockId);
 
         while (prefixes.hasMoreElements()) {
             String prefix = prefixes.nextElement().toString();
@@ -239,6 +269,8 @@ public class FeatureTransformer extends TransformerBase {
         String currentPrefix;
         FeatureTypeNamespaces types;
         boolean prefixGml = false;
+        String srsName = null;
+        String lockId = null;
 
         /**
          * Constructor with handler.
@@ -266,34 +298,37 @@ public class FeatureTransformer extends TransformerBase {
             this.prefixGml = prefixGml;
         }
 
+        void setSrsName(String srsName) {
+            this.srsName = srsName;
+        }
+
+        public void setLockId(String lockId) {
+            this.lockId = lockId;
+        }
+
         public void encode(Object o) throws IllegalArgumentException {
-            if (o instanceof FeatureCollection) {
-                FeatureCollection fc = (FeatureCollection) o;
-                FeatureCollectionIteration.iteration(this, fc);
-            } else if (o instanceof FeatureReader) {
-                // THIS IS A HACK FOR QUICK USE
-                FeatureReader r = (FeatureReader) o;
+            try {
+                if (o instanceof FeatureCollection) {
+                    FeatureCollection fc = (FeatureCollection) o;
+                    FeatureCollectionIteration.iteration(this, fc);
+                } else if (o instanceof FeatureReader) {
+                    // THIS IS A HACK FOR QUICK USE
+                    FeatureReader r = (FeatureReader) o;
 
-                startFeatureCollection();
+                    startFeatureCollection();
 
-                handleFeatureReader(r);
+                    handleFeatureReader(r);
 
-                endFeatureCollection();
-            } else if (o instanceof FeatureResults) {
-                try {
+                    endFeatureCollection();
+                } else if (o instanceof FeatureResults) {
                     FeatureResults fr = (FeatureResults) o;
                     startFeatureCollection();
                     writeBounds(fr.getBounds());
                     handleFeatureReader(fr.reader());
                     endFeatureCollection();
-                } catch (IOException ioe) {
-                    throw new RuntimeException("error reading FeatureResults",
-                        ioe);
-                }
-            } else if (o instanceof FeatureResults[]) {
-                //Did FeatureResult[] so that we are sure they're all the same type.
-                //Could also consider collections here...  
-                try {
+                } else if (o instanceof FeatureResults[]) {
+                    //Did FeatureResult[] so that we are sure they're all the same type.
+                    //Could also consider collections here...  
                     FeatureResults[] results = (FeatureResults[]) o;
                     Envelope bounds = new Envelope();
 
@@ -309,16 +344,16 @@ public class FeatureTransformer extends TransformerBase {
                     }
 
                     endFeatureCollection();
-                } catch (IOException ioe) {
-                    throw new RuntimeException("error reading FeatureResults",
-                        ioe);
+                } else {
+                    throw new IllegalArgumentException("Cannot encode " + o);
                 }
-            } else {
-                throw new IllegalArgumentException("Cannot encode " + o);
+            } catch (IOException ioe) {
+                throw new RuntimeException("error reading FeatureResults", ioe);
             }
         }
 
-        public void handleFeatureReader(FeatureReader r) {
+        public void handleFeatureReader(FeatureReader r)
+            throws IOException {
             try {
                 while (r.hasNext()) {
                     Feature f = r.next();
@@ -335,6 +370,11 @@ public class FeatureTransformer extends TransformerBase {
                 }
             } catch (Exception ioe) {
                 throw new RuntimeException("Error reading Features", ioe);
+            } finally {
+                if (r != null) {
+                    LOGGER.finer("closing reader " + r);
+                    r.close();
+                }
             }
         }
 
@@ -343,7 +383,13 @@ public class FeatureTransformer extends TransformerBase {
                 String element = (getDefaultPrefix() == null) ? fc
                                                               : (getDefaultPrefix()
                     + ":" + fc);
-                contentHandler.startElement("", "", element, NULL_ATTS);
+                AttributesImpl atts = new AttributesImpl();
+
+                if (lockId != null) {
+                    atts.addAttribute("", "lockId", "lockId", "", lockId);
+                }
+
+                contentHandler.startElement("", "", element, atts);
             } catch (SAXException se) {
                 throw new RuntimeException(se);
             }
@@ -379,7 +425,7 @@ public class FeatureTransformer extends TransformerBase {
                 String box = geometryTranslator.getDefaultPrefix() + ":"
                     + "Box";
                 contentHandler.startElement("", "", boundedBy, NULL_ATTS);
-                geometryTranslator.encode(bounds);
+                geometryTranslator.encode(bounds, srsName);
                 contentHandler.endElement("", "", boundedBy);
             } catch (SAXException se) {
                 throw new RuntimeException(se);
@@ -449,7 +495,7 @@ public class FeatureTransformer extends TransformerBase {
                         contentHandler.startElement("", "", name, NULL_ATTS);
 
                         if (Geometry.class.isAssignableFrom(value.getClass())) {
-                            geometryTranslator.encode((Geometry) value);
+                            geometryTranslator.encode((Geometry) value, srsName);
                         } else {
                             String text = value.toString();
                             contentHandler.characters(text.toCharArray(), 0,
