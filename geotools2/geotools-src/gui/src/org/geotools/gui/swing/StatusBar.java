@@ -82,7 +82,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * {@link #getCoordinateFormat}.setCoordinateSystem(...);
  * </pre></blockquote>
  *
- * @version $Id: StatusBar.java,v 1.2 2003/02/22 22:37:17 desruisseaux Exp $
+ * @version $Id: StatusBar.java,v 1.3 2003/04/25 17:38:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class StatusBar extends JComponent implements MouseMotionListener {
@@ -133,6 +133,16 @@ public class StatusBar extends JComponent implements MouseMotionListener {
     private transient int[] progressQueue = new int[0]; // must be transient
 
     /**
+     * Listen for {@link MouseListener#mouseExited} event. This is used
+     * in order to erase the coordinates when the mouse exit the map pane.
+     */
+    private final MouseListener listener = new MouseAdapter() {
+        public void mouseExited(final MouseEvent e) {
+            setCoordinate(null);
+        }
+    };
+
+    /**
      * Construct a new status bar.
      */
     public StatusBar() {
@@ -160,12 +170,8 @@ public class StatusBar extends JComponent implements MouseMotionListener {
      */
     public StatusBar(final Component mapPane) {
         this();
+        mapPane.addMouseListener(listener);
         mapPane.addMouseMotionListener(this);
-        mapPane.addMouseListener(new MouseAdapter() {
-            public void mouseExited(final MouseEvent e) {
-                setCoordinate(null);
-            }
-        });
     }
 
     /**
@@ -176,6 +182,31 @@ public class StatusBar extends JComponent implements MouseMotionListener {
         label.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createLoweredBevelBorder(),
                         BorderFactory.createEmptyBorder(0/*top*/, 6/*left*/, 0/*bottom*/,0/*right*/)));
+    }
+
+    /**
+     * Registers a map pane for status bar management.  This will register listeners to track mouse
+     * motion events occuring in the map pane area. Mouse locations will be formatted as geographic
+     * coordinates according the current {@linkplain #getCoordinateFormat formatter} and {@linkplain
+     * #setCoordinate written} in the status's bar coordinate area.
+     *
+     * @param mapPane The map pane (usually a {@link MapPane} instance).
+     */
+    public void registerMapPane(final Component mapPane) {
+        mapPane.removeMouseMotionListener(this);
+        mapPane.removeMouseListener(listener);
+        mapPane.addMouseListener(listener);
+        mapPane.addMouseMotionListener(this);
+    }
+
+    /**
+     * Removes a map pane from status bar control.
+     *
+     * @param mapPane The map pane previously given to {@link #registerMapPane}.
+     */
+    public void unregisterMapPane(final Component mapPane) {
+        mapPane.removeMouseMotionListener(this);
+        mapPane.removeMouseListener(listener);
     }
 
     /**
@@ -282,7 +313,7 @@ public class StatusBar extends JComponent implements MouseMotionListener {
     /**
      * Classe chargée de réagir au progrès de la lecture.
      *
-     * @version $Id: StatusBar.java,v 1.2 2003/02/22 22:37:17 desruisseaux Exp $
+     * @version $Id: StatusBar.java,v 1.3 2003/04/25 17:38:55 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class ProgressListener implements IIOReadProgressListener, Runnable {
