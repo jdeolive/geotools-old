@@ -33,8 +33,11 @@ package org.geotools.styling;
  */
 public class DefaultRule implements org.geotools.styling.Rule {
 
+    private Symbolizer[] symbolizers;
+    
     /** Creates a new instance of DefaultRule */
     public DefaultRule() {
+        symbolizers = new Symbolizer[0];
     }
 
     public Graphic[] getLegendGraphic() {
@@ -42,15 +45,19 @@ public class DefaultRule implements org.geotools.styling.Rule {
     }
     
     public double getMaxScaleDenominator() {
-        return Double.MAX_VALUE;//HACK: not nice this
+        return Double.POSITIVE_INFINITY;//HACK: not nice this
     }
     
     public double getMinScaleDenominator() {
-        return Double.MIN_VALUE;//HACK: not nice this
+        return Double.NEGATIVE_INFINITY;//HACK: not nice this
+    }
+    
+    public void setSymbolizers(Symbolizer[] syms){
+        symbolizers = syms;
     }
     
     public Symbolizer[] getSymbolizers() {
-        return new Symbolizer[]{new DefaultPolygonSymbolizer(),new DefaultLineSymbolizer()};   
+        return symbolizers;
     }
     
 }

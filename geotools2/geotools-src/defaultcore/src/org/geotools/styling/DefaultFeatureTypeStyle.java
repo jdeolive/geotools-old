@@ -32,9 +32,11 @@ package org.geotools.styling;
  * @author jamesm
  */
 public class DefaultFeatureTypeStyle implements org.geotools.styling.FeatureTypeStyle {
-
+    private Rule[] ruleList;// Possibly not the best storage
+    
     /** Creates a new instance of DefaultFeatureTypeStyle */
     public DefaultFeatureTypeStyle() {
+        ruleList = new Rule[0];
     }
 
     public String getFeatureTypeName() {
@@ -42,11 +44,15 @@ public class DefaultFeatureTypeStyle implements org.geotools.styling.FeatureType
     }
     
     public Rule[] getRules() {
-        return new Rule[]{new DefaultRule()};
+        return ruleList;
     }
     
     public String[] getSymantecTypeIdentifiers() {
         return new String[]{"generic:geometry"};//HACK: - generic catch all identifier
+    }
+    
+    public void setRules(Rule[] rules){
+        ruleList = rules;
     }
     
 }

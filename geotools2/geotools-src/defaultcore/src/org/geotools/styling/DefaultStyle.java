@@ -33,6 +33,8 @@ package org.geotools.styling;
  */
 public class DefaultStyle implements org.geotools.styling.Style {
 
+    FeatureTypeStyle[] featureTypeStyleList;
+    
     /** Creates a new instance of DefaultStyle */
     public DefaultStyle() {
     }
@@ -42,7 +44,11 @@ public class DefaultStyle implements org.geotools.styling.Style {
     }
     
     public FeatureTypeStyle[] getFeatureTypeStyles() {
-        return new FeatureTypeStyle[]{new DefaultFeatureTypeStyle()};
+       return featureTypeStyleList;
+    }
+    
+    public void setFeatureTypeStyles(FeatureTypeStyle[] featureTypeStyles){
+        featureTypeStyleList = featureTypeStyles;
     }
     
     public String getName() {
