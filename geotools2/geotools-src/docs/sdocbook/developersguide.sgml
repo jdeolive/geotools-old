@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Id: developersguide.sgml,v 1.10 2002/11/15 21:03:52 camerons Exp $</date>
+    <date>$Id: developersguide.sgml,v 1.11 2002/11/15 22:04:42 camerons Exp $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -21,7 +21,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
   </articleinfo>
 
   <section>
-    <title id="scope">Introduction</title>
+    <title id="introduction">Introduction</title>
 
     <section>
       <title id="identification">Identification.</title>
@@ -61,17 +61,6 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       Sections, with the Front-Cover Texts being no Front-Cover Texts, and
       with the Back-Cover Texts being no Back-Cover Texts.</para>
     </section>
-  </section>
-
-  <section id="intro">
-    <title>Introduction</title>
-
-    <para>This document aims to help new geotools developers get up to speed
-    and track practices of existing developers in order to keep the project
-    consistent.</para>
-
-    <para>If you feel something is missing, feel free to contribute a new
-    section.</para>
   </section>
 
   <section id="development">
