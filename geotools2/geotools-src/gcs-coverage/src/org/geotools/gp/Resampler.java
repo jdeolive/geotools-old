@@ -109,7 +109,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.20 2003/10/14 22:12:39 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.21 2003/10/15 09:42:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Resampler extends GridCoverage {
@@ -124,6 +124,11 @@ final class Resampler extends GridCoverage {
     static {
         ImageUtilities.allowNativeAcceleration("Affine", false);
     }
+
+    /**
+     * The logger for emmiting detail about resampling performed.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.gp");
 
     /**
      * Construct a new grid coverage for the specified grid geometry.
@@ -596,8 +601,10 @@ final class Resampler extends GridCoverage {
         /*
          * Construct the final grid coverage, then log a message as in the following example:
          *
-         *     Resampled coverage "Foo" using the "Warp" image operation on geophysics
-         *     pixels values. Background color is 255.
+         *     Resampled coverage "Foo" from coordinate system "myCS" (for an image of size
+         *     1000x1500) to coordinate system "WGS84" (image size 1000x1500). JAI operation
+         *     is "Warp" with "Nearest" interpolation on geophysics pixels values. Background
+         *     value is 255.
          */
         if (targetCoverage == null) {
             targetCoverage = new Resampler(sourceCoverage, targetImage, targetCS, targetGG);
@@ -610,14 +617,24 @@ final class Resampler extends GridCoverage {
         assert targetCoverage.getGridGeometry().getGridRange().getSubGridRange(0,2).toRectangle()
                              .equals(targetImage.getBounds()) : targetGG;
 
-        final Locale locale = Locale.getDefault();
-        log(Resources.getResources(locale).getLogRecord(Level.FINE,
-            ResourceKeys.RESAMPLE_APPLIED_$4,
-            sourceCoverage.getName(locale),
-            targetImage.getOperationName(),
-            new Integer(sourceCoverage == sourceCoverage.geophysics(true) ? 1 : 0),
-            background.length==1 ? (Object) new Double(background[0]) :
-                                   (Object) XArray.toString(background, locale)));
+        if (LOGGER.isLoggable(Level.FINE)) {
+            final Locale locale = Locale.getDefault();
+            log(Resources.getResources(locale).getLogRecord(Level.FINE,
+                ResourceKeys.APPLIED_RESAMPLE_$11, new Object[] {
+                /*  {0} */ sourceCoverage.getName(locale),
+                /*  {1} */ sourceCoverage.getCoordinateSystem().getName(locale),
+                /*  {2} */ new Integer(sourceImage.getWidth()),
+                /*  {3} */ new Integer(sourceImage.getHeight()),
+                /*  {4} */ targetCoverage.getCoordinateSystem().getName(locale),
+                /*  {5} */ new Integer(targetImage.getWidth()),
+                /*  {6} */ new Integer(targetImage.getHeight()),
+                /*  {7} */ targetImage.getOperationName(),
+                /*  {8} */ new Integer(sourceCoverage == sourceCoverage.geophysics(true) ? 1 : 0),
+                /*  {9} */ Operation.getInterpolationName(interpolation),
+                /* {10} */ background.length==1 ? (Double.isNaN(background[0]) ? (Object) "NaN" :
+                                                  (Object) new Double(background[0])) :
+                                                  (Object) XArray.toString(background, locale)}));
+        }
         return targetCoverage;
     }
 
@@ -685,7 +702,7 @@ final class Resampler extends GridCoverage {
     private static void log(final LogRecord record) {
         record.setSourceClassName("GridCoverageProcessor");
         record.setSourceMethodName("doOperation(\"Resample\")");
-        Logger.getLogger("org.geotools.gp").log(record);
+        LOGGER.log(record);
     }
     
     /**
@@ -706,7 +723,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.20 2003/10/14 22:12:39 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.21 2003/10/15 09:42:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

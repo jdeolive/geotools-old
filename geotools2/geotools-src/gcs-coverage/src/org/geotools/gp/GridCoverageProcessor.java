@@ -81,7 +81,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.35 2003/08/09 22:13:11 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.36 2003/10/15 09:42:02 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -519,7 +519,7 @@ public class GridCoverageProcessor {
             }
             final Locale locale = null; // Set locale here (if any).
             final LogRecord record = Resources.getResources(locale).getLogRecord(
-                                     Level.FINE, ResourceKeys.OPERATION_APPLIED_$4,
+                                     Level.FINE, ResourceKeys.APPLIED_OPERATION_$4,
                                      ((source!=null) ? source : result).getName(locale),
                                      operationName, interp, new Integer(fromCache ? 1:0));
             record.setSourceClassName("GridCoverageProcessor");
@@ -538,7 +538,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.35 2003/08/09 22:13:11 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.36 2003/10/15 09:42:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

@@ -21,6 +21,8 @@ package org.geotools.resources.gcs;
  */
 public interface ResourceKeys
 {
+    public static final int APPLIED_OPERATION_$4                 =    22;
+    public static final int APPLIED_RESAMPLE_$11                 =    82;
     public static final int BLACK                                =     0;
     public static final int BLUE                                 =     1;
     public static final int CLASS                                =     2;
@@ -44,11 +46,9 @@ public interface ResourceKeys
     public static final int NAME                                 =    20;
     public static final int NATIVE_ACCELERATION_STATE_$2         =    81;
     public static final int NODATA                               =    21;
-    public static final int OPERATION_APPLIED_$4                 =    22;
     public static final int PALETTE                              =    23;
     public static final int POINT_COUNT_$3                       =    24;
     public static final int RED                                  =    25;
-    public static final int RESAMPLE_APPLIED_$4                  =    82;
     public static final int SAMPLE_TRANSCODE_$3                  =    26;
     public static final int SATURATION                           =    27;
     public static final int TRANSPARENCY                         =    28;
