@@ -16,7 +16,9 @@
  */
 package org.geotools.renderer.lite;
 
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 
@@ -26,29 +28,52 @@ import java.awt.geom.PathIterator;
  * objects.
  *
  * @author Andrea Aime
- * @version $Id: PolygonIterator.java,v 1.4 2003/07/12 10:56:42 aaime Exp $
+ * @version $Id: PolygonIterator.java,v 1.5 2003/07/27 15:29:47 aaime Exp $
  */
 class PolygonIterator implements PathIterator {
+    /** Transform applied on the coordinates during iteration */
     private AffineTransform at;
+
+    /** The rings describing the polygon geometry */
     private LineString[] rings;
+
+    /** The current ring during iteration */
     private int currentRing = 0;
+
+    /** Current line coordinate */
     private int currentCoord = 0;
+
+    /** The array of coordinates that represents the line geometry */
     private Coordinate[] coords = null;
+
+    /** The previous coordinate (during iteration) */
     private Coordinate oldCoord = null;
+
+    /** True when the iteration is terminated */
     private boolean done = false;
+
+    /** True if the line is a ring */
+    private boolean isClosed;
+
+    /** If true, apply simple distance based generalization */
     private boolean generalize = true;
+
+    /** Maximum distance for point elision when generalizing */
     private double maxDistance = 1.0;
+
+    /** Horizontal scale, got from the affine transform and cached */
     private double xScale;
+
+    /** Vertical scale, got from the affine transform and cached */
     private double yScale;
 
     /**
-     * Creates a new instance of JTSPolygonIterator
+     * Creates a new PolygonIterator object.
      *
-     * @param p The polygon whose boundary is to be iterated
-     * @param at The affine trasform applied on points during iteration
+     * @param p The polygon
+     * @param at The affine transform applied to coordinates during iteration
      */
-    public PolygonIterator(com.vividsolutions.jts.geom.Polygon p,
-        AffineTransform at) {
+    public PolygonIterator(Polygon p, AffineTransform at) {
         int numInteriorRings = p.getNumInteriorRing();
         rings = new LineString[numInteriorRings + 1];
         rings[0] = p.getExteriorRing();
@@ -62,31 +87,60 @@ class PolygonIterator implements PathIterator {
         }
 
         this.at = at;
-        xScale = Math.sqrt((at.getScaleX() * at.getScaleX()) +
-                (at.getShearX() * at.getShearX()));
-        yScale = Math.sqrt((at.getScaleY() * at.getScaleY()) +
-                (at.getShearY() * at.getShearY()));
+        xScale = Math.sqrt(
+                (at.getScaleX() * at.getScaleX())
+                + (at.getShearX() * at.getShearX()));
+        yScale = Math.sqrt(
+                (at.getScaleY() * at.getScaleY())
+                + (at.getShearY() * at.getShearY()));
 
         coords = rings[0].getCoordinates();
     }
 
-    public PolygonIterator(com.vividsolutions.jts.geom.Polygon p,
-        AffineTransform at, boolean generalize) {
+    /**
+     * Creates a new PolygonIterator object.
+     *
+     * @param p The polygon
+     * @param at The affine transform applied to coordinates during iteration
+     * @param generalize if true apply simple distance based generalization
+     */
+    public PolygonIterator(Polygon p, AffineTransform at, boolean generalize) {
         this(p, at);
         this.generalize = generalize;
     }
 
-    public PolygonIterator(com.vividsolutions.jts.geom.Polygon p,
-        AffineTransform at, boolean generalize, double maxDistance) {
+    /**
+     * Creates a new PolygonIterator object.
+     *
+     * @param p The polygon
+     * @param at The affine transform applied to coordinates during iteration
+     * @param generalize if true apply simple distance based generalization
+     * @param maxDistance during iteration, a point will be skipped if it's
+     *        distance from the previous is less than maxDistance
+     */
+    public PolygonIterator(
+        Polygon p, AffineTransform at, boolean generalize, double maxDistance) {
         this(p, at, generalize);
         this.maxDistance = maxDistance;
     }
 
+    /**
+     * Sets the distance limit for point skipping during distance based
+     * generalization
+     *
+     * @param distance the maximum distance for point skipping
+     */
     public void setMaxDistance(double distance) {
         maxDistance = distance;
     }
 
-    public double getMaxDistance(double distance) {
+    /**
+     * Returns the distance limit for point skipping during distance based
+     * generalization
+     *
+     * @return the maximum distance for distance based generalization
+     */
+    public double getMaxDistance() {
         return maxDistance;
     }
 
@@ -203,14 +257,15 @@ class PolygonIterator implements PathIterator {
                         currentCoord++;
 
                         if (currentCoord < coords.length) {
-                            distx = Math.abs(coords[currentCoord].x -
-                                    oldCoord.x);
-                            disty = Math.abs(coords[currentCoord].y -
-                                    oldCoord.y);
+                            distx = Math.abs(
+                                    coords[currentCoord].x - oldCoord.x);
+                            disty = Math.abs(
+                                    coords[currentCoord].y - oldCoord.y);
                         }
-                    } while (((distx * xScale) < maxDistance) &&
-                            ((disty * yScale) < maxDistance) &&
-                            (currentCoord < coords.length));
+                    } while (
+                        ((distx * xScale) < maxDistance)
+                            && ((disty * yScale) < maxDistance)
+                            && (currentCoord < coords.length));
 
                     if (currentCoord < coords.length) {
                         oldCoord = coords[currentCoord];

@@ -16,8 +16,10 @@
  */
 package org.geotools.renderer.lite;
 
-import java.awt.*;
-import java.awt.geom.*;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D.Double;
 import java.util.logging.Logger;
 
 
@@ -25,17 +27,27 @@ import java.util.logging.Logger;
  * Utility class used to get well known marks
  *
  * @author Ian Turton
- * @version $Id: Java2DMark.java,v 1.2 2003/07/12 10:56:42 aaime Exp $
+ * @version $Id: Java2DMark.java,v 1.3 2003/07/27 15:29:47 aaime Exp $
  */
-public class Java2DMark {
+class Java2DMark {
     /** The logger for the rendering module. */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.rendering");
-    static GeneralPath cross;
-    static GeneralPath star;
-    static GeneralPath triangle;
-    static GeneralPath arrow;
-    static Shape X;
+
+    /** Cross general path */
+    private static GeneralPath cross;
+
+    /** Star general path */
+    private static GeneralPath star;
+
+    /** Triangle general path */
+    private static GeneralPath triangle;
+
+    /** Arrow general path */
+    private static GeneralPath arrow;
+
+    /** X general path */
+    private static Shape X;
 
     static {
         cross = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
@@ -100,7 +112,14 @@ public class Java2DMark {
     private Java2DMark() {
     }
 
-    static Shape getWellKnownMark(String wellKnownName) {
+    /**
+     * Returns the shape representing the well known name passed
+     *
+     * @param wellKnownName the name of a well known shape
+     *
+     * @return the shape representing the well known name passed
+     */
+    public static Shape getWellKnownMark(String wellKnownName) {
         LOGGER.finer("fetching mark of name " + wellKnownName);
 
         if (wellKnownName.equalsIgnoreCase("cross")) {
@@ -142,6 +161,6 @@ public class Java2DMark {
         // failing that return a square?
         LOGGER.finer("returning square");
 
-        return new Rectangle2D.Double(-.5, -.5, 1., 1.);
+        return new Double(-.5, -.5, 1., 1.);
     }
 }

@@ -16,7 +16,11 @@
  */
 package org.geotools.renderer.lite;
 
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 
@@ -24,30 +28,46 @@ import java.awt.geom.PathIterator;
 /**
  * A path iterator for the LiteShape class, specialized to iterate over a
  * geometry collection. It can be seen as a composite, since uses in fact
- * other, simpler iterator to work.
+ * other, simpler iterator to carry on its duties.
  *
  * @author Andrea Aime
- * @version $Id: GeomCollectionIterator.java,v 1.5 2003/07/24 06:33:50 aaime Exp $
+ * @version $Id: GeomCollectionIterator.java,v 1.6 2003/07/27 15:29:47 aaime Exp $
  */
 class GeomCollectionIterator implements PathIterator {
+    /** Transform applied on the coordinates during iteration */
     private AffineTransform at;
+
+    /** The set of geometries that we will iterate over */
     private Geometry[] geoms;
+
+    /** The current geometry */
     private int currentGeom = 0;
+
+    /** The current sub-iterator */
     private PathIterator currentIterator;
+
+    /** True when the iterator is terminate */
     private boolean done = false;
+
+    /** If true, apply simple distance based generalization */
     private boolean generalize = true;
+
+    /** Maximum distance for point elision when generalizing */
     private double maxDistance = 1.0;
+
+    /** Horizontal scale, got from the affine transform and cached */
     private double xScale;
+
+    /** Vertical scale, got from the affine transform and cached */
     private double yScale;
 
     /**
-     * Creates a new instance of JTSPolygonIterator
+     * Creates a new instance of GeomCollectionIterator
      *
      * @param gc The geometry collection the iterator will use
      * @param at The affine transform applied to coordinates during iteration
      */
-    public GeomCollectionIterator(
-        com.vividsolutions.jts.geom.GeometryCollection gc, AffineTransform at) {
+    public GeomCollectionIterator(GeometryCollection gc, AffineTransform at) {
         int numGeometries = gc.getNumGeometries();
         geoms = new Geometry[numGeometries];
 
@@ -55,55 +75,91 @@ class GeomCollectionIterator implements PathIterator {
             geoms[i] = gc.getGeometryN(i);
         }
 
-         if (at == null) {
+        if (at == null) {
             at = new AffineTransform();
         }
-        
+
         this.at = at;
-        xScale = Math.sqrt((at.getScaleX() * at.getScaleX()) +
-                (at.getShearX() * at.getShearX()));
-        yScale = Math.sqrt((at.getScaleY() * at.getScaleY()) +
-                (at.getShearY() * at.getShearY()));
+        xScale = Math.sqrt(
+                (at.getScaleX() * at.getScaleX())
+                + (at.getShearX() * at.getShearX()));
+        yScale = Math.sqrt(
+                (at.getScaleY() * at.getScaleY())
+                + (at.getShearY() * at.getShearY()));
 
         currentIterator = getIterator(geoms[0]);
     }
 
+    /**
+     * Creates a new instance of GeomCollectionIterator
+     *
+     * @param gc The geometry collection the iterator will use
+     * @param at The affine transform applied to coordinates during iteration
+     * @param generalize if true apply simple distance based generalization
+     */
     public GeomCollectionIterator(
-        com.vividsolutions.jts.geom.GeometryCollection gc, AffineTransform at,
-        boolean generalize) {
+        GeometryCollection gc, AffineTransform at, boolean generalize) {
         this(gc, at);
         this.generalize = generalize;
     }
 
+    /**
+     * Creates a new instance of GeomCollectionIterator
+     *
+     * @param gc The geometry collection the iterator will use
+     * @param at The affine transform applied to coordinates during iteration
+     * @param generalize if true apply simple distance based generalization
+     * @param maxDistance during iteration, a point will be skipped if it's
+     *        distance from the previous is less than maxDistance
+     */
     public GeomCollectionIterator(
-        com.vividsolutions.jts.geom.GeometryCollection gc, AffineTransform at,
-        boolean generalize, double maxDistance) {
+        GeometryCollection gc, AffineTransform at, boolean generalize,
+        double maxDistance) {
         this(gc, at, generalize);
         this.maxDistance = maxDistance;
     }
 
-    public void setMaxDistance(int distance) {
+    /**
+     * Sets the distance limit for point skipping during distance based
+     * generalization
+     *
+     * @param distance the maximum distance for point skipping
+     */
+    public void setMaxDistance(double distance) {
         maxDistance = distance;
     }
 
-    public double getMaxDistance(int distance) {
+    /**
+     * Returns the distance limit for point skipping during distance based
+     * generalization
+     *
+     * @return the maximum distance for distance based generalization
+     */
+    public double getMaxDistance() {
         return maxDistance;
     }
 
+    /**
+     * Returns the specific iterator for the geometry passed.
+     *
+     * @param g The geometry whole iterator is requested
+     *
+     * @return the specific iterator for the geometry passed.
+     */
     private PathIterator getIterator(Geometry g) {
         PathIterator pi = null;
 
-        if (g instanceof com.vividsolutions.jts.geom.Polygon) {
-            com.vividsolutions.jts.geom.Polygon p = (com.vividsolutions.jts.geom.Polygon) g;
+        if (g instanceof Polygon) {
+            Polygon p = (Polygon) g;
             pi = new PolygonIterator(p, at, generalize, maxDistance);
-        } else if (g instanceof com.vividsolutions.jts.geom.GeometryCollection) {
-            com.vividsolutions.jts.geom.GeometryCollection gc = (com.vividsolutions.jts.geom.GeometryCollection) g;
+        } else if (g instanceof GeometryCollection) {
+            GeometryCollection gc = (GeometryCollection) g;
             pi = new GeomCollectionIterator(gc, at, generalize, maxDistance);
-        } else if (g instanceof com.vividsolutions.jts.geom.LineString) {
-            com.vividsolutions.jts.geom.LineString ls = (com.vividsolutions.jts.geom.LineString) g;
+        } else if (g instanceof LineString) {
+            LineString ls = (LineString) g;
             pi = new LineIterator(ls, at, generalize, maxDistance);
-        } else if (g instanceof com.vividsolutions.jts.geom.LinearRing) {
-            com.vividsolutions.jts.geom.LinearRing lr = (com.vividsolutions.jts.geom.LinearRing) g;
+        } else if (g instanceof LinearRing) {
+            LinearRing lr = (LinearRing) g;
             pi = new LineIterator(lr, at, generalize, maxDistance);
         }
 

@@ -16,9 +16,21 @@
  */
 package org.geotools.renderer.lite;
 
-import com.vividsolutions.jts.geom.*;
-import java.awt.*;
-import java.awt.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
 
 
 /**
@@ -26,29 +38,51 @@ import java.awt.geom.*;
  * geometry can be used by java2d without coordinate cloning
  *
  * @author Andrea Aime
- * @version $Id: LiteShape.java,v 1.3 2003/07/12 10:56:42 aaime Exp $
+ * @version $Id: LiteShape.java,v 1.4 2003/07/27 15:29:47 aaime Exp $
  */
-public class LiteShape implements java.awt.Shape {
-    private static final PrecisionModel floatingPM = new PrecisionModel();
+class LiteShape implements Shape {
+    /** The floating precision model */
+    private static final PrecisionModel FLOATING_PM = new PrecisionModel();
+
+    /** The wrapped JTS geometry */
     private Geometry geometry;
+
+    /** True if the geometry will be generalized during rendering */
     private boolean generalize = true;
+
+    /** Maximum distance used for simple distance generalization */
     private double maxDistance = 1.0;
 
     /**
      * Creates a new instance of GeometryShape
      *
-     * @param g DOCUMENT ME!
+     * @param g the wrapped geometry
      */
     public LiteShape(Geometry g) {
         //System.out.println("Shape created");
         geometry = g;
     }
 
+    /**
+     * Creates a new LiteShape object.
+     *
+     * @param g the wrapped geometry
+     * @param generalize set to true if the geometry need to be generalized
+     *        during rendering
+     */
     public LiteShape(Geometry g, boolean generalize) {
         this(g);
         this.generalize = generalize;
     }
 
+    /**
+     * Creates a new LiteShape object.
+     *
+     * @param g the wrapped geometry
+     * @param generalize set to true if the geometry need to be generalized
+     *        during rendering
+     * @param maxDistance distance used in the generalization process
+     */
     public LiteShape(Geometry g, boolean generalize, double maxDistance) {
         this(g, generalize);
         this.maxDistance = maxDistance;
@@ -105,8 +139,7 @@ public class LiteShape implements java.awt.Shape {
      */
     public boolean contains(Point2D p) {
         Coordinate coord = new Coordinate(p.getX(), p.getY());
-        Geometry point = new com.vividsolutions.jts.geom.Point(coord,
-                floatingPM, 0);
+        Geometry point = new Point(coord, FLOATING_PM, 0);
 
         return geometry.contains(point);
     }
@@ -115,16 +148,15 @@ public class LiteShape implements java.awt.Shape {
      * Tests if the specified coordinates are inside the boundary of the
      * <code>Shape</code>.
      *
-     * @param x the specified coordinates
-     * @param y DOCUMENT ME!
+     * @param x the specified coordinates, x value
+     * @param y the specified coordinates, y value
      *
      * @return <code>true</code> if the specified coordinates are inside the
      *         <code>Shape</code> boundary; <code>false</code> otherwise.
      */
     public boolean contains(double x, double y) {
         Coordinate coord = new Coordinate(x, y);
-        Geometry point = new com.vividsolutions.jts.geom.Point(coord,
-                floatingPM, 0);
+        Geometry point = new Point(coord, FLOATING_PM, 0);
 
         return geometry.contains(point);
     }
@@ -156,8 +188,8 @@ public class LiteShape implements java.awt.Shape {
      * object if a more precise answer is required.
      * </p>
      *
-     * @param x the coordinates of the specified rectangular area
-     * @param y DOCUMENT ME!
+     * @param x the coordinates of the specified rectangular area, x value
+     * @param y the coordinates of the specified rectangular area, y value
      * @param w the width of the specified rectangular area
      * @param h the height of the specified rectangular area
      *
@@ -172,7 +204,7 @@ public class LiteShape implements java.awt.Shape {
      * @see #intersects
      */
     public boolean contains(double x, double y, double w, double h) {
-        Geometry rect = createJtsRectangle(x, y, w, h);
+        Geometry rect = createRectangle(x, y, w, h);
 
         return geometry.contains(rect);
     }
@@ -241,8 +273,8 @@ public class LiteShape implements java.awt.Shape {
         y1 = Math.ceil(y1);
         y2 = Math.floor(y2);
 
-        return new Rectangle((int) x1, (int) y1, (int) (x2 - x1),
-            (int) (y2 - y1));
+        return new Rectangle(
+            (int) x1, (int) y1, (int) (x2 - x1), (int) (y2 - y1));
     }
 
     /**
@@ -304,7 +336,7 @@ public class LiteShape implements java.awt.Shape {
             }
         }
 
-        return new Rectangle2D.Double(x1, y1, x2 - x1, y2 - y1);
+        return new Double(x1, y1, x2 - x1, y2 - y1);
     }
 
     /**
@@ -346,18 +378,18 @@ public class LiteShape implements java.awt.Shape {
 
         //System.out.println("Path iterator");
         // return iterator according to the kind of geometry we include
-        if (this.geometry instanceof com.vividsolutions.jts.geom.Polygon) {
-            pi = new PolygonIterator((com.vividsolutions.jts.geom.Polygon) geometry,
-                    at, generalize, maxDistance);
-        } else if (this.geometry instanceof com.vividsolutions.jts.geom.LinearRing) {
-            pi = new LineIterator((com.vividsolutions.jts.geom.LinearRing) geometry,
-                    at, generalize, maxDistance);
-        } else if (this.geometry instanceof com.vividsolutions.jts.geom.LineString) {
-            pi = new LineIterator((com.vividsolutions.jts.geom.LineString) geometry,
-                    at, generalize, maxDistance);
-        } else if (this.geometry instanceof com.vividsolutions.jts.geom.GeometryCollection) {
-            pi = new GeomCollectionIterator((com.vividsolutions.jts.geom.GeometryCollection) geometry,
-                    at, generalize, maxDistance);
+        if (this.geometry instanceof Polygon) {
+            pi = new PolygonIterator(
+                    (Polygon) geometry, at, generalize, maxDistance);
+        } else if (this.geometry instanceof LinearRing) {
+            pi = new LineIterator(
+                    (LinearRing) geometry, at, generalize, maxDistance);
+        } else if (this.geometry instanceof LineString) {
+            pi = new LineIterator(
+                    (LineString) geometry, at, generalize, maxDistance);
+        } else if (this.geometry instanceof GeometryCollection) {
+            pi = new GeomCollectionIterator(
+                    (GeometryCollection) geometry, at, generalize, maxDistance);
         }
 
         return pi;
@@ -484,8 +516,8 @@ public class LiteShape implements java.awt.Shape {
      * <code>Shape</code> object if a more precise answer is required.
      * </p>
      *
-     * @param x the coordinates of the specified rectangular area
-     * @param y DOCUMENT ME!
+     * @param x the coordinates of the specified rectangular area, x value
+     * @param y the coordinates of the specified rectangular area, y value
      * @param w the width of the specified rectangular area
      * @param h the height of the specified rectangular area
      *
@@ -497,7 +529,7 @@ public class LiteShape implements java.awt.Shape {
      * @see java.awt.geom.Area
      */
     public boolean intersects(double x, double y, double w, double h) {
-        Geometry rect = createJtsRectangle(x, y, w, h);
+        Geometry rect = createRectangle(x, y, w, h);
 
         return geometry.intersects(rect);
     }
@@ -505,9 +537,9 @@ public class LiteShape implements java.awt.Shape {
     /**
      * Converts the Rectangle2D passed as parameter in a jts Geometry object
      *
-     * @param r DOCUMENT ME!
+     * @param r the rectangle to be converted
      *
-     * @return DOCUMENT ME!
+     * @return a geometry with the same vertices as the rectangle
      */
     private Geometry rectangleToGeometry(Rectangle2D r) {
         Coordinate[] coords = {
@@ -516,31 +548,29 @@ public class LiteShape implements java.awt.Shape {
             new Coordinate(r.getMaxX(), r.getMaxY()),
             new Coordinate(r.getMaxX(), r.getMinY())
         };
-        LinearRing lr = new com.vividsolutions.jts.geom.LinearRing(coords,
-                floatingPM, 0);
+        LinearRing lr = new LinearRing(coords, FLOATING_PM, 0);
 
-        return new com.vividsolutions.jts.geom.Polygon(lr, floatingPM, 0);
+        return new Polygon(lr, FLOATING_PM, 0);
     }
 
     /**
      * Creates a jts Geometry object representing a rectangle with the given
      * parameters
      *
-     * @param x DOCUMENT ME!
-     * @param y DOCUMENT ME!
-     * @param w DOCUMENT ME!
-     * @param h DOCUMENT ME!
+     * @param x left coordinate
+     * @param y bottom coordinate
+     * @param w width
+     * @param h height
      *
-     * @return DOCUMENT ME!
+     * @return a rectangle with the specified position and size
      */
-    private Geometry createJtsRectangle(double x, double y, double w, double h) {
+    private Geometry createRectangle(double x, double y, double w, double h) {
         Coordinate[] coords = {
             new Coordinate(x, y), new Coordinate(x, y + h),
             new Coordinate(x + w, y + h), new Coordinate(x + w, y)
         };
-        LinearRing lr = new com.vividsolutions.jts.geom.LinearRing(coords,
-                floatingPM, 0);
+        LinearRing lr = new LinearRing(coords, FLOATING_PM, 0);
 
-        return new com.vividsolutions.jts.geom.Polygon(lr, floatingPM, 0);
+        return new Polygon(lr, FLOATING_PM, 0);
     }
 }

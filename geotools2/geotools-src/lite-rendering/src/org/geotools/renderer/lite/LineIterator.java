@@ -16,7 +16,9 @@
  */
 package org.geotools.renderer.lite;
 
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 
@@ -26,56 +28,97 @@ import java.awt.geom.PathIterator;
  * LineString object.
  *
  * @author Andrea Aime
- * @version $Id: LineIterator.java,v 1.5 2003/07/12 10:56:42 aaime Exp $
+ * @version $Id: LineIterator.java,v 1.6 2003/07/27 15:29:47 aaime Exp $
  */
 class LineIterator implements PathIterator {
+    /** Transform applied on the coordinates during iteration */
     private AffineTransform at;
+
+    /** Current line coordinate */
     private int currentCoord = 0;
+
+    /** The array of coordinates that represents the line geometry */
     private Coordinate[] coords = null;
+
+    /** The previous coordinate (during iteration) */
     private Coordinate oldCoord = null;
+
+    /** True when the iteration is terminated */
     private boolean done = false;
+
+    /** True if the line is a ring */
     private boolean isClosed;
+
+    /** If true, apply simple distance based generalization */
     private boolean generalize = true;
+
+    /** Maximum distance for point elision when generalizing */
     private double maxDistance = 1.0;
+
+    /** Horizontal scale, got from the affine transform and cached */
     private double xScale;
+
+    /** Vertical scale, got from the affine transform and cached */
     private double yScale;
 
     /**
-     * Creates a new instance of JTSLineIterator
+     * Creates a new instance of LineIterator
      *
-     * @param ls
-     * @param at
+     * @param ls The line string the iterator will use
+     * @param at The affine transform applied to coordinates during iteration
      */
-    public LineIterator(com.vividsolutions.jts.geom.LineString ls,
-        AffineTransform at) {
+    public LineIterator(LineString ls, AffineTransform at) {
         if (at == null) {
             at = new AffineTransform();
         }
 
         this.at = at;
-        xScale = Math.sqrt((at.getScaleX() * at.getScaleX()) +
-                (at.getShearX() * at.getShearX()));
-        yScale = Math.sqrt((at.getScaleY() * at.getScaleY()) +
-                (at.getShearY() * at.getShearY()));
+        xScale = Math.sqrt(
+                (at.getScaleX() * at.getScaleX())
+                + (at.getShearX() * at.getShearX()));
+        yScale = Math.sqrt(
+                (at.getScaleY() * at.getScaleY())
+                + (at.getShearY() * at.getShearY()));
 
         coords = ls.getCoordinates();
         isClosed = false;
     }
 
-    public LineIterator(com.vividsolutions.jts.geom.LineString ls,
-        AffineTransform at, boolean generalize) {
+    /**
+     * Creates a new instance of LineIterator
+     *
+     * @param ls The line string the iterator will use
+     * @param at The affine transform applied to coordinates during iteration
+     * @param generalize if true apply simple distance based generalization
+     */
+    public LineIterator(LineString ls, AffineTransform at, boolean generalize) {
         this(ls, at);
         this.generalize = generalize;
     }
 
-    public LineIterator(com.vividsolutions.jts.geom.LineString ls,
-        AffineTransform at, boolean generalize, double maxDistance) {
+    /**
+     * Creates a new instance of LineIterator
+     *
+     * @param ls The line string the iterator will use
+     * @param at The affine transform applied to coordinates during iteration
+     * @param generalize if true apply simple distance based generalization
+     * @param maxDistance during iteration, a point will be skipped if it's
+     *        distance from the previous is less than maxDistance
+     */
+    public LineIterator(
+        LineString ls, AffineTransform at, boolean generalize,
+        double maxDistance) {
         this(ls, at, generalize);
         this.maxDistance = maxDistance;
     }
 
-    public LineIterator(com.vividsolutions.jts.geom.LinearRing lr,
-        AffineTransform at) {
+    /**
+     * Creates a new instance of LineIterator
+     *
+     * @param lr The line ring the iterator will use
+     * @param at The affine transform applied to coordinates during iteration
+     */
+    public LineIterator(LinearRing lr, AffineTransform at) {
         this.at = at;
         xScale = Math.abs(at.getScaleX());
         yScale = Math.abs(at.getScaleY());
@@ -84,23 +127,50 @@ class LineIterator implements PathIterator {
         isClosed = true;
     }
 
-    public LineIterator(com.vividsolutions.jts.geom.LinearRing lr,
-        AffineTransform at, boolean generalize) {
+    /**
+     * Creates a new instance of LineIterator
+     *
+     * @param lr The line ring the iterator will use
+     * @param at The affine transform applied to coordinates during iteration
+     * @param generalize if true apply simple distance based generalization
+     */
+    public LineIterator(LinearRing lr, AffineTransform at, boolean generalize) {
         this(lr, at);
         this.generalize = generalize;
     }
 
-    public LineIterator(com.vividsolutions.jts.geom.LinearRing lr,
-        AffineTransform at, boolean generalize, int maxDistance) {
+    /**
+     * Creates a new instance of LineIterator
+     *
+     * @param lr The line ring the iterator will use
+     * @param at The affine transform applied to coordinates during iteration
+     * @param generalize if true apply simple distance based generalization
+     * @param maxDistance during iteration, a point will be skipped if it's
+     *        distance from the previous is less than maxDistance
+     */
+    public LineIterator(
+        LinearRing lr, AffineTransform at, boolean generalize, int maxDistance) {
         this(lr, at, generalize);
         this.maxDistance = maxDistance;
     }
 
-    public void setMaxDistance(int distance) {
+    /**
+     * Sets the distance limit for point skipping during distance based
+     * generalization
+     *
+     * @param distance the maximum distance for point skipping
+     */
+    public void setMaxDistance(double distance) {
         maxDistance = distance;
     }
 
-    public double getMaxDistance(int distance) {
+    /**
+     * Returns the distance limit for point skipping during distance based
+     * generalization
+     *
+     * @return the maximum distance for distance based generalization
+     */
+    public double getMaxDistance() {
         return maxDistance;
     }
 
@@ -199,8 +269,9 @@ class LineIterator implements PathIterator {
      * direction.
      */
     public void next() {
-        if (((currentCoord == (coords.length - 1)) && !isClosed) ||
-                ((currentCoord == coords.length) && isClosed)) {
+        if (
+            ((currentCoord == (coords.length - 1)) && !isClosed)
+                || ((currentCoord == coords.length) && isClosed)) {
             done = true;
         } else {
             if (generalize) {
@@ -215,16 +286,17 @@ class LineIterator implements PathIterator {
                         currentCoord++;
 
                         if (currentCoord < coords.length) {
-                            distx = Math.abs(coords[currentCoord].x -
-                                    oldCoord.x);
-                            disty = Math.abs(coords[currentCoord].y -
-                                    oldCoord.y);
+                            distx = Math.abs(
+                                    coords[currentCoord].x - oldCoord.x);
+                            disty = Math.abs(
+                                    coords[currentCoord].y - oldCoord.y);
                         }
-                    } while (((distx * xScale) < maxDistance) &&
-                            ((disty * yScale) < maxDistance) &&
-                            ((!isClosed &&
-                            (currentCoord < (coords.length - 1))) ||
-                            (isClosed && (currentCoord < coords.length))));
+                    } while (
+                        ((distx * xScale) < maxDistance)
+                            && ((disty * yScale) < maxDistance)
+                            && ((!isClosed
+                            && (currentCoord < (coords.length - 1)))
+                            || (isClosed && (currentCoord < coords.length))));
 
                     if (currentCoord < coords.length) {
                         oldCoord = coords[currentCoord];

@@ -16,17 +16,13 @@
  */
 package org.geotools.renderer.lite;
 
-import org.geotools.ct.*;
-
-// Geotools dependencies
+import org.geotools.ct.MathTransform2D;
 import org.geotools.gc.GridCoverage;
-import org.geotools.gc.GridGeometry;
 import org.geotools.resources.XAffineTransform;
-import java.awt.*;
-import java.awt.geom.*;
-import java.awt.image.*;
-
-// JAI dependencies
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import javax.media.jai.ImageMIPMap;
 
 
@@ -35,18 +31,13 @@ import javax.media.jai.ImageMIPMap;
  * support grid coverage SLD stylers
  *
  * @author Martin Desruisseaux
- * @version $Id: GridCoverageRenderer.java,v 1.3 2003/07/12 10:56:42 aaime Exp $
+ * @author Andrea Aime
+ * @version $Id: GridCoverageRenderer.java,v 1.4 2003/07/27 15:29:47 aaime Exp $
  *
  * @task Add support for SLD stylers
  */
 final class GridCoverageRenderer {
-    /**
-     * Tells if we should try an optimisation using pyramidal images. Default
-     * value do not use this optimisation, since it doesn't seems to provide
-     * the expected performance benefict in JAI 1.0.
-     *
-     * @task TODO: Test if JAI 1.1 gives better result now.
-     */
+    /** Tells if we should try an optimisation using pyramidal images. */
     private static final boolean USE_PYRAMID = true;
 
     /**
@@ -71,7 +62,8 @@ final class GridCoverageRenderer {
      */
     private static final int MIN_SIZE = 256;
 
-    /** The grid coverage to render. */
+    /** The grid coverage to be rendered. */
+    private final GridCoverage gridCoverage;
 
     //private final GridCoverage coverage;
 
@@ -84,12 +76,21 @@ final class GridCoverageRenderer {
 
     /** Maximum amount of level to use for multi-resolution images. */
     private final int maxLevel;
-    private GridGeometry gridGeometry;
-    RenderedImage image;
 
     /**
+     * The renderered image that represents the grid coverage according to  the
+     * current style setting
+     */
+    private RenderedImage image;
+
+    /**
+     * Creates a new GridCoverageRenderer object.
+     *
+     * @param gridCoverage DOCUMENT ME!
      */
     public GridCoverageRenderer(GridCoverage gridCoverage) {
+        this.gridCoverage = gridCoverage;
+
         try {
             image = gridCoverage.geophysics(false).getRenderedImage();
         } catch (Exception e) {
@@ -97,14 +98,17 @@ final class GridCoverageRenderer {
             image = gridCoverage.getRenderedImage();
         }
 
-        gridGeometry = gridCoverage.getGridGeometry();
-        images = USE_PYRAMID
-            ? new ImageMIPMap(image,
-                AffineTransform.getScaleInstance(DOWN_SAMPLER, DOWN_SAMPLER),
-                null) : null;
-        maxLevel = Math.max((int) (Math.log(
-                    (double) MIN_SIZE / (double) Math.max(image.getWidth(),
-                        image.getHeight())) / LOG_DOWN_SAMPLER), 0);
+        if (USE_PYRAMID) {
+            AffineTransform at = AffineTransform.getScaleInstance(
+                    DOWN_SAMPLER, DOWN_SAMPLER);
+            images = new ImageMIPMap(image, at, null);
+        } else {
+            images = null;
+        }
+
+        double maxSize = Math.max(image.getWidth(), image.getHeight());
+        int logLevel = (int) (Math.log(MIN_SIZE / maxSize) / LOG_DOWN_SAMPLER);
+        maxLevel = Math.max(logLevel, 0);
     }
 
     /**
@@ -113,48 +117,55 @@ final class GridCoverageRenderer {
      * coordinates in the coordinate system given by {@link
      * #getCoordinateSystem}.
      *
-     * @param graphics
+     * @param graphics the <code>Graphics</code> context in which to paint
      *
      * @throws UnsupportedOperationException if the transformation from grid to
      *         coordinate system in the GridCoverage is not an AffineTransform
      */
     public void paint(final Graphics2D graphics) {
-        final MathTransform2D mathTransform = gridGeometry.getGridToCoordinateSystem2D();
+        final MathTransform2D mathTransform;
+        mathTransform = gridCoverage.getGridGeometry()
+                                    .getGridToCoordinateSystem2D();
 
         if (!(mathTransform instanceof AffineTransform)) {
             throw new UnsupportedOperationException(
                 "Non-affine transformations not yet implemented"); // TODO
         }
 
-        final AffineTransform gridToCoordinate = (AffineTransform) mathTransform;
+        AffineTransform gridToCoordinate = (AffineTransform) mathTransform;
 
         if (images == null) {
-            final AffineTransform transform = new AffineTransform(gridToCoordinate);
+            final AffineTransform transform;
+            transform = new AffineTransform(gridToCoordinate);
             transform.translate(-0.5, -0.5); // Map to upper-left corner.
 
             try {
                 graphics.drawRenderedImage(image, transform);
             } catch (Exception e) {
-                graphics.drawRenderedImage(getGoodImage(image), transform);
+                image = getGoodImage(image);
+                graphics.drawRenderedImage(image, transform);
             }
         } else {
             /*
-             * Calcule quel "niveau" d'image serait le plus approprié.
-             * Ce calcul est fait en fonction de la résolution requise.
+             * Compute the most appropriate level as a function of the required
+             * resolution
              */
             AffineTransform transform = graphics.getTransform();
             transform.concatenate(gridToCoordinate);
 
-            final int level = Math.max(0,
-                    Math.min(maxLevel,
-                        (int) (Math.log(Math.max(XAffineTransform.getScaleX0(
-                                    transform),
-                                XAffineTransform.getScaleY0(transform))) / LOG_DOWN_SAMPLER)));
+            double maxScale = Math.max(
+                    XAffineTransform.getScaleX0(transform),
+                    XAffineTransform.getScaleY0(transform));
+            int level = Math.min(
+                    maxLevel, (int) (Math.log(maxScale) / LOG_DOWN_SAMPLER));
+
+            if (level < 0) {
+                level = 0;
+            }
 
             /*
-             * Si on utilise une résolution inférieure (pour un
-             * affichage plus rapide), alors il faut utiliser un
-             * géoréférencement ajusté en conséquence.
+             * If using an inferior resolution to speed up painting adjust
+             * georeferencing
              */
             transform.setTransform(gridToCoordinate);
 
@@ -168,9 +179,16 @@ final class GridCoverageRenderer {
         }
     }
 
+    /**
+     * Work around a bug in older JDKs
+     *
+     * @param img The JAI rendered image
+     *
+     * @return a buffered image that can be handled by Java2D without problems
+     */
     private RenderedImage getGoodImage(RenderedImage img) {
-        BufferedImage good = new BufferedImage(img.getWidth(), img.getHeight(),
-                BufferedImage.TYPE_BYTE_GRAY);
+        BufferedImage good = new BufferedImage(
+                img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g2d = (Graphics2D) good.getGraphics();
         g2d.drawRenderedImage(img, new AffineTransform());
 
