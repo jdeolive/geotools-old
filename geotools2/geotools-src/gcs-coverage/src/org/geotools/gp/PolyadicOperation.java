@@ -47,7 +47,7 @@ import org.geotools.gc.GridCoverage;
 /**
  * A JAI operation which accepts an arbitrary number of sources.
  *
- * @version $Id: PolyadicOperation.java,v 1.3 2003/08/03 20:15:04 desruisseaux Exp $
+ * @version $Id: PolyadicOperation.java,v 1.4 2003/10/20 14:35:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class PolyadicOperation extends OperationJAI {
@@ -78,8 +78,8 @@ class PolyadicOperation extends OperationJAI {
      * Returns source name for the specified parameters.
      */
     String[] getSourceNames(final ParameterList parameters) {
-        if (parameters instanceof Parameters) {
-            return ((Parameters) parameters).getSourceNames();
+        if (parameters instanceof DynamicParameterList) {
+            return ((DynamicParameterList) parameters).getSourceNames();
         }
         return super.getSourceNames(parameters);
     }
@@ -89,21 +89,23 @@ class PolyadicOperation extends OperationJAI {
      * instance of {@link ParameterList} which accept an arbitrary number of sources.
      */
     public ParameterList getParameterList() {
-        return new Parameters(getParameterListDescriptor());
+        return new DynamicParameterList(getParameterListDescriptor());
     }
 
     /**
      * A {@link ParameterList} which accepts an arbitrary number of sources.
      * This parameter list is also its own descriptor.
      *
-     * @version $Id: PolyadicOperation.java,v 1.3 2003/08/03 20:15:04 desruisseaux Exp $
+     * @version $Id: PolyadicOperation.java,v 1.4 2003/10/20 14:35:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    private static final class Parameters extends ParameterListImpl implements ParameterListDescriptor {
+    private static final class DynamicParameterList extends ParameterListImpl
+                                                    implements ParameterListDescriptor
+    {
         /**
          * Serial number for interoperability with different versions.
          */
-        private static final long serialVersionUID = 6985215089811539582L;
+        private static final long serialVersionUID = 1110818299138716246L;
 
         /**
          * The prefix for &quot;Source&quot; argument name.
@@ -118,7 +120,7 @@ class PolyadicOperation extends OperationJAI {
         /**
          * Constructs a parameter list.
          */
-        public Parameters(final ParameterListDescriptor descriptor) {
+        public DynamicParameterList(final ParameterListDescriptor descriptor) {
             super(descriptor);
         }
 
