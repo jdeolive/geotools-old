@@ -31,7 +31,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: DefaultGraphic.java,v 1.11 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: DefaultGraphic.java,v 1.12 2002/10/14 11:30:39 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultGraphic implements org.geotools.styling.Graphic {
@@ -40,7 +40,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-
+    String geometryPropertyName = "";
     ArrayList externalGraphics = new ArrayList();
     ArrayList marks = new ArrayList();
     ArrayList symbols = new ArrayList();
@@ -249,4 +249,17 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
             severe("setSize", "Problem setting Size", mfe);
         }
     }
+    
+    public void setGeometryPropertyName(String name){
+        geometryPropertyName=name;
+    }
+    
+    /** Getter for property geometryPropertyName.
+     * @return Value of property geometryPropertyName.
+     *
+     */
+    public java.lang.String getGeometryPropertyName() {
+        return geometryPropertyName;
+    }
+    
 }
