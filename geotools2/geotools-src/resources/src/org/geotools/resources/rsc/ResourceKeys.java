@@ -1,9 +1,10 @@
 /*
- * SEAGIS - An OpenSource implementation of OpenGIS specification
- *          (C) 2001, Institut de Recherche pour le D‰veloppement
+ * Geotools - OpenSource mapping toolkit
+ * (C) 2002, Center for Computational Geography
+ * (C) 2001, Institut de Recherche pour le Développement
  *
- *          THIS IS AN AUTOMATICALLY GENERATED FILE. DO NOT EDIT!
- *          Generated with: net.seagis.resources.ResourceCompiler
+ *     THIS IS AN AUTOMATICALLY GENERATED FILE. DO NOT EDIT!
+ *     Generated with: org.geotools.resources.ResourceCompiler
  */
 package org.geotools.resources.rsc;
 
@@ -16,8 +17,8 @@ package org.geotools.resources.rsc;
  * classes compiled against the interface, providing that no class
  * implements this interface.
  *
- * @see net.seagis.resources.ResourceBundle
- * @see net.seagis.resources.ResourceCompiler
+ * @see org.geotools.resources.ResourceBundle
+ * @see org.geotools.resources.ResourceCompiler
  */
 public interface ResourceKeys
 {
