@@ -65,7 +65,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.13 2003/12/12 21:26:13 cholmesny Exp $
+ * @version $Id: PostgisDataStore.java,v 1.14 2003/12/16 00:42:15 cholmesny Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -467,7 +467,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
         AttributeType[] types = featureSchema.getAttributeTypes();
 
-        if (ftInfo.getFidColumnName() != null) {
+        if (ftInfo.getFidColumnName() != DEFAULT_FID_COLUMN) {
             sql.append('"');
             sql.append(ftInfo.getFidColumnName());
             sql.append('"');
@@ -485,7 +485,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
         Object[] attributes = feature.getAttributes(null);
 
-        if (ftInfo.getFidColumnName() != null) {
+        if (ftInfo.getFidColumnName() != DEFAULT_FID_COLUMN) {
             String fid = feature.getID();
             int split = fid.indexOf('.');
 
