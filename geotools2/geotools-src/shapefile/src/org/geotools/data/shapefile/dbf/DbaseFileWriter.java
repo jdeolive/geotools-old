@@ -54,7 +54,6 @@ public class DbaseFileWriter  {
   private final Number NULL_NUMBER = new Integer(0);
   private final String NULL_STRING = "";
   private final Date NULL_DATE = new Date();
-  private final Boolean NULL_LOGICAL = Boolean.FALSE;
   
   /** Create a DbaseFileWriter using the specified header and writing to the given
    * channel.
