@@ -49,7 +49,7 @@ import java.util.Set;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.3 2003/05/14 23:22:05 cholmesny Exp $
+ * @version $Id: AbstractDataSource.java,v 1.4 2003/05/15 18:21:41 cholmesny Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** the meta data object containing information about this datasource. */
@@ -404,6 +404,53 @@ public abstract class AbstractDataSource implements DataSource {
         }
 
         return null;
+    }
+
+    /**
+     * Gets the bounding box of this datasource using the speed of this
+     * datasource as set by the parameter.
+     *
+     * @param speed If true then a quick (and possibly dirty) estimate of the
+     *        extent is returned. If false then a slow but
+     *        accurate extent                will be returned
+     *
+     * @return The extent of the datasource or null if unknown and too
+     *         expensive for the method to calculate.
+     *
+     * @throws RuntimeException DOCUMENT ME!
+     *
+     * @task REVISIT:Consider changing return of getBbox to Filter once Filters
+     *       can be unpacked
+     * @deprecated users can use <tt>DataSourceMetaData.hasFastBbox()</tt> to
+     *             check if the loading of the bounding box
+     *             will take a long                     time.
+     * @task TODO: remove this.
+     */
+    public Envelope getBbox(boolean speed) {
+        try {
+            return getBbox();
+        } catch (DataSourceException e) {
+            throw new RuntimeException(
+                "Error in getBbox.  This method should not" +
+                " be used any more, use getBbox()");
+        }
+    }
+
+     /**
+     * Sets the schema that features extrated from this datasource will be
+     * created with.  This allows the user to obtain the attributes he wants,
+     * by calling getSchema and then creating a new schema using the
+     * attributeTypes from the currently used schema.
+     *
+     * @param schema the new schema to be used to create features.
+     *
+     * @throws DataSourceException DOCUMENT ME!
+     *
+     * @deprecated Use the properties of the query object to accomplish the
+     *             same functionality.
+     * @task TODO: remove this.  I'm not sure how to do the deprecation right.
+     */
+    public void setSchema(FeatureType schema) throws DataSourceException {
     }
 
     /**
