@@ -31,15 +31,15 @@ import org.geotools.feature.Feature;
  * the denominator in an ExpressionMath division operation.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: MathExpressionImpl.java,v 1.6 2003/07/22 22:41:08 cholmesny Exp $
+ * @version $Id: MathExpressionImpl.java,v 1.7 2003/07/23 18:13:32 cholmesny Exp $
  */
 public class MathExpressionImpl extends DefaultExpression
     implements MathExpression {
     /** Holds the 'left' value of this math expression. */
-    protected Expression leftValue = null;
+    private Expression leftValue = null;
 
     /** Holds the 'right' value of this math expression. */
-    protected Expression rightValue = null;
+    private Expression rightValue = null;
 
     /**
      * No argument constructor.
@@ -171,6 +171,45 @@ public class MathExpressionImpl extends DefaultExpression
     }
 
     /**
+     * Returns a string representation of this expression
+     *
+     * @return String representation of the math expression.
+     */
+    public String toString() {
+        String operation;
+
+        switch (expressionType) {
+        case MATH_ADD:
+            operation = " + ";
+
+            break;
+
+        case MATH_SUBTRACT:
+            operation = " - ";
+
+            break;
+
+        case MATH_MULTIPLY:
+            operation = " * ";
+
+            break;
+
+        case MATH_DIVIDE:
+            operation = " / ";
+
+            break;
+
+        default:
+            operation = " ? "; //should never happen.
+
+            break;
+        }
+
+        return "(" + leftValue.toString() + operation + rightValue.toString()
+        + ")";
+    }
+
+    /**
      * Compares this expression to the specified object.  Returns true  if the
      * passed in object is the same as this expression.  Checks  to make sure
      * the expression types as well as the left and right values are equal.
@@ -181,7 +220,7 @@ public class MathExpressionImpl extends DefaultExpression
      *         otherwise.
      */
     public boolean equals(Object obj) {
-        if (obj.getClass() == this.getClass()) {
+        if (obj instanceof MathExpressionImpl) {
             MathExpression expMath = (MathExpression) obj;
 
             return ((expMath.getType() == this.expressionType)
