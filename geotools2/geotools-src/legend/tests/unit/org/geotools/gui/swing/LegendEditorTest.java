@@ -19,6 +19,7 @@ package org.geotools.gui.swing;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLDecoder;
 
 import javax.swing.JFrame;
 
@@ -45,19 +46,24 @@ public class LegendEditorTest extends TestCase {
     public LegendEditorTest(java.lang.String testName) {
         super(testName);
     }
-
+    
     public void testLegend() {
         URL base = getClass().getResource("testdata/");
-
-        File sldFile = new File(base.getPath() + "/color.sld");
+        
+        
         SLDStyle sld = null;
-
+        
         try {
+            File sldFile = new File(URLDecoder.decode(base.getPath(),"UTF-8") + "/color.sld");
             sld = new SLDStyle(StyleFactory.createStyleFactory(), sldFile);
         } catch (java.io.FileNotFoundException e) {
             e.printStackTrace();
         }
-
+         catch (java.io.UnsupportedEncodingException e) {
+            e.printStackTrace();
+            fail();
+        }
+        
         Style[] styles = sld.readXML();
         System.out.println("Style loaded");
         
@@ -65,25 +71,25 @@ public class LegendEditorTest extends TestCase {
         StyleEditorChooser sec = new StyleEditorChooser(null, styles[0]);
         
         System.out.println("Style editor created in " + (System.currentTimeMillis() - start));
-
+        
         // Create frame
         JFrame frame = new JFrame();
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
-                public void windowClosing(java.awt.event.WindowEvent evt) {
-                    System.exit(0);
-                }
-            });
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                System.exit(0);
+            }
+        });
         frame.setContentPane(sec);
-
+        
         frame.pack();
         frame.show();
         frame.dispose();
     }
-
+    
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
     }
-
+    
     public static Test suite() {
         return new junit.framework.TestSuite(LegendEditorTest.class);
     }
