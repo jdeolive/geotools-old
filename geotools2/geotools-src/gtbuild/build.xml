@@ -5,8 +5,8 @@
         <property file="build.ant.properties"/>
         <path id="netbeans.ext">
 
-            <fileset dir="..\..\extbin\gtbuild\lib\"/>
-            <pathelement location="..\..\extbin\gtbuild\lib\nbantext.jar"/>
+            <fileset dir="../../extbin/gtbuild/lib/"/>
+            <pathelement location="../../extbin/gtbuild/lib/nbantext.jar"/>
 
         </path>
          
