@@ -30,7 +30,9 @@ public interface ResourceKeys
     public static final int GEOGRAPHIC_COORDINATES   =    21;
     public static final int HIDE                     =     3;
     public static final int LEFT                     =     4;
+    public static final int LEVEL                    =    31;
     public static final int MAGNIFIER                =     5;
+    public static final int MESSAGE                  =    32;
     public static final int NO_DETAILS_$1            =     6;
     public static final int PREFERRED_RESOLUTION     =    22;
     public static final int RECTANGLE_$4             =     7;
