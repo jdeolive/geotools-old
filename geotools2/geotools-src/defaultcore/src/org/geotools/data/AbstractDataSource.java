@@ -19,11 +19,10 @@ package org.geotools.data;
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureType;
 import org.geotools.filter.Filter;
 import java.util.Set;
-import org.geotools.feature.FeatureCollections;
 
 
 /**
@@ -50,9 +49,13 @@ import org.geotools.feature.FeatureCollections;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.8 2003/07/17 07:09:53 ianschneider Exp $
+ * @version $Id: AbstractDataSource.java,v 1.9 2003/07/22 00:05:13 cholmesny Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
+  
+    /** A support string for unsupported operations messages */
+    private static String supportMsg = "This datasource does not support ";
+
     /** the meta data object containing information about this datasource. */
     private DataSourceMetaData metaData;
 
@@ -163,8 +166,7 @@ public abstract class AbstractDataSource implements DataSource {
     public Set addFeatures(FeatureCollection collection)
         throws DataSourceException, UnsupportedOperationException {
         if (!getMetaData().supportsAdd()) {
-            throw new UnsupportedOperationException("This datasource does not" +
-                "support addFeatures");
+            throw new UnsupportedOperationException(supportMsg + "addFeatures");
         }
 
         return null;
@@ -183,8 +185,8 @@ public abstract class AbstractDataSource implements DataSource {
     public void removeFeatures(Filter filter)
         throws DataSourceException, UnsupportedOperationException {
         if (!getMetaData().supportsRemove()) {
-            throw new UnsupportedOperationException("This datasource does not" +
-                " support removeFeatures");
+            throw new UnsupportedOperationException(supportMsg
+                + "removeFeatures");
         }
     }
 
@@ -199,14 +201,15 @@ public abstract class AbstractDataSource implements DataSource {
      * @throws DataSourceException If modificaton is not supported, if the
      *         attribute and object arrays are not eqaul length, or if the
      *         object types do not match the attribute types.
-     * @throws UnsupportedOperationException DOCUMENT ME!
+     * @throws UnsupportedOperationException if the modifyFeatures method is
+     *         not supported by this datasource
      */
     public void modifyFeatures(AttributeType[] type, Object[] value,
         Filter filter)
         throws DataSourceException, UnsupportedOperationException {
         if (!getMetaData().supportsModify()) {
-            throw new UnsupportedOperationException("This datasource does not" +
-                " support modifyFeatures");
+            throw new UnsupportedOperationException(supportMsg
+                + "modifyFeatures");
         }
     }
 
@@ -238,15 +241,15 @@ public abstract class AbstractDataSource implements DataSource {
      *
      * @param collection - the collection to be written
      *
-     * @throws DataSourceException DOCUMENT ME!
+     * @throws DataSourceException if there was problems writing the
+     *         collection.
      * @throws UnsupportedOperationException if the setFeatures method is not
      *         supported by this datasource.
      */
     public void setFeatures(FeatureCollection collection)
         throws DataSourceException, UnsupportedOperationException {
         if (!getMetaData().supportsSetFeatures()) {
-            throw new UnsupportedOperationException("This datasource does not" +
-                " support setFeatures");
+            throw new UnsupportedOperationException(supportMsg + "setFeatures");
         }
     }
 
@@ -279,8 +282,7 @@ public abstract class AbstractDataSource implements DataSource {
     public void rollback()
         throws DataSourceException, UnsupportedOperationException {
         if (!getMetaData().supportsRollbacks()) {
-            throw new UnsupportedOperationException("This datasource does not" +
-                " support rollbacks");
+            throw new UnsupportedOperationException(supportMsg + "rollbacks");
         }
     }
 
@@ -295,7 +297,7 @@ public abstract class AbstractDataSource implements DataSource {
      * @param autoCommit <tt>true</tt> to enable auto-commit mode,
      *        <tt>false</tt> to disable it.
      *
-     * @throws DataSourceException DOCUMENT ME!
+     * @throws DataSourceException if there were problems setting autocommit.
      * @throws UnsupportedOperationException DOCUMENT ME!
      *
      * @see #setAutoCommit(boolean)
@@ -303,8 +305,7 @@ public abstract class AbstractDataSource implements DataSource {
     public void setAutoCommit(boolean autoCommit)
         throws DataSourceException, UnsupportedOperationException {
         if (!getMetaData().supportsRollbacks()) {
-            throw new UnsupportedOperationException("This datasource does not" +
-                " support rollbacks");
+            throw new UnsupportedOperationException(supportMsg + "rollbacks");
         }
     }
 
@@ -362,6 +363,8 @@ public abstract class AbstractDataSource implements DataSource {
      *
      * @return the schema of features created by this datasource.
      *
+     * @throws DataSourceException if there were problems getting schema.
+     *
      * @task REVISIT: Our current FeatureType model is not yet advanced enough
      *       to handle multiple featureTypes.  Should getSchema take a
      *       typeName now that  a query takes a typeName, and thus DataSources
@@ -380,8 +383,8 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public void abortLoading() throws UnsupportedOperationException {
         if (!getMetaData().supportsAbort()) {
-            throw new UnsupportedOperationException("This datasource does not" +
-                " support abortLoading");
+            throw new UnsupportedOperationException(supportMsg
+                + "abortLoading");
         }
     }
 
@@ -392,37 +395,17 @@ public abstract class AbstractDataSource implements DataSource {
      * @return The bounding box of the datasource or null if unknown and too
      *         expensive for the method to calculate.
      *
-     * @throws DataSourceException DOCUMENT ME!
-     * @throws UnsupportedOperationException DOCUMENT ME!
-     *
-     * @task REVISIT: Consider changing return of getBbox to Filter once
-     *       Filters can be unpacked
+     * @throws DataSourceException if bounds could not be calculated
+     * @throws UnsupportedOperationException if the datasource can't get
+     *         bounds.
      */
-    public Envelope getBounds() throws DataSourceException {
+    public Envelope getBounds() throws DataSourceException, 
+    UnsupportedOperationException {
         if (!getMetaData().supportsGetBbox()) {
-            throw new UnsupportedOperationException("This datasource does not" +
-                " support getBbox");
+            throw new UnsupportedOperationException(supportMsg + "getBbox");
         }
 
         return null;
-    }
-
-
-     /**
-     * Sets the schema that features extrated from this datasource will be
-     * created with.  This allows the user to obtain the attributes he wants,
-     * by calling getSchema and then creating a new schema using the
-     * attributeTypes from the currently used schema.
-     *
-     * @param schema the new schema to be used to create features.
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     *
-     * @deprecated Use the properties of the query object to accomplish the
-     *             same functionality.
-     * @task TODO: remove this.  I'm not sure how to do the deprecation right.
-     */
-    public void setSchema(FeatureType schema) throws DataSourceException {
     }
 
     /**
@@ -445,14 +428,29 @@ public abstract class AbstractDataSource implements DataSource {
      * @author Ian Schneider
      */
     protected static final class MetaDataSupport implements DataSourceMetaData {
-        private boolean supportsAdd = false;
-        private boolean supportsRemove = false;
-        private boolean supportsModify = false;
-        private boolean supportsRollbacks = false;
-        private boolean supportsSet = false;
-        private boolean supportsAbort = false;
-        private boolean supportsGetBbox = false;
-        private boolean hasFastBbox = false;
+        /** whether the add operation is supported */
+        private boolean add = false;
+
+        /** whether the remove operation is supported */
+        private boolean remove = false;
+
+        /** whether the modify operation is supported */
+        private boolean modify = false;
+
+        /** whether the rollbacks operation is supported */
+        private boolean rollbacks = false;
+
+        /** whether the set operation is supported */
+        private boolean set = false;
+
+        /** whether the abort operation is supported */
+        private boolean abort = false;
+
+        /** whether the getBbox operation is supported */
+        private boolean getBbox = false;
+
+        /** whether the datasource quickly retrieves bboxes. */
+        private boolean fastBbox = false;
 
         /**
          * No argument constructor.
@@ -467,7 +465,7 @@ public abstract class AbstractDataSource implements DataSource {
          *         <tt>false</tt> otherwise.
          */
         public boolean supportsAdd() {
-            return supportsAdd;
+            return add;
         }
 
         /**
@@ -476,7 +474,7 @@ public abstract class AbstractDataSource implements DataSource {
          * @param support if this operation should be supported.
          */
         public void setSupportsAdd(boolean support) {
-            this.supportsAdd = support;
+            this.add = support;
         }
 
         /**
@@ -486,7 +484,7 @@ public abstract class AbstractDataSource implements DataSource {
          *         <tt>false</tt> otherwise.
          */
         public boolean supportsRemove() {
-            return supportsRemove;
+            return remove;
         }
 
         /**
@@ -495,7 +493,7 @@ public abstract class AbstractDataSource implements DataSource {
          * @param support if this operation should be supported.
          */
         public void setSupportsRemove(boolean support) {
-            this.supportsRemove = support;
+            this.remove = support;
         }
 
         /**
@@ -505,7 +503,7 @@ public abstract class AbstractDataSource implements DataSource {
          *         <tt>false</tt> otherwise.
          */
         public boolean supportsModify() {
-            return supportsModify;
+            return modify;
         }
 
         /**
@@ -514,7 +512,7 @@ public abstract class AbstractDataSource implements DataSource {
          * @param support if this operation should be supported.
          */
         public void setSupportsModify(boolean support) {
-            this.supportsModify = support;
+            this.modify = support;
         }
 
         /**
@@ -529,7 +527,7 @@ public abstract class AbstractDataSource implements DataSource {
          * @see DataSource#rollback()
          */
         public boolean supportsRollbacks() {
-            return supportsRollbacks;
+            return rollbacks;
         }
 
         /**
@@ -538,7 +536,7 @@ public abstract class AbstractDataSource implements DataSource {
          * @param support if this operation should be supported.
          */
         public void setSupportsRollbacks(boolean support) {
-            this.supportsRollbacks = support;
+            this.rollbacks = support;
         }
 
         /**
@@ -550,7 +548,7 @@ public abstract class AbstractDataSource implements DataSource {
          *         <tt>false</tt> otherwise.
          */
         public boolean supportsSetFeatures() {
-            return supportsSet;
+            return set;
         }
 
         /**
@@ -559,7 +557,7 @@ public abstract class AbstractDataSource implements DataSource {
          * @param support if this operation should be supported.
          */
         public void setSupportsSetFeatures(boolean support) {
-            this.supportsSet = support;
+            this.set = support;
         }
 
         /**
@@ -570,7 +568,7 @@ public abstract class AbstractDataSource implements DataSource {
          *         <tt>false</tt> otherwise.
          */
         public boolean supportsAbort() {
-            return supportsAbort;
+            return abort;
         }
 
         /**
@@ -579,7 +577,7 @@ public abstract class AbstractDataSource implements DataSource {
          * @param support if this operation should be supported.
          */
         public void setSupportsAbort(boolean support) {
-            this.supportsAbort = support;
+            this.abort = support;
         }
 
         /**
@@ -590,7 +588,7 @@ public abstract class AbstractDataSource implements DataSource {
          *         <tt>false</tt> otherwise.
          */
         public boolean supportsGetBbox() {
-            return supportsGetBbox;
+            return getBbox;
         }
 
         /**
@@ -599,7 +597,7 @@ public abstract class AbstractDataSource implements DataSource {
          * @param support if this operation should be supported.
          */
         public void setSupportsGetBbox(boolean support) {
-            this.supportsGetBbox = support;
+            this.getBbox = support;
         }
 
         /**
@@ -612,14 +610,16 @@ public abstract class AbstractDataSource implements DataSource {
          *         <tt>false</tt> otherwise.
          */
         public boolean hasFastBbox() {
-            return hasFastBbox;
+            return fastBbox;
         }
 
-        /*
+        /**
          * Sets whether this datasource has a fast bbox.
+	 *
+	 * @param fast whether fast bboxes are supported.
          */
         public void setFastBbox(boolean fast) {
-            this.hasFastBbox = fast;
+            this.fastBbox = fast;
         }
 
         /**
@@ -629,12 +629,11 @@ public abstract class AbstractDataSource implements DataSource {
          * @return a string representation of the metadata.
          */
         public String toString() {
-            return "supportsAdd: " + supportsAdd + "\n" + "supportsRemove: " +
-            supportsRemove + "\n" + "supportsModify: " + supportsModify + "\n" +
-            "supportsSetFeatures: " + supportsSet + "\n" +
-            "supportsRollbacks: " + supportsRollbacks + "\n" +
-            "supportsAbort: " + supportsAbort + "\n" + "supportsGetBbox: " +
-            supportsGetBbox + "\n" + "hasFastBbox: " + hasFastBbox;
+            return "supportsAdd: " + add + "\n" + "supportsRemove: " + remove
+            + "\n" + "supportsModify: " + modify + "\n"
+            + "supportsSetFeatures: " + set + "\n" + "supportsRollbacks: "
+            + rollbacks + "\n" + "supportsAbort: " + abort + "\n"
+            + "supportsGetBbox: " + getBbox + "\n" + "hasFastBbox: " + fastBbox;
         }
     }
 }
