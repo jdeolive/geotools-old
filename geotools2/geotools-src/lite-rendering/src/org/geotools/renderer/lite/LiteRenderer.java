@@ -87,7 +87,7 @@ import javax.imageio.ImageIO;
 
 
 /**
- * @version $Id: LiteRenderer.java,v 1.1 2003/02/09 09:49:15 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.2 2003/05/11 15:24:03 aaime Exp $
  * @author James Macgill
  * @author Andrea Aime
  */
@@ -282,9 +282,11 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
             return;
         }
+        
 
+        long startTime = 0;
         if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("renderering " + features.length + " features");
+            startTime = System.currentTimeMillis();
         }
 
         mapExtent = map;
@@ -321,6 +323,13 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         //extract the feature type stylers from the style object and process them
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
         processStylers(features, featureStylers);
+        
+        if (LOGGER.isLoggable(Level.FINE)) {
+            long endTime = System.currentTimeMillis();
+            double elapsed = (endTime - startTime) / 1000;
+            LOGGER.fine("Rendered " + features.length + " features in " + elapsed + " sec.");
+            
+        }
     }
 
 
@@ -395,8 +404,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
      * @param featureStylers An array of feature stylers to be applied
      **/
     private void processStylers(final Feature[] features, final FeatureTypeStyle[] featureStylers) {
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("processing " + featureStylers.length + " stylers");
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("processing " + featureStylers.length + " stylers");
         }
 
         // create the arrayList of features that sits whithin the map envelop
@@ -543,8 +552,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
      */
     private void processSymbolizers(final Collection features, final Symbolizer[] symbolizers) {
         for (int m = 0; m < symbolizers.length; m++) {
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine("applying symbolizer " + symbolizers[m]);
+            if (LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.finest("applying symbolizer " + symbolizers[m]);
             }
 
             if (symbolizers[m] instanceof PolygonSymbolizer) {
@@ -597,8 +606,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
      * @param symbolizer The polygon symbolizer to apply
      **/
     private void renderPolygon(Feature feature, PolygonSymbolizer symbolizer) {
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("rendering polygon with a scale of " + this.scaleDenominator);
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("rendering polygon with a scale of " + this.scaleDenominator);
         }
 
         Fill fill = symbolizer.getFill();
@@ -688,8 +697,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
 
     private void renderPoint(Feature feature, PointSymbolizer symbolizer) {
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("rendering a point from " + feature);
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("rendering a point from " + feature);
         }
 
         org.geotools.styling.Graphic sldgraphic = symbolizer.getGraphic();
@@ -1194,8 +1203,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
 
     private BufferedImage getImage(ExternalGraphic eg) {
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("got a " + eg.getFormat());
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("got a " + eg.getFormat());
         }
 
         if (supportedGraphicFormats.contains(eg.getFormat().toLowerCase())) {
@@ -1208,8 +1217,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
                 BufferedImage img = imageLoader.get(eg.getLocation(), isInteractive());
 
-                if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.fine("Image return = " + img);
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("Image return = " + img);
                 }
 
                 if (img != null) {
@@ -1283,8 +1292,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
 
     private void renderImage(double tx, double ty, BufferedImage img, int size, double rotation) {
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("drawing Image @" + tx + "," + ty);
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("drawing Image @" + tx + "," + ty);
         }
 
         AffineTransform temp = graphics.getTransform();
@@ -1558,8 +1567,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
 
         double scale = graphics.getTransform().getScaleX();
 
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("line join = " + stroke.getLineJoin());
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("line join = " + stroke.getLineJoin());
         }
 
         String joinType;
@@ -1857,6 +1866,7 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
             GridCoverageRenderer gcr = new GridCoverageRenderer(grid);
             gcr.paint(graphics);
+            LOGGER.finest("Raster rendered");
         } catch (IllegalFeatureException ife) {
             LOGGER.severe("No grid in feature " + ife.getMessage());
         }
@@ -1893,8 +1903,8 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
             try {
                 geom = (Geometry) feature.getAttribute(geomName);
             } catch (IllegalFeatureException ife) {
-                if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.fine("Geometry " + geomName + " not found " + ife);
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("Geometry " + geomName + " not found " + ife);
                 }
 
                 //hack: not sure if null is the right thing to return at this point
