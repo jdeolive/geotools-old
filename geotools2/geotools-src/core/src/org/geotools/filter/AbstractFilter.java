@@ -32,7 +32,7 @@ import org.geotools.feature.*;
  * Implements Filter interface, with constants and default behaviors for
  * methods.
  *
- * @version $Id: AbstractFilter.java,v 1.6 2003/04/14 21:36:33 jmacgill Exp $ 
+ * @version $Id: AbstractFilter.java,v 1.7 2003/05/27 20:35:45 cholmesny Exp $ 
  * @author Rob Hranac, Vision for New York
  */
 public abstract class AbstractFilter implements Filter {
@@ -95,6 +95,8 @@ public abstract class AbstractFilter implements Filter {
     public static final short COMPARE_LESS_THAN_EQUAL = 17;
     /** Defines a comparative greater than/equals filter (is a math filter). */
     public static final short COMPARE_GREATER_THAN_EQUAL = 18;
+
+    public static final short COMPARE_NOT_EQUALS = 23;
 
     /**
      * Defines a between filter, which is implemented by FilterBetween.
@@ -169,7 +171,9 @@ public abstract class AbstractFilter implements Filter {
     protected static boolean isCompareFilter(short filterType) {
 
         return ((isMathFilter(filterType)) ||
-            (filterType == COMPARE_EQUALS) || (filterType == BETWEEN) );
+		(filterType == COMPARE_EQUALS) || 
+		(filterType == BETWEEN) ||
+		(filterType == COMPARE_NOT_EQUALS));
     }
 
     /**
