@@ -2,36 +2,17 @@
 
 <project>
   <pomVersion>3</pomVersion>
+  <extend>../../project.xml</extend>
   <name>geotools-filter</name>
   <id>filter</id>
-  <logo>/images/filter.gif</logo>
+  
   <currentVersion>0.1</currentVersion>
-  <organization>
-    <name>GeoTools</name>
-    <url>http://www.geotools.org</url>
-        <logo>/images/gtLogo.gif</logo>
-    </organization>
-  <inceptionYear>1996</inceptionYear>
+  
   <package>org.geotools</package>
   <shortDescription>OGC Filter parsing module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description><![CDATA[Classes for reading OGC Filters which are encoded in their standard XML format.
-]]></description>
-  <url>http://www.geotools.org/</url>
-  <cvsWebUrl/>
-  <issueTrackingUrl/>
-  <siteAddress>www.geotools.org</siteAddress>
-  <siteDirectory/>
-  <distributionDirectory/>
+  <description>Classes for reading OGC Filters which are encoded in their standard XML format.</description>
   
-  <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/filter</connection>
-    
-        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/filter/</url>
-    </repository>
-  
-
-  <mailingLists/>
   <developers>
     <developer>
       <name>Rob Hranac</name>
@@ -72,19 +53,6 @@
       <version>0.1</version>
     </dependency>
     </dependencies>
-  <build>
-    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-    
-    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
-    <integrationUnitTestSourceDirectory/>
-    <aspectSourceDirectories/>
-    <unitTestPatterns>
-      <unitTestPattern>include = **/*Test.java</unitTestPattern>
-    </unitTestPatterns>
-    <integrationUnitTestPatterns/>
-    <jarResources/>
-    <jars/>
-        <sourceDirectory>src</sourceDirectory>
-    </build>
+ 
 </project>
 
