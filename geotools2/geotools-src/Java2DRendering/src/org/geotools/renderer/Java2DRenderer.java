@@ -56,7 +56,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.51 2002/08/21 20:31:18 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.52 2002/08/22 16:09:06 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -531,7 +531,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         String requestedFont = "";
         for (int k = 0; k < fonts.length; k++){
             requestedFont = fonts[k].getFontFamily().getValue(feature).toString();
-            LOGGER.fine("trying to load " + requestedFont);
+            LOGGER.info("trying to load " + requestedFont);
             if(loadedFonts.containsKey(requestedFont)){
                 javaFont = (Font) loadedFonts.get(requestedFont);
                 String reqStyle = (String)fonts[k].getFontStyle().getValue(feature);
@@ -549,7 +549,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 
                 return javaFont.deriveFont(styleCode,size);
             }
-            LOGGER.fine("not already loaded");
+            LOGGER.info("not already loaded");
             if(fontFamilies.contains(requestedFont)){
                 String reqStyle = (String)fonts[k].getFontStyle().getValue(feature);
                 
@@ -564,12 +564,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     styleCode = styleCode|java.awt.Font.BOLD;
                 }
                 size = ((Number)fonts[k].getFontSize().getValue(feature)).intValue();
-                LOGGER.finer("requesting " + requestedFont + " " + styleCode + " " + size);
+                LOGGER.info("requesting " + requestedFont + " " + styleCode + " " + size);
                 javaFont = new java.awt.Font(requestedFont, styleCode, size);
                 loadedFonts.put(requestedFont,javaFont);
                 return javaFont;
             }
-            LOGGER.fine("not a system font");
+            LOGGER.info("not a system font");
             // may be its a file or url 
             InputStream is = null;
             if(requestedFont.startsWith("http") || requestedFont.startsWith("file:")){
@@ -578,40 +578,40 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     is = url.openStream();
                 } catch (MalformedURLException mue){
                     // this may be ok - but we should mention it
-                    LOGGER.warning("Bad url in java2drenderer" + requestedFont + "\n" + mue);
+                    LOGGER.info("Bad url in java2drenderer" + requestedFont + "\n" + mue);
                 } catch (IOException ioe){
                     // we'll ignore this for the moment
-                    LOGGER.warning("IO error in java2drenderer " + requestedFont + "\n" + ioe);
+                    LOGGER.info("IO error in java2drenderer " + requestedFont + "\n" + ioe);
                 }
             } else {
-                LOGGER.fine("not a URL");
-                File file = new File("",requestedFont);
-                if(file.canRead()){
+                LOGGER.info("not a URL");
+                File file = new File(requestedFont);
+                //if(file.canRead()){
                     try{
                         is = new FileInputStream(file);
                     } catch (FileNotFoundException fne){
                         // this may be ok - but we should mention it
-                        LOGGER.warning("Bad file name in java2drenderer" + requestedFont + "\n" + fne);
+                        LOGGER.info("Bad file name in java2drenderer" + requestedFont + "\n" + fne);
                     }
-                } else {
-                    LOGGER.fine("not a readable file");
+                /*} else {
+                    LOGGER.info("not a readable file");
                     continue; // check for next font
-                }
+                }*/
                 
             }
-            LOGGER.fine("about to load");
+            LOGGER.info("about to load");
             if(is == null){
-                LOGGER.fine("null input stream");
+                LOGGER.info("null input stream");
                 continue;
             }
             try{
                 javaFont = Font.createFont(Font.TRUETYPE_FONT,is);
             } catch (FontFormatException ffe){
-                LOGGER.warning("Font format error in java2drender " + requestedFont + "\n" + ffe);
+                LOGGER.info("Font format error in java2drender " + requestedFont + "\n" + ffe);
                 continue;
             } catch (IOException ioe){
                 // we'll ignore this for the moment
-                LOGGER.warning("IO error in java2drenderer " + requestedFont + "\n" + ioe);
+                LOGGER.info("IO error in java2drenderer " + requestedFont + "\n" + ioe);
                 continue;
             }
             loadedFonts.put(requestedFont,javaFont);
