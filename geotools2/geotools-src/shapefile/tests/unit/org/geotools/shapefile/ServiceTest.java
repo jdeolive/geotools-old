@@ -27,49 +27,36 @@ import org.geotools.data.DataSource;
  *
  * @author ian
  */
-public class ServiceTest extends TestCase {
-    
-    
-    
-    public ServiceTest(java.lang.String testName) {
-        super(testName);
+public class ServiceTest extends TestCaseSupport {
+  
+  final String TEST_FILE = "statepop.shp";
+  
+  public ServiceTest(java.lang.String testName) {
+    super(testName);
+  }
+  
+  public static void main(java.lang.String[] args) {
+    junit.textui.TestRunner.run(suite(ServiceTest.class));
+  }
+  
+  public void testIsAvailable() {
+    Iterator list = DataSourceFinder.getAvailableDataSources();
+    boolean found = false;
+    while(list.hasNext()){
+      DataSourceFactorySpi fac = (DataSourceFactorySpi)list.next();
+      if(fac instanceof ShapefileDataSourceFactory){
+        found=true;
+        break;
+      }
     }
-    
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-    
-    public static Test suite() {
-        TestSuite suite = new TestSuite(ServiceTest.class);
-        return suite;
-    }
-    
-    public void testIsAvailable() {
-        Iterator list = DataSourceFinder.getAvailableDataSources();
-        boolean found = false;
-        while(list.hasNext()){
-            DataSourceFactorySpi fac = (DataSourceFactorySpi)list.next();
-            if(fac instanceof ShapefileDataSourceFactory){
-                found=true;
-                break;
-            }
-        }
-        assertTrue("ShapefileDataSourceFactory not registered", found);
-    }
-    
-    public void testShapefileDataSource()throws Exception{
-        HashMap params = new HashMap();
-        String dataFolder = System.getProperty("dataFolder");
-        if(dataFolder==null){
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder+="/tests/unit/testData";
-        }
-        params.put("url", "file:///"+dataFolder+"/statepop.shp");
-        DataSource ds = DataSourceFinder.getDataSource(params);
-        assertNotNull(ds);
-    }
-    
-    
-    
+    assertTrue("ShapefileDataSourceFactory not registered", found);
+  }
+  
+  public void testShapefileDataSource() throws Exception{
+    HashMap params = new HashMap();
+    params.put("url", getTestResource(TEST_FILE).toString());
+    DataSource ds = DataSourceFinder.getDataSource(params);
+    assertNotNull(ds);
+  }
+  
 }
