@@ -673,13 +673,11 @@ maven build -o</programlisting>
               <example>
                 <title>Sample project.xml dependency entry</title>
 
-                <programlisting>
-                  &#60;dependency&#62;
-                  &#60;groupId&#62;gt2&#60;/groupId&#62;
-                  &#60;artifactId&#62;resources&#60;/artifactId&#62;
-                  &#60;version&#62;1.0&#60;/version&#62;
-                  &#60;/dependency&#62;
-                </programlisting>
+                <programlisting>&#60;dependency&#62;
+  &#60;groupId&#62;gt2&#60;/groupId&#62;
+  &#60;artifactId&#62;resources&#60;/artifactId&#62;
+  &#60;version&#62;1.0&#60;/version&#62;
+&#60;/dependency&#62;</programlisting>
               </example>
             </listitem>
           </varlistentry>
@@ -750,33 +748,6 @@ maven build -o</programlisting>
         of the test to run. If you are having problems with logging output
         levels be sure to read the <link linkend="logging">logging section</link>.</para>
       </section>
-    </section>
-
-    <section id="buildingwithant">
-      <title>Using ant</title>
-
-      <para>Compiling with ant is being replaced with the maven build system,
-      so this section will eventually be deleted.</para>
-
-      <para>Each module should compile by itself. You should be able to do the
-      following:</para>
-
-      <example>
-        <title>Building modules using ant</title>
-
-        <programlisting>cd geotools2/geotools-src/&#60;module&#62;
-ant</programlisting>
-      </example>
-
-      <para>You can build all modules from the geotools2/geotools-src/gtbuild
-      directory:</para>
-
-      <example>
-        <title>Building all modules using ant</title>
-
-        <programlisting>cd geotools2/geotools-src/gtbuild
-ant</programlisting>
-      </example>
     </section>
 
     <section id="continuousbuild">
@@ -2926,7 +2897,7 @@ xxe yoursection.sgml</programlisting>
 
                   <para>Description of tool, how to configure and use it.
                   Reference tool&#39;s documentation rather than reproducing
-                  it here. </para>
+                  it here.</para>
                 </listitem>
 
                 <listitem>
