@@ -104,7 +104,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.22 2003/03/16 22:28:38 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.23 2003/03/18 22:34:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -1255,12 +1255,12 @@ public class Renderer {
      *
      * @param graph  The graphics handler.
      * @param zoom   The zoom (usually provided by {@link org.geotools.gui.swing.ZoomPane#zoom}.
-     * @param widget The bounds of drawing area (usually provided by
+     * @param zoomableBounds The bounds of drawing area (usually provided by
      *               {@link org.geotools.gui.swing.ZoomPane#getZoomableBounds}).
      */
-    public synchronized void paint(final Graphics2D      graph,
-                                   final AffineTransform zoom,
-                                   final Rectangle       bounds)
+    public synchronized void paint(final Graphics2D         graph,
+                                   final AffineTransform     zoom,
+                                   final Rectangle zoomableBounds)
     {
         statistics.init();
         sortLayers();
@@ -1275,28 +1275,8 @@ public class Renderer {
             /*
              * Set a flag for avoiding some 'paint' events while we are actually painting...
              */
-            RenderedLayer.setDirtyArea(layers, layerCount, clipBounds.contains(bounds) ?
+            RenderedLayer.setDirtyArea(layers, layerCount, clipBounds.contains(zoomableBounds) ?
                                                            XRectangle2D.INFINITY : clipBounds);
-            /*
-             * If the zoom or the device changed, then the 'textCS' and 'deviceCS' must
-             * be recreated.
-             */
-            if (!sameZoom || !toScreen) try {
-                final CoordinateSystem mapCS, textCS, deviceCS;
-                mapCS    = context.mapCS;
-                textCS   = createFittedCoordinateSystem("textCS",    mapCS, zoom);
-                deviceCS = createFittedCoordinateSystem("deviceCS", textCS, toDevice);
-                context  = new RenderingContext(this, mapCS, textCS, deviceCS);
-                if (toScreen) {
-                    mapToText.setTransform(zoom);
-                    this.context = context;
-                }
-            } catch (TransformException exception) {
-                // Impossible to process to the rendering. Paint the stack
-                // trace right into the component and exit from this method.
-                GraphicsUtilities.paintStackTrace(graphics, bounds, exception);
-                return;
-            }
             /*
              * If the zoom has changed, send a notification to all layers before to start the
              * rendering. Layers will update their cache, which is used in order to decide if
@@ -1314,10 +1294,10 @@ public class Renderer {
                     change.preConcatenate(zoom);
                     if (true) {
                         // Scale slightly the zoom in order to avoid rounding errors in Area.
-                        final double centerX = bounds.getCenterX();
-                        final double centerY = bounds.getCenterY();
+                        final double centerX = zoomableBounds.getCenterX();
+                        final double centerY = zoomableBounds.getCenterY();
                         change.translate( centerX,  centerY);
-                        change.scale(1+EPS, 1+EPS);
+                        change.scale    (   1+EPS,    1+EPS);
                         change.translate(-centerX, -centerY);
                     }
                     zoomChanged(change);
@@ -1343,22 +1323,42 @@ public class Renderer {
                     Utilities.unexpectedException("org.geotools.renderer.j2d",
                                                   "Renderer", "paint", exception);
                 }
+            }
+            /*
+             * If the zoom or the device changed, then the 'textCS' and 'deviceCS' must
+             * be recreated.
+             */
+            if (!sameZoom || !toScreen) try {
+                final CoordinateSystem mapCS, textCS, deviceCS;
+                mapCS    = context.mapCS;
+                textCS   = createFittedCoordinateSystem("textCS",    mapCS, zoom);
+                deviceCS = createFittedCoordinateSystem("deviceCS", textCS, toDevice);
+                context  = new RenderingContext(this, mapCS, textCS, deviceCS);
+                if (toScreen) {
+                    mapToText.setTransform(zoom);
+                    this.context = context;
+                }
                 /*
                  * Notify all layers that they are about to be draw. Some layers may spend
                  * one or two threads for pre-computing data.
                  */
                 if (prefetch) {
                     // Prepare data in separated threads.
-                    context.init(null, bounds);
+                    context.init(null, zoomableBounds);
                     prefetch(context);
                 }
+            } catch (TransformException exception) {
+                // Impossible to process to the rendering. Paint the stack
+                // trace right into the component and exit from this method.
+                GraphicsUtilities.paintStackTrace(graphics, zoomableBounds, exception);
+                return;
             }
             /*
              * Draw all layers, starting with the one with the lowest <var>z</var> value.
              */
             graphics.transform(zoom);
             graphics.addRenderingHints(hints);
-            context.init(graphics, bounds);
+            context.init(graphics, zoomableBounds);
             for (int i=0; i<layerCount; i++) {
                 try {
                     layers[i].update(context, clipBounds);
