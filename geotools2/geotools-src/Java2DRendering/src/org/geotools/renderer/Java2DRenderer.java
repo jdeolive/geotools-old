@@ -74,7 +74,7 @@ import org.geotools.styling.*;
  * This current version supports 2 implementations during the transformation
  * from one design pattern to another.  The deprecated methods shall eventually
  * be removed.
- * @version $Id: Java2DRenderer.java,v 1.71 2003/04/26 03:06:40 camerons Exp $
+ * @version $Id: Java2DRenderer.java,v 1.72 2003/04/28 11:08:08 camerons Exp $
  * @author James Macgill
  * @author Cameron Shorter
  * @task TODO Remove deprecated methods.
@@ -234,14 +234,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,Renderer2D
     /** Render features based on the LayerList, BoundBox and Style specified
      * in this.context.
      * @param graphics The graphics object to draw to.
-     * @param screenSize The size of the output area in output units
+     * @param paintArea The size of the output area in output units
      * (eg: pixels).
      *
      */
-    public void render(Graphics g, Rectangle screenSize) {
-        Graphics2D graphics=(Graphics2D)g;
+    public void render(Graphics2D graphics, Rectangle paintArea) {
         Date start = new Date();
-        if (graphics == null || screenSize==null) {
+        if (graphics == null || paintArea==null) {
             LOGGER.info("renderer passed null arguements");
             return;
         }
@@ -265,7 +264,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,Renderer2D
 
 
                 //set up the affine transform and calculate scale values
-                AffineTransform at = setUpTransform(mapExtent, screenSize);
+                AffineTransform at = setUpTransform(mapExtent, paintArea);
 
                 
                 

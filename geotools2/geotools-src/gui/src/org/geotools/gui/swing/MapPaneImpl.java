@@ -40,6 +40,7 @@ import org.geotools.styling.Style;
 import java.awt.Dimension;
 import java.awt.Cursor;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -80,7 +81,7 @@ import javax.swing.JPanel;
  * BoundingBox when this component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.20 2003/04/25 07:02:31 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.21 2003/04/28 11:08:10 camerons Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults
  * to 1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -179,7 +180,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         }
         
         renderer.render(
-            graphics,
+            (Graphics2D)graphics,
             new Rectangle(getInsets().left, getInsets().top,w,h)
         );
     }
