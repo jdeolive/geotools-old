@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: DefaultLayerList.java,v 1.1 2002/10/01 19:25:46 camerons Exp $
+ * @version $Id: DefaultLayerList.java,v 1.2 2003/01/28 11:31:16 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -37,7 +37,7 @@ import java.util.EventObject;
 import java.util.logging.Logger;
 import javax.swing.event.EventListenerList;
 import org.geotools.datasource.extents.EnvelopeExtent;
-import org.geotools.map.events.LayerListChangedListener;
+import org.geotools.map.events.LayerListListener;
 
 public class DefaultLayerList implements LayerList {
     /** The layers stored by this LayerList */
@@ -84,8 +84,8 @@ public class DefaultLayerList implements LayerList {
      * @param llce The object to notify when Layers have changed.
      */
     public void addLayerListChangedListener(
-            LayerListChangedListener llce){
-        listenerList.add(LayerListChangedListener.class, llce);
+            LayerListListener llce){
+        listenerList.add(LayerListListener.class, llce);
     }
 
     /**
@@ -93,8 +93,8 @@ public class DefaultLayerList implements LayerList {
      * @param llcl The object to stop sending LayerListChangedEvents.
      */
     public void removeLayerListChangedListener(
-            LayerListChangedListener llcl) {
-        listenerList.remove(LayerListChangedListener.class, llcl);
+            LayerListListener llcl) {
+        listenerList.remove(LayerListListener.class, llcl);
     }
 
     /**
@@ -110,9 +110,9 @@ public class DefaultLayerList implements LayerList {
                 this);
                 //(Layer[])layers.toArray(new Layer[0]));
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == LayerListChangedListener.class) {
-                ((LayerListChangedListener)
-                    listeners[i + 1]).LayerListChanged(llce);
+            if (listeners[i] == LayerListListener.class) {
+                ((LayerListListener)
+                    listeners[i + 1]).layerListChanged(llce);
             }
         }
     }

@@ -25,14 +25,14 @@ import java.util.EventObject;
 /**
  * Methods to handle a change in the list of Layers.
  * @author Cameron Shorter
- * @version $Id: LayerListChangedListener.java,v 1.3 2002/09/22 03:38:03 camerons Exp $
+ * @version $Id: LayerListListener.java,v 1.1 2003/01/28 11:31:16 camerons Exp $
  */
-public interface LayerListChangedListener extends EventListener {
+public interface LayerListListener extends EventListener {
 
     /**
      * Process an LayerListChangedEvent, probably involves a redraw.
      * @param LayerListChangedEvent The new extent.
      */
-    void LayerListChanged(
+    void layerListChanged(
             EventObject layerListChangedEvent);
 }

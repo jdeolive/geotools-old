@@ -25,13 +25,13 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: LayerList.java,v 1.3 2002/09/22 03:38:02 camerons Exp $
+ * @version $Id: LayerList.java,v 1.4 2003/01/28 11:31:15 camerons Exp $
  * @author Cameron Shorter
  * @task TODO: Add incrementOrder(layer) decrementOrderLayer
  * makeFirst(layer) makLast(Layer)
  */
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.map.events.LayerListChangedListener;
+import org.geotools.map.events.LayerListListener;
 import org.geotools.map.Layer;
 
 public interface LayerList {
@@ -43,14 +43,14 @@ public interface LayerList {
      * @param llce The object to notify when Layers have changed.
      */
     public void addLayerListChangedListener(
-            LayerListChangedListener llce);
+            LayerListListener llce);
 
     /**
      * Remove interest in receiving an LayerListChangedEvent.
      * @param llcl The object to stop sending LayerListChangedEvents.
      */
     public void removeLayerListChangedListener(
-            LayerListChangedListener llcl);
+            LayerListListener llcl);
 
     /**
      * Add a new layer and trigger a LayerListChangedEvent.
