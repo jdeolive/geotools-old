@@ -74,12 +74,12 @@ import org.geotools.styling.*;
  * This current version supports 2 implementations during the transformation
  * from one design pattern to another.  The deprecated methods shall eventually
  * be removed.
- * @version $Id: Java2DRenderer.java,v 1.70 2003/03/27 11:27:55 camerons Exp $
+ * @version $Id: Java2DRenderer.java,v 1.71 2003/04/26 03:06:40 camerons Exp $
  * @author James Macgill
  * @author Cameron Shorter
  * @task TODO Remove deprecated methods.
  */
-public class Java2DRenderer implements org.geotools.renderer.Renderer,J2Renderer
+public class Java2DRenderer implements org.geotools.renderer.Renderer,Renderer2D
 {
     /**
      * Context which contains LayerList, BoundingBox which needs to be rendered.
