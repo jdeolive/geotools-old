@@ -105,7 +105,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.24 2003/03/25 22:50:31 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.25 2003/04/23 10:12:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -1348,15 +1348,6 @@ public class Renderer {
                     mapToText.setTransform(zoom);
                     this.context = context;
                 }
-                /*
-                 * Notify all layers that they are about to be draw. Some layers may spend
-                 * one or two threads for pre-computing data.
-                 */
-                if (prefetch) {
-                    // Prepare data in separated threads.
-                    context.init(null, zoomableBounds);
-                    prefetch(context);
-                }
             } catch (TransformException exception) {
                 // Impossible to process to the rendering. Paint the stack
                 // trace right into the component and exit from this method.
@@ -1364,11 +1355,19 @@ public class Renderer {
                 return;
             }
             /*
-             * Draw all layers, starting with the one with the lowest <var>z</var> value.
+             * Draw all layers, starting with the one with the lowest <var>z</var> value. Before
+             * to start the actual drawing,  we will notify all layers that they are about to be
+             * drawn. Some layers may spend one or two threads for pre-computing data.
              */
             graphics.transform(zoom);
             graphics.addRenderingHints(hints);
             context.init(graphics, zoomableBounds);
+            if (prefetch) {
+                // Prepare data in separated threads.
+                for (int i=0; i<layerCount; i++) {
+                    layers[i].prefetch(context);
+                }
+            }
             for (int i=0; i<layerCount; i++) {
                 try {
                     layers[i].update(context, clipBounds);
@@ -1597,27 +1596,6 @@ public class Renderer {
                                              final PropertyChangeListener listener)
     {
         listeners.removePropertyChangeListener(propertyName, listener);
-    }
-
-    /**
-     * Hints that the given area might be painted in the near future. Some layers
-     * may spawn a thread to compute the data while others may ignore the hint.
-     *
-     * @param  context Information relatives to the rendering context. This object contains
-     *         methods for querying the area to be painted in arbitrary coordinate system.
-     *         This temporary object will be destroy once the rendering is completed.
-     *         Consequently, do not keep a reference to it outside this <code>prefetch</code>
-     *         method.
-     *
-     * @see RenderedLayer#prefetch
-     * @see PlanarImage#prefetchTiles
-     */
-    private void prefetch(final RenderingContext context) {
-        assert Thread.holdsLock(this);
-        for (int i=layerCount; --i>=0;) {
-            final RenderedLayer layer = layers[i];
-            layer.prefetch(context);
-        }
     }
 
     /**

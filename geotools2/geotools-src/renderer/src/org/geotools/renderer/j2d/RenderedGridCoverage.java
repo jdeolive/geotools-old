@@ -32,26 +32,31 @@
  */
 package org.geotools.renderer.j2d;
 
-// J2SE and JAI dependencies
+// J2SE dependencies
 import java.awt.Shape;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
-import java.awt.image.RenderedImage;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.renderable.ParameterBlock;
+import java.awt.image.RenderedImage;
 import java.awt.RenderingHints;
-import javax.media.jai.ImageLayout;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.JAI;
 import java.util.Map;
 import java.util.Locale;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
+
+// JAI dependencies
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.ImageLayout;
 
 // Geotools dependencies
 import org.geotools.pt.Envelope;
@@ -66,6 +71,8 @@ import org.geotools.gc.GridRange;
 import org.geotools.gc.GridCoverage;
 import org.geotools.gp.GridCoverageProcessor;
 import org.geotools.gp.CannotReprojectException;
+
+// Miscellaneous resources
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.GCSUtilities;
@@ -82,7 +89,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.15 2003/03/25 22:50:29 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.16 2003/04/23 10:12:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -97,7 +104,7 @@ public class RenderedGridCoverage extends RenderedLayer {
      * the resolution of previous level. This value is used only if
      * {@link #USE_PYRAMID} is <code>true</code>.
      */
-    private static final float DOWN_SAMPLER = 0.25f;
+    private static final float DOWN_SAMPLER = 0.5f;
 
     /**
      * Natural logarithm of {@link #DOWN_SAMPLER}. Used
@@ -526,18 +533,21 @@ public class RenderedGridCoverage extends RenderedLayer {
     }
 
     /**
-     * Prévient cette couche qu'elle sera bientôt dessinée sur la carte spécifiée. Cette
-     * méthode peut être appelée avant que cette couche soit ajoutée à la carte. Elle peut
-     * lancer en arrière-plan quelques threads qui prépareront l'image.
+     * Hints that this layer might be painted in the near future. The default implementation
+     * determines which tiles are going to be drawn and invokes {@link PlanarImage#prefetchTiles}.
      *
-     * @see PlanarImage#prefetchTiles
+     * @param  context Information relatives to the rendering context.
      */
     protected void prefetch(final RenderingContext context) {
         assert Thread.holdsLock(getTreeLock());
         if (coverage!=null) try {
-            Rectangle2D area=context.getPaintingArea(coverage.getCoordinateSystem()).getBounds2D();
-            if (area!=null && !area.isEmpty()) {
-                coverage.prefetch(area);
+            if (USE_PYRAMID) {
+                paint(context, false);
+            } else {
+                Rectangle2D area = context.getPaintingArea(coverage.getCoordinateSystem()).getBounds2D();
+                if (area!=null && !area.isEmpty()) {
+                    coverage.prefetch(area);
+                }
             }
         } catch (TransformException exception) {
             Renderer.handleException("RenderedGridCoverage", "prefetch", exception);
@@ -546,14 +556,24 @@ public class RenderedGridCoverage extends RenderedLayer {
     }
 
     /**
-     * Dessine l'image.
+     * Paint the grid coverage.
      *
-     * @param  context  Suite des transformations nécessaires à la conversion de coordonnées
-     *         géographiques (<var>longitude</var>,<var>latitude</var>) en coordonnées pixels.
-     * @throws TransformException si une projection cartographique était nécessaire et qu'elle a
-     *         échoué.
+     * @param  context Information relatives to the rendering context.
+     * @throws TransformException If a coordinate transformation failed
+     *         during the rendering process.
      */
     protected void paint(final RenderingContext context) throws TransformException {
+        paint(context, true);
+    }
+
+    /**
+     * Implementation of the <code>paint</code> method. If <code>doDraw</code> is false,
+     * then this method invokes {@link PlanarImage#prefetchTiles} rather than painting
+     * the image now.
+     */
+    private void paint(final RenderingContext context, final boolean doDraw)
+            throws TransformException
+    {
         assert Thread.holdsLock(getTreeLock());
         if (coverage != null) {
             assert CTSUtilities.getCoordinateSystem2D(coverage.getCoordinateSystem())
@@ -567,29 +587,30 @@ public class RenderedGridCoverage extends RenderedLayer {
                                              ResourceKeys.ERROR_NON_AFFINE_TRANSFORM), exception);
             }
             final Graphics2D graphics = context.getGraphics();
-            final AffineTransform transform;
+            final AffineTransform gridToCS;
             final RenderedImage   image; // The image to display (will be computed below).
             if (images != null) {
                 /*
-                 * Calcule quel "niveau" d'image serait le plus approprié.
-                 * Ce calcul est fait en fonction de la résolution requise.
+                 * Compute which level (i.e. which decimated image)  is more appropriate for the
+                 * current zoom. If level different than 0 (the original image) is choosen, then
+                 * then the 'gridToCS' transform will need to be adjusted.
                  */
-                transform = graphics.getTransform();
-                transform.concatenate(gridToCoordinate);
+                gridToCS = graphics.getTransform();
+                gridToCS.concatenate(gridToCoordinate);
                 final int level = Math.max(0,
                                   Math.min(images.length-1,
-                                  (int)(Math.log(Math.max(XAffineTransform.getScaleX0(transform),
-                                  XAffineTransform.getScaleY0(transform)))/LOG_DOWN_SAMPLER)));
-                /*
-                 * Si on utilise une résolution inférieure (pour un
-                 * affichage plus rapide), alors il faut utiliser un
-                 * géoréférencement ajusté en conséquence.
-                 */
-                transform.setTransform(gridToCoordinate);
+                                  (int)(Math.log(Math.max(XAffineTransform.getScaleX0(gridToCS),
+                                  XAffineTransform.getScaleY0(gridToCS)))/LOG_DOWN_SAMPLER)));
+
+                gridToCS.setTransform(gridToCoordinate);
                 if (level != 0) {
                     final double scale = Math.pow(DOWN_SAMPLER, -level);
-                    transform.scale(scale, scale);
+                    gridToCS.scale(scale, scale);
                 }
+                /*
+                 * If the level has changed, log a message (only for information).
+                 * It help to track performance issue.
+                 */
                 if (level != lastLevel) {
                     final Logger logger = Renderer.LOGGER;
                     if (logger.isLoggable(Level.FINE)) {
@@ -597,7 +618,7 @@ public class RenderedGridCoverage extends RenderedLayer {
                         final LogRecord record = Resources.getResources(locale).getLogRecord(
                                            Level.FINE, ResourceKeys.RESSAMPLING_RENDERED_IMAGE_$3,
                                            coverage.getName(locale),
-                                           new Integer(level), new Integer(images.length-1));
+                                           new Integer(level), new Integer(images.length));
                         record.setSourceClassName(Utilities.getShortClassName(this));
                         record.setSourceMethodName("paint");
                         logger.log(record);
@@ -606,12 +627,32 @@ public class RenderedGridCoverage extends RenderedLayer {
                 }
                 image = images[level];
             } else {
-                transform = new AffineTransform(gridToCoordinate);
+                gridToCS = new AffineTransform(gridToCoordinate);
                 image = coverage.getRenderedImage();                
             }
-            transform.translate(-0.5, -0.5); // Map to upper-left corner.
-            graphics.drawRenderedImage(image, transform);
-            context.addPaintedArea(preferredArea, context.mapCS);
+            /*
+             * Draw the image now, or just prefetch tiles if this method is invoked from
+             * the 'prefetch' method.
+             */
+            gridToCS.translate(-0.5, -0.5); // Map to upper-left corner.
+            if (doDraw) {
+                graphics.drawRenderedImage(image, gridToCS);
+                context.addPaintedArea(preferredArea, context.mapCS);
+            } else if (image instanceof PlanarImage) {
+                final PlanarImage planar = (PlanarImage) image;
+                gridToCS.preConcatenate(graphics.getTransform());
+                Rectangle bounds = new Rectangle(context.getPaintingArea());
+                try {
+                    bounds = (Rectangle)XAffineTransform.inverseTransform(gridToCS, bounds, bounds);
+                    final Point[] indices = planar.getTileIndices(bounds);
+                    if (indices != null) {
+                        planar.prefetchTiles(indices);
+                    }
+                } catch (NoninvertibleTransformException exception) {
+                    // Should not happen in most cases
+                    throw new TransformException(exception.getLocalizedMessage(), exception);
+                }
+            }
         }
     }
 
