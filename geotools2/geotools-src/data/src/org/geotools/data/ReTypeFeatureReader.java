@@ -26,7 +26,27 @@ import java.util.NoSuchElementException;
 
 /**
  * Supports on the fly retyping of FeatureReader contents.
- *
+ * <p>
+ * This may be used to have a DataStore work with your own representation of
+ * Feature information.
+ * </p>
+ * <p>
+ * Example Use:
+ * </p>
+ * <pre><code>
+ * FeatureReader reader = dataStore.getFeatureReader( query, Transaction.AUTO_COMMIT );
+ * reader = new ReTypeFeatureReader( reader, myFeatureType );
+ * try {
+ *   while( reader.hasNext() ){
+ *     Feature f = reader.next();
+ *     System.out.println( f );
+ *   }
+ * }
+ * finally {
+ *   reader.close(); // will close both
+ * } 
+ * </code></pre>
+ * 
  * @author Jody Garnett, Refractions Research
  */
 public class ReTypeFeatureReader implements FeatureReader {
