@@ -376,6 +376,9 @@ public class SLDStyleFactory {
                 }
 
                 BufferedImage img = getImage((ExternalGraphic) symbols[i]);
+                if(img == null){
+                    continue;
+                }
                 double dsize = (double) size;
                 AffineTransform scaleTx = AffineTransform.getScaleInstance(dsize / img.getWidth(),
                         dsize / img.getHeight());
