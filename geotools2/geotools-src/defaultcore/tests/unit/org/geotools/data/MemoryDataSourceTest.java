@@ -14,12 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-/*
- * MemoryDataSourceTest.java
- * JUnit based test
- *
- * Created on May 16, 2003, 10:01 AM
- */
 package org.geotools.data;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -32,10 +26,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-/**
- * DOCUMENT ME!
+/*
+ * MemoryDataSourceTest.java
+ * JUnit based test
  *
- * @author jamesm
+ * Created on May 16, 2003, 10:01 AM
  */
 public class MemoryDataSourceTest extends TestCase {
     public MemoryDataSourceTest(java.lang.String testName) {
@@ -111,7 +106,7 @@ public class MemoryDataSourceTest extends TestCase {
         assertEquals(1, source.getFeatures(new QueryImpl(Filter.NONE)).size());
         assertEquals(0, source.getFeatures(new QueryImpl(Filter.ALL)).size());
     }
-    
+
     /**
      * Test of getFeatures method, of class org.geotools.data.MemoryDataSource.
      *
@@ -123,11 +118,13 @@ public class MemoryDataSourceTest extends TestCase {
         MemoryDataSource source = new MemoryDataSource();
         Feature f = SampleFeatureFixtures.createFeature();
         source.addFeature(f);
+
         Feature f2 = SampleFeatureFixtures.createFeature();
         f2.setAttribute("testString", "A different String");
         source.addFeature(f2);
-        
+
         assertEquals(2, source.getFeatures(new QueryImpl()).size());
+
         QueryImpl maxSet = new QueryImpl();
         maxSet.setMaxFeatures(1);
         assertEquals(1, source.getFeatures(maxSet).size());
