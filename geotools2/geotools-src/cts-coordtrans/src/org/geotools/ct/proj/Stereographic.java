@@ -60,13 +60,15 @@ import org.geotools.resources.cts.ResourceKeys;
  * This implementation, and its subclasses, provides transforms for four cases of the  
  * stereographic projection:
  * <ul>
- *   <li><code>"Oblique_Stereographic"</code> (EPSG code 9809)</li>
+ *   <li><code>"Oblique_Stereographic"</code> (EPSG code 9809), alias "Double Stereographic"</code>
+ *       in ESRI software</li>
+ *   <li><code>"Stereographic"</code> in ESRI software (<strong>NOT</strong> EPSG code 9809)</li>
  *   <li><code>"Polar_Stereographic"</code> (EPSG code 9810, uses iteration for the inverse)</li>
- *   <li><code>"Oblique_Stereographic_USGS"</code> (<strong>NOT</strong> EPSG code 9809)</li>
- *   <li><code>"Polar_Stereographic_Series"</code> (EPSG code 9810, uses a series for the inverse)</li>
+ *   <li><code>"Polar_Stereographic_Series"</code> (EPSG code 9810, uses a series for the inverse.
+ *        This is a little bit faster, but may be a little bit less accurate)</li>
  * </ul>   
  *
- * The <code>"Oblique_Stereographic_USGS"</code> case uses the USGS equations of Snyder.
+ * The <code>"Stereographic"</code> case uses the USGS equations of Snyder.
  * This computes the conformal latitude of each point on the sphere.
  *
  * The <code>"Oblique_Stereographic"</code> case uses equations from the EPSG and only uses
@@ -78,9 +80,9 @@ import org.geotools.resources.cts.ResourceKeys;
  * given by the EPSG are used in New Brunswick (Canada) and the Netherlands.
  * <br><br>
  *
- * In ESRI's ArcGIS 8.x product the <code>"Oblique_Stereographic_USGS"</code> is named
- * the "Stereographic" and the <code>"Oblique_Stereographic"</code> is called the
- * "Double Stereographic".
+ * The <code>"Stereographic"</code> and <code>"Double Stereographic"</code> names are used in
+ * ESRI's ArcGIS 8.x product. The <code>"Oblique_Stereographic"</code> name is the EPSG name
+ * for the later only.
  * <br><br>
  *
  * WARNING: Tests points calculated with ArcGIS's "Double Stereographic" are
@@ -117,10 +119,14 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/stereographic.html">Stereographic</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/random_issues.html#stereographic">Some Random Stereographic Issues</A>
  *
- * @version $Id: Stereographic.java,v 1.7 2004/02/23 12:28:23 desruisseaux Exp $
+ * @version $Id: Stereographic.java,v 1.8 2004/02/24 14:14:42 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
+ *
+ * @task TODO: Declares that <code>"Stereographic"</code> is an ESRI name.
+ *             Add the <code>"Double Stereographic"</code> alias (from ESRI)
+ *             for <code>"Oblique_Stereographic"</code>.
  */
 public abstract class Stereographic extends PlanarProjection {
     /**
@@ -135,7 +141,7 @@ public abstract class Stereographic extends PlanarProjection {
      * default value is 90°N for <code>"Polar_Stereographic"</code> and 0° for
      * <code>"Oblique_Stereographic"</code>.
      *
-     * @version $Id: Stereographic.java,v 1.7 2004/02/23 12:28:23 desruisseaux Exp $
+     * @version $Id: Stereographic.java,v 1.8 2004/02/24 14:14:42 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -176,8 +182,8 @@ public abstract class Stereographic extends PlanarProjection {
          * @param polar <code>true</code> for polar stereographic, or
          *              <code>false</code> for equatorial and oblique
          *              stereographic.
-         * @param EPSG <code>true</code> for EPSG oblique equations or to use a series for the polar inverse, or
-         *              <code>false</code> for USGS equations.
+         * @param EPSG <code>true</code> for EPSG oblique equations or to use a series
+         *              for the polar inverse, or <code>false</code> for USGS equations.
          */
         public Provider(final boolean polar, final boolean EPSG) {
             this(polar, EPSG, false);
@@ -189,8 +195,8 @@ public abstract class Stereographic extends PlanarProjection {
          * @param polar <code>true</code> for polar stereographic, or
          *              <code>false</code> for equatorial and oblique
          *              stereographic.
-         * @param EPSG <code>true</code> for EPSG oblique equations or to use a series for the polar inverse, or
-         *              <code>false</code> for USGS equations.
+         * @param EPSG <code>true</code> for EPSG oblique equations or to use a series
+         *             for the polar inverse, or <code>false</code> for USGS equations.
          * @param EPSG2 TEMPORARY PARAMETER USED FOR TESTING.
          *
          * @task TODO: Remove the EPSG2 parameter once the testing is finished
@@ -199,7 +205,7 @@ public abstract class Stereographic extends PlanarProjection {
         public Provider(final boolean polar, final boolean EPSG, final boolean EPSG2) {
             super(EPSG2 ? "Oblique_Stereographic2" :
                   (EPSG ? (polar ? "Polar_Stereographic_Series" : "Oblique_Stereographic") :
-                          (polar ? "Polar_Stereographic"        : "Oblique_Stereographic_USGS")), 
+                          (polar ? "Polar_Stereographic"        : "Stereographic")), 
                           ResourceKeys.STEREOGRAPHIC_PROJECTION);
             if (polar && !EPSG) {
                 //no default, allows default to be decided in PolarStereographic
