@@ -1,24 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="core">
-    
+    <path id="checkstyle.ext">
+        <fileset dir="..\..\extbin\gtbuild\lib\"/>
+        <pathelement location="..\..\extbin\gtbuild\lib\checkstyle-all.jar"/>
+    </path>
+    <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" name="checkstyle">
+        <classpath refid="checkstyle.ext"/>
+    </taskdef>
     <target depends="test" name="all">
         <!-- WRITEME -->
     </target>
-    
+    <!-- TODO: failOnViolation should be set to true eventualy -->
+    <target name="checkstyle">
+         <checkstyle failOnViolation="false"> 
+            <fileset dir="src" includes="**/*.java"/>
+            <formatter type="plain"/>
+            <formatter toFile="CHECKSTYLE-${project.name}.txt" type="plain"/>
+         </checkstyle>
+    </target>     
     <target depends="prepare-compile" description="compile the code for the package" name="compile">
         <javac debug="true" srcdir="src">
-            <classpath refid="compile.path" />
+            <classpath refid="compile.path"/>
         </javac>
     </target>
-    <target depends="compile" name="compile-test" if="${testsuite}">
+    <target depends="compile" if="${testsuite}" name="compile-test">
         <javac debug="true" srcdir="tests/unit/org">
             <classpath>
                 <path path="src"/>
-                <path refid="compile.path" />
+                <path refid="compile.path"/>
             </classpath>
         </javac>
     </target>
-    <target depends="compile-test" name="test" if="${testsuite}">
+    <target depends="compile-test,checkstyle" if="${testsuite}" name="test">
 
         <junit fork="true" printsummary="true">
             <formatter type="plain"/>
@@ -37,18 +50,18 @@
         <jar basedir="src/" jarfile="${releaseFolder}/${project.name}.jar"/>
         
         <property name="has.extbin" value="false"/>
-        <available property="has.extbin" file="${extbin}"/>
+        <available file="${extbin}" property="has.extbin"/>
         
         <antcall target="copy-extlib"/>
     </target>
     
-    <target name="copy-extlib" if="has.extbin" depends="init">
+    <target depends="init" if="has.extbin" name="copy-extlib">
         <copy todir="${releaseFolder}">
             <fileset dir="${extbin}"/>
         </copy>
     </target>
 
-    <target name="clean" depends="init"> 
+    <target depends="init" name="clean"> 
         <delete>
             <fileset dir="src" includes="**/*.class"/>
             <fileset dir="${releaseFolder}/" includes="*.jar"/>
@@ -70,8 +83,8 @@
             <classpath refid="netbeans.ext"/>        
         </taskdef>
     </target>
-    <target name="prepare-compile" depends="init" >
-        <echo message="Prep-compile: ${project.name}" />
+    <target depends="init" name="prepare-compile">
+        <echo message="Prep-compile: ${project.name}"/>
         <mkdir dir="${releaseFolder}"/>
 
         <antcall target="dependancies"/>
@@ -81,7 +94,7 @@
             <fileset dir="${releaseFolder}"/>
         </path>
     </target>
-    <target name="dependancies" depends="init" if="dependancy">
-        <for-each startdir=".." locations="${dependancy}" target="release" inheritAll="false" />
+    <target depends="init" if="dependancy" name="dependancies">
+        <for-each inheritAll="false" locations="${dependancy}" startdir=".." target="release"/>
     </target>
 </project>
