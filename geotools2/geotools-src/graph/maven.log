@@ -1,0 +1,7 @@
+2004-02-03 15:19:26,937 INFO  com.werken.werkz.jelly.PostGoalTag - Running post goal: java:compile
+2004-02-03 15:19:26,984 INFO  com.werken.werkz.jelly.PostGoalTag - Running post goal: test:test
+2004-02-03 15:19:27,000 INFO  com.werken.werkz.jelly.PostGoalTag - Running post goal: test:test
+2004-02-03 15:19:27,234 INFO  com.werken.werkz.jelly.PostGoalTag - Running post goal: jar:install
+2004-02-03 15:19:27,250 INFO  org.apache.maven.cli.App - Total time: 4 seconds
+2004-02-03 15:19:27,250 INFO  org.apache.maven.cli.App - Finished at: Tue Feb 03 15:19:27 PST 2004
+2004-02-03 15:19:27,250 INFO  org.apache.maven.cli.App - 
