@@ -11,9 +11,13 @@
   </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
-  <shortDescription>Open Source GIS Toolkit</shortDescription>
+  <shortDescription>Core interfaces for GeoTools2</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description/>
+  <description>
+    The module contains only interfaces and exceptions, other modules, such as defaultcore
+    provide implementations of this interfaces.  The interfaces defined here represent
+    the key functionality required by most GeoTools2 modules.
+  </description>
   <url>http://www.geotols.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
@@ -67,3 +71,4 @@
     <jars/>
   </build>
 </project>
+
