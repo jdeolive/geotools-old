@@ -5,7 +5,6 @@
  */
 package org.geotools.feature;
 
-import com.vividsolutions.jts.geom.Geometry;
 
 /** 
  * <p>A metadata template for a feature of arbitrary complexity.  Note that
@@ -193,10 +192,11 @@ public interface FeatureType extends AttributeType {
 
     /**
      * Checks for attribute existence.
-     *
+     * TODO: The description does not seem to match the name
+     * TODO: Confirm that a SchemaException is approptiate for a get method.
      * @param xPath XPath pointer to attribute type.
-     * @param Name the name of the attribute.
      * @return True if attribute exists.
+     * @throws SchemaException thrown if the xPath does not point to a variable?
      */
     public AttributeType getAttributeType(String xPath)
         throws SchemaException;
@@ -215,15 +215,14 @@ public interface FeatureType extends AttributeType {
     /**
      * Returns the number of attributes at the first 'level' of the schema.
      *
-     * @param Name the name of the attribute.
-     * @return True if attribute exists.
+     * @return the total number of first level attributes
      */
     public int attributeTotal();
 
     /**
      * Gets the number of occurances of this attribute.
-     *
-     * @param Name the name of the attribute.
+     * TODO: Above description does not seem to match method name
+     * @param position the position of the attribute to check.
      * @return Number of occurences.
      */
     public AttributeType getAttributeType(int position);

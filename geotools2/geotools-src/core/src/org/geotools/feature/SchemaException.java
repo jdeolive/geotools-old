@@ -23,6 +23,7 @@ public class SchemaException extends Exception {
 
     /**
      * Constructor with message argument.
+     * @param message Reason for the exception being thrown
      */
     public SchemaException (String message) {
         super(message);

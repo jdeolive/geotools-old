@@ -1,6 +1,7 @@
 package org.geotools.data;
 
-import org.geotools.feature.*;
+
+import org.geotools.feature.Feature;
 
 /**
  * Represents the extent of a loaded Feature set.

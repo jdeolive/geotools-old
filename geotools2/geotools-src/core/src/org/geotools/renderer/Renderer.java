@@ -21,9 +21,8 @@
  *     UNITED KINDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
  */
 package org.geotools.renderer;
-import org.geotools.styling.*;
-import org.geotools.map.Map;
-import org.geotools.data.Extent;
+
+import org.geotools.styling.Style;
 import org.geotools.feature.Feature;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -33,13 +32,19 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 public interface Renderer {
 
-    //what do we need to do here
-    //what makes sense
-    
-    //we could pass in something like
-    
+    /**
+     * Render the provided features using the specified style.
+     * the features should fill the viewport but may well extend beyond it.
+     * Features should be cropped (if appropriate) to the specified viewport
+     *
+     * TODO: Think more in whether Renderer should be called by Map of
+     * TODO: if Map should be called by Renderer
+     *
+     * @param f The features to render
+     * @param viewport The visible extent to be rendered
+     * @param style The style defenition to apply to each feature
+     */
     public void render(Feature f[], Envelope viewport, Style style);
-    
-    //is that enough to go on? lets assume it is.
+
 }
 

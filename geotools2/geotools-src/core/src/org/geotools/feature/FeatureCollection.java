@@ -1,7 +1,8 @@
 package org.geotools.feature;
 
-import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
+import org.geotools.data.Extent;
+import org.geotools.data.DataSourceException;
+import org.geotools.data.DataSource;
 
 /**
  * 
@@ -32,7 +33,7 @@ public interface FeatureCollection {
      * Gets the loaded Extent of this FeatureTable
      * The Extent of current loaded Features in this table
      *
-     * @param boundary The datasource for this feature collection to mediate.
+     * @param extent The datasource for this feature collection to mediate.
      */
     public void setExtent(Extent extent);
 
@@ -59,18 +60,30 @@ public interface FeatureCollection {
     /** 
      * get the features in the datasource inside the Extent ex
      * this may trigger a load on the datasource
+     *
+     * TODO: givin that this may trigger a load, would fetchFeatures be a
+     * TODO: more suitable name?
+     *
+     * @param boundary The extent in which to load features
+     * @return An array of all the features that fall within the boundary
+     * @throws DataSourceException if anything went wrong during the fetching
+     *         or construction of the requested features
      */
     public Feature[] getFeatures(Extent boundary) 
         throws DataSourceException;
     
     /** 
-     * Removes the features from this FeatureTable, notifying TableChangedListeners that the table has changed
-     * @param f The Features to remove
+     * Removes the features from this FeatureCollection, notifying 
+     * CollectionListeners that the table has changed.
+     * @param features The Features to remove
      */
     public void removeFeatures(Feature[] features);
 
-    /** Removes the features from this FeatureTable which fall into the specified extent, notifying TableChangedListeners that the table has changed
-     * @param ex The extent defining which features to remove
+    /** 
+     * Removes the features from this FeatureCollection which fall into the
+     * specified extent, notifying CollectionListeners that the collection 
+     * has changed.
+     * @param extent The extent defining which features to remove
      */
     public void removeFeatures(Extent extent);
 
@@ -87,10 +100,13 @@ public interface FeatureCollection {
      * ************************************************************************/
     /** 
      * Adds a listener for table events
+     * @param spy The listener to add
      */
     public void addListener(CollectionListener spy);
     
-    /** Removes a listener for table events
+    /** 
+     * Removes a listener for table events
+     * @param spy The listener to remove
      */
     public void removeListener(CollectionListener spy);
     

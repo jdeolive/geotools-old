@@ -22,11 +22,15 @@ package org.geotools.data;
 
 /** 
  * Thrown when there is an error in a datasource
- * @version $Id: DataSourceException.java,v 1.1 2002/05/14 21:28:16 robhranac Exp $
+ * @version $Id: DataSourceException.java,v 1.2 2002/05/26 09:32:59 jmacgill Exp $
  * @author Ray
  */
 public class DataSourceException extends Exception{
     
+    /**
+     * Construct a new instance of DataSourceException
+     * @param msg A message explainin the exception
+     */
     public DataSourceException(String msg) {
         super(msg);
     }

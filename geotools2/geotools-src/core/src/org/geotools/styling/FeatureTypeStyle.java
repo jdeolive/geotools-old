@@ -30,6 +30,12 @@ public interface FeatureTypeStyle {
     //public String getName();
     //public String getTitle();
     //public String getAbstract();
+    
+    /**
+     * Only features with the type name returned by this method should
+     * be styled by this feture type styler
+     * @return the name of types that this styler applies to
+     */
     public String getFeatureTypeName();
     public void setFeatureTypeName(String name);
     public String[] getSymantecTypeIdentifiers();

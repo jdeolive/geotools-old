@@ -195,10 +195,12 @@ public interface Feature {
      * Sets the default geometry for this feature.
      *
      * @param geometry The geometry to set.
+     * @throws IllegalFeatureException should this cause the Feature to become
+     *         illigal or if change is forbiden
      */
     public void setDefaultGeometry(Geometry geometry)
         throws IllegalFeatureException;
-
+    
 
 }
 

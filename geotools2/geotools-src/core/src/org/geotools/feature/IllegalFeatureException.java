@@ -22,6 +22,7 @@ public class IllegalFeatureException extends Exception {
 
     /**
      * Constructor with message argument.
+     * @param message Reason for the exception being thrown
      */
     public IllegalFeatureException (String message) {
         super(message);

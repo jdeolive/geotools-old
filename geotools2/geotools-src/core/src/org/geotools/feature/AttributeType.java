@@ -1,7 +1,5 @@
 package org.geotools.feature;
 
-import java.util.*;
-
 /**
  * <p>Stores metadata about a single attribute object.  Note that schemas are 
  * also attributes.  All attribute implementations must be immutable.
