@@ -75,7 +75,7 @@ import org.geotools.gui.swing.tree.DefaultMutableTreeNode;
  * tree. Each source image is a children node (with potentially their own source images and/or
  * parameters) and each parameter is a children leaf.
  *
- * @version $Id: OperationTreeBrowser.java,v 1.3 2003/07/28 22:36:53 desruisseaux Exp $
+ * @version $Id: OperationTreeBrowser.java,v 1.4 2003/07/29 15:40:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Lionel Flahaut 
  *
@@ -220,7 +220,7 @@ public class OperationTreeBrowser extends JPanel {
     /**
      * The listener for various event in the {@link OperationTreeBrowser} widget.
      *
-     * @version $Id: OperationTreeBrowser.java,v 1.3 2003/07/28 22:36:53 desruisseaux Exp $
+     * @version $Id: OperationTreeBrowser.java,v 1.4 2003/07/29 15:40:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements TreeSelectionListener {
@@ -328,7 +328,8 @@ public class OperationTreeBrowser extends JPanel {
             cards.add(parameterEditor, PARAMETER);
         }
         ((CardLayout) cards.getLayout()).show(cards, PARAMETER);
-        return parameterEditor.setParameterValue(selection) != null;
+        parameterEditor.setParameterValue(selection);
+        return true;
     }
 
     /**

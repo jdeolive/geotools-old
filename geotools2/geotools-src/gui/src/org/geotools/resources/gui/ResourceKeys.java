@@ -61,10 +61,12 @@ public interface ResourceKeys
     public static final int LOADING_$1               =    40;
     public static final int LOGGER                   =    34;
     public static final int MAGNIFIER                =     5;
+    public static final int MAXIMUM                  =    98;
     public static final int MEMORY_HEAP_SIZE_$1      =    45;
     public static final int MEMORY_HEAP_USAGE_$1     =    46;
     public static final int MESSAGE                  =    32;
     public static final int METHOD                   =    35;
+    public static final int MINIMUM                  =    99;
     public static final int NAME                     =    84;
     public static final int NO_DETAILS_$1            =     6;
     public static final int OK                       =    39;
@@ -102,6 +104,7 @@ public interface ResourceKeys
     public static final int TIME_OF_DAY              =    36;
     public static final int TIME_RANGE               =    26;
     public static final int TIME_ZONE                =    27;
+    public static final int TYPE                     =   100;
     public static final int UNDEFINED                =    82;
     public static final int UNSIGNED_INTEGER_$2      =    81;
     public static final int UNTITLED                 =    42;

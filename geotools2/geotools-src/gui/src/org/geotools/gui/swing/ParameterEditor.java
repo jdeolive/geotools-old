@@ -37,6 +37,7 @@ import java.util.MissingResourceException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.lang.reflect.Array;
+import java.text.ParseException;
 import java.text.NumberFormat;
 import java.text.DateFormat;
 import java.text.Format;
@@ -62,16 +63,20 @@ import java.awt.Component;
 import java.awt.Dimension;
 
 // JAI dependencies
+import javax.media.jai.util.Range;
 import javax.media.jai.KernelJAI;
 import javax.media.jai.LookupTableJAI;
 import javax.media.jai.OperationNode;
 import javax.media.jai.OperationDescriptor;
 import javax.media.jai.PerspectiveTransform;
+import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.RegistryElementDescriptor;
 
 // Geotools dependencies
 import org.geotools.pt.Angle;
 import org.geotools.pt.AngleFormat;
+import org.geotools.resources.XMath;
+import org.geotools.resources.Utilities;
 import org.geotools.resources.gui.Resources;
 import org.geotools.resources.gui.ResourceKeys;
 
@@ -93,7 +98,7 @@ import org.geotools.resources.gui.ResourceKeys;
  *   <li>Convolution {@linkplain KernelJAI kernel}, which are display in a {@link KernelEditor}.</li>
  * </ul>
  *
- * @version $Id: ParameterEditor.java,v 1.1 2003/07/28 22:36:53 desruisseaux Exp $
+ * @version $Id: ParameterEditor.java,v 1.2 2003/07/29 15:40:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see KernelEditor
@@ -101,15 +106,17 @@ import org.geotools.resources.gui.ResourceKeys;
  * @see OperationTreeBrowser
  *
  * @task TODO: This class do not yet support the edition of parameter value.
- *             We will allow that in a future version.
+ *             We will allow that in a future version. This work is already
+ *             partially done with the 'editable' boolean value.
  */
 public class ParameterEditor extends JPanel {
-    /** Key for {@link Number} node.    */  private static final String NUMBER    = "Number";
-    /** Key for {@link Angle} node.     */  private static final String ANGLE     = "Angle";
-    /** Key for {@link Date} node.      */  private static final String DATE      = "Date";
-    /** Key for {@link KernelJAI} node. */  private static final String KERNEL    = "Kernel";
-    /** Key for any kind of table node. */  private static final String TABLE     = "Table";
-    /** Key for unrecognized types.     */  private static final String DEFAULT   = "Default";
+    /** Key for {@link String} node.    */  private static final String STRING  = "String";
+    /** Key for {@link Number} node.    */  private static final String NUMBER  = "Number";
+    /** Key for {@link Angle} node.     */  private static final String ANGLE   = "Angle";
+    /** Key for {@link Date} node.      */  private static final String DATE    = "Date";
+    /** Key for {@link KernelJAI} node. */  private static final String KERNEL  = "Kernel";
+    /** Key for any kind of table node. */  private static final String TABLE   = "Table";
+    /** Key for unrecognized types.     */  private static final String DEFAULT = "Default";
 
     /**
      * The set of {@linkplain Component component} editors created up to date.
@@ -144,11 +151,24 @@ public class ParameterEditor extends JPanel {
     private Object value;
 
     /**
-     * The editor currently in use.
+     * The editor widget currently in use.
      *
      * @see #setParameterValue
+     * @see #getEditor
      */
     private Component editor;
+
+    /**
+     * The editor model currently in use. This is often the model used by the editor widget.
+     */
+    private Editor model;
+
+    /**
+     * <code>true</code> if this widget is editable.
+     *
+     * @task TODO: This
+     */
+    private static final boolean editable = false;
 
     /**
      * Construct an initially empty parameter editor.
@@ -161,10 +181,10 @@ public class ParameterEditor extends JPanel {
     }
 
     /**
-     * Returns the parameter value currently show, or <code>null</code> if none.
+     * Returns the parameter value currently edited, or <code>null</code> if none.
      */
     public Object getParameterValue() {
-        return value;
+        return (model!=null) ? model.getValue() : value;
     }
 
     /**
@@ -174,19 +194,14 @@ public class ParameterEditor extends JPanel {
      *
      * @param value The value to edit. This object is usually an instance of {@link Number},
      *              {@link KernelJAI}, {@link LookupTableJAI} or some other parameter object.
-     * @return The component used for editing the parameter. This component may be an instance
-     *         of {@link KernelEditor}, {@link JTable}, {@link TextField}, {@link JList} or any
-     *         other suitable component.
      */
-    public Component setParameterValue(final Object value) {
+    public void setParameterValue(final Object value) {
         final Object oldValue = this.value;
-        if (value == oldValue) {
-            return editor;
+        if (!Utilities.equals(value, oldValue)) {
+            this.value = value;
+            updateEditor();
+            firePropertyChange("value", oldValue, value);
         }
-        this.value  = value;
-        this.editor = updateEditor();
-        firePropertyChange("value", oldValue, value);
-        return editor;
     }
 
     /**
@@ -212,6 +227,9 @@ public class ParameterEditor extends JPanel {
             description = " ";
         }
         this.description.setText(description);
+        if (model != null) {
+            model.setValueRange(null,null);
+        }
     }
 
     /**
@@ -222,12 +240,28 @@ public class ParameterEditor extends JPanel {
      */
     final void setDescription(final OperationNode operation, final int index) {
         String description = null;
+        Class  type        = null;
+        Range  range       = null;
         if (operation != null) {
             final String name, mode;
             final RegistryElementDescriptor element;
+            final ParameterListDescriptor param;
             name    = operation.getOperationName();
             mode    = operation.getRegistryModeName();
             element = operation.getRegistry().getDescriptor(mode, name);
+            param   = element.getParameterListDescriptor(mode);
+            /*
+             * If a parameter is specified, gets the parameter type and its range of valid
+             * values.
+             */
+            if (index>=0 && index<param.getNumParameters()) {
+                type  = param.getParamClasses()[index];
+                range = param.getParamValueRange(param.getParamNames()[index]);
+            }
+            /*
+             * If the descriptor is an operation, gets the localized operation
+             * description or the parameter description.
+             */
             if (element instanceof OperationDescriptor) {
                 final String key;
                 final OperationDescriptor descriptor = (OperationDescriptor) element;
@@ -258,6 +292,21 @@ public class ParameterEditor extends JPanel {
             }
         }
         setDescription(description);
+        if (model != null) {
+            model.setValueRange(type, range);
+        }
+    }
+
+    /**
+     * Returns the component used for editing the parameter. The component class depends on the
+     * class of the value set by the last call to {@link #setParameterValue}. The editor may be
+     * an instance of {@link KernelEditor}, {@link JTable}, {@link TextField}, {@link JList} or
+     * any other suitable component.
+     *
+     * @return The editor, or <code>null</code> if no value has been set.
+     */
+    public Component getEditor() {
+        return editor;
     }
 
     /**
@@ -302,12 +351,78 @@ public class ParameterEditor extends JPanel {
      * exists for the value class, it will be reused. Otherwise, a new editor will be created
      * on the fly.
      *
-     * @return The component used for editing the parameter. This component may be an instance
-     *         of {@link KernelEditor}, {@link JTable}, {@link TextField}, {@link JList} or any
-     *         other suitable component.
+     * The {@link #editor} field will be set to the component used for editing the parameter.
+     * This component may be an instance of {@link KernelEditor}, {@link JTable},
+     * {@link TextField}, {@link JList} or any other suitable component.
+     *
+     * The {@link #model} field will be set to the model used by the editor widget.
      */
-    private Container updateEditor() {
+    private void updateEditor() {
         Object value = this.value;
+        /*
+         * In the special case where the value is an array with only one element, extract
+         * the element and use a specialized editor as if the element wasn't in an array.
+         */
+        while (value!=null && value.getClass().isArray() && Array.getLength(value)==1) {
+            value = Array.get(value, 0);
+        }
+        /*
+         * String  ---  Uses a JTextField editor.
+         */
+        if (value instanceof String) {
+            Singleton editor = (Singleton) getEditor(STRING);
+            if (editor == null) {
+                editor = new Singleton(null);
+                addEditor(STRING, editor, false);
+            }
+            editor.setValue(value);
+            this.editor = editor.field;
+            this.model  = editor;
+            return;
+        }
+        /*
+         * Number  ---  Uses a JFormattedTextField editor.
+         */
+        if (value instanceof Number) {
+            Singleton editor = (Singleton) getEditor(NUMBER);
+            if (editor == null) {
+                editor = new Singleton(NumberFormat.getInstance(getLocale()));
+                addEditor(NUMBER, editor, false);
+            }
+            editor.setValue(value);
+            this.editor = editor.field;
+            this.model  = editor;
+            return;
+        }
+        /*
+         * Date  ---  Uses a JFormattedTextField editor.
+         */
+        if (value instanceof Date) {
+            Singleton editor = (Singleton) getEditor(DATE);
+            if (editor == null) {
+                editor = new Singleton(DateFormat.getDateTimeInstance(
+                                       DateFormat.LONG, DateFormat.LONG, getLocale()));
+                addEditor(DATE, editor, false);
+            }
+            editor.setValue(value);
+            this.editor = editor.field;
+            this.model  = editor;
+            return;
+        }
+        /*
+         * Angle  ---  Uses a JFormattedTextField editor.
+         */
+        if (value instanceof Angle) {
+            Singleton editor = (Singleton) getEditor(ANGLE);
+            if (editor == null) {
+                editor = new Singleton(new AngleFormat("D°MM.mm'", getLocale()));
+                addEditor(ANGLE, editor, false);
+            }
+            editor.setValue(value);
+            this.editor = editor.field;
+            this.model  = editor;
+            return;
+        }
         /*
          * AffineTransform  ---  convert to a matrix for processing by the general matrix case.
          */
@@ -333,29 +448,25 @@ public class ParameterEditor extends JPanel {
         }
         /*
          * Any table or matrix  ---  use a JTable editor.
-         * In the special case where the array has only one element, extract it
-         * and use a specialized editor as if the element wasn't in an array.
          */
         if (value != null) {
             final Class elementClass = value.getClass().getComponentType();
             if (elementClass != null) {
-                if (Array.getLength(value) == 1) {
-                    value = Array.get(value, 0);
+                final TableModel model;
+                if (elementClass.isArray()) {
+                    model = new Matrix((Object[]) value);
                 } else {
-                    final TableModel model;
-                    if (elementClass.isArray()) {
-                        model = new Matrix((Object[]) value);
-                    } else {
-                        model = new Table(new Object[] {value}, 0, false);
-                    }
-                    JTable editor = (JTable) getEditor(TABLE);
-                    if (editor == null) {
-                        addEditor(TABLE, editor=new JTable(model), true);
-                    } else {
-                        editor.setModel(model);
-                    }
-                    return editor;
+                    model = new Table(new Object[] {value}, 0, false);
                 }
+                JTable editor = (JTable) getEditor(TABLE);
+                if (editor == null) {
+                    addEditor(TABLE, editor=new JTable(model), true);
+                } else {
+                    editor.setModel(model);
+                }
+                this.editor = editor;
+                this.model  = (Editor) model;
+                return;
             }
         }
         /*
@@ -372,53 +483,18 @@ public class ParameterEditor extends JPanel {
                 case DataBuffer.TYPE_INT:    data=table.getIntData();    break;
                 case DataBuffer.TYPE_FLOAT:  data=table.getFloatData();  break;
                 case DataBuffer.TYPE_DOUBLE: data=table.getDoubleData(); break;
-                default: return null;
+                default: this.editor=null; this.model=null; return;
             }
-            final TableModel model = new Table(data, table.getOffset(), unsigned);
+            final Table model = new Table(data, table.getOffset(), unsigned);
             JTable editor = (JTable) getEditor(TABLE);
             if (editor == null) {
                 addEditor(TABLE, editor=new JTable(model), true);
             } else {
                 editor.setModel(model);
             }
-            return editor;
-        }
-        /*
-         * Number  ---  Uses a JFormattedTextField editor.
-         */
-        if (value instanceof Number) {
-            Editor editor = (Editor) getEditor(NUMBER);
-            if (editor == null) {
-                editor = new Editor(NumberFormat.getInstance(getLocale()));
-                addEditor(NUMBER, editor, false);
-            }
-            editor.setValue(value);
-            return editor.field;
-        }
-        /*
-         * Date  ---  Uses a JFormattedTextField editor.
-         */
-        if (value instanceof Date) {
-            Editor editor = (Editor) getEditor(DATE);
-            if (editor == null) {
-                editor = new Editor(DateFormat.getDateTimeInstance(
-                                    DateFormat.LONG, DateFormat.LONG, getLocale()));
-                addEditor(DATE, editor, false);
-            }
-            editor.setValue(value);
-            return editor.field;
-        }
-        /*
-         * Angle  ---  Uses a JFormattedTextField editor.
-         */
-        if (value instanceof Angle) {
-            Editor editor = (Editor) getEditor(ANGLE);
-            if (editor == null) {
-                editor = new Editor(new AngleFormat("D°MM.mm'", getLocale()));
-                addEditor(ANGLE, editor, false);
-            }
-            editor.setValue(value);
-            return editor.field;
+            this.editor = editor;
+            this.model  = model;
+            return;
         }
         /*
          * KernelJAI  ---  Uses a KernelEditor.
@@ -429,7 +505,9 @@ public class ParameterEditor extends JPanel {
                 addEditor(KERNEL, editor=new KernelEditor(), false);
             }
             editor.setKernel((KernelJAI) value);
-            return editor;
+            this.editor = editor;
+            this.model  = null; // TODO: Set the editor.
+            return;
         }
         /*
          * Default case  ---  Uses a JTextArea
@@ -440,43 +518,84 @@ public class ParameterEditor extends JPanel {
             editor.setEditable(false);
         }
         editor.setText(String.valueOf(value));
-        return editor;
+        this.editor = editor;
+        this.model  = null; // TODO: Set the editor.
+    }
+
+    /**
+     * The interface for editor capable to returns the edited value.
+     *
+     * @version $Id: ParameterEditor.java,v 1.2 2003/07/29 15:40:34 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     *
+     * @task TODO: This interface should have a 'setEditable(boolean)' method.
+     */
+    private static interface Editor {
+        /**
+         * Returns the edited value.
+         */
+        public abstract Object getValue();
+
+        /**
+         * Set the type and the range of valid values.
+         */
+        public abstract void setValueRange(final Class type, final Range range);
     }
 
     /**
      * An editor panel for editing a single value. The value if usually an instance of
      * {@link Number}, {@link Date}, {@link Angle} or {@link String}.
      *
-     * @version $Id: ParameterEditor.java,v 1.1 2003/07/28 22:36:53 desruisseaux Exp $
+     * @version $Id: ParameterEditor.java,v 1.2 2003/07/29 15:40:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @task TODO: This editor should use <code>JSpinner</code>, but we need to gets
      *             the minimum and maximum values first since spinner needs bounds.
      */
-    private static final class Editor extends JPanel {
+    private static final class Singleton extends JPanel implements Editor {
+        /**
+         * The data type.
+         */
+        private final JLabel type = new JLabel();
+
+        /**
+         * The minimum allowed value.
+         */
+        private final JLabel minimum = new JLabel();
+
+        /**
+         * The maximum allowed value.
+         */
+        private final JLabel maximum = new JLabel();
+
         /**
          * The text field for editing the value.
          */
-        protected final JTextField field;
+        private final JTextField field;
 
         /**
          * Construct an editor for value using the specified format.
          */
-        public Editor(final Format format) {
+        public Singleton(final Format format) {
             super(new GridBagLayout());
             if (format != null) {
                 field = new JFormattedTextField(format);
             } else {
                 field = new JTextField();
             }
+            field.setEditable(editable);
             final Resources resources = Resources.getResources(getLocale());
             final GridBagConstraints c = new GridBagConstraints();
             c.gridx=0; c.gridwidth=1; c.insets.left=9; c.fill=c.HORIZONTAL;
-            c.gridy=0; add(new JLabel(resources.getLabel(ResourceKeys.VALUE)),  c);
-            // TODO: add labels for minimum and maximum values.
+            c.gridy=0; add(new JLabel(resources.getLabel(ResourceKeys.TYPE   )), c);
+            c.gridy++; add(new JLabel(resources.getLabel(ResourceKeys.MINIMUM)), c);
+            c.gridy++; add(new JLabel(resources.getLabel(ResourceKeys.MAXIMUM)), c);
+            c.gridy++; add(new JLabel(resources.getLabel(ResourceKeys.VALUE  )), c);
             c.gridx=1; c.weightx=1; c.insets.right=9;
-            c.gridy=0; add(field, c);
-            // TODO: add fields for minimum and maximum values.
+            c.gridy=0; add(type,    c);
+            c.gridy++; add(minimum, c);
+            c.gridy++; add(maximum, c);
+            c.gridy++; add(field,   c);
         }
 
         /**
@@ -489,16 +608,73 @@ public class ParameterEditor extends JPanel {
                 field.setText(String.valueOf(value));
             }
         }
+
+        /**
+         * Returns the edited value.
+         */
+        public Object getValue() {
+            if (field instanceof JFormattedTextField) {
+                return ((JFormattedTextField) field).getValue();
+            } else {
+                return field.getText();
+            }
+        }
+
+        /**
+         * Set the type and the range of valid values.
+         */
+        public void setValueRange(Class classe, final Range range) {
+            String type    = null;
+            String minimum = null;
+            String maximum = null;
+            if (classe != null) {
+                while (classe.isArray()) {
+                    classe = classe.getComponentType();
+                }
+                classe = XMath.primitiveToWrapper(classe);
+                boolean isInteger = false;
+                if (XMath.isReal(classe) || (isInteger=XMath.isInteger(classe))==true) {
+                    type = Resources.format(isInteger ? ResourceKeys.SIGNED_INTEGER_$1
+                                                      : ResourceKeys.REAL_NUMBER_$1,
+                                            new Integer(XMath.getBitCount(classe)));
+                } else {
+                    type = Utilities.getShortName(classe);
+                }
+            }
+            if (range != null) {
+                minimum = format(range.getMinValue());
+                maximum = format(range.getMaxValue());
+            }
+            this.type   .setText(type);
+            this.minimum.setText(minimum);
+            this.maximum.setText(maximum);
+        }
+
+        /**
+         * Format the given value.
+         */
+        private String format(final Comparable value) {
+            if (value == null) {
+                return null;
+            }
+            if (field instanceof JFormattedTextField) try {
+                return ((JFormattedTextField) field).getFormatter().valueToString(value);
+            } catch (ParseException exception) {
+                // Value can't be formatted. Fall back on the 'toString()' method, which
+                // is okay since this string is used for informative purpose only.
+            }
+            return value.toString();
+        }
     }
 
     /**
      * Table model for table parameters (including {@link LookupTableJAI}.
      * Instance of this class are created by {@link #updateEditor} when first needed.
      *
-     * @version $Id: ParameterEditor.java,v 1.1 2003/07/28 22:36:53 desruisseaux Exp $
+     * @version $Id: ParameterEditor.java,v 1.2 2003/07/29 15:40:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    private static final class Table extends AbstractTableModel {
+    private static final class Table extends AbstractTableModel implements Editor {
         /**
          * The table (usually an instance of <code>double[][]</code>).
          */
@@ -565,7 +741,14 @@ public class ParameterEditor extends JPanel {
             if (index==0 || unsigned) {
                 return Integer.class;
             }
-            return toWrapper(table[index-1].getClass().getComponentType());
+            return XMath.primitiveToWrapper(table[index-1].getClass().getComponentType());
+        }
+
+        /**
+         * Tells if the specified cell is editable.
+         */
+        public boolean isCellEditable(final int row, final int column) {
+            return editable && column!=0;
         }
 
         /**
@@ -581,16 +764,37 @@ public class ParameterEditor extends JPanel {
             }
             return Array.get(array, row);
         }
+
+        /**
+         * Set the value at the given index.
+         */
+        public void setValueAt(final Object value, final int row, final int column) {
+            Array.set(table[column-1], row, value);
+        }
+
+        /**
+         * Returns the edited value.
+         */
+        public Object getValue() {
+            return table;
+        }
+
+        /**
+         * Set the type and the range of valid values.
+         * The default implementation does nothing.
+         */
+        public void setValueRange(final Class type, final Range range) {
+        }
     }
 
     /**
      * Table model for matrix parameters. Instance of this class
      * are created by {@link #updateEditor} when first needed.
      *
-     * @version $Id: ParameterEditor.java,v 1.1 2003/07/28 22:36:53 desruisseaux Exp $
+     * @version $Id: ParameterEditor.java,v 1.2 2003/07/29 15:40:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    private static final class Matrix extends AbstractTableModel {
+    private static final class Matrix extends AbstractTableModel implements Editor {
         /**
          * The matrix (usually an instance of <code>double[][]</code>).
          */
@@ -638,7 +842,14 @@ public class ParameterEditor extends JPanel {
          * Returns the most specific superclass for all the cell values.
          */
         public Class getColumnClass(final int index) {
-            return toWrapper(matrix.getClass().getComponentType().getComponentType());
+            return XMath.primitiveToWrapper(matrix.getClass().getComponentType().getComponentType());
+        }
+
+        /**
+         * Tells if the specified cell is editable.
+         */
+        public boolean isCellEditable(final int row, final int column) {
+            return editable;
         }
 
         /**
@@ -648,20 +859,26 @@ public class ParameterEditor extends JPanel {
             final Object array = matrix[row];
             return (column < Array.getLength(array)) ? Array.get(array, column) : null;
         }
-    }
 
-    /**
-     * Change a primitive class to its wrapper (e.g. <code>double</code> to {@link Double}).
-     */
-    static Class toWrapper(final Class type) {
-        if (type.equals(Character.TYPE)) return Character.class;
-        if (type.equals(Boolean  .TYPE)) return Boolean  .class;
-        if (type.equals(Byte     .TYPE)) return Byte     .class;
-        if (type.equals(Short    .TYPE)) return Short    .class;
-        if (type.equals(Integer  .TYPE)) return Integer  .class;
-        if (type.equals(Long     .TYPE)) return Long     .class;
-        if (type.equals(Float    .TYPE)) return Float    .class;
-        if (type.equals(Double   .TYPE)) return Double   .class;
-        return type;
+        /**
+         * Set the value at the given index.
+         */
+        public void setValueAt(final Object value, final int row, final int column) {
+            Array.set(matrix[row], column, value);
+        }
+
+        /**
+         * Returns the edited value.
+         */
+        public Object getValue() {
+            return matrix;
+        }
+
+        /**
+         * Set the type and the range of valid values.
+         * The default implementation does nothing.
+         */
+        public void setValueRange(final Class type, final Range range) {
+        }
     }
 }
