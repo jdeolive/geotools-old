@@ -220,7 +220,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * by the user through the scrollbars will be translated by calls to
  * {@link #transform}.</p>
  *
- * @version $Id: ZoomPane.java,v 1.5 2002/07/31 08:42:40 desruisseaux Exp $
+ * @version $Id: ZoomPane.java,v 1.6 2002/08/20 21:53:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ZoomPane extends JComponent{
@@ -2411,7 +2411,7 @@ public abstract class ZoomPane extends JComponent{
                                                         areaBounds);
         record.setSourceClassName (className);
         record.setSourceMethodName(methodName);
-        Logger.getLogger("org.geotools.gui").log(record);
+        Logger.getLogger("org.geotools.gui.swing").log(record);
     }
 
     /**

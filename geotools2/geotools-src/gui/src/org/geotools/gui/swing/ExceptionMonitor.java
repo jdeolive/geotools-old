@@ -67,11 +67,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.EventQueue;
 
-// Logging
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.LogRecord;
-
 // Input / Output
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -104,7 +99,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/ExceptionMonitor.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: ExceptionMonitor.java,v 1.4 2002/07/31 08:42:40 desruisseaux Exp $
+ * @version $Id: ExceptionMonitor.java,v 1.5 2002/08/20 21:53:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ExceptionMonitor {

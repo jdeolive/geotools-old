@@ -69,7 +69,7 @@ import java.util.logging.LogRecord;
  * declarative interface is never loaded at run time. This class also
  * provides facilities for string formatting using {@link MessageFormat}.
  *
- * @version 1.0
+ * @version $Id: ResourceBundle.java,v 1.4 2002/08/20 21:51:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ResourceBundle extends java.util.ResourceBundle {
@@ -124,10 +124,9 @@ public class ResourceBundle extends java.util.ResourceBundle {
     }
 
     /**
-     * Returns the name of the logger to use. Default
-     * implementation returns the package name.
+     * Returns the name of the package.
      */
-    protected String getLoggerName() {
+    private String getPackageName() {
         final String name = getClass().getName();
         final int index = name.lastIndexOf('.');
         return (index>=0) ? name.substring(0, index) : "org.geotools";
@@ -192,8 +191,8 @@ public class ResourceBundle extends java.util.ResourceBundle {
          */
         final Logger    logger;
         final LogRecord record;
-        logger = Logger.getLogger(getLoggerName());
-        record = new LogRecord(Level.FINER, "Loaded resources for {0}.");
+        logger = Logger.getLogger("org.geotools.resources");
+        record = new LogRecord(Level.FINER, "Loaded resources for {0} from bundle \"{1}\".");
         record.setSourceClassName (getClass().getName());
         record.setSourceMethodName((key!=null) ? "getObject" : "getKeys");
         try {
@@ -219,7 +218,7 @@ public class ResourceBundle extends java.util.ResourceBundle {
             if (language==null || language.length()==0) {
                 language="<default>";
             }
-            record.setParameters(new String[]{language});
+            record.setParameters(new String[]{language, getPackageName()});
             logger.log(record);
         } catch (IOException exception) {
             record.setLevel  (Level.WARNING);

@@ -43,7 +43,7 @@ import org.geotools.resources.ResourceBundle;
  * never been created directly. Use the factory method {@link #getResources}
  * or use static methods instead.
  *
- * @version $Id: Resources.java,v 1.2 2002/07/25 13:55:03 desruisseaux Exp $
+ * @version $Id: Resources.java,v 1.3 2002/08/20 21:54:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Resources extends ResourceBundle {
@@ -62,14 +62,6 @@ public class Resources extends ResourceBundle {
      */
     Resources(final String filepath) {
         super(filepath);
-    }
-
-    /**
-     * Returns the name of the logger to use,
-     * which is <code>org.geotools.gui</code>.
-     */
-    protected String getLoggerName() {
-        return "org.geotools.gui";
     }
 
     /**

@@ -64,7 +64,7 @@ import org.geotools.resources.Utilities;
  * <br><br>
  * The <code>WeakValueHashMap</code> class is thread-safe.
  *
- * @version $Id: WeakValueHashMap.java,v 1.2 2002/08/14 16:13:30 desruisseaux Exp $
+ * @version $Id: WeakValueHashMap.java,v 1.3 2002/08/20 21:51:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see WeakHashMap
@@ -291,7 +291,7 @@ public class WeakValueHashMap extends AbstractMap {
                 }
             }
         }
-        final Logger logger = Logger.getLogger("org.geotools.resources");
+        final Logger logger = Logger.getLogger("org.geotools.util");
         final Level   level = Level.FINEST;
         if (logger.isLoggable(level)) {
             final LogRecord record = new LogRecord(level, "Rehash from " + oldTable.length + 

@@ -70,7 +70,7 @@ import org.geotools.resources.Utilities;
  * <br><br>
  * The <code>WeakHashSet</code> class is thread-safe.
  *
- * @version $Id: WeakHashSet.java,v 1.3 2002/08/07 14:59:16 desruisseaux Exp $
+ * @version $Id: WeakHashSet.java,v 1.4 2002/08/20 21:51:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see WeakHashMap
@@ -241,7 +241,7 @@ public class WeakHashSet extends AbstractSet {
                 }
             }
         }
-        final Logger logger = Logger.getLogger("org.geotools.resources");
+        final Logger logger = Logger.getLogger("org.geotools.util");
         final Level   level = Level.FINEST;
         if (logger.isLoggable(level)) {
             final LogRecord record = new LogRecord(level, "Rehash from " + oldTable.length +
