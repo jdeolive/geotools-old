@@ -44,6 +44,7 @@ import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.renderer.array.ArrayData;
 
 
 /**
@@ -51,7 +52,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * There is at most one instance of this class for each instance of {@link Polygon}. This
  * class is strictly for internal use by {@link PolygonPathIterator}.
  *
- * @version $Id: PolygonCache.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+ * @version $Id: PolygonCache.java,v 1.2 2003/02/06 23:46:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: More work are needed: hold a strong reference to the array for some time before
@@ -106,6 +107,11 @@ final class PolygonCache {
     private boolean recomputed;
 
     /**
+     * Codes computed by {@link ArrayData#curves}. We don't have to touch it here.
+     */
+    private int[] curves;
+
+    /**
      * Construct a new empty cache. This constructor is used by {@link Polygon#getCache} only.
      */
     PolygonCache() {
@@ -117,16 +123,19 @@ final class PolygonCache {
      * rendering is finished.
      *
      * @param  polygon The source polygon.
+     * @param  destination The destination iterator. The {@link ArrayData#array} field will be
+     *         set to a direct reference to cache's internal data. Consequently, data should not
+     *         be modified outside this <code>getRenderingArray</code> method.
      * @param  newTransform Transformation affine à appliquer sur les données. La valeur
      *         <code>null</code> sera interprétée comme étant la transformation identitée.
-     * @return Un tableau de points (<var>x</var>,<var>y</var>). Cette méthode retourne une
-     *         référence directe vers un tableau interne. En conséquence, aucune modification
-     *         ne doit être faite au tableau retourné.
      *
      * @see #releaseRenderingArray
      * @see #getPointCount
      */
-    public float[] getRenderingArray(final Polygon polygon, AffineTransform newTransform) {
+    public void getRenderingArray(final Polygon polygon,
+                                  final ArrayData destination,
+                                  AffineTransform newTransform)
+    {
         assert Thread.holdsLock(polygon);
         if (newTransform != null) {
             newTransform = (AffineTransform) pool.canonicalize(new AffineTransform(newTransform));
@@ -159,7 +168,8 @@ final class PolygonCache {
             if (newTransform.equals(transform)) {
                 lockCount++;
                 recomputed = false;
-                return array;
+                destination.setData(array, length, curves);
+                return;
             }
             if (lockCount == 0) try {
                 final AffineTransform change = transform.createInverse();
@@ -168,7 +178,8 @@ final class PolygonCache {
                 transform = newTransform;
                 lockCount = 1;
                 recomputed = false;
-                return array;
+                destination.setData(array, length, curves);
+                return;
             } catch (NoninvertibleTransformException exception) {
                 Utilities.unexpectedException("org.geotools.renderer.geom", "Polygon",
                                               "getPathIterator", exception);
@@ -185,19 +196,21 @@ final class PolygonCache {
          * Reconstruit le tableau de points à partir des données de bas niveau.
          * La projection cartographique sera appliquée par {@link Polygon#toArray}.
          */
-        final float[][] arrays = new float[][]{array};
-        length = polygon.toArray(arrays, polygon.getRenderingResolution());
-        this.array = array = arrays[0];
+        destination.setData(array, 0, null);
+        polygon.toArray(destination, polygon.getRenderingResolution());
+        this.array = array = destination.array();
+        this.length = destination.length();
+        this.curves = destination.curves();
         assert (length & 1) == 0;
         if (array.length >= 2*length) {
             // If the array is much bigger then needed, trim to size.
             this.array = array = XArray.resize(array, length);
+            destination.setData(array, length, curves);
         }
         lockCount  = 1;
         transform  = newTransform;
         transform.transform(array, 0, array, 0, length/2);
         recomputed = true;
-        return array;
     }
 
     /**
@@ -228,11 +241,11 @@ final class PolygonCache {
     }
 
     /**
-     * Returns the number of valid elements in the last array got from {@link #getRenderingArray}.
-     * This is twice the number of valid points.
+     * Returns the number of points in the cache. Those points may not be
+     * available anymore. This method is provided for statistical purpose only.
      */
-    final int getLength() {
-        return length;
+    public final int getPointCount() {
+        return length/2;
     }
 
     /**

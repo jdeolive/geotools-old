@@ -55,7 +55,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Pour un point situé à l'index <code>i</code>, les coordonnées <var>x</var> et <var>y</var>
  * correspondantes se trouvent aux index <code>2*i</code> et <code>2*i+1</code> respectivement.
  *
- * @version $Id: PointArray.java,v 1.4 2003/01/30 23:34:39 desruisseaux Exp $
+ * @version $Id: PointArray.java,v 1.5 2003/02/06 23:46:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class PointArray implements Serializable {
@@ -147,7 +147,8 @@ public abstract class PointArray implements Serializable {
     }
 
     /**
-     * Retourne l'index de la première coordonnée valide.
+     * Returns the index of the first valid ordinate.
+     *
      * This method is overriden by all <code>PointArray</code> subclasses in this package.
      * Note that this method is not <code>protected</code> in this <code>PointArray</code>
      * class because it is used only by {@link #capacity}, which is a package-private helper
@@ -158,7 +159,8 @@ public abstract class PointArray implements Serializable {
     }
 
     /**
-     * Retourne l'index suivant celui de la dernière coordonnée valide.
+     * Returns the index after the last valid ordinate.
+     *
      * This method is overriden by all <code>PointArray</code> subclasses in this package.
      * Note that this method is not <code>protected</code> in this <code>PointArray</code>
      * class because it is used only by {@link #capacity}, which is a package-private helper
@@ -292,19 +294,17 @@ public abstract class PointArray implements Serializable {
     }
 
     /**
-     * Copy (<var>x</var>,<var>y</var>) coordinates in the specified destination array.
-     * The destination array will be filled starting at index <code>offset</code>. If
-     * <code>resolution2</code> is greater than 0, then points that are closer than
+     * Append (<var>x</var>,<var>y</var>) coordinates to the specified destination array.
+     * The destination array will be filled starting at index {@link ArrayData#length}.
+     * If <code>resolution2</code> is greater than 0, then points that are closer than
      * <code>sqrt(resolution2)</code> from previous one will be skiped.
      *
-     * @param  The destination array, wrapped in an array of type <code>float[][]</code>
-     *         of length 1. The coordinates will be filled in <code>array[0]</code>, which
-     *         may be expanded if needed.
-     * @param  offset The offset of the first element to fill in <code>array[0]</code>.
-     *         This element will contains the first <var>x</var> ordinate.
-     * @param  resolution2 The minimum squared distance desired between points.
-     * @return The index after the <code>array[0]</code>'s element
+     * @param  The destination array. The coordinates will be filled in
+     *         {@link ArrayData#array}, which will be expanded if needed.
+     *         After this method completed, {@link ArrayData#length} will
+     *         contains the index after the <code>array</code>'s element
      *         filled with the last <var>y</var> ordinate.
+     * @param  resolution2 The minimum squared distance desired between points.
      *
      * @task REVISIT: Current implementations compute distance using Pythagoras formulas, which
      *                is okay for projected coordinates but not right for geographic (longitude
@@ -314,21 +314,17 @@ public abstract class PointArray implements Serializable {
      *                look okay to user's eyes). However, it may be a problem when the rendering
      *                CS is different, since points that are equidistant in the data CS may not
      *                be equidistant in the rendering CS.
-     *
-     * @task HACK: The <code>float[][]</code> signature could be simplified to a plain
-     *             <code>float[]</code> if RFE #4222792 (multiple return values) gets
-     *             implemented in J2SE 1.5.
      */
-    public abstract int toArray(final float[][] dest, int offset, float resolution2);
+    public abstract void toArray(ArrayData dest, float resolution2);
 
     /**
      * Retourne une copie de toutes les coordonnées (<var>x</var>,<var>y</var>) de ce tableau.
      */
     public final float[] toArray() {
-        final float[][] array = new float[][] {new float[2*count()]};
-        final int length = toArray(array, 0, 0);
-        assert length == array[0].length;
-        return array[0];
+        final ArrayData data = new ArrayData(2*count());
+        toArray(data, 0);
+        assert data.length == data.array.length;
+        return data.array;
     }
 
     /**
@@ -358,8 +354,8 @@ public abstract class PointArray implements Serializable {
             guess = (int)(dst * (long)length / src);  // Prediction of the total length required.
             guess -= dst;                             // The amount to growth.
             guess += guess/8;                         // Conservatively add some space.
-            guess &= ~1;                              // Make sure the length is even.
         }
+        guess &= ~1; // Make sure the length is even.
         return offset + Math.min(length, dst+Math.max(guess, 32));
     }
 

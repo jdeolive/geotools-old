@@ -42,6 +42,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.FlatteningPathIterator;
 import java.awt.geom.IllegalPathStateException;
 import java.awt.geom.NoninvertibleTransformException;
 
@@ -57,6 +58,7 @@ import java.util.NoSuchElementException;
 import java.io.Writer;
 import java.io.PrintWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 
 // Formatting
@@ -64,7 +66,7 @@ import java.util.Locale;
 import java.text.NumberFormat;
 import java.text.FieldPosition;
 
-// OpenGIS dependencies
+// Geotools dependencies
 import org.geotools.units.Unit;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.Projection;
@@ -89,6 +91,7 @@ import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.renderer.array.ArrayData;
 
 
 /**
@@ -108,7 +111,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.3 2003/02/05 22:58:13 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.4 2003/02/06 23:46:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -118,7 +121,7 @@ public class Polygon extends GeoShape {
      * Numéro de version pour compatibilité avec des
      * bathymétries enregistrées sous d'anciennes versions.
      */
-    private static final long serialVersionUID = -6195580751022572130L;
+    private static final long serialVersionUID = 6197907210475790821L;
 
     /**
      * Small number for comparaisons (mostly in assertions).
@@ -175,6 +178,12 @@ public class Polygon extends GeoShape {
     private transient Rectangle2D bounds;
 
     /**
+     * <code>true</code> if {@link #getPathIterator} will returns a flattened iterator.
+     * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
+     */
+    private transient boolean flattened;
+
+    /**
      * Indique si cette forme a été fermée. Si le polygone a été fermé, alors ce champ
      * aura la valeur {@link InteriorType#ELEVATION} ou {@link InteriorType#DEPRESSION}.
      */
@@ -219,6 +228,7 @@ public class Polygon extends GeoShape {
                    org.geotools.resources.cts.ResourceKeys.ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1, cs));
             }
         }
+        flattened = checkFlattenedShape();
     }
 
     /**
@@ -243,6 +253,7 @@ public class Polygon extends GeoShape {
         coordinateTransform = polygon.coordinateTransform;
         dataBounds          = polygon.dataBounds;
         bounds              = polygon.bounds;
+        flattened           = polygon.flattened;
         resolution          = polygon.resolution;
         interiorType        = polygon.interiorType;
     }
@@ -294,8 +305,10 @@ public class Polygon extends GeoShape {
         final Polygon[]  polygons  = new Polygon[polylines.length];
         final CoordinateTransformation ct = getIdentityTransform(coordinateSystem);
         for (int i=0; i<polygons.length; i++) {
-            polygons[i] = new Polygon(ct);
-            polygons[i].data = polylines[i];
+            final Polygon polygon = new Polygon(ct);
+            polygon.data      = polylines[i];
+            polygon.flattened = polygon.checkFlattenedShape();
+            polygons[i]       = polygon;
         }
         return polygons;
     }
@@ -364,6 +377,7 @@ public class Polygon extends GeoShape {
             for (int i=0; i<polylines.length; i++) {
                 final Polygon polygon = new Polygon(ct);
                 polygon.data = polylines[i];
+                polygon.flattened = polygon.checkFlattenedShape();
                 polygons.add(polygon);
             }
         }
@@ -487,6 +501,7 @@ public class Polygon extends GeoShape {
         this.coordinateTransform = transformCandidate;
         this.resolution = Float.NaN;
         this.cache = null;
+        this.flattened = checkFlattenedShape();
     }
 
     /**
@@ -1063,10 +1078,33 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns a path iterator for this polygon.
+     * Returns a flattened path iterator for this polygon.
      */
     public PathIterator getPathIterator(final AffineTransform transform, final double flatness) {
-        return getPathIterator(transform);
+        if (!isFlattenedShape()) {
+            return getPathIterator(transform);
+        } else {
+            return super.getPathIterator(transform, flatness);
+        }
+    }
+
+    /**
+     * Returns <code>true</code> if {@link #getPathIterator} will returns a flattened iterator.
+     * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
+     */
+    final boolean isFlattenedShape() {
+        assert flattened == checkFlattenedShape() : flattened;
+        return flattened;
+    }
+
+    /**
+     * Returns <code>true</code> if {@link #getPathIterator} will returns a flattened iterator.
+     * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
+     */
+    final boolean checkFlattenedShape() {
+        return coordinateTransform==null ||
+               coordinateTransform.getMathTransform()==null ||
+               !Polyline.hasBorder(data);
     }
 
     /**
@@ -1306,6 +1344,7 @@ public class Polygon extends GeoShape {
         } else {
             data = Polyline.prependBorder(data, border, lower, upper);
         }
+        flattened  = checkFlattenedShape();
         dataBounds = null;
         bounds     = null;
         cache      = null;
@@ -1354,6 +1393,7 @@ public class Polygon extends GeoShape {
             }
         }
         resolution = Float.NaN;
+        flattened = checkFlattenedShape();
     }
 
     /**
@@ -1361,6 +1401,7 @@ public class Polygon extends GeoShape {
      */
     public synchronized void reverse() {
         data = Polyline.reverse(data);
+        flattened = checkFlattenedShape();
         cache = null;
     }
 
@@ -1377,6 +1418,7 @@ public class Polygon extends GeoShape {
     public synchronized void close(final InteriorType type) {
         data = Polyline.freeze(data, type!=null, false);
         interiorType = (byte) InteriorType.getValue(type);
+        flattened = checkFlattenedShape();
         cache = null;
     }
 
@@ -1416,6 +1458,7 @@ public class Polygon extends GeoShape {
         }
         final Polygon subPoly = new Polygon(coordinateTransform);
         subPoly.data = sub;
+        subPoly.flattened = subPoly.checkFlattenedShape();
         assert subPoly.getPointCount() == (upper-lower);
         return subPoly;
     }
@@ -1625,19 +1668,13 @@ public class Polygon extends GeoShape {
      * pairs, depending of the {@linkplain #getCoordinateSystem coordinate system
      * in use}.
      *
-     * @param  The destination array, wrapped in an array of type <code>float[][]</code>
-     *         of length 1. The coordinates will be filled in <code>array[0]</code>, which
-     *         may be expanded if needed.
-     * @param  resolution The minimum distance desired between points, in the same units
-     *         than for the {@link #getResolution} method  (i.e. linear units as much as
-     *         possible - usually meters - even for geographic coordinate system).
-     *         If <code>resolution</code> is greater than 0, then points that are closer
-     *         than <code>resolution</code> from previous points will be skiped. This method
-     *         is not required to perform precise distances computation.
-     * @return The index after the <code>array[0]</code>'s element
-     *         filled with the last <var>y</var> ordinate.
+     * @param  The destination array. The coordinates will be filled in {@link ArrayData#array}
+     *         from index {@link ArrayData#length}. The array will be expanded if needed, and
+     *         {@link ArrayData#length} will be updated with index after the <code>array</code>'s
+     *         element filled with the last <var>y</var> ordinates.
+     * @param  resolution The minimum distance desired between points.
      */
-    final int toArray(float[][] dest, float resolution) {
+    final void toArray(final ArrayData dest, float resolution) {
         assert Thread.holdsLock(this);
         try {
             /*
@@ -1693,18 +1730,11 @@ public class Polygon extends GeoShape {
             /*
              * Gets the array and transform it, if needed.
              */
-            final int length = Polyline.toArray(data, dest, resolution);
-            final MathTransform2D transform = getMathTransform2D(coordinateTransform);
-            if (transform!=null && !transform.isIdentity()) {
-                final float[] array = dest[0];
-                transform.transform(array, 0, array, 0, length/2);
-            }
-            return length;
+            Polyline.toArray(data, dest, resolution, getMathTransform2D(coordinateTransform));
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
             // has already successfully projected every points.
             unexpectedException("toArray", exception);
-            return 0;
         }
     }
 
@@ -1725,9 +1755,9 @@ public class Polygon extends GeoShape {
      *         {@linkplain #getCoordinateSystem polygon's coordinate system}.
      */
     public synchronized float[] toArray(final float resolution) {
-        final float[][] array = new float[][] {new float[64]};
-        final int length = toArray(array, resolution); // Do not inline inside XArray.resize(...).
-        return XArray.resize(array[0], length);
+        final ArrayData array = new ArrayData(64);
+        toArray(array, resolution);
+        return XArray.resize(array.array(), array.length());
     }
 
     /**
@@ -1781,6 +1811,15 @@ public class Polygon extends GeoShape {
         bounds     = null;
         dataBounds = null;
         resolution = Float.NaN;
+        flattened  = checkFlattenedShape();
+    }
+
+    /**
+     * Invoked during deserialization.
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        flattened = checkFlattenedShape(); // Reasonably fast to compute.
     }
 
     /**
@@ -1914,7 +1953,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.3 2003/02/05 22:58:13 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.4 2003/02/06 23:46:30 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon

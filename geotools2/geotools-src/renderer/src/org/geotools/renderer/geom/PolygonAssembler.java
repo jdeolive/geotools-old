@@ -91,7 +91,7 @@ import org.geotools.resources.XArray;
  *           d'un seul point).
  * </blockquote>
  *
- * @version $Id: PolygonAssembler.java,v 1.3 2003/02/05 22:58:13 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.4 2003/02/06 23:46:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Localize logging and progress messages.
@@ -154,7 +154,7 @@ final class PolygonAssembler implements Comparator {
      * à en créer à chaque appel de la méthode {@link #get(Polygon, boolean)}.  Les valeurs
      * de ses champs seront modifiés à chaque appels de cette méthode.
      */
-    private final transient Fermion key = new Fermion();
+    private final Fermion key = new Fermion();
 
     /**
      * Les variables suivantes servent aux calculs de distances. Elles sont
@@ -171,7 +171,12 @@ final class PolygonAssembler implements Comparator {
     /**
      * Buffer réservé à un usage interne par la méthode {@link #nextSegment}.
      */
-    private final transient double[] pitBuffer = new double[8];
+    private final double[] pitBuffer = new double[8];
+
+    /**
+     * The pass number. For reporting in {@link #updateFermions} only.
+     */
+    private int pass;
 
     /**
      * Construit un objet qui assemblera les polygones de l'isoligne spécifiée.
@@ -627,16 +632,16 @@ final class PolygonAssembler implements Comparator {
      * d'éviter de répéter certains calculs inutiles.
      */
     private void updateFermions() {
-        if (progress != null) {
-            progress.setDescription("Analyzing"); // TODO: localize
-            progress.progress(0);
-        }
         boolean hasChanged;
         while (true) {
             hasChanged = false;
             boolean tryAgain;
             do {
-                tryAgain=false;
+                tryAgain = false;
+                pass++;
+                if (progress != null) {
+                    progress.setDescription("Analyzing (pass "+pass+')'); // TODO: localize
+                }
                 for (int j=0; j<polygons.length; j++) {
                     if (progress != null) {
                         /*
@@ -988,7 +993,7 @@ final class PolygonAssembler implements Comparator {
                 interpole.setLine(iFirstPoint, iLastPoint);
                 assert !Double.isNaN(interpole.getSlope()) &&
                        !Double.isNaN(interpole.getX0   ()) &&
-                       !Double.isNaN(interpole.getY0()) : iFirstPoint + "  " + iLastPoint;
+                       !Double.isNaN(interpole.getY0()) : extremCoord;
                 double minDistanceSq = Double.POSITIVE_INFINITY;
                 pit = clip.getPathIterator(null, flatness);
                 for (int border=0; !pit.isDone(); border++) {
@@ -1236,7 +1241,7 @@ final class PolygonAssembler implements Comparator {
         }
         assemblePolygons();
         for (int i=0; i<polygons.length; i++) {
-            polygons[i].close(InteriorType.FLAT);
+            polygons[i].close(InteriorType.ELEVATION);
         }
         /*
          * It is up to {@link Isoline} to decide if polygons are elevation

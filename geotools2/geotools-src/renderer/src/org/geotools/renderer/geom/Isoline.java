@@ -39,6 +39,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.FlatteningPathIterator;
 
 // Collections and utils
 import java.util.Set;
@@ -52,6 +53,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Locale;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 // Geotools dependencies
 import org.geotools.cs.Ellipsoid;
@@ -90,7 +93,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Isoline.java,v 1.4 2003/02/05 22:58:13 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.5 2003/02/06 23:46:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -100,7 +103,7 @@ public class Isoline extends GeoShape implements Comparable {
      * Numéro de version pour compatibilité avec des
      * bathymétries enregistrées sous d'anciennes versions.
      */
-    private static final long serialVersionUID = 6249238975475964338L;
+    private static final long serialVersionUID = -2560639903583552721L;
 
     /**
      * The value for this isoline. In the case
@@ -141,6 +144,12 @@ public class Isoline extends GeoShape implements Comparable {
     private boolean sorted;
 
     /**
+     * <code>true</code> if {@link #getPathIterator} will returns a flattened iterator.
+     * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
+     */
+    private transient boolean flattened;
+
+    /**
      * Rectangle englobant complètement cet isoligne. Ce rectangle est
      * calculé une fois pour toute et conservée dans une cache interne
      * pour accélérer certaines vérifications.
@@ -150,8 +159,9 @@ public class Isoline extends GeoShape implements Comparable {
     /**
      * The statistics about resolution, or <code>null</code> if none.
      * This object is computed when first requested and cached for next uses.
+     * It is also serialized if available, since it is somewhat heavy to compute.
      */
-    private transient Statistics resolution;
+    private Statistics resolution;
 
     /**
      * Construct an initialy empty isoline. Polygon may be added using one
@@ -187,6 +197,7 @@ public class Isoline extends GeoShape implements Comparable {
         for (int i=0; i<polygonCount; i++) {
             polygons[i] = (Polygon) isoline.polygons[i].clone();
         }
+        flattened = checkFlattenedShape();
     }
 
     /**
@@ -234,6 +245,7 @@ public class Isoline extends GeoShape implements Comparable {
             }
             throw exception;
         }
+        flattened = checkFlattenedShape();
     }
 
     /**
@@ -526,7 +538,7 @@ public class Isoline extends GeoShape implements Comparable {
                          * Get statistical data for monitoring the cache performance.
                          */
                         final PolygonCache cache = polygon.getCache();
-                        final int numPts = cache.getLength()/2;
+                        final int numPts = cache.getPointCount();
                         rendered += numPts;
                         if (cache.recomputed()) {
                             recomputed += numPts;
@@ -548,10 +560,28 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Returns a path iterator for this isoline.
+     * Returns a flattened path iterator for this isoline.
      */
     public PathIterator getPathIterator(final AffineTransform transform, final double flatness) {
-        return getPathIterator(transform);
+        assert flattened == checkFlattenedShape() : flattened;
+        if (!flattened) {
+            return getPathIterator(transform);
+        } else {
+            return super.getPathIterator(transform, flatness);
+        }
+    }
+
+    /**
+     * Returns <code>true</code> if {@link #getPathIterator} will returns a flattened iterator.
+     * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
+     */
+    final boolean checkFlattenedShape() {
+        for (int i=polygonCount; --i>=0;) {
+            if (!polygons[i].isFlattenedShape()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -797,6 +827,7 @@ public class Isoline extends GeoShape implements Comparable {
         polygons[polygonCount++] = toAdd;
         sorted = false;
         bounds = null;
+        flattened = checkFlattenedShape();
     }
 
     /**
@@ -825,6 +856,7 @@ public class Isoline extends GeoShape implements Comparable {
         bounds = null;
         System.arraycopy(polygons, index+1, polygons, index, polygonCount-(index+1));
         polygons[--polygonCount] = null;
+        flattened = checkFlattenedShape();
     }
 
     /**
@@ -919,6 +951,7 @@ public class Isoline extends GeoShape implements Comparable {
                 remove(i);
             }
         }
+        clearCache();
         return (float) (memoryUsage - getMemoryUsage()) / (float) memoryUsage;
         // No change to sorting order.
     }
@@ -1064,6 +1097,15 @@ public class Isoline extends GeoShape implements Comparable {
         for (int i=polygonCount; --i>=0;) {
             polygons[i].clearCache();
         }
+        flattened = checkFlattenedShape();
+    }
+
+    /**
+     * Invoked during deserialization.
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        flattened = checkFlattenedShape(); // Reasonably fast to compute.
     }
 
     /**
@@ -1118,6 +1160,9 @@ public class Isoline extends GeoShape implements Comparable {
         PolygonAssembler.assemble((Isoline[])isolines.clone(),
                                   (float[])toComplete.clone(),
                                   mapBounds, progress);
+        for (int i=0; i<isolines.length; i++) {
+            isolines[i].clearCache();
+        }
     }
 
     /**
@@ -1142,7 +1187,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.4 2003/02/05 22:58:13 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.5 2003/02/06 23:46:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {

@@ -36,6 +36,9 @@ package org.geotools.renderer.geom;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.PathIterator;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.FlatteningPathIterator;
 
 // Formatting and logging
 import java.text.Format;
@@ -81,7 +84,7 @@ import org.geotools.math.Statistics;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: GeoShape.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
+ * @version $Id: GeoShape.java,v 1.3 2003/02/06 23:46:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GeoShape implements Shape, Cloneable, Serializable {
@@ -306,6 +309,13 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
      *         There is no guaranteed on shape's state in case of failure.
      */
     public abstract void setResolution(final double resolution) throws TransformException;
+
+    /**
+     * Returns a flattened path iterator for this shape.
+     */
+    public PathIterator getPathIterator(final AffineTransform transform, final double flatness) {
+        return new FlatteningPathIterator(getPathIterator(transform), flatness);
+    }
 
     /**
      * Returns a shape approximatively equals to this shape clipped to the specified bounds.

@@ -42,7 +42,18 @@ import org.geotools.resources.renderer.ResourceKeys;
 /**
  * Tableaux de points compressés. Les objets de cette classe sont immutables.
  *
- * @version $Id: CompressedArray.java,v 1.3 2003/01/29 23:18:07 desruisseaux Exp $
+ * @task TODO: The compression algorithm (as computed in the constructor) should be improved.
+ *             The {@link #scaleX} and {@link #scaleY} values doesn't need to macth the widest
+ *             range of values. Instead, we should select some value close to the mean and allow
+ *             the constructor to create intermediate points if needed.
+ *
+ * @task TODO: An other algorithm should be implemented in a new class: <code>ClockArray</code>
+ *             or something like that. Instead of storing (dx,dy) value for each point, we should
+ *             store only the angle (theta) in a 0-255 range (resolution of 1.41°). It should
+ *             work providing that each points are approximatively equidistant. The current
+ *             {@link org.geotools.renderer.geom.Polygon#setResolution} method ensure exactly that.
+ *
+ * @version $Id: CompressedArray.java,v 1.4 2003/02/06 23:46:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CompressedArray extends PointArray {
@@ -143,8 +154,7 @@ class CompressedArray extends PointArray {
          */
         this.x0    = coord[lower+0];
         this.y0    = coord[lower+1];
-        this.array = new byte[upper-lower];
-
+        byte[] array = new byte[upper-lower];
         int reduceXMin = 0;
         int reduceXMax = 0;
         int reduceYMin = 0;
@@ -170,8 +180,18 @@ class CompressedArray extends PointArray {
             }
             assert array[0]==0;
             assert array[1]==0;
+            /*
+             * Remove (0,0) values, if any. It should not happen often, but some
+             * algorithm performs badly if two consecutive poins are identical.
+             */
+            for (int i=array.length; (i-=2)>=2;) {
+                if (array[i]==0 && array[i+1]==0) {
+                    array = XArray.remove(array, i, 2);
+                }
+            }
             this.scaleX = scaleX;
             this.scaleY = scaleY;
+            this.array  = array;
             return;
         }
         throw new ArithmeticException(); // Should not happen
@@ -323,42 +343,41 @@ class CompressedArray extends PointArray {
     }
 
     /**
-     * Copy (<var>x</var>,<var>y</var>) coordinates in the specified destination array.
-     * The destination array will be filled starting at index <code>offset</code>. If
-     * <code>resolution2</code> is greater than 0, then points that are closer than
+     * Append (<var>x</var>,<var>y</var>) coordinates to the specified destination array.
+     * The destination array will be filled starting at index {@link ArrayData#length}.
+     * If <code>resolution2</code> is greater than 0, then points that are closer than
      * <code>sqrt(resolution2)</code> from previous one will be skiped.
      *
-     * @param  The destination array, wrapped in an array of type <code>float[][]</code>
-     *         of length 1. The coordinates will be filled in <code>array[0]</code>, which
-     *         may be expanded if needed.
-     * @param  offset The offset of the first element to fill in <code>array[0]</code>.
-     *         This element will contains the first <var>x</var> ordinate.
-     * @param  resolution2 The minimum squared distance desired between points.
-     * @return The index after the <code>array[0]</code>'s element
+     * @param  The destination array. The coordinates will be filled in
+     *         {@link ArrayData#array}, which will be expanded if needed.
+     *         After this method completed, {@link ArrayData#length} will
+     *         contains the index after the <code>array</code>'s element
      *         filled with the last <var>y</var> ordinate.
+     * @param  resolution2 The minimum squared distance desired between points.
      */
-    public final int toArray(final float[][] dest, final int offset, final float resolution2) {
+    public final void toArray(final ArrayData dest, final float resolution2) {
         if (!(resolution2 >= 0)) {
             throw new IllegalArgumentException(String.valueOf(resolution2));
         }
-        float[]   copy  = dest[0];
-        final int lower = lower();
-        final int upper = upper();
-        int       dst   = offset;
+        float[]   copy   = dest.array;
+        final int lower  = lower();
+        final int upper  = upper();
+        final int offset = dest.length;
+        int       dst    = offset;
         int dxi=0, dyi=0;
         if (resolution2 == 0) {
             for (int src=lower; src<upper;) {
                 dxi += array[src++];
                 dyi += array[src++];
                 if (copy.length <= dst) {
-                    dest[0] = copy = XArray.resize(copy, capacity(src, dst, offset));
+                    dest.array = copy = XArray.resize(copy, capacity(src, dst, offset));
                 }
                 copy[dst++] = x0 + scaleX*dxi;
                 copy[dst++] = y0 + scaleY*dyi;
             }
         } else if (lower < upper) {
             if (copy.length <= dst) {
-                dest[0] = copy = XArray.resize(copy, capacity(lower, dst, offset));
+                dest.array = copy = XArray.resize(copy, capacity(lower, dst, offset));
             }
             copy[dst++] = x0;
             copy[dst++] = y0;
@@ -374,13 +393,14 @@ class CompressedArray extends PointArray {
                 final double dy = (double)dyf - (double)lastY;
                 if ((dx*dx + dy*dy) >= resolution2) {
                     if (copy.length <= dst) {
-                        dest[0] = copy = XArray.resize(copy, capacity(src, dst, offset));
+                        dest.array = copy = XArray.resize(copy, capacity(src, dst, offset));
                     }
                     copy[dst++] = x0 + (lastX=dxf);
                     copy[dst++] = y0 + (lastY=dyf);
                 }
             }
         }
-        return dst;
+        dest.length = dst;
+        assert dest.length <= dest.array.length;
     }
 }

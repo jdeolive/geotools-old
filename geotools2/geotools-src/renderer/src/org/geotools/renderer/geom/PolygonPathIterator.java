@@ -32,21 +32,23 @@
  */
 package org.geotools.renderer.geom;
 
-// Geometry
+// J2SE dependencies
+import java.util.Iterator;
 import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.IllegalPathStateException;
 
-// Collections
-import java.util.Iterator;
+// Geotools dependencies
+import org.geotools.renderer.array.ArrayData;
 
 
 /**
  * Itérateur balayant les points d'un polygone ou d'un isobath.
  *
- * @version $Id: PolygonPathIterator.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+ * @version $Id: PolygonPathIterator.java,v 1.2 2003/02/06 23:46:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class PolygonPathIterator implements PathIterator {
+final class PolygonPathIterator extends ArrayData implements PathIterator {
     /**
      * Itérateur balayant les objets
      * {@link Polygon} à tracer.
@@ -64,21 +66,14 @@ final class PolygonPathIterator implements PathIterator {
     private final AffineTransform transform;
 
     /**
-     * Tableaux des coordonnées à tracer. Ces coordonnées
-     * seront sous forme de paires (<var>x</var>,<var>y</var>).
-     */
-    private float[] array;
-
-    /**
-     * Number of valid elements in {@link #array}. This is twice the number of valid points.
-     */
-    private int length;
-    
-
-    /**
      * Index de la prochaine valeur à retourner dans le tableau {@link #array}.
      */
     private int index;
+
+    /**
+     * The type of the next curve to returns.
+     */
+    private int curveType = SEG_MOVETO;
 
     /**
      * Construit un itérateur qui balayera les points d'un seul polygone.
@@ -91,8 +86,7 @@ final class PolygonPathIterator implements PathIterator {
         this.polygon   = polygon;
         this.polygons  = null;
         this.transform = transform;
-        this.array     = cache.getRenderingArray(polygon, transform);
-        this.length    = cache.getLength();
+        cache.getRenderingArray(polygon, this, transform);
         if (array==null || length==0) {
             cache.releaseRenderingArray(array);
             array = null;
@@ -111,8 +105,7 @@ final class PolygonPathIterator implements PathIterator {
         while (polygons.hasNext()) {
             polygon = (Polygon) polygons.next();
             final PolygonCache cache = polygon.getCache();
-            array  = cache.getRenderingArray(polygon, transform);
-            length = cache.getLength();
+            cache.getRenderingArray(polygon, this, transform);
             if (array!=null && length!=0) {
                 break;
             }
@@ -135,28 +128,38 @@ final class PolygonPathIterator implements PathIterator {
      * more points in that direction.
      */
     public void next() {
-        if (array!=null && (index+=2) >= length) {
-            if (index!=length || !polygon.isClosed()) {
-                synchronized (polygon) {
-                    polygon.getCache().releaseRenderingArray(array);
-                    array = null;
-                    index = 0;
-                }
-                if (polygons != null) {
-                    while (polygons.hasNext()) {
-                        polygon = (Polygon) polygons.next();
-                        synchronized (polygon) {
-                            final PolygonCache cache = polygon.getCache();
-                            array = cache.getRenderingArray(polygon, transform);
-                            if (array!=null && length!=0) {
-                                return;
+        if (array != null) {
+            switch (curveType) {
+                case SEG_MOVETO:  // fall through
+                case SEG_LINETO:  index+=2; break;
+                case SEG_QUADTO:  index+=4; break;
+                case SEG_CUBICTO: index+=6; break;
+                default: throw new IllegalPathStateException();
+            }
+            if (index >= length) {
+                if (index!=length || !polygon.isClosed()) {
+                    synchronized (polygon) {
+                        polygon.getCache().releaseRenderingArray(array);
+                        array = null;
+                        index = 0;
+                    }
+                    if (polygons != null) {
+                        while (polygons.hasNext()) {
+                            polygon = (Polygon) polygons.next();
+                            synchronized (polygon) {
+                                final PolygonCache cache = polygon.getCache();
+                                cache.getRenderingArray(polygon, this, transform);
+                                if (array!=null && length!=0) {
+                                    return;
+                                }
+                                cache.releaseRenderingArray(array);
+                                array = null;
                             }
-                            cache.releaseRenderingArray(array);
-                            array = null;
                         }
                     }
                 }
             }
+            curveType = getCurveType(index);
         }
     }
 
@@ -170,10 +173,17 @@ final class PolygonPathIterator implements PathIterator {
      *             Ce tableau doit avoir une longueur d'au moins 2 (pour 1 point).
      */
     public int currentSegment(final float into[]) {
-        if (index < array.length) {
-            into[0] = array[index  ];
-            into[1] = array[index+1];
-            return (index==0) ? SEG_MOVETO : SEG_LINETO;
+        if (index < length) {
+            final int n;
+            switch (curveType) {
+                case SEG_CUBICTO: n=6; break;
+                case SEG_QUADTO:  n=4; break;
+                case SEG_LINETO:  // fall through
+                case SEG_MOVETO:  n=2; break;
+                default: throw new IllegalPathStateException();
+            }
+            System.arraycopy(array, index, into, 0, n);
+            return curveType;
         }
         return SEG_CLOSE;
     }
@@ -188,10 +198,31 @@ final class PolygonPathIterator implements PathIterator {
      *             Ce tableau doit avoir une longueur d'au moins 2 (pour 1 point).
      */
     public int currentSegment(final double into[]) {
-        if (index < array.length) {
-            into[0] = array[index  ];
-            into[1] = array[index+1];
-            return (index==0) ? SEG_MOVETO : SEG_LINETO;
+        if (index < length) {
+            switch (curveType) {
+                case SEG_CUBICTO: {
+                    into[5] = array[index+5];
+                    into[4] = array[index+4];
+                    // fall through
+                }
+                case SEG_QUADTO: {
+                    into[3] = array[index+3];
+                    into[2] = array[index+2];
+                    // fall through
+                }
+                case SEG_LINETO: {
+                    // fall through
+                }
+                case SEG_MOVETO: {
+                    into[1] = array[index+1];
+                    into[0] = array[index+0];
+                    break;
+                }
+                default: {
+                    throw new IllegalPathStateException();
+                }
+            }
+            return curveType;
         }
         return SEG_CLOSE;
     }

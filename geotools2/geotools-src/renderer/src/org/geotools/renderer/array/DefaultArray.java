@@ -45,7 +45,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * que ce soit. L'implémentation par défaut est imutable. Toutefois, certaines
  * classes dérivées (notamment {@link DynamicArray}) ne le seront pas forcément.
  *
- * @version $Id: DefaultArray.java,v 1.3 2003/01/29 23:18:08 desruisseaux Exp $
+ * @version $Id: DefaultArray.java,v 1.4 2003/02/06 23:46:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class DefaultArray extends PointArray {
@@ -239,58 +239,59 @@ class DefaultArray extends PointArray {
     }
 
     /**
-     * Copy (<var>x</var>,<var>y</var>) coordinates in the specified destination array.
-     * The destination array will be filled starting at index <code>offset</code>. If
-     * <code>resolution2</code> is greater than 0, then points that are closer than
+     * Append (<var>x</var>,<var>y</var>) coordinates to the specified destination array.
+     * The destination array will be filled starting at index {@link ArrayData#length}.
+     * If <code>resolution2</code> is greater than 0, then points that are closer than
      * <code>sqrt(resolution2)</code> from previous one will be skiped.
      *
-     * @param  The destination array, wrapped in an array of type <code>float[][]</code>
-     *         of length 1. The coordinates will be filled in <code>array[0]</code>, which
-     *         may be expanded if needed.
-     * @param  offset The offset of the first element to fill in <code>array[0]</code>.
-     *         This element will contains the first <var>x</var> ordinate.
-     * @param  resolution2 The minimum squared distance desired between points.
-     * @return The index after the <code>array[0]</code>'s element
+     * @param  The destination array. The coordinates will be filled in
+     *         {@link ArrayData#array}, which will be expanded if needed.
+     *         After this method completed, {@link ArrayData#length} will
+     *         contains the index after the <code>array</code>'s element
      *         filled with the last <var>y</var> ordinate.
+     * @param  resolution2 The minimum squared distance desired between points.
      */
-    public final int toArray(final float[][] dest, final int offset, final float resolution2) {
+    public final void toArray(final ArrayData dest, final float resolution2) {
         if (!(resolution2 >= 0)) {
             throw new IllegalArgumentException(String.valueOf(resolution2));
         }
-        float[] copy = dest[0];
+        final int offset = dest.length;
+        float[]   copy   = dest.array;
         if (resolution2 == 0) {
             final int lower    = lower();
             final int length   = upper()-lower;
             final int capacity = offset + length;
             if (copy.length < capacity) {
-                dest[0] = copy = XArray.resize(copy, capacity);
+                dest.array = copy = XArray.resize(copy, capacity);
             }
             System.arraycopy(array, lower, copy, offset, length);
-            return capacity;
-        }
-        int src = lower();
-        int dst = offset;
-        final int upper = upper();
-        if (src < upper) {
-            if (copy.length <= dst) {
-                dest[0] = copy = XArray.resize(copy, capacity(src, dst, offset));
-            }
-            float lastX = copy[dst++] = array[src++];
-            float lastY = copy[dst++] = array[src++];
-            while (src < upper) {
-                final float  x  = array[src++];
-                final float  y  = array[src++];
-                final double dx = (double)x - (double)lastX;
-                final double dy = (double)y - (double)lastY;
-                if ((dx*dx + dy*dy) >= resolution2) {
-                    if (copy.length <= dst) {
-                        dest[0] = copy = XArray.resize(copy, capacity(src, dst, offset));
+            dest.length = capacity;
+        } else {
+            int src = lower();
+            int dst = offset;
+            final int upper = upper();
+            if (src < upper) {
+                if (copy.length <= dst) {
+                    dest.array = copy = XArray.resize(copy, capacity(src, dst, offset));
+                }
+                float lastX = copy[dst++] = array[src++];
+                float lastY = copy[dst++] = array[src++];
+                while (src < upper) {
+                    final float  x  = array[src++];
+                    final float  y  = array[src++];
+                    final double dx = (double)x - (double)lastX;
+                    final double dy = (double)y - (double)lastY;
+                    if ((dx*dx + dy*dy) >= resolution2) {
+                        if (copy.length <= dst) {
+                            dest.array = copy = XArray.resize(copy, capacity(src, dst, offset));
+                        }
+                        copy[dst++] = lastX = x;
+                        copy[dst++] = lastY = y;
                     }
-                    copy[dst++] = lastX = x;
-                    copy[dst++] = lastY = y;
                 }
             }
+            dest.length = dst;
         }
-        return dst;
+        assert dest.length <= dest.array.length;
     }
 }
