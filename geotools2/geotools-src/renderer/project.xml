@@ -57,6 +57,11 @@
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
     <dependency>
+      <id>opengis+css</id>
+      <version>0.1</version>
+      <url>http://www.opengis.org</url>
+    </dependency>
+    <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>0.1</version>
