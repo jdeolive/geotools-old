@@ -51,7 +51,7 @@ import java.awt.geom.AffineTransform;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.10 2003/02/26 12:04:03 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.11 2003/03/06 23:06:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -384,9 +384,10 @@ public final class CTSUtilities {
      * sera faite automatiquement. Cette chaîne sert surtout à des fins de déboguage et sa
      * forme peut varier.
      */
-    public static String toWGS84String(final CoordinateSystem cs, Rectangle2D bounds) {
+    public static String toWGS84String(CoordinateSystem cs, Rectangle2D bounds) {
         StringBuffer buffer = new StringBuffer();
         try {
+            cs = getCoordinateSystem2D(cs);
             if (!GeographicCoordinateSystem.WGS84.equals(cs, false)) {
                 final CoordinateTransformation tr = CoordinateTransformationFactory.getDefault().
                                createFromCoordinateSystems(cs, GeographicCoordinateSystem.WGS84);
