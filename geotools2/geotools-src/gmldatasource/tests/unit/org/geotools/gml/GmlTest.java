@@ -40,10 +40,15 @@ public class GmlTest extends TestCase {
         return suite;
     }
     
- 
+    
     public void testGMLDataSource()throws Exception{
         try{
             String dataFolder = System.getProperty("dataFolder");
+            if(dataFolder==null){
+                //then we are being run by maven
+                dataFolder = System.getProperty("basedir");
+                dataFolder+="/tests/unit/testData";
+            }
             URL url = new URL("file:///"+dataFolder+"/testGML7Features.gml");
             System.out.println("Testing ability to load "+url+" as Feature datasource");
             DataSource ds = new GMLDataSource(url);
@@ -57,13 +62,13 @@ public class GmlTest extends TestCase {
             
             //table.requestExtent(r);
             //try {
-                //fi = new SimpleIndex(table, "LONGITUDE");
-                
-                table.getFeatures(r);
-                
+            //fi = new SimpleIndex(table, "LONGITUDE");
+            
+            table.getFeatures(r);
+            
             //}catch(DataSourceException exp) {
-             //   System.out.println("Exception requesting Extent : "+exp.getClass().getName()+" : "+exp.getMessage());
-             //   exp.printStackTrace();
+            //   System.out.println("Exception requesting Extent : "+exp.getClass().getName()+" : "+exp.getMessage());
+            //   exp.printStackTrace();
             //}
             
             assertEquals(5,table.getFeatures().length);
@@ -81,6 +86,6 @@ public class GmlTest extends TestCase {
         }
     }
     
-
+    
     
 }
