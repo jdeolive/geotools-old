@@ -16,14 +16,12 @@
  */
 package org.geotools.data;
 
-import java.util.Set;
-
+import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureType;
 import org.geotools.filter.Filter;
-
-import com.vividsolutions.jts.geom.Envelope;
+import java.util.Set;
 
 
 /**
@@ -33,7 +31,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: DataSource.java,v 1.15 2003/08/06 18:11:24 desruisseaux Exp $
+ * @version $Id: DataSource.java,v 1.16 2003/09/04 22:45:58 cholmesny Exp $
  */
 public interface DataSource {
     /**
@@ -264,21 +262,6 @@ public interface DataSource {
     FeatureType getSchema() throws DataSourceException;
 
     /**
-     * Sets the schema that features extrated from this datasource will be
-     * created with.  This allows the user to obtain the attributes he wants,
-     * by calling getSchema and then creating a new schema using the
-     * attributeTypes from the currently used schema.
-     *
-     * @param schema the new schema to be used to create features.
-     *
-     * @throws DataSourceException if there are any errors.
-     *
-     * @deprecated Use the properties of the query object to accomplish the
-     *             same functionality.
-     */
-//    void setSchema(FeatureType schema) throws DataSourceException;
-
-    /**
      * Stops this DataSource from loading.
      *
      * @task REVISIT: this needs serious thought.  See geotools IRC from 5 may,
@@ -288,35 +271,15 @@ public interface DataSource {
 
     /**
      * Gets the bounding box of this datasource using the default speed of this
-     * datasource as set by the implementer.
+     * datasource as set by the implementor.  In order to determine if the
+     * datasource is able to return a bounds relatively quickly use {@link
+     * DataSourceMetaData.fastBbox()} to check if a quick bounds is possible.
      *
      * @return The bounding box of the datasource or null if unknown and too
      *         expensive for the method to calculate.
      *
      * @throws DataSourceException if there are errors getting the bounding
      *         box.
-     *
-     * @task REVISIT: Consider changing return of getBbox to Filter once
-     *       Filters can be unpacked
      */
     Envelope getBounds() throws DataSourceException;
-
-    /**
-     * Gets the bounding box of this datasource using the speed of this
-     * datasource as set by the parameter.
-     *
-     * @param speed If true then a quick (and possibly dirty) estimate of the
-     *        extent is returned. If false then a slow but accurate extent
-     *        will be returned
-     *
-     * @return The extent of the datasource or null if unknown and too
-     *         expensive for the method to calculate.
-     *
-     * @task REVISIT:Consider changing return of getBbox to Filter once Filters
-     *       can be unpacked
-     * @deprecated users can use <tt>DataSourceMetaData.fastBbox()</tt> to
-     *             check if the loading of the bounding box will take a long
-     *             time.
-     */
-//    Envelope getBbox(boolean speed);
 }
