@@ -28,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Implements a geometry filter.
  *
- * <p>This filter implements a relationship - of some sort - between two 
+ * <p>This filter implements a relationship - of some sort -  between two 
  * geometry expressions.
  *
  * Note that this comparison does not attempt to restict its expressions to be
@@ -44,7 +44,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilterImpl.java,v 1.5 2002/11/11 23:18:05 robhranac Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.6 2002/12/04 21:31:15 cholmesny Exp $
  * @author Rob Hranac, TOPP
  */
 public class GeometryFilterImpl 
