@@ -41,7 +41,7 @@ import java.util.logging.Level;
  * initialization. Current implementation just setup a custom logger for the
  * <code>"org.geotools"</code> package.
  *
- * @version $Id: Geotools.java,v 1.4 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: Geotools.java,v 1.5 2003/07/24 11:22:32 ianturton Exp $
  * @author Martin Desruisseaux
  */
 public final class Geotools {
@@ -69,6 +69,9 @@ public final class Geotools {
      */
     public static void init(final Level level) {
         final MonolineFormatter f = MonolineFormatter.init("org.geotools", level);
+        if(f == null){
+            throw new RuntimeException("Failed to get a monoline formatter");
+        }
         if (f.getSourceFormat() == null) {
             // Set the source format only if the user didn't specified
             // an explicit one in the jre/lib/logging.properties file.
