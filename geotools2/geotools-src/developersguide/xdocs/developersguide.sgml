@@ -14,7 +14,7 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/07/28 20:05:32 $</date>
+    <date>$Date: 2002/07/28 22:05:50 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -74,6 +74,35 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
           classes.</para>
         </listitem>
       </itemizedlist>
+      
+      <para>Within the core module the key packages are set out.  Each package contains interfaces
+      which define a major part of the functionality of GeoTools2.  Given the 
+      intention to follow the OGC standards wherever possible, many of the packages
+      relate to specific OGC specifications.</para>
+      
+      <itemizedlist>
+        <listitem>
+          <para><filename>data</filename></para>
+
+          <para>Contains the interface for DataSources.  Several GeoTools2 modules
+          provide implementations of this interface.  Examples include the
+          shapefile module, the postgis module and the gmldatasource module</para>
+          
+          <para>Developers familier with formats not yet supported are encurage to
+          write a module to provide access to it.</para>
+        </listitem>
+        
+        <listitem>
+          <para><filename>feature</filename></para>
+
+          <para>Provides interfaces for classes which represent OGC features.  The
+          defaultcore module provides a simple Flat implementation of the Feature interface.
+          A full implementation is still needed which supports complex nested Feature types.
+          </para>
+        </listitem>
+        
+        
+        
     </section>
 
     <section>
@@ -321,11 +350,11 @@ public class ThisClass {
         </listitem>
 
         <listitem>
-          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.23 2002/07/28 20:05:32 jmacgill Exp $</emphasis>.
+          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.24 2002/07/28 22:05:50 jmacgill Exp $</emphasis>.
           When you commit your file into CVS, this will be expanded to
           something like:</para>
 
-          <para>$Id: developersguide.sgml,v 1.23 2002/07/28 20:05:32 jmacgill Exp $</para>
+          <para>$Id: developersguide.sgml,v 1.24 2002/07/28 22:05:50 jmacgill Exp $</para>
         </listitem>
       </orderedlist>
     </section>
