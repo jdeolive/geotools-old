@@ -552,12 +552,12 @@ cvs tag -R r2_3_4</programlisting>
             <term>extend</term>
 
             <listitem>
-              <para>The &#60extend&#62 tag allows one project.xml file to 
+              <para>The &#60;extend&#62; tag allows one project.xml file to 
                 inherit items from another. Modules should extend the 
                 project.xml within the top level geotools2 directory. Also, the
                 path given to the other project.xml file mush begin with
                 ${basedir} in order for maven to find it. For example:
-                &#60extend&#62${basedir}/../../project.xml&#60extend&#62
+                &#60;extend&#62;${basedir}/../../project.xml&#60;extend&#62;
               </para>
             </listitem>
           </varlistentry>
@@ -1027,7 +1027,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.28 2003/03/28 15:52:26 crotwell Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.29 2003/03/28 16:14:06 crotwell Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
