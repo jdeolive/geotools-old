@@ -22,12 +22,12 @@
 <property file="build.ant.properties"/>
 
 <!-- Set base directories -->
-<property name="dir.root" value="../.."/>           
+<property name="dir.root" value="../.."/>            
 <property name="dir.module" value="."/>           
 
 <!-- Set common directories -->
 <property name="dir.source" value="${dir.module}/src"/>
-<property name="dir.test" value="${dir.module}/unit/test"/>
+<property name="dir.test" value="${dir.module}/tests/unit/"/>
 <property name="dir.external" value="${dir.root}/extbin/gtbuild/lib"/>
 
 <!-- Set all external library paths -->
@@ -71,7 +71,16 @@
   </condition>
   <condition property="cond.styleCheckToScreen" >
     <equals arg1="${checking}" arg2="screen"/>
-  </condition>                
+  </condition>
+  <condition property="tests.required">
+     <and>
+        <equals arg1="${testing}" arg2="true"/>
+        <not>
+            <equals arg1="${testsuite}" arg2="$${testsuite}"/>
+        </not>
+    </and>
+  </condition>
+  <echo message="tests.req ${tests.required} ${testing} ${testsuite}" />
 </target>
 
 
@@ -108,6 +117,7 @@
     <property name="releaseFolder" value="${releaseFolder}"/>
     <property name="lastBuildAttemptTime" value="${lastBuildAttemptTime}"/>
     <property name="checking" value="false"/>
+    <property name="testing" value="false"/>
   </forEach>
 </target>
     
@@ -153,16 +163,20 @@
 </target>
 
 <!-- Compiles all test code for the module. -->
-<target name="compile-test" depends="compile" if="testsuite">
-  <javac debug="true" 
-         srcdir="tests/unit/org" 
-         classpath="${dir.source}:${compile.path}"/>
+<target name="compile-test" depends="compile" if="tests.required">
+  <javac debug="true" srcdir="tests/unit/org" >
+    <classpath>
+      <path path="${dir.source}"/>
+      <path path="${dir.test}"/>
+      <path refid="compile.path"/>
+    </classpath>
+ </javac>
 </target>
 
 <!-- Runs the unit tests on the module, if any exist. -->
-<target name="test" depends="compile-test,checkstyle" if="testsuite">
-  <junit fork="true" printsummary="true">
-    <!--formatter type="plain"/ -->
+<target name="test" depends="compile-test,checkstyle" if="tests.required">
+  <junit fork="true" printsummary="true" haltOnFailure="true" >
+    <formatter type="plain"/>
     <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
     <classpath>
       <path path="${dir.source}"/>
@@ -198,7 +212,7 @@
 <!-- Cleans the module. -->
 <target name="clean" depends="init"> 
   <echo message="${project.name} cleaning src + ${releaseFolder}"/>
-  <delete>
+  <delete quiet="true">
     <fileset dir="src" includes="**/*.class"/>
     <fileset dir="${releaseFolder}/" includes="*.jar"/>            
   </delete>
@@ -228,5 +242,3 @@
     <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
   </modificationset>
 </target>
-
-
