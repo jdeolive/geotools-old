@@ -62,13 +62,12 @@ public class VPFDataSource implements DataSource {
     // Implementation of org.geotools.data.DataSource
 
     /**
-     * Describe <code><code>getFeatures</code></code> method here.
+     * Loads features from the datasource into the returned collection, based on
+     * the passed filter.
      *
-     * @param filter a <code><code>Filter</code></code> value
-     *
-     * @return a <code><code>FeatureCollection</code></code> value
-     *
-     * @exception DataSourceException if an error occurs
+     * @param filter An OpenGIS filter; specifies which features to retrieve.
+     * @return Collection The collection to put the features into.
+     * @throws DataSourceException For all data source errors.
      */
     public FeatureCollection getFeatures(Filter filter)
         throws DataSourceException {
@@ -79,41 +78,39 @@ public class VPFDataSource implements DataSource {
     }
 
     /**
-     * Describe <code><code>getFeatures</code></code> method here.
+     * Loads features from the datasource into the passed collection, based on
+     * the passed filter.  Note that all data sources must support this method
+     * at a minimum.
      *
-     * @param featureCollection a <code><code>FeatureCollection</code></code>
-     *        value
-     * @param filter a <code><code>Filter</code></code> value
-     *
-     * @exception DataSourceException if an error occurs
+     * @param featureCollection The collection to put the features into.
+     * @param filter An OpenGIS filter; specifies which features to retrieve.
+     * @throws DataSourceException For all data source errors.
      */
     public void getFeatures(FeatureCollection featureCollection,
                             Filter filter)
         throws DataSourceException {}
 
     /**
-     * Describe <code><code>addFeatures</code></code> method here.
+     * Adds all features from the passed feature collection to the datasource.
      *
-     * @param featureCollection a <code><code>FeatureCollection</code></code>
-     *        value
-     *
-     * @return DOCUMENT ME!
-     *
-     * @exception DataSourceException if an error occurs
+     * @param featureCollection The collection from which to add the features.
+     * @return the FeatureIds of the newly added features.
+     * @throws DataSourceException If anything goes wrong or if exporting is
+     * not supported.
      */
     public Set addFeatures(FeatureCollection featureCollection)
         throws DataSourceException {
-        throw new DataSourceException(
-            "Modification of features is not yet supported by this datasource"
+        throw new DataSourceException("Modification of features is not yet supported by this datasource"
         );
     }
 
     /**
-     * Describe <code><code>removeFeatures</code></code> method here.
+     * Removes all of the features specificed by the passed filter from the
+     * collection.
      *
-     * @param filter a <code><code>Filter</code></code> value
-     *
-     * @exception DataSourceException if an error occurs
+     * @param filter An OpenGIS filter; specifies which features to remove.
+     * @throws DataSourceException If anything goes wrong or if deleting is
+     * not supported.
      */
     public void removeFeatures(Filter filter) throws DataSourceException {
         throw new DataSourceException(
@@ -122,64 +119,69 @@ public class VPFDataSource implements DataSource {
     }
 
     /**
-     * Describe <code><code>modifyFeatures</code></code> method here.
+     * Modifies the passed attribute types with the passed objects in all
+     * features that correspond to the passed OGS filter.
      *
-     * @param attributeTypeArray an <code><code>AttributeType[]</code></code>
-     *        value
-     * @param objectArray an <code><code>Object[]</code></code> value
-     * @param filter a <code><code>Filter</code></code> value
-     *
-     * @exception DataSourceException if an error occurs
+     * @param attributeTypeArray The attributes to modify.
+     * @param objectArray The values to put in the attribute types.
+     * @param filter An OGC filter to note which attributes to modify.
+     * @throws DataSourceException If modificaton is not supported, if
+     * the attribute and object arrays are not eqaul length, or if the object
+     * types do not match the attribute types.
      */
-    public void modifyFeatures(
-        AttributeType[] attributeTypeArray,
-        Object[] objectArray,
-        Filter filter
-    ) throws DataSourceException {
-        throw new DataSourceException(
-            "Modification of features is not yet supported by this datasource"
+    public void modifyFeatures(AttributeType[] attributeTypeArray,
+                               Object[] objectArray, Filter filter
+                               ) throws DataSourceException {
+        throw new DataSourceException("Modification of features is not yet supported by this datasource"
         );
     }
 
     /**
-     * Describe <code><code>modifyFeatures</code></code> method here.
+     * Modifies the passed attribute types with the passed objects in all
+     * features that correspond to the passed OGS filter.  A convenience
+     * method for single attribute modifications.
      *
-     * @param attributeType an <code><code>AttributeType</code></code> value
-     * @param object an <code><code>Object</code></code> value
-     * @param filter a <code><code>Filter</code></code> value
-     *
-     * @exception DataSourceException if an error occurs
+     * @param attributeType The attributes to modify.
+     * @param object The values to put in the attribute types.
+     * @param filter An OGC filter to note which attributes to modify.
+     * @throws DataSourceException If modificaton is not supported, if
+     * the object type do not match the attribute type.
      */
-    public void modifyFeatures(
-        AttributeType attributeType,
-        Object object,
-        Filter filter
-    ) throws DataSourceException {
-        throw new DataSourceException(
-            "Modification of features is not yet supported by this datasource"
+    public void modifyFeatures(AttributeType attributeType,
+                               Object object, Filter filter
+                               ) throws DataSourceException {
+        throw new DataSourceException("Modification of features is not yet supported by this datasource"
         );
     }
 
     /**
-     * Describe <code><code>abortLoading</code></code> method here.
+     * Stops this DataSource from loading.
      */
     public void abortLoading() {}
 
     /**
-     * Describe <code><code>getBbox</code></code> method here.
+     * Gets the bounding box of this datasource using the speed of 
+     * this datasource as set by the parameter.
      *
-     * @param flag a <code><code>boolean</code></code> value
-     *
-     * @return an <code><code>Envelope</code></code> value
+     * @param flag If true then a quick (and possibly dirty) estimate of
+     * the extent is returned. If false then a slow but accurate extent
+     * will be returned
+     * @return The extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     * @task REVISIT:Consider changing return of getBbox to Filter once Filters can be unpacked
      */
     public Envelope getBbox(boolean flag) {
         return getBbox();
     }
 
     /**
-     * Describe <code><code>getBbox</code></code> method here.
+     * Gets the bounding box of this datasource using the default speed of 
+     * this datasource as set by the implementer. 
      *
-     * @return an <code><code>Envelope</code></code> value
+     * @return The bounding box of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     * @task REVISIT: Consider changing return of getBbox to Filter once Filters
+     * can be unpacked
      */
     public Envelope getBbox() {
         return new Envelope(dataBase.getMinX(), dataBase.getMaxX(),
@@ -210,11 +212,10 @@ public class VPFDataSource implements DataSource {
         throw new DataSourceException("multi transactions not supported");
     }
 
-    /**
-     * Data source utility methods.
-     *
-     * @return DOCUMENT ME!
-     */
+    /**************************************************
+      Data source utility methods.
+     **************************************************/
+
     /**
      * Gets the DatasSourceMetaData object associated with this datasource.
      * This is the preferred way to find out which of the possible datasource

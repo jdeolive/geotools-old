@@ -40,7 +40,7 @@ import java.util.List;
  * VPFInputStream.java Created: Mon Feb 24 22:39:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFInputStream.java,v 1.9 2003/04/04 14:33:06 kobit Exp $
+ * @version $Id: VPFInputStream.java,v 1.10 2003/04/11 12:36:25 kobit Exp $
  */
 public abstract class VPFInputStream implements FileConstants,
     DataTypesDefinition {
@@ -69,9 +69,9 @@ public abstract class VPFInputStream implements FileConstants,
         if (header.getRecordSize() < 0) {
             variableIndex =
                 new VariableIndexInputStream(
-                    getVariableIndexFileName(),
-                    getByteOrder()
-                );
+                                             getVariableIndexFileName(),
+                                             getByteOrder()
+                                             );
         }
 
         // end of if (header.getRecordSize() == -1)
@@ -86,9 +86,9 @@ public abstract class VPFInputStream implements FileConstants,
      * @throws IOException DOCUMENT ME!
      */
     public VPFInputStream(
-        String file,
-        char byteOrder
-    ) throws IOException {
+                          String file,
+                          char byteOrder
+                          ) throws IOException {
         this.streamFile = file;
         this.byteOrder = byteOrder;
         input = new RandomAccessFile(streamFile, accessMode);
@@ -239,10 +239,17 @@ public abstract class VPFInputStream implements FileConstants,
         return counter;
     }
 
-    public int readRows(
-        VPFRow[] rows,
-        int fromIndex
-    ) throws IOException {
+    public List readAllRows() throws IOException {
+        LinkedList list = new LinkedList();
+        VPFRow row = readRow();
+        while (row != null) {
+            list.add(row);
+            row = readRow();
+        }
+        return list;
+    }
+
+    public int readRows(VPFRow[] rows, int fromIndex) throws IOException {
         int counter = 0;
         setPosition(fromIndex);
 
@@ -295,110 +302,110 @@ public abstract class VPFInputStream implements FileConstants,
         Object result = null;
 
         switch (dataType) {
-        case DATA_TEXT:
-        case DATA_LEVEL1_TEXT:
-        case DATA_LEVEL2_TEXT:
-        case DATA_LEVEL3_TEXT:
+            case DATA_TEXT:
+            case DATA_LEVEL1_TEXT:
+            case DATA_LEVEL2_TEXT:
+            case DATA_LEVEL3_TEXT:
 
-            byte[] dataBytes =
-                new byte[instancesCount * DataUtils.getDataTypeSize(dataType)];
-            input.read(dataBytes);
+                byte[] dataBytes =
+                    new byte[instancesCount * DataUtils.getDataTypeSize(dataType)];
+                input.read(dataBytes);
 
-            result = DataUtils.decodeData(dataBytes, dataType);
+                result = DataUtils.decodeData(dataBytes, dataType);
 
-            break;
+                break;
 
-        case DATA_SHORT_FLOAT:
-            result = new Float(readFloat());
+            case DATA_SHORT_FLOAT:
+                result = new Float(readFloat());
 
-            break;
+                break;
 
-        case DATA_LONG_FLOAT:
-            result = new Double(readDouble());
+            case DATA_LONG_FLOAT:
+                result = new Double(readDouble());
 
-            break;
+                break;
 
-        case DATA_SHORT_INTEGER:
-            result = new Short(readShort());
+            case DATA_SHORT_INTEGER:
+                result = new Short(readShort());
 
-            break;
+                break;
 
-        case DATA_LONG_INTEGER:
-            result = new Integer(readInteger());
+            case DATA_LONG_INTEGER:
+                result = new Integer(readInteger());
 
-            break;
+                break;
 
-        case DATA_NULL_FIELD:
-            result = "NULL";
+            case DATA_NULL_FIELD:
+                result = "NULL";
 
-            break;
+                break;
 
-        case DATA_TRIPLET_ID:
+            case DATA_TRIPLET_ID:
 
-            byte tripletDef = (byte) input.read();
-            int dataSize = TripletId.calculateDataSize(tripletDef);
-            byte[] tripletData = new byte[dataSize + 1];
-            tripletData[0] = tripletDef;
+                byte tripletDef = (byte) input.read();
+                int dataSize = TripletId.calculateDataSize(tripletDef);
+                byte[] tripletData = new byte[dataSize + 1];
+                tripletData[0] = tripletDef;
 
-            if (dataSize > 0) {
-                input.read(tripletData, 1, dataSize);
+                if (dataSize > 0) {
+                    input.read(tripletData, 1, dataSize);
+                }
+                result = new TripletId(tripletData);
+
+                break;
+
+            case DATA_2_COORD_F: {
+                float[][] data = new float[instancesCount][2];
+
+                for (int i = 0; i < instancesCount; i++) {
+                    data[i][0] = readFloat();
+                    data[i][1] = readFloat();
+                }
+                result = new Coordinate2DFloat(data);
             }
-            result = new TripletId(tripletData);
 
-            break;
+                break;
 
-        case DATA_2_COORD_F: {
-            float[][] data = new float[instancesCount][2];
+            case DATA_2_COORD_R: {
+                double[][] data = new double[instancesCount][2];
 
-            for (int i = 0; i < instancesCount; i++) {
-                data[i][0] = readFloat();
-                data[i][1] = readFloat();
+                for (int i = 0; i < instancesCount; i++) {
+                    data[i][0] = readDouble();
+                    data[i][1] = readDouble();
+                }
+                result = new Coordinate2DDouble(data);
             }
-            result = new Coordinate2DFloat(data);
-        }
 
-        break;
+                break;
 
-        case DATA_2_COORD_R: {
-            double[][] data = new double[instancesCount][2];
+            case DATA_3_COORD_F: {
+                float[][] data = new float[instancesCount][3];
 
-            for (int i = 0; i < instancesCount; i++) {
-                data[i][0] = readDouble();
-                data[i][1] = readDouble();
+                for (int i = 0; i < instancesCount; i++) {
+                    data[i][0] = readFloat();
+                    data[i][1] = readFloat();
+                    data[i][2] = readFloat();
+                }
+                result = new Coordinate3DFloat(data);
             }
-            result = new Coordinate2DDouble(data);
-        }
 
-        break;
+                break;
 
-        case DATA_3_COORD_F: {
-            float[][] data = new float[instancesCount][3];
+            case DATA_3_COORD_R: {
+                double[][] data = new double[instancesCount][3];
 
-            for (int i = 0; i < instancesCount; i++) {
-                data[i][0] = readFloat();
-                data[i][1] = readFloat();
-                data[i][2] = readFloat();
+                for (int i = 0; i < instancesCount; i++) {
+                    data[i][0] = readDouble();
+                    data[i][1] = readDouble();
+                    data[i][2] = readDouble();
+                }
+                result = new Coordinate3DDouble(data);
             }
-            result = new Coordinate3DFloat(data);
-        }
 
-        break;
+                break;
 
-        case DATA_3_COORD_R: {
-            double[][] data = new double[instancesCount][3];
-
-            for (int i = 0; i < instancesCount; i++) {
-                data[i][0] = readDouble();
-                data[i][1] = readDouble();
-                data[i][2] = readDouble();
-            }
-            result = new Coordinate3DDouble(data);
-        }
-
-        break;
-
-        default:
-            break;
+            default:
+                break;
         } // end of switch (dataType)
 
         return result;

@@ -22,18 +22,21 @@ import org.geotools.vpf.ifc.FileConstants;
 import org.geotools.vpf.ifc.VPFLibraryIfc;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * Class <code>VPFDataBase</code> is responsible for 
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFDataBase.java,v 1.3 2003/04/04 14:33:03 kobit Exp $
+ * @version $Id: VPFDataBase.java,v 1.4 2003/04/11 12:36:24 kobit Exp $
  */
 public class VPFDataBase implements FileConstants {
-    TableRow dataBaseInfo = null;
-    TableRow[] libraries = null;
+
+    protected File directory = null;
+    protected TableRow dataBaseInfo = null;
+    protected TableRow[] libraries = null;
+    protected TableRow[][] coverages = null;
 
     /**
      * Creates a new <code><code>VPFDataBase</code></code> instance.
@@ -43,6 +46,7 @@ public class VPFDataBase implements FileConstants {
      */
     public VPFDataBase(File directory) throws IOException {
         // read data base header info
+        this.directory = directory;
         String vpfTableName =
             new File(directory, DATABASE_HEADER_TABLE).toString();
         TableInputStream vpfTable = new TableInputStream(vpfTableName);
@@ -52,17 +56,13 @@ public class VPFDataBase implements FileConstants {
         // read libraries info
         vpfTableName = new File(directory, LIBRARY_ATTTIBUTE_TABLE).toString();
         vpfTable = new TableInputStream(vpfTableName);
-
-        ArrayList al = new ArrayList();
-        TableRow tableRow = (TableRow) vpfTable.readRow();
-
-        while (tableRow != null) {
-            al.add(tableRow);
-            tableRow = (TableRow) vpfTable.readRow();
-        }
-
+        List list = vpfTable.readAllRows();
         vpfTable.close();
-        libraries = (TableRow[]) al.toArray(new TableRow[al.size()]);
+        libraries = (TableRow[]) list.toArray(new TableRow[list.size()]);
+        coverages = new TableRow[libraries.length][];
+        for (int i = 0; i < coverages.length; i++) {
+            coverages[i] = null;
+        }
     }
 
     public double getMinX() {
@@ -103,6 +103,25 @@ public class VPFDataBase implements FileConstants {
             ymax = Math.min(ymax, temp);
         }
         return ymax;
+    }
+
+    public TableRow[] getCoverages(int libId) throws IOException {
+        if (libId < 0 && libId >= coverages.length) {
+            return null;
+        }
+        if (coverages[libId] == null) {
+            String libCover =
+                libraries[libId].get(VPFLibraryIfc.FIELD_LIB_NAME).getAsString();
+            String vpfTableName =
+                new File(new File(directory, libCover),
+                         COVERAGE_ATTRIBUTE_TABLE).toString();
+            TableInputStream vpfTable = new TableInputStream(vpfTableName);
+            List list = vpfTable.readAllRows();
+            vpfTable.close();
+            coverages[libId] =
+                (TableRow[]) list.toArray(new TableRow[list.size()]);
+        }
+        return coverages[libId];
     }
 
     public static void main(String[] args) {

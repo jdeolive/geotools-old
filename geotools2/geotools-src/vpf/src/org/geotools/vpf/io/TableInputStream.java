@@ -44,7 +44,7 @@ import java.util.List;
  * Class <code>TableInputStream</code> implements
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: TableInputStream.java,v 1.16 2003/04/04 14:33:04 kobit Exp $
+ * @version $Id: TableInputStream.java,v 1.17 2003/04/11 12:36:25 kobit Exp $
  */
 public class TableInputStream extends VPFInputStream implements FileConstants,
     DataTypesDefinition {
@@ -87,12 +87,18 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
         byte[] fourBytes = new byte[4];
         int res = input.read(fourBytes);
         char order = readChar();
+        char ctrl = order;
 
+        if (order == VPF_RECORD_SEPARATOR) {
+            order = LITTLE_ENDIAN_ORDER;
+        } else {
+            ctrl = readChar();
+        }
+        
         if (order == LITTLE_ENDIAN_ORDER) {
             fourBytes = DataUtils.toBigEndian(fourBytes);
         }
         int length = DataUtils.decodeInt(fourBytes);
-        char ctrl = readChar();
 
         if (ctrl != VPF_RECORD_SEPARATOR) {
             throw new
@@ -136,7 +142,7 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
             throw new
                 VPFHeaderFormatException("Header format does not fit VPF file definition.");
         }
-        String elemStr = readString("" + VPF_ELEMENT_SEPARATOR);
+        String elemStr = readString("" + VPF_ELEMENT_SEPARATOR).trim();
 
         if (elemStr.equals("*")) {
             elemStr = "-1";
