@@ -43,8 +43,9 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.9 2002/12/20 00:08:00 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.10 2002/12/20 20:00:35 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
+ * @author Chris Holmes, TOPP
  */
 public class PostgisDataSource implements org.geotools.data.DataSource {
 
@@ -684,7 +685,68 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      */
     public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter)
         throws DataSourceException {
-        throw new DataSourceException("Operation not supported.");
+	if (type.length == value.length) {
+	    Feature[] featureArr;
+	    Object[] curAttributes;
+	    String sql = "";
+	    Object fidValue;
+	    String fid = null;
+	    String fidName = schema.getAttributeTypes()[0].getName();
+	    //check schema with filter???
+	    
+	    unpacker.unPackOR(filter);
+	    String whereStmt = null;
+	    Filter encodableFilter = unpacker.getSupported();
+	    Filter unEncodableFilter = unpacker.getUnSupported();
+	    
+	    try {
+		Connection dbConnection = db.getConnection();
+		Statement statement = dbConnection.createStatement();
+		
+		if (encodableFilter != null) {
+		    whereStmt = encoder.encode((AbstractFilter)encodableFilter);
+		    sql = makeModifySql(type, value, whereStmt);
+		    LOGGER.info("encoded modify is " + sql);
+		    statement.executeUpdate(sql);
+		}
+		
+		if (unEncodableFilter != null) {
+		    
+		    featureArr = getFeatures(unEncodableFilter).getFeatures();
+		    if (featureArr.length > 0) {
+			whereStmt = " WHERE "; 
+			for (int i = 0; i < featureArr.length; i++){
+			    //REVISIT: do away with id, 
+			    // and just query first attribute?
+			    fidValue = featureArr[i].getId();
+			    fid = addQuotes(fidValue);
+			    whereStmt += fidName + " = " + fid;
+			    
+			    if (i < featureArr.length - 1) {
+			    whereStmt += " OR ";
+			}	
+		    }
+		    sql = makeModifySql(type, value, whereStmt);
+		    
+		    LOGGER.info("unencoded modify is " + sql);
+		    statement.executeUpdate(sql);
+		}
+            }
+
+       
+	    statement.close();
+	    dbConnection.close();    
+        } catch (SQLException e) {
+              LOGGER.fine("Error with sql " + e.getMessage());
+        } catch (SQLEncoderException e) {
+	    LOGGER.fine("error encoding sql from filter " + e.getMessage());
+	}
+
+
+
+	} else {
+	    throw new DataSourceException("Operation not supported.");
+	}
     }
     
     /**
@@ -700,61 +762,10 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      */
     public void modifyFeatures(AttributeType type, Object value, Filter filter)
         throws DataSourceException {
-	Feature[] featureArr;
-        Object[] curAttributes;
-        String sql = "";
-	Object fidValue;
-        String fid = null;
-	String fidName = schema.getAttributeTypes()[0].getName();
-	//check schema with filter???
-
-	unpacker.unPackOR(filter);
-	String whereStmt = null;
-	Filter encodableFilter = unpacker.getSupported();
-	Filter unEncodableFilter = unpacker.getUnSupported();
+	AttributeType[] singleType = {type};
+	Object[] singleVal = {value};
+	modifyFeatures(singleType, singleVal, filter);
 	
-	try {
-	    Connection dbConnection = db.getConnection();
-            Statement statement = dbConnection.createStatement();
-	    
-	    if (encodableFilter != null) {
-		whereStmt = encoder.encode((AbstractFilter)encodableFilter);
-		sql = makeModifySql(type, value, whereStmt);
-		//LOGGER.info("encoded modify is " + sql);
-		statement.executeUpdate(sql);
-	    }
-	    
-	    if (unEncodableFilter != null) {
-		
-		featureArr = getFeatures(unEncodableFilter).getFeatures();
-		if (featureArr.length > 0) {
-		   whereStmt = " WHERE "; 
-		    for (int i = 0; i < featureArr.length; i++){
-			//REVISIT: do away with id, just query first attribute?
-			fidValue = featureArr[i].getId();
-			fid = addQuotes(fidValue);
-			whereStmt += fidName + " = " + fid;
-
-			if (i < featureArr.length - 1) {
-			    whereStmt += " OR ";
-			}	
-		    }
-		    sql = makeModifySql(type, value, whereStmt);
-		    
-		    statement.executeUpdate(sql);
-		}
-            }
-
-       
-	    statement.close();
-	    dbConnection.close();    
-        } catch (SQLException e) {
-              LOGGER.fine("Error with sql " + e.getMessage());
-        } catch (SQLEncoderException e) {
-	    LOGGER.fine("error encoding sql from filter " + e.getMessage());
-	}
-
-
     }
 
         /**
@@ -765,23 +776,35 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * @param feature the feature to update.
      * @return an update sql statement.
      */ 
-    private String makeModifySql(AttributeType type, 
-				 Object value, String whereStmt){
-        String sql;
-        String newValue;  
-	if (Geometry.class.isAssignableFrom(type.getType())) {
-	    //create the text to add geometry
-	    String geoText =  geometryWriter.write((Geometry)value);
-	    newValue = "GeometryFromText('" + geoText + "', " + srid + ")"; 
-	} else {
+    private String makeModifySql(AttributeType[] types, 
+				 Object[] values, String whereStmt) 
+	throws DataSourceException {
+	int arrLength = types.length;
+	if (arrLength == values.length) {
+	    StringBuffer sqlStatement = new StringBuffer("UPDATE ");
+	    sqlStatement.append(tableName + " SET ");
+	    for (int i = 0; i < arrLength; i++) {
+		AttributeType curType = types[i];
+		Object curValue = values[i];
+		String newValue;  
+		if (Geometry.class.isAssignableFrom(curType.getType())) {
+		    //create the text to add geometry
+		    String geoText =  geometryWriter.write((Geometry)curValue);
+		    newValue = "GeometryFromText('" + geoText + "', " + srid + ")"; 
+		} else {
 	    //or add quotes, covers rest of cases
-	    newValue = addQuotes(value); 
+		    newValue = addQuotes(curValue); 
+		}
+		sqlStatement.append(curType.getName() + " = " + newValue);
+		sqlStatement.append((i < arrLength - 1) ? ", " : " ");
+	        
+	    }
+	    sqlStatement.append(whereStmt + ";");
+        return sqlStatement.toString();
+	} else {
+	    throw new DataSourceException("length of value array is not " + 
+					  "same length as type array");
 	}
-        //TODO error checking to make sure type matches schema
-        sql = "UPDATE " + tableName + " SET " + 
-            type.getName() + " = " + newValue + " " + whereStmt + ";";
-	
-        return sql;
     }
 
 
