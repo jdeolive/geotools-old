@@ -32,9 +32,11 @@ public interface ResourceKeys
     public static final int DEFAULT_VALUE                        =     7;
     public static final int FILE_$1                              =     8;
     public static final int FILE_POSITION_$2                     =     9;
+    public static final int GEOPHYSICS                           =    61;
     public static final int GRAY                                 =    10;
     public static final int GREEN                                =    11;
     public static final int HUE                                  =    12;
+    public static final int INDEXED                              =    62;
     public static final int LIGHTNESS                            =    13;
     public static final int LINE_$1                              =    14;
     public static final int MAGENTA                              =    15;
