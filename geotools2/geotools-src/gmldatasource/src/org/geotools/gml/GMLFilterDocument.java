@@ -22,6 +22,8 @@ package org.geotools.gml;
 
 import org.xml.sax.SAXException;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -38,10 +40,13 @@ import java.util.StringTokenizer;
  * including handling different delimiters (decimal, coordinate, tuple)
  * that may be used by more outlandish GML generators.<p>
  *
- * @version $Id: GMLFilterDocument.java,v 1.8 2003/03/14 16:52:33 jmacgill Exp $
+ * @version $Id: GMLFilterDocument.java,v 1.9 2003/08/10 16:00:45 dledmonds Exp $
  * @author Rob Hranac, Vision for New York 
  */
 public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
+
+    /** The logger for the GML module */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
     
     /** Added by Sean Geoghegan to store character data chunks */
     private StringBuffer buffer = new StringBuffer();
@@ -88,7 +93,9 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
      */
     public GMLFilterDocument(GMLHandlerGeometry parent) {
         super();
+        LOGGER.entering("GMLFilterDocument", "new", parent);
         this.parent = parent;
+        LOGGER.exiting("GMLFilterDocument", "new" );
     }
     
     
@@ -112,6 +119,9 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
      */
     public void startElement(String namespaceURI, String localName, 
         String qName, org.xml.sax.Attributes atts) throws SAXException {
+        
+        LOGGER.entering("GMLFilterDocument", "startElement",
+        new Object[]{namespaceURI, localName, qName, atts});
         
         /* if at a GML element, do some checks to determine
          * how to handle the element
@@ -145,6 +155,7 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
              */
             parent.startElement(namespaceURI, localName, qName, atts);
         }
+        LOGGER.exiting("GMLFilterDocument", "startElement");
     }
     
     
@@ -157,16 +168,19 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
      * <p>Modified by Sean Geoghegan to append character data to
      * buffer when inside a coordinate or coord element.  SAX doesn't
      * guarentee that all the character data of an element will be passed to the
-     * character method in one call, it may be split up into to chunks.
+     * character method in one call, it may be split up into chunks.
      * 
      * @param ch Raw coordinate string from the GML document.
      * @param start Beginning character position of raw coordinate string.
      * @param length Length of the character string.
+     *
      * @throws SAXException Some parsing error occurred while
      * reading coordinates.
      */
     public void characters(char[] ch, int start, int length)
     throws SAXException {
+        LOGGER.entering("GMLFilterDocument", "characters",
+        new Object[]{ch, new Integer(start), new Integer(length)});
         
         /* the methods here read in both coordinates and coords and
          * take the grunt-work out of this task for geometry handlers
@@ -189,7 +203,7 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
              */
             parent.characters(ch, start, length);
         }
-        
+        LOGGER.exiting("GMLFilterDocument", "characters");
     }
     
     
@@ -212,6 +226,8 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
      */
     public void endElement(String namespaceURI, String localName, String qName)
     throws SAXException {
+        LOGGER.entering("GMLFilterDocument", "endElement",
+        new Object[]{namespaceURI, localName, qName});
         
         /* if leaving a GML element, handle and pass to appropriate 
          * internal or external method
@@ -252,6 +268,7 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
              */
             parent.endElement(namespaceURI, localName, qName);
         }
+        LOGGER.exiting("GMLFilterDocument", "endElement");
     }
     
     
@@ -314,7 +331,6 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
         
         /**
          * Empty constructor.
-         *
          */
         public CoordinateReader() {}
         
