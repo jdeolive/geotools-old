@@ -42,6 +42,7 @@ import org.geotools.resources.cts.ResourceKeys;
 // Miscellaneous
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
 
 
 /**
@@ -50,7 +51,7 @@ import java.awt.geom.Rectangle2D;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.8 2003/01/30 23:33:49 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.9 2003/02/23 21:26:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -298,7 +299,11 @@ public final class CTSUtilities {
      *         and <code>source</code> was null.
      * @throws TransformException if a transform failed.
      */
-    public static Rectangle2D transform(final MathTransform2D transform, final Rectangle2D source, final Rectangle2D dest) throws TransformException {
+    public static Rectangle2D transform(final MathTransform2D transform,
+                                        final Rectangle2D     source,
+                                        final Rectangle2D     dest)
+            throws TransformException
+    {
         if (source==null) {
             return null;
         }
@@ -334,6 +339,44 @@ public final class CTSUtilities {
             return dest;
         }
         return new XRectangle2D(xmin, ymin, xmax-xmin, ymax-ymin);
+    }
+
+    /**
+     * Transforms the relative distance vector specified by <code>source</code> and stores
+     * the result in <code>dest</code>.  A relative distance vector is transformed without
+     * applying the translation components.
+     *
+     * @param transform The transform to apply.
+     * @param origin The position where to compute the delta transform in the source CS.
+     * @param source The distance vector to be delta transformed
+     * @param dest   The resulting transformed distance vector, or <code>null</code>
+     * @return       The result of the transformation.
+     * @throws TransformException if the transformation failed.
+     *
+     * @see AffineTransform#deltaTransform(Point2D,Point2D)
+     */
+    public static Point2D deltaTransform(final MathTransform2D transform,
+                                         final Point2D         origin,
+                                         final Point2D         source,
+                                               Point2D         dest)
+            throws TransformException
+    {
+        if (transform instanceof AffineTransform) {
+            return ((AffineTransform) transform).deltaTransform(source, dest);
+        }
+        final double ox = origin.getX();
+        final double oy = origin.getY();
+        final double dx = source.getX()*0.5;
+        final double dy = source.getY()*0.5;
+        Point2D P1 = new Point2D.Double(ox-dx, oy-dy);
+        Point2D P2 = new Point2D.Double(ox+dx, oy+dy);
+        P1 = transform.transform(P1, P1);
+        P2 = transform.transform(P2, P2);
+        if (dest == null) {
+            dest = P2;
+        }
+        dest.setLocation(P2.getX()-P1.getX(), P2.getY()-P1.getY());
+        return dest;
     }
     
     /**
