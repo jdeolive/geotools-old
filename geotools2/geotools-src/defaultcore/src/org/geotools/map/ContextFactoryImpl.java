@@ -52,7 +52,7 @@ public class ContextFactoryImpl extends ContextFactory {
     public Context createContext(
         BoundingBox bbox,
         LayerList layerList,
-        SelectedTool selectedTool,
+        ToolList selectedTool,
         String title,
         String _abstract,
         String[] keywords,
@@ -96,8 +96,8 @@ public class ContextFactoryImpl extends ContextFactory {
      * @param tool The selected tool.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public SelectedTool createSelectedTool(Tool tool) throws IllegalArgumentException
+    public ToolList createSelectedTool(Tool tool) throws IllegalArgumentException
     {
-        return new SelectedToolImpl(tool);
+        return new ToolListImpl(tool);
     }
 }

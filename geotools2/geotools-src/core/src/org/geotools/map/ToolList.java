@@ -27,11 +27,11 @@ import org.geotools.map.events.SelectedToolListener;
 
 /**
  * The tool which will process mouse events on a MapPane.
- * @version $Id: SelectedTool.java,v 1.3 2003/03/29 22:32:55 camerons Exp $
+ * @version $Id: ToolList.java,v 1.1 2003/03/29 23:02:27 camerons Exp $
  * @author  Cameron Shorter
  */
 
-public interface SelectedTool {
+public interface ToolList {
 
     /**
      * Register interest in being called when Tool changes.

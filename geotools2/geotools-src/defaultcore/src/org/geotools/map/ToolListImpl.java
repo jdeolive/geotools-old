@@ -28,11 +28,11 @@ import org.geotools.map.events.SelectedToolListener;
 
 /**
  * The tool which will process mouse events on a MapPane.
- * @version $Id: SelectedToolImpl.java,v 1.8 2003/03/29 22:32:55 camerons Exp $
+ * @version $Id: ToolListImpl.java,v 1.1 2003/03/29 23:02:31 camerons Exp $
  * @author  Cameron Shorter
  */
 
-public class SelectedToolImpl implements SelectedTool
+public class ToolListImpl implements ToolList
 {
 
     /**
@@ -47,7 +47,7 @@ public class SelectedToolImpl implements SelectedTool
      * Creates a new instance of SelectedTool.
      * @param tool The selected tool.
      */
-    protected SelectedToolImpl(Tool tool)
+    protected ToolListImpl(Tool tool)
         throws IllegalArgumentException
     {
         this.tool=tool;

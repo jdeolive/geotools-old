@@ -51,7 +51,7 @@ import org.geotools.map.Context;
 import org.geotools.map.ContextFactory;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
-import org.geotools.map.SelectedTool;
+import org.geotools.map.ToolList;
 import org.geotools.styling.SLDStyle;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
@@ -61,7 +61,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.7 2003/03/29 22:50:49 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.8 2003/03/29 23:02:31 camerons Exp $
  *
  */
 
@@ -135,7 +135,7 @@ public class MapViewer {
             tool=toolFactory.createPanTool();
             
             // Create SelectedTool
-            SelectedTool selectedTool=contextFactory.createSelectedTool(
+            ToolList selectedTool=contextFactory.createSelectedTool(
                 tool);
 
             // Create a Context

@@ -95,7 +95,7 @@ public abstract class ContextFactory {
     public abstract Context createContext(
         BoundingBox bbox,
         LayerList layerList,
-        SelectedTool selectedTool,
+        ToolList selectedTool,
         String title,
         String _abstract,
         String[] keywords,
@@ -122,6 +122,6 @@ public abstract class ContextFactory {
      * @param tool The selected tool.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public abstract SelectedTool createSelectedTool(Tool tool)
+    public abstract ToolList createSelectedTool(Tool tool)
         throws IllegalArgumentException;
 }
