@@ -27,7 +27,7 @@ import java.math.*;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.11 2003/09/02 18:37:29 ianschneider Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.12 2003/09/10 17:29:56 ianschneider Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -402,6 +402,53 @@ public class DefaultAttributeType implements AttributeType {
                 throw new IllegalArgumentException(
                     "Not correct FeatureType, expected " + featureType
                     + " got " + att.getFeatureType());
+            }
+        }
+    }
+    
+    static class Textual extends DefaultAttributeType {
+        public Textual (String name, boolean nillable) {
+            super(name,CharSequence.class,nillable);
+        }
+        public Object parse(Object value) throws IllegalArgumentException {
+            if (value == null) 
+                return value;
+            
+            // string is immutable, so lets keep it
+            if (value instanceof String)
+                return value;
+            
+            // other char sequences are not mutable, create a String from it.
+            // this also covers any other cases...
+            return value.toString();
+        }
+    }
+    
+    static class Temporal extends DefaultAttributeType {
+        // this might be right, maybe not, but anyway, its a default formatting
+        static java.text.DateFormat format = java.text.DateFormat.getInstance();
+        public Temporal (String name, boolean nillable) {
+            super(name, java.util.Date.class, nillable);
+        }
+        public Object parse(Object value) throws IllegalArgumentException {
+            if (value == null)
+                return value;
+            
+            if (type.isAssignableFrom(value.getClass()))
+                return value;
+            
+            if (value instanceof Number) {
+                return new java.util.Date( ((Number)value).longValue() );
+            }
+            
+            if (value instanceof java.util.Calendar) {
+                return ((java.util.Calendar) value).getTime();
+            }
+            
+            try {
+                return format.parse(value.toString());
+            } catch (java.text.ParseException pe) {
+                throw new IllegalArgumentException("unable to parse " + value + " as Date");   
             }
         }
     }

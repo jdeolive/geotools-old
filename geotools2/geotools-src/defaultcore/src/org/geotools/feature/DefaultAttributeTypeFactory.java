@@ -20,7 +20,7 @@ package org.geotools.feature;
  * Factory for creating DefaultAttributeTypes.
  *
  * @author Ian Schneider
- * @version $Id: DefaultAttributeTypeFactory.java,v 1.3 2003/07/22 18:26:06 cholmesny Exp $
+ * @version $Id: DefaultAttributeTypeFactory.java,v 1.4 2003/09/10 17:29:56 ianschneider Exp $
  */
 public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
     /**
@@ -36,7 +36,12 @@ public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
         boolean isNillable) {
         if (Number.class.isAssignableFrom(clazz)) {
             return new DefaultAttributeType.Numeric(name, clazz, isNillable);
+        } else if (CharSequence.class.isAssignableFrom(clazz)) {
+            return new DefaultAttributeType.Textual(name,isNillable);
+        } else if (java.util.Date.class.isAssignableFrom(clazz)) {
+            return new DefaultAttributeType.Temporal(name,isNillable);
         }
+            
 
         return new DefaultAttributeType(name, clazz, isNillable);
     }
