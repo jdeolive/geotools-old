@@ -84,7 +84,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.3 2002/07/31 10:19:29 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.4 2002/10/07 15:09:44 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -884,24 +884,37 @@ public class CoordinateTransformationFactory {
             throw e;
         }
         assert !Arrays.equals(sourceAxis, targetAxis) || matrix.isIdentity();
-        
-        // Convert units (Optimized case where the conversion
-        // can be applied right into the AffineTransform).
-        final int dimension = matrix.getNumRow()-1;
-        assert dimension == matrix.getNumCol()-1;
-        for (int i=0; i<dimension; i++) {
-            // TODO: check if units conversion is really linear.
-            //       We use here a temporary patch, just checking DMS unit.
-            final Unit sourceUnit = sourceCS.getUnits(i);
-            final Unit targetUnit = targetCS.getUnits(i);
-            if (sourceUnit==Unit.DMS || targetUnit==Unit.DMS) {
-                // We should create an UnitTransform object instead.
-                throw new org.geotools.units.UnitException("Not implemented");
+        /*
+         * Convert units. We multiply 
+         */
+        final int sourceDim = matrix.getNumCol()-1;
+        final int targetDim = matrix.getNumRow()-1;
+        for (int j=0; j<targetDim; j++) {
+            final Unit targetUnit = targetCS.getUnits(j);
+            for (int i=0; i<sourceDim; i++) {
+                final double element = matrix.getElement(j,i);
+                if (element == 0) {
+                    // There is no dependency between source[i] and target[j]
+                    // (i.e. axis are orthogonal).
+                    continue;
+                }
+                final Unit sourceUnit = sourceCS.getUnits(i);
+                if (Utilities.equals(sourceUnit, targetUnit)) {
+                    // There is no units conversion to apply
+                    // between source[i] and target[j].
+                    continue;
+                }
+                // TODO: check if units conversion is really linear. We
+                //       use here a temporary patch, just checking DMS unit.
+                if (sourceUnit==Unit.DMS || targetUnit==Unit.DMS) {
+                    // We should create an UnitTransform object instead.
+                    throw new org.geotools.units.UnitException("Not implemented");
+                }
+                final double offset = targetUnit.convert(0, sourceUnit);
+                final double scale  = targetUnit.convert(1, sourceUnit)-offset;
+                matrix.setElement(j,i, scale*element);
+                matrix.setElement(j,sourceDim, matrix.getElement(j,sourceDim)+offset);
             }
-            final double offset = targetUnit.convert(0, sourceUnit);
-            final double scale  = targetUnit.convert(1, sourceUnit)-offset;
-            matrix.setElement(i,i,         scale*matrix.getElement(i,i));
-            matrix.setElement(i,dimension, scale*matrix.getElement(i,dimension)+offset);
         }
         return matrix;
     }
