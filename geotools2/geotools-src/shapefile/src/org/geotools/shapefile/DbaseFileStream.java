@@ -25,6 +25,7 @@ package org.geotools.shapefile;
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
+import java.util.logging.Logger;
 
 import org.geotools.feature.*;
 
@@ -40,6 +41,8 @@ abstract class DbaseFileStream {
     
     // header
     protected DbaseFileHeader myHeader = null;
+    
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.shapefile");
     
     // Convenient place to store the field names and types.
     protected String[] myFieldNames = null;
@@ -115,7 +118,8 @@ abstract class DbaseFileStream {
             // save off the field names
             myFieldNames = new String[myHeader.getNumFields()];
             for (int i=0; i<myHeader.getNumFields(); i++) {
-                myFieldNames[i] = myHeader.getFieldName(i).trim();
+                String name = myHeader.getFieldName(i);
+                myFieldNames[i] = name.trim();
             }
         }
         

@@ -319,7 +319,12 @@ public class DbaseFileHeader {
             // read the field name
             byte[] buffer = new byte[11];
             in.readFully(buffer);
-            myFieldDescriptions[i].myFieldName = new String(buffer);
+            String name = new String(buffer);
+            int nullPoint = name.indexOf(0);
+            if(nullPoint != -1){
+                name = name.substring(0,nullPoint);
+            }
+            myFieldDescriptions[i].myFieldName = name;
             
             // read the field type
             myFieldDescriptions[i].myFieldType = (char) in.readByte();

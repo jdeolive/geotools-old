@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * <b>"ESRI(r) Shapefile - A Technical Description"</b><br>
  * <i>'An ESRI White Paper. May 1997'</i></a><p>
  *
- * @version $Id: Shapefile.java,v 1.15 2002/09/03 15:53:07 jmacgill Exp $
+ * @version $Id: Shapefile.java,v 1.16 2002/09/04 16:19:20 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class Shapefile {
@@ -88,9 +88,6 @@ public class Shapefile {
 
         try {
             baseURL = new URL(url, filename + shpext);
-
-            URL dbfURL = new URL(url, filename + dbfext);
-            LOGGER.fine("dbf url constructed as " + dbfURL);
         } catch (MalformedURLException mue) {
             LOGGER.warning("Unable to construct URL for shapefile " + mue);
         }

@@ -61,6 +61,8 @@ public class DbaseFileReader extends DbaseFileStream {
         readHeader();
     }
     
+    
+    
     /**
      * Reads the dbase header record
      */

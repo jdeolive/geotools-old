@@ -20,17 +20,17 @@
 
 package org.geotools.shapefile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.io.*;
+import org.geotools.data.DataSourceException;
+import org.geotools.feature.AttributeType;
+import org.geotools.filter.Filter;
 
-import org.geotools.data.*;
-import org.geotools.feature.*;
-import org.geotools.filter.*;
-import com.vividsolutions.jts.geom.*;
+import java.net.URL;
+import java.io.IOException;
+import java.util.logging.Logger;
+
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.15 2002/08/29 16:05:51 jmacgill Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.16 2002/09/04 16:19:20 jmacgill Exp $
  * @author James Macgill, CCG
  * @task TODO: add support for reading dbf file
  * @task TODO: add support for the optional spatial index files to improve
@@ -44,12 +44,53 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     
     private DbaseFileReader dbf;
     
-    /** Creates a new instance of ShapefileDataSource. */
+    /**
+     * The logger for this module.
+     */
+    private static final Logger LOGGER = Logger.getLogger(
+    "org.geotools.shapefile");
+    
+    /**
+     *
+     */
+    public ShapefileDataSource(java.net.URL url) {
+        try {
+            String filename = java.net.URLDecoder.decode(url.getFile(),"UTF-8");
+            LOGGER.fine("filename part of shapefile is " + filename);
+            
+            String shpext = ".shp";
+            String dbfext = ".dbf";
+            
+            if (filename.endsWith(".shp") || filename.endsWith(".dbf") ||
+            filename.endsWith(".shx")) {
+                filename = filename.substring(0, filename.length() - 4);
+            }
+            
+            
+            URL shpURL = new URL(url, filename + shpext);
+            
+            URL dbfURL = new URL(url, filename + dbfext);
+            shapefile = new Shapefile(shpURL);
+            dbf = new DbaseFileReader(dbfURL.getFile());
+            LOGGER.fine("dbf url constructed as " + dbfURL);
+        } catch (Exception ioe) {
+            LOGGER.warning("Unable to construct URL for shapefile " + ioe);
+        }
+        
+        
+    }
+    
+    /** Creates a new instance of ShapefileDataSource.
+     * @deprecated Use URL constructor instead.
+     */
     public ShapefileDataSource(Shapefile shapefile) {
         this.shapefile = shapefile;
     }
     
-    /** Creates a new instance of ShapefileDataSource. */
+    /**
+     * Creates a new instance of ShapefileDataSource.
+     * @deprecated Use URL constructor instead.
+     */
     public ShapefileDataSource(Shapefile shapefile,DbaseFileReader dbf) {
         this.shapefile = shapefile;
         this.dbf = dbf;
@@ -78,7 +119,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
      * not supported.
      * @task TODO: Implement addFeatures method
      */
-    public void addFeatures(FeatureCollection collection) throws DataSourceException {
+    public void addFeatures(org.geotools.feature.FeatureCollection collection) throws DataSourceException {
         throw new DataSourceException("Removal of features is not yet supported by this datasource");
     }
     
@@ -88,7 +129,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
      * @return The bounding box of the datasource or null if unknown and too
      * expensive for the method to calculate.
      */
-    public Envelope getBbox() {
+    public com.vividsolutions.jts.geom.Envelope getBbox() {
         return shapefile.getBounds();
     }
     
@@ -101,7 +142,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
      * @return The extent of the datasource or null if unknown and too
      * expensive for the method to calculate.
      */
-    public Envelope getBbox(boolean speed) {
+    public com.vividsolutions.jts.geom.Envelope getBbox(boolean speed) {
         return getBbox();
     }
     
@@ -113,8 +154,8 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
      * @return Collection The collection to put the features into.
      * @throws DataSourceException For all data source errors.
      */
-    public FeatureCollection getFeatures(Filter filter) throws DataSourceException {
-        FeatureCollectionDefault fc = new FeatureCollectionDefault();
+    public org.geotools.feature.FeatureCollection getFeatures(Filter filter) throws DataSourceException {
+        org.geotools.feature.FeatureCollectionDefault fc = new org.geotools.feature.FeatureCollectionDefault();
         getFeatures(fc, filter);
         return fc;
     }
@@ -128,29 +169,32 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
      * @param filter An OpenGIS filter; specifies which features to retrieve.
      * @throws DataSourceException For all data source errors.
      */
-    public void getFeatures(FeatureCollection collection, Filter filter) throws DataSourceException {
+    public void getFeatures(org.geotools.feature.FeatureCollection collection, Filter filter) throws DataSourceException {
+        LOGGER.entering("ShapefileDataSource","getFeatures");
         try {
-            GeometryCollection shapes = shapefile.read(new GeometryFactory());
-            List features = new ArrayList();
-            Geometry typical = shapes.getGeometryN(0);
-            AttributeType geometryAttribute = new AttributeTypeDefault(Shapefile.getShapeTypeDescription(Shapefile.getShapeType(typical)), Geometry.class);
-            FeatureType shapefileType;
+            com.vividsolutions.jts.geom.GeometryCollection shapes = shapefile.read(new com.vividsolutions.jts.geom.GeometryFactory());
+            java.util.List features = new java.util.ArrayList();
+            com.vividsolutions.jts.geom.Geometry typical = shapes.getGeometryN(0);
+            AttributeType geometryAttribute = new org.geotools.feature.AttributeTypeDefault(Shapefile.getShapeTypeDescription(Shapefile.getShapeType(typical)), com.vividsolutions.jts.geom.Geometry.class);
+            org.geotools.feature.FeatureType shapefileType;
             if(dbf != null) {
-                ArrayList attribs = dbf.getFieldTypes();
+                LOGGER.fine("Reading from dbf");
+                java.util.ArrayList attribs = dbf.getFieldTypes();
                 attribs.add(0,geometryAttribute);
                 AttributeType[] types = (AttributeType[])attribs.toArray(new AttributeType[0]);
                 try{
-                    shapefileType = new FeatureTypeFlat(types);
+                    shapefileType = new org.geotools.feature.FeatureTypeFlat(types);
                 }
-                catch(SchemaException se){
+                catch(org.geotools.feature.SchemaException se){
                     throw new DataSourceException(se.getMessage());
                 }
             }
             else {
-                shapefileType = new FeatureTypeFlat(geometryAttribute);
+                shapefileType = new org.geotools.feature.FeatureTypeFlat(geometryAttribute);
             }
             //System.out.println("schema is " + shapefileType);
-            FeatureFactory fac = new FeatureFactory(shapefileType);
+            LOGGER.fine("Schema is " + shapefileType);
+            org.geotools.feature.FeatureFactory fac = new org.geotools.feature.FeatureFactory(shapefileType);
             int count = shapes.getNumGeometries();
             //Feature[] features = new Feature[count];
             for (int i = 0; i < count; i++){
@@ -160,27 +204,27 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
                 }
                 else {
                     row = new Object[dbf.getFieldNames().length+1]; //+1 for geomety
-                    ArrayList values = dbf.read();
+                    java.util.ArrayList values = dbf.read();
                     System.arraycopy(values.toArray(),0,row,1,dbf.getFieldNames().length);
                 }
-                row[0] = (Geometry) shapes.getGeometryN(i);
+                row[0] = (com.vividsolutions.jts.geom.Geometry) shapes.getGeometryN(i);
                 //System.out.println("adding geometry" + row[0]);
-                Feature feature = fac.create(row);
+                org.geotools.feature.Feature feature = fac.create(row);
                 if (filter.contains(feature)){
-                    collection.addFeatures(new Feature[]{feature});
+                    collection.addFeatures(new org.geotools.feature.Feature[]{feature});
                 }
             }
         }
-        catch (IOException ioe){
+        catch (java.io.IOException ioe){
             throw new DataSourceException("IO Exception loading data : " + ioe.getMessage());
         }
         catch (ShapefileException se){
             throw new DataSourceException("Shapefile Exception loading data : " + se.getMessage());
         }
-        catch (TopologyException te){
+        catch (com.vividsolutions.jts.geom.TopologyException te){
             throw new DataSourceException("Topology Exception loading data : " + te.getMessage());
         }
-        catch (IllegalFeatureException ife){
+        catch (org.geotools.feature.IllegalFeatureException ife){
             throw new DataSourceException("Illegal Feature Exception loading data : " + ife.getMessage());
         }
     }
