@@ -39,6 +39,9 @@ package org.geotools.cv;
 import java.util.Locale;
 import javax.media.jai.util.Range;
 
+// OpenGIS dependencies
+import org.opengis.cv.CV_SampleDimension;
+
 // Geotools dependencies
 import org.geotools.units.Unit;
 
@@ -50,6 +53,8 @@ import org.geotools.units.Unit;
  * @version 1.00
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
+ *
+ * @see org.opengis.cv.CV_SampleDimension
  */
 public class SampleDimension {
     /**
@@ -98,6 +103,8 @@ public class SampleDimension {
      * @param  locale The locale, or <code>null</code> for the default one.
      * @return The localized description. If no description was available
      *         in the specified locale, a default locale is used.
+     *
+     * @see CV_SampleDimension#getDescription()
      */
     public String getDescription(final Locale locale) {
         return (categories!=null) ? categories.getName(locale) : null;
@@ -107,6 +114,10 @@ public class SampleDimension {
      * Returns the category list for the values contained in a sample dimension.
      * This allows for names to be assigned to numerical values. If no categories
      * exist, <code>null</code> is returned.
+     *
+     * @see CV_SampleDimension#getCategoryNames()
+     * @see CV_SampleDimension#getOffset()
+     * @see CV_SampleDimension#getScale()
      */
     public CategoryList getCategoryList() {
         return categories;
@@ -120,6 +131,8 @@ public class SampleDimension {
      * A sample dimension can be an index into a color palette or be a color model
      * component. If the sample dimension is not assigned a color interpretation
      * the value is {@link ColorInterpretation#UNDEFINED}.
+     *
+     * @see CV_SampleDimension#getColorInterpretation()
      */
     public ColorInterpretation getColorInterpretation() {
         return ColorInterpretation.UNDEFINED;
@@ -130,6 +143,8 @@ public class SampleDimension {
     /**
      * Returns the unit information for this sample dimension.
      * May returns <code>null</code> is this dimension has no units.
+     *
+     * @see CV_SampleDimension#getUnits()
      */
     public Unit getUnits() {
         return (categories!=null) ? categories.getUnits() : null;
@@ -138,6 +153,8 @@ public class SampleDimension {
     /**
      * Returns the minimum value occurring in this sample dimension.
      * The default implementation query the value from {@link CategoryList}, if available.
+     *
+     * @see CV_SampleDimension#getMinimumValue()
      */
     public double getMinimumValue() {
         return minimum;
@@ -146,6 +163,8 @@ public class SampleDimension {
     /**
      * Returns the maximum value occurring in this sample dimension.
      * The default implementation query the value from {@link CategoryList}, if available.
+     *
+     * @see CV_SampleDimension#getMaximumValue()
      */
     public double getMaximumValue() {
         return maximum;
