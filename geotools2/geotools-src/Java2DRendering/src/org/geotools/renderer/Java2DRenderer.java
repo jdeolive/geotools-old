@@ -71,7 +71,7 @@ import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.62 2002/12/05 10:58:32 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.63 2003/01/02 20:09:17 cholmesny Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -1840,8 +1840,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @return A GeneralPath that is equivalent to geom
      */
     private GeneralPath createGeneralPath(final Geometry geom) {
-        if (pathCache.containsKey(geom.toString())) {
-            return (GeneralPath) pathCache.get(geom.toString());
+        String geomKey = geom.toString();
+	if (pathCache.containsKey(geomKey)) {
+            return (GeneralPath) pathCache.get(geomKey);
         }
 
         GeneralPath path = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
@@ -1849,7 +1850,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
 
 
         // we could cache the path here using geom to key it
-        pathCache.put(geom.toString(), path);
+        pathCache.put(geomKey, path);
 
         return path;
     }
