@@ -428,7 +428,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.8 2003/01/11 02:52:44 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.9 2003/01/11 03:01:01 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -826,8 +826,9 @@ org.geotools.cts.level = INFO</programlisting>
 
     <para>Code profilers are tools which analyse performance and memory of
     applications. Good free tools that we have used are a combination of hprof
-    (provided with JDK) and HPJMeter (which analyzes profiling data from
-    hprof).</para>
+    (provided with JDK) and <ulink
+    url="http://www.hp.com/products1/unix/java/hpjmeter/">HPJMeter</ulink>
+    (which analyzes profiling data from hprof).</para>
 
     <para>To run hprof the same way you need to run the JVM with the following
     parameters added: <command>-Xrunhprof:cpu=samples,thread=n,depth=40,cutoff=0,format=a</command></para>
@@ -853,14 +854,6 @@ org.geotools.cts.level = INFO</programlisting>
 
     <itemizedlist>
       <listitem>
-        <para>Add links to HPJMeter</para>
-      </listitem>
-
-      <listitem>
-        <para>Reference hprof/HPJMeter documentation</para>
-      </listitem>
-
-      <listitem>
         <para>Andrea Aim kindly provided this section, but I have not checked
         it. If you use this section of the doc, please let the editor know if
         it is correct or not.</para>
@@ -870,25 +863,6 @@ org.geotools.cts.level = INFO</programlisting>
 
   <section id="building">
     <title>Building</title>
-
-    <para>At the time of writing, geotools2 is moving toward using maven for
-    building. However, for the moment, there is an ant build script in each
-    module directory. This is explained in <filename>geotools2/geotools-src/gtbuild/www/howto-build.html</filename>.</para>
-
-    <para>I&#39;ll fill this section in a bit more when the maven process is
-    setup fully.</para>
-
-    <para>To do:</para>
-
-    <itemizedlist>
-      <listitem>
-        <para>using ant</para>
-      </listitem>
-
-      <listitem>
-        <para>insert the &#34;howto-build.html&#34; doc into here</para>
-      </listitem>
-    </itemizedlist>
 
     <section id="usingmaven">
       <title>Using Maven</title>
