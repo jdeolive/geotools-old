@@ -213,14 +213,88 @@ cvs tag -R r2_3_4</programlisting>
     </section>
   </section>
 
-  <section id="decisionmaking">
-    <title>Decision Making</title>
+  <section id="roles">
+    <title>Roles and Responsibilities</title>
 
-    <para>To date we have not needed a formal decision making process, however
-    eventually we will probably need to put one in place.</para>
+    <para>The roles and responsibilities that people can assume in this
+    project are based on merit. Everybody can help no matter what their role.
+    Those who have been long term or valuable contributors to the project
+    obtain the right to vote and commit directly to the source repository.</para>
 
-    <para>Issues are discussed on email and IRC. Sometime we have an informal
-    vote on IRC to resolve issues.</para>
+    <section id="userrole">
+      <title>Users</title>
+
+      <para> Users are the people who use the products of the Project. People
+      in this role aren&#39;t contributing code, but they are using the
+      products, reporting bugs, making feature requests, and such. This is by
+      far the most important category of people as, without users, there is no
+      reason for the Project.</para>
+
+      <para> When a user starts to contribute code or documentation patches,
+      they become a Contributor.</para>
+    </section>
+
+    <section id="contributorrole">
+      <title>Contributors</title>
+
+      <para> Contributors are the people who write code or documentation
+      patches or contribute positively to the project in other ways. A
+      volunteer&#39;s contribution is always recognized. In source code, all
+      volunteers who contribute to a source file may add their name to the
+      list of authors for that file.</para>
+    </section>
+
+    <section id="committerrole">
+      <title>Committers</title>
+
+      <para> Contributors who give frequent and valuable contributions to a
+      subproject of the Project can have their status promoted to that of a
+      &#34;Committer&#34; for that subproject. A Committer has write access to
+      the source code repository and gains voting rights allowing them to
+      affect the future of the subproject.</para>
+
+      <para> In order for a Contributor to become a Committer, another
+      Committer can nominate that Contributor or the Contributor can ask for
+      it.</para>
+
+      <para> Once a Contributor is nominated, all of the Committers for a
+      subproject will vote. If there are at least 3 positive votes and no
+      negative votes, the Contributor is converted into a Committer and given
+      write access to the source code repository for that subproject. This is
+      an example offer letter that should be sent to the volunteer after 3
+      positive votes have been received:</para>
+
+      <blockquote>
+        <para>Dear Contributor,</para>
+
+        <para>Our project would like to offer you commit privileges. We have
+        been impressed with your contributions up till now, and believe that
+        your involvement will improve the quality of the code we produce. If
+        you are interested in having commit privileges, please set up an
+        account with http://sourceforge.net and let us know your account name.</para>
+
+        <para>We all hope that you accept this invitation.</para>
+
+        <para>The Geotools Project Management Committee.</para>
+      </blockquote>
+
+      <para> At times, Committers may go inactive for a variety of reasons. A
+      Committer that has been inactive for 6 months or more may lose their
+      status as a Committer. Getting access back is as simple as re-requesting
+      it on the project&#39;s Developer mailing list.</para>
+    </section>
+
+    <section id="pmcrole">
+      <title>Project Management Committee (PMC)</title>
+
+      <para> Committers who frequently participate with valuable contributions
+      may have their status promoted to that of a <emphasis>Project Management
+      Committee Member</emphasis>. This committee is the official managing
+      body of the Project and is responsible for setting overall project
+      direction. In order to become a Member, someone on the PMC must nominate
+      the Committer. The individual may then be approved with a 3/4 majority
+      of the PMC.</para>
+    </section>
   </section>
 
   <section id="bugs">
@@ -868,7 +942,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.23 2003/03/11 09:11:00 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.24 2003/03/18 09:56:57 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
