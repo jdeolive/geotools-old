@@ -42,7 +42,7 @@
     </dependency>
     <dependency>
       <id>JTS</id>
-      <version>1.0</version>
+      <version>1.2</version>
     </dependency>
     <dependency>
       <id>cts-coordtrans</id>
@@ -69,3 +69,4 @@
   </dependencies>
 
 </project>
+

@@ -122,7 +122,7 @@
     </dependency>
     <dependency>
       <id>JTS</id>
-      <version>1.0</version>
+      <version>1.2</version>
       <properties>
          <war.bundle.jar>true</war.bundle.jar>
       </properties>
