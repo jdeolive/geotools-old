@@ -21,6 +21,15 @@
       <email>omyar@users.sourceforge.net</email>
       <organization>none</organization>
             <roles>
+               <role>Java Developer</role>
+            </roles>
+        </developer>
+         <developer>
+      <name>James Macgill</name>
+      <id>jmacgill</id>
+      <email>jmacgill@users.sourceforge.net</email>
+      <organization>ccg</organization>
+            <roles>
                <role>Module Maintainer</role>
                <role>Java Developer</role>
             </roles>
