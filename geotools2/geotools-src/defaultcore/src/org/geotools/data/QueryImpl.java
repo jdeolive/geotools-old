@@ -43,10 +43,10 @@ public class QueryImpl implements Query {
     private AttributeType[] properties;
 
     /** The maximum numbers of features to fetch */
-    private int maxFeatures = 100000000;
+    private int maxFeatures = Query.DEFAULT_MAX;
 
     /** The filter to constrain the request. */
-    private Filter filter;
+    private Filter filter = Filter.NONE;
 
     /** The typeName to get */
     private String typeName;
