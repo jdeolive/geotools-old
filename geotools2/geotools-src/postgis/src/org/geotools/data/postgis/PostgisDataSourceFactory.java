@@ -35,7 +35,7 @@ import java.util.Map;
  * PostgisDataSources with the correct params.
  *
  * @author James Macgill, PSU
- * @version $Id: PostgisDataSourceFactory.java,v 1.6 2003/11/04 20:06:54 cholmesny Exp $
+ * @version $Id: PostgisDataSourceFactory.java,v 1.7 2003/11/05 00:37:21 cholmesny Exp $
  */
 public class PostgisDataSourceFactory
     implements org.geotools.data.DataSourceFactorySpi {
@@ -86,6 +86,10 @@ public class PostgisDataSourceFactory
             return false;
         }
 
+        if (!params.containsKey("port")) {
+            return false;
+        }
+
         return true;
     }
 
@@ -118,6 +122,9 @@ public class PostgisDataSourceFactory
         String charSet = (String) params.get("charset");
 	String useStrict = (String) params.get("strictbbox");
 	String useGeos = (String) params.get("usegeos");
+        if (passwd == null) {
+            passwd = "";
+        }	    
 
         PostgisConnectionFactory connFact = new PostgisConnectionFactory(host,
                 port, database);
