@@ -125,7 +125,7 @@ public class DefaultMarkTest extends TestCase {
         renderer.setOutput(p.getGraphics(),p.getBounds());
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
         int w=400, h=400;
-        BufferedImage image = new BufferedImage(300,300,BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
         Graphics g = image.getGraphics();
         g.setColor(Color.white);
         g.fillRect(0,0,w,h);
