@@ -1,5 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- $Id: howto-build.html,v 1.3 2002/05/07 19:08:34 warmerda Exp $ -->
+<!-- $Id: howto-build.html,v 1.4 2002/05/26 05:08:02 camerons Exp $ -->
 <HTML>
   <HEAD>
     <TITLE>How to Build GeoTools2</TITLE>
@@ -34,6 +34,13 @@
 	optional.jar from the Ant site into $ANT_HOME/lib, and junit.jar
 	from <a href="http://www.junit.org/">www.junit.org</a> into 
         $ANT_HOME/lib.</p>
+
+        <p>If you want to build html documentation from the raw docbook format,
+        then you will need to copy bsf.jar, xalan.jar and xerces.jar into
+        $ANT_HOME/lib.  These jars can be found at <a
+        href="http://xml.apache.org/dist/xalan-j/old/xalan-j_1_2_2.tar.gz">http://xml.apache.org/dist/xalan-j/old/xalan-j_1_2_2.tar.gz</a>.
+        Note that version 1.2.2 of xalan.jar works with ant version 4.1.1
+        however Xalan version 2.3.1does not.</p>
 
     <a href='#toc'>back to contents</A>
 
