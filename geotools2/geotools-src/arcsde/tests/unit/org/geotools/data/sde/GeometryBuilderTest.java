@@ -20,10 +20,6 @@
  */
 package org.geotools.data.sde;
 
-import com.esri.sde.sdk.client.*;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.io.*;
-import junit.framework.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,15 +27,29 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
-import org.geotools.data.*;
-import com.esri.sde.sdk.geom.SeGeometrySource;
-import java.sql.*;
+
+import junit.framework.TestCase;
+
+import com.esri.sde.sdk.client.SeCoordinateReference;
+import com.esri.sde.sdk.client.SeShape;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilderTest.java,v 1.6 2003/11/19 17:48:30 groldan Exp $
+ * @version $Id: GeometryBuilderTest.java,v 1.7 2004/01/09 17:20:47 aaime Exp $
  */
 public class GeometryBuilderTest extends TestCase {
     static Logger LOGGER = Logger.getLogger("org.geotools.data.sde");
@@ -288,8 +298,6 @@ public class GeometryBuilderTest extends TestCase {
         LOGGER.info("---- testBuildGeometries: testing " + testDataResource
             + " ----");
 
-        String failMsg = "Expected and created by GeometryBuilder geometries does not match";
-
         try {
             geometryBuilder = GeometryBuilder.builderFor(geometryClass);
             LOGGER.info("created " + geometryBuilder.getClass().getName());
@@ -321,7 +329,6 @@ public class GeometryBuilderTest extends TestCase {
     private double[][][] geometryToSdeCoords(Geometry jtsGeom) {
         int numParts;
         int numSubParts = 1;
-        int numSubpartPoints;
         double[][][] sdeCoords;
         GeometryCollection gcol = null;
 

@@ -23,13 +23,14 @@
  */
 package org.geotools.data.sde;
 
+import java.util.logging.Logger;
+
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-import java.util.logging.Logger;
 
 
 /**

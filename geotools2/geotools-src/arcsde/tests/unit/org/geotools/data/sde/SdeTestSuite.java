@@ -16,14 +16,16 @@
  */
 package org.geotools.data.sde;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 
 /**
  * geotools2 ArcSDE test suite
  *
  * @author Gabriel Roldán
- * @version $Id: SdeTestSuite.java,v 1.4 2003/11/14 17:21:05 groldan Exp $
+ * @version $Id: SdeTestSuite.java,v 1.5 2004/01/09 17:20:47 aaime Exp $
  */
 public class SdeTestSuite extends TestCase
 {

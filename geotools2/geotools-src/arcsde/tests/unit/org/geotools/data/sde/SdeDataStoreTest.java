@@ -16,27 +16,54 @@
  */
 package org.geotools.data.sde;
 
-import com.vividsolutions.jts.geom.*;
-import junit.framework.*;
-import org.geotools.data.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.NoSuchElementException;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import junit.framework.TestCase;
+
+import org.geotools.data.DataSourceException;
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFinder;
+import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
-import org.geotools.feature.*;
-import org.geotools.filter.*;
+import org.geotools.data.FeatureResults;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.Query;
+import org.geotools.data.Transaction;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.feature.IllegalAttributeException;
+import org.geotools.filter.AbstractFilter;
+import org.geotools.filter.BBoxExpression;
+import org.geotools.filter.Expression;
 import org.geotools.filter.Filter;
-import org.geotools.gml.*;
-import org.xml.sax.helpers.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.logging.*;
-import javax.xml.parsers.*;
+import org.geotools.filter.FilterFactory;
+import org.geotools.filter.FilterFilter;
+import org.geotools.gml.GMLFilterDocument;
+import org.geotools.gml.GMLFilterGeometry;
+import org.xml.sax.helpers.ParserAdapter;
+
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPoint;
 
 
 /**
  * SdeDatasource's test cases
  *
  * @author Gabriel Roldán
- * @version $Id: SdeDataStoreTest.java,v 1.6 2003/12/11 19:31:48 jive Exp $
+ * @version $Id: SdeDataStoreTest.java,v 1.7 2004/01/09 17:20:47 aaime Exp $
  */
 public class SdeDataStoreTest extends TestCase
 {
@@ -96,7 +123,6 @@ public class SdeDataStoreTest extends TestCase
     {
         super.setUp();
 
-        String failMsg = null;
         conProps = new Properties();
 
         String propsFile = "/testData/testparams.properties";
@@ -754,8 +780,6 @@ public class SdeDataStoreTest extends TestCase
     private Filter parseDocument(String uri) throws Exception
     {
         LOGGER.finest("about to create parser");
-
-        SAXParserFactory factory = SAXParserFactory.newInstance();
 
         // chains all the appropriate filters together (in correct order)
         //  and initiates parsing
