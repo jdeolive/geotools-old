@@ -15,9 +15,6 @@
  *
  */
 
-/**
- * Legend.java Created on 14 June 2003, 20:37
- */
 package org.geotools.gui.swing;
 
 import java.awt.event.MouseAdapter;
@@ -59,18 +56,19 @@ import org.geotools.styling.StyleFactory;
 
 
 /**
- * to follow the model-viewer-controller design pattern legend is a viewer, so context, layerlist,
- * layer will control it. any editting from the legend will result in the context, layerlist or
- * layer directly then the legend will recontruct itself and its member from the context,
- * layerlist or layer by listener or if doesn't have listener registering in this object or this
- * object doesn't have appropriate listener, it will force itself to do it by calling the
- * contextChanged() method. For example, when user edit the root text that is the title of the
- * legend and context, this editting will result in the title of the context first, then the
- * legend will read the title from the context and set its own title. Editting rule and style
- * title will be the same, editting will set the title of the rule and style first then the Legend
- * will listener to the changes and reconstruct itself.
+ * <p>The Legend component is a JTree-like component designed to show the layers
+ * and the styles contained in a @link org.geotools.map.MapContext.</p> 
+ * <p>The component is listening to the map context layer list, so it will show
+ * automatically any change to the layer list or to the style of a single layer.
+ * On double click over a layer or rule node it will show up the style editing
+ * dialog if the style editing is not turned off.</p>
+ * <p>You can turn off the default
+ * style editing dialog and intercept the selection and mouse events to override
+ * the default behaviour.</p> 
+ * 
  *
  * @author jianhuij
+ * @author aaime
  */
 public class Legend extends javax.swing.JPanel implements MapLayerListListener, SLDEditor,
     java.io.Serializable {
@@ -93,6 +91,11 @@ public class Legend extends javax.swing.JPanel implements MapLayerListListener, 
     private javax.swing.JTree legendTree;
     private javax.swing.JScrollPane legendViewerJScrollPane;
 
+    /**
+     * Creates a new Legend editor based on a map context and a title
+     * @param context
+     * @param title
+     */
     public Legend(MapContext context, String title) {
         legendTree = new javax.swing.JTree();
         setLayout(new java.awt.BorderLayout());
@@ -126,12 +129,11 @@ public class Legend extends javax.swing.JPanel implements MapLayerListListener, 
     }
 
     /**
-     * DOCUMENT ME!
-     *
-     * @param e
+     * Override in subclasses to get a different behaviour on node click
+     * @param e 
      */
     protected void treeClicked(MouseEvent e) {
-        if (e.getClickCount() >= 2) {
+        if (e.getClickCount() >= 2 && legendTree.getSelectionPath() != null) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) legendTree.getSelectionPath()
                                                                              .getLastPathComponent();
 
@@ -155,7 +157,11 @@ public class Legend extends javax.swing.JPanel implements MapLayerListListener, 
     }
 
     
-
+    /**
+     * Builds the tree representation of the <code>context</code> parameter
+     * @param context The context to be depicted by a tree
+     * @return A tree model that represents the <code>context</code> object
+     */
     private DefaultTreeModel contructTreeModelAndLayerList(MapContext context) {
         DefaultTreeModel model = null;
 
@@ -179,6 +185,9 @@ public class Legend extends javax.swing.JPanel implements MapLayerListListener, 
         return model;
     }
 
+    /**
+     * Build the node representation of a map layer
+     */
     private DefaultMutableTreeNode contructLayer(MapLayer layer) {
         DefaultMutableTreeNode layerNode = new DefaultMutableTreeNode(layer.getStyle().getTitle());
 
@@ -306,6 +315,46 @@ public class Legend extends javax.swing.JPanel implements MapLayerListListener, 
     public MapContext getMapContext() {
         return this.context;
     }
+    
+    public Object getSelectedObject() {
+        TreePath selectionPath = legendTree.getSelectionPath();
+        if(selectionPath == null)
+            return null;
+        
+        if(selectionPath.getPathCount() == 1) {
+            return null;
+        } else if(selectionPath.getPathCount() == 2){
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
+            LegendLayerNodeInfo layerInfo = (LegendLayerNodeInfo) node.getUserObject();
+            return layerInfo.getMapLayer();
+        } else {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
+            LegendRuleNodeInfo ruleInfo = (LegendRuleNodeInfo) node.getUserObject();
+            return ruleInfo.getRule();
+        }
+    }
+    
+    private DefaultMutableTreeNode getRoot() {
+        DefaultTreeModel model = (DefaultTreeModel) legendTree.getModel();
+        return (DefaultMutableTreeNode) model.getRoot();
+    }
+    
+    public MapLayer getSelectedLayer() {
+        TreePath selectionPath = legendTree.getSelectionPath();
+        if(selectionPath == null)
+            return null;
+        
+        while(selectionPath.getPathCount() > 2) {
+            selectionPath = selectionPath.getParentPath();
+        }
+        if(selectionPath.getPathCount() == 1) {
+            return null;
+        } else {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
+            LegendLayerNodeInfo layerInfo = (LegendLayerNodeInfo) node.getUserObject();
+            return layerInfo.getMapLayer();
+        }
+    }
 
     public void layerListChanged(EventObject layerListChangedEvent) {
         DefaultTreeModel treeModel = contructTreeModelAndLayerList(context);
@@ -318,7 +367,7 @@ public class Legend extends javax.swing.JPanel implements MapLayerListListener, 
     }
 
     /**
-     * used in forcing the tree to recontruct it's model from the context and repaint itself
+     * Used to force the tree to recontruct it's model from the context and repaint itself
      */
     public void contextChanged() {
         DefaultTreeModel treeModel = contructTreeModelAndLayerList(context);
@@ -343,6 +392,7 @@ public class Legend extends javax.swing.JPanel implements MapLayerListListener, 
     }
 
     public void layerAdded(org.geotools.map.event.MapLayerListEvent event) {
+        contextChanged();
     }
 
     public void layerChanged(org.geotools.map.event.MapLayerListEvent event) {
@@ -354,11 +404,10 @@ public class Legend extends javax.swing.JPanel implements MapLayerListListener, 
     }
 
     public void layerMoved(org.geotools.map.event.MapLayerListEvent event) {
+        contextChanged();
     }
 
     public void layerRemoved(org.geotools.map.event.MapLayerListEvent event) {
-    }
-
-    public static void main(String[] args) {
+        contextChanged();
     }
 }
