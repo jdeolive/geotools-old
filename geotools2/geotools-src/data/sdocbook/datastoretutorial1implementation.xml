@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <article>
-  <title>DataStore Implementation</title>
+  <title>DataStore Tutorial 1: Implementation</title>
 
   <para>The GeoTools project strives to support as many geographical data
   formats as possible because getting data into the GeoTools API allows access
@@ -34,10 +34,11 @@
     property file based DataStore, and in the process explore several aspects
     of DataStores and their implementation.</para>
 
-    <para>DataStore Documents:<orderedlist><listitem><para>DataStore
-    Implementation</para></listitem><listitem><para>DataStore Use</para></listitem><listitem><para>DataStore
-    Extension</para></listitem><listitem><para>DataStore Capabilities</para></listitem><listitem><para>DataStore
-    Optimization</para></listitem></orderedlist></para>
+    <para>DataStore Documents:<orderedlist><listitem><para>DataStore Tutorial
+    1: Implementation</para></listitem><listitem><para>DataStore Tutorial 2:
+    Use</para></listitem><listitem><para>DataStore Tutorial 3: Extension</para></listitem><listitem><para>DataStore
+    Tutorial 4: Capabilities</para></listitem><listitem><para>DataStore
+    Tutorial 5: Optimization</para></listitem></orderedlist></para>
 
     <para>We will be working with content in the following format:</para>
 
@@ -378,8 +379,8 @@ public class PropertyAttributeReader implements AttributeReader {
         return type.getAttributeType( index ).parse( text[ index ] );
     }</programlisting>
 
-        <para>Finally, we have a couple of methods that will make our lives
-        easier, when we implement FeatureReader:</para>
+        <para>Finally since our file format does support FeatureID we will
+        need a way to let our FeatureReader know:</para>
 
         <programlisting>    public String getFeatureID(){
         if( line == null ){
@@ -390,9 +391,6 @@ public class PropertyAttributeReader implements AttributeReader {
             return null;
         }
         return line.substring( 0, split );        
-    }
-    public String getLine(){
-        return line;
     }</programlisting>
 
         <para>We can make use of getFeatureID() to supply a FeatureID for

@@ -301,7 +301,7 @@ public class PropertyDataStoreTest extends TestCase {
             reader.close();
         }
         assertEquals( "[fid1, fid2, fid3, fid4]", list.toString() );
-        assertEquals( -1, road.getCount(Query.ALL) );
+        assertEquals( 4, road.getCount(Query.ALL) );
         assertEquals( null, road.getBounds(Query.ALL) );
         assertEquals( 4, features.getCount() );
         assertEquals( "Env[-1.0 : 0.0, -1.0 : 0.0]", features.getBounds().toString() );

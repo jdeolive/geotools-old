@@ -45,7 +45,7 @@
     <para>Now that we have implemented a simple DataStore we can explore some
     of the capabilites made available to us.</para>
 
-    <para>The example we use will work against the file <filename>road.properties</filename>:</para>
+    <para>The examples use the file <filename>road.properties</filename>:</para>
 
     <screen>_=id:Integer,name:String
 fid1=1|jody

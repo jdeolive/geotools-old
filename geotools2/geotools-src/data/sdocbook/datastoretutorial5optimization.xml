@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<article>
+  <title>DataStore Tutorial 5: Optimization</title>
+
+  <sect1>
+    <title>DataStore Documents</title>
+
+    <para>In this series of documents we will build a simple a simple java
+    property file based DataStore, and in the process explore several aspects
+    of DataStores and their implementation.</para>
+
+    <para>DataStore Documents:</para>
+
+    <orderedlist>
+      <listitem>
+        <para>DataStore Tutorial 1: Implementation</para>
+      </listitem>
+
+      <listitem>
+        <para>DataStore Tutorial 2: Use</para>
+      </listitem>
+
+      <listitem>
+        <para>DataStore Tutorial 3: Extension</para>
+      </listitem>
+
+      <listitem>
+        <para>DataStore Tutorial 4: Capabilities</para>
+      </listitem>
+
+      <listitem>
+        <para>DataStore Tutorial 5: Optimization</para>
+      </listitem>
+    </orderedlist>
+
+    <para>We will be working with content in the following format:<screen>_=id:Integer,geom:Geometry,name:String
+rd1=1|wkt|road one
+rd2=2|wkt|road two</screen></para>
+  </sect1>
+
+  <sect1>
+    <title>AbstractDataStore</title>
+
+    <para>AbstractDataStore provides a lot of functionality based on the five
+    methods we implemented in the Tutorials. By examining its implementation
+    we have an oppertunity to discuss several issues with DataStore
+    developement. Please keep these issues in mind when optimizing your own
+    DataStore optimizations.</para>
+
+    <para>In general the GOF decorator pattern is used to layer functionality
+    around the FeatureReader and FeatureWriters you provided. This is very
+    similar to the design of the java io library.</para>
+
+    <para>From AbstractDataStore getFeatureReader( featureType, filter,
+    transaction ):</para>
+
+    <programlisting>public FeatureReader getFeatureReader(FeatureType featureType,
+        Filter filter, Transaction transaction) throws IOException {
+    if (filter == Filter.ALL) {
+        return new EmptyFeatureReader(featureType);
+    }
+    String typeName = featureType.getTypeName();
+    FeatureReader reader = getFeatureReader(typeName);
+    if (filter != Filter.NONE) {
+        reader = new FilteringFeatureReader(reader, filter);
+    }
+    if (transaction != Transaction.AUTO_COMMIT) {
+        Map diff = state(transaction).diff(typeName);
+        reader = new DiffFeatureReader(reader, diff);
+    }
+    if (!featureType.equals(reader.getFeatureType())) {
+        reader = new ReTypeFeatureReader(reader, featureType);
+    }
+    return reader;
+}</programlisting>
+
+    <para>Support classes used:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>EmptyFeatureReader represents an empty result (when using
+        Filter.ALL)</para>
+      </listitem>
+
+      <listitem>
+        <para>FilteringFeatureReader skips over filtered elements using
+        hasNext()</para>
+      </listitem>
+
+      <listitem>
+        <para>TransactionStateDiff records a difference Map for the
+        Transaction</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>DiffFeatureReader is used as a wrapper, allowing the
+            Features to be checked for removal, or modification before being
+            provided to the user. Any additions performed against the
+            Transaction are also returned.</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+
+      <listitem>
+        <para>ReTypeFeatureReader allows on the fly Schema change</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>From AbstractDataStore getFeatureWriter( typeName, filter,
+    transaction):</para>
+
+    <programlisting>public FeatureWriter getFeatureWriter(String typeName, Filter filter,
+        Transaction transaction) throws IOException {
+    if (filter == Filter.ALL) {
+        FeatureType featureType = getSchema(typeName);
+        return new EmptyFeatureWriter(featureType);
+    }
+    FeatureWriter writer;
+
+    if (transaction == Transaction.AUTO_COMMIT) {
+        writer = getFeatureWriter(typeName);
+    } else {
+        writer = state(transaction).writer(typeName);
+    }
+    if (lockingManager != null) {
+        writer = lockingManager.checkedWriter(writer, transaction);
+    }
+    if (filter != Filter.NONE) {
+        writer = new FilteringFeatureWriter(writer, filter);
+    }
+    return writer;
+}</programlisting>
+
+    <para>Support classes used:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>EmptyFeatureWriter represents an empty result</para>
+      </listitem>
+
+      <listitem>
+        <para>TransactionStateDiff records a difference map for the
+        Transaction, and provides a FeatureWrapper around a FeatureReader
+        where modifications are stored in the difference Map</para>
+      </listitem>
+
+      <listitem>
+        <para>FeatureLocking support is provided InProcessLockingManager in
+        the form of a wrapper that will prevent modification taking place with
+        out correct authorization</para>
+      </listitem>
+
+      <listitem>
+        <para>FilteringFeatureWriter is used to skip over any Features not
+        meeting the constraints</para>
+      </listitem>
+    </itemizedlist>
+
+    <sect2>
+      <title>FeatureWriter Optimization</title>
+
+      <para>Every helper class we discussed above is an oppertunity for
+      optimization if your external data source supports the functionality.</para>
+
+      <sect3>
+        <title>Transaction Support</title>
+
+        <para>All JDBC DataStores support the concept of Transactions
+        natively. JDBDataStore supplies an example of using Transaction.State
+        to store JDBC connection rather than the Difference map used above.</para>
+
+        <programlisting>public class JDBCTransactionState implements State {
+    private Connection connection;
+    public JDBCTransactionState( Connection c) throws IOException{
+        connection = c;
+    }
+    public Connection getConnection(){
+        return connection;
+    }
+    public void commit() throws IOException {
+        connection.commit();
+    }
+    public void rollback() throws IOException {
+        connection.rollback();            
+    }
+}</programlisting>
+
+        <para>For the purpose of PropertyDataStore we could create a
+        Transaction.State class that records the File name used for a
+        difference file. By externalizing differences to a file rather than
+        Memory we will be able to handle larger data sets.</para>
+      </sect3>
+
+      <sect3>
+        <title>Locking Support</title>
+
+        <para>Several DataStores have an enviornment that can support native
+        locking. By replacing the use of the InProcessLockingManager we can
+        make use of native Strong Transaction Support.</para>
+      </sect3>
+
+      <sect3>
+        <title>Optimized FeatureWriters</title>
+
+        <para>We have a total of three disinct uses for FeatureWriters:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>getFeatureWriter( typeName, transaction )</para>
+
+            <para>General purpose FeatureWriter</para>
+          </listitem>
+
+          <listitem>
+            <para>getFeatureWriter( typeName, filter, transaction )</para>
+
+            <para>An optimized version that does not create new content can be
+            created.</para>
+          </listitem>
+
+          <listitem>
+            <para>getFeatureWriterAppend( typeName, transaction)</para>
+
+            <para>An optimized version that duplicates the origional file, and
+            opens it in append mode can be created.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>We can also perform special tricks such as returning a Feature
+        delegate to the user, which records when it has been modified.</para>
+      </sect3>
+    </sect2>
+
+    <sect2>
+      <title>FeatureSource Optimization</title>
+
+      <para>We are going to quickly walk through an optimization of the
+      getCount() request. Currently FeatureStore getCount() returns -1
+      indicating that we have not provided an optimization. We would like to
+      improve this by recognizing the special case where the user has asked
+      for the count of Query.ALL. In this case the number of Features is the
+      same as the number of lines in the file, minus one for the header
+      information.</para>
+
+      <para>Lets start with our own FeatureSource implementation:</para>
+
+      <programlisting>    public FeatureSource getFeatureSource(String typeName) throws IOException {
+        final FeatureType featureType = getSchema(typeName);        
+        return new AbstractFeatureLocking() {            
+            public DataStore getDataStore() {
+                return PropertyDataStore.this;
+            }    
+            public void addFeatureListener(FeatureListener listener) {
+                listenerManager.addFeatureListener(this, listener);
+            }    
+            public void removeFeatureListener(
+                FeatureListener listener) {
+                listenerManager.removeFeatureListener(this, listener);
+            }    
+            public FeatureType getSchema() {
+                return featureType;
+            }
+        };
+    } </programlisting>
+
+      <para>The above implementation supports Locking, and provides the
+      correct hooks for the listenerManager.</para>
+
+      <para>And now for our FeatureSource optimization:</para>
+
+      <programlisting>            public int getCount(Query query) {
+                if( query == Query.ALL &#38;&#38; getTransaction() == Transaction.AUTO_COMMIT ){
+                    return countFile( new File( directory, typeName+&#34;.properties&#34;) );
+                }
+                return -1;
+            }
+            private int countFile(File file){
+                try {
+                    LineNumberReader reader = new LineNumberReader( new FileReader( file ) );
+                    while( reader.readLine() != null);                    
+                    return reader.getLineNumber() -1;   
+                }
+                catch( IOException e){
+                    return -1;
+                }                            
+            }</programlisting>
+
+      <para>We have made use of LineNumberReader to count the number of lines
+      in the File. Also note that this optimization is only valid when working
+      against Transaction.AUTO_COMMIT.</para>
+
+      <para>A similar optimization could be applied to the FeatureResults API.</para>
+    </sect2>
+
+    <sect2>
+      <title>FeatureStore Optimization</title>
+
+      <para>DataStores opperating against rich external data sources can often
+      perform high level optimizations. JDBCDataStores for instance can often
+      construct SQL statements that completly fufill a request without making
+      use of FeatureWriters at all.</para>
+
+      <para>When performing these queries please rememeber two things:</para>
+
+      <orderedlist>
+        <listitem>
+          <para>Check the lockingManager</para>
+
+          <para>If you are not providing your own native locking support,
+          please check the user&#39;s authroization against the the
+          lockingManager</para>
+        </listitem>
+
+        <listitem>
+          <para>Event Notification</para>
+
+          <para>Remember to fire the appropriate notification events when
+          contents change, Feature Caches will depend on this notification to
+          accurately track the contents of your DataStore</para>
+        </listitem>
+      </orderedlist>
+    </sect2>
+  </sect1>
+</article>

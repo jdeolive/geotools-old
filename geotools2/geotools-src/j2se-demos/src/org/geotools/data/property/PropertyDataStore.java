@@ -65,5 +65,45 @@ public class PropertyDataStore extends AbstractDataStore {
         writer.write("_=");
         writer.write( DataUtilities.spec( featureType ) );
         writer.close();
-    }    
+    }
+    //
+    // Count Optimization
+    //
+    public FeatureSource getFeatureSource(final String typeName) throws IOException {
+        final FeatureType featureType = getSchema(typeName);        
+        return new AbstractFeatureLocking() {            
+            public DataStore getDataStore() {
+                return PropertyDataStore.this;
+            }
+    
+            public void addFeatureListener(FeatureListener listener) {
+                listenerManager.addFeatureListener(this, listener);
+            }
+    
+            public void removeFeatureListener(
+                FeatureListener listener) {
+                listenerManager.removeFeatureListener(this, listener);
+            }
+    
+            public FeatureType getSchema() {
+                return featureType;
+            }
+            public int getCount(Query query) {
+                if( query == Query.ALL && getTransaction() == Transaction.AUTO_COMMIT ){
+                    return countFile( new File( directory, typeName+".properties") );
+                }
+                return -1;
+            }
+            private int countFile(File file){
+                try {
+                    LineNumberReader reader = new LineNumberReader( new FileReader( file ) );
+                    while( reader.readLine() != null);                    
+                    return reader.getLineNumber() -1;   
+                }
+                catch( IOException e){
+                    return -1;
+                }                            
+            }
+        };
+    }        
 }
