@@ -38,7 +38,7 @@ import org.geotools.vpf.exc.VPFDataException;
  * Created: Mon Feb 24 22:39:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFInputStream.java,v 1.2 2003/03/03 20:40:34 kobit Exp $
+ * @version $Id: VPFInputStream.java,v 1.3 2003/03/11 22:35:47 kobit Exp $
  */
 public abstract class VPFInputStream extends InputStream 
   implements FileConstants, DataTypesDefinition
@@ -51,6 +51,14 @@ public abstract class VPFInputStream extends InputStream
   
   protected VPFHeader header = null;
   
+  public abstract VPFHeader readHeader() throws IOException;
+
+  public abstract VPFRow readRow() throws IOException;
+
+  public abstract VPFRow readRow(int index) throws IOException;
+
+  public abstract int tableSize() throws IOException;
+
   public VPFInputStream(String file)
     throws IOException
   {
@@ -90,14 +98,6 @@ public abstract class VPFInputStream extends InputStream
   {
 	this.byteOrder = newByteOrder;
   }
-
-  public abstract VPFHeader readHeader() throws IOException;
-
-  public abstract VPFRow readRow() throws IOException;
-
-  public abstract VPFRow readRow(int index) throws IOException;
-
-  public abstract int tableSize() throws IOException;
 
   public int readRows(VPFRow[] rows) throws IOException
   {

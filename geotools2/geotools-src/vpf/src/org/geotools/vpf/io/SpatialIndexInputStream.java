@@ -19,8 +19,9 @@
 package org.geotools.vpf.io;
 
 import java.io.InputStream;
-
-
+import java.io.IOException;
+import org.geotools.vpf.ifc.VPFHeader;
+import org.geotools.vpf.ifc.VPFRow;
 
 /**
  * SpatialIndexInputStream.java
@@ -29,14 +30,35 @@ import java.io.InputStream;
  * Created: Mon Feb 24 22:25:15 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: SpatialIndexInputStream.java,v 1.1 2003/02/24 22:46:35 kobit Exp $
+ * @version $Id: SpatialIndexInputStream.java,v 1.2 2003/03/11 22:35:46 kobit Exp $
  */
-public class SpatialIndexInputStream //extends VPFInputStream 
+public class SpatialIndexInputStream extends VPFInputStream 
 {
   
-  public SpatialIndexInputStream()
+  public SpatialIndexInputStream(String file, char byteOrder)
+	throws IOException
   {
-	
-  } // SpatialIndexInputStream constructor
+	super(file, byteOrder);
+  }
   
+  public int tableSize()
+  {
+	return -1;
+  }
+
+  public VPFHeader readHeader() throws IOException
+  {
+	return null;
+  }
+
+  public VPFRow readRow() throws IOException
+  {
+	return null;
+  }
+
+  public VPFRow readRow(int index) throws IOException
+  {
+	return null;
+  }
+
 } // SpatialIndexInputStream
