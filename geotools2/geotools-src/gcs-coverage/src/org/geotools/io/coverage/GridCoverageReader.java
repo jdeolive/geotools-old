@@ -36,7 +36,8 @@ package org.geotools.io.coverage;
 import java.net.URL;
 import java.io.File;
 import java.io.IOException;
-import java.io.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 // Image input/output
 import javax.imageio.ImageIO;
@@ -45,7 +46,6 @@ import javax.imageio.IIOException;
 import javax.imageio.ImageReadParam;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
-import org.geotools.io.image.RawBinaryImageReadParam;
 
 // Images and geometry
 import java.awt.Dimension;
@@ -69,6 +69,12 @@ import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 import org.geotools.io.TableWriter;
 import org.geotools.io.LineWriter;
+
+/*
+ * TODO: The following class is deprecated since JAI's Image I/O tools provides the same
+ *       functionality. Remove this import when we will have deleted RawBinaryImageReadParam.
+ */
+import org.geotools.io.image.RawBinaryImageReadParam;
 
 
 /**
@@ -95,7 +101,7 @@ import org.geotools.io.LineWriter;
  * However, other methods may be overriden too in order to get finner control
  * on the result.
  *
- * @version $Id: GridCoverageReader.java,v 1.5 2003/01/09 21:33:52 desruisseaux Exp $
+ * @version $Id: GridCoverageReader.java,v 1.6 2003/01/09 21:48:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GridCoverageReader {
