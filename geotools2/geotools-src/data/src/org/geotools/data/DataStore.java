@@ -58,13 +58,28 @@ import java.io.IOException;
  * 
  * <ul>
  * <li>
- * Chris - We may need to switch the getFeatureReader to be based on Query
+ * Chris - We may need to switch the getFeatureReader to be based on Query * 
+ * </li>
+ * <li>
+ * Jody - I agree, propose:
+ * <pre><code>
+ * getFeatureReader( Query, Transaction )
+ * - Transaction is still orthognal
+ * 
+ * getFeatureSource( Query )
+ * - Query allows override, and reprojection...
+ * 
+ * getFeatureStore( typeName )
+ * - write access is till by typeName
+ *   (just like getFeatureWriter)
+ * - consider spliting API into to based on read-only, read/write ability? 
+ * </code></pre>
  * </li>
  * </ul>
  * 
  *
  * @author Jody Garnett, Refractions Research
- * @version $Id: DataStore.java,v 1.2 2003/11/04 00:28:49 cholmesny Exp $
+ * @version $Id: DataStore.java,v 1.3 2003/11/19 05:56:39 jive Exp $
  */
 public interface DataStore {
     /**
@@ -108,6 +123,49 @@ public interface DataStore {
      */
     void createSchema(FeatureType featureType) throws IOException;
 
+    /**
+     * Used to force namespace and CS info into a persistent change.
+     * <p>
+     * The provided featureType should completely cover the existing schema.
+     * All attributes should be accounted for and the typeName should match.
+     * </p>
+     * <p>
+     * Suggestions:
+     * </p>
+     * <ul>
+     * <li>Sean - don't do this</li>
+     * <li>Jody - Just allow changes to metadata: CS, namespace, and others</li> 
+     * <li>James - Allow change/addition of attribtues</li> 
+     * </ul>
+     * @param typeName
+     * @throws IOException
+     */
+    void updateSchema( String typeName, FeatureType featureType ) throws IOException;
+
+    /**
+     * Access a FeatureSource for Query providing a high-level API.
+     * <p>
+     * The provided Query does not need to completely cover the existing
+     * schema for Query.getTypeName(). The result will mostly likely only be
+     * a FeatureSource and probably wont' allow write access by the
+     * FeatureStore method.
+     * </p>
+     * <p>
+     * By using Query we allow support for reprojection, in addition
+     * to overriding the CoordinateSystem used by the native FeatureType.
+     * </p>
+     * <p>
+     * We may wish to limit this method to only support Queries using
+     * Filter.ALL.
+     * </p> 
+     * @param Query Query.getTypeName() locates FeatureType being viewed
+     *
+     * @return FeatureSource providing opperations for featureType
+     * @throws IOException If FeatureSource is not available
+     * @throws SchemaException If fetureType is not covered by existing schema
+     */
+    //FeatureSource getView( Query query ) throws IOException, SchemaException;
+    
     /**
      * Access a FeatureSource for typeName providing a high-level API.
      * 
