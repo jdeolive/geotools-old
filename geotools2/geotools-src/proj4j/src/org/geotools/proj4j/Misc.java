@@ -11,8 +11,8 @@ import java.util.StringTokenizer;
  *
  * @author  James Macgill
  */
-public class Misc {
-
+public class Misc implements Constants{
+    
     
     
     
@@ -81,7 +81,7 @@ public class Misc {
                     if (nl!=0) {
                         //pj_errno = -16;
                         return Double.MAX_VALUE;
-                    }                 
+                    }
                     v = tv;
                     n = 4;
                     continue;
@@ -109,7 +109,19 @@ public class Misc {
         return v;
     }
     
- 
     
+    /* determine small q */
+    public static double qsfn(double sinphi, double e, double one_es) {
+        double con;        
+        if (e >= EPS) {
+            con = e * sinphi;
+            return (one_es * (sinphi / (1. - con * con) -
+            (.5 / e) * Math.log((1. - con) / (1. + con))));
+        } else
+            return (sinphi + sinphi);
+    }
     
+    public static double msfn(double sinphi, double cosphi, double es) {
+	return (cosphi / Math.sqrt (1. - es * sinphi * sinphi));
+    }
 }
