@@ -67,12 +67,41 @@ public class SQLUnpacker {
      * the unpacking, getUnSupported() and getSupported() must be called.
      *
      * @param filter to be unpacked.
+     * @deprecated unPacking now can be done splitting on an AND or an OR.  unPackAND
+     * replaces this generic unPack (which assumed an AND unpacking), and 
+     * unPackOR is added to handle the OR case.  So use unPackAND where ever 
+     * this is currently used.
      */
     public void unPack(Filter filter){
 	//this can be easily changed to return a pair, but adding a FilterPair
 	//class to the Filter package seems to add unnecessary clutter.
-	pair = doUnPack(filter);
+	pair = doUnPack(filter, AbstractFilter.LOGIC_AND);
     }
+
+    /** 
+     * Performs the unpacking of a filter, for the cases when ANDs can
+     * be spit and ORs can not.  To get the results of the unpacking
+     * getUnsupported and getSupported must be called before another unpacking
+     * is done.
+     *
+     *@param filter to be unpacked, split on ANDs
+     */
+    public void unPackAND(Filter filter){
+	pair = doUnPack(filter, AbstractFilter.LOGIC_AND);
+    }
+
+    /** 
+     * Performs the unpacking of a filter, for the cases when ORs can
+     * be split and ANDs can not.  To get the results of the unpacking
+     * getUnsupported and getSupported must be called before another unpacking
+     * is done.
+     *
+     *@param filter to be unpacked, split on ANDs
+     */
+    public void unPackOR(Filter filter){
+	pair = doUnPack(filter, AbstractFilter.LOGIC_OR);
+    }
+    
 
   /**
      * After an unPack has been called, returns the resulting
@@ -105,11 +134,13 @@ public class SQLUnpacker {
 
 
     /**
-     * Performs the actual recursive unpacking of the filter.  
-     *
+     * Performs the actual recursive unpacking of the filter.  Can do the unpacking
+     * on either AND or OR filters.  
+     * @param filter the filter to be split
+     * @param splitType the short representation of the logic filter to recursively unpack.
      * @return A filter of the unsupported parts of the unPacked filter.
      */
-    private FilterPair doUnPack(Filter filter) {
+    private FilterPair doUnPack(Filter filter, short splitType) {
 	/* Implementation notes:
 	 * This is recursive, so it's worth explaining.  The base cases are either
 	 * the filter is fully supported, ie all of its subFilters are supported, and
@@ -127,6 +158,10 @@ public class SQLUnpacker {
 	 * filter pair, and return the filter for the other half, depending on if it's unsupported
 	 * or supported.  For the NOT filter, it just descends further, unpacking the filter
 	 * inside the NOT, and then tacking NOTs on the supported and unsupported sub filters.
+	 *---addition:  No longer just ANDs supported.  ORs can be split, same as previous 
+	 * paragraph, but switch ORs with ANDs, there are cases, such as the delete statement,
+	 * where we have to split on ORs and can't on ANDs (opposite of get statement).  Should
+	 * work the same, just a different logic filter.
 	 */
 	FilterPair retPair;
 	FilterPair subPair;
@@ -138,15 +173,12 @@ public class SQLUnpacker {
 	    retSup = filter;
 	} else {
 	    short type = ((AbstractFilter)filter).getFilterType();
-	    if (type == AbstractFilter.LOGIC_OR) {
-		retUnSup = filter;
-	    } else if (type == AbstractFilter.LOGIC_AND &&
-		      capabilities.supports(AbstractFilter.LOGIC_AND)){
-		   //one special case not covered, when capabilities does not support
+	     if (type == splitType && capabilities.supports(splitType)){
+		   //TODO: one special case not covered, when capabilities does not support
 		    // AND and it perfectly splits the filter into unsupported and supported
 		Iterator filters = ((LogicFilter)filter).getFilterIterator();
 		while (filters.hasNext()) {
-		    subPair = doUnPack((Filter)filters.next());
+		    subPair = doUnPack((Filter)filters.next(), splitType);
 		    subSup = subPair.getSupported();
 		    subUnSup = subPair.getUnSupported();
 		    retSup = combineFilters(retSup, subSup);
@@ -155,7 +187,7 @@ public class SQLUnpacker {
 	    } else if ( type == AbstractFilter.LOGIC_NOT &&
 			capabilities.supports(AbstractFilter.LOGIC_NOT)){
 		Iterator filters = ((LogicFilter)filter).getFilterIterator();
-		subPair = doUnPack((Filter)filters.next()); //NOT only has one
+		subPair = doUnPack((Filter)filters.next(), splitType); //NOT only has one
 		subSup = subPair.getSupported();
 		subUnSup = subPair.getUnSupported();
 		    if (subSup != null){
@@ -164,7 +196,7 @@ public class SQLUnpacker {
 		    if (subUnSup != null){
 			retUnSup = subUnSup.not(); 
 		    }		
-	    } else { //it's not supported and has no logic sub filters
+	    } else { //it's not supported and has no logic subfilters to be split.
 		retUnSup = filter;
 	    } 
 	   
