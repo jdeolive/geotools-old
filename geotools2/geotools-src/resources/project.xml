@@ -3,38 +3,38 @@
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-resources</name>
-   <extend>../../project.xml</extend>
+  <extend>../../project.xml</extend>
   <id>resources</id>
   <currentVersion>0.1</currentVersion>
- 
+
   <package>org.geotools</package>
   <shortDescription>resources module</shortDescription>
-  
   <description>resources module</description>
-  
-  
 
   <developers>
-            
-        <developer>
+    <developer>
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
       <organization>none</organization>
-            <roles>
-               <role>Module Maintainer</role>
-               <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
   </developers>
+
   <dependencies>
-  <dependency>
+    <dependency>
       <id>junit</id>
       <version>3.7</version>
       <type>test</type>
       <url>http://junit.org/</url>
     </dependency>
+    <dependency>
+      <id>vecmath</id>
+      <version>1.2.1</version>
+    </dependency>
   </dependencies>
- 
-</project>
 
+</project>

@@ -29,7 +29,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.util;
+package org.geotools.math;
 
 // Miscellaneous
 import java.util.Locale;
@@ -63,14 +63,14 @@ import org.geotools.resources.rsc.ResourceKeys;
  * System.out.println(stats);
  * </pre></blockquote>
  *
- * @version $Id: Statistics.java,v 1.1 2003/01/31 23:14:43 desruisseaux Exp $
+ * @version $Id: Statistics.java,v 1.1 2003/02/04 12:30:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Statistics implements Cloneable, Serializable {
     /**
      * Serial number for compatibility with different versions.
      */
-    private static final long serialVersionUID = -5535050387936952292L;
+    private static final long serialVersionUID = -22884277805533726L;
 
     /**
      * Valeur minimale qui aie été transmise à la méthode
@@ -376,14 +376,14 @@ public class Statistics implements Cloneable, Serializable {
      * <var>s<sub>3</sub></var>-<var>s<sub>2</sub></var>...,
      * which are stored in a {@link #getDeltaStatistics delta} statistics object.
      *
-     * @version $Id: Statistics.java,v 1.1 2003/01/31 23:14:43 desruisseaux Exp $
+     * @version $Id: Statistics.java,v 1.1 2003/02/04 12:30:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Delta extends Statistics {
         /**
          * Serial number for compatibility with different versions.
          */
-        private static final long serialVersionUID = 2233250351296034391L;
+        private static final long serialVersionUID = 3464306833883333219L;
 
         /**
          * Statistics about the differences between consecutive sample values.
