@@ -54,7 +54,7 @@ import org.geotools.ct.NoninvertibleTransformException;
  * This class is really a special case of {@link MatrixTransform} using a 2&times;2 affine
  * transform. However, this specialized <code>LinearTransform1D</code> class is faster.
  *
- * @version $Id: LinearTransform1D.java,v 1.3 2002/07/18 09:10:49 desruisseaux Exp $
+ * @version $Id: LinearTransform1D.java,v 1.4 2002/07/22 10:46:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class LinearTransform1D extends AbstractMathTransform
@@ -214,8 +214,8 @@ class LinearTransform1D extends AbstractMathTransform
      */
     public int hashCode() {
         long code;
-        code = 78512786 + Double.doubleToLongBits(offset);
-        code =  code*37 + Double.doubleToLongBits(scale);
+        code = 78512786 + Double.doubleToRawLongBits(offset);
+        code =  code*37 + Double.doubleToRawLongBits(scale);
         return (int)(code >>> 32) ^ (int)code;
     }
     
@@ -230,8 +230,16 @@ class LinearTransform1D extends AbstractMathTransform
         }
         if (super.equals(object)) {
             final LinearTransform1D that = (LinearTransform1D) object;
-            return Double.doubleToLongBits(this.scale)  == Double.doubleToLongBits(that.scale) &&
-                   Double.doubleToLongBits(this.offset) == Double.doubleToLongBits(that.offset);
+            return Double.doubleToRawLongBits(this.scale)  == Double.doubleToRawLongBits(that.scale) &&
+                   Double.doubleToRawLongBits(this.offset) == Double.doubleToRawLongBits(that.offset);
+            /*
+             * NOTE: 'LinearTransform1D' and 'ConstantTransform1D' are heavily used by 'Category'
+             *       from 'org.geotools.cv' package. It is essential for Cateory to differenciate
+             *       various NaN values. Because 'equals' is used by WeakHashSet.canonicalize(..)
+             *       (which is used by 'MathTransformFactory'),   test for equality can't use the
+             *       'doubleToLongBits' method because it collapse all NaN into a single canonical
+             *       value. The 'doubleToRawLongBits' instead provided the needed functionality.
+             */
         }
         return false;
     }
