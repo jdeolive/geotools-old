@@ -24,7 +24,7 @@ public class GtWmsServerTest extends TestCase {
     
     public GtWmsServerTest(String name) {
         super(name);
-        Geotools.init();
+        //Geotools.init();
        
     }
     
