@@ -73,7 +73,8 @@ import java.util.logging.Logger;
 /**
  * Extends PostgisFeatureLocking with support for Locking.
  * <p>
- * This class will be, "gasp", modey.
+ * This class will be, horror, modey. While the are plenty of Object Oriented
+ * ways to fix this I have a deadline right now.
  * </p>
  * <p>
  * When the DataStore is constructed it will create a LockingManager only if
@@ -86,7 +87,7 @@ import java.util.logging.Logger;
  * </p>
  * 
  * @author Jody Garnett, Refractions Research, Inc
- * @version $Id: PostgisFeatureLocking.java,v 1.1 2003/11/21 22:25:07 jive Exp $
+ * @version $Id: PostgisFeatureLocking.java,v 1.2 2003/11/21 23:27:59 jive Exp $
  *
  */
 public class PostgisFeatureLocking extends PostgisFeatureStore implements FeatureLocking {
@@ -97,7 +98,6 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
         super(postgisDataStore, featureType);
     }
     
-
     /**
      * Provide a FeatureLock for locking opperations to opperate against.
      * <p>

@@ -59,7 +59,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.5 2003/11/21 18:18:25 cholmesny Exp $
+ * @version $Id: PostgisDataStore.java,v 1.6 2003/11/21 23:29:44 jive Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -361,7 +361,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      */
     public FeatureSource getFeatureSource(String typeName)
         throws IOException {
-        return new PostgisFeatureStore(this, getSchema(typeName));
+        return new PostgisFeatureLocking(this, getSchema(typeName));
 
         //if (getLockingManager() != null) {
         // Use default JDBCFeatureLocking that delegates all locking

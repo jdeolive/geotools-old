@@ -240,7 +240,9 @@ public class InProcessLockingManager implements LockingManager {
      * is equivalent to the WFS locking specification)
      * </li>
      * </ul>
-     * 
+     * <p>
+     * Right now we are just going to error out with an exception
+     * </p>
      *
      * @param typeName Feature type to check against
      * @param featureID FeatureID to check
@@ -249,12 +251,12 @@ public class InProcessLockingManager implements LockingManager {
      * @throws IOException If transaction does not have sufficient
      *         authroization
      */
-    void assertAccess(String typeName, String featureID, Transaction transaction)
-        throws IOException {
+    public void assertAccess(String typeName, String featureID, Transaction transaction)
+        throws FeatureLockException {
         Lock lock = getLock(typeName, featureID);
 
         if ((lock != null) && !lock.isAuthorized(transaction)) {
-            throw new IOException(
+            throw new FeatureLockException(
                 "Transaction does not have authorization for " + typeName + ":"
                 + featureID);
         }

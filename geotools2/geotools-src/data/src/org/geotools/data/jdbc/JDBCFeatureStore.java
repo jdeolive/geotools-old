@@ -17,18 +17,26 @@
 package org.geotools.data.jdbc;
 
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
+import org.geotools.data.FeatureLockException;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
+import org.geotools.data.InProcessLockingManager;
+import org.geotools.data.LockingManager;
+import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
+
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 
@@ -45,7 +53,9 @@ import java.util.Set;
  *       transaction.  This way if the writer messes up its changes are rolled
  *       back.  The old jdbc datasources supported this, and it'd be nice to
  *       do here as well.
- * @task UPDATE: made modify atomic as an example
+ * @task UPDATE: made modify atomic as an example, I actually have
+ *       the beginings of a smart idea in mind. Similar to
+ *       SwingUtilities.runLater...
  */
 public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore {
     /** Current Transaction this FeatureSource is opperating against */
@@ -59,7 +69,78 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
     public Transaction getTransaction() {
         return transaction;
     }
-
+    
+    /**
+     * Used by subclasses to access locking manager.
+     * <p>
+     * All our implementations here are rely on
+     * FeatureWriter to check the locks.
+     * </p>
+     * <p>
+     * When making your own SQL opperations, have a look at
+     * assertFids( Set fids ), and assertFids( Filter ). You 
+     * may use these to check against the lockingManager if one is used.
+     * </p>
+     * If the lockingManager is not used, ie is null, it assumed that you are
+     * making use of native database locks. Or doing your own thing.
+     * </p>
+     * <p>
+     * That is the assertFids functions only when lockingManager is non null.
+     * </p>
+     * @return LockingManager
+     */
+    protected InProcessLockingManager getInProcessLockingManager(){
+        LockingManager lockingManager = getJDBCDataStore().getLockingManager();
+        if( lockingManager instanceof InProcessLockingManager){
+            return (InProcessLockingManager) lockingManager;
+        }
+        return null;
+    }
+    protected Set fids( Filter filter ) throws NoSuchElementException, IOException, IllegalAttributeException{
+        Set fids = new HashSet();
+        String typeName = getSchema().getTypeName();        
+        DefaultQuery query = new DefaultQuery( typeName, filter, Integer.MAX_VALUE, Query.NO_NAMES, "fids" );
+        FeatureReader reader =
+            getJDBCDataStore().getFeatureReader( query, getTransaction() );
+        try {
+            while( reader.hasNext() ){
+                fids.add( reader.next().getID() );   
+            }
+        }
+        finally {
+            reader.close();            
+        }
+        return fids;
+    }
+    protected void assertFilter( Filter filter ) throws IOException {
+        if( getInProcessLockingManager() == null ){
+            return; // subclass is doing its own thing
+        }        
+        Set set = null;
+        try {
+            set = fids( filter );    
+        }
+        catch( NoSuchElementException huh){
+            throw new FeatureLockException("Could not verify filter:", huh );
+        }
+        catch( IllegalAttributeException eh){
+            throw new FeatureLockException("Could not verify filter:", eh );            
+        } 
+        assertFids( set );
+    }
+    protected void assertFids( Set fids ) throws FeatureLockException {
+        InProcessLockingManager lockingManager = getInProcessLockingManager();
+        if( lockingManager == null ){
+            return; // subclass is doing its own thing
+        }
+        Transaction t = getTransaction();
+        String typeName = getSchema().getTypeName();
+        String fid;
+        for( Iterator i=fids.iterator(); i.hasNext();){
+            fid = (String) i.next();
+            lockingManager.assertAccess( typeName, fid, transaction );
+        }        
+    }
     // 
     // FeatureStore implementation against DataStore API
     // 

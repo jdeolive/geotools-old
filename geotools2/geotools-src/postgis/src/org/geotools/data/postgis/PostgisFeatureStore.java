@@ -29,6 +29,7 @@ import org.geotools.data.DataSourceMetaData;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureResults;
+import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.JDBCFeatureStore;
@@ -76,7 +77,7 @@ import java.util.logging.Logger;
  * do some solid tests to see which is actually faster.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisFeatureStore.java,v 1.1 2003/11/21 00:19:20 cholmesny Exp $
+ * @version $Id: PostgisFeatureStore.java,v 1.2 2003/11/21 23:27:59 jive Exp $
  *
  * @task HACK: too little code reuse with PostgisDataStore.
  * @task TODO: Optimize getBounds.
@@ -117,7 +118,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
             encoder.setSRID(srid);
         }
     }
-
+    
     /**
      * Returns a feature collection, based on the passed filter.  The schema of
      * the features passed in must match the schema of the datasource.
@@ -140,8 +141,6 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
      *       working against a Transaction.
      */
     public Set addFeatures(FeatureReader reader) throws IOException {
-        //boolean previousAutoCommit = getAutoCommit();
-        //setAutoCommit(false);
         boolean fail = false;
         Set curFids = null;
         Set newFids = null;
@@ -163,7 +162,6 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
                     LOGGER.finer("this sql statement = " + sql);
                     statement.executeUpdate(sql);
                 }
-
                 newFids = getFidSet(conn);
                 LOGGER.fine("fids after add: " + newFids);
                 newFids.removeAll(curFids);
@@ -257,15 +255,22 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
      */
     private String makeInsertSql(String tableName, Feature feature)
         throws IOException {
+                    
         String attrValue;
-        StringBuffer sql = new StringBuffer("INSERT INTO \"" + tableName
-                + "\"(");
-        FeatureType featureSchema = feature.getFeatureType();
+        StringBuffer sql = new StringBuffer();
 
+        sql.append("INSERT INTO \"" );
+        sql.append( tableName );
+        sql.append( "\"(" );
+        
+        
+        FeatureType featureSchema = feature.getFeatureType();            
         AttributeType[] types = featureSchema.getAttributeTypes();
 
         for (int i = 0; i < types.length; i++) {
-            sql.append("\"" + types[i].getName() + "\"");
+            sql.append("\"");
+            sql.append( types[i].getName() );
+            sql.append( "\"");
             sql.append((i < (types.length - 1)) ? ", " : ") ");
         }
 
@@ -277,7 +282,11 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
             if (types[j].isGeometry()) {
                 int srid = getSRID(types[j].getName());
                 String geoText = geometryWriter.write((Geometry) attributes[j]);
-                sql.append("GeometryFromText('" + geoText + "', " + srid + ")");
+                sql.append("GeometryFromText('" );
+                sql.append( geoText );
+                sql.append( "', " );
+                sql.append( srid );
+                sql.append( ")" );
             } else {
                 attrValue = addQuotes(attributes[j]);
                 sql.append(attrValue);
@@ -287,7 +296,6 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
                 sql.append(", ");
             }
         }
-
         sql.append(");");
 
         return sql.toString();
@@ -334,8 +342,14 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         String fid = null;
         String whereStmt = null;
 
+        // check locks!
+        // (won't do anything if we use our own
+        // database locking)
+        assertFilter( filter );
+        
         //boolean previousAutoCommit = getAutoCommit();
         //setAutoCommit(false);
+        
         boolean fail = false;
         SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
         unpacker.unPackOR(filter);
@@ -431,6 +445,11 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
      */
     public void modifyFeatures(AttributeType[] type, Object[] value,
         Filter filter) throws IOException {
+        // check locks!
+        // (won't do anything if we use our own
+        // database locking)
+        assertFilter( filter );
+            
         //boolean previousAutoCommit = getAutoCommit();
         //setAutoCommit(false);
         boolean fail = false;
