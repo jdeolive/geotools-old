@@ -125,7 +125,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.39 2004/04/15 17:08:43 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.40 2004/04/17 19:55:09 jmacgill Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -1431,22 +1431,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
         CustomGlyphRenderer cgr = new CustomGlyphRenderer();
 
         if (eg.getFormat().toLowerCase() == "image/svg") {
-            try {
-                URL svgfile = eg.getLocation();
-                InternalTranscoder magic = new InternalTranscoder();
-                org.apache.batik.transcoder.TranscoderInput in = new org.apache.batik.transcoder.TranscoderInput(svgfile
-                        .openStream());
-                magic.transcode(in, null);
-                img = magic.getImage();
-            } catch (IOException mue) {
-                LOGGER.warning("Unable to load external svg file, " + mue.getMessage());
-
-                return false;
-            } catch (Exception te) {
-                LOGGER.warning("Unable to render external svg file, " + te.getMessage());
-
-                return false;
-            }
+            SVGGlyphRenderer svggrend = new SVGGlyphRenderer();
+            img = svggrend.render(graphic, eg, feature);
         } else if (cgr.canRender(eg.getFormat())) {
             Map props = eg.getCustomProperties();
             GlyphPropertiesList list = cgr.getGlyphProperties();
