@@ -35,7 +35,7 @@ import org.geotools.vpf.Coordinate3DDouble;
  * <p>
  * Created: Wed Jan 29 10:06:37 2003
  * </p>
- * @version $Id: DataUtils.java,v 1.6 2003/03/26 15:19:54 kobit Exp $
+ * @version $Id: DataUtils.java,v 1.7 2003/03/26 15:28:45 kobit Exp $
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
  */
 
@@ -119,7 +119,7 @@ public class DataUtils implements DataTypesDefinition
 	  case DATA_NULL_FIELD:
 
 		break;
-	  case DATA_TRIPLED_ID:
+	  case DATA_TRIPLET_ID:
 
 	  default:
 		break;
@@ -239,8 +239,8 @@ public class DataUtils implements DataTypesDefinition
 	  case DATA_NULL_FIELD:
 		size = DATA_NULL_FIELD_LEN;
 		break;
-	  case DATA_TRIPLED_ID:
-		size = DATA_TRIPLED_ID_LEN;
+	  case DATA_TRIPLET_ID:
+		size = DATA_TRIPLET_ID_LEN;
 	  default:
 		break;
 	} // end of switch (type)
@@ -266,7 +266,7 @@ public class DataUtils implements DataTypesDefinition
 	  case DATA_2_COORD_R:
 	  case DATA_3_COORD_F:
 	  case DATA_3_COORD_R:
-	  case DATA_TRIPLED_ID:
+	  case DATA_TRIPLET_ID:
 		return true;
 	  default:
 		return false;

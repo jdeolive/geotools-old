@@ -210,7 +210,7 @@ public class RowFieldTest extends TestCase
     DATA_3_COORD_R,
     DATA_DATE_TIME,
     DATA_NULL_FIELD,
-    DATA_TRIPLED_ID,
+    DATA_TRIPLET_ID,
   };
 
   /**
