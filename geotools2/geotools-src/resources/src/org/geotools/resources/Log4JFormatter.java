@@ -241,6 +241,7 @@ public class Log4JFormatter
                     }
                 }
                 logger.addHandler(handler);
+		logger.setLevel(filterLevel);
             }
         }
         logger.setUseParentHandlers(false);
