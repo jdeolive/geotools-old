@@ -16,7 +16,7 @@
  */
 package org.geotools.feature;
 
-import org.geotools.cs.CoordinateSystem;
+//import org.geotools.cs.CoordinateSystem;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
 
@@ -56,7 +56,7 @@ public interface GeometryAttributeType extends AttributeType {
      * 
      * @return CS_CoordinateSystem for this GeometryAttributeType
      */
-    public Object getCoordianteSystem();
+    public Object getCoordinateSystem();
     
     /**
      * The Geometryfactory used for creating new content.
