@@ -120,7 +120,7 @@ package org.geotools.feature;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureType.java,v 1.6 2003/07/17 07:09:52 ianschneider Exp $
+ * @version $Id: FeatureType.java,v 1.7 2003/07/21 23:41:48 ianschneider Exp $
  *
  *
  * @see org.geotools.feature.Feature
@@ -129,12 +129,6 @@ package org.geotools.feature;
  */
 public interface FeatureType extends FeatureFactory {
   
-
-  /** A type safe mechanism for describing the basic "type" of all Features.<br>
-   * <b>Implementation Note:</b> <br>Relies on FeatureTypeFactory...
-   */  
-    static FeatureType GML_FEATURE = FeatureTypeFactory.safeFeatureType(
-      null, "Feature","http://www.opengis.net/gml",true);
     
     /*
      * Redesign notes:

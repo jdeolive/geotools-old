@@ -27,7 +27,7 @@ import java.util.*;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.6 2003/07/19 00:03:06 ianschneider Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.7 2003/07/21 23:40:55 ianschneider Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -171,36 +171,7 @@ public class DefaultAttributeType implements AttributeType {
         return "DefaultAttributeType [" + details + "]";
     }
 
-    /**
-     * Whether the tested object passes the validity constraints of  this
-     * AttributeType.  At a minimum it should be of the correct class
-     * specified by {@link #getType()}, non-null if isNillable is
-     * <tt>false</tt>, and a geometry if isGeometry is <tt>true</tt>
-     *
-     * @param attribute The object to be tested for validity.
-     *
-     * @return <tt>true</tt> if the object is allowed to be an attribute for
-     *         this type, <tt>false</tt> otherwise.
-     * @task REVISIT: throw exception if not valid?  The current way loses
-     *       reporting on why the object is not valid.  Would be nice if
-     *       there was a way to get that back, not null, wrong class, ect.
-     */
-    public boolean isValid(Object attribute) {
-        boolean isValid = false;
 
-        if (attribute != null) { //check if attribute is null
-            //if not check to make sure it's the right class.
-            isValid = getType().isAssignableFrom(attribute.getClass());
-        } else {
-            if (!isNillable()) {
-                isValid = false; //attribute is null but nils not allowed.
-            } else {
-                isValid = true;
-            }
-        }
-
-        return isValid;
-    }
     
     public Object parse(Object value) throws IllegalArgumentException {
       return value;

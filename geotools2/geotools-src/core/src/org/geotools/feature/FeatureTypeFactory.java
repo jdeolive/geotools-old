@@ -47,7 +47,7 @@ import org.geotools.factory.*;
  * 
  * This class is not thread-safe.
  *
- * @version $Id: FeatureTypeFactory.java,v 1.3 2003/07/21 21:43:44 ianschneider Exp $
+ * @version $Id: FeatureTypeFactory.java,v 1.4 2003/07/21 23:41:49 ianschneider Exp $
  * @author  Ian Schneider
  */
 public abstract class FeatureTypeFactory implements Factory {
@@ -58,7 +58,9 @@ public abstract class FeatureTypeFactory implements Factory {
   private FeatureType type = null;
   private AttributeType defaultGeometry = null;
   private boolean abstractType = false;
-  private java.util.Collection superTypes;
+  private java.util.Set superTypes;
+  private static Set builtInTypes = null;
+  private static boolean initialized;
  
   /** An empty public constructor. Subclasses should not provide a constructor. */  
   public FeatureTypeFactory() {} 
@@ -96,6 +98,7 @@ public abstract class FeatureTypeFactory implements Factory {
     FeatureTypeFactory factory = newInstance(name);
     factory.addTypes(types);
     factory.setNamespace(ns);
+    factory.setAbstract(isAbstract);
     if (superTypes != null) 
       factory.setSuperTypes(Arrays.asList(superTypes));
     return factory.getFeatureType();
@@ -165,23 +168,18 @@ public abstract class FeatureTypeFactory implements Factory {
   }
   
   public final void setSuperTypes(java.util.Collection types) {
-    superTypes = new java.util.HashSet(types);
+    superTypes = new java.util.LinkedHashSet(types);
   }
   
   public final java.util.Collection getSuperTypes() {
+    Set supers = superTypes == null ? new HashSet() : superTypes;
     Set builtin = getBuiltinTypes();
-    if (superTypes != null)
-      builtin.addAll( superTypes );
-    return builtin;
+    if (builtin != null)
+      supers.addAll(builtin);
+    System.out.println("supers " + supers);
+    return supers;
   }
   
-  static FeatureType safeFeatureType(AttributeType[] types,String name,String ns,boolean isAbstract) {
-    try {
-      return newFeatureType(types,name,ns,isAbstract);
-    } catch (Exception e) {
-      throw new RuntimeException("Error in FeatureTypeFactory",e); 
-    }
-  }
   
   /** A convienence method for importing AttributeTypes, simply calls<br>
    * <code>
@@ -405,20 +403,18 @@ public abstract class FeatureTypeFactory implements Factory {
         throw new SchemaException("Cannot create FeatureType with null or blank name"); 
       }
       
-      if (isAbstract()) {
-        type = createAbstractType();
-        if (type != null && !type.isAbstract())
-          throw new RuntimeException("FeatureTypeFactory poorly implemented, " +
-          "expected abstract type, received " + type);
-      } else {
-        // let the subclass create it.
-        type = createFeatureType();
-      }
+      type = createFeatureType();
       
       // oops, the subclass messed up...
       if (type == null) {
         throw new NullPointerException(getClass().getName() + ".createFeatureType()");
       }
+      
+      if (isAbstract() && ! type.isAbstract()) {
+        throw new RuntimeException("FeatureTypeFactory poorly implemented, " +
+          "expected abstract type, received " + type);
+      } 
+      
       // not dirty anymore.
       dirty = false;
     }
@@ -457,18 +453,28 @@ public abstract class FeatureTypeFactory implements Factory {
     } 
   }
   
-  protected Set getBuiltinTypes() {
-    HashSet builtins = new HashSet();
-    builtins.add(FeatureType.GML_FEATURE);
-    return builtins;
+  protected final Set getBuiltinTypes() {
+    if (builtInTypes == null && !initialized) {
+      builtInTypes = new HashSet();
+        try {
+          builtInTypes.add(newFeatureType(null,"Feature","http://www.opengis.net/gml",true));
+          initialized = true;
+        } catch (Exception e) {
+          throw new RuntimeException(e); 
+        }
+      addBaseTypes(builtInTypes);
+    }
+    return builtInTypes;
+  }
+  
+  protected void addBaseTypes(Set types) {
+    // base class hook
   }
   
   /**
    * @return
    */  
   protected abstract FeatureType createFeatureType() throws SchemaException;
-  
-  protected abstract FeatureType createAbstractType() throws SchemaException;;
   
   /**
    * @param type

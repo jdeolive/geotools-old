@@ -23,7 +23,7 @@ import java.util.*;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.6 2003/07/21 21:45:14 ianschneider Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.7 2003/07/21 23:40:55 ianschneider Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     private final String typeName;
@@ -153,7 +153,11 @@ public class DefaultFeatureType implements FeatureType {
     }
 
     public String toString() {
-        String types = "";
+        String info = "name=" + typeName;
+        info += " , namespace=" + namespace;
+        info += " , abstract=" + isAbstract();
+      
+        String types = "types=(";
 
         for (int i = 0, ii = this.types.length; i < ii; i++) {
             types += this.types[i].toString();
@@ -162,8 +166,11 @@ public class DefaultFeatureType implements FeatureType {
                 types += ",";
             }
         }
+        
+        types += ")";
+        info += " , " + types;
 
-        return "DefaultFeatureType ( " + types + ")";
+        return "DefaultFeatureType [" + info + "]";
     }
 
     public boolean equals(Object other) {

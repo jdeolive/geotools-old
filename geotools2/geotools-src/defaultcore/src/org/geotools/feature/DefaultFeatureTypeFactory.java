@@ -30,7 +30,7 @@ import java.util.ArrayList;
  * <code>createFeatureType</code> to return whatever type of FeatureType you 
  * want.
  *
- * @version $Id: DefaultFeatureTypeFactory.java,v 1.3 2003/07/21 21:45:14 ianschneider Exp $
+ * @version $Id: DefaultFeatureTypeFactory.java,v 1.4 2003/07/21 23:40:55 ianschneider Exp $
  * @author Ian Schneider, USDA-ARS
  */
 public class DefaultFeatureTypeFactory extends FeatureTypeFactory {
@@ -46,6 +46,8 @@ public class DefaultFeatureTypeFactory extends FeatureTypeFactory {
   }
   
   protected FeatureType createFeatureType() throws SchemaException {
+    if (isAbstract())
+      return createAbstractType();
     return new DefaultFeatureType(getName(), getNamespace(), attributeTypes, getSuperTypes(),getDefaultGeometry());
   }
   
