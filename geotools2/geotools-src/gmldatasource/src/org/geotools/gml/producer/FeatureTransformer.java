@@ -40,7 +40,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
-import org.geotools.data.FeatureResults;
+import org.geotools.data.FeatureReader;
 import org.geotools.feature.FeatureType;
 import org.geotools.xml.transform.TransformerBase;
 import org.xml.sax.helpers.NamespaceSupport;
@@ -50,7 +50,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  * (hopefully) valid gml. This is a work in progress, so please be patient.
  * A simple example of how to use this class follows:<pre>
  *
- *   FeatureCollection collection;
+ *   FeatureCollection collection; // can also use FeatureReader!!
  *   OutputStream out;
  *
  *   FeatureTransformer ft = new FeatureTransformer();
@@ -82,11 +82,14 @@ import org.xml.sax.helpers.NamespaceSupport;
  *   FeatureTransformer ft = new FeatureTransformer();
  *   ft.getFeatureTypeNamespaces().declareDefaultNamespace("xxx","http://somewhere.org");
  * </pre>
+ * <br/>
+ * The collectionNamespace and prefix property refers to the prefix and namespace
+ * given to the document root and defualts to wfs,http://www.opengis.wfs.
+ * 
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.10 2003/11/06 00:03:44 ianschneider Exp $
- * @task TODO: Interior rings of polygons.
- * @task TODO: srs printed, multi namespaces, bbox.
+ * @version $Id: FeatureTransformer.java,v 1.11 2003/11/06 00:25:56 ianschneider Exp $
+ * @todo Add support for schemaLocation
  */
 public class FeatureTransformer extends TransformerBase {
     
@@ -190,6 +193,24 @@ public class FeatureTransformer extends TransformerBase {
             if (o instanceof FeatureCollection) {
                 FeatureCollection fc = (FeatureCollection) o;
                 FeatureCollectionIteration.iteration(this, fc);
+            } else if (o instanceof FeatureReader) {
+                // THIS IS A HACK FOR QUICK USE
+                FeatureReader r = (FeatureReader) o;
+                startFeatureCollection();
+                try {
+                    while (r.hasNext()) {
+                        Feature f = r.next();
+                        handleFeature(f);
+                        FeatureType t = f.getFeatureType();
+                        for (int i = 0, ii = f.getNumberOfAttributes(); i < ii; i++) {
+                            handleAttribute(t.getAttributeType(i),f.getAttribute(i));
+                        }
+                        endFeature(f);
+                    }
+                } catch (Exception ioe ) {
+                    throw new RuntimeException("Error reading Features",ioe);
+                }
+                endFeatureCollection();
             } else {
                 throw new IllegalArgumentException("Cannot encode " + o);
             }
