@@ -18,13 +18,15 @@ package org.geotools.data;
 
 /**
  * Used to lock features when used with LockingDataSource.
- * 
  * <p>
  * A FeatureLockFactory is used to generate FeatureLocks.
  * </p>
- *
+ * <p>
+ * A FeatureLock representing the Current Transaction has been
+ * provided.</p>
+ * 
  * @author jgarnett, Refractions Research, Inc.
- * @version $Id: FeatureLock.java,v 1.1 2003/09/22 17:44:35 cholmesny Exp $
+ * @version $Id: FeatureLock.java,v 1.2 2003/10/07 19:08:02 jive Exp $
  *
  * @see <a
  *      href="http://vwfs.refractions.net/docs/Database_Research.pdf">Database
@@ -38,6 +40,8 @@ package org.geotools.data;
  * @see FeatureLockFactory
  */
 public interface FeatureLock {
+    /** A FeatureLock representing the current Transaction */
+    static FeatureLock CURRENT_TRANSACTION = new CurrentTransactionLock();
     /**
      * LockId used for transaction authorization.
      *
@@ -51,4 +55,35 @@ public interface FeatureLock {
      * @return A long of the time till the lock expires.
      */
     long getDuration();
+}
+
+class CurrentTransactionLock implements FeatureLock {
+    /**
+     * Transaction locks do not require Authorization.
+     * <p>
+     * Authorization is based on being on "holding" the Transaction
+     * rather than supplying an authorization id.</p>
+     * 
+     * @see org.geotools.data.FeatureLock#getAuthorization()
+     * @return <code>CURRENT_TRANSACTION</code> to aid in debugging.
+     */
+    public String getAuthorization() {
+        return toString();
+    }
+
+    /**
+     * Transaciton locks are not held for a duration.
+     * <p>
+     * Any locking performed against the current Transaction is expected to
+     * expire when the transaction finishes with a close or rollback</p>
+     *  
+     * @see org.geotools.data.FeatureLock#getDuration()
+     * @return <code>-1</code> representing an invalid duration
+     */
+    public long getDuration() {
+        return -1;
+    }
+    public String toString(){
+        return "CURRENT_TRANSACTION";
+    }    
 }
