@@ -67,7 +67,7 @@ import org.geotools.ct.MathTransform2D;
  * affine transform, then an instance of {@link AffineTransform} is returned. Otherwise,
  * a transform backed by the localization grid is returned.
  *
- * @version $Id: LocalizationGrid.java,v 1.3 2002/08/06 14:11:56 desruisseaux Exp $
+ * @version $Id: LocalizationGrid.java,v 1.4 2002/08/06 14:19:40 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -454,7 +454,7 @@ public class LocalizationGrid {
             // Note: 'grid' is not cloned. This GridLocalization's grid
             //       will need to be cloned if a "set" method is invoked
             //       after the math transform creation.
-            transform = new LocalizationGridTransform2D(width, height, grid);
+            transform = new LocalizationGridTransform2D(width, height, grid, getAffineTransform());
         }
         return transform;
     }
