@@ -71,7 +71,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see AffineTransform
  * @see PerspectiveTransform
  *
- * @version $Id: MapProjection.java,v 1.7 2003/02/23 21:26:43 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.8 2003/03/06 23:06:41 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -539,11 +539,11 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
         final double x = Math.toDegrees(ptDst.getX());
         final double y = Math.toDegrees(ptDst.getY());
         ptDst.setLocation(x,y);
-        if (x<Longitude.MIN_VALUE || x>Longitude.MAX_VALUE) { // Accept NaN values.
+        if (x<Longitude.MIN_VALUE-EPS || x>Longitude.MAX_VALUE+EPS) { // Accept NaN values.
             throw new TransformException(Resources.format(
                     ResourceKeys.ERROR_LONGITUDE_OUT_OF_RANGE_$1, new Longitude(x)));
         }
-        if (y<Latitude.MIN_VALUE || y>Latitude.MAX_VALUE) { // Accept NaN values.
+        if (y<Latitude.MIN_VALUE-EPS || y>Latitude.MAX_VALUE+EPS) { // Accept NaN values.
             throw new TransformException(Resources.format(
                     ResourceKeys.ERROR_LATITUDE_OUT_OF_RANGE_$1, new Latitude(y)));
         }
@@ -791,7 +791,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Inverse of a map projection.
      *
-     * @version $Id: MapProjection.java,v 1.7 2003/02/23 21:26:43 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.8 2003/03/06 23:06:41 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
@@ -823,7 +823,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Informations about a {@link MapProjection}.
      *
-     * @version $Id: MapProjection.java,v 1.7 2003/02/23 21:26:43 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.8 2003/03/06 23:06:41 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Provider extends MathTransformProvider {
