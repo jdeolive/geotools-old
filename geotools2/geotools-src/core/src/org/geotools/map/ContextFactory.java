@@ -122,6 +122,6 @@ public abstract class ContextFactory {
      * @param tool The selected tool.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public abstract SelectedTool createSelectedContext(AbstractTool tool)
+    public abstract SelectedTool createSelectedTool(AbstractTool tool)
         throws IllegalArgumentException;
 }

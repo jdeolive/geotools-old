@@ -1,5 +1,13 @@
 package org.geotools.gui.tools;
 
+import java.awt.Component;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.EventObject;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.JComponent;
 import org.geotools.map.Context;
@@ -7,55 +15,96 @@ import org.geotools.gui.widget.Widget;
 
 /**
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
- * Some tools require Widget size information to convert click (x,y) points
- * into relative points (move half a map width to the left).  Consequently,
- * there can only be one widget for each tool.<br>
- * Tools can be created with null parameters at any time.  Tools should be
- * initialsed by Widgets when the Widget assigns a Tool to the Widget.
- * Tools should be destroyed when the owning Widget is destroyed.
- * @task TODO set/getWidget functionality needs to be moved into
- * MouseToolImpl.  This class needs to be renamed AbstractAction.  Actions
- * are like tools but they do not process mouse events.  Actions should be
- * kept in a seperate package.
+ * Tools process mouse events on behalf of widgets like MapPane and change
+ * data in the Context (like the AreaOfInterest).
+ * @version $Id: AbstractToolImpl.java,v 1.5 2003/03/27 11:32:18 camerons Exp $
+ * @author Cameron Shorter
  */
-public abstract class AbstractToolImpl implements AbstractTool {
-    /**
-     * The widget from which this Tool gets MouseEvents.  The widget contains
-     * information like widget size.
-     */
-     protected static Widget widget;
- 
+public abstract class AbstractToolImpl
+    implements AbstractTool,MouseListener,MouseMotionListener
+{
+     /** The widgets that use this Tool for MouseEvents */
+    private List mouseListenerList=
+        Collections.synchronizedList(new ArrayList());
+    
+    /** The widgets that use this Tool for MouseMotionEvents */
+    private List mouseMotionListenerList=
+        Collections.synchronizedList(new ArrayList());
+
     /**
      * A tool is associated with only one context.  The context stores all data
-     * about a mapping model.  This tool will change data in the context class.
+     * about a mapping model.  This tool will change data in context classes.
      */
     protected Context context;
     
     /**
-     * Get the MapPane from which this Tool get's MouseEvents.  If widget has
-     * not been set yet, then null is returned.
-     * @param The MapPane from which this Tool get's MouseEvents.
+     * Register this tool to receive MouseEvents from <code>component<code>.
+     * @param component The tool will process mouseEvents from this component.
+     * @param context The Context that will be changed by this Tool.
+     * @param listener The tool to send mouseEvents to, usually the child of
+     * this class.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     * or the tool is being assigned a different context to before.
      */
-    public Widget getWidget(){
-        return widget;
-    }
-    
-    /**
-     * Set the Widget which sends MouseEvents and contains widget size
-     * information.
-     * @param widget The widget to get size information from.
-     * @throws IllegalStateException if the widget has already been set to
-     * another widget.
-     */
-    public void setWidget(Widget widget) throws IllegalStateException
+    protected void addMouseListener(
+        Component component,
+        Context context,
+        MouseListener listener)
     {
-        if (this.widget==null){
-            this.widget=widget;
-        }else if (this.widget!=widget){
-            throw new IllegalStateException();
+        if ((component==null) || (context==null)
+            || ((this.context!=null)&&(this.context!=context)))
+        {
+            throw new IllegalArgumentException();
+        } else {
+            this.context=context;
+            mouseListenerList.add(component);
+            component.addMouseListener(listener);
         }
     }
     
+    /**
+     * Register this tool to receive MouseMotionEvents from
+     * <code>component<code>.
+     * @param component The tool will process mouseMotionEvents from this
+     * component.
+     * @param listener The tool to send mouseMotionEvents to, usually the child
+     * of his class.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     * or the tool is being assigned a different context to before.
+     */
+    protected void addMouseMotionListener(
+        Component component,
+        Context context,
+        MouseMotionListener listener) throws IllegalArgumentException
+    {
+        if ((component==null) || (context==null)
+            || ((this.context!=null)&&(this.context!=context)))
+        {
+            throw new IllegalArgumentException();
+        } else {
+            this.context=context;
+            mouseMotionListenerList.add(component);
+            component.addMouseMotionListener(listener);
+        }
+    }
+    
+    /**
+     * Remove all Mouse Listeners from this tool.  This method should be called
+     * when this tool is deselected from a MapPane.
+     */
+    public void removeMouseListeners(){
+        Component[] components=(Component[])mouseListenerList.toArray();
+        for (int i=1;i<components.length;i++){
+            components[i].removeMouseListener(this);
+            //components[i].removeMouseMotionListener(this);
+        }
+        components=(Component[])mouseMotionListenerList.toArray();
+        for (int i=1;i<components.length;i++){
+            components[i].removeMouseListener(this);
+            //components[i].removeMouseMotionListener(this);
+        }
+    }
+
     /**
      * Get the context.  If context has not been set yet, then null is returned.
      * @param The context which stores the state data.
@@ -64,11 +113,62 @@ public abstract class AbstractToolImpl implements AbstractTool {
         return context;
     }
     
-    /**
-     * Set the Context for this tool to send data to.
-     * @param context The context to send data to.
+    /** Invoked when the mouse button has been clicked (pressed
+     * and released) on a component.
+     *
      */
-    public void setContext(Context context){
-        this.context=context;
+    public void mouseClicked(MouseEvent e) {
+    }
+    
+    /** Invoked when the mouse enters a component.
+     *
+     */
+    public void mouseEntered(MouseEvent e) {
+    }
+    
+    /** Invoked when the mouse exits a component.
+     *
+     */
+    public void mouseExited(MouseEvent e) {
+    }
+    
+    /** Invoked when a mouse button has been pressed on a component.
+     *
+     */
+    public void mousePressed(MouseEvent e) {
+    }
+    
+    /** Invoked when a mouse button has been released on a component.
+     *
+     */
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    /** Clean up this class.
+     *
+     */
+    public void destroy() {
+        removeMouseListeners();
+    }
+    
+    /** Invoked when a mouse button is pressed on a component and then
+     * dragged.  <code>MOUSE_DRAGGED</code> events will continue to be
+     * delivered to the component where the drag originated until the
+     * mouse button is released (regardless of whether the mouse position
+     * is within the bounds of the component).
+     * <p>
+     * Due to platform-dependent Drag&Drop implementations,
+     * <code>MOUSE_DRAGGED</code> events may not be delivered during a native
+     * Drag&Drop operation.
+     *
+     */
+    public void mouseDragged(MouseEvent e) {
+    }
+    
+    /** Invoked when the mouse button has been moved on a component
+     * (with no buttons down).
+     *
+     */
+    public void mouseMoved(MouseEvent e) {
     }
 }

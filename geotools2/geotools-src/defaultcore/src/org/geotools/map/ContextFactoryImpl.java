@@ -96,8 +96,7 @@ public class ContextFactoryImpl extends ContextFactory {
      * @param tool The selected tool.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public SelectedTool createSelectedContext(AbstractTool tool)
-        throws IllegalArgumentException
+    public SelectedTool createSelectedTool(AbstractTool tool) throws IllegalArgumentException
     {
         return new SelectedToolImpl(tool);
     }

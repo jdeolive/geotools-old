@@ -27,8 +27,9 @@ import java.awt.event.MouseListener;
 
 /**
  * A widget which contains the same functionality as a JPanel.
- * @version $Id: PanelWidget.java,v 1.1 2003/02/08 03:43:25 camerons Exp $
+ * @version $Id: PanelWidget.java,v 1.2 2003/03/27 11:32:17 camerons Exp $
  * @author Cameron Shorter
+ * @deprecated
  */
 
 public interface PanelWidget extends Widget

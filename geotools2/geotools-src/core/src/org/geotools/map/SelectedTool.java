@@ -27,7 +27,7 @@ import org.geotools.map.events.SelectedToolListener;
 
 /**
  * The tool which will process mouse events on a MapPane.
- * @version $Id: SelectedTool.java,v 1.1 2003/03/21 19:22:56 camerons Exp $
+ * @version $Id: SelectedTool.java,v 1.2 2003/03/27 11:32:17 camerons Exp $
  * @author  Cameron Shorter
  */
 
@@ -36,18 +36,6 @@ public interface SelectedTool {
     /**
      * Register interest in being called when Tool changes.
      * @param listener The object to notify when tool changes.
-     * @param sendEvent After registering this listener, send a changeEvent
-     * to all listeners.
-     */
-    public void addSelectedToolListener(
-            SelectedToolListener listener,
-            boolean sendEvent);
-
-    /**
-     * Register interest in being called when Tool changes and send an
-     * event to SelectedToolListeners.
-     * @param listener The object to notify when tool changes.
-     * to all listeners.
      */
     public void addSelectedToolListener(
             SelectedToolListener listener);

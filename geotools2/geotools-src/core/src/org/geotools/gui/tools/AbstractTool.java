@@ -1,35 +1,39 @@
 package org.geotools.gui.tools;
 
+import java.awt.Component;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import org.geotools.gui.widget.Widget;
 import org.geotools.map.Context;
 
 /**
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
- * Some tools require Widget size information to convert click (x,y) points
- * into relative points (move half a map width to the left).  Consequently,
- * there can only be one widget for each tool.<br>
- * Tools can be created with null parameters at any time.  Tools should be
- * initialsed by Widgets when the Widget assigns a Tool to the Widget.
- * Tools should be destroyed when the owning Widget is destroyed.
+ * Tools process mouse events on behalf of widgets like MapPane and change
+ * data in the Context (like the AreaOfInterest).
+ * @version $Id: AbstractTool.java,v 1.3 2003/03/27 11:32:17 camerons Exp $
+ * @author Cameron Shorter
  */
 public abstract interface AbstractTool {
 
     /**
-     * Get the MapPane from which this Tool get's MouseEvents.  If widget has
-     * not been set yet, then null is returned.
-     * @param The MapPane from which this Tool get's MouseEvents.
+     * Register this tool to receive Mouse Events from <code>component<code>.
+     * The events may be MouseEvents or MouseMotionEvents or both depending on
+     * the Tool which implements this interface.
+     * @param component The tool will process mouseEvents from this component.
+     * @param context The Context that will be changed by this Tool.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     * or the tool is being assigned a different context to before.
      */
-    public Widget getWidget();
+    public void addMouseListener(
+        Component component,
+        Context context);
     
     /**
-     * Set the Widget which sends MouseEvents and contains widget size
-     * information.
-     * @param widget The widget to get size information from.
-     * @throws IllegalStateException if the widget has already been set to
-     * another widget.
+     * Remove all Mouse Listeners from this tool.  This method should be called
+     * when this tool is deselected from a MapPane.
      */
-    public void setWidget(Widget widget) throws IllegalStateException;
-    
+    public void removeMouseListeners();
+
     /**
      * Get the context.  If context has not been set yet, then null is returned.
      * @param The context which stores the state data.
@@ -37,8 +41,7 @@ public abstract interface AbstractTool {
     public Context getContext();
     
     /**
-     * Set the Context for this tool to send data to.
-     * @param context The context to send data to.
+     * Clean up this class.
      */
-    public void setContext(Context context);
+    public void destroy();
 }

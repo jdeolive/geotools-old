@@ -22,7 +22,6 @@ package org.geotools.gui.swing;
  */
 
 import com.vividsolutions.jts.geom.Envelope;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -55,23 +54,15 @@ import org.geotools.styling.Style;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.13 2003/03/24 21:03:36 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.14 2003/03/27 11:32:17 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
- * StyleModelEvents when the Style changes.  Note that the Style should not
- * be stored with the MapModel/LayerList because a user may want to display
- * 2 maps which use the same data, but a different style.
+ * StyleModelEvents when the Style changes.
  */
 
-public class MapPaneImpl extends PanelWidgetImpl implements
-    BoundingBoxListener, LayerListListener, org.geotools.gui.widget.MapPane,
-    ComponentListener, SelectedToolListener
+public class MapPaneImpl extends JPanel implements
+    BoundingBoxListener,LayerListListener,ComponentListener,SelectedToolListener
 {
-    /**
-     * The current tool for this MapPane.
-     */
-    private AbstractTool tool;
-
     /**
      * The class to use to render this MapPane.
      */
@@ -96,25 +87,21 @@ public class MapPaneImpl extends PanelWidgetImpl implements
     /**
      * Create a MapPane.
      * A MapPane marshals the drawing of maps.
-     *
-     * @param tool The tool to use with the MapPane, can be set to null if no
-     * tool is required.
      * @param context The context where layerList and boundingBox are kept.  If
      * context is null, an IllegalArguementException is thrown.
      * @task TODO Move the "extra stuff" out of this method.
      */
     public MapPaneImpl(
-            AbstractTool tool,
             Context context) throws IllegalArgumentException
     {
-        if ((tool==null)||(context==null)){
+        if (context==null){
             throw new IllegalArgumentException();
         }else{
-            this.context=context;
-            this.context.getBbox().addAreaOfInterestChangedListener(this);
-            this.context.getSelectedTool().addSelectedToolListener(this);
             this.renderer=new Java2DRenderer(context);
-            setTool(tool);
+            this.context=context;
+            context.getBbox().addAreaOfInterestChangedListener(this);
+            context.getSelectedTool().addSelectedToolListener(this);
+            context.getSelectedTool().getTool().addMouseListener(this,context);
             
             // Create a transform for this mapPane.
             this.dotToCoordinateTransform=new DotToCoordinateTransformImpl(
@@ -127,40 +114,7 @@ public class MapPaneImpl extends PanelWidgetImpl implements
             // use absolute positioning
             this.setLayout(null);
             
-            // extra stuff that should move out of this class
-            this.setBorder(
-                new javax.swing.border.TitledBorder("MapPane Map"));
-            this.setBackground(Color.BLACK);
-            this.setPreferredSize(new Dimension(300,300));
         }
-    }
-    
-    /**
-     * Set the tool for this mapPane.  The tool handles all the mouse and key
-     * actions on behalf of this mapPane.  Different tools can be assigned in
-     * order to get the mapPane to behave differently.
-     * @param tool The tool to use for this mapPane.
-     * @throws IllegalArgumentException if tool is null.
-     */
-    public void setTool(AbstractTool tool) throws IllegalArgumentException
-    {
-        if (tool==null){
-            throw new IllegalArgumentException();
-        }else{
-            this.tool=tool;
-            this.tool.setWidget(this);
-            this.tool.setContext(context);
-        }
-    }
-
-    /**
-     * Get the tool assigned to this mapPane.  If none is assigned, then null
-     * is returned.
-     * @return The tool assigned to this mapPane.
-     */
-    public AbstractTool getTool()
-    {
-        return this.tool;
     }
 
     /**
@@ -274,7 +228,11 @@ public class MapPaneImpl extends PanelWidgetImpl implements
     /**
      * Called when the selectedTool on a MapPane changes.
      */
-    public void selectedToolChanged(EventObject event) {
+    public void selectedToolChanged(EventObject event)
+    {
+        if (context.getSelectedTool().getTool()!=null){
+            context.getSelectedTool().getTool().addMouseListener(this,context);
+        }
     }
     
 }

@@ -17,8 +17,7 @@ import org.geotools.pt.CoordinatePoint;
 /**
  * Abstract class for geotools Tools that use Mouse events.  Refer to Tool
  * javadocs for more information.
- * @task TODO Need to rename this class to NoActionTool and make it
- * non-abstract.  Need to import widget functionality from AbstractToolImpl.
+ * @deprecated Functionality moved into Tool.
  */
 public abstract class MouseToolImpl extends AbstractToolImpl
         implements MouseListener
@@ -43,14 +42,12 @@ public abstract class MouseToolImpl extends AbstractToolImpl
      * @throws IllegalStateException if the widget has already been set to
      * another widget.
      */
-    public void setWidget(
+    public void addMouseListener(
         Widget widget,
-        MouseListener listener) throws IllegalStateException
+        Context context) throws IllegalStateException
     {
-        super.setWidget(widget);
-        if (this.widget!=null){
-            widget.addMouseListener(listener);
-        }
+//        super.addMouseListener(
+//            widget,context,this);
     }
 
     /** Invoked when the mouse button has been clicked (pressed
@@ -88,8 +85,8 @@ public abstract class MouseToolImpl extends AbstractToolImpl
      * Clean up this class.
      */
     public void destroy(){
-        if (this.widget!=null){
-            widget.removeMouseListener(this);
-        }
+//        if (this.widget!=null){
+//            widget.removeMouseListener(this);
+//        }
     }
 }

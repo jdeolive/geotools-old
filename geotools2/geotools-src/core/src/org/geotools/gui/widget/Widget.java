@@ -3,8 +3,9 @@ package org.geotools.gui.widget;
 /**
  * A widget is a component which can be added to a display.  Typical widgets
  * include MapPane, Legend, PanButton, etc.
- * @version $Id: Widget.java,v 1.1 2003/02/08 03:30:34 camerons Exp $
+ * @version $Id: Widget.java,v 1.2 2003/03/27 11:32:17 camerons Exp $
  * @author Cameron Shorter
+ * @deprecated
  */
 public interface Widget {
     /**

@@ -25,10 +25,11 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.BorderLayout;
 import java.util.logging.Logger;
 import javax.swing.*;
-//import javax.swing.JFrame;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.HorizontalDatum;
 import org.geotools.ct.Adapters;
@@ -50,6 +51,7 @@ import org.geotools.map.Context;
 import org.geotools.map.ContextFactory;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
+import org.geotools.map.SelectedTool;
 import org.geotools.styling.SLDStyle;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
@@ -59,7 +61,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.21 2003/03/24 21:03:33 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.22 2003/03/27 11:32:18 camerons Exp $
  *
  */
 
@@ -128,22 +130,30 @@ public class MapViewer2 {
             layer.setTitle("road layer");
             layerList.addLayer(layer);
 
+            // Create Tool
+            ToolFactory toolFactory=ToolFactory.createFactory();
+            tool=toolFactory.createPanTool();
+            
+            // Create SelectedTool
+            SelectedTool selectedTool=contextFactory.createSelectedTool(
+                tool);
+
             // Create a Context
             context=contextFactory.createContext(
                 bbox,             // BoundingBox
                 layerList,        // LayerList
-                null,             // SelectedTool
+                selectedTool,     // SelectedTool
                 "defaultContext", // Title
                 null,             // Abstract
                 null,             // Keywords
                 null);            // ContactInformation
 
-            // Create Tool
-            ToolFactory toolFactory=ToolFactory.createFactory();
-            tool=toolFactory.createPanTool();
-
             // Create MapPane
-            mapPane=new MapPaneImpl(tool,context);
+            mapPane=new MapPaneImpl(context);
+            mapPane.setBorder(
+                new javax.swing.border.TitledBorder("MapPane Map"));
+            mapPane.setBackground(Color.BLACK);
+            mapPane.setPreferredSize(new Dimension(300,300));
 
          } catch (Exception e){
             LOGGER.warning("Exception: "+e+" initialising MapView.");
@@ -173,7 +183,7 @@ public class MapViewer2 {
         zoomMenuItem.setText("Zoom");
         zoomMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                panActionPerformed(evt);
+                zoomActionPerformed(evt);
             }
         });
         toolMenu.add(zoomMenuItem);

@@ -20,6 +20,7 @@
 
 package org.geotools.map;
 
+import java.util.EventListener;
 import java.util.EventObject;
 import javax.swing.event.EventListenerList;
 import org.geotools.gui.tools.AbstractTool;
@@ -27,7 +28,7 @@ import org.geotools.map.events.SelectedToolListener;
 
 /**
  * The tool which will process mouse events on a MapPane.
- * @version $Id: SelectedToolImpl.java,v 1.3 2003/03/22 10:23:37 camerons Exp $
+ * @version $Id: SelectedToolImpl.java,v 1.4 2003/03/27 11:32:17 camerons Exp $
  * @author  Cameron Shorter
  */
 
@@ -39,25 +40,16 @@ public class SelectedToolImpl implements SelectedTool
      */
     private AbstractTool tool;
     
-//    /**
-//     * The title of this tool;
-//     */
-//    private String title;
-    
     /** Classes to notify if the LayerList changes */
     private EventListenerList listenerList = new EventListenerList();
 
     /**
      * Creates a new instance of SelectedTool.
      * @param tool The selected tool.
-     * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     protected SelectedToolImpl(AbstractTool tool)
         throws IllegalArgumentException
     {
-        if (tool==null){
-            throw new IllegalArgumentException();
-        }
         this.tool=tool;
     }
 
@@ -68,27 +60,11 @@ public class SelectedToolImpl implements SelectedTool
      * to all listeners.
      */
     public void addSelectedToolListener(
-            SelectedToolListener listener,
-            boolean sendEvent)
+            SelectedToolListener listener)
     {
         if (listener!=null){
             listenerList.add(SelectedToolListener.class, listener);
-            if (sendEvent){
-                fireSelectedToolListener();
-            }
         }
-    }
-
-    /**
-     * Register interest in being called when Tool changes and send an
-     * event to SelectedToolListeners.
-     * @param listener The object to notify when tool changes.
-     * to all listeners.
-     */
-    public void addSelectedToolListener(
-            SelectedToolListener listener)
-    {
-        addSelectedToolListener(listener,true);
     }
 
     /**
@@ -132,10 +108,20 @@ public class SelectedToolImpl implements SelectedTool
      */
     public void setTool(AbstractTool tool) throws IllegalArgumentException
     {
-        if (tool==null){
-            throw new IllegalArgumentException();
+        if (tool!=this.tool){
+// This is all mixed up - I need to remove listeners from Tool, not SelectedTool
+// Cameron.
+//            // removed all old tool listeners
+//            EventListener[] listeners=listenerList.getListeners(
+//                SelectedToolListener.class);
+//            for (int i=0;i<listeners.length;i++)
+//            {
+//                listenerList.remove(SelectedToolListener.class,listeners[i]);
+//            }
+            this.tool=tool;
+            // Notify all listeners that the selected tool has changed.
+            fireSelectedToolListener();
         }
-        fireSelectedToolListener();
     }
     
 //    /** Get the title of this layer.  If title has not been defined then an
