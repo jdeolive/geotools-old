@@ -21,10 +21,9 @@
 package org.geotools.styling;
 
 import com.vividsolutions.jts.geom.*;
-import java.util.StringTokenizer;
 import org.geotools.filter.*;
 /**
- * @version $Id: DefaultMark.java,v 1.7 2002/07/05 20:21:11 ianturton Exp $
+ * @version $Id: DefaultMark.java,v 1.8 2002/07/11 17:36:54 loxnard Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultMark implements Mark {
@@ -43,17 +42,17 @@ public class DefaultMark implements Mark {
     /** Creates a new instance of DefaultMark */
     public DefaultMark() {
         _log.info("creating defaultMark");
-        try{
+        try {
             wellKnownName = new ExpressionLiteral("square");
             size = new ExpressionLiteral(new Integer(6));
             rotation = new ExpressionLiteral(new Double(0.0));
         } catch (IllegalFilterException ife){
-            _log.fatal("Failed to build default mark: "+ife);
-            System.err.println("Failed to build default mark: "+ife);
+            _log.fatal("Failed to build default mark: " + ife);
+            System.err.println("Failed to build default mark: " + ife);
         }
     }
     public DefaultMark(String name){
-        _log.info("creating "+name+" type mark");
+        _log.info("creating " + name + " type mark");
         setWellKnownName(name);
     }
     
@@ -111,10 +110,10 @@ public class DefaultMark implements Mark {
         this.size = size;
     }
     public void setSize(int size){
-        try{
+        try {
             setSize(new ExpressionLiteral(new Integer(size)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Opacity",mfe);
+            _log.fatal("Problem setting Opacity", mfe);
         }
     }
     /**
@@ -126,20 +125,20 @@ public class DefaultMark implements Mark {
         this.wellKnownName = wellKnownName;
     }
     public void setWellKnownName(String name){
-        try{
+        try {
             setWellKnownName(new ExpressionLiteral(name));
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Rotation",mfe);
+            _log.fatal("Problem setting Rotation", mfe);
         }
     }
     public void setRotation(Expression rotation) {
         this.rotation = rotation;
     }
     public void setRotation(double rotation){
-        try{
+        try {
             setRotation(new ExpressionLiteral(new Double(rotation))); 
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Rotation",mfe);
+            _log.fatal("Problem setting Rotation", mfe);
         }
     }
     /**
@@ -157,5 +156,5 @@ public class DefaultMark implements Mark {
     public Expression getRotation() {
         return rotation;
     }
-    private static String[] WellKnownNames = {"Square","Circle","Cross","Triangle","Star","X","Arrow"};
+    private static String[] WellKnownNames = {"Square", "Circle", "Cross", "Triangle", "Star", "X", "Arrow"};
 }

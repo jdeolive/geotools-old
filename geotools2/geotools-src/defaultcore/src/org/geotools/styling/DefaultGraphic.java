@@ -22,7 +22,7 @@ package org.geotools.styling;
 import java.util.*;
 import org.geotools.filter.*;
 /**
- * @version $Id: DefaultGraphic.java,v 1.8 2002/07/05 20:21:11 ianturton Exp $
+ * @version $Id: DefaultGraphic.java,v 1.9 2002/07/11 17:35:02 loxnard Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultGraphic implements org.geotools.styling.Graphic {
@@ -35,13 +35,13 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
     private Expression opacity = null;
     /** Creates a new instance of DefaultGraphic */
     public DefaultGraphic() {
-         try{
+         try {
             size = new ExpressionLiteral(new Integer(6));
             opacity = new ExpressionLiteral(new Double(1.0));
             rotation = new ExpressionLiteral(new Double(0.0));
         } catch (IllegalFilterException ife){
-            _log.fatal("Failed to build default graphic: "+ife);
-            System.err.println("Failed to build default graphic: "+ife);
+            _log.fatal("Failed to build default graphic: " + ife);
+            System.err.println("Failed to build default graphic: " + ife);
         }
     }
     
@@ -59,9 +59,9 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      *         getMarks instead.
      */
     public ExternalGraphic[] getExternalGraphics() {
-        if(externalGraphics.size()>0){
-            return (ExternalGraphic[])externalGraphics.toArray(new ExternalGraphic[0]);
-        }else{
+        if (externalGraphics.size() > 0){
+            return (ExternalGraphic[]) externalGraphics.toArray(new ExternalGraphic[0]);
+        } else {
             return null;
         }
     }
@@ -81,15 +81,17 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      * of 6 pixels (unless a size is specified) is provided.
      */
     public Mark[] getMarks() {
-        if(marks.size()>0){
-            return (Mark[])marks.toArray(new Mark[0]);
-        }else{
+        if (marks.size() > 0){
+            return (Mark[]) marks.toArray(new Mark[0]);
+        } else {
             return new Mark[]{new DefaultMark()};
         }
     }
     
     public void addMark(DefaultMark m){
-        if(m == null) return;
+        if (m == null) {
+            return;
+        }
         marks.add(m);
         m.setSize(size);
         m.setRotation(rotation);
@@ -149,10 +151,10 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
     }
     
     public void setOpacity(double opacity){
-        try{
+        try {
             this.opacity = new ExpressionLiteral(new Double(opacity));
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Opacity",mfe);
+            _log.fatal("Problem setting Opacity", mfe);
         }
     }
     /**
@@ -162,15 +164,15 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
     public void setRotation(Expression rotation) {
         this.rotation = rotation;
         Iterator i = marks.iterator();
-        while(i.hasNext()){
-            ((DefaultMark)i.next()).setRotation(rotation);
+        while (i.hasNext()){
+            ((DefaultMark) i.next()).setRotation(rotation);
         }
     }
     public void setRotation(double rotation){
-        try{
+        try {
             setRotation(new ExpressionLiteral(new Double(rotation)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Rotation",mfe);
+            _log.fatal("Problem setting Rotation", mfe);
         }
     }
     /**
@@ -180,15 +182,15 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
     public void setSize(Expression size) {
         this.size = size;
         Iterator i = marks.iterator();
-        while(i.hasNext()){
-            ((DefaultMark)i.next()).setSize(size);
+        while (i.hasNext()){
+            ((DefaultMark) i.next()).setSize(size);
         }
     }
     public void setSize(int size){
-        try{
+        try {
             setSize(new ExpressionLiteral(new Integer(size)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Opacity",mfe);
+            _log.fatal("Problem setting Opacity", mfe);
         }
     }
 }

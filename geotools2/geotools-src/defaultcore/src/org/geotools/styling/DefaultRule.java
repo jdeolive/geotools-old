@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: DefaultRule.java,v 1.4 2002/06/04 17:44:28 loxnard Exp $
+ * @version $Id: DefaultRule.java,v 1.5 2002/07/11 17:37:57 loxnard Exp $
  * @author James Macgill
  */
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class DefaultRule implements org.geotools.styling.Rule {
     }
 
     public Graphic[] getLegendGraphic() {
-        return (Graphic[])graphics.toArray(new Graphic[0]);
+        return (Graphic[]) graphics.toArray(new Graphic[0]);
     }
     public void addLegendGraphic(Graphic g){
         graphics.add(g);
