@@ -22,9 +22,10 @@ package org.geotools.gui.swing;
  */
 
 import com.vividsolutions.jts.geom.Envelope;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.lang.IllegalArgumentException;
-import javax.swing.JScrollPane;
+import javax.swing.JPanel;
 import java.util.logging.Logger;
 import java.awt.Rectangle;
 import org.geotools.feature.FeatureCollection;
@@ -47,7 +48,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.13 2002/12/31 03:45:54 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.14 2003/01/21 19:38:27 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -55,7 +56,7 @@ import org.geotools.data.DataSourceException;
  * 2 maps which use the same data, but a different style.
  */
 
-public class MapPane2 extends JScrollPane implements
+public class MapPane2 extends JPanel implements
     AreaOfInterestChangedListener, LayerListChangedListener
 {
     /**
@@ -150,8 +151,10 @@ public class MapPane2 extends JScrollPane implements
      * @task TODO create a layerList.getCoordinateSystem method
      */
     public void paintComponent(Graphics graphics) {
-        LOGGER.info("MapPane2.size="+this.getSize()); 
-        super.paintComponent(graphics);
+//        LOGGER.info("MapPane2.size="+this.getSize()); 
+//        super.paintComponent(graphics);
+//        graphics.setColor(Color.BLUE);
+//        graphics.drawLine(20, 20, 200, 200);
         if (context.getBbox().getAreaOfInterest()==null){
             Envelope bBox=context.getLayerList().getBbox(false);
             if (bBox!=null){
