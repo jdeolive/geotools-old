@@ -51,7 +51,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link GridLocalization} implementation.
  *
- * @version $Id: LocalizationGridTest.java,v 1.5 2002/08/12 18:18:28 desruisseaux Exp $
+ * @version $Id: LocalizationGridTest.java,v 1.6 2002/08/25 14:36:40 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -118,12 +118,6 @@ public class LocalizationGridTest extends TestCase {
      * coordinates when the fitted affine transformation is used.
      */
     private static final double FIT_TOLERANCE = 0.4;
-
-    /**
-     * The error tolerance for inverse transformations. Since we use an iterative
-     * algorithm, the error may not be as small as we would like...
-     */
-    private static final double INVERSE_TOLERANCE = 0.25;
 
     /**
      * Returns the test suite.
@@ -245,7 +239,7 @@ public class LocalizationGridTest extends TestCase {
     public void testInverseTransform () throws TransformException {
         final double[] array = getGridCoordinates(true);
         grid.getMathTransform().inverse().transform(array, 0, array, 0, array.length/2);
-        compare(array, false, INVERSE_TOLERANCE);
+        compare(array, false, EPS);
     }
 
     /**
