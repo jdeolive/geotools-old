@@ -75,7 +75,7 @@ import javax.vecmath.SingularMatrixException;
  * Subclasses must declare <code>implements&nbsp;MathTransform2D</code>
  * themself if they know to maps two-dimensional coordinate systems.
  *
- * @version $Id: AbstractMathTransform.java,v 1.4 2002/07/15 18:28:43 desruisseaux Exp $
+ * @version $Id: AbstractMathTransform.java,v 1.5 2002/07/19 17:10:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractMathTransform implements MathTransform {
@@ -505,6 +505,12 @@ public abstract class AbstractMathTransform implements MathTransform {
     public String toString() {
         final StringBuffer buffer=new StringBuffer(Utilities.getShortClassName(this));
         buffer.append('[');
+        final String name = getName(null);
+        if (name != null) {
+            buffer.append('"');
+            buffer.append(name);
+            buffer.append("\": ");
+        }
         buffer.append(getDimSource());
         buffer.append("D \u2192 "); // Arrow -->
         buffer.append(getDimTarget());
@@ -598,7 +604,7 @@ public abstract class AbstractMathTransform implements MathTransform {
      * This inner class is the inverse of the enclosing
      * math transform.
      *
-     * @version $Id: AbstractMathTransform.java,v 1.4 2002/07/15 18:28:43 desruisseaux Exp $
+     * @version $Id: AbstractMathTransform.java,v 1.5 2002/07/19 17:10:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected abstract class Inverse extends AbstractMathTransform {
