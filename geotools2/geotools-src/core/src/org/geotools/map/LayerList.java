@@ -25,12 +25,12 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: LayerList.java,v 1.1 2002/08/16 22:07:20 camerons Exp $
+ * @version $Id: LayerList.java,v 1.2 2002/09/01 12:02:32 camerons Exp $
  * @author Cameron Shorter
  * @task TODO: Add incrementOrder(layer) decrementOrderLayer
  * makeFirst(layer) makLast(Layer)
  */
-
+import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.map.events.LayerListChangedEvent;
 import org.geotools.map.events.LayerListChangedListener;
 import org.geotools.map.Layer;
@@ -88,5 +88,27 @@ public interface LayerList {
      */
     public Layer[] getLayers();
     
-
+    /**
+     * Get the bounding box of all the layers in this LayerList.
+     * If all the layers cannot determine the bounding box in the speed
+     * required for each layer, then null is returned.
+     * @return The bounding box of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     * @task REVISIT: Consider changing return of getBbox to Filter once Filters
+     * can be unpacked.
+     */
+    public Envelope getBbox();
+    
+    /**
+     * Get the bounding box of all the layers in this LayerList.
+     * If all the layers cannot determine the bounding box in the speed
+     * required for each layer, then null is returned.
+     * @return The bounding box of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     * @param quick When TRUE, specifies that the BBox should be determined
+     * quickly, or return NULL if not determined in time.
+     * @task REVISIT: Consider changing return of getBbox to Filter once Filters
+     * can be unpacked.
+     */
+    public Envelope getBbox(boolean quick);
 }

@@ -31,7 +31,9 @@ import org.geotools.map.events.AreaOfInterestChangedListener;
  * displaying of the data.
  *
  * @author Cameron Shorter
- * @version $Id: AreaOfInterestModel.java,v 1.5 2002/08/09 12:51:23 camerons Exp $
+ * @version $Id: AreaOfInterestModel.java,v 1.6 2002/09/01 12:02:32 camerons Exp $
+ * @task TODO Foreach method, check AreaOfInterest==null and return a new
+ * exception if appropriate.
  */
 public interface AreaOfInterestModel {
     
@@ -59,7 +61,8 @@ public interface AreaOfInterestModel {
             CS_CoordinateSystem coordinateSystem);
     
      /**
-     * Gets the current AreaOfInterest.
+     * Gets the current AreaOfInterest.  Returns null if AreaOfInterest has not
+     * been set.
      * @return Current AreaOfInterest
      */
     Envelope getAreaOfInterest();
