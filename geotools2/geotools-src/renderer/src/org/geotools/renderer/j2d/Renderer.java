@@ -96,6 +96,7 @@ import org.geotools.resources.XAffineTransform;
 import org.geotools.resources.GraphicsUtilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.renderer.Renderer2D;
 
 
 /**
@@ -106,10 +107,10 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.27 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.28 2003/05/19 13:10:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class Renderer {
+public class Renderer implements Renderer2D {
     /**
      * The logger for the Java2D renderer module.
      */
@@ -1272,10 +1273,31 @@ public class Renderer {
      * @param zoom   The zoom (usually provided by {@link org.geotools.gui.swing.ZoomPane#zoom}.
      * @param zoomableBounds The bounds of drawing area (usually provided by
      *               {@link org.geotools.gui.swing.ZoomPane#getZoomableBounds}).
+     *
+     * @deprecated Use {@link #paint(Graphics2D, Rectangle, AffineTransform)} instead.
+     */
+    public void paint(final Graphics2D         graph,
+                      final AffineTransform     zoom,
+                      final Rectangle zoomableBounds)
+    {
+        paint(graph, zoomableBounds, zoom);
+    }
+
+    /**
+     * Paint this <code>Renderer</code> and all visible layers it contains.
+     * This method invokes {@link RenderedLayer#paint} for each layer.
+     *
+     * @param graph  The graphics handler to draw to.
+     * @param zoomableBounds The bounds of the output area in output units (usually pixels).
+     *               Those bounds are usually provided by
+     *               {@link org.geotools.gui.swing.ZoomPane#getZoomableBounds}).
+     * @param zoom   A transform which converts &quot;World coordinates&quot; to
+     *               output coordinates. This transform is usually provided by
+     *               {@link org.geotools.gui.swing.ZoomPane#zoom}.
      */
     public synchronized void paint(final Graphics2D         graph,
-                                   final AffineTransform     zoom,
-                                   final Rectangle zoomableBounds)
+                                   final Rectangle zoomableBounds,
+                                   final AffineTransform     zoom)
     {
         statistics.init();
         sortLayers();
