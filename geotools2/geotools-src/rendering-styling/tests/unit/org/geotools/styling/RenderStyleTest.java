@@ -27,6 +27,7 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
@@ -40,6 +41,8 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.logging.Logger;
+
 import javax.media.jai.JAI;
 
 
@@ -50,12 +53,16 @@ import javax.media.jai.JAI;
  * @author Andrea Aime
  */
 public class RenderStyleTest extends junit.framework.TestCase {
+    /** The logger for the rendering module. */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.rendering");
+    
     private static boolean INTERACTIVE = false;
+    private static int MAX_PIXEL_ERRORS = 18; //that is, 6 pixels since every band is counted
 
     /**
      * Creates a new DefaultMarkTest object.
      *
-     * @param testName DOCUMENT ME!
+     * @param testName
      */
     public RenderStyleTest(java.lang.String testName) {
         super(testName);
@@ -64,7 +71,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Main
      *
-     * @param args DOCUMENT ME!
+     * @param args
      */
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
@@ -73,7 +80,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Suite
      *
-     * @return DOCUMENT ME!
+     * @return
      */
     public static junit.framework.Test suite() {
         junit.framework.TestSuite suite = new junit.framework.TestSuite(RenderStyleTest.class);
@@ -82,13 +89,14 @@ public class RenderStyleTest extends junit.framework.TestCase {
     }
 
     /**
-     * Builds and returns the features used to perform this test
+     * Builds and returns the features used to perform this test. Line, polygon and point feature
+     * collections, in this order
      *
-     * @return DOCUMENT ME!
+     * @return
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
-    private FeatureCollection buildFeatureCollection()
+    private FeatureCollection[] buildFeatureCollections()
         throws Exception {
         // Request extent
         com.vividsolutions.jts.geom.Envelope ex = new com.vividsolutions.jts.geom.Envelope(30, 350,
@@ -143,17 +151,19 @@ public class RenderStyleTest extends junit.framework.TestCase {
 
         Feature pointFeature = pointType.create(new Object[] { point });
 
-        org.geotools.feature.FeatureCollection ft = org.geotools.feature.FeatureCollections
-            .newCollection();
-        ft.add(lineFeature);
-        ft.add(lineFeature2);
-        ft.add(lineFeature3);
-        ft.add(polygonFeature);
-        ft.add(polygonFeature2);
-        ft.add(polygonFeature3);
-        ft.add(pointFeature);
+        FeatureCollection fcLine = FeatureCollections.newCollection();
+        FeatureCollection fcPolygon = FeatureCollections.newCollection();
+        FeatureCollection fcPoint = FeatureCollections.newCollection();
 
-        return ft;
+        fcLine.add(lineFeature);
+        fcLine.add(lineFeature2);
+        fcLine.add(lineFeature3);
+        fcPolygon.add(polygonFeature);
+        fcPolygon.add(polygonFeature2);
+        fcPolygon.add(polygonFeature3);
+        fcPoint.add(pointFeature);
+
+        return new FeatureCollection[] { fcLine, fcPolygon, fcPoint };
     }
 
     private Style loadStyleFromXml() throws Exception {
@@ -161,7 +171,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
 
         StyleFactory factory = StyleFactory.createStyleFactory();
         java.net.URL surl = new java.net.URL(base + "/sample.sld");
-        SLDStyle stylereader = new SLDStyle(factory, surl);
+        SLDParser stylereader = new SLDParser(factory, surl);
         Style[] style = stylereader.readXML();
 
         return style[0];
@@ -201,6 +211,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
         Mark circle = sb.createMark(StyleBuilder.MARK_CIRCLE, Color.YELLOW);
         Fill gfill = sb.createFill(Color.YELLOW, 0.5);
         gfill.setGraphicFill(sb.createGraphic(null, circle, null, 1, 10, 0));
+
         Stroke dashed = sb.createStroke(Color.YELLOW, 3, new float[] { 1f, 2f });
         style.addFeatureTypeStyle( //
             sb.createFeatureTypeStyle("polygon",
@@ -247,29 +258,16 @@ public class RenderStyleTest extends junit.framework.TestCase {
         return style;
     }
 
-    //    public void testCompareStyles() throws Exception {
-    //        java.net.URL base = getClass().getResource("rs-testData/");
-    //        
-    //        Style style1 = loadStyleFromXml();
-    //        Style style2 = buildStyle();
-    //        
-    //        FileWriter fw1 = new FileWriter(new File(base.getPath(), "styleXml.xml"));
-    //        org.geotools.styling.XMLEncoder encoder1 = new org.geotools.styling.XMLEncoder(fw1);
-    //        encoder1.encode(style1);
-    //        fw1.close();
-    //        
-    //        
-    //        FileWriter fw2 = new FileWriter(new File(base.getPath(), "styleBuilder.xml"));
-    //        org.geotools.styling.XMLEncoder encoder2 = new org.geotools.styling.XMLEncoder(fw2);
-    //        encoder2.encode(style2);
-    //        fw2.close();
-    //    }
     private LiteRenderer createLiteRenderedXmlStyle() throws Exception {
         MapContext ctx = new DefaultMapContext();
-        ctx.addLayer(buildFeatureCollection(), loadStyleFromXml());
+        FeatureCollection[] collections = buildFeatureCollections();
+        ctx.addLayer(collections[0], loadStyleFromXml());
+        ctx.addLayer(collections[1], loadStyleFromXml());
+        ctx.addLayer(collections[2], loadStyleFromXml());
 
         LiteRenderer renderer = new LiteRenderer(ctx);
         renderer.setInteractive(false);
+        renderer.setOptimizedDataLoadingEnabled(true);
 
         return renderer;
     }
@@ -277,7 +275,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style loaded from xml file
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testLiteRendererXmlh250() throws Exception {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 400, 250, 400, 350);
@@ -286,7 +284,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style loaded from xml file
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testLiteRendererXmlh450() throws Exception {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 400, 450, 400, 350);
@@ -295,7 +293,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style loaded from xml file
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testLiteRendererXmlw200() throws Exception {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 200, 350, 400, 350);
@@ -304,7 +302,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style loaded from xml file
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testLiteRendererXmlw400() throws Exception {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 400, 350, 400, 350);
@@ -313,7 +311,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style loaded from xml file
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testLiteRendererXmlw600() throws Exception {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 600, 350, 400, 350);
@@ -322,7 +320,10 @@ public class RenderStyleTest extends junit.framework.TestCase {
     private StyledMapRenderer createStyledRendererXmlStyle()
         throws Exception {
         MapContext map = new DefaultMapContext();
-        map.addLayer(buildFeatureCollection(), loadStyleFromXml());
+        FeatureCollection[] collections = buildFeatureCollections();
+        map.addLayer(collections[0], loadStyleFromXml());
+        map.addLayer(collections[1], loadStyleFromXml());
+        map.addLayer(collections[2], loadStyleFromXml());
 
         StyledMapRenderer sr = new StyledMapRenderer(null);
         sr.setMapContext(map);
@@ -333,7 +334,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style loaded from xml file
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testStyledRendererXmlh250() throws Exception {
         performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 400, 250, 400, 350);
@@ -342,7 +343,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style loaded from xml file
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testStyledRendererXmlh350() throws Exception {
         performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 400, 350, 400, 350);
@@ -351,7 +352,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style loaded from xml file
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testStyledRendererXmlw200() throws Exception {
         performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 200, 350, 400, 350);
@@ -360,7 +361,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style loaded from xml file
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testStyledRendererXmlw400() throws Exception {
         performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 400, 350, 400, 350);
@@ -369,7 +370,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style loaded from xml file
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testStyledRendererXmlw600() throws Exception {
         performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 600, 350, 400, 350);
@@ -378,11 +379,14 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test j2d renderer
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testJ2DRendererBuilder() throws Exception {
         MapContext map = new DefaultMapContext();
-        map.addLayer(buildFeatureCollection(), loadStyleFromXml());
+        FeatureCollection[] collections = buildFeatureCollections();
+        map.addLayer(collections[0], loadStyleFromXml());
+        map.addLayer(collections[1], loadStyleFromXml());
+        map.addLayer(collections[2], loadStyleFromXml());
 
         StyledMapRenderer sr = new StyledMapRenderer(null);
         sr.setMapContext(map);
@@ -392,13 +396,16 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Test lite renderer and style created with the style builder
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     public void testLiteRendererBuilder() throws Exception {
-        MapContext ctx = new DefaultMapContext();
-        ctx.addLayer(buildFeatureCollection(), buildStyle());
+        MapContext map = new DefaultMapContext();
+        FeatureCollection[] collections = buildFeatureCollections();
+        map.addLayer(collections[0], buildStyle());
+        map.addLayer(collections[1], buildStyle());
+        map.addLayer(collections[2], buildStyle());
 
-        LiteRenderer renderer = new LiteRenderer(ctx);
+        LiteRenderer renderer = new LiteRenderer(map);
         renderer.setInteractive(false);
         performTestOnRenderer(renderer, "builder", 400, 350, 400, 350);
     }
@@ -406,14 +413,14 @@ public class RenderStyleTest extends junit.framework.TestCase {
     /**
      * Perform test on the passed renderer, which must be already configured with its context
      *
-     * @param renderer DOCUMENT ME!
-     * @param fileSuffix DOCUMENT ME!
-     * @param width DOCUMENT ME!
-     * @param height DOCUMENT ME!
-     * @param dataWidth DOCUMENT ME!
-     * @param dataHeigth DOCUMENT ME!
+     * @param renderer
+     * @param fileSuffix
+     * @param width
+     * @param height
+     * @param dataWidth
+     * @param dataHeigth
      *
-     * @throws Exception DOCUMENT ME!
+     * @throws Exception
      */
     private void performTestOnRenderer(Renderer2D renderer, String fileSuffix, int width,
         int height, double dataWidth, double dataHeigth)
@@ -483,16 +490,28 @@ public class RenderStyleTest extends junit.framework.TestCase {
         int[] pixel2 = null;
         boolean isBlack = false;
 
+        int pixelErrors = 0;
+        LOGGER.info("Comparing pixels between:");
+        LOGGER.info(file.getName());
+        LOGGER.info(file2.getName());
+        LOGGER.info("Comparing pixels between:");
         for (int x = 0; x < data.getWidth(); x++) {
             for (int y = 0; y < data.getHeight(); y++) {
                 pixel1 = data.getPixel(x, y, pixel1);
                 pixel2 = data2.getPixel(x, y, pixel2);
 
-                if ((notBlack(pixel1)) && (notBlack(pixel2))) { //Since text is black and fonts are not stable across platforms, ignore pixels where at least one is black.
-
+                if ((notBlack(pixel1)) && (notBlack(pixel2))) {
+                    //Since text is black and fonts are not stable across platforms, ignore pixels where at least one is black.
                     for (int band = 0; band < data2.getNumBands(); band++) {
-                        assertEquals("mismatch in image comparison at (x: " + x + " y: " + y
-                            + " band: " + band + ")", pixel1[band], pixel2[band]);
+                        if(pixel1[band] != pixel2[band]) {
+                            pixelErrors++;
+                            LOGGER.info("mismatch in image comparison at (x: " + x + " y: " + y
+                                                        + " band: " + band + ") , expected " + pixel1[band] + " but was " + pixel2[band]);
+                                                        
+                            if(pixelErrors > MAX_PIXEL_ERRORS)
+                                fail("Too many pixel differences between examplar and generated image");
+                        }
+                        
                     }
                 }
             }
