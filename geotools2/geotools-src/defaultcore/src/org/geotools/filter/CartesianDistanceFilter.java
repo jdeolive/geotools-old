@@ -45,7 +45,7 @@ import org.geotools.feature.Feature;
  * <p></p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: CartesianDistanceFilter.java,v 1.2 2003/07/22 22:41:07 cholmesny Exp $
+ * @version $Id: CartesianDistanceFilter.java,v 1.3 2003/07/23 16:14:31 cholmesny Exp $
  *
  * @task REVISIT: add units for distance.
  */
@@ -152,16 +152,20 @@ public class CartesianDistanceFilter extends GeometryFilterImpl
             operator = " dwithin ";
         }
 
+        String distStr = ", distance: " + distance;
+
         if ((leftGeometry == null) && (rightGeometry == null)) {
-            return "[ " + "null" + operator + "null" + " ]";
+            return "[ " + "null" + operator + "null" + distStr + " ]";
         } else if (leftGeometry == null) {
-            return "[ " + "null" + operator + rightGeometry.toString() + " ]";
+            return "[ " + "null" + operator + rightGeometry.toString()
+            + distStr + " ]";
         } else if (rightGeometry == null) {
-            return "[ " + leftGeometry.toString() + operator + "null" + " ]";
+            return "[ " + leftGeometry.toString() + operator + "null" + distStr
+            + " ]";
         }
 
         return "[ " + leftGeometry.toString() + operator
-        + rightGeometry.toString() + ", distance: " + distance + " ]";
+        + rightGeometry.toString() + distStr + " ]";
     }
 
     /**
