@@ -55,6 +55,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.Map.Entry;
 
 
 /**
@@ -70,7 +71,7 @@ public class DataUtilities {
         typeMap.put("String", String.class);
         typeMap.put("string", String.class);
         typeMap.put("0", Integer.class);
-        typeMap.put("Interger", Integer.class);
+        typeMap.put("Integer", Integer.class);
         typeMap.put("int", Integer.class);
         typeMap.put("0.0", Double.class);
         typeMap.put("Double", Double.class);
@@ -85,7 +86,7 @@ public class DataUtilities {
         typeMap.put("MultiPoint", MultiPoint.class);
         typeMap.put("MultiLineString", MultiLineString.class);
         typeMap.put("MultiPolygon", MultiPolygon.class);
-        typeMap.put("GeometryCollection", GeometryCollection.class);
+        typeMap.put("GeometryCollection", GeometryCollection.class);        
     }
 
     public static String[] attributeNames(FeatureType featureType) {
@@ -591,15 +592,43 @@ public class DataUtilities {
 
         return typeFactory.getFeatureType();
     }
-
+    public static Feature parse( FeatureType type, String fid, String text[] )
+        throws IllegalAttributeException {
+        Object attributes[] = new Object[ text.length ];
+        for( int i=0; i < text.length; i++ ){
+            attributes[i] = type.getAttributeType(i).parse( text[i] );
+        }
+        return type.create( attributes, fid );            
+    }
+    /** Record typeSpec for the provided featureType */
+    public static String spec( FeatureType featureType ){
+        AttributeType types[] = featureType.getAttributeTypes();
+        StringBuffer buf = new StringBuffer();
+        for( int i=0; i<types.length; i++ ){
+            buf.append( types[i].getName() );
+            buf.append(":");
+            buf.append( typeMap( types[i].getType() ) );
+            if(i<types.length-1){
+                buf.append("|");
+            }
+        }
+        return buf.toString();
+    }
     static Class type(String typeName) throws ClassNotFoundException {
         if (typeMap.containsKey(typeName)) {
             return (Class) typeMap.get(typeName);
         }
-
         return Class.forName(typeName);
     }
-
+    static String typeMap( Class type){
+        for( Iterator i=typeMap.entrySet().iterator(); i.hasNext(); ){
+            Map.Entry entry = (Entry) i.next();
+            if( entry.getValue().equals(type) ){
+                return (String) entry.getKey();
+            }
+        }
+        return type.getName();
+    }
     /**
      * Returns AttributeType based on String specification (based on UML).
      * 
