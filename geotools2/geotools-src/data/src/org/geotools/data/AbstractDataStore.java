@@ -176,10 +176,16 @@ public abstract class AbstractDataStore implements DataStore {
         throw new UnsupportedOperationException("Schema modification not supported");
     }
 
-
-    public FeatureSource getFeatureSource(final FeatureType featureType)
+    // Jody - This is my recomendation for DataStore
+    // in order to support CS reprojection and override 
+    public FeatureSource getView(final Query query)
         throws IOException, SchemaException {
-            
+        String typeName = query.getTypeName();
+        FeatureType origionalType = getSchema( typeName );
+        //CoordinateSystem cs = query.getCoordinateSystem();
+        //final FeatureType featureType = DataUtilities.createSubType( origionalType, query.getPropertyNames(), cs );
+        final FeatureType featureType = DataUtilities.createSubType( origionalType, query.getPropertyNames() );
+                
         return new AbstractFeatureSource() {
             public DataStore getDataStore() {
                 return AbstractDataStore.this;
@@ -277,6 +283,8 @@ public abstract class AbstractDataStore implements DataStore {
      * @see org.geotools.data.DataStore#getFeatureReader(org.geotools.feature.FeatureType,
      *      org.geotools.filter.Filter, org.geotools.data.Transaction)
      */
+    // Recomend moving too the following
+    //public FeatureReader getFeatureReader(Query query,Transaction transaction) throws IOException        
     public FeatureReader getFeatureReader(FeatureType featureType,
         Filter filter, Transaction transaction) throws IOException {
         if (filter == null) {
