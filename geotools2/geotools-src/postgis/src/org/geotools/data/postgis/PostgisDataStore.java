@@ -19,6 +19,7 @@ package org.geotools.data.postgis;
 
 //JTS imports
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -64,7 +65,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.12 2003/12/12 17:19:38 cholmesny Exp $
+ * @version $Id: PostgisDataStore.java,v 1.13 2003/12/12 21:26:13 cholmesny Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -94,6 +95,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         GEOM_TYPE_MAP.put("MULTIPOINT", MultiPoint.class);
         GEOM_TYPE_MAP.put("MULTILINESTRING", MultiLineString.class);
         GEOM_TYPE_MAP.put("MULTIPOLYGON", MultiPolygon.class);
+        GEOM_TYPE_MAP.put("GEOMETRYCOLLECTION", GeometryCollection.class);
     }
 
     public static final int OPTIMIZE_SAFE = 0;
@@ -249,7 +251,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             srid = info.getSRID(geom);
             encoder.setDefaultGeometry(geom);
         }
-	encoder.setFidColumn(info.getFidColumnName());
+
+        encoder.setFidColumn(info.getFidColumnName());
         encoder.setSRID(srid);
 
         return new PostgisSQLBuilder(encoder);

@@ -19,6 +19,7 @@ package org.geotools.data.postgis;
 
 //JTS imports
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -78,7 +79,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.39 2003/11/04 00:36:17 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.40 2003/12/12 21:26:13 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -154,10 +155,8 @@ public class PostgisDataSource extends AbstractDataSource
         this.connectionPool = connPool;
         LOGGER.finer("new postgis!");
 
-
         //try {
         Connection conn = getConnection();
-
 
         //} catch (SQLException sqle) {
         //  String message = CONN_ERROR + sqle.getMessage();
@@ -170,7 +169,6 @@ public class PostgisDataSource extends AbstractDataSource
         //is a lot of work that much take place each time the datasource
         //is constructed.  
         try {
-	   
             this.schema = makeSchema(tableName, conn, fidColumn);
 
             if (schema.getDefaultGeometry() != null) {
@@ -191,19 +189,19 @@ public class PostgisDataSource extends AbstractDataSource
      */
     private static void initMaps() {
         sqlTypeMap.put("varchar", String.class);
-	sqlTypeMap.put("int2", Short.class);
+        sqlTypeMap.put("int2", Short.class);
         sqlTypeMap.put("int4", Integer.class);
-	sqlTypeMap.put("int8", Long.class);
+        sqlTypeMap.put("int8", Long.class);
         sqlTypeMap.put("float4", Float.class);
         sqlTypeMap.put("float8", Double.class);
         sqlTypeMap.put("geometry", Geometry.class);
         sqlTypeMap.put("date", java.util.Date.class);
-	//insert this if we get it in attributeType.  For now it should work
-	//fine as an Object.
-        //sqlTypeMap.put("numeric", java.math.BigDecimal.class);
-	
 
+        //insert this if we get it in attributeType.  For now it should work
+        //fine as an Object.
+        //sqlTypeMap.put("numeric", java.math.BigDecimal.class);
         geometryTypeMap.put("GEOMETRY", Geometry.class);
+        geometryTypeMap.put("GEOMETRYCOLLECTION", GeometryCollection.class);
         geometryTypeMap.put("POINT", Point.class);
         geometryTypeMap.put("LINESTRING", LineString.class);
         geometryTypeMap.put("POLYGON", Polygon.class);
@@ -246,7 +244,7 @@ public class PostgisDataSource extends AbstractDataSource
         Statement statement = null;
 
         try {
-	    LOGGER.finer("type map is " + dbConnection.getTypeMap());
+            LOGGER.finer("type map is " + dbConnection.getTypeMap());
             statement = dbConnection.createStatement();
 
             ResultSet result = statement.executeQuery("SELECT * FROM \""
@@ -287,9 +285,11 @@ public class PostgisDataSource extends AbstractDataSource
                         + (Class) sqlTypeMap.get(columnTypeName));
 
                     Class type = (Class) sqlTypeMap.get(columnTypeName);
-		    if (type == null) {
-			type = Object.class;
-		    }
+
+                    if (type == null) {
+                        type = Object.class;
+                    }
+
                     attributes[i - offset] = AttributeTypeFactory
                         .newAttributeType(columnName, type);
 
@@ -317,27 +317,31 @@ public class PostgisDataSource extends AbstractDataSource
     }
 
     public void setEncodeBbox(boolean looseBbox) {
-	encoder = new SQLEncoderPostgis(looseBbox);
-	if (schema.getDefaultGeometry() != null) {
-	    encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
-	    encoder.setSRID(srid);
-	}
+        encoder = new SQLEncoderPostgis(looseBbox);
+
+        if (schema.getDefaultGeometry() != null) {
+            encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+            encoder.setSRID(srid);
+        }
     }
 
     /**
-     * Sets that the geos encoder should be used.  This should eventually
-     * be automatically detected, but for now we'll just use the factory
-     * to set this, so users can set if they have it.
+     * Sets that the geos encoder should be used.  This should eventually be
+     * automatically detected, but for now we'll just use the factory to set
+     * this, so users can set if they have it.
+     *
+     * @param useGeos DOCUMENT ME!
      */
-     public void setUseGeosEncoder(boolean useGeos) {
-	 if (useGeos == true) {
-	     encoder = new SQLEncoderPostgisGeos(srid);
-	 } else {
-	     encoder = new SQLEncoderPostgis(srid);
-	 }
-	 if (schema.getDefaultGeometry() != null) {
-	     encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
-	 }   
+    public void setUseGeosEncoder(boolean useGeos) {
+        if (useGeos == true) {
+            encoder = new SQLEncoderPostgisGeos(srid);
+        } else {
+            encoder = new SQLEncoderPostgis(srid);
+        }
+
+        if (schema.getDefaultGeometry() != null) {
+            encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+        }
     }
 
     /**
@@ -691,7 +695,8 @@ public class PostgisDataSource extends AbstractDataSource
                         }
                     } else {
                         attributes[col] = result.getObject(col + 2);
-			//LOGGER.finest("object class is " + attributes[col].getClass());
+
+                        //LOGGER.finest("object class is " + attributes[col].getClass());
                     }
                 }
 
@@ -925,11 +930,13 @@ public class PostgisDataSource extends AbstractDataSource
      */
     private String addQuotes(Object value) {
         String retString;
-	if (value != null) {
-	    retString = "'" + value.toString() + "'";
-	} else {
-	    retString = "null";
-	}
+
+        if (value != null) {
+            retString = "'" + value.toString() + "'";
+        } else {
+            retString = "null";
+        }
+
         return retString;
     }
 
