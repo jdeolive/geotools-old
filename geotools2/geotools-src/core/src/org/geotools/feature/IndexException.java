@@ -17,12 +17,12 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package org.geotools.featuretable;
+package org.geotools.feature;
 
 /**
  * Thrown when there is an error rebuilding an index.
  *
- * @version $Id: IndexException.java,v 1.2 2002/06/04 15:09:25 loxnard Exp $
+ * @version $Id: IndexException.java,v 1.3 2003/01/02 19:51:30 cholmesny Exp $
  * @author Ray Gallagher
  */
 public class IndexException extends Exception{
