@@ -394,7 +394,7 @@ public class JDBCFeatureSource implements FeatureSource {
 
             return count;
         } catch (SQLException sqlException) {
-            JDBCDataStore.close(conn, transaction, sqlException);
+            JDBCUtils.close( conn, transaction, sqlException );
             conn = null;
             throw new DataSourceException("Could not count "
                 + query.getHandle(), sqlException);
@@ -403,8 +403,8 @@ public class JDBCFeatureSource implements FeatureSource {
             // but at least we did not break the connection
             return -1;
         } finally {
-            JDBCDataStore.close(conn, transaction, null);
-        }
+            JDBCUtils.close( conn, transaction, null );
+        }                  
     }
 
     /**
@@ -423,14 +423,14 @@ public class JDBCFeatureSource implements FeatureSource {
     }
 
     protected void close(Connection conn, Transaction trans, SQLException sqle) {
-        JDBCDataStore.close(conn, trans, sqle);
+        JDBCUtils.close(conn, trans, sqle);
     }
 
     protected void close(ResultSet rs) {
-        JDBCDataStore.close(rs);
+        JDBCUtils.close(rs);
     }
 
     protected void close(Statement statement) {
-        JDBCDataStore.close(statement);
+        JDBCUtils.close(statement);
     }
 }

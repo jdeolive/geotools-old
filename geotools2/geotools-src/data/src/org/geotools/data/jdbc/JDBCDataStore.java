@@ -16,7 +16,24 @@
  */
 package org.geotools.data.jdbc;
 
-import com.vividsolutions.jts.geom.Envelope;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.geotools.data.AbstractFeatureSource;
 import org.geotools.data.AttributeReader;
@@ -44,6 +61,7 @@ import org.geotools.data.Query;
 import org.geotools.data.ReTypeFeatureReader;
 import org.geotools.data.SchemaNotFoundException;
 import org.geotools.data.Transaction;
+import org.geotools.data.jdbc.QueryData.RowData;
 import org.geotools.factory.FactoryConfigurationError;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
@@ -54,25 +72,8 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.Filter;
 import org.geotools.filter.SQLEncoderException;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Abstract helper class for JDBC DataStore implementations.
@@ -520,7 +521,7 @@ public abstract class JDBCDataStore implements DataStore {
         String sqlQuery = constructQuery(query, attrTypes);
 
         QueryData queryData = executeQuery(typeName, sqlQuery, trans,
-                ResultSet.CONCUR_READ_ONLY);
+                ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         
         FeatureType schema;
 
@@ -759,7 +760,7 @@ public abstract class JDBCDataStore implements DataStore {
      *       here.
      */
     protected final QueryData executeQuery(String tableName, String sqlQuery,
-        Transaction transaction, int concurrency) throws IOException {
+        Transaction transaction, int resultSetType, int concurrency) throws IOException {
         LOGGER.info("About to execure query: " + sqlQuery);
 
         Connection conn = null;
@@ -768,8 +769,7 @@ public abstract class JDBCDataStore implements DataStore {
 
         try {
             conn = getConnection(transaction);
-            statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
-                    concurrency);
+            statement = conn.createStatement(resultSetType, concurrency);
             rs = statement.executeQuery(sqlQuery);
 
             FeatureTypeInfo info = getFeatureTypeInfo(tableName);
@@ -781,9 +781,9 @@ public abstract class JDBCDataStore implements DataStore {
             // if an error occurred we close the resources
             String msg = "Error Performing SQL query";
             LOGGER.log(Level.SEVERE, msg, e);
-            close(rs);
-            close(statement);
-            close(conn, transaction, e);
+            JDBCUtils.close(rs);
+            JDBCUtils.close(statement);
+            JDBCUtils.close(conn, transaction, e);
             throw new DataSourceException(msg, e);
         }
     }
@@ -866,14 +866,14 @@ public abstract class JDBCDataStore implements DataStore {
 
             return featureTypeMap;
         } catch (SQLException sqlException) {
-            close(conn, Transaction.AUTO_COMMIT, sqlException);
+            JDBCUtils.close(conn, Transaction.AUTO_COMMIT, sqlException);
             conn = null;
 
             String message = "Error querying database for list of tables:"
                 + sqlException.getMessage();
             throw new DataSourceException(message, sqlException);
         } finally {
-            close(conn, Transaction.AUTO_COMMIT, null);
+            JDBCUtils.close(conn, Transaction.AUTO_COMMIT, null);
         }
     }
 
@@ -909,115 +909,6 @@ public abstract class JDBCDataStore implements DataStore {
             return connectionPool.getConnection();
         } catch (SQLException sqle) {
             throw new DataSourceException("Could not get connection", sqle);
-        }
-    }
-
-    /**
-     * A utility method for closing a Connection. Wraps and logs any exceptions
-     * thrown by the close method.
-     * 
-     * <p>
-     * Connections are maintained by a Transaction and we will need to manage
-     * them with respect to their Transaction.
-     * </p>
-     * 
-     * <p>
-     * Jody here - I am forcing this to be explicit, by requiring you give the
-     * Transaction context when you close a connection seems to be the only
-     * way to hunt all the cases down. AttributeReaders based on QueryData
-     * rely on
-     * </p>
-     * 
-     * <p>
-     * I considered accepting an error flag to control Transaction rollback,
-     * but I really only want to capture SQLException that force transaction
-     * rollback.
-     * </p>
-     *
-     * @param conn The Connection to close. This can be null since it makes it
-     *        easy to close connections in a finally block.
-     * @param transaction Context for the connection, we will only close the
-     *        connection for Transaction.AUTO_COMMIT
-     * @param sqlException Error status, <code>null</code> for no error
-     */
-    protected static void close(Connection conn, Transaction transaction,
-        SQLException sqlException) {
-        if (conn == null) {
-            // Assume we have already closed the connection
-            // (allows use of method in a finally block)
-            return;
-        }
-
-        if (transaction != Transaction.AUTO_COMMIT) {
-            // we should not close Transaction connections
-            // they will do this themselves when they are finished
-            // with the connection.
-            if (sqlException != null) {
-                // we are closing due to an SQLException                
-                try {
-                    transaction.rollback();
-                } catch (IOException e) {
-                    String msg = "Error rolling back transaction in response"
-                        + "to connection error. We are in an inconsistent state";
-                    LOGGER.log(Level.SEVERE, msg, e);
-
-                    // TODO: this is a bad place to be should we completely gut the transaction 
-                    // to prevent damage                                                            
-                    // transaction.close();
-                }
-            }
-
-            return;
-        }
-
-        try {
-            if (!conn.isClosed()) {
-                conn.close();
-            }
-        } catch (SQLException e) {
-            String msg = "Error closing JDBC Connection";
-            LOGGER.log(Level.WARNING, msg, e);
-        }
-    }
-
-    /**
-     * A utility method for closing a ResultSet. Wraps and logs any exceptions
-     * thrown by the close method.
-     *
-     * @param rs The ResultSet to close. This can be null since it makes it
-     *        easy to close result sets in a finally block.
-     */
-    protected static void close(ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                String msg = "Error closing JDBC ResultSet";
-                LOGGER.log(Level.WARNING, msg, e);
-            } catch (Exception e) { // oracle drivers are crapping out
-
-                String msg = "Error closing JDBC ResultSet";
-
-                //LOGGER.log(Level.WARNING, msg, e);
-            }
-        }
-    }
-
-    /**
-     * A utility method for closing a Statement. Wraps and logs any exceptions
-     * thrown by the close method.
-     *
-     * @param statement The statement to close. This can be null since it makes
-     *        it easy to close statements in a finally block.
-     */
-    protected static void close(Statement statement) {
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException e) {
-                String msg = "Error closing JDBC Statement";
-                LOGGER.log(Level.WARNING, msg, e);
-            }
         }
     }
 
@@ -1104,7 +995,7 @@ public abstract class JDBCDataStore implements DataStore {
             return FeatureTypeFactory.newFeatureType(types, typeName,
                 getNameSpace());
         } catch (SQLException sqlException) {
-            close(conn, Transaction.AUTO_COMMIT, sqlException);
+            JDBCUtils.close(conn, Transaction.AUTO_COMMIT, sqlException);
             conn = null; // prevent finally block from reclosing
             throw new DataSourceException("SQL Error building FeatureType for "
                 + typeName, sqlException);
@@ -1115,8 +1006,8 @@ public abstract class JDBCDataStore implements DataStore {
             throw new DataSourceException("Error creating FeatureType for "
                 + typeName, e);
         } finally {
-            close(tableInfo);
-            close(conn, Transaction.AUTO_COMMIT, null);
+            JDBCUtils.close(tableInfo);
+            JDBCUtils.close(conn, Transaction.AUTO_COMMIT, null);
         }
     }
 
@@ -1248,12 +1139,12 @@ public abstract class JDBCDataStore implements DataStore {
                 fidColumnName = rs.getString(NAME_COLUMN);
             }
         } catch (SQLException sqlException) {
-            close(conn, Transaction.AUTO_COMMIT, sqlException);
+            JDBCUtils.close(conn, Transaction.AUTO_COMMIT, sqlException);
             conn = null; // prevent finally block from reclosing          
             LOGGER.warning("Could not find the primary key - using the default");
         } finally {
-            close(rs);
-            close(conn, Transaction.AUTO_COMMIT, null);
+            JDBCUtils.close(rs);
+            JDBCUtils.close(conn, Transaction.AUTO_COMMIT, null);
         }
 
         return fidColumnName;
@@ -1375,7 +1266,7 @@ public abstract class JDBCDataStore implements DataStore {
      */    
     public FeatureWriter getFeatureWriterAppend(String typeName,
                                               Transaction transaction) throws IOException {
-        FeatureWriter writer = getFeatureWriter( typeName, transaction );
+        FeatureWriter writer = getFeatureWriter( typeName, Filter.ALL, transaction );
         while( writer.hasNext()){
             writer.next(); // this would be a use for skip then :-)
         }
@@ -1425,10 +1316,6 @@ public abstract class JDBCDataStore implements DataStore {
                     "did you mean Transaction.AUTO_COMMIT");
         }
         FeatureType schema = getSchema(typeName);
-        if( filter.equals( Filter.ALL )){
-            return new EmptyFeatureWriter( schema ); 
-        }
-
         FeatureTypeInfo info = getFeatureTypeInfo(typeName);
         LOGGER.fine("getting feature writer for " + typeName + ": " + info);
 
@@ -1438,8 +1325,10 @@ public abstract class JDBCDataStore implements DataStore {
         Query query = new DefaultQuery(typeName, filter);
         String sqlQuery = constructQuery(query, getAttTypes(query));
 
+        // TODO: This is a hack to workaround Oracle problem with inserting
+        // into FORWARD_ONLY result sets.
         QueryData queryData = executeQuery(typeName, sqlQuery, transaction,
-                ResultSet.CONCUR_UPDATABLE);
+                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
         FeatureReader reader = createFeatureReader(info.getSchema(),
                 postFilter, queryData);
         AttributeWriter[] writers = buildAttributeWriters(info.getSchema()
@@ -1713,246 +1602,7 @@ public abstract class JDBCDataStore implements DataStore {
         }
     }
 
-    /**
-     * Provides an encapsulation of the connection, statement and result set of
-     * a JDBC query.  This class solves the problem of "Where do we close JDBC
-     * resources when they are being used by multiple AttributeReaders?".
-     * 
-     * <p>
-     * An alternative solution would be to have the FeatureReader manage the
-     * resources, however this will pose problems when combining JDBC
-     * Attribute Readers with other AttributeReaders and FeatureReaders.  The
-     * QueryData solution works by holding all the needed resources and
-     * providing a close method that closes all the resources.  When the close
-     * method is called any readers that are registered as QueryDataListeners
-     * for the query data will be notified.  This will allow one
-     * AttributeReader to close the resources and any other AttributeReaders
-     * using the same resources will find out about it.
-     * </p>
-     *
-     * @author Sean Geoghegan, Defence Science and Technology Organisation.
-     */
-    public static class QueryData {
-        private FeatureTypeInfo featureTypeInfo;
-        private Connection conn;
-        private ResultSet resultSet;
-        private Statement statement;
-        private ArrayList listeners = new ArrayList();
-        private Transaction transaction;
-        private boolean isInserting = false;
-
-        /**
-         * The constructor for the QueryData object.
-         *
-         * @param featureTypeInfo DOCUMENT ME!
-         * @param conn The connection to the DB.
-         * @param statement The statement used to execute the query.
-         * @param resultSet The result set.
-         * @param transaction DOCUMENT ME!
-         */
-        public QueryData(FeatureTypeInfo featureTypeInfo, Connection conn,
-            Statement statement, ResultSet resultSet, Transaction transaction) {
-            this.featureTypeInfo = featureTypeInfo;
-            this.conn = conn;
-            this.resultSet = resultSet;
-            this.statement = statement;
-            this.transaction = transaction;
-        }
-
-        /**
-         * Gets the result set.
-         *
-         * @return The result of the query.
-         */
-        public ResultSet getResultSet() {
-            return resultSet;
-        }
-
-        /**
-         * Closes all the resources.
-         * 
-         * <p>
-         * All resources are closed the QueryDataListener.queryDataClosed() is
-         * called on all QueryDataListeners.
-         * </p>
-         * 
-         * <p>
-         * The Connection is handled differently depending on if this is an
-         * AUTO_COMMIT Transaction or not.
-         * 
-         * <ul>
-         * <li>
-         * AUTO_COMMIT connections are closed
-         * </li>
-         * <li>
-         * Transaction connection are left open if <code>error</code> is false
-         * </li>
-         * <li>
-         * Transaction connectino are left open and the Transaction is rolled
-         * back if error is <code>true</code>.
-         * </li>
-         * </ul>
-         * </p>
-         * 
-         * <p>
-         * Jody Here: I have forced this method to handle maintaining
-         * conneciton status as it knows about Transactions and
-         * AttributeReaders do not.
-         * </p>
-         * 
-         * <p>
-         * <b>USEAGE GUIDELINES:</b>
-         * </p>
-         * 
-         * <ul>
-         * <li>
-         * sqlException != null: When ever we have an SQLException we will need
-         * to force the any Transaction associated with this conneciton to
-         * rollback.
-         * </li>
-         * <li>
-         * sqlException == null: When we are finished with resources we will
-         * call close( null) which will return AUTO_COMMIT connections to the
-         * pool and leave Transaction connections open.
-         * </li>
-         * </ul>
-         *
-         * @param sqlException DOCUMENT ME!
-         */
-        public void close(SQLException sqlException) {
-            System.err.println("Close called on query data");
-            JDBCDataStore.close(resultSet);
-            JDBCDataStore.close(statement);
-            JDBCDataStore.close(conn, transaction, sqlException);
-            resultSet = null;
-            //transaction = null;
-            statement = null;
-            conn = null;
-            fireCloseEvent();
-        }
-
-        /**
-         * Adds a QueryDataListener to the list of listeners.
-         *
-         * @param l The Listener to the add.
-         */
-        public void addQueryDataListener(QueryDataListener l) {
-            listeners.add(l);
-        }
-
-        /**
-         * Removes a QueryDataListener for the list of listeners.
-         *
-         * @param l The Listener to remove.
-         */
-        public void removeQueryDataListener(QueryDataListener l) {
-            listeners.remove(l);
-        }
-
-        /**
-         * Fires the close event.
-         */
-        protected void fireCloseEvent() {
-            List clone = (List) listeners.clone();
-
-            for (Iterator iter = clone.iterator(); iter.hasNext();) {
-                QueryDataListener l = (QueryDataListener) iter.next();
-                l.queryDataClosed(this);
-            }
-        }
-
-        /**
-         * Returns transaction, this Query data is opperating against.
-         * 
-         * <p>
-         * Please note that if transacstion is not Transaction.AUTO_COMMIT you
-         * will need to call transaction.rollback() in the event of an
-         * SQLException.
-         * </p>
-         *
-         * @return The current Transaction
-         */
-        public Transaction getTransaction() {
-            return transaction;
-        }
-
-        /**
-         * A convience method that ensures we handle rollback on error
-         * correctly.
-         * 
-         * <p>
-         * Returns an IOException encapsulating the sqlException after
-         * correctly rolling back the current Transaction. Rollback only
-         * occurs if we are not using Transacstion.AUTO_COMMIT.
-         * </p>
-         * TODO: chris is this a good idea?
-         *
-         * @param message DOCUMENT ME!
-         * @param sqlException DOCUMENT ME!
-         *
-         * @return DOCUMENT ME!
-         */
-        public IOException cast(String message, SQLException sqlException) {
-            if (transaction != Transaction.AUTO_COMMIT) {
-                try {
-                    transaction.rollback();
-                } catch (IOException e) {
-                    // problem with rollback
-                }
-
-                return new DataSourceException(message
-                    + "(transaction rolled back)", sqlException);
-            } else {
-                return new DataSourceException(message, sqlException);
-            }
-        }
-
-        /**
-         *
-         */
-        public Connection getConnection() {
-            return conn;
-        }
-
-        /**
-         * DOCUMENT ME!
-         *
-         * @return
-         */
-        public FeatureTypeInfo getFeatureTypeInfo() {
-            return featureTypeInfo;
-        }
-        
-        /**
-         * @return Returns the isInserting.
-         */
-        public boolean isInserting() {
-            return isInserting;
-        }
-
-        /**
-         * @param isInserting The isInserting to set.
-         */
-        public void setInserting(boolean isInserting) {
-            this.isInserting = isInserting;
-        }
-
-        /**
-         * 
-         */
-        public void deleteCurrentRow() throws SQLException {
-            this.resultSet.deleteRow();
-            List clone = (List) listeners.clone();
-
-            for (Iterator iter = clone.iterator(); iter.hasNext();) {
-                QueryDataListener l = (QueryDataListener) iter.next();
-                l.rowDeleted(this);
-            }            
-        }
-
-    }
-
-    protected class JDBCFeatureWriter implements FeatureWriter {
+    protected class JDBCFeatureWriter implements FeatureWriter, QueryDataObserver {
         protected QueryData queryData;
         protected AttributeWriter writer;
         protected Feature live = null; // current for FeatureWriter 
@@ -1973,6 +1623,7 @@ public abstract class JDBCDataStore implements DataStore {
         public JDBCFeatureWriter(FeatureReader fReader, AttributeWriter writer,
             QueryData queryData) throws IOException {
             this.queryData = queryData;
+            queryData.attachObserver(this);
             this.fReader = fReader;
             this.writer = writer;
         }
@@ -1990,11 +1641,12 @@ public abstract class JDBCDataStore implements DataStore {
 
             if (hasNext()) {
                 try {
-                    // existing content
-                    live = fReader.next();
+                    
+                    queryData.next(this); // move the FeatureWriter position
+                    writer.next(); // move the attribute writer
+                    live = fReader.next(); // get existing content
                     current = featureType.duplicate(live);
                     LOGGER.finer("Calling next on writer");
-                    writer.next();
                 } catch (IllegalAttributeException e) {
                     throw new DataSourceException("Unable to edit "
                         + live.getID() + " of " + featureType.getTypeName(), e);
@@ -2003,9 +1655,15 @@ public abstract class JDBCDataStore implements DataStore {
                 // new content 
                 live = null;
 
-                try {
+                if (fReader != null) {
+                    fReader.close();
+                    fReader = null;
+                }
+                
+                try {                    
                     current = DataUtilities.template(featureType);
-                    queryData.getResultSet().moveToInsertRow();
+                    queryData.startInsert();
+                    queryData.next(this);
                     writer.next();
                 } catch (IllegalAttributeException e) {
                     throw new DataSourceException(
@@ -2080,16 +1738,15 @@ public abstract class JDBCDataStore implements DataStore {
                     live = null;
                     current = null;
                 } else {
-                    ResultSet rs = queryData.getResultSet();
                     doUpdate(live, current);
 
                     try {
-                        rs.updateRow();
+                        queryData.updateRow();
                     } catch (SQLException sqlException) {
                         // This is a serious problem when working against
                         // a transaction connection, queryData knows how to
                         // handle it though
-                        queryData.close(sqlException);
+                        queryData.close(sqlException, this);
                         throw new DataSourceException("Error updating row",
                             sqlException);
                     }
@@ -2106,8 +1763,6 @@ public abstract class JDBCDataStore implements DataStore {
             } else {
                 // Do an insert - TODO not yet sure how to handle new FIDs, any ideas???
                 LOGGER.fine("doing insert in jdbc featurewriter");
-
-                ResultSet rs = queryData.getResultSet();
 
                 try {
                     doInsert(current);
@@ -2134,24 +1789,20 @@ public abstract class JDBCDataStore implements DataStore {
          * @throws SQLException DOCUMENT ME!
          * @throws DataSourceException DOCUMENT ME!
          */
-        protected void doInsert(Feature current)
-            throws IOException, SQLException {
-            ResultSet rs = queryData.getResultSet();
-            //rs.moveToInsertRow();  This gets done in the result writer.  Might need to revisit this.
-
-            try {
-                System.out.println(current.getID());
-                doUpdate(DataUtilities.template(current.getFeatureType()),current);
+        protected void doInsert(Feature current) throws IOException, SQLException {            
+            try {                
+                queryData.startInsert();
                 // TODO This is a bit of a hack
                 String fid = current.getID();
                 fid = fid.substring(fid.lastIndexOf("-")+1);
-                rs.updateObject(1, Integer.valueOf(fid));
+                RowData rd = queryData.getRowData(this);
+                rd.write(Integer.valueOf(fid), 1);
+                doUpdate(DataUtilities.template(current.getFeatureType()),current);
             } catch (IllegalAttributeException e) {
                 throw new DataSourceException("Unable to do insert", e);
             }
 
-            rs.insertRow();
-            rs.moveToCurrentRow();
+            queryData.doInsert();
         }
 
         private void doUpdate(Feature live, Feature current)
@@ -2211,7 +1862,7 @@ public abstract class JDBCDataStore implements DataStore {
             }
 
             if (queryData != null) {
-                queryData.close(null);
+                queryData.close(null, this);
                 queryData = null;
             }
 

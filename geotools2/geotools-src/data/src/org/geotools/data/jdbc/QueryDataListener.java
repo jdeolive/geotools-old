@@ -13,6 +13,6 @@ package org.geotools.data.jdbc;
  *
  */
 public interface QueryDataListener {
-    public void rowDeleted(JDBCDataStore.QueryData queryData);
-    public void queryDataClosed(JDBCDataStore.QueryData queryData);
+    public void rowDeleted(QueryData queryData);
+    public void queryDataClosed(QueryData queryData);
 }

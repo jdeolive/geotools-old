@@ -21,8 +21,9 @@ import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.DefaultSQLBuilder;
 import org.geotools.data.jdbc.JDBCDataStore;
+import org.geotools.data.jdbc.JDBCUtils;
+import org.geotools.data.jdbc.QueryData;
 import org.geotools.data.jdbc.SQLBuilder;
-import org.geotools.data.jdbc.JDBCDataStore.QueryData;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.filter.SQLEncoder;
@@ -127,7 +128,7 @@ public class OracleDataStore extends JDBCDataStore {
             return gMetaData.getSpatialReferenceID();            
         }
         finally {
-            close(conn, Transaction.AUTO_COMMIT, null);            
+            JDBCUtils.close(conn, Transaction.AUTO_COMMIT, null);            
         }        
     }
     

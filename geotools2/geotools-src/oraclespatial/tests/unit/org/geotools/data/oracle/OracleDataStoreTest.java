@@ -131,7 +131,7 @@ public class OracleDataStoreTest extends TestCase {
         try {
             DataStore ds = new OracleDataStore(cPool, properties.getProperty("schema"));
             FeatureType ft = ds.getSchema("ORA_TEST_POINTS");
-            FeatureReader fr = ds.getFeatureReader(ft, null, Transaction.AUTO_COMMIT);
+            FeatureReader fr = ds.getFeatureReader(ft, Filter.NONE, Transaction.AUTO_COMMIT);
             int count = 0;
 
             while (fr.hasNext()) {

@@ -16,33 +16,23 @@
  */
 package org.geotools.data.jdbc;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.geotools.data.DataSourceException;
+import org.geotools.data.jdbc.JDBCDataStore.FeatureTypeInfo;
+import org.geotools.data.jdbc.QueryData.RowData;
+import org.geotools.feature.AttributeType;
+
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
-import org.geotools.data.AbstractAttributeIO;
-import org.geotools.data.AttributeReader;
-import org.geotools.data.AttributeWriter;
-
-//geotools imports
-import org.geotools.data.DataSourceException;
-import org.geotools.data.DataSourceMetaData;
-import org.geotools.data.jdbc.JDBCDataStore.FeatureTypeInfo;
-import org.geotools.data.jdbc.JDBCDataStore.QueryData;
-import org.geotools.feature.AttributeType;
-import org.geotools.feature.AttributeTypeFactory;
-import org.geotools.feature.IllegalAttributeException;
-import org.geotools.feature.SchemaException;
-import java.io.IOException;
-import java.sql.Connection;
-
-//J2SE imports
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**
@@ -58,10 +48,9 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Chris Holmes
- * @version $Id: WKTAttributeIO.java,v 1.5 2003/11/24 00:19:32 cholmesny Exp $
+ * @version $Id: WKTAttributeIO.java,v 1.6 2003/11/28 08:49:51 seangeo Exp $
  */
-public class WKTAttributeIO extends AbstractAttributeIO
-    implements QueryDataListener, AttributeWriter, AttributeReader {
+public class WKTAttributeIO extends ResultSetAttributeIO {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.data.jdbc");
@@ -74,15 +63,10 @@ public class WKTAttributeIO extends AbstractAttributeIO
 
     /** Well Known Text writer (from JTS). */
     private static WKTWriter geometryWriter = new WKTWriter();
-    private int rowIndex = 0;
     private int columnIndex;
-    private QueryData queryData;
-    private ResultSet resultSet;
-    private boolean isClosed = false;
-
     public WKTAttributeIO(QueryData queryData, AttributeType metadata,
         int columnIndex) {
-        super(new AttributeType[] { metadata });
+        super(new AttributeType[] { metadata }, queryData, columnIndex, columnIndex + 1);
 
         AttributeType[] attTypes = new AttributeType[] { metadata };
 
@@ -93,68 +77,12 @@ public class WKTAttributeIO extends AbstractAttributeIO
         }
 
         this.queryData = queryData;
-        this.resultSet = queryData.getResultSet();
         this.columnIndex = columnIndex;
-    }
-
-    /* (non-Javadoc)
-     * @see org.geotools.data.AttributeReader#close()
-     */
-    public void close() throws IOException {
-        if (!isClosed) {
-            isClosed = true;
-            queryData.close(null);
-        }
-    }
-
-    public boolean hasNext() throws IOException {
-        if (isClosed) {
-            throw new IOException(
-                "Close has already been called on this AttributeReader.");
-        }
-
-        try {
-            if (rowIndex == 0) {
-                return resultSet.first();
-            } else {
-                resultSet.absolute(rowIndex);
-
-                return !(resultSet.isLast() || resultSet.isAfterLast());
-            }
-        } catch (SQLException e) {
-            String msg = "SQL Error calling isLast on result set";
-            LOGGER.log(Level.SEVERE, msg, e);
-            throw new IOException(msg + ":" + e.getMessage());
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.geotools.data.AttributeReader#next()
-     */
-    public void next() throws IOException {
-        if (isClosed) {
-            throw new IOException(
-                "Close has already been called on this AttributeReader.");
-        }
-
-        try {
-            if ((rowIndex == 0) || !resultSet.isAfterLast()) {
-                rowIndex++;
-                resultSet.absolute(rowIndex);
-            }
-        } catch (SQLException sqlException) {
-            queryData.close(sqlException);
-
-            String msg = "SQL Error calling absolute on result set";
-            LOGGER.log(Level.SEVERE, msg, sqlException);
-            throw new DataSourceException(msg + ":" + sqlException.getMessage(),
-                sqlException);
-        }
     }
 
     public Object read(int i)
         throws IOException, ArrayIndexOutOfBoundsException {
-        if (isClosed) {
+        if (isClosed()) {
             throw new IOException(
                 "Close has already been called on this AttributeReader.");
         }
@@ -168,9 +96,9 @@ public class WKTAttributeIO extends AbstractAttributeIO
         Object retObject = null;
 
         try {
-            resultSet.absolute(rowIndex);
+            RowData rd = queryData.getRowData(this);
 
-            String wkt = resultSet.getString(columnIndex);
+            String wkt = rd.read(columnIndex).toString();
 
             if (wkt == null) {
                 retObject = null;
@@ -181,7 +109,7 @@ public class WKTAttributeIO extends AbstractAttributeIO
             //LOGGER.fine("returning " + retObject);
             return retObject;
         } catch (SQLException sqle) {
-            queryData.close(sqle);
+            queryData.close(sqle, this);
             throw new DataSourceException("Problem with sql", sqle);
         } catch (ParseException pe) {
             throw new DataSourceException("could not parse wkt" + pe);
@@ -189,7 +117,7 @@ public class WKTAttributeIO extends AbstractAttributeIO
     }
 
     public void write(int position, Object attribute) throws IOException {
-        if (isClosed) {
+        if (isClosed()) {
             throw new IOException(
                 "Close has already been called on this AttributeReader.");
         }
@@ -200,20 +128,21 @@ public class WKTAttributeIO extends AbstractAttributeIO
                 "This Reader only reads one attribute so i should always be 0");
         }
 
-        try {
-            //can we check if on insert row?  I'm pretty sure this method
-            //won't work on an insert row, since it's not in the database yet.
-            //The regular update ones we can just use update sql.
-            if (resultSet.isAfterLast()) {
-                throw new IOException(
-                    "cannot insert WKT on insert row, must use"
-                    + " a full sql insert statement");
-            }
-        } catch (SQLException e) {
-            String msg = "SQL Error calling isLast on result set";
-            LOGGER.log(Level.SEVERE, msg, e);
-            throw new IOException(msg + ":" + e.getMessage());
-        }
+        // Ive commented this out - let the SQLException be thrown 
+//        try {
+//            //can we check if on insert row?  I'm pretty sure this method
+//            //won't work on an insert row, since it's not in the database yet.
+//            //The regular update ones we can just use update sql.
+//            if (resultSet.isAfterLast()) {
+//                throw new IOException(
+//                    "cannot insert WKT on insert row, must use"
+//                    + " a full sql insert statement");
+//            }
+//        } catch (SQLException e) {
+//            String msg = "SQL Error calling isLast on result set";
+//            LOGGER.log(Level.SEVERE, msg, e);
+//            throw new IOException(msg + ":" + e.getMessage());
+//        }
 
         Statement statement = null;
 
@@ -221,8 +150,7 @@ public class WKTAttributeIO extends AbstractAttributeIO
             //TODO: make this generic, working with JDBCFeatureStore.
             //first attempt at this failed miserably, but it was also
             //trying to do generic before specific.
-            Connection conn = queryData.getResultSet().getStatement()
-                                       .getConnection();
+            Connection conn = queryData.getConnection();
             statement = conn.createStatement();
 
             //SQLBuilder sqlBuilder = getSqlBuilder();
@@ -247,9 +175,8 @@ public class WKTAttributeIO extends AbstractAttributeIO
 
             //sqlBuilder.buildSQLUpdate(queryData.getFeatureTypeInfo(), attribute, position, );
             String fidColName = ftInfo.getFidColumnName();
-            resultSet.absolute(rowIndex);
-
-            String fid = resultSet.getString(fidColName);
+            RowData rd = queryData.getRowData(this);
+            Object fid = rd.read(1);
             sql.append("WHERE " + fidColName + "=" + fid);
 
             LOGGER.fine("this sql statement = " + sql);
@@ -260,10 +187,10 @@ public class WKTAttributeIO extends AbstractAttributeIO
         } catch (SQLException sqle) {
             String msg = "SQL Exception writing geometry column";
             LOGGER.log(Level.SEVERE, msg, sqle);
-            queryData.close(sqle);
+            queryData.close(sqle, this);
             throw new DataSourceException(msg, sqle);
         } finally {
-            JDBCDataStore.close(statement);
+            JDBCUtils.close(statement);
         }
     }
 
@@ -281,24 +208,5 @@ public class WKTAttributeIO extends AbstractAttributeIO
         }
 
         return retString;
-    }
-
-    /* (non-Javadoc)
-     * @see org.geotools.data.jdbc.QueryDataListener#queryDataClosed(org.geotools.data.jdbc.JDBCDataStore.QueryData)
-     */
-    public void queryDataClosed(QueryData queryData) {
-        this.isClosed = true;
-
-        // Dont need to listen to this anymore so we remove ourselves to
-        // allow cleanup. 
-        queryData.removeQueryDataListener(this);
-    }
-
-    /**
-     * @see org.geotools.data.jdbc.QueryDataListener#rowDeleted(org.geotools.data.jdbc.JDBCDataStore.QueryData)
-     * @param queryData
-     */
-    public void rowDeleted(QueryData queryData) {
-        rowIndex--;        
     }
 }

@@ -5,7 +5,6 @@
 package org.geotools.data.jdbc;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -15,7 +14,7 @@ import org.geotools.data.AbstractAttributeIO;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.AttributeWriter;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.jdbc.JDBCDataStore.QueryData;
+import org.geotools.data.jdbc.QueryData.RowData;
 import org.geotools.feature.AttributeType;
 
 /** Provides an AttriuteReader over a result set limiting the columns
@@ -29,20 +28,15 @@ import org.geotools.feature.AttributeType;
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  */
 public class ResultSetAttributeIO extends AbstractAttributeIO
-                implements QueryDataListener, AttributeWriter, AttributeReader {
+                implements QueryDataListener, QueryDataObserver, 
+                            AttributeWriter, AttributeReader {
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.data.jdbc");
 	/** A flag to track the status of the result set. */
 	private boolean isClosed = false;
 
     private boolean isInsertRow = false;
     
-	/** The result set to read. */
-	private ResultSet resultSet;
-    
-    private QueryData queryData;
-	
-	/** The current row index.  Starts at 0 becuase of the iterator pattern. */
-	private int rowIndex = 0;
+	protected QueryData queryData;
 	
 	/** The start of the column range */
 	private int startColumn;
@@ -63,14 +57,13 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 	 * @param startColumn The starting column, inclusive.
 	 * @param endColumn The ending index, exclusive.
 	 */
-	public ResultSetAttributeIO(AttributeType[] metadata, JDBCDataStore.QueryData querydata,
+	public ResultSetAttributeIO(AttributeType[] metadata, QueryData querydata,
 										int startColumn, int endColumn) {
 		super(metadata);
         LOGGER.finer("Creating Ranged AttributeReader: " + Arrays.asList(metaData) + 
                 " range: " + startColumn + "-" + endColumn);
         this.queryData  = querydata;
-        queryData.addQueryDataListener(this);
-		this.resultSet = queryData.getResultSet();
+        queryData.attachObserver(this);
 		this.startColumn = startColumn;
 		this.endColumn = endColumn;
 	}
@@ -90,7 +83,8 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 	public void close() throws IOException {
         if (!isClosed())  {
             this.isClosed = true;
-            queryData.close( null );
+            queryData.close( null, this );
+            queryData.removeObserver(this);
         }
 	}
 
@@ -105,14 +99,9 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 		}
 		
 		try {            
-            if (rowIndex == 0)  {
-                return resultSet.first();
-            } else  {
-        		resultSet.absolute(rowIndex);
-        		return ! (resultSet.isLast() || resultSet.isAfterLast());
-            }
+            return queryData.hasNext(this);
 		} catch (SQLException sqlException) {
-            queryData.close( sqlException );
+            queryData.close( sqlException, this );
 			String msg = "SQL Error calling isLast on result set";
 			LOGGER.log(Level.SEVERE,msg,sqlException);			
 			throw new DataSourceException(msg + ":" + sqlException.getMessage(), sqlException);
@@ -127,18 +116,7 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 			throw new IOException("Close has already been called on this AttributeReader.");
 		}
 		        
-        try {
-            if (rowIndex == 0 || !resultSet.isAfterLast())  {
-                rowIndex++;
-                LOGGER.finer("Next called on AR:" + hashCode() +". RowIndex now = " + rowIndex);
-                resultSet.absolute(rowIndex);
-            }
-        } catch (SQLException sqlException) {
-            queryData.close( sqlException );
-            String msg = "SQL Error calling absolute on result set";
-            LOGGER.log(Level.SEVERE,msg,sqlException);            
-            throw new DataSourceException(msg + ":" + sqlException.getMessage(), sqlException);
-        }
+        queryData.next(this);
 	}
 
 	/** Reads an attribute from the given column in the current row.
@@ -163,19 +141,10 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 		int rsPosition = convertIndex(i);
 		
 		try {
-			resultSet.absolute(rowIndex);
-		} catch (SQLException sqlException ) {
-            queryData.close( sqlException );
-            String msg = "Error setting row position in result set to " + rowIndex;
-            LOGGER.log(Level.SEVERE,msg,sqlException);                        
-			throw new DataSourceException( msg, sqlException );
-		}		
-		
-		try {
-			Object returnObj = resultSet.getObject(rsPosition);
-            return returnObj;
+			RowData rd = queryData.getRowData(this);
+            return rd.read(rsPosition);
 		} catch (SQLException sqlException) {
-            queryData.close( sqlException );
+            queryData.close( sqlException, this );
             String msg = "Error getting value from column position " + rsPosition;
             LOGGER.log(Level.SEVERE,msg,sqlException);             
 			throw new DataSourceException( msg, sqlException);
@@ -216,40 +185,13 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
         }
 
         int rsPosition = convertIndex(position);
-
-        try {
-            if (!isInsertRow) {            
-                if (resultSet.isAfterLast() || !resultSet.first()) {            
-                    LOGGER.info("Moving to insert row");
-                    resultSet.last();
-                    resultSet.moveToInsertRow();
-                    isInsertRow = true;
-                } else {
-                    LOGGER.finer("Setting cursor to: " + rowIndex);            
-                    resultSet.absolute(rowIndex);
-                } 
-            }
-        } catch (SQLException sqlException) {
-            queryData.close( sqlException );
-            String msg = "Error inserting new attribute"; 
-            LOGGER.log(Level.SEVERE,msg,sqlException);
-            throw new DataSourceException(msg, sqlException);
-        }
         
         try {
-            LOGGER.info("Setting " + rsPosition + " to " + attribute);            
-            resultSet.updateObject(rsPosition, attribute);
-            
-
-    	    //Sean, is this ok?  It was causing me grief with the WKT stuff,
-    	    //since I need to perform updates with sql as well as using the
-    	    //update row stuff.
-            if (!isInsertRow) {
-                resultSet.updateRow();
-                isInsertRow = false;
-            }
+            LOGGER.info("Setting " + rsPosition + " to " + attribute);  
+            RowData rd = queryData.getRowData(this);
+            rd.write(attribute, rsPosition);                	    
         } catch (SQLException sqlException) {
-            queryData.close( sqlException );
+            queryData.close( sqlException, this );
             String msg = "Error updating object at " + position + 
                     "/" + rsPosition + " with " + attribute; 
             LOGGER.log(Level.SEVERE,msg,sqlException);
@@ -261,10 +203,6 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
      * @see org.geotools.data.jdbc.QueryDataListener#queryDataClosed(org.geotools.data.jdbc.JDBCDataStore.QueryData)
      */
     public void queryDataClosed(QueryData queryData) {
-        this.isClosed = true;
-        // Dont need to listen to this anymore so we remove ourselves to
-        // allow cleanup. 
-        queryData.removeQueryDataListener(this);
     }
 
     /**
@@ -272,7 +210,6 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
      * @param queryData
      */
     public void rowDeleted(QueryData queryData) {
-        rowIndex--;        
     }
     
     public boolean isClosed() {

@@ -18,53 +18,32 @@ package org.geotools.data.jdbc;
 
 //geotools imports
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FIDReader;
-import org.geotools.data.jdbc.JDBCDataStore.QueryData;
+import org.geotools.data.jdbc.QueryData.RowData;
 
 /**
  * FIDReader for JDBC.  Assumes that the column being passed in is
  * a number, as the typeName is always appended on.  This is because
  * id's must start with a letter or an underscore.  If needed we
  * could only append the typeName if the column is an int.   
- * <p>
- * Jody with an update - I test if it is a number, if it starts with letter or underscore
- * I use it as is
- * </p>
+ *
  * @task TODO: factory construction methods?
  *
  * @author  Chris Holmes
  */
-public class ResultSetFIDReader implements FIDReader, QueryDataListener {
+public class ResultSetFIDReader implements FIDReader, QueryDataListener, QueryDataObserver {
 
-    private JDBCDataStore.QueryData queryData;
-    private ResultSet results;
+    private QueryData queryData;
     private int column;
     /** The logger for the jdbc module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.data.jdbc");
-    private int index = 0; // this is now zero since Readers have been changed to the Iterator pattern
     private String typeName;
     private boolean isClosed = false;
-
-    /**
-     * Constructor, for a continuous array of result columns.  If the geometry
-     * column.
-     * @param results The ResultSet to read attribute from.
-     * @param typeName The typename to append.  
-     * @param column the offset at which the fid column is.
-     * Starts at 1, corresponding to the java ResultSet way of doing things.
-     */
-    public ResultSetFIDReader(ResultSet results, String typeName, int column) {
-        this.typeName = typeName;
-        this.results = results;
-        this.column = column;
-        LOGGER.finer("resultset fid reader constrcted with " + typeName + ", " + column);
-    }
 
     /** Constructor that takes a QueryData object instead of a ResultSet.
      * 
@@ -73,12 +52,11 @@ public class ResultSetFIDReader implements FIDReader, QueryDataListener {
      * @param column the offset at which the fid column is.
      * Starts at 1, corresponding to the java ResultSet way of doing things.
      */
-    public ResultSetFIDReader(JDBCDataStore.QueryData queryData, String typename, int column) {
+    public ResultSetFIDReader(QueryData queryData, String typename, int column) {
         this.typeName = typename;       
-        this.results = queryData.getResultSet();
         this.column = column;
         this.queryData = queryData;
-        queryData.addQueryDataListener(this);
+        queryData.attachObserver(this);
     }
 
     public boolean hasNext() throws IOException {
@@ -87,20 +65,17 @@ public class ResultSetFIDReader implements FIDReader, QueryDataListener {
         }
         
         try {
-            if (index == 0)  {                
-                boolean b = results.first();
-                return b;
-            } else  {
-        		results.absolute(index);
-        		return ! (results.isLast() || results.isAfterLast());
-            }
+           boolean hasNext = queryData.hasNext(this);
+           queryData.next(this); // need to call next now because of API differences.
+           return hasNext;
         } catch (SQLException sqlException) {
-            queryData.close( sqlException );
+            queryData.close( sqlException, this );
             String msg = "Error checking for more content"; 
             LOGGER.log(Level.SEVERE,msg,sqlException);
             throw new DataSourceException(msg, sqlException);                         
         }
     }
+
     public String next() throws IOException {
         if (isClosed) {
             throw new IOException("This FIDReader has already been closed");
@@ -111,27 +86,10 @@ public class ResultSetFIDReader implements FIDReader, QueryDataListener {
         }
         
         try {            
-            index++;
-            String fid = null;
-            results.absolute(index);
-            fid = results.getString(column);
-            char ch = fid.charAt( 0 );
-            if( Character.isLetter( ch ) || ch == '_' ){
-                return fid;    
-            }
-            else if( Character.isDigit( ch )){
-                // are we an int?
-                try {
-                    long number = Long.parseLong( fid );
-                    return typeName + "." + number;                                        
-                }
-                catch( NumberFormatException badNum ){
-                    //throw new IOException("Invalid FeatureID:"+fid );
-                }                                
-            }                        
-            return typeName+"."+fid;
+            RowData rd = queryData.getRowData(this);
+            return typeName + "." + rd.read(1);            
         } catch (SQLException sqlException) {
-            queryData.close( sqlException );
+            queryData.close( sqlException, this );
             String msg = "Error obtaining more content"; 
             LOGGER.log(Level.SEVERE,msg,sqlException);
             throw new DataSourceException(msg, sqlException);                        
@@ -142,7 +100,8 @@ public class ResultSetFIDReader implements FIDReader, QueryDataListener {
         if (!isClosed)  {
             isClosed = true;
             if (queryData != null)  {
-                queryData.close( null );
+                queryData.close( null, this );
+                queryData.removeObserver(this);
             }
         }
     }
@@ -158,7 +117,5 @@ public class ResultSetFIDReader implements FIDReader, QueryDataListener {
      * @see org.geotools.data.jdbc.QueryDataListener#rowDeleted(org.geotools.data.jdbc.JDBCDataStore.QueryData)
      * @param queryData
      */
-    public void rowDeleted(QueryData queryData) {
-        index--;
-    }
+    public void rowDeleted(QueryData queryData) {}
 }

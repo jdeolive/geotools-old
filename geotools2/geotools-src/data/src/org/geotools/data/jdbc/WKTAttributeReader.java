@@ -83,7 +83,7 @@ public class WKTAttributeReader extends ResultSetAttributeReader {
             //LOGGER.fine("returning " + retObject);
             return retObject;
         } catch (SQLException sqlException) {
-            JDBCDataStore.close(connection, transaction, sqlException);
+            JDBCUtils.close(connection, transaction, sqlException);
 
             String msg = "Problem with sql";
             LOGGER.log(Level.SEVERE, msg, sqlException);

@@ -7,8 +7,6 @@
 package org.geotools.data.oracle;
 
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,8 +24,9 @@ import oracle.sdoapi.sref.SpatialReference;
 import oracle.sql.STRUCT;
 
 import org.geotools.data.DataSourceException;
+import org.geotools.data.jdbc.QueryData;
 import org.geotools.data.jdbc.ResultSetAttributeIO;
-import org.geotools.data.jdbc.JDBCDataStore.QueryData;
+import org.geotools.data.jdbc.QueryData.RowData;
 import org.geotools.feature.AttributeType;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -42,13 +41,9 @@ public class OracleSDOAttributeReader extends ResultSetAttributeIO {
 
     // geometry adpaters
     private AdapterJTS adapterJTS;
-    private AdapterSDO adapterSDO;
-        
-    private int columnIndex;
-    
+    private AdapterSDO adapterSDO;        
+    private int columnIndex;    
     private QueryData queryData;
-    private ResultSet resultSet;
-    
     
     /**
      * 
@@ -61,13 +56,11 @@ public class OracleSDOAttributeReader extends ResultSetAttributeIO {
                 throws DataSourceException {
         super(new AttributeType[]{metaData},queryData,columnIndex,columnIndex + 1);
         this.queryData = queryData;
-        this.resultSet = queryData.getResultSet();
         this.columnIndex = columnIndex;
         
         try {
-            ResultSetMetaData rsMetaData = resultSet.getMetaData();
             String tableName = queryData.getFeatureTypeInfo().getFeatureTypeName();
-            String columnName = rsMetaData.getColumnName(columnIndex);
+            String columnName = metaData.getName();
             LOGGER.fine("About to create Geometry convertor for " + tableName + "." + columnName);
             
             // TODO should check that it is an OracleConnection
@@ -88,7 +81,7 @@ public class OracleSDOAttributeReader extends ResultSetAttributeIO {
             adapterSDO = new AdapterSDO(gFact, conn);
             adapterJTS = new AdapterJTS(gFact);
         } catch (SQLException e) {
-            queryData.close( e );
+            queryData.close( e, this );
             String msg = "Error setting up SDO Geometry convertor";
             LOGGER.log(Level.SEVERE,msg,e);         
             throw new DataSourceException(msg + ":" + e.getMessage(), e);                                    
@@ -111,7 +104,8 @@ public class OracleSDOAttributeReader extends ResultSetAttributeIO {
         }
         
         try {
-            Object struct = resultSet.getObject(columnIndex);
+            RowData rd = queryData.getRowData(this);
+            Object struct = rd.read(columnIndex);
             oracle.sdoapi.geom.Geometry sdoGeom = adapterSDO.importGeometry(struct);
             return adapterJTS.exportGeometry(Geometry.class, sdoGeom);
         } catch (SQLException e) {
@@ -148,11 +142,11 @@ public class OracleSDOAttributeReader extends ResultSetAttributeIO {
             
         try {            
             oracle.sdoapi.geom.Geometry sdoGeom = adapterJTS.importGeometry(attribute);
-            Object o = adapterSDO.exportGeometry(STRUCT.class, sdoGeom);
-            LOGGER.info("Setting " + columnIndex + " to " + o);
-            resultSet.updateObject(columnIndex, o);
+            Object o = adapterSDO.exportGeometry(STRUCT.class, sdoGeom);            
+            RowData rd = queryData.getRowData(this);
+            rd.write(o, columnIndex);
         } catch (SQLException sqlException ) {
-            queryData.close( sqlException );
+            queryData.close( sqlException, this );
             String msg = "SQL Exception writing geometry column";
             LOGGER.log(Level.SEVERE, msg, sqlException);
             throw new DataSourceException(msg, sqlException );

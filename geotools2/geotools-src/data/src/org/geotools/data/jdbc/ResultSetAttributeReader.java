@@ -117,7 +117,7 @@ public class ResultSetAttributeReader extends AbstractAttributeIO {
             //results.previous(); //no has next, must move forward and back.
             //return result;
         } catch (SQLException sqlException ) {
-            JDBCDataStore.close( connection, transaction, sqlException );
+            JDBCUtils.close( connection, transaction, sqlException );
             String msg = "Error checking for more content"; 
             LOGGER.log(Level.SEVERE,msg,sqlException);
             throw new DataSourceException(msg, sqlException);                        
@@ -140,7 +140,7 @@ public class ResultSetAttributeReader extends AbstractAttributeIO {
         try {
             return results.getObject(column);
         } catch (SQLException sqlException) {
-            JDBCDataStore.close( connection, transaction, sqlException );
+            JDBCUtils.close( connection, transaction, sqlException );
             String msg = "Problem with SQL"; 
             LOGGER.log(Level.SEVERE,msg,sqlException);
             throw new DataSourceException(msg, sqlException);                        
@@ -176,7 +176,7 @@ public class ResultSetAttributeReader extends AbstractAttributeIO {
 
                 return retObject;
             } catch (SQLException sqlException) {
-                JDBCDataStore.close( connection, transaction, sqlException );
+                JDBCUtils.close( connection, transaction, sqlException );
                 String msg = "Error reading at "+off; 
                 LOGGER.log(Level.SEVERE,msg,sqlException);
                 throw new DataSourceException(msg, sqlException);                                
@@ -188,7 +188,7 @@ public class ResultSetAttributeReader extends AbstractAttributeIO {
         try {
             results.close();
         } catch (SQLException sqlException) {
-            JDBCDataStore.close( connection, transaction, sqlException );
+            JDBCUtils.close( connection, transaction, sqlException );
             String msg = "Error closing results"; 
             LOGGER.log(Level.SEVERE,msg,sqlException);
             throw new DataSourceException(msg, sqlException);            
