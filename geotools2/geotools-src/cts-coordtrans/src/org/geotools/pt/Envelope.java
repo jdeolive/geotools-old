@@ -324,6 +324,29 @@ public class Envelope implements Dimensioned, Cloneable, Serializable {
     }
     
     /**
+     * Set this envelope to the intersection if this envelope with the specified one.
+     *
+     * @param  envelope the <code>Envelope</code> to intersect to this envelope.
+     * @throws MismatchedDimensionException if the specified envelope doesn't
+     *         have the expected dimension.
+     */
+    public void intersect(final Envelope envelope) throws MismatchedDimensionException {
+        final int dim = ord.length/2;
+        envelope.ensureDimensionMatch(dim);
+        for (int i=0; i<dim; i++) {
+            double min = Math.max(ord[i    ], envelope.ord[i    ]);
+            double max = Math.min(ord[i+dim], envelope.ord[i+dim]);
+            if (min > max) {
+                // Make an empty envelope (min==max)
+                // while keeping it legal (min<=max).
+                min = max = 0.5*(min+max);
+            }
+            ord[i    ] = min;
+            ord[i+dim] = max;
+        }
+    }
+    
+    /**
      * Returns a new envelope representing the intersection of this
      * <code>Envelope</code> with the specified <code>Envelope</code>.
      *
@@ -332,6 +355,7 @@ public class Envelope implements Dimensioned, Cloneable, Serializable {
      *         and in this <code>Envelope</code>.
      * @throws MismatchedDimensionException if the specified envelope doesn't
      *         have the expected dimension.
+     * @deprecated Use <code>((Envelope)clone()).intersect(envelope)</code> instead.
      */
     public Envelope createIntersection(final Envelope envelope) throws MismatchedDimensionException {
         final int dim = ord.length/2;
