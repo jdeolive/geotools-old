@@ -595,6 +595,15 @@ ant</programlisting>
 
     <para>Poseidon can be installed into <emphasis>Netbeans</emphasis> as a
     module. Refer to Poseidon download instructions for more details.</para>
+
+    <para>Source diagrams used in the design documentation are stored in
+    <filename>geotools2/design/</filename>.</para>
+
+    <para>All diagrams are created with Poseidon 1.5 or greater which is not
+    backwardly compatable with earlier versions.</para>
+
+    <para>To do: Need to rework this section to focus on UML/design first and
+    Poseidon second.</para>
   </section>
 
   <section id="netbeans">
@@ -859,7 +868,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.21 2003/02/28 20:31:40 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.22 2003/03/03 21:00:27 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
