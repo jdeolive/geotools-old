@@ -30,7 +30,7 @@ import org.geotools.cs.Datum;
 import org.geotools.cs.FactoryException;
 import org.geotools.cs.HorizontalDatum;
 import org.geotools.map.events.AreaOfInterestChangedListener;
-import org.geotools.map.DefaultAreaOfInterestModel;
+import org.geotools.map.BoundingBoxImpl;
 //import org.opengis.cs.CS_CoordinateSystem;
 
 
@@ -39,7 +39,7 @@ import org.geotools.map.DefaultAreaOfInterestModel;
  *
  * @author Cameron Shorter
  */                                
-public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfInterestChangedListener {
+public class BoundingBoxImplTest extends TestCase implements AreaOfInterestChangedListener {
     
     private static final Logger LOGGER = Logger.getLogger("org.geotools.map");
     
@@ -49,17 +49,17 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
     /** Test suite for this test case */
     private TestSuite suite = null;
     
-    private DefaultAreaOfInterestModel boundingBox = null;
+    private BoundingBoxImpl boundingBox = null;
     private Envelope envelope = null;
     private CoordinateSystem cs = null;
-    private DefaultAreaOfInterestModel bbox;
+    private BoundingBoxImpl bbox;
 
 
 
     /** 
      * Constructor with test name.
      */
-    public DefaultAreaOfInterestModelTest(String testName) {
+    public BoundingBoxImplTest(String testName) {
         super(testName);
     }        
     
@@ -76,7 +76,7 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
      */
     public static Test suite() {
         
-        TestSuite suite = new TestSuite(DefaultAreaOfInterestModelTest.class);
+        TestSuite suite = new TestSuite(BoundingBoxImplTest.class);
         return suite;
     }
     
@@ -88,7 +88,7 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
         try {
         cs=CoordinateSystemFactory.getDefault(
             ).createGeographicCoordinateSystem("WGS84",HorizontalDatum.WGS84);
-            bbox=new DefaultAreaOfInterestModel(envelope,cs);
+            bbox=new BoundingBoxImpl(envelope,cs);
         } catch (org.geotools.cs.FactoryException e) {
             LOGGER.warning("FactoryException in setup");
         } catch (IllegalArgumentException e) {
@@ -98,9 +98,9 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
 
     /** Test normal constuctors. */
     public void testConstructor(){
-        DefaultAreaOfInterestModel bbox1;
+        BoundingBoxImpl bbox1;
         try {
-            bbox1= new DefaultAreaOfInterestModel(envelope,cs);
+            bbox1= new BoundingBoxImpl(envelope,cs);
         } catch (IllegalArgumentException e) {
             this.fail("exception raised using default contructor");
         }
@@ -109,24 +109,24 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
     /** Test null constuctors.  Should raise an exception */
     public void testNullConstructor(){
         try {
-            DefaultAreaOfInterestModel bbox1=
-                new DefaultAreaOfInterestModel(null,null);
+            BoundingBoxImpl bbox1=
+                new BoundingBoxImpl(null,null);
             // If an exception has not been raised yet, then fail the test.
             this.fail("No exception when creating using a null contructor");
         } catch (IllegalArgumentException e) {
         }
         
         try {
-            DefaultAreaOfInterestModel bbox1=
-                new DefaultAreaOfInterestModel(envelope,null);
+            BoundingBoxImpl bbox1=
+                new BoundingBoxImpl(envelope,null);
             // If an exception has not been raised yet, then fail the test.
             this.fail("No exception when creating using a null Bbox");
         } catch (IllegalArgumentException e) {
         }
         
         try {
-            DefaultAreaOfInterestModel bbox1=
-                new DefaultAreaOfInterestModel(null,cs);
+            BoundingBoxImpl bbox1=
+                new BoundingBoxImpl(null,cs);
             // If an exception has not been raised yet, then fail the test.
             this.fail("No exception when creating using a null Coord System");
         } catch (IllegalArgumentException e) {
@@ -138,9 +138,9 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
       * not trigger an event after deregistering */
     public void testChangeEvent(){
         changeEventSent=false;
-        DefaultAreaOfInterestModel bbox1;
+        BoundingBoxImpl bbox1;
         try {
-            bbox1= new DefaultAreaOfInterestModel(envelope,cs);
+            bbox1= new BoundingBoxImpl(envelope,cs);
 
             bbox1.addAreaOfInterestChangedListener(this);
             bbox1.setAreaOfInterest(new Envelope(5.0, 5.0, 10.0,10.0));
@@ -203,16 +203,19 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
         this.assertTrue("2Changing external Envelope changes internal values",
             (envelope2!=envelope3)
             && envelope2.equals(bbox.getAreaOfInterest()));
-   }
+    }
 
-    /* TestImmutableCoordinateSystem()
+    /** Test Clonable */
+    public void testClonable(){
+    }
+    
+    /* TestImmutableCoordinateSystem() not required since CoordinateSystem
+     * is not immutable.
      */
     
     /* Test change of coordinate system works, ensure there is no dependance
      * on transforms.
      */
-    
-    /* Test Clonable */
     
     /** Process an AreaOfInterestChangedEvent.
      * @param areaOfInterestChangedEvent The new extent.

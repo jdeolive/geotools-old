@@ -28,7 +28,7 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.11 2002/12/19 09:52:12 camerons Exp $
+ * @version $Id: BoundingBox.java,v 1.1 2002/12/20 10:20:07 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -39,32 +39,11 @@ import java.util.Vector;
 import java.util.EventObject;
 import com.vividsolutions.jts.geom.Envelope;
 import javax.swing.event.EventListenerList;
-import org.geotools.cs.CoordinateSystem;
-import org.geotools.map.AreaOfInterestModel;
+//import org.geotools.cs.CoordinateSystem;
 import org.geotools.map.events.*;
+import org.opengis.cs.CS_CoordinateSystem;
 
-public class DefaultAreaOfInterestModel implements AreaOfInterestModel{
-    
-    private Envelope areaOfInterest;
-    private CoordinateSystem coordinateSystem;
-    private EventListenerList listenerList = new EventListenerList();
-   
-    /**
-     * Initialise the model.
-     * @param bbox The extent associated with this class.
-     * @param coordinateSystem The coordinate system associated with this class.
-     * @throws IllegalArgumentException if an argument is <code>null</code>.
-     */
-    public DefaultAreaOfInterestModel(
-            Envelope bbox,
-            CoordinateSystem coordinateSystem) throws IllegalArgumentException
-    {
-        if ((bbox==null) || (coordinateSystem==null)){
-            throw new IllegalArgumentException();
-        }
-        this.areaOfInterest = new Envelope(bbox);
-        this.coordinateSystem = coordinateSystem;
-    }
+public interface BoundingBox extends Cloneable{
     
     /**
      * Register interest in receiving an AreaOfInterestChangedEvent.
@@ -74,50 +53,22 @@ public class DefaultAreaOfInterestModel implements AreaOfInterestModel{
      */
     public void addAreaOfInterestChangedListener(
             AreaOfInterestChangedListener ecl,
-            boolean sendEvent){
-        listenerList.add(AreaOfInterestChangedListener.class, ecl);
-        if (sendEvent){
-            fireAreaOfInterestChangedListener();
-        }
-    }
+            boolean sendEvent);
 
     /**
      * Register interest in receiving an AreaOfInterestChangedEvent.
      * @param ecl The object to notify when AreaOfInterest has changed.
      */
     public void addAreaOfInterestChangedListener(
-            AreaOfInterestChangedListener ecl){
-        addAreaOfInterestChangedListener(ecl,false);
-    }
+            AreaOfInterestChangedListener ecl);
 
     /**
      * Remove interest in receiving an AreaOfInterestChangedEvent.
      * @param ecl The object to stop sending AreaOfInterestChanged Events.
      */
     public void removeAreaOfInterestChangedListener(
-            AreaOfInterestChangedListener ecl) {
-        listenerList.remove(AreaOfInterestChangedListener.class, ecl);
-    }
+            AreaOfInterestChangedListener ecl);
 
-    /**
-     * Notify all listeners that have registered interest for
-     * notification an AreaOfInterestChangedEvent.
-     */
-    protected void fireAreaOfInterestChangedListener() {
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        EventObject ece = new EventObject(
-                this);
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == AreaOfInterestChangedListener.class) {
-                ((AreaOfInterestChangedListener)
-                    listeners[i + 1]).areaOfInterestChanged(ece);
-            }
-        }
-    }
-    
     /**
      * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.
      * Note that this is the only method to change coordinateSystem.  A
@@ -129,15 +80,7 @@ public class DefaultAreaOfInterestModel implements AreaOfInterestModel{
      */
     public void setAreaOfInterest(
             Envelope bbox,
-            CoordinateSystem coordinateSystem) throws IllegalArgumentException
-    {
-        if ((bbox==null) || (coordinateSystem==null) || bbox.isNull()){
-            throw new IllegalArgumentException();
-        }
-        this.areaOfInterest = new Envelope(bbox);
-        this.coordinateSystem = coordinateSystem;
-        fireAreaOfInterestChangedListener();
-    }
+            CS_CoordinateSystem coordinateSystem) throws IllegalArgumentException;
     
     /**
      * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.
@@ -145,41 +88,21 @@ public class DefaultAreaOfInterestModel implements AreaOfInterestModel{
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     public void setAreaOfInterest(
-            Envelope areaOfInterest)
-    {
-        setAreaOfInterest(areaOfInterest,this.coordinateSystem);
-    }
+            Envelope areaOfInterest);
     
     /**
      * Gets the current AreaOfInterest.
      * @return Current AreaOfInterest
      */
-    public Envelope getAreaOfInterest(){
-        return new Envelope(areaOfInterest);
-    }
+    public Envelope getAreaOfInterest();
 
     /**
      * Get the coordinateSystem.
      */
-    public CoordinateSystem getCoordinateSystem() {
-        return this.coordinateSystem;
-    }
+    public CS_CoordinateSystem getCoordinateSystem();
 
     /*
      * Create a copy of this class
-     * @HACK Probably need to add all the eventListeners to the cloned class.
      */
-    public Object clone() {
-        return new DefaultAreaOfInterestModel(
-            this.areaOfInterest,
-            this.coordinateSystem);
-    }
-    
-    /**
-     * Show the Envelope extent.
-     */
-    public String toString() {
-        return "("+areaOfInterest.getMinX()+","+areaOfInterest.getMinY()+"),"
-            +"("+areaOfInterest.getMaxX()+","+areaOfInterest.getMaxY()+")";
-    }
+    public Object clone();
 }
