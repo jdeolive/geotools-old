@@ -16,7 +16,7 @@ import java.util.*;
  * rest of geotools.
  *
  * @author ian
- * @version $Id: GMLDataSource.java,v 1.5 2002/03/15 07:55:36 ianturton Exp $
+ * @version $Id: GMLDataSource.java,v 1.6 2002/03/20 16:51:34 ianturton Exp $
  */
 public class GMLDataSource implements org.geotools.datasource.DataSource{
     boolean stopped=false;
@@ -59,7 +59,7 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
                 GeometryCollection shapes = gmlr.read();
                 int count = shapes.getNumGeometries();
                 for(int i=0;i<count;i++){
-                    Feature feat = new Feature();
+                    Feature feat = new DefaultFeature();
                     feat.setAttributes(getColumnNames());
                     feat.setGeometry(shapes.getGeometryN(i));
                     if(ee.containsFeature(feat)){
@@ -70,6 +70,9 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
             }
             catch(IOException ioe){
                 throw new DataSourceException("IO Exception loading data : "+ioe.getMessage());
+            }
+            catch(GMLException ge){
+                throw new DataSourceException("GMLError"+ge.getMessage());
             }
             ft.addFeatures((Feature[])features.toArray(new Feature[0]));
             return ;
