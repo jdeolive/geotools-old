@@ -50,7 +50,7 @@ import org.xml.sax.SAXException;
  * <p></p>
  *
  * @author dzwiers, Refractions Research, Inc.
- * @version $Id: ReaderUtils.java,v 1.5 2004/04/17 16:13:42 cholmesny Exp $
+ * @version $Id: ReaderUtils.java,v 1.6 2004/04/20 23:02:03 dmzwiers Exp $
  *
  * @see XMLConfigReader
  */
@@ -413,7 +413,7 @@ class ReaderUtils {
         throws SAXException {
         String value = null;
 
-        //LOGGER.finest("getting element text for " + elem);
+        LOGGER.finest("getting element text for " + elem);
 
         if (elem != null) {
             Node child;
