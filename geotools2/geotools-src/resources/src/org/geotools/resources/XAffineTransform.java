@@ -317,7 +317,7 @@ public abstract class XAffineTransform extends AffineTransform {
     /**
      * Returns the scale factor <var>x</var> by cancelling the effect of an
      * eventual rotation. This factor is calculated by
-     * <IMG src="{@docRoot}/org/geotools/gui/swing/doc-files/scaleX0.png">.
+     * <IMG src="{@docRoot}/org/geotools/renderer/j2d/doc-files/scaleX0.png">.
      */
     public static double getScaleX0(final AffineTransform zoom) {
         return XMath.hypot(zoom.getScaleX(), zoom.getShearX());
@@ -326,7 +326,7 @@ public abstract class XAffineTransform extends AffineTransform {
     /**
      * Returns the scale factor <var>y</var> by cancelling the effect of an
      * eventual rotation. This factor is calculated by
-     * <IMG src="{@docRoot}/org/geotools/gui/swing/doc-files/scaleY0.png">.
+     * <IMG src="{@docRoot}/org/geotools/renderer/j2d/doc-files/scaleY0.png">.
      */
     public static double getScaleY0(final AffineTransform zoom) {
         return XMath.hypot(zoom.getScaleY(), zoom.getShearY());
