@@ -25,7 +25,6 @@ import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.cs.LocalCoordinateSystem;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.map.DefaultLayer;
 import org.geotools.map.event.MapBoundsEvent;
 import org.geotools.map.event.MapLayerEvent;
 import org.geotools.map.event.MapLayerListEvent;
@@ -37,6 +36,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -45,6 +46,9 @@ import java.util.List;
  * @author wolf
  */
 public class DefaultMapContext implements MapContext {
+    /** The logger for the map module. */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.map");
+    
     List layerList = new ArrayList();
     CoordinateReferenceSystem crs = LocalCoordinateSystem.CARTESIAN;
     Envelope areaOfInterest = null;
@@ -367,7 +371,7 @@ public class DefaultMapContext implements MapContext {
             if (env == null) {
                 continue;
             } else {
-                // reproject envelope here...
+                // TODO: reproject envelope here if needed
                 if (result == null) {
                     result = env;
                 } else {
@@ -428,16 +432,21 @@ public class DefaultMapContext implements MapContext {
     }
 
     /**
-     * Gets the current area of interest.
+     * Gets the current area of interest. If no area of interest is the, the default
+     * is to fall back on the layer bounds
      *
      * @return Current area of interest
      */
     public Envelope getAreaOfInterest() {
         if (areaOfInterest == null) {
-            return null;
-        } else {
-            return new Envelope(this.areaOfInterest);
-        }
+            try {
+                areaOfInterest = getLayerBounds();
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Can't get layer bounds, and area of interest is not set", e);
+                return null;
+            }
+        } 
+        return new Envelope(this.areaOfInterest);
     }
 
     /**
