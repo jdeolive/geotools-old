@@ -15,7 +15,7 @@ import com.vividsolutions.jts.geom.*;
  *
  *
  * @author andyt
- * @version $Revision: 1.2 $ $Date: 2002/03/12 10:31:15 $
+ * @version $Revision: 1.3 $ $Date: 2002/03/12 12:02:04 $
  */
 public class RobustGeometryProperties implements org.geotools.algorithms.GeometryProperties {
 
@@ -149,6 +149,7 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
         int numberOfInteriorRingCoordinates;
         Coordinate[] interiorRingCoordinates;
         for (int i = 0; i < numberOfInteriorRings; i ++) {
+            interiorArea = 0.0d;
             interiorRingCoordinates = polygon1.getInteriorRingN(i).getCoordinates();
             numberOfInteriorRingCoordinates = interiorRingCoordinates.length;
             minx = Double.POSITIVE_INFINITY;
@@ -164,8 +165,8 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
             for (int j = 0; j < (numberOfInteriorRingCoordinates - 1); j ++) {
                 interiorArea += (((interiorRingCoordinates[j+1].x - minx) - (interiorRingCoordinates[j].x - minx)) * (((interiorRingCoordinates[j+1].y - miny) + (interiorRingCoordinates[j].y - miny)) / 2d));
             }
+            area -= Math.abs(interiorArea);
         }
-        area -= Math.abs(interiorArea);
         return area;
     }
 
