@@ -264,6 +264,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 				while (fr2 != null && fr2.hasNext())
 				{
 					Feature f2 = fr2.next();
+					System.out.println("Filter2 " + filter2.contains(f2));
 					Geometry g2 = f2.getDefaultGeometry();
 					if (!f1.getID().equals(f2.getID()))	// if they are the same feature, move onto the next one
 					{
@@ -278,7 +279,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 			}
 		}finally
 		{
-			/** Close the connections too the feature readers*/
+			/** Close the connections to the feature readers*/
 			try {
 				fr1.close();
 				if (fr2 != null)
