@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.12 2003/03/14 12:35:48 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.13 2003/03/14 17:11:43 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -162,7 +162,7 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new Resampler.Operation());
             DEFAULT.addOperation(new GradientMagnitude());
             DEFAULT.addOperation(new OperationJAI("Rescale"));
-            DEFAULT.addOperation(new ColormapOperation());
+            DEFAULT.addOperation(new RecolorOperation());
             DEFAULT.addOperation(new GradualColormapOperation());
             DEFAULT.addOperation(new BandSelect.Operation());
         }

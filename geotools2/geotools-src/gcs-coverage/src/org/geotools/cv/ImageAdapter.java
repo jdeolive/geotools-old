@@ -75,7 +75,7 @@ import org.geotools.resources.ImageUtilities;
  * "CRIF" stands for {@link java.awt.image.renderable.ContextualRenderedImageFactory}.
  * The image operation name is "GC_SampleTranscoding".
  *
- * @version $Id: ImageAdapter.java,v 1.9 2003/03/14 12:35:47 desruisseaux Exp $
+ * @version $Id: ImageAdapter.java,v 1.10 2003/03/14 17:11:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ImageAdapter extends PointOpImage {
@@ -124,7 +124,7 @@ final class ImageAdapter extends PointOpImage {
         }
         /*
          * Slight optimisation: Skip the "Null" operations.
-         * Such image may be the result of a "Colormap" operation.
+         * Such image may be the result of a "Recolor" operation.
          */
         if (false) {
             // TODO: Current optimization is not appropriate: it loose the ColorModel!

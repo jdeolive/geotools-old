@@ -73,7 +73,7 @@ import org.geotools.cv.SampleDimension;
  *     08    0000FF        0000FF
  * </pre></blockquote>
  *
- * @version $Id: GradualColormapOperation.java,v 1.2 2003/03/14 12:35:48 desruisseaux Exp $
+ * @version $Id: GradualColormapOperation.java,v 1.3 2003/03/14 17:11:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GradualColormapOperation extends IndexColorOperation {
@@ -131,13 +131,12 @@ final class GradualColormapOperation extends IndexColorOperation {
     /**
      * Transform the supplied RGB colors.
      */
-    protected SampleDimension transformColormap(final byte[] R,
-                                                final byte[] G,
-                                                final byte[] B,
-                                                final SampleDimension band,
-                                                final ParameterList parameters)
+    protected SampleDimension transformColormap(final int[] ARGB,
+                                                final int   band,
+                                                final SampleDimension sampleDimension,
+                                                final ParameterList   parameters)
     {
-        final List categories = band.getCategories();
+        final List categories = sampleDimension.getCategories();
         for (int j=categories.size(); --j>=0;) {
             final Category category = (Category) categories.get(j);
             if (category.isQuantitative()) {
@@ -154,31 +153,37 @@ final class GradualColormapOperation extends IndexColorOperation {
                     upper = swap;
                 }
                 for (int i=lower; i!=upper;) {
+                    int color = ARGB[i];
                     final int lo = i;
-                    final int Ri = R[lo] & 0xFF;
-                    final int Gi = G[lo] & 0xFF;
-                    final int Bi = B[lo] & 0xFF;
-                    int Rf,Gf,Bf;
+                    final int Ai = (color >>> 24) & 0xFF;
+                    final int Ri = (color >>> 16) & 0xFF;
+                    final int Gi = (color >>>  8) & 0xFF;
+                    final int Bi = (color >>>  0) & 0xFF;
+                    int Af,Rf,Gf,Bf;
                     int up=lo; do {
                         up += sens;
-                        Rf = R[up] & 0xFF;
-                        Gf = G[up] & 0xFF;
-                        Bf = B[up] & 0xFF;
+                        color = ARGB[up];
+                        Af = (color >>> 24) & 0xFF;
+                        Rf = (color >>> 16) & 0xFF;
+                        Gf = (color >>>  8) & 0xFF;
+                        Bf = (color >>>  0) & 0xFF;
                     }
                     while (up!=upper && Rf==Ri && Gf==Gi && Bf==Bi);
                     final double delta = (double)(up-lo);
+                    final double    fA = (double)(Af-Ai) / delta;
                     final double    fR = (double)(Rf-Ri) / delta;
                     final double    fG = (double)(Gf-Gi) / delta;
                     final double    fB = (double)(Bf-Bi) / delta;
                     while ((i+=sens) != up) {
                         final double i0 = i-lo;
-                        R[i] = (byte) (Ri + (int)Math.rint(i0*fR));
-                        G[i] = (byte) (Gi + (int)Math.rint(i0*fG));
-                        B[i] = (byte) (Bi + (int)Math.rint(i0*fB));
+                        ARGB[i] = ((Ai + (int)Math.rint(i0*fA)) << 24) |
+                                  ((Ri + (int)Math.rint(i0*fR)) << 16) |
+                                  ((Gi + (int)Math.rint(i0*fG)) <<  8) |
+                                  ((Bi + (int)Math.rint(i0*fB)) <<  0);
                     }
                 }
             }
         }
-        return band;
+        return sampleDimension;
     }
 }

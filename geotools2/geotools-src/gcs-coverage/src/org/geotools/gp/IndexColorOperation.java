@@ -53,13 +53,14 @@ import javax.media.jai.ParameterList;
 import org.geotools.gc.GridCoverage;
 import org.geotools.cv.SampleDimension;
 import org.geotools.resources.GCSUtilities;
+import org.geotools.resources.ImageUtilities;
 
 
 /**
  * Operation applied only on image's colors. This operation work
  * only for source image using an {@link IndexColorModel}.
  *
- * @version $Id: IndexColorOperation.java,v 1.6 2003/03/14 12:35:48 desruisseaux Exp $
+ * @version $Id: IndexColorOperation.java,v 1.7 2003/03/14 17:11:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class IndexColorOperation extends Operation {
@@ -85,37 +86,48 @@ abstract class IndexColorOperation extends Operation {
     protected GridCoverage doOperation(final ParameterList  parameters,
                                        final RenderingHints hints)
     {
-        final GridCoverage source = (GridCoverage) parameters.getObjectParameter("Source");
-        final GridCoverage visual = source.geophysics(false);
-        final RenderedImage image = visual.getRenderedImage();
-        final ColorModel    model = image.getColorModel();
-        if (!(model instanceof IndexColorModel)) {
-            /*
-             * Source don't use an index color model.
-             */
-            // TODO: localize this message.
-            throw new IllegalArgumentException("Need an IndexColorModel");
-        }
-        final int visibleBand = GCSUtilities.getVisibleBand(image);
+        final GridCoverage     source = (GridCoverage) parameters.getObjectParameter("Source");
+        final GridCoverage     visual = source.geophysics(false);
+        final RenderedImage     image = visual.getRenderedImage();
         final SampleDimension[] bands = visual.getSampleDimensions();
-        final IndexColorModel  colors = (IndexColorModel) model;
-        final int             mapSize = colors.getMapSize();
-        final byte[] R=new byte[mapSize]; colors.getReds  (R);
-        final byte[] G=new byte[mapSize]; colors.getGreens(G);
-        final byte[] B=new byte[mapSize]; colors.getBlues (B);
-        bands[visibleBand] = transformColormap(R,G,B, bands[visibleBand], parameters);
-        if (compare(colors, R,G,B)) {
-            /*
-             * No color change: returns the source.
-             */
+        final int         visibleBand = GCSUtilities.getVisibleBand(image);
+        ColorModel model = image.getColorModel();
+        boolean colorChanged = false;
+        for (int i=0; i<bands.length; i++) {
+            SampleDimension band = bands[i];
+            final ColorModel candidate = (i==visibleBand) ? image.getColorModel()
+                                                          :  band.getColorModel();
+            if (!(candidate instanceof IndexColorModel)) {
+                /*
+                 * Source don't use an index color model.
+                 */
+                // TODO: localize this message.
+                throw new IllegalArgumentException("Current implementation requires IndexColorModel");
+            }
+            final IndexColorModel  colors = (IndexColorModel) candidate;
+            final int             mapSize = colors.getMapSize();
+            final int[]              ARGB = new int[mapSize];
+            colors.getRGBs(ARGB);
+            band = transformColormap(ARGB, i, band, parameters);
+            if (!bands[i].equals(band)) {
+                bands[i]     = band;
+                colorChanged = true;
+            } else if (!colorChanged) {
+                final int[] original = new int[mapSize];
+                colors.getRGBs(original);
+                colorChanged = Arrays.equals(original, ARGB);
+            }
+            if (i==visibleBand) {
+                model = ImageUtilities.getIndexColorModel(ARGB, bands.length, visibleBand);
+            }
+        }
+        if (!colorChanged) {
             return source;
         }
         final int computeType = (image instanceof OpImage) ?
                 ((OpImage)image).getOperationComputeType() : OpImage.OP_COMPUTE_BOUND;
 
-        final int              numBits = colors.getComponentSize()[visibleBand];
-        final IndexColorModel newModel = new IndexColorModel(numBits, mapSize, R,G,B);
-        final ImageLayout       layout = new ImageLayout().setColorModel(newModel);
+        final ImageLayout       layout = new ImageLayout().setColorModel(model);
         final RenderedImage   newImage = new NullOpImage(image, layout, null, computeType);
         GridCoverage target = new GridCoverage(visual.getName(null), newImage,
                                                visual.getCoordinateSystem(),
@@ -130,49 +142,20 @@ abstract class IndexColorOperation extends Operation {
     }
     
     /**
-     * Transform the supplied RGB colors. This method is automatically invoked
-     * by {@link #doOperation(ParameterList)}. The source {@link GridCoverage}
-     * has usually only one band; consequently <code>transformColormap</code>
-     * is invoked with the {@link SampleDimension} for this band only. The
-     * <code>R</code>, <code>G</code> and <code>B</code> arrays contains the
-     * RGB values from the current source and should be overriden with new RGB
-     * values for the destination image.
+     * Transform the supplied RGB colors. This method is automatically invoked by
+     * {@link #doOperation(ParameterList)} for each band in the source {@link GridCoverage}.
+     * The <code>ARGB</code> array contains the ARGB values from the current source and should
+     * be overriden with new ARGB values for the destination image.
      *
-     * @param R Red   components to transform.
-     * @param G Green components to transform.
-     * @param B Blue  components to transform.
-     * @param band The sample dimension. This parameter is supplied
-     *        for information only. It may be usefull for interpretation of
-     *        colormap's index. For example, an implementation could use this
-     *        information for transforming only colors at index allocated to
-     *        geophysics values.
+     * @param ARGB Alpha, Red, Green and Blue components to transform.
+     * @param band The band number, from 0 to the number of bands in the image -1.
+     * @param sampleDimension The sample dimension of band <code>band</code>.
      * @param parameters The user-supplied parameters.
-     * @return A sample dimension identical to <code>band</code> except for the colors.
-     *         Subclasses may conservatively returns <code>band</code>.
+     * @return A sample dimension identical to <code>sampleDimension</code> except for
+     *         the colors. Subclasses may conservatively returns <code>band</code>.
      */
-    protected abstract SampleDimension transformColormap(final byte[] R,
-                                                         final byte[] G,
-                                                         final byte[] B,
-                                                         final SampleDimension band,
-                                                         final ParameterList parameters);
-    
-    /**
-     * Check if a color model use the specified RGB components.
-     *
-     * @param colors  Color map to compare.
-     * @param R Red   components to compare.
-     * @param G Green components to compare.
-     * @param B Blue  components to compare.
-     */
-    private static boolean compare(final IndexColorModel colors,
-                                   final byte[] R,
-                                   final byte[] G,
-                                   final byte[] B)
-    {
-        final byte[] array=new byte[colors.getMapSize()];
-        colors.getReds  (array); if (!Arrays.equals(array, R)) return false;
-        colors.getGreens(array); if (!Arrays.equals(array, G)) return false;
-        colors.getBlues (array); if (!Arrays.equals(array, B)) return false;
-        return true;
-    }
+    protected abstract SampleDimension transformColormap(final int[] ARGB,
+                                                         final int   band,
+                                                         final SampleDimension sampleDimension,
+                                                         final ParameterList   parameters);
 }

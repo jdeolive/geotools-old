@@ -48,13 +48,14 @@
 
     <P>&nbsp;</P>
     <P>&nbsp;</P>
-    <H1><U>Supported operations</U></H1>
+    <H1><A NAME="operation-list"><U>Supported operations</U></A></H1>
     <P ALIGN="justify">The default {@link org.geotools.gp.GridCoverageProcessor}
     supports the following operations:</P>
 
     <UL>
       <LI><A HREF="#BandSelect">BandSelect</A></LI>
       <LI><A HREF="#Interpolate">Interpolate</A></LI>
+      <LI><A HREF="#Recolor">Recolor</A></LI>
       <LI><A HREF="#Resample">Resample</A></LI>
       <LI><A HREF="#Rescale">Rescale</A></LI>
       <LI><A HREF="#GradientMagnitude">GradientMagnitude</A></LI>
@@ -112,6 +113,7 @@
         <td align="center">N/A</td>
       </tr>
     </table>
+    <P><A HREF="#operation-list">Back to summary</A></P>
 
     <P>&nbsp;</P>
     <HR>
@@ -168,6 +170,65 @@
     interpolation if "Bicubic" failed at a particular location, etc. This behavior
     can be provided with the following "Type" argument:
     <code>new String[]{"Bicubic", "Bilinear", "NearestNeighbor"}</code>.</P>
+    <P><A HREF="#operation-list">Back to summary</A></P>
+
+    <P>&nbsp;</P>
+    <HR>
+    <P>&nbsp;</P>
+    <H2><A NAME="Recolor">Recolor</A></H2>
+    <P ALIGN="justify">Changes the colors associated to arbitrary
+    {@linkplain org.geotools.cv.Category categories} in arbitrary bands.
+    The <code>ColorMaps</code> arguments must be an array of {@link java.util.Map}s
+    with a minimal length of 1. The <code>Map</code> in array element 0 is used
+    for band 0; the <code>Map</code> in array element 1 is used for band 1, etc.
+    If there is more bands than array elements in <code>ColorMaps</code>, then
+    the last <code>Map</code> is reused for all remaining bands.</P>
+
+    <P ALIGN="justify">For each {@link java.util.Map} in <code>ColorMaps</code>,
+    the keys are category names as {@link java.lang.String} and the values are
+    colors as an array of type <code>{@linkplain java.awt.Color}[]</code>. All
+    categories with a name matching a key in the <code>Map</code> will be
+    {@linkplain org.geotools.cv.Category#recolor recolored} with the associated
+    colors. All categories with no corresponding entries in the <code>Map</code>
+    will be left unchanged. The <code>null</code> key is a special value meaning
+    "any quantitative category". For example in order to repaint forest in
+    green, river in blue and lets other categories unchanged, one can write:</P>
+
+    <BLOCKQUOTE><PRE>
+    Map map = new HashMap();
+    map.put("Forest", new Color[]{Color.GREEN});
+    map.put("River",  new Color[]{Color.BLUE });
+    Map[] colorMaps = new Map[] {
+        map  // <I>Use for all bands</I>
+    }
+    </PRE></BLOCKQUOTE>
+
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Recolor"</CODE><BR>
+       <STRONG>Parameters:</STRONG></P>
+    <table border='3' cellpadding='6' bgcolor='F4F8FF'>
+      <tr bgcolor='#B9DCFF'>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Default value</th>
+        <th>Minimum value</th>
+        <th>Maximum value</th>
+      </tr>
+      <tr>
+        <td>"Source"</td>
+        <td>{@link org.geotools.gc.GridCoverage}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"ColorMaps"</td>
+        <td><code>{@linkplain java.util.Map}[]</code></td>
+        <td align="center">A gray scale</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+    </table>
+    <P><A HREF="#operation-list">Back to summary</A></P>
 
     <P>&nbsp;</P>
     <HR>
@@ -239,6 +300,7 @@
     the {@link org.geotools.gp.Hints#COORDINATE_TRANSFORMATION_FACTORY}
     key. Rendering hints can be supplied to {@link org.geotools.gp.GridCoverageProcessor}
     at construction time.</P>
+    <P><A HREF="#operation-list">Back to summary</A></P>
 
     <P>&nbsp;</P>
     <HR>
@@ -286,6 +348,7 @@
         <td align="center">N/A</td>
       </tr>
     </table>
+    <P><A HREF="#operation-list">Back to summary</A></P>
 
     <P>&nbsp;</P>
     <HR>
@@ -354,5 +417,6 @@
     This is an attempt to give geophysical meaning to the numbers produced by the
     "GradientMagnitude" operation. This normalization depends of the coverage's
     {@linkplain org.geotools.gc.GridCoverage#getGridGeometry grid geometry}.</P>
+    <P><A HREF="#operation-list">Back to summary</A></P>
   </BODY>
 </HTML>
