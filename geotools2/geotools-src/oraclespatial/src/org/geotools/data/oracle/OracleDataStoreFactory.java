@@ -164,14 +164,14 @@ public class OracleDataStoreFactory
      */
     public Param[] getParametersInfo() {
         return new Param[]{
-            new Param("oracle", String.class, "This must be 'oracle'.", true),            
+            new Param("oracle", String.class, "This must be 'oracle'.", true,"oracle"),            
             new Param("host", String.class, "The host name of the server.", true),
             new Param("port", String.class, "The port oracle is running on.", true),
             new Param("user", String.class, "The user name to log in with.", true),
             new Param("passwd", String.class, "The password.", true),
             new Param("instance", String.class, "The name of the Oracle instance to connect to.", true),   
             new Param("schema", String.class, "The schema name to narrow down the exposed tables.", false),
-            new Param("namespace", String.class, "The namespace to give the DataStore.", false)
+            new Param("namespace", String.class, "The namespace to give the DataStore", false)
         };                
     }    
 }
