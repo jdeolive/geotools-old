@@ -101,6 +101,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
     static boolean CHECK_TYPE = false;
     PostgisDataStore data;
     ConnectionPool pool;
+    String database;
 
     String victim = null;//"testGetFeatureStoreModifyFeatures1";
     /**
@@ -129,6 +130,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
         String host = resource.getString("host");
         int port = Integer.parseInt(resource.getString("port"));
         String database = resource.getString("database");
+	this.database = database;
         String user = resource.getString("user");
         String password = resource.getString("password");
 
@@ -320,7 +322,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
 
         try {
             Statement s = conn.createStatement();
-            s.execute("SELECT dropgeometrycolumn( 'jody','road','geom')");
+            s.execute("SELECT dropgeometrycolumn( '" + database + "','road','geom')");
         } catch (Exception ignore) {
         }
 
@@ -336,7 +338,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
             //postgis = new PostgisDataSource(connection, FEATURE_TABLE);
             s.execute("CREATE TABLE road (fid varchar PRIMARY KEY, id int )");
             s.execute(
-                "SELECT AddGeometryColumn('jody', 'road', 'geom', 0, 'LINESTRING', 2);");
+                "SELECT AddGeometryColumn('" + database + "', 'road', 'geom', 0, 'LINESTRING', 2);");
             s.execute("ALTER TABLE road add name varchar;");
 
             for (int i = 0; i < roadFeatures.length; i++) {
@@ -360,8 +362,8 @@ public class PostgisDataStoreAPITest extends DataTestCase {
 
         try {
             Statement s = conn.createStatement();
-            s.execute("SELECT dropgeometrycolumn( 'jody','road','geom')");
-            s.execute("SELECT dropgeometrycolumn( 'jody','river','geom')");
+            s.execute("SELECT dropgeometrycolumn( '" + database + "','road','geom')");
+            s.execute("SELECT dropgeometrycolumn( '" + database + "','river','geom')");
         } catch (Exception ignore) {
         }
 
@@ -380,7 +382,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
 
         try {
             Statement s = conn.createStatement();
-            s.execute("SELECT dropgeometrycolumn( 'jody','river','geom')");
+            s.execute("SELECT dropgeometrycolumn( '" + database + "','river','geom')");
         } catch (Exception ignore) {
         }
 
@@ -395,7 +397,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
             //postgis = new PostgisDataSource(connection, FEATURE_TABLE);
             s.execute("CREATE TABLE river(fid varchar PRIMARY KEY, id int)");
             s.execute(
-                "SELECT AddGeometryColumn('jody', 'river', 'geom', 0, 'MULTILINESTRING', 2);");
+                "SELECT AddGeometryColumn('" + database + "', 'river', 'geom', 0, 'MULTILINESTRING', 2);");
             s.execute("ALTER TABLE river add river varchar");
             s.execute("ALTER TABLE river add flow float8");
 
