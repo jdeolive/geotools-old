@@ -55,12 +55,12 @@ import javax.swing.event.MouseInputAdapter;
 
 
 /**
- * Controller which allows the user to select a region on a component.
+ * Controller which allows the user to select a region of a component.
  * The user must click on a point in the component, then drag the mouse
  * pointer whilst keeping the button pressed. During the dragging,
  * the shape which is drawn will normally be a rectangle.  Other shapes could
  * always be used such as, for example, an ellipse.  To use this class, it
- * is necessary to create a derivative?? class which defines the following
+ * is necessary to create a derived class which defines the following
  * methods:
  *
  * <ul>
@@ -93,13 +93,13 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
     private transient RectangularShape mouseSelectedArea;
 
     /**
-     * Colour to replace during XOR drawings on a graphique??.
+     * Colour to replace during XOR drawings on a graphic.
      * This colour is specified in {@link Graphics2D#setColor}.
      */
     private Color backXORColor=Color.white;
 
     /**
-     * Colour to replace with during the XOR drawings on a graphique??.
+     * Colour to replace with during the XOR drawings on a graphic.
      * This colour is specified in {@link Graphics2D#setXORMode}.
      */
     private Color lineXORColor=Color.black;
@@ -151,7 +151,7 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
      * region.  This shape is normally a rectangle but could also be an
      * ellipse, an arrow or even other shapes. The coordinates of the
      * returned shape will not be taken into account. In fact, these
-     * coordinates will regularly be crushed??. Only the class of the returned
+     * coordinates will regularly be discarded. Only the class of the returned
      * shape will count (for example, {@link java.awt.geom.Ellipse2D}
      * vs {@link java.awt.geom.Rectangle2D}) and their parameters which are not
      * linked to their position (for example, the rounding of a rectangle's
@@ -164,10 +164,10 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
      * The default implementation always returns an object {@link Rectangle}.
      *
      * @param  event Mouse coordinate when the button is pressed.  This
-     *         information can be used by the derived?? classes which voudraient?
-     *         take into account the position of the mouse before chosing a 
+     *         information can be used by the derived classes which like to
+     *         be informed of the position of the mouse before chosing a 
      *         geometric shape.
-     * @return Forme ?? de la classe {link RectangularShape} ou {link Line2D}, or
+     * @return Shape from the class {link RectangularShape} or {link Line2D}, or
      *         <code>null</code> to indicate that we do not want to make a
      *         selection.
      */
@@ -177,7 +177,7 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
 
     /**
      * Method which is automatically called after the user selects
-     * a region with the mouse.  All coordinates passed in parameters??
+     * a region with the mouse.  All coordinates passed in as parameters
      * are expressed in pixels.
      *
      * @param ox <var>x</var> coordinate of the mouse when the user
@@ -205,7 +205,7 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
      *       {@link Line2D} class.</li>
      *   <li>If the model is not null, the object returned can be from the
      *       same class (most often {@link java.awt.geom.Rectangle2D}).
-     *       There could always be situations where the object returns is from
+     *       There could always be situations where the object returned is from
      *       another class, for example if the affine transform
      *       <code>transform</code> carries out a rotation.</li>
      * </ul>
@@ -268,7 +268,7 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
     }
 
     /**
-     * Indicates whether uwe can transform <code>shape</code> simply
+     * Indicates whether we can transform <code>shape</code> simply
      * by calling its <code>shape.setFrame(...)</code> method rather
      * than by using the heavy artillery that is the
      * <code>transform.createTransformedShape(shape)</code> method.
@@ -333,8 +333,8 @@ abstract class MouseSelectionTracker extends MouseInputAdapter
 
     /**
      * Informs this controller that the mouse has been dragged.  The default
-     * implementation observes this drag to move a corner of the rectangle
-     * servant à select a region??. The other corner remains fixed at the point
+     * implementation uses this to move a corner of the rectangle used to
+     * select the region. The other corner remains fixed at the point
      * where the mouse was at the moment its button was pressed..
      */
     public void mouseDragged(final MouseEvent event) {
