@@ -26,7 +26,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.9 2003/07/31 09:08:35 seangeo Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.10 2003/08/29 08:39:17 seangeo Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -140,17 +140,6 @@ public class DefaultAttributeType implements AttributeType {
      */
     public boolean isGeometry() {
         return Geometry.class.isAssignableFrom(this.type);
-    }
-
-    /**
-     * returns a clone of this object.
-     *
-     * @return an object with the same values as this.
-     *
-     * @throws CloneNotSupportedException if a clone can not be done.
-     */
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     /**
