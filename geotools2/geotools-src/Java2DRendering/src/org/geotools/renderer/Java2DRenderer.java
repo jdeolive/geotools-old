@@ -63,7 +63,7 @@ import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.53 2002/09/03 15:16:28 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.54 2002/10/14 17:10:54 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -542,11 +542,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 }
             }
 
-            if (symbols[i] instanceof DefaultMark) {
+            if (symbols[i] instanceof MarkImpl) {
                 LOGGER.finer("rendering mark @ PointRenderer " + 
                              symbols[i].toString());
                 flag = renderMark(geom, sldgraphic, feature, 
-                                  (DefaultMark) symbols[i]);
+                                  (MarkImpl) symbols[i]);
 
                 if (flag) {
                     return;
@@ -1001,7 +1001,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
 
         if ((marks == null) || (marks.length == 0)) {
             LOGGER.finer("choosing a default mark as no marks returned");
-            mark = new DefaultMark();
+            mark = new MarkImpl();
 
             return mark;
         }
@@ -1018,7 +1018,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
 
         LOGGER.finer("going for a defaultMark");
-        mark = new DefaultMark();
+        mark = new MarkImpl();
 
         return mark;
     }
