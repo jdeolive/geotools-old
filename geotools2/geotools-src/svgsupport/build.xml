@@ -21,8 +21,8 @@
   </target>
 
   <!-- Now, set your module-specific build targets here -->
-  <target depends="init" name="testme">
-    <echo message="dir.test = ${dir.test}"/>
+  <target depends="init" name="test">
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="test"/>
   </target>
 
 </project>
