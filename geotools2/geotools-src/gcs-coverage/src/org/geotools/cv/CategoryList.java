@@ -83,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.10 2003/04/12 00:04:37 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.11 2003/04/14 18:34:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable {
@@ -91,12 +91,6 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = 2647846361059903365L;
-
-    /**
-     * Default category for "No data". Will be used only if no such category was explicitly set.
-     */
-    private static final Category NODATA =
-            new Category(Resources.format(ResourceKeys.NODATA), Color.black, 0);
 
     /**
      * The inverse transform, never <code>null</code>.
@@ -251,7 +245,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
          * Search for the "nodata" category. This loop looks
          * for a qualitative category with the NaN value.
          */
-        Category nodata = (categories.length!=0) ? categories[0] : NODATA;
+        Category nodata = (categories.length!=0) ? categories[0] : Category.NODATA;
         final long nodataBits = Double.doubleToRawLongBits(Double.NaN);
         for (int i=categories.length; --i>=0;) {
             final Category candidate = categories[i];

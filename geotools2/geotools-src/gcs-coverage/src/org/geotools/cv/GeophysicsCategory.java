@@ -59,7 +59,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * values.   By definition, the {@link #getSampleToGeophysics} method for this class returns
  * the identity transform, or <code>null</code> if this category is a qualitative one.
  *
- * @version $Id: GeophysicsCategory.java,v 1.4 2003/04/13 17:21:19 desruisseaux Exp $
+ * @version $Id: GeophysicsCategory.java,v 1.5 2003/04/14 18:34:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GeophysicsCategory extends Category {
@@ -112,7 +112,21 @@ final class GeophysicsCategory extends Category {
      */
     public Range getRange() throws IllegalStateException {
         if (range == null) try {
-            range = NumberRange.cast(transform(inverse.transform, inverse.range, true));
+            double min, max;
+            min = inverse.transform.transform(inverse.range.getMinimum());
+            max = inverse.transform.transform(inverse.range.getMaximum());
+            boolean minIncluded = inverse.range.isMinIncluded();
+            boolean maxIncluded = inverse.range.isMaxIncluded();
+            if (min > max) {
+                final double tmp;
+                final boolean tmpIncluded;
+                tmp = min;   tmpIncluded = minIncluded;
+                min = max;   minIncluded = maxIncluded;
+                max = tmp;   maxIncluded = tmpIncluded;
+            }
+            range = new NumberRange(Double.class, new Double(min), minIncluded,
+                                                  new Double(max), maxIncluded);
+
         } catch (TransformException cause) {
             IllegalStateException exception = new IllegalStateException(Resources.format(
                                                   ResourceKeys.ERROR_BAD_TRANSFORM_$1,

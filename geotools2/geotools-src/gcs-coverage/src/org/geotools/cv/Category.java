@@ -97,7 +97,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.11 2003/04/13 17:21:19 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.12 2003/04/14 18:34:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
@@ -112,6 +112,31 @@ public class Category implements Serializable {
      * {@link CategoryList} constructor.
      */
     static final WeakHashSet pool = new WeakHashSet();
+
+    /**
+     * A default category for "no data" values. This default qualitative category use sample
+     * value 0, which is mapped to geophysics value {@link Float#NaN} for those who work with
+     * floating point images. The rendering color default to a fully transparent color and the
+     * name is "no data" localized to the specified locale.
+     *
+     * @task HACK: Current version use a black color rather than a transparent one.
+     *             It is due to what looks like a bug in IndexColorModel constructor.
+     *             Further investigation are needed.
+     */
+    public static final Category NODATA = new Category(
+            Resources.format(ResourceKeys.NODATA), Color.BLACK, 0)
+    {
+        /**
+         * Returns the category name localized in the specified locale.
+         */
+        public String getName(final Locale locale) {
+            if (locale != null) {
+                return Resources.getResources(locale).getString(ResourceKeys.NODATA);
+            } else {
+                return super.getName(locale);
+            }
+        }
+    };
     
     /**
      * The category name (may not be localized).
@@ -702,43 +727,6 @@ public class Category implements Serializable {
     public Range getRange() {
         assert range != null;
         return range;
-    }
-
-    /**
-     * Transform the specified range using the transform <var>tx</var>.
-     *
-     * @param  tx    The transform to apply.
-     * @param  range The range to transform.
-     * @param  forceDouble <code>true</code> if the range must use the {@link Double} type.
-     * @return A range transformed using the <code>tx</code> transform.
-     * @throws TransformException if the transform can't be applied.
-     */
-    static Range transform(final MathTransform1D tx,
-                           final Range        range,
-                           final boolean forceDouble)
-        throws TransformException
-    {
-        if (tx.isIdentity()) {
-            return range;
-        }
-        double min, max;
-        min = tx.transform(((Number) range.getMinValue()).doubleValue());
-        max = tx.transform(((Number) range.getMaxValue()).doubleValue());
-        boolean minIncluded = range.isMinIncluded();
-        boolean maxIncluded = range.isMaxIncluded();
-        if (min > max) {
-            final double tmp;
-            final boolean tmpIncluded;
-            tmp = min;   tmpIncluded = minIncluded;
-            min = max;   minIncluded = maxIncluded;
-            max = tmp;   maxIncluded = tmpIncluded;
-        }
-        SampleDimensionType type = (forceDouble) ? SampleDimensionType.DOUBLE
-                                                 : SampleDimensionType.getEnum(min, max);
-        final Number xmin = type.wrapSample(min, true);
-        final Number xmax = type.wrapSample(max, true);
-        return new NumberRange(xmin.getClass(), xmin, minIncluded,
-                                                xmax, maxIncluded);
     }
 
     /**

@@ -36,9 +36,13 @@
 package org.geotools.gc;
 
 // Images
+import java.awt.Color;
+import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.awt.image.WritableRenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 
@@ -96,6 +100,7 @@ import org.opengis.gc.GC_GridCoverage;
 import org.geotools.pt.Envelope;
 import org.geotools.pt.CoordinatePoint;
 import org.geotools.pt.MismatchedDimensionException;
+import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.AxisOrientation;
 import org.geotools.ct.MathTransform;
@@ -104,10 +109,12 @@ import org.geotools.ct.TransformException;
 import org.geotools.cv.Coverage;
 import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
+import org.geotools.cv.SampleDimensionType;
 import org.geotools.cv.CannotEvaluateException;
 import org.geotools.cv.PointOutsideCoverageException;
 
 // Resources
+import org.geotools.units.Unit;
 import org.geotools.io.LineWriter;
 import org.geotools.util.WeakHashSet;
 import org.geotools.resources.XArray;
@@ -130,7 +137,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.12 2003/03/14 12:35:48 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.13 2003/04/14 18:34:14 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -263,6 +270,8 @@ public class GridCoverage extends Coverage {
      * affine transform.
      *
      * @task TODO: We could support shear in affine transform.
+     * @task TODO: Should be inlined in the above constructor if only Sun was to fix RFE #4093999
+     *             ("Relax constraint on placement of this()/super() call in constructors").
      */
     private static PlanarImage getImage(final ImageFunction function,
                                         final GridGeometry gridGeometry)
@@ -294,10 +303,144 @@ public class GridCoverage extends Coverage {
                                                          .add((float) yTrans);
         return JAI.create("ImageFunction", param);
     }
+
+    /**
+     * Constructs a grid coverage from a raster and an envelope in
+     * <var>longitude</var>,<var>latitude</var> coordinates. The coordinate system is assumed to
+     * be based on {@linkplain GeographicCoordinateSystem#WGS84 WGS84}. A default color palette
+     * is built from the minimal and maximal values found in the raster.
+     *
+     * @param name     The grid coverage name.
+     * @param raster   The data (may be floating point numbers). {@linkplain Float#NaN NaN}
+     *                 values are mapped to a transparent color.
+     * @param envelope The envelope in geographic (<var>longitude</var>,<var>latitude</var>)
+     *                 coordinates.
+     *
+     * @throws MismatchedDimensionException If the envelope's dimension is not 2.
+     */
+    public GridCoverage(final String name, final WritableRaster raster, final Envelope envelope)
+            throws MismatchedDimensionException
+    {
+        this(name, raster, GeographicCoordinateSystem.WGS84, envelope, null, null, null, null, null);
+    }
+
+    /**
+     * Constructs a grid coverage from a {@linkplain Raster raster} with the specified
+     * {@linkplain Envelope envelope}.
+     *
+     * @param name        The grid coverage name.
+     * @param raster      The data (may be floating point numbers). {@linkplain Float#NaN NaN}
+     *                    values are mapped to a transparent color.
+     * @param cs          The coordinate system. This specifies the coordinate system used
+     *                    when accessing a grid coverage with the "evaluate" methods.  The
+     *                    number of dimensions must matches the number of dimensions for
+     *                    <code>envelope</code>.
+     * @param envelope    The grid coverage cordinates. This envelope must have at least two
+     *                    dimensions.   The two first dimensions describe the image location
+     *                    along <var>x</var> and <var>y</var> axis. The other dimensions are
+     *                    optional and may be used to locate the image on a vertical axis or
+     *                    on the time axis.
+     * @param minValues   The minimal value for each bands in the raster, or <code>null</code>
+     *                    for computing it automatically.
+     * @param maxValues   The maximal value for each bands in the raster, or <code>null</code>
+     *                    for computing it automatically.
+     * @param units       The units of sample values, or <code>null</code> if unknow.
+     * @param colors      The colors to use for values from <code>minValues</code> to
+     *                    <code>maxValues</code> for each bands, or <code>null</code> for a
+     *                    default color palette. If non-null, each arrays <code>colors[b]</code>
+     *                    may have any length; colors will be interpolated as needed.
+     * @param hints       An optional set of rendering hints, or <code>null</code> if none.
+     *                    Those hints will not affect the grid coverage to be created. However,
+     *                    they may affect the grid coverage to be returned by
+     *                    <code>{@link #geophysics geophysics}(false)</code>, i.e.
+     *                    the view to be used at rendering time. The optional hint
+     *                    {@link org.geotools.gp.Hints#SAMPLE_DIMENSION_TYPE} specifies the
+     *                    {@link SampleDimensionType} to be used at rendering time, which can be
+     *                    one of {@link SampleDimensionType#UBYTE UBYTE} or
+     *                    {@link SampleDimensionType#USHORT USHORT}.
+     *
+     * @throws MismatchedDimensionException If the envelope's dimension
+     *         is not the same than the coordinate system's dimension.
+     * @param  IllegalArgumentException if the number of bands differs
+     *         from the number of sample dimensions.
+     */
+    public GridCoverage(final String name,         final WritableRaster raster,
+                        final CoordinateSystem cs, final Envelope       envelope,
+                        final double[] minValues,  final double[]       maxValues,
+                        final Unit       units,
+                        final Color[][]  colors,   final RenderingHints hints)
+    {
+        this(name, raster, cs, null, (Envelope)envelope.clone(),
+             GridSampleDimension.create(name, raster, minValues, maxValues, units, colors, hints));
+    }
+
+    /**
+     * Constructs a grid coverage from a {@linkplain Raster raster} with the specified
+     * &quot;{@linkplain GridGeometry#getGridToCoordinateSystem grid to coordinate system}&quot;
+     * transform.
+     *
+     * @param name        The grid coverage name.
+     * @param raster      The data (may be floating point numbers). {@linkplain Float#NaN NaN}
+     *                    values are mapped to a transparent color.
+     * @param cs          The coordinate system. This specifies the coordinate system used
+     *                    when accessing a grid coverage with the "evaluate" methods.
+     * @param gridToCS    The math transform from grid to coordinate system.
+     * @param minValues   The minimal value for each bands in the raster, or <code>null</code>
+     *                    for computing it automatically.
+     * @param maxValues   The maximal value for each bands in the raster, or <code>null</code>
+     *                    for computing it automatically.
+     * @param units       The units of sample values, or <code>null</code> if unknow.
+     * @param colors      The colors to use for values from <code>minValues</code> to
+     *                    <code>maxValues</code> for each bands, or <code>null</code> for a
+     *                    default color palette. If non-null, each arrays <code>colors[b]</code>
+     *                    may have any length; colors will be interpolated as needed.
+     * @param hints       An optional set of rendering hints, or <code>null</code> if none.
+     *                    Those hints will not affect the grid coverage to be created. However,
+     *                    they may affect the grid coverage to be returned by
+     *                    <code>{@link #geophysics geophysics}(false)</code>, i.e.
+     *                    the view to be used at rendering time. The optional hint
+     *                    {@link org.geotools.gp.Hints#SAMPLE_DIMENSION_TYPE} specifies the
+     *                    {@link SampleDimensionType} to be used at rendering time, which can be
+     *                    one of {@link SampleDimensionType#UBYTE UBYTE} or
+     *                    {@link SampleDimensionType#USHORT USHORT}.
+     *
+     * @throws MismatchedDimensionException If the <code>gridToCS</code> dimension
+     *         is not the same than the coordinate system's dimension.
+     * @param  IllegalArgumentException if the number of bands differs
+     *         from the number of sample dimensions.
+     */
+    public GridCoverage(final String name,         final WritableRaster raster,
+                        final CoordinateSystem cs, final MathTransform  gridToCS,
+                        final double[] minValues,  final double[]       maxValues,
+                        final Unit       units,
+                        final Color[][]  colors,   final RenderingHints hints)
+    {
+        this(name, raster, cs, new GridGeometry(null, gridToCS), null,
+             GridSampleDimension.create(name, raster, minValues, maxValues, units, colors, hints));
+    }
+
+    /**
+     * Helper constructor for public constructors expecting a {@link Raster} argument.
+     *
+     * @task TODO: Should be inlined in the above constructor if only Sun was to fix RFE #4093999
+     *             ("Relax constraint on placement of this()/super() call in constructors").
+     */
+    private GridCoverage(final String               name,
+                         final WritableRaster     raster,
+                         final CoordinateSystem       cs,
+                               GridGeometry gridGeometry, // ONE and  only  one of those
+                               Envelope         envelope, // two arguments should be non-null.
+                         final SampleDimension[]   bands)
+    {
+        this(name,
+             PlanarImage.wrapRenderedImage(
+                new BufferedImage(bands[0].getColorModel(0, bands.length), raster, false, null)),
+             cs, gridGeometry, envelope, bands, null, null);
+    }
     
     /**
-     * Construct a grid coverage with the specified envelope.
-     * Pixels will not be classified in any category.
+     * Construct a grid coverage with the specified envelope. A default set of
+     * {@linkplain SampleDimension sample dimensions} is used.
      *
      * @param name         The grid coverage name.
      * @param image        The image.
@@ -363,6 +506,8 @@ public class GridCoverage extends Coverage {
     
     /**
      * Construct a grid coverage with the specified transform and sample dimension.
+     * This is the most general constructor, the one that gives the maximum control
+     * on the grid coverage to be created.
      *
      * @param name         The grid coverage name.
      * @param image        The image.
@@ -430,7 +575,7 @@ public class GridCoverage extends Coverage {
          * number of image's bands (this is checked by GridSampleDimension.create).
          */
         sampleDimensions = new SampleDimension[image.getSampleModel().getNumBands()];
-        isGeophysics     = GridSampleDimension.create(image, sdBands, sampleDimensions);
+        isGeophysics     = GridSampleDimension.create(name, image, sdBands, sampleDimensions);
         /*
          * Constructs the grid range and the envelope if they were not explicitly provided.
          * The envelope computation (if needed)  requires  a valid 'gridToCoordinateSystem'
@@ -918,7 +1063,7 @@ public class GridCoverage extends Coverage {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.12 2003/03/14 12:35:48 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.13 2003/04/14 18:34:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -947,7 +1092,7 @@ public class GridCoverage extends Coverage {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.12 2003/03/14 12:35:48 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.13 2003/04/14 18:34:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {

@@ -45,7 +45,7 @@ import org.geotools.resources.ClassChanger;
  * A range of numbers. {@linkplain #union Union} and {@linkplain #intersect intersection}
  * are computed as usual, except that widening conversions will be applied as needed.
  *
- * @version $Id: NumberRange.java,v 1.2 2003/04/13 17:21:19 desruisseaux Exp $
+ * @version $Id: NumberRange.java,v 1.3 2003/04/14 18:34:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class NumberRange extends Range {
@@ -180,6 +180,58 @@ public final class NumberRange extends Range {
     }
 
     /**
+     * Returns <code>true</code> if the specified value is within this range.
+     */
+    public boolean contains(final Comparable value) {
+        return contains((Number) value);
+    }
+
+    /**
+     * Returns <code>true</code> if the specified value is within this range.
+     */
+    public boolean contains(final Number value) {
+        final Class type = ClassChanger.getWidestClass(getElementClass(), value.getClass());
+        return cast(type)._contains(ClassChanger.cast(value, type));
+    }
+
+    /**
+     * Performs the contains test (no type check).
+     */
+    private boolean _contains(final Number value) {
+        return super.contains((Comparable) value);
+    }
+
+    /**
+     * Returns true if the supplied range is fully contained within this range.
+     */
+    public boolean contains(final Range range) {
+        final Class type = ClassChanger.getWidestClass(getElementClass(), range.getElementClass());
+        return cast(type)._contains(cast(range, type));
+    }
+
+    /**
+     * Performs the test (no type check).
+     */
+    private boolean _contains(final Range range) {
+        return super.contains(range);
+    }
+
+    /**
+     * Returns true if this range intersects the given range.
+     */
+    public boolean intersects(final Range range) {
+        final Class type = ClassChanger.getWidestClass(getElementClass(), range.getElementClass());
+        return cast(type)._intersects(cast(range, type));
+    }
+
+    /**
+     * Performs the test (no type check).
+     */
+    private boolean _intersects(final Range range) {
+        return super.intersects(range);
+    }
+
+    /**
      * Returns the union of this range with the given range.
      * Widening conversions will be applied as needed.
      *
@@ -188,13 +240,13 @@ public final class NumberRange extends Range {
      */
     public Range union(final Range range) {
         final Class type = ClassChanger.getWidestClass(getElementClass(), range.getElementClass());
-        return cast(cast(type).union0(cast(range, type)));
+        return cast(cast(type)._union(cast(range, type)));
     }
 
     /**
      * Performs the union (no type check).
      */
-    private Range union0(final Range range) {
+    private Range _union(final Range range) {
         return super.union(range);
     }
 
@@ -207,7 +259,7 @@ public final class NumberRange extends Range {
      */
     public Range intersect(final Range range) {
         Class type = ClassChanger.getWidestClass(getElementClass(), range.getElementClass());
-        final Range result = cast(type).intersect0(cast(range, type));
+        final Range result = cast(type)._intersect(cast(range, type));
         /*
          * Use a finer type capable to holds the result (since the intersection may have
          * reduced the range), but not finer than the finest type of the ranges used in
@@ -224,8 +276,29 @@ public final class NumberRange extends Range {
     /**
      * Performs the intersection (no type check).
      */
-    private Range intersect0(final Range range) {
+    private Range _intersect(final Range range) {
         return super.intersect(range);
+    }
+
+    /**
+     * Returns the range of values that are in this range but not in the given range.
+     */
+    public Range[] subtract(final Range range) {
+        Class type = ClassChanger.getWidestClass(getElementClass(), range.getElementClass());
+        final Range[] result = cast(type)._subtract(cast(range, type));
+        if (result!=null) {
+            for (int i=0; i<result.length; i++) {
+                result[i] = cast(result[i]);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Performs the substraction (no type check).
+     */
+    private Range[] _subtract(final Range range) {
+        return super.subtract(range);
     }
 
     /**

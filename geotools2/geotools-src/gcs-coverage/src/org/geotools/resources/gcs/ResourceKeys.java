@@ -82,7 +82,7 @@ public interface ResourceKeys
     public static final int ERROR_NO_IMAGE_INPUT                 =    43;
     public static final int ERROR_NO_IMAGE_READER                =    44;
     public static final int ERROR_NO_TRANSFORM2D_AVAILABLE       =    45;
-    public static final int ERROR_NUMBER_OF_BANDS_MISMATCH_$2    =    46;
+    public static final int ERROR_NUMBER_OF_BANDS_MISMATCH_$3    =    46;
     public static final int ERROR_OPERATION_ALREADY_BOUND_$1     =    47;
     public static final int ERROR_OPERATION_NOT_FOUND_$1         =    48;
     public static final int ERROR_POINT_OUTSIDE_COVERAGE_$1      =    49;

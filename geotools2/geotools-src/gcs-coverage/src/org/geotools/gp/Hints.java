@@ -43,6 +43,7 @@ import java.util.Locale;
 import javax.media.jai.JAI;
 
 // Geotools Dependencies
+import org.geotools.cv.SampleDimensionType;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CoordinateTransformationFactory;
 
@@ -65,7 +66,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * GridCoverageProcessor processor = new GridCoverageProcessor(hints);
  * </pre></blockquote>
  *
- * @version $Id: Hints.java,v 1.2 2003/01/22 23:09:14 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.3 2003/04/14 18:34:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
@@ -83,6 +84,13 @@ public final class Hints extends RenderingHints.Key {
      */
     public static final RenderingHints.Key COORDINATE_TRANSFORMATION_FACTORY =
             new Hints(1, CoordinateTransformationFactory.class);
+
+    /**
+     * Key for setting a {@link SampleDimensionType} other than the default one
+     * when sample values must be rescaled at rendering time.
+     */
+    public static final RenderingHints.Key SAMPLE_DIMENSION_TYPE =
+            new Hints(2, SampleDimensionType.class);
 
     /**
      * Base class of all values for this key.

@@ -111,7 +111,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.21 2003/04/13 17:21:19 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.22 2003/04/14 18:34:13 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1169,7 +1169,9 @@ public class SampleDimension implements Serializable {
 
     /**
      * Returns a sample dimension using new {@link #getScale scale} and {@link #getOffset offset}
-     * coefficients.
+     * coefficients. Other properties like the {@linkplain #getRange sample value range},
+     * {@linkplain #getNoDataValue no data values} and {@linkplain #getColorModel colors}
+     * are unchanged.
      *
      * @param scale  The value which is multiplied to grid values for the new sample dimension.
      * @param offset The value to add to grid values for the new sample dimension.
@@ -1290,8 +1292,8 @@ public class SampleDimension implements Serializable {
             final SampleDimension[] dim = (SampleDimension[]) args.getObjectParameter(0);
             final int numBands = source.getSampleModel().getNumBands();
             if (numBands != dim.length) {
-                msg.append(Resources.format(ResourceKeys.ERROR_NUMBER_OF_BANDS_MISMATCH_$2,
-                                            new Integer(numBands), new Integer(dim.length)));
+                msg.append(Resources.format(ResourceKeys.ERROR_NUMBER_OF_BANDS_MISMATCH_$3,
+                        new Integer(numBands), new Integer(dim.length), "SampleDimension"));
                 return false;
             }
             for (int i=0; i<numBands; i++) {

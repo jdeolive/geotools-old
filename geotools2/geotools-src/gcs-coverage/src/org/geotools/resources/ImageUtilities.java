@@ -58,7 +58,7 @@ import javax.media.jai.ImageLayout;
  *
  * It may change in incompatible way in any future version.
  *
- * @version $Id: ImageUtilities.java,v 1.4 2003/04/10 20:41:10 desruisseaux Exp $
+ * @version $Id: ImageUtilities.java,v 1.5 2003/04/14 18:34:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ImageUtilities {
@@ -310,10 +310,10 @@ public final class ImageUtilities {
             final int alpha = ARGB[i] & 0xFF000000;
             if (alpha != 0xFF000000) {
                 if (alpha==0x00000000 && transparent<0) {
-                    transparent=i;
+                    transparent = i;
                     continue;
                 }
-                hasAlpha=true;
+                hasAlpha = true;
                 break;
             }
         }
