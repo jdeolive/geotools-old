@@ -53,6 +53,20 @@ public class DbaseFileTest extends TestCaseSupport {
     assertEquals("Value of Column 4 is wrong",((Double)attrs[4]).doubleValue(),143986.61,0.001);
   }
   
+  public void testRowVsEntry() throws Exception {
+    Object[] attrs = new Object[dbf.getHeader().getNumFields()];
+    DbaseFileReader dbf2 = new DbaseFileReader(getTestResourceChannel(TEST_FILE));
+    while (dbf.hasNext()) {
+      dbf.readEntry(attrs);
+      DbaseFileReader.Row r = dbf2.readRow();
+      for (int i = 0, ii = attrs.length; i < ii; i++) {
+        assertNotNull(attrs[i]);
+        assertNotNull(r.read(i));
+        assertEquals(attrs[i], r.read(i));
+      }
+    }
+  }
+  
   public void testEmptyFields() throws Exception {
     DbaseFileHeader header = new DbaseFileHeader();
     header.addColumn("emptyString", 'C', 20, 0);
