@@ -6,11 +6,12 @@
   <id>mysql</id>
   <currentVersion>2.0-B2-SNAPSHOT</currentVersion>
   <package>org.geotools</package>
-  <shortDescription>MySQL DataSource
+  <shortDescription>MySQL DataStore
   Implementation</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description>The MySQL module contains an implementation of the
-  DataSource interface (found in core) for use with
+  DataStore interface (found in data), as well as the older DataSource
+  interface (found in core), for use with
   MySQL.</description>
   <developers>
     <developer>
@@ -32,6 +33,15 @@
         <role>Java Developer</role>
       </roles>
     </developer>
+    <developer>
+        <name>Gary Sheppard</name>
+        <id>shepshep</id>
+        <email>garysheppard@psu.edu</email>
+        <organization>Penn State GeoVISTA Center</organization>
+        <roles>
+            <role>Java Developer</role>
+        </roles>
+    </developer>
   </developers>
   <dependencies>
     <dependency>
@@ -40,9 +50,9 @@
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
     <dependency>
-      <id>mm.mysql</id>
-      <version>2.0.14</version>
-      <url>http://mmmysql.sourceforge.net/</url>
+        <artifactId>mysql-connector-java</artifactId>
+        <groupId>mysql</groupId>
+        <version>3.0.9</version>
     </dependency>
     <dependency>
       <artifactId>defaultcore</artifactId>
@@ -53,6 +63,11 @@
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>2.0-B2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <artifactId>data</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
