@@ -22,6 +22,7 @@ package org.geotools.mapinfo;
 import com.vividsolutions.jts.geom.*;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -46,7 +47,7 @@ import org.geotools.styling.*;
 /**
  * 
  * 
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  * @author $author$
  */
 public class MapInfoDataSource implements DataSource {
@@ -176,8 +177,34 @@ public class MapInfoDataSource implements DataSource {
 
         // Read files
         try {
-            Vector features = readMifMid(new BufferedReader(new FileReader(mifFile)), 
-                                         new BufferedReader(new FileReader(midFile)));
+            File mif = new File(mifFile);
+            if(!mif.exists()){
+                mifFile = setExtension(filename, "mif");
+                mif = new File(mifFile);
+                if(!mif.exists()){
+                    mifFile = setExtension(filename.toLowerCase(), "mif");
+                    mif = new File(mifFile);
+                    if(!mif.exists()){
+                        mifFile = setExtension(filename.toUpperCase(), "MIF");
+                        mif = new File(mifFile);
+                    } // and at that I'm out of guesses
+                }
+            }
+            File mid = new File(midFile);
+            if(!mid.exists()){
+                midFile = setExtension(filename, "mid");
+                mid = new File(midFile);
+                if(!mid.exists()){
+                    midFile = setExtension(filename.toLowerCase(), "mim");
+                    mid = new File(midFile);
+                    if(!mid.exists()){
+                        midFile = setExtension(filename.toUpperCase(), "MID");
+                        mid = new File(midFile);
+                    } // and at that I'm out of guesses
+                }
+            }
+            Vector features = readMifMid(new BufferedReader(new FileReader(mif)), 
+                                         new BufferedReader(new FileReader(mid)));
 
             return features;
         } catch (FileNotFoundException fnfexp) {
