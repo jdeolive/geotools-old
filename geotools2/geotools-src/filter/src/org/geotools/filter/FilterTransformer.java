@@ -26,9 +26,6 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
     
     static Attributes NULL_ATTS = new AttributesImpl();
     
-    /** handler to do the processing */
-    private ContentHandler contentHandler;
-    
     private int indent = 4;
     
     /** The namespace to use if none is provided. */
@@ -146,6 +143,9 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
         transformer.transform(source, result);
     }
     
+    public static OutputVisitor createOutputVisitor(ContentHandler handler) {
+        return new OutputVisitor(handler,"");
+    }
     
     /**
      * Performs the iteration, walking over the collection and  firing events.
@@ -155,9 +155,10 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
      * @throws SAXException DOCUMENT ME!
      */
     private void walk() throws SAXException {
-        contentHandler.startDocument();
+        ContentHandler handler = getContentHandler();
+        handler.startDocument();
         
-        OutputVisitor output = new OutputVisitor();
+        OutputVisitor output = createOutputVisitor(handler);
         
         if (object instanceof Expression) {
             output.encode( (Expression) object);
@@ -167,7 +168,7 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
             throw new RuntimeException("Filter encoder encodes Filter or Expression, not " + object.getClass());
         }
         
-        contentHandler.endDocument();
+        handler.endDocument();
     }
     
     
@@ -196,42 +197,41 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
         walk();
     }
     
-    /**
-     * sets the content handler.
-     *
-     * @param handler DOCUMENT ME!
-     */
-    public void setContentHandler(ContentHandler handler) {
-        contentHandler = handler;
-    }
     
-    
-    class OutputVisitor implements FilterVisitor {
+    public static class OutputVisitor implements FilterVisitor {
         
-        public void element(String element,Expression e) {
+        ContentHandler contentHandler;
+        String defaultNamespace = "";
+        
+        public OutputVisitor(ContentHandler handler,String defaultNamespace) {
+            this.contentHandler = handler;
+            this.defaultNamespace = defaultNamespace;
+        }
+        
+        void element(String element,Expression e) {
             System.out.println("FIX ME");
         }
         
-        public void element(String element,Filter f) {
+        void element(String element,Filter f) {
             System.out.println("FIX ME");
         }
         
-        public void element(String element,String content) {
+        void element(String element,String content) {
             element(element,content,NULL_ATTS);
         }
         
-        public void element(String element,String content,Attributes atts) {
+        void element(String element,String content,Attributes atts) {
             start(element,atts);
             if (content != null)
                 chars(content);
             end(element);
         }
         
-        public void start(String element) {
+        void start(String element) {
             start(element,NULL_ATTS);
         }
         
-        public void start(String element,Attributes atts) {
+        void start(String element,Attributes atts) {
             try {
                 contentHandler.startElement(defaultNamespace, "", element, atts);
             } catch (SAXException se) {
@@ -239,7 +239,7 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
             }
         }
         
-        public void chars(String text) {
+        void chars(String text) {
             try {
                 char[] ch = text.toCharArray();
                 contentHandler.characters(ch,0,ch.length);
