@@ -16,12 +16,16 @@
  */
 package org.geotools.data.postgis;
 
+import org.postgresql.jdbc3.Jdbc3ConnectionPool;
+import org.geotools.data.jdbc.ConnectionPool;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
-
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Shell for JDBC transactions of all types. This creates connections for the
@@ -32,7 +36,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisConnectionFactory.java,v 1.3 2003/07/24 19:15:41 cholmesny Exp $
+ * @version $Id: PostgisConnectionFactory.java,v 1.4 2003/08/21 17:47:38 cholmesny Exp $
  *
  * @task REVISIT: connection pooling, implementing java.sql.Datasource.  I
  *       removed the implementing because that class should be provided by the
@@ -54,6 +58,15 @@ public class PostgisConnectionFactory {
     /** The full path used to connect to the database */
     private String connPath;
 
+       /** The host to connect to */
+    private String host;
+
+   /** The database to connect to.*/
+    private String dbName;
+
+   /** The port to connect on.*/
+    private int port = -1;
+
     /** The user to connect with */
     private String user = "test";
 
@@ -62,6 +75,10 @@ public class PostgisConnectionFactory {
 
     /** An alternate character set to use. */
     private String charSet;
+    
+    private static Map connectionPools = Collections.synchronizedMap(new HashMap());
+
+    
 
     /**
      * Constructor with all internal database driver classes, driver paths and
@@ -75,8 +92,37 @@ public class PostgisConnectionFactory {
      *        the feature types that will be used by PostgisDataSource.
      */
     public PostgisConnectionFactory(String host, String port, String dbName) {
-        connPath = DRIVER_PATH + "://" + host + ":" + port + "/"
+	this.host = host;
+	this.dbName = dbName;
+	if (port != null) {
+	    try {
+		this.port = Integer.parseInt(port);
+	    } catch (NumberFormatException nfe) {
+		throw new IllegalArgumentException("could not parse port " + 
+						   "to an int value");
+	    }
+	}
+	connPath = DRIVER_PATH + "://" + host + ":" + port + "/"
             + dbName;
+    }
+
+     /**
+     * Constructor with all internal database driver classes, driver paths and
+     * database types.
+     *
+     * @param host The name or ip address of the computer where the postgis
+     *        database is installed.
+     * @param port The port to connect on; 5432 is generally the postgres
+     *        default.
+     * @param dbName The name of the pgsql database that holds the tables of
+     *        the feature types that will be used by PostgisDataSource.
+     */
+    public PostgisConnectionFactory(String host, int port, String dbName) {
+	connPath = DRIVER_PATH + "://" + host + ":" + port + "/"
+            + dbName;
+	this.host = host;
+	this.dbName = dbName;
+	this.port = port;
     }
 
     /**
@@ -86,9 +132,9 @@ public class PostgisConnectionFactory {
      * @param connPath The driver class; should be passed from the
      *        database-specific subclass.
      */
-    public PostgisConnectionFactory(String connPath) {
-        connPath = DRIVER_PATH + "://" + connPath;
-    }
+    //public PostgisConnectionFactory(String connPath) {
+    //  connPath = DRIVER_PATH + "://" + connPath;
+    //}
 
     /**
      * Creates a database connection method to initialize a given database for
@@ -145,6 +191,41 @@ public class PostgisConnectionFactory {
         }
 
         return getConnection(props);
+    }
+
+      public ConnectionPool getConnectionPool(String user, String pass)
+        throws SQLException {
+        ConnectionPool pool = null;
+	String dbUrl = connPath;
+        String poolKey = dbUrl + user + pass;
+	LOGGER.fine("looking up pool key " + poolKey);
+	pool = (ConnectionPool) connectionPools.get(poolKey);
+	LOGGER.fine("pool is " + pool);
+        if (pool == null) {
+	    org.postgresql.jdbc2.optional.ConnectionPool source;
+	    source = new org.postgresql.jdbc2.optional.ConnectionPool();
+	    //source.setDataSourceName("Geotools Postgis");
+	    source.setServerName(host);
+	    source.setDatabaseName(dbName);
+	    source.setPortNumber(port);
+	    source.setUser(user);
+	    source.setPassword(pass);
+	    if (charSet != null) {
+		source.setEncoding(charSet);
+	    }
+	    //source.setMaxConnections(10);
+	    //the source looks like this defaults to false, but we have
+	    //assumed true (as that's how it was before pooling)
+	    source.setDefaultAutoCommit(true);
+            pool = new ConnectionPool(source);
+            connectionPools.put(poolKey, pool);
+        }
+
+        return pool;
+    }
+
+    public ConnectionPool getConnectionPool() throws SQLException {
+        return getConnectionPool(user, password);
     }
 
     /**

@@ -36,6 +36,7 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSourceMetaData;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
+import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
@@ -76,7 +77,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.33 2003/08/14 15:28:17 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.34 2003/08/21 17:47:38 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -100,10 +101,7 @@ public class PostgisDataSource extends AbstractDataSource
     public static final String DEFAULT_FID_COLUMN = "oid";
 
     /** Error message prefix for sql connection errors */
-    private static final String CONN_ERROR = 
-                          "Some sort of database connection error: ";
-    /** The sql column that contains the name of primary keys */
-    private static final int PK_COLUMN_NAME_COL = 4;
+    private static final String CONN_ERROR = "Some sort of database connection error: ";
 
     /** Map of sql primitives to java primitives */
     private static Map sqlTypeMap = new HashMap();
@@ -127,8 +125,11 @@ public class PostgisDataSource extends AbstractDataSource
     /** The maximum features allowed by the server for any given response. */
     private FeatureType schema = null;
 
+    /** Pool to get connections from. */
+    private ConnectionPool connectionPool;
+
     /** A postgis connection. */
-    private Connection dbConnection;
+    private Connection transConn;
 
     /** A tablename. */
     private String tableName;
@@ -136,7 +137,7 @@ public class PostgisDataSource extends AbstractDataSource
     /**
      * Sets the table and datasource, rolls a new schema from the db.
      *
-     * @param dbConnection The datasource holding the table.
+     * @param connPool The datasource holding the table.
      * @param tableName the name of the table that holds the features.
      *
      * @throws DataSourceException if there were problems constructing the
@@ -146,23 +147,37 @@ public class PostgisDataSource extends AbstractDataSource
      *       transactions...  But it would be nice to access the full db with
      *       one postgis data source.
      */
-    public PostgisDataSource(Connection dbConnection, String tableName)
+    public PostgisDataSource(ConnectionPool connPool, String tableName)
         throws DataSourceException {
         // create the return response type
-        this.dbConnection = dbConnection;
-        this.tableName = tableName;
-        this.fidColumn = getFidColumn(dbConnection, tableName);
+        this.connectionPool = connPool;
+        LOGGER.info("new postgis!");
 
+        //try {
+        Connection conn = getConnection();
+
+        //} catch (SQLException sqle) {
+        //  String message = CONN_ERROR + sqle.getMessage();
+        //  throw new DataSourceException(message, sqle);
+        //}
+        this.tableName = tableName;
+        this.fidColumn = getFidColumn(conn, tableName);
+
+        //Could we statically hash these somehow?  I mean, making the schema
+        //is a lot of work that much take place each time the datasource
+        //is constructed.  
         try {
-            this.schema = makeSchema(tableName, dbConnection, fidColumn);
+            this.schema = makeSchema(tableName, conn, fidColumn);
+
+            if (schema.getDefaultGeometry() != null) {
+                this.srid = querySRID(conn, tableName);
+                encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+                encoder.setSRID(srid);
+            }
         } catch (DataSourceException e) {
             throw new DataSourceException("Couldn't make schema: " + e, e);
-        }
-
-        if (schema.getDefaultGeometry() != null) {
-            this.srid = querySRID(dbConnection, tableName);
-            encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
-            encoder.setSRID(srid);
+        } finally {
+            close(conn);
         }
     }
 
@@ -218,8 +233,11 @@ public class PostgisDataSource extends AbstractDataSource
     public static FeatureType makeSchema(String tableName,
         java.sql.Connection dbConnection, String fidColumnName)
         throws DataSourceException {
+        Statement statement = null;
+
         try {
-            Statement statement = dbConnection.createStatement();
+            statement = dbConnection.createStatement();
+
             ResultSet result = statement.executeQuery("SELECT * FROM \""
                     + tableName + "\" LIMIT 1;");
             ResultSetMetaData metaData = result.getMetaData();
@@ -265,10 +283,8 @@ public class PostgisDataSource extends AbstractDataSource
                 }
             }
 
-            closeResultSet(result);
-
-            FeatureType retSchema = 
-                 FeatureTypeFactory.newFeatureType(attributes, tableName);
+            FeatureType retSchema = FeatureTypeFactory.newFeatureType(attributes,
+                    tableName);
 
             return retSchema;
         } catch (SQLException sqle) {
@@ -279,6 +295,8 @@ public class PostgisDataSource extends AbstractDataSource
             String message = "Had problems creating the feature type: ";
             LOGGER.warning(message);
             throw new DataSourceException(message, sche);
+        } finally {
+            close(statement);
         }
 
         //catch (Exception e) {
@@ -307,7 +325,7 @@ public class PostgisDataSource extends AbstractDataSource
 
             if (result.next()) {
                 int retSrid = result.getInt("srid");
-                closeResultSet(result);
+                close(statement);
 
                 return retSrid;
             } else {
@@ -338,8 +356,7 @@ public class PostgisDataSource extends AbstractDataSource
      *       good with  primary keys, it returns properly.  But insert does
      *       not work, and will be tricky.
      */
-    public static String getFidColumn(Connection dbConnection, 
-                                      String tableName) {
+    public static String getFidColumn(Connection dbConnection, String tableName) {
         String retString = DEFAULT_FID_COLUMN;
 
         try {
@@ -351,7 +368,7 @@ public class PostgisDataSource extends AbstractDataSource
 
             if (pkeys.next()) {
                 //get the name of the primary key column
-                retString = pkeys.getString(PK_COLUMN_NAME_COL);
+                retString = pkeys.getString(4);
 
                 //REVISIT: Figure out what to do if there are multiple pks
             }
@@ -395,7 +412,7 @@ public class PostgisDataSource extends AbstractDataSource
                 LOGGER.fine("geometry type is: " + geometryType);
             }
 
-            closeResultSet(result);
+            close(statement);
 
             if (geometryType == null) {
                 String msg = " no geometry found in the GEOMETRY_COLUMNS table "
@@ -455,7 +472,6 @@ public class PostgisDataSource extends AbstractDataSource
 
                 //REVISIT, see getIdColumn note.
             } else if (fidColumn.equals(curAttName)) {
-                LOGGER.finest("skipping fid column");
                 //do nothing, already covered by fid
             } else {
                 sqlStatement.append(", \"" + curAttName + "\"");
@@ -500,8 +516,7 @@ public class PostgisDataSource extends AbstractDataSource
      * @throws DataSourceException if query contains a propertyName that is not
      *         a part of this type's schema.
      */
-    private AttributeType[] getAttTypes(Query query) 
-                           throws DataSourceException {
+    private AttributeType[] getAttTypes(Query query) throws DataSourceException {
         AttributeType[] schemaTypes = schema.getAttributeTypes();
 
         if (query.retrieveAllProperties()) {
@@ -516,7 +531,6 @@ public class PostgisDataSource extends AbstractDataSource
 
                 if (attNames.contains(schemaTypeName)) {
                     retAttTypes[retPos++] = schemaTypes[i];
-
                 }
             }
 
@@ -531,17 +545,33 @@ public class PostgisDataSource extends AbstractDataSource
         }
     }
 
-    /**
-     * Closes the result set.  Child class must remember to call.
-     *
-     * @param result The servlet request object.
-     */
-    private static void closeResultSet(ResultSet result) {
+    private static void close(Connection conn) throws DataSourceException {
         try {
-            result.close();
-            result.getStatement().close();
+            if (conn != null) {
+                conn.close();
+            }
         } catch (SQLException sqle) {
-            LOGGER.warning("Error closing result set.");
+            LOGGER.warning("Error closing connection");
+            throw new DataSourceException("could not close connection", sqle);
+        }
+    }
+
+    /**
+     * Closes the statement.  Calling this method also closes its created
+     * result sets, if any exist.
+     *
+     * @param statement the statement to be closed.
+     *
+     * @throws DataSourceException if there were problems closing it.
+     */
+    private static void close(Statement statement) throws DataSourceException {
+        try {
+            if (statement != null) {
+                statement.close(); //this automatically closes result sets.
+            }
+        } catch (SQLException sqle) {
+            LOGGER.warning("Error closing statement");
+            throw new DataSourceException("could not close statement", sqle);
         }
     }
 
@@ -569,14 +599,17 @@ public class PostgisDataSource extends AbstractDataSource
         //FeatureCollection features = FeatureCollections.newCollection(); 
         //initial capacity of maxFeauters?
         //Would be good when maxFeatures is reached, but default of 10000000?
+        Connection conn = null;
+        Statement statement = null;
+
         try {
             FeatureType schema = FeatureTypeFactory.newFeatureType(attTypes,
                     tableName);
 
             // retrieve the result set from the JDBC driver
             LOGGER.finer("using schema " + schema);
-
-            Statement statement = dbConnection.createStatement();
+            conn = getConnection();
+            statement = conn.createStatement();
             LOGGER.finer("made statement");
 
             SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
@@ -633,7 +666,7 @@ public class PostgisDataSource extends AbstractDataSource
                 }
             }
 
-            closeResultSet(result);
+            close(statement);
         } catch (SQLException sqle) {
             String message = CONN_ERROR + sqle.getMessage();
             LOGGER.warning(message);
@@ -648,6 +681,9 @@ public class PostgisDataSource extends AbstractDataSource
         } catch (IllegalAttributeException ilae) {
             String message = "Problem creating Feature: " + ilae.getMessage();
             throw new DataSourceException(message, ilae);
+        } finally {
+            close(statement);
+            close(conn);
         }
     }
 
@@ -693,12 +729,24 @@ public class PostgisDataSource extends AbstractDataSource
      */
     public Set addFeatures(FeatureCollection collection)
         throws DataSourceException {
-        Set curFids = getFidSet();
+        boolean previousAutoCommit = getAutoCommit();
+        setAutoCommit(false);
+
+        boolean fail = false;
+        Set curFids = null;
+        Set newFids = null;
 
         //Feature[] featureArr = collection.getFeatures();
+        Connection conn = null;
+        Statement statement = null;
+
         if (collection.size() > 0) {
             try {
-                Statement statement = dbConnection.createStatement();
+                conn = getTransactionConnection();
+
+                curFids = getFidSet(conn);
+                LOGGER.fine("fids before add: " + curFids);
+                statement = conn.createStatement();
 
                 for (FeatureIterator i = collection.features(); i.hasNext();) {
                     String sql = makeInsertSql(tableName, i.next());
@@ -706,16 +754,21 @@ public class PostgisDataSource extends AbstractDataSource
                     statement.executeUpdate(sql);
                 }
 
-                statement.close();
+                newFids = getFidSet(conn);
+                LOGGER.fine("fids after add: " + newFids);
+                newFids.removeAll(curFids);
+                LOGGER.fine("to return " + newFids);
             } catch (SQLException sqle) {
+                fail = true;
+
                 String message = CONN_ERROR + sqle.getMessage();
                 LOGGER.warning(message);
                 throw new DataSourceException(message, sqle);
+            } finally {
+                close(statement);
+                finalizeTransactionMethod(previousAutoCommit, fail);
             }
         }
-
-        Set newFids = getFidSet();
-        newFids.removeAll(curFids);
 
         //Set retFids = new HashSet(newFids.size());
         //for (Iterator i = newFids.iterator(); i.hasNext;){
@@ -727,18 +780,23 @@ public class PostgisDataSource extends AbstractDataSource
      * insert to  figure out which features it added.  There should be a more
      * efficient way of doing this, I'm just not sure what.
      *
+     * @param conn The connection to get the fid set with.
+     *
      * @return a set of strings of the featureIds
      *
      * @throws DataSourceException if there were problems connecting to the db
      *         backend.
      */
-    private Set getFidSet() throws DataSourceException {
+    private Set getFidSet(Connection conn) throws DataSourceException {
         Set fids = new HashSet();
+        Statement statement = null;
 
         try {
-            LOGGER.fine("entering fid set");
+            LOGGER.finer("entering fid set");
 
-            Statement statement = dbConnection.createStatement();
+            //conn = getConnection();
+            statement = conn.createStatement();
+
             DefaultQuery query = new DefaultQuery();
             query.setPropertyNames(new String[0]);
 
@@ -755,13 +813,14 @@ public class PostgisDataSource extends AbstractDataSource
                 //would speed things up, but also would make that code ugly.
                 fids.add(createFid(result.getString(1)));
             }
-
-            result.close();
-            statement.close();
         } catch (SQLException sqle) {
             String message = CONN_ERROR + sqle.getMessage();
             LOGGER.warning(message);
             throw new DataSourceException(message, sqle);
+        } finally {
+            close(statement);
+
+            //close(conn);
         }
 
         LOGGER.finest("returning fids " + fids);
@@ -845,16 +904,20 @@ public class PostgisDataSource extends AbstractDataSource
         String sql = "";
         String fid = null;
         String whereStmt = null;
+        boolean previousAutoCommit = getAutoCommit();
+        setAutoCommit(false);
 
+        boolean fail = false;
         SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
         unpacker.unPackOR(filter);
 
         Filter encodableFilter = unpacker.getSupported();
         Filter unEncodableFilter = unpacker.getUnSupported();
+        Statement statement = null;
 
         try {
-            //Connection dbConnection = db.getConnection();
-            Statement statement = dbConnection.createStatement();
+            Connection conn = getTransactionConnection();
+            statement = conn.createStatement();
 
             if (encodableFilter != null) {
                 whereStmt = encoder.encode((AbstractFilter) encodableFilter);
@@ -866,6 +929,13 @@ public class PostgisDataSource extends AbstractDataSource
             }
 
             if (unEncodableFilter != null) {
+                //this is very similar to getFidSet - the reason is so that we
+                //don't spend time constructing geometries when we don't need
+                //to, but we probably could get some better code reuse.
+                DefaultQuery query = new DefaultQuery();
+                query.setPropertyNames(new String[0]);
+                query.setFilter(unEncodableFilter);
+
                 FeatureCollection features = getFeatures(unEncodableFilter);
                 FeatureIterator iter = features.features();
 
@@ -888,16 +958,23 @@ public class PostgisDataSource extends AbstractDataSource
                 }
             }
 
-            statement.close();
+            close(statement);
         } catch (SQLException sqle) {
+            fail = true;
+
             String message = CONN_ERROR + sqle.getMessage();
             LOGGER.warning(message);
             throw new DataSourceException(message, sqle);
         } catch (SQLEncoderException ence) {
+            fail = true;
+
             String message = "error encoding sql from filter "
                 + ence.getMessage();
             LOGGER.warning(message);
             throw new DataSourceException(message, ence);
+        } finally {
+            close(statement);
+            finalizeTransactionMethod(previousAutoCommit, fail);
         }
     }
 
@@ -915,9 +992,16 @@ public class PostgisDataSource extends AbstractDataSource
      *
      * @task REVISIT: validate values with types.  Database does this a bit
      *       now, but should be more fully implemented.
+     * @task REVISIT: do some nice prepared statement stuff like oracle.
      */
     public void modifyFeatures(AttributeType[] type, Object[] value,
         Filter filter) throws DataSourceException {
+        boolean previousAutoCommit = getAutoCommit();
+        setAutoCommit(false);
+
+        boolean fail = false;
+        Connection conn = null;
+        Statement statement = null;
         String sql = "";
         String fid = null;
 
@@ -930,7 +1014,8 @@ public class PostgisDataSource extends AbstractDataSource
         Filter unEncodableFilter = unpacker.getUnSupported();
 
         try {
-            Statement statement = dbConnection.createStatement();
+            conn = getTransactionConnection();
+            statement = conn.createStatement();
 
             if (encodableFilter != null) {
                 whereStmt = encoder.encode((AbstractFilter) encodableFilter);
@@ -960,17 +1045,27 @@ public class PostgisDataSource extends AbstractDataSource
                     statement.executeUpdate(sql);
                 }
             }
-
-            statement.close();
         } catch (SQLException sqle) {
+            fail = true;
+
             String message = CONN_ERROR + sqle.getMessage();
             LOGGER.warning(message);
             throw new DataSourceException(message, sqle);
         } catch (SQLEncoderException ence) {
+            fail = true;
+
             String message = "error encoding sql from filter "
                 + ence.getMessage();
             LOGGER.warning(message);
             throw new DataSourceException(message, ence);
+        } catch (DataSourceException dse) {
+            //we can get rid of this if we move the array size checking to this
+            //method.  We just need to set fail to true here.
+            fail = true;
+            throw new DataSourceException("from sql contstruction" + dse);
+        } finally {
+            close(statement);
+            finalizeTransactionMethod(previousAutoCommit, fail);
         }
     }
 
@@ -1008,8 +1103,8 @@ public class PostgisDataSource extends AbstractDataSource
      */
     public void modifyFeatures(AttributeType type, Object value, Filter filter)
         throws DataSourceException {
-        AttributeType[] singleType = {type};
-        Object[] singleVal = {value};
+        AttributeType[] singleType = { type };
+        Object[] singleVal = { value };
         modifyFeatures(singleType, singleVal, filter);
     }
 
@@ -1093,11 +1188,18 @@ public class PostgisDataSource extends AbstractDataSource
      * @param features the features to set for this table.
      *
      * @throws DataSourceException if there are problems removing or adding.
+     *
+     * @task REVISIT: to abstract class, same as oracle.
      */
     public void setFeatures(FeatureCollection features)
         throws DataSourceException {
+        boolean originalAutoCommit = getAutoCommit();
+
+        setAutoCommit(false);
         removeFeatures(null);
         addFeatures(features);
+        commit();
+        setAutoCommit(originalAutoCommit);
     }
 
     /**
@@ -1107,11 +1209,15 @@ public class PostgisDataSource extends AbstractDataSource
      *
      * @throws DataSourceException if there are any datasource errors.
      *
+     * @task REVISIT: to abstract class, same as oracle.
+     *
      * @see #setAutoCommit(boolean)
      */
     public void commit() throws DataSourceException {
         try {
-            dbConnection.commit();
+            LOGGER.fine("commit called");
+            getTransactionConnection().commit();
+            closeTransactionConnection();
         } catch (SQLException sqle) {
             String message = "problem committing";
             LOGGER.info(message + ": " + sqle.getMessage());
@@ -1127,11 +1233,14 @@ public class PostgisDataSource extends AbstractDataSource
      *
      * @throws DataSourceException if there are problems with the datasource.
      *
+     * @task REVISIT: to abstract class, same as oracle.
+     *
      * @see #setAutoCommit(boolean)
      */
     public void rollback() throws DataSourceException {
         try {
-            dbConnection.rollback();
+            getTransactionConnection().rollback();
+            closeTransactionConnection();
         } catch (SQLException sqle) {
             String message = "problem with rollbacks";
             LOGGER.info(message + ": " + sqle.getMessage());
@@ -1153,11 +1262,16 @@ public class PostgisDataSource extends AbstractDataSource
      * @throws DataSourceException if there is a sql problem setting the auto
      *         commit.
      *
+     * @task REVISIT: to abstract class, same as oracle.
+     *
      * @see #setAutoCommit(boolean)
      */
     public void setAutoCommit(boolean autoCommit) throws DataSourceException {
         try {
-            dbConnection.setAutoCommit(autoCommit);
+            Connection conn = getTransactionConnection();
+            LOGGER.finer("setting autocommit to " + autoCommit);
+            conn.setAutoCommit(autoCommit);
+            closeTransactionConnection();
         } catch (SQLException sqle) {
             String message = "problem setting auto commit";
             LOGGER.info(message + ": " + sqle.getMessage());
@@ -1174,11 +1288,17 @@ public class PostgisDataSource extends AbstractDataSource
      *
      * @throws DataSourceException if a datasource access error occurs.
      *
+     * @task REVISIT: to abstract class, same as oracle.
+     *
      * @see #setAutoCommit(boolean)
      */
     public boolean getAutoCommit() throws DataSourceException {
         try {
-            return dbConnection.getAutoCommit();
+            if (transConn == null) {
+                return true;
+            } else {
+                return getTransactionConnection().getAutoCommit();
+            }
         } catch (SQLException sqle) {
             String message = "problem setting auto commit";
             LOGGER.info(message + ": " + sqle.getMessage());
@@ -1205,6 +1325,128 @@ public class PostgisDataSource extends AbstractDataSource
         return pgMeta;
     }
 
+    //all the following methods should go in abstract jdbc datasource.
+    //Could the oracle methods just call super andcast the connection 
+    //returned to OracleConnections?  
+
+    /**
+     * Gets a connection.
+     * 
+     * <p>
+     * The connection returned by this method is suitable for a single use.
+     * Once a method has finish with the connection it should call the
+     * connections close method.
+     * </p>
+     * 
+     * <p>
+     * Methods wishing to use a connection for transactions or methods who use
+     * of the connection involves commits or rollbacks should use
+     * getTransactionConnection instead of this method.
+     * </p>
+     *
+     * @return A single use connection.
+     *
+     * @throws DataSourceException If the connection is not an
+     *         OracleConnection.
+     */
+    private Connection getConnection() throws DataSourceException {
+        try {
+            return connectionPool.getConnection();
+        } catch (SQLException sqle) {
+            throw new DataSourceException("could not get connection", sqle);
+        }
+    }
+
+    /**
+     * This is called my any transaction method in its finally block. If the
+     * transaction failed it is rolled back, if it succeeded and we are
+     * previously set to autocommit, it is committed and if  it succeed and we
+     * are set to manual commit, no action is taken.
+     * 
+     * <p>
+     * In all cases the autocommit status of the data source is set to
+     * previousAutoCommit and the closeTransactionConnection is called.
+     * </p>
+     *
+     * @param previousAutoCommit The status of autoCommit prior to the
+     *        beginning of a transaction method.  This tells us whether we
+     *        should commit or wiat for the user to perform the commit.
+     * @param fail The fail status of the transaction.  If true, the
+     *        transaction is rolled back.
+     *
+     * @throws DataSourceException If errors occur performing any of the
+     *         actions.
+     */
+    private void finalizeTransactionMethod(boolean previousAutoCommit,
+        boolean fail) throws DataSourceException {
+        LOGGER.finer("finalizing transaction, prevac: " + previousAutoCommit
+            + ", fail is " + fail);
+
+        if (fail) {
+            rollback();
+        } else {
+            // only commit if this transaction was atomic
+            // ie if the user had previously set autoCommit to false
+            // we leave commiting up to them.
+            if (previousAutoCommit) {
+                LOGGER.finer("committing in finalize");
+                commit();
+            }
+        }
+
+        setAutoCommit(previousAutoCommit);
+        closeTransactionConnection();
+    }
+
+    /**
+     * This method should be called when a connection is required for
+     * transactions. After completion of the use of the connection the caller
+     * should call  closeTransactionConnection which will either close the
+     * conn if we are in auto  commit, or maintain the connection if we are in
+     * manual commit.  Successive calls to this method after setting
+     * autoCommit to false will return the same connection object.
+     *
+     * @return A connection object suitable for multiple transactional calls.
+     *
+     * @throws DataSourceException IF an error occurs getting the connection.
+     * @throws SQLException If there is something wrong with the connection.
+     */
+    private Connection getTransactionConnection()
+        throws DataSourceException, SQLException {
+        if (transConn == null) {
+            transConn = getConnection();
+        }
+
+        return transConn;
+    }
+
+    /**
+     * This method should be called when a connection retrieved using
+     * getTransactionConnection is to be closed.
+     * 
+     * <p>
+     * This method only closes the connection if it is set to auto commit.
+     * Otherwise the connection is kept open and held in the
+     * transactionConnection instance variable.
+     * </p>
+     */
+    private void closeTransactionConnection() {
+        try {
+            // we only close if the transaction is set to auto commit
+            // otherwise we wait until auto commit is turned off before closing.
+            if ((transConn != null) && transConn.getAutoCommit()) {
+                LOGGER.finer("Closing Transaction Connection");
+                transConn.close();
+                transConn = null;
+            } else {
+                LOGGER.finer(
+                    "Transaction connection not open or set to manual commit");
+            }
+        } catch (SQLException e) {
+            LOGGER.warning("Error closing transaction connection: " + e);
+        }
+    }
+
     /**
      * Gets the bounding box of this datasource using the default speed of this
      * datasource as set by the implementer.
@@ -1214,6 +1456,9 @@ public class PostgisDataSource extends AbstractDataSource
      */
 
     //Implement with an aggregrate sql function.
+    //SELECT EXTENT(schema.getDefaultGeomtry().getName()) from tablename;
+    //need to figure out how to force a 2d box or parse the 3d one.
+    //need to figure out multiple geometries.
     //public Envelope getBbox() {
     //   return new Envelope();
     //}

@@ -23,6 +23,7 @@ package org.geotools.data.postgis;
 
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.jdbc.ConnectionPool;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -34,14 +35,20 @@ import java.util.Map;
  * PostgisDataSources with the correct params.
  *
  * @author James Macgill, PSU
- * @version $Id: PostgisDataSourceFactory.java,v 1.3 2003/07/24 19:15:41 cholmesny Exp $
+ * @version $Id: PostgisDataSourceFactory.java,v 1.4 2003/08/21 17:47:38 cholmesny Exp $
  */
 public class PostgisDataSourceFactory
     implements org.geotools.data.DataSourceFactorySpi {
+
+     /** Creates PostGIS-specific JDBC driver class. */
+    private static final String DRIVER_CLASS = "org.postgresql.Driver";
+
     /**
      * Creates a new instance of GMLDataSourceFactory
      */
     public PostgisDataSourceFactory() {
+	//don't do this here - not sure if it's necessary.
+	// Class.forName(DRIVER_CLASS);
     }
 
     /**
@@ -121,8 +128,8 @@ public class PostgisDataSourceFactory
             connFact.setLogin(user, passwd);
             connFact.setCharSet(charSet);
 
-            PostgisDataSource pgds = new PostgisDataSource(connFact
-                    .getConnection(), table);
+	    ConnectionPool pool = connFact.getConnectionPool();
+            PostgisDataSource pgds = new PostgisDataSource(pool, table);
 
             return pgds;
         } catch (SQLException sqle) {

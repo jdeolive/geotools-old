@@ -58,7 +58,7 @@
     </dependency>
         <dependency>
       <id>postgresql</id>
-      <version>1.0</version>
+      <version>3.0</version>
       <url>http://www.postgresql.com/</url>
     </dependency>
       <dependency>
@@ -66,6 +66,18 @@
       <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
+     <!-- this is temporary until we get jdbc pool stuff to a core module-->
+     <dependency>
+      <artifactId>oracle-spatial</artifactId>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <artifactId>dummy_spatial</artifactId>
+      <groupId>oracle</groupId>
+      <version>8.1.7</version>
+     </dependency>
+     <!-- remove the previous 2 dependencies once jdbc is moved-->
         <dependency>
       <id>JTS</id>
       <version>1.3</version>
