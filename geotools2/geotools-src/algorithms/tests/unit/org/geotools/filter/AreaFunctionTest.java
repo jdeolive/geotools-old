@@ -153,7 +153,7 @@ public class AreaFunctionTest extends TestCase {
         attributes[9] = "test string data";
         
         // Creates the feature itself
-        FeatureFactory factory = new FeatureFactory(testSchema);
+        FeatureFactory factory = new FlatFeatureFactory(testSchema);
         testFeature = factory.create(attributes);
      //   _log.debug("...flat feature created");
     }
