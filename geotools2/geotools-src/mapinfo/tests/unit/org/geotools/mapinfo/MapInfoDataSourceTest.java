@@ -30,7 +30,9 @@ import java.net.URL;
  *
  * @author iant
  */
-public class MapInfoDataSourceTest extends TestCase {
+public class MapInfoDataSourceTest extends TestCaseSupport {
+    final String STATEPOP = "statepop.mif";
+    
     MapInfoDataSource dsMapInfo;
     boolean setup = false;
     public MapInfoDataSourceTest(java.lang.String testName) {
@@ -49,14 +51,9 @@ public class MapInfoDataSourceTest extends TestCase {
    
     String dataFolder;
     public void testGetFeatures(){
-        String dataFolder = System.getProperty("dataFolder");
-        if(dataFolder==null){
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder+="/tests/unit/testData";
-        }
+       
         try{
-            URL url = new URL("file:////"+dataFolder+"/statepop.mif");
+            URL url = this.getTestResource(STATEPOP);
             System.out.println("Testing ability to load "+url);
             MapInfoDataSource datasource = new MapInfoDataSource(url);
             FeatureCollection table = datasource.getFeatures(null);

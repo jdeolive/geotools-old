@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="mapinfo">
+    <property environment="env"/>
     <target name="init">
     <condition property="mavenbat">
         <os family="windows"/>
@@ -14,7 +15,7 @@
       </not>
     </and>
   </condition>
-  <condition property="maven" value="maven.bat">
+  <condition property="maven" value="${env.MAVEN_HOME}/bin/maven.bat">
     <not>
         <equals arg1="${mavenbat}" arg2="$${mavenbat}"/>
     </not>
@@ -22,7 +23,7 @@
   </condition>
   <!-- I have no idea what the correct command for maven on a mac is so assumed it has more sense than windows
    if you know better please fix. -->
-  <condition property="maven" value="/home/preston/ian/maven-1.0-beta-7/bin/maven" >
+  <condition property="maven" value="${MAVEN_HOME}/bin/maven.bat">
       <or>
         <not>
             <equals arg1="${mavenunix}" arg2="$${mavenunix}"/>
@@ -36,36 +37,37 @@
   </condition>
 	<echo message="maven = ${maven}"/>
 </target>
-    <target name="test" depends="init">
+    <target depends="init" name="test">
         
         <exec executable="${maven}">
           <arg value="test"/> 
         </exec>
     </target>
     
-    <target name="site" depends="init">
+    <target depends="init" name="site">
         <exec executable="${maven}">
           <arg value="site"/> 
         </exec>
     </target>
     
-    <target name="compile" depends="init">
+    <target depends="init" name="compile">
         <exec executable="${maven}">
           <arg value="java:compile"/> 
         </exec>
     </target>
     
-    <target name="clean" depends="init">
+    <target depends="init" name="clean">
         <exec executable="${maven}">
           <arg value="clean"/> 
         </exec>
     </target>
     
-    <target name="install" depends="init">
+    <target depends="init" name="install">
         <exec executable="${maven}">
           <arg value="jar:install"/> 
         </exec>
     </target>
+    
     
     
     

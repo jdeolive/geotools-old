@@ -31,21 +31,16 @@ import java.util.logging.Logger;
  *
  * @author iant
  */
-public class TestLoad extends TestCase {
+public class TestLoad extends TestCaseSupport {
     // change loging level if problems occur in this test
-     Logger _log = Logger.getLogger("MifMid");
+    Logger _log = Logger.getLogger("MifMid");
     MapInfoDataSource dsMapInfo;
     boolean setup = false;
     String dataFolder;
     public TestLoad(java.lang.String testName) {
         super(testName);
         
-        dataFolder = System.getProperty("dataFolder");
-        if(dataFolder==null){
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder+="/tests/unit/testData/";
-        }
+        
         
         
     }
@@ -62,12 +57,12 @@ public class TestLoad extends TestCase {
     public void setUp() throws Exception{
         if(setup) return;
         setup=true;
-        String miffile = dataFolder + "/statepop.mif";
-        dsMapInfo = new MapInfoDataSource(new URL(miffile));
+        URL url = this.getTestResource("statepop.mif");
+        dsMapInfo = new MapInfoDataSource(url);
     }
     
     public void testLoad() throws Exception{
-
+        
         // Load file
         Vector objects = dsMapInfo.readMifMid();
         System.out.println("Read "+objects.size()+" features");
@@ -77,6 +72,6 @@ public class TestLoad extends TestCase {
     }
     
     
-  
+    
     
 }
