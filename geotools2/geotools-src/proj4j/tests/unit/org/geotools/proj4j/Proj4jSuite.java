@@ -27,7 +27,7 @@ public class Proj4jSuite extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite("All Tests");
         suite.addTestSuite(ProjectionFactoryTest.class);
-        suite.addTestSuite(MiscTest.class);
+        suite.addTestSuite(FunctionsTest.class);
         suite.addTestSuite(ParamSetTest.class);
         suite.addTest(ProjectionsSuite.suite());
         suite.addTestSuite(LPTest.class);

@@ -33,12 +33,12 @@ public class LPTest extends TestCase {
     public void testConstruction(){
         System.out.println("Testing with space");
         LP lp = new LP("24N 48S");
-        assertEquals(Misc.dmsToR("24N"),lp.lam,0);
-        assertEquals(Misc.dmsToR("48S"),lp.phi,0);
+        assertEquals(Functions.dmsToR("24N"),lp.lam,0);
+        assertEquals(Functions.dmsToR("48S"),lp.phi,0);
         System.out.println("Testing with ,");
         lp = new LP("12d10'4\",34d");
-        assertEquals(Misc.dmsToR("12d10'4\""),lp.lam,0);
-        assertEquals(Misc.dmsToR("34d"),lp.phi,0);
+        assertEquals(Functions.dmsToR("12d10'4\""),lp.lam,0);
+        assertEquals(Functions.dmsToR("34d"),lp.phi,0);
     }
     // Add test methods here, they have to start with 'test' name.
     // for example: 

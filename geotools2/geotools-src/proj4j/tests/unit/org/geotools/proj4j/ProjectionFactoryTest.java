@@ -32,8 +32,8 @@ public class ProjectionFactoryTest extends TestCase {
             System.out.println("testing forward() call on created projection");
             LP lp = new LP();
             XY xy;
-            lp.lam=Misc.dmsToR("12d32'12\"S");
-            lp.phi=Misc.dmsToR("45d24'1\"E");
+            lp.lam=Functions.dmsToR("12d32'12\"S");
+            lp.phi=Functions.dmsToR("45d24'1\"E");
             xy = p.forward(lp);
             System.out.println("projected "+xy.x+" "+xy.y);
             assertEquals(-981415.13,xy.x,0.01);
