@@ -17,7 +17,7 @@
 
 package org.geotools.map.events;
 
-import org.geotools.ct.MathTransform;
+//import org.geotools.ct.MathTransform;
 import java.util.EventObject;
 
 
@@ -26,14 +26,14 @@ import java.util.EventObject;
  * org.geotools.map.BoundingBoxImpl}
  *
  * @author Cameron Shorter
- * @version $Id: BoundingBoxEvent.java,v 1.1 2003/04/22 20:26:57 camerons Exp $
+ * @version $Id: BoundingBoxEvent.java,v 1.2 2003/04/23 05:02:21 camerons Exp $
  */
 public class BoundingBoxEvent extends EventObject {
     /**
      * If the BoundingBox was changed by an Affine Transform, then this
      * variable represents the transform, otherwise it will be null.
      */
-    private final MathTransform transform;
+    //private final MathTransform transform;
 
     /**
      * Constructs a new event.
@@ -44,30 +44,30 @@ public class BoundingBoxEvent extends EventObject {
      *        transform.  This may be set to null if the transform is unknown.
      */
     public BoundingBoxEvent(
-        final Object source,
-        final MathTransform transform
+        final Object source//,
+        //final MathTransform transform
     ) {
         super(source);
-        this.transform = transform;
+//        this.transform = transform;
     }
 
-    /**
-     * Returns the affine transform for the last change in BoundingBox size.
-     * 
-     * <p>
-     * The transform may be null if the transform is not known or is being
-     * called for the first time.  In this case, call
-     * BoundingBox.getAreaOfInterest();
-     * </p>
-     * 
-     * <p>
-     * Note: for performance reasons, this method does not clone the returned
-     * transform. Do not transform!
-     * </p>
-     *
-     * @return the AffineTransform for the last change in BoundingBox size.
-     */
-    public MathTransform getTransform() {
-        return transform;
-    }
+//    /**
+//     * Returns the affine transform for the last change in BoundingBox size.
+//     * 
+//     * <p>
+//     * The transform may be null if the transform is not known or is being
+//     * called for the first time.  In this case, call
+//     * BoundingBox.getAreaOfInterest();
+//     * </p>
+//     * 
+//     * <p>
+//     * Note: for performance reasons, this method does not clone the returned
+//     * transform. Do not transform!
+//     * </p>
+//     *
+//     * @return the AffineTransform for the last change in BoundingBox size.
+//     */
+//    public MathTransform getTransform() {
+//        return transform;
+//    }
 }

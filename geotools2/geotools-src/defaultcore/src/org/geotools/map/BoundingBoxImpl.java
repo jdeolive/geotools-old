@@ -28,7 +28,7 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: BoundingBoxImpl.java,v 1.8 2003/04/22 20:26:11 camerons Exp $
+ * @version $Id: BoundingBoxImpl.java,v 1.9 2003/04/23 05:02:22 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT Probably should use CoordinatePoint or Point2D to store
  * points instead of using Envelope.  Also worth waiting to see what interface
@@ -123,7 +123,8 @@ public class BoundingBoxImpl implements BoundingBox{
         // Process the listeners last to first, notifying
         // those that are interested in this event
         BoundingBoxEvent ece = new BoundingBoxEvent(
-                this, transform);
+                this//, transform
+            );
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == BoundingBoxListener.class) {
                 ((BoundingBoxListener)
