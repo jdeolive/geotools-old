@@ -42,6 +42,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.collections.LRUMap;
 import org.geotools.data.Query;
@@ -76,11 +77,15 @@ public class GtWmsServer implements WMSServer {
      * @param filename - the layer file
      */
     private void loadLayers(String filename) {
-        Iterator formats = DataSourceFinder.getAvailableDataSources();
-        LOGGER.info("Supported data sources");
         
-        while (formats.hasNext()) {
-            LOGGER.info(((DataSourceFactorySpi) formats.next()).getDescription());
+        if(LOGGER.isLoggable(Level.FINE)) {
+            Iterator formats = DataSourceFinder.getAvailableDataSources();
+            StringBuffer buffer = new StringBuffer("Supported data sources\n");
+            while (formats.hasNext()) {
+                buffer.append(((DataSourceFactorySpi) formats.next()).getDescription());
+                buffer.append('\n');
+            }
+            LOGGER.fine(buffer.toString());
         }
         
         try {
@@ -165,7 +170,7 @@ public class GtWmsServer implements WMSServer {
                     cache.addFeature(list[i]);
                 }
                 
-//                Style style = new BasicPolygonStyle(); //bad
+
                 DataSourceMetaData meta = ds.getMetaData();
                 
                 Envelope bbox = null;
@@ -186,9 +191,10 @@ public class GtWmsServer implements WMSServer {
 //                styles.put(entry.id, style);
             }
         } catch (Exception exp) {
-            exp.printStackTrace();
+//            exp.printStackTrace();
             LOGGER.severe("Exception loading layers " +
             exp.getClass().getName() + " : " + exp.getMessage());
+            throw new RuntimeException("Exception loading layers ",exp);
         }
     }
     
