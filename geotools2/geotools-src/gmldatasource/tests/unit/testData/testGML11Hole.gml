@@ -4,7 +4,7 @@
 		<gml:Polygon>
 			<gml:outerBoundaryIs>
 				<gml:LinearRing>
-					<gml:coordinates decimal="." cs="," ts=" ">0.0,0.0 0.0,100.0 100.0,100.0 100.0,0.0 0.0,0.0</gml:coordinates>
+					<gml:coordinates decimal="." cs="," ts=" ">0.0,0.0 100.0,0.0 100.0,100.0 0.0,100.0 0.0,0.0</gml:coordinates>
 				</gml:LinearRing>
 			</gml:outerBoundaryIs>
 			<gml:innerBoundaryIs>
@@ -14,7 +14,7 @@
 			</gml:innerBoundaryIs>
 			<gml:innerBoundaryIs>
 				<gml:LinearRing>
-					<gml:coordinates decimal="." cs="," ts=" ">80.0,80.0 90.0,80.0 90.0,90.0 80.0,90.0 80.0,80.0</gml:coordinates>
+					<gml:coordinates decimal="." cs="," ts=" ">80.0,80.0 80.0,90.0 90.0,90.0 90.0,80.0 80.0,80.0</gml:coordinates>
 				</gml:LinearRing>
 			</gml:innerBoundaryIs>
 		</gml:Polygon>
