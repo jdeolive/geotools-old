@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.31 2002/07/01 14:58:01 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.32 2002/07/01 16:05:48 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -759,90 +759,28 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     _log.debug("drawing from "+previous[0]+","+previous[1]+" to "+coords[0]+","+coords[1]);
                     double dx = coords[0]-previous[0];
                     double dy = coords[1]-previous[1];
+                    double len = Math.sqrt(dx*dx+dy*dy)-imageWidth/(scaleX);
+                    if(len<0){
+                        len=1;
+                    }
                     double theta = Math.atan2(dx,dy);
                     dx = Math.sin(theta)*imageWidth/scaleX;
                     dy = Math.cos(theta)*imageHeight/scaleY;
+                    int dx2 = (int)Math.round(dy/2d);
+                    int dy2 = (int)Math.round(dx/2d);
                     _log.debug("dx = "+dx+" dy "+dy);
+                    double x = previous[0]+dx/2d,y=previous[1]+dy/2d;
                     
-                    int x = (int)Math.round(previous[0]);
-                    int y = (int)Math.round(previous[1]);
-                    int endX = (int)Math.round(coords[0]);
-                    int endY = (int)Math.round(coords[1]);
-                    int d = 0;
-                    int hx = endX - x;
-                    int hy = endY - y;
-                    int xInc,yInc;
-                    if(Math.abs(dx)>Math.abs(dy)){
-                        xInc = (int)Math.round(dx);
-                        yInc = xInc;
-                    }else{
-                        yInc = (int)Math.round(dy);
-                        xInc = yInc;
-                    }
-                    int c,m;
-                    boolean negX = false, negY = false;
-                    if(hx < 0){
-                        xInc = -xInc;
-                        hx = -hx;
-                        negX=true;
-                    }
-                    if(hy < 0){
-                        yInc = -yInc;
-                        hy = -hy;
-                        negY=true;
-                    }
-                    if(hy <= hx){
-                        c=2*hx;
-                        m=2*hy;
-                        for(int i=0;true;i++){
-                            at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
-                            at2.scale(scaleX,scaleY);
-                            op = new AffineTransformOp(at2,hints);
-                            image2 =  op.filter(image, null);
-                            graphic.drawImage(image2,x-midx,y-midy,null);
-                            if( Math.abs(x-endX)<=xInc ) break;
-                            if(!negX){
-                                x += xInc;
-                            }else{
-                                x -= xInc;
-                            }
-                            d += m;
-                            if( d > hx){
-                                if(!negY){
-                                    y += yInc;
-                                }else{
-                                    y -= yInc;
-                                }
-                                d-=c;
-                            }
-                        }
-                    }else{
-                        c=2*hy;
-                        m=2*hx;
-                        for(int i=0;true;i++){
-                            at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
-                            at2.scale(scaleX,scaleY);
-                            op = new AffineTransformOp(at2,hints);
-                            image2 =  op.filter(image, null);
-                            graphic.drawImage(image2,x-midx,y-midy,null);
-                            
-                            if( Math.abs(y-endY)<=yInc ) break;
-                            if(!negY){
-                                y += yInc;
-                            }else{
-                                y -= yInc;
-                            }
-                            
-                            d += m;
-                            if(d > hy ){
-                                if(!negX){
-                                    x += xInc;
-                                }else{
-                                    x -= xInc;
-                                }
-                                d-=c;
-                            }
-                        }
+                    _log.debug("len ="+len+" imageWidth "+imageWidth);
+                    for(double dist =0;dist<len;dist+=imageWidth){
+                        at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
+                        at2.scale(scaleX,scaleY);
+                        op = new AffineTransformOp(at2,hints);
+                        image2 =  op.filter(image, null);
+                        
+                        graphic.drawImage(image2,(int)x-midx,(int)y-midy,null);
+                        x+= dx;
+                        y+= dy;
                     }
                     break;
             }
