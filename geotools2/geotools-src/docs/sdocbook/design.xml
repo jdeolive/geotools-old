@@ -28,8 +28,11 @@ id="index">
 
       <author>
         <firstname>Rob</firstname>
-
         <surname>Hranac</surname>
+      </author>
+      <author>
+          <firstname>Chris</firstname>
+          <surname>Holmes</surname>
       </author>
 
       <author>
@@ -45,9 +48,9 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Id: design.xml,v 1.4 2003/01/05 10:27:48 camerons Exp $</date>
+    <date>$Id: design.xml,v 1.5 2003/01/09 10:54:48 camerons Exp $</date>
 
-    <edition>$Id: design.xml,v 1.4 2003/01/05 10:27:48 camerons Exp $</edition>
+    <edition>$Id: design.xml,v 1.5 2003/01/09 10:54:48 camerons Exp $</edition>
   </articleinfo>
 
   <section>
@@ -153,12 +156,7 @@ id="index">
       <para>A datasource implementation which can read Shapefiles.</para>
     </section>
 
-    <section>
-      <title id="modulects-coordtrans">cts-coordtrans</title>
-
-      <para>cts-coordtrans - an implementation of the Coordinate
-      Transformation specifications.</para>
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../cts-coordtrans/sdocbook/cts-coordtrans.sgml"></xi:include>
 
     <section>
       <title id="modulegcs-coverage">gcs-coverage</title>
