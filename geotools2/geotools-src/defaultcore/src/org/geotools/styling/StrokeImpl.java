@@ -25,7 +25,7 @@ package org.geotools.styling;
   * TODO:This is unfinished as it currently returns fixed values with no way
   * to change them.
   *
-  * @version $Id: StrokeImpl.java,v 1.3 2002/10/22 17:01:50 ianturton Exp $
+  * @version $Id: StrokeImpl.java,v 1.4 2002/10/23 17:04:37 ianturton Exp $
   * @author James Macgill, CCG
   */
 
@@ -112,7 +112,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
      * @param c The color of the stroke encoded as a hexidecimal RGB value.
      */
     public void setColor(String c) {
-            setColor(new ExpressionLiteral(c));
+            setColor(new LiteralExpression(c));
     }
     
     
@@ -353,5 +353,17 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
         width = expr;
     }
     
-    
+    public String toString(){
+        StringBuffer out = new StringBuffer("org.geotools.styling.StrokeImpl:\n");
+        out.append("\tColor " + this.color + "\n");
+        out.append("\tWidth " + this.width + "\n");
+        out.append("\tOpacity " + this.opacity + "\n");
+        out.append("\tLineCap " + this.lineCap + "\n");
+        out.append("\tLineJoin " + this.lineJoin + "\n");
+        out.append("\tDash Array " + this.dashArray + "\n");
+        out.append("\tDash Offset " + this.dashOffset + "\n");
+        out.append("\tFill Graphic " + this.fillGraphic + "\n");
+        out.append("\tStroke Graphic " + this.strokeGraphic );
+        return out.toString();
+    }
 }

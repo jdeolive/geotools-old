@@ -35,7 +35,7 @@ import org.geotools.filter.*;
  * to requesting clients.  It does not guarantee that features are of a certain
  * type or that they follow a specific schema. 
  * 
- * @version $Id: FeatureCollectionDefault.java,v 1.8 2002/08/08 11:09:18 jmacgill Exp $
+ * @version $Id: FeatureCollectionDefault.java,v 1.9 2002/10/23 17:02:58 ianturton Exp $
  * @author  James Macgill, CCG<br>
  * @author  Rob Hranac, VFNY<br>
  */
@@ -178,7 +178,7 @@ public class FeatureCollectionDefault implements FeatureCollection {
                         LOGGER.finer("loading " + i);
                         org.geotools.filter.GeometryFilter gf =
                           new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-                        ExpressionLiteral right = 
+                        LiteralExpression right = 
                           new BBoxExpression(((EnvelopeExtent)toLoad[i]).getBounds());
                         gf.addRightGeometry(right);
                         data.getFeatures(this,gf);

@@ -165,16 +165,16 @@ public class FilterEqualsTest extends TestCase {
 
     }
 
-    public void testExpressionLiteral(){
+    public void testLiteralExpression(){
 	try {
-	    testExp1 = new ExpressionLiteral("test literal");
-	    testExp2 = new ExpressionLiteral("test literal");
+	    testExp1 = new LiteralExpression("test literal");
+	    testExp2 = new LiteralExpression("test literal");
 	    assertTrue(testExp1.equals(testExp2));
-	    testExp2 = new ExpressionLiteral("not test literal");
+	    testExp2 = new LiteralExpression("not test literal");
 	    assertTrue(!testExp1.equals(testExp2));
-	    testExp3 = new ExpressionLiteral(new Integer(34));
+	    testExp3 = new LiteralExpression(new Integer(34));
 	    assertTrue(!testExp1.equals(testExp3));
-	    testExp1 = new ExpressionLiteral(new Integer(34));
+	    testExp1 = new LiteralExpression(new Integer(34));
 	    assertTrue(testExp1.equals(testExp3));
 	}  catch (IllegalFilterException e) {
 	    LOGGER.warning("bad filter " + e.getMessage());
@@ -183,24 +183,24 @@ public class FilterEqualsTest extends TestCase {
 
     public void testExpressionMath(){
 	try {
-	    ExpressionMath testMath1;
-	    ExpressionMath testMath2;
-	    testExp1 = new ExpressionLiteral(new Double(5));
-	    testExp2 = new ExpressionLiteral(new Double(5));
-	    testMath1 = new ExpressionMath(ExpressionDefault.MATH_ADD);
+	    MathExpression testMath1;
+	    MathExpression testMath2;
+	    testExp1 = new LiteralExpression(new Double(5));
+	    testExp2 = new LiteralExpression(new Double(5));
+	    testMath1 = new MathExpression(DefaultExpression.MATH_ADD);
 	    testMath1.addLeftValue(testExp1);
 	    testMath1.addRightValue(testExp2);
-	    testMath2 =  new ExpressionMath(ExpressionDefault.MATH_ADD);
+	    testMath2 =  new MathExpression(DefaultExpression.MATH_ADD);
 	    testMath2.addLeftValue(testExp2);
 	    testMath2.addRightValue(testExp1);
 	    assertTrue(testMath1.equals(testMath2));
-	    testExp3 = new ExpressionLiteral(new Integer(4));
-	    testExp4 = new ExpressionLiteral(new Integer(4));
+	    testExp3 = new LiteralExpression(new Integer(4));
+	    testExp4 = new LiteralExpression(new Integer(4));
 	    testMath2.addLeftValue(testExp3);
 	    assertTrue(!testMath1.equals(testMath2));
 	    testMath1.addLeftValue(testExp4);
 	    assertTrue(testMath1.equals(testMath2));
-	    testMath1 = new ExpressionMath(ExpressionDefault.MATH_SUBTRACT);
+	    testMath1 = new MathExpression(DefaultExpression.MATH_SUBTRACT);
 	    testMath1.addLeftValue(testExp4);
 	    testMath1.addLeftValue(testExp2);
 	    assertTrue(!testMath1.equals(testMath2));
@@ -216,14 +216,14 @@ public class FilterEqualsTest extends TestCase {
 	    new AttributeTypeDefault("testString", String.class)
 		};
 	FeatureType testSchema2 = new FeatureTypeFlat(testAttr2); 
-	testExp1 = new ExpressionAttribute(testSchema, "testBoolean");
-	testExp2 = new ExpressionAttribute(testSchema, "testBoolean");
+	testExp1 = new AttributeExpression(testSchema, "testBoolean");
+	testExp2 = new AttributeExpression(testSchema, "testBoolean");
 	assertTrue(testExp1.equals(testExp2));
-	testExp3 = new ExpressionAttribute(testSchema, "testString");
+	testExp3 = new AttributeExpression(testSchema, "testString");
 	assertTrue(!testExp1.equals(testExp3));
-	testExp4 = new ExpressionAttribute(testSchema2, "testBoolean");
+	testExp4 = new AttributeExpression(testSchema2, "testBoolean");
 	assertTrue(!testExp1.equals(testExp4));
-	testExp1 = new ExpressionAttribute(testSchema2, "testBoolean");
+	testExp1 = new AttributeExpression(testSchema2, "testBoolean");
 	assertTrue(testExp1.equals(testExp4));
 		   
     }
@@ -232,10 +232,10 @@ public class FilterEqualsTest extends TestCase {
 	throws IllegalFilterException {
 	CompareFilter cFilter1 = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
 	CompareFilter cFilter2 = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
-	testExp1 = new ExpressionLiteral(new Integer(45));
-	testExp2 = new ExpressionLiteral(new Integer(45));
-	testExp3 = new ExpressionAttribute(testSchema, "testInteger");
-	testExp4 = new ExpressionAttribute(testSchema, "testInteger");
+	testExp1 = new LiteralExpression(new Integer(45));
+	testExp2 = new LiteralExpression(new Integer(45));
+	testExp3 = new AttributeExpression(testSchema, "testInteger");
+	testExp4 = new AttributeExpression(testSchema, "testInteger");
 	cFilter1.addLeftValue(testExp1);
 	cFilter2.addLeftValue(testExp1);
 	cFilter1.addRightValue(testExp3);
@@ -244,7 +244,7 @@ public class FilterEqualsTest extends TestCase {
 	cFilter2.addLeftValue(testExp2);
 	cFilter2.addRightValue(testExp4);
 	assertTrue(cFilter1.equals(cFilter2));
-	cFilter2.addRightValue(new ExpressionLiteral(new Double(45)));
+	cFilter2.addRightValue(new LiteralExpression(new Double(45)));
 	assertTrue(!cFilter1.equals(cFilter2));
 	tFilter1 = new BetweenFilter();
 	assertTrue(!cFilter1.equals(tFilter1));
@@ -254,12 +254,12 @@ public class FilterEqualsTest extends TestCase {
 	throws IllegalFilterException {
 	BetweenFilter bFilter1 = new BetweenFilter();
 	BetweenFilter bFilter2 = new BetweenFilter();
-	ExpressionLiteral testLit1 = new ExpressionLiteral(new Integer(55));
-	ExpressionLiteral testLit2 = new ExpressionLiteral(new Integer(55));
-	testExp1 = new ExpressionLiteral(new Integer(45));
-	testExp2 = new ExpressionLiteral(new Integer(45));
-	testExp3 = new ExpressionAttribute(testSchema, "testInteger");
-	testExp4 = new ExpressionAttribute(testSchema, "testInteger");
+	LiteralExpression testLit1 = new LiteralExpression(new Integer(55));
+	LiteralExpression testLit2 = new LiteralExpression(new Integer(55));
+	testExp1 = new LiteralExpression(new Integer(45));
+	testExp2 = new LiteralExpression(new Integer(45));
+	testExp3 = new AttributeExpression(testSchema, "testInteger");
+	testExp4 = new AttributeExpression(testSchema, "testInteger");
 	bFilter1.addLeftValue(testExp1);
 	bFilter2.addLeftValue(testExp2);
 	bFilter1.addMiddleValue(testExp3);
@@ -269,7 +269,7 @@ public class FilterEqualsTest extends TestCase {
 	assertTrue(bFilter2.equals(bFilter1));
 	tFilter1 = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
 	assertTrue(!bFilter2.equals(tFilter1));
-	bFilter2.addRightValue(new ExpressionLiteral(new Integer(65)));
+	bFilter2.addRightValue(new LiteralExpression(new Integer(65)));
 	assertTrue(!bFilter2.equals(bFilter1));
     }
     
@@ -281,9 +281,9 @@ public class FilterEqualsTest extends TestCase {
 	 String wcMulti = "!";
 	 String wcSingle = "_";
 	 String escape = "#";
-	 testExp2 = new ExpressionLiteral(new Integer(45));
-	testExp3 = new ExpressionAttribute(testSchema, "testInteger");
-	testExp4 = new ExpressionAttribute(testSchema, "testInteger");
+	 testExp2 = new LiteralExpression(new Integer(45));
+	testExp3 = new AttributeExpression(testSchema, "testInteger");
+	testExp4 = new AttributeExpression(testSchema, "testInteger");
 	lFilter1.setValue(testExp3);
 	lFilter2.setValue(testExp4);
 	lFilter1.setPattern(pattern, wcMulti, wcSingle, escape);
@@ -300,10 +300,10 @@ public class FilterEqualsTest extends TestCase {
 	throws IllegalFilterException{
 	CompareFilter cFilter1 = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
 	CompareFilter cFilter2 = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
-	testExp1 = new ExpressionLiteral(new Integer(45));
-	testExp2 = new ExpressionLiteral(new Integer(45));
-	testExp3 = new ExpressionAttribute(testSchema, "testInteger");
-	testExp4 = new ExpressionAttribute(testSchema, "testInteger");
+	testExp1 = new LiteralExpression(new Integer(45));
+	testExp2 = new LiteralExpression(new Integer(45));
+	testExp3 = new AttributeExpression(testSchema, "testInteger");
+	testExp4 = new AttributeExpression(testSchema, "testInteger");
 	cFilter1.addLeftValue(testExp1);
 	cFilter2.addLeftValue(testExp2);
 	cFilter1.addRightValue(testExp2);
@@ -339,9 +339,9 @@ public class FilterEqualsTest extends TestCase {
 
     public void testNullFilter()
 	throws IllegalFilterException{
-	    testExp1 = new ExpressionAttribute(testSchema, "testDouble");
-	    testExp2 = new ExpressionAttribute(testSchema, "testDouble");
-	    testExp3 = new  ExpressionAttribute(testSchema, "testBoolean");
+	    testExp1 = new AttributeExpression(testSchema, "testDouble");
+	    testExp2 = new AttributeExpression(testSchema, "testDouble");
+	    testExp3 = new  AttributeExpression(testSchema, "testBoolean");
 	    NullFilter nullFilter1 = new NullFilter();
 	    NullFilter nullFilter2 = new NullFilter();
 	    nullFilter1.nullCheckValue(testExp1);
@@ -356,16 +356,16 @@ public class FilterEqualsTest extends TestCase {
 	throws IllegalFilterException {
 	GeometryFilter geomFilter1 = new GeometryFilter(AbstractFilter.GEOMETRY_DISJOINT);
 	GeometryFilter geomFilter2 = new GeometryFilter(AbstractFilter.GEOMETRY_DISJOINT);
-	testExp1 = new ExpressionLiteral(new Integer(45));
-	testExp2 = new ExpressionLiteral(new Integer(45));
-	testExp3 = new ExpressionAttribute(testSchema, "testGeometry");
-	testExp4 = new ExpressionAttribute(testSchema, "testGeometry");
+	testExp1 = new LiteralExpression(new Integer(45));
+	testExp2 = new LiteralExpression(new Integer(45));
+	testExp3 = new AttributeExpression(testSchema, "testGeometry");
+	testExp4 = new AttributeExpression(testSchema, "testGeometry");
 	geomFilter1.addLeftGeometry(testExp1);
 	geomFilter2.addLeftGeometry(testExp2);
 	geomFilter1.addRightGeometry(testExp3);
 	geomFilter2.addRightGeometry(testExp4);
 	assertTrue(geomFilter1.equals(geomFilter2));
-	geomFilter2.addRightGeometry(new ExpressionLiteral(new Double(45)));
+	geomFilter2.addRightGeometry(new LiteralExpression(new Double(45)));
 	assertTrue(!geomFilter1.equals(geomFilter2));
 	tFilter1 = new BetweenFilter();
 	assertTrue(!geomFilter1.equals(tFilter1));

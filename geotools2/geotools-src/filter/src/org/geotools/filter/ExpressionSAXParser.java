@@ -34,7 +34,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: ExpressionSAXParser.java,v 1.1 2002/10/23 15:32:23 ianturton Exp $
+ * @version $Id: ExpressionSAXParser.java,v 1.2 2002/10/23 17:04:35 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionSAXParser {
@@ -86,20 +86,20 @@ public class ExpressionSAXParser {
 
             // if the expression is math, then create a factory for its
             // sub expressions, otherwise just instantiate the main expression
-            if( ExpressionDefault.isMathExpression( convertType(declaredType) ) ) {
+            if( DefaultExpression.isMathExpression( convertType(declaredType) ) ) {
                 expressionFactory = new ExpressionSAXParser(schema);
-                currentExpression = new ExpressionMath(convertType(declaredType));
+                currentExpression = new MathExpression(convertType(declaredType));
                 LOGGER.finer("is math expression");
             }
-            else if( ExpressionDefault.
+            else if( DefaultExpression.
                      isLiteralExpression( convertType(declaredType) ) ) {
-                currentExpression = new ExpressionLiteral();
+                currentExpression = new LiteralExpression();
                 readCharacters = true;
                 LOGGER.finer("is literal expression");
             }
-            else if( ExpressionDefault.
+            else if( DefaultExpression.
                      isAttributeExpression( convertType(declaredType) ) ) {
-                currentExpression = new ExpressionAttribute(schema);
+                currentExpression = new AttributeExpression(schema);
                 readCharacters = true;
                 LOGGER.finer("is attribute expression");
             }
@@ -140,14 +140,14 @@ public class ExpressionSAXParser {
             // if in a bad state, throw exception
             if( expressionFactory.isReady() ) {
                 if( currentState.equals("leftValue") ) {
-                    ((ExpressionMath) currentExpression).
+                    ((MathExpression) currentExpression).
                         addLeftValue(expressionFactory.create());
                     currentState = "rightValue";
                     expressionFactory = new ExpressionSAXParser(schema);
                     LOGGER.finer("just added left value: " + currentState);
                 }
                 else if( currentState.equals("rightValue") ) {
-                    ((ExpressionMath) currentExpression).
+                    ((MathExpression) currentExpression).
                         addRightValue(expressionFactory.create());
                     currentState = "complete";
                     expressionFactory = null;
@@ -201,9 +201,9 @@ public class ExpressionSAXParser {
         
         if(readCharacters) {
             // If an attribute path, set it.  Assumes undeclared type.
-            if( currentExpression instanceof ExpressionAttribute) {
+            if( currentExpression instanceof AttributeExpression) {
                 LOGGER.finer("...");
-                ((ExpressionAttribute) currentExpression).setAttributePath(message);
+                ((AttributeExpression) currentExpression).setAttributePath(message);
                 LOGGER.finer("...");
                 currentState = "complete";
                 LOGGER.finer("...");
@@ -216,22 +216,22 @@ public class ExpressionSAXParser {
             // A better routine would consider the use of this expression
             //  (ie. will it be compared to a double or searched with a
             //  like filter?)
-            else if( currentExpression instanceof ExpressionLiteral) {
+            else if( currentExpression instanceof LiteralExpression) {
                 try {
                     Object tempLiteral = new Double(message);
-                    ((ExpressionLiteral) currentExpression).setLiteral(tempLiteral);
+                    ((LiteralExpression) currentExpression).setLiteral(tempLiteral);
                     currentState = "complete";
                 }
                 catch(NumberFormatException e1) {
                     try {
                         Object tempLiteral = new Integer(message);
-                        ((ExpressionLiteral) currentExpression).
+                        ((LiteralExpression) currentExpression).
                             setLiteral(tempLiteral);
                         currentState = "complete";
                     }
                     catch(NumberFormatException e2) {
                         Object tempLiteral = message;
-                        ((ExpressionLiteral) currentExpression).
+                        ((LiteralExpression) currentExpression).
                         setLiteral(tempLiteral);
                         currentState = "complete";
                 }                
@@ -258,8 +258,8 @@ public class ExpressionSAXParser {
         LOGGER.finer("got geometry: " + geometry.toString());
         //if( currentExpression.getType() == ExpressionDefault.LITERAL_GEOMETRY ) {
         //LOGGER.finer("got geometry: ");
-        currentExpression = new ExpressionLiteral();
-        ((ExpressionLiteral) currentExpression).setLiteral(geometry);
+        currentExpression = new LiteralExpression();
+        ((LiteralExpression) currentExpression).setLiteral(geometry);
         LOGGER.finer("set expression: " + currentExpression.toString());
         currentState = "complete";
         LOGGER.finer("set current state: " + currentState);
@@ -284,11 +284,11 @@ public class ExpressionSAXParser {
     private static String setInitialState(Expression currentExpression) 
         throws IllegalFilterException {
 
-        if( currentExpression instanceof ExpressionMath ) {
+        if( currentExpression instanceof MathExpression ) {
             return "leftValue";
         }
-        else if( ( currentExpression instanceof ExpressionAttribute ) ||
-                 ( currentExpression instanceof ExpressionLiteral ) ) {
+        else if( ( currentExpression instanceof AttributeExpression ) ||
+                 ( currentExpression instanceof LiteralExpression ) ) {
             return "";
         }
         else {
@@ -309,24 +309,24 @@ public class ExpressionSAXParser {
 
         // matches all filter types to the default logic type
         if( expressionType.equals("Add") ) {
-            return ExpressionDefault.MATH_ADD;
+            return DefaultExpression.MATH_ADD;
         }
         else if( expressionType.equals("Sub") ) {
-            return ExpressionDefault.MATH_SUBTRACT;
+            return DefaultExpression.MATH_SUBTRACT;
         }
         else if( expressionType.equals("Mul") ) {
-            return ExpressionDefault.MATH_MULTIPLY;
+            return DefaultExpression.MATH_MULTIPLY;
         }
         else if( expressionType.equals("Div") ) {
-            return ExpressionDefault.MATH_DIVIDE;
+            return DefaultExpression.MATH_DIVIDE;
         }
         else if( expressionType.equals("PropertyName") ) {
-            return ExpressionDefault.ATTRIBUTE_DOUBLE;
+            return DefaultExpression.ATTRIBUTE_DOUBLE;
         }
         else if( expressionType.equals("Literal") ) {
-            return ExpressionDefault.LITERAL_DOUBLE;
+            return DefaultExpression.LITERAL_DOUBLE;
         }
-        return ExpressionDefault.ATTRIBUTE_UNDECLARED;
+        return DefaultExpression.ATTRIBUTE_UNDECLARED;
 
     }
 

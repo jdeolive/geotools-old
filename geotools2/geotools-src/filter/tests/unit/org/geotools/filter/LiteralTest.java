@@ -32,16 +32,16 @@ public class LiteralTest extends TestCase {
     }
     
      public void testValidConstruction() throws Exception{
-        ExpressionLiteral a = new ExpressionLiteral(new Double(10));
-        ExpressionLiteral b = new ExpressionLiteral("Label");
-        ExpressionLiteral c = new ExpressionLiteral(new Integer(10));
-        ExpressionLiteral d = new ExpressionLiteral(new GeometryCollection(null,null,-1));
+        LiteralExpression a = new LiteralExpression(new Double(10));
+        LiteralExpression b = new LiteralExpression("Label");
+        LiteralExpression c = new LiteralExpression(new Integer(10));
+        LiteralExpression d = new LiteralExpression(new GeometryCollection(null,null,-1));
     }
      
      public void testInvalidConstruction1() throws Exception{
          try{
              //Byte was just a convinient object type to create
-            ExpressionLiteral a = new ExpressionLiteral(new java.lang.Byte("1"));
+            LiteralExpression a = new LiteralExpression(new java.lang.Byte("1"));
          }
          catch(IllegalFilterException ife){
              return;
@@ -52,8 +52,8 @@ public class LiteralTest extends TestCase {
      
      public void testInvalidConstruction2() throws Exception{
          try{
-            ExpressionLiteral a = new ExpressionLiteral(new Double(10));
-            ExpressionLiteral b = new ExpressionLiteral(a);
+            LiteralExpression a = new LiteralExpression(new Double(10));
+            LiteralExpression b = new LiteralExpression(a);
          }
          catch(IllegalFilterException ife){
              return;

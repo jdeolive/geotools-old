@@ -174,9 +174,9 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      */
     public void visit(BetweenFilter filter) {
         log.finer("exporting BetweenFilter");
-        ExpressionDefault left = (ExpressionDefault)filter.getLeftValue();
-        ExpressionDefault right = (ExpressionDefault)filter.getRightValue();
-        ExpressionDefault mid = (ExpressionDefault)filter.getMiddleValue();
+        DefaultExpression left = (DefaultExpression)filter.getLeftValue();
+        DefaultExpression right = (DefaultExpression)filter.getRightValue();
+        DefaultExpression mid = (DefaultExpression)filter.getMiddleValue();
         log.finer("Filter type id is "+filter.getFilterType());
         log.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
@@ -265,8 +265,8 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
     public void visit(CompareFilter filter){
         log.finer("exporting SQL ComparisonFilter");
         
-        ExpressionDefault left = (ExpressionDefault)filter.getLeftValue();
-        ExpressionDefault right = (ExpressionDefault)filter.getRightValue();
+        DefaultExpression left = (DefaultExpression)filter.getLeftValue();
+        DefaultExpression right = (DefaultExpression)filter.getRightValue();
         log.finer("Filter type id is "+filter.getFilterType());
         log.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
@@ -301,7 +301,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      */
     public void visit(NullFilter filter) {
         log.finer("exporting NullFilter");
-        ExpressionDefault expr = (ExpressionDefault)filter.getNullCheckValue();
+        DefaultExpression expr = (DefaultExpression)filter.getNullCheckValue();
        
 
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
@@ -320,7 +320,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      *
      * @param expression the attribute to turn to SQL.
      */
-    public void visit(ExpressionAttribute expression) {
+    public void visit(AttributeExpression expression) {
         log.finer("exporting ExpressionAttribute");
         try{
             out.write(expression.getAttributePath());
@@ -336,7 +336,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      *
      * @param expression the attribute to turn to SQL.
      */
-    public void visit(ExpressionDefault expression) {
+    public void visit(DefaultExpression expression) {
         log.warning("exporting unknown (default) expression");
     }
 
@@ -345,7 +345,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @param expresion the Literal to export
      * @task TODO: Fully support GeometryExpression literals
      */
-    public void visit(ExpressionLiteral expression) {
+    public void visit(LiteralExpression expression) {
         log.finer("exporting LiteralExpression");
         try{
             out.write("'"+expression.getLiteral()+"'");
@@ -362,14 +362,14 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      *
      * @param expression the Math phrase to be written.  
      */
-    public void visit(ExpressionMath expression) {
+    public void visit(MathExpression expression) {
         log.finer("exporting Expression Math");
         
         String type = (String)expressions.get(new Integer(expression.getType()));
         try{
-	    ((ExpressionDefault)expression.getLeftValue()).accept(this);
+	    ((DefaultExpression)expression.getLeftValue()).accept(this);
             out.write(" " + type + " ");
-	    ((ExpressionDefault)expression.getRightValue()).accept(this);
+	    ((DefaultExpression)expression.getRightValue()).accept(this);
 	}
         catch(java.io.IOException ioe){
             log.warning("Unable to export expresion" + ioe);
@@ -393,10 +393,10 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
         comparisions.put(new Integer(AbstractFilter.NULL),"IS NULL");
         comparisions.put(new Integer(AbstractFilter.BETWEEN),"BETWEEN");
         
-        expressions.put(new Integer(ExpressionDefault.MATH_ADD),"+");
-        expressions.put(new Integer(ExpressionDefault.MATH_DIVIDE),"/");
-        expressions.put(new Integer(ExpressionDefault.MATH_MULTIPLY),"*");
-        expressions.put(new Integer(ExpressionDefault.MATH_SUBTRACT),"-");
+        expressions.put(new Integer(DefaultExpression.MATH_ADD),"+");
+        expressions.put(new Integer(DefaultExpression.MATH_DIVIDE),"/");
+        expressions.put(new Integer(DefaultExpression.MATH_MULTIPLY),"*");
+        expressions.put(new Integer(DefaultExpression.MATH_SUBTRACT),"-");
         //more to come?
         
         spatial.put(new Integer(AbstractFilter.GEOMETRY_EQUALS),"Equals");

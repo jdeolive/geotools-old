@@ -21,6 +21,10 @@ import java.awt.Panel;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+//Logging system
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 import javax.swing.*;
 
 
@@ -29,7 +33,11 @@ import javax.swing.*;
  * @author jamesm
  */
 public class Rendering2DTest extends TestCase {
-    
+    /**
+     * The logger for the rendering module.
+     */
+    private static final Logger LOGGER = Logger.getLogger(
+                                                 "org.geotools.rendering");
     public Rendering2DTest(java.lang.String testName) {
         super(testName);
     }
@@ -45,7 +53,7 @@ public class Rendering2DTest extends TestCase {
     
     public void testSimpleRender()throws Exception {
         //same as the datasource test, load in some features into a table
-        
+        System.err.println("starting rendering2DTest");
         // Request extent
         EnvelopeExtent ex = new EnvelopeExtent(5, 15, 5, 15);
         
@@ -83,15 +91,20 @@ public class Rendering2DTest extends TestCase {
         //The following is complex, and should be built from
         //an SLD document and not by hand
         PointSymbolizer pointsym = sFac.createPointSymbolizer();
+        pointsym.setGraphic(sFac.getDefaultGraphic());
         
         LineSymbolizer linesym = sFac.createLineSymbolizer();
-        Stroke myStroke = sFac.createStroke(new ExpressionLiteral("#0000ff"),new ExpressionLiteral(new Integer(5)));
+        Stroke myStroke = sFac.getDefaultStroke();
+        myStroke.setColor(new LiteralExpression("#0000ff"));
+        myStroke.setWidth(new LiteralExpression(new Integer(5)));
+        LOGGER.info("got new Stroke " + myStroke);
         linesym.setStroke(myStroke);
         
         PolygonSymbolizer polysym = sFac.createPolygonSymbolizer();
-        Fill myFill = StyleFactory.createFill();
-        myFill.setColor(new ExpressionLiteral("#ff0000"));
+        Fill myFill = sFac.getDefaultFill();
+        myFill.setColor(new LiteralExpression("#ff0000"));
         polysym.setFill(myFill);
+        polysym.setStroke(sFac.getDefaultStroke());
         Rule rule = sFac.createRule();
         rule.setSymbolizers(new Symbolizer[]{polysym});
         FeatureTypeStyle fts = sFac.createFeatureTypeStyle(new Rule[]{rule});

@@ -4,7 +4,7 @@
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -29,22 +29,22 @@ import org.geotools.filter.Expression;
  *
  * The details of this object are taken from the OGC Styled-Layer
  * Descriptor Report (OGC 01-077) version 0.7.2.
- * Renderers can use this information when displaying styled features, 
+ * Renderers can use this information when displaying styled features,
  * though it must be remembered that not all renderers will be able to
  * fully represent strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
- * @version $Id: Mark.java,v 1.10 2002/10/14 17:07:59 ianturton Exp $
+ * @version $Id: Mark.java,v 1.11 2002/10/23 17:02:58 ianturton Exp $
  * @author James Macgill
  */
-public interface Mark {
-
+public interface Mark extends Symbol {
+    
     /**
      * This parameter gives the well-known name of the shape of the mark.<br>
      * Allowed names include at least "square", "circle", "triangle", "star",
      * "cross" and "x" though renderers may draw a different symbol instead
      * if they don't have a shape for all of these.<br>
-     * 
+     *
      * @return The well-known name of a shape.  The default value is "square".
      */
     Expression getWellKnownName();
@@ -53,21 +53,21 @@ public interface Mark {
      * Allowed names include at least "square", "circle", "triangle", "star",
      * "cross" and "x" though renderers may draw a different symbol instead
      * if they don't have a shape for all of these.<br>
-     * 
+     *
      * @param The well-known name of a shape.  The default value is "square".
      */
     void setWellKnownName(Expression wellKnownName);
     /**
      * This paramterer defines which stroke style should be used when
      * rendering the Mark.
-     * 
+     *
      * @return The Stroke definition to use when rendering the Mark.
      **/
     Stroke getStroke();
     /**
      * This paramterer defines which stroke style should be used when
      * rendering the Mark.
-     * 
+     *
      * @param The Stroke definition to use when rendering the Mark.
      **/
     void setStroke(Stroke stroke);

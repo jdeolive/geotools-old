@@ -170,7 +170,7 @@ public class FilterTest extends TestCase {
         throws IllegalFilterException {
 
         // Test all integer permutations
-        Expression testAttribute = new ExpressionAttribute(testSchema, "testInteger");
+        Expression testAttribute = new AttributeExpression(testSchema, "testInteger");
         compareNumberRunner(testAttribute, AbstractFilter.COMPARE_EQUALS, false, true, false);
         compareNumberRunner(testAttribute, AbstractFilter.COMPARE_GREATER_THAN, true, false, false);
         compareNumberRunner(testAttribute, AbstractFilter.COMPARE_LESS_THAN, false, false, true);
@@ -178,20 +178,20 @@ public class FilterTest extends TestCase {
         compareNumberRunner(testAttribute, AbstractFilter.COMPARE_LESS_THAN_EQUAL, false, true, true);
 
         // Set up the string test.
-        testAttribute = new ExpressionAttribute(testSchema, "testString");
+        testAttribute = new AttributeExpression(testSchema, "testString");
         CompareFilter filter = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
         Expression testLiteral;
         filter.addLeftValue(testAttribute);
         
         // Test for false positive.
-        testLiteral = new ExpressionLiteral("test string data");
+        testLiteral = new LiteralExpression("test string data");
         filter.addRightValue(testLiteral);
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         // Test for false negative.
-        testLiteral = new ExpressionLiteral("incorrect test string data");
+        testLiteral = new LiteralExpression("incorrect test string data");
         filter.addRightValue(testLiteral);
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
@@ -212,19 +212,19 @@ public class FilterTest extends TestCase {
         Expression testLiteral;
         filter.addLeftValue(testAttribute);
         
-        testLiteral = new ExpressionLiteral(new Integer(1001));
+        testLiteral = new LiteralExpression(new Integer(1001));
         filter.addRightValue(testLiteral);
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals(filter.contains(testFeature), test1);
         
-        testLiteral = new ExpressionLiteral(new Integer(1002));
+        testLiteral = new LiteralExpression(new Integer(1002));
         filter.addRightValue(testLiteral);
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals(filter.contains(testFeature), test2);
         
-        testLiteral = new ExpressionLiteral(new Integer(1003));
+        testLiteral = new LiteralExpression(new Integer(1003));
         filter.addRightValue(testLiteral);
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
@@ -243,48 +243,48 @@ public class FilterTest extends TestCase {
         Expression testAttribute = null;
 
         // Set up string
-        testAttribute = new ExpressionAttribute(testSchema, "testString");
+        testAttribute = new AttributeExpression(testSchema, "testString");
         LikeFilter filter = new LikeFilter();
         filter.setValue(testAttribute);
         
         // Test for false negative.
-        filter.setPattern(new ExpressionLiteral("test*"),"*",".","!");
+        filter.setPattern(new LiteralExpression("test*"),"*",".","!");
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         // Test for false positive.
-        filter.setPattern(new ExpressionLiteral("cows*"),"*",".","!");
+        filter.setPattern(new LiteralExpression("cows*"),"*",".","!");
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
         
         // Test for \ as an escape char
         
-        filter.setPattern(new ExpressionLiteral("cows\\*"),"*",".","\\");
+        filter.setPattern(new LiteralExpression("cows\\*"),"*",".","\\");
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals("filter string doesn't match","[ testString is like cows\\* ]",filter.toString());
     
         // test for escaped escapes
         
-        filter.setPattern(new ExpressionLiteral("co!!ws*"),"*",".","!");
+        filter.setPattern(new LiteralExpression("co!!ws*"),"*",".","!");
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals("filter string doesn't match","[ testString is like co!ws.* ]",filter.toString());
         
         // test for escaped escapes followed by wildcard
         
-        filter.setPattern(new ExpressionLiteral("co!!*ws*"),"*",".","!");
+        filter.setPattern(new LiteralExpression("co!!*ws*"),"*",".","!");
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         
         assertEquals("filter string doesn't match","[ testString is like co!.*ws.* ]",filter.toString());
     
         // test for "special" characters in string
-        testAttribute = new ExpressionAttribute(testSchema, "testString2");
+        testAttribute = new AttributeExpression(testSchema, "testString2");
         filter.setValue(testAttribute);
-        filter.setPattern(new ExpressionLiteral("cow $*"),"*",".","!");
+        filter.setPattern(new LiteralExpression("cow $*"),"*",".","!");
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         
@@ -293,14 +293,14 @@ public class FilterTest extends TestCase {
         
         // test for first wild card
         
-        filter.setPattern(new ExpressionLiteral("*cows*"),"*",".","!");
+        filter.setPattern(new LiteralExpression("*cows*"),"*",".","!");
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals("filter string doesn't match","[ testString2 is like .*cows.* ]",filter.toString());
         
         // test for multi char parameters
         
-        filter.setPattern(new ExpressionLiteral("!#coxxwsyyy"),"xx","yy","!#");
+        filter.setPattern(new LiteralExpression("!#coxxwsyyy"),"xx","yy","!#");
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         
@@ -308,7 +308,7 @@ public class FilterTest extends TestCase {
         
         // test for multi char parameters which are special
         
-        filter.setPattern(new ExpressionLiteral("co.*ws.?\\.*"),".*",".?","\\");
+        filter.setPattern(new LiteralExpression("co.*ws.?\\.*"),".*",".?","\\");
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         
@@ -316,7 +316,7 @@ public class FilterTest extends TestCase {
         
         // test for reading back in strings which are java regexs
         
-        filter.setPattern(new ExpressionLiteral("co.*ws.?\\.\\*"),".*",".?","\\");
+        filter.setPattern(new LiteralExpression("co.*ws.?\\.\\*"),".*",".?","\\");
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         
@@ -335,7 +335,7 @@ public class FilterTest extends TestCase {
         Expression testAttribute = null;
 
         // Test for false positive.
-        testAttribute = new ExpressionAttribute(testSchema, "testString");
+        testAttribute = new AttributeExpression(testSchema, "testString");
         NullFilter filter = new NullFilter();
         filter.nullCheckValue(testAttribute);
         //_log.info( filter.toString());            
@@ -363,9 +363,9 @@ public class FilterTest extends TestCase {
 
         // Set up the integer
         BetweenFilter filter = new BetweenFilter();
-        Expression testLiteralLower = new ExpressionLiteral(new Integer(1001));
-        Expression testAttribute = new ExpressionAttribute(testSchema, "testInteger");
-        Expression testLiteralUpper = new ExpressionLiteral(new Integer(1003));
+        Expression testLiteralLower = new LiteralExpression(new Integer(1001));
+        Expression testAttribute = new AttributeExpression(testSchema, "testInteger");
+        Expression testLiteralUpper = new LiteralExpression(new Integer(1003));
         
         // String tests
         filter.addLeftValue(testLiteralLower);
@@ -378,8 +378,8 @@ public class FilterTest extends TestCase {
         assertTrue(filter.contains(testFeature));
         
         // Test for false positive.
-        testLiteralLower = new ExpressionLiteral(new Integer(1));
-        testLiteralUpper = new ExpressionLiteral(new Integer(1000));
+        testLiteralLower = new LiteralExpression(new Integer(1));
+        testLiteralUpper = new LiteralExpression(new Integer(1000));
         filter.addLeftValue(testLiteralLower);
         filter.addRightValue(testLiteralUpper);
         //_log.info( filter.toString());            
@@ -402,17 +402,17 @@ public class FilterTest extends TestCase {
         
         // Test Equals
         GeometryFilter filter = new GeometryFilter(AbstractFilter.GEOMETRY_EQUALS);
-        Expression left = new ExpressionAttribute(testSchema, "testGeometry");
+        Expression left = new AttributeExpression(testSchema, "testGeometry");
         filter.addLeftGeometry(left);
         
-        Expression right = new ExpressionLiteral(new LineString(coords, new PrecisionModel(), 1));
+        Expression right = new LiteralExpression(new LineString(coords, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         coords[0] = new Coordinate(0,0);
-        right = new ExpressionLiteral(new LineString(coords, new PrecisionModel(), 1));
+        right = new LiteralExpression(new LineString(coords, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
@@ -420,13 +420,13 @@ public class FilterTest extends TestCase {
         
         // Test Disjoint
         filter = new GeometryFilter(AbstractFilter.GEOMETRY_DISJOINT);
-        left = new ExpressionAttribute(testSchema, "testGeometry");
+        left = new AttributeExpression(testSchema, "testGeometry");
         filter.addLeftGeometry(left);
         
         coords[0] = new Coordinate(0,0);
         coords[1] = new Coordinate(3,0);
         coords[2] = new Coordinate(6,0);
-        right = new ExpressionLiteral(new LineString(coords, new PrecisionModel(), 1));
+        right = new LiteralExpression(new LineString(coords, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
@@ -435,7 +435,7 @@ public class FilterTest extends TestCase {
         coords[0] = new Coordinate(1,2);
         coords[1] = new Coordinate(3,0);
         coords[2] = new Coordinate(6,0);
-        right = new ExpressionLiteral(new LineString(coords, new PrecisionModel(), 1));
+        right = new LiteralExpression(new LineString(coords, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
         //_log.info( filter.toString());            
         //_log.info( "contains feature: " + filter.contains(testFeature));
@@ -443,7 +443,7 @@ public class FilterTest extends TestCase {
         
         // Test BBOX
         filter = new GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-        left = new ExpressionAttribute(testSchema, "testGeometry");
+        left = new AttributeExpression(testSchema, "testGeometry");
         filter.addLeftGeometry(left);
 
         Coordinate[] coords2 = new Coordinate[5];
@@ -452,7 +452,7 @@ public class FilterTest extends TestCase {
         coords2[2] = new Coordinate(10,10);
         coords2[3] = new Coordinate(0,10);
         coords2[4] = new Coordinate(0,0);
-        right = new ExpressionLiteral(new Polygon(new LinearRing(coords2,new PrecisionModel(), 1),
+        right = new LiteralExpression(new Polygon(new LinearRing(coords2,new PrecisionModel(), 1),
                                                   null, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
         //_log.info( filter.toString());
@@ -464,7 +464,7 @@ public class FilterTest extends TestCase {
         coords2[2] = new Coordinate(1,1);
         coords2[3] = new Coordinate(0,1);
         coords2[4] = new Coordinate(0,0);
-        right = new ExpressionLiteral(new Polygon(new LinearRing(coords2,new PrecisionModel(), 1),
+        right = new LiteralExpression(new Polygon(new LinearRing(coords2,new PrecisionModel(), 1),
                                                   null, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
         //_log.info( filter.toString());            
@@ -484,17 +484,17 @@ public class FilterTest extends TestCase {
         Expression testAttribute = null;
 
         // Set up true sub filter
-        testAttribute = new ExpressionAttribute(testSchema, "testString");
+        testAttribute = new AttributeExpression(testSchema, "testString");
         CompareFilter filterTrue = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
         Expression testLiteral;
         filterTrue.addLeftValue(testAttribute);
-        testLiteral = new ExpressionLiteral("test string data");
+        testLiteral = new LiteralExpression("test string data");
         filterTrue.addRightValue(testLiteral);
         
         // Set up false sub filter
         CompareFilter filterFalse = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
         filterFalse.addLeftValue(testAttribute);
-        testLiteral = new ExpressionLiteral("incorrect test string data");
+        testLiteral = new LiteralExpression("incorrect test string data");
         filterFalse.addRightValue(testLiteral);
         
         // Test OR for false negatives

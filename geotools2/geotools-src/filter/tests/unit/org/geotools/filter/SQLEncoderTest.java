@@ -248,7 +248,7 @@ public class SQLEncoderTest extends TestCase {
                 child = list.item(i);
                 //_log.getLoggerRepository().setThreshold(Level.INFO);
                 if(child == null || child.getNodeType() != Node.ELEMENT_NODE) continue;
-                filter = FilterXMLParser.parseFilter(child);
+                filter = FilterDOMParser.parseFilter(child);
                 //_log.getLoggerRepository().setThreshold(Level.DEBUG);
                 LOGGER.finer("filter: " + filter.getClass().toString());
                 //StringWriter output = new StringWriter();

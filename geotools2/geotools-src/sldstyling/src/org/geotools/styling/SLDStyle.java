@@ -40,7 +40,7 @@ import org.w3c.dom.*;
  *
  * It currently implements Style but it shouldn't!
  * 
- * @version $Id: SLDStyle.java,v 1.26 2002/10/22 17:02:57 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.27 2002/10/23 17:03:53 ianturton Exp $
  * @author Ian Turton
  */
 public class SLDStyle {
@@ -282,7 +282,7 @@ public class SLDStyle {
                         continue;
                     }
 
-                    Filter filter = FilterXMLParser.parseFilter(kid);
+                    Filter filter = FilterDOMParser.parseFilter(kid);
 
                     if (LOGGER.isLoggable(Level.FINEST)) {
                         LOGGER.finest("filter: " + 
@@ -860,7 +860,7 @@ public class SLDStyle {
                 LOGGER.finest("about to parse " + child.getNodeName());
             }
 
-            return ExpressionXmlParser.parseExpression(child);
+            return ExpressionDOMParser.parseExpression(child);
         }
 
         if (LOGGER.isLoggable(Level.FINEST)) {
@@ -876,7 +876,7 @@ public class SLDStyle {
             LOGGER.finest("Built new literal " + literal);
         }
 
-        return ExpressionXmlParser.parseExpression(literal);
+        return ExpressionDOMParser.parseExpression(literal);
     }
 
     private Font parseFont(Node root) {
@@ -1066,7 +1066,7 @@ public class SLDStyle {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing halo");
         }
-        Halo halo = factory.createHalo(factory.getDefaultFill(),new ExpressionLiteral(0));
+        Halo halo = factory.createHalo(factory.getDefaultFill(),new LiteralExpression(0));
        
         NodeList children = root.getChildNodes();
 

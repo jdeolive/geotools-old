@@ -45,7 +45,7 @@ public class ExpressionDOMParser {
                 LOGGER.fine("processing an Add");
                 Node left=null,right=null;
                 
-                ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_ADD);
+                MathExpression math = new MathExpression(MathExpression.MATH_ADD);
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add left value -> "+value+"<-");
@@ -63,7 +63,7 @@ public class ExpressionDOMParser {
         if(child.getNodeName().equalsIgnoreCase("sub")){
             try{
                 NodeList kids = child.getChildNodes();
-                ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_SUBTRACT);
+                MathExpression math = new MathExpression(MathExpression.MATH_SUBTRACT);
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add left value -> "+value+"<-");
@@ -81,7 +81,7 @@ public class ExpressionDOMParser {
         if(child.getNodeName().equalsIgnoreCase("mul")){
             try{
                 NodeList kids = child.getChildNodes();
-                ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_MULTIPLY);
+                MathExpression math = new MathExpression(MathExpression.MATH_MULTIPLY);
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add left value -> "+value+"<-");
@@ -99,7 +99,7 @@ public class ExpressionDOMParser {
         if(child.getNodeName().equalsIgnoreCase("div")){
             try{
                 
-                ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_DIVIDE);
+                MathExpression math = new MathExpression(MathExpression.MATH_DIVIDE);
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add left value -> "+value+"<-");
@@ -141,7 +141,7 @@ public class ExpressionDOMParser {
                         }else{
                             LOGGER.finer("got a null geometry back from gml parser");
                         }
-                        return new ExpressionLiteral(geom);
+                        return new LiteralExpression(geom);
                     } catch (IllegalFilterException ife){
                         LOGGER.warning("Problem building GML/JTS object: " + ife);
                     }
@@ -179,7 +179,7 @@ public class ExpressionDOMParser {
                     try{
                         Integer I = new Integer(nodeValue);
                         LOGGER.finer("An integer");
-                        return new ExpressionLiteral(I);
+                        return new LiteralExpression(I);
                     } catch (NumberFormatException e){
                         /* really empty */
                     }
@@ -187,13 +187,13 @@ public class ExpressionDOMParser {
                     try{
                         Double D = new Double(nodeValue);
                         LOGGER.finer("A double");
-                        return new ExpressionLiteral(D);
+                        return new LiteralExpression(D);
                     } catch (NumberFormatException e){
                         /* really empty */
                     }
                     // must be a string (or we have a problem)
                     LOGGER.finer("defaulting to string");
-                    return new ExpressionLiteral(nodeValue);
+                    return new LiteralExpression(nodeValue);
                 } catch (IllegalFilterException ife){
                     LOGGER.finer("Unable to build expression " + ife);
                     return null;
@@ -204,7 +204,7 @@ public class ExpressionDOMParser {
         if(child.getNodeName().equalsIgnoreCase("PropertyName")){
             try{
                 NodeList kids = child.getChildNodes();
-                ExpressionAttribute attribute = new ExpressionAttribute(null);
+                AttributeExpression attribute = new AttributeExpression(null);
                 attribute.setAttributePath(child.getFirstChild().getNodeValue());
                 return attribute;
             }catch (IllegalFilterException ife){
@@ -227,17 +227,17 @@ public class ExpressionDOMParser {
             try{
                 try{
                     Integer I = new Integer(nodeValue);
-                    return new ExpressionLiteral(I);
+                    return new LiteralExpression(I);
                 } catch (NumberFormatException e){
                     /* really empty */
                 }
                 try{
                     Double D = new Double(nodeValue);
-                    return new ExpressionLiteral(D);
+                    return new LiteralExpression(D);
                 } catch (NumberFormatException e){
                     /* really empty */
                 }
-                return new ExpressionLiteral(nodeValue);
+                return new LiteralExpression(nodeValue);
             } catch (IllegalFilterException ife){
                 LOGGER.finer("Unable to build expression " + ife);
             }

@@ -187,11 +187,11 @@ AttributeType shortAttribute =
         throws Exception {
 	    GeometryFilter gf =
             new GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-            ExpressionLiteral right =
+            LiteralExpression right =
             new BBoxExpression(new Envelope(0,300,0,300));
             gf.addRightGeometry(right);
-	    ExpressionAttribute left = 
-		new ExpressionAttribute(testSchema, "testGeometry");
+	    AttributeExpression left = 
+		new AttributeExpression(testSchema, "testGeometry");
 	    gf.addLeftGeometry(left);
 
 	 SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
@@ -207,11 +207,11 @@ AttributeType shortAttribute =
     public void test2() throws Exception {
 	GeometryFilter gf =
             new GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-	ExpressionLiteral left =
+	LiteralExpression left =
             new BBoxExpression(new Envelope(10,300,10,300));
 	gf.addLeftGeometry(left);
-	ExpressionAttribute right = 
-	    new ExpressionAttribute(testSchema, "testGeometry");
+	AttributeExpression right = 
+	    new AttributeExpression(testSchema, "testGeometry");
 	gf.addRightGeometry(right);
 	
 	SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
@@ -226,11 +226,11 @@ AttributeType shortAttribute =
     public void testException() throws Exception {
 	GeometryFilter gf =
             new GeometryFilter(AbstractFilter.GEOMETRY_BEYOND);
-	ExpressionLiteral right =
+	LiteralExpression right =
             new BBoxExpression(new Envelope(10,10,300,300));
 	gf.addRightGeometry(right);
-	ExpressionAttribute left = 
-	    new ExpressionAttribute(testSchema, "testGeometry");
+	AttributeExpression left = 
+	    new AttributeExpression(testSchema, "testGeometry");
 	gf.addLeftGeometry(left);
 	try {
 	    SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);

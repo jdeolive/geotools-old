@@ -28,7 +28,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: AnchorPointImpl.java,v 1.1 2002/10/14 14:16:15 ianturton Exp $
+ * @version $Id: AnchorPointImpl.java,v 1.2 2002/10/23 17:02:57 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class AnchorPointImpl implements AnchorPoint {
@@ -43,8 +43,8 @@ public class AnchorPointImpl implements AnchorPoint {
     /** Creates a new instance of DefaultAnchorPoint */
     public AnchorPointImpl() {
         try {
-            anchorPointX = new org.geotools.filter.ExpressionLiteral(new Double(0.0));
-            anchorPointY = new org.geotools.filter.ExpressionLiteral(new Double(0.5));
+            anchorPointX = new org.geotools.filter.LiteralExpression(new Double(0.0));
+            anchorPointY = new org.geotools.filter.LiteralExpression(new Double(0.5));
         } catch (org.geotools.filter.IllegalFilterException ife){
             LOGGER.severe("Failed to build defaultAnchorPoint: " + ife);
         }

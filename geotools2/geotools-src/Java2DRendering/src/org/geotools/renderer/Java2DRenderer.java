@@ -47,13 +47,14 @@ import java.net.*;
 
 //util imports
 import java.util.*;
-import java.util.logging.Level;
+
 
 // image handling
 import javax.imageio.ImageIO;
 
 //Logging system
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 //geotools imports
 import org.geotools.data.*;
@@ -66,7 +67,7 @@ import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.56 2002/10/21 16:14:12 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.57 2002/10/23 17:01:35 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -1280,8 +1281,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
 
         double scale = graphics.getTransform().getScaleX();
-
-        String joinType = (String) stroke.getLineJoin().getValue(feature);
+        LOGGER.fine("line join = " + stroke.getLineJoin());
+        String joinType;
+        if (stroke.getLineJoin() == null) {
+            joinType = "miter";
+        }else{
+            joinType = (String) stroke.getLineJoin().getValue(feature);
+        }
 
         if (joinType == null) {
             joinType = "miter";
@@ -1295,8 +1301,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             joinCode = java.awt.BasicStroke.JOIN_MITER;
         }
 
-        String capType = (String) stroke.getLineCap().getValue(feature);
-
+        String capType;
+        if (stroke.getLineCap() != null) {
+            capType  = (String) stroke.getLineCap().getValue(feature);
+        }else{
+            capType = "square";
+        }
         if (capType == null) {
             capType = "square";
         }
@@ -1331,7 +1341,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         BasicStroke stroke2d;
 
         //TODO: It should not be necessary to divide each value by scale.
-        if (dashes.length > 0) {
+        if (dashes != null && dashes.length > 0) {
             stroke2d = new BasicStroke(width / (float) scale, capCode, joinCode, 
                                        (float) (Math.max(1, 10 / scale)), 
                                        dashes, dashOffset / (float) scale);

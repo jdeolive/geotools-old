@@ -42,7 +42,7 @@ public class DatasourceTest extends TestCase implements CollectionListener {
         EnvelopeExtent ex = new EnvelopeExtent(0, 360, 0, 180.0);
         
         org.geotools.filter.GeometryFilter gf = new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-        ExpressionLiteral right = new BBoxExpression(new Envelope(0, 360, 0, 180.0));
+        LiteralExpression right = new BBoxExpression(new Envelope(0, 360, 0, 180.0));
         gf.addRightGeometry(right);
         try{
             ft = ds.getFeatures(gf);

@@ -94,20 +94,20 @@ public class TextSymbolTest extends TestCase {
         
         org.geotools.styling.FontImpl font = new org.geotools.styling.FontImpl();
         
-        font.setFontFamily(new ExpressionLiteral(dataFolder + "geog.ttf"));
-        font.setFontSize(new ExpressionAttribute(pointType, "size"));
+        font.setFontFamily(new LiteralExpression(dataFolder + "geog.ttf"));
+        font.setFontSize(new AttributeExpression(pointType, "size"));
         
-        ExpressionAttribute symbExpr = new ExpressionAttribute(pointType, "symbol");
-        TextMark textMark = new TextMark(font,symbExpr);
+        AttributeExpression symbExpr = new AttributeExpression(pointType, "symbol");
+        TextMark textMark = new TextMarkImpl(font,symbExpr);
         
         org.geotools.styling.FontImpl font2 = new org.geotools.styling.FontImpl();
-        font2.setFontFamily(new ExpressionLiteral("MapInfo Cartographic"));
-        font2.setFontSize(new ExpressionAttribute(pointType, "size"));
+        font2.setFontFamily(new LiteralExpression("MapInfo Cartographic"));
+        font2.setFontSize(new AttributeExpression(pointType, "size"));
         textMark.addFont(font2);
         
         org.geotools.styling.FontImpl font3 = new org.geotools.styling.FontImpl();
-        font3.setFontFamily(new ExpressionLiteral("ESRI Cartography"));
-        font3.setFontSize(new ExpressionAttribute(pointType, "size"));
+        font3.setFontFamily(new LiteralExpression("ESRI Cartography"));
+        font3.setFontSize(new AttributeExpression(pointType, "size"));
         textMark.addFont(font3);
         
         GraphicImpl graphic = new GraphicImpl();

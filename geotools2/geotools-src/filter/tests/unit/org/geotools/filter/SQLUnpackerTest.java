@@ -51,11 +51,11 @@ public class SQLUnpackerTest extends TestCase {
     private GeometryFilter geomFilter;
     private LikeFilter likeFilter;
     private NullFilter nullFilter;
-    private ExpressionAttribute attrExp1;
-    private ExpressionAttribute attrExp2;
-    private ExpressionLiteral litExp1;
-    private ExpressionLiteral litExp2;
-    private ExpressionMath mathExp1;
+    private AttributeExpression attrExp1;
+    private AttributeExpression attrExp2;
+    private LiteralExpression litExp1;
+    private LiteralExpression litExp2;
+    private MathExpression mathExp1;
 
     /** strings for Like filter */
     private String pattern = "te_st!";
@@ -181,11 +181,11 @@ public class SQLUnpackerTest extends TestCase {
         testSchema = testSchema.setAttributeType(stringAttribute);
         LOGGER.finer("added string to feature type");
         
-	attrExp1 = new ExpressionAttribute(testSchema, "testInteger");
-	attrExp2 = new ExpressionAttribute(testSchema, "testGeometry");
-	litExp1 = new ExpressionLiteral(new Integer(65));
-	litExp2 = new ExpressionLiteral(new Integer(35));
-	mathExp1 = new ExpressionMath(ExpressionDefault.MATH_ADD);
+	attrExp1 = new AttributeExpression(testSchema, "testInteger");
+	attrExp2 = new AttributeExpression(testSchema, "testGeometry");
+	litExp1 = new LiteralExpression(new Integer(65));
+	litExp2 = new LiteralExpression(new Integer(35));
+	mathExp1 = new MathExpression(DefaultExpression.MATH_ADD);
 	mathExp1.addLeftValue(litExp1);
 	mathExp1.addRightValue(litExp2);
 

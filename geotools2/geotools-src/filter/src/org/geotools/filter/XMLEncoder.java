@@ -65,9 +65,9 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
     public void visit(BetweenFilter filter) {
         LOGGER.finer("exporting BetweenFilter");
-        ExpressionDefault left = (ExpressionDefault)filter.getLeftValue();
-        ExpressionDefault right = (ExpressionDefault)filter.getRightValue();
-        ExpressionDefault mid = (ExpressionDefault)filter.getMiddleValue();
+        DefaultExpression left = (DefaultExpression)filter.getLeftValue();
+        DefaultExpression right = (DefaultExpression)filter.getRightValue();
+        DefaultExpression mid = (DefaultExpression)filter.getMiddleValue();
         LOGGER.finer("Filter type id is "+filter.getFilterType());
         LOGGER.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
@@ -93,7 +93,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             String esc = filter.getEscape();
             out.write("<PropertyIsLike wildCard=\""+wcm+"\" singleChar=\""+wcs
                 +"\" escapeChar=\""+esc+"\">\n");
-            ((ExpressionDefault)filter.getValue()).accept(this);
+            ((DefaultExpression)filter.getValue()).accept(this);
             out.write("<Literal>\n"+filter.getPattern()+"\n</literal>\n");
             out.write("</PropertyIsLike>\n");
         } catch (java.io.IOException ioe){
@@ -122,8 +122,8 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     public void visit(CompareFilter filter){
         LOGGER.finer("exporting ComparisonFilter");
         
-        ExpressionDefault left = (ExpressionDefault)filter.getLeftValue();
-        ExpressionDefault right = (ExpressionDefault)filter.getRightValue();
+        DefaultExpression left = (DefaultExpression)filter.getLeftValue();
+        DefaultExpression right = (DefaultExpression)filter.getRightValue();
         LOGGER.finer("Filter type id is "+filter.getFilterType());
         LOGGER.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
@@ -140,8 +140,8 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
     public void visit(GeometryFilter filter){
         LOGGER.finer("exporting GeometryFilter");
-        ExpressionDefault left = (ExpressionDefault)filter.getLeftGeometry();
-        ExpressionDefault right = (ExpressionDefault)filter.getRightGeometry();
+        DefaultExpression left = (DefaultExpression)filter.getLeftGeometry();
+        DefaultExpression right = (DefaultExpression)filter.getRightGeometry();
         String type = (String)spatial.get(new Integer(filter.getFilterType()));
         try{
             out.write("<"+type+">\n");
@@ -156,7 +156,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
     public void visit(NullFilter filter) {
         LOGGER.finer("exporting NullFilter");
-        ExpressionDefault expr = (ExpressionDefault)filter.getNullCheckValue();
+        DefaultExpression expr = (DefaultExpression)filter.getNullCheckValue();
        
 
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
@@ -173,7 +173,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
     
     
-    public void visit(ExpressionAttribute expression) {
+    public void visit(AttributeExpression expression) {
         LOGGER.finer("exporting ExpressionAttribute");
         try{
             out.write("<PropertyName>"+expression.getAttributePath()+"</PropertyName>\n");
@@ -183,7 +183,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         }
     }
     
-    public void visit(ExpressionDefault expression) {
+    public void visit(DefaultExpression expression) {
         LOGGER.warning("exporting unknown (default) expression");
     }
     
@@ -193,7 +193,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
      * @task TODO: Fully support GeometryExpressions so that they are
      *             writen as GML.
      */
-    public void visit(ExpressionLiteral expression) {
+    public void visit(LiteralExpression expression) {
         LOGGER.finer("exporting LiteralExpression");
         try{
             out.write("<Literal>"+expression.getLiteral()+"</Literal>\n");
@@ -203,14 +203,14 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         }
     }
     
-    public void visit(ExpressionMath expression) {
+    public void visit(MathExpression expression) {
         LOGGER.finer("exporting Expression Math");
         
         String type = (String)expressions.get(new Integer(expression.getType()));
         try{
             out.write("<"+type+">\n");
-            ((ExpressionDefault)expression.getLeftValue()).accept(this);
-            ((ExpressionDefault)expression.getRightValue()).accept(this);
+            ((DefaultExpression)expression.getLeftValue()).accept(this);
+            ((DefaultExpression)expression.getRightValue()).accept(this);
             out.write("</"+type+">\n");
         }
         catch(java.io.IOException ioe){
@@ -234,10 +234,10 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         comparisions.put(new Integer(AbstractFilter.NULL),"PropertyIsNull");
         comparisions.put(new Integer(AbstractFilter.BETWEEN),"PropertyIsBetween");
         
-        expressions.put(new Integer(ExpressionDefault.MATH_ADD),"Add");
-        expressions.put(new Integer(ExpressionDefault.MATH_DIVIDE),"Div");
-        expressions.put(new Integer(ExpressionDefault.MATH_MULTIPLY),"Mul");
-        expressions.put(new Integer(ExpressionDefault.MATH_SUBTRACT),"Sub");
+        expressions.put(new Integer(DefaultExpression.MATH_ADD),"Add");
+        expressions.put(new Integer(DefaultExpression.MATH_DIVIDE),"Div");
+        expressions.put(new Integer(DefaultExpression.MATH_MULTIPLY),"Mul");
+        expressions.put(new Integer(DefaultExpression.MATH_SUBTRACT),"Sub");
         //more to come
         
         spatial.put(new Integer(AbstractFilter.GEOMETRY_EQUALS),"Equals");

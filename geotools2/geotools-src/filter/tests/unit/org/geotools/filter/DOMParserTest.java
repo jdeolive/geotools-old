@@ -256,7 +256,7 @@ public class DOMParserTest extends TestCase {
             for(int i=0;i<list.getLength();i++){
                 child = list.item(i);
                 if(child == null || child.getNodeType() != Node.ELEMENT_NODE) continue;
-                filter = FilterXMLParser.parseFilter(child);
+                filter = FilterDOMParser.parseFilter(child);
                 LOGGER.finer("filter: " + filter.getClass().toString());
                 LOGGER.info("parsed: " + filter.toString());
                 LOGGER.finer("result "+filter.contains(testFeature));

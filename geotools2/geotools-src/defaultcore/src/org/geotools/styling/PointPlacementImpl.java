@@ -28,7 +28,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: PointPlacementImpl.java,v 1.1 2002/10/14 14:16:30 ianturton Exp $
+ * @version $Id: PointPlacementImpl.java,v 1.2 2002/10/23 17:03:39 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class PointPlacementImpl implements PointPlacement {
@@ -44,7 +44,7 @@ public class PointPlacementImpl implements PointPlacement {
     /** Creates a new instance of DefaultPointPlacement */
     public PointPlacementImpl() {
         try {
-            rotation = new org.geotools.filter.ExpressionLiteral(new Integer(0));
+            rotation = new org.geotools.filter.LiteralExpression(new Integer(0));
         } catch (org.geotools.filter.IllegalFilterException ife){
             LOGGER.severe("Failed to build defaultPointPlacement: " + ife);
         }

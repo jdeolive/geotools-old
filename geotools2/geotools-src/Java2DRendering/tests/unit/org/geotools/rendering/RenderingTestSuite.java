@@ -2,7 +2,7 @@
  * SLDStyleSuite.java
  * JUnit based test
  *
- * $Id: RenderingTestSuite.java,v 1.1 2002/10/16 16:51:07 ianturton Exp $
+ * $Id: RenderingTestSuite.java,v 1.2 2002/10/23 17:03:40 ianturton Exp $
  */                
 
 package org.geotools.rendering;
@@ -34,7 +34,7 @@ public class RenderingTestSuite extends TestCase {
         TestSuite suite = new TestSuite("All Rendering tests");
        
         suite.addTestSuite(Rendering2DTest.class);
-        suite.addTestSuite(RenderStyleTest.class);
+        //suite.addTestSuite(RenderStyleTest.class);
 
         return suite;
     }

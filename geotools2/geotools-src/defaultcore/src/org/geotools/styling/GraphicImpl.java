@@ -31,7 +31,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: GraphicImpl.java,v 1.3 2002/10/22 17:01:50 ianturton Exp $
+ * @version $Id: GraphicImpl.java,v 1.4 2002/10/23 17:03:58 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class GraphicImpl implements org.geotools.styling.Graphic {
@@ -216,7 +216,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     
     public void setOpacity(double opacity){
         try {
-            this.opacity = new ExpressionLiteral(new Double(opacity));
+            this.opacity = new LiteralExpression(new Double(opacity));
         } catch (org.geotools.filter.IllegalFilterException mfe){
             severe("setOpacity", "Problem setting Opacity", mfe);
         }
@@ -235,7 +235,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
 
     public void setRotation(double rotation){
         try {
-            setRotation(new ExpressionLiteral(new Double(rotation)));
+            setRotation(new LiteralExpression(new Double(rotation)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
             severe("setRotation", "Problem setting Rotation", mfe);
         }
@@ -255,7 +255,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
 
     public void setSize(int size){
         try {
-            setSize(new ExpressionLiteral(new Integer(size)));
+            setSize(new LiteralExpression(new Integer(size)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
             severe("setSize", "Problem setting Size", mfe);
         }

@@ -43,9 +43,9 @@ public class BetweenTest extends TestCase {
         AttributeType a2 = new AttributeTypeDefault("geometry",Geometry.class).setPosition(1);
         FeatureType schema = new FeatureTypeFlat(new AttributeType[]{a1,a2});
         
-        a.addLeftValue(new ExpressionLiteral(new Double(5)));
-        a.addRightValue(new ExpressionLiteral(new Double(15)));
-        a.addMiddleValue(new ExpressionAttribute(schema,"value"));
+        a.addLeftValue(new LiteralExpression(new Double(5)));
+        a.addRightValue(new LiteralExpression(new Double(15)));
+        a.addMiddleValue(new AttributeExpression(schema,"value"));
         
         System.out.println("a1 official name is "+a1.getName());
         FeatureFactory fFac = new FeatureFactory(schema);

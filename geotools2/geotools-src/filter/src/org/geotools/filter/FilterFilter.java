@@ -42,7 +42,7 @@ import org.geotools.gml.GMLHandlerJTS;
  * extracts an OGC filter object from an XML stream and passes it to its parent
  * as a fully instantiated OGC filter object.</p>
  * 
- * @version $Id: FilterFilter.java,v 1.13 2002/10/23 15:38:51 ianturton Exp $
+ * @version $Id: FilterFilter.java,v 1.14 2002/10/23 17:04:34 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFilter 
@@ -170,7 +170,7 @@ public class FilterFilter
                     }
                 
                     // if at an expression start, tell the factory
-                    else if( ExpressionDefault.isExpression(filterElementType) ) {
+                    else if( DefaultExpression.isExpression(filterElementType) ) {
                         LOGGER.finest("found an expression filter start");
                         expressionFactory.start(localName);
                     }
@@ -289,7 +289,7 @@ public class FilterFilter
                     //  1. at the end of an outer expression, create it and pass to filter
                     //  2. at end of an inner expression, pass the message along to 
                     //      current outer expression
-                    else if( ExpressionDefault.isExpression(filterElementType) ) {
+                    else if( DefaultExpression.isExpression(filterElementType) ) {
                         LOGGER.finer("found an expression filter end");
                         expressionFactory.end(localName);
                         if( expressionFactory.isReady() ) {
@@ -416,22 +416,22 @@ public class FilterFilter
             return AbstractFilter.FID;
         }
         else if( filterType.equals("Add") ) {
-            return ExpressionDefault.MATH_ADD;
+            return DefaultExpression.MATH_ADD;
         }
         else if( filterType.equals("Sub") ) {
-            return ExpressionDefault.MATH_SUBTRACT;
+            return DefaultExpression.MATH_SUBTRACT;
         }
         else if( filterType.equals("Mul") ) {
-            return ExpressionDefault.MATH_MULTIPLY;
+            return DefaultExpression.MATH_MULTIPLY;
         }
         else if( filterType.equals("Div") ) {
-            return ExpressionDefault.MATH_DIVIDE;
+            return DefaultExpression.MATH_DIVIDE;
         }
         else if( filterType.equals("PropertyName") ) {
-            return ExpressionDefault.LITERAL_DOUBLE;
+            return DefaultExpression.LITERAL_DOUBLE;
         }
         else if( filterType.equals("Literal") ) {
-            return ExpressionDefault.ATTRIBUTE_DOUBLE;
+            return DefaultExpression.ATTRIBUTE_DOUBLE;
         }
         else {
             return -1;

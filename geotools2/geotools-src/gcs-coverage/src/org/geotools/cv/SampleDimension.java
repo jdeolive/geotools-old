@@ -102,7 +102,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.11 2002/10/17 21:11:03 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.12 2002/10/23 17:03:53 ianturton Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -271,9 +271,12 @@ public class SampleDimension implements Serializable {
                 }
                 main = candidate;
             }
+            this.isGeophysics       = list.isScaled(true);
+        }else{
+            this.isGeophysics = false;
         }
         this.categories         = list;
-        this.isGeophysics       = list.isScaled(true);
+        
         this.hasQualitative     = qualitative;
         this.hasQuantitative    = (main != null);
         this.sampleToGeophysics = isMainValid ? main : null;

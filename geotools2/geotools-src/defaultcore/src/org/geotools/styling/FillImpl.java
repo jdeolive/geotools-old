@@ -32,7 +32,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FillImpl.java,v 1.3 2002/10/22 17:01:50 ianturton Exp $
+ * @version $Id: FillImpl.java,v 1.4 2002/10/23 17:04:37 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -88,7 +88,7 @@ public class FillImpl implements org.geotools.styling.Fill {
         color = rgb;
     }
     public void setColor(String rgb){
-        color = new org.geotools.filter.ExpressionLiteral(rgb);
+        color = new org.geotools.filter.LiteralExpression(rgb);
     }
     
     /**
@@ -124,7 +124,7 @@ public class FillImpl implements org.geotools.styling.Fill {
         backgroundColor = rgb;
     }
     public void setBackgroundColor(String rgb){
-        backgroundColor = new org.geotools.filter.ExpressionLiteral(rgb);
+        backgroundColor = new org.geotools.filter.LiteralExpression(rgb);
     }
     
     /**
@@ -151,7 +151,7 @@ public class FillImpl implements org.geotools.styling.Fill {
         this.opacity = opacity;
     }
     public void setOpacity(String opacity){
-        this.opacity = new org.geotools.filter.ExpressionLiteral(opacity);
+        this.opacity = new org.geotools.filter.LiteralExpression(opacity);
     }
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be

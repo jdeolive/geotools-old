@@ -115,8 +115,8 @@ public class SQLEncoderPostgis extends SQLEncoder
 
 	log.finer("exporting GeometryFilter");	
 	if (filter.getFilterType() == AbstractFilter.GEOMETRY_BBOX) {
-	    ExpressionDefault left = (ExpressionDefault)filter.getLeftGeometry();
-	    ExpressionDefault right = (ExpressionDefault)filter.getRightGeometry();
+	    DefaultExpression left = (DefaultExpression)filter.getLeftGeometry();
+	    DefaultExpression right = (DefaultExpression)filter.getRightGeometry();
 	    try {
 		left.accept(this);
 		out.write(" && ");
@@ -132,10 +132,10 @@ public class SQLEncoderPostgis extends SQLEncoder
     }
 
 
- public void visit(ExpressionLiteral expression) {
+ public void visit(LiteralExpression expression) {
         log.finer("exporting LiteralExpression");
         try{
-	    if (expression.getType() == ExpressionDefault.LITERAL_GEOMETRY){
+	    if (expression.getType() == DefaultExpression.LITERAL_GEOMETRY){
 	        visit((BBoxExpression)expression);
 		//bit of a hack, but BBox doesn't seem to like to use its visit.
 	    } else {

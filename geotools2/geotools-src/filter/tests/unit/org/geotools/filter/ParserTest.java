@@ -125,6 +125,8 @@ public class ParserTest
             new AttributeTypeDefault("testFloat", Float.class);
         AttributeType doubleAttribute = 
             new AttributeTypeDefault("testDouble", Double.class);
+        AttributeType doubleZeroAttribute = 
+            new AttributeTypeDefault("testZeroDouble", Double.class);
         AttributeType stringAttribute = 
             new AttributeTypeDefault("testString", String.class);
         
@@ -147,6 +149,8 @@ public class ParserTest
         LOGGER.fine("added float to feature type");
         testSchema = testSchema.setAttributeType(doubleAttribute);
         LOGGER.fine("added double to feature type");
+        testSchema = testSchema.setAttributeType(doubleZeroAttribute);
+        LOGGER.fine("added doubleZero to feature type");
         testSchema = testSchema.setAttributeType(stringAttribute);
         LOGGER.fine("added string to feature type");
 
@@ -157,7 +161,7 @@ public class ParserTest
         coords[2] = new Coordinate(5,6);
         
         // Builds the test feature
-        Object[] attributes = new Object[10];
+        Object[] attributes = new Object[11];
         attributes[0] = new LineString(coords, new PrecisionModel(), 1);
         attributes[1] = new Boolean(true);
         attributes[2] = new Character('t');
@@ -167,7 +171,8 @@ public class ParserTest
         attributes[6] = new Long(10003);
         attributes[7] = new Float(10000.4);
         attributes[8] = new Double(100000.5);
-        attributes[9] = "test string data";
+        attributes[9] = new Double(0.0);
+        attributes[10] = "test string data";
         
         // Creates the feature itself
         FeatureFactory factory = new FeatureFactory(testSchema);
@@ -293,7 +298,7 @@ public class ParserTest
         LOGGER.fine("about to make parser");
         //XMLReader parser = XMLReaderFactory.createXMLReader(/*"org.apache.xerces.parsers.SAXParser"*/); 
         // uncomment to use xerces parser
-        LOGGER.fine("just made parser");
+        
         
         //parser.setContentHandler(documentFilter);
         //parser.parse(uri);
@@ -303,6 +308,7 @@ public class ParserTest
             
         ParserAdapter p = new ParserAdapter(parser.getParser());
         p.setContentHandler(documentFilter);
+        LOGGER.fine("just made parser");
         p.parse(uri);
         LOGGER.fine("just parsed: " + uri);
 

@@ -12,7 +12,7 @@ import org.geotools.filter.*;
  * Factory for creating Styles. All style elements are returned as Interfaces from org.geotools.core as opposed
  * to Implementations from org.geotools.defaultcore.
  *
- * @version $Id: StyleFactoryImpl.java,v 1.2 2002/10/22 17:02:05 ianturton Exp $
+ * @version $Id: StyleFactoryImpl.java,v 1.3 2002/10/23 17:02:57 ianturton Exp $
  * @author  iant
  */
 public class StyleFactoryImpl extends StyleFactory {
@@ -91,7 +91,7 @@ public class StyleFactoryImpl extends StyleFactory {
      * @return the stroke object
      */
     public Stroke createStroke(Expression color, Expression width){
-        return createStroke(color,width,new ExpressionLiteral(1.0));
+        return createStroke(color,width,new LiteralExpression(1.0));
     }
     /** A convienice method to make a simple stroke
      * @see org.geotools.stroke
@@ -101,8 +101,8 @@ public class StyleFactoryImpl extends StyleFactory {
      * @return The stroke
      */
     public Stroke createStroke(Expression color, Expression width, Expression opacity){
-        return createStroke(color, width,opacity,new ExpressionLiteral("bevel"),
-        new ExpressionLiteral("square"),null,new ExpressionLiteral(0.0),null,null);
+        return createStroke(color, width,opacity,new LiteralExpression("bevel"),
+        new LiteralExpression("square"),null,new LiteralExpression(0.0),null,null);
     }
     
     /** creates a stroke
@@ -151,7 +151,7 @@ public class StyleFactoryImpl extends StyleFactory {
     }
     
     public Fill createFill(Expression color){
-        return createFill(color,null,new ExpressionLiteral(1.0),null);
+        return createFill(color,null,new LiteralExpression(1.0),null);
     }
     
     
@@ -171,27 +171,27 @@ public class StyleFactoryImpl extends StyleFactory {
     }
     public Mark getCircleMark(){
         Mark mark = getDefaultMark();
-        mark.setWellKnownName(new ExpressionLiteral("Circle"));
+        mark.setWellKnownName(new LiteralExpression("Circle"));
         return mark;
     }
     public Mark getCrossMark(){
         Mark mark = getDefaultMark();
-        mark.setWellKnownName(new ExpressionLiteral("Cross"));
+        mark.setWellKnownName(new LiteralExpression("Cross"));
         return mark;
     }
     public Mark getXMark(){
         Mark mark = getDefaultMark();
-        mark.setWellKnownName(new ExpressionLiteral("X"));
+        mark.setWellKnownName(new LiteralExpression("X"));
         return mark;
     }
     public Mark getTriangleMark(){
         Mark mark = getDefaultMark();
-        mark.setWellKnownName(new ExpressionLiteral("Triangle"));
+        mark.setWellKnownName(new LiteralExpression("Triangle"));
         return mark;
     }
     public Mark getStarMark(){
         Mark mark = getDefaultMark();
-        mark.setWellKnownName(new ExpressionLiteral("Star"));
+        mark.setWellKnownName(new LiteralExpression("Star"));
         return mark;
     }
     public Mark createMark(){
@@ -281,8 +281,8 @@ public class StyleFactoryImpl extends StyleFactory {
     public Fill getDefaultFill() {
         Fill fill = new FillImpl();
         try {
-            fill.setColor(new org.geotools.filter.ExpressionLiteral("#808080"));
-            fill.setOpacity(new org.geotools.filter.ExpressionLiteral(new Double(1.0)));
+            fill.setColor(new org.geotools.filter.LiteralExpression("#808080"));
+            fill.setOpacity(new org.geotools.filter.LiteralExpression(new Double(1.0)));
         } catch (org.geotools.filter.IllegalFilterException ife){
             severe("getDefaultFill", "Failed to build default fill:",ife);
         }
@@ -307,12 +307,12 @@ public class StyleFactoryImpl extends StyleFactory {
     
     public Stroke getDefaultStroke() {
         try{
-            Stroke stroke = createStroke(new ExpressionLiteral("#000000"), new ExpressionLiteral(new Integer(1)));
+            Stroke stroke = createStroke(new LiteralExpression("#000000"), new LiteralExpression(new Integer(1)));
             
-            stroke.setDashOffset(new ExpressionLiteral(new Integer(0)));
-            stroke.setLineCap(new ExpressionLiteral("butt"));
-            stroke.setLineJoin(new ExpressionLiteral("miter"));
-            stroke.setOpacity(new ExpressionLiteral(new Integer(1)));
+            stroke.setDashOffset(new LiteralExpression(new Integer(0)));
+            stroke.setLineCap(new LiteralExpression("butt"));
+            stroke.setLineJoin(new LiteralExpression("miter"));
+            stroke.setOpacity(new LiteralExpression(new Integer(1)));
             
             return stroke;
         } catch (IllegalFilterException ife){
@@ -336,10 +336,10 @@ public class StyleFactoryImpl extends StyleFactory {
     public Font getDefaultFont(){
         Font font = new FontImpl();
         try {
-            font.setFontSize(new org.geotools.filter.ExpressionLiteral(new Integer(10)));
-            font.setFontStyle(new org.geotools.filter.ExpressionLiteral("normal"));
-            font.setFontWeight(new org.geotools.filter.ExpressionLiteral("normal"));
-            font.setFontFamily(new org.geotools.filter.ExpressionLiteral("Courier"));
+            font.setFontSize(new org.geotools.filter.LiteralExpression(new Integer(10)));
+            font.setFontStyle(new org.geotools.filter.LiteralExpression("normal"));
+            font.setFontWeight(new org.geotools.filter.LiteralExpression("normal"));
+            font.setFontFamily(new org.geotools.filter.LiteralExpression("Courier"));
         } catch (org.geotools.filter.IllegalFilterException ife){
             severe("getDefaultFont","Failed to build defaultFont:", ife);
         }
@@ -349,9 +349,9 @@ public class StyleFactoryImpl extends StyleFactory {
     public Graphic getDefaultGraphic(){
         Graphic gr = new GraphicImpl();
         try {
-            gr.setSize(new ExpressionLiteral(new Integer(6)));
-            gr.setOpacity(new ExpressionLiteral(new Double(1.0)));
-            gr.setRotation(new ExpressionLiteral(new Double(0.0)));
+            gr.setSize(new LiteralExpression(new Integer(6)));
+            gr.setOpacity(new LiteralExpression(new Double(1.0)));
+            gr.setRotation(new LiteralExpression(new Double(0.0)));
         } catch (IllegalFilterException ife){
             severe("getDefaultGraphic", "Failed to build default graphic", ife);
         }
