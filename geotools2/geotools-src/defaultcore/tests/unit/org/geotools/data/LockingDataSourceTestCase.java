@@ -407,10 +407,12 @@ public class LockingDataSourceTestCase extends TestCase {
         assertEquals("ALL", 4, data.size());
     }
 
-    /*
+    /**
      * Test for void getFeatures(FeatureCollection, Filter)
+     * 
      * @task TODO: The last assertion fails on my machine for some
      * reason - cholmes.  The behavior should be 4, I get 8.
+     * 
      */
     public void testGetFeaturesFeatureCollectionFilter()
         throws DataSourceException {
@@ -422,8 +424,10 @@ public class LockingDataSourceTestCase extends TestCase {
         ds.getFeatures(data, Filter.NONE);
         assertEquals("NONEx1", 4, data.size());
 
-        //ds.getFeatures(data, Filter.NONE);
-        //assertEquals("NONEx2", 4, data.size());
+        // cholmes - do you still get 8 rather than the expected 4?
+        // 
+        ds.getFeatures(data, Filter.NONE);
+        assertEquals("NONEx2", 4, data.size());
     }
 
     /*
