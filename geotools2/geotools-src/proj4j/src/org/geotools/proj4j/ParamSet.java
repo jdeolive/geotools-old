@@ -87,7 +87,7 @@ Hashtable params = new Hashtable();
     
     public double getRadiansParam(String paramName){
         Object value = params.get(paramName);
-        if(value!=null)return Misc.dmsToR(value.toString());
+        if(value!=null)return Functions.dmsToR(value.toString());
         return 0;
     }
     public String toString(){

@@ -35,7 +35,7 @@ public class Utm extends Tmerc implements Constants{
                 }
         }
 	else /* nearest central meridian input */
-            zone = (int)(Math.floor((Misc.adjlon(lam0) + PI) * 30. / PI));//is the int cast a problem?
+            zone = (int)(Math.floor((Functions.adjlon(lam0) + PI) * 30. / PI));//is the int cast a problem?
 		if (zone < 0)
 			zone = 0;
 		else if (zone >= 60)

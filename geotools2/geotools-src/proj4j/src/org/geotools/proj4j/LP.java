@@ -23,13 +23,13 @@ public class LP {
    
     public LP(String coord){
         StringTokenizer tok = new StringTokenizer(coord," ,");
-        lam = Misc.dmsToR(tok.nextToken());
-        phi = Misc.dmsToR(tok.nextToken());
+        lam = Functions.dmsToR(tok.nextToken());
+        phi = Functions.dmsToR(tok.nextToken());
     }
     
     public LP(String lam,String phi){
-        this.lam = Misc.dmsToR(lam);
-        this.phi = Misc.dmsToR(phi);
+        this.lam = Functions.dmsToR(lam);
+        this.phi = Functions.dmsToR(phi);
     }
     
     

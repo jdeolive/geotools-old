@@ -105,7 +105,7 @@ public abstract class Projection implements Constants {
                 lp.phi = Math.atan(ellipse.rone_es * Math.tan(lp.phi));
             lp.lam -= lam0;	/* compute del lp.lam */
             if (!over)
-                lp.lam = Misc.adjlon(lp.lam); /* adjust del longitude */
+                lp.lam = Functions.adjlon(lp.lam); /* adjust del longitude */
             xy =  doForward(lp);//the magic line
             /* adjust for major axis and easting/northings */
             
@@ -130,7 +130,7 @@ public abstract class Projection implements Constants {
         lp=doInverse(xy);
         lp.lam += lam0; /* reduce from del lp.lam */
         if (!over)
-            lp.lam = Misc.adjlon(lp.lam); /* adjust longitude to CM */
+            lp.lam = Functions.adjlon(lp.lam); /* adjust longitude to CM */
         if (geoc && Math.abs(Math.abs(lp.phi)-HALFPI) > EPS)
             lp.phi = Math.atan(ellipse.one_es * Math.tan(lp.phi));
         return lp;

@@ -51,7 +51,7 @@ public class Aeqd extends Projection implements Constants{
 	sinphi = Math.sin(lp.phi);
 	t = 1. / Math.sqrt(1. - ellipse.es * sinphi * sinphi);
 	xy.x = lp.lam * cosphi * t;
-	xy.y = MeridinalDistance.mlfn(lp.phi, sinphi, cosphi, en) - M1 +
+	xy.y = Functions.mlfn(lp.phi, sinphi, cosphi, en) - M1 +
 		.5 * lp.lam * lp.lam * cosphi * sinphi * t;
 	return (xy);
 }
@@ -66,7 +66,7 @@ public class Aeqd extends Projection implements Constants{
 	case N_POLE:
 		coslam = - coslam;
 	case S_POLE:
-		xy.x = (rho = Math.abs(Mp - MeridinalDistance.mlfn(lp.phi, sinphi, cosphi, en))) *
+		xy.x = (rho = Math.abs(Mp - Functions.mlfn(lp.phi, sinphi, cosphi, en))) *
 			Math.sin(lp.lam);
 		xy.y = rho * coslam;
 		break;
@@ -144,7 +144,7 @@ protected LP egInverse(XY xy)throws ProjectionException{ /* Guam elliptical */
 	lp.phi = phi0;
 	for (i = 0; i < 3; ++i) {
 		t = ellipse.e * Math.sin(lp.phi);
-		lp.phi = MeridinalDistance.invMlfn(M1 + xy.y -
+		lp.phi = Functions.invMlfn(M1 + xy.y -
 			x2 * Math.tan(lp.phi) * (t = Math.sqrt(1. - t * t)), ellipse.es, en);
 	}
 	lp.lam = xy.x * t / Math.cos(lp.phi);
@@ -178,7 +178,7 @@ protected LP eInverse(XY xy)throws ProjectionException{ /* elliptical */
 			lp.phi = Math.atan((1. - ellipse.es * F * sinph0 / Math.sin(psi)) * Math.tan(psi) /
 				ellipse.one_es);//TODO: see aatan
 	} else { /* Polar */
-		lp.phi = MeridinalDistance.invMlfn(mode == N_POLE ? Mp - c : Mp + c,
+		lp.phi = Functions.invMlfn(mode == N_POLE ? Mp - c : Mp + c,
 			ellipse.es, en);
 		lp.lam = Math.atan2(xy.x, mode == N_POLE ? -xy.y : xy.y);
 	}
@@ -239,18 +239,18 @@ public void setParams(ParamSet params)throws ProjectionException{
 	if (ellipse.es==0) {
             type=SPHERE;
 	} else {
-                en = MeridinalDistance.enfn(ellipse.es);
+                en = Functions.enfn(ellipse.es);
 		//if (en==0) throw new ProjectionException("E ERROR 0");
 		if (params.contains("guam")) {
-			M1 = MeridinalDistance.mlfn(phi0, sinph0, cosph0, en);
+			M1 = Functions.mlfn(phi0, sinph0, cosph0, en);
 			type = GUAM;
 		} else {
 			switch (mode) {
 			case N_POLE:
-				Mp = MeridinalDistance.mlfn(HALFPI, 1., 0., en);
+				Mp = Functions.mlfn(HALFPI, 1., 0., en);
 				break;
 			case S_POLE:
-				Mp = MeridinalDistance.mlfn(-HALFPI, -1., 0., en);
+				Mp = Functions.mlfn(-HALFPI, -1., 0., en);
 				break;
 			case EQUIT:
 			case OBLIQ:

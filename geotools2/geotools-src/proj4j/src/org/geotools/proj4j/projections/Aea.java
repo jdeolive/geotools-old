@@ -50,7 +50,7 @@ public class Aea extends org.geotools.proj4j.Projection {
     
     protected XY  eForward(LP lp) throws ProjectionException {
         XY xy = new XY(); // ellipse
-        if ((rho = c - (ellips ? n * Misc.qsfn(Math.sin(lp.phi),ellipse.e, ellipse.one_es) : n2 * Math.sin(lp.phi))) < 0.) throw new ProjectionException("tolerance condition error");
+        if ((rho = c - (ellips ? n * Functions.qsfn(Math.sin(lp.phi),ellipse.e, ellipse.one_es) : n2 * Math.sin(lp.phi))) < 0.) throw new ProjectionException("tolerance condition error");
         rho = dd * Math.sqrt(rho);
         xy.x = rho * Math.sin( lp.lam *= n );
         xy.y = rho0 - rho * Math.cos(lp.lam);
@@ -118,23 +118,23 @@ public class Aea extends org.geotools.proj4j.Projection {
             ellips=true;
             double ml1, m1;
             
-            en = MeridinalDistance.enfn(ellipse.es);
-            m1 = Misc.msfn(sinphi, cosphi, ellipse.es);
-            ml1 =Misc.qsfn(sinphi, ellipse.e, ellipse.one_es);
+            en = Functions.enfn(ellipse.es);
+            m1 = Functions.msfn(sinphi, cosphi, ellipse.es);
+            ml1 =Functions.qsfn(sinphi, ellipse.e, ellipse.one_es);
             if (secant) { /* secant cone */
                 double ml2, m2;
                 
                 sinphi = Math.sin(phi2);
                 cosphi = Math.cos(phi2);
-                m2 = Misc.msfn(sinphi, cosphi, ellipse.es);
-                ml2 = Misc.qsfn(sinphi, ellipse.e, ellipse.one_es);
+                m2 = Functions.msfn(sinphi, cosphi, ellipse.es);
+                ml2 = Functions.qsfn(sinphi, ellipse.e, ellipse.one_es);
                 n = (m1 * m1 - m2 * m2) / (ml2 - ml1);
             }
             ec = 1. - .5 * ellipse.one_es * Math.log((1. - ellipse.e) /
             (1. + ellipse.e)) / ellipse.e;
             c = m1 * m1 + n * ml1;
             dd = 1. / n;
-            rho0 = dd * Math.sqrt(c - n * Misc.qsfn(Math.sin(phi0),ellipse.e, ellipse.one_es));
+            rho0 = dd * Math.sqrt(c - n * Functions.qsfn(Math.sin(phi0),ellipse.e, ellipse.one_es));
         } else {
             if (secant) n = .5 * (n + Math.sin(phi2));
             n2 = n + n;

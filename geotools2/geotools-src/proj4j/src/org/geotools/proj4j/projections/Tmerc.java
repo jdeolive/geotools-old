@@ -46,7 +46,7 @@ public class Tmerc extends org.geotools.proj4j.Projection {
     .05  * als * (5. + t * (t - 18.) + n * (14. - 58. * t)+
     FC7  * als * (61. + t * ( t * (179. - t) - 479. ) )
     )));
-    xy.y = k0 * (MeridinalDistance.mlfn(lp.phi, sinphi, cosphi, en) - ml0 +
+    xy.y = k0 * (Functions.mlfn(lp.phi, sinphi, cosphi, en) - ml0 +
     sinphi * al * lp.lam * .5  * ( 1. +
     FC4  * als * (5. - t + n * (9. + 4. * n) +
     FC6  * als * (61. + t * (t - 58.) + n * (270.- 330 * t)+
@@ -75,7 +75,7 @@ public class Tmerc extends org.geotools.proj4j.Projection {
     protected LP  eInverse(XY xy) throws ProjectionException { LP lp = new LP();; // ellipsoid
     double n, con, cosphi, d, ds, sinphi, t;
     
-    lp.phi = MeridinalDistance.invMlfn(ml0 + xy.y / k0, ellipse.es, en);
+    lp.phi = Functions.invMlfn(ml0 + xy.y / k0, ellipse.es, en);
     if (Math.abs(lp.phi) >= HALFPI ) {
         lp.phi = xy.y < 0. ? -HALFPI : HALFPI;
         lp.lam = 0.;
@@ -126,8 +126,8 @@ public class Tmerc extends org.geotools.proj4j.Projection {
     public void setParams(ParamSet ps)throws ProjectionException{
         super.setParams(ps);
         if(ellipse.es!=0){
-            en = MeridinalDistance.enfn(ellipse.es);
-            ml0 = MeridinalDistance.mlfn(phi0, Math.sin(phi0), Math.cos(phi0), en);
+            en = Functions.enfn(ellipse.es);
+            ml0 = Functions.mlfn(phi0, Math.sin(phi0), Math.cos(phi0), en);
             esp = ellipse.es / (1. - ellipse.es);
             useEllips = true;
         }
