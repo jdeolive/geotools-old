@@ -49,11 +49,8 @@ import javax.xml.transform.stream.StreamResult;
  * @author Ian Schneider<br>
  * @author Chris Holmes, TOPP
  *
- * @task TODO: This is not yet complete, but I wanted to get it in  cvs since
- *       I'm going to be gone for awhile, in case anyone is  interested in
- *       printing gml.  The most pressing things to do are get the attributes
- *       correct for geometries, and to get multi geometries working right.
- *       This may necessitate redoing writeGeometry.
+ * @task TODO: Interior rings of polygons.
+ * @task TODO: srs printed, multi namespaces, bbox.
  */
 public class FeatureTransformer implements org.xml.sax.XMLReader {
     /** The logger for the filter module. */
@@ -94,6 +91,8 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
 
     private void walk(FeatureCollection collection) throws SAXException {
         contentHandler.startDocument();
+
+        //FeatureCollectionIteration iteration = new FeatureCollectionIterat();
 
         FeatureCollectionIteration.Handler handler;
 
@@ -216,21 +215,14 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
                 TB(indent++);
 
                 AttributesImpl fcAtts = new AttributesImpl();
-
-                String ns = null;
-                
-                //String ns = "http://www.openplans.blorg/";
-                LOGGER.info("features size " + fc.size());
-                if (fc.size() > 0) {
-                LOGGER.info("first feat is " + fc.features().next());
-                LOGGER.info("schema is " +
+                LOGGER.finer("first feat is " + fc.features().next());
+                LOGGER.finer("schema is " +
                     fc.features().next().getFeatureType().getNamespace());
-                   
-                ns = fc.features().next().getFeatureType().getNamespace();
+
+                String ns = fc.features().next().getFeatureType().getNamespace();
 
                 if (ns == null) {
                     ns = defaultNamespace;
-                }
                 }
 
                 fcAtts.addAttribute("", "xmlns", "xmlns", "xmlns", ns);
@@ -268,65 +260,32 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             }
         }
 
-        public void endAttribute(Feature f, AttributeType type) {
+        public void handleAttribute(AttributeType type, Object value) {
             try {
+                TB(indent);
+
                 String name = type.getName();
-
-                output.endElement("", name, name);
+                output.startElement("", name, name, atts);
+                if (Geometry.class.isAssignableFrom(value.getClass())) {
+                    indent++;
+		    CR();
+		    TB(indent++);
+                    writeGeometry((Geometry) value, "dude");
+		      CR();
+		    TB(--indent);
+		} else {
+                    if (value != null) {
+                        String text = value.toString();
+                        text = GMLUtils.encodeXML(text);
+                        output.characters(text.toCharArray(), 0, text.length());
+                    }
+                }
+		output.endElement("", name, name);
                 CR();
-
-                //TB(indent);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        
-        public void handleAttribute(AttributeType type, Object value) {
-          try {
-            TB(indent);
-            
-            String name = type.getName();
-            output.startElement("", name, name, atts);
-
-            if (Geometry.class.isAssignableFrom(type.getType())) {
-              indent++;
-              writeGeometry((Geometry) value, "gid");
-            } else {
-              if (value != null) {
-                String text = value.toString();
-                text = GMLUtils.encodeXML(text);
-                output.characters(text.toCharArray(), 0, text.length());
-              }
-            }
-            
-          } catch (Exception e) {
-            e.printStackTrace(); 
-          }
-        }
-
-//        public void handleAttribute(Feature f, AttributeType type) {
-//            try {
-//                TB(indent);
-//
-//                String name = type.getName();
-//                output.startElement("", name, name, atts);
-//
-//                Object val = f.getAttribute(type.getName());
-//
-//                if (Geometry.class.isAssignableFrom(val.getClass())) {
-//                    indent++;
-//                    writeGeometry((Geometry) val, "dude");
-//                } else {
-//                    if (val != null) {
-//                        String text = val.toString();
-//                        text = GMLUtils.encodeXML(text);
-//                        output.characters(text.toCharArray(), 0, text.length());
-//                    }
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
 
         public void handleFeature(Feature f) {
             try {
@@ -335,7 +294,6 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
                     atts);
                 CR();
                 TB(indent++);
-
                 String name = f.getFeatureType().getTypeName();
                 AttributesImpl fidAtts = new org.xml.sax.helpers.AttributesImpl();
                 String fid = f.getID();
@@ -345,12 +303,7 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
                 }
 
                 output.startElement("", name, name, fidAtts);
-
-                //output.characters(name.toCharArray(), 0, name.length());
-                //output.endElement("", "name", "name");
                 CR();
-
-                //indent--;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -368,57 +321,39 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             throws SAXException {
             //user option to just use user defined bbox for whole dataset?
             //envelope.expandToInclude(geometry.getEnvelopeInternal());
-            CR();
-            TB(indent++);
+	    //-no use fc.getBounds();
 
             String geomName = GMLUtils.getGeometryName(geometry);
             output.startElement(GMLUtils.GML_URL, geomName, "gml:" + geomName,
                 atts);
 
             int geometryType = GMLUtils.getGeometryType(geometry);
-
+	 
             switch (geometryType) {
             case GMLUtils.POINT:
                 writeCoordinates(geometry);
-
                 break;
 
             case GMLUtils.LINESTRING:
                 writeCoordinates(geometry);
-
                 break;
 
             case GMLUtils.POLYGON:
-                CR();
-                TB(indent++);
+              
                 writePolygon((Polygon) geometry, gid);
-
                 break;
 
             case GMLUtils.MULTIPOINT:
-
-                //writeMultiPoint((GeometryCollection) geometry, gid);
-                break;
-
             case GMLUtils.MULTILINESTRING:
-
-                //writeMultiLineString((GeometryCollection) geometry, gid);
-                break;
-
             case GMLUtils.MULTIPOLYGON:
-
-                //writeMultiPolygon((GeometryCollection) geometry, gid);
-                break;
-
             case GMLUtils.MULTIGEOMETRY:
-
-                //writeMultiGeometry((GeometryCollection) geometry, gid);
-                break;
+		String member = getMemberName(geometryType);
+		writeMulti((GeometryCollection) geometry, gid, member);
+		break;
             }
 
             output.endElement(GMLUtils.GML_URL, geomName, "gml:" + geomName);
-            CR();
-            TB(--indent);
+        
         }
 
         /**
@@ -434,6 +369,8 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             String outBound = "outerBoundaryIs";
             String lineRing = "LinearRing";
             String inBound = "innerBoundaryIs";
+	    CR();
+	    TB(indent++);
             output.startElement(GML_URL, outBound, "gml:" + outBound, atts);
             CR();
             TB(indent++);
@@ -451,15 +388,15 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             TB(--indent);
 
             /* TODO: if (geometry.getNumInteriorRing() > 0) {
-            
-                                    for( int i = 0 ; i < geometry.getNumInteriorRing() ; i++ ) {
-                                        finalResult.append("\n         <gml:innerBoundaryIs>");
-                                        finalResult.append("\n          <gml:LinearRing>");
-                                        writeCoordinates( geometry.getInteriorRingN(i) );
-                                        finalResult.append("\n          </gml:LinearRing>");
-                                        finalResult.append("\n        </gml:innerBoundaryIs>");
-                                    }
-                                }*/
+	       
+	       for( int i = 0 ; i < geometry.getNumInteriorRing() ; i++ ) {
+	       finalResult.append("\n         <gml:innerBoundaryIs>");
+	       finalResult.append("\n          <gml:LinearRing>");
+	       writeCoordinates( geometry.getInteriorRingN(i) );
+	       finalResult.append("\n          </gml:LinearRing>");
+	       finalResult.append("\n        </gml:innerBoundaryIs>");
+	       }
+	       }*/
         }
 
         private void writeCoordinates(Geometry geometry)
@@ -471,59 +408,76 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
             TB(--indent);
         }
 
-        
-        
-        /**
-         * Writes a MultiLineString geometry.
-         */
+	//TODO: srs - should only appear on outermost element of geomCollection.
+	private void writeMulti(GeometryCollection geometry,
+					  String gid, String member) throws SAXException {
+	    for(int i = 0, n = geometry.getNumGeometries(); i < n; i++) {
+		CR();
+		TB(indent);
+		output.startElement(GML_URL, member, "gml:" + member, atts);
+		CR();
+		indent++;
+		TB(indent++);
+				
+		writeGeometry( geometry.getGeometryN(i), gid + "." + (i + 1));
+		
+		CR();
+		TB(--indent);
+		output.endElement(GML_URL, member, "gml:" + member);
+	    }
+	    CR();
+	    TB(--indent);
+	    
+	} 
+	
+	private String getMemberName(int geometryType){
+	    String member;
+	    switch (geometryType) {
+	    case GMLUtils.MULTIPOINT:
+		return "pointMember";
+		
+		
+	    case GMLUtils.MULTILINESTRING:
+		return "lineStringMember";
+		
+		
+	    case GMLUtils.MULTIPOLYGON:
+		return "polygonMember";
+		
+	    default:
 
-        /*  private void writeMultiLineString(GeometryCollection geometry,
-           String gid) {
-           finalResult.append(abstractGeometryStart1 + gid +
-                              abstractGeometryStart2);
-           for(int i = 0, n = geometry.getNumGeometries(); i < n; i++) {
-               if (verbose) finalResult.append(GEOM_OFFSET);
-               finalResult.append("<gml:lineStringMember>");
-               writeLineString( (LineString) geometry.getGeometryN(i) );
-               if (verbose) finalResult.append(GEOM_OFFSET);
-               finalResult.append("</gml:lineStringMember>");
-           }
-           finalResult.append( abstractGeometryEnd );
-           } */
+		return "geometryMember";
+	    }
+	}
 
-        /**
-         * Writes a MultiPoint geometry.
-         */
-
-        /*private void writeMultiPoint(GeometryCollection geometry, String gid) {
-           finalResult.append(abstractGeometryStart1 + gid +
-                              abstractGeometryStart2 );
-           for( int i = 0 ; i < geometry.getNumGeometries() ; i++ ) {
-               if (verbose) finalResult.append(GEOM_OFFSET);
-               finalResult.append("<gml:pointMember>");
-               writePoint( (Point) geometry.getGeometryN(i) );
-               if (verbose) finalResult.append(GEOM_OFFSET);
-               finalResult.append("</gml:pointMember>");
-           }
-           finalResult.append( abstractGeometryEnd );
-           } */
-
-        /**
-         * Writes a MultiPolygon geometry.
-         */
-
-        /*private void writeMultiPolygon(GeometryCollection geometry,
-           String gid) {
-           finalResult.append( abstractGeometryStart1 + gid +
-                               abstractGeometryStart2);
-           for(int i = 0, n = geometry.getNumGeometries(); i < n; i++) {
-               if (verbose) finalResult.append(GEOM_OFFSET);
-               finalResult.append("<gml:polygonMember>");
-               writePolygon((Polygon) geometry.getGeometryN(i));
-               if (verbose) finalResult.append(GEOM_OFFSET);
-               finalResult.append("</gml:polygonMember>");
-           }
-           finalResult.append( abstractGeometryEnd );
-           }  */
+	/*private void writeMultiLineString(GeometryCollection geometry,
+					  String gid) throws SAXException {
+	    //finalResult.append(abstractGeometryStart1 + gid +
+	    //                abstractGeometryStart2);
+	    String member = "lineStringMember";
+	    //CR();
+	    //TB(indent);
+	    for(int i = 0, n = geometry.getNumGeometries(); i < n; i++) {
+		CR();
+		TB(indent);
+		output.startElement(GML_URL, member, "gml:" + member, atts);
+		CR();
+		indent++;
+		TB(indent++);
+		//if (verbose) finalResult.append(GEOM_OFFSET);
+		//finalResult.append("<gml:lineStringMember>");
+		writeGeometry( geometry.getGeometryN(i), gid + "." + (i + 1));
+		CR();
+		TB(--indent);
+		//--indent;
+		output.endElement(GML_URL, member, "gml:" + member);
+		
+		//if (verbose) finalResult.append(GEOM_OFFSET);
+		//finalResult.append("</gml:lineStringMember>");
+	    }
+	    CR();
+	    TB(--indent);
+	    //finalResult.append( abstractGeometryEnd );
+	    } */
     }
 }
