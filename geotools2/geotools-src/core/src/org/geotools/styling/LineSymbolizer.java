@@ -18,7 +18,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
+ *     UNITED KINGDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
  */
 
 package org.geotools.styling;
@@ -26,8 +26,8 @@ package org.geotools.styling;
 /**
  * LineSymbolizer.
  * 
- * A symbolizer describes how a feature should appeare ona map.
- * The symbolizer not just the shape that should appear but also 
+ * A symbolizer describes how a feature should appear on a map.
+ * The symbolizer describes not just the shape that should appear but also 
  * such graphical properties as color and opacity.
  * 
  * A symbolizer is obtained by specifying one of a small number of different
@@ -38,19 +38,20 @@ package org.geotools.styling;
  * Report (OGC 01-077) version 0.7.2.
  * Renderers can use this infomration when displaying styled features, though
  * it must be remembered that not all renderers will be able to fully represent
- * strokes as set out by this interface, for example opacity
+ * strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @author  jamesm
+ * @version $Id: LineSymbolizer.java,v 1.3 2002/06/04 15:41:14 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public interface LineSymbolizer extends Symbolizer{
 
     /**
      * Provides the graphical-symbolization parameter to use for the 
-     * liniar geometry.
+     * linear geometry.
      *
      * @return The Stroke style to use when rendering lines.
      */
@@ -62,17 +63,17 @@ public interface LineSymbolizer extends Symbolizer{
      * geometry property of the feature should be used.
      * 
      * Geometry types other than inherently linear types can be used. 
-     * If a point geometry is used, it should be interprited as a line of zero
+     * If a point geometry is used, it should be interpreted as a line of zero
      * length and two end caps.  If a polygon is used (or other "area" type)
      * then its closed outline should be used as the line string
      * (with no end caps).
      *
      * The geometryPropertyName is the name of a geometry property in the
-     * Feature being styled typicaly features only have one geometry so in
-     * general the need to select one is not required.
+     * Feature being styled.  Typically, features only have one geometry so,
+     * in general, the need to select one is not required.
      *
      * Note: this moves a little away from the SLD spec which provides an XPath
-     * reference is given to a Geometry object, but does follow it in spirit.
+     * reference to a Geometry object, but does follow it in spirit.
      *
      * @return String The name of the attribute in the feature being styled 
      *  that should be used.  If null then the default geometry should be used.

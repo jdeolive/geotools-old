@@ -18,7 +18,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
+ *     UNITED KINGDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
  */
 
 package org.geotools.styling;
@@ -27,13 +27,14 @@ package org.geotools.styling;
  * A Mark element defines a "shape" which has coloring applied to it.
  *
  * The details of this object are taken from the OGC Styled-Layer
- * Descriptor Report (OGC 01-077) version 0.7.2
- * Renderers can use this infomation when displaying styled features, 
+ * Descriptor Report (OGC 01-077) version 0.7.2.
+ * Renderers can use this information when displaying styled features, 
  * though it must be remembered that not all renderers will be able to
- * fully represent strokes as set out by this interface, for example opacity
+ * fully represent strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
- * @author  jamesm
+ * @version $Id: Mark.java,v 1.7 2002/06/04 15:43:01 loxnard Exp $
+ * @author James Macgill
  */
 public interface Mark {
 
@@ -43,7 +44,7 @@ public interface Mark {
      * "cross" and "x" though renderers may draw a different symbol instead
      * if they don't have a shape for all of these.<br>
      * 
-     * @return The well known name of a shape.  The default value is "square".
+     * @return The well-known name of a shape.  The default value is "square".
      */
     public String getWellKnownName();
     
@@ -51,12 +52,12 @@ public interface Mark {
      * This paramterer defines which stroke style should be used when
      * rendering the Mark.
      * 
-     * @return The Stroke defenition to use when rendering the Mark.
+     * @return The Stroke definition to use when rendering the Mark.
      **/
     public Stroke getStroke();
     
     /**
-     * This parameter defines which fill style to use when renderin the Mark.
+     * This parameter defines which fill style to use when rendering the Mark.
      *
      * @return the Fill definition to use when rendering the Mark.
      **/

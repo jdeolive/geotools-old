@@ -18,7 +18,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
+ *     UNITED KINGDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
  */
 
 package org.geotools.styling;
@@ -26,24 +26,24 @@ package org.geotools.styling;
 /**
  * A Graphic is a "graphical symbol" with an inherent shape, color(s), and
  * possibly size.<p>
- * A "graphic" can very informally be defined as "a little piclure" and can be
+ * A "graphic" can very informally be defined as "a little picture" and can be
  * of either a raster of vector graphic source type.  The term graphic is used
- * since the term "symbol" is similar to "symbolozer" which is used in a
+ * since the term "symbol" is similar to "symbolizer" which is used in a
  * difference context in SLD.
  *
  * The graphical symbol to display can be provided either as an external
- * graphical resouce or as a Mark.<br>
- * Multiple external URLs and marks cab ve referebced with the sumantec that
- * they all provide equivelent graphics in different formats.
+ * graphical resource or as a Mark.<br>
+ * Multiple external URLs and marks can be referenced with the proviso that
+ * they all provide equivalent graphics in different formats.
  * The 'hot spot' to use for positioning the rendering at a point must either
- * be inherent fomr the external format or is defined to be the 
- * "centeral point" of the graphic.
+ * be inherent from the external format or be defined to be the 
+ * "central point" of the graphic.
  * 
  * The details of this object are taken from the OGC Styled-Layer Descriptor
- * Report (OGC 01-077) version 0.7.2
- * Renderers can use this infomration when displaying styled features,
+ * Report (OGC 01-077) version 0.7.2.
+ * Renderers can use this information when displaying styled features,
  * though it must be remembered that not all renderers will be able to
- * fully represent strokes as set out by this interface, for example opacity
+ * fully represent strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
  * The graphical parameters and their values are derived from SVG/CSS2 
@@ -51,21 +51,22 @@ package org.geotools.styling;
  *
  * TODO: There are no setter methods in this interface, is this a problem?
  *
- * @author  jamesm
+ * @version $Id: Graphic.java,v 1.3 2002/06/04 15:37:47 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public interface Graphic {
 
 
     /**
-     * Privides a list of external graphics which can be used to represent
+     * Provides a list of external graphics which can be used to represent
      * this graphic.
-     * Each one should be an equivelent representation but in a 
+     * Each one should be an equivalent representation but in a 
      * different format.
-     * If none are provied, or if none of the formats are supported then the
+     * If none are provided, or if none of the formats are supported, then the
      * list of Marks should be used instead.
      *
-     * @return An array of ExternalGraphics objects which should be equivlents
-     *         but in different formats.  If null is returned use
+     * @return An array of ExternalGraphics objects which should be equivalents
+     *         but in different formats.  If null is returned, use
      *         getMarks instead.
      */
     public ExternalGraphic[] getExternalGraphics();
@@ -76,14 +77,14 @@ public interface Graphic {
 
     
     /**
-     * Provides a list of suitible marks which can be used to represent this
+     * Provides a list of suitable marks which can be used to represent this
      * graphic.
-     * These should only be used if not ExternalGraphic is provided, or if none
+     * These should only be used if no ExternalGraphic is provided, or if none
      * of the external graphics formats are supported.
      *
      * @return An array of marks to use when displaying this Graphic. 
-     * By default a "square" with 50% gray fill and black outline with a size
-     * of 6 pixels (unless a size is specifed) is provided.
+     * By default, a "square" with 50% gray fill and black outline with a size
+     * of 6 pixels (unless a size is specified) is provided.
      */    
     public Mark[] getMarks();
     
@@ -92,39 +93,40 @@ public interface Graphic {
      * This specifies the level of translucency to use when rendering the 
      * graphic.<br>
      * The value is encoded as a floating-point value between 0.0 and
-     * 1.0 with 0.0 representing totaly transparent and 1.0 representing totaly
-     * opaque, with a linear scale of translucency for intermediate values.<br>
+     * 1.0 with 0.0 representing totally transparent and 1.0 representing
+     * totally opaque, with a linear scale of translucency for intermediate
+     * values.<br>
      * For example, "0.65" would represent 65% opacity.  
-     * The default value is 1.0 (opaque)
+     * The default value is 1.0 (opaque).
      *
-     * @return The opacity of the Graphic, where 0.0 is completly 
-     *         transparent and 1.0 is completly opaque.
+     * @return The opacity of the Graphic, where 0.0 is completely 
+     *         transparent and 1.0 is completely opaque.
      */
     public double getOpacity();
     
     /**
      * This paramteter gives the absolute size of the graphic in pixels
      * encoded as a floating point number.<p>
-     * The default size of an image format (such as GIFD) is the inferent size
+     * The default size of an image format (such as GIFD) is the inherent size
      * of the image.  The default size of a format without an inherent size
-     * (such as SVG) is deffined to be 16 pixels in height and the 
+     * (such as SVG) is defined to be 16 pixels in height and the 
      * corresponding aspect in width.
-     * If a size is specifed, the height of the graphic will be scaled to that
+     * If a size is specified, the height of the graphic will be scaled to that
      * size and the corresponding aspect will be used for the width.
      *
-     * @return The size of the graphic, the default is context specific.
+     * @return The size of the graphic.  The default is context specific.
      *         Negative values are not possible.
      */
     public double getSize();
     
     /**
      * This parameter defines the rotation of a graphic in the clockwise
-     * direction about its center point in decimal degrees.  
+     * direction about its centre point in decimal degrees.  
      * The value encoded as a floating point number.
      * 
-     * @return The angle of rotation in decimal degrese, Negative values
+     * @return The angle of rotation in decimal degrees.  Negative values
      *         represent counter-clockwise rotation.
-     *         The default is 0.0 (no rotation)
+     *         The default is 0.0 (no rotation).
      */
     public double getRotation();
     
