@@ -109,7 +109,7 @@ public class DataUtilities {
 
     public static String[] attributeNames(Filter filter) {
         if (filter == null) {
-            return null;
+            return new String[0];
         }
 
         final Set set = new HashSet();
