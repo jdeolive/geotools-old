@@ -31,7 +31,7 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: ExpressionAttribute.java,v 1.4 2002/07/11 14:06:26 ianturton Exp $
+ * @version $Id: ExpressionAttribute.java,v 1.5 2002/07/12 12:34:48 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionAttribute extends ExpressionDefault {
@@ -58,7 +58,6 @@ public class ExpressionAttribute extends ExpressionDefault {
      * Constructor with minimum dataset for a valid expression.
      *
      * @param attributePath The initial (required) sub filter.
-     * @param expressionType The final relation between all sub filters.
      */
     public ExpressionAttribute (FeatureType schema, String attributePath)
         throws IllegalFilterException {
@@ -77,13 +76,13 @@ public class ExpressionAttribute extends ExpressionDefault {
     public void setAttributePath(String attributePath)
         throws IllegalFilterException {
         _log.debug("Path is: " + attributePath);
-        if(schema!=null){
-            if(schema.hasAttributeType(attributePath)) {
+        if (schema != null){
+            if (schema.hasAttributeType(attributePath)) {
                 this.attributePath = attributePath;
             } else {
                 throw new IllegalFilterException();
             }
-        }else{
+        } else {
             this.attributePath = attributePath;
         }
     }
@@ -116,12 +115,6 @@ public class ExpressionAttribute extends ExpressionDefault {
     }
         
 
-    /**
-     * Adds the 'right' value to this filter.
-     *
-     * @param rightValue Expression for 'right' value.
-     * @throws IllegalFilterException Filter is not internally consistent.
-     */
     public String toString() {
         return attributePath;
     }
