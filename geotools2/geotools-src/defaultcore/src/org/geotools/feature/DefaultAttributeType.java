@@ -27,7 +27,7 @@ import java.math.*;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.12 2003/09/10 17:29:56 ianschneider Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.13 2003/09/15 15:27:16 ianschneider Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -408,7 +408,7 @@ public class DefaultAttributeType implements AttributeType {
     
     static class Textual extends DefaultAttributeType {
         public Textual (String name, boolean nillable) {
-            super(name,CharSequence.class,nillable);
+            super(name,String.class,nillable);
         }
         public Object parse(Object value) throws IllegalArgumentException {
             if (value == null) 
