@@ -45,7 +45,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilterImpl.java,v 1.8 2003/01/02 19:45:10 cholmesny Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.9 2003/03/31 20:55:48 aaime Exp $
  * @author Rob Hranac, TOPP
  * @tasks: REVISIT: make this class (and all filters) immutable, implement  
  * cloneable and return new filters when calling addLeftGeometry and addRightG
@@ -206,7 +206,7 @@ public class GeometryFilterImpl
 		    // feature contained in the bbox
                    return true;
                 else if(cl[0].x > cr[2].x || cl[2].x < cr[0].x ||
-                       cl[0].y > cl[2].y || cl[2].y < cr[0].y)
+                       cl[0].y > cr[2].y || cl[2].y < cr[0].y)
 		    // feature outside the bbox
                     return false;
                 else {
