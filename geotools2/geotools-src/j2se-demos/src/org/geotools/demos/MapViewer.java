@@ -61,11 +61,11 @@ import org.opengis.cs.CS_CoordinateSystem;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.25 2003/03/29 22:32:55 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.7 2003/03/29 22:50:49 camerons Exp $
  *
  */
 
-public class MapViewer2 {
+public class MapViewer {
 
     /** Translates between coordinate systems */
     private Adapters adapters = Adapters.getDefault();
@@ -73,13 +73,13 @@ public class MapViewer2 {
     /**
      * The class used for identifying for logging.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.demos.MapViewer2");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.demos.MapViewer");
     
     /** The context which contains this maps data */
     private Context context;
 
-    /** Creates new form MapViewer2 */
-    public MapViewer2() {
+    /** Creates new form MapViewer */
+    public MapViewer() {
         initComponents(createMapPane());
     }
 
@@ -228,7 +228,7 @@ public class MapViewer2 {
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(
             mapPane,"North");
-        frame.setTitle("Click on map to pan");
+        frame.setTitle("Map Viewer");
         frame.pack();
         frame.show();
     }
@@ -356,6 +356,6 @@ public class MapViewer2 {
     * @param args the command line arguments
     */
     public static void main(String args[]) {
-        new MapViewer2();//.show();
+        new MapViewer();//.show();
     }
 }
