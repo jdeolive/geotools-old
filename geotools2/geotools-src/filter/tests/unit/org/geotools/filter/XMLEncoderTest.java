@@ -259,10 +259,10 @@ public class XMLEncoderTest extends TestCase {
                 if(child == null || child.getNodeType() != Node.ELEMENT_NODE) continue;
                 filter = FilterXMLParser.parseFilter(child);
                 _log.debug("filter: " + filter.getClass().toString());
-
-                XMLEncoder encode = new XMLEncoder();
+                StringWriter output = new StringWriter();
+                XMLEncoder encode = new XMLEncoder(output);
                 ((AbstractFilter)filter).accept(encode);
-                
+                  _log.debug("Resulting filter XML is \n"+output.getBuffer().toString());
             }
         }
         
