@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * PostgisConnectionFactory, then call getConnection(), and pass
  * that connection to the PostgisDataSource constructor.
  *
- * @version $Id: PostgisConnectionFactory.java,v 1.1 2003/02/04 00:52:48 cholmesny Exp $
+ * @version $Id: PostgisConnectionFactory.java,v 1.2 2003/02/12 17:09:25 cholmesny Exp $
  * @author Rob Hranac, Vision for New York 
  * @author Chris Holmes, TOPP
  */
@@ -49,22 +49,26 @@ public class PostgisConnectionFactory implements javax.sql.DataSource {
     /** Creates PostGIS-specific JDBC driver path. */ 
     private static final String POSTGIS_DRIVER_PATH = "jdbc:postgresql";
 
+    /** The full path used to connect to the database */
     private String connectionPath;
 
+    /** The user to connect with */
     private String user = "test";
 
+    /** The password of the user */
     private String password = "test";
+
     
     /**
      * Constructor with all internal database driver classes, driver paths
      * and database types.
      *
-     * @param host The driver class; should be passed from the
-     * database-specific subclass.
-     * @param port The driver path; should be passed from the
-     * database-specific subclass.
-     * @param dbName The database type; should be passed from the
-     * database-specific subclass.
+     * @param host The name or ip address of the computer where the postgis
+     * database is installed.
+     * @param port The port to connect on; 5432 is generally the postgres
+     * default.
+     * @param dbName The name of the pgsql database that holds the tables
+     * of the feature types that will be used by PostgisDataSource.
      */ 
     public PostgisConnectionFactory (String host, String port, String dbName) {
         connectionPath = 
@@ -87,7 +91,8 @@ public class PostgisConnectionFactory implements javax.sql.DataSource {
      * Creates a database connection method to initialize a given database
      * for feature extraction.
      *
-     * @param featureType A complete description of the feature type metadata.
+     * @param user the name of the user connect to connect to the pgsql db.
+     * @param password the password for the user.
      */ 
     public void setLogin( String user, String password) {
         this.user = user;
@@ -96,9 +101,9 @@ public class PostgisConnectionFactory implements javax.sql.DataSource {
 
     /**
      * Creates a database connection method to initialize a given database
-     * for feature extraction.
+     * for feature extraction using the set username and password.
      *
-     * @param featureType A complete description of the feature type metadata.
+     * @return the sql Connection object to the database.
      */ 
     public Connection getConnection()
         throws SQLException {
@@ -108,29 +113,41 @@ public class PostgisConnectionFactory implements javax.sql.DataSource {
 
     /**
      * Creates a database connection method to initialize a given database
-     * for feature extraction.
+     * for feature extraction with the user and password params.
      *
-     * @param featureType A complete description of the feature type metadata.
+     * @param user the name of the user connect to connect to the pgsql db.
+     * @param password the password for the user.
      */ 
     public Connection getConnection(String user, String password)
         throws SQLException {
-        
-        // makes a new feature type bean to deal with incoming
+	Properties props = new Properties();
+	props.put("user", user);
+	props.put("password", password);
+	return getConnection(props);
+    }
+    
+    /**
+     * Creates a database connection method to initialize a given database
+     * for feature extraction with the given Properties.
+     *
+     * @param props Should contain at a minimum the user and password.  
+     * Additional properties, such as charSet, can also be added.
+     */
+    public Connection getConnection(Properties props) throws SQLException {
+	  // makes a new feature type bean to deal with incoming
         Connection dbConnection = null;
         
         // Instantiate the driver classes
         try {
             Class.forName(POSTGIS_DRIVER_CLASS);
-            dbConnection = DriverManager.getConnection( connectionPath , user, password);
+	    dbConnection = DriverManager.getConnection( connectionPath , props);
         }
         catch (ClassNotFoundException e) {
             throw new SQLException("Postgis driver was not found.");
         }
 
         return dbConnection;
-
     }
-    
     
 
     public int getLoginTimeout() {
