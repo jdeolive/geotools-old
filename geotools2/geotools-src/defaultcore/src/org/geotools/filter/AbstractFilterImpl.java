@@ -60,6 +60,5 @@ public abstract class AbstractFilterImpl extends org.geotools.filter.AbstractFil
         }
     }
     
-
     
 }

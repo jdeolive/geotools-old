@@ -32,7 +32,7 @@ import org.geotools.feature.*;
  * Implements Filter interface, with constants and default behaviors for
  * methods.
  *
- * @version $Id: AbstractFilter.java,v 1.3 2002/10/24 16:51:43 ianturton Exp $ 
+ * @version $Id: AbstractFilter.java,v 1.4 2002/10/25 11:38:30 ianturton Exp $ 
  * @author Rob Hranac, Vision for New York
  */
 public abstract class AbstractFilter implements Filter {
@@ -236,7 +236,7 @@ public abstract class AbstractFilter implements Filter {
     public short getFilterType(){
         return filterType;
     }
-            /** Used by FilterVisitors to perform some action on this filter instance.
+    /** Used by FilterVisitors to perform some action on this filter instance.
      * Typicaly used by Filter decoders, but may also be used by any thing which needs
      * infomration from filter structure.
      *
@@ -249,8 +249,6 @@ public abstract class AbstractFilter implements Filter {
      *                the method must call visitor.visit(this);
      *
      */
-    public void accept(FilterVisitor visitor) {
-        visitor.visit(this);
-    }
+    public abstract void accept(FilterVisitor visitor);
     
 }

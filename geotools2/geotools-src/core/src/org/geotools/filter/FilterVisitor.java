@@ -33,7 +33,7 @@ package org.geotools.filter;
  * e.g. XML or SQL.  Alternativly it may be to extract specific infomration
  * from the Filter strucure, for example a list of all bboxes.
  *
- * @version $Id: FilterVisitor.java,v 1.4 2002/10/24 14:52:35 ianturton Exp $
+ * @version $Id: FilterVisitor.java,v 1.5 2002/10/25 11:38:30 ianturton Exp $
  * @author James Macgill
  */
 public interface FilterVisitor {
@@ -47,7 +47,7 @@ public interface FilterVisitor {
      *
      * @param filter The filter to visit
      */
-    void visit(AbstractFilter filter);
+    void visit(Filter filter);
     
     /**
      * Called when accept is called on a BetweenFilter.
@@ -63,7 +63,7 @@ public interface FilterVisitor {
     void visit(NullFilter filter);
     
     void visit(AttributeExpression expression);
-    void visit(DefaultExpression expression);
+    void visit(Expression expression);
     void visit(LiteralExpression expression);
     void visit(MathExpression expression);
     

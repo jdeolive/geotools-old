@@ -28,7 +28,7 @@ import org.geotools.feature.Feature;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: Expression.java,v 1.7 2002/07/23 09:39:12 jmacgill Exp $
+ * @version $Id: Expression.java,v 1.8 2002/10/25 11:38:30 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface Expression {
@@ -50,6 +50,18 @@ public interface Expression {
      */
     Object getValue(Feature feature);
     
-  
-    
+       /** Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing which needs
+     * infomration from filter structure.
+     *
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the parents
+     * API is identical.
+     *
+     * @param visitor The visitor which requires access to this filter,
+     *                the method must call visitor.visit(this);
+     *
+     */
+    public void accept(FilterVisitor visitor);    
 }

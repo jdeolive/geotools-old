@@ -26,7 +26,7 @@ import org.geotools.feature.*;
 /**
  * Implements a default expression, with helpful variables and static methods.
  *
- * @version $Id: DefaultExpression.java,v 1.1 2002/10/24 14:52:36 ianturton Exp $
+ * @version $Id: DefaultExpression.java,v 1.2 2002/10/25 11:38:30 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public abstract class DefaultExpression implements Expression{
@@ -187,21 +187,5 @@ public abstract class DefaultExpression implements Expression{
         }
     }
 
-    /** Used by FilterVisitors to perform some action on this filter instance.
-     * Typicaly used by Filter decoders, but may also be used by any thing which needs
-     * infomration from filter structure.
-     *
-     * Implementations should always call: visitor.visit(this);
-     *
-     * It is importatant that this is not left to a parent class unless the parents
-     * API is identical.
-     *
-     * @param visitor The visitor which requires access to this filter,
-     *                the method must call visitor.visit(this);
-     *
-     */
-    public void accept(FilterVisitor visitor) {
-        visitor.visit(this); 
-    }    
     
 }

@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * This filter stores a series of feature IDs, which are used to distinguish 
  * features uniquely.
  *
- * @version $Id: FidFilterImpl.java,v 1.3 2002/10/24 16:53:56 ianturton Exp $
+ * @version $Id: FidFilterImpl.java,v 1.4 2002/10/25 11:37:35 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
 public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
@@ -119,5 +119,22 @@ public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
         else {
             return false;        
         }     
-    }    
+    } 
+    
+       /** Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing which needs
+     * infomration from filter structure.
+     *
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the parents
+     * API is identical.
+     *
+     * @param visitor The visitor which requires access to this filter,
+     *                the method must call visitor.visit(this);
+     *
+     */
+    public void accept(FilterVisitor visitor) { 
+        visitor.visit(this);
+    }
 }
