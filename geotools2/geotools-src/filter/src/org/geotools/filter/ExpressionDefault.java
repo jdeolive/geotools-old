@@ -3,7 +3,8 @@
  */
 package org.geotools.filter;
 
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 
 /**
  * Implements a default expression, with helpful variables and static methods.

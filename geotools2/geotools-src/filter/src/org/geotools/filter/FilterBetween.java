@@ -30,7 +30,7 @@ public class FilterBetween extends FilterCompare {
     /**
      * Constructor which flags the operator as between.
      */
-    public FilterBetween () {
+    public FilterBetween () throws IllegalFilterException{
         super(BETWEEN);
     }
 

@@ -39,7 +39,7 @@ public class FactoryExpression {
     /**
      * Constructor which flags the operator as between.
      */
-    public void start(String declaredType) {
+    public void start(String declaredType) throws IllegalFilterException{
 
         this.declaredType = declaredType;
         
@@ -66,7 +66,7 @@ public class FactoryExpression {
      *
      * @param pattern The limited REGEXP pattern for this string. 
      */
-    public void end(String message) {
+    public void end(String message) throws IllegalFilterException{
 
         // first, check to see if there are internal (nested) expressions
         //  note that this is identical to checking if the currentExpression
@@ -130,7 +130,7 @@ public class FactoryExpression {
      *
      * @param pattern The limited REGEXP pattern for this string. 
      */
-    public void message(String message) {
+    public void message(String message) throws IllegalFilterException{
 
         // TODO 2:
         // AT SOME POINT MUST MAKE THIS HANDLE A TYPED FEATURE
@@ -177,7 +177,7 @@ public class FactoryExpression {
      *
      * @param geometry The geometry from the filter.
      */
-    public void geometry(Geometry geometry) {
+    public void geometry(Geometry geometry) throws IllegalFilterException{
 
         // Sets the geometry for the expression, as appropriate
         if( currentExpression.getType() == ExpressionDefault.LITERAL_GEOMETRY ) {
@@ -246,7 +246,7 @@ public class FactoryExpression {
         else if( expressionType.equals("Literal") ) {
             return ExpressionDefault.ATTRIBUTE_DOUBLE;
         }
-
+        return ExpressionDefault.ATTRIBUTE_UNDECLARED;
 
     }
 

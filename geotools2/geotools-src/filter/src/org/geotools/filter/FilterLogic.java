@@ -150,11 +150,13 @@ public class FilterLogic extends FilterDefault {
         
         // Just makes sure that we are not creating unecessary new filters
         //  by popping onto stack if current filter is OR
+        //HACK: not sure what should be returned by this method
+        //HACK: assuming it is the result of each method
         if( filterType == super.LOGIC_OR ) {
-            subFilters.push(filter);
+            return (Filter)subFilters.push(filter);
         }
         else {
-            super.or(filter);
+            return super.or(filter);
         }
     }
     
@@ -168,11 +170,13 @@ public class FilterLogic extends FilterDefault {
 
         // Just makes sure that we are not creating unecessary new filters
         //  by popping onto stack if current filter is AND
+        //HACK: not sure what should be returned by this method
+        //HACK: assuming it is the result of each method
         if( filterType == super.LOGIC_AND ) {
-            subFilters.push(filter);
+            return (Filter)subFilters.push(filter);
         }
         else {
-            super.and(filter);
+            return super.and(filter);
         }
     }
 
@@ -185,11 +189,13 @@ public class FilterLogic extends FilterDefault {
 
         // Just makes sure that we are not creating unecessary new filters
         //  by popping off sub filter if current filter is NOT
+        //HACK: not sure what should be returned by this method
+        //HACK: assuming it is the result of each method
         if( filterType == super.LOGIC_NOT ) {
             return (Filter) subFilters.pop();
         }
         else {
-            super.not();
+            return super.not();
         }
     }
     

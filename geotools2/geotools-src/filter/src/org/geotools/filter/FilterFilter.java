@@ -115,8 +115,12 @@ public class FilterFilter extends XMLFilterImpl {
         //  grunt-work out of this task for geometry handlers
         //  see the documentation for CoordinatesReader to see what this entails
         String message = new String(ch, start, length);
-        expressionFactory.message(message);
-        
+        try{
+            expressionFactory.message(message);
+        }
+        catch(IllegalFilterException ife){
+            throw new SAXException(ife);
+        }
     }
     
     

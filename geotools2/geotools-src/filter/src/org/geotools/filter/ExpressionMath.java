@@ -3,7 +3,8 @@
  */
 package org.geotools.filter;
 
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 
 /**
  * Holds a mathematical relationship between two expressions.

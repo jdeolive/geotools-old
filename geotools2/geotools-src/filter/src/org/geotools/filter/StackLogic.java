@@ -52,7 +52,7 @@ public class StackLogic extends Stack {
     public void simplifyLogic(short logicType) 
         throws IllegalFilterException {
 
-        Filter tempFilter;
+        Filter tempFilter = null;
 
         if( this.logicType != logicType ) {
             throw new IllegalFilterException
