@@ -42,7 +42,7 @@ import java.awt.geom.AffineTransform;
  * over a geometry collection. It can be seen as a composite, since
  * uses in fact other, simpler iterator to work.
  *
- * @version $Id: GeomCollectionIterator.java,v 1.2 2003/02/12 20:15:04 aaime Exp $
+ * @version $Id: GeomCollectionIterator.java,v 1.3 2003/02/12 20:18:20 aaime Exp $
  * @author Andrea Aime
  */
 class GeomCollectionIterator implements PathIterator {
@@ -66,8 +66,8 @@ class GeomCollectionIterator implements PathIterator {
         }
         
         this.at = at;
-        xScale = Math.abs(at.getScaleX());
-        yScale = Math.abs(at.getScaleY());
+        xScale = Math.sqrt(at.getScaleX() * at.getScaleX() + at.getShearX() * at.getShearX());
+        yScale = Math.sqrt(at.getScaleY() * at.getScaleY() + at.getShearY() * at.getShearY());
         
         currentIterator = getIterator(geoms[0]);
     }

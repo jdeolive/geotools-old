@@ -41,7 +41,7 @@ import java.awt.geom.AffineTransform;
  * A path iterator for the LiteShape class, specialized to iterate
  * over LineString object. 
  *
- * @version $Id: LineIterator.java,v 1.2 2003/02/12 20:15:06 aaime Exp $
+ * @version $Id: LineIterator.java,v 1.3 2003/02/12 20:18:21 aaime Exp $
  * @author Andrea Aime
  */
 class LineIterator implements PathIterator {
@@ -62,8 +62,8 @@ class LineIterator implements PathIterator {
     public LineIterator(com.vividsolutions.jts.geom.LineString ls, AffineTransform at) {
         if(at == null) at = new AffineTransform();
         this.at = at;
-        xScale = Math.abs(at.getScaleX());
-        yScale = Math.abs(at.getScaleY());
+        xScale = Math.sqrt(at.getScaleX() * at.getScaleX() + at.getShearX() * at.getShearX());
+        yScale = Math.sqrt(at.getScaleY() * at.getScaleY() + at.getShearY() * at.getShearY());
         
         coords = ls.getCoordinates();
         isClosed = false;
