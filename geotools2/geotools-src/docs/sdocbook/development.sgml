@@ -1633,7 +1633,7 @@ public class HelloWorldTest extends TestCase {
           <example>
             <title>Edit a docbook section file</title>
 
-            <programlisting>cp license.sgml yoursection.sgml
+            <programlisting>cp doclicense.sgml yoursection.sgml
 xxe yoursection.sgml</programlisting>
           </example>
         </listitem>
@@ -1751,14 +1751,14 @@ id=&#34;index&#34;&#62;
     &#60;title&#62;Scope&#60;/title&#62;
 
     &#60;xi:include xmlns:xi=&#34;http://www.w3.org/2001/XInclude&#34;
-    href=&#34;license.sgml&#34;/&#62;
+    href=&#34;doclicense.sgml&#34;/&#62;
   &#60;/section&#62;
 &#60;/article&#62;</programlisting>
             </listitem>
           </varlistentry>
 
           <varlistentry>
-            <term><filename>license.sgml</filename></term>
+            <term><filename>doclicense.sgml</filename></term>
 
             <listitem>
               <programlisting>&#60;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&#62;
@@ -1898,11 +1898,11 @@ $ netscape ~/geotools/geotools-src/docs/www/design.html</computeroutput></litera
         tags.</para>
 
         <example>
-          <title>Use of ant for publishing license.smgl</title>
+          <title>Use of ant for publishing doclicense.smgl</title>
 
           <literallayout><computeroutput>$ cd ~/geotools/geotools-src/docs
 $ ant
-$ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></literallayout>
+$ netscape ~/geotools/geotools-src/docs/www/doclicense.html</computeroutput></literallayout>
         </example>
 
         <para>In version 1.5, ant has a bug which prevents it from publishing
