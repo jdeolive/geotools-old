@@ -25,7 +25,7 @@ import org.geotools.factory.FactoryFinder;
  * implement createAttributeType
  *
  * @author Ian Schneider, USDA-ARS
- * @version $Id: AttributeTypeFactory.java,v 1.6 2003/11/20 22:13:59 jive Exp $
+ * @version $Id: AttributeTypeFactory.java,v 1.7 2003/12/19 00:55:26 jive Exp $
  */
 public abstract class AttributeTypeFactory implements Factory {
     /** The instance to be returned by {@link #defaultInstance()} */
@@ -202,8 +202,8 @@ public abstract class AttributeTypeFactory implements Factory {
      * @param name The name of the AttributeType to be created.
      * @param type The FeatureType that Features will validate against.
      * @param isNillable if nulls are allowed in the new type.
-     * @param defaultValue
-     * @param metaData
+     * @param defaultValue default value, may be null if isNilable is true
+     * @param metaData metadata for attribute type (such as CoordianteReferenceSystem)
      * @return the new AttributeType
      */        
     protected abstract AttributeType createAttributeType( String name, Class type, boolean isNillable, int fieldLength, Object defaultValue, Object metaData );        
