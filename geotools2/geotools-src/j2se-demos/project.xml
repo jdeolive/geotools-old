@@ -83,6 +83,11 @@
       <version>0.1</version>
     </dependency>
     <dependency>
+      <artifactId>renderer</artifactId>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
       <artifactId>gui</artifactId>
       <groupId>gt2</groupId>
       <version>0.1</version>
