@@ -24,16 +24,19 @@
 package org.geotools.styling;
 
 /**
- * The Fill object encapuslates the graphical-symbolization parameters for areas of geometries.<br>
+ * The Fill object encapsulates the graphical-symbolization parameters for
+ * areas of geometries.<br>
  *
- * There are two types of fill: solid-color, and repeated graphic fill.
+ * There are two types of fill: solid-color and repeated graphic fill.
  *
- * The details of this object are taken from the OGC Styled-Layer Descriptor Report (OGC 01-077) version 0.7.2
- * Renderers can use this infomration when displaying styled features, though it must be remembered that not all renderers will be able to
- * fully represent strokes as set out by this interface, for example opacity may not be supported.
+ * The details of this object are taken from the OGC Styled-Layer Descriptor Report
+ * (OGC 01-077) version 0.7.2.
+ * Renderers can use this information when displaying styled features, though
+ * it must be remembered that not all renderers will be able to fully represent
+ * strokes as set out by this interface: for example, opacity may not be supported.
  *
- * The graphical parameters and their values are derived from SVG/CSS2 standards with names and semantics
- * which are as close as possible.<p>
+ * The graphical parameters and their values are derived from SVG/CSS2
+ * standards with names and semantics which are as close as possible.<p>
  * 
  * @author  jamesm
  */
@@ -41,10 +44,12 @@ public interface Fill {
     
     /**
      * This parameter gives the solid color that will be used for a Fill.<br>
-     * The color value is RGB-encoded using two hexidecimal digits per primary-color component, in the
-     * order Red, Green, Blue, prifixed wih the hash (#) sign.  The hexidecimal digits beetween A and F
-     * may be in either uppoer of lower case.  For example full red is encoded as "#ff0000" (with no
-     * quotation marks).  The default color is defined to be 50% gray ("#808080").
+     * The color value is RGB-encoded using two hexidecimal digits per
+     * primary-color component, in the order Red, Green, Blue, prefixed with
+     * the hash (#) sign.  The hexidecimal digits beetween A and F may be in
+     * either upper or lower case.  For example, full red is encoded as
+     * "#ff0000" (with no quotation marks).  The default color is defined to be
+     * 50% gray ("#808080").
      *
      * Note: in CSS this parameter is just called Fill and not Color
      *
@@ -57,12 +62,13 @@ public interface Fill {
      * This specifies the level of translucency to use when rendering the fill.
      * <br>
      * The value is encoded as a floating-point value between 0.0 and 1.0
-     * with 0.0 representing totally transparent and 1.0 representing totally opaque,
-     * with a linear scale of translucency for intermediate values.<br>
-     * For example, "0.65" would represent 65% opacity.  The default value is 1.0 (opaque)
+     * with 0.0 representing totally transparent and 1.0 representing totally
+     * opaque, with a linear scale of translucency for intermediate values.<br>
+     * For example, "0.65" would represent 65% opacity.  The default value is
+     * 1.0 (opaque)
      *
-     * @return The opacity of the fill, where 0.0 is completly transparent
-     * and 1.0 is completly opaque.
+     * @return The opacity of the fill, where 0.0 is completely transparent and
+     * 1.0 is completely opaque.
      */
     public double getOpacity();
     
