@@ -69,7 +69,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * See {@link java.lang.Comparable}, {@link java.util.SortedMap} or
  * {@link java.util.SortedSet} for more information.
  *
- * @version $Id: AxisOrientation.java,v 1.3 2002/06/05 14:37:35 loxnard Exp $
+ * @version $Id: AxisOrientation.java,v 1.4 2002/07/28 21:41:31 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -204,6 +204,44 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
     public static AxisOrientation getEnum(final int value) throws NoSuchElementException {
         if (value>=0 && value<ENUMS.length) return ENUMS[value];
         throw new NoSuchElementException(String.valueOf(value));
+    }
+
+    /**
+     * Returns the enum for the specified name.
+     * Search is case and locale insensitive.
+     *
+     * @param name One of the constant values ({@link #NORTH}, {@link #SOUTH}, etc.)
+     * @return The enum for the specified name.
+     * @throws NoSuchElementException if there is no enum for the specified name.
+     */
+    public static AxisOrientation getEnum(final String name) {
+        for (int i=0; i<ENUMS.length; i++) {
+            final AxisOrientation candidate = ENUMS[i];
+            if (name.equalsIgnoreCase(candidate.getName())) {
+                return candidate;
+            }
+        }
+        throw new NoSuchElementException(name);
+    }
+
+    /**
+     * Returns the enum for the specified localized name.
+     * Search is case-insensitive.
+     *
+     * @param name The localized name (e.g. "Nord", "Sud", "Est", "Ouest", etc.)
+     * @param locale The locale, or <code>null</code> for the default locale.
+     * @return The enum for the specified localized name.
+     * @throws NoSuchElementException if there is no enum for the specified name.
+     */
+    public static AxisOrientation getEnum(final String name, final Locale locale) {
+        final Resources resources = Resources.getResources(locale);
+        for (int i=0; i<ENUMS.length; i++) {
+            final AxisOrientation candidate = ENUMS[i];
+            if (name.equalsIgnoreCase(resources.getString(candidate.key))) {
+                return candidate;
+            }
+        }
+        throw new NoSuchElementException(name);
     }
     
     /**
