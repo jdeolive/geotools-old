@@ -159,11 +159,12 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.14 2004/01/08 00:23:51 seangeo Exp $
+ * $Id: JDBCDataStore.java,v 1.15 2004/01/08 01:03:22 seangeo Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     public static final String FID_GEN_AUTO = "auto";
     public static final String FID_GEN_MANUAL = "manual";
+    public static final String DEFAULT_FID_GEN_KEY = "default";
     
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.data.jdbc");
@@ -294,7 +295,7 @@ public abstract class JDBCDataStore implements DataStore {
      * @param featureType
      *
      * @throws IOException
-     * @throws UnsupportedOperationException DOCUMENT ME!
+     * @throws UnsupportedOperationException Creating new schemas is not supported.
      *
      * @see org.geotools.data.DataStore#createSchema(org.geotools.feature.FeatureType)
      */
@@ -1503,41 +1504,15 @@ public abstract class JDBCDataStore implements DataStore {
     protected FIDGenerationStrategy getFIDGenerationStrategyFor(final QueryData queryData) throws DataSourceException {
         final FeatureTypeInfo info = queryData.getFeatureTypeInfo();
         Object strategy = fidGenerationTypes.get(info.featureTypeName);
+        
+        if (strategy == null) {
+            strategy = fidGenerationTypes.get(DEFAULT_FID_GEN_KEY);
+        }
         LOGGER.info("FID Generation strategy for " + info.featureTypeName + " is " + strategy);
         if (strategy == null || FID_GEN_AUTO.equalsIgnoreCase(strategy.toString())) {
-            return new FIDGenerationStrategy() {                
-                public Object generateFidFor(Feature f) {                    
-                    return null;
-                }
-            };
+            return new InsertNullFIDGenerationStrategy();
         } else if (FID_GEN_MANUAL.equalsIgnoreCase(strategy.toString())) {
-            return new FIDGenerationStrategy() {               
-                public Object generateFidFor(Feature f) throws DataSourceException {
-                    try {
-                        Integer newFid = null;
-                        Connection conn = queryData.getConnection();
-                        Statement stmt = conn.createStatement();
-                        ResultSet rs = stmt.executeQuery("Select MAX(" + info.fidColumnName 
-                                        + ") from " + info.featureTypeName);
-                        if (rs.next()) {
-                            try {
-                                int maxFid = rs.getInt(1);
-                                newFid = new Integer(maxFid + 1);
-                            } catch (SQLException e) {
-                                throw new DataSourceException("Error getting max FID from result set." +
-                                        "It is likely that the fid column is not");
-                            }
-                        } else {
-                            throw new DataSourceException("Could not get MAX for " + info.featureTypeName 
-                                    + "." + info.fidColumnName + ": No result returned from query");
-                        }
-                        return newFid;
-                    } catch (SQLException e) {
-                        throw new DataSourceException("Error executing MAX query in FID Generation", e);
-                                
-                    }
-                }
-            };
+            return new MaxIncFIDGenerationStrategy(queryData);
         } else {
             throw new DataSourceException("No valid fid generation strategy defined: " + strategy);
         }
