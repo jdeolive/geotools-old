@@ -211,8 +211,8 @@ public class SQLUnpacker {
                     retSup = combineFilters(retSup, subSup, splitType);
                     retUnSup = combineFilters(retUnSup, subUnSup, splitType);
                 }
-            } else if ((type == AbstractFilter.LOGIC_NOT) &&
-                    capabilities.supports(AbstractFilter.LOGIC_NOT)) {
+            } else if ((type == AbstractFilter.LOGIC_NOT)
+                    && capabilities.supports(AbstractFilter.LOGIC_NOT)) {
                 Iterator filters = ((LogicFilter) filter).getFilterIterator();
                 subPair = doUnPack((Filter) filters.next(), splitType); //NOT only has one
                 subSup = subPair.getSupported();

@@ -1,10 +1,11 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -12,38 +13,25 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *    
  */
-
 package org.geotools.filter;
 
-import java.util.*;
-import java.math.*;
-
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
+import org.xml.sax.ContentHandler;
 
 
 /**
- * Creates an OGC filter using a SAX filter.
+ * Interface to recieve filters from the filter sax parsing classes.  Should be
+ * implemented by classes that want the sax parsing classes to pass on their
+ * filter information.
  *
- * <p>Possibly the worst-named class of all time, <code>FilterFilter</code>
- * extracts an OGC filter object from an XML stream and passes it to its parent
- * as a fully instantiated OGC filter object.</p>
- *
- * @version $Id: FilterHandler.java,v 1.2 2002/09/17 17:33:57 robhranac Exp $
  * @author Rob Hranac, Vision for New York
+ * @version $Id: FilterHandler.java,v 1.3 2003/07/30 00:08:56 cholmesny Exp $
  */
 public interface FilterHandler extends ContentHandler {
-
     /**
-     * Constructor with parent, which must implement GMLHandlerJTS.
+     * Method to recieve the filters from the sax processing.
      *
-     * @param filter The parent of this filter.
+     * @param filter The filter constructed by the factories.
      */
-    public void filter(Filter filter);
-
+    void filter(Filter filter);
 }

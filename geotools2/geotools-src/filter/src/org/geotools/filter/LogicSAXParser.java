@@ -16,10 +16,10 @@
  */
 package org.geotools.filter;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 
 // J2SE dependencies
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -31,22 +31,26 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: LogicSAXParser.java,v 1.5 2003/05/14 16:07:42 cholmesny Exp $
+ * @version $Id: LogicSAXParser.java,v 1.6 2003/07/30 00:08:56 cholmesny Exp $
  */
 public class LogicSAXParser {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
-    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
 
-    /** The (limited) REGEXP pattern. */
+    /** factory for creating filters. */
+    private static final FilterFactory FILTER_FACT = FilterFactory
+        .createFilterFactory();
+
+    /** AbstractFilter filte type. */
     private short logicType = -1;
 
-    /** The (limited) REGEXP pattern. */
+    /** The array of filters to be logically joined. */
     private List subFilters = new ArrayList();
 
-    /** The (limited) REGEXP pattern. */
+    /** An instance of this class for nested logic filter structures. */
     private LogicSAXParser logicFactory = null;
-    private boolean isActive = false;
+
+    /** if this logic filter is ready to be created. */
     private boolean isComplete = false;
 
     /**
@@ -92,8 +96,8 @@ public class LogicSAXParser {
         LOGGER.finer("got an end element: " + logicType);
 
         if (logicFactory != null) {
-            LOGGER.finer("sending end element to nested logic filter: " +
-                logicType);
+            LOGGER.finer("sending end element to nested logic filter: "
+                + logicType);
             logicFactory.end(logicType);
 
             if (logicFactory.isComplete()) {
@@ -101,8 +105,7 @@ public class LogicSAXParser {
                 logicFactory = null;
             }
         } else if (this.logicType == logicType) {
-            LOGGER.finer("end element matched internal type: " +
-                this.logicType);
+            LOGGER.finer("end element matched internal type: " + this.logicType);
             isComplete = true;
         } else {
             throw new IllegalFilterException(
@@ -111,9 +114,9 @@ public class LogicSAXParser {
     }
 
     /**
-     * Sets the matching pattern for this FilterLike.
+     * Adds a filter to the current logic list.
      *
-     * @param filter The limited REGEXP pattern for this string.
+     * @param filter The filter to be added.
      */
     public void add(Filter filter) {
         LOGGER.finer("added a filter: " + filter.toString());
@@ -143,10 +146,10 @@ public class LogicSAXParser {
             LOGGER.finer("filter is complete, with type: " + this.logicType);
 
             if (logicType == AbstractFilter.LOGIC_NOT) {
-                filter = filterFactory.createLogicFilter((Filter) subFilters.get(
+                filter = FILTER_FACT.createLogicFilter((Filter) subFilters.get(
                             0), this.logicType);
             } else {
-                filter = filterFactory.createLogicFilter(this.logicType);
+                filter = FILTER_FACT.createLogicFilter(this.logicType);
 
                 Iterator iterator = subFilters.iterator();
 

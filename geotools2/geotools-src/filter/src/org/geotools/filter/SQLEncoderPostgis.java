@@ -16,9 +16,8 @@
  */
 package org.geotools.filter;
 
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.logging.Logger;
 
@@ -26,14 +25,16 @@ import java.util.logging.Logger;
 /**
  * Encodes a filter into a SQL WHERE statement for postgis.  This class adds
  * the ability to turn geometry filters into sql statements if they are
- * bboxes.   TODO: add support for other spatial queries.
+ * bboxes.
  *
  * @author Chris Holmes, TOPP
+ *
+ * @task REVISIT: add support for other spatial queries.
  */
 public class SQLEncoderPostgis extends SQLEncoder
     implements org.geotools.filter.FilterVisitor {
     /** The filters that this encoder can processed. */
-    private static FilterCapabilities capabilities = SQLEncoder.getCapabilities();
+    private static FilterCapabilities capabils = SQLEncoder.getCapabilities();
 
     /** Standard java logger */
     private static Logger log = Logger.getLogger("org.geotools.filter");
@@ -42,7 +43,7 @@ public class SQLEncoderPostgis extends SQLEncoder
     private static WKTWriter wkt = new WKTWriter();
 
     static {
-        capabilities.addType(AbstractFilter.GEOMETRY_BBOX);
+        capabils.addType(AbstractFilter.GEOMETRY_BBOX);
     }
 
     /**
@@ -50,7 +51,9 @@ public class SQLEncoderPostgis extends SQLEncoder
      * it in the bbox filter itself, but this works for now.
      */
     private int srid;
-    private String defaultGeometry;
+
+    /** The geometry attribute to use if none is specified. */
+    private String defaultGeom;
 
     /**
      * Empty constructor TODO: rethink empty constructor, as BBOXes _need_ an
@@ -60,6 +63,11 @@ public class SQLEncoderPostgis extends SQLEncoder
     public SQLEncoderPostgis() {
     }
 
+    /**
+     * Constructor with srid.
+     *
+     * @param srid spatial reference id to encode geometries with.
+     */
     public SQLEncoderPostgis(int srid) {
         this.srid = srid;
     }
@@ -77,7 +85,7 @@ public class SQLEncoderPostgis extends SQLEncoder
         throws SQLEncoderException {
         this(srid);
 
-        if (capabilities.fullySupports(filter)) {
+        if (capabils.fullySupports(filter)) {
             super.out = out;
 
             try {
@@ -90,7 +98,7 @@ public class SQLEncoderPostgis extends SQLEncoder
                 throw new SQLEncoderException("Problem writing filter: ", ioe);
             }
         } else {
-            throw new SQLEncoderException("Filter type not supported");
+            throw new SQLEncoderException("Filter not supported: " + filter);
         }
     }
 
@@ -115,10 +123,11 @@ public class SQLEncoderPostgis extends SQLEncoder
      *       their own default geometry?
      */
     public void setDefaultGeometry(String name) {
-        //Do we really want clients to be using malformed filters?  I mean, this
-        //is a useful method for unit tests, but shouldn't fully formed filters
-        //usually be used?  Though I guess adding the option wouldn't hurt me. -ch
-        this.defaultGeometry = name;
+        //Do we really want clients to be using malformed filters?  
+        //I mean, this is a useful method for unit tests, but shouldn't 
+        //fully formed filters usually be used?  Though I guess adding 
+        //the option wouldn't hurt. -ch
+        this.defaultGeom = name;
     }
 
     /**
@@ -131,11 +140,12 @@ public class SQLEncoderPostgis extends SQLEncoder
 
         if (filter.getFilterType() == AbstractFilter.GEOMETRY_BBOX) {
             DefaultExpression left = (DefaultExpression) filter.getLeftGeometry();
-            DefaultExpression right = (DefaultExpression) filter.getRightGeometry();
+            DefaultExpression right = (DefaultExpression) filter
+                .getRightGeometry();
 
             try {
                 if (left == null) {
-                    out.write(defaultGeometry);
+                    out.write(defaultGeom);
                 } else {
                     left.accept(this);
                 }
@@ -143,7 +153,7 @@ public class SQLEncoderPostgis extends SQLEncoder
                 out.write(" && ");
 
                 if (right == null) {
-                    out.write(defaultGeometry);
+                    out.write(defaultGeom);
                 } else {
                     right.accept(this);
                 }

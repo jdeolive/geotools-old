@@ -16,7 +16,9 @@
  */
 package org.geotools.filter;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 
 /**
@@ -27,7 +29,8 @@ import java.util.*;
  * @author Chris Holmes, TOPP
  */
 public class FilterCapabilities {
-    /*The Filter types (shorts from AbstractFilter) supported.*/
+
+    /** The Filter types (shorts from AbstractFilter) supported.*/
     private List supportTypes;
 
     /**
@@ -72,8 +75,7 @@ public class FilterCapabilities {
 
     /**
      * Determines if the filter and all its sub filters are supported.  Is most
-     * important for logic filters, as they are the only ones with
-     * subFilters.
+     * important for logic filters, as they are the only ones with subFilters.
      *
      * @param filter the filter to be tested.
      *

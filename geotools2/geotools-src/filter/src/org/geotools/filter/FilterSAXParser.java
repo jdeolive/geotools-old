@@ -16,88 +16,81 @@
  */
 package org.geotools.filter;
 
-// J2SE dependencies
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.logging.Logger;
-import org.xml.sax.Attributes;
 
-// Geotools dependencies
-import org.geotools.data.*;
-import org.geotools.feature.*;
+import org.xml.sax.Attributes;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 
 
 /**
- * Defines a like filter, which checks to see if an attribute matches a REGEXP.
+ * Creates filters from FilterFilter, which reads in a SAX stream and passes
+ * the appropriate messages here.
  *
- * @version $Id: FilterSAXParser.java,v 1.4 2003/06/02 23:29:20 cholmesny Exp $
- * @author Rob Hranac, Vision for New York
+ * @author Rob Hranac, Vision for New York<br>
+ * @author Chris Holmes, TOPP
+ * @version $Id: FilterSAXParser.java,v 1.5 2003/07/30 00:08:56 cholmesny Exp $
  */
 public class FilterSAXParser {
-
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
-    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
+    /** factory for creating filters. */
+    private static final FilterFactory FILTER_FACT = FilterFactory.createFilterFactory();
+
     /** The filter being currently constructed */
-    private Filter currentFilter = null;
+    private Filter curFilter = null;
 
     /** The current completion state of the filter */
-    private String currentState = "uninitialized";
+    private String curState = "uninitialized";
 
     /** The short representation of this type of filter */
     private short filterType;
 
-    /** the Attributes of the filter (only applicable to LIKE filters, I think) */
-    private HashMap attributes = new HashMap();
-
+    /**
+     * the Attributes of the filter (only applicable to LIKE filters, I think)
+     */
+    private Map attributes = new HashMap();
 
     /**
      * Constructor which flags the operator as between.
      */
-    public FilterSAXParser () {}
-
+    public FilterSAXParser() {
+    }
 
     /**
      * Handles all incoming generic string 'messages,' including a message to
      * create the filter, based on the XML tag that represents the start of
      * the filter.
      *
-     * @param message The string from the SAX filter.
+     * @param filterType The string from the SAX filter.
+     *
      * @throws IllegalFilterException Filter is illegal.
      */
-    public void start(short filterType)
-        throws IllegalFilterException {
-	LOGGER.finest("starting filter type " + filterType);
-        if( filterType == AbstractFilter.FID && !currentState.equals("fid")) {
-	    LOGGER.finer("creating the FID filter");
-	    currentFilter = filterFactory.createFidFilter();            
-	}
-	else if( AbstractFilter.isGeometryDistanceFilter(filterType) ) {
-	    currentFilter = filterFactory.createGeometryDistanceFilter(filterType);            
-	    
+    public void start(short filterType) throws IllegalFilterException {
+        LOGGER.finest("starting filter type " + filterType);
+
+        if ((filterType == AbstractFilter.FID) && !curState.equals("fid")) {
+            LOGGER.finer("creating the FID filter");
+            curFilter = FILTER_FACT.createFidFilter();
+        } else if (AbstractFilter.isGeometryDistanceFilter(filterType)) {
+            curFilter = FILTER_FACT.createGeometryDistanceFilter(filterType);
+        } else if (AbstractFilter.isGeometryFilter(filterType)) {
+            curFilter = FILTER_FACT.createGeometryFilter(filterType);
+        } else if (filterType == AbstractFilter.BETWEEN) {
+            curFilter = FILTER_FACT.createBetweenFilter();
+        } else if (filterType == AbstractFilter.NULL) {
+            curFilter = FILTER_FACT.createNullFilter();
+        } else if (filterType == AbstractFilter.LIKE) {
+            curFilter = FILTER_FACT.createLikeFilter();
+        } else if (AbstractFilter.isCompareFilter(filterType)) {
+            curFilter = FILTER_FACT.createCompareFilter(filterType);
+        } else {
+            throw new IllegalFilterException(
+                "Attempted to start a new filter with invalid type: "
+                + filterType);
         }
-        else if( AbstractFilter.isGeometryFilter(filterType) ) {
-            currentFilter = filterFactory.createGeometryFilter(filterType);            
-        }
-        else if( filterType == AbstractFilter.BETWEEN ) {
-            currentFilter = filterFactory.createBetweenFilter();            
-        }
-        else if( filterType == AbstractFilter.NULL ) {
-            currentFilter = filterFactory.createNullFilter();            
-        }
-        else if( filterType == AbstractFilter.LIKE ) {
-            currentFilter = filterFactory.createLikeFilter();            
-        }
-        else if( AbstractFilter.isCompareFilter(filterType) ) {
-            currentFilter = filterFactory.createCompareFilter(filterType);            
-        }
-        else {
-            throw new IllegalFilterException
-                ("Attempted to start a new filter with invalid type: "
-                 + filterType);
-        }
-        currentState = setInitialState(filterType);
+
+        curState = setInitialState(filterType);
         this.filterType = filterType;
 
         attributes = new HashMap();
@@ -108,227 +101,220 @@ public class FilterSAXParser {
      * create the filter, based on the XML tag that represents the start of
      * the filter.
      *
-     * @param message The string from the SAX filter. 
+     * @param message The string from the SAX filter.
+     *
      * @throws IllegalFilterException Filter is illegal.
      */
-    public void value(String message)
-        throws IllegalFilterException {
-
+    public void value(String message) throws IllegalFilterException {
     }
 
     /**
-     * Determines whether or not a given feature is 'inside' this filter.
+     * Adds the passed in expression to the current filter.  Generally 
+     * created by the ExpressionSAXParser.  
      *
-     * @param message The value of the attribute for comparison.
-     * @throws IllegalFilterException Filter is illegal.
+     * @param expression The value of the attribute for comparison.
+     *
+     * @throws IllegalFilterException if the expression does not match what
+     * the current filter is expecting.
+     * @task REVISIT: split this method up.
      */
-    public void expression(Expression expression) 
-        throws IllegalFilterException {
-
+    public void expression(Expression expression) throws IllegalFilterException {
         // Handle all filter compare states and expressions
-       
-        if( filterType == AbstractFilter.BETWEEN ) {
-            if( currentState.equals("attribute") ) {
-                ((BetweenFilter) currentFilter).addMiddleValue(expression);
-                currentState = "LowerBoundary";
+        if (filterType == AbstractFilter.BETWEEN) {
+            if (curState.equals("attribute")) {
+                ((BetweenFilter) curFilter).addMiddleValue(expression);
+                curState = "LowerBoundary";
+            } else if (curState.equals("LowerBoundary")) {
+                ((BetweenFilter) curFilter).addLeftValue(expression);
+                curState = "UpperBoundary";
+            } else if (curState.equals("UpperBoundary")) {
+                ((BetweenFilter) curFilter).addRightValue(expression);
+                curState = "complete";
+            } else {
+                throw new IllegalFilterException(
+                    "Got expression for Between Filter in illegal state: "
+                    + curState);
             }
-            else if( currentState.equals("LowerBoundary") ) {
-                ((BetweenFilter) currentFilter).addLeftValue(expression);
-                currentState = "UpperBoundary";
+        } else if (AbstractFilter.isCompareFilter(filterType)) {
+            if (curState.equals("leftValue")) {
+                ((CompareFilter) curFilter).addLeftValue(expression);
+                curState = "rightValue";
+            } else if (curState.equals("rightValue")) {
+                ((CompareFilter) curFilter).addRightValue(expression);
+                curState = "complete";
+            } else {
+                throw new IllegalFilterException(
+                    "Got expression for Compare Filter in illegal state: "
+                    + curState);
             }
-            else if( currentState.equals("UpperBoundary") ) {
-                ((BetweenFilter) currentFilter).addRightValue(expression);
-                currentState = "complete";
+        } else if (filterType == AbstractFilter.NULL) {
+            if (curState.equals("attribute")) {
+                ((NullFilter) curFilter).nullCheckValue(expression);
+                curState = "complete";
+            } else {
+                throw new IllegalFilterException(
+                    "Got expression for Null Filter in illegal state: "
+                    + curState);
             }
-            else {
-                throw new IllegalFilterException
-                    ("Got expression for Between Filter in illegal state: "
-                     + currentState);
-            }
-        }
-        else if( AbstractFilter.isCompareFilter(filterType) ) {
-            if( currentState.equals("leftValue") ) {
-                ((CompareFilter) currentFilter).addLeftValue(expression);
-                currentState = "rightValue";
-            }
-            else if( currentState.equals("rightValue") ) {
-                ((CompareFilter) currentFilter).addRightValue(expression);
-                currentState = "complete";
-            }
-            else {
-                throw new IllegalFilterException
-                    ("Got expression for Compare Filter in illegal state: "
-                     + currentState);
-            }
-        }
-        else if( filterType == AbstractFilter.NULL ) {
-            if( currentState.equals("attribute") ) {
-                ((NullFilter) currentFilter).nullCheckValue(expression);
-                currentState = "complete";
-            }
-            else {
-                throw new IllegalFilterException
-                    ("Got expression for Null Filter in illegal state: "
-                     + currentState);
-            }
-        }
-        else if( AbstractFilter.isGeometryFilter(filterType) ) {
-            if( currentState.equals("leftValue") ) {
-                ((GeometryFilter) currentFilter).addLeftGeometry(expression);
-                currentState = "rightValue";
-            }
-            else if( currentState.equals("rightValue") ) {
-                ((GeometryFilter) currentFilter).addRightGeometry(expression);
-		if (AbstractFilter.isGeometryDistanceFilter(filterType)) {
-		    currentState = "distance";
-		} else {				 
-		    currentState = "complete";
-		}
-		LOGGER.finer("expression called on geometry, curState = " + 
-			     currentState);
-	    }
-            else {
-                throw new IllegalFilterException
-                    ("Got expression for Geometry Filter in illegal state: "
-                     + currentState);
-            }
-        }
-        else if( filterType == AbstractFilter.LIKE ) {
-            if( currentState.equals("attribute") ) {
-                
-                ((LikeFilter) currentFilter).setValue(expression);
-                currentState = "pattern";
-            }
-            else if( currentState.equals("pattern") ) {
-                if(attributes.size()!=3){
-                    throw new IllegalFilterException
-                    ("Got wrong number of attributes (expecting 3): "
-                     + attributes.size()+"\n"+attributes);
+        } else if (AbstractFilter.isGeometryFilter(filterType)) {
+            if (curState.equals("leftValue")) {
+                ((GeometryFilter) curFilter).addLeftGeometry(expression);
+                curState = "rightValue";
+            } else if (curState.equals("rightValue")) {
+                ((GeometryFilter) curFilter).addRightGeometry(expression);
+
+                if (AbstractFilter.isGeometryDistanceFilter(filterType)) {
+                    curState = "distance";
+                } else {
+                    curState = "complete";
                 }
-                String wildcard = (String)attributes.get("wildCard");
-                String singleChar = (String)attributes.get("singleChar");
-                String escapeChar = (String)attributes.get("escape");
-		LOGGER.fine("escape char is " + escapeChar);
-		//old way, this should deprecate, but keep it for backwords
-		//compatability.  Spec says escape.
-		if (escapeChar == null) {
-		    escapeChar = (String)attributes.get("escapeChar");
-		}
-		LOGGER.fine("if null get new : " + escapeChar);
-                ((LikeFilter) currentFilter).setPattern(expression,
-                                                        wildcard,
-                                                        singleChar,
-                                                        escapeChar);
-                currentState = "complete";
+
+                LOGGER.finer("expression called on geometry, curState = "
+                    + curState);
+            } else {
+                throw new IllegalFilterException(
+                    "Got expression for Geometry Filter in illegal state: "
+                    + curState);
             }
-            else {
-                throw new IllegalFilterException
-                    ("Got expression for Like Filter in illegal state: "
-                     + currentState);
+        } else if (filterType == AbstractFilter.LIKE) {
+            if (curState.equals("attribute")) {
+                ((LikeFilter) curFilter).setValue(expression);
+                curState = "pattern";
+            } else if (curState.equals("pattern")) {
+                if (attributes.size() != 3) {
+                    throw new IllegalFilterException(
+                        "Got wrong number of attributes (expecting 3): "
+                        + attributes.size() + "\n" + attributes);
+                }
+
+                String wildcard = (String) attributes.get("wildCard");
+                String singleChar = (String) attributes.get("singleChar");
+                String escapeChar = (String) attributes.get("escape");
+                LOGGER.fine("escape char is " + escapeChar);
+
+                //old way, this should deprecate, but keep it for backwords
+                //compatability.  Spec says escape.
+                if (escapeChar == null) {
+                    escapeChar = (String) attributes.get("escapeChar");
+                }
+
+                LOGGER.fine("if null get new : " + escapeChar);
+                ((LikeFilter) curFilter).setPattern(expression, wildcard,
+                    singleChar, escapeChar);
+                curState = "complete";
+            } else {
+                throw new IllegalFilterException(
+                    "Got expression for Like Filter in illegal state: "
+                    + curState);
             }
         }
-        LOGGER.finer("current state (end): " + currentState);
-    }
 
-
-    /**
-     * Sets the multi wildcard for this LikeFilter.
-     *
-     */
-    public Filter create()
-        throws IllegalFilterException {
-       
-        if( isComplete() ) {
-	    LOGGER.finer("complete called, state = " + currentState);
-	    currentState = "complete"; //added by cholmes fid bug.
-            return currentFilter;
-        }
-        else {
-            throw new IllegalFilterException
-                ("Got to the end state of an incomplete filter, current" + 
-		 " state is " + currentState);
-        }
-
-
+        LOGGER.finer("current state (end): " + curState);
     }
 
     /**
-     * Sets the multi wildcard for this LikeFilter.
+     * Creates the filter held in the parser.  
      *
+     * @return The current filter to be created by this parser.
+     *
+     * @throws IllegalFilterException If called before the filter
+     * is in a complete state.
      */
-    private static String setInitialState(short filterType) 
-        throws IllegalFilterException {
+    public Filter create() throws IllegalFilterException {
+        if (isComplete()) {
+            LOGGER.finer("complete called, state = " + curState);
+            curState = "complete"; //added by cholmes fid bug.
 
-        if( ( filterType == AbstractFilter.BETWEEN) ||
-            ( filterType == AbstractFilter.NULL) ||
-            ( filterType == AbstractFilter.LIKE) ) {
+            return curFilter;
+        } else {
+            throw new IllegalFilterException(
+                "Got to the end state of an incomplete filter, current"
+                + " state is " + curState);
+        }
+    }
+
+    /**
+     * Sets the state that shall be expected next based on the fitlerType.
+     * So if a between, null or like is the currentFilter then attribute
+     * should be next, if an fid filter then fid should be next.  If it's
+     * a comparison, geometry or not, then leftValue should be next.
+     *
+     * @param filterType An AbstractFilter short of the filter type.
+     *
+     * @return the string of what state should come next.
+     *
+     * @throws IllegalFilterException if the filter type is not recognized.
+     */
+    private static String setInitialState(short filterType)
+        throws IllegalFilterException {
+        if ((filterType == AbstractFilter.BETWEEN)
+                || (filterType == AbstractFilter.NULL)
+                || (filterType == AbstractFilter.LIKE)) {
             return "attribute";
-        }
-        else if( ( filterType == AbstractFilter.FID) ) {
+        } else if ((filterType == AbstractFilter.FID)) {
             return "fid";
-        }
-        else if( ( AbstractFilter.isCompareFilter(filterType)) ||
-                 ( AbstractFilter.isGeometryFilter(filterType))) {
+        } else if ((AbstractFilter.isCompareFilter(filterType))
+                || (AbstractFilter.isGeometryFilter(filterType))) {
             return "leftValue";
+        } else {
+            throw new IllegalFilterException("Filter type: " + filterType
+					     + " is not recognized");
         }
-        else {
-            throw new IllegalFilterException
-                ("Created illegal filter: " + filterType);
-        }
-
     }
 
     /**
      * This sets the distance for a GeometryDistanceFilter.  It currently
      * ignores the units, and attempts to convert the distance to a double.
-     * 
+     *
      * @param distance the distance - should be a string of a double.
      * @param units a reference to a units dictionary.
-     * @throws IllegelFilterException if the distance string can not be 
-     * converted to a double.  
+     *
+     * @throws IllegalFilterException if the distance string can not be
+     *         converted to a double.
+     *
      * @task TODO: Implement units, probably with org.geotools.units package
-     * and a special distance class in the filter package.  It would be
-     * nice if the distance class could get any type of units, like
-     * it would handle the conversion.
+     *       and a special distance class in the filter package.  It would be
+     *       nice if the distance class could get any type of units, like it
+     *       would handle the conversion.
      */
-    public void setDistance(String distance, String units) 
-	throws IllegalFilterException {
-	LOGGER.finer("set distance called, current state is " + currentState);
-	if (currentState.equals("distance")) {
-	    try {
-		double distDouble = Double.parseDouble(distance);
-		((GeometryDistanceFilter) currentFilter).setDistance(distDouble);
-		currentState = "complete";
-	    } catch (NumberFormatException nfe) {
-		throw new IllegalFilterException("could not parse distance: " +
-						 distance + " to a double");
-	    }
-	} else {
-	    throw new IllegalFilterException
-		("Got distance for Geometry Distance Filter in illegal state: "
-		 + currentState + ", geometry and property should be set first");
-	}
+    public void setDistance(String distance, String units)
+        throws IllegalFilterException {
+        LOGGER.finer("set distance called, current state is " + curState);
+
+        if (curState.equals("distance")) {
+            try {
+                double distDouble = Double.parseDouble(distance);
+                ((GeometryDistanceFilter) curFilter).setDistance(distDouble);
+                curState = "complete";
+            } catch (NumberFormatException nfe) {
+                throw new IllegalFilterException("could not parse distance: "
+                    + distance + " to a double");
+            }
+        } else {
+            throw new IllegalFilterException(
+                "Got distance for Geometry Distance Filter in illegal state: "
+                + curState + ", geometry and property should be set first");
+        }
     }
 
     /**
-     * Sets the filter attributes.  Called when attributes are encountered
-     * by the filter filter.  Puts them in a hash map by thier name and 
-     * value.
-     * 
+     * Sets the filter attributes.  Called when attributes are encountered by
+     * the filter filter.  Puts them in a hash map by thier name and  value.
+     *
      * @param atts the attributes to set.
      */
-    public void setAttributes(Attributes atts){
-        LOGGER.finer("got attribute: " + atts.getLocalName(0) + 
-                     ", " + atts.getValue(0));
-        LOGGER.finer("current state: " + currentState);
-        if( currentState.equals("fid")) {
+    public void setAttributes(Attributes atts) {
+        LOGGER.finer("got attribute: " + atts.getLocalName(0) + ", "
+            + atts.getValue(0));
+        LOGGER.finer("current state: " + curState);
+
+        if (curState.equals("fid")) {
             LOGGER.finer("is a fid");
-            ((FidFilter) currentFilter).addFid( atts.getValue(0));
+            ((FidFilter) curFilter).addFid(atts.getValue(0));
             LOGGER.finer("added fid");
-        }
-        else {
-            for(int i = 0; i < atts.getLength(); i++) {
-                this.attributes.put( atts.getLocalName(i),atts.getValue(i));
+        } else {
+            for (int i = 0; i < atts.getLength(); i++) {
+                this.attributes.put(atts.getLocalName(i), atts.getValue(i));
             }
         }
     }
@@ -339,15 +325,6 @@ public class FilterSAXParser {
      * @return <tt>true</tt> if the current state is either complete or fid
      */
     private boolean isComplete() {
-        if( currentState.equals("complete") ||
-            currentState.equals("fid") ) {
-	
-            return true;
-        }
-        else {
-            return false;
-        }
+        return (curState.equals("complete") || curState.equals("fid"));
     }
-
-    
 }

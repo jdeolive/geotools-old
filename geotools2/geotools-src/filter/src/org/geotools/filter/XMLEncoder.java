@@ -16,13 +16,13 @@
  */
 package org.geotools.filter;
 
-import java.io.Writer;
+import com.vividsolutions.jts.geom.*;
 import java.io.PrintWriter;
+import java.io.Writer;
 
 // J2SE dependencies
 import java.util.logging.Logger;
 
-import com.vividsolutions.jts.geom.*;
 
 /**
  * Exports a filter as a OGC XML Filter document.
@@ -96,7 +96,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         this.out = out;
 
         try {
-           encode(filter);
+            encode(filter);
         } catch (java.io.IOException ioe) {
             LOGGER.warning("Unable to export filter" + ioe);
         }
@@ -130,8 +130,8 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         Expression right = (Expression) filter.getRightValue();
         Expression mid = (Expression) filter.getMiddleValue();
         LOGGER.finer("Filter type id is " + filter.getFilterType());
-        LOGGER.finer("Filter type text is " +
-            comparisions.get(new Integer(filter.getFilterType())));
+        LOGGER.finer("Filter type text is "
+            + comparisions.get(new Integer(filter.getFilterType())));
 
         String type = (String) comparisions.get(new Integer(
                     filter.getFilterType()));
@@ -157,8 +157,8 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             String wcm = filter.getWildcardMulti();
             String wcs = filter.getWildcardSingle();
             String esc = filter.getEscape();
-            out.write("<PropertyIsLike wildCard=\"" + wcm + "\" singleChar=\"" +
-                wcs + "\" escapeChar=\"" + esc + "\">\n");
+            out.write("<PropertyIsLike wildCard=\"" + wcm + "\" singleChar=\""
+                + wcs + "\" escapeChar=\"" + esc + "\">\n");
             ((Expression) filter.getValue()).accept(this);
             out.write("<Literal>\n" + filter.getPattern() + "\n</Literal>\n");
             out.write("</PropertyIsLike>\n");
@@ -195,8 +195,8 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         Expression left = filter.getLeftValue();
         Expression right = filter.getRightValue();
         LOGGER.finer("Filter type id is " + filter.getFilterType());
-        LOGGER.finer("Filter type text is " +
-            comparisions.get(new Integer(filter.getFilterType())));
+        LOGGER.finer("Filter type text is "
+            + comparisions.get(new Integer(filter.getFilterType())));
 
         String type = (String) comparisions.get(new Integer(
                     filter.getFilterType()));
@@ -247,25 +247,26 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         }
     }
 
-	public void visit(FidFilter filter) {
-		LOGGER.finer("exporting FidFilter");
+    public void visit(FidFilter filter) {
+        LOGGER.finer("exporting FidFilter");
 
-		String[] fids = filter.getFids();
-		for ( int i = 0; i < fids.length; i++ ) {
-			try {
-				out.write("<FeatureId fid=\"" + fids[i] + "\"/>");
-			} catch (Exception e) {
-				LOGGER.warning("Unable to export filter" + e);
-			}
-		}
-	}
+        String[] fids = filter.getFids();
+
+        for (int i = 0; i < fids.length; i++) {
+            try {
+                out.write("<FeatureId fid=\"" + fids[i] + "\"/>");
+            } catch (Exception e) {
+                LOGGER.warning("Unable to export filter" + e);
+            }
+        }
+    }
 
     public void visit(AttributeExpression expression) {
         LOGGER.finer("exporting ExpressionAttribute");
 
         try {
-            out.write("<PropertyName>" + expression.getAttributePath() +
-                "</PropertyName>\n");
+            out.write("<PropertyName>" + expression.getAttributePath()
+                + "</PropertyName>\n");
         } catch (java.io.IOException ioe) {
             LOGGER.finer("Unable to export expresion: " + ioe);
         }
@@ -288,11 +289,12 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
 
         try {
             Object value = expression.getLiteral();
-            if ( Geometry.class.isAssignableFrom(value.getClass()) ) {
+
+            if (Geometry.class.isAssignableFrom(value.getClass())) {
                 GeometryEncoder encoder = new GeometryEncoder(out);
-                encoder.encode((Geometry)value);
+                encoder.encode((Geometry) value);
             } else {
-                out.write("<Literal>"+value+"</Literal>\n");
+                out.write("<Literal>" + value + "</Literal>\n");
             }
         } catch (java.io.IOException ioe) {
             LOGGER.warning("Unable to export expresion" + ioe);
@@ -342,36 +344,39 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             this.out = new PrintWriter(out);
         }
 
-        public GeometryEncoder(String srs,Writer out) {
+        public GeometryEncoder(String srs, Writer out) {
             this.out = new PrintWriter(out);
             this.srs = srs;
         }
 
         public void encode(Geometry geom) {
             Class geomType = geom.getClass();
-            if ( Point.class.isAssignableFrom(geomType) ) {
-                encode((Point)geom);
-            } else if ( LineString.class.isAssignableFrom(geomType) ) {
-                encode((LineString)geom);
-            } else if ( Polygon.class.isAssignableFrom(geomType) ) {
-                encode((Polygon)geom);
-            } else if ( MultiPoint.class.isAssignableFrom(geomType) ) {
-                encode((MultiPoint)geom);
-            } else if ( MultiLineString.class.isAssignableFrom(geomType) ) {
-                encode((MultiLineString)geom);
-            } else if ( MultiPolygon.class.isAssignableFrom(geomType) ) {
-                encode((MultiPolygon)geom);
-            } else if ( GeometryCollection.class.isAssignableFrom(geomType) ) {
-                encode((GeometryCollection)geom);
+
+            if (Point.class.isAssignableFrom(geomType)) {
+                encode((Point) geom);
+            } else if (LineString.class.isAssignableFrom(geomType)) {
+                encode((LineString) geom);
+            } else if (Polygon.class.isAssignableFrom(geomType)) {
+                encode((Polygon) geom);
+            } else if (MultiPoint.class.isAssignableFrom(geomType)) {
+                encode((MultiPoint) geom);
+            } else if (MultiLineString.class.isAssignableFrom(geomType)) {
+                encode((MultiLineString) geom);
+            } else if (MultiPolygon.class.isAssignableFrom(geomType)) {
+                encode((MultiPolygon) geom);
+            } else if (GeometryCollection.class.isAssignableFrom(geomType)) {
+                encode((GeometryCollection) geom);
             }
         }
 
         public void encode(Coordinate[] coords) {
             out.print("<gml:coordinates>");
-            for ( int i = 0; i < coords.length; i++ ) {
+
+            for (int i = 0; i < coords.length; i++) {
                 out.print(coords[i].x + "," + coords[i].y);
-                out.print(i < coords.length-1 ? " " : "");
+                out.print((i < (coords.length - 1)) ? " " : "");
             }
+
             out.println("</gml:coordinates>");
         }
 
@@ -384,53 +389,61 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         public void encode(LineString line) {
             out.println("<gml:LineString srsName=\"" + srs + "\">");
             encode(line.getCoordinates());
-			out.println("</gml:LineString>");
+            out.println("</gml:LineString>");
         }
 
         public void encode(Polygon polygon) {
             out.println("<gml:Polygon srsName=\"" + srs + "\">");
             out.println("<gml:outerBoundaryIs>");
             encode(polygon.getExteriorRing());
-			out.println("</gml:outerBoundaryIs>");
+            out.println("</gml:outerBoundaryIs>");
 
-			for ( int i = 0; i < polygon.getNumInteriorRing(); i++ ) {
-			    out.println("<gml:innerBoundaryIs>");
-			    encode(polygon.getInteriorRingN(i));
-			    out.println("</gml:innerBoundaryIs>");
-			}
+            for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
+                out.println("<gml:innerBoundaryIs>");
+                encode(polygon.getInteriorRingN(i));
+                out.println("</gml:innerBoundaryIs>");
+            }
 
-			out.println("</gml:Polygon>");
+            out.println("</gml:Polygon>");
         }
 
         public void encode(MultiPoint mpoint) {
             out.println("<gml:MultiPoint srsName=\"" + srs + "\">\n");
-            for ( int i = 0; i < mpoint.getNumGeometries(); i++ ) {
-                encode((Point)mpoint.getGeometryN(i));
+
+            for (int i = 0; i < mpoint.getNumGeometries(); i++) {
+                encode((Point) mpoint.getGeometryN(i));
             }
+
             out.println("</gml:MultiPoint>\n");
         }
 
         public void encode(MultiLineString mline) {
             out.println("<gml:MultiLineString srsName=\"" + srs + "\">\n");
-            for ( int i = 0; i < mline.getNumGeometries(); i++ ) {
-                encode((LineString)mline.getGeometryN(i));
+
+            for (int i = 0; i < mline.getNumGeometries(); i++) {
+                encode((LineString) mline.getGeometryN(i));
             }
+
             out.println("</gml:MultiLineString>\n");
         }
 
         public void encode(MultiPolygon mpolygon) {
             out.println("<gml:MultiPolygon srsName=\"" + srs + "\">\n");
-            for ( int i = 0; i < mpolygon.getNumGeometries(); i++ ) {
-                encode((Polygon)mpolygon.getGeometryN(i));
+
+            for (int i = 0; i < mpolygon.getNumGeometries(); i++) {
+                encode((Polygon) mpolygon.getGeometryN(i));
             }
+
             out.println("</gml:MultiPolygon>\n");
         }
 
         public void encode(GeometryCollection geomcoll) {
             out.println("<gml:MultiGeometry srsName=\"" + srs + "\">\n");
-            for ( int i = 0; i < geomcoll.getNumGeometries(); i++ ) {
+
+            for (int i = 0; i < geomcoll.getNumGeometries(); i++) {
                 encode(geomcoll.getGeometryN(i));
             }
+
             out.println("</gml:MultiGeometry>\n");
         }
     }

@@ -18,20 +18,22 @@ package org.geotools.filter;
 
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 
 /**
  * Encodes a filter into a SQL WHERE statement.  It should hopefully be generic
  * enough that any SQL database will work with it, though it has only been
- * tested with MySQL.  This generic SQL encoder should eventually be able to
- * encode all filters except Geometry Filters (currently LikeFilters are not
- * yet fully implemented, but when they are they should be generic enough).
- * This is because the OGC's SFS for SQL document specifies two ways of doing
- * SQL databases, one with native geometry types and one without.  To
- * implement an encoder for one of the two types simply subclass off of this
- * encoder and put in the proper GeometryFilter visit method.  Then add the
- * filter types supported to the capabilities in the static
+ * tested with MySQL and Postgis.  This generic SQL encoder should eventually
+ * be able to encode all filters except Geometry Filters (currently
+ * LikeFilters are not yet fully implemented, but when they are they should be
+ * generic enough). This is because the OGC's SFS for SQL document specifies
+ * two ways of doing SQL databases, one with native geometry types and one
+ * without.  To implement an encoder for one of the two types simply subclass
+ * off of this encoder and put in the proper GeometryFilter visit method. Then
+ * add the filter types supported to the capabilities in the static
  * capabilities.addType block.
  *
  * @author Chris Holmes, TOPP
@@ -40,17 +42,21 @@ import java.util.logging.Logger;
  *       the rest of the code should work right.  Once fixed be sure to add
  *       the LIKE type to capabilities, so others know that they can be
  *       encoded.
+ * @task REVISIT: need to figure out exceptions, we're currently eating io
+ *       errors, which is bad.  Probably need a generic visitor exception.
  */
 public class SQLEncoder implements org.geotools.filter.FilterVisitor {
     //use these when Like is implemented.
-
-    /** The standard SQL multicharacter wild card. */
-
+    //The standard SQL multicharacter wild card. 
     //private static String SQL_WILD_MULTI = "%";
-
-    /** The standard SQL single character wild card. */
-
+    //The standard SQL single character wild card.
     //private static String SQL_WILD_SINGLE = "_";
+    // The escaped version of the single wildcard for the REGEXP pattern. 
+    //private static String escapedWildcardSingle = "\\.\\?";
+    // The escaped version of the multiple wildcard for the REGEXP pattern. 
+    //private static String escapedWildcardMulti = "\\.\\*";
+    /** error message for exceptions */
+    private static final String IO_ERROR = "io problem writing filter";
 
     /** The filter types that this class can encode */
     private static FilterCapabilities capabilities = new FilterCapabilities();
@@ -66,7 +72,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
         capabilities.addType(AbstractFilter.LOGIC_AND);
         capabilities.addType(AbstractFilter.LOGIC_NOT);
         capabilities.addType(AbstractFilter.COMPARE_EQUALS);
-	capabilities.addType(AbstractFilter.COMPARE_NOT_EQUALS);
+        capabilities.addType(AbstractFilter.COMPARE_NOT_EQUALS);
         capabilities.addType(AbstractFilter.COMPARE_LESS_THAN);
         capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN);
         capabilities.addType(AbstractFilter.COMPARE_LESS_THAN_EQUAL);
@@ -75,14 +81,21 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
         capabilities.addType(AbstractFilter.BETWEEN);
     }
 
-    private static java.util.HashMap comparisions = new java.util.HashMap();
-    private static java.util.HashMap spatial = new java.util.HashMap();
-    private static java.util.HashMap logical = new java.util.HashMap();
-    private static java.util.HashMap expressions = new java.util.HashMap();
+    /** Map of comparison types to sql representation */
+    private static Map comparisions = new HashMap();
+
+    /** Map of spatial types to sql representation */
+    private static Map spatial = new HashMap();
+
+    /** Map of logical types to sql representation */
+    private static Map logical = new HashMap();
+
+    /** Map of expression types to sql representation */
+    private static Map expressions = new HashMap();
 
     static {
         comparisions.put(new Integer(AbstractFilter.COMPARE_EQUALS), "=");
-	comparisions.put(new Integer(AbstractFilter.COMPARE_NOT_EQUALS), "!=");
+        comparisions.put(new Integer(AbstractFilter.COMPARE_NOT_EQUALS), "!=");
         comparisions.put(new Integer(AbstractFilter.COMPARE_GREATER_THAN), ">");
         comparisions.put(new Integer(AbstractFilter.COMPARE_GREATER_THAN_EQUAL),
             ">=");
@@ -116,21 +129,8 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
         logical.put(new Integer(AbstractFilter.LOGIC_NOT), "NOT");
     }
 
-    //use these when Like is implemented.
-
-    /** The escaped version of the single wildcard for the REGEXP pattern. */
-
-    //private String escapedWildcardSingle = "\\.\\?";
-
-    /** The escaped version of the multiple wildcard for the REGEXP pattern. */
-
-    //private String escapedWildcardMulti = "\\.\\*";
-
-    /** used for constructing the string from visiting the filters. */
+    /** where to write the constructed string from visiting the filters. */
     protected Writer out;
-
-    /** the encoded string for return */
-    private String encodedSQL;
 
     /**
      * Empty constructor
@@ -157,7 +157,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
                 //out.write(";"); this should probably be added by client.
             } catch (java.io.IOException ioe) {
                 log.warning("Unable to export filter: " + ioe);
-		throw new SQLEncoderException("Problem writing filter: ", ioe);
+                throw new SQLEncoderException("Problem writing filter: ", ioe);
             }
         } else {
             throw new SQLEncoderException("Filter type not supported");
@@ -171,7 +171,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @param filter the Filter to be encoded.
      *
      * @throws SQLEncoderException If filter type not supported, or if there
-     * were io problems.
+     *         were io problems.
      */
     public void encode(Writer out, Filter filter) throws SQLEncoderException {
         if (capabilities.fullySupports(filter)) {
@@ -184,7 +184,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
                 //out.write(";");
             } catch (java.io.IOException ioe) {
                 log.warning("Unable to export filter" + ioe);
-		throw new SQLEncoderException("Problem writing filter: ", ioe);
+                throw new SQLEncoderException("Problem writing filter: ", ioe);
             }
         } else {
             throw new SQLEncoderException("Filter type not supported");
@@ -198,8 +198,8 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      *
      * @return the string of the SQL where statement.
      *
-     * @throws SQLEncoderException  If filter type not supported, or if there
-     * were io problems.
+     * @throws SQLEncoderException If filter type not supported, or if there
+     *         were io problems.
      */
     public String encode(Filter filter) throws SQLEncoderException {
         StringWriter output = new StringWriter();
@@ -232,19 +232,18 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * Writes the SQL for the Between Filter.
      *
      * @param filter the  Filter to be visited.
+     *
+     * @throws RuntimeException for io exception with writer
      */
-    public void visit(BetweenFilter filter) {
+    public void visit(BetweenFilter filter) throws RuntimeException {
         log.finer("exporting BetweenFilter");
 
         DefaultExpression left = (DefaultExpression) filter.getLeftValue();
         DefaultExpression right = (DefaultExpression) filter.getRightValue();
         DefaultExpression mid = (DefaultExpression) filter.getMiddleValue();
         log.finer("Filter type id is " + filter.getFilterType());
-        log.finer("Filter type text is " +
-            comparisions.get(new Integer(filter.getFilterType())));
-
-        String type = (String) comparisions.get(new Integer(
-                    filter.getFilterType()));
+        log.finer("Filter type text is "
+            + comparisions.get(new Integer(filter.getFilterType())));
 
         try {
             mid.accept(this);
@@ -253,49 +252,57 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
             out.write(" AND ");
             right.accept(this);
         } catch (java.io.IOException ioe) {
-            log.warning("Unable to export filter" + ioe);
+            throw new RuntimeException(IO_ERROR, ioe);
         }
     }
 
     /**
      * Writes the SQL for the Like Filter.  Assumes the current java
      * implemented wildcards for the Like Filter: . for multi and .? for
-     * single. And replaces them with the SQL % and _, respectively.
-     * Currently  does nothing, and should not be called, not included in the
+     * single. And replaces them with the SQL % and _, respectively. Currently
+     * does nothing, and should not be called, not included in the
      * capabilities.
      *
      * @param filter the Like Filter to be visited.
      *
-     * @task TODO: LikeFilter doesn't work right...revisit this when it does.
-     *       Need to think through the escape char, so it works right when
-     *       Java uses one, and escapes correctly with an '_'.
+     * @throws UnsupportedOperationException always, as likes aren't
+     *         implemented yet.
+     *
+     * @task REVISIT: Need to think through the escape char, so it works  right
+     *       when Java uses one, and escapes correctly with an '_'.
      */
-    public void visit(LikeFilter filter) {
+    public void visit(LikeFilter filter) throws UnsupportedOperationException {
+        String message = "Like Filter support not yet added.";
+        throw new UnsupportedOperationException(message);
+
         /*        log.finer("exporting like filter");
            try{
-               String pattern = filter.getPattern();
-               pattern = pattern.replaceAll(escapedWildcardMulti, SQL_WILD_MULTI);
-               pattern = pattern.replaceAll(escapedWildcardSingle, SQL_WILD_SINGLE);
-               //pattern = pattern.replace('\\', ''); //get rid of java escapes.
-                   //TODO escape the '_' char, as it could be in our string and will
-                   //mess up the SQL wildcard matching
-               ((ExpressionDefault)filter.getValue()).accept(this);
-               out.write(" LIKE ");
-               out.write("'"+pattern+"'");
-               //if (pattern.indexOf(esc) != -1) { //if it uses the escape char
-               //out.write(" ESCAPE " + "'" + esc + "'");  //this needs testing
-               //} TODO figure out when to add ESCAPE clause, probably just for the '_' char.
-           } catch (java.io.IOException ioe){
-               log.warning("Unable to export filter" + ioe);
-               }*/
+           String pattern = filter.getPattern();
+           pattern = pattern.replaceAll(escapedWildcardMulti, SQL_WILD_MULTI);
+           pattern = pattern.replaceAll(escapedWildcardSingle, SQL_WILD_SINGLE);
+            //pattern = pattern.replace('\\', ''); //get rid of java escapes.
+            //TODO escape the '_' char, as it could be in our string and will
+                     //mess up the SQL wildcard matching
+                 ((ExpressionDefault)filter.getValue()).accept(this);
+                 out.write(" LIKE ");
+                 out.write("'"+pattern+"'");
+              //if (pattern.indexOf(esc) != -1) { //if it uses the escape char
+              //out.write(" ESCAPE " + "'" + esc + "'");  //this needs testing
+              //} TODO figure out when to add ESCAPE clause,
+              //probably just for the '_' char.
+             } catch (java.io.IOException ioe){
+                 throw new RuntimeException(IO_ERROR, ioe);
+                 }*/
     }
 
     /**
      * Writes the SQL for the Logic Filter.
      *
      * @param filter the logic statement to be turned into SQL.
+     *
+     * @throws RuntimeException for io exception with writer
      */
-    public void visit(LogicFilter filter) {
+    public void visit(LogicFilter filter) throws RuntimeException {
         log.finer("exporting LogicFilter");
 
         filter.getFilterType();
@@ -323,7 +330,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
                 out.write(")");
             }
         } catch (java.io.IOException ioe) {
-            log.warning("Unable to export filter" + ioe);
+            throw new RuntimeException(IO_ERROR, ioe);
         }
     }
 
@@ -331,15 +338,17 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * Writes the SQL for a Compare Filter.
      *
      * @param filter the comparison to be turned into SQL.
+     *
+     * @throws RuntimeException for io exception with writer
      */
-    public void visit(CompareFilter filter) {
+    public void visit(CompareFilter filter) throws RuntimeException {
         log.finer("exporting SQL ComparisonFilter");
 
         DefaultExpression left = (DefaultExpression) filter.getLeftValue();
         DefaultExpression right = (DefaultExpression) filter.getRightValue();
         log.finer("Filter type id is " + filter.getFilterType());
-        log.finer("Filter type text is " +
-            comparisions.get(new Integer(filter.getFilterType())));
+        log.finer("Filter type text is "
+            + comparisions.get(new Integer(filter.getFilterType())));
 
         String type = (String) comparisions.get(new Integer(
                     filter.getFilterType()));
@@ -349,7 +358,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
             out.write(" " + type + " ");
             right.accept(this);
         } catch (java.io.IOException ioe) {
-            log.warning("Unable to export filter" + ioe);
+            throw new RuntimeException(IO_ERROR, ioe);
         }
     }
 
@@ -357,9 +366,10 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * Writes the SQL for the Geometry Filter.
      *
      * @param filter the geometry logic to be turned into SQL.
+     *
+     * @task REVISIT: Declare abstract?  Eleminate?  Children must always
+     *       implement this.
      */
-
-    //TODO: Implement this function...or declare abstract and have children implement.
     public void visit(GeometryFilter filter) {
         //if implementing BBox for use with an sql datasource be
         //sure to implement an equals method for the BBoxExpression,
@@ -370,43 +380,47 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * Writes the SQL for the Null Filter.
      *
      * @param filter the null filter to be written to SQL.
+     *
+     * @throws RuntimeException for io exception with writer
      */
-    public void visit(NullFilter filter) {
+    public void visit(NullFilter filter) throws RuntimeException {
         log.finer("exporting NullFilter");
 
         DefaultExpression expr = (DefaultExpression) filter.getNullCheckValue();
 
-        String type = (String) comparisions.get(new Integer(
-                    filter.getFilterType()));
-
+        //String type = (String) comparisions.get(new Integer(
+        //          filter.getFilterType()));
         try {
             expr.accept(this);
             out.write(" IS NULL ");
         } catch (java.io.IOException ioe) {
-            log.warning("Unable to export filter" + ioe);
+            throw new RuntimeException(IO_ERROR, ioe);
         }
     }
 
-	/** This only exists the fulfill the interface - unless
-	 *  There is a way of determining the FID column in the database...
-	 *
-	 * @param filter the Fid Filter.
-	 */
-	public void visit(FidFilter filter) {
-	}
+    /**
+     * This only exists the fulfill the interface - unless There is a way of
+     * determining the FID column in the database...
+     *
+     * @param filter the Fid Filter.
+     */
+    public void visit(FidFilter filter) {
+    }
 
     /**
      * Writes the SQL for the attribute Expression.
      *
      * @param expression the attribute to turn to SQL.
+     *
+     * @throws RuntimeException for io exception with writer
      */
-    public void visit(AttributeExpression expression) {
+    public void visit(AttributeExpression expression) throws RuntimeException {
         log.finer("exporting ExpressionAttribute");
 
         try {
             out.write("\"" + expression.getAttributePath() + "\"");
         } catch (java.io.IOException ioe) {
-            log.warning("Unable to export expresion" + ioe);
+            throw new RuntimeException("IO problems writing attribute exp", ioe);
         }
     }
 
@@ -424,9 +438,11 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      *
      * @param expression the Literal to export
      *
+     * @throws RuntimeException for io exception with writer
+     *
      * @task TODO: Fully support GeometryExpression literals
      */
-    public void visit(LiteralExpression expression) {
+    public void visit(LiteralExpression expression) throws RuntimeException {
         log.finer("exporting LiteralExpression");
 
         try {
@@ -445,10 +461,11 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
 
                 break;
 
-                //case LITERAL_GEOMETRY is SQL implementation specific.
+            default:
+                throw new RuntimeException("type: " + type + "not supported");
             }
         } catch (java.io.IOException ioe) {
-            log.warning("Unable to export expresion" + ioe);
+            throw new RuntimeException("IO problems writing literal", ioe);
         }
     }
 
@@ -456,8 +473,10 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * Writes the SQL for the Math Expression.
      *
      * @param expression the Math phrase to be written.
+     *
+     * @throws RuntimeException for io problems
      */
-    public void visit(MathExpression expression) {
+    public void visit(MathExpression expression) throws RuntimeException {
         log.finer("exporting Expression Math");
 
         String type = (String) expressions.get(new Integer(expression.getType()));
@@ -467,11 +486,20 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
             out.write(" " + type + " ");
             ((DefaultExpression) expression.getRightValue()).accept(this);
         } catch (java.io.IOException ioe) {
-            log.warning("Unable to export expresion" + ioe);
+            throw new RuntimeException("IO problems writing expression", ioe);
         }
     }
 
-    public void visit(FunctionExpression expression) {
-        log.warning("Unable to export functions");
+    /**
+     * Writes sql for a function expression.  Not currently supported.
+     *
+     * @param expression a function expression
+     *
+     * @throws UnsupportedOperationException every time, this isn't supported.
+     */
+    public void visit(FunctionExpression expression)
+        throws UnsupportedOperationException {
+        String message = "Function expression support not yet added.";
+        throw new UnsupportedOperationException(message);
     }
 }
