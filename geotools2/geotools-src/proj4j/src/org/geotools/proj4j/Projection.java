@@ -14,12 +14,10 @@ package org.geotools.proj4j;
  * Calls to forward() and inverse() are passed on to doForward, doInverse in implementing classes.
  *
  * @author James Macgill
- * @version $Revision: 1.10 $ $Date: 2002/03/05 23:53:27 $
+ * @version $Revision: 1.11 $ $Date: 2002/03/07 23:02:55 $
  */
 public abstract class Projection implements Constants {
     
-    
-    String descr;
     /** The set of parameters for this projection.
      */    
     protected ParamSet params;
@@ -69,6 +67,7 @@ public abstract class Projection implements Constants {
     
     /**
      * Sets the ParamSet for this projection.  Called once to initialise the projection.
+     * Subclasses should ensure they call super.setParams(ps)
      * @param ps The ParamSet to use.
      * @throws ProjectionException Thrown if any of the required parameters are illegal or missing.
      */    
@@ -252,6 +251,8 @@ public abstract class Projection implements Constants {
     public boolean isLatLong(){
         return isLatLong;
     }
+    
+    public abstract String getDescription();
     
     
 }

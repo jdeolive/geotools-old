@@ -148,4 +148,9 @@ public class Aea extends org.geotools.proj4j.Projection {
         params.addParamIfNotSet("lat_1=29.5");
         params.addParamIfNotSet("lat_2=45.5");
     }
+    
+    public String getDescription() {
+        return java.util.ResourceBundle.getBundle("org/geotools/proj4j/projections/i18n").getString("AEA_PROJECTION");
+    }    
+    
 }

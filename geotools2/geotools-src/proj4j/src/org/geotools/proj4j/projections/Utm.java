@@ -44,5 +44,9 @@ public class Utm extends Tmerc implements Constants{
 	k0 = 0.9996;
 	phi0 = 0.;
     }
+    
+    public String getDescription() {
+        return java.util.ResourceBundle.getBundle("org/geotools/proj4j/projections/i18n").getString("UTM");
+    }  
 
 }

@@ -32,7 +32,8 @@ public class Tmerc extends org.geotools.proj4j.Projection {
     public Tmerc() {
     }
     
-    protected XY  eForward(LP lp) { XY xy = new XY(); // ellipse
+    protected XY  eForward(LP lp) { // ellipse
+        XY xy = new XY(); 
     double al, als, n, cosphi, sinphi, t;
     
     sinphi =Math.sin(lp.phi); cosphi = Math.cos(lp.phi);
@@ -55,7 +56,8 @@ public class Tmerc extends org.geotools.proj4j.Projection {
     return (xy);
     }
     
-    protected  XY  sForward(LP lp) throws ProjectionException{ XY xy = new XY() ; // sphere
+    protected  XY  sForward(LP lp) throws ProjectionException{  // sphere
+        XY xy = new XY() ;
     double b, cosphi;
     
     b = (cosphi = Math.cos(lp.phi)) * Math.sin(lp.lam);
@@ -72,7 +74,8 @@ public class Tmerc extends org.geotools.proj4j.Projection {
     return (xy);
     }
     
-    protected LP  eInverse(XY xy) throws ProjectionException { LP lp = new LP();; // ellipsoid
+    protected LP  eInverse(XY xy) throws ProjectionException { // ellipsoid
+        LP lp = new LP();; 
     double n, con, cosphi, d, ds, sinphi, t;
     
     lp.phi = Functions.invMlfn(ml0 + xy.y / k0, ellipse.es, en);
@@ -138,5 +141,8 @@ public class Tmerc extends org.geotools.proj4j.Projection {
         }
     }
     
+    public String getDescription() {
+        return java.util.ResourceBundle.getBundle("org/geotools/proj4j/projections/i18n").getString("TMERC");
+    }    
     
 }
