@@ -1,3 +1,5 @@
+
+
 <StyledLayerDescriptor version="0.7.2">
 <!-- a named layer is the basic building block of an sld document -->
 <NamedLayer>
@@ -56,6 +58,26 @@ that allows you to describe the latyer in more detail
             <!-- CssParameters allowed are fill (the color) and fill-opacity -->
             <CssParameter name="fill">#FF0000</CssParameter>
             <CssParameter name="fill-opacity">0.5</CssParameter>
+            <GraphicFill>
+                <graphic>
+                    <size>15</size>
+                    <!--externalGraphic>
+                        <onLineResource 
+                            xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:type="simple"
+                            xlink:href="file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/redblob.gif"/>
+                        <format>image/gif</format>
+                    </externalGraphic -->
+                    <mark>
+                        <wellknownname>X</wellknownname>
+                        <Fill>
+                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
+                            <CssParameter name="fill">#FFFF00</CssParameter>
+                        </Fill>
+                        
+                    </mark>
+                </graphic>
+            </GraphicFill>
           </Fill>
           <Stroke>
             <CssParameter name="stroke">#FFFF00</CssParameter>
@@ -65,29 +87,21 @@ that allows you to describe the latyer in more detail
         </PolygonSymbolizer>
         
       </Rule>
-    </FeatureTypeStyle>
+    </FeatureTypeStyle>        
     <FeatureTypeStyle>
-      <FeatureTypeName>polygontest</FeatureTypeName>
-      <Rule>
-        
-        <PolygonSymbolizer>
-        <!-- describes the fill of the polygon - if missing the polygon is empty -->  
-          <Fill>
-            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-          </Fill>
-          <Stroke>
-            <!-- default stroke #0000000 -->
-          </Stroke>
-        </PolygonSymbolizer>
-        
-      </Rule>
-    </FeatureTypeStyle>
-        <FeatureTypeStyle>
         <FeatureTypeName>point</FeatureTypeName>
         <rule>
             <PointSymbolizer>
                 <graphic>
-                    <size>10</size>
+                    <size>15</size>
+                    <externalGraphic>
+                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.barrysclipart.com/img/6/WB/zed_non_com/agri_animals/a0005.gif"/>
+                        <format>image/gif</format>
+                    </externalGraphic>
+                    <externalGraphic>
+                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/blob.gif"/>
+                        <format>image/gif</format>
+                    </externalGraphic>
                     <mark>
                     <!-- since cross is not implemented yet should draw next mark -->
                         <wellknownname>cross</wellknownname>
@@ -111,3 +125,4 @@ that allows you to describe the latyer in more detail
 </UserStyle>
 </NamedLayer>
 </StyledLayerDescriptor>
+

@@ -41,7 +41,7 @@
         
     <gml:LineString gid="7" srsName="http://?/epsg.xml#ESPG:4326">
         <gml:coordinates>
-            32.5485,16.2633 -78.5485,24.2633 -20,43 10,42 23,50
+            32.5485,16.2633 -78.5485,30.2633 -20,43 10,42 23,50
         </gml:coordinates>
     </gml:LineString>
         </osgb:polyline>

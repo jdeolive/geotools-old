@@ -42,6 +42,7 @@ import java.awt.geom.Point2D;
 import java.awt.Shape;
 import java.awt.image.*;
 import java.awt.Image;
+import java.awt.RenderingHints;
 
 //util imports
 import java.util.HashMap;
@@ -51,7 +52,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.24 2002/06/24 10:40:37 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.25 2002/06/25 11:19:36 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -59,11 +60,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     private static Logger _log = Logger.getLogger(Java2DRenderer.class);
     /**
      * Flag which determines if the renderer is interactive or not
-     * an interactive renderer will return rather than waiting for time consuming 
+     * an interactive renderer will return rather than waiting for time consuming
      * opperations to complete (e.g. Image Loading)
      * A non-interactive renderer (e.g. a SVG or PDF renderer) will block for these opperations
      */
-    private boolean interactive = true;    
+    private boolean interactive = true;
     /**
      * Flag which controls behaviour for applying affine transformation
      * to the graphics object.  If true then the transform will be concatenated
@@ -113,7 +114,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         supportedGraphicFormats.add("image/jpg");
         supportedGraphicFormats.add("image/png");
         
-        Coordinate c = new Coordinate(0,0);
+        Coordinate c = new Coordinate(100,100);
         GeometryFactory fac = new GeometryFactory();
         markCentrePoint = fac.createPoint(c);
     }
@@ -238,7 +239,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             FeatureTypeStyle fts = featureStylers[i];
             for(int j=0;j<features.length;j++){
                 Feature feature = features[j];
-                _log.info("fature is "+feature.getSchema().getTypeName()+
+                _log.info("feature is "+feature.getSchema().getTypeName()+
                 " type styler is "+fts.getFeatureTypeName());
                 if(feature.getSchema().getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
                     //this styler is for this type of feature
@@ -311,7 +312,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         GeneralPath path = createGeneralPath(geom);
         
         if(fill!=null){
-            applyFill(fill, feature);
+            applyFill(graphics,fill, feature);
+            _log.debug("paint in renderPoly: "+graphics.getPaint());
+            
             graphics.fill(path);
             // shouldn't we reset the graphics when we return finished?
             resetFill();
@@ -390,8 +393,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 _log.info("got a "+eg.getFormat());
                 if(supportedGraphicFormats.contains(eg.getFormat().toLowerCase())){
                     if(eg.getFormat().equalsIgnoreCase("image/gif") ||
-                    eg.getFormat().equalsIgnoreCase("image/jpg")){
-                        _log.debug("a supported format");
+                    eg.getFormat().equalsIgnoreCase("image/jpg") ||
+                    eg.getFormat().equalsIgnoreCase("image/png")){
+                        _log.debug("a java supported format");
                         BufferedImage img = imageLoader.get(eg.getLocation(),isInteractive());
                         _log.debug("Image return = "+img);
                         if(img!=null){
@@ -401,7 +405,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 }
             }
         }
-       return null; 
+        return null;
     }
     
     
@@ -448,16 +452,17 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         markAT.rotate(rotation);
         
         double unitSize = Math.max(img.getWidth(),img.getHeight());
-        // we should move this to the centre of the image.
+        
         double drawSize = (double)size/unitSize;
         _log.debug("unitsize "+unitSize+" size = "+size+" -> scale "+drawSize);
         markAT.scale(drawSize,drawSize);
         graphics.setTransform(markAT);
-        graphics.drawImage(img,-img.getWidth()/2,-img.getHeight()/2,null);
+        // we move this to the centre of the image.
+        graphics.drawImage(img,-img.getWidth()/2,-img.getHeight()/2,obs);
         graphics.setTransform(temp);
         return;
     }
-
+    
     private void fillDrawMark(Graphics2D graphic,com.vividsolutions.jts.geom.Point point,Mark mark, int size, double rotation){
         AffineTransform temp = graphic.getTransform();
         AffineTransform markAT = new AffineTransform();
@@ -476,10 +481,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         graphic.setTransform(markAT);
         if(mark.getFill()!=null){
-            applyFill(mark.getFill(),null);
+            _log.debug("applying fill to mark");
+            applyFill(graphic,mark.getFill(),null);
             graphic.fill(shape);
         }
         if(mark.getStroke()!=null){
+            _log.debug("applying stroke to mark");
             applyStroke(mark.getStroke(),null);
             graphic.draw(shape);
         }
@@ -490,49 +497,79 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         return;
         
     }
-    private void applyFill(Fill fill, Feature feature){
+    static java.awt.Canvas obs = new java.awt.Canvas();
+    private void applyFill(Graphics2D graphic, Fill fill, Feature feature){
         if(fill == null ) return;
         //HACK: not happy with having to catch exceptions. getValue should
         //HACK: never be throwing any
         try{
-            graphics.setColor(Color.decode((String)fill.getColor().getValue(feature)));
-            _log.debug("Setting fill: "+graphics.getColor().toString());
+            graphic.setColor(Color.decode((String)fill.getColor().getValue(feature)));
+            _log.debug("Setting fill: "+graphic.getColor().toString());
             Number value = (Number)fill.getOpacity().getValue(feature);
             float opacity = value.floatValue();
-            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity));
+            graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity));
             
         } catch (org.geotools.filter.MalformedFilterException mfe){
             //HACK: see above hack statement, not happy with having to catch these
             _log.error(mfe);
         }
         org.geotools.styling.Graphic gr=fill.getGraphicFill();
-        _log.debug("graphic fill "+gr);
+        
         if(gr!=null){
             BufferedImage image = getExternalGraphic(gr);
             if(image != null){
                 _log.debug("got an image in graphic fill");
-                int width = image.getWidth();
-                int height = image.getHeight();
-                double unitSize = Math.max(width,height);
-                double drawSize = (double)gr.getSize()/unitSize;
-                Image img = image.getScaledInstance((int)(width*drawSize),(int)(height*drawSize),
-                    Image.SCALE_FAST);
-                Rectangle rect = new Rectangle(0,0,(int)(width*drawSize),(int)(height*drawSize));
-                java.awt.TexturePaint imagePaint = new java.awt.TexturePaint(image,rect);
-                graphics.setPaint(imagePaint);
             }else{
                 _log.debug("going for the mark from graphic fill");
+                
                 Mark mark = getMark(gr);
+                int size=200;
                 
-                BufferedImage img = new BufferedImage((int)gr.getSize(),(int)gr.getSize(),1);
-                Graphics2D g = img.createGraphics();
+                image = new BufferedImage(size,size,BufferedImage.TYPE_INT_RGB);
+                Graphics2D g1 = image.createGraphics();
+                _log.debug("Background "+graphics.getBackground());
+                g1.setColor(graphics.getBackground());
+                g1.fillRect(0,0,size+1,size+1);
+                fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),gr.getRotation());
                 
-                fillDrawMark(g,markCentrePoint,mark,(int)gr.getSize(),gr.getRotation()); 
-                
-                Rectangle rect = new Rectangle(0,0,(int)(gr.getSize()),(int)(gr.getSize()));
-                java.awt.TexturePaint imagePaint = new java.awt.TexturePaint(img,rect);
-                graphics.setPaint(imagePaint);
+                java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
+                track.addImage(image,1);
+                try{
+                    track.waitForID(1);
+                } catch (InterruptedException e){}
+                                
             }
+            int width = image.getWidth();
+            int height = image.getHeight();
+            double unitSize = Math.max(width,height);
+            double drawSize = (double)gr.getSize()/unitSize;
+            AffineTransform at = graphics.getTransform();
+            double scaleX = drawSize/at.getScaleX();
+            double scaleY = drawSize/-at.getScaleY();
+            /* This is needed because the image must be a fixed size in pixels 
+             * but when the image is used as the fill it is transformed by the 
+             * current transform. 
+             * However this causes problems as the image size can become very small 
+             * e.g. 1 or 2 pixels when the drawScale is large, this makes the image fill
+             * look very poor - I have no idea how to fix this.
+             */
+            _log.debug("scale "+scaleX+" "+scaleY);
+            AffineTransform at2 = new AffineTransform();
+            
+            at2.scale(scaleX,scaleY);
+            at2.translate(width,height);
+            at2.rotate(Math.PI);
+            RenderingHints hints = new RenderingHints(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            hints.put(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+            hints.put(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+            AffineTransformOp op = new AffineTransformOp(at2,hints);
+            
+            BufferedImage img =  op.filter(image, null);
+            _log.debug("w/h "+img.getWidth()+" "+img.getHeight());
+            Rectangle rect = new Rectangle(0,0,img.getWidth(obs),img.getHeight(obs));
+            java.awt.TexturePaint imagePaint = new java.awt.TexturePaint(img,rect);
+            graphic.setPaint(imagePaint);
+            _log.debug("applied TexturePaint "+imagePaint);
         }else{
             _log.debug("no graphic fill set");
         }
@@ -541,7 +578,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     private void resetFill(){
         _log.debug("reseting the graphics");
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
-        graphics.setPaint(null);
+        //graphics.setPaint(null);
     }
     /**
      * Convenience method for applying a geotools Stroke object

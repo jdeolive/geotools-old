@@ -24,7 +24,7 @@ package org.geotools.styling;
  * A class to read and parse an SLD file based on verion 0.7.2 of
  * the OGC Styled Layer Descriptor Spec.
  *
- * @version $Id: SLDStyle.java,v 1.11 2002/06/24 10:40:37 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.12 2002/06/25 11:19:35 ianturton Exp $
  * @author Ian Turton, CCG
  *
  *
@@ -375,6 +375,8 @@ public class SLDStyle implements org.geotools.styling.Style {
     private DefaultMark parseMark(Node root){
         _log.debug("parsing mark");
         DefaultMark mark = new DefaultMark();
+        mark.setFill(null);
+        mark.setStroke(null);
         NodeList children = root.getChildNodes();
         for(int i=0; i<children.getLength(); i++){
             Node child = children.item(i);

@@ -29,11 +29,12 @@ public class Example1 extends java.awt.Panel{
     Java2DRenderer renderer = new Java2DRenderer();
     Map map = new DefaultMap();
     /** Creates a new instance of Example1 */
-    public Example1(String uri){
+    public Example1(){
    
         DefaultFeatureTable ft = new DefaultFeatureTable();
         
-        String dataFolder = "d:\\ian\\development\\geotools2/geotools-src\\shapefile\\tests\\unit\\testData";
+        String dataFolder = "d:\\ian\\development\\geotools2/geotools-src/spike/ian";
+        String uri = "statepop.shp";
         try{
             java.net.URL url = new java.net.URL("file:///" + dataFolder + "/" + uri);
             System.out.println("Testing ability to load "+url);
