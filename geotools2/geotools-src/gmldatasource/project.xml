@@ -87,5 +87,19 @@
     <jars/>
         <sourceDirectory>src</sourceDirectory>
     </build>
+    <contributors>
+            
+        
+        <contributor>
+      <name>William Stockhausen</name>
+      
+      
+      <organization>Virginia Institute of Marine Science</organization>
+            <roles>
+               <role>Bug Fixer</role>
+               
+            </roles>
+        </contributor>
+    </contributors>
 </project>
 
