@@ -28,6 +28,13 @@
         <role>Java Developer</role>
       </roles>
     </developer>
+    <developer>
+      <name>Rueben Schulz</name>
+      <organization>University of British Columbia</organization>
+      <roles>
+        <role>Java developper / Tester</role>
+      </roles>
+    </developer>
   </developers>
   <dependencies>
     <dependency>
@@ -84,13 +91,6 @@
       II</organization>
       <roles>
         <role>Java developper</role>
-      </roles>
-    </contributor>
-    <contributor>
-      <name>Rueben Schulz</name>
-      <organization>University of British Columbia</organization>
-      <roles>
-        <role>Java developper / Tester</role>
       </roles>
     </contributor>
     <contributor>
