@@ -37,8 +37,10 @@ import junit.framework.*;
  */
 import org.geotools.data.*;
 import org.geotools.data.gml.GMLDataSource;
+import org.geotools.data.memory.*;
 import org.geotools.feature.*;
 import org.geotools.gml.producer.*;
+import org.geotools.gml.producer.FeatureTransformer.FeatureTypeNamespaces;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -195,6 +197,70 @@ public class ProducerTest extends TestCase {
         LOGGER.fine("output is " + new String(baos.toByteArray()));
     }
 
+    public void testFeatureReader() throws Exception {
+        table = FeatureCollections.newCollection();
+        table.add(testFeature);
+        table.add(lineFeature);
+        table.add(polygonFeature);
+        LOGGER.fine("the feature collection is " + table + ", and "
+            + "the first feat is " + table.features().next());
+
+        MemoryDataStore dstore = new MemoryDataStore(table);
+        FeatureReader reader = dstore.getFeatureReader("rail");
+        FeatureTransformer fr = new FeatureTransformer();
+        fr.setIndentation(4);
+        fr.getFeatureTypeNamespaces().declareDefaultNamespace("test",
+            "http://www.geotools.org");
+
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        fr.transform(reader, baos);
+        LOGGER.fine("output is " + new String(baos.toByteArray()));
+    }
+
+    public void testFeatureResults() throws Exception {
+        table = FeatureCollections.newCollection();
+        table.add(testFeature);
+        table.add(lineFeature);
+        table.add(polygonFeature);
+        LOGGER.fine("the feature collection is " + table + ", and "
+            + "the first feat is " + table.features().next());
+
+        MemoryDataStore dstore = new MemoryDataStore(table);
+        FeatureSource source = dstore.getFeatureSource("rail");
+        FeatureResults results = source.getFeatures(Query.ALL);
+        FeatureTransformer fr = new FeatureTransformer();
+        fr.setIndentation(4);
+        fr.getFeatureTypeNamespaces().declareNamespace(dstore.getSchema("rail"),
+            "tt2", "http://www.geotools.org");
+
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        fr.transform(results, baos);
+        LOGGER.info("output is " + new String(baos.toByteArray()));
+    }
+
+    public void testMultiFeatureResults() throws Exception {
+        table = FeatureCollections.newCollection();
+        table.add(testFeature);
+        table.add(lineFeature);
+        table.add(polygonFeature);
+        LOGGER.fine("the feature collection is " + table + ", and "
+            + "the first feat is " + table.features().next());
+
+        MemoryDataStore dstore = new MemoryDataStore(table);
+        FeatureSource source = dstore.getFeatureSource("rail");
+        FeatureResults results1 = source.getFeatures(Query.ALL);
+        FeatureResults results2 = source.getFeatures(Query.ALL);
+        FeatureResults[] resultsArr = { results1, results2 };
+        FeatureTransformer fr = new FeatureTransformer();
+        fr.setIndentation(4);
+        fr.getFeatureTypeNamespaces().declareDefaultNamespace("tp2",
+            "http://www.geotools.org");
+
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        fr.transform(resultsArr, baos);
+        LOGGER.fine("output is " + new String(baos.toByteArray()));
+    }
+
     public void testNulls() throws Exception {
         attributes[1] = line;
         attributes[0] = null;
@@ -205,12 +271,18 @@ public class ProducerTest extends TestCase {
         FeatureTransformer fr = new FeatureTransformer();
 
         fr.setIndentation(2);
-        fr.getFeatureTypeNamespaces().declareDefaultNamespace("gt2",
-            "http://www.geotools.org");
+
+        FeatureTypeNamespaces ftNames = fr.getFeatureTypeNamespaces();
+        ftNames.declareDefaultNamespace("gt2", "http://www.geotools.org");
+
+        //ftNames.addSchemaLocation("http://www.geotools.org", "../gt.xsd");
+        fr.addSchemaLocation("http://www.geotools.org", "../gt.xsd");
+        fr.addSchemaLocation("http://www.opengis.net/wfs",
+            "http://schemas.opengis.new/wfs/1.0.0/WFS-basic.xsd");
 
         java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
         fr.transform(table, baos);
-        LOGGER.info("output is " + baos.toString());
+        LOGGER.fine("output is " + baos.toString());
     }
 
     public void testNullGeometry() throws Exception {
@@ -226,6 +298,6 @@ public class ProducerTest extends TestCase {
         fr.getFeatureTypeNamespaces().declareDefaultNamespace("gt2",
             "http://www.geotools.org");
         fr.transform(table, baos);
-        LOGGER.info("output is " + new String(baos.toByteArray()));
+        LOGGER.fine("output is " + new String(baos.toByteArray()));
     }
 }
