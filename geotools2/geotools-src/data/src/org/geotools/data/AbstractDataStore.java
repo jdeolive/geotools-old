@@ -486,15 +486,16 @@ public abstract class AbstractDataStore implements DataStore {
     /**
      * Computes the bounds of the features for the specified feature type that
      * satisfy the query provided that there is a fast way to get that result.
+     * <p>
      * Will return null if there is not fast way to compute the bounds. Since
      * it's based on some kind of header/cached information, it's not guaranteed
      * to be real bound of the features
-     * @param featureTypeName
+     * </p>
      * @param query
      * @return the bounds, or null if too expensive
      * @throws IOException 
      */
-    protected Envelope getBounds(String featureTypeName, Query query) throws IOException {
+    protected Envelope getBounds(Query query) throws IOException {
         return null; // too expensive
     }
     
@@ -502,22 +503,18 @@ public abstract class AbstractDataStore implements DataStore {
     /**
      * Gets the number of the features that would be returned by this query for
      * the specified feature type.
-     * 
-     * <p></p>
-     * 
      * <p>
      * If getBounds(Query) returns <code>-1</code> due to expense consider
      * using <code>getFeatures(Query).getCount()</code> as a an alternative.
      * </p>
      *
      * @param query Contains the Filter and MaxFeatures to find the bounds for.
-     * @param featureTypeName
      * @return The number of Features provided by the Query or <code>-1</code>
      *         if count is too expensive to calculate or any errors or occur.
      *
      * @throws IOException if there are errors getting the count
      */
-    protected int getCount(String featureTypeName, Query query) throws IOException {
+    protected int getCount(Query query) throws IOException {
         return -1; // too expensive
     }
 }

@@ -163,10 +163,35 @@ public abstract class AbstractFeatureSource implements FeatureSource {
             return null;
         } else {
             // ask the abstract data store
-            return ((AbstractDataStore) dataStore).getBounds(getSchema().getTypeName(), query);
+            return ((AbstractDataStore) dataStore).getBounds( namedQuery( query ) );
         }
     }
-
+    /**
+     * Ensure query modified with typeName.
+     * <p>
+     * This method will make copy of the provided query, using
+     * DefaultQuery, if query.getTypeName is not equal to
+     * getSchema().getTypeName().
+     * </p>
+     * @param query Origional query
+     * @return Query with getTypeName() equal to getSchema().getTypeName() 
+     */
+    protected Query namedQuery( Query query ){
+        String typeName = getSchema().getTypeName();
+        if( query.getTypeName() == null ||
+                !query.getTypeName().equals( typeName )){
+            
+            return new DefaultQuery(
+                    typeName,
+                    query.getFilter(),
+                    query.getMaxFeatures(),
+                    query.getPropertyNames(),
+                    query.getHandle()
+            );
+        }
+        return query;
+    }
+    
     /**
      * Retrieve total number of Query results.
      * 
@@ -193,7 +218,7 @@ public abstract class AbstractFeatureSource implements FeatureSource {
             return -1;
         } else {
             // ask the abstract data store
-            return ((AbstractDataStore) dataStore).getCount(getSchema().getTypeName(), query);
+            return ((AbstractDataStore) dataStore).getCount( namedQuery(query));
         }
     }
 }
