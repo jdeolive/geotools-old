@@ -1,4 +1,4 @@
-/* $Id: QueryData.java,v 1.4 2004/01/13 00:53:21 seangeo Exp $
+/* $Id: QueryData.java,v 1.5 2004/01/20 05:17:12 jive Exp $
  * 
  * Created on 28/11/2003
  */
@@ -324,7 +324,7 @@ public final class QueryData {
         // If we are not waiting for nextCalls then advance the
         // row and wait for next calls.
         if (!waitForNextCalls) {
-            LOGGER.info("Advancing to next row");
+            LOGGER.finest("Advancing to next row");
             lastNextValue = resultSet.next();
             waitForNextCalls = true;
         }
