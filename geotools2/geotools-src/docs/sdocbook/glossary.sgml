@@ -2,7 +2,8 @@
 <!DOCTYPE appendix PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 <!-- Use the following if you want to use ant to style this file when offline
-"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"--><!-- $Id: glossary.sgml,v 1.15 2003/01/05 10:27:48 camerons Exp $ --><appendix id="glossary">
+"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"--><!-- $Id: glossary.sgml,v 1.16 2003/01/14 21:33:56 camerons Exp $ --><appendix
+id="glossary">
   <title>Glossary</title>
 
   <table>
@@ -44,6 +45,15 @@
           <entry>IDE</entry>
 
           <entry>Integrated Development Environment</entry>
+        </row>
+
+        <row>
+          <entry>IRC</entry>
+
+          <entry>Internet Relay Chat</entry>
+
+          <entry>A way to communicate in real time with lots of other people
+          around the world in a virtual meeting. </entry>
         </row>
 
         <row>
