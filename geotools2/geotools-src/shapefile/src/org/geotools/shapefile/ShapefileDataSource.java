@@ -47,15 +47,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.charset.Charset;
 
-import java.lang.ref.SoftReference;
-
-
 /**
- * @version $Id: ShapefileDataSource.java,v 1.23 2003/03/31 20:55:00 aaime Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.24 2003/04/30 23:21:29 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
- * @task TODO: add support for the optional spatial index files to improve
- *             loading of sub regions
  */
 
 public class ShapefileDataSource implements org.geotools.data.DataSource {
@@ -65,13 +60,20 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
   private URL shxURL;
   
   private FeatureType schema = null;
+  private IDFactory idFactory;
   
-  /**
-   *
-   */
   public ShapefileDataSource(URL url) throws java.net.MalformedURLException {
     
-    String filename = java.net.URLDecoder.decode(url.getFile());
+    String filename = null;
+    if (url == null)
+      throw new NullPointerException("Null URL for ShapefileDataSource");
+    try {
+      filename = java.net.URLDecoder.decode(url.getFile(),"US-ASCII");
+    } catch (java.io.UnsupportedEncodingException use) {
+      throw new java.net.MalformedURLException(
+        "Unable to decode " + url + " cause " + use.getMessage()
+      );
+    }
     
     String shpext = ".shp";
     String dbfext = ".dbf";
@@ -89,6 +91,16 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     shpURL = new URL(url, filename + shpext);
     dbfURL = new URL(url, filename + dbfext);
     shxURL = new URL(url, filename + shxext);
+  }
+  
+  public IDFactory getIDFactory() {
+    if (idFactory == null)
+      idFactory = new DefaultIDFactory();
+    return idFactory;
+  }
+  
+  public void setIDFactory(IDFactory f) {
+    this.idFactory = f;
   }
   
   /**
@@ -302,6 +314,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
   /**************************************************
     Data source utility methods.
    **************************************************/
+  
   /**
    * Gets the DatasSourceMetaData object associated with this datasource.  
    * This is the preferred way to find out which of the possible datasource
@@ -377,7 +390,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     if (url.getProtocol().equals("file")) {
       File file = new File(url.getFile());
       if (! file.exists() || !file.canRead())
-        return null;
+        throw new IOException("File either doesn't exist or is unreadable : " + file);
       FileInputStream in = new FileInputStream(file);
       return in.getChannel();
     } else {
@@ -404,7 +417,10 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
    */
   private FeatureType getFeatureType(DbaseFileReader dbf,ShapefileReader shp) throws IOException, DataSourceException {
     ShapeType type = shp.getHeader().getShapeType();
-    AttributeType geometryAttribute = new org.geotools.feature.AttributeTypeDefault(type.toString(), Geometry.class);
+    AttributeType geometryAttribute = new org.geotools.feature.AttributeTypeDefault(
+      type.toString(), 
+      JTSUtilities.findBestGeometryClass(type)
+    );
     FeatureType shapefileType;
     if(dbf != null) {
       DbaseFileHeader header = dbf.getHeader();
@@ -467,12 +483,14 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
    *
    * This should be part of the general package for parsing shapefiles.
    */
-  static final class FeatureMaker {
+  final class FeatureMaker {
     
     final DbaseFileReader dbf;
     final ShapefileReader shp;
     final FeatureFactory factory;
     final Object[] stash;
+    final IDFactory id;
+    int cnt = 0;
     
     // if the dbf is null, we create a 1 length object array,
     // otherwise it is dbf.numFields + 1
@@ -487,7 +505,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
       else {
         stash = new Object[1];
       }
-      
+      id = getIDFactory();
     }
     
     public boolean hasNext() throws IOException {
@@ -514,16 +532,23 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
       // becuase I know that FeatureFlat copies the array,
       // I've chosen to reuse it.
       // This could be changed.
-      return factory.create(stash);
+      return factory.create(stash,id.getFeatureID(++cnt));
     }
     
   }
   
   
   
+  public static interface IDFactory {
+    String getFeatureID(int record); 
+  }
   
-  
-  
+  public class DefaultIDFactory implements IDFactory {
+    public String getFeatureID(int record) {
+      return ShapefileDataSource.this.shpURL.toString() + "#" + record;
+    }
+    
+  }
   
   
   
