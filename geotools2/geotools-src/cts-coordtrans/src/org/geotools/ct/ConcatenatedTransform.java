@@ -53,7 +53,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Base class for concatenated transform. Concatenated transforms are
  * serializable if all their step transforms are serializables.
  *
- * @version $Id: ConcatenatedTransform.java,v 1.3 2002/08/02 10:11:01 desruisseaux Exp $
+ * @version $Id: ConcatenatedTransform.java,v 1.4 2003/01/08 19:15:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class ConcatenatedTransform extends AbstractMathTransform implements Serializable {
@@ -64,9 +64,15 @@ class ConcatenatedTransform extends AbstractMathTransform implements Serializabl
     
     /**
      * The math transform factory that created this concatenated transform.
-     * Will be used for creating the inverse transform when needed.
+     * Will be used for creating the inverse transform when needed. This
+     * field is usually not null, except after deserialization. It can't
+     * be serialized since {@link MathTransformFactory} are usually not
+     * serializable.
+     *
+     * @task REVISIT: Not serializing this field may not be the right thing to do if
+     *                a user wants to work with a custom {@link MathTransformFactory}.
      */
-    private final MathTransformFactory provider;
+    private transient MathTransformFactory provider;
     
     /**
      * The first math transform.
@@ -244,7 +250,10 @@ class ConcatenatedTransform extends AbstractMathTransform implements Serializabl
      */
     public synchronized final MathTransform inverse() throws NoninvertibleTransformException {
         assert isValid();
-        if (inverse==null) {
+        if (inverse == null) {
+            if (provider == null) {
+                provider = MathTransformFactory.getDefault();
+            }
             inverse = provider.createConcatenatedTransform(transform2.inverse(),
                                                            transform1.inverse());
             if (inverse instanceof ConcatenatedTransform) {
