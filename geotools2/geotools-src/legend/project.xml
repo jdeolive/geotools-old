@@ -4,7 +4,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-legend</name>
   <id>legend</id>
-  <currentVersion>SNAPSHOT</currentVersion>
+  <currentVersion>2.0-B5-DEV</currentVersion>
   <shortDescription>Leged module</shortDescription>
   <description>Legend module.</description>
   <developers>
