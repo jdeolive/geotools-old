@@ -18,6 +18,7 @@ package org.geotools.data;
 
 import org.geotools.filter.Filter;
 import java.io.IOException;
+import java.util.Set;
 
 
 /**
@@ -37,7 +38,7 @@ import java.io.IOException;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureLocking.java,v 1.2 2003/11/04 00:28:49 cholmesny Exp $
+ * @version $Id: FeatureLocking.java,v 1.3 2003/11/22 00:51:04 jive Exp $
  */
 public interface FeatureLocking extends FeatureStore {
     /**
@@ -216,4 +217,29 @@ public interface FeatureLocking extends FeatureStore {
      * @param authID Idetification of Lock to refresh
      */
     void refreshLock(String authID) throws IOException;
+    
+    /**
+     * Idea for a response from a high-level lock( Query ) function.
+     * 
+     * @author jgarnett
+     */
+    public static class Response {
+        String authID;
+        Set locked;
+        Set notLocked;
+        public Response( FeatureLock lock, Set lockedFids, Set notLockedFids ){
+            authID = lock.getAuthorization();
+            locked = lockedFids;
+            notLocked = notLockedFids;
+        }
+        public String getAuthorizationID(){
+            return authID;
+        }
+        public Set getLockedFids(){
+            return locked;
+        }
+        public Set getNotLockedFids(){
+            return notLocked;
+        }
+    }
 }
