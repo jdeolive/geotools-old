@@ -34,14 +34,18 @@
 package org.geotools.gui.swing;
 
 // J2SE dependencies
+import java.awt.EventQueue;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.TransformException;
 import org.geotools.renderer.j2d.Renderer;
-import org.geotools.renderer.j2d.RenderedObject;
+import org.geotools.renderer.j2d.RenderedLayer;
 import org.geotools.gui.swing.event.ZoomChangeEvent;
 import org.geotools.gui.swing.event.ZoomChangeListener;
 
@@ -53,7 +57,7 @@ import org.geotools.gui.swing.event.ZoomChangeListener;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.7 2003/01/22 23:07:35 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.8 2003/01/23 12:14:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MapPane extends ZoomPane {
@@ -73,9 +77,28 @@ public abstract class MapPane extends ZoomPane {
      * objet <code>MapPane</code>.  Cette classe réagira entre autres aux changements
      * du zoom.
      */
-    private final class Listeners implements ZoomChangeListener {
+    private final class Listeners implements ZoomChangeListener, PropertyChangeListener {
+        /** Invoked when the zoom changed. */
         public void zoomChanged(final ZoomChangeEvent event) {
 //            renderer.zoomChanged(event);
+        }
+
+        /** Invoked when a {@link Renderer} property is changed. */
+        public void propertyChange(final PropertyChangeEvent event) {
+            // Make sure we are running in the AWT thread.
+            if (!EventQueue.isDispatchThread()) {
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        propertyChange(event);
+                    }
+                });
+                return;
+            }
+            final String propertyName = event.getPropertyName();
+            if (propertyName.equalsIgnoreCase("preferredArea")) {
+                fireZoomChanged(new AffineTransform()); // Update scrollbars
+                log("MapPane", "setArea", (Rectangle2D) event.getNewValue());
+            }
         }
     }
 
@@ -132,5 +155,100 @@ public abstract class MapPane extends ZoomPane {
      */
     public Rectangle2D getArea() {
         return renderer.getPreferredArea();
+    }
+
+    /**
+     * Add a new layer to this viewer. A <code>MapPane</code> do not draw anything as long as
+     * at least one layer hasn't be added. A {@link RenderedLayer} can be anything like an
+     * isobath, a remote sensing image, city locations, map scale, etc. The drawing order
+     * (relative to other layers) is determined by the {@linkplain RenderedLayer#getZOrder
+     * z-order} property.
+     *
+     * @param  layer Layer to add to this <code>MapPane</code>. This method call
+     *         will be ignored if <code>layer</code> has already been added to this
+     *         <code>MapPane</code>.
+     * @throws IllegalArgumentException If <code>layer</code> has already been added
+     *         to an other <code>MapPane</code>.
+     *
+     * @see #removeLayer
+     * @see #removeAllLayers
+     * @see #getLayers
+     * @see #getLayerCount
+     * @see Renderer#addLayer
+     */
+    public void addLayer(final RenderedLayer layer) throws IllegalArgumentException {
+        renderer.addLayer(layer);
+        if (renderer.getLayerCount() == 1) {
+            reset();
+        }
+        repaint(); // Must be invoked last
+    }
+
+    /**
+     * Remove a layer from this viewer. Note that if the layer is going to
+     * be added back to the same viewer later, then it is more efficient to invoke
+     * <code>{@link RenderedLayer#setVisible RenderedLayer.setVisible}(false)</code>.
+     *
+     * @param  layer The layer to remove. This method call will be ignored
+     *         if <code>layer</code> has already been removed from this
+     *         <code>MapPane</code>.
+     * @throws IllegalArgumentException If <code>layer</code> is owned by
+     *         an other <code>Renderer</code> than <code>this</code>.
+     *
+     * @see #addLayer
+     * @see #removeAllLayers
+     * @see #getLayers
+     * @see #getLayerCount
+     * @see Renderer#removeLayer
+     */
+    public void removeLayer(final RenderedLayer layer) throws IllegalArgumentException {
+        repaint(); // Must be invoked first
+        renderer.removeLayer(layer);
+    }
+
+    /**
+     * Remove all layers from this viewer.
+     *
+     * @see #addLayer
+     * @see #removeLayer
+     * @see #getLayers
+     * @see #getLayerCount
+     * @see Renderer#removeAllLayers
+     */
+    public void removeAllLayers() {
+        repaint(); // Must be invoked first
+        renderer.removeAllLayers();
+    }
+
+    /**
+     * Returns all registered layers. The returned array is sorted in increasing
+     * {@linkplain RenderedLayer#getZOrder z-order}: element at index 0 contains
+     * the first layer to be drawn.
+     *
+     * @return The sorted array of layers. May have a 0 length, but will never
+     *         be <code>null</code>. Change to this array, will not affect this
+     *         <code>MapPane</code>.
+     *
+     * @see #addLayer
+     * @see #removeLayer
+     * @see #removeAllLayers
+     * @see #getLayerCount
+     * @see Renderer#getLayers
+     */
+    public RenderedLayer[] getLayers() {
+        return renderer.getLayers();
+    }
+
+    /**
+     * Returns the number of layers in this viewer.
+     *
+     * @see #getLayers
+     * @see #addLayer
+     * @see #removeLayer
+     * @see #removeAllLayers
+     * @see Renderer#getLayerCount
+     */
+    public int getLayerCount() {
+        return renderer.getLayerCount();
     }
 }

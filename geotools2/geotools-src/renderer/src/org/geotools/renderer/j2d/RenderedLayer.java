@@ -49,8 +49,8 @@ import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
-import javax.swing.event.EventListenerList;
 
 // Miscellaneous J2SE
 import java.util.Locale;
@@ -75,10 +75,10 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Transformations to the {@link RendereringContext#mapCS rendering coordinate system}
  * are performed on the fly at rendering time.
  *
- * @version $Id: RenderedObject.java,v 1.3 2003/01/22 23:06:49 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.1 2003/01/23 12:13:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public abstract class RenderedObject {
+public abstract class RenderedLayer {
     /**
      * Minimum amout of milliseconds during rendering before logging a message.
      * A message will be logged only if rendering take longer. This is used for
@@ -87,10 +87,10 @@ public abstract class RenderedObject {
     private static final int TIME_THRESHOLD = 200;
 
     /**
-     * The component where to send {@link Component#repaint()} request,
-     * or <code>null</code> if none.
+     * The renderer that own this layer, or <code>null</code>
+     * if this layer has not yet been added to a renderer.
      */
-    transient Component mapPane;
+    transient Renderer renderer;
 
     /**
      * Forme géométrique englobant la région dans laquelle la couche a été dessinée lors du
@@ -132,11 +132,11 @@ public abstract class RenderedObject {
      * signifie que cette largeur doit être recalculée. Cette largeur sera
      * déterminée à partir de la valeur de {@link #preferredPixelSize}.
      */
-    private Stroke stroke;
+    private transient Stroke stroke;
 
     /**
      * Indique si cette couche est visible. Les couches sont invisibles par défaut. L'appel
-     * de {@link Renderer#add} appelera systématiquement <code>setVisible(true)</code>.
+     * de {@link Renderer#addLayer} appelera systématiquement <code>setVisible(true)</code>.
      *
      * @see #setVisible
      */
@@ -166,24 +166,30 @@ public abstract class RenderedObject {
     private Tools tools;
 
     /**
-     * Liste des objets intéressés à être informés des
-     * changements apportés à cet objet <code>RenderedObject</code>.
+     * Listeners to be notified about any changes in this layer's properties.
+     * Examples of properties that may change:
+     * <code>"preferredArea"</code>,
+     * <code>"preferredPixelSize"</code>,
+     * <code>"zOrder"</code>,
+     * <code>"visible"</code> and
+     * <code>"tools"</code>.
      */
-    private final EventListenerList listenerList = new EventListenerList();
+    protected final PropertyChangeSupport listeners;
 
     /**
-     * Construct a new <code>RenderedObject</code> layer. The {@linkplain #getCoordinateSystem
-     * coordinate system} default to {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}
-     * and the {@linkplain #getZOrder z-order} default to positive infinity (i.e. this layer
-     * is drawn on top of everything else). Subclasses should invokes <code>setXXX</code>
-     * methods in order to define properly the properties for this layer.
+     * Construct a new rendered layer. The {@linkplain #getCoordinateSystem coordinate system}
+     * default to {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984} and the {@linkplain
+     * #getZOrder z-order} default to positive infinity (i.e. this layer is drawn on top of
+     * everything else). Subclasses should invokes <code>setXXX</code> methods in order to
+     * define properly this layer's properties.
      *
      * @see #setZOrder
      * @see #setCoordinateSystem
      * @see #setPreferredArea
      * @see #setPreferredPixelSize
      */
-    public RenderedObject() {
+    public RenderedLayer() {
+        listeners = new PropertyChangeSupport(this);
     }
 
     /**
@@ -223,12 +229,15 @@ public abstract class RenderedObject {
      * @throws TransformException If <code>cs</code> can't be reduced to a two-dimensional
      *         coordinate system., or if data can't be transformed for some other reason.
      */
-    public synchronized void setCoordinateSystem(final CoordinateSystem cs)
+    public void setCoordinateSystem(final CoordinateSystem cs)
             throws TransformException
     {
-        final CoordinateSystem oldCS = coordinateSystem;
-        coordinateSystem = CTSUtilities.getCoordinateSystem2D(cs);
-        firePropertyChange("coordinateSystem", oldCS, cs);
+        final CoordinateSystem oldCS;
+        synchronized (this) {
+            oldCS = coordinateSystem;
+            coordinateSystem = CTSUtilities.getCoordinateSystem2D(cs);
+        }
+        listeners.firePropertyChange("coordinateSystem", oldCS, cs);
     }
 
     /**
@@ -258,10 +267,14 @@ public abstract class RenderedObject {
      * @see #setPreferredPixelSize
      * @see #getCoordinateSystem
      */
-    public synchronized void setPreferredArea(final Rectangle2D area) {
-        paintedArea = null;
-        firePropertyChange("preferredArea", preferredArea,
-                           preferredArea=(area!=null) ? (Rectangle2D) area.clone() : null);
+    public void setPreferredArea(final Rectangle2D area) {
+        final Rectangle2D oldArea;
+        synchronized (this) {
+            paintedArea = null;
+            oldArea = preferredArea;
+            preferredArea = (area!=null) ? (Rectangle2D)area.clone() : null;
+        }
+        listeners.firePropertyChange("preferredArea", oldArea, area);
     }
 
     /**
@@ -290,10 +303,14 @@ public abstract class RenderedObject {
      * @see #setPreferredArea
      * @see #getCoordinateSystem
      */
-    public synchronized void setPreferredPixelSize(final Dimension2D size) {
-        stroke = null;
-        firePropertyChange("preferredPixelSize", preferredPixelSize,
-                           preferredPixelSize=(size!=null) ? (Dimension2D)size.clone() : null);
+    public void setPreferredPixelSize(final Dimension2D size) {
+        final Dimension2D oldSize;
+        synchronized (this) {
+            stroke = null;
+            oldSize = preferredPixelSize;
+            preferredPixelSize = (size!=null) ? (Dimension2D)size.clone() : null;
+        }
+        listeners.firePropertyChange("preferredPixelSize", oldSize, size);
     }
 
     /**
@@ -315,17 +332,20 @@ public abstract class RenderedObject {
      *
      * @throws IllegalArgumentException si <code>zorder</code> est {@link Float#NaN}.
      */
-    public synchronized void setZOrder(final float zOrder) throws IllegalArgumentException {
-        if (!Float.isNaN(zOrder)) {
-            final float oldZOrder = this.zOrder;
-            if (zOrder != oldZOrder) {
-                this.zOrder = zOrder;
-                repaint();
-                firePropertyChange("zOrder", new Float(oldZOrder), new Float(zOrder));
-            }
-        } else {
+    public void setZOrder(final float zOrder) throws IllegalArgumentException {
+        if (Float.isNaN(zOrder)) {
             throw new IllegalArgumentException(String.valueOf(zOrder));
         }
+        final float oldZOrder;
+        synchronized (this) {
+            oldZOrder = this.zOrder;
+            if (zOrder == oldZOrder) {
+                return;
+            }
+            this.zOrder = zOrder;
+            repaint();
+        }
+        listeners.firePropertyChange("zOrder", new Float(oldZOrder), new Float(zOrder));
     }
 
     /**
@@ -346,8 +366,13 @@ public abstract class RenderedObject {
      *
      * @param tools The new tools, or <code>null</code> for removing any set of tools.
      */
-    public synchronized void setTools(final Tools tools) {
-        firePropertyChange("tools", this.tools, this.tools=tools);
+    public void setTools(final Tools tools) {
+        final Tools oldTools;
+        synchronized (this) {
+            oldTools = this.tools;
+            this.tools = tools;
+        }
+        listeners.firePropertyChange("tools", oldTools, tools);
     }
 
     /**
@@ -366,7 +391,7 @@ public abstract class RenderedObject {
      * {@link Renderer}:
      *
      * <ul>
-     *   <li><code>{@link Renderer#add Renderer.add}(this)</code>
+     *   <li><code>{@link Renderer#addLayer Renderer.addLayer}(this)</code>
      *       appelera <code>setVisible(true)</code>. Les classes dérivées peuvent
      *       profiter de cette spécification pour s'enregistrer auprès de {@link
      *       org.geotools.gui.swing.MapPane} comme étant intéressées à suivre les
@@ -378,20 +403,15 @@ public abstract class RenderedObject {
      *       intéressées à suivre les mouvements de la souris par exemple.</li>
      * </ul>
      */
-    public synchronized void setVisible(final boolean visible) {
-        if (visible != this.visible) {
+    public void setVisible(final boolean visible) {
+        synchronized (this) {
+            if (visible == this.visible) {
+                return;
+            }
             this.visible = visible;
             repaint();
-            final Boolean before, after;
-            if (visible) {
-                before = Boolean.FALSE;
-                after  = Boolean.TRUE;
-            } else {
-                before = Boolean.TRUE;
-                after  = Boolean.FALSE;
-            }
-            firePropertyChange("visible", before, after);
         }
+        listeners.firePropertyChange("visible", !visible, visible);
     }
 
     /**
@@ -412,21 +432,26 @@ public abstract class RenderedObject {
      * @param bounds Coordonnées (en points) de la partie à redessiner.
      */
     final void repaint(final Rectangle bounds) {
-        final Component mapPane = this.mapPane;
-        if (mapPane != null) {
-            if (EventQueue.isDispatchThread()) {
-                if (bounds == null) {
-                    mapPane.repaint();
-                } else {
-                    mapPane.repaint(bounds.x, bounds.y, bounds.width, bounds.height);
-                }
+        final Renderer renderer = this.renderer;
+        if (renderer == null) {
+            return;
+        }
+        final Component mapPane = renderer.mapPane;
+        if (mapPane == null) {
+            return;
+        }
+        if (EventQueue.isDispatchThread()) {
+            if (bounds == null) {
+                mapPane.repaint();
             } else {
-                EventQueue.invokeLater(new Runnable() {
-                    public void run() {
-                        repaint(bounds);
-                    }
-                });
+                mapPane.repaint(bounds.x, bounds.y, bounds.width, bounds.height);
             }
+        } else {
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    repaint(bounds);
+                }
+            });
         }
     }
 
@@ -538,6 +563,30 @@ public abstract class RenderedObject {
     }
 
     /**
+     * Add a property change listener to the listener list. The listener is registered
+     * for all properties. For example, methods {@link #setVisible}, {@link #setZOrder},
+     * {@link #setPreferredArea}, {@link #setPreferredPixelSize} and {@link #setTools}
+     * will fire <code>"visible"</code>, <code>"zOrder"</code>, <code>"preferredArea"</code>
+     * <code>"preferredPixelSize"</code> and <code>"tools"</code> change events.
+     *
+     * @param listener The property change listener to be added
+     */
+    public void addPropertyChangeListener(final PropertyChangeListener listener) {
+        listeners.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Remove a property change listener from the listener list.
+     * This removes a <code>PropertyChangeListener</code> that
+     * was registered for all properties.
+     *
+     * @param listener The property change listener to be removed
+     */
+    public void removePropertyChangeListener(final PropertyChangeListener listener) {
+        listeners.removePropertyChangeListener(listener);
+    }
+
+    /**
      * Efface les données qui avaient été conservées dans une cache interne. L'appel
      * de cette méthode permettra de libérer un peu de mémoire à d'autres fins. Elle
      * sera appelée lorsque qu'on aura déterminé que la couche <code>this</code>  ne
@@ -546,56 +595,7 @@ public abstract class RenderedObject {
      * traçage un peu plus lent.
      */
     void clearCache() {
-    }
-
-    /**
-     * Ajoute un objet intéressé à être informé chaque fois qu'une propriété de cette
-     * couche <code>RenderedObject</code> change. Les méthodes {@link #setVisible}
-     * et {@link #setZOrder} en particulier tiendront ces objets au courant des
-     * changements qu'ils font.
-     */
-    public void addPropertyChangeListener(final PropertyChangeListener listener) {
-        listenerList.add(PropertyChangeListener.class, listener);
-    }
-
-    /**
-     * Retire un objet qui n'est plus intéressé à être informé chaque fois
-     * que change une propriété de cette couche <code>RenderedObject</code>.
-     */
-    public void removePropertyChangeListener(final PropertyChangeListener listener) {
-        listenerList.remove(PropertyChangeListener.class, listener);
-    }
-
-    /**
-     * Prévient tous les objets intéressés que l'état de cette couche a changé.
-     * La méthode {@link PropertyChangeListener#propertyChange} de tous les
-     * listeners sera appelée, sauf si <code>oldValue</code> et
-     * <code>newValue</code> sont identiques.
-     *
-     * @param propertyName nom de la propriété qui change (par exemple "preferredArea"} ou "zOrder"}).
-     * @param oldValue Ancienne valeur (avant le changement).
-     * @param newValue Nouvelle valeur (après le changement).
-     */
-    protected void firePropertyChange(final String propertyName,
-                                      final Object oldValue, final Object newValue)
-    {
-        if (oldValue!=newValue && (oldValue==null || !oldValue.equals(newValue))) {
-            PropertyChangeEvent event = null;
-            final Object[]  listeners = listenerList.getListenerList();
-            for (int i=listeners.length; (i-=2)>=0;) {
-                if (listeners[i] == PropertyChangeListener.class) {
-                    if (event == null) {
-                        event=new PropertyChangeEvent(this, propertyName, oldValue, newValue);
-                    }
-                    try {
-                        ((PropertyChangeListener) listeners[i+1]).propertyChange(event);
-                    } catch (RuntimeException exception) {
-                        Utilities.unexpectedException("fr.ird.map", "RenderedObject",
-                                                      "firePropertyChange", exception);
-                    }
-                }
-            }
-        }
+        stroke = null;
     }
 
     /**
@@ -603,11 +603,12 @@ public abstract class RenderedObject {
      * lorsqu'il a été déterminé que cette couche sera bientôt détruite.   Elle permet de libérer
      * les ressources plus rapidement que si l'on attend que le ramasse-miettes fasse son travail.
      */
-    protected void dispose() {
+    protected synchronized void dispose() {
+        clearCache();
         paintedArea = null;
-        final Object[] listeners = listenerList.getListenerList();
-        for (int i=listeners.length; (i-=2)>=0;) {
-            listenerList.remove((Class)listeners[i-2], (EventListener)listeners[i-1]);
+        final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
+        for (int i=list.length; --i>=0;) {
+            listeners.removePropertyChangeListener(list[i]);
         }
     }
 
@@ -646,6 +647,11 @@ public abstract class RenderedObject {
      *        will be fully redrawn during the next rendering.
      */
     final void zoomChanged(final AffineTransform change) {
+        final Renderer renderer = this.renderer;
+        if (renderer == null) {
+            return;
+        }
+        final Component mapPane = renderer.mapPane;
         final Shape paintedArea = this.paintedArea;
         if (paintedArea != null) {
             if (change!=null && mapPane!=null) {
@@ -679,110 +685,5 @@ public abstract class RenderedObject {
             return (paintedArea==null) || paintedArea.contains(x,y);
         }
         return false;
-    }
-
-    /**
-     * Indique si la région géographique <code>big</code> contient entièrement la sous-région
-     * <code>small</code> spécifiée. Un cas particuluer survient si un ou plusieurs bords de
-     * <code>small</code> coïncide avec les bords correspondants de <code>big</code>. L'argument
-     * <code>edge</code> indique si on considère qu'il y a inclusion ou pas dans ces circonstances.
-     *
-     * @param big   Région géographique dont on veut vérifier s'il contient une sous-région.
-     * @param small Sous-région géographique dont on veut vérifier l'inclusion dans <code>big</code>.
-     * @param edge <code>true</code> pour considérer qu'il y a inclusion si ou ou plusieurs bords
-     *        de <code>big</code> et <code>small</code> conïncide, ou <code>false</code> pour exiger
-     *        que <code>small</code> ne touche pas aux bords de <code>big</code>.
-     */
-    static boolean contains(final Rectangle2D big, final Rectangle2D small, final boolean edge) {
-        return edge ? (small.getMinX()>=big.getMinX() && small.getMaxX()<=big.getMaxX() && small.getMinY()>=big.getMinY() && small.getMaxY()<=big.getMaxY()):
-                      (small.getMinX()> big.getMinX() && small.getMaxX()< big.getMaxX() && small.getMinY()> big.getMinY() && small.getMaxY()< big.getMaxY());
-    }
-
-    /**
-     * Agrandi (si nécessaire) une région géographique en fonction de l'ajout, la supression ou
-     * la modification des coordonnées d'une sous-région. Cette méthode est appelée lorsque les
-     * coordonnées de la sous-région <code>oldSubArea</code> ont changées pour devenir
-     * <code>newSubArea</code>. Si ce changement s'est traduit par un agrandissement de
-     * <code>area</code>, alors le nouveau rectangle agrandi sera retourné. Si le changement
-     * n'a aucun impact sur <code>area</code>, alors <code>area</code> sera retourné tel quel.
-     * Si le changement PEUT avoir diminué la dimension de <code>area</code>, alors cette méthode
-     * retourne <code>null</code> pour indiquer qu'il faut recalculer <code>area</code> à partir
-     * de zéro.
-     *
-     * @param  area       Région géographique qui pourrait être affectée par le changement de
-     *                    coordonnées d'une sous-région. En aucun cas ce rectangle <code>area</code>
-     *                    ne sera directement modifié. Si une modification est nécessaire, elle sera
-     *                    faite sur un clone qui sera retourné. Cet argument peut être
-     *                    <code>null</code> si aucune région n'était précédemment définie.
-     * @param  oldSubArea Anciennes coordonnées de la sous-région, ou <code>null</code> si la
-     *                    sous-région n'existait pas avant l'appel de cette méthode. Ce rectangle
-     *                    ne sera jamais modifié ni retourné.
-     * @param  newSubArea Nouvelles coordonnées de la sous-région, ou <code>null</code> si la
-     *                    sous-région est supprimée. Ce rectangle ne sera jamais modifié ni
-     *                    retourné.
-     *
-     * @return Un rectangle contenant les coordonnées mises-à-jour de <code>area</code>, si cette
-     *         mise-à-jour a pu se faire. Si elle n'a pas pu être faite faute d'informations, alors
-     *         cette méthode retourne <code>null</code>. Dans ce dernier cas, il faudra recalculer
-     *         <code>area</code> à partir de zéro.
-     */
-    static Rectangle2D changeArea(Rectangle2D area,
-                                  final Rectangle2D oldSubArea,
-                                  final Rectangle2D newSubArea)
-    {
-        if (area == null) {
-            /*
-             * Si aucune région n'avait été définie auparavant. La sous-région
-             * "newSubArea" représente donc la totalité de la nouvelle région
-             * "area". On construit un nouveau rectangle plutôt que de faire un
-             * clone pour être certain d'avoir un type d'une précision suffisante.
-             */
-            if (newSubArea != null) {
-                area = new Rectangle2D.Double();
-                area.setRect(newSubArea);
-            }
-            return area;
-        }
-        if (newSubArea == null) {
-            /*
-             * Une sous-région a été supprimée ("newSubArea" est nulle). Si la sous-région supprimée ne
-             * touchait pas au bord de "area",  alors sa suppression ne peut pas avoir diminuée "area":
-             * on retournera alors area. Si au contraire "oldSubArea" touchait au bord de "area", alors
-             * on ne sait pas si la suppression de "oldSubArea" a diminué "area".  Il faudra recalculer
-             * "area" à partir de zéro, ce que l'on indique en retournant NULL.
-             */
-            if (               oldSubArea==null  ) return area;
-            if (contains(area, oldSubArea, false)) return area;
-            return null;
-        }
-        if (oldSubArea != null) {
-            /*
-             * Une sous-région a changée ("oldSubArea" est devenu "newSubArea"). Si on détecte que ce
-             * changement PEUT diminuer la superficie totale de "area", il faudra recalculer "area" à
-             * partir de zéro pour en être sur. On retourne donc NULL.  Si au contraire la superficie
-             * totale de "area" ne peut pas avoir diminuée, elle peut avoir augmentée. Ce calcul sera
-             * fait à la fin de cette méthode, qui poursuit son cours.
-             */
-            double t;
-            if (((t=oldSubArea.getMinX()) <= area.getMinX() && t < newSubArea.getMinX()) ||
-                ((t=oldSubArea.getMaxX()) >= area.getMaxX() && t > newSubArea.getMaxX()) ||
-                ((t=oldSubArea.getMinY()) <= area.getMinY() && t < newSubArea.getMinY()) ||
-                ((t=oldSubArea.getMaxY()) >= area.getMaxY() && t > newSubArea.getMaxY()))
-            {
-                return null; // Le changement PEUT avoir diminué "area".
-            }
-        }
-        /*
-         * Une nouvelle sous-région est ajoutée. Si elle était déjà
-         * entièrement comprise dans "area", alors son ajout n'aura
-         * aucun impact sur "area" et peut être ignoré.
-         */
-        if (!contains(area, newSubArea, true)) {
-            // Cloner est nécessaire pour que "firePropertyChange"
-            // puisse connaître l'ancienne valeur de "area".
-            area = (Rectangle2D) area.clone();
-            area.add(newSubArea);
-        }
-        return area;
     }
 }

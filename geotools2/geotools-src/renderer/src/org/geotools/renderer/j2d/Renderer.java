@@ -46,12 +46,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import javax.swing.ToolTipManager;
 import javax.swing.JComponent;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.Locale;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,6 +73,7 @@ import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.NoninvertibleTransformException;
 import org.geotools.ct.CoordinateTransformationFactory;
 import org.geotools.ct.TransformException;
+import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.renderer.Resources;
@@ -80,12 +83,12 @@ import org.geotools.resources.renderer.ResourceKeys;
 /**
  * A renderer for drawing map objects into a {@link Graphics2D}. A newly constructed
  * <code>Renderer</code> is initially empty. To make something appears, {@link RendererObject}s
- * must be added using one of <code>add(...)</code> methods. The visual content depends of the
- * <code>RendererObject</code> subclass. It may be an isoline ({@link RenderedIsoline}),
+ * must be added using one of <code>addLayer(...)</code> methods. The visual content depends of
+ * the <code>RendererObject</code> subclass. It may be an isoline ({@link RenderedIsoline}),
  * a remote sensing image ({@link RenderedGridCoverageLayer}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.3 2003/01/22 23:06:49 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.4 2003/01/23 12:13:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -98,28 +101,28 @@ public class Renderer {
 
     //////////////////////////////////////////////////////////////////
     ////////                                                  ////////
-    ////////         RenderedObject (a.k.a "Layers")          ////////
+    ////////         RenderedLayers (a.k.a "Layers")          ////////
     ////////                                                  ////////
     //////////////////////////////////////////////////////////////////
     /**
-     * Objet utilisé pour comparer deux objets {@link RenderedObject}.
-     * Ce comparateur permettra de classer les {@link RenderedObject}
+     * Objet utilisé pour comparer deux objets {@link RenderedLayer}.
+     * Ce comparateur permettra de classer les {@link RenderedLayer}
      * par ordre croissant d'ordre <var>z</var>.
      */
     private static final Comparator COMPARATOR = new Comparator() {
         public int compare(final Object layer1, final Object layer2) {
-            return Float.compare(((RenderedObject)layer1).getZOrder(),
-                                 ((RenderedObject)layer2).getZOrder());
+            return Float.compare(((RenderedLayer)layer1).getZOrder(),
+                                 ((RenderedLayer)layer2).getZOrder());
         }
     };
 
     /**
-     * The set of {@link RenderedObject} to display. Named "layers" here because each
-     * {@link RenderedObject} has its own <var>z</var> value and layer are painted in
+     * The set of {@link RenderedLayer} to display. Named "layers" here because each
+     * {@link RenderedLayer} has its own <var>z</var> value and layer are painted in
      * increasing <var>z</var> order (i.e. layers with a hight <var>z</var> value are
      * painted on top of layers with a low <var>z</var> value).
      */
-    private RenderedObject[] layers;
+    private RenderedLayer[] layers;
 
     /**
      * The number of valid elements in {@link #layers}.
@@ -153,7 +156,7 @@ public class Renderer {
 
     /**
      * The "real world" coordinate system for rendering. This is the coordinate system for
-     * what the user will see on the screen. Data from all {@link RenderedObject}s will be
+     * what the user will see on the screen.  Data from all {@link RenderedLayer}s will be
      * projected in this coordinate system before to be rendered.  Units are usually "real
      * world" metres.
      *
@@ -234,8 +237,8 @@ public class Renderer {
     private float resolution;
 
     /**
-     * The bounding box of all {@link RenderedObject} in the {@link #mapCS} coordinate system.
-     * This box is computed from {@link RenderedObject#getPreferredArea}. A <code>null</code>
+     * The bounding box of all {@link RenderedLayer} in the {@link #mapCS} coordinate system.
+     * This box is computed from {@link RenderedLayer#getPreferredArea}. A <code>null</code>
      * value means that none of them returned a non-null value.
      */
     private Rectangle2D preferredArea;
@@ -249,12 +252,19 @@ public class Renderer {
     //////////////////////////////////////////////////////////////////
     /**
      * The component owner, or <code>null</code> if none. This is used for managing
-     * repaint request (see {@link RenderedObject#repaint}) or mouse events.
+     * repaint request (see {@link RenderedLayer#repaint}) or mouse events.
      */
-    private final Component mapPane;
+    final Component mapPane;
 
     /**
-     * <code>true</code> if {@link #listeners} is currently registered into {@link #mapPane}.
+     * Listeners to be notified about any changes in this layer's properties.
+     * Examples of properties that may change:
+     * <code>"preferredArea"</code>.
+     */
+    protected final PropertyChangeSupport listeners;
+
+    /**
+     * <code>true</code> if {@link #proxy} is currently registered into {@link #mapPane}.
      */
     private boolean listenerRegistered;
 
@@ -262,7 +272,7 @@ public class Renderer {
      * Objet "listener" ayant la charge de réagir aux différents
      * événements qui intéressent cet objet <code>Renderer</code>.
      */
-    private final Listeners listeners = new Listeners();
+    private final Listeners proxy = new Listeners();
 
     /**
      * Classe ayant la charge de réagir aux différents événements qui intéressent cet
@@ -293,10 +303,10 @@ public class Renderer {
 
         /** Invoked when the component has been made invisible. */
         public void componentHidden(final ComponentEvent event) {
-//            clearCache();
+            clearCache();
         }
 
-        /** Invoked when a {@link RenderedObject}'s property is changed. */
+        /** Invoked when a {@link RenderedLayer}'s property is changed. */
         public void propertyChange(final PropertyChangeEvent event) {
             // Make sure we are running in the AWT thread.
             if (!EventQueue.isDispatchThread()) {
@@ -309,10 +319,10 @@ public class Renderer {
             }
             final String propertyName = event.getPropertyName();
             if (propertyName.equalsIgnoreCase("preferredArea")) {
-//                changeArea((Rectangle2D)     event.getOldValue(),
-//                           (Rectangle2D)     event.getNewValue(),
-//                           ((RenderedObject) event.getSource()).getCoordinateSystem(),
-//                           "RenderedObject", "setPreferredArea");
+                changePreferredArea((Rectangle2D)    event.getOldValue(),
+                                    (Rectangle2D)    event.getNewValue(),
+                                    ((RenderedLayer) event.getSource()).getCoordinateSystem(),
+                                    "RenderedLayer", "setPreferredArea");
                 return;
             }
             if (propertyName.equalsIgnoreCase("zOrder")) {
@@ -321,7 +331,7 @@ public class Renderer {
             }
             if (propertyName.equalsIgnoreCase("tools")) {
                 if ((event.getOldValue()==null) != (event.getNewValue()==null)) {
-                    registerListeners();
+                    updateListenerRegistration();
                 }
                 return;
             }
@@ -334,16 +344,17 @@ public class Renderer {
      * @param owner The widget that own this renderer, or <code>null</code> if none.
      */
     public Renderer(final Component owner) {
+        listeners = new PropertyChangeSupport(this);
         this.mapPane = owner;
         if (mapPane != null) {
-            mapPane.addComponentListener(listeners);
+            mapPane.addComponentListener(proxy);
         }
     }
 
     /**
      * Returns the view coordinate system. This is the "real world" coordinate system
-     * used for displaying all {@link RenderedObject}s. Note that underlying data in
-     * <code>RenderedObject</code> doesn't need to be in this coordinate system:
+     * used for displaying all {@link RenderedLayer}s. Note that underlying data in
+     * <code>RenderedLayer</code> doesn't need to be in this coordinate system:
      * transformations will performed on the fly as needed at rendering time.
      *
      * @return The two dimensional coordinate system used for display.
@@ -355,9 +366,9 @@ public class Renderer {
 
     /**
      * Set the view coordinate system. This is the "real world" coordinate
-     * system to use for displaying all {@link RenderedObject}s. Default is
+     * system to use for displaying all {@link RenderedLayer}s. Default is
      * {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}. Changing this
-     * coordinate system has no effect on any <code>RenderedObject</code>'s
+     * coordinate system has no effect on any <code>RenderedLayer</code>'s
      * underlying data, since transformation are performed only at rendering
      * time.
      *
@@ -378,7 +389,7 @@ public class Renderer {
 
     /**
      * Returns a bounding box that completely encloses all layer's {@linkplain
-     * RenderedObject#getPreferredArea preferred area}, visible or not. This
+     * RenderedLayer#getPreferredArea preferred area}, visible or not. This
      * bounding box should be representative of the geographic area to drawn.
      * Coordinates are expressed in this {@linkplain #getCoordinateSystem
      * renderer's coordinate system}.
@@ -394,15 +405,362 @@ public class Renderer {
     /**
      * Set the geographic area. This is method is invoked as a result of
      * internal computation. User should not call this method directly.
+     *
+     * @param newArea The new preferred area (will not be cloned).
      */
-    private void setArea(final Rectangle2D newArea) {
+    private void setPreferredArea(final Rectangle2D newArea) {
         final Rectangle2D oldArea = this.preferredArea;
         if (!Utilities.equals(oldArea, newArea)) {
             this.preferredArea = newArea;
-//            firePropertyChange("area", oldArea, newArea);
-//            fireZoomChanged(new AffineTransform()); // Update scrollbars
-// TODO: Need protected access
-//          log("fr.ird.map", "MapPanel", "setArea", newArea);
+            listeners.firePropertyChange("preferredArea", oldArea, newArea);
+        }
+    }
+
+    /**
+     * Recompute inconditionnaly the {@link #preferredArea}. Will be computed
+     * from the value returned by {@link RenderedLayer#getPreferredArea} for
+     * all layers.
+     *
+     * @param  sourceClassName  The caller's class name, for logging purpose.
+     * @param  sourceMethodName The caller's method name, for logging purpose.
+     */
+    private void computePreferredArea(final String sourceClassName, final String sourceMethodName) {
+        Rectangle2D         newArea = null;
+        CoordinateSystem lastSystem = null;
+        MathTransform2D   transform = null;
+        for (int i=layerCount; --i>=0;) {
+            final RenderedLayer layer = layers[i];
+            Rectangle2D bounds = layer.getPreferredArea();
+            if (bounds != null) {
+                final CoordinateSystem coordinateSystem = layer.getCoordinateSystem();
+                try {
+                    if (lastSystem==null || !lastSystem.equals(coordinateSystem, false)) {
+                        transform  = (MathTransform2D) getMathTransform(coordinateSystem, mapCS,
+                                                       sourceClassName, sourceMethodName);
+                        lastSystem = coordinateSystem;
+                    }
+                    bounds = CTSUtilities.transform(transform, bounds, null);
+                    if (newArea == null) {
+                        newArea = bounds;
+                    } else {
+                        newArea.add(bounds);
+                    }
+                } catch (TransformException exception) {
+                    handleException(sourceClassName, sourceMethodName, exception);
+                }
+            }
+        }
+        setPreferredArea(newArea);
+    }
+
+    /**
+     * Remplace un rectangle par un autre dans le calcul de {@link #preferredArea}. Si ça a eu
+     * pour effet de changer les coordonnées géographiques couvertes, un événement approprié
+     * sera lancé. Cette méthode est plus économique que {@link #computePreferredArea} du fait
+     * qu'elle essaie de ne pas tout recalculer. Si on n'a pas pu faire l'économie d'un recalcul
+     * toutefois, alors {@link #computePreferredArea} sera appelée.
+     *
+     * @param  oldSubArea       The old preferred area of the layer that changed.
+     * @param  newSubArea       The new preferred area of the layer that changed.
+     * @param  coordinateSystem The coordinate system for <code>[old|new]SubArea</code>.
+     * @param  sourceClassName  The caller's class name, for logging purpose.
+     * @param  sourceMethodName The caller's method name, for logging purpose.
+     */
+    private void changePreferredArea(Rectangle2D oldSubArea,
+                                     Rectangle2D newSubArea,
+                                     final CoordinateSystem coordinateSystem,
+                                     final String sourceClassName,
+                                     final String sourceMethodName)
+    {
+        try {
+            final MathTransform2D transform = (MathTransform2D) getMathTransform(
+                    coordinateSystem, mapCS, sourceClassName, sourceMethodName);
+            oldSubArea = CTSUtilities.transform(transform, oldSubArea, null);
+            newSubArea = CTSUtilities.transform(transform, newSubArea, null);
+        } catch (TransformException exception) {
+            handleException(sourceClassName, sourceMethodName, exception);
+            computePreferredArea(sourceClassName, sourceMethodName);
+            return;
+        }
+        final Rectangle2D expandedArea = changeArea(preferredArea, oldSubArea, newSubArea);
+        if (expandedArea != null) {
+            setPreferredArea(expandedArea);
+        } else {
+            computePreferredArea(sourceClassName, sourceMethodName);
+        }
+    }
+
+    /**
+     * Agrandi (si nécessaire) une région géographique en fonction de l'ajout, la supression ou
+     * la modification des coordonnées d'une sous-région. Cette méthode est appelée lorsque les
+     * coordonnées de la sous-région <code>oldSubArea</code> ont changées pour devenir
+     * <code>newSubArea</code>. Si ce changement s'est traduit par un agrandissement de
+     * <code>area</code>, alors le nouveau rectangle agrandi sera retourné. Si le changement
+     * n'a aucun impact sur <code>area</code>, alors <code>area</code> sera retourné tel quel.
+     * Si le changement PEUT avoir diminué la dimension de <code>area</code>, alors cette méthode
+     * retourne <code>null</code> pour indiquer qu'il faut recalculer <code>area</code> à partir
+     * de zéro.
+     *
+     * @param  area       Région géographique qui pourrait être affectée par le changement de
+     *                    coordonnées d'une sous-région. En aucun cas ce rectangle <code>area</code>
+     *                    ne sera directement modifié. Si une modification est nécessaire, elle sera
+     *                    faite sur un clone qui sera retourné. Cet argument peut être
+     *                    <code>null</code> si aucune région n'était précédemment définie.
+     * @param  oldSubArea Anciennes coordonnées de la sous-région, ou <code>null</code> si la
+     *                    sous-région n'existait pas avant l'appel de cette méthode. Ce rectangle
+     *                    ne sera jamais modifié ni retourné.
+     * @param  newSubArea Nouvelles coordonnées de la sous-région, ou <code>null</code> si la
+     *                    sous-région est supprimée. Ce rectangle ne sera jamais modifié ni
+     *                    retourné.
+     *
+     * @return Un rectangle contenant les coordonnées mises-à-jour de <code>area</code>, si cette
+     *         mise-à-jour a pu se faire. Si elle n'a pas pu être faite faute d'informations, alors
+     *         cette méthode retourne <code>null</code>. Dans ce dernier cas, il faudra recalculer
+     *         <code>area</code> à partir de zéro.
+     */
+    private static Rectangle2D changeArea(Rectangle2D area,
+                                          final Rectangle2D oldSubArea,
+                                          final Rectangle2D newSubArea)
+    {
+        if (area == null) {
+            /*
+             * Si aucune région n'avait été définie auparavant. La sous-région
+             * "newSubArea" représente donc la totalité de la nouvelle région
+             * "area". On construit un nouveau rectangle plutôt que de faire un
+             * clone pour être certain d'avoir un type d'une précision suffisante.
+             */
+            if (newSubArea != null) {
+                area = new Rectangle2D.Double();
+                area.setRect(newSubArea);
+            }
+            return area;
+        }
+        if (newSubArea == null) {
+            /*
+             * Une sous-région a été supprimée ("newSubArea" est nulle). Si la sous-région supprimée ne
+             * touchait pas au bord de "area",  alors sa suppression ne peut pas avoir diminuée "area":
+             * on retournera alors area. Si au contraire "oldSubArea" touchait au bord de "area", alors
+             * on ne sait pas si la suppression de "oldSubArea" a diminué "area".  Il faudra recalculer
+             * "area" à partir de zéro, ce que l'on indique en retournant NULL.
+             */
+            if (               oldSubArea==null  ) return area;
+            if (contains(area, oldSubArea, false)) return area;
+            return null;
+        }
+        if (oldSubArea != null) {
+            /*
+             * Une sous-région a changée ("oldSubArea" est devenu "newSubArea"). Si on détecte que ce
+             * changement PEUT diminuer la superficie totale de "area", il faudra recalculer "area" à
+             * partir de zéro pour en être sur. On retourne donc NULL.  Si au contraire la superficie
+             * totale de "area" ne peut pas avoir diminuée, elle peut avoir augmentée. Ce calcul sera
+             * fait à la fin de cette méthode, qui poursuit son cours.
+             */
+            double t;
+            if (((t=oldSubArea.getMinX()) <= area.getMinX() && t < newSubArea.getMinX()) ||
+                ((t=oldSubArea.getMaxX()) >= area.getMaxX() && t > newSubArea.getMaxX()) ||
+                ((t=oldSubArea.getMinY()) <= area.getMinY() && t < newSubArea.getMinY()) ||
+                ((t=oldSubArea.getMaxY()) >= area.getMaxY() && t > newSubArea.getMaxY()))
+            {
+                return null; // Le changement PEUT avoir diminué "area".
+            }
+        }
+        /*
+         * Une nouvelle sous-région est ajoutée. Si elle était déjà
+         * entièrement comprise dans "area", alors son ajout n'aura
+         * aucun impact sur "area" et peut être ignoré.
+         */
+        if (!contains(area, newSubArea, true)) {
+            // Cloner est nécessaire pour que "firePropertyChange"
+            // puisse connaître l'ancienne valeur de "area".
+            area = (Rectangle2D) area.clone();
+            area.add(newSubArea);
+        }
+        return area;
+    }
+
+    /**
+     * Indique si la région géographique <code>big</code> contient entièrement la sous-région
+     * <code>small</code> spécifiée. Un cas particuluer survient si un ou plusieurs bords de
+     * <code>small</code> coïncide avec les bords correspondants de <code>big</code>. L'argument
+     * <code>edge</code> indique si on considère qu'il y a inclusion ou pas dans ces circonstances.
+     *
+     * @param big   Région géographique dont on veut vérifier s'il contient une sous-région.
+     * @param small Sous-région géographique dont on veut vérifier l'inclusion dans <code>big</code>.
+     * @param edge <code>true</code> pour considérer qu'il y a inclusion si ou ou plusieurs bords
+     *        de <code>big</code> et <code>small</code> conïncide, ou <code>false</code> pour exiger
+     *        que <code>small</code> ne touche pas aux bords de <code>big</code>.
+     */
+    private static boolean contains(final Rectangle2D big, final Rectangle2D small, final boolean edge)
+    {
+        return edge ? (small.getMinX()>=big.getMinX() && small.getMaxX()<=big.getMaxX() && small.getMinY()>=big.getMinY() && small.getMaxY()<=big.getMaxY()):
+                      (small.getMinX()> big.getMinX() && small.getMaxX()< big.getMaxX() && small.getMinY()> big.getMinY() && small.getMaxY()< big.getMaxY());
+    }
+
+    /**
+     * Add a new layer to this renderer. A <code>Renderer</code> do not draw anything as long
+     * as at least one layer hasn't be added.    A {@link RenderedLayer} can be anything like
+     * an isobath, a remote sensing image, city locations, map scale, etc.  The drawing order
+     * (relative to other layers) is determined by the {@linkplain RenderedLayer#getZOrder
+     * z-order} property. A {@link RenderedLayer} object can be added to only one
+     * <code>Renderer</code> object.
+     *
+     * @param  layer Layer to add to this <code>Renderer</code>. This method call
+     *         will be ignored if <code>layer</code> has already been added to this
+     *         <code>Renderer</code>.
+     * @throws IllegalArgumentException If <code>layer</code> has already been added
+     *         to an other <code>Renderer</code>.
+     *
+     * @see #removeLayer
+     * @see #removeAllLayers
+     * @see #getLayers
+     * @see #getLayerCount
+     */
+    public synchronized void addLayer(final RenderedLayer layer) throws IllegalArgumentException {
+        synchronized (layer) {
+            if (layer.renderer == this) {
+                return;
+            }
+            if (layer.renderer != null) {
+                throw new IllegalArgumentException(
+                            Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
+            }
+            layer.renderer = this;
+            /*
+             * Ajoute la nouvelle couche dans le tableau {@link #layers}. Le tableau
+             * sera agrandit si nécessaire et on déclarera qu'il a besoin d'être reclassé.
+             */
+            if (layers == null) {
+                layers = new RenderedLayer[16];
+            }
+            if (layerCount >= layers.length) {
+                layers = (RenderedLayer[]) XArray.resize(layers, Math.max(layerCount,8) << 1);
+            }
+            layers[layerCount++] = layer;
+            layerSorted = false;
+            layer.setVisible(true);
+            changePreferredArea(null, layer.getPreferredArea(), layer.getCoordinateSystem(),
+                                "Renderer", "addLayer");
+            layer.addPropertyChangeListener(proxy);
+        }
+    }
+
+    /**
+     * Remove a layer from this renderer. Note that if the layer is going to
+     * be added back to the same renderer later, then it is more efficient to invoke
+     * <code>{@link RenderedLayer#setVisible RenderedLayer.setVisible}(false)</code>.
+     *
+     * @param  layer The layer to remove. This method call will be ignored
+     *         if <code>layer</code> has already been removed from this
+     *         <code>Renderer</code>.
+     * @throws IllegalArgumentException If <code>layer</code> is owned by
+     *         an other <code>Renderer</code> than <code>this</code>.
+     *
+     * @see #addLayer
+     * @see #removeAllLayers
+     * @see #getLayers
+     * @see #getLayerCount
+     */
+    public synchronized void removeLayer(final RenderedLayer layer) throws IllegalArgumentException
+    {
+        synchronized (layer) {
+            if (layer.renderer == null) {
+                return;
+            }
+            if (layer.renderer != this) {
+                throw new IllegalArgumentException(
+                            Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
+            }
+            layer.removePropertyChangeListener(proxy);
+            final CoordinateSystem layerCS = layer.getCoordinateSystem();
+            final Rectangle2D    layerArea = layer.getPreferredArea();
+            layer.setVisible(false);
+            layer.clearCache();
+            layer.renderer = null;
+            /*
+             * Retire cette couche de la liste {@link #layers}. On recherchera
+             * toutes les occurences de cette couche, même si en principe elle ne
+             * devrait apparaître qu'une et une seule fois.
+             */
+            for (int i=layerCount; --i>=0;) {
+                final RenderedLayer scan = layers[i];
+                if (scan == layer) {
+                    System.arraycopy(layers, i+1, layers, i, (--layerCount)-i);
+                    layers[layerCount] = null;
+                }
+            }
+            changePreferredArea(layerArea, null, layerCS, "Renderer", "removeLayer");
+        }
+    }
+
+    /**
+     * Remove all layers from this renderer.
+     *
+     * @see #addLayer
+     * @see #removeLayer
+     * @see #getLayers
+     * @see #getLayerCount
+     */
+    public synchronized void removeAllLayers() {
+        while (--layerCount>=0) {
+            final RenderedLayer layer = layers[layerCount];
+            synchronized (layer) {
+                layer.removePropertyChangeListener(proxy);
+                layer.setVisible(false);
+                layer.clearCache();
+                layer.renderer = null;
+            }
+            layers[layerCount] = null;
+        }
+        layerCount = 0;
+        setPreferredArea(null);
+        transforms.clear();
+    }
+
+    /**
+     * Returns all registered layers. The returned array is sorted in increasing
+     * {@linkplain RenderedLayer#getZOrder z-order}: element at index 0 contains
+     * the first layer to be drawn.
+     *
+     * @return The sorted array of layers. May have a 0 length, but will never
+     *         be <code>null</code>. Change to this array, will not affect this
+     *         <code>Renderer</code>.
+     *
+     * @see #addLayer
+     * @see #removeLayer
+     * @see #removeAllLayers
+     * @see #getLayerCount
+     */
+    public synchronized RenderedLayer[] getLayers() {
+        sortLayers();
+        if (layers != null) {
+            final RenderedLayer[] array = new RenderedLayer[layerCount];
+            System.arraycopy(layers, 0, array, 0, layerCount);
+            return array;
+        } else {
+            return new RenderedLayer[0];
+        }
+    }
+
+    /**
+     * Returns the number of layers in this renderer.
+     *
+     * @see #getLayers
+     * @see #addLayer
+     * @see #removeLayer
+     * @see #removeAllLayers
+     */
+    public int getLayerCount() {
+        return layerCount;
+    }
+
+    /**
+     * Procède au classement immédiat des couches, si ce n'était pas déjà fait.
+     */
+    private void sortLayers() {
+        if (!layerSorted && layers!=null) {
+            layers = (RenderedLayer[]) XArray.resize(layers, layerCount);
+            Arrays.sort(layers, COMPARATOR);
+            layerSorted = true;
         }
     }
 
@@ -479,6 +837,8 @@ public class Renderer {
      *
      * @param  sourceCS The source coordinate system.
      * @param  targetCS The target coordinate system.
+     * @param  sourceClassName  The caller's class name, for logging purpose.
+     * @param  sourceMethodName The caller's method name, for logging purpose.
      * @return A transformation from <code>sourceCS</code> to <code>targetCS</code>.
      * @throws CannotCreateTransformException if the transformation can't be created.
      *
@@ -487,7 +847,9 @@ public class Renderer {
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      */
     final MathTransform getMathTransform(final CoordinateSystem sourceCS,
-                                         final CoordinateSystem targetCS)
+                                         final CoordinateSystem targetCS,
+                                         final String sourceClassName,
+                                         final String sourceMethodName)
             throws CannotCreateTransformException
     {
         MathTransform tr;
@@ -542,8 +904,8 @@ public class Renderer {
             final LogRecord record = Resources.getResources(null).getLogRecord(Level.FINER,
                                                ResourceKeys.INITIALIZING_TRANSFORMATION_$2,
                                                toString(sourceCS), toString(targetCS));
-            record.setSourceClassName ("Renderer");
-            record.setSourceMethodName("getMathTransform");
+            record.setSourceClassName (sourceClassName);
+            record.setSourceMethodName(sourceMethodName);
             LOGGER.log(record);
         }
         tr = factory.createFromCoordinateSystems(sourceCS, targetCS).getMathTransform();
@@ -551,6 +913,24 @@ public class Renderer {
             transforms.put(sourceCS, tr);
         }
         return tr;
+    }
+
+    /**
+     * Méthode appelée lorsqu'une exception {@link TransformException} non-gérée
+     * s'est produite. Cette méthode peut être appelée pendant le traçage de la carte
+     * où les mouvements de la souris. Elle ne devrait donc pas utiliser une boîte de
+     * dialogue pour reporter l'erreur, et retourner rapidement pour éviter de bloquer
+     * la queue des événements de <i>Swing</i>.
+     *
+     * @param  sourceClassName  The caller's class name, for logging purpose.
+     * @param  sourceMethodName The caller's method name, for logging purpose.
+     * @param  exception        The transform exception.
+     */
+    private void handleException(final String className,
+                                 final String methodName,
+                                 final TransformException exception)
+    {
+        Utilities.unexpectedException("org.geotools.renderer.j2d", className, methodName, exception);
     }
 
     /**
@@ -571,11 +951,11 @@ public class Renderer {
     }
 
     /**
-     * Register {@link #listeners} if at least one layer has a tool, or unregister it
-     * if no layer has tools.   This method is automatically invoked when the "tools"
-     * property change in a {@link RenderedObject}.
+     * Register {@link #proxy} if at least one layer has a tool, or unregister it
+     * if no layer has tools. This method is automatically invoked when the "tools"
+     * property change in a {@link RenderedLayer}.
      */
-    private void registerListeners() {
+    private void updateListenerRegistration() {
         if (mapPane != null) {
             boolean hasTools = false;
             for (int i=layerCount; --i>=0;) {
@@ -585,15 +965,29 @@ public class Renderer {
                 }
             }
             if (hasTools != listenerRegistered) {
-                mapPane.removeMouseListener(listeners);
+                /*
+                 * Before to register any listener, unregister unconditionnaly in order
+                 * to make sure we don't register the same listener twice.  It is safer
+                 * to do this because {@link javax.swing.event.EventListenerList} doesn't
+                 * do this check.
+                 */
+                mapPane.removeMouseListener(proxy);
                 if (hasTools) {
-                    mapPane.addMouseListener(listeners);
-                    if (mapPane instanceof JComponent) {
-                        ToolTipManager.sharedInstance().registerComponent((JComponent)mapPane);
-                    }
-                } else {
-                    if (mapPane instanceof JComponent) {
-                        ToolTipManager.sharedInstance().unregisterComponent((JComponent)mapPane);
+                    mapPane.addMouseListener(proxy);
+                }
+                /*
+                 * Special processing for Swing's tool tip text. If there is no default
+                 * tool tip, then we need to register the component manually if we want
+                 * 'Tools.getToolTipText()' to work, since Swing doesn't know about it.
+                 */
+                if (mapPane instanceof JComponent) {
+                    final JComponent swing = (JComponent) mapPane;
+                    if (swing.getToolTipText() == null) {
+                        final ToolTipManager manager = ToolTipManager.sharedInstance();
+                        manager.unregisterComponent(swing);
+                        if (hasTools) {
+                            manager.registerComponent(swing);
+                        }
                     }
                 }
                 listenerRegistered = hasTools;
@@ -615,5 +1009,64 @@ public class Renderer {
             // Not yet added to a containment hierarchy. Ignore...
         }
         return JComponent.getDefaultLocale();
+    }
+
+    /**
+     * Add a property change listener to the listener list. The listener is
+     * registered for all properties. For example, adding or removing layers
+     * may fire a <code>"preferredArea"</code> change events.
+     *
+     * @param listener The property change listener to be added
+     */
+    public void addPropertyChangeListener(final PropertyChangeListener listener) {
+        listeners.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Remove a property change listener from the listener list.
+     * This removes a <code>PropertyChangeListener</code> that
+     * was registered for all properties.
+     *
+     * @param listener The property change listener to be removed
+     */
+    public void removePropertyChangeListener(final PropertyChangeListener listener) {
+        listeners.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Efface les données qui avaient été conservées dans une cache interne. L'appel
+     * de cette méthode permettra de libérer un peu de mémoire à d'autres fins. Elle
+     * devrait être appelée lorsque l'on sait qu'on n'affichera plus la carte avant
+     * un certain temps. Par exemple la méthode {@link java.applet.Applet#stop}
+     * devrait appeller <code>clearCache()</code>. Notez que l'appel de cette méthode
+     * ne modifie aucunement le paramétrage de la carte. Seulement, son prochain
+     * traçage sera plus lent, le temps que <code>Renderer</code> reconstruise les
+     * caches internes.
+     */
+    private void clearCache() {
+        for (int i=layerCount; --i>=0;) {
+            layers[i].clearCache();
+        }
+        transforms.clear();
+    }
+
+    /**
+     * Préviens que cet afficheur sera bientôt détruit. Cette méthode peut être appelée lorsque
+     * cet objet <code>Renderer</code> est sur le point de ne plus être référencé.  Elle permet
+     * de libérer des ressources plus rapidement que si l'on attend que le ramasse-miettes fasse
+     * son travail. Après l'appel de cette méthode, on ne doit plus utiliser ni cet objet
+     * <code>Renderer</code> ni aucune des couches <code>RenderedLayer</code> qu'il contenait.
+     */
+    public void dispose() {
+        final RenderedLayer[] layers = new RenderedLayer[layerCount];
+        System.arraycopy(this.layers, 0, layers, 0, layerCount);
+        removeAllLayers();
+        for (int i=layerCount; --i>=0;) {
+            layers[i].dispose();
+        }
+        final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
+        for (int i=list.length; --i>=0;) {
+            listeners.removePropertyChangeListener(list[i]);
+        }
     }
 }

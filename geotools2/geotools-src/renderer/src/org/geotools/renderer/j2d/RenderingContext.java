@@ -61,7 +61,7 @@ import org.geotools.resources.renderer.ResourceKeys;
 /**
  * Informations relatives to a rendering in progress.  A <code>RenderingContext</code> object is
  * automatically created by {@link Renderer#paint} at rendering time. Then the renderer iterates
- * over layers and invokes {@link RenderedObject#paint} for each of them.  The rendering context
+ * over layers and invokes {@link RenderedLayer#paint} for each of them.   The rendering context
  * is destroyed once the rendering is completed, and recreated for each subsequent ones.
  * <code>RenderingContext</code> contains the following informations:
  *
@@ -69,24 +69,24 @@ import org.geotools.resources.renderer.ResourceKeys;
  *   <li>The {@link Graphics2D} handler to use for rendering.</li>
  *   <li>The coordinate systems in use and the transformations between them.</li>
  *   <li>The area rendered up to date. This information is updated by each
- *       {@link RenderedObject} while they are painting.</li>
+ *       {@link RenderedLayer} while they are painting.</li>
  * </ul>
  *
  * A rendering usually imply the following transformations (names are {@linkplain CoordinateSystem
  * coordinate systems} and arrows are {@linkplain MathTransform transforms}):
  *
  * <p align="center">
- * {@link RenderedObject#getCoordinateSystem layerCS} <img src="doc-files/right.png">
+ * {@link RenderedLayer#getCoordinateSystem layerCS} <img src="doc-files/right.png">
  * {@link #mapCS} <img src="doc-files/right.png">
  * {@link #textCS} <img src="doc-files/right.png">
  * {@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.3 2003/01/22 23:06:49 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.4 2003/01/23 12:13:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
- * @see RenderedObject#paint
+ * @see RenderedLayer#paint
  */
 public final class RenderingContext {
     /**
@@ -115,7 +115,7 @@ public final class RenderingContext {
 
     /**
      * The "real world" coordinate system for rendering. This is the coordinate system for
-     * what the user will see on the screen. Data from all {@link RenderedObject}s will be
+     * what the user will see on the screen.  Data from all {@link RenderedLayer}s will be
      * projected in this coordinate system before to be rendered.  Units are usually "real
      * world" metres.
      *
@@ -150,8 +150,8 @@ public final class RenderingContext {
     /**
      * The painted area in the {@linkplain #deviceCS device coordinate system}, or
      * <code>null</code> if unknow. This field is built by {@link #addPaintedArea}
-     * at rendering time. The package-private method {@link RenderedObject#update}
-     * method use and update this field.
+     * at rendering time.  The package-private method {@link RenderedLayer#update}
+     * use and update this field.
      */
     Shape paintedArea;
 
@@ -233,7 +233,8 @@ public final class RenderingContext {
             throws CannotCreateTransformException
     {
         try {
-            return (AffineTransform) renderer.getMathTransform(sourceCS, targetCS);
+            return (AffineTransform) renderer.getMathTransform(sourceCS, targetCS,
+                                         "RenderingContext","getAffineTransform");
         } catch (ClassCastException cause) {
             throw new CannotCreateTransformException(
                     org.geotools.resources.cts.Resources.format(
@@ -247,8 +248,8 @@ public final class RenderingContext {
      * then the specified {@link CoordinateTransformationFactory} will be used. The arguments
      * are usually (but not necessarily) one of the following pairs:
      * <ul>
-     *   <li><code>({@link RenderedObject#getCoordinateSystem layerCS}, {@link #mapCS})</code>:
-     *       Arbitrary transform from the data coordinate system (set in {@link RenderedObject})
+     *   <li><code>({@link RenderedLayer#getCoordinateSystem layerCS}, {@link #mapCS})</code>:
+     *       Arbitrary transform from the data coordinate system (set in {@link RenderedLayer})
      *       to the rendering coordinate system (set in {@link Renderer}).</li>
      *   <li><code>({@link #mapCS}, {@link #textCS})</code>:
      *       {@linkplain AffineTransform Affine transform} from the rendering coordinate system
@@ -279,7 +280,7 @@ public final class RenderingContext {
                                           final CoordinateSystem targetCS)
             throws CannotCreateTransformException
     {
-        return renderer.getMathTransform(sourceCS, targetCS);
+        return renderer.getMathTransform(sourceCS, targetCS, "RenderingContext","getMathTransform");
     }
 
     /**
@@ -309,10 +310,10 @@ public final class RenderingContext {
 
     /**
      * Declares that an area has been painted. This method should be invoked from
-     * {@link RenderedObject#paint} at rendering time.  The {@link Renderer} uses
+     * {@link RenderedLayer#paint} at rendering time.   The {@link Renderer} uses
      * this information  in order  to determine which layers need to be repainted
      * when a screen area is damaged. If <code>addPaintedArea(...)</code> methods
-     * are never invoked from a particular {@link RenderedObject}, then the renderer
+     * are never invoked from a particular {@link RenderedLayer}, then the renderer
      * will assume that the painted area is unknow and conservatively repaint the full
      * layer during subsequent rendering.
      *
@@ -328,7 +329,8 @@ public final class RenderingContext {
         final Shape userArea = area;
         if (cs != null) {
             final MathTransform2D transform = (MathTransform2D)
-                    renderer.getMathTransform(CTSUtilities.getCoordinateSystem2D(cs), deviceCS);
+                    renderer.getMathTransform(CTSUtilities.getCoordinateSystem2D(cs), deviceCS,
+                                              "RenderingContext","addPaintedArea");
             if (!transform.isIdentity()) {
                 area = transform.createTransformedShape(area);
             }
@@ -369,9 +371,10 @@ public final class RenderingContext {
      * of the widget's area (providing that the first contour in the supplied list
      * cover this area).
      *
-     * This method is used internally by some layers (like {@link fr.ird.map.layer.IsolineLayer})
-     * when computing and drawing a clipped contour may be faster than drawing the full contour
-     * (especially if clipped contours are cached for reuse).
+     * This method is used internally by some layers (like
+     * {@link org.geotools.renderer.j2d.IsolineLayer}) when computing and drawing a
+     * clipped contour may be faster than drawing the full contour (especially if
+     * clipped contours are cached for reuse).
      * <br><br>
      * This method expect a <em>modifiable</em> list of {@link Contour} objects as argument.
      * The first element in this list must be the "master" contour (the contour to clip) and
@@ -401,7 +404,8 @@ public final class RenderingContext {
 //            logicalClip = XAffineTransform.inverseTransform(fromWorld, bounds, logicalClip);
 //        } catch (NoninvertibleTransformException exception) {
 //            // (should not happen) Clip failed: conservatively returns the whole contour.
-//            Utilities.unexpectedException("fr.ird.map", "RenderingContext", "clip", exception);
+//            Utilities.unexpectedException("org.geotools.renderer.j2d",
+//                                          "RenderingContext", "clip", exception);
 //            return contours.get(0);
 //        }
 //        final CoordinateSystem targetCS = getViewCoordinateSystem();
@@ -419,7 +423,7 @@ public final class RenderingContext {
 //            clip    = logicalClip;
 //            /*
 //             * First, we need to know the clip in contour's coordinates.
-//             * The {@link fr.ird.map.layer.IsolineLayer} usually keeps
+//             * The {@link org.geotools.renderer.j2d.IsolineLayer} usually keeps
 //             * isoline in the same coordinate system than the MapPane's
 //             * one. But a user could invoke this method in a more unusual
 //             * way, so we are better to check...
@@ -436,7 +440,8 @@ public final class RenderingContext {
 //                }
 //                clip = temporary = CTSUtilities.transform((MathTransform2D)toView.getMathTransform(), clip, temporary);
 //            } catch (TransformException exception) {
-//                Utilities.unexpectedException("fr.ird.map", "RenderingContext", "clip", exception);
+//                Utilities.unexpectedException("org.geotools.renderer.j2d",
+//                                              "RenderingContext", "clip", exception);
 //                continue; // A contour seems invalid. It will be ignored (and probably garbage collected soon).
 //            }
 //            /*

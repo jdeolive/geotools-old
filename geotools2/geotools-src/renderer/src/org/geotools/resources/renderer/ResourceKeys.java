@@ -35,4 +35,5 @@ public interface ResourceKeys
     public static final int ERROR_NON_CARTESIAN_COORDINATE_SYSTEM_$1 =     2;
     public static final int ERROR_ODD_ARRAY_LENGTH_$1                =     1;
     public static final int ERROR_POLYGON_CLOSED                     =     8;
+    public static final int ERROR_RENDERER_NOT_OWNER_$1              =    11;
 }

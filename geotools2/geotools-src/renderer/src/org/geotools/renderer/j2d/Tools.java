@@ -40,13 +40,13 @@ import javax.swing.Action;
 
 /**
  * Actions that may be trigged by some mouse of keyboard events. Each layer
- * ({@link RenderedObject}) can have its own tool. When a mouse event occurs,
+ * ({@link RenderedLayer}) can have its own tool. When a mouse event occurs,
  * the tools of the topermost layer is queried first. If it didn't {@linkplain
  * AWTEvent#consume consumed} the event, then the next layer's tools is queried,
  * etc. If no {@link RenderedLayer} consumed the event, then the {@link Renderer}'s
  * tools is queried last.
  *
- * @version $Id: Tools.java,v 1.1 2003/01/22 23:06:49 desruisseaux Exp $
+ * @version $Id: Tools.java,v 1.2 2003/01/23 12:13:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Tools {
