@@ -8,9 +8,9 @@ package spike.james;
 import java.io.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.renderer.*;
-import org.geotools.featuretable.*;
+import org.geotools.feature.*;
 import org.geotools.map.*;
-import org.geotools.datasource.*;
+import org.geotools.data.*;
 import org.geotools.shapefile.*;
 import org.geotools.datasource.extents.EnvelopeExtent;
 import java.awt.event.*;
@@ -34,7 +34,7 @@ public class ZoomMapExample extends java.awt.Panel{
     /** Creates a new instance of Example1 */
     public ZoomMapExample(String uri){
    
-        DefaultFeatureTable ft = new DefaultFeatureTable();
+        FeatureCollection ft = new FeatureCollectionDefault();
         
         //String dataFolder = "d:\\work\\java\\geotools2/geotools-src\\shapefile\\tests\\unit\\testData";
         try{
