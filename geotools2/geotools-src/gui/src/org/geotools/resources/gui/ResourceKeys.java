@@ -34,6 +34,7 @@ public interface ResourceKeys
     public static final int HIDE                     =     3;
     public static final int LEFT                     =     4;
     public static final int LEVEL                    =    31;
+    public static final int LOADING_$1               =    40;
     public static final int LOGGER                   =    34;
     public static final int MAGNIFIER                =     5;
     public static final int MESSAGE                  =    32;
