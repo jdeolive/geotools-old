@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
 
 /**
- * @version $Id: StyleImpl.java,v 1.12 2003/07/22 16:37:10 ianturton Exp $
+ * @version $Id: StyleImpl.java,v 1.13 2003/08/01 16:54:49 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style {
@@ -119,4 +119,9 @@ public class StyleImpl implements org.geotools.styling.Style {
         record.setThrown(exception);
         LOGGER.log(record);
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

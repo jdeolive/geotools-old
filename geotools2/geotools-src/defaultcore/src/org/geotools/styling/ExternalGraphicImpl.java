@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: ExternalGraphicImpl.java,v 1.5 2003/07/22 16:36:52 ianturton Exp $
+ * @version $Id: ExternalGraphicImpl.java,v 1.6 2003/08/01 16:54:49 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class ExternalGraphicImpl implements ExternalGraphic, Symbol {
@@ -73,4 +73,9 @@ public class ExternalGraphicImpl implements ExternalGraphic, Symbol {
     public void setLocation(java.net.URL location) {
         this.location = location;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this); 
+    }
+    
 }

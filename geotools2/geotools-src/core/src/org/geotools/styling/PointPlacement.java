@@ -26,7 +26,7 @@ import org.geotools.filter.Expression;
 /**
  * A PointPlacement specifies how a text label is positioned relative to a
  * geometric point.
- * $Id: PointPlacement.java,v 1.3 2002/10/16 16:56:47 ianturton Exp $
+ * $Id: PointPlacement.java,v 1.4 2003/08/01 16:54:21 ianturton Exp $
  * @author Ian Turton
  */
 public interface PointPlacement extends LabelPlacement{
@@ -63,4 +63,6 @@ public interface PointPlacement extends LabelPlacement{
      * sets the rotation of the label.
      */
     void setRotation(Expression rotation);
+    
+    void accept(StyleVisitor visitor);
 }

@@ -23,7 +23,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: AnchorPointImpl.java,v 1.5 2003/07/22 16:37:10 ianturton Exp $
+ * @version $Id: AnchorPointImpl.java,v 1.6 2003/08/01 16:54:49 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class AnchorPointImpl implements AnchorPoint {
@@ -76,4 +76,9 @@ public class AnchorPointImpl implements AnchorPoint {
     public void setAnchorPointY(Expression anchorPointY) {
         this.anchorPointY = anchorPointY;
     }
+    
+    public void accept(StyleVisitor visitor){
+        visitor.visit(this);
+    }
+    
 }

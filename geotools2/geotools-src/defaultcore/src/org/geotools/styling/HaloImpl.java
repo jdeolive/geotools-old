@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: HaloImpl.java,v 1.5 2003/07/22 15:52:19 ianturton Exp $
+ * @version $Id: HaloImpl.java,v 1.6 2003/08/01 16:54:49 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class HaloImpl implements Halo {
@@ -72,4 +72,9 @@ public class HaloImpl implements Halo {
     public void setRadius(org.geotools.filter.Expression radius) {
         this.radius = radius;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: LineSymbolizerImpl.java,v 1.7 2003/07/22 16:37:01 ianturton Exp $
+ * @version $Id: LineSymbolizerImpl.java,v 1.8 2003/08/01 16:55:16 ianturton Exp $
  * @author James Macgill
  */
 public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
@@ -87,4 +87,9 @@ public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
     public void setStroke(Stroke stroke) {
         this.stroke = stroke;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

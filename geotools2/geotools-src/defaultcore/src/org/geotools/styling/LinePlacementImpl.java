@@ -27,7 +27,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: LinePlacementImpl.java,v 1.4 2003/07/22 16:37:01 ianturton Exp $
+ * @version $Id: LinePlacementImpl.java,v 1.5 2003/08/01 16:55:16 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class LinePlacementImpl implements LinePlacement {
@@ -62,4 +62,9 @@ public class LinePlacementImpl implements LinePlacement {
     public void setPerpendicularOffset(Expression perpendicularOffset) {
         this.perpendicularOffset = perpendicularOffset;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

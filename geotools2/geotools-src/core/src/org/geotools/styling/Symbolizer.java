@@ -44,10 +44,11 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2 
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: Symbolizer.java,v 1.3 2002/06/04 16:11:10 loxnard Exp $
+ * @version $Id: Symbolizer.java,v 1.4 2003/08/01 16:54:12 ianturton Exp $
  * @author James Macgill, CCG
  */
 public interface Symbolizer {
 
+    void accept(StyleVisitor visitor);
 }
 

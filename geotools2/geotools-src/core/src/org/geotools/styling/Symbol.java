@@ -11,5 +11,5 @@ package org.geotools.styling;
  * @author  iant
  */
 public interface Symbol {
-    
+    void accept(StyleVisitor visitor);
 }

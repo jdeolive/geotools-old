@@ -31,7 +31,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FillImpl.java,v 1.6 2003/07/22 15:52:10 ianturton Exp $
+ * @version $Id: FillImpl.java,v 1.7 2003/08/01 16:54:49 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class FillImpl implements org.geotools.styling.Fill {
@@ -174,4 +174,9 @@ public class FillImpl implements org.geotools.styling.Fill {
     public void setGraphicFill(org.geotools.styling.Graphic graphicFill) {
         this.graphicFill = graphicFill;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

@@ -85,4 +85,10 @@ public class TextMarkImpl extends MarkImpl implements TextMark {
     public void setWellKnownName(Expression wellKnownName) {
         // this is really blank the name is always symbol
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
+
 }

@@ -44,7 +44,7 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: PointSymbolizer.java,v 1.4 2002/10/14 17:07:59 ianturton Exp $
+ * @version $Id: PointSymbolizer.java,v 1.5 2003/08/01 16:54:21 ianturton Exp $
  * @author James Macgill
  */
 public interface PointSymbolizer extends Symbolizer{
@@ -95,6 +95,7 @@ public interface PointSymbolizer extends Symbolizer{
      * reference to a Geometry object, but does follow it in spirit.
      */
     void setGeometryPropertyName(String geometryPropertyName);
-    
+
+    void accept(StyleVisitor visitor);
 }
 

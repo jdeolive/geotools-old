@@ -23,7 +23,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: MarkImpl.java,v 1.9 2003/07/22 16:37:01 ianturton Exp $
+ * @version $Id: MarkImpl.java,v 1.10 2003/08/01 16:55:04 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class MarkImpl implements Mark {
@@ -183,4 +183,9 @@ public class MarkImpl implements Mark {
     public String toString() {
         return wellKnownName.toString();
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

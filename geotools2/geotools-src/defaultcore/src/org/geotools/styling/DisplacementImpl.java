@@ -23,7 +23,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: DisplacementImpl.java,v 1.4 2003/07/22 15:52:19 ianturton Exp $
+ * @version $Id: DisplacementImpl.java,v 1.5 2003/08/01 16:55:16 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DisplacementImpl implements Displacement {
@@ -76,4 +76,9 @@ public class DisplacementImpl implements Displacement {
     public Expression getDisplacementY() {
         return displacementY;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

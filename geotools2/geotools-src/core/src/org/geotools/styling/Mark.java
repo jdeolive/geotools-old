@@ -34,7 +34,7 @@ import org.geotools.filter.Expression;
  * fully represent strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
- * @version $Id: Mark.java,v 1.11 2002/10/23 17:02:58 ianturton Exp $
+ * @version $Id: Mark.java,v 1.12 2003/08/01 16:54:12 ianturton Exp $
  * @author James Macgill
  */
 public interface Mark extends Symbol {
@@ -89,5 +89,8 @@ public interface Mark extends Symbol {
     
     Expression getRotation();
     void setRotation(Expression rotation);
+
+    void accept(StyleVisitor visitor);
+        
 }
 

@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: RuleImpl.java,v 1.6 2003/07/22 16:36:52 ianturton Exp $
+ * @version $Id: RuleImpl.java,v 1.7 2003/08/01 16:54:49 ianturton Exp $
  * @author James Macgill
  */
 import java.util.ArrayList;
@@ -180,5 +180,9 @@ public class RuleImpl implements org.geotools.styling.Rule {
      */
     public void setMinScaleDenominator(double minScaleDenominator) {
         this.minScaleDenominator = minScaleDenominator;
+    }
+    
+    public void accept(StyleVisitor visitor){
+        visitor.visit(this);
     }
 }

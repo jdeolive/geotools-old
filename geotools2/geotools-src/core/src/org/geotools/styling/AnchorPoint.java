@@ -28,7 +28,7 @@ import org.geotools.filter.Expression;
  * An AnchorPoint identifies the location inside a textlabel to use as an
  * "anchor" for positioning it relative to a point geometry.
  *
- * $Id: AnchorPoint.java,v 1.3 2002/10/17 16:55:23 ianturton Exp $
+ * $Id: AnchorPoint.java,v 1.4 2003/08/01 16:54:21 ianturton Exp $
  * @author  Ian Turton
  */
 public interface AnchorPoint {
@@ -36,4 +36,5 @@ public interface AnchorPoint {
     void setAnchorPointX(Expression x);
     Expression getAnchorPointY();
     void setAnchorPointY(Expression y);
+    void accept(StyleVisitor visitor);
 }

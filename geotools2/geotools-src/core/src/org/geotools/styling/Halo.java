@@ -28,7 +28,7 @@ import org.geotools.filter.Expression;
  * A Halo fills an extended area outside the glyphs of a rendered textlabel
  * to make it easier to read over a background.
  *
- * $Id: Halo.java,v 1.4 2002/10/17 16:55:23 ianturton Exp $ 
+ * $Id: Halo.java,v 1.5 2003/08/01 16:54:12 ianturton Exp $ 
  * @author Ian Turton, CCG
  */
 public interface Halo {
@@ -44,4 +44,6 @@ public interface Halo {
     /** The fill (color) of the halo
      */
     void setFill(Fill fill);
+
+    void accept(StyleVisitor visitor);
 }

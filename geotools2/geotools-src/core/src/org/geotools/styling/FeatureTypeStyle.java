@@ -29,7 +29,7 @@ package org.geotools.styling;
  * type may be in context and it must match the syntax and semantics of all
  * attribute references inside of the FeatureTypeStyle.
  *
- * @version $Id: FeatureTypeStyle.java,v 1.9 2002/10/21 16:09:37 ianturton Exp $
+ * @version $Id: FeatureTypeStyle.java,v 1.10 2003/08/01 16:54:21 ianturton Exp $
  * @author James Macgill, CCG
  */
 public interface FeatureTypeStyle {
@@ -113,5 +113,6 @@ public interface FeatureTypeStyle {
      */
     void setRules(Rule[] rules);
     void addRule(Rule rule);
+    void accept(StyleVisitor visitor);
 }
 

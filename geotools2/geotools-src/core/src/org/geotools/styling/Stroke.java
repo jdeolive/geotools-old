@@ -46,7 +46,7 @@ import org.geotools.filter.Expression;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: Stroke.java,v 1.10 2003/05/12 22:07:57 jmacgill Exp $
+ * @version $Id: Stroke.java,v 1.11 2003/08/01 16:54:21 ianturton Exp $
  * @author James Macgill
  */
 public interface Stroke {
@@ -239,10 +239,15 @@ public interface Stroke {
      * first pixel column and ending at the last pixel column.
      */
     void setGraphicStroke(Graphic graphicStroke);
+    
+    void accept(StyleVisitor visitor);
 }
 
 /*
  * $Log: Stroke.java,v $
+ * Revision 1.11  2003/08/01 16:54:21  ianturton
+ * implemented visitor pattern
+ *
  * Revision 1.10  2003/05/12 22:07:57  jmacgill
  * added getColor method which returns an actual Color object.
  *

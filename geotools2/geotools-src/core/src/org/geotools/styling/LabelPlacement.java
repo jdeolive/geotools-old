@@ -11,5 +11,5 @@ package org.geotools.styling;
  * @author  iant
  */
 public interface LabelPlacement {
-    
+    void accept(StyleVisitor visitor);
 }

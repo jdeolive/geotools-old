@@ -48,7 +48,7 @@ package org.geotools.styling;
  *
  *
  *
- * @version $Id: Rule.java,v 1.8 2003/06/13 00:43:37 seangeo Exp $
+ * @version $Id: Rule.java,v 1.9 2003/08/01 16:54:12 ianturton Exp $
  * @author James Macgill
  */
 import org.geotools.filter.Filter;
@@ -187,5 +187,7 @@ public interface Rule {
      *         this rule.
      */
     void setSymbolizers(Symbolizer[] symbolizers);
+    
+    void accept(StyleVisitor visitor);
 }
 

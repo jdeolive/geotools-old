@@ -38,7 +38,7 @@ import java.net.URL;
  * strokes as set out by this interface.  For example, opacity may not be
  * supported.
  *
- * @version $Id: ExternalGraphic.java,v 1.5 2002/10/17 16:55:23 ianturton Exp $
+ * @version $Id: ExternalGraphic.java,v 1.6 2003/08/01 16:54:12 ianturton Exp $
  * @author James Macgill, CCG
  */
 public interface ExternalGraphic {
@@ -69,5 +69,7 @@ public interface ExternalGraphic {
      * in a String object.
      */
     void setFormat(String format);
+    
+    void accept(StyleVisitor visitor);
 }
 

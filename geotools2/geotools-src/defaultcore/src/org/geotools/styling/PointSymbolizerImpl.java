@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PointSymbolizerImpl.java,v 1.5 2003/07/22 16:37:10 ianturton Exp $
+ * @version $Id: PointSymbolizerImpl.java,v 1.6 2003/08/01 16:55:04 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class PointSymbolizerImpl implements PointSymbolizer {
@@ -81,4 +81,9 @@ public class PointSymbolizerImpl implements PointSymbolizer {
     public void setGraphic(org.geotools.styling.Graphic graphic) {
         this.graphic = graphic;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

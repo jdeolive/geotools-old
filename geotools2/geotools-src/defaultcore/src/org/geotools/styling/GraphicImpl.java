@@ -42,7 +42,7 @@ import org.geotools.filter.Expression;
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.10 2003/07/22 16:37:01 ianturton Exp $
+ * @version $Id: GraphicImpl.java,v 1.11 2003/08/01 16:55:16 ianturton Exp $
  */
 public class GraphicImpl implements org.geotools.styling.Graphic {
     /** The logger for the default core module. */
@@ -320,4 +320,9 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     public java.lang.String getGeometryPropertyName() {
         return geometryPropertyName;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

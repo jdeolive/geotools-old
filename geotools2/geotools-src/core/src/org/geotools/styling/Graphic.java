@@ -51,7 +51,7 @@ package org.geotools.styling;
  *
  * @task REVISIT: There are no setter methods in this interface, is this a problem?
  *
- * @version $Id: Graphic.java,v 1.9 2002/10/16 16:56:46 ianturton Exp $
+ * @version $Id: Graphic.java,v 1.10 2003/08/01 16:54:21 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -159,6 +159,7 @@ public interface Graphic {
      *
      */
     public void setGeometryPropertyName(java.lang.String geometryPropertyName);
-    
+
+    void accept(StyleVisitor visitor);
 }
 

@@ -24,7 +24,7 @@ import org.geotools.filter.Expression;
 /**
  *
  *
- * @version $Id: StrokeImpl.java,v 1.8 2003/07/22 16:37:01 ianturton Exp $
+ * @version $Id: StrokeImpl.java,v 1.9 2003/08/01 16:55:04 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class StrokeImpl implements org.geotools.styling.Stroke {
@@ -359,4 +359,9 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public java.awt.Color getColor(org.geotools.feature.Feature feature) {
         return java.awt.Color.decode((String) this.getColor().getValue(feature));
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

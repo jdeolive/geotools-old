@@ -298,4 +298,10 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public void setShadedRelief(ShadedRelief relief) {
         shadedRelief = relief;
     }
+    
+        
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: TextSymbolizerImpl.java,v 1.10 2003/07/22 16:36:52 ianturton Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.11 2003/08/01 16:55:04 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer {
@@ -180,4 +180,9 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     public void setGeometryPropertyName(java.lang.String geometryPropertyName) {
         this.geometryPropertyName = geometryPropertyName;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

@@ -25,10 +25,11 @@ package org.geotools.styling;
 
 import org.geotools.filter.Expression;
 /**
- * $Id: LinePlacement.java,v 1.3 2002/10/17 16:55:23 ianturton Exp $
+ * $Id: LinePlacement.java,v 1.4 2003/08/01 16:54:12 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public interface LinePlacement extends LabelPlacement {
     Expression getPerpendicularOffset();
     void setPerpendicularOffset(Expression offset);
+    void accept(StyleVisitor visitor);
 }

@@ -44,7 +44,7 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: LineSymbolizer.java,v 1.5 2002/10/14 17:07:59 ianturton Exp $
+ * @version $Id: LineSymbolizer.java,v 1.6 2003/08/01 16:54:12 ianturton Exp $
  * @author James Macgill, CCG
  */
 public interface LineSymbolizer extends Symbolizer{
@@ -88,5 +88,7 @@ public interface LineSymbolizer extends Symbolizer{
     String geometryPropertyName();
     
     void setGeometryPropertyName(String geometryPropertyName);
+    
+    void accept(StyleVisitor visitor);
 }
 

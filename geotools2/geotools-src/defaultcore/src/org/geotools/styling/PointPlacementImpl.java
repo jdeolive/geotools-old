@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PointPlacementImpl.java,v 1.8 2003/07/22 16:37:10 ianturton Exp $
+ * @version $Id: PointPlacementImpl.java,v 1.9 2003/08/01 16:55:16 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class PointPlacementImpl implements PointPlacement {
@@ -102,4 +102,9 @@ public class PointPlacementImpl implements PointPlacement {
     public void setRotation(org.geotools.filter.Expression rotation) {
         this.rotation = rotation;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+     }
+    
 }

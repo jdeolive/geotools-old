@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.8 2003/07/22 16:37:10 ianturton Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.9 2003/08/01 16:54:49 ianturton Exp $
  * @author James Macgill
  */
 public class FeatureTypeStyleImpl
@@ -119,4 +119,9 @@ protected FeatureTypeStyleImpl(Rule[] rules) {
     public void setTitle(java.lang.String title) {
         this.title = title;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

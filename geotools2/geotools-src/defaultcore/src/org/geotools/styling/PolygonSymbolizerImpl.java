@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PolygonSymbolizerImpl.java,v 1.6 2003/07/22 16:36:52 ianturton Exp $
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.7 2003/08/01 16:54:49 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class PolygonSymbolizerImpl
@@ -112,4 +112,9 @@ public class PolygonSymbolizerImpl
     public void setStroke(Stroke stroke) {
         this.stroke = stroke;
     }
+    
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }
