@@ -112,7 +112,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.25 2003/11/02 21:03:06 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.26 2003/11/08 11:21:38 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -153,6 +153,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
     private static final Composite DEFAULT_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
             1.0f);
     private static final java.awt.Stroke DEFAULT_STROKE = new BasicStroke();
+    
+    private static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
 
     static { //static block to populate the lookups
         joinLookup.put("miter", new Integer(BasicStroke.JOIN_MITER));
@@ -863,8 +865,11 @@ public class LiteRenderer implements Renderer, Renderer2D {
 //        }
 
         // TextLayout tl = new TextLayout(label, graphics.getFont(), graphics.getFontRenderContext());
+        AffineTransform oldTx = graphics.getTransform();
+        graphics.setTransform(IDENTITY_TRANSFORM);
         GlyphVector gv = javaFont.createGlyphVector(graphics.getFontRenderContext(), label);
-        Rectangle2D textBounds = gv.getLogicalBounds();
+        graphics.setTransform(oldTx);
+        Rectangle2D textBounds = gv.getVisualBounds();
         double x = 0;
         double y = 0;
         double rotation = 0;
@@ -927,10 +932,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
             y = 0;
 
-            if (offset >= 0.0) { // to the left of the line
+            if (offset > 0.0) { // to the left of the line
                 y = -offset;
+            } else if(offset < 0) {
+                y = -offset + textBounds.getHeight();
             } else {
-                y = offset + textBounds.getHeight();
+                y = textBounds.getHeight() / 2;
             }
 
             if (LOGGER.isLoggable(Level.FINER)) {
@@ -1599,8 +1606,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         String symbol = mark.getSymbol().getValue(feature).toString();
         // TextLayout tl = new TextLayout(symbol, javaFont, graphic.getFontRenderContext());
+        AffineTransform oldTx = graphic.getTransform();
+        graphic.setTransform(IDENTITY_TRANSFORM);
         GlyphVector gv = javaFont.createGlyphVector(graphic.getFontRenderContext(), symbol);
+        graphic.setTransform(oldTx);
         Rectangle2D textBounds = gv.getVisualBounds();
+        
 
         // TODO: consider if symbols should carry an offset
         double dx = textBounds.getWidth() / 2.0;
