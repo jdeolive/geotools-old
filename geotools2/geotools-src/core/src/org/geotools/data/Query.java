@@ -16,8 +16,8 @@
  */
 package org.geotools.data;
 
-import org.geotools.filter.Filter;
 import org.geotools.feature.AttributeType;
+import org.geotools.filter.Filter;
 
 
 /**
@@ -32,37 +32,56 @@ import org.geotools.feature.AttributeType;
  * and discarding when the max is reached.
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.1 2003/05/08 19:01:25 cholmesny Exp $
+ * @version $Id: Query.java,v 1.2 2003/05/13 15:57:28 cholmesny Exp $
  */
 public interface Query {
     /**
      * The properties array is used to specify the attributes that should be
      * selected for the return feature collection.  If no properties are
-     * specified then the full schema should be used (all attributes). The
-     * properties names can be determined with a getSchema call from the
-     * DataSource interface.
+     * specified (getProperties returns null) then the full schema should  be
+     * used (all attributes). If getProperties returns an array of size 0,
+     * then the datasource should return features with no attributes,  only
+     * their ids.  The available properties can be determined with a
+     * getSchema call from the DataSource interface.  A datasource can use
+     * {@link #retrieveAllProperties()} as a shortcut to determine if all its
+     * available properties should be returned (same as checking to see if
+     * getProperties is null, but clearer)
+     * 
+     * <p>
+     * If properties that are not part of the datasource's schema are requested
+     * then the datasource shall return a FeatureCollection with a schema
+     * including all the properties requested.  Each feature shall have
+     * <tt>null</tt> for the attributes of the AttributeTypes not  contained
+     * in the datasource's schema.
+     * </p>
      * 
      * <p>
      * This replaces our funky setSchema method of retrieving select
-     * properties.  It makes it easier to understand how to get
-     * certain properties out of the datasource, instead of having users get
-     * the  schema and then compose a new schema using the attributes that
-     * they want.  The old way had problems because one couldn't
-     * have multiple object reuse the same datasource object, since some other
-     * object could come along and change its schema, and would then return
-     * the wrong properties.
+     * properties.  It makes it easier to understand how to get certain
+     * properties out of the datasource, instead of having users get the
+     * schema and then compose a new schema using the attributes that they
+     * want.  The old way had problems because one couldn't have multiple
+     * object reuse the same datasource object, since some other object could
+     * come along and change its schema, and would then return the wrong
+     * properties.
      * </p>
-     * 
-     * <p> If properties that are not part of the datasource's schema are
-     * requested then the datasource shall return a FeatureCollection with
-     * a schema including all the properties requested.  Each feature shall
-     * have <tt>null</tt> for the attributes of the AttributeTypes not 
-     * contained in the datasource's schema.</p>
      *
      * @return the attributes to be used in the returned FeatureCollection.
      */
-    public AttributeType[] getProperties();
-	
+    AttributeType[] getProperties();
+
+    /**
+     * Convenience method to determine if the query should use the full schema
+     * (all properties) of the data source for the features returned.  This
+     * method is equivalent to if (query.getProperties() == null), but allows
+     * for more clarity on the part of datasource implementors, so they do not
+     * need to examine and use null values.  All Query implementations should
+     * return true for this function if getProperties returns null.
+     *
+     * @return if all datasource attributes should be included in the schema
+     *         of the returned FeatureCollection.
+     */
+    boolean retrieveAllProperties();
 
     /**
      * The optional maxFeatures can be used to limit the number of features
@@ -78,21 +97,22 @@ public interface Query {
      *
      * @return the max features the getFeature call should return.
      */
-    public int getMaxFeatures();
+    int getMaxFeatures();
 
     /**
-     * The Filter can be used to define constraints on a query.  If no Filter 
+     * The Filter can be used to define constraints on a query.  If no Filter
      * is present then the query is unconstrained and all feature instances
      * should be retrieved.
      *
      * @return The filter that defines constraints on the query.
      */
-    public Filter getFilter();
+    Filter getFilter();
 
     /**
      * The typeName attribute is used to indicate the name of the feature type
      * to be queried.  If no typename is specified, then the default typeName
-     * should be returned from the dataSource.
+     * should be returned from the dataSource.  If the datasource only
+     * supports one feature type then this part of the query may be ignored.
      * 
      * <p>
      * All our datasources now assume one feature type per datasource, but it
@@ -103,17 +123,17 @@ public interface Query {
      *
      * @return the name of the feature type to be returned with this query.
      */
-    public String getTypeName();
+    String getTypeName();
 
     /**
      * The handle attribute is included to allow a client to associate  a
-     * mnemonic name to the Query request. The purpose of the handle
-     * attribute is to provide an error handling mechanism for locating  a
-     * statement that might fail.
+     * mnemonic name to the Query request. The purpose of the handle attribute
+     * is to provide an error handling mechanism for locating  a statement
+     * that might fail.
      *
      * @return the mnemonic name of the query request.
      */
-    public String getHandle();
+    String getHandle();
 
     /**
      * From WFS Spec:  The version attribute is included in order to
@@ -136,5 +156,5 @@ public interface Query {
      *
      * @return the version of the feature to return.
      */
-    public String getVersion();
+    String getVersion();
 }
