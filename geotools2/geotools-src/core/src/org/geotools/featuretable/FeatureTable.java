@@ -1,6 +1,6 @@
 package org.geotools.featuretable;
 
-
+import org.geotools.datasource.*;
 
 public interface FeatureTable {
     public void setDataSource(DataSource ds);

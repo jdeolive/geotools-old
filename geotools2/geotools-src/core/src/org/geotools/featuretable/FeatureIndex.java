@@ -1,7 +1,7 @@
 package org.geotools.featuretable;
 
 
-
+import org.geotools.datasource.*;
 /** An Index is built up around a FeatureTable, using one of the columns in FeatureTable
  * as a comparable reference. An object in a column can be any object, but must either be a
  * java base-type Object (Integer, String, Character, etc.) or implement Comparable.
