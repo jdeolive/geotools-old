@@ -25,17 +25,24 @@
  */
 
 package org.geotools.styling;
+import org.geotools.filter.*;
 
 public class DefaultFill implements org.geotools.styling.Fill {
 
-    String color = "#808080";
+    private Expression color = null;
     
-    private double opacity = 1.0;
+    private Expression opacity = null;
     
     private Graphic graphicFill = null;
     
     /** Creates a new instance of DefaultFill */
     public DefaultFill() {
+        try{
+            color = new ExpressionLiteral("#808080");
+            opacity = new ExpressionLiteral(new Double(1.0));
+        } catch (IllegalFilterException ife){
+            System.err.println("Failed to build default fill: "+ife);
+        }
     }
 
     /**
@@ -52,7 +59,7 @@ public class DefaultFill implements org.geotools.styling.Fill {
      *
      * @return The color of the Fill encoded as a hexidecimal RGB value.
      */
-    public String getColor() {
+    public Expression getColor() {
         return color;
     }
     /**
@@ -68,7 +75,7 @@ public class DefaultFill implements org.geotools.styling.Fill {
      *
      * @param The color of the Fill encoded as a hexidecimal RGB value.
      */
-    public void setColor(String rgb) {
+    public void setColor(Expression rgb) {
         color = rgb;
     }
     
@@ -86,14 +93,14 @@ public class DefaultFill implements org.geotools.styling.Fill {
      * @return The opacity of the fill, where 0.0 is completly transparent
      *  and 1.0 is completly opaque.
      */
-    public double getOpacity() {
+    public Expression getOpacity() {
         return opacity;
     }
     
     /** Setter for property opacity.
      * @param opacity New value of property opacity.
      */
-    public void setOpacity(double opacity) {
+    public void setOpacity(Expression opacity) {
         this.opacity = opacity;
     }
     

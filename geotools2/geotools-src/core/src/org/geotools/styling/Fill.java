@@ -22,7 +22,7 @@
  */
 
 package org.geotools.styling;
-
+import org.geotools.filter.Expression;
 /**
  * The Fill object encapsulates the graphical-symbolization parameters for
  * areas of geometries.<br>
@@ -55,7 +55,7 @@ public interface Fill {
      *
      * @return The color of the Fill encoded as a hexidecimal RGB value.
      **/
-    public String getColor();
+    public Expression getColor();
     
     
     /**
@@ -70,7 +70,7 @@ public interface Fill {
      * @return The opacity of the fill, where 0.0 is completely transparent and
      * 1.0 is completely opaque.
      */
-    public double getOpacity();
+    public Expression getOpacity();
     
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be 

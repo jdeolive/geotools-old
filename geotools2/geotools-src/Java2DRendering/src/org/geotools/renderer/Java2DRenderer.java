@@ -50,11 +50,11 @@ import java.awt.geom.Point2D;
 import java.util.HashMap;
 
 //Logging system
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
     
-    private static Category _log = Category.getInstance("java2drendering");
+    private static Logger _log = Logger.getLogger(Java2DRenderer.class);
     
     /**
      * Flag which controls behaviour for applying affine transformation
@@ -71,8 +71,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * Holds a lookup bewteen SLD names and java constants
      **/
     private static final java.util.HashMap capLookup = new java.util.HashMap();
-    /** 
-     * holds a list of wellknown marks 
+    /**
+     * holds a list of wellknown marks
      */
     static HashMap wellKnownMarks = new java.util.HashMap();
     
@@ -132,7 +132,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @return a boolean flag. If true then the transform will be
      * concatonated to the existing transform, if false it will be replaced.
      */
-    public boolean gatConcatTransforms(){
+    public boolean getConcatTransforms(){
         return concatTransforms;
     }
     
@@ -214,7 +214,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             for(int j=0;j<features.length;j++){
                 Feature feature = features[j];
                 _log.info("fature is "+feature.getSchema().getTypeName()+
-                          " type styler is "+fts.getFeatureTypeName());
+                " type styler is "+fts.getFeatureTypeName());
                 if(feature.getSchema().getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
                     //this styler is for this type of feature
                     //now find which rule applies
@@ -286,11 +286,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         GeneralPath path = createGeneralPath(geom);
         
         if(fill!=null){
-            graphics.setColor(Color.decode(fill.getColor()));
-            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,(float)fill.getOpacity()));
+            applyFill(fill, feature);
             graphics.fill(path);
             // shouldn't we reset the graphics when we'return finished?
-            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
+            resetFill();
         }
         if(symbolizer.getStroke() != null) {
             applyStroke(symbolizer.getStroke(), feature);
@@ -331,7 +330,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         _log.info("rendering a point from "+feature);
         org.geotools.styling.Graphic sldgraphic = symbolizer.getGraphic();
         _log.debug("sldgraphic = "+sldgraphic);
-       
+        
         String geomName =symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
         if(geom.isEmpty()){
@@ -339,17 +338,21 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             return;
         }
         // TODO: consider if mark and externalgraphic should share an ancestor?
-        /*if(null != (Object)sldgraphic.getExternalGraphics()){
+        if(null != (Object)sldgraphic.getExternalGraphics()){
             _log.debug("rendering External graphic");
             renderExternalGraphic(geom,sldgraphic);
-        }else{ */
+        }else{
             _log.debug("rendering mark");
             renderMark(geom,sldgraphic);
-        //}
+        }
     }
     
     private void renderExternalGraphic(Geometry geom, Graphic graphic){
-        // TODO: implement this metthod
+        
+        ExternalGraphic[] extgraphics = graphic.getExternalGraphics();
+        for(int i=0;i<extgraphics.length;i++){
+            _log.info("got a "+extgraphics[i].getFormat());
+        }
     }
     
     private void renderMark(Geometry geom, Graphic graphic){
@@ -357,7 +360,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         Mark mark;
         int size = 6;
         double rotation = 0;
-
+        
         if(marks == null || marks.length==0){
             _log.debug("filling default mark");
             marks = new Mark[1];
@@ -396,8 +399,24 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
         //TODO: implement fill Mark
         return;
-    }    
-        
+    }
+    private void applyFill(Fill fill, Feature feature){
+        if(fill == null ) return;
+        //HACK: not happy with having to catch exceptions, getValue should
+        //HACK: never be throwing any
+        try{
+            graphics.setColor(Color.decode((String)fill.getColor().getValue(feature)));
+            Number value = (Number)fill.getOpacity().getValue(feature);
+            float opacity = value.floatValue();
+            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity));
+        } catch (org.geotools.filter.MalformedFilterException mfe){
+            //HACK: see above hack statement, not happy with having to catch these
+            _log.error(mfe);
+        }
+    }
+    private void resetFill(){
+        graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
+    }
     /**
      * Convenience method for applying a geotools Stroke object
      * as a Graphics2D Stroke object
@@ -405,57 +424,61 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @param stroke the Stroke to apply.
      */
     private void applyStroke(org.geotools.styling.Stroke stroke, Feature feature){
+        if(stroke == null) return;
         double scale = graphics.getTransform().getScaleX();
         //HACK: not happy with having to catch exceptions, getValue should
         //HACK: never be throwing any
         try{
-        String joinType = (String)stroke.getLineJoin().getValue(feature);
-        
-        if(joinType==null) { joinType="miter"; }
-        int joinCode;
-        if(joinLookup.containsKey(joinType)){
-            joinCode = ((Integer) joinLookup.get(joinType)).intValue();
-        }
-        else{
-            joinCode = java.awt.BasicStroke.JOIN_MITER;
-        }
-        
-        String capType = (String)stroke.getLineCap().getValue(feature);
-        if(capType==null) { capType="square"; }
-        int capCode;
-        if(capLookup.containsKey(capType)){
-            capCode = ((Integer) capLookup.get(capType)).intValue();
-        }
-        else{
-            capCode = java.awt.BasicStroke.CAP_SQUARE;
-        }
-        float[] dashes = stroke.getDashArray();
-        if(dashes!=null){
-            for(int i = 0;i<dashes.length;i++){
-                dashes[i] = (float)Math.max(1,dashes[i]/(float)scale);
-            }
-        }
-        Number value = (Number)stroke.getWidth().getValue(feature);
-        float width = value.floatValue();
-        value = (Number)stroke.getDashOffset().getValue(feature);
-        float dashOffset = value.floatValue();
-        value = (Number)stroke.getOpacity().getValue(feature);
-        float opacity = value.floatValue();
-        BasicStroke stroke2d;
-        //TODO: It should not be necessary divide each value by scale.
-        if(dashes.length > 0){
-            stroke2d = new BasicStroke(
-            width/(float)scale, capCode, joinCode,
-            (float)(Math.max(1,10/scale)),dashes, dashOffset/(float)scale);
+            String joinType = (String)stroke.getLineJoin().getValue(feature);
             
-        } else {
-            stroke2d = new BasicStroke(width/(float)scale, capCode, joinCode,
-            (float)(Math.max(1,10/scale)));
-        }
-        graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity));
-        graphics.setStroke(stroke2d);
-        graphics.setColor(Color.decode((String)stroke.getColor().getValue(feature)));
-        System.out.println("stroke color "+graphics.getColor());
+            if(joinType==null) { joinType="miter"; }
+            int joinCode;
+            if(joinLookup.containsKey(joinType)){
+                joinCode = ((Integer) joinLookup.get(joinType)).intValue();
+            }
+            else{
+                joinCode = java.awt.BasicStroke.JOIN_MITER;
+            }
+            
+            String capType = (String)stroke.getLineCap().getValue(feature);
+            if(capType==null) { capType="square"; }
+            int capCode;
+            if(capLookup.containsKey(capType)){
+                capCode = ((Integer) capLookup.get(capType)).intValue();
+            }
+            else{
+                capCode = java.awt.BasicStroke.CAP_SQUARE;
+            }
+            float[] dashes = stroke.getDashArray();
+            if(dashes!=null){
+                for(int i = 0;i<dashes.length;i++){
+                    dashes[i] = (float)Math.max(1,dashes[i]/(float)scale);
+                }
+            }
+            
+            Number value = (Number)stroke.getWidth().getValue(feature);
+            float width = value.floatValue();
+            value = (Number)stroke.getDashOffset().getValue(feature);
+            float dashOffset = value.floatValue();
+            value = (Number)stroke.getOpacity().getValue(feature);
+            float opacity = value.floatValue();
+            _log.debug("width, dashoffset, opacity "+width+" "+dashOffset+" "+opacity);
+            
+            BasicStroke stroke2d;
+            //TODO: It should not be necessary divide each value by scale.
+            if(dashes.length > 0){
+                stroke2d = new BasicStroke(
+                width/(float)scale, capCode, joinCode,
+                (float)(Math.max(1,10/scale)),dashes, dashOffset/(float)scale);
+                
+            } else {
+                stroke2d = new BasicStroke(width/(float)scale, capCode, joinCode,
+                (float)(Math.max(1,10/scale)));
+            }
+            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity));
+            graphics.setStroke(stroke2d);
+            graphics.setColor(Color.decode((String)stroke.getColor().getValue(feature)));
+            System.out.println("stroke color "+graphics.getColor());
         }
         catch(org.geotools.filter.MalformedFilterException mfe){
             //HACK: see above hack statement, not happy with having to catch these

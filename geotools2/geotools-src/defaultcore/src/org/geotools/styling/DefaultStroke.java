@@ -91,6 +91,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * @param c The color of the stroke encoded as a hexidecimal RGB value.
      */
     public void setColor(Expression c) {
+        if(c == null) return;
         color = c;
     }
     
@@ -145,6 +146,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * @param offset The distance into the dash pattern that should act as the start.
      */
     public void setDashOffset(Expression offset){
+        if(offset == null) return;
         dashOffset = offset;
     }
     
@@ -208,6 +210,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * @param cap The cap style.  This can be one of "butt", "round" and "square".  There is no defined default.
      */
     public void setLineCap(Expression cap) {
+        if(cap==null) return;
         lineCap = cap;
     }
     
@@ -228,6 +231,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * "bevel". There is no defined default.
      */
     public void setLineJoin(Expression join) {
+        if(join == null) return;
         lineJoin = join;
     }
     
@@ -254,6 +258,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * @param level The opacity of the stroke, where 0.0 is completely transparent and 1.0 is completely opaque.
      */
     public void setOpacity(Expression level) {
+        if(level == null) return;
         opacity = level;
     }
     
@@ -276,6 +281,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     
     
     public void setWidth(Expression expr){
+        if(expr == null) return;
         width = expr;
     }
     
