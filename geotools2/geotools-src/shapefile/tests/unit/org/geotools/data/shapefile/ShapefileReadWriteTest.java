@@ -24,7 +24,8 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
     "statepop.shp",
     "polygontest.shp",
     "pointtest.shp",
-    "holeTouchEdge.shp"
+    "holeTouchEdge.shp",
+    "stream.shp"
   };
   final String TMP_FILE = "tmp.shp";
   

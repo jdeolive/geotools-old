@@ -64,6 +64,7 @@ public class ShapefileReader {
     public double maxY;
     ShapeType type;
     int end = 0;
+    boolean ready = false;
     /** Fetch the shape stored in this record. */    
     public Object shape() {
       return handler.read(buffer,type);
@@ -136,7 +137,10 @@ public class ShapefileReader {
       limit *= 2;
     }
     if (limit != buffer.limit()) {
-      buffer = ByteBuffer.allocateDirect(limit);
+      if (record.ready)
+        buffer = ByteBuffer.allocateDirect(limit);
+      else
+        throw new IllegalArgumentException("next before hasNext");
     }
     return buffer;
   }
@@ -230,6 +234,7 @@ public class ShapefileReader {
     }
     buffer.reset();
 
+    record.ready = true;
     // if not must be more stuff
     return true;
   }
@@ -302,11 +307,13 @@ public class ShapefileReader {
     record.number = recordNumber;
     // remember, we read one int already...
     record.end = buffer.position() + recordLength - 4;
+    record.ready = false;
     return record;
   }
   
   public Object shapeAt(int offset) throws IOException {
     buffer.position(offset);
+    record.ready = true;
     return nextRecord().shape();
   }
    

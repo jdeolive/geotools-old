@@ -20,10 +20,12 @@ import org.geotools.data.shapefile.shp.*;
 public class ShapefileTest extends TestCaseSupport {
   
   final String STATEPOP = "statepop.shp";
+  final String STATEPOP_IDX = "statepop.shx";
   final String POINTTEST = "pointtest.shp";
   final String POLYGONTEST = "polygontest.shp";
   final String HOLETOUCHEDGE = "holeTouchEdge.shp";
   final String EXTRAATEND = "extraAtEnd.shp";
+  
   
   public ShapefileTest(String testName) {
     super(testName);
@@ -65,6 +67,25 @@ public class ShapefileTest extends TestCaseSupport {
   public void testExtraAtEnd() throws Exception {
     loadShapes(EXTRAATEND,3);
   }
+  
+//  public void testIndexFile() throws Exception {
+//    ShapefileReader reader1 = new ShapefileReader(getTestResourceChannel(STATEPOP));
+//    ShapefileReader reader2 = new ShapefileReader(getTestResourceChannel(STATEPOP));
+//    IndexFile index = new IndexFile(getTestResourceChannel(STATEPOP_IDX));
+//    for (int i = 0; i < index.getRecordCount(); i++) {
+//      if (reader1.hasNext()) {
+//        Geometry g1 = (Geometry) reader1.nextRecord().shape();
+//        Geometry g2 = (Geometry) reader2.shapeAt(2 * (index.getOffset(i) - 50));
+//        //System.out.println(reader1.nextRecord().offset() + " " + (index.getOffset(i) - 100));
+//        assertTrue(g1.equalsExact(g2));
+//        
+//      } else {
+//        fail("uneven number of records");
+//      }
+//      //assertEquals(reader1.nextRecord().offset(),index.getOffset(i));
+//    }
+//  }
+  
   
   private void loadShapes(String resource,int expected) throws Exception {
     ShapefileReader reader = new ShapefileReader(getTestResourceChannel(resource));
