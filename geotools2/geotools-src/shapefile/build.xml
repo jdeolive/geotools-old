@@ -16,6 +16,7 @@
                 <fileset dir="..\..\extbin\core\lib\"/>
                 <fileset dir="..\..\extbin\shapefile\lib\"/>
                 <fileset dir="..\..\extbin\gtbuild\lib\"/>
+                <fileset dir="..\core\release\"/>
                 <path path="src"/>
             </classpath>
         </javac>
@@ -29,10 +30,11 @@
                 <fileset dir="..\..\extbin\core\lib\"/>
                 <fileset dir="..\..\extbin\shapefile\lib\"/>
                 <fileset dir="..\..\extbin\gtbuild\lib\"/>
+                <fileset dir="..\core\release\"/>
                 <path path="src"/>
                 <path path="tests/unit/"/>
             </classpath>
-            <test name="org.geotools.shapefile.ShapefileTest"/>
+            <test name="org.geotools.shapefile.ShapefileSuite"/>
         </junit>
     </target>
 </project>
