@@ -4,7 +4,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import org.geotools.data.DataSource;
-import org.geotools.gui.tools.AbstractTool;
+import org.geotools.gui.tools.Tool;
 import org.geotools.styling.Style;
 import org.opengis.cs.CS_CoordinateSystem;
 
@@ -122,6 +122,6 @@ public abstract class ContextFactory {
      * @param tool The selected tool.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public abstract SelectedTool createSelectedTool(AbstractTool tool)
+    public abstract SelectedTool createSelectedTool(Tool tool)
         throws IllegalArgumentException;
 }

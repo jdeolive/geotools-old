@@ -2,7 +2,7 @@ package org.geotools.map;
 
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.data.DataSource;
-import org.geotools.gui.tools.AbstractTool;
+import org.geotools.gui.tools.Tool;
 import org.geotools.styling.Style;
 import org.opengis.cs.CS_CoordinateSystem;
 
@@ -96,7 +96,7 @@ public class ContextFactoryImpl extends ContextFactory {
      * @param tool The selected tool.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public SelectedTool createSelectedTool(AbstractTool tool) throws IllegalArgumentException
+    public SelectedTool createSelectedTool(Tool tool) throws IllegalArgumentException
     {
         return new SelectedToolImpl(tool);
     }

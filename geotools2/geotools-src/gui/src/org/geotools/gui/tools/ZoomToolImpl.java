@@ -14,18 +14,17 @@ import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.TransformException;
 import org.geotools.gui.swing.event.GeoMouseEvent;
-import org.geotools.gui.tools.MouseToolImpl;
-//import org.geotools.gui.widget.Widget;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
+
 /**
  * Pan the map so that the new extent has the click point in the middle
  * of the map and then zoom in/out by the zoomFactor.
- * @version $Id: ZoomToolImpl.java,v 1.5 2003/03/29 10:43:23 camerons Exp $
+ * @version $Id: ZoomToolImpl.java,v 1.6 2003/03/29 22:32:55 camerons Exp $
  * @author Cameron Shorter
  */
-public class ZoomToolImpl extends AbstractToolImpl implements ZoomTool
+public class ZoomToolImpl extends AbstractTool implements ZoomTool
 {
 
     private static final Logger LOGGER = Logger.getLogger(

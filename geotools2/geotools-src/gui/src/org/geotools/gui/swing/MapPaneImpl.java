@@ -38,7 +38,7 @@ import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.gui.swing.event.GeoMouseEvent;
-import org.geotools.gui.tools.AbstractTool;
+import org.geotools.gui.tools.Tool;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.map.events.BoundingBoxListener;
@@ -54,7 +54,7 @@ import org.geotools.styling.Style;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.14 2003/03/27 11:32:17 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.15 2003/03/29 22:32:55 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.

@@ -14,13 +14,11 @@ import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.TransformException;
 import org.geotools.gui.swing.event.GeoMouseEvent;
-import org.geotools.gui.tools.MouseToolImpl;
-//import org.geotools.gui.widget.Widget;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
 
-public class PanToolImpl extends AbstractToolImpl implements PanTool {
+public class PanToolImpl extends AbstractTool implements PanTool {
 
     private static final Logger LOGGER = Logger.getLogger(
         "org.geotools.gui.tools.PanToolImpl");
@@ -29,7 +27,7 @@ public class PanToolImpl extends AbstractToolImpl implements PanTool {
 
     /**
      * Construct a PanTool.
-     * @version $Id: PanToolImpl.java,v 1.13 2003/03/28 19:08:51 camerons Exp $
+     * @version $Id: PanToolImpl.java,v 1.14 2003/03/29 22:32:55 camerons Exp $
      * @author Cameron Shorter
      */
     public PanToolImpl(){

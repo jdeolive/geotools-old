@@ -42,7 +42,7 @@ import org.geotools.feature.FeatureFactory;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFlat;
 import org.geotools.gui.swing.MapPaneImpl;
-import org.geotools.gui.tools.AbstractTool;
+import org.geotools.gui.tools.Tool;
 import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.ToolFactory;
 import org.geotools.gui.tools.ZoomTool;
@@ -61,7 +61,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.24 2003/03/29 09:38:43 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.25 2003/03/29 22:32:55 camerons Exp $
  *
  */
 
@@ -93,7 +93,7 @@ public class MapViewer2 {
         MapPaneImpl mapPane;
         LayerList layerList;
         Layer layer;
-        AbstractTool tool;
+        Tool tool;
 
 
         try {
@@ -169,6 +169,7 @@ public class MapViewer2 {
         JMenuItem panMenuItem = new javax.swing.JMenuItem();
         JMenuItem zoomInMenuItem = new javax.swing.JMenuItem();
         JMenuItem zoomOutMenuItem = new javax.swing.JMenuItem();
+        JMenuItem zoomPanMenuItem = new javax.swing.JMenuItem();
         JMenuItem noToolMenuItem = new javax.swing.JMenuItem();
 
         toolMenu.setText("Tool");
@@ -196,6 +197,14 @@ public class MapViewer2 {
             }
         });
         toolMenu.add(zoomOutMenuItem);
+        
+        zoomPanMenuItem.setText("Zoom Pan");
+        zoomPanMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                zoomPanActionPerformed(evt);
+            }
+        });
+        toolMenu.add(zoomPanMenuItem);
         
         noToolMenuItem.setText("No Tool");
         noToolMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -237,6 +246,11 @@ public class MapViewer2 {
     private void zoomOutActionPerformed(java.awt.event.ActionEvent evt){
         ToolFactory toolFactory=ToolFactory.createFactory();
         context.getSelectedTool().setTool(toolFactory.createZoomTool(0.5));
+    }
+
+    private void zoomPanActionPerformed(java.awt.event.ActionEvent evt){
+        ToolFactory toolFactory=ToolFactory.createFactory();
+        context.getSelectedTool().setTool(toolFactory.createZoomTool(1));
     }
 
     private void noToolActionPerformed(java.awt.event.ActionEvent evt){

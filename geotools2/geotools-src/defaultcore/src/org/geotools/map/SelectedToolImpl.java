@@ -23,12 +23,12 @@ package org.geotools.map;
 import java.util.EventListener;
 import java.util.EventObject;
 import javax.swing.event.EventListenerList;
-import org.geotools.gui.tools.AbstractTool;
+import org.geotools.gui.tools.Tool;
 import org.geotools.map.events.SelectedToolListener;
 
 /**
  * The tool which will process mouse events on a MapPane.
- * @version $Id: SelectedToolImpl.java,v 1.7 2003/03/28 21:22:30 camerons Exp $
+ * @version $Id: SelectedToolImpl.java,v 1.8 2003/03/29 22:32:55 camerons Exp $
  * @author  Cameron Shorter
  */
 
@@ -38,7 +38,7 @@ public class SelectedToolImpl implements SelectedTool
     /**
      * The selected tool for this context.
      */
-    private AbstractTool tool;
+    private Tool tool;
     
     /** Classes to notify if the LayerList changes */
     private EventListenerList listenerList = new EventListenerList();
@@ -47,7 +47,7 @@ public class SelectedToolImpl implements SelectedTool
      * Creates a new instance of SelectedTool.
      * @param tool The selected tool.
      */
-    protected SelectedToolImpl(AbstractTool tool)
+    protected SelectedToolImpl(Tool tool)
         throws IllegalArgumentException
     {
         this.tool=tool;
@@ -97,7 +97,7 @@ public class SelectedToolImpl implements SelectedTool
      * Get the tool.
      * @return The selected tool.
      */
-    public AbstractTool getTool(){
+    public Tool getTool(){
         return this.tool;
     }
 
@@ -106,7 +106,7 @@ public class SelectedToolImpl implements SelectedTool
      * @param tool The new tool.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public void setTool(AbstractTool tool) throws IllegalArgumentException
+    public void setTool(Tool tool) throws IllegalArgumentException
     {
         if (tool!=this.tool){
             // Stop the old tool from recieving MouseEvents

@@ -22,12 +22,12 @@ package org.geotools.map;
 
 import java.util.EventObject;
 import javax.swing.event.EventListenerList;
-import org.geotools.gui.tools.AbstractTool;
+import org.geotools.gui.tools.Tool;
 import org.geotools.map.events.SelectedToolListener;
 
 /**
  * The tool which will process mouse events on a MapPane.
- * @version $Id: SelectedTool.java,v 1.2 2003/03/27 11:32:17 camerons Exp $
+ * @version $Id: SelectedTool.java,v 1.3 2003/03/29 22:32:55 camerons Exp $
  * @author  Cameron Shorter
  */
 
@@ -50,12 +50,12 @@ public interface SelectedTool {
      * Get the tool.
      * @return The selected tool.
      */
-    public AbstractTool getTool();
+    public Tool getTool();
 
     /**
      * Set the tool.
      * @param tool The new tool.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public void setTool(AbstractTool tool) throws IllegalArgumentException;
+    public void setTool(Tool tool) throws IllegalArgumentException;
 }
