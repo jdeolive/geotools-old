@@ -34,6 +34,7 @@
 package org.geotools.gui.swing;
 
 // J2SE dependencies
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.EventQueue;
@@ -68,7 +69,7 @@ import org.geotools.renderer.j2d.GeoMouseEvent;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.22 2003/08/18 17:04:51 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.23 2003/08/22 12:43:04 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MapPane extends ZoomPane {
@@ -156,6 +157,7 @@ public class MapPane extends ZoomPane {
         renderer.setRenderingHint(Hints.REQUIRED_RESOLUTION, REQUIRED_RESOLUTION);
         renderer.addPropertyChangeListener(listenerProxy);
         ToolTipManager.sharedInstance().registerComponent(this);
+        setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
     }
 
     /**
