@@ -93,7 +93,7 @@ import org.geotools.resources.XArray;
  *   <li>The loop is reexecuted from step 1 until no more polylines have been merged.</li>
  * </ol>
  *
- * @version $Id: PolygonAssembler.java,v 1.12 2003/07/23 14:17:32 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.13 2004/01/31 13:24:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: L'implémentation actuelle de cette méthode ne prend pas en compte les
@@ -515,7 +515,7 @@ final class PolygonAssembler implements Comparator {
      * Remplace toutes les occurences de la polyligne <code>searchFor</code> par la polyligne
      * <code>replaceBy</code>. Cette méthode est appellée après que ces deux polylignes aient
      * été fusionnées ensemble. Après la fusion, une des deux polylignes n'est plus nécessaire.
-     * La rêgle voulant qu'il n'y ait jamais deux polylihnes avec la même valeur de
+     * La rêgle voulant qu'il n'y ait jamais deux polylignes avec la même valeur de
      * <code>mergeEnd</code> restera respectée si cette méthode n'est appellée qu'après
      * une fusion pour suprimer la polyligne en trop.
      *
@@ -867,24 +867,31 @@ final class PolygonAssembler implements Comparator {
                         }
                     }
                 }
+                final String appendOrder;
+                Polyline oldPath, newPath;
                 if (pair.j.mergeEnd && !pair.i.mergeEnd) {
-                    if (message != null) {
-                        message.append("Append #1 to #2");
-                        Polyline.LOGGER.log(LEVEL, message.toString());
-                    }
-                    pair.j.path.append(pair.i.path.subpoly(overlap));
-                    replace(pair.i.path, pair.j.path);
-                    remove(pair.i.path);
+                    appendOrder = "Append #1 to #2";
+                    oldPath = pair.i.path;
+                    newPath = pair.j.path;
+                } else {
+                    assert pair.i.mergeEnd && !pair.j.mergeEnd;
+                    appendOrder = "Append #2 to #1";
+                    oldPath = pair.j.path;
+                    newPath = pair.i.path;
                 }
-                else if (pair.i.mergeEnd && !pair.j.mergeEnd) {
-                    if (message != null) {
-                        message.append("Append #2 to #1");
-                        Polyline.LOGGER.log(LEVEL, message.toString());
-                    }
-                    pair.i.path.append(pair.j.path.subpoly(overlap));
-                    replace(pair.j.path, pair.i.path);
-                    remove(pair.j.path);
+                if (message != null) {
+                    message.append(appendOrder);
+                    Polyline.LOGGER.log(LEVEL, message.toString());
                 }
+                if (false) {
+                    // TODO: Why is this shape frozen?
+                    if (newPath.isFrozen()) {
+                        replace(newPath, newPath=(Polyline)newPath.clone());
+                    }
+                }
+                newPath.append(oldPath.subpoly(overlap));
+                replace(oldPath, newPath);
+                remove(oldPath);
                 /*
                  * Les opérations précédentes ayant modifié la liste, on
                  * doit demander un nouvel itérateur pour pouvoir continuer.
