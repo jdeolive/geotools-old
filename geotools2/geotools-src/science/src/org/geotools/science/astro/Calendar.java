@@ -56,7 +56,7 @@ import java.text.ParseException;
  * <a href="http://webexhibits.org/calendars/year-astronomy.html">http://webexhibits.org/calendars/year-astronomy.html</a> ainsi que
  * <a href="http://www.treasure-troves.com/astro/TropicalYear.html">http://www.treasure-troves.com/astro/TropicalYear.html</a>.</p>
  *
- * @version $Id: Calendar.java,v 1.2 2003/04/17 13:58:31 desruisseaux Exp $
+ * @version $Id: Calendar.java,v 1.3 2003/04/30 09:25:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Calendar {
@@ -90,7 +90,16 @@ public final class Calendar {
      * 1er janvier 4713 avant Jésus-Christ.
      */
     public static double julianDay(final Date time) {
-        return (time.getTime()/MILLIS_IN_DAY) + JULIAN_DAY_1970;
+        return julianDay(time.getTime());
+    }
+
+    /**
+     * Computes the {@linkplain #julianDay(Date) julian day}.
+     *
+     * @param time The date in milliseconds ellapsed since January 1st, 1970.
+     */
+    static double julianDay(final long time) {
+        return (time/MILLIS_IN_DAY) + JULIAN_DAY_1970;
     }
 
     /**

@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.awt.geom.Point2D;
 
 
 /**
@@ -80,15 +81,56 @@ import java.text.ParseException;
  * from -1000 to 3000. Outside of this range, results will be given, but the
  * potential for error is higher.
  *
- * @version $Id: SunRelativePosition.java,v 1.3 2003/04/17 15:34:14 desruisseaux Exp $
+ * @version $Id: SunRelativePosition.java,v 1.4 2003/04/30 09:25:30 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
-public final class SunRelativePosition {
+public class SunRelativePosition {
     /**
      * Number of milliseconds in a day.
      */
     private static final int DAY_MILLIS = 24*60*60*1000;
+
+    /**
+     * Valeur affectee lorsque un resultat n'est pas calculable du
+     * fait de la nuit. Cette valeur concerne les valeurs de sorties
+     * {@link #elevation} et {@link #azimuth}.
+     */
+    private static final double DARK = Double.NaN;
+
+    /**
+     * {@linkplain #getElevation Elevation angle} of astronomical twilight, in degrees.
+     * Astronomical twilight is the time of morning or evening when the sun is 18° below
+     * the horizon (solar elevation angle of -18°).
+     */
+    public static final double ASTRONOMICAL_TWILIGHT = -18;
+
+    /**
+     * {@linkplain #getElevation Elevation angle} of nautical twilight, in degrees.
+     * Nautical twilight is the time of morning or evening when the sun is 12° below
+     * the horizon (solar elevation angle of -12°).
+     */
+    public static final double NAUTICAL_TWILIGHT = -12;
+
+    /**
+     * {@linkplain #getElevation Elevation angle} of civil twilight, in degrees. Civil
+     * twilight is the time of morning or evening when the sun is 6° below the horizon
+     * (solar elevation angle of -6°).
+     */
+    public static final double CIVIL_TWILIGHT = -6;
+
+    /**
+     * Sun's {@linkplain #getElevation elevation angle} at twilight, in degrees.
+     * Common values are defined for the
+     * {@linkplain #ASTRONOMICAL_TWILIGHT astronomical twilight} (-18°),
+     * {@linkplain #NAUTICAL_TWILIGHT nautical twilight} (-12°) and
+     * {@linkplain #CIVIL_TWILIGHT civil twilight} (-6°).
+     * If no twilight are defined, then this value is {@linkplain Double#NaN NaN}.
+     * The {@linkplain #getElevation elevation} and {@linkplain #getAzimuth azimuth} are
+     * set to {@linkplain Double#NaN NaN} when the sun elevation is below the twilight
+     * value (i.e. during night). The default value is {@link #CIVIL_TWILIGHT}.
+     */
+    private double twilight = CIVIL_TWILIGHT;
 
     /**
      * Heure à laquelle le soleil est au plus haut dans la journée en millisecondes
@@ -108,32 +150,23 @@ public final class SunRelativePosition {
     private double elevation;
 
     /**
-     * Valeur affectee lorsque un resultat n'est pas calculable du
-     * fait de la nuit. Cette valeur concerne les valeurs de sorties
-     * {@link #elevation} et {@link #azimuth}.
+     * Geographic coordinate where current elevation and azimuth were computed.
+     * Value are in degrees of longitude or latitude.
      */
-    private static final double DARK = Double.NaN;
+    private double latitude, longitude;
 
     /**
-     * Zenith angle of astronomical twilight, in degrees. Astronomical twilight
-     * is the time of morning or evening when the sun is 18° below the horizon
-     * (solar elevation angle of -18°).
+     * Date and time when the current elevation and azimuth were computed.
+     * Value is in milliseconds ellapsed since midnight UTC, January 1st, 1970.
      */
-    private static final double ASTRONOMICAL_TWILIGHT = 108;
+    private long time = System.currentTimeMillis();
 
     /**
-     * Zenith angle of nautical twilight, in degrees. Nautical twilight is the
-     * time of morning or evening when the sun is 12° below the horizon (solar
-     * elevation angle of -12°).
+     * <code>true</code> is the elevation and azimuth are computed, or <code>false</code>
+     * if they need to be computed.  This flag is set to <code>false</code> when the date
+     * and/or the coordinate change.
      */
-    private static final double NAUTICAL_TWILIGHT = 102;
-
-    /**
-     * Zenith angle of civil twilight, in degrees. Civil twilight is the time of
-     * morning or evening when the sun is 6° below the horizon (solar elevation
-     * angle of -6°).
-     */
-    private static final double CIVIL_TWILIGHT = 96;
+    private boolean updated;
 
     /**
      * Calculate the equation of center for the sun. This value is a correction
@@ -382,16 +415,24 @@ public final class SunRelativePosition {
     }
 
     /**
-     * Calculates solar position for the specified date, time and location.
-     * Results are reported in azimuth and elevation in degrees.
+     * Construct a sun relative position calculator with the specified value
+     * for the {@linkplain #setTwilight sun elevation at twilight}.
      *
-     * @param longitude Longitude in degrees.
-     * @param latitude  Latitude in degrees.
-     * @param date      Date, GMT timezone.
+     * @param twilight The new sun elevation at twilight, or {@link Double#NaN}
+     *                 if no twilight value should be take in account.
+     * @throws IllegalArgumentException if the twilight value is illegal.
      */
-    public void compute(double longitude, double latitude, final Date date) {
-        if (latitude > +89.8) latitude = +89.8;
-        if (latitude < -89.8) latitude = -89.8;
+    public SunRelativePosition(final double twilight) throws IllegalArgumentException {
+        setTwilight(twilight);
+    }
+
+    /**
+     * Calculates solar position for the current date, time and location.
+     * Results are reported in azimuth and elevation in degrees.
+     */
+    private void compute() {
+        double latitude  = this.latitude;
+        double longitude = this.longitude;
 
         // NOAA convention use positive longitude west, and negative east.
         // Inverse the sign, in order to be closer to OpenGIS convention.
@@ -399,13 +440,13 @@ public final class SunRelativePosition {
 
         // Compute: 1) Julian day (days ellapsed since January 1, 4723 BC at 12:00 GMT).
         //          2) Time as the centuries ellapsed since January 1, 2000 at 12:00 GMT.
-        final double julianDay = Calendar.julianDay(date);
+        final double julianDay = Calendar.julianDay(this.time);
         final double time      = (julianDay-2451545)/36525;
 
         double solarDec = sunDeclination(time);
         double eqTime   = equationOfTime(time);
         this.noonTime   = Math.round(solarNoonTime(longitude, eqTime) * (60*1000)) +
-                          (date.getTime()/DAY_MILLIS)*DAY_MILLIS;
+                          (this.time/DAY_MILLIS)*DAY_MILLIS;
 
         // Formula below use longitude in degrees. Steps are:
         //   1) Extract the time part of the date, in minutes.
@@ -457,13 +498,114 @@ public final class SunRelativePosition {
         final double refractionCorrection = refractionCorrection(Math.toDegrees(zenith));
         final double solarZen = Math.toDegrees(zenith) - refractionCorrection;
 
-        if (solarZen < ASTRONOMICAL_TWILIGHT) {
-            elevation = 90 - solarZen;
-        } else {
-            // do not report azimuth & elevation after astro twilight
+        elevation = 90 - solarZen;
+        if (elevation < twilight) {
+            // do not report azimuth & elevation after twilight
             azimuth   = DARK;
             elevation = DARK;
         }
+        updated = true;
+    }
+
+    /**
+     * Calculates solar position for the specified date, time and location.
+     * Results are reported in azimuth and elevation in degrees.
+     *
+     * @param longitude Longitude in degrees.
+     * @param latitude  Latitude in degrees.
+     * @param date      Date, GMT timezone.
+     *
+     * @deprecated Use {@link #setCoordinate(double,double)} and {@link #setDate(Date)} instead.
+     */
+    public void compute(double longitude, double latitude, final Date date) {
+        setCoordinate(longitude, latitude);
+        setDate(date);
+    }
+
+    /**
+     * Set the geographic coordinate where to compute the {@linkplain #getElevation elevation}
+     * and {@linkplain #getAzimuth azimuth}.
+     *
+     * @param longitude The longitude in degrees. Positive values are East; negative values are West.
+     * @param latitude  The latitude in degrees. Positive values are North, negative values are South.
+     */
+    public void setCoordinate(double longitude, double latitude) {
+        if (latitude > +89.8) latitude = +89.8;
+        if (latitude < -89.8) latitude = -89.8;
+        this.latitude  = latitude;
+        this.longitude = longitude;
+        this.updated   = false;
+    }
+
+    /**
+     * Set the geographic coordinate where to compute the {@linkplain #getElevation elevation}
+     * and {@linkplain #getAzimuth azimuth}.
+     *
+     * @param point The geographic coordinates in degrees of longitude and latitude.
+     */
+    public void setCoordinate(final Point2D point) {
+        setCoordinate(point.getX(), point.getY());
+    }
+
+    /**
+     * Returns the coordinate used for {@linkplain #getElevation elevation} and
+     * {@linkplain #getAzimuth azimuth} computation. This is the coordinate
+     * specified during the last call to a {@link #setCoordinate(double,double)
+     * setCoordinate(...)} method.
+     */
+    public Point2D getCoordinate() {
+        return new Point2D.Double(longitude, latitude);
+    }
+
+    /**
+     * Set the date and time when to compute the {@linkplain #getElevation elevation}
+     * and {@linkplain #getAzimuth azimuth}.
+     *
+     * @param date The date and time.
+     */
+    public void setDate(final Date date) {
+        this.time = date.getTime();
+        this.updated = false;
+    }
+
+    /**
+     * Returns the date used for {@linkplain #getElevation elevation} and
+     * {@linkplain #getAzimuth azimuth} computation. This is the date specified
+     * during the last call to {@link #setDate}.
+     */
+    public Date getDate() {
+        return new Date(time);
+    }
+
+    /**
+     * Set the sun's {@linkplain #getElevation elevation angle} at twilight, in degrees.
+     * Common values are defined for the
+     * {@linkplain #ASTRONOMICAL_TWILIGHT astronomical twilight} (-18°),
+     * {@linkplain #NAUTICAL_TWILIGHT nautical twilight} (-12°) and
+     * {@linkplain #CIVIL_TWILIGHT civil twilight} (-6°).
+     * The {@linkplain #getElevation elevation} and {@linkplain #getAzimuth azimuth} are
+     * set to {@linkplain Double#NaN NaN} when the sun elevation is below the twilight
+     * value (i.e. during night). The default value is {@link #CIVIL_TWILIGHT}.
+     *
+     * @param twilight The new sun elevation at twilight, or {@link Double#NaN}
+     *                 if no twilight value should be take in account.
+     * @throws IllegalArgumentException if the twilight value is illegal.
+     */
+    public void setTwilight(final double twilight) throws IllegalArgumentException {
+        if (twilight<-90 || twilight>-90) {
+            // TODO: provides a better (localized) message.
+            throw new IllegalArgumentException(String.valueOf(twilight));
+        }
+        this.twilight = twilight;
+        this.updated = false;
+    }
+
+    /**
+     * Returns the sun's {@linkplain #getElevation elevation angle} at twilight, in degrees.
+     * This is the value set during the last call to {@link #setTwilight}.
+     */
+    public double getTwilight() {
+        return twilight;
     }
 
     /**
@@ -472,6 +614,9 @@ public final class SunRelativePosition {
      * @return L'azimuth en degrés.
      */
     public double getAzimuth() {
+        if (!updated) {
+            compute();
+        }
         return azimuth;
     }
 
@@ -481,6 +626,9 @@ public final class SunRelativePosition {
      * @return L'élévation en degrés.
      */
     public double getElevation() {
+        if (!updated) {
+            compute();
+        }
         return elevation;
     }
 
@@ -490,6 +638,9 @@ public final class SunRelativePosition {
      * journée (minuit) en heure UTC.
      */
     public long getNoonTime() {
+        if (!updated) {
+            compute();
+        }
         return noonTime % DAY_MILLIS;
     }
 
@@ -499,6 +650,9 @@ public final class SunRelativePosition {
      * de la date qui avait été spécifiée à la méthode {@link #compute}.
      */
     public Date getNoonDate() {
+        if (!updated) {
+            compute();
+        }
         return new Date(noonTime);
     }
 
@@ -523,7 +677,8 @@ public final class SunRelativePosition {
             case 1: longitude = Double.parseDouble(args[0]); // fall through
         }
         final SunRelativePosition calculator = new SunRelativePosition();
-        calculator.compute(longitude, latitude, time);
+        calculator.setDate(time);
+        calculator.setCoordinate(longitude, latitude);
         System.out.print("Date (UTC): "); System.out.println(format.format(time));
         System.out.print("Longitude:  "); System.out.println(longitude);
         System.out.print("Latitude:   "); System.out.println(latitude);
