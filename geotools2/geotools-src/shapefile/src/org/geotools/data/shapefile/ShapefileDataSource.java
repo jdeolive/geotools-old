@@ -51,7 +51,7 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.4 2003/05/19 16:12:56 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.5 2003/05/19 20:51:29 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -624,7 +624,9 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       if(o instanceof Date)
         return o;
     }
-    System.out.println("NULL -> " + colType);
+    // this is kinda bad
+    Logger l = Logger.getLogger("org.geotools.data.shapefile");
+    l.warning("cannot determine writeable class for " + colType);
     return null;
   }
   

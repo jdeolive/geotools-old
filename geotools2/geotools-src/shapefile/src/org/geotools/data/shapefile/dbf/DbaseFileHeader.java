@@ -27,6 +27,7 @@ import java.util.*;
 import java.nio.*;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.logging.*;
 
 /** Class to represent the header of a Dbase III file.
  * Creation date: (5/15/2001 5:15:30 PM)
@@ -57,7 +58,7 @@ public class DbaseFileHeader {
   
   private int largestFieldSize = 0;
   
-  public static boolean loudAndAnnoying = false;
+  private Logger logger = Logger.getLogger("org.geotools.data.shapefile");
   
   /**
    * Class for holding the information assicated with a record.
@@ -284,9 +285,8 @@ public class DbaseFileHeader {
    * @todo addProgessListener handling
    */
   private void warn(String inWarn){
-    if (!loudAndAnnoying) return;
-    System.out.print("WARNING: ");
-    System.out.println(inWarn);
+    if (logger.isLoggable(Level.WARNING))
+      logger.warning(inWarn); 
   }
   
   

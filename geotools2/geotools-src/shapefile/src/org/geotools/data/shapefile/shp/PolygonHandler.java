@@ -23,6 +23,7 @@ import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.algorithm.RobustCGAlgorithms;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.logging.*;
 import java.awt.geom.Point2D;
 
 
@@ -34,7 +35,7 @@ import java.awt.geom.Point2D;
  */
 public class PolygonHandler implements ShapeHandler {
   GeometryFactory geometryFactory = new GeometryFactory();
-  RobustCGAlgorithms cga = new RobustCGAlgorithms();
+  RobustCGAlgorithms cga = new RobustCGAlgorithms();  
   
   final ShapeType shapeType;
   
@@ -195,8 +196,8 @@ public class PolygonHandler implements ShapeHandler {
     }
     // if for some reason, there is only one hole, we just reverse it and carry on.
     else if (holes.size() == 1 && shells.size() == 0) {
-      System.out.println("WARNING - only one hole in this polygon record");
-      System.out.flush();
+      Logger.getLogger("org.geotools.data.shapefile").warning(
+      "only one hole in this polygon record");
       return createMulti(
         JTSUtilities.reverseRing( (LinearRing) holes.get(0) )
       );
@@ -242,7 +243,9 @@ public class PolygonHandler implements ShapeHandler {
         }
         
         if (minShell == null) {
-          System.out.println("WARNING : polygon found with a hole thats not inside a shell");
+          Logger.getLogger("org.geotools.data.shapefile").warning(
+          "polygon found with a hole thats not inside a shell"
+          );
           // now reverse this bad "hole" and turn it into a shell
           shells.add(JTSUtilities.reverseRing(testRing));
           holesForShells.add(new ArrayList());
@@ -400,6 +403,9 @@ public class PolygonHandler implements ShapeHandler {
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.2  2003/05/19 20:51:30  ianschneider
+ * removed System.out print statements
+ *
  * Revision 1.1  2003/05/14 17:51:21  ianschneider
  * migrated packages
  *
