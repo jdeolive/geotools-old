@@ -42,6 +42,7 @@ import java.util.Locale;
 import java.util.Arrays;
 import java.io.Serializable;
 import java.awt.RenderingHints;
+import java.awt.image.DataBuffer; // For JavaDoc
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
@@ -89,7 +90,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.7 2002/07/26 22:17:33 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.8 2002/07/29 15:15:28 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -582,16 +583,17 @@ public class SampleDimension implements Serializable {
     
     /**
      * Returns the range of values in this sample dimension. This is the union of the range of
-     * values of every categories, excluding <code>NaN</code> values.   A {@link Range} object
-     * give more informations than {@link #getMinimum} and {@link getMaximum} methods since it
-     * contains also the data type (integer, float, etc.) and inclusion/exclusion informations.
+     * values of every categories, excluding <code>NaN</code> values. A {@link Range} object
+     * gives more informations than {@link #getMinimumValue} and {@link #getMaximumValue} methods
+     * since it contains also the data type (integer, float, etc.) and inclusion/exclusion
+     * informations.
      *
      * @return The range of values. May be <code>null</code> if this sample dimension has no
      *         quantitative category.
      *
      * @see Category#getRange
-     * @see #getMinimum
-     * @see #getMaximum
+     * @see #getMinimumValue
+     * @see #getMaximumValue
      */
     public Range getRange() {
         return (categories!=null) ? categories.getRange() : null;
@@ -617,7 +619,7 @@ public class SampleDimension implements Serializable {
      *
      * <blockquote><pre>offset + scale*sample</pre></blockquote>
      *
-     * Together with {@link #getSample()} and {@link #getNoDataValue()}, this method provides a
+     * Together with {@link #getScale()} and {@link #getNoDataValue()}, this method provides a
      * limited way to transform sample values into geophysics values. However, the recommended
      * way is to use the {@link #getSampleToGeophysics sampleToGeophysics} transform instead,
      * which is more general and take care of converting automatically "no data" values into

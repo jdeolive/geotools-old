@@ -96,7 +96,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.6 2002/07/27 22:08:44 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.7 2002/07/29 15:15:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
@@ -148,7 +148,7 @@ public class Category implements Serializable {
      *
      * If this category is an instance of <code>GeophysicsCategory</code>, then this transform
      * is the inverse (as computed by {@link MathTransform#inverse()}, except for qualitative
-     * categories. Since {@link #getSampleToGeographic} returns <code>null</code> for
+     * categories. Since {@link #getSampleToGeophysics} returns <code>null</code> for
      * qualitative categories, this difference is not visible to the user.
      *
      * @see CV_SampleDimension#getScale()
@@ -810,10 +810,10 @@ public class Category implements Serializable {
      * This is an optimisation for speeding up RMI.
      *
      * We keep this method private because we don't need to canonicalize
-     * {@link GeophysicsCategory} for most serialization/deserialization
+     * <code>GeophysicsCategory</code> for most serialization/deserialization
      * operations. Canonicalizing {@link Category} is suffisient because
      * if two {@link Category} objects are not equal, then we are are sure
-     * that their enclosed {@link GeophysicsCategory} are not equal neither.
+     * that their enclosed <code>GeophysicsCategory</code> are not equal neither.
      */
     private Object writeReplace() throws ObjectStreamException {
         return pool.canonicalize(this);
@@ -822,7 +822,7 @@ public class Category implements Serializable {
     /**
      * Canonicalize this category after deserialization.
      * This is an attempt to reduce memory footprint. This
-     * method is private for the same reason than {@link #writeReplace}.
+     * method is private for the same reason than <code>writeReplace()</code>.
      */
     private Object readResolve() throws ObjectStreamException {
         return pool.canonicalize(this);

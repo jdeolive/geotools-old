@@ -97,9 +97,9 @@ import org.opengis.cv.CV_Coverage;
  * may be queried in many ways:
  *
  * <ul>
- *   <li><code>{@link #getSourceCoordinateSystem()}.getDimension();</code></li>
- *   <li><code>{@link #getDimensionNames()}.length;</code></li>
- *   <li><code>{@link #getDimension()};</code></li>
+ *   <li><code>{@link #getCoordinateSystem}.getDimension();</code></li>
+ *   <li><code>{@link #getDimensionNames}.length;</code></li>
+ *   <li><code>{@link #getDimension};</code></li>
  * </ul>
  *
  * All those methods should returns the same number.   Note that the dimension
@@ -111,7 +111,7 @@ import org.opengis.cv.CV_Coverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.4 2002/07/26 22:17:33 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.5 2002/07/29 15:15:28 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *

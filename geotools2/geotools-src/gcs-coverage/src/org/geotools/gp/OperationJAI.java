@@ -93,7 +93,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.7 2002/07/28 19:25:30 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.8 2002/07/29 15:15:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -231,9 +231,9 @@ public class OperationJAI extends Operation {
      *       <code>{@link GridCoverage#geophysics GridCoverage.geophysics}(true)</code>.
      *       This allow to performs all computation on geophysics values instead of encoded
      *       samples.</li>
-     *   <li>Invoke {@link #doOperation(GridCoverage[], ParameterBlockJAI, JAI)}. The sources
-     *       in the <code>ParameterBlock</code> are {@link RenderedImage} objects obtained
-     *       with {@link GridCoverage#getRenderedImage()}.</li>
+     *   <li>Invoke {@link #doOperation(GridCoverage[], ParameterBlockJAI, RenderingHints)}.
+     *       The sources in the <code>ParameterBlock</code> are {@link RenderedImage} objects
+     *       obtained with {@link GridCoverage#getRenderedImage()}.</li>
      *   <li>If the source <code>GridCoverage</code>s was not a geophysics model, convert the
      *       result back to the same type with <code>GridCoverage.geophysics}(false)</code>.</li>
      * </ul>
@@ -480,9 +480,12 @@ public class OperationJAI extends Operation {
      * operation may implement this method as below:
      *
      * <blockquote><pre>
-     * double min = categories[0].{@link Category#minimum minimum} + categories[1].minimum;
-     * double max = categories[0].{@link Category#maximum maximum} + categories[1].maximum;
-     * return categories[0].rescale(min, max);
+     * Range r0 = categories[0].getRange();
+     * Range r1 = categories[0].getRange();
+     * double min = ((Number)r0.getMinValue()).doubleValue() + ((Number)r1.getMinValue()).doubleValue();
+     * double min = ((Number)r0.getMaxValue()).doubleValue() + ((Number)r1.getMaxValue()).doubleValue();
+     * final Range newRange = new Range(Double.class, new Double(min), new Double(max));
+     * return new Category("My category", null, r0, newRange);
      * </pre></blockquote>
      *
      * @param  categories The quantitative categories from every sources.
