@@ -16,13 +16,6 @@
  */
 package org.geotools.data.postgis;
 
-
-//JTS imports
-
-//geotools imports
-import java.io.IOException;
-import java.util.NoSuchElementException;
-
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureLock;
@@ -38,37 +31,46 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.FidFilter;
 import org.geotools.filter.Filter;
 
+//JTS imports
+//geotools imports
+import java.io.IOException;
+import java.util.NoSuchElementException;
+
 
 /**
  * Extends PostgisFeatureLocking with support for Locking.
+ * 
  * <p>
  * This class will be, horror, modey. While the are plenty of Object Oriented
  * ways to fix this I have a deadline right now.
  * </p>
+ * 
  * <p>
  * When the DataStore is constructed it will create a LockingManager only if
  * the Postgis implementation does not support database locking. If the
  * lockingManger is present it will be used.
  * </p>
- * <p>
- * If the lockingManger is not present, the this class will
- * use Database locking
- * </p>
  * 
- * @author Jody Garnett, Refractions Research, Inc
- * @version $Id: PostgisFeatureLocking.java,v 1.6 2003/11/22 00:31:02 jive Exp $
+ * <p>
+ * If the lockingManger is not present, the this class will use Database
+ * locking
+ * </p>
  *
+ * @author Jody Garnett, Refractions Research, Inc
+ * @version $Id: PostgisFeatureLocking.java,v 1.7 2003/11/22 01:02:45 cholmesny Exp $
  */
-public class PostgisFeatureLocking extends PostgisFeatureStore implements FeatureLocking {
+public class PostgisFeatureLocking extends PostgisFeatureStore
+    implements FeatureLocking {
     FeatureLock featureLock = FeatureLock.TRANSACTION;
-    
+
     public PostgisFeatureLocking(PostgisDataStore postgisDataStore,
         FeatureType featureType) throws IOException {
         super(postgisDataStore, featureType);
     }
-    
+
     /**
      * Provide a FeatureLock for locking opperations to opperate against.
+     * 
      * <p>
      * Initial Transactional duration locks can be restored with
      * setFeatureLock( FetaureLock.TRANSACTION )
@@ -114,7 +116,7 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
      * @see org.geotools.data.FeatureLocking#lockFeatures(org.geotools.filter.Filter)
      */
     public int lockFeatures(Filter filter) throws IOException {
-        return lockFeatures(new DefaultQuery( getSchema().getTypeName(), filter));
+        return lockFeatures(new DefaultQuery(getSchema().getTypeName(), filter));
     }
 
     /**
@@ -139,43 +141,49 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
      */
     public int lockFeatures(Query query) throws IOException {
         LockingManager lockingManager = getDataStore().getLockingManager();
-        
+
         if (lockingManager == null) {
             throw new UnsupportedOperationException(
                 "DataStore not using lockingManager, must provide alternate implementation");
         }
-        String typeName = getSchema().getTypeName();        
-                
-        if( query.getTypeName() != null &&
-            !typeName.equals( query.getTypeName() )){
-            throw new IOException("Query typeName does not match "+getSchema().getTypeName()+":"+query);   
+
+        String typeName = getSchema().getTypeName();
+
+        if ((query.getTypeName() != null)
+                && !typeName.equals(query.getTypeName())) {
+            throw new IOException("Query typeName does not match "
+                + getSchema().getTypeName() + ":" + query);
         }
+
         //
         // WILD HACK FOR SPEED
         //
-        boolean SPEED_HACK_ENABLED = true;         
-        if( SPEED_HACK_ENABLED &&
-            query.getPropertyNames() == Query.NO_NAMES &&
-            query.getFilter() instanceof FidFilter ){
+        boolean SPEED_HACK_ENABLED = true;
+
+        if (SPEED_HACK_ENABLED && (query.getPropertyNames() == Query.NO_NAMES)
+                && query.getFilter() instanceof FidFilter) {
             Transaction transaction = getTransaction();
             FidFilter fidFilter = (FidFilter) query.getFilter();
-            String fids[] = fidFilter.getFids();
+            String[] fids = fidFilter.getFids();
             int count = 0;
-            for ( int i=0; i<fids.length;i++){
+
+            for (int i = 0; i < fids.length; i++) {
                 try {
-                    lockingManager.lockFeatureID( typeName, fids[i], transaction, featureLock );
+                    lockingManager.lockFeatureID(typeName, fids[i],
+                        transaction, featureLock);
                     count++;
-                }
-                catch( IOException io){
+                } catch (IOException io) {
                     // could not aquire - don't increment count
                 }
-            }                 
+            }
+
             return count;
         }
-        
+
         // Reduce the Query to only return the FetureID here?
         //
-        Query optimizedQuery = new DefaultQuery( typeName, query.getFilter(), query.getMaxFeatures(), Query.NO_NAMES, query.getHandle() ); 
+        Query optimizedQuery = new DefaultQuery(typeName, query.getFilter(),
+                query.getMaxFeatures(), Query.NO_NAMES, query.getHandle());
         FeatureReader reader = getFeatures(optimizedQuery).reader();
         Feature feature;
         int count = 0;
@@ -185,7 +193,7 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
                 try {
                     feature = reader.next();
                     lockingManager.lockFeatureID(typeName, feature.getID(),
-                    transaction, featureLock);
+                        transaction, featureLock);
                     count++;
                 } catch (FeatureLockException locked) {
                     // could not aquire - don't increment count                
@@ -202,6 +210,38 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
         }
 
         return count;
+    }
+
+    /**
+     * HACK HACK HACK!!!  Don't use unless you're working on geoserver. just
+     * using ints for return now, to easily swap out with what we've got going
+     * on right now.
+     *
+     * @param feature DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IOException DOCUMENT ME!
+     * @throws UnsupportedOperationException DOCUMENT ME!
+     */
+    public int lockFeature(Feature feature) throws IOException {
+        LockingManager lockingManager = getDataStore().getLockingManager();
+
+        if (lockingManager == null) {
+            throw new UnsupportedOperationException(
+                "DataStore not using lockingManager, must provide alternate implementation");
+        }
+
+        try {
+            //TODO: more checking here, check feature.typename == this.typename
+            //perhaps even feature.getFeatureType == this.featureType.
+            lockingManager.lockFeatureID(tableName, feature.getID(),
+                getTransaction(), featureLock);
+
+            return 1;
+        } catch (FeatureLockException locked) {
+            return 0;
+        }
     }
 
     /**
@@ -225,7 +265,7 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
      * @see org.geotools.data.FeatureLocking#unLockFeatures(org.geotools.filter.Filter)
      */
     public void unLockFeatures(Filter filter) throws IOException {
-        unLockFeatures(new DefaultQuery( getSchema().getTypeName(), filter));
+        unLockFeatures(new DefaultQuery(getSchema().getTypeName(), filter));
     }
 
     /**
@@ -331,5 +371,5 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
         }
 
         lockingManager.releaseLock(authID, getTransaction());
-    }    
+    }
 }
