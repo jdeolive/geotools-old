@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/10/25 10:35:08 $</date>
+    <date>$Date: 2002/10/27 09:54:45 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -724,8 +724,8 @@ void example(int i) {
         Studio</ulink> (previously Forte for J).</para>
       </section>
 
-      <section>
-        <title id="netbeansprerequisites">Prerequisites</title>
+      <section id="netbeansprerequisites">
+        <title>Prerequisites</title>
 
         <para>Before setting up Netbeans for geotools development you need to:</para>
 
@@ -753,8 +753,8 @@ void example(int i) {
         </itemizedlist>
       </section>
 
-      <section>
-        <title id="netbeanscompileoptions">Compile Options</title>
+      <section id="netbeanscompileoptions">
+        <title>Compile Options</title>
 
         <para>As <link linkend="java">mentioned</link>, geotools needs to be
         compiled with a recent Java compiler. This is done from the following
@@ -767,8 +767,8 @@ void example(int i) {
         to &#34;True&#34;.</para>
       </section>
 
-      <section>
-        <title id="netbeansmodules">Adding Modules</title>
+      <section id="netbeansmodules">
+        <title>Adding Modules</title>
 
         <para>A few modules should be added to the standard Netbeans install
         to help geotools development. For use installed from the Netbeans
@@ -840,8 +840,8 @@ void example(int i) {
         </itemizedlist>
       </section>
 
-      <section>
-        <title id="mounting">Mounting Directories</title>
+      <section id="netbeansmounting">
+        <title>Mounting Directories</title>
 
         <para>You will need to mount the geotools2 repository. In the Explorer
         window, right click on Filesystems, select <command>Mount-&#62;Version
@@ -879,6 +879,20 @@ void example(int i) {
         directories first. This means that compiled code in the Netbeans
         modules will take precedance over the jar files and you will not need
         to do a full build during development.</para>
+      </section>
+
+      <section>
+        <title>Using Projects</title>
+
+        <para>After mounting all the directories from the previous section,
+        your netbeans window explorer may be a bit crowded. You can create a
+        managable view of your classes by creating a project.</para>
+
+        <para>Right click on your files or modules in the windows explorer,
+        then select <command>Tools-&#62;Add to Project</command>.</para>
+
+        <para>You can now view your files by selecting the <command>Project</command>
+        tab in the explorer.</para>
       </section>
     </section>
 
