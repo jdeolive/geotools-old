@@ -26,10 +26,10 @@ import org.geotools.feature.*;
 /**
  * Implements a default expression, with helpful variables and static methods.
  *
- * @version $Id: ExpressionDefault.java,v 1.4 2002/07/22 20:21:55 jmacgill Exp $
+ * @version $Id: DefaultExpression.java,v 1.1 2002/10/23 16:04:31 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class ExpressionDefault implements Expression {
+public class DefaultExpression implements Expression {
 
 
     /** Defines the type of this expression. */

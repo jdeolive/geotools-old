@@ -37,10 +37,10 @@ import org.geotools.feature.*;
  * For example, the left value is the numerator and the right is the
  * denominator in an ExpressionMath division operation.
  *
- * @version $Id: ExpressionMath.java,v 1.6 2002/08/14 20:38:18 cholmesny Exp $
+ * @version $Id: MathExpression.java,v 1.1 2002/10/23 16:04:31 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class ExpressionMath extends ExpressionDefault {
+public class MathExpression extends DefaultExpression {
 
     /** Holds the 'left' value of this math expression. */
     protected Expression leftValue = null;
@@ -55,7 +55,7 @@ public class ExpressionMath extends ExpressionDefault {
      * @param expressionType The mathematical relationship between values.
      * @throws IllegalFilterException Attempting to declare illegal type.
      */
-    public ExpressionMath (short expressionType)
+    public MathExpression (short expressionType)
         throws IllegalFilterException {
 
         // Check to see if this is a valid math type before adding.
@@ -186,7 +186,7 @@ public class ExpressionMath extends ExpressionDefault {
      */
      public boolean equals(Object obj) {
 	if (obj.getClass() == this.getClass()){
-	    ExpressionMath expMath = (ExpressionMath)obj;
+	    MathExpression expMath = (MathExpression)obj;
 	    return (expMath.getType() == this.expressionType &&
 		    expMath.getLeftValue().equals(this.leftValue) &&
 		    expMath.getRightValue().equals(this.rightValue));
