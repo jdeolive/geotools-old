@@ -20,7 +20,7 @@
         <TD>A flexible enumeration that uses string values for expressing a list of
             potential values.</TD>
         <TD nowrap><CODE>org.opengis.util.CodeList <strong>extends</strong>
-        <A HREF="http://java.sun.com/j2se/1.5/docs/api/java/lang/Enum.html">java.lang.Enum</A></CODE></TD></TR>
+        <A HREF="http://java.sun.com/j2se/1.5/docs/api/java/lang/Enum.html">java.lang.Enum</A><SUP>*</SUP></CODE></TD></TR>
     <TR><TD nowrap valign='top'><CODE>&lt;&lt;Union&gt;&gt;</CODE></TD>
         <TD>Contains a list of attributes where only one of those attributes can be
             present at any time.</TD>
@@ -50,5 +50,15 @@
         <TD nowrap>Array or
         <CODE><A HREF="http://java.sun.com/j2se/1.4/docs/api/java/util/List.html">java.util.List</A></CODE></TD></TR>
   </TABLE>
+
+  <P ALIGN="right"><SUP>*</SUP> For platform earlier than J2SE 1.5, the <code>CodeList</code>
+  class will defines the same attributes than <code>Enum</code> but will not
+  extends <code>Enum</code>.</P>
+
+  <P>&nbsp;</P>
+  <H2>Custom Javadoc tags</H2>
+  <P ALIGN=justify>OpenGIS's <CITE>Mandatory</CITE>, <CITE>Conditional</CITE> and
+  <CITE>Optional</CITE> attributes are marked using custom <code>@mandatory</code>,
+  <code>@conditional</code> and <code>@optional</code> javadoc tags respectively.</P>
   </BODY>
 </HTML>
