@@ -9,6 +9,7 @@
             <classpath>
                 <fileset dir="..\..\extbin\shapefile\lib\"/>
                 <fileset dir="..\..\extbin\core\lib\"/>
+                <fileset dir="..\core\release\"/>
             </classpath>
         </javac>
         <javac debug="true" srcdir="tests/unit">
