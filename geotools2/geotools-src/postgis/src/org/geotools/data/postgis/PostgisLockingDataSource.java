@@ -400,6 +400,9 @@ public class PostgisLockingDataSource extends PostgisDataSource
      */
     public void releaseLock(String authID) throws DataSourceException {
         // long term locks are not supported yet
+        throw new UnsupportedOperationException(
+            "Relesae Lock not supported"
+        );
     }
 
     /**
@@ -414,6 +417,9 @@ public class PostgisLockingDataSource extends PostgisDataSource
      */
     public void refreshLock(String authID) throws DataSourceException {
         // long term locks are not supported yet
+        throw new UnsupportedOperationException(
+            "Refresh Lock not supported"
+        );
     }
 
     /**
@@ -454,6 +460,9 @@ public class PostgisLockingDataSource extends PostgisDataSource
      * @see org.geotools.data.LockingDataSource#unLockFeatures(org.geotools.data.Query)
      */
     public void unLockFeatures(Query query) throws DataSourceException {
-        // long term locks are not supported yet        
+        // long term locks are not supported yet
+        throw new UnsupportedOperationException(
+            "Unlock Features not supported"
+        );
     }    
 }
