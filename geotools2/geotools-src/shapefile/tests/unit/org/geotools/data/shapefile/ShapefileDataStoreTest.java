@@ -54,6 +54,14 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         assertEquals("Number of Attributes",253,types.length);
     }
     
+    public void testSpacesInPath() throws Exception {
+        URL u = getTestResource("legacy folder/pointtest.shp");
+        File f = new File(u.getFile());
+        assertTrue(f.exists());
+        ShapefileDataStore s = new ShapefileDataStore(u);
+        loadFeatures(s);
+    }
+    
     /**
      * Test envelope versus old DataSource
      */

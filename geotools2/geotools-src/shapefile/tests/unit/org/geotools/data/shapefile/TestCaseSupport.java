@@ -12,6 +12,7 @@ import java.io.*;
 import junit.framework.*;
 import java.net.*;
 import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
 import java.util.zip.*;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
@@ -21,10 +22,24 @@ import org.geotools.feature.FeatureCollection;
  * @author  Ian Schneider
  */
 public abstract class TestCaseSupport extends TestCase {
-
+    
+  // make sure unzipping of data only occurs once per suite
+  static boolean prepared = false;
+  // used for locating the base of testData, TestCaseSupportTest will modify
+  // this to do its own tests.
+  String baseDir = "";
+  // store all temp files here - delete on tear down
+  ArrayList tmpFiles = new ArrayList();
+    
   /** Creates a new instance of TestCaseSupport */
   public TestCaseSupport(String name) {
     super(name);
+    prepareData();
+  }
+  
+  public TestCaseSupport(String name,String baseDir) {
+    super(name);
+    this.baseDir = baseDir;
     prepareData();
   }
   
@@ -38,14 +53,42 @@ public abstract class TestCaseSupport extends TestCase {
     }
   }
   
+  protected void tearDown() throws Exception {
+    // it seems that not all files marked as temp will get erased, perhaps 
+    // this is because they have been rewritten? Don't know, don't _really_
+    // care, so I'll just delete everything
+    java.util.Iterator f = tmpFiles.iterator();
+    while (f.hasNext()) {
+        File tf = (File) f.next();
+        sibling(tf,"dbf").delete();
+        sibling(tf,"shx").delete();
+        tf.delete();
+        f.remove();
+    }
+  }
+  
+  private File sibling(File f,String ext) {
+    String name = f.getName();
+    name = name.substring(0,name.indexOf('.') + 1);
+    return new File(f.getParent(),name + ext);
+  }
+  
   private void prepareData() {
+    if (prepared) return;
+    prepared = true;
+    System.out.println("preparing test data");
     ZipInputStream zip = new ZipInputStream(getTestResourceAsStream("data.zip"));
-    File base = new File(getTestResource("").getPath());
+    File base = new File(getTestResource(baseDir).getPath());
     try {
       ZipEntry entry;
       byte[] bytes = new byte[8096];
       while ( (entry = zip.getNextEntry()) != null) {
         File dest = new File(base,entry.getName());
+        // support for directories in zip file
+        if (entry.isDirectory()) {
+            dest.mkdir();
+            continue;
+        }
         FileOutputStream fout = new FileOutputStream(dest);
         int r;
         while (zip.available() == 1 && (r = zip.read(bytes)) != -1) {
@@ -92,7 +135,9 @@ public abstract class TestCaseSupport extends TestCase {
   
   protected File getTempFile() throws IOException {
     
-    File tmpFile = File.createTempFile("test_shp","shp");
+    File tmpFile = File.createTempFile("test-shp",".shp");
+    // keep track of all temp files so we can delete them
+    tmpFiles.add(tmpFile);
     try {
       tmpFile.createNewFile();
     } catch (IOException ioe) {

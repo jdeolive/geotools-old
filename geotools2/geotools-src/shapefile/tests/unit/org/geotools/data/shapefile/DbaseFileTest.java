@@ -22,7 +22,7 @@ import org.geotools.data.shapefile.dbf.*;
  */
 public class DbaseFileTest extends TestCaseSupport {
   
-  public static final String TEST_FILE = "statepop.dbf";
+  static final String TEST_FILE = "statepop.dbf";
   
   private DbaseFileReader dbf = null;
   

@@ -41,6 +41,12 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     return s.getFeatures(q);
   }
   
+  public void testSpacesInPath() throws Exception {
+      URL u = getTestResource("legacy folder/pointtest.shp");
+      File f = new File(u.getFile());
+      assertTrue(f.exists());
+      ShapefileDataSource s = new ShapefileDataSource(u);
+  }
   
   public void testLoad() throws Exception {
     loadFeatures(STATE_POP,null);

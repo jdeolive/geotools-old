@@ -27,9 +27,6 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
     "holeTouchEdge.shp",
     "stream.shp"
   };
-  final String TMP_FILE = "tmp.shp";
-  
-  File tmpFile;
   
   /** Creates a new instance of ShapefileReadWriteTest */
   public ShapefileReadWriteTest(String name) {
@@ -41,21 +38,7 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
     File data = new File(parent.getFile());
     if (!data.exists())
       throw new Exception("Couldn't setup temp file");
-    tmpFile = new File(data, TMP_FILE);
-    tmpFile.createNewFile();
   } 
-  
-  protected void tearDown() throws Exception {
-    File[] f = tmpFile.getParentFile().listFiles();
-    for (int i = 0, ii = f.length; i < ii; i++) {
-      if (f[i].getName().equals("tmp.shp"))
-        f[i].delete();
-      else if (f[i].getName().equals("tmp.dbf"))
-        f[i].delete();
-      else if (f[i].getName().equals("tmp.shx"))
-        f[i].delete();
-    }
-  }
   
   public void testAll() {
     StringBuffer errors = new StringBuffer();
@@ -76,10 +59,11 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
     ShapefileDataSource s = new ShapefileDataSource(getTestResource(f));
     org.geotools.filter.Filter filter = null;
     FeatureCollection one = s.getFeatures(filter);
-    s = new ShapefileDataSource(getTestResource(TMP_FILE));
+    File tmp = getTempFile();
+    s = new ShapefileDataSource(tmp.toURL());
     s.setFeatures(one);
     
-    s = new ShapefileDataSource(getTestResource(TMP_FILE));
+    s = new ShapefileDataSource(tmp.toURL());
     FeatureCollection two = s.getFeatures(filter);
     
     compare(one,two);
