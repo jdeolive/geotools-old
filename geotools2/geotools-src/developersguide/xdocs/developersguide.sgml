@@ -4,291 +4,312 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
 ?>
 <!DOCTYPE article PUBLIC "-//Norman Walsh//DTD Simplified DocBook XML V4.1.2.4//EN"
 "file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
-<article id="index">
-  <articleinfo>
-    <title>Geotools2 Developer Guide</title>
-
-    <author>
-      <firstname>Cameron</firstname>
-
-      <surname>Shorter</surname>
-    </author>
-
-    <date>$Date: 2002/08/07 21:51:20 $</date>
-
-    <abstract>
-      <para>Guide to aid <filename>geotools2</filename> development.</para>
-    </abstract>
-  </articleinfo>
-
-  <section id="intro">
-    <title>Introduction</title>
-
-    <para>This document aims to help new geotools developers get up to speed
-    and track practices of existing developers in order to keep the project
-    consistent.</para>
-
-    <para>If you feel something is missing, feel free to contribute a new
-    section.</para>
-  </section>
-
-  <section id="design">
-    <title>Design</title>
-
-    <section>
-      <title id="modulardesign">Modular Design</title>
-
-      <para>Geotools has a modular design. Each module is has it&#39;s own
-      directory structure and build process. Dependancies between modules are
-      described in each module&#39;s <filename>project.xml</filename> file.
-      Low level modules, like DataSource, can be used as base classes by
-      external Geographic Applications.</para>
-
-      <para>Each module has its own home page which provides an overview of
-      the module, contact details for the modules developer, a list of all
-      develoeprs and contributors, dependancy information, full javadocs, unit
-      test reports and lists of outstanding tasks. A full list of the module
-      homepages can be found at <ulink url="http://modules.geotools.org">
-      modules.geotools.org </ulink>.</para>
-
-      <para>Geotools derived its directory structure from <ulink
-      url="http://www.netbeans.org">Netbeans</ulink>.</para>
-
-      <para>There are a few key modules worth noting:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para><filename>core</filename></para>
-
-          <para>The core module contains interfaces that may be used by
-          external applications, and key event classes that the core modules
-          depend on.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>defaultcore</filename></para>
-
-          <para>This contains default classes that implement the interfaces in
-          <filename>core</filename>. The default classes generally only
-          contain basic functionallity and are extended by other geotools
-          classes.</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>Within the core module the key packages are set out. Each package
-      contains interfaces which define a major part of the functionality of
-      GeoTools2. Given the intention to follow the OGC standards wherever
-      possible, many of the packages relate to specific OGC specifications.</para>
-
-      <itemizedlist>
-        <listitem>
-          <para><filename>data</filename></para>
-
-          <para>Contains the interface for DataSources. Several GeoTools2
-          modules provide implementations of this interface. Examples include
-          the shapefile module, the postgis module and the gmldatasource
-          module</para>
-
-          <para>Developers familier with formats not yet supported are
-          encurage to write a module to provide access to it.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>feature</filename></para>
-
-          <para>Provides interfaces for classes which represent OGC features.
-          The defaultcore module provides a simple Flat implementation of the
-          Feature interface. A full implementation is still needed which
-          supports complex nested Feature types.</para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section>
-      <title id="moduledirstructure">Module Directory Structure</title>
-
-      <para>A module may contain the following directories and files:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para><filename>geotools2/geotools-src/&#60;module&#62;/src/org/geotools/&#60;dir&#62;/*.java</filename></para>
-
-          <para>This is where source files are kept. <filename>&#60;dir&#62;</filename>
-          is usually the same or derives it&#39;s name from &#60;module&#62;.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>geotools2/geotools-src/&#60;module&#62;/tests/unit/org/geotools/&#60;module&#62;/*.java</filename></para>
-
-          <para>This directory contains unit tests.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>geotools2/geotools-src/&#60;module&#62;/tests/testdata/*</filename></para>
-
-          <para>This directory contains data to be used by tests.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>geotools2/geotools-src/&#60;module&#62;/sdocbook/*.sgml</filename></para>
-
-          <para>This directory contains documentation about the module in
-          Simple Docbook format.</para>
-
-          <para>Documentation will usually be part of an existing geotools
-          module. For general documentation (like the Developer&#39;s Guide),
-          a dedicated module may be created which does not contain any code.</para>
-
-          <figure>
-            <title>Typical Documentation Directory Structure</title>
-
-            <mediaobject>
-              <imageobject>
-                <imagedata fileref="images/developersguide/dir_structure.png"
-                           format="PNG" />
-              </imageobject>
-
-              <textobject>
-                <phrase>Typical Documentation Directory Structure</phrase>
-              </textobject>
-            </mediaobject>
-          </figure>
-        </listitem>
-
-        <listitem>
-          <para><filename>geotools2/geotools-src/&#60;module&#62;/sdocbook/images/&#60;modules&#62;/*.sgml</filename></para>
-
-          <para>This directory contains images for the documentation.</para>
-
-          <para>Documentation from all modules are often built into one target
-          directory. Therefore, to ensure module&#39;s images do not overwrite
-          each other, images are stored in a directory below the images
-          directory, in<filename>images/&#60;module_name&#62;/*.png</filename>.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>geotools2/geotools-src/&#60;module&#62;/build-mavin.xml</filename></para>
-
-          <para><filename>build-mavin.xml</filename> will eventually become
-          <filename>build.xml</filename>. This file provides tools for
-          building the module using <filename>ant</filename> and
-          <filename>maven</filename>.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>geotools2/geotools-src/&#60;module&#62;/project.xml</filename></para>
-
-          <para><filename>project.xml</filename> provides metadata about the
-          module for <filename>maven</filename>.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>geotools2/extbin/&#60;module&#62;/*.jar</filename></para>
-
-          <para>This contains the libraries required to compile
-          &#60;module&#62;.</para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section>
-      <title id="directorynames">Directory Naming Conventions</title>
-
-      <para>Directory names shall be all lower case with no spaces. Some
-      versions of windows do not distinguish between upper and lower case, and
-      unix, writing spaces in filenames is painful.</para>
-    </section>
-
-    <section>
-      <title>to do</title>
-
-      <para>Explain</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Move this section into a new document called &#34;Geotools2
-          Design&#34;.</para>
-        </listitem>
-
-        <listitem>
-          <para>Key design structure (core interfaces, data sources,
-          rendering, tools)</para>
-        </listitem>
-
-        <listitem>
-          <para>Design Drivers (Our design goals: modular, derives structure
-          from Netbeans, support multiple version of java, ...)</para>
-        </listitem>
-
-        <listitem>
-          <para>Directory structure</para>
-        </listitem>
-      </itemizedlist>
-    </section>
-  </section>
-
-  <section id="development">
-    <title>Development</title>
-
-    <section>
-      <title id="requirements">Requirements</title>
-
-      <para>Before developing geotools2, you should download and install the
-      following:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Java Software Development Kit version 1.4 or later</para>
-        </listitem>
-
-        <listitem>
-          <para>ant version 1.5beta1 or later</para>
-        </listitem>
-
-        <listitem>
-          <para>maven</para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section>
-      <title id="java">Java</title>
-
-      <para>Some geotools modules depend on classes in Java Development Kit
-      1.4 or greater. Even when compiling with version 1.4, you will need to
-      specifically tell the compiler that you are using version 1.4, otherwise
-      the compiler will expect new java keywords are class names instead. If
-      you compile from the command line, you should use the following:</para>
-
-      <para><command>javac -source 1.4 [other options] [files to compile]</command></para>
-
-      <para>Make sure you update <link linkend="netbeanscompileoptions">compile
-      options in Netbeans</link> if you use Netbeans.</para>
-
-      <para>If you use <filename>ant</filename> for compiling, or building
-      javadocs or similar, then you will need to include something like:</para>
-
-      <para><command>&#60;javadoc source=&#34;1.4&#62;...</command></para>
-
-      <para>So far, I have only tested Geotools with Sun&#39;s Java Run Time
-      Environment. If you try another Run Time Environment, then let me know
-      how successful you are and we can include it here.</para>
-    </section>
-
-    <section id="templates">
-      <title>Template File</title>
-
-      <para>Below is a sample template file which we will explain upond in the
-      following sections:</para>
-
-      <example>
-        <title>Sample Geotools File</title>
-
-        <programlisting>/*
+<article
+id="index"
+><articleinfo
+><title
+>Geotools2 Developer Guide</title
+><author
+><firstname
+>Cameron</firstname
+><surname
+>Shorter</surname
+></author
+><date
+>$Date: 2002/08/14 11:29:54 $</date
+><abstract
+><para
+>Guide to aid <filename
+>geotools2</filename
+> development.</para
+></abstract
+></articleinfo
+><section
+id="intro"
+><title
+>Introduction</title
+><para
+>This document aims to help new geotools developers get up to speed and track practices of existing developers in order to keep the project consistent.</para
+><para
+>If you feel something is missing, feel free to contribute a new section.</para
+></section
+><section
+id="design"
+><title
+>Design</title
+><section
+><title
+id="modulardesign"
+>Modular Design</title
+><para
+>Geotools has a modular design. Each module is has it&#39;s own directory structure and build process. Dependancies between modules are described in each module&#39;s <filename
+>project.xml</filename
+> file. Low level modules, like DataSource, can be used as base classes by external Geographic Applications.</para
+><para
+>Each module has its own home page which provides an overview of the module, contact details for the modules developer, a list of all develoeprs and contributors, dependancy information, full javadocs, unit test reports and lists of outstanding tasks. A full list of the module homepages can be found at <ulink
+url="http://modules.geotools.org"
+> modules.geotools.org </ulink
+>.</para
+><para
+>Geotools derived its directory structure from <ulink
+url="http://www.netbeans.org"
+>Netbeans</ulink
+>.</para
+><para
+>There are a few key modules worth noting:</para
+><itemizedlist
+><listitem
+><para
+><filename
+>core</filename
+></para
+><para
+>The core module contains interfaces that may be used by external applications, and key event classes that the core modules depend on.</para
+></listitem
+><listitem
+><para
+><filename
+>defaultcore</filename
+></para
+><para
+>This contains default classes that implement the interfaces in <filename
+>core</filename
+>. The default classes generally only contain basic functionallity and are extended by other geotools classes.</para
+></listitem
+></itemizedlist
+><para
+>Within the core module the key packages are set out. Each package contains interfaces which define a major part of the functionality of GeoTools2. Given the intention to follow the OGC standards wherever possible, many of the packages relate to specific OGC specifications.</para
+><itemizedlist
+><listitem
+><para
+><filename
+>data</filename
+></para
+><para
+>Contains the interface for DataSources. Several GeoTools2 modules provide implementations of this interface. Examples include the shapefile module, the postgis module and the gmldatasource module</para
+><para
+>Developers familier with formats not yet supported are encurage to write a module to provide access to it.</para
+></listitem
+><listitem
+><para
+><filename
+>feature</filename
+></para
+><para
+>Provides interfaces for classes which represent OGC features. The defaultcore module provides a simple Flat implementation of the Feature interface. A full implementation is still needed which supports complex nested Feature types.</para
+></listitem
+></itemizedlist
+></section
+><section
+><title
+id="moduledirstructure"
+>Module Directory Structure</title
+><para
+>A module may contain the following directories and files:</para
+><itemizedlist
+><listitem
+><para
+><filename
+>geotools2/geotools-src/&#60;module&#62;/src/org/geotools/&#60;dir&#62;/*.java</filename
+></para
+><para
+>This is where source files are kept. <filename
+>&#60;dir&#62;</filename
+> is usually the same or derives it&#39;s name from &#60;module&#62;.</para
+></listitem
+><listitem
+><para
+><filename
+>geotools2/geotools-src/&#60;module&#62;/tests/unit/org/geotools/&#60;module&#62;/*.java</filename
+></para
+><para
+>This directory contains unit tests.</para
+></listitem
+><listitem
+><para
+><filename
+>geotools2/geotools-src/&#60;module&#62;/tests/testdata/*</filename
+></para
+><para
+>This directory contains data to be used by tests.</para
+></listitem
+><listitem
+><para
+><filename
+>geotools2/geotools-src/&#60;module&#62;/sdocbook/*.sgml</filename
+></para
+><para
+>This directory contains documentation about the module in Simple Docbook format.</para
+><para
+>Documentation will usually be part of an existing geotools module. For general documentation (like the Developer&#39;s Guide), a dedicated module may be created which does not contain any code.</para
+><figure
+><title
+>Typical Documentation Directory Structure</title
+><mediaobject
+><imageobject
+><imagedata
+fileref="images/developersguide/dir_structure.png"
+format="PNG"
+></imagedata
+></imageobject
+><textobject
+><phrase
+>Typical Documentation Directory Structure</phrase
+></textobject
+></mediaobject
+></figure
+></listitem
+><listitem
+><para
+><filename
+>geotools2/geotools-src/&#60;module&#62;/sdocbook/images/&#60;modules&#62;/*.sgml</filename
+></para
+><para
+>This directory contains images for the documentation.</para
+><para
+>Documentation from all modules are often built into one target directory. Therefore, to ensure module&#39;s images do not overwrite each other, images are stored in a directory below the images directory, in<filename
+>images/&#60;module_name&#62;/*.png</filename
+>.</para
+></listitem
+><listitem
+><para
+><filename
+>geotools2/geotools-src/&#60;module&#62;/build-mavin.xml</filename
+></para
+><para
+><filename
+>build-mavin.xml</filename
+> will eventually become <filename
+>build.xml</filename
+>. This file provides tools for building the module using <filename
+>ant</filename
+> and <filename
+>maven</filename
+>.</para
+></listitem
+><listitem
+><para
+><filename
+>geotools2/geotools-src/&#60;module&#62;/project.xml</filename
+></para
+><para
+><filename
+>project.xml</filename
+> provides metadata about the module for <filename
+>maven</filename
+>.</para
+></listitem
+><listitem
+><para
+><filename
+>geotools2/extbin/&#60;module&#62;/*.jar</filename
+></para
+><para
+>This contains the libraries required to compile &#60;module&#62;.</para
+></listitem
+></itemizedlist
+></section
+><section
+><title
+id="directorynames"
+>Directory Naming Conventions</title
+><para
+>Directory names shall be all lower case with no spaces. Some versions of windows do not distinguish between upper and lower case, and unix, writing spaces in filenames is painful.</para
+></section
+><section
+><title
+>to do</title
+><para
+>Explain</para
+><itemizedlist
+><listitem
+><para
+>Move this section into a new document called &#34;Geotools2 Design&#34;.</para
+></listitem
+><listitem
+><para
+>Key design structure (core interfaces, data sources, rendering, tools)</para
+></listitem
+><listitem
+><para
+>Design Drivers (Our design goals: modular, derives structure from Netbeans, support multiple version of java, ...)</para
+></listitem
+><listitem
+><para
+>Directory structure</para
+></listitem
+></itemizedlist
+></section
+></section
+><section
+id="development"
+><title
+>Development</title
+><section
+><title
+id="requirements"
+>Requirements</title
+><para
+>Before developing geotools2, you should download and install the following:</para
+><itemizedlist
+><listitem
+><para
+>Java Software Development Kit version 1.4 or later</para
+></listitem
+><listitem
+><para
+>ant version 1.5beta1 or later</para
+></listitem
+><listitem
+><para
+>maven</para
+></listitem
+><listitem
+><para
+><ulink
+url="http://java.sun.com/products/java-media/jai/"
+>Java Advanced Imaging Libraries</ulink
+> (JAI).</para
+></listitem
+></itemizedlist
+></section
+><section
+><title
+id="java"
+>Java</title
+><para
+>Some geotools modules depend on classes in Java Development Kit 1.4 or greater. Even when compiling with version 1.4, you will need to specifically tell the compiler that you are using version 1.4, otherwise the compiler will expect new java keywords are class names instead. If you compile from the command line, you should use the following:</para
+><para
+><command
+>javac -source 1.4 [other options] [files to compile]</command
+></para
+><para
+>Make sure you update <link
+linkend="netbeanscompileoptions"
+>compile options in Netbeans</link
+> if you use Netbeans.</para
+><para
+>If you use <filename
+>ant</filename
+> for compiling, or building javadocs or similar, then you will need to include something like:</para
+><para
+><command
+>&#60;javadoc source=&#34;1.4&#62;...</command
+></para
+><para
+>So far, I have only tested Geotools with Sun&#39;s Java Run Time Environment. If you try another Run Time Environment, then let me know how successful you are and we can include it here.</para
+></section
+><section
+id="templates"
+><title
+>Template File</title
+><para
+>Below is a sample template file which we will explain upond in the following sections:</para
+><example
+><title
+>Sample Geotools File</title
+><programlisting
+>/*
  * Geotools - OpenSource mapping toolkit
  * (C) 2002, Centre for Computational Geography
  *
@@ -316,7 +337,11 @@ import dir.dir.SomeClass2;
  * Description of this class.
  *
  * @author Your Name
- * @version <emphasis>$Id</emphasis> <emphasis>:$</emphasis>
+ * @version <emphasis
+>$Id</emphasis
+> <emphasis
+>:$</emphasis
+>
  */
 
 public class ThisClass { 
@@ -334,77 +359,82 @@ public class ThisClass {
     {
         internalVar=aParam; 
     }
-}</programlisting>
-      </example>
-
-      <para>Key things to note in this example:</para>
-
-      <orderedlist>
-        <listitem>
-          <para>The License. Each class should contain a reference to it.</para>
-        </listitem>
-
-        <listitem>
-          <para>Javadoc comments.</para>
-        </listitem>
-
-        <listitem>
-          <para>The CVS tag <emphasis>$Id</emphasis> <emphasis>:$</emphasis>
-          When you commit your file into CVS, this will be expanded to
-          something like:</para>
-
-          <para>$Id: developersguide.sgml,v 1.25 2002/07/30 11:05:34 camerons
-          Exp $</para>
-        </listitem>
-      </orderedlist>
-    </section>
-
-    <section id="CodingStandards">
-      <title>Coding Standards</title>
-
-      <para>To do:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Using Sun&#39;s coding standard, need to note any exceptions
-          to it.</para>
-        </listitem>
-
-        <listitem>
-          <para>Note the auto checking of coding standards.</para>
-        </listitem>
-
-        <listitem>
-          <para>Javadocs</para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section id="logging">
-      <title>Logging</title>
-
-      <para>The logging package (<filename>java.util.logging</filename>) is
-      bundled into J2SE 1.4 and above. An overview is available on line in the
-      <ulink
-      url="http://java.sun.com/j2se/1.4/docs/guide/util/logging/overview.html">Sun&#39;s
-      SDK documentation</ulink>.</para>
-
-      <para>Geotools use one logger per module. Logger is named using the
-      <filename>org.geotools</filename> prefix followed by the short module
-      name. For example the logger name for the GML Data Source module is
-      <filename>org.geotools.gml</filename>. The logger name for the
-      Coordinate Transformation Services module is <filename>org.geotools.cts</filename>.</para>
-
-      <para>The logger should be declared in the class&#39;s static fields.</para>
-
-      <example>
-        <title>Logger declaration</title>
-
-        <programlisting>// J2SE dependencies
+}</programlisting
+></example
+><para
+>Key things to note in this example:</para
+><orderedlist
+><listitem
+><para
+>The License. Each class should contain a reference to it.</para
+></listitem
+><listitem
+><para
+>Javadoc comments.</para
+></listitem
+><listitem
+><para
+>The CVS tag <emphasis
+>$Id</emphasis
+> <emphasis
+>:$</emphasis
+> When you commit your file into CVS, this will be expanded to something like:</para
+><para
+>$Id: developersguide.sgml,v 1.28 2002/08/14 11:29:54 camerons Exp $</para
+></listitem
+></orderedlist
+></section
+><section
+id="CodingStandards"
+><title
+>Coding Standards</title
+><para
+>To do:</para
+><itemizedlist
+><listitem
+><para
+>Using Sun&#39;s coding standard, need to note any exceptions to it.</para
+></listitem
+><listitem
+><para
+>Note the auto checking of coding standards.</para
+></listitem
+><listitem
+><para
+>Javadocs</para
+></listitem
+><listitem
+><para
+></para
+></listitem
+></itemizedlist
+></section
+><section
+id="logging"
+><title
+>Logging</title
+><para
+>The logging package (<filename
+>java.util.logging</filename
+>) is bundled into J2SE 1.4 and above. An overview is available on line in the <ulink
+url="http://java.sun.com/j2se/1.4/docs/guide/util/logging/overview.html"
+>Sun&#39;s SDK documentation</ulink
+>.</para
+><para
+>Geotools use one logger per module. Logger is named using the <filename
+>org.geotools</filename
+> prefix followed by the short module name. For example the logger name for the GML Data Source module is <filename
+>org.geotools.gml</filename
+>. The logger name for the Coordinate Transformation Services module is <filename
+>org.geotools.cts</filename
+>.</para
+><para
+>The logger should be declared in the class&#39;s static fields.</para
+><example
+><title
+>Logger declaration</title
+><programlisting
+>// J2SE dependencies
 import java.util.logging.Logger;
 
 public class GMLDataSource {
@@ -413,521 +443,498 @@ public class GMLDataSource {
      */
     private static final Logger LOGGER = Logger.getLogger(&#34;org.geotools.gml&#34;);
 
-}</programlisting>
-      </example>
-
-      <para>Message can be conveniently logged using one of 7 predefined
-      levels. The levels in descending order are:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>SEVERE (highest value)</para>
-        </listitem>
-
-        <listitem>
-          <para>WARNING</para>
-        </listitem>
-
-        <listitem>
-          <para>INFO</para>
-        </listitem>
-
-        <listitem>
-          <para>CONFIG</para>
-        </listitem>
-
-        <listitem>
-          <para>FINE</para>
-        </listitem>
-
-        <listitem>
-          <para>FINER</para>
-        </listitem>
-
-        <listitem>
-          <para>FINEST (lowest value)</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>By default, level SEVERE, WARNING and INFO are logged to the
-      standard output. Level FINER is commonly used when entering, returning,
-      or throwing an exception. A convenience method exists in Logger for each
-      of those levels.</para>
-
-      <example>
-        <title>Logger use</title>
-
-        <programlisting>LOGGER.info(&#34;There is a message of interest for ordinary user&#34;);</programlisting>
-      </example>
-
-      <para>There is three more convenience methods: <emphasis>entering</emphasis>,
-      <emphasis>exiting</emphasis> and <emphasis>throwing</emphasis> when
-      entering and exiting a method, or when we are about to terminate a
-      method with an exception.</para>
-
-      <example>
-        <title>Entering/Existing Logger</title>
-
-        <programlisting>public Object myMethod(String myArgument) {
+}</programlisting
+></example
+><para
+>Message can be conveniently logged using one of 7 predefined levels. The levels in descending order are:</para
+><itemizedlist
+><listitem
+><para
+>SEVERE (highest value)</para
+></listitem
+><listitem
+><para
+>WARNING</para
+></listitem
+><listitem
+><para
+>INFO</para
+></listitem
+><listitem
+><para
+>CONFIG</para
+></listitem
+><listitem
+><para
+>FINE</para
+></listitem
+><listitem
+><para
+>FINER</para
+></listitem
+><listitem
+><para
+>FINEST (lowest value)</para
+></listitem
+></itemizedlist
+><para
+>By default, level SEVERE, WARNING and INFO are logged to the standard output. Level FINER is commonly used when entering, returning, or throwing an exception. A convenience method exists in Logger for each of those levels.</para
+><example
+><title
+>Logger use</title
+><programlisting
+>LOGGER.info(&#34;There is a message of interest for ordinary user&#34;);</programlisting
+></example
+><para
+>There is three more convenience methods: <emphasis
+>entering</emphasis
+>, <emphasis
+>exiting</emphasis
+> and <emphasis
+>throwing</emphasis
+> when entering and exiting a method, or when we are about to terminate a method with an exception.</para
+><example
+><title
+>Entering/Existing Logger</title
+><programlisting
+>public Object myMethod(String myArgument) {
     LOGGER.entering(&#34;MyClass&#34;, &#34;MyMethod&#34;, myArgument);
     // ... do some process here
     LOGGER.exiting(&#34;MyClass&#34;, &#34;MyMethod&#34;, myReturnValue);
     return myReturnValue;
-}</programlisting>
-      </example>
-
-      <para>When logging a message, the logger will include many informations
-      like date and time, source class and method names, current thread, etc.
-      In order to avoid too many informations to be logged, it may be useful
-      to merge consecutive logging into a single log statement.</para>
-
-      <example>
-        <title>Minimising Logger output</title>
-
-        <programlisting>// Wastfull use of logging
+}</programlisting
+></example
+><para
+>When logging a message, the logger will include many informations like date and time, source class and method names, current thread, etc. In order to avoid too many informations to be logged, it may be useful to merge consecutive logging into a single log statement.</para
+><example
+><title
+>Minimising Logger output</title
+><programlisting
+>// Wastfull use of logging
 LOGGER.finer(&#34;Value for A is &#34;+A);
 LOGGER.finer(&#34;Value for B is &#34;+B);
 LOGGER.finer(&#34;Value for C is &#34;+C);
 
 // Good use of logging
-LOGGER.finer(&#34;Computed values: A=&#34;+A+&#34;; B=&#34;+B+&#34;; C=&#34;+C);</programlisting>
-      </example>
-
-      <para>If the log message is expensive to construct, then consider
-      enclosing it in a &#34;if&#34; statement.</para>
-
-      <example>
-        <title>Selective logging</title>
-
-        <programlisting>if (LOGGER.isLoggable(Level.FINER)) {
+LOGGER.finer(&#34;Computed values: A=&#34;+A+&#34;; B=&#34;+B+&#34;; C=&#34;+C);</programlisting
+></example
+><para
+>If the log message is expensive to construct, then consider enclosing it in a &#34;if&#34; statement.</para
+><example
+><title
+>Selective logging</title
+><programlisting
+>if (LOGGER.isLoggable(Level.FINER)) {
     LOGGER.finer(&#34;Current state = &#34;+someVeryExpensiveMethodCall());
-}</programlisting>
-      </example>
-
-      <para>To change the default logging setting, edit the following file:</para>
-
-      <para><filename>$JAVA_HOME/jre/lib/logging.properties</filename></para>
-
-      <para>Define the &#34;.level&#34; property to the minimal level of
-      interest for you:</para>
-
-      <para><command>level= FINER</command></para>
-
-      <para>Define the <filename>java.util.logging.ConsoleHandler.level</filename>
-      property to the minimal level you want to see on the console. It may be
-      different than the level logged to the XML file.</para>
-
-      <example>
-        <title></title>
-
-        <programlisting># Limit the message that are printed on the console to FINE and above.
+}</programlisting
+></example
+><para
+>To change the default logging setting, edit the following file:</para
+><para
+><filename
+>$JAVA_HOME/jre/lib/logging.properties</filename
+></para
+><para
+>Define the &#34;.level&#34; property to the minimal level of interest for you:</para
+><para
+><command
+>level= FINER</command
+></para
+><para
+>Define the <filename
+>java.util.logging.ConsoleHandler.level</filename
+> property to the minimal level you want to see on the console. It may be different than the level logged to the XML file.</para
+><example
+><title
+></title
+><programlisting
+># Limit the message that are printed on the console to FINE and above.
 java.util.logging.ConsoleHandler.level = FINE
 java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
-java.util.logging.ConsoleHandler.encoding = Cp850</programlisting>
-      </example>
-
-      <para>Note the &#34;encoding&#34; property. For Windows user, it should
-      be set to the value displayed by &#34;chcp&#34; on the command line.
-      Linux and Unix users may ignore this line since Unix systems do a more
-      intelligent work with page codes.</para>
-
-      <para>Finally, a different logging level may be specified for each
-      module. For example you may be interested in fairly detailed logging
-      message from the GML module, but not from the CTS module. Then you could
-      write:</para>
-
-      <example>
-        <title></title>
-
-        <programlisting>org.geotools.gml.level = FINE
-org.geotools.cts.level = INFO</programlisting>
-      </example>
-
-      <para>To do:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Merge Some of the examples into one.</para>
-        </listitem>
-
-        <listitem>
-          <para>Seperate out the Code examples from the Configuration
-          examples.</para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section id="building">
-      <title>Building</title>
-
-      <para>At the time of writing, geotools2 is moving toward using maven for
-      building. However, for the moment, there is an ant build script in each
-      module directory. This is explained in <filename>geotools2/geotools-src/gtbuild/www/howto-build.html</filename>.</para>
-
-      <para>I&#39;ll fill this section in a bit more when the maven process is
-      setup fully.</para>
-
-      <para>To do:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>using ant</para>
-        </listitem>
-
-        <listitem>
-          <para>using maven</para>
-        </listitem>
-
-        <listitem>
-          <para>insert the &#34;howto-build.html&#34; doc into here</para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section id="testing">
-      <title>Testing</title>
-
-      <para>To do:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Explain use of junit. Might be a link to another web site.</para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section>
-      <title id="inlinetasktracking">Inline Task Tracking</title>
-
-      <para>You can place <computeroutput>@task</computeroutput> markers in
-      the javadoc sections to track areas for rework. During the maven build
-      process, the tags are extracted to build a report page. Example output
-      can be viewed at: <ulink
-      url="http://modules.geotools.org/core/task_list.html">http://modules.geotools.org/core/task_list.html</ulink>.
-      Inline Task Tracking is particularly useful during developement. After
-      code has been released, bugs should be tracked using the Bug Tracker.</para>
-
-      <para>The following tags are available:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>TODO:</para>
-        </listitem>
-
-        <listitem>
-          <para>REVISIT:</para>
-        </listitem>
-
-        <listitem>
-          <para>HACK:</para>
-        </listitem>
-      </itemizedlist>
-
-      <example>
-        <title>Inline task tracking within a method</title>
-
-        <programlisting>/**
+java.util.logging.ConsoleHandler.encoding = Cp850</programlisting
+></example
+><para
+>Note the &#34;encoding&#34; property. For Windows user, it should be set to the value displayed by &#34;chcp&#34; on the command line. Linux and Unix users may ignore this line since Unix systems do a more intelligent work with page codes.</para
+><para
+>Finally, a different logging level may be specified for each module. For example you may be interested in fairly detailed logging message from the GML module, but not from the CTS module. Then you could write:</para
+><example
+><title
+></title
+><programlisting
+>org.geotools.gml.level = FINE
+org.geotools.cts.level = INFO</programlisting
+></example
+><para
+>To do:</para
+><itemizedlist
+><listitem
+><para
+>Merge Some of the examples into one.</para
+></listitem
+><listitem
+><para
+>Seperate out the Code examples from the Configuration examples.</para
+></listitem
+><listitem
+><para
+></para
+></listitem
+><listitem
+><para
+></para
+></listitem
+></itemizedlist
+></section
+><section
+id="building"
+><title
+>Building</title
+><para
+>At the time of writing, geotools2 is moving toward using maven for building. However, for the moment, there is an ant build script in each module directory. This is explained in <filename
+>geotools2/geotools-src/gtbuild/www/howto-build.html</filename
+>.</para
+><para
+>I&#39;ll fill this section in a bit more when the maven process is setup fully.</para
+><para
+>To do:</para
+><itemizedlist
+><listitem
+><para
+>using ant</para
+></listitem
+><listitem
+><para
+>using maven</para
+></listitem
+><listitem
+><para
+>insert the &#34;howto-build.html&#34; doc into here</para
+></listitem
+><listitem
+><para
+></para
+></listitem
+></itemizedlist
+></section
+><section
+id="testing"
+><title
+>Testing</title
+><para
+>To do:</para
+><itemizedlist
+><listitem
+><para
+>Explain use of junit. Might be a link to another web site.</para
+></listitem
+><listitem
+><para
+></para
+></listitem
+><listitem
+><para
+></para
+></listitem
+><listitem
+><para
+></para
+></listitem
+></itemizedlist
+></section
+><section
+><title
+id="inlinetasktracking"
+>Inline Task Tracking</title
+><para
+>You can place <computeroutput
+>@task</computeroutput
+> markers in the javadoc sections to track areas for rework. During the maven build process, the tags are extracted to build a report page. Example output can be viewed at: <ulink
+url="http://modules.geotools.org/core/task_list.html"
+>http://modules.geotools.org/core/task_list.html</ulink
+>. Inline Task Tracking is particularly useful during developement. After code has been released, bugs should be tracked using the Bug Tracker.</para
+><para
+>The following tags are available:</para
+><itemizedlist
+><listitem
+><para
+>TODO:</para
+></listitem
+><listitem
+><para
+>REVISIT:</para
+></listitem
+><listitem
+><para
+>HACK:</para
+></listitem
+></itemizedlist
+><example
+><title
+>Inline task tracking within a method</title
+><programlisting
+>/**
  * This is an example method.
  * @param i This explains the variable.
  * @task TODO: This method should have some code.
  */
 void example(int i) {
-}</programlisting>
-      </example>
-    </section>
-
-    <section id="documentation">
-      <title>Documentation</title>
-
-      <section id="whydocbook">
-        <title>Why Docbook?</title>
-
-        <para>Documentation for geotools is written using <ulink
-        url="http://www.oasis-open.org/committees/docbook/xml/simple/">Simplified
-        Docbook</ulink> format. Simplified Docbook is a subset of Docbook XML,
-        a versatile format used by the <ulink url="http://www.linuxdoc.org">Linux
-        Documentation Project</ulink> (among others).</para>
-
-        <para>Docbook can be easily converted into numerous output formats,
-        like HTML, PDF, etc.</para>
-
-        <para>Using Docbook ensures documentation content is kept separate
-        from presentation so content can written once and published in
-        numerous formats and styles.</para>
-
-        <para>There are a few GUI editors for docbook now, with more editors
-        promising to support docbook in the future.</para>
-
-        <para>According to <ulink
-        url="http://www.tldp.org/HOWTO/Software-Release-Practice-HOWTO/documentation.html#AEN449">The
-        Software Release&#39;s Howto</ulink>, docbook is the open source
-        format of the future, and most of the high profile open source
-        projects have moved or are moving to docbook as their coding
-        standards. So we are saving ourselves pain in the future by embracing
-        Docbook now.</para>
-
-        <para>In the geotools build process, documentation is converted from
-        Docbook format to HTML using maven.</para>
-
-        <para>For information about using javadoc to comment your code, refer
-        to <xref linkend="CodingStandards" />.</para>
-      </section>
-
-      <section id="docbookeditors">
-        <title>Docbook Editors</title>
-
-        <para>You can edit docbook with the following free tools:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para><ulink url="http://www.xmlmind.com/xmleditor/">XXE</ulink>
-            is a java based, What You See Is What You Mean (WYSIWYM) editor.
-            It provides a slightly clunky but workable GUI interface for
-            editing Docbook documents. It is well worth trying out.</para>
-          </listitem>
-
-          <listitem>
-            <para><ulink url="http://www.netbeans.org/">Netbeans</ulink>:
-            Simple Docbook is XML, so XML editors work well. Netbeans has a
-            nice XML plugin which I use.</para>
-          </listitem>
-
-          <listitem>
-            <para><ulink url="http://www.vim.org/">vim</ulink> and <ulink
-            url="http://www.gnu.org/software/emacs/emacs.html">emacs</ulink>,
-            or any text editor can be used.</para>
-          </listitem>
-
-          <listitem>
-            <para>There are a number of WYSIWYM editors developing Docbook
-            export/import functionality at the time of writing. Of note,
-            <ulink url="http://www.openoffice.org">Open Office</ulink> and
-            <ulink url="www.lyx.org">Lyx</ulink> look promising.</para>
-          </listitem>
-
-          <listitem>
-            <para>Viewing Docbook: Tomas has written a useful webpage for
-            viewing Docbook pages at <ulink url="???">http://www.cartesia.org/modules.php?op=modload&#38;name=NS-Docbook&#38;file=index</ulink>.</para>
-          </listitem>
-        </itemizedlist>
-      </section>
-
-      <section>
-        <title id="docbookreferences">Docbook References</title>
-
-        <para>There are a few references worth knowing:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para><ulink url="http://www.tldp.org/LDP/LDP-Author-Guide/">The
-            Linux Documentation Project Author Guide</ulink> provides an
-            introduction to Docbook and some of the key tags. Don&#39;t worry
-            about the sections on tools for converting docbook as geotools
-            uses the maven build process instead. Note that the geotools uses
-            Simplified Docbook which is XML based. There are various versions
-            of Docbook which makes things confusing.</para>
-          </listitem>
-
-          <listitem>
-            <para><ulink
-            url="http://www.oasis-open.org/committees/docbook/xml/simple/sdocbook/elements.html">The
-            Simplified Docbook Summary</ulink> provides a list of all the XML
-            tags you can use, and the dependency between these tags.</para>
-          </listitem>
-
-          <listitem>
-            <para><ulink
-            url="http://www.oasis-open.org/docbook/documentation/reference/html/docbook.html">Docbook,
-            the Definitive Guide</ulink> provides comprehensive documentation
-            about Docbook. At the time of writing, this reference referred to
-            version 3 of Docbook, while the Simplified Docbook used by
-            geotools is version 4.1.2.4.</para>
-          </listitem>
-        </itemizedlist>
-      </section>
-    </section>
-
-    <section id="cvs">
-      <title>Code Versioning (using CVS with ssh)</title>
-
-      <para>To edit geotools files you will need to set up CVS and ssh on your
-      computer so that you can access the files stored on <ulink
-      url="http://sourceforge.net">http://sourceforge.net</ulink>. How to
-      setup ssh and cvs for use with Sourceforge is explained in the documents
-      at: <ulink url="https://sourceforge.net/docman/?group_id=1">https://sourceforge.net/docman/?group_id=1</ulink>.</para>
-
-      <para>To do:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para></para>
-        </listitem>
-
-        <listitem>
-          <para>Also point to some HOWTOs for windows users.</para>
-        </listitem>
-
-        <listitem>
-          <para>What is acceptable to commit to CVS, what is not. (Ie, code
-          should compile)</para>
-        </listitem>
-
-        <listitem>
-          <para>Talk about version numbering convention, use of branches, etc
-          (if we decide to do this).</para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section id="netbeans">
-      <title>Netbeans</title>
-
-      <section id="netbeansoverview">
-        <title>Introduction</title>
-
-        <para><ulink url="http://www.netbeans.org">Netbeans</ulink> is a free
-        java IDE which also provides a framework for adding extra
-        functionality. Geotools2 is developed using the same modular structure
-        as Netbeans and we plan to integrate geotools into Netbeans. Sun have
-        repackaged Netbeans and called it <ulink
-        url="http://wwws.sun.com/software/sundev/jde/index.html">Sun ONE
-        Studio</ulink> (previously Forte for J).</para>
-      </section>
-
-      <section>
-        <title id="netbeansprerequisites">Prerequisites</title>
-
-        <para>Before setting up Netbeans for geotools development you need to:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Have ssh installed, and ssh key-value pairs set up so you do
-            not need a password to access sourceforge CVS repository.</para>
-          </listitem>
-
-          <listitem>
-            <para>Have CVS installed.</para>
-          </listitem>
-
-          <listitem>
-            <para>Have checked out the geotools2 CVS repository into a local
-            directory on your computer.</para>
-          </listitem>
-
-          <listitem>
-            <para>The geotools .jar files need to be created in the release
-            directory, which is done by running the ant or maven build
-            scripts.</para>
-          </listitem>
-        </itemizedlist>
-      </section>
-
-      <section>
-        <title id="netbeanscompileoptions">Compile Options</title>
-
-        <para>As <link linkend="java">mentioned</link>, geotools needs to be
-        compiled with a recent Java compiler. This is done from the following
-        windows:</para>
-
-        <para><command>Tools -&#62;Options -&#62;Building -&#62; Compiler
-        Types</command><command> -&#62;External Compiler</command></para>
-
-        <para>Set <command>&#34;Enable JDK 1.4 source</command>&#34; to
-        &#34;True&#34;.</para>
-      </section>
-
-      <section>
-        <title id="netbeansmodules">Adding Modules</title>
-
-        <para>A few modules should be added to the standard Netbeans install
-        to help geotools development. Use the Tools-&#62;Update Center to
-        install these modules:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>&#34;View over Filesystem&#34; is a &#34;must have&#34;
-            module of Netbeans. It allows you to mount each module within CVS
-            and is almost essential for geotools development within Netbeans.
-            The default Netbeans only allows you to mount one source directory
-            but geotools has a source directory for each geotools module.</para>
-          </listitem>
-
-          <listitem>
-            <para>&#34;XML Editor&#34; is useful for editing and validating
-            documentation and Geographic Markup Language (GML) files.</para>
-          </listitem>
-
-          <listitem>
-            <para>&#34;Poseidon&#34;. This is a Universal Markup Language
-            (UML) editor which we occasionally use to explain ideas about
-            design. You can get away without installing this.</para>
-          </listitem>
-        </itemizedlist>
-      </section>
-
-      <section>
-        <title id="mounting">Mounting Directories</title>
-
-        <para>You will need to mount the geotools2 repository. In the Explorer
-        window, right click on Filesystems, select Mount-&#62;Version
-        Control-&#62;CVS. Select the geotools2 directory that you have already
-        booked out from CVS. Don&#39;t worry about the relative mount point,
-        it will be covered by the &#34;View over Filesystem&#34; section. You
-        shouldn&#39;t need to change the CVS and ssh parameters, they will
-        have been picked up correctly from when you booked geotools out from
-        CVS manually.</para>
-
-        <para>It is a good idea to update the Parser Database after mounting
-        the geotools directory. This enables filename auto-completion and
-        &#34;go to declaration&#34;.</para>
-
-        <para>If you want to debug files using Netbeans, you will need to
-        mount the source module directories based on the root source directory
-        of that module. To do this, you will need to ensure the &#34;View over
-        FileSystem&#34; Netbeans module is installed select all
-        <filename>geotools2/geotools-src/&#60;module_name&#62;/src</filename>
-        directories in the Filesystem Explorer then select Tools-&#62;Mount As
-        New Filesystem. If you are running any test or demonstration programs,
-        you will probably also need to mount their directory using the same
-        method.</para>
-
-        <para>You will need to mount all the geotools jar files. First, the
-        geotools jar files need to be created using ant or maven. Then in the
-        Netbeans Explorer, right click on Filesystems, select
-        Mount-&#62;Archive, then select <filename>geotools2/release/&#60;filename&#62;.jar</filename>.
-        Repeat for all the jar files in the <filename>geotools2/release</filename>
-        directory.</para>
-
-        <para>Make sure you mount the jar files after you mount the module
-        directories to ensure that Netbeans CLASSPATH looks at the module
-        directories first. This means that compiled code in the Netbeans
-        modules will take precedance over the jar files and you will not need
-        to do a full build during development.</para>
-      </section>
-    </section>
-  </section>
-</article>
+}</programlisting
+></example
+></section
+><section
+id="documentation"
+><title
+>Documentation</title
+><section
+id="whydocbook"
+><title
+>Why Docbook?</title
+><para
+>Documentation for geotools is written using <ulink
+url="http://www.oasis-open.org/committees/docbook/xml/simple/"
+>Simplified Docbook</ulink
+> format. Simplified Docbook is a subset of Docbook XML, a versatile format used by the <ulink
+url="http://www.linuxdoc.org"
+>Linux Documentation Project</ulink
+> (among others).</para
+><para
+>Docbook can be easily converted into numerous output formats, like HTML, PDF, etc.</para
+><para
+>Using Docbook ensures documentation content is kept separate from presentation so content can written once and published in numerous formats and styles.</para
+><para
+>There are a few GUI editors for docbook now, with more editors promising to support docbook in the future.</para
+><para
+>According to <ulink
+url="http://www.tldp.org/HOWTO/Software-Release-Practice-HOWTO/documentation.html#AEN449"
+>The Software Release&#39;s Howto</ulink
+>, docbook is the open source format of the future, and most of the high profile open source projects have moved or are moving to docbook as their coding standards. So we are saving ourselves pain in the future by embracing Docbook now.</para
+><para
+>In the geotools build process, documentation is converted from Docbook format to HTML using maven.</para
+><para
+>For information about using javadoc to comment your code, refer to <xref
+linkend="CodingStandards"
+></xref
+>.</para
+></section
+><section
+id="docbookeditors"
+><title
+>Docbook Editors</title
+><para
+>You can edit docbook with the following free tools:</para
+><itemizedlist
+><listitem
+><para
+><ulink
+url="http://www.xmlmind.com/xmleditor/"
+>XXE</ulink
+> is a java based, What You See Is What You Mean (WYSIWYM) editor. It provides a slightly clunky but workable GUI interface for editing Docbook documents. It is well worth trying out.</para
+></listitem
+><listitem
+><para
+><ulink
+url="http://www.netbeans.org/"
+>Netbeans</ulink
+>: Simple Docbook is XML, so XML editors work well. Netbeans has a nice XML plugin which I use.</para
+></listitem
+><listitem
+><para
+><ulink
+url="http://www.vim.org/"
+>vim</ulink
+> and <ulink
+url="http://www.gnu.org/software/emacs/emacs.html"
+>emacs</ulink
+>, or any text editor can be used.</para
+></listitem
+><listitem
+><para
+>There are a number of WYSIWYM editors developing Docbook export/import functionality at the time of writing. Of note, <ulink
+url="http://www.openoffice.org"
+>Open Office</ulink
+> and <ulink
+url="www.lyx.org"
+>Lyx</ulink
+> look promising.</para
+></listitem
+><listitem
+><para
+>Viewing Docbook: Tomas has written a useful webpage for viewing Docbook pages at <ulink
+url="???"
+>http://www.cartesia.org/modules.php?op=modload&#38;name=NS-Docbook&#38;file=index</ulink
+>.</para
+></listitem
+></itemizedlist
+></section
+><section
+><title
+id="docbookreferences"
+>Docbook References</title
+><para
+>There are a few references worth knowing:</para
+><itemizedlist
+><listitem
+><para
+><ulink
+url="http://www.tldp.org/LDP/LDP-Author-Guide/"
+>The Linux Documentation Project Author Guide</ulink
+> provides an introduction to Docbook and some of the key tags. Don&#39;t worry about the sections on tools for converting docbook as geotools uses the maven build process instead. Note that the geotools uses Simplified Docbook which is XML based. There are various versions of Docbook which makes things confusing.</para
+></listitem
+><listitem
+><para
+><ulink
+url="http://www.oasis-open.org/committees/docbook/xml/simple/sdocbook/elements.html"
+>The Simplified Docbook Summary</ulink
+> provides a list of all the XML tags you can use, and the dependency between these tags.</para
+></listitem
+><listitem
+><para
+><ulink
+url="http://www.oasis-open.org/docbook/documentation/reference/html/docbook.html"
+>Docbook, the Definitive Guide</ulink
+> provides comprehensive documentation about Docbook. At the time of writing, this reference referred to version 3 of Docbook, while the Simplified Docbook used by geotools is version 4.1.2.4.</para
+></listitem
+></itemizedlist
+></section
+></section
+><section
+id="cvs"
+><title
+>Code Versioning (using CVS with ssh)</title
+><para
+>To edit geotools files you will need to set up CVS and ssh on your computer so that you can access the files stored on <ulink
+url="http://sourceforge.net"
+>http://sourceforge.net</ulink
+>. How to setup ssh and cvs for use with Sourceforge is explained in the documents at: <ulink
+url="https://sourceforge.net/docman/?group_id=1"
+>https://sourceforge.net/docman/?group_id=1</ulink
+>.</para
+><para
+>To do:</para
+><itemizedlist
+><listitem
+><para
+></para
+></listitem
+><listitem
+><para
+>Also point to some HOWTOs for windows users.</para
+></listitem
+><listitem
+><para
+>What is acceptable to commit to CVS, what is not. (Ie, code should compile)</para
+></listitem
+><listitem
+><para
+>Talk about version numbering convention, use of branches, etc (if we decide to do this).</para
+></listitem
+></itemizedlist
+></section
+><section
+id="netbeans"
+><title
+>Netbeans</title
+><section
+id="netbeansoverview"
+><title
+>Introduction</title
+><para
+><ulink
+url="http://www.netbeans.org"
+>Netbeans</ulink
+> is a free java IDE which also provides a framework for adding extra functionality. Geotools2 is developed using the same modular structure as Netbeans and we plan to integrate geotools into Netbeans. Sun have repackaged Netbeans and called it <ulink
+url="http://wwws.sun.com/software/sundev/jde/index.html"
+>Sun ONE Studio</ulink
+> (previously Forte for J).</para
+></section
+><section
+><title
+id="netbeansprerequisites"
+>Prerequisites</title
+><para
+>Before setting up Netbeans for geotools development you need to:</para
+><itemizedlist
+><listitem
+><para
+>Have ssh installed, and ssh key-value pairs set up so you do not need a password to access sourceforge CVS repository.</para
+></listitem
+><listitem
+><para
+>Have CVS installed.</para
+></listitem
+><listitem
+><para
+>Have checked out the geotools2 CVS repository into a local directory on your computer.</para
+></listitem
+><listitem
+><para
+>The geotools .jar files need to be created in the release directory, which is done by running the ant or maven build scripts.</para
+></listitem
+></itemizedlist
+></section
+><section
+><title
+id="netbeanscompileoptions"
+>Compile Options</title
+><para
+>As <link
+linkend="java"
+>mentioned</link
+>, geotools needs to be compiled with a recent Java compiler. This is done from the following windows:</para
+><para
+><command
+>Tools -&#62;Options -&#62;Building -&#62; Compiler Types</command
+><command
+> -&#62;External Compiler</command
+></para
+><para
+>Set <command
+>&#34;Enable JDK 1.4 source</command
+>&#34; to &#34;True&#34;.</para
+></section
+><section
+><title
+id="netbeansmodules"
+>Adding Modules</title
+><para
+>A few modules should be added to the standard Netbeans install to help geotools development. Use the Tools-&#62;Update Center to install these modules:</para
+><itemizedlist
+><listitem
+><para
+>&#34;View over Filesystem&#34; is a &#34;must have&#34; module of Netbeans. It allows you to mount each module within CVS and is almost essential for geotools development within Netbeans. The default Netbeans only allows you to mount one source directory but geotools has a source directory for each geotools module.</para
+></listitem
+><listitem
+><para
+>&#34;XML Editor&#34; is useful for editing and validating documentation and Geographic Markup Language (GML) files.</para
+></listitem
+><listitem
+><para
+>&#34;Poseidon&#34;. This is a Universal Markup Language (UML) editor which we occasionally use to explain ideas about design. You can get away without installing this.</para
+></listitem
+></itemizedlist
+></section
+><section
+><title
+id="mounting"
+>Mounting Directories</title
+><para
+>You will need to mount the geotools2 repository. In the Explorer window, right click on Filesystems, select Mount-&#62;Version Control-&#62;CVS. Select the geotools2 directory that you have already booked out from CVS. Don&#39;t worry about the relative mount point, it will be covered by the &#34;View over Filesystem&#34; section. You shouldn&#39;t need to change the CVS and ssh parameters, they will have been picked up correctly from when you booked geotools out from CVS manually.</para
+><para
+>It is a good idea to update the Parser Database after mounting the geotools directory. This enables filename auto-completion and &#34;go to declaration&#34;.</para
+><para
+>If you want to debug files using Netbeans, you will need to mount the source module directories based on the root source directory of that module. To do this, you will need to ensure the &#34;View over FileSystem&#34; Netbeans module is installed select all <filename
+>geotools2/geotools-src/&#60;module_name&#62;/src</filename
+> directories in the Filesystem Explorer then select Tools-&#62;Mount As New Filesystem. If you are running any test or demonstration programs, you will probably also need to mount their directory using the same method.</para
+><para
+>You will need to mount all the geotools jar files. First, the geotools jar files need to be created using ant or maven. Then in the Netbeans Explorer, right click on Filesystems, select Mount-&#62;Archive, then select <filename
+>geotools2/release/&#60;filename&#62;.jar</filename
+>. Repeat for all the jar files in the <filename
+>geotools2/release</filename
+> directory.</para
+><para
+>Make sure you mount the jar files after you mount the module directories to ensure that Netbeans CLASSPATH looks at the module directories first. This means that compiled code in the Netbeans modules will take precedance over the jar files and you will not need to do a full build during development.</para
+></section
+></section
+></section
+></article
+>
