@@ -20,6 +20,8 @@
 
 package org.geotools.styling;
 
+import java.awt.Color;
+import org.geotools.feature.Feature;
 import org.geotools.filter.Expression;
 
 /**
@@ -44,7 +46,7 @@ import org.geotools.filter.Expression;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: Stroke.java,v 1.9 2002/10/14 17:08:01 ianturton Exp $
+ * @version $Id: Stroke.java,v 1.10 2003/05/12 22:07:57 jmacgill Exp $
  * @author James Macgill
  */
 public interface Stroke {
@@ -63,6 +65,19 @@ public interface Stroke {
      * @return The color of the stroke encoded as a hexidecimal RGB value.
      **/
     Expression getColor();
+    
+    /**
+     * This parameter gives the solid color that will be used for a stroke.<br>
+     * The color value returned here as a Java Color object, this is a convinence method
+     * that goes above
+     * The default color is defined to be Color.BLACK
+     *
+     * Note: in CSS this parameter is just called Stroke and not Color.
+     *
+     * @return The color of the stroke as a Color object
+     **/
+    Color getColor(Feature f);
+    
     /**
      * This parameter gives the solid color that will be used for a stroke.<br>
      * The color value is RGB-encoded using two hexidecimal digits per 
@@ -228,6 +243,9 @@ public interface Stroke {
 
 /*
  * $Log: Stroke.java,v $
+ * Revision 1.10  2003/05/12 22:07:57  jmacgill
+ * added getColor method which returns an actual Color object.
+ *
  * Revision 1.9  2002/10/14 17:08:01  ianturton
  * expanded interfaces to include set methods
  *

@@ -19,13 +19,14 @@
 
 package org.geotools.styling;
 
+import java.awt.Color;
 
  /**
   *
   * TODO:This is unfinished as it currently returns fixed values with no way
   * to change them.
   *
-  * @version $Id: StrokeImpl.java,v 1.5 2002/10/24 16:54:40 ianturton Exp $
+  * @version $Id: StrokeImpl.java,v 1.6 2003/05/12 22:07:26 jmacgill Exp $
   * @author James Macgill, CCG
   */
 
@@ -77,6 +78,8 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public Expression getColor() {
         return color;
     }
+    
+    
     
     /**
      * This parameter sets the solid color that will be used for a stroke.<br>
@@ -366,4 +369,9 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
         out.append("\tStroke Graphic " + this.strokeGraphic );
         return out.toString();
     }
+    
+    public Color getColor(org.geotools.feature.Feature f) {
+        return Color.decode((String)this.getColor().getValue(f));
+    }
+    
 }
