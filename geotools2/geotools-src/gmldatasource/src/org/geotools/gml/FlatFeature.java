@@ -97,8 +97,16 @@ public class FlatFeature implements Feature {
 				Vector currentAttributes = new Vector( java.util.Arrays.asList(attributes) );  
 						
 				featureString.append("\n");						
-				featureString.append(" attributes:  " + currentAttributes.toString() + "\n");						
-				featureString.append(" geometry:    " + geometry.toString() + "\n");						
+        if(currentAttributes != null){
+            featureString.append(" attributes:  " + currentAttributes.toString() + "\n");						
+        }else{
+            featureString.append(" No attributes set \n");
+        }
+        if(geometry != null){
+            featureString.append(" geometry:    " + geometry.toString() + "\n");						
+        }else{
+            featureString.append(" No Geometry set \n");
+        }
 
 				return featureString.toString();
 
