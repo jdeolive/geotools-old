@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.cs;
+package org.geotools.resources;
 
 // Collections
 import java.util.List;
@@ -64,20 +64,20 @@ import org.geotools.resources.cts.ResourceKeys;
  * The result is a tree, which can be printed with {@link #print}.
  * Elements can be pull in a <cite>first in, first out</cite> order.
  *
- * @version $Id: WKTElement.java,v 1.1 2002/09/02 17:55:39 desruisseaux Exp $
+ * @version $Id: WKTElement.java,v 1.1 2002/09/03 09:43:24 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
-final class WKTElement {    
+public final class WKTElement {    
     /**
      * The position where children elements start in the string to be parsed.
      */
-    final int offset;
+    public final int offset;
 
     /**
      * Keyword of this entity. For example: "PRIMEM".
      */
-    private final String keyword;
+    public final String keyword;
 
     /**
      * An ordered list of {@link String}s, {@link Number}s and other {@link WKTElement}s.
@@ -158,8 +158,8 @@ final class WKTElement {
             lower = position.getIndex();        
             if (!Character.isUnicodeIdentifierStart(text.charAt(lower))) {
                 final Number number;
-                synchronized (format.format) {
-                    number = format.format.parse(text, position);
+                synchronized (format.number) {
+                    number = format.number.parse(text, position);
                 }
                 if (number == null) {
                     // Do not update the error index; it is already updated by NumberFormat.

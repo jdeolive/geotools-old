@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.cs;
+package org.geotools.resources;
 
 // Formatting
 import java.util.Locale;
@@ -43,47 +43,50 @@ import java.text.FieldPosition;
 /**
  * The base class for <cite>Well Know Text</cite> (WKT) parser and formatter. This base class
  * contains information about the symbols to use (opening and closing bracket, element separator,
- * etc.). This is a relatively light object compared to {@link WKTParser} and can be used when
+ * etc.). This is a relatively light object compared to their subclasses and can be used when
  * parsing are not needed.
  *
- * @version $Id: WKTFormat.java,v 1.1 2002/09/02 17:55:39 desruisseaux Exp $
+ * @version $Id: WKTFormat.java,v 1.1 2002/09/03 09:43:24 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
-abstract class WKTFormat extends Format {
+public abstract class WKTFormat extends Format {
     /**
      * The locale for number parsing and formatting.
      */
-    final Locale locale;
+    public final Locale locale;
 
     /**
      * The object to use for parsing and formatting numbers.
+     * Note: {@link NumberFormat} object are usually not thread safe.
+     * Consider using this format in a synchronized block if thread safe
+     * behavior is wanted.
      */
-    final NumberFormat format;
+    public final NumberFormat number;
 
     /**
      * The character to use as an element separator.
      * This is usually the coma <code>','</code>.
      */
-    final char elementSeparator;
+    public final char elementSeparator;
 
     /**
      * The character to use as text delimitor.
      * This is usually the quote <code>'"'</code>.
      */
-    final char textDelimitor = '"';
+    public final char textDelimitor = '"';
 
     /**
      * The character to use for openining element's parameters.
      * This is usually <code>'['</code> or <code>'('</code>.
      */
-    final char openingBracket = '[';
+    public final char openingBracket = '[';
 
     /**
      * The character to use for closing element's parameters.
      * This is usually <code>']'</code> or <code>')'</code>.
      */
-    final char closingBracket = ']';
+    public final char closingBracket = ']';
     
     /**
      * Construct a format for the specified locale.
@@ -92,14 +95,14 @@ abstract class WKTFormat extends Format {
      */
     public WKTFormat(final Locale locale) {
         this.locale = locale;
-        this.format = NumberFormat.getNumberInstance(locale);
+        this.number = NumberFormat.getNumberInstance(locale);
         char decimalSeparator = '.';
-        if (format instanceof DecimalFormat) {
-            final DecimalFormat df = (DecimalFormat) format;
+        if (number instanceof DecimalFormat) {
+            final DecimalFormat df = (DecimalFormat) number;
             decimalSeparator = df.getDecimalFormatSymbols().getDecimalSeparator();
         }
         elementSeparator = (decimalSeparator==',') ? ';' : ',';
-        format.setGroupingUsed(false);
+        number.setGroupingUsed(false);
     }
 
     /**

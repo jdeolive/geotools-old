@@ -51,6 +51,8 @@ import java.util.logging.Logger;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
+import org.geotools.resources.WKTFormat;
+import org.geotools.resources.WKTElement;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -59,7 +61,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Parser for <cite>Well Know Text</cite> (WKT).
  * Instances of this class are thread-safe.
  *
- * @version $Id: WKTParser.java,v 1.1 2002/09/02 17:55:39 desruisseaux Exp $
+ * @version $Id: WKTParser.java,v 1.2 2002/09/03 09:43:23 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -170,7 +172,7 @@ final class WKTParser extends WKTFormat {
         final WKTElement orientation = element.pullVoidElement("orientation");
         element.close();
         try {
-            return new AxisInfo(name, AxisOrientation.getEnum(orientation.toString(), locale));
+            return new AxisInfo(name, AxisOrientation.getEnum(orientation.keyword, locale));
         } catch (NoSuchElementException exception) {
             final ParseException e = new ParseException(Resources.format(
                     ResourceKeys.ERROR_UNKNOW_TYPE_$1, orientation), orientation.offset);
@@ -436,5 +438,5 @@ final class WKTParser extends WKTFormat {
         name = parseAuthority(element, name);
         element.close();
         return factory.createGeographicCoordinateSystem(name, unit, datum, meridian, axis0, axis1);
-    }        
+    }
 }
