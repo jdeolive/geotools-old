@@ -40,11 +40,22 @@
 <!-- number and combination of conditions.                                -->
 <!-- ==================================================================== -->
 
+<!--
 <project default="build"
+-->
+<maven:project
          xmlns:reactor="reactor"
+         xmlns:j="jelly:core"
+         xmlns:u="jelly:util"
+         xmlns:ant="jelly:ant"
+         xmlns:maven="jelly:maven"
          xmlns:m="maven"
-         xmlns:texen="texen">
+         xmlns:deploy="deploy"
+         xmlns:texen="texen"
+xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
+>
 
+ 
   <!-- ================================================================== -->
   <!-- B U I L D                                                          -->
   <!-- ================================================================== -->
@@ -55,12 +66,12 @@
       looking for modules in: ${basedir}/geotools-src
       
     </echo>
-    <reactor:execute
+    <maven:reactor
       basedir="${basedir}/geotools-src"
-      glob="*/project.xml"
+      includes="*/project.xml"
       goals="clean,jar:install"
       banner="Building"
-      ignoreFailures="true"
+      ignoreFailures="false"
     />
     
     <echo>
@@ -75,9 +86,9 @@
       looking for modules in: ${basedir}/geotools-src
       
     </echo>
-    <reactor:execute
+    <maven:reactor
       basedir="${basedir}/geotools-src"
-      glob="*/project.xml"
+      includes="*/project.xml"
       goals="clean,jar:deploy-snapshot"
       banner="Deploying"
       ignoreFailures="true"
@@ -103,9 +114,9 @@
       ||
     -->
     
-    <reactor:execute
+    <maven:reactor
       basedir="${basedir}/geotools-src"
-      glob="*/project.xml"
+      includes="*/project.xml"
       goals="site:generate"
       banner="Generating site for"
       ignoreFailures="true"
@@ -124,10 +135,10 @@
       ||
     -->
 
-    <reactor:execute
+    <maven:reactor
       basedir="${basedir}/geotools-src"
-      glob="*/project.xml"
-      goals="clean,site:deploy"
+      includes="*/project.xml"
+      goals="clean,jar:install,site:deploy"
       banner="Deploying site for"
       ignoreFailures="true"
     />
@@ -139,12 +150,16 @@
   
   <goal name="site-front-end">
   
-    <reactor:execute
+<echo>before reactor
+</echo>
+    <maven:reactor
       basedir="${basedir}/geotools-src"
-      glob="*/project.xml"
-      goals="reactor:noop"
+      includes="*/project.xml"
       ignoreFailures="false"
+      postProcessing="true"
     />
+<echo>after reactor
+</echo>
     
     <!--
       ||
@@ -158,6 +173,7 @@
       reactor list = ${reactorProjects}
     </echo>
     
+<!-- old style not in beta8
     <attainGoal name="init-texen-tag"/>
     
     <texen:generate
@@ -167,6 +183,12 @@
       outputFile="navigation.xml"
       reactorProjects="${reactorProjects}"
     />
+-->
+
+<velocity:merge name="xdocs/navigation.xml" 
+		basedir="${basedir}"
+		template="navigation.vm"
+/>
 
     <attainGoal name="xdoc"/>
 
@@ -177,18 +199,20 @@
   <!-- ================================================================== -->
 
   <goal
-    name="deploy-front-end-site">
+    name="deploy-site-front-end">
 
     <m:user-check user="${maven.username}"/>
     
     <attainGoal name="site-front-end"/>
 
     <!-- This needs to taken from the project properties -->
-    <property name="maven.homepage" value="/x1/home/jvanzyl/public_html/jakarta-commons/"/>
+    <property name="maven.homepage" value="/seis/raid1/Apache/htdocs/software/geotools/"/>
+    <property name="maven.docs.dest" value="target/docs/"/>
 
     <echo>
       siteAddress = ${pom.siteAddress}
       siteDirectory = ${maven.homepage}
+      maven.docs.dest = ${maven.docs.dest}
     </echo>
 
     <tar tarfile="${maven.final.name}-site.tar" basedir="${maven.docs.dest}"/>
@@ -213,5 +237,5 @@
         
   </goal>
 
-</project>
+</maven:project>
 

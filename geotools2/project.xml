@@ -5,7 +5,7 @@
   <name>geotools-gtbuild</name>
   <id>gtbuild</id>
   <groupID>GT2</groupID>
-  <logo>/images/${pom.id}.gif</logo>
+  <logo>/images/${pom.artifactId}.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>GeoTools</name>
@@ -21,14 +21,14 @@
   <cvsWebUrl/>
   <issueTrackingUrl/>
   <siteAddress>modules.geotools.org</siteAddress>
-  <siteDirectory>/seis/raid1/Apache/htdocs/software/geotools/${pom.id}</siteDirectory>
+  <siteDirectory>/seis/raid1/Apache/htdocs/software/geotools/${pom.artifactId}</siteDirectory>
   <distributionDirectory>/home/groups/g/ge/geotools/htdocs/gt2</distributionDirectory>
   <distributionSite>geotools.sf.net</distributionSite>
   
   <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot:geotools/geotools2/geotools-src/${pom.id}</connection>
+    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot:geotools/geotools2/geotools-src/${pom.artifactId}</connection>
     
-        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/${pom.id}/</url>
+        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/${pom.artifactId}/</url>
     </repository>
   
 
@@ -108,6 +108,27 @@
     </developer>
     </developers>
   <dependencies>
+    <dependency>
+      <id>velocity-dvsl</id>
+      <version>SNAPSHOT</version>
+      <properties>
+        <classloader>root.maven</classloader>
+      </properties>
+    </dependency>
+    <dependency>
+      <id>velocity</id>
+      <version>SNAPSHOT</version>
+      <properties>
+        <classloader>root.maven</classloader>
+      </properties>
+    </dependency>
+    <dependency>
+      <id>commons-jelly+tags-velocity</id>
+      <version>SNAPSHOT</version>
+      <properties>
+        <classloader>root.maven</classloader>
+      </properties>
+    </dependency>
   </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>

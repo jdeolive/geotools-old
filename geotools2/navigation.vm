@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <project name="Geotools2"
-         href="http://www.geotools.org/">
+         href="http://www.geotools.org/" >
 
   <title>Geotools2</title>
 
@@ -32,10 +32,10 @@
     </menu>
 
     <menu name="Module Home Pages">
-      #foreach ($reactorProject in $reactorProjects)
-      <item name="$reactorProject.name" href="/$reactorProject.id/index.html"/>
+       #foreach ($reactorProject in $reactorProjects)
+      <item name="$reactorProject.name" href="/$reactorProject.artifactId/index.html"/>
       #end
-    </menu>
+   </menu>
 
     <menu name="GeoTools Community">
       <item name="GeoTools Home Page"           href="http://www.geotools.org"/>
