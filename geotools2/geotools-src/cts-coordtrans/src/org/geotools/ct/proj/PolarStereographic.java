@@ -71,9 +71,9 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * The polar case of the {@linkplain Stereographic stereographic} projection.
  * This default implementation uses USGS equation (i.e. iteration) for computing
- * the {@linkplain #inverseTransform inverse transform}.
+ * the {@linkplain #inverseTransformNormalized inverse transform}.
  *
- * @version $Id: PolarStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
+ * @version $Id: PolarStereographic.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -81,14 +81,9 @@ import org.geotools.resources.cts.ResourceKeys;
 public class PolarStereographic extends Stereographic {
     /**
      * A constant used in the transformations.
-     * This is <strong>not</strong> equals to the {@link #scaleFactor}.
+     * This is <strong>not</strong> equal to the {@link #scaleFactor}.
      */
     private final double k0;
-
-    /**
-     * Constant equals to {@link #globalScale}&times;<code>k0</code>.
-     */
-    private final double ak0;
 
     /**
      * Latitude of true scale, in radians.
@@ -127,7 +122,6 @@ public class PolarStereographic extends Stereographic {
             // True scale at pole (part of (21-33))
             k0 = 2.0 / Math.sqrt(Math.pow(1+e, 1+e)*Math.pow(1-e, 1-e));
         }
-        ak0 = globalScale*k0;
     }
 
     /**
@@ -158,23 +152,22 @@ public class PolarStereographic extends Stereographic {
      * @return The projected point in meters.
      * @throws ProjectionException if the projection failed.
      */
-    protected Point2D transform(double x, double y, final Point2D ptDst) throws ProjectionException
+    protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
+            throws ProjectionException
     {
-	x = ensureInRange(x-centralMeridian);
         final double sinlat = Math.sin(y);
         final double coslon = Math.cos(x);
         final double sinlon = Math.sin(x);
         if (southPole) {
-            final double rho = ak0 * tsfn(-y, -sinlat);
+            final double rho = k0 * tsfn(-y, -sinlat);
             x = rho * sinlon;
             y = rho * coslon;
         } else {
-            final double rho = ak0 * tsfn(y, sinlat);
+            final double rho = k0 * tsfn(y, sinlat);
             x =  rho * sinlon;
             y = -rho * coslon;
 	}
-        x += falseEasting;
-        y += falseNorthing;
+
         if (ptDst != null) {
             ptDst.setLocation(x,y);
             return ptDst;
@@ -192,11 +185,10 @@ public class PolarStereographic extends Stereographic {
      * @return The geographic point in radians.
      * @throws ProjectionException if the projection failed.
      */
-    protected Point2D inverseTransform(double x, double y, final Point2D ptDst)
+    protected Point2D inverseTransformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException
     {
-        x = (x-falseEasting)  / globalScale;
-        y = (y-falseNorthing) / globalScale;
+
         final double rho = Math.sqrt(x*x + y*y);
         if (southPole) {
             y = -y;
@@ -212,8 +204,8 @@ public class PolarStereographic extends Stereographic {
             final double phi = (Math.PI/2) - 
                                2.0*Math.atan(t*Math.pow((1-esinphi)/(1+esinphi), halfe));
             if (Math.abs(phi-phi0) < TOL) {
-                x = (Math.abs(rho)<TOL) ? centralMeridian :
-                     Math.atan2(x, -y)  + centralMeridian;
+                x = (Math.abs(rho)<TOL) ? 0 :
+                     Math.atan2(x, -y);
                 y = (southPole) ? -phi : phi;
                 break;
             }
@@ -222,7 +214,7 @@ public class PolarStereographic extends Stereographic {
                 throw new ProjectionException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
             }
         }
-        x = ensureInRange(x);
+
         if (ptDst != null) {
             ptDst.setLocation(x,y);
             return ptDst;
@@ -262,7 +254,7 @@ public class PolarStereographic extends Stereographic {
      * Provides the transform equations for the spherical case of the polar
      * stereographic projection.
      *
-     * @version $Id: PolarStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
+     * @version $Id: PolarStereographic.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -274,12 +266,6 @@ public class PolarStereographic extends Stereographic {
          * in {@link Stereographic} in order to allow assertions to work.
          */
         private final double k0;
-
-        /**
-         * Constant equals to {@link #globalScale}&times;<code>k0</code>.
-         * This constant hides the <code>ak0</code> constant from the ellipsoidal case.
-         */
-        private final double ak0;
 
         /**
          * Construct a new map projection from the suplied parameters.
@@ -295,20 +281,18 @@ public class PolarStereographic extends Stereographic {
             } else {
                 k0 = 2;
             }
-            ak0 = globalScale * k0;
         }
 
         /**
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
          * and stores the result in <code>ptDst</code> (units in meters).
          */
-         protected Point2D transform(double x, double y, Point2D ptDst)
+         protected Point2D transformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException
         {
             //Compute using ellipsoidal formulas, for comparaison later.
-            assert (ptDst = super.transform(x, y, ptDst)) != null;
+            assert (ptDst = super.transformNormalized(x, y, ptDst)) != null;
 
-            x = ensureInRange(x-centralMeridian);
             final double coslat = Math.cos(y);
             final double sinlat = Math.sin(y);
             final double coslon = Math.cos(x);
@@ -320,7 +304,7 @@ public class PolarStereographic extends Stereographic {
                         ResourceKeys.ERROR_VALUE_TEND_TOWARD_INFINITY));
                 }
                 // (21-12)
-                final double f = ak0 * coslat / (1-sinlat); // == tan (pi/4 + phi/2)
+                final double f = k0 * coslat / (1-sinlat); // == tan (pi/4 + phi/2)
                 x = f * sinlon; // (21-9)
                 y = f * coslon; // (21-10)
             } else {
@@ -329,15 +313,13 @@ public class PolarStereographic extends Stereographic {
                         ResourceKeys.ERROR_VALUE_TEND_TOWARD_INFINITY));
                 }
                 // (21-8)
-                final double f = ak0 * coslat / (1+sinlat); // == tan (pi/4 - phi/2)
+                final double f = k0 * coslat / (1+sinlat); // == tan (pi/4 - phi/2)
                 x =  f * sinlon; // (21-5)
                 y = -f * coslon; // (21-6)
 	    }
-            x += falseEasting;
-            y += falseNorthing;
 
-            assert Math.abs(ptDst.getX()-x)/globalScale <= EPS : x;
-            assert Math.abs(ptDst.getY()-y)/globalScale <= EPS : y;
+            assert Math.abs(ptDst.getX()-x) <= EPS*globalScale : x;
+            assert Math.abs(ptDst.getY()-y) <= EPS*globalScale : y;
             if (ptDst != null) {
                 ptDst.setLocation(x,y);
                 return ptDst;
@@ -349,22 +331,19 @@ public class PolarStereographic extends Stereographic {
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
          * and stores the result in <code>ptDst</code>.
          */
-        protected Point2D inverseTransform(double x, double y, Point2D ptDst)
+        protected Point2D inverseTransformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException
         {
             // Compute using ellipsoidal formulas, for comparaison later.
-            assert (ptDst = super.inverseTransform(x, y, ptDst)) != null;
+            assert (ptDst = super.inverseTransformNormalized(x, y, ptDst)) != null;
 
-            x = (x-falseEasting)  / globalScale;
-            y = (y-falseNorthing) / globalScale;
             final double rho = Math.sqrt(x*x + y*y);
 
             if (!southPole) {
                 y = -y;
             }
             // (20-17) call atan2(x,y) to properly deal with y==0
-            x = (Math.abs(x)<TOL && Math.abs(y)<TOL) ? centralMeridian :
-                 Math.atan2(x, y) + centralMeridian;
+            x = (Math.abs(x)<TOL && Math.abs(y)<TOL) ? 0.0 : Math.atan2(x, y);
             if (Math.abs(rho) < TOL) {
                 y = latitudeOfOrigin;
             } else {
@@ -373,7 +352,7 @@ public class PolarStereographic extends Stereographic {
                 y = (southPole) ? Math.asin(-cosc) : Math.asin(cosc);
                 // (20-14) with phi1=90
             }
-            x = ensureInRange(x);
+
             assert Math.abs(ptDst.getX()-x) <= EPS : x;
             assert Math.abs(ptDst.getY()-y) <= EPS : y;
             if (ptDst != null) {
@@ -388,12 +367,13 @@ public class PolarStereographic extends Stereographic {
 
 
     /**
-     * Overides {@link PolarStereographic} to use the a series for the {@link #inverseTransform
-     * inverseTransform(...)} method. This is the equation specified by the EPSG. Allows for a 
+     * Overides {@link PolarStereographic} to use the a series for the
+     * {@link #inverseTransformNormalized inverseTransformNormalized(...)} method.
+     * This is the equation specified by the EPSG. Allows for a 
      * <code>"latitude_true_scale"<code> parameter to be used, but this parameter is
      * not listed by the EPSG.
      *
-     * @version $Id: PolarStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
+     * @version $Id: PolarStereographic.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
      * @author Rueben Schulz
      */
     static final class EPSG extends PolarStereographic {
@@ -454,14 +434,12 @@ public class PolarStereographic extends Stereographic {
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
          * and stores the result in <code>ptDst</code>.
          */
-        protected Point2D inverseTransform(double x, double y, Point2D ptDst)
+        protected Point2D inverseTransformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException
         {
             // Compute using itteration formulas, for comparaison later.
-            assert (ptDst = super.inverseTransform(x, y, ptDst)) != null;
+            assert (ptDst = super.inverseTransformNormalized(x, y, ptDst)) != null;
 
-            x = (x-falseEasting)  / globalScale;
-            y = (y-falseNorthing) / globalScale;
             final double rho = Math.sqrt(x*x + y*y);
             if (southPole) {
                 y = -y;
@@ -470,15 +448,14 @@ public class PolarStereographic extends Stereographic {
             final double t = (rho/k0) * Math.sqrt(Math.pow(1+e, 1+e)*Math.pow(1-e, 1-e)) / 2;
             final double chi = Math.PI/2 - 2*Math.atan(t);
 
-            x = (Math.abs(rho)<TOL) ? centralMeridian :
-            Math.atan2(x, -y) + centralMeridian;
+            x = (Math.abs(rho)<TOL) ? 0.0 : Math.atan2(x, -y);
 
             //See Snyde P. 19, "Computation of Series"
             final double sin2chi = Math.sin(2.0*chi);
             final double cos2chi = Math.cos(2.0*chi);
             y = chi + sin2chi*(A + cos2chi*(B + cos2chi*(C + D*cos2chi)));
             y = (southPole) ? -y : y;
-            x = ensureInRange(x);
+
             assert Math.abs(ptDst.getX()-x) <= EPS : x;
             assert Math.abs(ptDst.getY()-y) <= EPS : y;
             if (ptDst != null) {

@@ -82,7 +82,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/lambert_conic_conformal_2sp.html">lambert_conic_conformal_2sp</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/lambert_conic_conformal_2sp_belgium.html">lambert_conic_conformal_2sp_belgium</A>
  *
- * @version $Id: LambertConformal.java,v 1.4 2003/11/12 14:13:34 desruisseaux Exp $
+ * @version $Id: LambertConformal.java,v 1.5 2004/01/11 16:49:31 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -98,12 +98,6 @@ public class LambertConformal extends ConicProjection {
      */
     protected final double phi1, phi2;
     
-    /**
-     * Global scale factor. Value <code>ak0</code> is equals
-     * to {@link #semiMajor}&times;{@link #scaleFactor}.
-     */
-    protected final double ak0;
-
     /**
      * Internal variables for computation.
      */
@@ -122,7 +116,7 @@ public class LambertConformal extends ConicProjection {
     /**
      * Informations about a {@link LambertConformalProjection}.
      *
-     * @version $Id: LambertConformal.java,v 1.4 2003/11/12 14:13:34 desruisseaux Exp $
+     * @version $Id: LambertConformal.java,v 1.5 2004/01/11 16:49:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -158,8 +152,8 @@ public class LambertConformal extends ConicProjection {
                 ResourceKeys.LAMBERT_CONFORMAL_PROJECTION);
                 if (sp2) {
                     remove("scale_factor");
-                    put("standard_parallel1", 30.0, LATITUDE_RANGE);
-                    put("standard_parallel2", 45.0, LATITUDE_RANGE);
+                    put("standard_parallel_1", 30.0, LATITUDE_RANGE);
+                    put("standard_parallel_2", 45.0, LATITUDE_RANGE);
                 } else {
                     // Change the default value from 0 (which fails) to "no default value".
                     put("latitude_of_origin", Double.NaN, LATITUDE_RANGE);
@@ -202,17 +196,16 @@ public class LambertConformal extends ConicProjection {
         this.sp2         = sp2;
         this.belgium     = belgium;
         if (sp2) {
-            phi1 = latitudeToRadians(parameters.getValue("standard_parallel1", 30), true);
-            phi2 = latitudeToRadians(parameters.getValue("standard_parallel2", 45), true);
+            phi1 = latitudeToRadians(parameters.getValue("standard_parallel_1", 30), true);
+            phi2 = latitudeToRadians(parameters.getValue("standard_parallel_2", 45), true);
         } else {
             if (belgium) {
                 throw new IllegalArgumentException();
             }
-            // EPSG says the 1sp case uses the latitude of origin as the SP
+            // EPSG says the 1SP case uses the latitude of origin as the SP
             phi1 = phi2 = latitudeOfOrigin;
         }
         // Compute constants
-        this.ak0 = semiMajor * scaleFactor;
         if (Math.abs(phi1 + phi2) < EPS) {
             throw new IllegalArgumentException(Resources.format(
                     ResourceKeys.ERROR_ANTIPODE_LATITUDES_$2,
@@ -267,7 +260,7 @@ public class LambertConformal extends ConicProjection {
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
      * and stores the result in <code>ptDst</code> (units in meters).
      */
-    protected Point2D transform(double x, double y, final Point2D ptDst)
+    protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException
     {
         double rho;
@@ -285,13 +278,13 @@ public class LambertConformal extends ConicProjection {
         } else {
             rho = F * Math.pow(tsfn(y, Math.sin(y)), n);
         }
-        x = ensureInRange(x-centralMeridian);
+        
         x *= n;
         if (belgium) {
             x -= BELGE_A;
         }
-        y = ak0 * (rho0 - rho * Math.cos(x)) + falseNorthing;
-        x = ak0 * (       rho * Math.sin(x)) + falseEasting;
+        y = rho0 - rho * Math.cos(x);
+        x =        rho * Math.sin(x);
         
         if (ptDst != null) {
             ptDst.setLocation(x,y);
@@ -304,13 +297,12 @@ public class LambertConformal extends ConicProjection {
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
      * and stores the result in <code>ptDst</code>.
      */
-    protected Point2D inverseTransform(double x, double y, final Point2D ptDst)
+    protected Point2D inverseTransformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException 
     {
         double theta;
-        x =        (x-falseEasting)/ak0;
-        y = rho0 - (y-falseNorthing)/ak0;
-        double rho = Math.sqrt(x*x + y*y);  // Zero when the latitude ist 90 degrees.
+        y = rho0 - y;
+        double rho = Math.sqrt(x*x + y*y);  // Zero when the latitude is 90 degrees.
         if (rho > EPS) {
             if (n < 0) {
                 rho = -rho;
@@ -321,14 +313,14 @@ public class LambertConformal extends ConicProjection {
             if (belgium) {
                 theta += BELGE_A;
             }
-            x = ensureInRange(centralMeridian + theta/n);
+            x = theta/n;
             if (isSpherical) {
                 y = 2.0 * Math.atan(Math.pow(F/rho, 1.0/n)) - (Math.PI/2);
             } else {
                 y = cphi2(Math.pow(rho/F, 1.0/n));
             }
         } else {
-            x = centralMeridian;
+            x = 0.0;
             y = n < 0 ? -(Math.PI/2) : (Math.PI/2);
         }
         if (ptDst != null) {
@@ -365,7 +357,6 @@ public class LambertConformal extends ConicProjection {
                    equals(this.n,      that.n)    &&
                    equals(this.F,      that.F)    &&
                    equals(this.rho0,   that.rho0) &&
-                   equals(this.ak0,    that.ak0)  &&
                    equals(this.phi1,   that.phi1) &&
                    equals(this.phi2,   that.phi2);
         }
@@ -378,8 +369,8 @@ public class LambertConformal extends ConicProjection {
     void toString(final StringBuffer buffer) {
         super.toString(buffer);
         if (sp2) {
-            addParameter(buffer, "standard_parallel1", Math.toDegrees(phi1));
-            addParameter(buffer, "standard_parallel2", Math.toDegrees(phi2));
+            addParameter(buffer, "standard_parallel_1", Math.toDegrees(phi1));
+            addParameter(buffer, "standard_parallel_2", Math.toDegrees(phi2));
         }
     }
 }

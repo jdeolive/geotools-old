@@ -35,6 +35,9 @@
  *    USGS's work is fully acknowledged here.
  */
 /*
+** libproj -- library of cartographic projections
+** Copyright (c) 2003   Gerald I. Evenden
+**
 ** Permission is hereby granted, free of charge, to any person obtaining
 ** a copy of this software and associated documentation files (the
 ** "Software"), to deal in the Software without restriction, including
@@ -71,7 +74,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * The USGS oblique/equatorial case of the {@linkplain Stereographic stereographic} projection.
  *
- * @version $Id: ObliqueStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
+ * @version $Id: ObliqueStereographic.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -79,14 +82,9 @@ import org.geotools.resources.cts.ResourceKeys;
 public class ObliqueStereographic extends Stereographic {
     /**
      * A constant used in the transformations.
-     * This is <strong>not</strong> equals to the {@link #scaleFactor}.
+     * This is <strong>not</strong> equal to the {@link #scaleFactor}.
      */
     final double k0;
-
-    /**
-     * Constant equals to {@link #globalScale}&times;<code>k0</code>.
-     */
-    final double ak0;
 
     /**
      * Constants used for the oblique projections.
@@ -117,7 +115,6 @@ public class ObliqueStereographic extends Stereographic {
         }
         // part of (14 - 15)
         k0  = 2.0*msfn(sinphi0, cosphi0);
-        ak0 = globalScale * k0;
     }
 
     /**
@@ -130,18 +127,17 @@ public class ObliqueStereographic extends Stereographic {
      * @return The projected point in meters.
      * @throws ProjectionException if the projection failed.
      */
-    protected Point2D transform(double x, double y, final Point2D ptDst) throws ProjectionException
+    protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
+            throws ProjectionException
     {
-        x = ensureInRange(x-centralMeridian);
         final double chi = 2.0 * Math.atan(ssfn(y, Math.sin(y))) - (Math.PI/2);
         final double sinChi = Math.sin(chi);
         final double cosChi = Math.cos(chi);
         final double cosChi_coslon = cosChi*Math.cos(x);
-        final double A = ak0 / cosChi1 / (1 + sinChi1*sinChi + cosChi1*cosChi_coslon);
+        final double A = k0 / cosChi1 / (1 + sinChi1*sinChi + cosChi1*cosChi_coslon);
         x = A * cosChi*Math.sin(x);
         y = A * (cosChi1*sinChi - sinChi1*cosChi_coslon);
-        x += falseEasting;
-        y += falseNorthing;
+
         if (ptDst != null) {
             ptDst.setLocation(x,y);
             return ptDst;
@@ -159,11 +155,10 @@ public class ObliqueStereographic extends Stereographic {
      * @return The geographic point in radians.
      * @throws ProjectionException if the projection failed.
      */
-    protected Point2D inverseTransform(double x, double y, final Point2D ptDst)
+    protected Point2D inverseTransformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException
     {
-        x = (x-falseEasting)  / globalScale;
-        y = (y-falseNorthing) / globalScale;
+
         final double rho = Math.sqrt(x*x + y*y);
         final double ce = 2.0 * Math.atan2(rho*cosChi1, k0);
         final double cosce = Math.cos(ce);
@@ -179,8 +174,8 @@ public class ObliqueStereographic extends Stereographic {
             final double esinphi = e*Math.sin(phi0);
             final double phi = 2*Math.atan(t*Math.pow((1+esinphi)/(1-esinphi), halfe))-(Math.PI/2);
             if (Math.abs(phi-phi0) < TOL) {
-                x = (Math.abs(rho)<TOL) ? centralMeridian :
-                     Math.atan2(x*since, rho*cosChi1*cosce - y*sinChi1*since) + centralMeridian;
+                x = (Math.abs(rho)<TOL) ? 0.0 :
+                     Math.atan2(x*since, rho*cosChi1*cosce - y*sinChi1*since);
                 y = phi;
                 break;
             }
@@ -189,7 +184,7 @@ public class ObliqueStereographic extends Stereographic {
                 throw new ProjectionException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
             }
         }
-        x = ensureInRange(x);
+
         if (ptDst != null) {
             ptDst.setLocation(x,y);
             return ptDst;
@@ -241,7 +236,7 @@ public class ObliqueStereographic extends Stereographic {
      * Provides the transform equations for the spherical case of the 
      * oblique stereographic projection.
      *
-     * @version $Id: ObliqueStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
+     * @version $Id: ObliqueStereographic.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -255,12 +250,6 @@ public class ObliqueStereographic extends Stereographic {
         private static final double k0 = 2;
 
         /**
-         * Constant equals to {@link #globalScale}&times;<code>k0</code>.
-         * This constant hides the <code>ak0</code> constant from the ellipsoidal case.
-         */
-        private final double ak0;
-
-        /**
          * Construct a new map projection from the suplied parameters.
          *
          * @param  parameters The parameter values in standard units.
@@ -269,20 +258,18 @@ public class ObliqueStereographic extends Stereographic {
         protected Spherical(final Projection parameters) throws MissingParameterException {
             super(parameters);
             assert isSpherical;
-            ak0 = globalScale * k0;
         }
 
         /**
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
          * and stores the result in <code>ptDst</code> (units in meters).
          */
-        protected Point2D transform(double x, double y, Point2D ptDst)
+        protected Point2D transformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException
         {
             //Compute using ellipsoidal formulas, for comparaison later.
-            assert (ptDst = super.transform(x, y, ptDst)) != null;
+            assert (ptDst = super.transformNormalized(x, y, ptDst)) != null;
             
-            x = ensureInRange(x-centralMeridian);
             final double coslat = Math.cos(y);
             final double sinlat = Math.sin(y);
             final double coslon = Math.cos(x);
@@ -291,14 +278,12 @@ public class ObliqueStereographic extends Stereographic {
                 throw new ProjectionException(Resources.format(
                           ResourceKeys.ERROR_VALUE_TEND_TOWARD_INFINITY));
             }
-            f = ak0/f;
+            f = k0/f;
             x = f * coslat * Math.sin(x);                           // (21-2)
             y = f * (cosphi0 * sinlat - sinphi0 * coslat * coslon); // (21-3)
-            x += falseEasting;
-            y += falseNorthing;
 
-            assert Math.abs(ptDst.getX()-x)/globalScale <= EPS : x;
-            assert Math.abs(ptDst.getY()-y)/globalScale <= EPS : y;
+            assert Math.abs(ptDst.getX()-x) <= EPS*globalScale : x;
+            assert Math.abs(ptDst.getY()-y) <= EPS*globalScale : y;
             if (ptDst != null) {
                 ptDst.setLocation(x,y);
                 return ptDst;
@@ -310,18 +295,16 @@ public class ObliqueStereographic extends Stereographic {
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
          * and stores the result in <code>ptDst</code>.
          */
-        protected Point2D inverseTransform(double x, double y, Point2D ptDst)
+        protected Point2D inverseTransformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException
         {
             // Compute using ellipsoidal formulas, for comparaison later.
-            assert (ptDst = super.inverseTransform(x, y, ptDst)) != null;
+            assert (ptDst = super.inverseTransformNormalized(x, y, ptDst)) != null;
 
-            x = (x-falseEasting)  / globalScale;
-            y = (y-falseNorthing) / globalScale;
             final double rho = Math.sqrt(x*x + y*y);
             if (Math.abs(rho) < TOL) {
                 y = latitudeOfOrigin;
-                x = centralMeridian;
+                x = 0.0;
             } else {
                 final double c = 2.0 * Math.atan(rho/k0);
                 final double cosc = Math.cos(c);
@@ -329,10 +312,9 @@ public class ObliqueStereographic extends Stereographic {
                 final double ct = rho*cosphi0*cosc - y*sinphi0*sinc; // (20-15)
                 final double t  = x*sinc;
                 y = Math.asin(cosc*sinphi0 + y*sinc*cosphi0/rho); // (20-14)
-                x = (Math.abs(ct)<TOL && Math.abs(t)<TOL) ? centralMeridian :
-                    Math.atan2(t, ct) + centralMeridian;
+                x = (Math.abs(ct)<TOL && Math.abs(t)<TOL) ? 0.0 :
+                    Math.atan2(t, ct);
             }
-            x = ensureInRange(x);
 
             assert Math.abs(ptDst.getX()-x) <= EPS : x;
             assert Math.abs(ptDst.getY()-y) <= EPS : y;
@@ -365,7 +347,7 @@ public class ObliqueStereographic extends Stereographic {
      *
      * @see <A HREF="http://members.bellatlantic.net/~vze2hc4d/proj4/sterea.pdf">Oblique Stereographic Alternative (sterea.pdf)</A>
      *
-     * @version $Id: ObliqueStereographic.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
+     * @version $Id: ObliqueStereographic.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
      * @author Rueben Schulz
      */
     static final class EPSG extends ObliqueStereographic { 
@@ -386,7 +368,7 @@ public class ObliqueStereographic extends Stereographic {
         private static final double TOL = 1E-14;
 
         /**
-         * Construct a new map projection from the suplied parameters.
+         * Construct a new map projection from the supplied parameters.
          *
          * @param  parameters The parameter values in standard units.
          * @throws MissingParameterException if a mandatory parameter is missing.
@@ -415,21 +397,19 @@ public class ObliqueStereographic extends Stereographic {
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
          * and stores the result in <code>ptDst</code>.
          */
-        protected Point2D transform(double x, double y, Point2D ptDst)
+        protected Point2D transformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException 
         {  
-            x = ensureInRange(x-centralMeridian);
             y = 2. * Math.atan(K *Math.pow(Math.tan(.5 * y + Math.PI/4), C) *
                                   srat(e * Math.sin(y), ratexp)) - Math.PI/2;
             x *= C;
             double sinc = Math.sin(y);
             double cosc = Math.cos(y);
             double cosl = Math.cos(x);
-            double k = globalScale * R2 / (1. + sinc0 * sinc + cosc0 * cosc * cosl);
+            double k = R2 / (1. + sinc0 * sinc + cosc0 * cosc * cosl);
             x = k * cosc * Math.sin(x);
             y = k * (cosc0 * sinc - sinc0 * cosc * cosl);
-            x += falseEasting;
-            y += falseNorthing;
+
             if (ptDst != null) {
                 ptDst.setLocation(x,y);
                 return ptDst;
@@ -441,11 +421,9 @@ public class ObliqueStereographic extends Stereographic {
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
          * and stores the result in <code>ptDst</code>.
          */
-        protected Point2D inverseTransform(double x, double y, Point2D ptDst)
+        protected Point2D inverseTransformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException
         {
-            x = (x-falseEasting)  / globalScale;
-            y = (y-falseNorthing) / globalScale;
 
             final double rho = Math.sqrt(x*x + y*y);
             final double c = 2. * Math.atan2(rho, R2);
@@ -470,7 +448,6 @@ public class ObliqueStereographic extends Stereographic {
             }
             // End pj_inv_gauss(...) method inlined
 
-            x = ensureInRange(x + centralMeridian);
             if (ptDst != null) {
                 ptDst.setLocation(x,y);
                 return ptDst;

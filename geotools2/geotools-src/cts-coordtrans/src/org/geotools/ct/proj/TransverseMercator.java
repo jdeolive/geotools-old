@@ -1,5 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Fisheries and Oceans Canada
@@ -92,7 +93,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <br><br>
  *
  * NOTE: formulas used below are not those of Snyder, but rather those
- *       from the <code>proj<.code> package of the USGS survey, which
+ *       from the <code>proj</code> package of the USGS survey, which
  *       have been reproduced verbatim. USGS work is acknowledged here.
  * <br><br>
  *
@@ -108,18 +109,12 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://mathworld.wolfram.com/MercatorProjection.html">Transverse Mercator projection on MathWorld</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/transverse_mercator.html">"Transverse_Mercator" on Remote Sensing</A>
  *
- * @version $Id: TransverseMercator.java,v 1.4 2003/11/12 14:13:34 desruisseaux Exp $
+ * @version $Id: TransverseMercator.java,v 1.5 2004/01/11 16:49:31 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
  */
 public class TransverseMercator extends CylindricalProjection {
-    /**
-     * Global scale factor. Value <code>ak0</code>
-     * is equals to <code>{@link #semiMajor}*k0</code>.
-     */
-    protected final double ak0;
-    
     /*
      * A derived quantity of excentricity, computed
      * by <code>e'² = (a²-b²)/b² = es/(1-es)</code>
@@ -177,7 +172,7 @@ public class TransverseMercator extends CylindricalProjection {
     /**
      * Informations about a {@link TransverseMercator}.
      *
-     * @version $Id: TransverseMercator.java,v 1.4 2003/11/12 14:13:34 desruisseaux Exp $
+     * @version $Id: TransverseMercator.java,v 1.5 2004/01/11 16:49:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -246,7 +241,6 @@ public class TransverseMercator extends CylindricalProjection {
         super(parameters);
         
         //  Compute constants
-        this.ak0 = semiMajor*scaleFactor;
         esp = es / (1.0 - es);
           
         double t;
@@ -270,10 +264,9 @@ public class TransverseMercator extends CylindricalProjection {
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
      * and stores the result in <code>ptDst</code> (units in meters).
      */
-    protected Point2D transform(double x, double y, final Point2D ptDst)
+    protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException 
     {
-        x= ensureInRange(x-centralMeridian);
         double sinphi = Math.sin(y);
         double cosphi = Math.cos(y);
         
@@ -285,20 +278,17 @@ public class TransverseMercator extends CylindricalProjection {
         double n = esp * cosphi*cosphi;
 
         /* NOTE: meridinal distance at latitudeOfOrigin is always 0 */
-        y = ak0*(mlfn(y, sinphi, cosphi) - ml0 + 
-        sinphi*al*x*
-        FC2 * ( 1.0 +
-        FC4 * als * (5.0 - t + n*(9.0 + 4.0*n) +
-        FC6 * als * (61.0 + t * (t - 58.0) + n*(270.0 - 330.0*t) +
-        FC8 * als * (1385.0 + t * ( t*(543.0 - t) - 3111.0))))));
+        y = (mlfn(y, sinphi, cosphi) - ml0 + 
+            sinphi*al*x*
+            FC2 * ( 1.0 +
+            FC4 * als * (5.0 - t + n*(9.0 + 4.0*n) +
+            FC6 * als * (61.0 + t * (t - 58.0) + n*(270.0 - 330.0*t) +
+            FC8 * als * (1385.0 + t * ( t*(543.0 - t) - 3111.0))))));
         
-        x = ak0*al*(FC1 + FC3 * als*(1.0 - t + n +
-        FC5 * als * (5.0 + t*(t - 18.0) + n*(14.0 - 58.0*t) +
-        FC7 * als * (61.0+ t*(t*(179.0 - t) - 479.0 )))));
-        
-        x += falseEasting;
-        y += falseNorthing;
-        
+        x = al*(FC1 + FC3 * als*(1.0 - t + n +
+            FC5 * als * (5.0 + t*(t - 18.0) + n*(14.0 - 58.0*t) +
+            FC7 * als * (61.0+ t*(t*(179.0 - t) - 479.0 )))));
+               
         if (ptDst != null) {
             ptDst.setLocation(x,y);
             return ptDst;
@@ -310,24 +300,22 @@ public class TransverseMercator extends CylindricalProjection {
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
      * and stores the result in <code>ptDst</code>.
      */
-    protected Point2D inverseTransform(double x, double y, final Point2D ptDst)
+    protected Point2D inverseTransformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException 
     {
-        x -= falseEasting;
-        y -= falseNorthing;
         
-        double phi = inv_mlfn(ml0 + y / ak0);
+        double phi = inv_mlfn(ml0 + y);
         
         if (Math.abs(phi) >= (Math.PI/2)) {
             y = y<0.0 ? -(Math.PI/2) : (Math.PI/2);
-            x = centralMeridian;
+            x = 0.0;
         } else {
             double sinphi = Math.sin(phi);
             double cosphi = Math.cos(phi);
             double t = (Math.abs(cosphi) > TOL) ? sinphi/cosphi : 0.0;
             double n = esp * cosphi*cosphi;
             double con = 1.0 - es * sinphi*sinphi;
-            double d = x*Math.sqrt(con)/ak0;
+            double d = x*Math.sqrt(con);
             con *= t;
             t *= t;
             double ds = d*d;
@@ -340,9 +328,8 @@ public class TransverseMercator extends CylindricalProjection {
             
             x = d*(FC1 - ds * FC3 * (1.0 + 2.0*t + n -
                 ds*FC5*(5.0 + t*(28.0 + 24* t + 8.0*n) + 6.0*n -
-                ds*FC7*(61.0 + t*(662.0 + t*(1320.0 + 720.0*t))))))/cosphi + centralMeridian;
+                ds*FC7*(61.0 + t*(662.0 + t*(1320.0 + 720.0*t))))))/cosphi;
         }
-        x = ensureInRange(x);
         
         if (ptDst != null) {
             ptDst.setLocation(x,y);
@@ -376,16 +363,13 @@ public class TransverseMercator extends CylindricalProjection {
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
          * and stores the result in <code>ptDst</code> using equations for a Sphere.
          */
-        protected Point2D transform(double x, double y, Point2D ptDst)
+        protected Point2D transformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException 
         {
             // Compute using ellipsoidal formulas, for comparaison later.
-            assert (ptDst = super.transform(x, y, ptDst)) != null;
-            
-            x= ensureInRange(x-centralMeridian);
-            
+            assert (ptDst = super.transformNormalized(x, y, ptDst)) != null;
+                       
             double cosphi = Math.cos(y);
-            
             double b = cosphi * Math.sin(x);
             if (Math.abs(Math.abs(b) - 1.0) <= TOL) {
                 throw new ProjectionException(Resources.format(
@@ -393,7 +377,7 @@ public class TransverseMercator extends CylindricalProjection {
             }
             
             double yy = cosphi * Math.cos(x) / Math.sqrt(1.0-b*b);
-            x = 0.5*ak0 * Math.log((1.0+b)/(1.0-b));    /* Snyder 8-1 */
+            x = 0.5 * Math.log((1.0+b)/(1.0-b));    /* Snyder 8-1 */
             
             if ((b=Math.abs(yy)) >= 1.0) {
                 if ((b-1.0) > TOL) {
@@ -408,12 +392,10 @@ public class TransverseMercator extends CylindricalProjection {
             if (y < 0) {
                 yy = -yy;
             }
-            y = ak0 * (yy - latitudeOfOrigin);
-            x += falseEasting;
-            y += falseNorthing;
-            
-            assert Math.abs(ptDst.getX()-x)/ak0 <= EPS : x;
-            assert Math.abs(ptDst.getY()-y)/ak0 <= EPS : y;
+            y = (yy - latitudeOfOrigin);
+          
+            assert Math.abs(ptDst.getX()-x) <= EPS*globalScale : x;
+            assert Math.abs(ptDst.getY()-y) <= EPS*globalScale : y;
             if (ptDst != null) {
                 ptDst.setLocation(x,y);
                 return ptDst;
@@ -425,23 +407,20 @@ public class TransverseMercator extends CylindricalProjection {
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
          * and stores the result in <code>ptDst</code> using equations for a sphere.
          */
-        protected Point2D inverseTransform(double x, double y, Point2D ptDst)
+        protected Point2D inverseTransformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException 
         {
             // Compute using ellipsoidal formulas, for comparaison later.
-            assert (ptDst = super.inverseTransform(x, y, ptDst)) != null;
-            x -= falseEasting;
-            y -= falseNorthing;
+            assert (ptDst = super.inverseTransformNormalized(x, y, ptDst)) != null;
             
-            double t = Math.exp(x/ak0);
+            double t = Math.exp(x);
             double d = 0.5 * (t-1.0/t);
-            t = Math.cos(latitudeOfOrigin + y/ak0);
+            t = Math.cos(latitudeOfOrigin + y);
             double phi = Math.asin(Math.sqrt((1.0-t*t)/(1.0+d*d)));
             y = y<0.0 ? -phi : phi;
             x = (Math.abs(d)<=TOL && Math.abs(t)<=TOL) ? 
-                    centralMeridian :
-                    Math.atan2(d,t) + centralMeridian;
-            x= ensureInRange(x);
+                    0.0 :
+                    Math.atan2(d,t);
 
             assert Math.abs(ptDst.getX()-x) <= EPS : x;
             assert Math.abs(ptDst.getY()-y) <= EPS : y;
@@ -505,7 +484,7 @@ public class TransverseMercator extends CylindricalProjection {
      * Returns a hash value for this projection.
      */
     public int hashCode() { 
-        final long code = Double.doubleToLongBits(ak0);
+        final long code = Double.doubleToLongBits(ml0);
         return ((int)code ^ (int)(code >>> 32)) + 37*super.hashCode();
     }
     

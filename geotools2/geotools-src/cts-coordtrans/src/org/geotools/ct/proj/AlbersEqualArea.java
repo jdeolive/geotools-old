@@ -93,10 +93,10 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/albers_equal_area_conic.html"> "Albers_Conic_Equal_Area" on www.remotesensing.org</A>
  * @see <A HREF="http://srmwww.gov.bc.ca/gis/bceprojection.html">British Columbia Albers Standard Projection</A>
  *
- * @version $Id: AlbersEqualArea.java,v 1.2 2003/11/12 14:13:33 desruisseaux Exp $
+ * @version $Id: AlbersEqualArea.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
  * @author Rueben Schulz
  */
-final public class AlbersEqualArea extends ConicProjection {
+public class AlbersEqualArea extends ConicProjection {
     /**
      * Maximum difference allowed when comparing real numbers.
      */
@@ -106,12 +106,6 @@ final public class AlbersEqualArea extends ConicProjection {
      * Maximum number of itterations for the inverse calculation.
      */
     private static final int MAX_ITER = 15;
-    
-    /**
-     * Global scale factor. Value <code>ak0</code> is equals
-     * to {@link #semiMajor}&times;{@link #scaleFactor}.
-     */
-    private final double ak0;
     
     /**
      * Constants used by the spherical and elliptical Albers projection. 
@@ -132,7 +126,7 @@ final public class AlbersEqualArea extends ConicProjection {
     /**
      * Informations about a {@link AlbersEqualArea}.
      *
-     * @version $Id: AlbersEqualArea.java,v 1.2 2003/11/12 14:13:33 desruisseaux Exp $
+     * @version $Id: AlbersEqualArea.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
      * @author Rueben Schulz
      */
     static final class Provider extends org.geotools.ct.proj.Provider {
@@ -145,7 +139,6 @@ final public class AlbersEqualArea extends ConicProjection {
             remove("scale_factor");
             put("standard_parallel_1", 50.0, LATITUDE_RANGE);
             put("standard_parallel_2", 58.5, LATITUDE_RANGE);
-
         }
 
         /**
@@ -169,7 +162,6 @@ final public class AlbersEqualArea extends ConicProjection {
         phi2 = latitudeToRadians(parameters.getValue("standard_parallel_2", 58.5), true);
 
 	//Compute Constants
-        this.ak0 = semiMajor * scaleFactor;
         if (Math.abs(phi1 + phi2) < TOL) 
             throw new IllegalArgumentException(Resources.format(
                     ResourceKeys.ERROR_ANTIPODE_LATITUDES_$2,
@@ -215,10 +207,10 @@ final public class AlbersEqualArea extends ConicProjection {
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
      * and stores the result in <code>ptDst</code> (units in meters).
      */
-    protected Point2D transform(double x, double y, final Point2D ptDst)
+    protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException
     {
-        x = n*ensureInRange(x-centralMeridian);
+        x *= n;
         double rho;
         if (isSpherical) {
             rho = c - n*2 * Math.sin(y);
@@ -228,12 +220,13 @@ final public class AlbersEqualArea extends ConicProjection {
 
         if (rho < 0.0) {
             // TODO: fix message (and check when this condition will occur)
+            // is this only checking for an impossible divide by 0 condition?
             throw new ProjectionException("Tolerance condition error");
         }
         rho = Math.sqrt(rho) / n;
-        y   = ak0*(rho0 - rho * Math.cos(x))  + falseNorthing;
-        x   = ak0*        rho * Math.sin(x)   + falseEasting;
-        
+        y   = rho0 - rho * Math.cos(x);
+        x   =        rho * Math.sin(x);
+
         if (ptDst != null) {
             ptDst.setLocation(x,y);
             return ptDst;
@@ -245,11 +238,9 @@ final public class AlbersEqualArea extends ConicProjection {
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate
      * and stores the result in <code>ptDst</code>.
      */
-    protected Point2D inverseTransform(double x, double y, final Point2D ptDst)
+    protected Point2D inverseTransformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException
     {
-        x = (x - falseEasting) /ak0;
-        y = (y - falseNorthing)/ak0;
         y = rho0 - y;
         double rho = Math.sqrt(x*x + y*y);
         if (rho  != 0.0) {
@@ -280,7 +271,7 @@ final public class AlbersEqualArea extends ConicProjection {
             x = 0.0;
             y = n > 0.0 ? Math.PI/2.0 : - Math.PI/2.0;
         }
-        x = ensureInRange(x + centralMeridian);
+
         if (ptDst != null) {
             ptDst.setLocation(x,y);
             return ptDst;
@@ -351,8 +342,7 @@ final public class AlbersEqualArea extends ConicProjection {
         }
         if (super.equals(object)) {
             final AlbersEqualArea that = (AlbersEqualArea) object;
-            return equals(this.ak0  , that.ak0 ) &&
-                   equals(this.n    , that.n   ) &&
+            return equals(this.n    , that.n   ) &&
                    equals(this.c    , that.c   ) &&
                    equals(this.rho0 , that.rho0) &&
                    equals(this.phi1 , that.phi1) &&

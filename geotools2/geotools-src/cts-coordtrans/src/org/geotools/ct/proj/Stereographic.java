@@ -95,7 +95,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/stereographic.html">Stereographic</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/random_issues.html#stereographic">Some Random Stereographic Issues</A>
  *
- * @version $Id: Stereographic.java,v 1.5 2003/11/12 14:13:34 desruisseaux Exp $
+ * @version $Id: Stereographic.java,v 1.6 2004/01/11 16:49:31 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -106,12 +106,6 @@ public abstract class Stereographic extends PlanarProjection {
      */
     static final int MAX_ITER = 10;
 
-    /**
-     * Global scale factor. Value <code>globalScale</code>
-     * is equals to {@link #semiMajor}&times;{@link #scaleFactor}.
-     */
-    final double globalScale;
-
 
     /**
      * Informations about a {@link Stereographic} projection. The {@link #create} method infer
@@ -120,7 +114,7 @@ public abstract class Stereographic extends PlanarProjection {
      * default value is 90°N for <code>"Polar_Stereographic"</code> and 0° for
      * <code>"Oblique_Stereographic"</code>.
      *
-     * @version $Id: Stereographic.java,v 1.5 2003/11/12 14:13:34 desruisseaux Exp $
+     * @version $Id: Stereographic.java,v 1.6 2004/01/11 16:49:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -219,7 +213,6 @@ public abstract class Stereographic extends PlanarProjection {
      */
     protected Stereographic(final Projection parameters) throws MissingParameterException {
         super(parameters);
-        globalScale = semiMajor * scaleFactor;
     }
 
     /**

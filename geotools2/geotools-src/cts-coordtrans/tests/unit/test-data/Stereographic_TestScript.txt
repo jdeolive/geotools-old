@@ -6,8 +6,9 @@
 //Rueben Schulz
 //June 22, 2003
 
-set _sphere_ = GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6370997.0, 0],TOWGS84[0,0,0,0,0,0,0]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
-set _WGS84_  = GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
+set _sphere_  = GEOGCS["Sphere", DATUM["Sphere", SPHEROID["WGS84", 6370997.0, 0],TOWGS84[0,0,0,0,0,0,0]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
+set _sphere2_ = GEOGCS["Sphere", DATUM["Sphere", SPHEROID["WGS84", 6300000.0, 0],TOWGS84[0,0,0,0,0,0,0]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
+set _WGS84_   = GEOGCS["WGS84", DATUM["WGS84",   SPHEROID["WGS84", 6378137.0, 298.257223563]],            PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
 
 set _Stereo1_ = PROJCS["North Polar Stereographic", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6370997.0, 0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Polar_Stereographic"], PARAMETER["semi_major", 6370997], PARAMETER["semi_minor", 6370997], PARAMETER["central_meridian", 50.0], PARAMETER["latitude_of_origin", 90.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 set _Stereo2_ = PROJCS["South Polar Stereographic", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6370997.0, 0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Polar_Stereographic"], PARAMETER["semi_major", 6370997], PARAMETER["semi_minor", 6370997], PARAMETER["central_meridian", -100.0], PARAMETER["latitude_of_origin", -90.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 1000.0], PARAMETER["false_northing", 500000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
@@ -107,7 +108,7 @@ pt_source=(18.45, -33.9166666666)
 pt_target=(853342.6017,       -3904711.5139)
 
 
-cs_source=_sphere_
+cs_source=_sphere2_
 cs_target=_Stereo4_
 test_tolerance=(1e-2, 1e-2)
 
