@@ -28,7 +28,7 @@ import java.awt.geom.PathIterator;
  * LineString object.
  *
  * @author Andrea Aime
- * @version $Id: LineIterator.java,v 1.6 2003/07/27 15:29:47 aaime Exp $
+ * @version $Id: LineIterator.java,v 1.7 2003/08/05 05:11:48 aaime Exp $
  */
 class LineIterator implements PathIterator {
     /** Transform applied on the coordinates during iteration */
@@ -81,7 +81,7 @@ class LineIterator implements PathIterator {
                 + (at.getShearY() * at.getShearY()));
 
         coords = ls.getCoordinates();
-        isClosed = false;
+        isClosed = ls instanceof LinearRing;
     }
 
     /**
@@ -109,48 +109,6 @@ class LineIterator implements PathIterator {
         LineString ls, AffineTransform at, boolean generalize,
         double maxDistance) {
         this(ls, at, generalize);
-        this.maxDistance = maxDistance;
-    }
-
-    /**
-     * Creates a new instance of LineIterator
-     *
-     * @param lr The line ring the iterator will use
-     * @param at The affine transform applied to coordinates during iteration
-     */
-    public LineIterator(LinearRing lr, AffineTransform at) {
-        this.at = at;
-        xScale = Math.abs(at.getScaleX());
-        yScale = Math.abs(at.getScaleY());
-
-        coords = lr.getCoordinates();
-        isClosed = true;
-    }
-
-    /**
-     * Creates a new instance of LineIterator
-     *
-     * @param lr The line ring the iterator will use
-     * @param at The affine transform applied to coordinates during iteration
-     * @param generalize if true apply simple distance based generalization
-     */
-    public LineIterator(LinearRing lr, AffineTransform at, boolean generalize) {
-        this(lr, at);
-        this.generalize = generalize;
-    }
-
-    /**
-     * Creates a new instance of LineIterator
-     *
-     * @param lr The line ring the iterator will use
-     * @param at The affine transform applied to coordinates during iteration
-     * @param generalize if true apply simple distance based generalization
-     * @param maxDistance during iteration, a point will be skipped if it's
-     *        distance from the previous is less than maxDistance
-     */
-    public LineIterator(
-        LinearRing lr, AffineTransform at, boolean generalize, int maxDistance) {
-        this(lr, at, generalize);
         this.maxDistance = maxDistance;
     }
 
