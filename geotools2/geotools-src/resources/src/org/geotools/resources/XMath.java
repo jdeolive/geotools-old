@@ -51,7 +51,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  *   <li><a href="http://developer.java.sun.com/developer/bugParade/bugs/4461243.html">Math.acos is very slow</a></li>
  * </ul>
  *
- * @version $Id: XMath.java,v 1.6 2003/05/03 11:52:35 desruisseaux Exp $
+ * @version $Id: XMath.java,v 1.7 2003/05/12 21:27:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class XMath {
@@ -217,6 +217,30 @@ public final class XMath {
         if (x>0) return (byte) +1;
         if (x<0) return (byte) -1;
         else     return (byte)  0;
+    }
+
+    /**
+     * Round the specified value, providing that the difference between the original value and
+     * the rounded value is not greater than the specified amount of floating point units. This
+     * method can be used for hiding floating point error likes 2.9999999996.
+     *
+     * @param  value The value to round.
+     * @param  flu The amount of floating point units.
+     * @return The rounded value, of <code>value</code> if it was not close enough to an integer.
+     */
+    public static double round(final double value, int flu) {
+        final double target = Math.rint(value);
+        if (value != target) {
+            final boolean pos = (value < target);
+            double candidate = value;
+            while (--flu >= 0) {
+                candidate = pos ? next(candidate) : previous(candidate);
+                if (candidate == target) {
+                    return target;
+                }
+            }
+        }
+        return value;
     }
 
     /**
