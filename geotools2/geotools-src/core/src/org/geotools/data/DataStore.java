@@ -58,7 +58,8 @@ import java.io.IOException;
  * 
  * <ul>
  * <li>
- * Chris - We may need to switch the getFeatureReader to be based on Query * 
+ * Aadrea - Support for a reprojection based FeautreSource. Needs to be added
+ * to DataStore (rather than a wrapper based) to allow for DataStores  
  * </li>
  * <li>
  * Jody - I agree, propose:
@@ -79,7 +80,7 @@ import java.io.IOException;
  * 
  *
  * @author Jody Garnett, Refractions Research
- * @version $Id: DataStore.java,v 1.3 2004/01/09 22:29:31 jive Exp $
+ * @version $Id: DataStore.java,v 1.4 2004/01/11 02:31:07 jive Exp $
  */
 public interface DataStore {
     /**
@@ -300,17 +301,6 @@ public interface DataStore {
      * Locking support does not need to be provided for FeatureReaders.
      * </p>
      * 
-     * <p>
-     * Suggestions:
-     * </p>
-     * 
-     * <ul>
-     * <li>Jody: This method has been updated to use the Query object
-     *    (Thanks for the suggestion Sean & Chris)
-     * </li>
-     * </ul>
-     * 
-     *
      * @param query Requested form of the returned Features and the filter used
      *              to constraints the results
      * @param transaction Transaction this query opperates against
@@ -318,15 +308,9 @@ public interface DataStore {
      * @return FeatureReader Allows Sequential Processing of featureType
      */
     FeatureReader getFeatureReader( Query query, Transaction transaction ) throws IOException;
-    //FeatureReader getFeatureReader(FeatureType featureType, Filter filter, Transaction transaction) throws IOException;
 
     /**
-     * Access FeatureWriter for modification of the DataStore contents.
-     * 
-     * <p>
-     * The constructed FeatureWriter will be placed at the start of the
-     * provided <code>store</code>.
-     * </p>
+     * Access FeatureWriter for modification of existing DataStore contents.
      * 
      * <p>
      * To limit FeatureWriter to the FeatureTypes defined by this DataStore,
@@ -335,15 +319,21 @@ public interface DataStore {
      * same FeatureType provided by getSchema( typeName )  
      * </p>
      * 
+     * <p>
+     * The FeatureWriter will provide access to the existing contents of the
+     * FeatureType referenced by typeName. The provided filter will be used
+     * to skip over Features as required.
+     * </p>
+     * 
      * <b>Notes For Implementing DataStore</b>
      * </p>
      * 
      * <p>
-     * The returned FeatureWriter does not support the addition on new Features
-     * to FeatureType (it would need to police your modifications to agree
-     * with <code>filer</code>).  As such it will return <code>false</code>
-     * for getNext() when it reaches the end of the Query and
-     * NoSuchElementException when next() is called.
+     * The returned FeatureWriter <b>does not</b> support the addition of new
+     * Features to FeatureType (it would need to police your modifications to
+     * agree with <code>filer</code>).  As such it will return
+     * <code>false</code> for getNext() when it reaches the end of the Query
+     * and NoSuchElementException when next() is called.
      * </p>
      * 
      * <p>
@@ -391,7 +381,7 @@ public interface DataStore {
      * </p>
      *
      * @param typeName Indicates featureType to be modified
-     * @param transaction Transaction this query opperates against
+     * @param transaction Transaction to opperates against
      *
      * @return FeatureReader Allows Sequential Processing of featureType
      */
@@ -407,10 +397,10 @@ public interface DataStore {
      * new content.
      * </p>
      *
-     * @param typeName
-     * @param transaction
+     * @param typeName Indicates featureType to be modified
+     * @param transaction Transaction to opperates against
      *
-     * @return
+     * @return FeatureWriter that may only be used to append new content
      *
      * @throws IOException
      */
