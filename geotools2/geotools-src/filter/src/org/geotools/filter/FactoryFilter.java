@@ -1,6 +1,23 @@
 /*
- * This code is released under the Apache license, availible at the root GML4j directory.
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
+
 package org.geotools.filter;
 
 import org.geotools.data.*;
@@ -9,8 +26,8 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
+ * @version $Id: FactoryFilter.java,v 1.4 2002/06/05 13:23:20 loxnard Exp $
  * @author Rob Hranac, Vision for New York
- * @version 
  */
 public class FactoryFilter {
 
@@ -32,7 +49,7 @@ public class FactoryFilter {
      * create the filter, based on the XML tag that represents the start of
      * the filter.
      *
-     * @param message The string from the SAX filter. 
+     * @param message The string from the SAX filter.
      * @throws IllegalFilterException Filter is illegal.
      */
     public void start(short filterType)
@@ -78,7 +95,7 @@ public class FactoryFilter {
     /**
      * Determines whether or not a given feature is 'inside' this filter.
      *
-     * @param message The value of the attribute for comparison. 
+     * @param message The value of the attribute for comparison.
      * @throws IllegalFilterException Filter is illegal.
      */
     public void expression(Expression expression) 

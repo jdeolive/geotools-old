@@ -1,7 +1,23 @@
 /*
- * This code is released under the Apache license, availible at the root GML4j 
- * directory.
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
+
 package org.geotools.filter;
 
 import org.geotools.data.*;
@@ -10,8 +26,8 @@ import org.geotools.feature.*;
 /**
  * Defines an OpenGIS Filter object, with default behaviors for all methods.
  *
+ * @version $Id: Filter.java,v 1.4 2002/06/05 13:27:38 loxnard Exp $
  * @author Rob Hranac, Vision for New York
- * @version 4/18/02
  */
 public interface Filter {
 
@@ -21,17 +37,17 @@ public interface Filter {
      * <p>This is the core function of any filter.  'Contains' isn't a very
      * good term for this method because it implies some sort of spatial 
      * relationship between the feature and the filter that may or may 
-     * not exist.  We name this method 'contains' only because the useage 
-     * of 'contains' in this context is common and better terms are lacking
+     * not exist.  We name this method 'contains' only because the usage 
+     * of 'contains' in this context is common and better terms are lacking.
      * However, users of this method should keep in mind the non-spatial nature
      * of this meaning of 'contains.'  For example, a feature may be 'contained
      * by' a filter if one of the feature's non-spatial property values is
      * equal to that of the filter's.</p>
      *
-     * <p>Although some filters can be checked for validity when the are
+     * <p>Although some filters can be checked for validity when they are
      * constructed, it is impossible to impose this check on all expressions
      * because of a special feature of the <code>ExpressionAttribute</code>
-     * class.  This class must hold the a pointer (in XPath) to an attribute,
+     * class.  This class must hold the pointer (in XPath) to an attribute,
      * but it is not passed the actual attribute (inside a feature) until
      * it calls the <code>isInside</code> class.</p>
      *
@@ -66,7 +82,7 @@ public interface Filter {
     public Filter or(Filter filter);    
 
     /**
-     * Implements a logical NOT with this filter and returns the negated filter.
+     * Implements a logical NOT with this filter and returns the negated filter
      *
      * @return Combined filter.
      */
