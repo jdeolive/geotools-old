@@ -39,6 +39,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
+import java.awt.geom.*;
 import java.awt.Shape;
 import java.awt.image.*;
 import java.awt.Image;
@@ -52,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.26 2002/06/25 16:21:14 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.27 2002/06/26 15:24:34 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -320,9 +321,16 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             resetFill();
         }
         if(symbolizer.getStroke() != null) {
-            applyStroke(graphics,symbolizer.getStroke(), feature);
+            Stroke stroke = symbolizer.getStroke();
+            applyStroke(graphics,stroke, feature);
             _log.debug("path is "+graphics.getTransform().createTransformedShape(path).getBounds2D().toString());
-            graphics.draw(path);
+            if(stroke.getGraphicStroke()==null){
+                graphics.draw(path);
+            }else{
+                // set up the graphic stroke 
+                drawWithGraphicStroke(graphics,path,stroke.getGraphicStroke());
+            }
+         
         }
     }
     
@@ -346,12 +354,18 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      **/
     private void renderLine(Feature feature, LineSymbolizer symbolizer){
         if(symbolizer.getStroke()==null) return;
-        applyStroke(graphics,symbolizer.getStroke(),feature);
+        Stroke stroke = symbolizer.getStroke();
+        applyStroke(graphics,stroke,feature);
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
         if(geom.isEmpty()) return;
         GeneralPath path = createGeneralPath(geom);
-        graphics.draw(path);
+        if(stroke.getGraphicStroke()==null){
+            graphics.draw(path);
+        }else{
+            // set up the graphic stroke 
+            drawWithGraphicStroke(graphics,path,stroke.getGraphicStroke());
+        }
     }
     
     private void renderPoint(Feature feature, PointSymbolizer symbolizer){
@@ -642,12 +656,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 stroke2d = new BasicStroke(width/(float)scale, capCode, joinCode,
                 (float)(Math.max(1,10/scale)));
             }
-            org.geotools.styling.Graphic gr=stroke.getGraphicFill();
+            
             
             
             graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity));
             graphic.setStroke(stroke2d);
             graphic.setColor(Color.decode((String)stroke.getColor().getValue(feature)));
+            org.geotools.styling.Graphic gr=stroke.getGraphicFill();
             if(gr!=null){
                 setTexture(graphic,gr);
             }else{
@@ -660,7 +675,96 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             _log.error(mfe);
         }
     }
-    
+    /**
+     * a method to draw the path with a graphic stroke.
+     * @param gFill the graphic fill to be used to draw the stroke
+     * @param graphic the Graphics2D to draw on
+     * @param path the general path to be drawn 
+     */
+    private void drawWithGraphicStroke(Graphics2D graphic, GeneralPath path, org.geotools.styling.Graphic gFill){
+        _log.debug("drawing a graphicalStroke");
+        
+        /* HACK: should modify setTexture to be able to extract the iamge and rect directly */
+        setTexture(graphic,gFill);
+        BufferedImage image = ((java.awt.TexturePaint)graphic.getPaint()).getImage();
+        Rectangle2D anchorRect = ((java.awt.TexturePaint)graphic.getPaint()).getAnchorRect();
+        int imageWidth = (int)anchorRect.getWidth();
+        int imageHeight = (int)anchorRect.getHeight();
+        int midx = imageWidth/2;
+        int midy = imageHeight/2;
+        _log.debug("got image");
+        /* Create a bufferedImage the size of the path's bounding box,
+         * work our way along the path and at each point draw the graphic pointing along the line
+         * Then set this as our paint and draw the stroke.
+         */
+        
+        Rectangle2D rect = path.getBounds2D();
+        BufferedImage img = new BufferedImage((int)rect.getWidth(),(int)rect.getHeight(),BufferedImage.TYPE_INT_ARGB);
+        Graphics2D ig = img.createGraphics();
+        PathIterator pi = path.getPathIterator(graphic.getTransform(),10.0);
+        //this should be something like the inverse?
+        AffineTransform at = new AffineTransform(graphics.getTransform());
+        //PathIterator pi = path.getPathIterator(at,10.0);
+        double[] coords = new double[6];
+        int type;
+        
+        double[] first = new double[2];
+        double[] previous = new double[2];
+        
+        type = pi.currentSegment(coords);
+        first[0]=coords[0];
+        first[1]=coords[1];
+        previous[0]=coords[0];
+        previous[1]=coords[1];
+        _log.debug("starting at "+first[0]+","+first[1]);
+        pi.next();
+        while(!pi.isDone()){
+            
+            type = pi.currentSegment(coords);
+            switch(type){
+                case PathIterator.SEG_MOVETO:
+                    // nothing to do?
+                    _log.debug("moving to "+coords[0]+","+coords[1]);
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    
+                    // draw back to first from previous
+                    coords[0]=first[0];
+                    coords[1]=first[1];
+                    _log.debug("closing from "+previous[0]+","+previous[1]+" to "+coords[0]+","+coords[1]);
+                    // no break here - fall through to next section
+                case PathIterator.SEG_LINETO:
+                    // draw from previous to coords
+                    _log.debug("drawing from "+previous[0]+","+previous[1]+" to "+coords[0]+","+coords[1]);
+                    double dx = coords[0]-previous[0];
+                    double dy = coords[1]-previous[1];
+                    double length = Math.sqrt(dx*dx+dy*dy);
+                    double theta = Math.atan2(dx,dy);
+                    
+                    ig.drawLine((int)previous[0],(int)previous[1],(int)coords[0],(int)coords[1]);
+                    int step = (int)(length/(double)imageWidth);
+                    double x,y;
+                    _log.debug("segment length "+length);
+                    for(int i=0;i<length-imageWidth;i+=step){
+                        x= ((double)i) * Math.acos(theta);
+                        y = ((double)i) * Math.asin(theta);
+                        at.translate(x,y);
+                        at.rotate(theta,midx+x,midy+y);
+                        ig.drawImage(image,at,null);
+                    }
+                    break;
+            }
+            previous[0]=coords[0];
+            previous[1]=coords[1];
+            pi.next();
+        }
+        _log.debug("finished preparing background");
+        java.awt.TexturePaint tp = new java.awt.TexturePaint(img,rect);
+        graphic.setPaint(tp);
+        graphic.draw(path);
+        //Shape lines = graphic.getStroke().createStrokedShape(path);
+        //graphic.draw(lines);
+    }
     /**
      * Convenience method.  Converts a Geometry object into a GeneralPath.
      * @param geom The Geometry object to convert
