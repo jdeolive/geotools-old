@@ -131,7 +131,7 @@ public class WMSServlet extends HttpServlet {
         // Nullify caching
         
         //What's my address?
-        getUrl = request.getServletPath()+"?";
+        getUrl = HttpUtils.getRequestURL(request).append("?").toString();
         // Check request type
         String sRequest = getParameter(request, PARAM_REQUEST);
         if (sRequest==null || sRequest.trim().length()==0) {
@@ -185,6 +185,8 @@ public class WMSServlet extends HttpServlet {
             doException(wmsexp.getCode(), wmsexp.getMessage(), request, response);
         }
         catch(Exception exp) {
+            System.out.println("Unexpected exception "+exp);
+            exp.printStackTrace();
             doException(null, "Unknown exception : "+exp.getMessage(), request, response);
         }
     }
@@ -426,7 +428,7 @@ public class WMSServlet extends HttpServlet {
      */
     public String capabilitiesToXML(Capabilities cap) {
         InputStream is = this.getClass().getResourceAsStream("capabilities.xml");
-        
+        System.out.println("input stream " + is);
         StringBuffer xml = new StringBuffer();
         int length = 0;
         byte [] b = new byte [100];

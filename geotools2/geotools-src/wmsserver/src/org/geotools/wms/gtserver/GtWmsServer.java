@@ -27,6 +27,7 @@ import java.net.*;
 import java.util.*;
 
 import org.geotools.shapefile.*;
+import org.geotools.data.postgis.*;
 import org.geotools.map.*;
 import org.geotools.renderer.*;
 import org.geotools.styling.*;
@@ -44,8 +45,7 @@ import org.geotools.wms.*;
 
 public class GtWmsServer implements WMSServer {
     /** The LayerEntry objects - one for each entry in the layers.xml file */
-    LayerEntry [] layers;
-    
+    HashMap layerEntries = new HashMap();
     HashMap features = new HashMap();
     HashMap styles = new HashMap();
     
@@ -74,20 +74,21 @@ public class GtWmsServer implements WMSServer {
             if(base != null){
                 URL url = new URL(base,filename);
                 System.out.println("loading " + url.toString());
-                layers = reader.read(url.openStream());
+                layerEntries = reader.read(url.openStream());
             }
             else {
                 System.out.println("loading without base " + new File(filename).toURL());
-                layers = reader.read((new File(filename)).toURL().openStream());
+                layerEntries = reader.read((new File(filename)).toURL().openStream());
             }
             // For each one, create and load a theme
-            
-            for (int i=0;i<layers.length;i++) {
-                System.out.println("Layer : "+layers[i].id);
+            Iterator loop = layerEntries.keySet().iterator();
+            while(loop.hasNext()){
+                LayerEntry entry = (LayerEntry)layerEntries.get((String) loop.next());
+                System.out.println("Layer : "+entry.id);
                 
                 // Get the type of datasource
-                if (layers[i].datasource.equalsIgnoreCase("Shapefile")) {
-                    File file = new File(layers[i].properties.getProperty("filename"));
+                if (entry.datasource.equalsIgnoreCase("Shapefile")) {
+                    File file = new File(entry.properties.getProperty("filename"));
                     URL url;
                     if(base != null){
                         url = new URL(base,file.toString());
@@ -101,13 +102,37 @@ public class GtWmsServer implements WMSServer {
                     
                     Style style = new BasicPolygonStyle();//bad
                     
-                    features.put(layers[i].id,sds);
-                    styles.put(layers[i].id,style);
+                    features.put(entry.id,sds);
+                    styles.put(entry.id,style);
                 }
+                
+                if (entry.datasource.equalsIgnoreCase("PostGIS")) {
+                    System.out.println("pulling proeprties");
+                    String host = entry.properties.getProperty("host");
+                    String user = entry.properties.getProperty("user");
+                    String passwd = entry.properties.getProperty("passwd");
+                    String port = entry.properties.getProperty("port");
+                    String database = entry.properties.getProperty("database");
+                    String table = entry.properties.getProperty("table");
+                    System.out.println(host+" "+user+" "+passwd+" "+port+" "+database+" "+table);
+                    
+                    PostgisConnection db = new PostgisConnection(host,port,database);
+                    _log.info("created new db connection");
+                    db.setLogin(user,passwd);
+                    _log.info("set the login");
+                    PostgisDataSource ds = new PostgisDataSource(db, table);
+                    
+           
+                    Style style = new BasicPolygonStyle();//bad
+                    
+                    features.put(entry.id,ds);
+                    styles.put(entry.id,style);
+                }
+                
             }
         }
         catch (Exception exp) {
-            _log.info("Exception loading layers "+exp.getClass().getName()+" : "+exp.getMessage());
+           System.out.println("Exception loading layers "+exp.getClass().getName()+" : "+exp.getMessage());
         }
     }
     
@@ -141,48 +166,69 @@ public class GtWmsServer implements WMSServer {
      * @param bgcolor The background color of the map
      * @return A java.awt.Image object of the drawn map.
      */
-    public BufferedImage getMap(String [] layers, String [] style, String srs, double [] bbox, int width, int height, boolean transparent, Color bgcolor) throws WMSException {
+    public BufferedImage getMap(String [] layer, String [] style, String srs, double [] bbox, int width, int height, boolean transparent, Color bgcolor) throws WMSException {
         System.out.println("layers : ");
-        for (int i=0;i<layers.length;i++)
-            System.out.println(layers[i]);
+        for (int i=0;i<layer.length;i++)
+            System.out.println(layer[i]);
         System.out.println("available : ");
         
         // Make sure the requested layers exist on this server
-        for (int i=0;i<layers.length;i++){
-            if (features.get(layers[i])==null)
-                throw new WMSException(WMSException.WMSCODE_LAYERNOTDEFINED, "The Layer '"+layers[i]+"' does not exist on this server");
+        for (int i=0;i<layer.length;i++){
+            if (features.get(layer[i])==null)
+                throw new WMSException(WMSException.WMSCODE_LAYERNOTDEFINED, "The Layer '"+layer[i]+"' does not exist on this server");
         }
         // Check the SRS
         if (!srs.equalsIgnoreCase("EPSG:4326"))
             throw new WMSException(WMSException.WMSCODE_INVALIDSRS, "This server only supports EPSG:4326");
         
         
-        // try {
-        System.out.println("setting up map");
-        map = new DefaultMap();
-        for(int i = 0; i < layers.length; i++){
-            System.out.println("style object is a " + styles.get(layers[i]));
-            DataSource ds = (DataSource)features.get(layers[i]);
-            FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
-            map.addFeatureTable(fc,(org.geotools.styling.Style)styles.get(layers[i]));
+        try {
+            System.out.println("setting up map");
+            map = new DefaultMap();
+            for(int i = 0; i < layer.length; i++){
+                Style layerstyle;
+                if (style != null && style[i] != ""){
+                    LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer[i]);
+                    String sldpath = (String)layerdefn.styles.get(style[i]);
+                    System.out.println("looking for " + sldpath);
+                    File file = new File(sldpath);
+                    URL url;
+                    if(base != null){
+                        url = new URL(base,file.toString());
+                    }
+                    else {
+                        url = file.toURL();
+                    }
+                    System.out.println("loading sld from " + url);
+                    layerstyle = new SLDStyle(url);
+                    System.out.println("sld loaded");
+                }
+                else{
+                    layerstyle = (org.geotools.styling.Style)styles.get(layer[i]);
+                }
+                System.out.println("style object is a " + layerstyle);
+                DataSource ds = (DataSource)features.get(layer[i]);
+                FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
+                map.addFeatureTable(fc,layerstyle);
+            }
+            System.out.println("map setup");
+            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            Envelope env = new Envelope(bbox[0],bbox[2],bbox[1],bbox[3]);
+            System.out.println("setting up renderer");
+            Java2DRenderer renderer = new Java2DRenderer();
+            java.awt.Graphics g = image.getGraphics();
+            g.setColor(Color.white);
+            g.fillRect(0,0,width,height);
+            renderer.setOutput(image.getGraphics(), new java.awt.Rectangle(width,height));
+            System.out.println("calling renderer");
+            map.render(renderer, env);
+            System.out.println("returning image");
+            return image;
         }
-        System.out.println("map setup");
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Envelope env = new Envelope(bbox[0],bbox[2],bbox[1],bbox[3]);
-        System.out.println("setting up renderer");
-        Java2DRenderer renderer = new Java2DRenderer();
-        java.awt.Graphics g = image.getGraphics();
-        g.setColor(Color.white);
-        g.fillRect(0,0,width,height);
-        renderer.setOutput(image.getGraphics(), new java.awt.Rectangle(width,height));
-        System.out.println("calling renderer");
-        map.render(renderer, env);
-        System.out.println("returning image");
-        return image;
-        // }
-        // catch(Exception exp) {
-        //     throw new WMSException(null, "Internal error : "+exp.getMessage());
-        // }
+        catch(Exception exp) {
+            exp.printStackTrace();
+            throw new WMSException(null, "Internal error : "+exp.getMessage());
+        }
     }
     
     /** Gets the capabilites of this server as an XML-formatted string.
@@ -194,13 +240,15 @@ public class GtWmsServer implements WMSServer {
             Capabilities cap = new Capabilities();
             
             // Add the layers to the capabilities object
-            for (int i=0;i<layers.length;i++) {
-                cap.addLayer(layers[i].id, layers[i].description, "EPSG:4326", new double[] {-120, 40, -60, 60});
-                if (layers[i].styles != null){
-                    Iterator loop = layers[i].styles.keySet().iterator();
+            Iterator layers = layerEntries.keySet().iterator();
+            while (layers.hasNext()) {
+                LayerEntry layer = (LayerEntry) layerEntries.get(layers.next());
+                cap.addLayer(layer.id, layer.description, "EPSG:4326", new double[] {-120, 36, -70, 42});
+                if (layer.styles != null){
+                    Iterator loop = layer.styles.keySet().iterator();
                     while (loop.hasNext()){
                         String styleid = (String)loop.next();
-                        cap.addStyle(layers[i].id, styleid, styleid, null); 
+                        cap.addStyle(layer.id, styleid, styleid, null);
                     }
                 }
             }

@@ -46,7 +46,7 @@ public class LayerReader extends DefaultHandler {
     public static String parserName = "org.apache.xerces.parsers.SAXParser";
     
     // Variables for the current parsing operation (parser is assumed to be synchronized)
-    public Vector layers;
+    public HashMap layers;
     public LayerEntry currentLayer;
     public String currentTag = "";
     
@@ -79,7 +79,7 @@ public class LayerReader extends DefaultHandler {
     
     /** Reads the layers.xml file stream
      */
-    public LayerEntry [] read(InputStream is) {
+    public HashMap read(InputStream is) {
         // Read the xml stream
         try {
             reader.parse(new InputSource(is));
@@ -95,7 +95,7 @@ public class LayerReader extends DefaultHandler {
         
         // Return the result of the parse
         if (layers!=null)
-            return (LayerEntry[])layers.toArray(new LayerEntry[layers.size()]);
+            return layers;
         else
             return null;
     }
@@ -105,7 +105,7 @@ public class LayerReader extends DefaultHandler {
     /** Start document. */
     public void startDocument() {
         System.out.println("LayerReader : Started parsing document");
-        layers = new Vector();
+        layers = new HashMap();
         currentLayer = null;
     }
     
@@ -154,7 +154,7 @@ public class LayerReader extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) {
         // Close <layer> tag, add to list
         if (currentTag.equalsIgnoreCase(TAG_LAYER)) {
-            layers.addElement(currentLayer);
+            layers.put(currentLayer.id,currentLayer);
             currentLayer = null;
         }
         
