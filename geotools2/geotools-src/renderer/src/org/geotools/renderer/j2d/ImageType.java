@@ -45,7 +45,7 @@ import javax.media.jai.EnumeratedParameter;
  * {@link VolatileImage} for fast rendering, or by a {@link BufferedImage} for
  * longer persistence.
  *
- * @version $Id: ImageType.java,v 1.1 2003/08/11 20:04:15 desruisseaux Exp $
+ * @version $Id: ImageType.java,v 1.2 2003/08/13 15:40:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#setOffscreenBuffered
@@ -77,10 +77,10 @@ public final class ImageType extends EnumeratedParameter {
     
     /**
      * The enum for offscreen buffer backed by a {@link BufferedImage}.
-     *
-     * @task TODO: Not yet public, because not yet implemented in Renderer.
+     * At the difference of {@link VOLATILE}, buffered image supports transparency.
+     * It may be more appropriate for layer above the base map.
      */
-    static final ImageType BUFFERED = new ImageType("BUFFERED", 2);
+    public static final ImageType BUFFERED = new ImageType("BUFFERED", 2);
 
     /**
      * Image types by value. Used to canonicalize after deserialization.

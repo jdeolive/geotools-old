@@ -40,12 +40,16 @@ import java.awt.Image;
 import java.awt.Frame;
 import java.awt.Dialog;
 import java.awt.Rectangle;
+import java.awt.Composite;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
+import java.awt.Transparency;
+import java.awt.AlphaComposite;
 import java.awt.RenderingHints;
 import java.awt.GraphicsConfiguration;
 import java.awt.IllegalComponentStateException;
+import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
@@ -114,7 +118,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.37 2003/08/13 14:12:23 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.38 2003/08/13 15:40:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -127,6 +131,12 @@ public class Renderer implements Renderer2D {
      * Small value for avoiding rounding error.
      */
     private static final double EPS = 1E-6;
+
+    /**
+     * A transparent color. Used for cleaning the background
+     * of a damaged offscreen buffer before to repaint it.
+     */
+    private static final Color TRANSPARENT = new Color(0,0,0,0);
 
 
 
@@ -173,16 +183,22 @@ public class Renderer implements Renderer2D {
     private boolean layerSorted;
 
     /**
-     * The offscreen buffers. There is one {@link VolatileImage} for each range in the
-     * {@link #offscreenZRanges} set. If non-null, this array length must be equals to
-     * the size of {@link #offscreenZRanges}.
+     * The offscreen buffers.  There is one {@link VolatileImage} or {@link BufferedImage}
+     * for each range in the {@link #offscreenZRanges} set. If non-null, this array length
+     * must be equals to the size of {@link #offscreenZRanges}.
      *
      * @see #setOffscreenBuffered
      */
-    private transient VolatileImage[] offscreenBuffers;
+    private transient Image[] offscreenBuffers;
 
     /**
-     * Tells in an offscreen buffer need to be repaint. This array length must be
+     * Tells if an offscreen buffer is of type {@link VolatileImage}.
+     * If <code>false</code>, then it is of type {@link BufferedImage}.
+     */
+    private boolean[] offscreenIsVolatile;
+
+    /**
+     * Tells if an offscreen buffer need to be repaint. This array length must be
      * equals to the length of {@link #offscreenBuffers}.
      */
     private transient boolean[] offscreenNeedRepaint;
@@ -1207,6 +1223,37 @@ public class Renderer implements Renderer2D {
     }
 
     /**
+     * Returns the offscreen buffer type for the given {@linkplain RenderedLayer#getZOrder z-order}.
+     * This is the value of the <code>type</code> argument given to the last call to
+     * {@link #setOffscreenBuffered setOffscreenBuffered(...)} for a range containing
+     * <code>zOrder</code>.
+     *
+     * @param  zOrder The z-order to query.
+     * @return One of {@link ImageType#NONE}, {@link ImageType#VOLATILE} or
+     *         {@link ImageType#BUFFERED} enumeration.
+     */
+    public synchronized ImageType getOffscreenBuffered(final float zOrder) {
+        if (offscreenZRanges != null) {
+            final int index = offscreenZRanges.indexOfRange(new Float(zOrder));
+            if (index >= 0) {
+                return offscreenIsVolatile[index] ? ImageType.VOLATILE : ImageType.BUFFERED;
+            }
+        }
+        return ImageType.NONE;
+    }
+
+    /**
+     * Set the offscreen buffer type for the range that contains the given
+     * {@linkplain RenderedLayer#getZOrder z-order}.
+     */
+    private void setOffscreenBuffered(final float zOrder, final ImageType type) {
+        final int index = offscreenZRanges.indexOfRange(new Float(zOrder));
+        if (index >= 0) {
+            offscreenIsVolatile[index] = ImageType.VOLATILE.equals(type);
+        }
+    }
+
+    /**
      * Enable or disable the use of offscreen buffer for all {@linkplain RenderedLayer layers}
      * in the given range of {@linkplain RenderedLayer#getZOrder z-orders}. When enabled, all
      * layers in the given range will be rendered once in an offscreen buffer (for example an
@@ -1229,21 +1276,22 @@ public class Renderer implements Renderer2D {
      */
     public synchronized void setOffscreenBuffered(final float lower,
                                                   final float upper,
-                                                  final ImageType type)
+                                                  ImageType type)
     {
         /*
          * Save the references to the old images and their status (type, need repaint, etc.).
          * We will try to reuse existing images after the range set has been updated.
          */
-        final Map             oldIndexMap;
-        final VolatileImage[] oldBuffers = offscreenBuffers;
-        final boolean[]       oldNeeds   = offscreenNeedRepaint;
+        final Map       oldIndexMap;
+        final Image[]   oldBuffers = offscreenBuffers;
+        final boolean[] oldTypes   = offscreenIsVolatile;
+        final boolean[] oldNeeds   = offscreenNeedRepaint;
         if (offscreenZRanges == null) {
             if (ImageType.NONE.equals(type)) {
                 return;
             }
             offscreenZRanges = new RangeSet(Float.class);
-            oldIndexMap = Collections.EMPTY_MAP;
+            oldIndexMap      = Collections.EMPTY_MAP;
         } else {
             int index=0;
             oldIndexMap = new HashMap();
@@ -1257,12 +1305,18 @@ public class Renderer implements Renderer2D {
         /*
          * Update the range set, and rebuild the offscreen buffers array.
          */
+        final ImageType lowerType;
+        final ImageType upperType;
         if (ImageType.NONE.equals(type)) {
+            lowerType = getOffscreenBuffered(lower);
+            upperType = getOffscreenBuffered(upper);
             offscreenZRanges.remove(lower, upper);
         } else {
+            lowerType = upperType = type;
             offscreenZRanges.add(lower, upper);
         }
-        offscreenBuffers     = new VolatileImage[offscreenZRanges.size()];
+        offscreenBuffers     = new Image[offscreenZRanges.size()];
+        offscreenIsVolatile  = new boolean[offscreenBuffers.length];
         offscreenNeedRepaint = new boolean[offscreenBuffers.length];
         int index = 0;
         for (final Iterator it=offscreenZRanges.iterator(); it.hasNext(); index++) {
@@ -1270,10 +1324,13 @@ public class Renderer implements Renderer2D {
             if (oldInteger != null) {
                 final int oldIndex = oldInteger.intValue();
                 offscreenBuffers    [index] = oldBuffers[oldIndex];
+                offscreenIsVolatile [index] = oldTypes  [oldIndex];
                 offscreenNeedRepaint[index] = oldNeeds  [oldIndex];
             }
         }
         assert index == offscreenBuffers.length : index;
+        setOffscreenBuffered(lower, lowerType);
+        setOffscreenBuffered(upper, upperType);
         /*
          * Release resources used by remaining (now unused) images.
          */
@@ -1334,14 +1391,25 @@ public class Renderer implements Renderer2D {
      * @param  image The image.
      * @param  config The graphics configuration.
      * @return The state, as one of {@link VolatileImage} constants.
-     *
-     * @task TODO: The BufferedImage case is not yet implemented.
      */
-    private static int validate(final VolatileImage image, final GraphicsConfiguration config) {
+    private static int validate(final Image image, final GraphicsConfiguration config) {
         if (image == null) {
             return VolatileImage.IMAGE_INCOMPATIBLE;
         }
-        return image.validate(config);
+        if (image instanceof VolatileImage) {
+            return ((VolatileImage) image).validate(config);
+        }
+        return VolatileImage.IMAGE_OK;
+    }
+
+    /**
+     * Returns <code>true</code> if rendering data was lost since last validate call.
+     */
+    private static boolean contentsLost(final Image image) {
+        if (image instanceof VolatileImage) {
+            return ((VolatileImage) image).contentsLost();
+        }
+        return false;
     }
 
     /**
@@ -1735,7 +1803,7 @@ public class Renderer implements Renderer2D {
                  */
                 boolean createFromComponent = (mapPane != null);
                 Rectangle bufferClip = clipBounds;
-                VolatileImage buffer = offscreenBuffers[offscreenIndex];
+                Image buffer = offscreenBuffers[offscreenIndex];
 renderOffscreen:while (true) {
                     switch (validate(buffer, config)) {
                         //
@@ -1749,12 +1817,20 @@ renderOffscreen:while (true) {
                             }
                             if (createFromComponent) {
                                 createFromComponent = false;
-                                buffer = mapPane.createVolatileImage(
-                                                zoomableBounds.width, zoomableBounds.height);
+                                if (offscreenIsVolatile[offscreenIndex]) {
+                                    buffer = mapPane.createVolatileImage(
+                                                    zoomableBounds.width, zoomableBounds.height);
+                                }
                             }
                             if (buffer == null) {
-                                buffer = config.createCompatibleVolatileImage(
-                                                zoomableBounds.width, zoomableBounds.height);
+                                if (offscreenIsVolatile[offscreenIndex]) {
+                                    buffer = config.createCompatibleVolatileImage(
+                                                    zoomableBounds.width, zoomableBounds.height);
+                                } else {
+                                    buffer = config.createCompatibleImage(
+                                                    zoomableBounds.width, zoomableBounds.height,
+                                                    Transparency.TRANSLUCENT);
+                                }
                             }
                             offscreenBuffers[offscreenIndex] = buffer;
                             bufferClip = zoomableBounds;
@@ -1772,7 +1848,7 @@ renderOffscreen:while (true) {
                                 }
                                 graphics.drawImage(buffer, zoomableBounds.x,
                                                            zoomableBounds.y, mapPane);
-                                if (buffer.contentsLost()) {
+                                if (contentsLost(buffer)) {
                                     // Upcomming 'validate' will falls in IMAGE_RESTORED case.
                                     continue;
                                 }
@@ -1792,13 +1868,27 @@ renderOffscreen:while (true) {
                     }
                     /*
                      * At this point, we know that some area need to be repainted.
-                     * Try to repaint just the requested area.
+                     * Reset a transparent background on the area to be repainted,
+                     * and invokes RenderedLayer.update(...) for each layers to be
+                     * included in this offscreen buffer.
                      */
-                    final Graphics2D graphicsOff = buffer.createGraphics();
+                    final Graphics2D graphicsOff = (Graphics2D) buffer.getGraphics();
+                    final Composite oldComposite = graphicsOff.getComposite();
                     graphicsOff.addRenderingHints(hints);
                     graphicsOff.translate(-zoomableBounds.x, -zoomableBounds.y);
-                    graphicsOff.setColor(mapPane!=null ? mapPane.getBackground() : Color.WHITE);
+                    graphicsOff.setComposite(AlphaComposite.Src);
+                    if (offscreenIsVolatile[offscreenIndex]) {
+                        // HACK: We should use the transparent color in all cases. However,
+                        //       as of J2SE 1.4, VolatileImage doesn't supports transparency.
+                        //       We have to use some opaque color in the main time.
+                        // TODO: Delete this hack when J2SE 1.5 will be available.
+                        //       Avoid filling if the image has just been created.
+                        graphicsOff.setColor(mapPane!=null ? mapPane.getBackground() : Color.WHITE);
+                    } else {
+                        graphicsOff.setColor(TRANSPARENT);
+                    }
                     graphicsOff.fill(bufferClip);
+                    graphicsOff.setComposite(oldComposite);
                     graphicsOff.setColor(mapPane!=null ? mapPane.getForeground() : Color.BLACK);
                     graphicsOff.clip(bufferClip); // Information needed by some layers.
                     graphicsOff.transform(zoom);
@@ -1827,7 +1917,7 @@ renderOffscreen:while (true) {
                             handleOffscreenException(layers[i], exception);
                             break renderOffscreen;
                         }
-                        if (buffer.contentsLost()) {
+                        if (contentsLost(buffer)) {
                             break;
                         }
                     }
@@ -2121,6 +2211,7 @@ renderOffscreen:while (true) {
         flushOffscreenBuffers();
         offscreenZRanges     = null;
         offscreenBuffers     = null;
+        offscreenIsVolatile  = null;
         offscreenNeedRepaint = null;
         final RenderedLayer[] layers = new RenderedLayer[layerCount];
         if (layerCount != 0) {
@@ -2139,7 +2230,9 @@ renderOffscreen:while (true) {
 
     /**
      * Returns a string representation of this renderer and all its {@link RenderedLayer}s.
-     * This method is for debugging purpose only and may change in any future version.
+     * The {@linkplain #getOffscreenBuffered offscreen buffer type}, if any, appears in the
+     * right column. This method is for debugging purpose only and may change in any future
+     * version.
      */
     public synchronized String toString() {
         sortLayers();
@@ -2151,9 +2244,24 @@ renderOffscreen:while (true) {
         buffer.append(layerCount);
         buffer.append(" layers]");
         buffer.append(lineSeparator);
+        int maxLength = 0;
+        final String[] names = new String[layerCount];
+        for (int i=0; i<layerCount; i++) {
+            final int length = (names[i] = String.valueOf(layers[i]).trim()).length();
+            if (length > maxLength) {
+                maxLength = length;
+            }
+        }
         for (int i=0; i<layerCount; i++) {
             buffer.append("    ");
-            buffer.append(layers[i]);
+            buffer.append(names[i]);
+            final ImageType type = getOffscreenBuffered(layers[i].getZOrder());
+            if (!ImageType.NONE.equals(type)) {
+                buffer.append(Utilities.spaces(maxLength-names[i].length() + 3));
+                buffer.append('(');
+                buffer.append(type.getName());
+                buffer.append(')');
+            }
             buffer.append(lineSeparator);
         }
         return buffer.toString();

@@ -45,7 +45,7 @@ import org.geotools.renderer.geom.GeometryCollection;
 /**
  * Test the {@link Renderer} class.
  *
- * @version $Id: RendererTest.java,v 1.1 2003/08/11 20:04:16 desruisseaux Exp $
+ * @version $Id: RendererTest.java,v 1.2 2003/08/13 15:40:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RendererTest extends TestCase {
@@ -82,9 +82,17 @@ public class RendererTest extends TestCase {
      * Test the rendering using offscreen buffer.
      */
     public void testOffscreenBuffer() throws TransformException {
+        testOffscreenBuffer(ImageType.BUFFERED);
+        testOffscreenBuffer(ImageType.VOLATILE);
+    }
+
+    /**
+     * Test the rendering using offscreen buffer.
+     */
+    private void testOffscreenBuffer(final ImageType type) throws TransformException {
         final Pane pane = new Pane();
         pane.renderer.setCoordinateSystem(CARTESIAN);
-        pane.renderer.setOffscreenBuffered(50, 150, ImageType.VOLATILE);
+        pane.renderer.setOffscreenBuffered(50, 150, type);
         for (int i=0; i<300; i+=100) {
             final GeometryCollection geom = new GeometryCollection(CARTESIAN);
             geom.add(new RoundRectangle2D.Float(100+i, 100+i/2, 200, 200, 20, 20));
@@ -92,7 +100,7 @@ public class RendererTest extends TestCase {
             pane.renderer.addLayer(layer);
             layer.setZOrder(i); // Try changing z-order after addition.
         }
-        pane.display();
+        pane.display(type.getName());
     }
 
     /**
@@ -122,8 +130,8 @@ public class RendererTest extends TestCase {
         /**
          * Show this canvas in a frame.
          */
-        public void display() {
-            final Frame frame = new Frame("Renderer test");
+        public void display(final String title) {
+            final Frame frame = new Frame(title);
             frame.add(this);
             frame.setSize(600, 600);
             frame.show();
