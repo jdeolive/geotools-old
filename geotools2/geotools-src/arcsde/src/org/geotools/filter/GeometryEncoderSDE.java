@@ -222,7 +222,7 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
                 Geometry layerEnv = gb.construct(extent);
                 bbox = bbox.intersection(layerEnv);
 
-                SeShape envShape = gb.construct(bbox, sdeLayer.getCoordRef());
+                SeShape envShape = gb.constructShape(bbox, sdeLayer.getCoordRef());
 
                 SeFilter bboxFilter = new SeShapeFilter(getLayerName(),
                         spatialCol, envShape, SeFilter.METHOD_ENVP);
@@ -274,7 +274,7 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
             try
             {
                 GeometryBuilder bg = GeometryBuilder.builderFor(Polygon.class);
-                SeShape envShape = bg.construct(compareGeometry,
+                SeShape envShape = bg.constructShape(compareGeometry,
                         sdeLayer.getCoordRef());
 
                 SeFilter bboxFilter = new SeShapeFilter(getLayerName(),
