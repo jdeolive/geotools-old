@@ -76,7 +76,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.2 2003/03/20 22:48:02 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.3 2003/03/28 10:21:57 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -242,6 +242,16 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * Returns a human readable name localized for the specified locale.
      */
     public abstract String getName(final Locale locale);
+
+    /**
+     * Returns <code>true</code> if this projection uses a spherical model.
+     * The model is spherical if {@link #semiMajor} and {@link #semiMinor}
+     * axis length are equals.
+     */
+    public final boolean isSpherical() {
+        return semiMajor == semiMinor;
+    }
+
     
     /**
      * Gets the dimension of input points.
@@ -487,7 +497,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * {@link MapProjection#inverseTransform(double,double,Point2D)} instead of
      * {@link MapProjection#transform(double,double,Point2D)}.
      *
-     * @version $Id: MapProjection.java,v 1.2 2003/03/20 22:48:02 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.3 2003/03/28 10:21:57 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {

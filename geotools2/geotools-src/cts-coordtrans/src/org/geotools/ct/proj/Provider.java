@@ -47,7 +47,7 @@ import org.geotools.resources.cts.Resources;
 /**
  * Base class for {@link MapProjection} provider.
  *
- * @version $Id: Provider.java,v 1.1 2003/03/17 14:24:31 desruisseaux Exp $
+ * @version $Id: Provider.java,v 1.2 2003/03/28 10:21:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Provider extends MathTransformProvider {
@@ -88,6 +88,9 @@ public abstract class Provider extends MathTransformProvider {
 
     /**
      * Create a new map projection from a parameter list.
+     *
+     * @param  parameters The parameters list.
+     * @throws MissingParameterException if a mandatory parameter is missing.
      */
     public final MathTransform create(final ParameterList parameters)
             throws MissingParameterException
@@ -96,8 +99,25 @@ public abstract class Provider extends MathTransformProvider {
     }
 
     /**
-     * Create a new <code>MapProjection</code> from a projection.
+     * Create a new map projection from a <code>Projection</code> parameter.
+     *
+     * @param  parameters The projection.
+     * @throws MissingParameterException if a mandatory parameter is missing.
      */
-    protected abstract MathTransform create(final Projection parameters)
+    public abstract MathTransform create(final Projection parameters)
             throws MissingParameterException;
+
+    /**
+     * Tells if the specified projection uses a spherical model.
+     *
+     * @returns <code>true</code> if the model is spherical,
+     *          or <code>false</code> if it is ellipsoidal.
+     * @throws MissingParameterException if a mandatory parameter is missing.
+     */
+    protected final boolean isSpherical(final Projection parameters)
+            throws MissingParameterException
+    {
+        return parameters.getValue("semi_major") ==
+               parameters.getValue("semi_minor");
+    }
 }
