@@ -27,7 +27,7 @@ import java.util.*;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.4 2003/07/18 19:55:00 jmacgill Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.5 2003/07/18 20:02:50 jmacgill Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -252,8 +252,8 @@ public class DefaultAttributeType implements AttributeType {
       public void validate(Object attribute) throws IllegalArgumentException {
         super.validate(attribute);
         org.geotools.feature.Feature att = (org.geotools.feature.Feature) attribute;
-        if (! att.getFeatureType().isDescendedFrom(featureType) || 
-            ! att.getFeatureType().equals(featureType))
+        if (! (att.getFeatureType().isDescendedFrom(featureType) || 
+             att.getFeatureType().equals(featureType)))
           throw new IllegalArgumentException("Not correct FeatureType, expected " + featureType + " got " + att.getFeatureType());
       }
       
