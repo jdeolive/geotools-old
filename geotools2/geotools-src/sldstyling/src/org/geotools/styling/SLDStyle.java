@@ -39,7 +39,7 @@ import org.w3c.dom.*;
  * Styled Layer Descriptor Spec.
  *
  * 
- * @version $Id: SLDStyle.java,v 1.29 2002/11/27 14:16:56 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.30 2002/12/04 15:37:20 ianturton Exp $
  * @author Ian Turton
  */
 public class SLDStyle {
@@ -287,9 +287,10 @@ public class SLDStyle {
                     if (LOGGER.isLoggable(Level.FINEST)) {
                         LOGGER.finest("filter: " + 
                                       filter.getClass().toString());
+                        LOGGER.finest("parsed: " + filter.toString());
                     }
 
-                    LOGGER.info("parsed: " + filter.toString());
+                    
                     rule.setFilter(filter);
                 }
             }
@@ -844,7 +845,9 @@ public class SLDStyle {
     }
 
     private Expression parseCssParameter(Node root) {
-        LOGGER.info("parsingCssParam " + root);
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("parsingCssParam " + root);
+        }
 
         NodeList children = root.getChildNodes();
 
