@@ -265,7 +265,7 @@ public class Capabilities
 		
 		/** Adds a style for this layer
 		 */
-		protected void addStyle(String name, String title, String legendUrl)
+		protected void addStyle(String name, String title,  String legendUrl)
 		{
 			styles.put(name, new Style(name, title, legendUrl));
 		}
@@ -287,7 +287,7 @@ public class Capabilities
 		String title;
 		String legendUrl;
 		
-		protected Style(String name, String title, String legendUrl)
+		protected Style(String name, String title,String legendUrl)
 		{
 			this.name = name;
 			this.title = title;

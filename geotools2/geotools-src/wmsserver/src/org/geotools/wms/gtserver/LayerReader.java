@@ -54,11 +54,13 @@ public class LayerReader extends DefaultHandler {
     public static final String TAG_DESCRIPTION = "/WMSServer/layer/description";
     public static final String TAG_DATASOURCE = "/WMSServer/layer/datasource";
     public static final String TAG_PARAM = "/WMSServer/layer/datasource/param";
+    public static final String TAG_STYLE = "/WMSServer/layer/style";
     
     public static final String ATTRIB_ID = "id";
     public static final String ATTRIB_CLASS = "class";
     public static final String ATTRIB_NAME = "name";
     public static final String ATTRIB_VALUE = "value";
+    public static final String ATTRIB_FILENAME = "filename";
     
     
     public LayerReader() {
@@ -123,8 +125,17 @@ public class LayerReader extends DefaultHandler {
             currentLayer.properties = new Properties();
         }
         // <param> tag
-        if (currentTag.equalsIgnoreCase(TAG_PARAM))
+        if (currentTag.equalsIgnoreCase(TAG_PARAM)){
             currentLayer.properties.setProperty(attrs.getValue(ATTRIB_NAME), attrs.getValue(ATTRIB_VALUE));
+        }
+        if (currentTag.equalsIgnoreCase(TAG_STYLE)) {
+            if(currentLayer.styles == null){
+                currentLayer.styles = new HashMap();
+            }
+            currentLayer.styles.put(attrs.getValue(ATTRIB_ID), attrs.getValue(ATTRIB_FILENAME));
+        }
+        
+        
     }
     
     /** Characters. */

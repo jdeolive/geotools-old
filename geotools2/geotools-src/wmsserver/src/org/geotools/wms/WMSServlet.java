@@ -80,10 +80,12 @@ public class WMSServlet extends HttpServlet {
     public static final String XML_GETFEATUREINFO	= "<?GEO GETFEATUREINFO ?>";
     public static final String XML_EXCEPTIONFORMATS	= "<?GEO EXCEPTIONFORMATS ?>";
     public static final String XML_VENDORSPECIFIC	= "<?GEO VENDORSPECIFICCAPABILITIES ?>";
-    public static final String XML_LAYERS			= "<?GEO LAYERS ?>";
+    public static final String XML_LAYERS		= "<?GEO LAYERS ?>";
+    public static final String XML_GETURL               = "<?GEO GETURL ?>";
     
     private WMSServer server;
     private Vector featureFormatters;
+    private String getUrl;
     
     
     /**
@@ -128,6 +130,8 @@ public class WMSServlet extends HttpServlet {
         System.out.println("DoGet called from "+request.getRemoteAddr());
         // Nullify caching
         
+        //What's my address?
+        getUrl = request.getServletPath()+"?";
         // Check request type
         String sRequest = getParameter(request, PARAM_REQUEST);
         if (sRequest==null || sRequest.trim().length()==0) {
@@ -394,26 +398,26 @@ public class WMSServlet extends HttpServlet {
             exp_type = DEFAULT_EXCEPTION;
         System.out.println("Its all gone wrong "+sException);
         // Check the optional response code (mime-type of exception)
-  //      if (exp_type.equalsIgnoreCase("application/vnd.ogc.se_xml") || exp_type.equalsIgnoreCase("text/xml")) {
-            response.setContentType(exp_type);
-            PrintWriter pw = response.getWriter();
-            // Write header
-            pw.println("  <?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>");
-            pw.println("  <!DOCTYPE ServiceExceptionReport SYSTEM \"http://www.digitalearth.gov/wmt/xml/exception_1_1_0.dtd\"> ");
-            pw.println("  <ServiceExceptionReport version=\"1.1.0\">");
-            // Write exception code
-            pw.println("    <ServiceException"+(sCode!=null?" code="+sCode:"")+">"+sException+"</ServiceException>");
-            // Write footer
-            pw.println("  </ServiceExceptionReport>");
-            
-            pw.close();
-    //    }
+        //      if (exp_type.equalsIgnoreCase("application/vnd.ogc.se_xml") || exp_type.equalsIgnoreCase("text/xml")) {
+        response.setContentType(exp_type);
+        PrintWriter pw = response.getWriter();
+        // Write header
+        pw.println("  <?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>");
+        pw.println("  <!DOCTYPE ServiceExceptionReport SYSTEM \"http://www.digitalearth.gov/wmt/xml/exception_1_1_0.dtd\"> ");
+        pw.println("  <ServiceExceptionReport version=\"1.1.0\">");
+        // Write exception code
+        pw.println("    <ServiceException"+(sCode!=null?" code="+sCode:"")+">"+sException+"</ServiceException>");
+        // Write footer
+        pw.println("  </ServiceExceptionReport>");
+        
+        pw.close();
+        //    }
      /*   if (exp_type.equalsIgnoreCase("text/plain")) {
             response.setContentType(exp_type);
             PrintWriter pw = response.getWriter();
             pw.println("Exception : Code="+sCode);
             pw.println(sException);
-            
+      
         }*/
         // Other exception types (graphcal, whatever) to go here
     }
@@ -433,6 +437,13 @@ public class WMSServlet extends HttpServlet {
         catch(IOException ioexp) {
             return null;
         }
+        
+        // address of this service
+        String resource = "<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\""+
+        "xlink:href=\"" + getUrl + "\"/>";
+        
+        xml.replace(xml.toString().indexOf(XML_GETURL), xml.toString().indexOf(XML_GETURL)+ XML_GETURL.length(), resource);
+        
         
         // Map formats
         String mapFormats = "";
@@ -476,6 +487,11 @@ public class WMSServlet extends HttpServlet {
         return xml.toString();
     }
     
+    /**
+     * add layer to the capabilites xml
+     * @task TODO: Support LegendUrl which requires additional format and
+     *             size information.
+     */
     private String layersToXml(Capabilities.Layer root, int tabIndex) {
         String tab = "\t";
         for (int t=0;t<tabIndex;t++) tab += "\t";
@@ -495,7 +511,7 @@ public class WMSServlet extends HttpServlet {
                 xml += tab+"<Style>\n";
                 xml += tab+"<Name>"+s.name+"</Name>\n";
                 xml += tab+"<Title>"+s.title+"</Title>\n";
-                xml += tab+"<LegendUrl>"+s.legendUrl+"</LegenUrl>\n";
+                //xml += tab+"<LegendUrl>"+s.legendUrl+"</LegenUrl>\n";
                 xml += tab+"</Style>\n";
             }
         }

@@ -17,7 +17,7 @@
   <OnlineResource xmlns:xlink="http://www.geotools.org" xlink:type="simple" xlink:href="http://www.geotools.org/" /> 
   <ContactInformation>
     <ContactPersonPrimary>
-      <ContactPerson>James McGill</ContactPerson> 
+      <ContactPerson>James Macgill</ContactPerson> 
       <ContactOrganization>Leeds University</ContactOrganization> 
     </ContactPersonPrimary>
     <ContactPosition>Project Lead</ContactPosition> 
@@ -47,7 +47,7 @@
   <DCPType>
     <HTTP>
       <Get>
-         <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.ccg.leeds.ac.uk:8080/GT2WMS/servlet/GT2WMS?"/>
+         <?GEO GETURL ?>
       </Get>
     </HTTP>
   </DCPType>

@@ -8,5 +8,7 @@
             <param name="filename" value="maps/statepop.shp"/>
         </datasource>
     <description>A test layer</description>
+    <Style id="dull" filename="styles/polyshp.sld"/>
+    <Style id="silly" filename="styles/funkypoly.sld"/>
    </Layer>
 </WMSServer>

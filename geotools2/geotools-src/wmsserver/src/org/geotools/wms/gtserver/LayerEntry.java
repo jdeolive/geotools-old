@@ -20,8 +20,11 @@
 
 package org.geotools.wms.gtserver;
 
+
 import java.util.Properties;
-/** A single entry for a Layer in the layers.xml file
+import java.util.HashMap;
+
+/** A single entry for a Layer in the layers.xml file
  */
 public class LayerEntry
 {
@@ -33,5 +36,8 @@ public class LayerEntry
 	public String datasource;
 	/** The properties for the DataSource */
 	public Properties properties;
+        /** The styles for this layer */
+        public HashMap styles;
 }
+
 

@@ -196,6 +196,13 @@ public class GtWmsServer implements WMSServer {
             // Add the layers to the capabilities object
             for (int i=0;i<layers.length;i++) {
                 cap.addLayer(layers[i].id, layers[i].description, "EPSG:4326", new double[] {-120, 40, -60, 60});
+                if (layers[i].styles != null){
+                    Iterator loop = layers[i].styles.keySet().iterator();
+                    while (loop.hasNext()){
+                        String styleid = (String)loop.next();
+                        cap.addStyle(layers[i].id, styleid, styleid, null); 
+                    }
+                }
             }
             
             // Send result back to server
