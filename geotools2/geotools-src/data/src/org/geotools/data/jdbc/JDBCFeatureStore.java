@@ -17,6 +17,7 @@
 package org.geotools.data.jdbc;
 
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
@@ -44,6 +45,7 @@ import java.util.Set;
  *       transaction.  This way if the writer messes up its changes are rolled
  *       back.  The old jdbc datasources supported this, and it'd be nice to
  *       do here as well.
+ * @task UPDATE: made modify atomic as an example
  */
 public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore {
     /** Current Transaction this FeatureSource is opperating against */
@@ -131,10 +133,28 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
     public void modifyFeatures(AttributeType[] type, Object[] value,
         Filter filter) throws IOException {
         String typeName = getSchema().getTypeName();
-        FeatureWriter writer = getDataStore().getFeatureWriter(typeName,
-                filter, getTransaction());
-        Feature feature;
-
+        
+        if( getTransaction() == Transaction.AUTO_COMMIT ){
+            // implement as atomic
+            Transaction atomic = new DefaultTransaction();
+            try {
+                FeatureWriter writer = getDataStore().getFeatureWriter(typeName, filter, atomic);
+                atomic.commit();                
+            }
+            catch( Throwable t ){
+                atomic.rollback();   
+            }
+            finally {
+                atomic.close();
+            }                        
+        }
+        else {
+            FeatureWriter writer = getDataStore().getFeatureWriter(typeName, filter, getTransaction() );
+            modifyFeatures( type, value, writer );            
+        }
+    }
+    protected void modifyFeatures( AttributeType[] type, Object[] value, FeatureWriter writer ) throws DataSourceException, IOException{
+        Feature feature;        
         try {
             while (writer.hasNext()) {
                 feature = writer.next();
@@ -153,9 +173,8 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
             }
         } finally {
             writer.close();
-        }
+        }        
     }
-
     /**
      * Add Features from reader to this FeatureStore.
      * 
