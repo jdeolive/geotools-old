@@ -302,7 +302,7 @@ public class TreeStyleEditor extends JComponent implements SLDEditor {
                 Symbolizer[] symbolizers = new Symbolizer[symCount];
                 for(int k = 0; k < symCount; k++) {
                     DefaultMutableTreeNode symNode = (DefaultMutableTreeNode) ruleNode.getChildAt(k);
-                    symbolizers[i] = (Symbolizer) symNode.getUserObject();
+                    symbolizers[k] = (Symbolizer) symNode.getUserObject();
                 }
                 rules[j].setSymbolizers(symbolizers);
             }
