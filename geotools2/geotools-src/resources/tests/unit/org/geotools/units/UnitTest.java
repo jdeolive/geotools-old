@@ -41,7 +41,7 @@ import junit.framework.TestSuite;
 /**
  * Test the Unit class.
  *
- * @version $Id: UnitTest.java,v 1.1 2002/11/04 16:17:07 crotwell Exp $
+ * @version $Id: UnitTest.java,v 1.2 2002/11/05 14:41:14 crotwell Exp $
  * @author Philip Crotwell
  */
 public class UnitTest extends TestCase {
@@ -82,6 +82,13 @@ public class UnitTest extends TestCase {
     }
 
     /**
+     * Test the METRE Unit.
+     */
+    public void testMETRE() {
+        assertNotNull(Unit.METRE);
+    }
+
+    /**
      * Test the DAY Unit.
      */
     public void testDAY() {
@@ -95,4 +102,9 @@ public class UnitTest extends TestCase {
         assertNotNull(Unit.DEGREE);
     }
 
+    public void testLocalizedNames() {
+        Unit.KILOGRAM.getLocalizedName();
+        Unit.METRE.getLocalizedName();
+        Unit.DAY.getLocalizedName();
+    }
 }
