@@ -109,13 +109,21 @@ public class GtWmsServer implements WMSServer {
                     home = new File(".").toURL();
                 }
                 
-                URL url;
+                URL url=null;
                 
                 try {
                     url = new URL(entry.properties.getProperty("url"));
                 } catch (MalformedURLException mue) {
-                    url = new URL(home, entry.properties.getProperty("url"));
-                    entry.properties.setProperty("url", url.toExternalForm());
+                    try{
+                        url = new URL(home, entry.properties.getProperty("url"));
+                        entry.properties.setProperty("url", url.toExternalForm());
+                    }catch (MalformedURLException mfe){                        
+                        //@HACK I have no idea what should happen here - Ask James?
+                        LOGGER.warning("Layer from " + url + " not installed");
+                        loop.remove();
+                    
+                        continue;
+                    }
                 }
                 
                 LOGGER.finer("after mod url is " + url);
