@@ -80,6 +80,7 @@ import org.geotools.data.jdbc.QueryData.RowData;
 import org.geotools.factory.FactoryConfigurationError;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.DefaultFeatureType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFactory;
@@ -92,7 +93,7 @@ import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
- * Abstract helper class for JDBC DataStore implementations.
+ * Abstract class for JDBC based DataStore implementations.
  *
  * <p>
  * This class provides a default implementation of a JDBC data store. Support for vendor specific
@@ -149,17 +150,19 @@ import com.vividsolutions.jts.geom.Envelope;
  * If no Map is provided all featureTypes will be given the FID_GEN_AUTO strategy.</p>
  * <p>The FID Generation strategies supported by JDBCDataStore are:
  * <ul>
- *  <li>FID_GEN_AUTO - the underlying data store will generate the FID automatically and data store 
+ *  <li>FID_GEN_INSERT_NULL - the underlying data store will generate the FID automatically and data store 
  *      implementations should do the equivalent of inserting null into the fid.</li>
- *  <li>FID_GEN_MANUAL - the data store implementation must handle generation of new valid fids. 
- *      This is done by incrementing the max current fid in the table</li>
+ *  <li>FID_GEN_MANUAL_INC - the data store implementation must handle generation of new valid fids. 
+ *      This is done by incrementing the max current fid in the table.</li>
  * </ul>
  * </p>
+ * <p>Sub classes can add new FID Generation strategies by implementing FIDGenerationStrategy
+ * and overriding getFIDGenerationStrategy.</p>
  * 
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.17 2004/01/08 04:28:18 seangeo Exp $
+ * $Id: JDBCDataStore.java,v 1.18 2004/01/12 23:58:58 seangeo Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     
@@ -1632,6 +1635,17 @@ public abstract class JDBCDataStore implements DataStore {
             return queryData.getFeatureTypeInfo().getSchema();
         }
 
+        /**
+         * <p>Notes on adding features.  If we are in the adding feature state,
+         * i.e. there are no rows left in the ResultSet, then we return features
+         * with default attributes and null fids. After write has been called and 
+         * the new feature added to the database then the null fid will be replaced
+         * with the real fid.</p> 
+         * 
+         * @see org.geotools.data.FeatureWriter#next()
+         * @return
+         * @throws IOException
+         */
         public Feature next() throws IOException {
             if (queryData == null) {
                 throw new IOException("FeatureWriter has been closed");
@@ -1660,7 +1674,22 @@ public abstract class JDBCDataStore implements DataStore {
                 }
 
                 try {
-                    current = DataUtilities.template(featureType);
+                    Feature temp = DataUtilities.template(featureType);
+                    
+                    /* Here we create a Feature with a Mutable FID.
+                     * We use data utilities to create a default set of attributes
+                     * for the feature and these are copied into the a new 
+                     * MutableFIDFeature.  Thsi can probably be improved later,
+                     * there is also a dependency on DefaultFeatureType here since
+                     * DefaultFeature depends on it and MutableFIDFeature extends default
+                     * feature.  This may be an issue if someone reimplements the Feature
+                     * interfaces.  It could address by providing a full implementation
+                     * of Feature in MutableFIDFeature at a later date.
+                     * 
+                     */
+                    current = new MutableFIDFeature((DefaultFeatureType) featureType, 
+                                    temp.getAttributes(new Object[temp.getNumberOfAttributes()]), null);
+                    
                     queryData.startInsert();
                     queryData.next(this);
                     writer.next();
@@ -1761,7 +1790,7 @@ public abstract class JDBCDataStore implements DataStore {
                 LOGGER.fine("doing insert in jdbc featurewriter");
 
                 try {
-                    doInsert(current);
+                    doInsert((MutableFIDFeature) current);
                 } catch (SQLException e) {
                     throw new DataSourceException("Row adding failed.", e);
                 }
@@ -1790,11 +1819,15 @@ public abstract class JDBCDataStore implements DataStore {
                 RowData rd = queryData.getRowData(this);
                 rd.write(fidGen.generateFidFor(current), 1);
                 doUpdate(DataUtilities.template(current.getFeatureType()), current);
+                queryData.doInsert();
+                
+                // refresh the row and read the new fid into the Feature.
+                rd.refreshRow();
+                MutableFIDFeature mutable = (MutableFIDFeature) current;
+                mutable.setID(rd.read(1).toString());
             } catch (IllegalAttributeException e) {
                 throw new DataSourceException("Unable to do insert", e);
             }
-
-            queryData.doInsert();
         }
         
         private void doUpdate(Feature live, Feature current) throws IOException {
@@ -1863,3 +1896,6 @@ public abstract class JDBCDataStore implements DataStore {
         }
     }
 }
+
+
+
