@@ -50,7 +50,7 @@ import java.util.Date;
  * Number myObjectAsANumber = {@link ClassChanger#toNumber ClassChanger.toNumber}(someArbitraryObject);
  * </pre></blockquote>
  *
- * @version $Id: ClassChanger.java,v 1.5 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: ClassChanger.java,v 1.6 2003/08/10 20:26:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ClassChanger {
@@ -208,8 +208,8 @@ public abstract class ClassChanger {
      * {@link Number} subclass that will be returned as output by {@link #convert}.
      * If no suitable mapping is found, then <code>source</code> is returned.
      */
-    public static Class getTransformedClass(final Class source) {
-        if (source!=null) {
+    public static synchronized Class getTransformedClass(final Class source) {
+        if (source != null) {
             for (int i=0; i<list.length; i++) {
                 if (list[i].source.isAssignableFrom(source)) {
                     return list[i].target;
@@ -234,7 +234,7 @@ public abstract class ClassChanger {
     public static Number toNumber(final Comparable object)
         throws ClassNotFoundException
     {
-        if (object!=null) {
+        if (object != null) {
             if (object instanceof Number) {
                 return (Number) object;
             }
@@ -258,7 +258,7 @@ public abstract class ClassChanger {
     public static Comparable toComparable(final Number value, final Class classe)
         throws ClassNotFoundException
     {
-        if (value!=null) {
+        if (value != null) {
             if (Number.class.isAssignableFrom(classe)) {
                 return (Comparable)value;
             }
