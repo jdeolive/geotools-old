@@ -1,6 +1,7 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,100 +13,99 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
 package org.geotools.map;
 
-/**
- * Stores Extent and CoordinateSystem associated with a Map Context.
- * Note that there is no setCoordinateSystem, this is to ensure that this object
- * doesn't depend on CoordinateTransform classes.  If you want to change
- * CoordinateSystem, use the setExtent(extent,coordinateSystem) method and
- * transform the coordinates in the calling application.<br>
- * Extent and CoordinateSystem are cloned during construction and when returned.
- * This is to ensure only this class can change their values.
- *
- * @version $Id: BoundingBox.java,v 1.8 2003/08/03 03:28:15 seangeo Exp $
- * @author Cameron Shorter
- * 
- */
-
+import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.map.events.BoundingBoxListener;
 import org.opengis.cs.CS_CoordinateSystem;
 import org.opengis.ct.CT_MathTransform;
 
-import com.vividsolutions.jts.geom.Envelope;
 
-public interface BoundingBox extends Cloneable{
-    
+/**
+ * Stores Extent and CoordinateSystem associated with a Map Context. Note that
+ * there is no setCoordinateSystem, this is to ensure that this object doesn't
+ * depend on CoordinateTransform classes.  If you want to change
+ * CoordinateSystem, use the setExtent(extent,coordinateSystem) method and
+ * transform the coordinates in the calling application.<br>
+ * Extent and CoordinateSystem are cloned during construction and when
+ * returned. This is to ensure only this class can change their values.
+ * @version $Id: BoundingBox.java,v 1.9 2003/08/07 22:11:22 cholmesny Exp $
+ */
+public interface BoundingBox extends Cloneable {
     /**
      * Register interest in receiving an AreaOfInterestChangedEvent.
+     *
      * @param ecl The object to notify when AreaOfInterest has changed.
-     * @param sendEvent After registering this listener, send a changeEvent
-     * to all listeners.
+     * @param sendEvent After registering this listener, send a changeEvent to
+     *        all listeners.
      */
-    public void addAreaOfInterestChangedListener(
-            BoundingBoxListener ecl,
-            boolean sendEvent);
+    void addAreaOfInterestChangedListener(BoundingBoxListener ecl,
+        boolean sendEvent);
 
     /**
      * Register interest in receiving an AreaOfInterestChangedEvent.
+     *
      * @param ecl The object to notify when AreaOfInterest has changed.
      */
-    public void addAreaOfInterestChangedListener(
-            BoundingBoxListener ecl);
+    void addAreaOfInterestChangedListener(BoundingBoxListener ecl);
 
     /**
      * Remove interest in receiving an AreaOfInterestChangedEvent.
+     *
      * @param ecl The object to stop sending AreaOfInterestChanged Events.
      */
-    public void removeAreaOfInterestChangedListener(
-            BoundingBoxListener ecl);
+    void removeAreaOfInterestChangedListener(BoundingBoxListener ecl);
+
+    /**
+     * Set a new AreaOfInterest and trigger an AreaOfInterestEvent. Note that
+     * this is the only method to change coordinateSystem.  A
+     * <code>setCoordinateSystem</code> method is not provided to ensure this
+     * class is not dependant on transform classes.
+     *
+     * @param bbox The new areaOfInterest.
+     * @param coordinateSystem The coordinate system being using by this model.
+     *
+     * @throws IllegalArgumentException if an argument is <code>null</code>.
+     */
+    void setAreaOfInterest(Envelope bbox, CS_CoordinateSystem coordinateSystem)
+        throws IllegalArgumentException;
 
     /**
      * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.
-     * Note that this is the only method to change coordinateSystem.  A
-     * <code>setCoordinateSystem</code> method is not provided to ensure
-     * this class is not dependant on transform classes.
-     * @param bbox The new areaOfInterest.
-     * @param coordinateSystem The coordinate system being using by this model.
-     * @throws IllegalArgumentException if an argument is <code>null</code>.
-     */
-    public void setAreaOfInterest(
-            Envelope bbox,
-            CS_CoordinateSystem coordinateSystem) throws IllegalArgumentException;
-    
-    /**
-     * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.
+     *
      * @param areaOfInterest The new areaOfInterest.
+     *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public void setAreaOfInterest(
-            Envelope areaOfInterest);
-    
+    void setAreaOfInterest(Envelope areaOfInterest);
+
     /**
      * Gets the current AreaOfInterest.
+     *
      * @return Current AreaOfInterest
      */
-    public Envelope getAreaOfInterest();
+    Envelope getAreaOfInterest();
 
     /**
      * Get the coordinateSystem.
+     *
+     * @return the coordinate system of this box.
      */
-    public CS_CoordinateSystem getCoordinateSystem();
+    CS_CoordinateSystem getCoordinateSystem();
 
     /**
      * Transform the coordinates according to the provided transform.  Useful
      * for zooming and panning processes.
+     *
      * @param transform The transform to change AreaOfInterest.
      */
-    public void transform(CT_MathTransform transform);
-    
-    /*
+    void transform(CT_MathTransform transform);
+
+    /**
      * Create a copy of this class
+     *
+     * @return a copy of this object.
      */
-    public Object clone();
+    Object clone();
 }

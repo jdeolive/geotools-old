@@ -1,6 +1,7 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,10 +13,6 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
 package org.geotools.map;
 
@@ -23,30 +20,80 @@ package org.geotools.map;
  * Store context information about a map display.  This object is based on the
  * OGC Web Map Context Specification.
  *
- * @version $Id: Context.java,v 1.6 2003/05/30 12:31:24 camerons Exp $
  * @author Cameron Shorter
+ * @version $Id: Context.java,v 1.7 2003/08/07 22:11:22 cholmesny Exp $
  */
-
-
 public interface Context {
+    /**
+     * Returns a BoundingBox associated with this context.
+     *
+     * @return The BoundingBox.
+     */
+    BoundingBox getBbox();
 
-    public BoundingBox getBbox();
+    /**
+     * Returns a list of layers associated with this context.
+     *
+     * @return The LayerList.
+     */
+    LayerList getLayerList();
 
-    public LayerList getLayerList();
-    
-    public String getAbstract();
+    /**
+     * Get the abstract which describes this interface, returns an empty string
+     * if this has not been set yet.
+     *
+     * @return The Abstract.
+     */
+    String getAbstract();
 
-    public void setAbstract(final String _abstract);
+    /**
+     * Set an abstract which describes this context.
+     *
+     * @param conAbstract the Abstract.
+     */
+    void setAbstract(final String conAbstract);
 
-    public String getContactInformation();
+    /**
+     * Get the contact information associated with this context, returns an
+     * empty string if contactInformation has not been set.
+     *
+     * @return the ContactInformation.
+     */
+    String getContactInformation();
 
-    public void setContactInformation(final String contactInformation);
+    /**
+     * Set contact inforation associated with this class.
+     *
+     * @param contactInformation the ContactInformation.
+     */
+    void setContactInformation(final String contactInformation);
 
-    public String[] getKeywords();
+    /**
+     * Get an array of keywords associated with this context, returns an empty
+     * string if no keywords have been set
+     *
+     * @return array of keywords
+     */
+    String[] getKeywords();
 
-    public void setKeywords(final String[] keywords);
+    /**
+     * Set an array of keywords to associate with this context.
+     *
+     * @param keywords the Keywords.
+     */
+    void setKeywords(final String[] keywords);
 
-    public String getTitle();
+    /**
+     * Get the title, returns an empty string if it has not been set yet.
+     *
+     * @return the title, or an empty string if it has not been set.
+     */
+    String getTitle();
 
-    public void setTitle(final String title);
+    /**
+     * Set the title of this context.
+     *
+     * @param title the title.
+     */
+    void setTitle(final String title);
 }
