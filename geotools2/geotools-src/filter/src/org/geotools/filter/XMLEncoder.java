@@ -41,6 +41,7 @@ import java.util.logging.Logger;
  * to date.
  *
  * @author James Macgill, PSU
+ * @deprecated Use org.geotools.filter.FilterTransformer
  *
  * @task HACK: Logging errors, very bad!  We need a filter visitor exception,
  *       or have visit methods throw illegal filter exceptions, or io
