@@ -26,6 +26,7 @@ import org.geotools.gc.GridCoverage;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
 import org.geotools.styling.*;
+import org.opengis.ct.CT_MathTransform;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 
@@ -69,7 +70,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.73 2003/04/28 22:15:30 camerons Exp $
+ * @version $Id: Java2DRenderer.java,v 1.74 2003/05/04 09:49:44 camerons Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -239,13 +240,15 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
      * @param graphics The graphics object to draw to.
      * @param paintArea The size of the output area in output units (eg:
      *        pixels).
+     * @deprecated Use render(Graphics2D, CT_MathTransform) instead.
+     * @task TODO Move this functionality into
+     * render(Graphics2D, CT_MathTransform).
      */
     public void render(Graphics2D graphics, Rectangle paintArea) {
         Date start = new Date();
 
         if ((graphics == null) || (paintArea == null)) {
             LOGGER.info("renderer passed null arguements");
-
             return;
         }
 
@@ -599,4 +602,16 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
     }
+    
+    /** Render features based on the LayerList, BoundBox and Style specified in
+     * this.context.
+     *
+     * @param graphics The graphics object to draw to.
+     * @param transform A transform which converts World coordinates to
+     * Screen coordinates.
+     * @task TODO Populate this method.
+     */
+    public void render(Graphics2D graphics, CT_MathTransform transform) {
+    }
+    
 }
