@@ -19,7 +19,7 @@ package org.geotools.filter;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
 import java.util.logging.Logger;
-
+import java.util.Arrays;
 
 /**
  * Encodes a filter into a SQL WHERE statement for postgis.  This class adds
@@ -28,7 +28,10 @@ import java.util.logging.Logger;
  *
  * @author Chris Holmes, TOPP
  *
- * @task REVISIT: add support for other spatial queries.
+ * @task TODO: integrated with SQLEncoderPostgisGeos.java, as there no 
+ * real reason to have two different classes.  We just need to do testing
+ * to make sure both handle everything.  At the very least have the geos
+ * one extend more intelligently.
  */
 public class SQLEncoderPostgis extends SQLEncoder
     implements org.geotools.filter.FilterVisitor {
@@ -40,7 +43,7 @@ public class SQLEncoderPostgis extends SQLEncoder
     private FilterCapabilities capabilities = new FilterCapabilities();
 
     /** Standard java logger */
-    private static Logger log = Logger.getLogger("org.geotools.filter");
+    private static Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** To write geometry so postgis can read it. */
     private static WKTWriter wkt = new WKTWriter();
@@ -57,13 +60,15 @@ public class SQLEncoderPostgis extends SQLEncoder
 
     private boolean useGeos;
 
+    private String fidColumn;
+
     /**
      * Empty constructor TODO: rethink empty constructor, as BBOXes _need_ an
      * SRID, must make client set it somehow.  Maybe detect when encode is
      * called? 
      */
     public SQLEncoderPostgis() {
-	    capabilities.addType(AbstractFilter.LOGIC_OR);
+        capabilities.addType(AbstractFilter.LOGIC_OR);
         capabilities.addType(AbstractFilter.LOGIC_AND);
         capabilities.addType(AbstractFilter.LOGIC_NOT);
         capabilities.addType(AbstractFilter.COMPARE_EQUALS);
@@ -77,7 +82,7 @@ public class SQLEncoderPostgis extends SQLEncoder
         capabilities.addType((short) 12345);
         capabilities.addType((short) -12345);        
 	capabilities.addType(AbstractFilter.GEOMETRY_BBOX);
-
+        capabilities.addType(AbstractFilter.FID);
     }
 
     public SQLEncoderPostgis(boolean looseBbox) {
@@ -116,6 +121,16 @@ public class SQLEncoderPostgis extends SQLEncoder
      */
     public void setSRID(int srid) {
         this.srid = srid;
+    }
+
+    /**
+     * Sets the fid column to use for fid filters.  This _must_ be set if
+     * fid filters are used.  
+     * @task TODO: put in constructor.
+     * @task TODO: if set to null don't report in capabilities.
+     */
+    public void setFidColumn(String fidColumnName){
+	this.fidColumn = fidColumnName;
     }
 
     /**
@@ -158,11 +173,47 @@ public class SQLEncoderPostgis extends SQLEncoder
                 out.write("FALSE");
             }
 
-            log.warning("exporting unknown filter type");
+            LOGGER.warning("exporting unknown filter type");
         } catch (java.io.IOException ioe) {
             throw new RuntimeException("io error while writing", ioe);
         }
     }
+
+       /**
+     * DOCUMENT ME!
+     *
+     * @param filter
+     *
+     * @see org.geotools.filter.SQLEncoder#visit(org.geotools.filter.FidFilter)
+     */
+    public void visit(FidFilter filter) {
+        String[] fids = filter.getFids();
+        LOGGER.finer("Exporting FID=" + Arrays.asList(fids));
+
+        for (int i = 0; i < fids.length; i++) {
+            try {
+                out.write(fidColumn);
+                out.write(" = '");
+                
+                int pos;
+                
+                if ((pos = fids[i].indexOf('.')) != -1) {
+                	out.write(fids[i].substring(pos + 1));
+                } else {
+					out.write(fids[i]);
+                }
+                
+                out.write("'");
+
+                if (i < (fids.length - 1)) {
+                    out.write(" OR ");
+                }
+            } catch (java.io.IOException e) {
+                LOGGER.warning("IO Error exporting FID Filter.");
+            }
+        }
+    }
+
 
     /**
      * Turns a geometry filter into the postgis sql bbox statement.
@@ -172,7 +223,7 @@ public class SQLEncoderPostgis extends SQLEncoder
      * @throws RuntimeException for IO exception (need a better error)
      */
     public void visit(GeometryFilter filter) throws RuntimeException {
-        log.finer("exporting GeometryFilter");
+        LOGGER.finer("exporting GeometryFilter");
 
         if (filter.getFilterType() == AbstractFilter.GEOMETRY_BBOX) {
             DefaultExpression left = (DefaultExpression) filter.getLeftGeometry();
@@ -204,11 +255,11 @@ public class SQLEncoderPostgis extends SQLEncoder
 		}
 
 	    } catch (java.io.IOException ioe) {
-                log.warning("Unable to export filter" + ioe);
+                LOGGER.warning("Unable to export filter" + ioe);
                 throw new RuntimeException("io error while writing", ioe);
             }
         } else {
-            log.warning("exporting unknown filter type, only bbox supported");
+            LOGGER.warning("exporting unknown filter type, only bbox supported");
             throw new RuntimeException("Only BBox is currently supported");
         }
     }
@@ -222,7 +273,7 @@ public class SQLEncoderPostgis extends SQLEncoder
      * @throws RuntimeException for IO exception (need a better error)
      */
     public void visit(LiteralExpression expression) throws RuntimeException {
-        log.finer("exporting LiteralExpression");
+        LOGGER.finer("exporting LiteralExpression");
 
         try {
             if (expression.getType() == DefaultExpression.LITERAL_GEOMETRY) {
@@ -233,7 +284,7 @@ public class SQLEncoderPostgis extends SQLEncoder
                 super.visit(expression);
             }
         } catch (java.io.IOException ioe) {
-            log.warning("Unable to export expresion" + ioe);
+            LOGGER.warning("Unable to export expresion" + ioe);
             throw new RuntimeException("io error while writing", ioe);
         }
     }

@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * installed with GEOS support, to handle all the advanced spatial queries.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: SQLEncoderPostgisGeos.java,v 1.2 2003/12/03 22:49:54 cholmesny Exp $
+ * @version $Id: SQLEncoderPostgisGeos.java,v 1.3 2003/12/04 22:16:53 cholmesny Exp $
  */
 public class SQLEncoderPostgisGeos extends SQLEncoderPostgis
     implements org.geotools.filter.FilterVisitor {
@@ -73,6 +73,7 @@ public class SQLEncoderPostgisGeos extends SQLEncoderPostgis
         capabils.addType(AbstractFilter.BETWEEN);
         capabils.addType((short) 12345);
         capabils.addType((short) -12345);
+        capabils.addType(AbstractFilter.FID);
         capabils.addType(AbstractFilter.GEOMETRY_BBOX);
         capabils.addType(AbstractFilter.GEOMETRY_EQUALS);
         capabils.addType(AbstractFilter.GEOMETRY_DISJOINT);
