@@ -24,7 +24,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import java.util.EventObject;
 import java.util.logging.Logger;
 import junit.framework.*;
-import org.geotools.cs.Adapters;
+import org.geotools.ct.Adapters;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.Datum;
 import org.geotools.cs.FactoryException;
