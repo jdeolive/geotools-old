@@ -16,25 +16,21 @@
  */
 package org.geotools.data;
 
+import org.geotools.factory.FactoryFinder;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.geotools.factory.FactoryFinder;
-
 
 /**
- * DataSourceFinder.java
- * Provides methods which enable programs to find all available datasource implementations.
- * In order to be located by this finder datasources must provide an implementation of
- * the DataSourceFactorySpi interface. In addition to implementing this
- * interface datasouces should have a services file:
- * META-INF/services/org.geotools.data.DataSourceFactorySpi The file should
- * contain a single line which gives the full name of the implementing class.
- * e.g. org.geotools.data.mytype.MyTypeDataSourceFacotry
+ * Provides methods which enable programs to find all available datasource
+ * implementations. In order to be located by this finder datasources must
+ * provide an implementation of the {@link DataSourceFactorySpi} interface. In
+ * addition to implementing this interface datasouces should have a services
+ * file: META-INF/services/org.geotools.data.DataSourceFactorySpi The file
+ * should contain a single line which gives the full name of the implementing
+ * class. e.g. org.geotools.data.mytype.MyTypeDataSourceFacotry
  */
-public class DataSourceFinder {
-    /** The logger for the data module. */
-
+public final class DataSourceFinder {
     private DataSourceFinder() {
     }
 
@@ -50,7 +46,7 @@ public class DataSourceFinder {
      * @return The first datasource which claims to process the required
      *         resource, returns null if none can be found.
      *
-     * @throws DataSourceException If a sutiable loader can be found, but it
+     * @throws DataSourceException If a suitable loader can be found, but it
      *         can not be attached to the specified resource without errors.
      */
     public static DataSource getDataSource(Map params)
@@ -73,10 +69,7 @@ public class DataSourceFinder {
      * the services mechanism.
      *
      * @return An iterator over all discovered datasources which have
-     *         registered factories
-     *
-     * @task REVISIT: Currently uses sun.misc classes which may not always be
-     *       available, we can probably work round this.
+     *         registered factories.
      */
     public static Iterator getAvailableDataSources() {
         return FactoryFinder.factories(DataSourceFactorySpi.class);
