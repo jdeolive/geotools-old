@@ -34,10 +34,18 @@
 </ul>
 <p>
 <h2>Overview</h2>
+Provides an implementation of datasource for reading from Shapefiles.
 
 <p>
 <h2>Status</h2>
 Stable
+<p>
+<h2>TODO:</h2>
+The code does not yet handle the .dbf or index files (.shx) yet.<br>
+DBF support is urgent in order to get attributes, index files are important as they can improve performance.<br>
+The ShapefileDatasource only implements reading and not writing.<br>
+Code for all of the above exists in GeoTools1 but needs to be modified and simplified to work with the new architecture.<p>
+<a href="http://sourceforge.net/pm/task.php?group_project_id=19872&group_id=4091&func=browse">View Task List</a>
 <p>
 <h2>Participants</h2>
 <BR>The current maintainer, contributors and developers for this module
@@ -59,8 +67,8 @@ the module maintainer.
 
 <h2>Main Features</h2>
 <ul>
- <li><b>A COOL FEATURE</b><br>
-     A description of the cool feature
+ <li><b>The ShapefileDatasource</b><br>
+     When contructed from the location of a .shp file the datasource can be used to populate a FetureCollection.
      
  
 </ul>
