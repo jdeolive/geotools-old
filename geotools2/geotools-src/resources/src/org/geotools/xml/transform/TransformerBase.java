@@ -16,6 +16,7 @@
  */
 package org.geotools.xml.transform;
 
+import java.io.StringWriter;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ErrorHandler;
@@ -118,6 +119,18 @@ public abstract class TransformerBase {
         } catch (RuntimeException re) {
             throw new TransformerException("Encoding Error", re);
         }
+    }
+    
+    /**
+     * Perform the XML encoding of the given object into an internal buffer and
+     * return the resulting String. Calls transform(Object,Writer). <em>It 
+     * should be noted the most efficient mechanism of encoding is using the
+     * OutputStream or Writer methods</em>
+     */
+    public String transform(Object object) throws TransformerException {
+        StringWriter sw = new StringWriter();
+        transform(object,sw);
+        return sw.getBuffer().toString();
     }
 
     /**
