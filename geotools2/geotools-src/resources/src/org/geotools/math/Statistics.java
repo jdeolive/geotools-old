@@ -67,7 +67,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * System.out.println(stats);
  * </pre></blockquote>
  *
- * @version $Id: Statistics.java,v 1.5 2003/08/28 15:32:20 desruisseaux Exp $
+ * @version $Id: Statistics.java,v 1.6 2003/08/28 15:41:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Statistics implements Cloneable, Serializable {
@@ -381,7 +381,7 @@ public class Statistics implements Cloneable, Serializable {
      * <var>s<sub>3</sub></var>-<var>s<sub>2</sub></var>...,
      * which are stored in a {@link #getDeltaStatistics delta} statistics object.
      *
-     * @version $Id: Statistics.java,v 1.5 2003/08/28 15:32:20 desruisseaux Exp $
+     * @version $Id: Statistics.java,v 1.6 2003/08/28 15:41:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Delta extends Statistics {

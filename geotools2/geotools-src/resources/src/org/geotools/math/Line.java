@@ -54,7 +54,7 @@ import org.geotools.util.Cloneable;
  * can be computed for a given <var>x</var> value using the {@link #y} method. Method
  * {@link #x} compute the converse and should work even if the line is vertical.
  *
- * @version $Id: Line.java,v 1.7 2003/08/28 15:32:20 desruisseaux Exp $
+ * @version $Id: Line.java,v 1.8 2003/08/28 15:41:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Point2D

@@ -35,12 +35,13 @@
  */
 package org.geotools.cs;
 
-// Geotools dependencies
-import org.geotools.pt.Matrix;
-import org.geotools.resources.Utilities;
-
 // J2SE dependencies
 import java.io.Serializable;
+
+// Geotools dependencies
+import org.geotools.pt.Matrix;
+import org.geotools.util.Cloneable;
+import org.geotools.resources.Utilities;
 
 
 /**
@@ -49,7 +50,7 @@ import java.io.Serializable;
  * where the X axis points towards the Greenwich Prime Meridian, the Y axis
  * points East, and the Z axis points North.
  *
- * @version $Id: WGS84ConversionInfo.java,v 1.5 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: WGS84ConversionInfo.java,v 1.6 2003/08/28 15:41:41 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

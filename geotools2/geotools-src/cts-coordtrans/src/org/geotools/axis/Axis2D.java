@@ -61,6 +61,7 @@ import org.geotools.cs.AxisInfo;
 import org.geotools.cs.AxisOrientation;
 
 // Resources
+import org.geotools.util.Cloneable;
 import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.XDimension2D;
@@ -87,7 +88,7 @@ import org.geotools.resources.XAffineTransform;
  * be used for mapping logical coordinates to pixels coordinates for an arbitrary
  * pair of <code>Axis2D</code> objects, which doesn't need to be perpendicular.
  *
- * @version $Id: Axis2D.java,v 1.5 2003/07/24 08:42:28 desruisseaux Exp $
+ * @version $Id: Axis2D.java,v 1.6 2003/08/28 15:41:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see AxisInfo
@@ -745,7 +746,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * method, using the iterator after a change in the underlying {@link Axis2D}
      * may thrown a {@link ConcurrentModificationException}.
      *
-     * @version $Id: Axis2D.java,v 1.5 2003/07/24 08:42:28 desruisseaux Exp $
+     * @version $Id: Axis2D.java,v 1.6 2003/08/28 15:41:41 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public class TickIterator implements org.geotools.axis.TickIterator {
@@ -1231,7 +1232,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * itérateur ne retourne que des droites et jamais de courbes, il ne prend
      * pas d'argument <code>flatness</code>.
      *
-     * @version $Id: Axis2D.java,v 1.5 2003/07/24 08:42:28 desruisseaux Exp $
+     * @version $Id: Axis2D.java,v 1.6 2003/08/28 15:41:41 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private class TickPathIterator extends TickIterator implements java.awt.geom.PathIterator {
@@ -1431,7 +1432,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * Itérateur balayant l'axe et ses barres de graduations pour leur traçage.
      * Cet itérateur balaye aussi les étiquettes de graduations.
      *
-     * @version $Id: Axis2D.java,v 1.5 2003/07/24 08:42:28 desruisseaux Exp $
+     * @version $Id: Axis2D.java,v 1.6 2003/08/28 15:41:41 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class PathIterator extends TickPathIterator {

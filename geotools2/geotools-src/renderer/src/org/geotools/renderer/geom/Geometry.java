@@ -71,6 +71,7 @@ import org.geotools.ct.TransformException;
 import org.geotools.renderer.style.Style;
 import org.geotools.resources.Utilities;
 import org.geotools.math.Statistics;
+import org.geotools.util.Cloneable;
 
 
 /**
@@ -90,7 +91,7 @@ import org.geotools.math.Statistics;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.8 2003/08/28 10:43:06 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.9 2003/08/28 15:42:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {

@@ -37,7 +37,8 @@ import java.util.Arrays;
 import java.io.Serializable;
 import java.awt.geom.Rectangle2D;
 
-// Resources
+// Geotools dependencies
+import org.geotools.util.Cloneable;
 import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;

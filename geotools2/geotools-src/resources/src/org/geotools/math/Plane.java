@@ -55,7 +55,7 @@ import org.geotools.util.Cloneable;
  * Those coefficients can be set directly, or computed by a linear regression of this plane
  * through a set of three-dimensional points.
  *
- * @version $Id: Plane.java,v 1.3 2003/08/28 15:32:20 desruisseaux Exp $
+ * @version $Id: Plane.java,v 1.4 2003/08/28 15:41:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Howard Freeland
  */

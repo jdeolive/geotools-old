@@ -46,6 +46,7 @@ import java.lang.reflect.Array;
 import javax.media.jai.util.Range;
 
 // Geotools dependencies
+import org.geotools.util.Cloneable;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.ClassChanger;
 import org.geotools.resources.rsc.Resources;
@@ -63,7 +64,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * All entries in this set can be seen as {@link Range} objects.
  * This class is not thread-safe.
  *
- * @version $Id: RangeSet.java,v 1.6 2003/08/11 20:01:55 desruisseaux Exp $
+ * @version $Id: RangeSet.java,v 1.7 2003/08/28 15:41:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Andrea Aime
  */
@@ -946,7 +947,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
      * An iterator for iterating through ranges in a {@link RangeSet}.
      * All elements are {@link Range} objects.
      *
-     * @version $Id: RangeSet.java,v 1.6 2003/08/11 20:01:55 desruisseaux Exp $
+     * @version $Id: RangeSet.java,v 1.7 2003/08/28 15:41:57 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Iterator implements java.util.Iterator {

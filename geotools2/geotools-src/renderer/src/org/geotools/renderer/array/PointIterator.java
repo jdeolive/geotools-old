@@ -37,6 +37,9 @@ package org.geotools.renderer.array;
 import java.util.Iterator;
 import java.awt.geom.Point2D;
 
+// Geotools dependencies
+import org.geotools.util.Cloneable;
+
 
 /**
  * Itérateur balayant les données d'un tableau {@link PointArray}. Cet itérateur est obtenu par
@@ -46,7 +49,7 @@ import java.awt.geom.Point2D;
  * cet ordre: {@link #nextX} d'abord, suivit de {@link #nextY}. Tout manquement à cette règle (par
  * exemple appeller {@link #nextX} deux fois de suite) peut produire des résultats erronées.
  *
- * @version $Id: PointIterator.java,v 1.4 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: PointIterator.java,v 1.5 2003/08/28 15:42:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Once J2SE 1.5 will be available, this class should implements
