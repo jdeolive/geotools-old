@@ -3,6 +3,7 @@
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-mapinfo</name>
+  <extend>../../project.xml</extend>
   <id>mapinfo</id>
   <logo>/images/mapinfo.gif</logo>
   <currentVersion>0.1</currentVersion>
@@ -55,20 +56,19 @@
         </developer>
   </developers>
   <dependencies>
+  <dependency>
+      <id>core</id>
+      <version>0.1</version>
+    </dependency>
+        <dependency>
+      <id>defaultcore</id>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <id>JTS</id>
+      <version>1.0</version>
+    </dependency>
   </dependencies>
-  <build>
-    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-    
-    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
-    <integrationUnitTestSourceDirectory/>
-    <aspectSourceDirectories/>
-    <unitTestPatterns>
-      <unitTestPattern>include = **/*Test.java</unitTestPattern>
-    </unitTestPatterns>
-    <integrationUnitTestPatterns/>
-    <jarResources/>
-    <jars/>
-        <sourceDirectory>src</sourceDirectory>
-    </build>
+  
 </project>
 
