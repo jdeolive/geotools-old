@@ -56,7 +56,7 @@ import org.geotools.resources.Utilities;
  * coverages} or {@linkplain SFSGeometry geometry} objects in a Swing widget.
  *
  * @author Martin Desruisseaux
- * @version $Id: FrameFactory.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: FrameFactory.java,v 1.3 2003/05/25 21:36:08 aaime Exp $
  */
 public final class FrameFactory {
     /**
@@ -81,7 +81,7 @@ public final class FrameFactory {
         final MapPane mapPane = new MapPane(coverage.getCoordinateSystem());
         mapPane.getRenderer().addLayer(new RenderedGridCoverage(coverage));
         mapPane.getRenderer().addLayer(new RenderedMapScale());
-        mapPane.setPaintingWhileAdjusting(true);
+        mapPane.setPaintingWhileAdjusting(false);
         Component mapView = mapPane.createScrollPane();
         try {
             final ColorBar colors = new ColorBar(coverage);
@@ -143,7 +143,7 @@ public final class FrameFactory {
         final MapPane mapPane = new MapPane(layer.getCoordinateSystem());
         mapPane.getRenderer().addLayer(layer);
         mapPane.getRenderer().addLayer(new RenderedMapScale());
-        mapPane.setPaintingWhileAdjusting(true);
+        mapPane.setPaintingWhileAdjusting(false);
         c.add(mapPane.createScrollPane(), BorderLayout.CENTER);
 
         // Add the status bar
