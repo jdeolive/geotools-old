@@ -27,6 +27,7 @@ import org.xml.sax.helpers.ParserAdapter;
 import org.xml.sax.helpers.XMLReaderFactory;
 import java.io.*;
 import java.util.*;
+import java.util.logging.Logger;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -36,6 +37,9 @@ import javax.xml.parsers.SAXParserFactory;
  * an app. Call read() to read all the layers.
  */
 public class LayerReader extends DefaultHandler {
+    private static final Logger LOGGER = Logger.getLogger(
+        "org.geotools.wmsserver");
+    
     public static final String TAG_LAYER = "/WMSServer/layer";
     public static final String TAG_DESCRIPTION = "/WMSServer/layer/description";
     public static final String TAG_DATASOURCE = "/WMSServer/layer/datasource";
@@ -87,11 +91,11 @@ public class LayerReader extends DefaultHandler {
         try {
             reader.parse(new InputSource(is));
         } catch (IOException ioexp) {
-            System.out.println("IOException reading layers : " +
+            LOGGER.warning("IOException reading layers : " +
                 ioexp.getMessage());
             ioexp.printStackTrace();
         } catch (SAXException saxexp) {
-            System.out.println("SAXException reading layers : " +
+            LOGGER.warning("SAXException reading layers : " +
                 saxexp.getMessage());
             saxexp.printStackTrace();
         }
@@ -110,7 +114,7 @@ public class LayerReader extends DefaultHandler {
      * Start document.
      */
     public void startDocument() {
-        System.out.println("LayerReader : Started parsing document");
+        LOGGER.fine("LayerReader : Started parsing document");
         layers = new HashMap();
         currentLayer = null;
     }
@@ -126,13 +130,13 @@ public class LayerReader extends DefaultHandler {
     public void startElement(String uri, String localName, String qName,
         Attributes attrs) {
         currentTag = currentTag + "/" + localName;
-        System.out.print(currentTag + " ");
+        LOGGER.fine(currentTag + " ");
 
         // <layer> tag
         if (currentTag.equalsIgnoreCase(TAG_LAYER)) {
             currentLayer = new LayerEntry();
             currentLayer.id = attrs.getValue(ATTRIB_ID);
-            System.out.println("" + attrs.getValue(ATTRIB_ID));
+            LOGGER.fine("" + attrs.getValue(ATTRIB_ID));
 
             String temp = attrs.getValue(ATTRIB_SRS);
 
@@ -146,7 +150,7 @@ public class LayerReader extends DefaultHandler {
         // <datasource> tag
         if (currentTag.equalsIgnoreCase(TAG_DATASOURCE)) {
             currentLayer.datasource = attrs.getValue(ATTRIB_CLASS);
-            System.out.println("" + attrs.getValue(ATTRIB_CLASS));
+            LOGGER.fine("" + attrs.getValue(ATTRIB_CLASS));
             currentLayer.properties = new Properties();
 
             return;
@@ -156,7 +160,7 @@ public class LayerReader extends DefaultHandler {
         if (currentTag.equalsIgnoreCase(TAG_PARAM)) {
             currentLayer.properties.setProperty(attrs.getValue(ATTRIB_NAME),
                 attrs.getValue(ATTRIB_VALUE));
-            System.out.println("" + attrs.getValue(ATTRIB_NAME) + " " +
+            LOGGER.fine("" + attrs.getValue(ATTRIB_NAME) + " " +
                 attrs.getValue(ATTRIB_VALUE));
 
             return;
@@ -169,19 +173,20 @@ public class LayerReader extends DefaultHandler {
 
             currentLayer.styles.put(attrs.getValue(ATTRIB_ID),
                 attrs.getValue(ATTRIB_FILENAME));
-            System.out.println("" + attrs.getValue(ATTRIB_ID));
+            LOGGER.fine("" + attrs.getValue(ATTRIB_ID));
 
             String style = attrs.getValue(ATTRIB_DEFAULTSTYLE);
 
             //System.out.println("default style attrib is " + style);
             if ((style != null) && style.equalsIgnoreCase("true")) {
+                LOGGER.fine("setting default style "+attrs.getValue(ATTRIB_ID)+" in "+currentLayer.id);
                 currentLayer.defaultStyle = attrs.getValue(ATTRIB_ID);
             }
 
             return;
         }
 
-        System.out.println(" ");
+//        System.out.println(" ");
 
         return;
     }
@@ -241,7 +246,7 @@ public class LayerReader extends DefaultHandler {
      * @param ex DOCUMENT ME!
      */
     public void warning(SAXParseException ex) {
-        System.err.println("[Warning] " + ex.getMessage());
+        LOGGER.warning("[Warning] " + ex.getMessage());
     }
 
     /**
@@ -250,7 +255,7 @@ public class LayerReader extends DefaultHandler {
      * @param ex DOCUMENT ME!
      */
     public void error(SAXParseException ex) {
-        System.err.println("[Error] " + ex.getMessage());
+        LOGGER.severe("[Error] " + ex.getMessage());
     }
 
     /**
@@ -261,7 +266,7 @@ public class LayerReader extends DefaultHandler {
      * @throws SAXException DOCUMENT ME!
      */
     public void fatalError(SAXParseException ex) throws SAXException {
-        System.err.println("[Fatal Error] " + ex.getMessage());
+        LOGGER.severe("[Fatal Error] " + ex.getMessage());
         throw ex;
     }
 }
