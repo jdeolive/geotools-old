@@ -56,7 +56,7 @@ public class WorldFileParser extends org.geotools.io.coverage.PropertyParser {
         line = r.readLine();
         line = r.readLine();
         line = r.readLine();
-        yres = -1 * Double.parseDouble(line); // yres is always -ve in a world file
+        yres = Double.parseDouble(line); // yres is always -ve in a world file
         line = r.readLine();
         x = Double.parseDouble(line);
         line = r.readLine();
@@ -70,7 +70,7 @@ public class WorldFileParser extends org.geotools.io.coverage.PropertyParser {
         YRes = new Double(yres);
         LOGGER.fine("adding XMin " + X);
         LOGGER.fine("adding YMax " + MY);
-        this.add("x-orgin", X);
+        this.add("x-origin", X);
         this.add("y-max", MY);
         LOGGER.fine("adding X-res " + XRes);
         LOGGER.fine("adding Y-res " + YRes);
@@ -102,19 +102,23 @@ public class WorldFileParser extends org.geotools.io.coverage.PropertyParser {
     }
     
     public void setHeight(int height){
+        LOGGER.fine("setting height " + height);
         try{
             this.add("height-i", new Integer(height));
-            this.add("y-min", new Double(this.getAsDouble(this.Y_MAXIMUM)-height*this.getAsDouble(this.Y_RESOLUTION)));
+            this.add("y-origin", new Double(this.getAsDouble(this.Y_MAXIMUM)+(double)height*this.getAsDouble(this.Y_RESOLUTION)));
+            LOGGER.fine("ymin now " + this.getAsDouble(this.Y_MINIMUM));
         } catch (PropertyException e){
             LOGGER.severe("property exception " + e);
         }
     }
     public void setWidth(int width){
+        LOGGER.fine("setting width " + width);
         try{    
             this.add("width-i", new Integer(width));
-            this.add("x-max", new Double(width*this.getAsDouble(this.X_RESOLUTION)));
+//            this.add("x-max", new Double((double)width*this.getAsDouble(this.X_RESOLUTION)));
+//            LOGGER.fine("Xmax now " + this.getAsDouble(this.X_MAXIMUM));
         } catch (PropertyException e){
-            LOGGER.severe("ambiguous property exception " + e);
+            LOGGER.severe("property exception " + e);
         }
     }
     public int getDimension(){

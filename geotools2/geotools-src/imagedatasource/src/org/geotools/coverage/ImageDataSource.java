@@ -13,10 +13,13 @@ import java.awt.Canvas;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.logging.Logger;
 import org.geotools.cs.CoordinateSystemAuthorityFactory;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.AttributeType;
+import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.Filter;
@@ -26,7 +29,7 @@ import org.geotools.filter.NullFilter;
 
 
 /**
- * $Id: ImageDataSource.java,v 1.1 2002/11/06 16:41:03 ianturton Exp $
+ * $Id: ImageDataSource.java,v 1.2 2002/11/13 17:11:34 ianturton Exp $
  *
  * @author  iant
  */
@@ -34,8 +37,9 @@ public class ImageDataSource implements org.geotools.data.DataSource{
     org.geotools.io.coverage.ExoreferencedGridCoverageReader reader;
     org.geotools.io.coverage.PropertyParser parser;
     java.io.File file;
+    static private Logger LOGGER = Logger.getLogger("org.geotools.coverage");
     static FilterFactory filterFactory = FilterFactory.createFilterFactory();
-    Envelope bbox = new Envelope();
+    Envelope bbox;
     
     static org.geotools.feature.FeatureType schema;
     static org.geotools.feature.FeatureFactory factory;
@@ -96,7 +100,7 @@ public class ImageDataSource implements org.geotools.data.DataSource{
     public void abortLoading() {
     }
     
-    FeatureCollection loadFeatures(Filter filter) throws java.io.IOException, DataSourceException{
+    ArrayList loadFeatures(Filter filter) throws java.io.IOException, DataSourceException{
         if(filter == null) { // I think this builds a filter which is true for all none null features?
             filter = filterFactory.createNullFilter();
             try{
@@ -108,12 +112,19 @@ public class ImageDataSource implements org.geotools.data.DataSource{
         }
         int numb = reader.getNumImages(true);
         FeatureCollection features = new org.geotools.feature.FeatureCollectionDefault();
+        ArrayList featuresList = new ArrayList();
         for(int i=0; i<numb;i++){
             
             org.geotools.pt.Envelope env = reader.getEnvelope(i);
             //
             Envelope jenv = new Envelope(env.getMinimum(0),env.getMaximum(0),env.getMinimum(1),env.getMaximum(1));
-            bbox.expandToInclude(jenv);
+            if(bbox != null){
+                bbox.expandToInclude(jenv);
+            }else{ 
+                bbox = jenv;
+            }
+            LOGGER.fine("Xmin(pt) = " + env.getMinimum(0));
+            LOGGER.fine("Xmin = " + jenv.getMinX());
             Coordinate[] c = new Coordinate[5];
             c[0] = new Coordinate(jenv.getMinX(), jenv.getMinY());
             c[1] = new Coordinate(jenv.getMinX(), jenv.getMaxY());
@@ -131,13 +142,13 @@ public class ImageDataSource implements org.geotools.data.DataSource{
                 org.geotools.feature.Feature feature = factory.create(new Object[]{p,reader.getGridCoverage(i)});
                 System.out.println("created "+ feature);
                 if(filter.contains(feature)){
-                    features.addFeature(feature);
+                    featuresList.add(feature);
                 }
             } catch (org.geotools.feature.IllegalFeatureException ife){
                 throw new DataSourceException("",ife);
             }
         }
-        return features;
+        return featuresList;
     }
     /** Adds all features from the passed feature collection to the datasource.
      *
@@ -185,7 +196,11 @@ public class ImageDataSource implements org.geotools.data.DataSource{
                     org.geotools.pt.Envelope env = reader.getEnvelope(i);
                     //
                     Envelope jenv = new Envelope(env.getMinimum(0),env.getMaximum(0),env.getMinimum(1),env.getMaximum(1));
-                    bbox.expandToInclude(jenv);
+                    if(bbox!=null){
+                        bbox.expandToInclude(jenv);
+                    }else{
+                        bbox = jenv;
+                    }
                 }
                 return bbox;
             }
@@ -204,7 +219,9 @@ public class ImageDataSource implements org.geotools.data.DataSource{
      */
     public FeatureCollection getFeatures(Filter filter) throws DataSourceException {
         try{
-            return loadFeatures(filter);
+            FeatureCollection collection = new org.geotools.feature.FeatureCollectionDefault();
+            collection.addFeatures((Feature[])loadFeatures(filter).toArray(new Feature[0]));
+            return collection;
         } catch (java.io.IOException e){
             throw new DataSourceException("",e);
         }
@@ -223,7 +240,7 @@ public class ImageDataSource implements org.geotools.data.DataSource{
     public void getFeatures(FeatureCollection collection, Filter filter) throws DataSourceException {
         try{
             if(collection == null) collection = new org.geotools.feature.FeatureCollectionDefault();
-            collection.add(loadFeatures(filter));
+            collection.addFeatures((Feature[])loadFeatures(filter).toArray(new Feature[0]));
         } catch (java.io.IOException e){
             throw new DataSourceException("",e);
         }
