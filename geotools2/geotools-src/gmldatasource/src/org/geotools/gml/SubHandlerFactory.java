@@ -21,15 +21,20 @@
 package org.geotools.gml;
 
 
+import java.util.logging.Logger;
+
+
 /**
  * Creates the appropriate SubHandler element for a given OGC simple geometry
  * type.
  *
- * @version $Id: SubHandlerFactory.java,v 1.5 2002/07/12 16:59:55 loxnard Exp $
+ * @version $Id: SubHandlerFactory.java,v 1.6 2003/08/05 16:56:31 dledmonds Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class SubHandlerFactory {
-    
+
+    /** The logger for the GML module */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
     
     /** List of all valid OGC multi geometry types. */
     private static final java.util.Collection BASE_GEOMETRY_TYPES = 
@@ -42,6 +47,8 @@ public class SubHandlerFactory {
      * Empty constructor.
      */
     public SubHandlerFactory() {
+        LOGGER.entering("SubHandlerFactory", "new" );
+        LOGGER.exiting("SubHandlerFactory", "new" );
     }
     
     /**
@@ -49,26 +56,32 @@ public class SubHandlerFactory {
      * type.  Note that some types are aggregated into a generic 'multi' type.
      *
      * @param type Type of SubHandler to return.
+     * @TODO throw an exception, not return a null
      */
     public SubHandler create(String type) {
+        LOGGER.entering("SubHandlerFactory", "create", type );
+        
+        SubHandler returnValue = null;
         
         if (type.equals("Point")){
-            return new SubHandlerPoint(); 
+            returnValue = new SubHandlerPoint(); 
         } else if (type.equals("LineString")){
-            return new SubHandlerLineString(); 
+            returnValue = new SubHandlerLineString(); 
         } else if (type.equals("LinearRing")){
-            return new SubHandlerLinearRing(); 
+            returnValue = new SubHandlerLinearRing(); 
         } else if (type.equals("Polygon")){
-            return new SubHandlerPolygon(); 
+            returnValue = new SubHandlerPolygon(); 
         } else if (type.equals("Box")){
-            return new SubHandlerBox(); 
+            returnValue = new SubHandlerBox(); 
         } else if (BASE_GEOMETRY_TYPES.contains(type)) {
-            return new SubHandlerMulti(); 
+            returnValue = new SubHandlerMulti(); 
         } else{
-            return null; 
+            returnValue = null; // should be throwing an exception here!
         }
+        
+        LOGGER.exiting("SubHandlerFactory", "create", returnValue );
+        return returnValue;
     }
     
     
 }
-
