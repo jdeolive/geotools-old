@@ -4,7 +4,7 @@
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -44,16 +44,50 @@ package org.geotools.styling;
  * (as double floats), so "10e6" would be interpreted as 1:10M.  A missing
  * MinScale means there is no lower bound to the scale-denominator range
  * (lim[x->0+](x)), and a missing MaxScale means there is no upper bound
- * (infinity).  0.28mm 
+ * (infinity).  0.28mm
  *
- * 
  *
- * @version $Id: Rule.java,v 1.7 2002/10/21 16:09:38 ianturton Exp $
+ *
+ * @version $Id: Rule.java,v 1.8 2003/06/13 00:43:37 seangeo Exp $
  * @author James Macgill
  */
 import org.geotools.filter.Filter;
 public interface Rule {
-   
+
+    /** Gets the name of the rule.
+	 *
+	 * @return The name of the rule.  This provides a way to
+	 * 		   identify a rule.
+	 */
+	String getName();
+	/** Sets the name of the rule.
+	 *
+	 * @param name The name of the rule.  This provides a way to
+	 * 			   identify a rule.
+	 */
+	void setName(String name);
+	/** Gets the title.
+	 *
+	 * @return The title of the rule.  This is a
+	 * 		   brief, human readable, description of the rule.
+	 */
+	String getTitle();
+	/** Sets the title.
+	 *
+	 * @param title The title of the rule.  This is a
+	 * 		  brief, human readable, description of the rule.
+	 */
+	void setTitle(String title);
+	/** Gets the abstract text for the rule.
+	 *
+	 *  @return The abstract text, a more detailed description of the rule.
+	 */
+	String getAbstract();
+	/** Sets the abstract text for the rule.
+	 *
+	 *  @param abstractStr The abstract text, a more detailed description of the rule.
+	 */
+    void setAbstract(String abstractStr);
     /**
      * The smallest value for scale denominator at which symbolizers contained
      * by this rule should be applied.
@@ -62,7 +96,7 @@ public interface Rule {
      *         be active for.
      **/
     double getMinScaleDenominator();
-    
+
     /**
      * The smallest value for scale denominator at which symbolizers contained
      * by this rule should be applied.
@@ -71,7 +105,7 @@ public interface Rule {
      *         be active for.
      **/
     void setMinScaleDenominator(double scale);
-    
+
     /**
      * The largest value for scale denominator at which symbolizers contained
      * by this rule should be applied.
@@ -80,7 +114,7 @@ public interface Rule {
      *         be active for.
      **/
     double getMaxScaleDenominator();
-    
+
     /**
      * The largest value for scale denominator at which symbolizers contained
      * by this rule should be applied.
@@ -89,7 +123,7 @@ public interface Rule {
      *         be active for.
      **/
     void setMaxScaleDenominator(double scale);
-    
+
     public Filter getFilter();
     public void setFilter(Filter filter);
     public boolean hasElseFilter();
@@ -103,7 +137,7 @@ public interface Rule {
      *         the legend.
      **/
     Graphic[] getLegendGraphic();
-    
+
     /**
      * A set of equivalent Graphics in different formats which can be used
      * as a legend against features stylized by the symbolizers in this
@@ -113,7 +147,7 @@ public interface Rule {
      *         the legend.
      **/
     void setLegendGraphic(Graphic[] graphics);
-    
+
     /**
      * The symbolizers contain the actual styling information for different
      * geometry types.  A single feature may be rendered by more than one
@@ -125,7 +159,7 @@ public interface Rule {
      * For example, a polygon symbolizer should be applied to line geometries
      * and even points.  If this is not the desired beaviour, ensure that
      * either the filters block inappropriate features or that the
-     * FeatureTypeStyler which contains this rule has its FeatureTypeName or 
+     * FeatureTypeStyler which contains this rule has its FeatureTypeName or
      * SemanticTypeIdentifier set appropriately.
      *
      * @return An array of symbolizers to be applied, in sequence, to all of
@@ -133,7 +167,7 @@ public interface Rule {
      *         this rule.
      */
     Symbolizer[] getSymbolizers();
-    
+
     /**
      * The symbolizers contain the actual styling information for different
      * geometry types.  A single feature may be rendered by more than one
@@ -145,7 +179,7 @@ public interface Rule {
      * For example, a polygon symbolizer should be applied to line geometries
      * and even points.  If this is not the desired beaviour, ensure that
      * either the filters block inappropriate features or that the
-     * FeatureTypeStyler which contains this rule has its FeatureTypeName or 
+     * FeatureTypeStyler which contains this rule has its FeatureTypeName or
      * SemanticTypeIdentifier set appropriately.
      *
      * @param An array of symbolizers to be applied, in sequence, to all of
