@@ -83,9 +83,9 @@ import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.AxisInfo;
 import org.geotools.cs.AxisOrientation;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.LocalCoordinateSystem;
 import org.geotools.cs.FittedCoordinateSystem;
 import org.geotools.cs.CompoundCoordinateSystem;
-import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.MathTransformFactory;
@@ -118,7 +118,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.40 2003/08/22 15:25:30 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.41 2003/09/02 12:34:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -448,7 +448,7 @@ public class Renderer implements Renderer2D {
      * @param owner The widget that own this renderer, or <code>null</code> if none.
      */
     public Renderer(final Component owner) {
-        final CoordinateSystem cs = GeographicCoordinateSystem.WGS84;
+        final CoordinateSystem cs = LocalCoordinateSystem.CARTESIAN;
         context        = new RenderingContext(this, cs, cs, cs);
         clippedContext = context;
         listeners      = new PropertyChangeSupport(this);
@@ -520,7 +520,7 @@ public class Renderer implements Renderer2D {
     /**
      * Returns the view coordinate system. This is the "real world" coordinate system
      * used for displaying all {@link RenderedLayer}s. Note that underlying data in
-     * <code>RenderedLayer</code> doesn't need to be in this coordinate system:
+     * <code>RenderedLayer</code>s doesn't need to be in this coordinate system:
      * transformations will performed on the fly as needed at rendering time.
      *
      * @return The two dimensional coordinate system used for display.
@@ -533,9 +533,6 @@ public class Renderer implements Renderer2D {
      * Set the view coordinate system. This is the "real world" coordinate system
      * to use for displaying all {@link RenderedLayer}s. Layers are notified of the
      * coordinate system change with {@link RenderedLayer#setCoordinateSystem}.
-     *
-     * If this method is never invoked, then the default is
-     * {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}.
      *
      * @param cs The view coordinate system. If the specified coordinate system has more
      *           than two dimensions, then it must be a {@link CompoundCoordinateSystem}
@@ -553,7 +550,7 @@ public class Renderer implements Renderer2D {
                 try {
                     while (changed < layerCount) {
                         layers[changed].setCoordinateSystem(cs);
-                        changed++; // Incremente only if previous call succeed.
+                        changed++; // Increment only if previous call succeed.
                     }
                 } catch (TransformException exception) {
                     // Roll back all CS changes.
@@ -966,6 +963,33 @@ public class Renderer implements Renderer2D {
                             Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
             }
             layer.renderer = this;
+            /*
+             * HEURISTIC RULE: If this is the first layer to be added, and if this layer uses
+             * an incompatible CS, set the renderer CS to the layer CS. This case occurs when
+             * the renderer is constructed with the default CS (CARTESIAN)  and the layers to
+             * be added use a geographic CS (e.g. WGS84), or the converse.
+             */
+            if (layerCount == 0) {
+                final CoordinateSystem layerCS = layer.getCoordinateSystem();
+                try {
+                    getMathTransform(layerCS, getCoordinateSystem(), "Renderer", "addLayer");
+                } catch (TransformException exception) {
+                    final StringBuffer buffer = new StringBuffer(Resources.getResources(getLocale())
+                                                .getString(ResourceKeys.CHANGED_COORDINATE_SYSTEM));
+                    buffer.append(System.getProperty("line.separator", "\n"));
+                    buffer.append(exception.getLocalizedMessage());
+                    LOGGER.info(buffer.toString());
+                    try {
+                        setCoordinateSystem(layerCS);
+                    } catch (TransformException unexpected) {
+                        // Should not happen, since this renderer do not yet have any layer.
+                        throw new AssertionError(unexpected);
+                    }
+                }
+            }
+            /*
+             * Now set the layer coordinate system to this renderer CS.
+             */
             try {
                 layer.setCoordinateSystem(getCoordinateSystem());
             } catch (TransformException exception) {

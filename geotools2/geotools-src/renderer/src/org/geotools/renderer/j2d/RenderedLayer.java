@@ -67,8 +67,8 @@ import javax.media.jai.PlanarImage; // For Javadoc
 
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.LocalCoordinateSystem;
 import org.geotools.cs.CompoundCoordinateSystem;
-import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.CoordinateTransformationFactory;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.MathTransform2D;
@@ -92,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.27 2003/08/13 22:45:57 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.28 2003/09/02 12:34:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -127,7 +127,7 @@ public abstract class RenderedLayer {
      * et {@link #setPreferredArea} utilisent ce système de coordonnées. Ce champ ne doit jamais
      * être nul.
      */
-    private CoordinateSystem coordinateSystem = GeographicCoordinateSystem.WGS84;
+    private CoordinateSystem coordinateSystem = LocalCoordinateSystem.CARTESIAN;
 
     /**
      * The widget area (in screen coordinates) enqueued for painting, or <code>null</code>
@@ -234,10 +234,10 @@ public abstract class RenderedLayer {
 
     /**
      * Construct a new rendered layer. The {@linkplain #getCoordinateSystem coordinate system}
-     * default to {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984} and the {@linkplain
-     * #getZOrder z-order} default to positive infinity (i.e. this layer is drawn on top of
-     * everything else). Subclasses should invokes <code>setXXX</code> methods in order to
-     * define properly this layer's properties.
+     * default to a {@linkplain LocalCoordinateSystem#CARTESIAN local cartesian} one and the
+     * {@linkplain #getZOrder z-order} default to positive infinity (i.e. this layer is drawn
+     * on top of everything else). Subclasses should invokes <code>setXXX</code> methods in
+     * order to define properly this layer's properties.
      *
      * @see #setCoordinateSystem
      * @see #setPreferredArea
@@ -342,27 +342,31 @@ public abstract class RenderedLayer {
         synchronized (getTreeLock()) {
             oldCS = coordinateSystem;
             final CoordinateSystem coordinateSystem = CTSUtilities.getCoordinateSystem2D(cs);
-            /*
-             * If the preferred area need to be updated, update it now.
-             * The preferred pixel size will be updated in same time.
-             */
-            if (preferredArea!=null && !oldCS.equals(coordinateSystem, false)) {
-                final MathTransform2D transform;
-                if (renderer != null) {
-                    transform = (MathTransform2D)renderer.getMathTransform(oldCS, coordinateSystem,
-                                          "RenderedLayer", "setCoordinateSystem");
+            if (!oldCS.equals(coordinateSystem, false)) {
+                if (preferredArea != null) {
+                    /*
+                     * If the preferred area need to be updated, update it now.
+                     * The preferred pixel size will be updated in same time.
+                     */
+                    final MathTransform2D transform;
+                    if (renderer != null) {
+                        transform = (MathTransform2D)renderer.getMathTransform(
+                                   oldCS, coordinateSystem, "RenderedLayer", "setCoordinateSystem");
+                    } else {
+                        transform = (MathTransform2D)CoordinateTransformationFactory.getDefault()
+                           .createFromCoordinateSystems(oldCS, coordinateSystem).getMathTransform();
+                    }
+                    final Point2D origin = new Point2D.Double(preferredArea.getCenterX(),
+                                                              preferredArea.getCenterY());
+                    preferredArea = CTSUtilities.transform(transform, preferredArea, preferredArea);
+                    if (preferredPixelSize != null) {
+                        Point2D pt = new Point2D.Double(preferredPixelSize.getWidth(),
+                                                        preferredPixelSize.getHeight());
+                        pt = CTSUtilities.deltaTransform(transform, origin, pt, pt);
+                        preferredPixelSize.setSize(pt.getX(), pt.getY());
+                    }
                 } else {
-                    transform = (MathTransform2D)CoordinateTransformationFactory.getDefault()
-                          .createFromCoordinateSystems(oldCS, coordinateSystem).getMathTransform();
-                }
-                final Point2D origin = new Point2D.Double(preferredArea.getCenterX(),
-                                                          preferredArea.getCenterY());
-                preferredArea = CTSUtilities.transform(transform, preferredArea, preferredArea);
-                if (preferredPixelSize != null) {
-                    Point2D pt = new Point2D.Double(preferredPixelSize.getWidth(),
-                                                    preferredPixelSize.getHeight());
-                    pt = CTSUtilities.deltaTransform(transform, origin, pt, pt);
-                    preferredPixelSize.setSize(pt.getX(), pt.getY());
+                    preferredPixelSize = null;
                 }
                 clearCache();
             }
@@ -969,7 +973,7 @@ public abstract class RenderedLayer {
             preferredPixelSize = null;
             visible            = false;
             zOrder             = Float.NaN;
-            coordinateSystem   = GeographicCoordinateSystem.WGS84;
+            coordinateSystem   = LocalCoordinateSystem.CARTESIAN;
             final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
             for (int i=list.length; --i>=0;) {
                 listeners.removePropertyChangeListener(list[i]);

@@ -45,18 +45,10 @@ import org.geotools.renderer.geom.GeometryCollection;
 /**
  * Test the {@link Renderer} class.
  *
- * @version $Id: RendererTest.java,v 1.2 2003/08/13 15:40:51 desruisseaux Exp $
+ * @version $Id: RendererTest.java,v 1.3 2003/09/02 12:34:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RendererTest extends TestCase {
-    /**
-     * A cartesian coordinate system.
-     */
-    private static final LocalCoordinateSystem CARTESIAN = new LocalCoordinateSystem("Cartesian",
-                         new LocalDatum("Cartesian",
-                         (DatumType.Local)DatumType.getEnum(DatumType.Local.MINIMUM)),
-                         Unit.METRE, new AxisInfo[] {AxisInfo.X, AxisInfo.Y});
-
     /**
      * Run the suit from the command line.
      */
@@ -91,10 +83,9 @@ public class RendererTest extends TestCase {
      */
     private void testOffscreenBuffer(final ImageType type) throws TransformException {
         final Pane pane = new Pane();
-        pane.renderer.setCoordinateSystem(CARTESIAN);
         pane.renderer.setOffscreenBuffered(50, 150, type);
         for (int i=0; i<300; i+=100) {
-            final GeometryCollection geom = new GeometryCollection(CARTESIAN);
+            final GeometryCollection geom = new GeometryCollection();
             geom.add(new RoundRectangle2D.Float(100+i, 100+i/2, 200, 200, 20, 20));
             final RenderedLayer layer = new RenderedGeometries(geom);
             pane.renderer.addLayer(layer);

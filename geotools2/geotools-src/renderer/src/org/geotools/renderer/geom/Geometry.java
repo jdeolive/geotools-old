@@ -57,11 +57,13 @@ import java.util.Locale;
 import java.io.Serializable;
 
 // Geotools dependencies
+import org.geotools.units.Unit; // For Javadoc
 import org.geotools.pt.Latitude;
 import org.geotools.pt.Longitude;
 import org.geotools.pt.AngleFormat;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.LocalCoordinateSystem;
 import org.geotools.cs.ProjectedCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.CoordinateTransformationFactory;
@@ -91,7 +93,7 @@ import org.geotools.util.Cloneable;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.9 2003/08/28 15:42:13 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.10 2003/09/02 12:34:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -107,9 +109,17 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
 
     /**
      * The default coordinate system for all geometries. This is the coordinate
-     * system used if no CS were explicitly specified at construction time.
+     * system used if no CS were explicitly specified at construction time. The
+     * default implementation uses a two-dimensional cartesian coordinate system
+     * with {@linkplain AxisInfo#X x},{@linkplain AxisInfo#Y y} axis in
+     * {@linkplain Unit#METRE metres}. This coordinate system has no transformation
+     * path to any other coordinate system (i.e. a map using this CS can't be reprojected
+     * to a {@linkplain GeographicCoordinateSystem geographic coordinate system}).
+     *
+     * @see LocalCoordinateSystem#CARTESIAN
+     * @see GeographicCoordinateSystem#WGS84
      */
-    public static final CoordinateSystem DEFAULT_COORDINATE_SYSTEM=GeographicCoordinateSystem.WGS84;
+    public static final CoordinateSystem DEFAULT_COORDINATE_SYSTEM = LocalCoordinateSystem.CARTESIAN;
 
     /**
      * The resolved style for this geometry, or <code>null</code> if none.

@@ -35,7 +35,7 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.cs.GeographicCoordinateSystem;
+import org.geotools.renderer.geom.Geometry;
 import org.geotools.renderer.geom.JTSGeometries;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style;
@@ -54,7 +54,7 @@ import org.geotools.util.RangeSet;
 /**
  * A factory creating {@link RenderedLayer}s from {@link Feature}s and {@link Style}s.
  *
- * @version $Id: RenderedLayerFactory.java,v 1.11 2003/09/01 13:54:02 desruisseaux Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.12 2003/09/02 12:34:11 desruisseaux Exp $
  * @author Andrea Aime
  * @author Martin Desruisseaux
  */
@@ -76,7 +76,7 @@ public class RenderedLayerFactory {
      * @see #getCoordinateSystem
      * @see #setCoordinateSystem
      */
-    private CoordinateSystem coordinateSystem = GeographicCoordinateSystem.WGS84;
+    private CoordinateSystem coordinateSystem = Geometry.DEFAULT_COORDINATE_SYSTEM;
 
     /**
      * Construct a default factory.
@@ -88,6 +88,8 @@ public class RenderedLayerFactory {
      * Returns the default coordinate system for geometry to be created. If a geometry defines
      * explicitly a coordinate system, then the geometry CS will have precedence over this
      * default CS.
+     *
+     * @return The default coordinate system.
      */
     public CoordinateSystem getCoordinateSystem() {
         return coordinateSystem;
@@ -95,7 +97,10 @@ public class RenderedLayerFactory {
 
     /**
      * Set the default coordinate system for geometry to be created. This CS is used only if
-     * a geometry doesn't specifies explicitly its own CS.
+     * a geometry doesn't specifies explicitly its own CS. If this method is never invoked,
+     * then the default CS is {@link Geometry#DEFAULT_COORDINATE_SYSTEM}.
+     *
+     * @param coordinateSystem The default coordinate system.
      */
     public void setCoordinateSystem(final CoordinateSystem coordinateSystem) {
         this.coordinateSystem = coordinateSystem;
