@@ -18,59 +18,77 @@ package org.geotools.filter;
 
 
 // Java Topology Suite dependencies
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Geometry;
 
 // Geotools dependencies
-import org.geotools.data.*;
-import org.geotools.feature.*;
+//import org.geotools.data.*;
+import org.geotools.feature.FeatureType;
 
 // J2SE dependencies
 import java.util.logging.Logger;
 
 
 /**
- * Defines a like filter, which checks to see if an attribute matches a REGEXP.
+ * DOCUMENT ME!
  *
- * @author Rob Hranac, Vision for New York
- * @version $Id: ExpressionSAXParser.java,v 1.7 2003/06/02 23:31:12 cholmesny Exp $
+ * @author Rob Hranac, TOPP<br>
+ * @author Chris Holmes, TOPP
+ * @version $Id: ExpressionSAXParser.java,v 1.8 2003/07/30 00:07:11 cholmesny Exp $
  */
 public class ExpressionSAXParser {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
-    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
 
-    /** The attribute value, which must be an attribute expression. */
-    private ExpressionSAXParser expressionFactory = null;
+    /** Factory to construct filters. */
+    private static final FilterFactory FILTER_FACT = FilterFactory
+        .createFilterFactory();
 
-    /** The (limited) REGEXP pattern. */
-    private Expression currentExpression = null;
+    /** A nested expression parser for math sub expressions */
+    private ExpressionSAXParser expFactory = null;
 
-    /** The (limited) REGEXP pattern. */
-    private String currentState = null;
-
-    /** The (limited) REGEXP pattern. */
-    private String declaredType = null;
-
-    /** The (limited) REGEXP pattern. */
-    private boolean readyFlag = false;
-
-    /** The (limited) REGEXP pattern. */
-    private FeatureType schema;
-
-    /** The (limited) REGEXP pattern. */
-    private boolean readCharacters = false;
+    /** The current expression being constructed */
+    private Expression curExprssn = null;
 
     /**
-     * Constructor which flags the operator as between.
+     * The current state of the expression. Deterimines if a proper expression
+     * can be made..
+     */
+    private String currentState = null;
+
+    /** The type of expression being constructed. */
+    private String declaredType = null;
+
+    /**
+     * If a expression can be created.  Indicates if currentState equals
+     * complete
+     */
+    private boolean readyFlag = false;
+
+    /**
+     * A schema to read the attributes against.  Currently not really
+     * impelmented.
+     */
+    private FeatureType schema;
+
+    /**
+     * If the message from the SAX characters function should be read.   For
+     * example when the expression is expecting character values.
+     */
+    private boolean readChars = false;
+
+    /**
+     * Constructor with a schema to read the attribute againset.
      *
-     * @param schema The schema for attributes
+     * @param schema The schema for attributes (null is fine, as the code for
+     *        this is not in place.
      */
     public ExpressionSAXParser(FeatureType schema) {
         this.schema = schema;
     }
 
     /**
-     * Constructor which flags the operator as between.
+     * Initializes the factory to create a new expression.  Called when the
+     * filter handler reaches a new expression.
      *
      * @param declaredType The string representation of the expression type.
      *
@@ -82,32 +100,32 @@ public class ExpressionSAXParser {
         LOGGER.finer("declared type: " + this.declaredType);
         LOGGER.finer("current state: " + currentState);
 
-        if (expressionFactory == null) {
+        if (expFactory == null) {
             this.declaredType = declaredType;
 
             // if the expression is math, then create a factory for its
             // sub expressions, otherwise just instantiate the main expression
             if (DefaultExpression.isMathExpression(convertType(declaredType))) {
-                expressionFactory = new ExpressionSAXParser(schema);
-                currentExpression = filterFactory.createMathExpression(convertType(
+                expFactory = new ExpressionSAXParser(schema);
+                curExprssn = FILTER_FACT.createMathExpression(convertType(
                             declaredType));
                 LOGGER.finer("is math expression");
             } else if (DefaultExpression.isLiteralExpression(convertType(
                             declaredType))) {
-                currentExpression = filterFactory.createLiteralExpression();
-                readCharacters = true;
+                curExprssn = FILTER_FACT.createLiteralExpression();
+                readChars = true;
                 LOGGER.finer("is literal expression");
             } else if (DefaultExpression.isAttributeExpression(convertType(
                             declaredType))) {
-                currentExpression = filterFactory.createAttributeExpression(schema);
-                readCharacters = true;
+                curExprssn = FILTER_FACT.createAttributeExpression(schema);
+                readChars = true;
                 LOGGER.finer("is attribute expression");
             }
 
-            currentState = setInitialState(currentExpression);
+            currentState = setInitialState(curExprssn);
             readyFlag = false;
         } else {
-            expressionFactory.start(declaredType);
+            expFactory.start(declaredType);
         }
     }
 
@@ -123,14 +141,14 @@ public class ExpressionSAXParser {
         LOGGER.finer("declared type: " + declaredType);
         LOGGER.finer("end message: " + message);
         LOGGER.finer("current state: " + currentState);
-        LOGGER.finest("expression factory: " + expressionFactory);
+        LOGGER.finest("expression factory: " + expFactory);
 
         // first, check to see if there are internal (nested) expressions
-        //  note that this is identical to checking if the currentExpression
+        //  note that this is identical to checking if the curExprssn
         //  is a math expression
         // if this internal expression exists, send its factory an end message
-        if (expressionFactory != null) {
-            expressionFactory.end(message);
+        if (expFactory != null) {
+            expFactory.end(message);
 
             // if the factory is ready to be returned:
             //  (1) add its expression to the current expression, as determined
@@ -138,36 +156,35 @@ public class ExpressionSAXParser {
             //  (2) increment the current state
             //  (3) set the factory to null to indicate that it is now done
             // if in a bad state, throw exception
-            if (expressionFactory.isReady()) {
+            if (expFactory.isReady()) {
                 if (currentState.equals("leftValue")) {
-                    ((MathExpression) currentExpression).addLeftValue(expressionFactory.create());
+                    ((MathExpression) curExprssn).addLeftValue(expFactory
+                        .create());
                     currentState = "rightValue";
-                    expressionFactory = new ExpressionSAXParser(schema);
+                    expFactory = new ExpressionSAXParser(schema);
                     LOGGER.finer("just added left value: " + currentState);
                 } else if (currentState.equals("rightValue")) {
-                    ((MathExpression) currentExpression).addRightValue(expressionFactory.create());
+                    ((MathExpression) curExprssn).addRightValue(expFactory
+                        .create());
                     currentState = "complete";
-                    expressionFactory = null;
+                    expFactory = null;
                     LOGGER.finer("just added right value: " + currentState);
                 } else {
                     throw new IllegalFilterException(
-                        "Attempted to add sub expression in a bad state: " +
-                        currentState);
+                        "Attempted to add sub expression in a bad state: "
+                        + currentState);
                 }
             }
-        }
-        // if there are no nested expressions here,
-        //  determine if this expression is ready and set flag appropriately
-        else if (declaredType.equals(message) &&
-                currentState.equals("complete")) {
-            readCharacters = false;
+        } else if (declaredType.equals(message)
+                && currentState.equals("complete")) {
+            // if there are no nested expressions here,
+            //  determine if this expression is ready and set flag appropriately
+            readChars = false;
             readyFlag = true;
-        }
-        // otherwise, throw exception
-        else {
+        } else { // otherwise, throw exception
             throw new IllegalFilterException(
-                "Reached end of unready, non-nested expression: " +
-                currentState);
+                "Reached end of unready, non-nested expression: "
+                + currentState);
         }
     }
 
@@ -184,7 +201,7 @@ public class ExpressionSAXParser {
     /**
      * Handles incoming characters.
      *
-     * @param message
+     * @param message the incoming chars from the SAX handler.
      *
      * @throws IllegalFilterException If there are problems with filter
      *         constrcution.
@@ -201,20 +218,21 @@ public class ExpressionSAXParser {
         // AT SOME POINT MUST MAKE THIS HANDLE A TYPED FEATURE
         // BY PASSING IT A FEATURE AND CHECKING ITS TYPE HERE
         LOGGER.finer("incoming message: " + message);
-        LOGGER.finer("should read chars: " + readCharacters);
+        LOGGER.finer("should read chars: " + readChars);
 
-        if (readCharacters) {
+        if (readChars) {
             // If an attribute path, set it.  Assumes undeclared type.
-            if (currentExpression instanceof AttributeExpression) {
+            if (curExprssn instanceof AttributeExpression) {
                 LOGGER.finer("...");
 
                 //HACK: this code is to get rid of the leading junk that can
                 //occur in a filter encoding.  The '.' is from the .14 wfs spec
-                //when the style was typeName.propName, such as road.nlanes, The
-                //':' is from wfs 1.0 xml request, such as myns:nlanes, and the
-                //'/' is from wfs 1.0 kvp style: road/nlanes.  We're not currently
-                //checking to see if the typename matches, or if the namespace is
-                //right, which isn't the best, so that should be fixed.
+                //when the style was typeName.propName, such as road.nlanes, 
+                //The ':' is from wfs 1.0 xml request, such as myns:nlanes, 
+                //and the '/' is from wfs 1.0 kvp style: road/nlanes.  
+                //We're not currently checking to see if the typename matches,
+                // or if the namespace is right, which isn't the best, 
+                //so that should be fixed.
                 String[] splitName = message.split("[.:/]");
                 String newAttName = message;
 
@@ -231,39 +249,40 @@ public class ExpressionSAXParser {
                 }
 
                 LOGGER.finer("setting attribute expression: " + newAttName);
-                ((AttributeExpression) currentExpression).setAttributePath(newAttName);
+                ((AttributeExpression) curExprssn).setAttributePath(newAttName);
                 LOGGER.finer("...");
                 currentState = "complete";
                 LOGGER.finer("...");
-            }
-            // This is a relatively loose assignment routine, which uses
-            //  the fact that the three allowed literal types have a strict
-            //  instatiation hierarchy (ie. double can be an int can be a 
-            //  string, but not the other way around).
-            // A better routine would consider the use of this expression
-            //  (ie. will it be compared to a double or searched with a
-            //  like filter?)
-            else if (currentExpression instanceof LiteralExpression) {
+            } else if (curExprssn instanceof LiteralExpression) {
+                // This is a relatively loose assignment routine, which uses
+                //  the fact that the three allowed literal types have a strict
+                //  instatiation hierarchy (ie. double can be an int can be a 
+                //  string, but not the other way around).
+                // A better routine would consider the use of this expression
+                //  (ie. will it be compared to a double or searched with a
+                //  like filter?)
+                //HACK: This should also not use exception catching, it's 
+                //expensive and bad code practice.
                 try {
-                    Object tempLiteral = new Double(message);
-                    ((LiteralExpression) currentExpression).setLiteral(tempLiteral);
+                    Object temp = new Double(message);
+                    ((LiteralExpression) curExprssn).setLiteral(temp);
                     currentState = "complete";
-                } catch (NumberFormatException e1) {
+                } catch (NumberFormatException nfe1) {
                     try {
-                        Object tempLiteral = new Integer(message);
-                        ((LiteralExpression) currentExpression).setLiteral(tempLiteral);
+                        Object temp = new Integer(message);
+                        ((LiteralExpression) curExprssn).setLiteral(temp);
                         currentState = "complete";
-                    } catch (NumberFormatException e2) {
-                        Object tempLiteral = message;
-                        ((LiteralExpression) currentExpression).setLiteral(tempLiteral);
+                    } catch (NumberFormatException nfe2) {
+                        Object temp = message;
+                        ((LiteralExpression) curExprssn).setLiteral(temp);
                         currentState = "complete";
                     }
                 }
-            } else if (expressionFactory != null) {
-                expressionFactory.message(message);
+            } else if (expFactory != null) {
+                expFactory.message(message);
             }
-        } else if (expressionFactory != null) {
-            expressionFactory.message(message);
+        } else if (expFactory != null) {
+            expFactory.message(message);
         }
     }
 
@@ -279,11 +298,11 @@ public class ExpressionSAXParser {
         // Sets the geometry for the expression, as appropriate
         LOGGER.finer("got geometry: " + geometry.toString());
 
-        //if( currentExpression.getType() == ExpressionDefault.LITERAL_GEOMETRY ) {
+        //if(curExprssn.getType()==ExpressionDefault.LITERAL_GEOMETRY){
         //LOGGER.finer("got geometry: ");
-        currentExpression = filterFactory.createLiteralExpression();
-        ((LiteralExpression) currentExpression).setLiteral(geometry);
-        LOGGER.finer("set expression: " + currentExpression.toString());
+        curExprssn = FILTER_FACT.createLiteralExpression();
+        ((LiteralExpression) curExprssn).setLiteral(geometry);
+        LOGGER.finer("set expression: " + curExprssn.toString());
         currentState = "complete";
         LOGGER.finer("set current state: " + currentState);
 
@@ -291,38 +310,41 @@ public class ExpressionSAXParser {
     }
 
     /**
-     * Sets the multi wildcard for this FilterLike.
+     * Creates and returns the expression.
      *
      * @return The expression currently held by this parser.
+     *
+     * @task REVISIT: shouldn't this check the readyFlag?
      */
     public Expression create() {
-        LOGGER.finer("about to create expression: " +
-            currentExpression.toString());
+        LOGGER.finer("about to create expression: "
+            + curExprssn.toString());
 
-        return currentExpression;
+        return curExprssn;
     }
 
     /**
      * Sets the appropriate state.
      *
-     * @param currentExpression the expression being evaluated.
+     * @param expression the expression being evaluated.
      *
-     * @return <tt>leftValue</tt> if currentExpression is a mathExpression, an
+     * @return <tt>leftValue</tt> if curExprssn is a mathExpression, an
      *         empty string if a literal or attribute, illegal expression
      *         thrown otherwise.
      *
-     * @throws IllegalFilterException DOCUMENT ME!
+     * @throws IllegalFilterException if the current expression is not math,
+     *         attribute, or literal.
      */
-    private static String setInitialState(Expression currentExpression)
+    private static String setInitialState(Expression expression)
         throws IllegalFilterException {
-        if (currentExpression instanceof MathExpression) {
+        if (expression instanceof MathExpression) {
             return "leftValue";
-        } else if ((currentExpression instanceof AttributeExpression) ||
-                (currentExpression instanceof LiteralExpression)) {
+        } else if ((expression instanceof AttributeExpression)
+                || (expression instanceof LiteralExpression)) {
             return "";
         } else {
-            throw new IllegalFilterException("Created illegal expression: " +
-                currentExpression.getClass().toString());
+            throw new IllegalFilterException("Created illegal expression: "
+                + expression.getClass().toString());
         }
     }
 
@@ -330,23 +352,23 @@ public class ExpressionSAXParser {
      * Converts the string representation of the expression to the
      * DefaultExpression short type.
      *
-     * @param expressionType Type of filter for check.
+     * @param expType Type of filter for check.
      *
      * @return the short representation of the expression.
      */
-    protected static short convertType(String expressionType) {
+    protected static short convertType(String expType) {
         // matches all filter types to the default logic type
-        if (expressionType.equals("Add")) {
+        if (expType.equals("Add")) {
             return DefaultExpression.MATH_ADD;
-        } else if (expressionType.equals("Sub")) {
+        } else if (expType.equals("Sub")) {
             return DefaultExpression.MATH_SUBTRACT;
-        } else if (expressionType.equals("Mul")) {
+        } else if (expType.equals("Mul")) {
             return DefaultExpression.MATH_MULTIPLY;
-        } else if (expressionType.equals("Div")) {
+        } else if (expType.equals("Div")) {
             return DefaultExpression.MATH_DIVIDE;
-        } else if (expressionType.equals("PropertyName")) {
+        } else if (expType.equals("PropertyName")) {
             return DefaultExpression.ATTRIBUTE_DOUBLE;
-        } else if (expressionType.equals("Literal")) {
+        } else if (expType.equals("Literal")) {
             return DefaultExpression.LITERAL_DOUBLE;
         }
 
