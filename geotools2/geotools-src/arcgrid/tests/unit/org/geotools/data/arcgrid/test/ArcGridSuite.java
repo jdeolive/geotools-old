@@ -1,8 +1,8 @@
 package org.geotools.data.arcgrid.test;
 
-import javax.imageio.ImageIO;
-
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 
 /**

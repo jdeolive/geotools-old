@@ -7,9 +7,12 @@
 package org.geotools.data.arcgrid.test;
 
 import java.io.InputStream;
-import junit.framework.*;
-import java.net.*;
+import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  *

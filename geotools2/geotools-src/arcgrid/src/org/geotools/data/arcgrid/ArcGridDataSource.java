@@ -16,15 +16,17 @@
  */
 package org.geotools.data.arcgrid;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
+import java.awt.Color;
+import java.awt.geom.Rectangle2D;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+
+import javax.swing.WindowConstants;
+
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
-import org.geotools.cv.Category;
-import org.geotools.cv.SampleDimension;
 import org.geotools.data.AbstractDataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Query;
@@ -39,15 +41,15 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
-import org.geotools.units.Unit;
-import java.awt.Color;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.RenderedImage;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import sun.security.krb5.internal.l;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
+import com.vividsolutions.jts.geom.DefaultCoordinateSequenceFactory;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 
 /**
@@ -257,16 +259,18 @@ public class ArcGridDataSource extends AbstractDataSource {
     throws IllegalAttributeException, SchemaException {
         // create surrounding polygon
         PrecisionModel pm = new PrecisionModel();
-        Rectangle2D rect = gc.getEnvelope().toRectangle2D();
+        CoordinateSequenceFactory csf = DefaultCoordinateSequenceFactory.instance();
+        GeometryFactory gf = new GeometryFactory(pm, 0);
         Coordinate[] coord = new Coordinate[5];
+        Rectangle2D rect = gc.getEnvelope().toRectangle2D();
         coord[0] = new Coordinate(rect.getMinX(), rect.getMinY());
         coord[1] = new Coordinate(rect.getMaxX(), rect.getMinY());
         coord[2] = new Coordinate(rect.getMaxX(), rect.getMaxY());
         coord[3] = new Coordinate(rect.getMinX(), rect.getMaxY());
         coord[4] = new Coordinate(rect.getMinX(), rect.getMinY());
         
-        LinearRing ring = new LinearRing(coord, pm, 0);
-        Polygon bounds = new Polygon(ring, pm, 0);
+        LinearRing ring = new LinearRing(csf.create(coord), gf);
+        Polygon bounds = new Polygon(ring, null, gf);
         
         // create the feature type
         AttributeType geom = AttributeTypeFactory.newAttributeType("geom", Polygon.class);
@@ -351,7 +355,7 @@ public class ArcGridDataSource extends AbstractDataSource {
             }
         };
         javax.swing.JFrame f = new javax.swing.JFrame();
-        f.setDefaultCloseOperation(f.EXIT_ON_CLOSE);
+        f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.getContentPane().add(p);
         f.setSize(i.getWidth(),i.getHeight());
         f.setLocationRelativeTo(null);

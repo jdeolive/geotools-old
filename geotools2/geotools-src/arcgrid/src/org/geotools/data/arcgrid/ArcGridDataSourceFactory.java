@@ -16,11 +16,12 @@
  */
 package org.geotools.data.arcgrid;
 
-import org.geotools.data.DataSource;
-import org.geotools.data.DataSourceException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+
+import org.geotools.data.DataSource;
+import org.geotools.data.DataSourceException;
 
 
 /**
