@@ -44,7 +44,7 @@ import org.geotools.filter.Expression;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: Stroke.java,v 1.8 2002/07/12 15:35:13 loxnard Exp $
+ * @version $Id: Stroke.java,v 1.9 2002/10/14 17:08:01 ianturton Exp $
  * @author James Macgill
  */
 public interface Stroke {
@@ -63,6 +63,17 @@ public interface Stroke {
      * @return The color of the stroke encoded as a hexidecimal RGB value.
      **/
     Expression getColor();
+    /**
+     * This parameter gives the solid color that will be used for a stroke.<br>
+     * The color value is RGB-encoded using two hexidecimal digits per 
+     * primary-color component in the order Red, Green, Blue, prefixed wih
+     * the hash (#) sign.  The hexidecimal digits between A and F may be in
+     * either upper or lower case.  For example, full red is encoded as
+     * "#ff0000" (with no quotation marks).
+     *
+     * Note: in CSS this parameter is just called Stroke and not Color.
+     */
+    void setColor(Expression color);
     
     /**
      * This parameter gives the absolute width (thickness) of a stroke in
@@ -75,6 +86,13 @@ public interface Stroke {
      **/
     Expression getWidth();
     
+    /**
+     * This parameter gives the absolute width (thickness) of a stroke in
+     * pixels encoded as a float.
+     * Fractional numbers are allowed but negative
+     * numbers are not.
+     */
+    void setWidth(Expression width);
     /**
      * This specifies the level of translucency to use when rendering the
      * stroke.<br>
@@ -91,12 +109,26 @@ public interface Stroke {
     Expression getOpacity();
     
     /**
+     * This specifies the level of translucency to use when rendering the
+     * stroke.<br>
+     * The value is encoded as a floating-point value between 0.0 and
+     * 1.0 with 0.0 representing totally transparent and 1.0 representing
+     * totally opaque.  A linear scale of translucency is used for intermediate
+     * values.<br>
+     * For example, "0.65" would represent 65% opacity. 
+     */
+    void setOpacity(Expression opacity);
+    /**
      * This parameter controls how line strings should be joined together.
      *
      * @return The join style.  This will be one of "mitre", "round" and
      *         "bevel".  There is no defined default.
      */
     Expression getLineJoin();
+    /**
+     * This parameter controls how line strings should be joined together.
+     */
+    void setLineJoin(Expression lineJoin);
     
     /**
      * This parameter controls how line strings should be capped.
@@ -105,6 +137,10 @@ public interface Stroke {
      *         "square".  There is no defined default.
      */
     Expression getLineCap();
+    /**
+     * This parameter controls how line strings should be capped.
+     */
+    void setLineCap(Expression lineCap);
     
     /**
      * This parameter encodes the dash pattern as a seqeuence of floats.<br>
@@ -122,7 +158,18 @@ public interface Stroke {
      *         "dashlength gaplength ..."
      */
     float[] getDashArray();
-    
+    /**
+     * This parameter encodes the dash pattern as a seqeuence of floats.<br>
+     * The first number gives the length in pixels of the dash to draw, the
+     * second gives the amount of space to leave, and this pattern repeats.<br>
+     * If an odd number of values is given, then the pattern is expanded by
+     * repeating it twice to give an even number of values.
+     *
+     * For example, "2 1 3 2" would produce:<br>
+     * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;
+     * --&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
+     */
+    void setDashArray(float[] dashArray);
    /**
     * A dash array need not start from the beginning.  This method allows for
     * an offset into the dash array before starting it.
@@ -130,7 +177,11 @@ public interface Stroke {
     * @return The distance, in pixels, that any dash array should start from.
     */
     Expression getDashOffset();
-    
+    /**
+    * A dash array need not start from the beginning.  This method allows for
+    * an offset into the dash array before starting it.
+    */
+    void setDashOffset(Expression dashOffset);
     
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be
@@ -140,6 +191,11 @@ public interface Stroke {
      *         If null, then no Stipple fill should be used.
      */
     Graphic getGraphicFill();
+    /**
+     * This parameter indicates that a stipple-fill repeated graphic will be
+     * used and specifies the fill graphic to use.
+     */
+    void setGraphicFill(Graphic graphicFill);
     
     /**
      * This parameter indicates that a repeated-linear-graphic graphic stroke 
@@ -156,12 +212,27 @@ public interface Stroke {
      *         If null, then no graphic stroke should be used.
      */
     Graphic getGraphicStroke();
-
+    /**
+     * This parameter indicates that a repeated-linear-graphic graphic stroke 
+     * type will be used and specifies the graphic to use.
+     *  
+     * Proper stroking with a linear graphic requires two "hot-spot" points 
+     * within the space of the graphic to indicate where the rendering line
+     * starts and stops.
+     * In the case of raster images with no special mark-up, this line will
+     * be assumed to be the middle pixel row of the image, starting from the
+     * first pixel column and ending at the last pixel column.
+     */
+    void setGraphicStroke(Graphic graphicStroke);
 }
 
 /*
  * $Log: Stroke.java,v $
+ * Revision 1.9  2002/10/14 17:08:01  ianturton
+ * expanded interfaces to include set methods
+ *
  * Revision 1.8  2002/07/12 15:35:13  loxnard
+ *
  * Removed redundant public modifiers
  *
  * Revision 1.7  2002/06/04 16:08:34  loxnard

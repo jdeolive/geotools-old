@@ -44,7 +44,7 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: LineSymbolizer.java,v 1.4 2002/07/12 15:31:28 loxnard Exp $
+ * @version $Id: LineSymbolizer.java,v 1.5 2002/10/14 17:07:59 ianturton Exp $
  * @author James Macgill, CCG
  */
 public interface LineSymbolizer extends Symbolizer{
@@ -56,6 +56,13 @@ public interface LineSymbolizer extends Symbolizer{
      * @return The Stroke style to use when rendering lines.
      */
     Stroke getStroke();
+    /**
+     * Provides the graphical-symbolization parameter to use for the 
+     * linear geometry.
+     *
+     * @param The Stroke style to use when rendering lines.
+     */
+    void setStroke(Stroke stroke);
     
     /**
      * This property defines the geometry to be used for styling.<br>
@@ -79,5 +86,7 @@ public interface LineSymbolizer extends Symbolizer{
      *  that should be used.  If null then the default geometry should be used.
      */
     String geometryPropertyName();
+    
+    void setGeometryPropertyName(String geometryPropertyName);
 }
 

@@ -44,7 +44,7 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2 
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: PolygonSymbolizer.java,v 1.3 2002/07/12 15:33:12 loxnard Exp $
+ * @version $Id: PolygonSymbolizer.java,v 1.4 2002/10/14 17:07:59 ianturton Exp $
  * @author James Macgill
  */
 public interface PolygonSymbolizer extends Symbolizer{
@@ -59,6 +59,16 @@ public interface PolygonSymbolizer extends Symbolizer{
      * @return The Fill style to use when rendering the area.
      */
     Fill getFill();
+    /**
+     * Provides the graphical-symbolization parameter to use to fill the area
+     * of the geometry.
+     *
+     * Note that the area should be filled first before the outline 
+     * is rendered.
+     *
+     * @param The Fill style to use when rendering the area.
+     */
+    void setFill(Fill fill);
     
     /**
      * Provides the graphical-symbolization parameter to use for the outline
@@ -67,6 +77,13 @@ public interface PolygonSymbolizer extends Symbolizer{
      * @return The Stroke style to use when rendering lines.
      */
     Stroke getStroke();
+    /**
+     * Provides the graphical-symbolization parameter to use for the outline
+     * of the Polygon.
+     *
+     * @param The Stroke style to use when rendering lines.
+     */
+    void setStroke(Stroke stroke);
     
     /**
      * This property defines the geometry to be used for styling.<br>
@@ -89,7 +106,7 @@ public interface PolygonSymbolizer extends Symbolizer{
      *  that should be used.  If null then the default geometry should be used.
      */
     String geometryPropertyName();
-    
+    void setGeometryPropertyName(String geometryPropertyName);
 
 }
 

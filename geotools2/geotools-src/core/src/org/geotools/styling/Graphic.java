@@ -51,7 +51,7 @@ package org.geotools.styling;
  *
  * @task REVISIT: There are no setter methods in this interface, is this a problem?
  *
- * @version $Id: Graphic.java,v 1.7 2002/08/02 16:43:23 ianturton Exp $
+ * @version $Id: Graphic.java,v 1.8 2002/10/14 17:07:58 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -77,7 +77,7 @@ public interface Graphic {
      *         getMarks instead.
      */
     ExternalGraphic[] getExternalGraphics();
-
+    void setExternalGraphics(ExternalGraphic[] externalGraphics);
 
     
     /**
@@ -91,7 +91,7 @@ public interface Graphic {
      * of 6 pixels (unless a size is specified) is provided.
      */    
     Mark[] getMarks();
-    
+    void setMarks(Mark[] marks);
     /**
      * Provides a list of all the symbols which can be used to represent this
      * graphic. A symbol is an ExternalGraphic, Mark or any other object which
@@ -103,7 +103,7 @@ public interface Graphic {
      * of 6 pixels (unless a size is specified) is provided.
      */    
     Symbol[] getSymbols();
-     
+    void setSymbols(Symbol[] symbols); 
     /**
      * This specifies the level of translucency to use when rendering the 
      * graphic.<br>
@@ -118,7 +118,7 @@ public interface Graphic {
      *         transparent and 1.0 is completely opaque.
      */
     Expression getOpacity();
-    
+    void setOpacity(Expression opacity);
     /**
      * This paramteter gives the absolute size of the graphic in pixels
      * encoded as a floating point number.<p>
@@ -133,7 +133,7 @@ public interface Graphic {
      *         Negative values are not possible.
      */
     Expression getSize();
-    
+    void setSize(Expression size);
     /**
      * This parameter defines the rotation of a graphic in the clockwise
      * direction about its centre point in decimal degrees.  
@@ -144,6 +144,6 @@ public interface Graphic {
      *         The default is 0.0 (no rotation).
      */
     Expression getRotation();
-    
+    void setRotation(Expression rotation);
 }
 

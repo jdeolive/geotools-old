@@ -34,7 +34,7 @@ import org.geotools.filter.Expression;
  * fully represent strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
- * @version $Id: Mark.java,v 1.9 2002/07/12 15:32:18 loxnard Exp $
+ * @version $Id: Mark.java,v 1.10 2002/10/14 17:07:59 ianturton Exp $
  * @author James Macgill
  */
 public interface Mark {
@@ -48,7 +48,15 @@ public interface Mark {
      * @return The well-known name of a shape.  The default value is "square".
      */
     Expression getWellKnownName();
-    
+    /**
+     * This parameter gives the well-known name of the shape of the mark.<br>
+     * Allowed names include at least "square", "circle", "triangle", "star",
+     * "cross" and "x" though renderers may draw a different symbol instead
+     * if they don't have a shape for all of these.<br>
+     * 
+     * @param The well-known name of a shape.  The default value is "square".
+     */
+    void setWellKnownName(Expression wellKnownName);
     /**
      * This paramterer defines which stroke style should be used when
      * rendering the Mark.
@@ -56,17 +64,30 @@ public interface Mark {
      * @return The Stroke definition to use when rendering the Mark.
      **/
     Stroke getStroke();
-    
+    /**
+     * This paramterer defines which stroke style should be used when
+     * rendering the Mark.
+     * 
+     * @param The Stroke definition to use when rendering the Mark.
+     **/
+    void setStroke(Stroke stroke);
     /**
      * This parameter defines which fill style to use when rendering the Mark.
      *
      * @return the Fill definition to use when rendering the Mark.
      **/
     Fill getFill();
-    
-    
+    /**
+     * This parameter defines which fill style to use when rendering the Mark.
+     *
+     * @param the Fill definition to use when rendering the Mark.
+     **/
+    void setFill(Fill fill);
     
     Expression getSize();
+    void setSize(Expression size);
+    
     Expression getRotation();
+    void setRotation(Expression rotation);
 }
 

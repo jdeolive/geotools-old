@@ -21,16 +21,21 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: Style.java,v 1.3 2002/07/12 15:35:53 loxnard Exp $
+ * @version $Id: Style.java,v 1.4 2002/10/14 17:08:01 ianturton Exp $
  * @author James Macgill
  */
 public interface Style {
     
     String getName();
+    void setName(String name);
     String getTitle();
+    void setTitle(String title);
     String getAbstract();
+    void setAbstract(String abstractStr);
     boolean isDefault();
+    void setIsDefault(boolean isDefault);
     FeatureTypeStyle[] getFeatureTypeStyles();
+    void setFeatureTypeStyle(FeatureTypeStyle[] types);
    
 }
 

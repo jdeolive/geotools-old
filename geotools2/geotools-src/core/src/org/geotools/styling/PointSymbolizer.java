@@ -44,7 +44,7 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: PointSymbolizer.java,v 1.3 2002/07/12 15:32:42 loxnard Exp $
+ * @version $Id: PointSymbolizer.java,v 1.4 2002/10/14 17:07:59 ianturton Exp $
  * @author James Macgill
  */
 public interface PointSymbolizer extends Symbolizer{
@@ -56,7 +56,12 @@ public interface PointSymbolizer extends Symbolizer{
      * @return The Graphic to be used when drawing a point.
      */
     Graphic getGraphic();
-    
+        /**
+     * Provides the graphical-symbolization parameter to use for the 
+     * point geometry.
+     */
+    void setGraphic(Graphic graphic);
+         
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
@@ -75,5 +80,21 @@ public interface PointSymbolizer extends Symbolizer{
      *  that should be used.  If null then the default geometry should be used.
      */
     String geometryPropertyName();
+    /**
+     * This property defines the geometry to be used for styling.<br>
+     * The property is optional and if it is absent (null) then the "default"
+     * geometry property of the feature should be used.
+     * 
+     * Geometry types other than inherently point types can be used. 
+     *
+     * The geometryPropertyName is the name of a geometry property in the
+     * Feature being styled.  Typically, features only have one geometry so,
+     * in general, the need to select one is not required.
+     *
+     * Note: this moves a little away from the SLD spec which provides an XPath
+     * reference to a Geometry object, but does follow it in spirit.
+     */
+    void setGeometryPropertyName(String geometryPropertyName);
+    
 }
 
