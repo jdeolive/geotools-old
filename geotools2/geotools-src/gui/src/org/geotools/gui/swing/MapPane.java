@@ -56,6 +56,7 @@ import java.util.LinkedList;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.TransformException;
+import org.geotools.renderer.j2d.Hints;
 import org.geotools.renderer.j2d.Tools;
 import org.geotools.renderer.j2d.Renderer;
 import org.geotools.renderer.j2d.RenderedLayer;
@@ -69,7 +70,7 @@ import org.geotools.renderer.j2d.GeoMouseEvent;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.12 2003/01/28 16:13:31 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.13 2003/01/30 23:35:58 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MapPane extends ZoomPane {
@@ -77,6 +78,22 @@ public class MapPane extends ZoomPane {
      * The maximal number of {@link JPopupMenu}s to cache in {@link cachedMenus}.
      */
     private static final int MAX_CACHED_MENUS = 5;
+
+    /**
+     * Default value for the {@link Hints#FINEST_RESOLUTION} rendering hint. This is the
+     * finest resolution wanted, in pixel. If an isoline has a finest resolution than this,
+     * it will be decimated before rendering. This value should not be to close from {@link
+     * #REQUIRED_RESOLUTION} in order to avoir too frequent recomputation when zoom change.
+     */
+    private static final Float FINEST_RESOLUTION = new Float(0.5);
+
+    /**
+     * Default value for the {@link Hints#REQUIRED_RESOLUTION} rendering hint. This is the
+     * resolution required, in pixel.   If an isoline has a too strong decimation for this
+     * resolution, then it will be resampled. This value should not be to close from {@link
+     * #FINEST_RESOLUTION} in order to avoir too frequent recomputation when zoom change.
+     */
+    private static final Float REQUIRED_RESOLUTION = new Float(4);
 
     /**
      * The renderer targeting Java2D.
@@ -134,8 +151,28 @@ public class MapPane extends ZoomPane {
     public MapPane() {
         super(TRANSLATE_X | TRANSLATE_Y | UNIFORM_SCALE | DEFAULT_ZOOM | ROTATE | RESET);
         renderer = new Renderer(this);
+        renderer.setRenderingHint(Hints.  FINEST_RESOLUTION,   FINEST_RESOLUTION);
+        renderer.setRenderingHint(Hints.REQUIRED_RESOLUTION, REQUIRED_RESOLUTION);
         renderer.addPropertyChangeListener(listenerProxy);
         setResetPolicy(true);
+    }
+
+    /**
+     * Construct a map panel using the following coordinate system.
+     *
+     * @param cs The rendering coordinate system.
+     */
+    public MapPane(final CoordinateSystem cs) {
+        this();
+        try {
+            setCoordinateSystem(cs);
+        } catch (TransformException exception) {
+            // Since the Renderer doesn't yet contains any layer, this error can happen only
+            // if the specified coordinate system can't be reduced to a two dimensional CS.
+            final IllegalArgumentException e;
+            e = new IllegalArgumentException(exception.getLocalizedMessage());
+            e.initCause(exception);
+        }
     }
 
     /**
