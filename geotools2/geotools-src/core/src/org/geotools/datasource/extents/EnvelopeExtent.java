@@ -8,11 +8,13 @@ import java.util.*;
 public class EnvelopeExtent implements Extent {
     Envelope bounds = new Envelope();
     public EnvelopeExtent(){}
-    public EnvelopeExtent(double minx, double maxx, double miny, double maxy){
-        Envelope e = new Envelope(minx,maxx,miny,maxy);
+    
+    public EnvelopeExtent(Envelope e){
         setBounds(e);
     }
-    public EnvelopeExtent(Envelope e){
+    
+    public EnvelopeExtent(double minx, double maxx, double miny, double maxy){
+        Envelope e = new Envelope(minx,maxx,miny,maxy);
         setBounds(e);
     }
     

@@ -10,5 +10,6 @@ public interface Feature {
     public Geometry getGeometry();
     public void setGeometry(Geometry geom);
     public void setAttributes(Object[] a);
+    public String getTypeName();
 }
 
