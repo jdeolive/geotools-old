@@ -150,8 +150,17 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 			throw new DataSourceException( msg, sqlException);
 		}
 	}
-    
-    private int convertIndex(final int i) {
+    /**
+     * Converts from schema to resultset based index.
+     * <p>
+     * Converts from schema based index (zero based) to result set index
+     * (starts at one, but needs to account for Feature ID column).
+     * The field <code>startColumn</code> is used to account for FID.
+     * </p>
+     * @param i origional schema based index
+     * @return converted result set based column index
+     */    
+    protected int convertIndex(final int i) {
         if (i > getAttributeCount()) {
 			throw new ArrayIndexOutOfBoundsException("read called with " + i + " but there are only " +				getAttributeCount() + " attributes in the schema.");
 		}
