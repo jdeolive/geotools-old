@@ -23,8 +23,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.*;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
+
 /**
  *
  * @author jamesm
@@ -33,7 +32,6 @@ public class Rendering2DTest extends TestCase {
     
     public Rendering2DTest(java.lang.String testName) {
         super(testName);
-        BasicConfigurator.configure();
     }
     
     public static void main(java.lang.String[] args) {
