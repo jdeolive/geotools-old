@@ -8,3 +8,4 @@ postgis
 gui
 filter
 cts-coordtrans
+sldstyling
