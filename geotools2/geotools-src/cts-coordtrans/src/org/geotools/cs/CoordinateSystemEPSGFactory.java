@@ -119,7 +119,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.20 2004/01/25 21:42:12 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.21 2004/02/03 20:37:07 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -1614,14 +1614,14 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      *       {@link DriverManager#getConnection(String)} specification. The default value
      *       is <code>jdbc:odbc:EPSG</code>. The specified URL is stored in system preferences
      *       and will become the default URL for every calls to {@link #getDefault()}.
-     *       An empty string reset the default URL.
+     *       The "<code>default</code>" string reset the default URL.
      *       <br><br>
      *
      *   <strong><code>-driver</code></strong><br>
      *       Set the driver class. The default value is <code>sun.jdbc.odbc.JdbcOdbcDriver</code>.
      *       The specified classname is stored in system preferences and will become the default
      *       driver for every calls to {@link #getDefault()}.
-     *       An empty string reset the default driver.
+     *       The "<code>default</code>" string reset the default driver.
      *       <br><br>
      *
      *   <strong><code>-implementation</code></strong><br>
@@ -1635,7 +1635,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      *       </ul>
      *       The specified classname is stored in system preferences and will become the default
      *       implementation for every calls to {@link #getDefault()}.
-     *       An empty string reset the default implementation.
+     *       The "<code>default</code>" string reset the default implementation.
      *       <br><br>
      *
      *   <strong><code>-encoding</code></strong><br>
@@ -1656,21 +1656,21 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         final Preferences prefs = Preferences.systemNodeForPackage(CoordinateSystemAuthorityFactory.class);
 
         if (newDriver != null) {
-            if (newDriver.length() == 0) {
+            if (newDriver.equalsIgnoreCase("default")) {
                 prefs.remove(DRIVER);
             } else {
                 prefs.put(DRIVER, newDriver);
             }
         }
         if (newConnection != null) {
-            if (newConnection.length() == 0) {
+            if (newConnection.equalsIgnoreCase("default")) {
                 prefs.remove(CONNECTION);
             } else {
                 prefs.put(CONNECTION, newConnection);
             }
         }
         if (newImplement != null) {
-            if (newImplement.length() == 0) {
+            if (newImplement.equalsIgnoreCase("default")) {
                 prefs.remove(IMPLEMENTATION);
             } else {
                 prefs.put(IMPLEMENTATION, newImplement);

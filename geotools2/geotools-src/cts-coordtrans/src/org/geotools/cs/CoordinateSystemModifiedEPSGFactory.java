@@ -61,7 +61,7 @@ import java.sql.SQLException;
  *   </li>
  * </ul>
  *
- * @version $Id: CoordinateSystemModifiedEPSGFactory.java,v 1.2 2004/01/25 22:05:33 desruisseaux Exp $
+ * @version $Id: CoordinateSystemModifiedEPSGFactory.java,v 1.3 2004/02/03 20:37:07 desruisseaux Exp $
  * @author Rueben Schulz
  * @author Martin Desruisseaux
  */
@@ -120,7 +120,7 @@ public class CoordinateSystemModifiedEPSGFactory extends CoordinateSystemEPSGFac
      * @param  factory The underlying factory used for objects creation.
      * @param  url     The url to the EPSG database. For example, a connection
      *                 to postgresql may have an URL like
-     *                 <code>"jdbc:postgresql://localhost:5432/epsg;user=;pass="</code>.
+     *                 <code>"jdbc:postgresql://localhost/epsg?user=&lt;user&gt;&pass=&lt;password&gt;"</code>.
      * @param  driver  An optional driver to load, or <code>null</code> if none.
      *                 This is a convenience argument for the following pseudo-code:
      *                 <blockquote><code>
