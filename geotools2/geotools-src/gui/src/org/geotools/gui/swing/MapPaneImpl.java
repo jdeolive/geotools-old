@@ -1,4 +1,22 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
 package org.geotools.gui.swing;
+
 
 /*
  * Geotools - OpenSource mapping toolkit
@@ -20,19 +38,7 @@ package org.geotools.gui.swing;
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 import com.vividsolutions.jts.geom.Envelope;
-import java.awt.Dimension;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.lang.IllegalArgumentException;
-import java.util.EventObject;
-import java.util.logging.Logger;
-import javax.swing.JPanel;
 import org.geotools.data.DataSourceException;
 import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.feature.FeatureCollection;
@@ -41,79 +47,82 @@ import org.geotools.gui.swing.event.GeoMouseEvent;
 import org.geotools.gui.tools.Tool;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
+import org.geotools.map.Layer;
+import org.geotools.map.LayerList;
 import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.events.LayerListListener;
 import org.geotools.map.events.SelectedToolListener;
-import org.geotools.map.Layer;
-import org.geotools.map.LayerList;
 import org.geotools.renderer.Java2DRenderer;
 import org.geotools.styling.Style;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.lang.IllegalArgumentException;
+import java.util.EventObject;
+import java.util.logging.Logger;
+import javax.swing.JPanel;
+
 
 /**
- * This class provides core functionality for drawing a map.
- * At the moment, this package is still experimental.  I expect that it will
- * be removed, and the functionality will be moved into other classes like
- * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.16 2003/03/30 20:07:49 camerons Exp $
+ * This class provides core functionality for drawing a map. At the moment,
+ * this package is still experimental.  I expect that it will be removed, and
+ * the functionality will be moved into other classes like MapPane.
+ *
  * @author Cameron Shorter
+ * @version $Id: MapPaneImpl.java,v 1.17 2003/04/03 09:57:49 camerons Exp $
+ *
  * @task REVISIT: We probably should have a StyleModel which sends
- * StyleModelEvents when the Style changes.
+ *       StyleModelEvents when the Style changes.
  */
+public class MapPaneImpl extends JPanel implements BoundingBoxListener,
+    LayerListListener, ComponentListener, SelectedToolListener {
+    /** The class used for identifying for logging. */
+    private static final Logger LOGGER =
+        Logger.getLogger("org.geotools.gui.swing.MapPaneImpl");
 
-public class MapPaneImpl extends JPanel implements
-    BoundingBoxListener,LayerListListener,ComponentListener,SelectedToolListener
-{
-    /**
-     * The class to use to render this MapPane.
-     */
+    /** The class to use to render this MapPane. */
     Java2DRenderer renderer;
-   
-    /**
-     * The model which stores a list of layers and BoundingBox.
-     */
+
+    /** The model which stores a list of layers and BoundingBox. */
     private Context context;
-    
-    /**
-     * A transform from screen coordinates to real world coordinates.
-     */
+
+    /** A transform from screen coordinates to real world coordinates. */
     private DotToCoordinateTransformImpl dotToCoordinateTransform;
 
     /**
-     * The class used for identifying for logging.
-     */
-    private static final Logger LOGGER = Logger.getLogger(
-        "org.geotools.gui.swing.MapPaneImpl");
-
-    /**
-     * Create a MapPane.
-     * A MapPane marshals the drawing of maps.
+     * Create a MapPane. A MapPane marshals the drawing of maps.
+     *
      * @param context The context where layerList and boundingBox are kept.  If
-     * context is null, an IllegalArguementException is thrown.
+     *        context is null, an IllegalArguementException is thrown.
+     *
+     * @throws IllegalArgumentException when parameters are null.
+     *
      * @task TODO Move the "extra stuff" out of this method.
      */
-    public MapPaneImpl(
-            Context context) throws IllegalArgumentException
-    {
-        if (context==null){
+    public MapPaneImpl(Context context) throws IllegalArgumentException {
+        if (context == null) {
             throw new IllegalArgumentException();
-        }else{
-            this.renderer=new Java2DRenderer(context);
-            this.context=context;
+        } else {
+            this.renderer = new Java2DRenderer(context);
+            this.context = context;
             context.getBbox().addAreaOfInterestChangedListener(this);
             context.getToolList().addSelectedToolListener(this);
-            context.getToolList().getTool().addMouseListener(this,context);
-            
+            context.getToolList().getTool().addMouseListener(this, context);
+
             // Create a transform for this mapPane.
-            this.dotToCoordinateTransform=new DotToCoordinateTransformImpl(
-                this, context);
-            
+            this.dotToCoordinateTransform =
+                new DotToCoordinateTransformImpl(this, context);
+
             // A zero sized mapPane cannot be resized later and doesn't behave
             // very nicely
-            this.setMinimumSize(new Dimension(2,2));
-            
+            this.setMinimumSize(new Dimension(2, 2));
+
             // use absolute positioning
             this.setLayout(null);
-            
         }
     }
 
@@ -123,49 +132,57 @@ public class MapPaneImpl extends JPanel implements
      * AreaOfInterest will be set to the AreaOfInterest of the the LayerList.
      * Rendering will not occur now, but will wait until after the
      * AreaOfInterestChangedEvent has been received.
+     *
      * @param graphics The graphics object to paint to.
+     *
      * @task TODO fill in exception.  This should implement logging.
      * @task REVISIT Need to create an interface
-     * features=dataSource.getFeatures(extent)
-     * @task REVISIT We should set the AreaOfInterest somewhere other than here.
+     *       features=dataSource.getFeatures(extent)
+     * @task REVISIT We should set the AreaOfInterest somewhere other than
+     *       here.
      * @task TODO Need to change getBbox(false) to getBbox(true) to speed
-     * things up.
+     *       things up.
      * @task TODO create a layerList.getCoordinateSystem method
      */
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
-        if (context.getBbox().getAreaOfInterest()==null){
-            Envelope bBox=context.getLayerList().getBbox(false);
-            if (bBox!=null){
+
+        if (context.getBbox().getAreaOfInterest() == null) {
+            Envelope bBox = context.getLayerList().getBbox(false);
+
+            if (bBox != null) {
                 LOGGER.info("AreaOfInterest calculated during rendering");
                 context.getBbox().setAreaOfInterest(
                     context.getLayerList().getBbox(false),
-                    null);
+                    null
+                );
             }
         }
 
         renderer.render(
             graphics,
             new Rectangle(
-                getInsets().left,
-                getInsets().top,
-                getWidth()-getInsets().left-getInsets().right,
-                getHeight()-getInsets().top-getInsets().bottom));
+                getInsets().left, getInsets().top,
+                getWidth() - getInsets().left - getInsets().right,
+                getHeight() - getInsets().top - getInsets().bottom
+            )
+        );
     }
-    
+
     /**
      * Process an AreaOfInterestChangedEvent, involves a redraw.
+     *
      * @param areaOfInterestChangedEvent The new extent.
      */
-    public void areaOfInterestChanged(
-            EventObject areaOfInterestChangedEvent) {
+    public void areaOfInterestChanged(EventObject areaOfInterestChangedEvent) {
         dotToCoordinateTransform.updateTransform();
         repaint(getVisibleRect());
     }
-    
+
     /**
      * Process an LayerListChangedEvent, involves a redraw.
-     * @param LayerListChangedEvent The new extent.
+     *
+     * @param layerListChangedEvent The new extent.
      */
     public void layerListChanged(EventObject layerListChangedEvent) {
         repaint(getVisibleRect());
@@ -175,14 +192,18 @@ public class MapPaneImpl extends JPanel implements
      * Processes mouse events occurring on this component. This method
      * overrides the default AWT's implementation in order to wrap the
      * <code>MouseEvent</code> into a {@link GeoMouseEvent}. Then, the default
-     * AWT's implementation is invoked in * order to pass this event to any
+     * AWT's implementation is invoked in  order to pass this event to any
      * registered {@link MouseListener} objects.
+     *
+     * @param event The click point.
      */
     protected void processMouseEvent(final MouseEvent event) {
         super.processMouseEvent(
             new GeoMouseEvent(
                 event,
-                dotToCoordinateTransform.getTransform()));
+                dotToCoordinateTransform.getTransform()
+            )
+        );
     }
 
     /**
@@ -191,48 +212,57 @@ public class MapPaneImpl extends JPanel implements
      * <code>MouseEvent</code> into a {@link GeoMouseEvent}. Then, the default
      * AWT's implementation is invoked in order to pass this event to any
      * registered {@link MouseMotionListener} objects.
+     *
+     * @param event The mouse point.
      */
     protected void processMouseMotionEvent(final MouseEvent event) {
         super.processMouseMotionEvent(
             new GeoMouseEvent(
                 event,
-                dotToCoordinateTransform.getTransform()));
+                dotToCoordinateTransform.getTransform()
+            )
+        );
     }
-    
-    /** Invoked when the component has been made invisible.
+
+    /**
+     * Invoked when the component has been made invisible.
      *
+     * @param e ComponentEvent.
      */
-    public void componentHidden(ComponentEvent e) {
-    }
-    
-    /** Invoked when the component's position changes.
+    public void componentHidden(ComponentEvent e) {}
+
+    /**
+     * Invoked when the component's position changes.
      *
+     * @param e ComponentEvent.
      */
-    public void componentMoved(ComponentEvent e) {
-    }
-    
-    /** Invoked when the component's size changes, update the
+    public void componentMoved(ComponentEvent e) {}
+
+    /**
+     * Invoked when the component's size changes, update the
      * screenToCoordinateTransform.
      *
+     * @param e ComponentEvent.
      */
     public void componentResized(ComponentEvent e) {
         dotToCoordinateTransform.updateTransform();
     }
-    
-    /** Invoked when the component has been made visible.
+
+    /**
+     * Invoked when the component has been made visible.
      *
+     * @param e ComponentEvent.
      */
-    public void componentShown(ComponentEvent e) {
-    }
-    
+    public void componentShown(ComponentEvent e) {}
+
     /**
      * Called when the selectedTool on a MapPane changes.
+     *
+     * @param event ComponenetEvent.
      */
-    public void selectedToolChanged(EventObject event)
-    {
-        if (context.getToolList().getTool()!=null){
-            context.getToolList().getTool().addMouseListener(this,context);
+    public void selectedToolChanged(EventObject event) {
+        if (context.getToolList().getTool() != null) {
+            context.getToolList().getTool().addMouseListener(this, context);
         }
     }
-    
 }
