@@ -93,7 +93,8 @@ public class TableHeaderTest extends TestCase
     throws IOException
   {
     TableInputStream tis =
-      new TableInputStream("tests/testdata/dnc13/dht");
+      new TableInputStream(System.getProperty("basedir")+
+                           "/tests/testdata/dnc13/dht");
     varTableHeader = tis.getHeader();
     tis.close();
   } // end of setUp()

@@ -96,7 +96,8 @@ public class TableColumnDefTest extends TestCase
     throws IOException
   {
     TableInputStream tis =
-      new TableInputStream("tests/testdata/dnc13/dht");
+      new TableInputStream(System.getProperty("basedir")+
+                           "/tests/testdata/dnc13/dht");
     varTableColumnDef = (TableColumnDef)tis.getHeader().getColumnDefs().get(0);
     tis.close();
   } // end of setUp()

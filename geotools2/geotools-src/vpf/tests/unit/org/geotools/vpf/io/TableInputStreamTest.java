@@ -94,7 +94,8 @@ public class TableInputStreamTest extends TestCase
     throws IOException
   {
     varTableInputStream =
-      new TableInputStream("tests/testdata/dnc13/browse/coa/edg");
+      new TableInputStream(System.getProperty("basedir")+
+                           "/tests/testdata/dnc13/browse/coa/edg");
   } // end of setUp()
   protected void tearDown()
     throws IOException
