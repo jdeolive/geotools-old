@@ -27,12 +27,12 @@ import com.vividsolutions.jts.geom.*;
 /**
  * Wrapper for a Shapefile point.
  *
- * @version $Id: PointHandler.java,v 1.2 2002/06/05 12:50:16 loxnard Exp $
+ * @version $Id: PointHandler.java,v 1.3 2002/07/12 13:45:07 loxnard Exp $
  * @author James Macgill, CCG
  */
 public class PointHandler implements ShapeHandler{
     
-    public Geometry read(LEDataInputStream file,GeometryFactory geometryFactory) throws IOException,TopologyException,InvalidShapefileException{
+    public Geometry read(LEDataInputStream file, GeometryFactory geometryFactory) throws IOException, TopologyException, InvalidShapefileException{
         file.setLittleEndianMode(true);
         int shapeType = file.readInt();
         double x = file.readDouble();
@@ -40,7 +40,7 @@ public class PointHandler implements ShapeHandler{
         return geometryFactory.createPoint(new Coordinate(x,y));
     }
     
-    public void write(Geometry geometry,LEDataOutputStream file)throws IOException{
+    public void write(Geometry geometry, LEDataOutputStream file)throws IOException{
         file.setLittleEndianMode(true);
         file.writeInt(getShapeType());
         Coordinate c = geometry.getCoordinates()[0];
