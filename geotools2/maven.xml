@@ -69,6 +69,9 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
         maven test
         maven java:compile
         
+      If bulding a war file (e.g. wmsserver module)
+        maven war  
+        
       If building everyting use:
         maven build       -- this will try to build all modules regardless
         maven build-fail  -- this will stop at the first failure
@@ -79,26 +82,48 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
     </echo>
   </goal>
   
+  <goal name="build:log">
+    <echo file="../../buildReport.txt" append="true">
+    starting ${pom.id}</echo>
+    <splash imageurl="file://${basedir}/xdocs/images/${pom.artifactId}.gif"/>
+  </goal> 
+  <postGoal name="clean">
+    <echo file="../../buildReport.txt" append="true">  cleaned</echo>
+  </postGoal> 
+  <postGoal name="java:compile">
+    <echo file="../../buildReport.txt" append="true">, compiled</echo>
+  </postGoal>
+  <postGoal name="test:test">
+    <echo file="../../buildReport.txt" append="true">, tested</echo>
+  </postGoal>
+  <postGoal name="jar:install">
+    <tstamp/>
+    <echo file="../../buildReport.txt" append="true">, INSTALLED ${TSTAMP}</echo>
+  </postGoal> 
+  
   <goal name="build">
   
+    <tstamp/>
+    <j:set var="gt2home" value="${basedir}"/>
     <echo>
       looking for modules in: ${basedir}/geotools-src
-      
+      reporting progress to ${gt2home}
     </echo>
+    <echo file="${basedir}/installReport.txt" append="false">GeoTools2 module build report ${DSTAMP}</echo>
     <maven:reactor
       basedir="${basedir}/geotools-src"
       includes="*/project.xml"
-      goals="clean,jar:install"
+      goals="build:log,clean,jar:install"
       banner="Building"
       postProcessing="true"
       ignoreFailures="true"
     />  
-
+    <!--
     <j:set
       var = "ok"
       value = "${reactorProjects}"
     />
-    
+
     <maven:reactor
       basedir="${basedir}/geotools-src"
       includes="*/project.xml"
@@ -114,10 +139,19 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
             </j:if>
          </j:forEach>
          <echo>Module ${module} : ${status}</echo>
-    </j:forEach>
-    
-  
-  </goal>
+    </j:forEach> -->
+    <echo>The above list is only accurate if you are using Maven Beta 8, from Beta 9 onwards all will report 'installed' even if they failed</echo>
+    <loadfile
+      property="build.report"
+      srcFile="${basedir}/buildReport.txt"
+      failonerror="false"/>
+      <echo>BUILD REPORT (from buildReport.txt):
+      Sucessfull modules should read 'cleaned, compiled, tested, INSTALLED HHMM'
+      ${build.report}
+      If some modules failed to INSTALL, look for problems from the TOP DOWN as failures lower in the list will probaly be caused by ones higher up.
+      If modules cleanded and compiled but were not tested look in geotools-src/modulename/target/test-reports for details.
+      </echo>
+    </goal>
   
   <goal name="build-fail">
   
@@ -156,6 +190,7 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
          </j:forEach>
          <echo>Module ${module} : ${status}</echo>
     </j:forEach>
+   
 
   </goal>
   
@@ -202,6 +237,55 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
       banner="Generating site for"
       ignoreFailures="true"
     />
+      <j:set
+      var = "ok"
+      value = "${reactorProjects}"
+    />
+    
+    <maven:reactor
+      basedir="${basedir}/geotools-src"
+      includes="*/project.xml"
+      postProcessing="true"
+      ignoreFailures="true"
+    />
+    
+    <j:forEach var="module" items="${reactorProjects}">
+        <j:set var = "status" value = "failed"/>
+        <j:forEach var="item" items="${ok}">
+            <j:if test="${item == module}">
+                <j:set var = "status" value = "installed"/>
+            </j:if>
+         </j:forEach>
+         <echo>Module ${module} : ${status}</echo>
+    </j:forEach>
+     <j:file name="${basedir}/xdocs/buildreport.xml" prettyPrint="true">
+<document>
+	<properties>
+		<title>Javadoc Report</title>
+	</properties>
+	<body>
+		<section name="Javadoc Report">
+			<p/>
+			<source>
+                        The following is a list of all modules and their current status.
+If you are the maintainer of a module which has failed and which is not dependent on a module
+higher in the list which has also failed please try to resolve the issue.  <p />
+
+    <j:forEach var="module" items="${reactorProjects}">
+        <j:set var = "status" value = "failed"/>
+        <j:forEach var="item" items="${ok}">
+            <j:if test="${item == module}">
+                <j:set var = "status" value = "installed"/>
+            </j:if>
+         </j:forEach>
+Module ${module} : ${status}
+<p />
+    </j:forEach>
+    </source>
+    </section>
+    </body>
+    </document>
+    </j:file>     
 
     
     
