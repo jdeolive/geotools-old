@@ -24,10 +24,11 @@ import org.apache.log4j.Logger;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 
+
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: FilterFactory.java,v 1.1 2002/07/16 19:36:48 robhranac Exp $
+ * @version $Id: FilterFactory.java,v 1.2 2002/07/18 16:21:49 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFactory {
@@ -44,7 +45,9 @@ public class FilterFactory {
     /** The (limited) REGEXP pattern. */
     private short filterType;
 
-
+    /** the Attributes of the filter (only applicable to LIKE filters, I think)
+     */
+    private java.util.HashMap attributes = new java.util.HashMap();
     /**
      * Constructor which flags the operator as between.
      */
@@ -84,6 +87,8 @@ public class FilterFactory {
         }
         currentState = setInitialState(filterType);
         this.filterType = filterType;
+        _log.debug("reset attributes");
+        attributes = new java.util.HashMap();
     }
 
     /**
@@ -173,11 +178,20 @@ public class FilterFactory {
         }
         else if( filterType == AbstractFilter.LIKE ) {
             if( currentState.equals("attribute") ) {
+                
                 ((LikeFilter) currentFilter).setValue(expression);
                 currentState = "pattern";
             }
             else if( currentState.equals("pattern") ) {
-                ((LikeFilter) currentFilter).setPattern(expression);
+                if(attributes.size()!=3){
+                    throw new IllegalFilterException
+                    ("Got wrong number of attributes (expecting 3): "
+                     + attributes.size()+"\n"+attributes);
+                }
+                String wildcard = (String)attributes.get("wildCard");
+                String singleChar = (String)attributes.get("singleChar");
+                String escapeChar = (String)attributes.get("escapeChar");
+                ((LikeFilter) currentFilter).setPattern(expression,wildcard,singleChar,escapeChar);
                 currentState = "complete";
             }
             else {
@@ -230,7 +244,14 @@ public class FilterFactory {
         }
 
     }
-
+    public void setAttributes(org.xml.sax.Attributes atts){
+        _log.debug("received Attributes:");
+        for(int i=0;i<atts.getLength();i++){
+            _log.debug(atts.getLocalName(i)+","+atts.getValue(i));
+            this.attributes.put(atts.getLocalName(i),atts.getValue(i));
+        }
+        
+    }
     /**
      * Sets the multi wildcard for this LikeFilter.
      *

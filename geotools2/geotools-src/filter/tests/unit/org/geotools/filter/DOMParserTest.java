@@ -247,7 +247,7 @@ public class DOMParserTest extends TestCase {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document dom = db.parse(uri);
-        
+        _log.info("parsing "+uri);
 
         // first grab a filter node
         NodeList nodes = dom.getElementsByTagName("Filter");

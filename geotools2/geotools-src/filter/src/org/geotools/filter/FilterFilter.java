@@ -36,7 +36,7 @@ import org.geotools.gml.GMLHandlerJTS;
  * extracts an OGC filter object from an XML stream and passes it to its parent
  * as a fully instantiated OGC filter object.</p>
  * 
- * @version $Id: FilterFilter.java,v 1.7 2002/07/12 18:22:52 robhranac Exp $
+ * @version $Id: FilterFilter.java,v 1.8 2002/07/18 16:21:49 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
@@ -103,7 +103,10 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
         short filterElementType = convertType(localName);
         _log.debug("xml type: " + localName);
         _log.debug("internal type: " + filterElementType);
-        
+        _log.debug("Attributes: ");
+        for(int i=0;i<atts.getLength();i++){
+            _log.debug(atts.getLocalName(i)+","+atts.getValue(i));
+        }
         try { 
             // if at a complex filter start, add it to the logic stack
             if( AbstractFilter.isLogicFilter(filterElementType) ) {
@@ -116,6 +119,11 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
             else if( AbstractFilter.isSimpleFilter(filterElementType) ) {
                 _log.debug("found a simple filter start");
                 filterFactory.start(filterElementType);
+                if(filterElementType == AbstractFilter.LIKE ){
+                    _log.debug("handle the attributes");
+                    filterFactory.setAttributes(atts);
+                }
+                            
             }
             
             // if at an expression start, tell the factory
