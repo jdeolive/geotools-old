@@ -1,4 +1,20 @@
 /*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+/*
  * FilterFactoryImpl.java
  *
  * Created on 24 October 2002, 16:16
@@ -8,13 +24,17 @@ package org.geotools.filter;
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.FeatureType;
 
-/**
- *
- * @author  iant
- */
-public class FilterFactoryImpl extends FilterFactory { 
 
-    /** Creates a new instance of FilterFactoryImpl */
+/**
+ * Implementation of the FilterFactory, generates the filter implementations
+ * in defaultcore.
+ *
+ * @author iant
+ */
+public class FilterFactoryImpl extends FilterFactory {
+    /**
+     * Creates a new instance of FilterFactoryImpl
+     */
     protected FilterFactoryImpl() {
     }
 
@@ -22,14 +42,13 @@ public class FilterFactoryImpl extends FilterFactory {
         return new AttributeExpressionImpl(schema);
     }
 
-    public AttributeExpression createAttributeExpression(FeatureType schema, 
-                                                         String path)
-                                                  throws IllegalFilterException {
+    public AttributeExpression createAttributeExpression(FeatureType schema,
+        String path) throws IllegalFilterException {
         return new AttributeExpressionImpl(schema, path);
     }
 
     public BBoxExpression createBBoxExpression(Envelope env)
-                                        throws IllegalFilterException {
+        throws IllegalFilterException {
         return new BBoxExpressionImpl(env);
     }
 
@@ -38,7 +57,7 @@ public class FilterFactoryImpl extends FilterFactory {
     }
 
     public CompareFilter createCompareFilter(short type)
-                                      throws IllegalFilterException {
+        throws IllegalFilterException {
         return new CompareFilterImpl(type);
     }
 
@@ -51,8 +70,13 @@ public class FilterFactoryImpl extends FilterFactory {
     }
 
     public GeometryFilter createGeometryFilter(short filterType)
-                                        throws IllegalFilterException {
+        throws IllegalFilterException {
         return new GeometryFilterImpl(filterType);
+    }
+
+    public GeometryDistanceFilter createGeometryDistanceFilter(short filterType)
+        throws IllegalFilterException {
+        return new CartesianDistanceFilter(filterType);
     }
 
     public LikeFilter createLikeFilter() {
@@ -64,7 +88,7 @@ public class FilterFactoryImpl extends FilterFactory {
     }
 
     public LiteralExpression createLiteralExpression(Object o)
-                                              throws IllegalFilterException {
+        throws IllegalFilterException {
         return new LiteralExpressionImpl(o);
     }
 
@@ -81,18 +105,17 @@ public class FilterFactoryImpl extends FilterFactory {
     }
 
     public LogicFilter createLogicFilter(short filterType)
-                                  throws IllegalFilterException {
+        throws IllegalFilterException {
         return new LogicFilterImpl(filterType);
     }
 
     public LogicFilter createLogicFilter(Filter filter, short filterType)
-                                  throws IllegalFilterException {
+        throws IllegalFilterException {
         return new LogicFilterImpl(filter, filterType);
     }
 
-    public LogicFilter createLogicFilter(Filter filter1, Filter filter2, 
-                                         short filterType)
-                                  throws IllegalFilterException {
+    public LogicFilter createLogicFilter(Filter filter1, Filter filter2,
+        short filterType) throws IllegalFilterException {
         return new LogicFilterImpl(filter1, filter2, filterType);
     }
 
@@ -101,25 +124,32 @@ public class FilterFactoryImpl extends FilterFactory {
     }
 
     public MathExpression createMathExpression(short expressionType)
-                                        throws IllegalFilterException {
+        throws IllegalFilterException {
         return new MathExpressionImpl(expressionType);
     }
-     
-    public FunctionExpression createFunctionExpression(String name){
-        
+
+    public FunctionExpression createFunctionExpression(String name) {
         LOGGER.fine("trying to load name " + name);
+
         int index = -1;
-        if((index = name.indexOf("Function")) != -1 ){
-            name = name.substring(0,index);
+
+        if ((index = name.indexOf("Function")) != -1) {
+            name = name.substring(0, index);
         }
+
         name = name.toLowerCase().trim();
+
         char c = name.charAt(0);
-        name = name.replaceFirst(""+c, ""+Character.toUpperCase(c));
+        name = name.replaceFirst("" + c, "" + Character.toUpperCase(c));
         LOGGER.fine("now trying to load name " + name);
-        try{
-            return (FunctionExpression) Class.forName("org.geotools.filter." + name + "Function").newInstance();
-        } catch (Exception e){
-            severe("createFunctionExpression", "Unable to find "+name+"Function", e);
+
+        try {
+            return (FunctionExpression) Class.forName("org.geotools.filter." +
+                name + "Function").newInstance();
+        } catch (Exception e) {
+            severe("createFunctionExpression",
+                "Unable to find " + name + "Function", e);
+
             return null;
         }
     }
