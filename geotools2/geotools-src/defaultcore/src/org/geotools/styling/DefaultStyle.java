@@ -20,12 +20,12 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: DefaultStyle.java,v 1.3 2002/06/04 17:57:08 loxnard Exp $
+ * @version $Id: DefaultStyle.java,v 1.4 2002/08/09 16:19:01 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class DefaultStyle implements org.geotools.styling.Style {
 
-    FeatureTypeStyle[] featureTypeStyleList;
+    FeatureTypeStyle[] featureTypeStyleList = new FeatureTypeStyle[0];
     
     /** Creates a new instance of DefaultStyle */
     public DefaultStyle() {
