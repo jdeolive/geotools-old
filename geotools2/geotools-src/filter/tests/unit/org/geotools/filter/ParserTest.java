@@ -71,7 +71,8 @@ public class ParserTest
         if(dataFolder==null){
             //then we are being run by maven
             dataFolder = System.getProperty("basedir");
-            dataFolder+="/tests/unit/testData";
+            dataFolder = "file:////"+ dataFolder+"/tests/unit/testData";//url.toString();
+            LOGGER.fine("data folder is "+dataFolder);
         }
     }        
     
@@ -174,7 +175,7 @@ public class ParserTest
         LOGGER.fine("...flat feature created");
     }
 
-    /*
+    
     public void test1()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test1.xml");
@@ -267,13 +268,13 @@ public class ParserTest
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
     }    
-*/    
-    public void test15()
+   
+ /*   public void test15()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test15.xml");
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
-    }    
+    }    */
         
     public Filter parseDocument(String uri) 
         throws Exception {
