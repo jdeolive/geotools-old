@@ -29,7 +29,7 @@ import java.util.ArrayList;
 /**
  * Wrapper for a Shapefile polygon.
  *
- * @version $Id: PolygonHandler.java,v 1.6 2002/07/16 22:10:39 jmacgill Exp $
+ * @version $Id: PolygonHandler.java,v 1.7 2002/12/24 23:58:19 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class PolygonHandler implements ShapeHandler{
@@ -109,7 +109,7 @@ public class PolygonHandler implements ShapeHandler{
                 boolean isContained = false;
                 Coordinate[] coordList = tryRing.getCoordinates() ;
                 if (tryEnv.contains(testEnv)
-                && (cga.isPointInPolygon(testPt,coordList ) ||
+                && (cga.isPointInRing(testPt,coordList ) ||
                 (pointInList(testPt,coordList)))) {
                     isContained = true;
                 }
@@ -219,6 +219,9 @@ public class PolygonHandler implements ShapeHandler{
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.7  2002/12/24 23:58:19  jmacgill
+ * updated to work with JTS 1.2, will no longer work with JTS 1.0 or 1.1
+ *
  * Revision 1.6  2002/07/16 22:10:39  jmacgill
  * Applied bug fix patch supplied by Dave Blasby
  *
