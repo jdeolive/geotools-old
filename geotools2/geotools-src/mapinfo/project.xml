@@ -5,33 +5,15 @@
   <name>geotools-mapinfo</name>
   <extend>../../project.xml</extend>
   <id>mapinfo</id>
-  <logo>/images/mapinfo.gif</logo>
+ 
   <currentVersion>0.1</currentVersion>
-  <organization>
-    <name>GeoTools</name>
-    <url>http://www.geotools.org</url>
-        <logo>/images/gtLogo.gif</logo>
-    </organization>
-  <inceptionYear>1996</inceptionYear>
+ 
   <package>org.geotools</package>
   <shortDescription>mapinfo module</shortDescription>
-  <gumpRepositoryId>geotools</gumpRepositoryId>
+  
   <description>mapinfo module</description>
-  <url>http://www.geotools.org/</url>
-  <cvsWebUrl/>
-  <issueTrackingUrl/>
-  <siteAddress>www.geotools.org</siteAddress>
-  <siteDirectory/>
-  <distributionDirectory/>
   
-  <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/mapinfo</connection>
-    
-        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/mapinfo/</url>
-    </repository>
-  
-
-  <mailingLists/>
+ 
   <developers>
             
         <developer>
