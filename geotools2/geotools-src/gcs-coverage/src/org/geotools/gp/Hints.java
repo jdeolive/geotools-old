@@ -48,13 +48,13 @@ import org.geotools.ct.CoordinateTransformationFactory;
 
 
 /**
- * A set {@link RenderingHints} keys for grid coverage operation. Hints are memorized by
+ * A set of {@link RenderingHints} keys for grid coverage operations. Hints are memorized by
  * {@link GridCoverageProcessor}, which formard them to {@link Operation#doOperation} at
  * every invocation. Rendering hints can be used to control some low-level details, like
  * the {@link JAI} instance to use when performing operation. Operations may use the
  * hints or ignore them.
  * <br><br>
- * For example, if a user want to use the <code>"Resample"</code> operation with
+ * For example, if a user wants to use the <code>"Resample"</code> operation with
  * a custom {@link CoordinateTransformation}, he should first create its own
  * {@link CoordinateTransformationFactory} implementation. Then, he can create
  * a {@link GridCoverageProcessor} with its factory as a rendering hint:
@@ -65,7 +65,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * GridCoverageProcessor processor = new GridCoverageProcessor(hints);
  * </pre></blockquote>
  *
- * @version $Id: Hints.java,v 1.1 2002/08/08 18:38:03 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.2 2003/01/22 23:09:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
