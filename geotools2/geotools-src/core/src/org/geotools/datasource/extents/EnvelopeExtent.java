@@ -12,6 +12,9 @@ public class EnvelopeExtent implements Extent {
         Envelope e = new Envelope(minx,maxx,miny,maxy);
         setBounds(e);
     }
+    public EnvelopeExtent(Envelope e){
+        setBounds(e);
+    }
     
     public void setBounds(Envelope r) {
         if(r.getWidth()<=0 || r.getHeight()<=0){
