@@ -7,8 +7,8 @@
 
 package org.geotools.shapefile;
 
-import org.geotools.datasource.*;
-import org.geotools.featuretable.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 import org.geotools.datasource.extents.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
@@ -42,7 +42,7 @@ public class ShapefileDataSourceTest extends TestCase {
             System.out.println("Testing ability to load "+url);
             Shapefile shapefile = new Shapefile(url);
             ShapefileDataSource datasource = new ShapefileDataSource(shapefile);
-            DefaultFeatureTable table = new DefaultFeatureTable();
+            FeatureCollection table = new FeatureCollectionDefault();
             table.setDataSource(datasource);
             EnvelopeExtent r = new EnvelopeExtent();
             r.setBounds(new Envelope(-180, 180, -90, 90));
