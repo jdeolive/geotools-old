@@ -25,9 +25,10 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.Extent;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.Feature;
-import org.geotools.filter.Filter;
+import org.geotools.filter.*;
 
 import org.geotools.feature.*;
+import org.geotools.styling.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -69,7 +70,9 @@ public class MapInfoDataSource implements DataSource {
     
     // Factory to use to build Geometries
     private GeometryFactory geomFactory;
-    
+
+    private DefaultStroke stroke = new DefaultStroke();
+    private DefaultFill fill = new DefaultFill();
     public static final String TYPE_NONE = "none";
     public static final String TYPE_POINT = "point";
     public static final String TYPE_LINE = "line";
@@ -303,25 +306,35 @@ public class MapInfoDataSource implements DataSource {
     /** A 'Clause' is stored as a single string at the start of a line. This rips the clause name out of the given line.
      */
     private String clause(String line) {
+        return clause(line,' ');
+    }
+    private String clause(String line, char delimiter){
         line = line.trim();
-        if (line.indexOf(' ')==-1)
+        int index = line.indexOf(delimiter);
+        if (index == -1){
             return line;
-        else
-            return line.substring(0, line.indexOf(' ')).trim();
+        }else{
+            return line.substring(0, index).trim();
+        }
     }
     
     /** returns the last word of the string */
     private String remainder(String line){
+        return remainder(line,' ');
+    }
+    
+    private String remainder(String line, char delimiter){
         line = line.trim();
-        if(line.lastIndexOf(' ')==-1){
+        int index = line.lastIndexOf(delimiter);
+        if(index == -1){
             return "";
         }else{
-            return line.substring(line.lastIndexOf(' ')).trim();
+            return line.substring(index).trim();
         }
     }
     /** Reads the next line in the reader, ignoring lines which are nothing but whitespace. Sets the global 'line' variable to the currently read line
      */
-    private String readMifLine(BufferedReader reader) throws IOException {
+    private String readMifLine(BufferedReader reader) throws IOException, DataSourceException {
         do {
             line = reader.readLine();
             if (line==null){
@@ -633,18 +646,86 @@ public class MapInfoDataSource implements DataSource {
     }
     /** Reads the shading information at the end of Object data
      */
-    private void processShading(String line) {
-        
+    private void processShading(String line) throws DataSourceException {
+        int color, r, g, b;
         
         if (line==null){
             return;
         }
         String shadeType = line.toLowerCase();
-        String name = clause(shadeType);
-        _log.debug("Read shading ("+name+")");
+        String name = clause(shadeType,'(');
+        String settings = remainder(shadeType,'(');
+        StringTokenizer st = new StringTokenizer(settings,"(),");
+        String[] values = new String[st.countTokens()];
         
+        for(int i=0;st.hasMoreTokens();i++){
+            values[i] = st.nextToken();
+        }
         
+        if(name.equals("pen")){
+            try{
+                _log.debug("setting new pen " + settings);
+                _log.debug("width " + values[0]);
+                stroke.setWidth(new ExpressionLiteral(new Integer(values[0])));
+                int pattern = Integer.parseInt(values[1]);
+                _log.debug("pattern = " + pattern);
+                stroke.setDashArray(MifStyles.getPenPattern(new Integer(pattern)));
+                color = Integer.parseInt(values[2]);
+                String rgb = Integer.toHexString(color);
+                _log.debug("color " + color +  " -> " + rgb);
+                stroke.setColor(new ExpressionLiteral(rgb));
+                
+            } catch (Exception nfe){
+                throw new DataSourceException("Error setting up pen",nfe);
+            }
+            return;
+        } else if (name.equals("brush")){
+            _log.debug("setting new brush " + settings);
+            int pattern = Integer.parseInt(values[0]);
+            _log.debug("pattern = " + pattern);
+            DefaultGraphic dg = new DefaultGraphic();
+            dg.addExternalGraphic(MifStyles.getBrushPattern(new Integer(pattern)));
+            stroke.setGraphicFill(dg);
+            color = Integer.parseInt(values[1]);
+            String rgb = Integer.toHexString(color);
+            _log.debug("color " + color +  " -> " + rgb);
+            fill.setColor(rgb); // foreground
+            
+            if(values.length == 3){ // optional parameter
+                color = Integer.parseInt(values[2]);
+                rgb = Integer.toHexString(color);
+                _log.debug("color " + color + " -> " + rgb);
+                
+                fill.setBackgroundColor(rgb); // background
+            } else {
+                fill.setBackgroundColor((Expression)null);
+            }
+        } else if (name.equals("center")){
+            _log.debug("setting center " + settings);
+        } else if (name.equals("smooth")){
+            _log.debug("setting smooth on");
+        }else if (name.equals("symbol")){
+            _log.debug("setting symbol " + settings);
+            Mark symbol = null;
+            DefaultExternalGraphic eg = null;
+            if(values.length == 3){ // version 3.0
+                //symbol = symbols.get(new Integer(symNumb));
+            } else if (values.length == 6){ // truetype symbol
+                
+            } else if (values.length == 4){ // custom bitmap
+                eg = new DefaultExternalGraphic();
+                eg.setURI("CustSymb/"+values[0]);
+                
+            } else {
+                _log.warn("unexpected symbol style " + name + settings);
+            }              
+        } else if (name.equals("font")){
+            _log.debug("setting font " + settings);
+        } else {
+            _log.debug("unknown styling directive " + name + settings);
+        }
         return;
+        
     }
     
     /** Test whether the given line contains a known shading clause keyword (PEN, STYLE, etc.)
