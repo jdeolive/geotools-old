@@ -26,11 +26,12 @@ public class ShapefileSuite extends TestCase {
   
   public static Test suite() {
     TestSuite suite = new TestSuite("All ShapefileDataSource Tests");
-    
+
     suite.addTestSuite(DbaseFileTest.class);
     suite.addTestSuite(ShapefileDataSourceTest.class);
     suite.addTestSuite(ShapefileTest.class);
     suite.addTestSuite(ShapefileReadWriteTest.class);
+    suite.addTestSuite(ShapefileDataStoreTest.class);
     
     return suite;
   }
