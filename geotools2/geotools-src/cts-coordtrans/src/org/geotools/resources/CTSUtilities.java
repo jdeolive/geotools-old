@@ -51,7 +51,7 @@ import java.awt.geom.AffineTransform;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.11 2003/03/06 23:06:02 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.12 2003/03/25 22:34:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -185,6 +185,26 @@ public final class CTSUtilities {
             final CompoundCoordinateSystem comp = (CompoundCoordinateSystem) cs;
             if ((cts=getTemporalCS(comp.getHeadCS())) != null) return cts;
             if ((cts=getTemporalCS(comp.getTailCS())) != null) return cts;
+        }
+        return null;
+    }
+
+    /**
+     * Returns the first projection found in a coordinate
+     * system, or <code>null</code> if there is none.
+     */
+    public static Projection getProjection(final CoordinateSystem cs) {
+        if (cs instanceof ProjectedCoordinateSystem) {
+            final Projection projection = ((ProjectedCoordinateSystem) cs).getProjection();
+            if (projection != null) {
+                return projection;
+            }
+        }
+        if (cs instanceof CompoundCoordinateSystem) {
+            Projection projection;
+            final CompoundCoordinateSystem comp = (CompoundCoordinateSystem) cs;
+            if ((projection=getProjection(comp.getHeadCS())) != null) return projection;
+            if ((projection=getProjection(comp.getTailCS())) != null) return projection;
         }
         return null;
     }
