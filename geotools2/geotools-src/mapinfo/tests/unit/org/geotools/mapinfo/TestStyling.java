@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import com.vividsolutions.jts.geom.*;
+import java.net.URL;
 import java.util.logging.Logger;
 /**
  *
@@ -57,16 +58,17 @@ public class TestStyling extends TestCase {
         
         return suite;
     }
-    public void setUp() {
+    public void setUp() throws Exception{
         if(setup) return;
         setup=true;
-        dsMapInfo = new MapInfoDataSource();
+         String miffile = dataFolder + "baltic/basins.mif";
+        dsMapInfo = new MapInfoDataSource(new URL(miffile));
     }
     
     public void testStyling() throws Exception{
         
-        String miffile = dataFolder + "baltic/basins.mif";
-        dsMapInfo.readMifMid(miffile);
+      
+        dsMapInfo.readMifMid();
     }
   
     

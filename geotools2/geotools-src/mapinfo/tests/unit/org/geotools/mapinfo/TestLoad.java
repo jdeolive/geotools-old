@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import com.vividsolutions.jts.geom.*;
+import java.net.URL;
 import java.util.logging.Logger;
 
 /**
@@ -58,21 +59,17 @@ public class TestLoad extends TestCase {
         
         return suite;
     }
-    public void setUp() {
+    public void setUp() throws Exception{
         if(setup) return;
         setup=true;
-        dsMapInfo = new MapInfoDataSource();
+        String miffile = dataFolder + "/statepop.mif";
+        dsMapInfo = new MapInfoDataSource(new URL(miffile));
     }
     
     public void testLoad() throws Exception{
 
         // Load file
-        
-        
-        
-        String miffile = dataFolder + "/statepop.mif";
-        
-        Vector objects = dsMapInfo.readMifMid(miffile);
+        Vector objects = dsMapInfo.readMifMid();
         System.out.println("Read "+objects.size()+" features");
         assertEquals("Wrong number of features read ",49,objects.size());
         assertEquals("First feature name is wrong","Illinois",((Feature)objects.get(0)).getAttribute("STATE_NAME"));

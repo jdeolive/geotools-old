@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import com.vividsolutions.jts.geom.*;
+import java.net.URL;
 
 /**
  *
@@ -45,27 +46,33 @@ public class MapInfoDataSourceTest extends TestCase {
         
         return suite;
     }
-    public void setUp() {
-        if(setup) return;
-        setup=true;
-        dsMapInfo = new MapInfoDataSource();
-    }
+   
     String dataFolder;
-    public void testLoad() throws Exception{
-
-        // Load file
-        dataFolder = System.getProperty("dataFolder");
+    public void testGetFeatures(){
+        String dataFolder = System.getProperty("dataFolder");
         if(dataFolder==null){
             //then we are being run by maven
             dataFolder = System.getProperty("basedir");
             dataFolder+="/tests/unit/testData";
         }
-
-        String miffile = dataFolder + "/statepop.mif";
-        Vector objects = dsMapInfo.readMifMid(miffile);
-        System.out.println("Read "+objects.size()+" features");
-        assertEquals("Wrong number of features read ",49,objects.size());
-        assertEquals("First feature name is wrong","Illinois",((Feature)objects.get(0)).getAttribute("STATE_NAME"));
+        try{
+            URL url = new URL("file:////"+dataFolder+"/statepop.mif");
+            System.out.println("Testing ability to load "+url);
+            MapInfoDataSource datasource = new MapInfoDataSource(url);
+            FeatureCollection table = datasource.getFeatures(null);
+            Feature[] features = table.getFeatures();
+            System.out.println("No features loaded = "+features.length);
+        }
+        catch(DataSourceException e){
+            System.out.println(e);
+            e.printStackTrace();
+            fail("Load failed because of exception "+e.toString());
+        }
+        catch(IOException ioe){
+            System.out.println(ioe);
+            ioe.printStackTrace();
+            fail("Load failed because of exception "+ioe.toString());
+        }
         
     }
   /*
@@ -109,13 +116,7 @@ public class MapInfoDataSourceTest extends TestCase {
         fail("The test case is empty.");
     }
    
-    /** Test of getFeatures method, of class org.geotools.mapinfo.MapInfoDataSource.
-    public void testGetFeatures() {
-        System.out.println("testGetFeatures");
-   
-        // Add your test code below by replacing the default call to fail.
-        fail("The test case is empty.");
-    }
+ 
    
     /** Test of addFeatures method, of class org.geotools.mapinfo.MapInfoDataSource.
     public void testAddFeatures() {
