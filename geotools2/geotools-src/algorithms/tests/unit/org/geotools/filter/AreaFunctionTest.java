@@ -21,10 +21,6 @@
 package org.geotools.filter;
 
 import java.util.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Hierarchy;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
 import junit.framework.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
@@ -40,8 +36,6 @@ import org.geotools.feature.*;
  */                                
 public class AreaFunctionTest extends TestCase {
     
-    /** Standard logging instance */
-    private static Logger _log;
 
     /** Feature on which to preform tests */
     private static Feature testFeature = null;
@@ -59,8 +53,7 @@ public class AreaFunctionTest extends TestCase {
     public AreaFunctionTest(String testName) {
         super(testName);
         //BasicConfigurator.configure();
-        _log = Logger.getLogger(AreaFunctionTest.class);
-        _log.getLoggerRepository().setThreshold(Level.INFO);
+    
         
     }        
     
@@ -91,13 +84,13 @@ public class AreaFunctionTest extends TestCase {
         if(set) return;
         set = true;
         // Create the schema attributes
-        _log.debug("creating flat feature...");
+     //   _log.debug("creating flat feature...");
         AttributeType geometryAttribute = 
             new AttributeTypeDefault("testGeometry", Geometry.class);
-        _log.debug("created geometry attribute");
+     //   _log.debug("created geometry attribute");
         AttributeType booleanAttribute = 
             new AttributeTypeDefault("testBoolean", Boolean.class);
-        _log.debug("created boolean attribute");
+      //  _log.debug("created boolean attribute");
         AttributeType charAttribute = 
             new AttributeTypeDefault("testCharacter", Character.class);
         AttributeType byteAttribute = 
@@ -117,25 +110,25 @@ public class AreaFunctionTest extends TestCase {
         
         // Builds the schema
         testSchema = new FeatureTypeFlat(geometryAttribute); 
-        _log.debug("created feature type and added geometry");
+  //      _log.debug("created feature type and added geometry");
         testSchema = testSchema.setAttributeType(booleanAttribute);
-        _log.debug("added boolean to feature type");
+  //      _log.debug("added boolean to feature type");
         testSchema = testSchema.setAttributeType(charAttribute);
-        _log.debug("added character to feature type");
+   //     _log.debug("added character to feature type");
         testSchema = testSchema.setAttributeType(byteAttribute);
-        _log.debug("added byte to feature type");
+   //     _log.debug("added byte to feature type");
         testSchema = testSchema.setAttributeType(shortAttribute);
-        _log.debug("added short to feature type");
+   //     _log.debug("added short to feature type");
         testSchema = testSchema.setAttributeType(intAttribute);
-        _log.debug("added int to feature type");
+   //     _log.debug("added int to feature type");
         testSchema = testSchema.setAttributeType(longAttribute);
-        _log.debug("added long to feature type");
+   //     _log.debug("added long to feature type");
         testSchema = testSchema.setAttributeType(floatAttribute);
-        _log.debug("added float to feature type");
+   //     _log.debug("added float to feature type");
         testSchema = testSchema.setAttributeType(doubleAttribute);
-        _log.debug("added double to feature type");
+   //     _log.debug("added double to feature type");
         testSchema = testSchema.setAttributeType(stringAttribute);
-        _log.debug("added string to feature type");
+   //     _log.debug("added string to feature type");
         
         // Creates coordinates for the polygon
         Coordinate[] coords = new Coordinate[5];
@@ -162,7 +155,7 @@ public class AreaFunctionTest extends TestCase {
         // Creates the feature itself
         FeatureFactory factory = new FeatureFactory(testSchema);
         testFeature = factory.create(attributes);
-        _log.debug("...flat feature created");
+     //   _log.debug("...flat feature created");
     }
 
 
