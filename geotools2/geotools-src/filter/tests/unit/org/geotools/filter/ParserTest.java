@@ -170,35 +170,43 @@ public class ParserTest extends TestCase implements FilterHandler {
         _log.debug("...flat feature created");
     }
 
-    public void testEquals()
+    public void test1()
         throws Exception {
         Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test1.xml");
         _log.debug("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }
     
-    public void testLessThan()
+    /*
+    public void test2()
         throws Exception {
         Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test2.xml");
         _log.debug("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }
     
-    public void testBBox()
-        throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test3.xml");
-        _log.debug("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
-    }
-    
-    public void testBBox()
+    public void test3a()
         throws Exception {
         Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test3a.xml");
         _log.debug("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }
     
+    public void test3b()
+        throws Exception {
+        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test3b.xml");
+        _log.debug("filter: " + test.getClass().toString());
+        _log.info("parsed: " + test.toString());
+    }
 
+    public void test4()
+        throws Exception {
+        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test4.xml");
+        _log.debug("filter: " + test.getClass().toString());
+        _log.info("parsed: " + test.toString());
+    }
+    
+    */
     public Filter parseDocument(String uri) 
         throws Exception {
         

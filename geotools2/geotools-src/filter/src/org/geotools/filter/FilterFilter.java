@@ -36,7 +36,7 @@ import org.geotools.gml.GMLHandlerJTS;
  * extracts an OGC filter object from an XML stream and passes it to its parent
  * as a fully instantiated OGC filter object.</p>
  * 
- * @version $Id: FilterFilter.java,v 1.5 2002/07/09 18:12:25 robhranac Exp $
+ * @version $Id: FilterFilter.java,v 1.6 2002/07/10 14:46:58 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
@@ -44,7 +44,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     private static Logger _log = Logger.getLogger(FilterFilter.class);
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
-    private StackLogic logicStack = new StackLogic();  
+    private LogicFactory logicFactory = new LogicFactory();  
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
     private FilterFactory filterFactory = new FilterFactory();  
@@ -60,6 +60,9 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
         
     /** Whether or not this parser should consider namespaces. */
     private boolean namespaceAware = true;
+    
+    /** Whether or not this parser should consider namespaces. */
+    private boolean isLogicFilter = false;
     
     // Static Globals to handle some expected elements
     /** GML namespace string. */
@@ -97,12 +100,15 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
         throws SAXException {
 
         short filterElementType = convertType(localName);
+        _log.debug("xml type: " + localName);
+        _log.debug("internal type: " + filterElementType);
         
         try { 
             // if at a complex filter start, add it to the logic stack
             if( AbstractFilter.isLogicFilter(filterElementType) ) {
                 _log.debug("found a logic filter start");
-                logicStack.addLogic(filterElementType);
+                isLogicFilter = true;
+                logicFactory.start(filterElementType);
             }
             
             // if at a simple filter start, tell the factory
@@ -177,14 +183,27 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
             //  appropriately
             if( AbstractFilter.isLogicFilter(filterElementType) ) {
                 _log.debug("found a logic filter end");
-                logicStack.simplifyLogic(filterElementType);
+                logicFactory.end( filterElementType);
+
+                // if the filter is done, pass along to the parent
+                if( logicFactory.isComplete()) {
+                    _log.debug("logic stack complete: " + logicFactory.toString());
+                    parent.filter( logicFactory.create());
+                }
             }
             
             // if at the end of a simple filter, create it and push it on top of 
             //  the logic stack
             else if( AbstractFilter.isSimpleFilter(filterElementType) ) {
                 _log.debug("found a simple filter end");
-                logicStack.push( filterFactory.create() );
+
+                // if the filter is done, pass along to the parent
+                if( isLogicFilter ) {
+                    logicFactory.add( filterFactory.create());
+                }
+                else {
+                    parent.filter( logicFactory.create());
+                }
             }
             
             // if at the end of an expression, two cases:
@@ -199,10 +218,6 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
                 }
             }
             
-            // if the filter is done, pass along to the parent
-            if( logicStack.isComplete() ) {
-                parent.filter( (Filter) logicStack.pop() );
-            }
             
         }
         catch (IllegalFilterException e) {
