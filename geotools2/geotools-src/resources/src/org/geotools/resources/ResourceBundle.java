@@ -193,7 +193,7 @@ public class ResourceBundle extends java.util.ResourceBundle {
         final Logger    logger;
         final LogRecord record;
         logger = Logger.getLogger(getLoggerName());
-        record = new LogRecord(Level.FINE, "Loaded resources for {0}.");
+        record = new LogRecord(Level.FINER, "Loaded resources for {0}.");
         record.setSourceClassName (getClass().getName());
         record.setSourceMethodName((key!=null) ? "getObject" : "getKeys");
         try {
