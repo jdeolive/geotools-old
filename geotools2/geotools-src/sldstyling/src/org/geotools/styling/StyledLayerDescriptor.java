@@ -18,6 +18,9 @@
  */
 package org.geotools.styling;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StyledLayerDescriptor{
     
     /** Holds value of property name. */
@@ -26,15 +29,19 @@ public class StyledLayerDescriptor{
     /** Holds value of property title. */
     private String title;    
    
-    
+    /** Holds value of property abstract. */
     private String abstractStr;
   
+    private List layers = new ArrayList();
     
-    public StyledLayer[] getStyledLayers(){return null;}
+    public StyledLayer[] getStyledLayers(){
+        return (StyledLayer[])layers.toArray(new StyledLayer[layers.size()]);
+    }
 
     public void setSytledLayers(StyledLayer[] layers){}
     
     public void addStyledLayer(StyledLayer layer){
+        layers.add(layer);
         
     }
     
