@@ -20,7 +20,7 @@
     </Layer>
     
    
-  
+    <!-- uncoment the following and slot in your own values to try a PostGIS connection
     <Layer id="postgistest">
         <datasource class="PostGIS">
             <param name="host" value="your.host.com"></param>
@@ -32,6 +32,6 @@
         </datasource>
         <Style id="normal" filename="styles/normal.sld" default="true"></Style>
         <description>PostGIS Connection</description>
-   </Layer>
+   </Layer> -->
 </WMSServer>
 
