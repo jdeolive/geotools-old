@@ -1,3 +1,23 @@
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
 package org.geotools.feature;
 
 import java.util.*;
@@ -6,6 +26,7 @@ import java.util.*;
  * Simple, immutable class to store attributes.  This class should be sufficient 
  * for all simple (ie. non-schema) attribute implementations of this interface.
  *
+ * @version $Id: AttributeTypeDefault.java,v 1.3 2002/06/04 16:30:17 loxnard Exp $
  * @author Rob Hranac, VFNY
  */
 public class AttributeTypeDefault implements AttributeType {
@@ -89,7 +110,7 @@ public class AttributeTypeDefault implements AttributeType {
     }
     
     /**
-     * Gets the occurences of this attribute.
+     * Gets the occurrences of this attribute.
      * 
      * @return Occurrences.
      */
@@ -113,7 +134,7 @@ public class AttributeTypeDefault implements AttributeType {
     }
 
     /**
-     * Gets the number of occurances of this attribute.
+     * Gets the number of occurrences of this attribute.
      *
      * @return Number of occurrences.
      * @throws SchemaException If the attribute does not exist.
