@@ -7,169 +7,387 @@ href="file:/usr/java/xxe-m13p1-bin/css/docbook.css"
 title="Previous docbook stylesheet"
 alternate="yes"
 ?>
-
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 
-<!-- local dtd file (assuming you have it installed in this directory) -->
 <!--"file:/usr/share/sgml/simple4125/sdocbook.dtd"-->
-
-<!-- remote dtd file -->
-<!--"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd"-->
-
 <article id="index">
-    <!-- $Id: developersguide.sgml,v 1.8 2002/06/15 19:29:23 camerons Exp $ -->
-    <articleinfo>
-        <title>Geotools2 Developer Guide</title>
+  <articleinfo>
+    <title>Geotools2 Developer Guide</title>
 
-        <author>
-            <firstname>Cameron</firstname>
-            <surname>Shorter</surname>
-        </author>
+    <author>
+      <firstname>Cameron</firstname>
 
-        <date>$Date: 2002/06/15 19:29:23 $</date>
+      <surname>Shorter</surname>
+    </author>
 
-        <abstract>
-            <para>Guide to aid <filename>geotools2</filename> development.</para>
-        </abstract>
-    </articleinfo>
+    <date>$Date: 2002/06/16 11:05:24 $</date>
 
-    <section id="intro">
-        <title>Introduction</title>
+    <abstract>
+      <para>Guide to aid <filename>geotools2</filename> development.</para>
+    </abstract>
+  </articleinfo>
 
-        <para>This document aims to help new geotools developers get up to speed
-            and track practices of existing developers in order to keep the project
-            consistent.</para>
+  <section id="intro">
+    <title>Introduction</title>
 
-        <para>If you feel something is missing, feel free to contribute a new
-            section.</para>
+    <para>This document aims to help new geotools developers get up to speed
+    and track practices of existing developers in order to keep the project
+    consistent.</para>
+
+    <para>If you feel something is missing, feel free to contribute a new
+    section.</para>
+  </section>
+
+  <section id="design">
+    <title>Design</title>
+
+    <para>To do: Explain</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Key design structure (core interfaces, data sources, rendering,
+        tools)</para>
+      </listitem>
+
+      <listitem>
+        <para>Design Drivers (Our design goals: modular, derives structure
+        from netbeans, support multiple version of java, ..)</para>
+      </listitem>
+
+      <listitem>
+        <para>Directory structure</para>
+      </listitem>
+
+      <listitem>
+        <para></para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="development">
+    <title>Development</title>
+
+    <section id="building">
+      <title>Building</title>
+
+      <para>To do:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>using ant</para>
+        </listitem>
+
+        <listitem>
+          <para>what ant checks</para>
+        </listitem>
+
+        <listitem>
+          <para>insert the &#34;howto-build.html&#34; doc into here</para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+      </itemizedlist>
     </section>
 
-    <section id="design">
-        <title>Design</title>
+    <section id="cvs">
+      <title>Code Versioning (using CVS)</title>
+
+      <para>To do:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Point to sourceforge CVS howto links.</para>
+        </listitem>
+
+        <listitem>
+          <para>Also point to some HOWTOs for windows users.</para>
+        </listitem>
+
+        <listitem>
+          <para>What is acceptable to commit to CVS, what is not. (Ie, code
+          should compile)</para>
+        </listitem>
+
+        <listitem>
+          <para>Talk about version numbering convention, use of branches, etc
+          (if we decide to do this).</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>To do:</para>
+    </section>
+
+    <section id="CodingStandards">
+      <title>Coding Standards</title>
+
+      <para>To do:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Using Sun&#39;s coding standard, need to note any exceptions
+          to it.</para>
+        </listitem>
+
+        <listitem>
+          <para>Note the auto checking of coding standards.</para>
+        </listitem>
+
+        <listitem>
+          <para>Javadocs</para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section id="templates">
+      <title>Template File</title>
+
+      <para>To do:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Provide a template file.</para>
+        </listitem>
+
+        <listitem>
+          <para>Link it to sections explaining the different parts of the
+          template.</para>
+        </listitem>
+
+        <listitem>
+          <para>Include headers, footers, example logging, example coding
+          style, CVS key tags, sample javadocs.</para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section id="logging">
+      <title>Logging</title>
+
+      <para>To do:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Talk about log4j, links to</para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section id="testing">
+      <title>Testing</title>
+
+      <para>To do:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Explain use of junit. Might be a link to another web site.</para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section id="documentation">
+      <title>Documentation</title>
+
+      <section id="whydocbook">
+        <title>Why Docbook?</title>
+
+        <para>Documentation for geotools is written using <ulink
+        url="http://www.oasis-open.org/committees/docbook/xml/simple/">Simplified
+        Docbook</ulink> format. Simplified Docbook is a subset of Docbook XML,
+        a versitile format used by the <ulink url="http://www.linuxdoc.org">Linux
+        Documentation Project</ulink> (among others) which can be easilly
+        converted into numerous output formats, like HTML, pdf, etc.</para>
+
+        <para>Using Docbook ensures documentation content is kept seperate
+        from presentation so content can written once and published in
+        numerous formats and styles.</para>
+
+        <para>In the geotools build process, documentation is converted from
+        Docbook format to HTML using maven.</para>
+
+        <para>For information about using javadoc to comment your code, refer
+        to <xref linkend="CodingStandards" />.</para>
+      </section>
+
+      <section id="docdirstructure">
+        <title>Documentation Directory Structure</title>
+
+        <para>Documentation will usually be part of an existing geotools
+        module. For general documentation (like the Developer&#39;s Guide), a
+        dedicated module may be created which does not contain any code.</para>
+
         <figure>
-            <title>Geotools Logo</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="images/developersguide/geotools_logo.png"
-                        format="PNG"/>
-                </imageobject>
-                <textobject><phrase>Geotools Logo</phrase></textobject>
-            </mediaobject>
+          <title>Typical Documentation Directory Structure</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/developersguide/dir_structure.png"
+                         format="PNG" />
+            </imageobject>
+
+            <textobject>
+              <phrase>Typical Documentation Directory Structure</phrase>
+            </textobject>
+          </mediaobject>
         </figure>
 
-        <para>To do: Explain</para>
+        <para>Documentation will be stored in
+        <computeroutput><filename>geotools2/geotools_src/&#60;module_name&#62;/docbook/&#60;module_name&#62;.sgml</filename></computeroutput></para>
+
+        <para>Related images are stored in <filename>geotools2/geotools_src/&#60;module_name&#62;/docbook/images/&#60;module_name&#62;/*.png</filename>.</para>
+
+        <para>Documentation from all the project&#39;s modules is likely to be
+        build in one target directory. Therefore, to ensure module&#39;s
+        images do not overwrite each other, images are stored in a directory
+        below the images directory: <filename>images/&#60;module_name&#62;/*.png</filename>.</para>
+      </section>
+
+      <section id="docbookeditors">
+        <title>Docbook Editors</title>
+
+        <para>You can edit docbook with the following free tools:</para>
+
         <itemizedlist>
-            <listitem> <para>Key design structure (core interfaces, data sources, rendering, tools)</para> </listitem>
-            <listitem><para>Design Drivers (Our design goals: modular, derives structure from netbeans, support multiple version of java, ..)</para> </listitem>
-            <listitem> <para>Directory structure</para> </listitem>
-            <listitem><para></para></listitem>
+          <listitem>
+            <para><ulink url="http://www.xmlmind.com/xmleditor/">XXE</ulink>
+            is a java based, What You See Is What You Mean (WYSIWYM) editor.
+            It provides a slightly clunky but workable GUI interface for
+            editing Docbook documents. It is well worth trying out.</para>
+          </listitem>
+
+          <listitem>
+            <para><ulink url="http://www.netbeans.org/">Netbeans</ulink>:
+            Simple Docbook is XML, so XML editors work well. Netbeans has a
+            nice XML plugin which I use.</para>
+          </listitem>
+
+          <listitem>
+            <para><ulink url="http://www.vim.org/">vim</ulink> and <ulink
+            url="http://www.gnu.org/software/emacs/emacs.html">emacs</ulink>,
+            or any text editor can be used.</para>
+          </listitem>
+
+          <listitem>
+            <para>There are a number of WYSIWYM editors developing Docbook
+            export/import functionality at the time of writing. Of note,
+            <ulink url="http://www.openoffice.org">Open Office</ulink> and
+            <ulink url="www.lyx.org">Lyx</ulink> look promising.</para>
+          </listitem>
         </itemizedlist>
+      </section>
+
+      <section>
+        <title id="docbookreferences">Docbook References</title>
+
+        <para>There are a few references worth knowing:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><ulink url="http://www.tldp.org/LDP/LDP-Author-Guide/">The
+            Linux Documentation Project Author Guide</ulink> provides an
+            introduction to Docbook and some of the key tags. Don&#39;t worry
+            about the sections on tools for converting docbook as geotools
+            uses the maven build process instead. Note that the geotools uses
+            Simplified Docbook which is XML based. There are various versions
+            of Docbook which makes things confusing.</para>
+          </listitem>
+
+          <listitem>
+            <para><ulink
+            url="http://www.oasis-open.org/committees/docbook/xml/simple/sdocbook/elements.html">The
+            Simplified Docbook Summary</ulink> provides a list of all the XML
+            tags you can use, and the dependancy between these tags.</para>
+          </listitem>
+
+          <listitem>
+            <para><ulink
+            url="http://www.oasis-open.org/docbook/documentation/reference/html/docbook.html">Docbook,
+            the Definitive Guide</ulink> provides comprehensive documentation
+            about Docbook. At the time of writing, this reference refered to
+            version 3 of Docbook, while the Simplified Docbook used by
+            geotools is based on version 4.1.2.5.</para>
+          </listitem>
+        </itemizedlist>
+      </section>
+
+      <section>
+        <title>to do</title>
+
+        <para>To do:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Process for updating this document.</para>
+          </listitem>
+
+          <listitem>
+            <para>How to use maven to build doc.</para>
+          </listitem>
+        </itemizedlist>
+      </section>
     </section>
+  </section>
 
-    <section id="development">
-        <title>Development</title>
+  <section id="tools">
+    <title>Development Tools</title>
 
-        <section id="building">
-            <title>Building</title>
+    <section id="netbeans">
+      <title>Netbeans</title>
 
-            <para>To do:</para>
-            <itemizedlist>
-                <listitem><para>using ant</para></listitem>
-                <listitem><para>what ant checks</para></listitem>
-                <listitem><para>insert the &#34;howto-build.html&#34; doc into here</para></listitem>
-                <listitem><para></para></listitem>
-            </itemizedlist>
-        </section>
+      <para>To do:</para>
 
-        <section id="cvs">
-            <title>Code Versioning (using CVS)</title>
+      <itemizedlist>
+        <listitem>
+          <para>Where to get it.</para>
+        </listitem>
 
-            <para>To do:</para>
-            <itemizedlist>
-                <listitem><para>Point to sourceforge CVS howto links.</para></listitem>
-                <listitem><para>Also point to some HOWTOs for windows users.</para></listitem>
-                <listitem><para>What is acceptable to commit to CVS, what is not. (Ie, code should compile)</para></listitem>
-                <listitem><para>Talk about version numbering convention, use of branches, etc (if we decide to do this).</para></listitem>
-            </itemizedlist>
+        <listitem>
+          <para>Aim is to make geotools a module within Netbeans</para>
+        </listitem>
 
-            <para>To do:</para>
-        </section>
+        <listitem>
+          <para>How to setup getools to fit the multiple directory structure</para>
+        </listitem>
 
-        <section id="CodingStandards">
-            <title>Coding Standards</title>
-
-            <para>To do:</para>
-            <itemizedlist>
-                <listitem><para>Using Sun&#39;s coding standard, need to note any exceptions to it.</para></listitem>
-                <listitem><para>Note the auto checking of coding standards.</para></listitem>
-                <listitem><para>Javadocs</para></listitem>
-                <listitem><para></para></listitem>
-            </itemizedlist>
-        </section>
-
-        <section id="templates">
-            <title>Template File</title>
-
-            <para>To do:</para>
-            <itemizedlist>
-                <listitem><para>Provide a template file.</para></listitem>
-                <listitem><para>Link it to sections explaining the different parts of the template.</para></listitem>
-                <listitem><para>Include headers, footers, example logging, example coding style, CVS key tags, sample javadocs.</para></listitem>
-                <listitem><para></para></listitem>
-            </itemizedlist>
-        </section>
-
-        <section id="logging">
-            <title>Logging</title>
-
-            <para>To do:</para>
-            <itemizedlist>
-                <listitem><para>Talk about log4j, links to</para></listitem>
-                <listitem><para></para></listitem>
-                <listitem><para></para></listitem>
-                <listitem><para></para></listitem>
-            </itemizedlist>
-        </section>
-
-        <section id="testing">
-            <title>Testing</title>
-
-            <para>To do:</para><itemizedlist>
-                <listitem><para>Explain use of junit. Might be a link to another web site.</para></listitem>
-                <listitem><para></para></listitem>
-                <listitem><para></para></listitem>
-                <listitem><para></para></listitem>
-            </itemizedlist>
-        </section>
-
-        <section>
-            <title>Documentation</title>
-
-            <para>To do:</para>
-            <itemizedlist>
-                <listitem><para>Talk about docbook, why we decided to use it (most commonly used format of LDP, converts to multiple formats, tools coming which can support it. Need to mention which version of docbook we are using.</para></listitem>
-                <listitem><para>Mention tools that can be used.</para></listitem>
-                <listitem><para>Links to docbook references.</para></listitem>
-                <listitem><para>Process for updating this document.</para></listitem>
-                <listitem><para>How to use ant tools to build doc.</para></listitem>
-            </itemizedlist>
-        </section>
+        <listitem>
+          <para>The extra Netbeans modules that are useful and should be
+          downloaded.</para>
+        </listitem>
+      </itemizedlist>
     </section>
-
-    <section id="tools">
-        <title>Development Tools</title>
-
-        <section id="netbeans">
-            <title>Netbeans</title>
-
-            <para>To do:</para>
-            <itemizedlist>
-                <listitem><para>Where to get it.</para></listitem>
-                <listitem><para>Aim is to make geotools a module within Netbeans</para></listitem>
-                <listitem><para>How to setup getools to fit the multiple directory structure</para></listitem>
-                <listitem><para>The extra Netbeans modules that are useful and should be downloaded.</para></listitem>
-            </itemizedlist>
-        </section>
-    </section>
+  </section>
 </article>
