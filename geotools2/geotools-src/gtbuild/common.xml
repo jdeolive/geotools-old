@@ -35,7 +35,7 @@
                 <path path="tests/unit/"/>
                 <path refid="compile.path"/>
             </classpath>
-            <test fork="true" name="${testsuite}"/>
+            <test name="${testsuite}"/>
         </junit>
     </target>
     <target depends="test" name="release">
