@@ -27,7 +27,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilter.java,v 1.1 2002/07/09 18:38:45 robhranac Exp $
+ * @version $Id: LikeFilter.java,v 1.2 2002/07/12 12:56:05 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LikeFilter extends AbstractFilter {
@@ -68,8 +68,8 @@ public class LikeFilter extends AbstractFilter {
     public void setValue(Expression attribute)
         throws IllegalFilterException {
         
-        if( (attribute.getType() != ExpressionDefault.ATTRIBUTE_STRING) ||
-            permissiveConstruction ) {
+        if ((attribute.getType() != ExpressionDefault.ATTRIBUTE_STRING) ||
+            permissiveConstruction) {
             this.attribute = attribute;
         }
         else {
@@ -118,21 +118,20 @@ public class LikeFilter extends AbstractFilter {
      *
      * @param feature Specified feature to examine.
      * @return Flag confirming whether or not this feature is inside the filter.
-     * @throws MalformedFilterException Filter is not internally consistent.
      */
     public boolean contains(Feature feature) {
 
         // Checks to ensure that the attribute has been set
-        if( attribute == null ) {
+        if (attribute == null) {
             return false;
         }
 
         else {
 
-            // Note that this converts the attribute (whatever it is) to a string
-            //  for comparison.  Unlike the math or geometry filters, which
-            //  require specific types to function correctly, this filter
-            //  using the mandatory string representation in Java
+            // Note that this converts the attribute (whatever it is) to a
+            // string for comparison.  Unlike the math or geometry filters,
+            // which require specific types to function correctly, this filter
+            // using the mandatory string representation in Java.
             // Of course, this does not guarantee a meaningful result, but it
             //  does guarantee a valid result.
 
@@ -144,7 +143,7 @@ public class LikeFilter extends AbstractFilter {
 
 
     public String toString() {
-        return "[ " + attribute.toString() + " is like " + pattern + " ]";        
+        return "[ " + attribute.toString() + " is like " + pattern + " ]";
     }
     
 }

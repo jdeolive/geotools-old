@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * For example, the left value is the numerator and the right is the
  * denominator in an ExpressionMath division operation.
  *
- * @version $Id: ExpressionMath.java,v 1.2 2002/07/09 18:17:31 robhranac Exp $
+ * @version $Id: ExpressionMath.java,v 1.3 2002/07/12 12:40:56 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionMath extends ExpressionDefault {
@@ -59,7 +59,7 @@ public class ExpressionMath extends ExpressionDefault {
         throws IllegalFilterException {
 
         // Check to see if this is a valid math type before adding.
-        if( isMathExpression(expressionType) ) {
+        if (isMathExpression(expressionType)) {
             this.expressionType = expressionType;
         }
         else {
@@ -76,7 +76,7 @@ public class ExpressionMath extends ExpressionDefault {
         throws IllegalFilterException {
         
         // Check to see if this is a valid math expression before adding.
-        if( !isGeometryExpression( leftValue.getType() ) && leftValue.getType()!=LITERAL_STRING ) {
+        if (!isGeometryExpression(leftValue.getType()) && leftValue.getType() != LITERAL_STRING) {
             this.leftValue = leftValue;
         }
         else {
@@ -94,7 +94,7 @@ public class ExpressionMath extends ExpressionDefault {
         throws IllegalFilterException {
         
         // Check to see if this is a valid math expression before adding.
-        if( !isGeometryExpression( rightValue.getType() ) && leftValue.getType()!=LITERAL_STRING ) {
+        if (!isGeometryExpression(rightValue.getType()) && leftValue.getType() != LITERAL_STRING) {
             this.rightValue = rightValue;
         }
         else {
@@ -122,23 +122,23 @@ public class ExpressionMath extends ExpressionDefault {
         throws IllegalArgumentException {
         
         // Checks to make sure both sub expressions exist.
-        if( leftValue == null || rightValue == null ) {
+        if (leftValue == null || rightValue == null) {
             throw new IllegalArgumentException("Attempted read math expression with missing sub expressions.");
         }
 
         double leftValueDouble = ((Number) leftValue.getValue(feature)).doubleValue();
         double rightValueDouble = ((Number) rightValue.getValue(feature)).doubleValue();
         // Standard return values.
-        if( expressionType == MATH_ADD ) {
+        if (expressionType == MATH_ADD) {
             return new Double(leftValueDouble + rightValueDouble);
         }
-        else if( expressionType == MATH_SUBTRACT ) {
+        else if (expressionType == MATH_SUBTRACT) {
             return new Double(leftValueDouble - rightValueDouble);
         }
-        else if( expressionType == MATH_MULTIPLY ) {
+        else if (expressionType == MATH_MULTIPLY) {
             return new Double(leftValueDouble * rightValueDouble);
         }
-        else if( expressionType == MATH_DIVIDE ) {
+        else if (expressionType == MATH_DIVIDE) {
             return new Double(leftValueDouble / rightValueDouble);
         }
 

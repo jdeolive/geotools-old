@@ -32,7 +32,7 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilter.java,v 1.2 2002/07/11 14:06:26 ianturton Exp $
+ * @version $Id: LogicFilter.java,v 1.3 2002/07/12 12:59:47 loxnard Exp $
  * @author Rob Hranac, TOPP
  */
 public class LogicFilter extends AbstractFilter {
@@ -47,12 +47,12 @@ public class LogicFilter extends AbstractFilter {
     /**
      * Constructor with type (must be valid).
      *
-     * @param type The final relation between all sub filters.
+     * @param filterType The final relation between all sub filters.
      */
     public LogicFilter (short filterType)
         throws IllegalFilterException {
         //_log.debug("filtertype "+filterType);
-        if( isLogicFilter(filterType) ) {
+        if (isLogicFilter(filterType)) {
             this.filterType = filterType;
         }
         else {
@@ -70,7 +70,7 @@ public class LogicFilter extends AbstractFilter {
     public LogicFilter (Filter filter, short filterType)
         throws IllegalFilterException {
 
-        if( isLogicFilter(filterType) ) {
+        if (isLogicFilter(filterType)) {
             this.filterType = filterType;
         }
         else {
@@ -90,7 +90,7 @@ public class LogicFilter extends AbstractFilter {
     public LogicFilter (Filter filter1, Filter filter2, short filterType)
         throws IllegalFilterException {
 
-        if( isLogicFilter(filterType) ) {
+        if (isLogicFilter(filterType)) {
             this.filterType = filterType;
         }
         else {
@@ -114,7 +114,7 @@ public class LogicFilter extends AbstractFilter {
     public void addFilter(Filter filter) 
         throws IllegalFilterException {
 
-        if( filterType != LOGIC_NOT ) {
+        if (filterType != LOGIC_NOT) {
             subFilters.add(filter);
         }
         else {
@@ -134,24 +134,24 @@ public class LogicFilter extends AbstractFilter {
         boolean contains = false;
 
         // Return true if there are no sub filters; fail fast logic.
-        if( !iterator.hasNext() ) {
+        if (!iterator.hasNext()) {
             return false;
         }
 
         // Handles all standard cases
-        else if( filterType == LOGIC_OR ) {
+        else if (filterType == LOGIC_OR) {
             contains = false;
-            while( iterator.hasNext() ) {
+            while (iterator.hasNext()) {
                 contains = ((Filter) iterator.next()).contains(feature) || contains;
             }
         }
-        else if( filterType == LOGIC_AND ) {
+        else if (filterType == LOGIC_AND) {
             contains = true;
-            while( iterator.hasNext() ) {
+            while (iterator.hasNext()) {
                 contains = ((Filter) iterator.next()).contains(feature) && contains;
             }
         }
-        else if( filterType == LOGIC_NOT ) {
+        else if (filterType == LOGIC_NOT) {
             contains = !((Filter) subFilters.get(0)).contains(feature);
         }
 
@@ -162,7 +162,7 @@ public class LogicFilter extends AbstractFilter {
     /**
      * Implements a logical OR with this filter and returns the merged filter.
      *
-     * @param feature Parent of the filter: must implement GMLHandlerGeometry.
+     * @param filter Parent of the filter: must implement GMLHandlerGeometry.
      * @return ORed filter.
      */
     public Filter or(Filter filter) {
@@ -171,7 +171,7 @@ public class LogicFilter extends AbstractFilter {
         //  by popping onto stack if current filter is OR
         //HACK: not sure what should be returned by this method
         //HACK: assuming it is the result of each method
-        if( filterType == super.LOGIC_OR ) {
+        if (filterType == super.LOGIC_OR) {
             subFilters.add(filter);
             return this;
         }
@@ -192,7 +192,7 @@ public class LogicFilter extends AbstractFilter {
         //  by popping onto stack if current filter is AND
         //HACK: not sure what should be returned by this method
         //HACK: assuming it is the result of each method
-        if( filterType == super.LOGIC_AND ) {
+        if (filterType == super.LOGIC_AND) {
             subFilters.add(filter);
             return this;
         }
@@ -212,7 +212,7 @@ public class LogicFilter extends AbstractFilter {
         //  by popping off sub filter if current filter is NOT
         //HACK: not sure what should be returned by this method
         //HACK: assuming it is the result of each method
-        if( filterType == super.LOGIC_NOT ) {
+        if (filterType == super.LOGIC_NOT) {
             return (Filter) subFilters.get(0);
         }
         else {
@@ -231,19 +231,19 @@ public class LogicFilter extends AbstractFilter {
         String operator = "";
         Iterator iterator = subFilters.iterator();
 
-        if( filterType == LOGIC_OR ) {
+        if (filterType == LOGIC_OR) {
             operator = " OR ";
         }
-        else if( filterType == LOGIC_AND ) {
+        else if (filterType == LOGIC_AND) {
             operator = " AND ";
         }
-        else if( filterType == LOGIC_NOT ) {
+        else if (filterType == LOGIC_NOT) {
             return "NOT " + ((Filter) iterator.next()).toString();
         }
 
-        while( iterator.hasNext() ) {
+        while (iterator.hasNext()) {
             returnString = returnString + ((Filter) iterator.next()).toString();
-            if( iterator.hasNext() ) {
+            if (iterator.hasNext()) {
                 returnString = returnString + operator;                
             }
         }

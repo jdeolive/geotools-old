@@ -28,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: ExpressionLiteral.java,v 1.2 2002/07/09 18:17:31 robhranac Exp $
+ * @version $Id: ExpressionLiteral.java,v 1.3 2002/07/12 12:38:42 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionLiteral extends ExpressionDefault {
@@ -40,8 +40,6 @@ public class ExpressionLiteral extends ExpressionDefault {
 
     /**
      * Constructor with literal.
-     *
-     * @throws IllegalFilterException This literal type is not in scope.
      */
     public ExpressionLiteral () {
     }
@@ -76,16 +74,16 @@ public class ExpressionLiteral extends ExpressionDefault {
     public void setLiteral(Object literal)
         throws IllegalFilterException {
         
-        if( literal instanceof Double ) {
+        if (literal instanceof Double) {
             expressionType = LITERAL_DOUBLE;
         }
-        else if( literal instanceof Integer ) {
+        else if (literal instanceof Integer) {
             expressionType = LITERAL_INTEGER;
         }
-        else if( literal instanceof String ) {
+        else if (literal instanceof String) {
             expressionType = LITERAL_STRING;
         }
-        else if( literal instanceof Geometry ) {
+        else if (literal instanceof Geometry) {
             expressionType = LITERAL_GEOMETRY;
         }
         else {

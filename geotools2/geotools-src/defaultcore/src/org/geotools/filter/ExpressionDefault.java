@@ -26,7 +26,7 @@ import org.geotools.feature.*;
 /**
  * Implements a default expression, with helpful variables and static methods.
  *
- * @version $Id: ExpressionDefault.java,v 1.2 2002/07/09 18:17:31 robhranac Exp $
+ * @version $Id: ExpressionDefault.java,v 1.3 2002/07/12 12:37:00 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionDefault implements Expression {
@@ -108,9 +108,9 @@ public class ExpressionDefault implements Expression {
      * @return Whether or not this is an attribute expression type.
      */
     protected static boolean isAttributeExpression(short expressionType) {
-        if( (expressionType == ATTRIBUTE_DOUBLE) ||
+        if ((expressionType == ATTRIBUTE_DOUBLE) ||
             (expressionType == ATTRIBUTE_INTEGER) ||
-            (expressionType == ATTRIBUTE_STRING) ) {
+            (expressionType == ATTRIBUTE_STRING)) {
             return true;
         }
         else {
@@ -125,10 +125,10 @@ public class ExpressionDefault implements Expression {
      * @return Whether or not this is a math expression type.
      */
     protected static boolean isMathExpression(short expressionType) {
-        if( (expressionType == MATH_ADD) ||
+        if ((expressionType == MATH_ADD) ||
             (expressionType == MATH_SUBTRACT) ||
             (expressionType == MATH_MULTIPLY) ||
-            (expressionType == MATH_DIVIDE) ) {
+            (expressionType == MATH_DIVIDE)) {
             return true;
         }
         else {
@@ -143,10 +143,10 @@ public class ExpressionDefault implements Expression {
      * @return Whether or not this is a geometry expression type.
      */
     protected static boolean isLiteralExpression(short expressionType) {
-        if( (expressionType == LITERAL_GEOMETRY) ||
+        if ((expressionType == LITERAL_GEOMETRY) ||
             (expressionType == LITERAL_DOUBLE) ||
             (expressionType == LITERAL_INTEGER) ||
-            (expressionType == LITERAL_STRING) ) {
+            (expressionType == LITERAL_STRING)) {
             return true;
         }
         else {
@@ -161,8 +161,8 @@ public class ExpressionDefault implements Expression {
      * @return Whether or not this is a geometry expression type.
      */
     protected static boolean isGeometryExpression(short expressionType) {
-        if( (expressionType == ATTRIBUTE_GEOMETRY) ||
-            (expressionType == LITERAL_GEOMETRY) ) {
+        if ((expressionType == ATTRIBUTE_GEOMETRY) ||
+            (expressionType == LITERAL_GEOMETRY)) {
             return true;
         }
         else {
@@ -177,9 +177,9 @@ public class ExpressionDefault implements Expression {
      * @return Whether or not this is a geometry expression type.
      */
     protected static boolean isExpression(short expressionType) {
-        if( isMathExpression(expressionType) ||
+        if (isMathExpression(expressionType) ||
             isAttributeExpression(expressionType) ||
-            isLiteralExpression(expressionType) ) {
+            isLiteralExpression(expressionType)) {
             return true;
         }
         else {

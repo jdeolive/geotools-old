@@ -44,7 +44,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilter.java,v 1.1 2002/07/09 18:38:45 robhranac Exp $
+ * @version $Id: GeometryFilter.java,v 1.2 2002/07/12 12:53:40 loxnard Exp $
  * @author Rob Hranac, TOPP
  */
 public class GeometryFilter extends AbstractFilter {
@@ -65,7 +65,7 @@ public class GeometryFilter extends AbstractFilter {
     public GeometryFilter (short filterType) 
         throws IllegalFilterException {
         
-        if( isGeometryFilter(filterType) ) {
+        if (isGeometryFilter(filterType)) {
             this.filterType = filterType;
         }
         else {
@@ -77,15 +77,15 @@ public class GeometryFilter extends AbstractFilter {
     /**
      * Adds the 'left' value to this filter.
      *
-     * @param leftValue Expression for 'left' value.
+     * @param leftGeometry Expression for 'left' value.
      * @throws IllegalFilterException Filter is not internally consistent.
      */
     public void addLeftGeometry(Expression leftGeometry)
         throws IllegalFilterException {
         
         // Checks if this is geometry filter or not and handles appropriately
-        if( ExpressionDefault.isGeometryExpression(leftGeometry.getType())  ||
-            permissiveConstruction ) {
+        if (ExpressionDefault.isGeometryExpression(leftGeometry.getType())  ||
+            permissiveConstruction) {
             this.leftGeometry = leftGeometry;
         }
         else {
@@ -97,15 +97,15 @@ public class GeometryFilter extends AbstractFilter {
     /**
      * Adds the 'right' value to this filter.
      *
-     * @param rightValue Expression for 'right' value.
+     * @param rightGeometry Expression for 'right' value.
      * @throws IllegalFilterException Filter is not internally consistent.
      */
     public void addRightGeometry(Expression rightGeometry)
         throws IllegalFilterException {
         
         // Checks if this is math filter or not and handles appropriately
-        if( ExpressionDefault.isGeometryExpression(rightGeometry.getType()) ||
-            permissiveConstruction ) {
+        if (ExpressionDefault.isGeometryExpression(rightGeometry.getType()) ||
+            permissiveConstruction) {
             this.rightGeometry = rightGeometry;
         }
         else {
@@ -123,44 +123,44 @@ public class GeometryFilter extends AbstractFilter {
     public boolean contains(Feature feature) {
         
         // Checks for error condition
-        if( leftGeometry == null || rightGeometry == null ) {
+        if (leftGeometry == null || rightGeometry == null) {
             return false;
         }
 
         // Handles all normal geometry cases
-        else if( filterType == GEOMETRY_EQUALS ) {
+        else if (filterType == GEOMETRY_EQUALS) {
             return ((Geometry) leftGeometry.getValue(feature)).
                 equals((Geometry) rightGeometry.getValue(feature));
         }
-        else if( filterType == GEOMETRY_DISJOINT ) {
+        else if (filterType == GEOMETRY_DISJOINT) {
             return ((Geometry) leftGeometry.getValue(feature)).
                 disjoint((Geometry) rightGeometry.getValue(feature));
         }
-        else if( filterType == GEOMETRY_INTERSECTS ) {
+        else if (filterType == GEOMETRY_INTERSECTS) {
             return ((Geometry) leftGeometry.getValue(feature)).
                 intersects((Geometry) rightGeometry.getValue(feature));
         }
-        else if( filterType == GEOMETRY_CROSSES ) {
+        else if (filterType == GEOMETRY_CROSSES) {
             return ((Geometry) leftGeometry.getValue(feature)).
                 crosses((Geometry) rightGeometry.getValue(feature));
         }
-        else if( filterType == GEOMETRY_WITHIN ) {
+        else if (filterType == GEOMETRY_WITHIN) {
             return ((Geometry) leftGeometry.getValue(feature)).
                 within((Geometry) rightGeometry.getValue(feature));
         }
-        else if( filterType == GEOMETRY_CONTAINS ) {
+        else if (filterType == GEOMETRY_CONTAINS) {
             return ((Geometry) leftGeometry.getValue(feature)).
                 contains((Geometry) rightGeometry.getValue(feature));
         }
-        else if( filterType == GEOMETRY_OVERLAPS ) {
+        else if (filterType == GEOMETRY_OVERLAPS) {
             return ((Geometry) leftGeometry.getValue(feature)).
                 overlaps((Geometry) rightGeometry.getValue(feature));
         }
-        else if( filterType == GEOMETRY_BEYOND ) {
+        else if (filterType == GEOMETRY_BEYOND) {
             return ((Geometry) leftGeometry.getValue(feature)).
                 within((Geometry) rightGeometry.getValue(feature));
         }
-        else if( filterType == GEOMETRY_BBOX ) {
+        else if (filterType == GEOMETRY_BBOX) {
             return ((Geometry) leftGeometry.getValue(feature)).
                 contains((Geometry) rightGeometry.getValue(feature));
         }
@@ -183,31 +183,31 @@ public class GeometryFilter extends AbstractFilter {
         String operator = null;
 
         // Handles all normal geometry cases
-        if( filterType == GEOMETRY_EQUALS ) {
+        if (filterType == GEOMETRY_EQUALS) {
             operator = " equals ";
         }
-        else if( filterType == GEOMETRY_DISJOINT ) {
+        else if (filterType == GEOMETRY_DISJOINT) {
             operator = " disjoint ";
         }
-        else if( filterType == GEOMETRY_INTERSECTS ) {
+        else if (filterType == GEOMETRY_INTERSECTS) {
             operator = " intersects ";
         }
-        else if( filterType == GEOMETRY_CROSSES ) {
+        else if (filterType == GEOMETRY_CROSSES) {
             operator = " crosses ";
         }
-        else if( filterType == GEOMETRY_WITHIN ) {
+        else if (filterType == GEOMETRY_WITHIN) {
             operator = " within ";
         }
-        else if( filterType == GEOMETRY_CONTAINS ) {
+        else if (filterType == GEOMETRY_CONTAINS) {
             operator = " contains ";
         }
-        else if( filterType == GEOMETRY_OVERLAPS ) {
+        else if (filterType == GEOMETRY_OVERLAPS) {
             operator = " overlaps ";
         }
-        else if( filterType == GEOMETRY_BEYOND ) {
+        else if (filterType == GEOMETRY_BEYOND) {
             operator = " beyond ";
         }
-        else if( filterType == GEOMETRY_BBOX ) {
+        else if (filterType == GEOMETRY_BBOX) {
             operator = " bbox ";
         }
         

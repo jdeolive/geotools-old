@@ -41,7 +41,7 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilter.java,v 1.1 2002/07/09 18:38:45 robhranac Exp $
+ * @version $Id: CompareFilter.java,v 1.2 2002/07/12 12:47:18 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class CompareFilter extends AbstractFilter {
@@ -65,7 +65,7 @@ public class CompareFilter extends AbstractFilter {
     public CompareFilter (short filterType)
         throws IllegalFilterException {
         
-        if( isCompareFilter(filterType) ) {
+        if (isCompareFilter(filterType)) {
             this.filterType = filterType;
         }
         else {
@@ -85,9 +85,9 @@ public class CompareFilter extends AbstractFilter {
         throws IllegalFilterException {
         
         // Checks if this is math filter or not and handles appropriately
-        if( isMathFilter(filterType) ) {
-            if( ExpressionDefault.isMathExpression(leftValue.getType())  ||
-                permissiveConstruction ) {
+        if (isMathFilter(filterType)) {
+            if (ExpressionDefault.isMathExpression(leftValue.getType())  ||
+                permissiveConstruction) {
                 this.leftValue = leftValue;
             }
             else {
@@ -112,9 +112,9 @@ public class CompareFilter extends AbstractFilter {
         throws IllegalFilterException {
         
         // Checks if this is math filter or not and handles appropriately
-        if( isMathFilter(filterType) ) {
-            if( ExpressionDefault.isMathExpression(leftValue.getType())  ||
-                permissiveConstruction ) {
+        if (isMathFilter(filterType)) {
+            if (ExpressionDefault.isMathExpression(leftValue.getType())  ||
+                permissiveConstruction) {
                 this.rightValue = rightValue;
             }
             else {
@@ -138,14 +138,14 @@ public class CompareFilter extends AbstractFilter {
 
         _log.debug("checking if contains");
         // Checks for error condition
-        if( leftValue == null | rightValue == null ) {
-            _log.debug("one value has not been sets");
+        if (leftValue == null | rightValue == null) {
+            _log.debug("one value has not been set");
             return false;
         }
 
         try {
             // Non-math comparison
-            if( filterType == COMPARE_EQUALS ) {
+            if (filterType == COMPARE_EQUALS) {
                 //_log.info("is equals thingy");
                 //_log.info("left value class: " + leftValue.getValue(feature).getClass().toString());
                 //_log.info("right value class: " + rightValue.getValue(feature).getClass().toString());
@@ -155,16 +155,16 @@ public class CompareFilter extends AbstractFilter {
             // Math comparisons
             double leftResult = ((Number) leftValue.getValue(feature)).doubleValue();
             double rightResult = ((Number) rightValue.getValue(feature)).doubleValue();
-            if( filterType == COMPARE_LESS_THAN ) {
+            if (filterType == COMPARE_LESS_THAN) {
                 return (leftResult < rightResult);
             }
-            if( filterType == COMPARE_GREATER_THAN ) {
+            if (filterType == COMPARE_GREATER_THAN) {
                 return (leftResult > rightResult);
             }
-            if( filterType == COMPARE_LESS_THAN_EQUAL ) {
+            if (filterType == COMPARE_LESS_THAN_EQUAL) {
                 return (leftResult <= rightResult);
             }
-            if( filterType == COMPARE_GREATER_THAN_EQUAL ) {
+            if (filterType == COMPARE_GREATER_THAN_EQUAL) {
                 return (leftResult >= rightResult);
             }
             else throw new IllegalArgumentException();
@@ -182,19 +182,19 @@ public class CompareFilter extends AbstractFilter {
     public String toString() {
         String operator = null;
 
-        if( filterType == COMPARE_EQUALS ) {
+        if (filterType == COMPARE_EQUALS) {
             operator = " = ";
         }
-        if( filterType == COMPARE_LESS_THAN ) {
+        if (filterType == COMPARE_LESS_THAN) {
             operator = " < ";
         }
-        if( filterType == COMPARE_GREATER_THAN ) {
+        if (filterType == COMPARE_GREATER_THAN) {
                 operator = " > ";
         }
-        if( filterType == COMPARE_LESS_THAN_EQUAL ) {
+        if (filterType == COMPARE_LESS_THAN_EQUAL) {
             operator = " <= ";
         }
-        if( filterType == COMPARE_GREATER_THAN_EQUAL ) {
+        if (filterType == COMPARE_GREATER_THAN_EQUAL) {
             operator = " >= ";
         }
 

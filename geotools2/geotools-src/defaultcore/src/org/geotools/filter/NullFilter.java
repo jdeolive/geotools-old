@@ -26,7 +26,7 @@ import org.geotools.feature.*;
 /**
  * Defines a null filter, which checks to see if an attribute is null.
  *
- * @version $Id: NullFilter.java,v 1.1 2002/07/09 18:38:45 robhranac Exp $
+ * @version $Id: NullFilter.java,v 1.2 2002/07/12 13:01:00 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class NullFilter extends AbstractFilter {
@@ -46,13 +46,13 @@ public class NullFilter extends AbstractFilter {
     /**
      * Determines whether or not a given feature is 'inside' this filter.
      *
-     * @param nullCheckValue The value of this 
+     * @param nullCheck The value of this 
      * @throws IllegalFilterException Filter is illegal.
      */
     public void nullCheckValue(Expression nullCheck)
         throws IllegalFilterException {
         
-        if( nullCheck instanceof ExpressionAttribute) {
+        if (nullCheck instanceof ExpressionAttribute) {
             this.nullCheck = nullCheck;
         }
         else {
@@ -65,11 +65,10 @@ public class NullFilter extends AbstractFilter {
      *
      * @param feature Specified feature to examine.
      * @return Flag confirming whether or not this feature is inside the filter.
-     * @throws IllegalFilterException Filter is not internally consistent.
      */
     public boolean contains(Feature feature) {
 
-        if( nullCheck == null ) {
+        if (nullCheck == null) {
             return false;
         }
         else {

@@ -27,7 +27,7 @@ import org.geotools.feature.*;
  * Implements Filter interface, with constants and default behaviors for
  * methods.
  *
- * @version $Id: AbstractFilter.java,v 1.2 2002/07/11 14:06:26 ianturton Exp $ 
+ * @version $Id: AbstractFilter.java,v 1.3 2002/07/12 12:43:19 loxnard Exp $ 
  * @author Rob Hranac, Vision for New York
  */
 public abstract class AbstractFilter implements Filter {
@@ -112,14 +112,14 @@ public abstract class AbstractFilter implements Filter {
     /**
      * Default implementation for OR - should be sufficient for most filters.
      *
-     * @param feature Parent of the filter: must implement GMLHandlerGeometry.
+     * @param filter Parent of the filter: must implement GMLHandlerGeometry.
      * @return ORed filter.
      */
     public Filter or(Filter filter) {
         try {
             return new LogicFilter(this, filter, LOGIC_OR);
         }
-        catch(IllegalFilterException e) {
+        catch (IllegalFilterException e) {
             return filter;
         }
     }
@@ -127,14 +127,14 @@ public abstract class AbstractFilter implements Filter {
     /**
      * Default implementation for AND - should be sufficient for most filters.
      *
-     * @param feature Parent of the filter: must implement GMLHandlerGeometry.
+     * @param filter Parent of the filter: must implement GMLHandlerGeometry.
      * @return ANDed filter.
      */
     public Filter and(Filter filter) {
         try {
             return new LogicFilter(this, filter, LOGIC_AND);
         }
-        catch(IllegalFilterException e) {
+        catch (IllegalFilterException e) {
             return filter;
         }
     }
@@ -148,7 +148,7 @@ public abstract class AbstractFilter implements Filter {
         try {
             return new LogicFilter(this, LOGIC_NOT);
         }
-        catch(IllegalFilterException e) {
+        catch (IllegalFilterException e) {
             return this;
         }
     }
@@ -168,10 +168,10 @@ public abstract class AbstractFilter implements Filter {
      * @return Whether or not this is a logic filter type.
      */
     protected static boolean isLogicFilter(short filterType) {
-        _log.debug("filtertype = "+ filterType);
-        if( (filterType == LOGIC_OR) ||
+        _log.debug("filtertype = " + filterType);
+        if ((filterType == LOGIC_OR) ||
             (filterType == LOGIC_AND) ||
-            (filterType == LOGIC_NOT) ) {
+            (filterType == LOGIC_NOT)) {
             return true;
         }
         else {
@@ -187,11 +187,11 @@ public abstract class AbstractFilter implements Filter {
      */
     protected static boolean isMathFilter(short filterType) {
 
-        if( (filterType == COMPARE_LESS_THAN) ||
+        if ((filterType == COMPARE_LESS_THAN) ||
             (filterType == COMPARE_GREATER_THAN) ||
             (filterType == COMPARE_LESS_THAN_EQUAL) ||
             (filterType == COMPARE_GREATER_THAN_EQUAL) ||
-            (filterType == BETWEEN) ) {
+            (filterType == BETWEEN)) {
             return true;
         }
         else {
@@ -207,8 +207,8 @@ public abstract class AbstractFilter implements Filter {
      */
     protected static boolean isCompareFilter(short filterType) {
 
-        if( (isMathFilter(filterType)) ||
-            (filterType == COMPARE_EQUALS) ) {
+        if ((isMathFilter(filterType)) ||
+            (filterType == COMPARE_EQUALS)) {
             return true;
         }
         else {
@@ -224,7 +224,7 @@ public abstract class AbstractFilter implements Filter {
      */
     protected static boolean isGeometryFilter(short filterType) {
 
-        if( (filterType == GEOMETRY_BBOX) ||
+        if ((filterType == GEOMETRY_BBOX) ||
             (filterType == GEOMETRY_EQUALS) ||
             (filterType == GEOMETRY_DISJOINT) ||
             (filterType == GEOMETRY_TOUCHES) ||
@@ -233,7 +233,7 @@ public abstract class AbstractFilter implements Filter {
             (filterType == GEOMETRY_WITHIN) ||
             (filterType == GEOMETRY_CONTAINS) ||
             (filterType == GEOMETRY_OVERLAPS) ||
-            (filterType == GEOMETRY_BEYOND) ) {
+            (filterType == GEOMETRY_BEYOND)) {
             return true;
         }
         else {
@@ -249,10 +249,10 @@ public abstract class AbstractFilter implements Filter {
      */
     protected static boolean isSimpleFilter(short filterType) {
 
-        if( isCompareFilter(filterType) ||
+        if (isCompareFilter(filterType) ||
             isGeometryFilter(filterType) ||
             (filterType == NULL) ||
-            (filterType == LIKE) ) {
+            (filterType == LIKE)) {
             return true;
         }
         else {

@@ -37,7 +37,7 @@ import org.geotools.data.*;
  * do not allow any nested elements, but they also restrict the attribute
  * objects to be very simple data types.</p>
  *
- * @version $Id: FeatureTypeFlat.java,v 1.12 2002/07/11 17:12:04 loxnard Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.13 2002/07/12 12:49:23 loxnard Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat implements FeatureType {
@@ -133,7 +133,7 @@ public class FeatureTypeFlat implements FeatureType {
             // note that the validity check sets validity flag to false if
             // a geometry has already been assigned
             else if ((Geometry.class.
-                       isAssignableFrom( attributeTypes[i].getType())) &&
+                       isAssignableFrom(attributeTypes[i].getType())) &&
                      (attributeTypes[i].getOccurrences() == 1)) {
             _log.info("is ok geometry");
                 isValid = isValid && (geometryPosition == -1);
@@ -152,7 +152,7 @@ public class FeatureTypeFlat implements FeatureType {
 
         // check validity...note that a geometry must have been assigned
         // copy valid array (for immutability), otherwise throw exception
-        if (isValid && ( geometryPosition != -1)) {
+        if (isValid && (geometryPosition != -1)) {
             this.attributeTypes = new AttributeType[n];
             System.arraycopy(attributeTypes, 0, this.attributeTypes, 0, n);
         }
@@ -330,7 +330,7 @@ public class FeatureTypeFlat implements FeatureType {
             //_log.info("added");
         }
         else if ((Geometry.class.
-                   isAssignableFrom( attribute.getType())) &&
+                   isAssignableFrom(attribute.getType())) &&
                  (attribute.getOccurrences() == 1) && 
                  (hasAttributeType(attribute.getName()))) {
                 //_log.info("attribute already exists");
