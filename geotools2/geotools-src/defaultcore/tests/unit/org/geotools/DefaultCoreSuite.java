@@ -14,7 +14,7 @@ import org.geotools.filter.*;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Hierarchy;
-import org.apache.log4j.Logger;
+import org.apache.log4j.*;
 import org.apache.log4j.BasicConfigurator;
 /**
  *
@@ -33,8 +33,8 @@ public class DefaultCoreSuite extends TestCase {
     }
     
     public static Test suite() {
-        _log = Logger.getLogger(DefaultCoreSuite.class);
-        _log.getLoggerRepository().setThreshold(Level.INFO);
+        //_log = Logger.getLogger(DefaultCoreSuite.class);
+        new LogManager().getLoggerRepository().setThreshold(Level.INFO);
         BasicConfigurator.configure();
         
         TestSuite suite = new TestSuite("All defaultcore tests");

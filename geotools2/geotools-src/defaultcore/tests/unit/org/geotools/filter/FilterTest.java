@@ -242,7 +242,7 @@ public class FilterTest extends TestCase {
      */
     public void testLike()
         throws IllegalFilterException {
-        
+        _log.getLoggerRepository().setThreshold("Debug");
         Expression testAttribute = null;
 
         // Set up string
@@ -251,16 +251,38 @@ public class FilterTest extends TestCase {
         filter.setValue(testAttribute);
         
         // Test for false negative.
-        filter.setPattern(new ExpressionLiteral("test*"),"*",".","\\");
+        filter.setPattern(new ExpressionLiteral("test*"),"*",".","!");
         _log.info( filter.toString());            
         _log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         // Test for false positive.
-        filter.setPattern(new ExpressionLiteral("cows*"),"*",".","\\");
+        filter.setPattern(new ExpressionLiteral("cows*"),"*",".","!");
         _log.info( filter.toString());            
         _log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
+        
+        // Test for \ as an escape char
+        
+        filter.setPattern(new ExpressionLiteral("cows*"),"*",".","\\");
+        _log.info( filter.toString());            
+        _log.info( "contains feature: " + filter.contains(testFeature));
+        assertEquals("filter string doesn't match","[ testString is like cows.* ]",filter.toString());
+    
+        // test for escaped escapes
+        
+        filter.setPattern(new ExpressionLiteral("co!!ws*"),"*",".","!");
+        _log.info( filter.toString());            
+        _log.info( "contains feature: " + filter.contains(testFeature));
+        assertEquals("filter string doesn't match","[ testString is like co!ws.* ]",filter.toString());
+        
+        // test for escaped escapes followed by wildcard
+        
+        filter.setPattern(new ExpressionLiteral("co!!*ws*"),"*",".","!");
+        _log.info( filter.toString());            
+        _log.info( "contains feature: " + filter.contains(testFeature));
+        // curently fails
+        //assertEquals("filter string doesn't match","[ testString is like co!.*ws.* ]",filter.toString());
     }
 
 

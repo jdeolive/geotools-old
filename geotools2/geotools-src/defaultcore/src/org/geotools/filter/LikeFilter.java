@@ -27,7 +27,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilter.java,v 1.5 2002/07/18 16:28:57 ianturton Exp $
+ * @version $Id: LikeFilter.java,v 1.6 2002/07/19 17:10:35 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LikeFilter extends AbstractFilter {
@@ -122,17 +122,18 @@ public class LikeFilter extends AbstractFilter {
                 _log.debug("wildcardMulti "+wildcardMulti);
         }
         _log.debug("start pattern = "+pattern);
-        pattern = pattern.replaceAll(wildcardSingle, ".?");
+        pattern = pattern.replaceAll("([^"+escape+"])"+wildcardSingle, "$1.?");
         _log.debug("post single pattern = "+pattern);
-        pattern = pattern.replaceAll(escape + "\\.\\?", "\\"+wildcardSingle);
+        pattern = pattern.replaceAll("([^"+escape+"])"+escape + wildcardSingle, "$1"+wildcardSingle);
         _log.debug("post esc single pattern = "+pattern);
 
-        pattern = pattern.replaceAll(wildcardMulti, ".*");
+        pattern = pattern.replaceAll("([^"+escape+"])"+wildcardMulti, "$1.*");
         _log.debug("post multi pattern = "+pattern);
-        pattern = pattern.replaceAll(escape + "\\.\\*", "\\"+wildcardMulti);
+        pattern = pattern.replaceAll("([^"+escape+"])"+escape + wildcardMulti, "$1"+wildcardMulti);
         _log.debug("post esc multi pattern = "+pattern);
 
-        pattern = pattern.replaceAll(escape, "\\\\");
+        //pattern = pattern.replaceAll(escape, "\\\\");
+        pattern = pattern.replaceAll(escape+escape,escape);
         _log.debug("post esc pattern = "+pattern);
 
         this.pattern = pattern;
