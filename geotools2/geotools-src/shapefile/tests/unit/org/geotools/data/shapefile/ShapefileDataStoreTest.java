@@ -16,6 +16,7 @@ import java.util.*;
 
 import junit.framework.*;
 import org.geotools.data.shapefile.*;
+import org.geotools.filter.Filter;
 
 /**
  *
@@ -83,52 +84,56 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         assertEquals("Value of land area is wrong",((Double)firstFeature(features).getAttribute("LAND_KM")).doubleValue(),143986.61,0.001);
     }
     
+    /**
+     * Create a set of features, then remove every other one, updating the 
+     * remaining. Test for removal and proper update after reloading...
+     */
+    public void testUpdating() throws Exception {
+        FeatureCollection fc = createFeatureCollection();
+        File f = getTempFile();
+        f.createNewFile();
+        ShapefileDataStore sds = new ShapefileDataStore(f.toURL());
+        writeFeatures(sds, fc);
+        loadFeatures(sds);
+        
+        FeatureWriter writer = sds.getFeatureWriter(sds.getTypeNames()[0],Filter.NONE, Transaction.AUTO_COMMIT);
+        int idx = 0;
+        while (writer.hasNext()) {
+            Feature feat = writer.next();
+            Byte b = (Byte) feat.getAttribute(1);
+            if (b.byteValue() % 2 == 0) {
+               writer.remove();
+            } else {
+               feat.setAttribute(1,new Byte( (byte) -1));
+            }
+        }
+        writer.close();
+        fc = loadFeatures(sds);
+        
+        assertEquals(10,fc.size());
+        for (FeatureIterator i = fc.features();i.hasNext();) {
+            assertEquals(-1, ((Byte) i.next().getAttribute(1)).byteValue());
+        }
+            
+        
+    }
     
-//    public void testQuerySubset() throws Exception {
-//        DefaultQuery qi = new DefaultQuery();
-//        qi.setPropertyNames(new String[] {"STATE_NAME"});
-//        FeatureCollection features = loadFeatures(STATE_POP,qi);
-//        
-//        assertEquals("Number of Features loaded",49,features.size());
-//        FeatureType schema = firstFeature(features).getFeatureType();
-//        
-//        assertEquals("Number of Attributes",1,schema.getAttributeTypes().length);
-//    }
-//    
-//    public void testQuerying() throws Exception {
-//        URL url = getTestResource(STREAM);
-//        ShapefileDataStore s = new ShapefileDataStore(url);
-//        FeatureType schema = s.getSchema(s.getTypeNames()[0]);
-//        AttributeType[] types = schema.getAttributeTypes();
-//        for (int i = 0, ii = types.length; i < ii; i++) {
-//            DefaultQuery q = new DefaultQuery();
-//            q.setPropertyNames(new String[] {types[i].getName()});
-//            FeatureSource fs = s.getFeatureSource(s.getTypeNames()[0]);
-//            FeatureCollection fc = fs.getFeatures(q).collection();
-//            assertEquals("Number of Features",280,fc.size());
-//            assertEquals("Number of Attributes",1,firstFeature(fc).getNumberOfAttributes());
-//            FeatureType type = firstFeature(fc).getFeatureType();
-//            assertEquals("Attribute Name",type.getAttributeType(0).getName(),types[i].getName());
-//            assertEquals("Attribute Type",type.getAttributeType(0).getType(),types[i].getType());
-//            if (i % 5 == 0) System.out.print(".");
-//        }
-//    }
-    
-    public void testAttributesWriting() throws Exception {
+    private FeatureCollection createFeatureCollection() throws Exception {
         FeatureTypeFactory factory = FeatureTypeFactory.newInstance("junk");
-        factory.addType(AttributeTypeFactory.newAttributeType("a",Byte.class));
-        factory.addType(AttributeTypeFactory.newAttributeType("b",Short.class));
-        factory.addType(AttributeTypeFactory.newAttributeType("c",Double.class));
-        factory.addType(AttributeTypeFactory.newAttributeType("d",Float.class));
-        factory.addType(AttributeTypeFactory.newAttributeType("e",String.class));
-        factory.addType(AttributeTypeFactory.newAttributeType("f",Date.class));
-        factory.addType(AttributeTypeFactory.newAttributeType("g",Boolean.class));
-        factory.addType(AttributeTypeFactory.newAttributeType("h",Geometry.class));
+        factory.addType(AttributeTypeFactory.newAttributeType("a",Geometry.class));
+        factory.addType(AttributeTypeFactory.newAttributeType("b",Byte.class));
+        factory.addType(AttributeTypeFactory.newAttributeType("c",Short.class));
+        factory.addType(AttributeTypeFactory.newAttributeType("d",Double.class));
+        factory.addType(AttributeTypeFactory.newAttributeType("e",Float.class));
+        factory.addType(AttributeTypeFactory.newAttributeType("f",String.class));
+        factory.addType(AttributeTypeFactory.newAttributeType("g",Date.class));
+        factory.addType(AttributeTypeFactory.newAttributeType("h",Boolean.class));
         factory.addType(AttributeTypeFactory.newAttributeType("i",Number.class));
         FeatureType type = factory.getFeatureType();
         FeatureCollection features = FeatureCollections.newCollection();
         for (int i = 0, ii = 20; i < ii; i++) {
             features.add(type.create(new Object[] {
+                new Point(new Coordinate(0,0), new PrecisionModel(),0),
                 new Byte( (byte) i ),
                 new Short( (short) i),
                 new Double( i ),
@@ -136,21 +141,19 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
                 new String( i + " " ),
                 new Date( i ),
                 new Boolean( true ),
-                new Point(new Coordinate(0,0), new PrecisionModel(),0),
                 new Integer(22)
             }));
         }
-        
-        URL parent = getTestResource("");
-        File data = new File(URLDecoder.decode(parent.getFile(),"UTF-8"));
-        if (!data.exists())
-            throw new Exception("Couldn't setup temp file");
-        File tmpFile = new File(data, "tmp.shp");
+        return features;
+    }
+    
+    public void testAttributesWriting() throws Exception {
+        FeatureCollection features = createFeatureCollection();
+
+        File tmpFile = getTempFile();
         tmpFile.createNewFile();
-        
         ShapefileDataStore s = new ShapefileDataStore(tmpFile.toURL());
         writeFeatures(s, features);
-        tmpFile.delete();
     }
     
     public void testGeometriesWriting() throws Exception {
