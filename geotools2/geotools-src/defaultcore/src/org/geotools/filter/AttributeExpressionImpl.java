@@ -34,7 +34,7 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: AttributeExpressionImpl.java,v 1.7 2003/02/20 20:29:52 cholmesny Exp $
+ * @version $Id: AttributeExpressionImpl.java,v 1.8 2003/04/11 20:08:27 jmacgill Exp $
  * @author Rob Hranac, TOPP
  */
 public class AttributeExpressionImpl 
@@ -124,7 +124,7 @@ public class AttributeExpressionImpl
             tempAttribute = feature.getAttribute(attributePath);
         }
         catch (IllegalFeatureException e) {            
-            LOGGER.fine("Feature does not match declared schema: " + schema.toString());
+            LOGGER.warning(attributePath + " not found in schema " + feature.getSchema());
         }
         return tempAttribute;
     }
