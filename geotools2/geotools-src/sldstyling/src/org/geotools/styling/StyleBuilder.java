@@ -30,15 +30,14 @@ import org.geotools.filter.IllegalFilterException;
 import java.awt.Color;
 import java.util.Iterator;
 
-
 /**
  * An utility class designed to ease style building by convinience methods.
  *
  * @author aaime
  */
 public class StyleBuilder {
-    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(
-            "org.geotools.styling");
+    private static final java.util.logging.Logger LOGGER =
+        java.util.logging.Logger.getLogger("org.geotools.styling");
     public static final String LINE_JOIN_MITRE = "mitre";
     public static final String LINE_JOIN_ROUND = "round";
     public static final String LINE_JOIN_BEVEL = "bevel";
@@ -217,7 +216,9 @@ public class StyleBuilder {
      * @return the stroke created
      */
     public Stroke createStroke(Color color, double width, double opacity) {
-        return sf.createStroke(colorExpression(color), literalExpression(width),
+        return sf.createStroke(
+            colorExpression(color),
+            literalExpression(width),
             literalExpression(opacity));
     }
 
@@ -308,8 +309,11 @@ public class StyleBuilder {
      * @return the fill created
      */
     public Fill createFill(Color color, Color backgroundColor, double opacity, Graphic fill) {
-        return sf.createFill(colorExpression(color), colorExpression(backgroundColor),
-            literalExpression(opacity), fill);
+        return sf.createFill(
+            colorExpression(color),
+            colorExpression(backgroundColor),
+            literalExpression(opacity),
+            fill);
     }
 
     /**
@@ -323,7 +327,10 @@ public class StyleBuilder {
      *
      * @return the fill created
      */
-    public Fill createFill(Expression color, Expression backgroundColor, Expression opacity,
+    public Fill createFill(
+        Expression color,
+        Expression backgroundColor,
+        Expression opacity,
         Graphic fill) {
         return sf.createFill(color, backgroundColor, opacity, fill);
     }
@@ -335,8 +342,13 @@ public class StyleBuilder {
      */
     public String[] getWellKnownMarkNames() {
         return new String[] {
-            MARK_SQUARE, MARK_CIRCLE, MARK_TRIANGLE, MARK_STAR, MARK_CROSS, MARK_ARROW, MARK_X
-        };
+            MARK_SQUARE,
+            MARK_CIRCLE,
+            MARK_TRIANGLE,
+            MARK_STAR,
+            MARK_CROSS,
+            MARK_ARROW,
+            MARK_X };
     }
 
     /**
@@ -363,7 +375,10 @@ public class StyleBuilder {
      *
      * @return the mark created
      */
-    public Mark createMark(String wellKnownName, Color fillColor, Color borderColor,
+    public Mark createMark(
+        String wellKnownName,
+        Color fillColor,
+        Color borderColor,
         double borderWidth) {
         Mark mark = sf.createMark();
         mark.setWellKnownName(literalExpression(wellKnownName));
@@ -494,6 +509,12 @@ public class StyleBuilder {
     public Graphic createGraphic(ExternalGraphic externalGraphic, Mark mark, Symbol symbol) {
         Graphic gr = sf.getDefaultGraphic();
 
+        if (symbol != null) {
+            gr.setSymbols(new Symbol[] { symbol });
+        } else {
+            gr.setSymbols(new Symbol[0]);
+        }
+
         if (externalGraphic != null) {
             gr.setExternalGraphics(new ExternalGraphic[] { externalGraphic });
         }
@@ -502,12 +523,6 @@ public class StyleBuilder {
             gr.setMarks(new Mark[] { mark });
         } else {
             gr.setMarks(new Mark[0]);
-        }
-
-        if (symbol != null) {
-            gr.setSymbols(new Symbol[] { symbol });
-        } else {
-            gr.setSymbols(new Symbol[0]);
         }
 
         return gr;
@@ -525,8 +540,13 @@ public class StyleBuilder {
      *
      * @return the graphic created
      */
-    public Graphic createGraphic(ExternalGraphic externalGraphic, Mark mark, Symbol symbol,
-        double opacity, double size, double rotation) {
+    public Graphic createGraphic(
+        ExternalGraphic externalGraphic,
+        Mark mark,
+        Symbol symbol,
+        double opacity,
+        double size,
+        double rotation) {
         ExternalGraphic[] egs = null;
         Mark[] marks = null;
         Symbol[] symbols = null;
@@ -543,8 +563,13 @@ public class StyleBuilder {
             symbols = new Symbol[] { symbol };
         }
 
-        return createGraphic(egs, marks, symbols, literalExpression(opacity),
-            literalExpression(size), literalExpression(rotation));
+        return createGraphic(
+            egs,
+            marks,
+            symbols,
+            literalExpression(opacity),
+            literalExpression(size),
+            literalExpression(rotation));
     }
 
     /**
@@ -559,10 +584,20 @@ public class StyleBuilder {
      *
      * @return the graphic created
      */
-    public Graphic createGraphic(ExternalGraphic[] externalGraphics, Mark[] marks,
-        Symbol[] symbols, double opacity, double size, double rotation) {
-        return createGraphic(externalGraphics, marks, symbols, literalExpression(opacity),
-            literalExpression(size), literalExpression(rotation));
+    public Graphic createGraphic(
+        ExternalGraphic[] externalGraphics,
+        Mark[] marks,
+        Symbol[] symbols,
+        double opacity,
+        double size,
+        double rotation) {
+        return createGraphic(
+            externalGraphics,
+            marks,
+            symbols,
+            literalExpression(opacity),
+            literalExpression(size),
+            literalExpression(rotation));
     }
 
     /**
@@ -578,8 +613,13 @@ public class StyleBuilder {
      *
      * @return the graphic created
      */
-    public Graphic createGraphic(ExternalGraphic[] externalGraphics, Mark[] marks,
-        Symbol[] symbols, Expression opacity, Expression size, Expression rotation) {
+    public Graphic createGraphic(
+        ExternalGraphic[] externalGraphics,
+        Mark[] marks,
+        Symbol[] symbols,
+        Expression opacity,
+        Expression size,
+        Expression rotation) {
         ExternalGraphic[] exg = externalGraphics;
 
         if (exg == null) {
@@ -684,8 +724,12 @@ public class StyleBuilder {
      *
      * @return the pointplacement created
      */
-    public PointPlacement createPointPlacement(double anchorX, double anchorY,
-        double displacementX, double displacementY, double rotation) {
+    public PointPlacement createPointPlacement(
+        double anchorX,
+        double anchorY,
+        double displacementX,
+        double displacementY,
+        double rotation) {
         AnchorPoint anchorPoint = createAnchorPoint(anchorX, anchorY);
         Displacement displacement = createDisplacement(displacementX, displacementY);
 
@@ -701,7 +745,9 @@ public class StyleBuilder {
      *
      * @return the pointplacement created
      */
-    public PointPlacement createPointPlacement(AnchorPoint anchorPoint, Displacement displacement,
+    public PointPlacement createPointPlacement(
+        AnchorPoint anchorPoint,
+        Displacement displacement,
         Expression rotation) {
         return sf.createPointPlacement(anchorPoint, displacement, rotation);
     }
@@ -811,7 +857,10 @@ public class StyleBuilder {
      *
      * @return the new font object
      */
-    public Font createFont(Expression fontFamily, Expression fontStyle, Expression fontWeight,
+    public Font createFont(
+        Expression fontFamily,
+        Expression fontStyle,
+        Expression fontWeight,
         Expression fontSize) {
         return sf.createFont(fontFamily, fontStyle, fontWeight, fontSize);
     }
@@ -926,7 +975,9 @@ public class StyleBuilder {
      *
      * @return the new line symbolizer
      */
-    public LineSymbolizer createLineSymbolizer(Color color, double width,
+    public LineSymbolizer createLineSymbolizer(
+        Color color,
+        double width,
         String geometryPropertyName) {
         return createLineSymbolizer(createStroke(color, width), geometryPropertyName);
     }
@@ -987,9 +1038,13 @@ public class StyleBuilder {
      *
      * @return the new polygon symbolizer
      */
-    public PolygonSymbolizer createPolygonSymbolizer(Color fillColor, Color borderColor,
+    public PolygonSymbolizer createPolygonSymbolizer(
+        Color fillColor,
+        Color borderColor,
         double borderWidth) {
-        return createPolygonSymbolizer(createStroke(borderColor, borderWidth), createFill(fillColor));
+        return createPolygonSymbolizer(
+            createStroke(borderColor, borderWidth),
+            createFill(fillColor));
     }
 
     /**
@@ -1025,7 +1080,9 @@ public class StyleBuilder {
      *
      * @return the new polygon symbolizer
      */
-    public PolygonSymbolizer createPolygonSymbolizer(Stroke stroke, Fill fill,
+    public PolygonSymbolizer createPolygonSymbolizer(
+        Stroke stroke,
+        Fill fill,
         String geometryPropertyName) {
         return sf.createPolygonSymbolizer(stroke, fill, geometryPropertyName);
     }
@@ -1077,7 +1134,7 @@ public class StyleBuilder {
 
         ts.setFill(createFill(Color.BLACK));
         ts.setLabel(literalExpression("Label"));
-        ts.setFonts(new Font[] { createFont("Lucida Sans", 10) });
+        ts.setFonts(new Font[] { createFont("Lucida Sans", 10)});
 
         return ts;
     }
@@ -1095,8 +1152,13 @@ public class StyleBuilder {
      */
     public TextSymbolizer createTextSymbolizer(Color color, Font font, String attributeName)
         throws org.geotools.filter.IllegalFilterException {
-        return createTextSymbolizer(createFill(color), new Font[] { font }, null,
-            attributeExpression(attributeName), null, null);
+        return createTextSymbolizer(
+            createFill(color),
+            new Font[] { font },
+            null,
+            attributeExpression(attributeName),
+            null,
+            null);
     }
 
     /**
@@ -1112,8 +1174,13 @@ public class StyleBuilder {
      */
     public TextSymbolizer createTextSymbolizer(Color color, Font[] fonts, String attributeName)
         throws org.geotools.filter.IllegalFilterException {
-        return createTextSymbolizer(createFill(color), fonts, null,
-            attributeExpression(attributeName), null, null);
+        return createTextSymbolizer(
+            createFill(color),
+            fonts,
+            null,
+            attributeExpression(attributeName),
+            null,
+            null);
     }
 
     /**
@@ -1126,8 +1193,13 @@ public class StyleBuilder {
      * @return the new textsymbolizer
      */
     public TextSymbolizer createStaticTextSymbolizer(Color color, Font font, String label) {
-        return createTextSymbolizer(createFill(color), new Font[] { font }, null,
-            literalExpression(label), null, null);
+        return createTextSymbolizer(
+            createFill(color),
+            new Font[] { font },
+            null,
+            literalExpression(label),
+            null,
+            null);
     }
 
     /**
@@ -1140,7 +1212,12 @@ public class StyleBuilder {
      * @return the new textsymbolizer
      */
     public TextSymbolizer createStaticTextSymbolizer(Color color, Font[] fonts, String label) {
-        return createTextSymbolizer(createFill(color), fonts, null, literalExpression(label), null,
+        return createTextSymbolizer(
+            createFill(color),
+            fonts,
+            null,
+            literalExpression(label),
+            null,
             null);
     }
 
@@ -1156,8 +1233,13 @@ public class StyleBuilder {
      *
      * @return the new textsymbolizer
      */
-    public TextSymbolizer createTextSymbolizer(Fill fill, Font[] fonts, Halo halo,
-        Expression label, LabelPlacement labelPlacement, String geometryPropertyName) {
+    public TextSymbolizer createTextSymbolizer(
+        Fill fill,
+        Font[] fonts,
+        Halo halo,
+        Expression label,
+        LabelPlacement labelPlacement,
+        String geometryPropertyName) {
         TextSymbolizer ts = sf.createTextSymbolizer();
 
         if (fill != null) {
@@ -1229,7 +1311,9 @@ public class StyleBuilder {
      *
      * @return the new rule
      */
-    public Rule createRule(Symbolizer symbolizer, double minScaleDenominator,
+    public Rule createRule(
+        Symbolizer symbolizer,
+        double minScaleDenominator,
         double maxScaleDenominator) {
         return createRule(new Symbolizer[] { symbolizer }, Double.NaN, Double.NaN);
     }
@@ -1243,7 +1327,9 @@ public class StyleBuilder {
      *
      * @return the new rule
      */
-    public Rule createRule(Symbolizer[] symbolizers, double minScaleDenominator,
+    public Rule createRule(
+        Symbolizer[] symbolizers,
+        double minScaleDenominator,
         double maxScaleDenominator) {
         Rule r = sf.createRule();
         r.setSymbolizers(symbolizers);
@@ -1272,8 +1358,10 @@ public class StyleBuilder {
      *
      * @return the new feature type styler
      */
-    public FeatureTypeStyle createFeatureTypeStyle(Symbolizer symbolizer,
-        double minScaleDenominator, double maxScaleDenominator) {
+    public FeatureTypeStyle createFeatureTypeStyle(
+        Symbolizer symbolizer,
+        double minScaleDenominator,
+        double maxScaleDenominator) {
         return createFeatureTypeStyle(null, symbolizer, minScaleDenominator, maxScaleDenominator);
     }
 
@@ -1286,8 +1374,10 @@ public class StyleBuilder {
      *
      * @return the new feature type styler
      */
-    public FeatureTypeStyle createFeatureTypeStyle(Symbolizer[] symbolizers,
-        double minScaleDenominator, double maxScaleDenominator) {
+    public FeatureTypeStyle createFeatureTypeStyle(
+        Symbolizer[] symbolizers,
+        double minScaleDenominator,
+        double maxScaleDenominator) {
         return createFeatureTypeStyle(null, symbolizers, minScaleDenominator, maxScaleDenominator);
     }
 
@@ -1299,7 +1389,8 @@ public class StyleBuilder {
      *
      * @return the new feature type styler
      */
-    public FeatureTypeStyle createFeatureTypeStyle(String featureTypeStyleName,
+    public FeatureTypeStyle createFeatureTypeStyle(
+        String featureTypeStyleName,
         Symbolizer symbolizer) {
         return createFeatureTypeStyle(featureTypeStyleName, symbolizer, Double.NaN, Double.NaN);
     }
@@ -1312,7 +1403,8 @@ public class StyleBuilder {
      *
      * @return the new feature type styler
      */
-    public FeatureTypeStyle createFeatureTypeStyle(String featureTypeStyleName,
+    public FeatureTypeStyle createFeatureTypeStyle(
+        String featureTypeStyleName,
         Symbolizer[] symbolizers) {
         return createFeatureTypeStyle(featureTypeStyleName, symbolizers, Double.NaN, Double.NaN);
     }
@@ -1327,10 +1419,16 @@ public class StyleBuilder {
      *
      * @return the new feature type styler
      */
-    public FeatureTypeStyle createFeatureTypeStyle(String featureTypeStyleName,
-        Symbolizer symbolizer, double minScaleDenominator, double maxScaleDenominator) {
-        return createFeatureTypeStyle(featureTypeStyleName, new Symbolizer[] { symbolizer },
-            minScaleDenominator, maxScaleDenominator);
+    public FeatureTypeStyle createFeatureTypeStyle(
+        String featureTypeStyleName,
+        Symbolizer symbolizer,
+        double minScaleDenominator,
+        double maxScaleDenominator) {
+        return createFeatureTypeStyle(
+            featureTypeStyleName,
+            new Symbolizer[] { symbolizer },
+            minScaleDenominator,
+            maxScaleDenominator);
     }
 
     /**
@@ -1343,8 +1441,11 @@ public class StyleBuilder {
      *
      * @return the new feature type styler
      */
-    public FeatureTypeStyle createFeatureTypeStyle(String featureTypeStyleName,
-        Symbolizer[] symbolizers, double minScaleDenominator, double maxScaleDenominator) {
+    public FeatureTypeStyle createFeatureTypeStyle(
+        String featureTypeStyleName,
+        Symbolizer[] symbolizers,
+        double minScaleDenominator,
+        double maxScaleDenominator) {
         Rule r = createRule(symbolizers, minScaleDenominator, maxScaleDenominator);
 
         // setup the feature type style
@@ -1417,7 +1518,9 @@ public class StyleBuilder {
      *
      * @return the new style
      */
-    public Style createStyle(Symbolizer symbolizer, double minScaleDenominator,
+    public Style createStyle(
+        Symbolizer symbolizer,
+        double minScaleDenominator,
         double maxScaleDenominator) {
         return createStyle(null, symbolizer, minScaleDenominator, maxScaleDenominator);
     }
@@ -1444,11 +1547,18 @@ public class StyleBuilder {
      *
      * @return the new style
      */
-    public Style createStyle(String featureTypeStyleName, Symbolizer symbolizer,
-        double minScaleDenominator, double maxScaleDenominator) {
+    public Style createStyle(
+        String featureTypeStyleName,
+        Symbolizer symbolizer,
+        double minScaleDenominator,
+        double maxScaleDenominator) {
         // create the feature type style
-        FeatureTypeStyle fts = createFeatureTypeStyle(featureTypeStyleName, symbolizer,
-                minScaleDenominator, maxScaleDenominator);
+        FeatureTypeStyle fts =
+            createFeatureTypeStyle(
+                featureTypeStyleName,
+                symbolizer,
+                minScaleDenominator,
+                maxScaleDenominator);
 
         // and finally create the style
         Style style = sf.createStyle();
@@ -1587,8 +1697,12 @@ public class StyleBuilder {
      *
      * @throws IllegalFilterException DOCUMENT ME!
      */
-    public Style buildClassifiedStyle(FeatureCollection fc, String name, String[] colors,
-        FeatureType schema) throws IllegalFilterException {
+    public Style buildClassifiedStyle(
+        FeatureCollection fc,
+        String name,
+        String[] colors,
+        FeatureType schema)
+        throws IllegalFilterException {
         //grab attribute col
         AttributeExpression value = ff.createAttributeExpression(schema, name);
         String geomName = schema.getDefaultGeometry().getName();
@@ -1662,8 +1776,8 @@ public class StyleBuilder {
 
         //        symb2.setGeometryPropertyName(geomName);
         rules[colors.length - 1].setSymbolizers(new Symbolizer[] { symb2 });
-        LOGGER.fine("added upper class " + breaks[colors.length - 2] + "  "
-            + colors[colors.length - 1]);
+        LOGGER.fine(
+            "added upper class " + breaks[colors.length - 2] + "  " + colors[colors.length - 1]);
         rules[colors.length] = sf.createRule();
 
         PolygonSymbolizer elsePoly = createPolygonSymbolizer(Color.black, 1.0);
@@ -1718,8 +1832,7 @@ public class StyleBuilder {
         colorMap.setType(type);
 
         if ((quantities == null) || (colors == null) || (quantities.length != colors.length)) {
-            throw new IllegalArgumentException(
-                "Quantities and colors arrays should be not null and have the same size");
+            throw new IllegalArgumentException("Quantities and colors arrays should be not null and have the same size");
         }
 
         for (int i = 0; i < colors.length; i++) {
@@ -1744,5 +1857,5 @@ public class StyleBuilder {
         entry.setLabel(String.valueOf(quantity));
         return entry;
     }
-   
+
 }

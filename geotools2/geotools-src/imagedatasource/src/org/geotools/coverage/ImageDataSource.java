@@ -36,10 +36,11 @@ import org.geotools.filter.Filter;
 import org.geotools.filter.FilterFactory;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.filter.NullFilter;
+import org.geotools.gc.GridCoverage;
 
 
 /**
- * $Id: ImageDataSource.java,v 1.7 2003/07/17 07:09:55 ianschneider Exp $
+ * $Id: ImageDataSource.java,v 1.8 2004/03/14 18:44:27 aaime Exp $
  * @todo : fix the typeName! -IanS
  * @author  iant
  */
@@ -148,7 +149,10 @@ public class ImageDataSource extends AbstractDataSource
         }
         return featuresList;
     }
-
+    
+	public GridCoverage getGridCoverage(int i) throws IOException {
+		return reader.getGridCoverage(i);
+	}
     
     /** Gets the bounding box of this datasource using the default speed of
      * this datasource as set by the implementer.

@@ -16,14 +16,6 @@
  */
 package org.geotools.renderer.lite;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -31,13 +23,21 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
+
 
 /**
  * A thin wrapper that adapts a JTS geometry to the Shape interface so that the
  * geometry can be used by java2d without coordinate cloning
  *
  * @author Andrea Aime
- * @version $Id: LiteShape.java,v 1.6 2003/08/10 15:18:17 aaime Exp $
+ * @version $Id: LiteShape.java,v 1.7 2004/03/14 18:44:26 aaime Exp $
  */
 class LiteShape implements Shape {
     /** The floating precision model */
@@ -138,7 +138,7 @@ class LiteShape implements Shape {
      */
     public boolean contains(Point2D p) {
         Coordinate coord = new Coordinate(p.getX(), p.getY());
-        Geometry point = new Point(coord, FLOATING_PM, 0);
+        Geometry point = geometry.getFactory().createPoint(coord);
 
         return geometry.contains(point);
     }
@@ -155,7 +155,7 @@ class LiteShape implements Shape {
      */
     public boolean contains(double x, double y) {
         Coordinate coord = new Coordinate(x, y);
-        Geometry point = new Point(coord, FLOATING_PM, 0);
+        Geometry point = geometry.getFactory().createPoint(coord);
 
         return geometry.contains(point);
     }

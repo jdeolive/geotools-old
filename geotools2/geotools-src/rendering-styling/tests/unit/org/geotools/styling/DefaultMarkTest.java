@@ -32,10 +32,7 @@ import javax.media.jai.JAI;
 import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.FilterFactory;
-import org.geotools.map.Context;
-import org.geotools.map.ContextFactory;
 import org.geotools.map.DefaultMapContext;
-import org.geotools.map.Layer;
 import org.geotools.map.MapContext;
 import org.geotools.renderer.Renderer2D;
 import org.geotools.renderer.j2d.StyledRenderer;
@@ -211,13 +208,11 @@ public class DefaultMarkTest extends junit.framework.TestCase {
      * Test j2d renderer
      */
     public void testJ2DRendererXml() throws Exception {
-        ContextFactory cf = ContextFactory.createFactory();
-        Context ctx = cf.createContext();
-        Layer layer = cf.createLayer(buildFeatureCollection(), loadStyleFromXml());
-        ctx.getLayerList().addLayer(layer);
+        MapContext map = new DefaultMapContext();
+        map.addLayer(buildFeatureCollection(), loadStyleFromXml());
         
         StyledRenderer sr = new StyledRenderer(null);
-        sr.setContext(ctx);
+        sr.setMapContext(map);
         performTestOnRenderer(sr, "xml");
     }
     
@@ -225,13 +220,11 @@ public class DefaultMarkTest extends junit.framework.TestCase {
      * Test j2d renderer
      */
     public void testJ2DRendererBuilder() throws Exception {
-        ContextFactory cf = ContextFactory.createFactory();
-        Context ctx = cf.createContext();
-        Layer layer = cf.createLayer(buildFeatureCollection(), buildStyle());
-        ctx.getLayerList().addLayer(layer);
+		MapContext map = new DefaultMapContext();
+	   map.addLayer(buildFeatureCollection(), loadStyleFromXml());
         
-        StyledRenderer sr = new StyledRenderer(null);
-        sr.setContext(ctx);
+	   StyledRenderer sr = new StyledRenderer(null);
+	   sr.setMapContext(map);
         performTestOnRenderer(sr, "builder");
     }
 
@@ -282,7 +275,7 @@ public class DefaultMarkTest extends junit.framework.TestCase {
         java.io.File file = new java.io.File(base.getPath(),
                 "DefaultMarkTest_" + renderer.getClass().getName().replace('.', '_') + "_" + fileSuffix + ".png");
         java.io.FileOutputStream out = new java.io.FileOutputStream(file);
-        boolean fred = javax.imageio.ImageIO.write(image, "PNG", out);
+        boolean fred = javax.imageio.ImageIO.write(image, "png", out);
 
         if (!fred) {
             System.out.println("Failed to write image to " + file.toString());

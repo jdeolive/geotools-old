@@ -71,7 +71,7 @@ import java.util.logging.Logger;
  *
  * @author Andrea Aime
  * @author Martin Desruisseaux
- * @version $Id: RenderedLayerFactory.java,v 1.21 2004/03/01 15:47:05 aaime Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.22 2004/03/14 18:44:19 aaime Exp $
  */
 public class RenderedLayerFactory {
     /** The logger. */
@@ -460,7 +460,7 @@ public class RenderedLayerFactory {
                 }
 
                 GridCoverage recoloredGrid = createRecoloredGrid(feature, (RasterSymbolizer) symb);
-                renderedLayers.add(new RenderedGridCoverage(recoloredGrid));
+                renderedLayers.add(new RenderedGridCoverage(recoloredGrid.geophysics(false)));
             } else {
                 String id = feature.getID();
                 Geometry g = geometryMap.get(id, symb);
@@ -503,7 +503,7 @@ public class RenderedLayerFactory {
         ColorMap colorMap = symbolizer.getColorMap();
         GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
 
-        if (colorMap == null) {
+        if (colorMap == null || colorMap.getColorMapEntries() == null || colorMap.getColorMapEntries().length == 0) {
             return grid;
         }
 

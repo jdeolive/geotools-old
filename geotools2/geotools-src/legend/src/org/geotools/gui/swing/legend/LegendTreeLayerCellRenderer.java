@@ -23,14 +23,11 @@ package org.geotools.gui.swing.legend;
 
 import java.awt.Color;
 import java.util.logging.Logger;
-
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JTree;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.tree.DefaultMutableTreeNode;
-
-import org.geotools.map.Layer;
 
 
 /**
@@ -48,7 +45,6 @@ public class LegendTreeLayerCellRenderer extends javax.swing.JPanel
     private JTree tree;
 
     /** if the note is a layer */
-    private Layer layer;
     private javax.swing.JCheckBox legendNoteCheckBox;
     private javax.swing.JLabel treeNoteIconJLabel;
 
@@ -146,7 +142,8 @@ public class LegendTreeLayerCellRenderer extends javax.swing.JPanel
         // the value object actually is the note object, so we could get its userObject
         // the userObject is designed to be a LegendTreeCellRender Object, so it could be both a parameters keeper
         // and a renderer.
-        LegendNodeInfo userObject = (LegendNodeInfo) ((DefaultMutableTreeNode) value).getUserObject();
+        LegendNodeInfo userObject = (LegendNodeInfo) ((DefaultMutableTreeNode) value)
+            .getUserObject();
 
         setText(userObject.toString());
 

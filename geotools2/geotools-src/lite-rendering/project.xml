@@ -56,6 +56,11 @@
       <version>2.0-B2</version>
     </dependency>
     <dependency>
+      <artifactId>map</artifactId>
+      <groupId>gt2</groupId>
+      <version>2.0-B2-DEV</version>
+    </dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>

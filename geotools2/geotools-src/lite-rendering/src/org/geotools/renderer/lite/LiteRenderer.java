@@ -116,7 +116,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.32 2004/02/16 07:02:46 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.33 2004/03/14 18:44:26 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -150,11 +150,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
     private static Set wellKnownMarks = new HashSet();
 
     /** Set of graphic formats supported for image loading */
-    private static Set supportedGraphicFormats = new HashSet();
+    private static Set supportedGraphicFormats;
 
     /** The image loader */
     private static ImageLoader imageLoader = new ImageLoader();
-    
     private static final Composite DEFAULT_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
             1.0f);
     private static final java.awt.Stroke DEFAULT_STROKE = new BasicStroke();
@@ -192,12 +191,6 @@ public class LiteRenderer implements Renderer, Renderer2D {
         wellKnownMarks.add("star");
         wellKnownMarks.add("x");
         wellKnownMarks.add("arrow");
-
-        String[] types = ImageIO.getReaderMIMETypes();
-
-        for (int i = 0; i < types.length; i++) {
-            supportedGraphicFormats.add(types[i]);
-        }
 
         Coordinate c = new Coordinate(100, 100);
         GeometryFactory fac = new GeometryFactory();
@@ -240,10 +233,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
     private double maxDistance = 1.0;
 
     /**
-     * Creates a new instance of LiteRenderer without a context. Use it only
-     * to gain access to utility methods of this class
-     *
-     * TODO: it's probably better to factor out those methods in an utility class
+     * Creates a new instance of LiteRenderer without a context. Use it only to gain access to
+     * utility methods of this class TODO: it's probably better to factor out those methods in an
+     * utility class
      */
     public LiteRenderer() {
         LOGGER.fine("creating new lite renderer");
@@ -256,6 +248,25 @@ public class LiteRenderer implements Renderer, Renderer2D {
      */
     public LiteRenderer(MapContext context) {
         this.context = context;
+    }
+
+    /**
+     * Returns the set of supported graphics formats and lazy loads it as needed
+     *
+     * @return
+     */
+    private static Set getSupportedGraphicFormats() {
+        if (supportedGraphicFormats == null) {
+            supportedGraphicFormats = new java.util.HashSet();
+
+            String[] types = ImageIO.getReaderMIMETypes();
+
+            for (int i = 0; i < types.length; i++) {
+                supportedGraphicFormats.add(types[i]);
+            }
+        }
+
+        return supportedGraphicFormats;
     }
 
     /**
@@ -426,7 +437,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         mapExtent = map;
 
         //set up the affine transform and calculate scale values
-        AffineTransform at = setUpTransform(mapExtent, screenSize);
+        AffineTransform at = worldToScreenTransform(mapExtent, screenSize);
 
         /* If we are rendering to a component which has already set up some form
          * of transformation then we can concatenate our transformation to it.
@@ -464,7 +475,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @return a transform that maps from real world coordinates to the screen
      */
-    private AffineTransform setUpTransform(Envelope mapExtent, Rectangle screenSize) {
+    public AffineTransform worldToScreenTransform(Envelope mapExtent, Rectangle screenSize) {
         double scaleX = screenSize.getWidth() / mapExtent.getWidth();
         double scaleY = screenSize.getHeight() / mapExtent.getHeight();
 
@@ -493,7 +504,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         //set up the affine transform and calculate scale values
-        AffineTransform at = setUpTransform(map, screenSize);
+        AffineTransform at = worldToScreenTransform(map, screenSize);
 
         /* If we are rendering to a component which has already set up some form
          * of transformation then we can concatenate our transformation to it.
@@ -939,11 +950,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 LOGGER.finer("total displacement (" + x + "," + y + ")");
             }
 
-			if(p.getRotation() == null || p.getRotation().getValue(feature) == null) {
-				rotation = 0;
-			} else {
-            	rotation = ((Number) p.getRotation().getValue(feature)).doubleValue();
-			}
+            if ((p.getRotation() == null) || (p.getRotation().getValue(feature) == null)) {
+                rotation = 0;
+            } else {
+                rotation = ((Number) p.getRotation().getValue(feature)).doubleValue();
+            }
+
             rotation *= (Math.PI / 180.0);
         } else if (placement instanceof LinePlacement && geom instanceof LineString) {
             // @TODO: if the geometry is a ring or a polygon try to find out
@@ -952,10 +964,14 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 LOGGER.finer("setting line placement");
             }
 
-			LinePlacement lp = (LinePlacement) placement;
-			double offset = 0;
-			if(lp.getPerpendicularOffset() != null && lp.getPerpendicularOffset().getValue(feature) != null)
-            	offset = ((Number) lp.getPerpendicularOffset().getValue(feature)).doubleValue();
+            LinePlacement lp = (LinePlacement) placement;
+            double offset = 0;
+
+            if ((lp.getPerpendicularOffset() != null)
+                    && (lp.getPerpendicularOffset().getValue(feature) != null)) {
+                offset = ((Number) lp.getPerpendicularOffset().getValue(feature)).doubleValue();
+            }
+
             LineString line = (LineString) geom;
             Point start = line.getStartPoint();
             Point end = line.getEndPoint();
@@ -1042,11 +1058,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     styleCode = styleCode | java.awt.Font.BOLD;
                 }
 
-				if(fonts[k].getFontSize() == null || fonts[k].getFontSize().getValue(feature) == null) {
-					size = 10;
-				} else {
-					size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
-				}
+                if ((fonts[k].getFontSize() == null)
+                        || (fonts[k].getFontSize().getValue(feature) == null)) {
+                    size = 10;
+                } else {
+                    size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
+                }
 
                 return javaFont.deriveFont(styleCode, size);
             }
@@ -1070,11 +1087,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     styleCode = styleCode | java.awt.Font.BOLD;
                 }
 
-				if(fonts[k].getFontSize() == null || fonts[k].getFontSize().getValue(feature) == null) {
-					size = 10;
-				} else {
-				    size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
-				}
+                if ((fonts[k].getFontSize() == null)
+                        || (fonts[k].getFontSize().getValue(feature) == null)) {
+                    size = 10;
+                } else {
+                    size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
+                }
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
                     LOGGER.finest("requesting " + requestedFont + " " + styleCode + " " + size);
@@ -1351,7 +1369,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             LOGGER.finest("got a " + eg.getFormat());
         }
 
-        if (supportedGraphicFormats.contains(eg.getFormat().toLowerCase())) {
+        if (getSupportedGraphicFormats().contains(eg.getFormat().toLowerCase())) {
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("a java supported format");
             }
@@ -1387,9 +1405,11 @@ public class LiteRenderer implements Renderer, Renderer2D {
             return false;
         }
 
-        if(mark.getWellKnownName() == null || mark.getWellKnownName().getValue(feature) == null)
+        if ((mark.getWellKnownName() == null)
+                || (mark.getWellKnownName().getValue(feature) == null)) {
             return false;
-        
+        }
+
         String name = mark.getWellKnownName().getValue(feature).toString();
 
         if (LOGGER.isLoggable(Level.FINER)) {

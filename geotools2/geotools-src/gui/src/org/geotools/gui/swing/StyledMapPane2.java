@@ -45,27 +45,21 @@ package org.geotools.gui.swing;
 
 
 // JTS dependencies
-import com.vividsolutions.jts.geom.Envelope;
+import java.awt.geom.Rectangle2D;
 
-// Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.map.MapContext;
 import org.geotools.renderer.j2d.Renderer;
-import org.geotools.renderer.j2d.StyledMapRenderer;
-import org.geotools.styling.Style;
-import org.geotools.styling.StyleBuilder;
+import org.geotools.renderer.j2d.StyledRenderer;
 
-// J2SE dependencies
-import java.awt.Color;
-import java.awt.geom.Rectangle2D;
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
  * A map pane which support styling.
  *
  * @author Martin Desruisseaux
- * @version $Id: StyledMapPane2.java,v 1.1 2003/12/04 23:21:02 aaime Exp $
+ * @version $Id: StyledMapPane2.java,v 1.2 2004/03/14 18:44:21 aaime Exp $
  */
 public class StyledMapPane2 extends MapPane {
     /** The model which stores a list of layers and bounding box. */
@@ -94,7 +88,7 @@ public class StyledMapPane2 extends MapPane {
      * @return DOCUMENT ME!
      */
     Renderer createRenderer() {
-        return new StyledMapRenderer(this);
+        return new StyledRenderer(this);
     }
 
     /**
@@ -117,7 +111,7 @@ public class StyledMapPane2 extends MapPane {
     public void setMapContext(final MapContext context)
         throws Exception {
         this.context = context;
-        ((StyledMapRenderer) getRenderer()).setMapContext(context);
+        ((StyledRenderer) getRenderer()).setMapContext(context);
         reset();
     }
 

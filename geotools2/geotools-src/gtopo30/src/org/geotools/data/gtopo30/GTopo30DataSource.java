@@ -67,7 +67,6 @@ import org.geotools.gc.GridCoverage;
 import org.geotools.gc.GridGeometry;
 import org.geotools.gc.GridRange;
 import org.geotools.units.Unit;
-
 import com.sun.media.imageio.stream.FileChannelImageInputStream;
 import com.sun.media.imageio.stream.RawImageInputStream;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -362,6 +361,17 @@ public class GTopo30DataSource extends AbstractDataSource {
             pb.add(-cymin);
             image = JAI.create("Translate", pb, hints);
         }
+        
+        // retile the image into something more performant on visualization
+//        pbj = new ParameterBlockJAI("Format");
+//        pbj.addSource(image);
+//		pbj.setParameter("dataType", image.getSampleModel().getDataType());
+//		ImageLayout imageLayout = new ImageLayout(image);
+//		imageLayout.setTileWidth(200);
+//		// imageLayout.setTileHeight(tileRows);
+//		hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
+//		hints.add(new RenderingHints(JAI.KEY_TILE_CACHE, null));
+//		image = JAI.create("Format", pbj, hints);
         
         // Build the coordinate system
         CoordinateSystemFactory csFactory = CoordinateSystemFactory.getDefault();

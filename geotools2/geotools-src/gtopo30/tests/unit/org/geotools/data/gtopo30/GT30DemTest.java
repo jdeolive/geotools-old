@@ -22,26 +22,18 @@
  */
 package org.geotools.data.gtopo30;
 
-import com.vividsolutions.jts.geom.Envelope;
 import java.awt.image.RenderedImage;
-import java.io.File;
 import java.io.FileOutputStream;
-import junit.framework.*;
-import org.geotools.data.gtopo30.GTopo30DataSource;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
+
+import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.Filter;
-import org.geotools.map.Context;
-import org.geotools.styling.FeatureTypeStyle;
-import org.geotools.styling.RasterSymbolizer;
-import org.geotools.styling.Rule;
-import org.geotools.styling.Style;
-import org.geotools.styling.StyleFactory;
-import org.geotools.styling.Symbolizer;
-import java.net.URL;
-import java.net.URLDecoder;
-import javax.imageio.ImageIO;
-import org.geotools.feature.Feature;
 import org.geotools.gc.GridCoverage;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**

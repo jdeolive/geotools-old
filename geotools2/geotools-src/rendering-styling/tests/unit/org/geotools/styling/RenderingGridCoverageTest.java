@@ -63,8 +63,6 @@ import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.gc.GridCoverage;
-import org.geotools.map.Context;
-import org.geotools.map.ContextFactory;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.renderer.Renderer2D;
@@ -73,9 +71,9 @@ import org.geotools.renderer.lite.LiteRenderer;
 import org.geotools.units.Unit;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 
 /**
@@ -147,12 +145,11 @@ public class RenderingGridCoverageTest extends TestCase {
         FeatureCollection fc = wrapGcInFeatureCollection(createGrid());
         Style style = createEmtpyRasterStyle();
         
-        ContextFactory cfac = ContextFactory.createFactory();
-        Context ctx = cfac.createContext();
-        ctx.getLayerList().addLayer(cfac.createLayer(fc, style));
+        MapContext map = new DefaultMapContext();
+        map.addLayer(fc, style);
         
         StyledRenderer renderer = new StyledRenderer(null);
-        renderer.setContext(ctx);
+        renderer.setMapContext(map);
         performTestOnRenderer(renderer, "", 300, 300, 100, 100);
     }
 
@@ -305,7 +302,7 @@ public class RenderingGridCoverageTest extends TestCase {
     private FeatureCollection wrapGcInFeatureCollection(GridCoverage gc)
         throws Exception {
         // create surrounding polygon
-        PrecisionModel pm = new PrecisionModel();
+        GeometryFactory geometryFactory = new GeometryFactory(); 
         Rectangle2D rect = gc.getEnvelope().toRectangle2D();
         Coordinate[] coord = new Coordinate[5];
         coord[0] = new Coordinate(rect.getMinX(), rect.getMinY());
@@ -316,8 +313,8 @@ public class RenderingGridCoverageTest extends TestCase {
 
         Feature feature = null;
 
-        LinearRing ring = new LinearRing(coord, pm, 0);
-        Polygon bounds = new Polygon(ring, pm, 0);
+        LinearRing ring = geometryFactory.createLinearRing(coord);
+        Polygon bounds = geometryFactory.createPolygon(ring, null);
 
         // create the feature type
         AttributeType geom = AttributeTypeFactory.newAttributeType(

@@ -17,8 +17,9 @@
 package org.geotools.gui.widget;
 
 import org.geotools.gui.tools.Tool;
-import org.geotools.map.events.BoundingBoxListener;
-import org.geotools.map.events.LayerListListener;
+import org.geotools.map.event.MapBoundsListener;
+import org.geotools.map.event.MapLayerListListener;
+
 
 
 /**
@@ -26,13 +27,13 @@ import org.geotools.map.events.LayerListListener;
  * required if any of the parameters in the associated Context changes.
  *
  * @author Cameron Shorter
- * @version $Id: MapPane.java,v 1.8 2003/08/20 21:37:58 cholmesny Exp $
+ * @version $Id: MapPane.java,v 1.9 2004/03/14 18:44:26 aaime Exp $
  *
  * @task TODO Should extend LayerListener as well.  Ie, if features inside a \
  *       layer change, then a redraw is required.
  * @deprecated
  */
-public interface MapPane extends BoundingBoxListener, LayerListListener {
+public interface MapPane extends MapBoundsListener, MapLayerListListener {
     /**
      * Set the tool for this mapPane.  The tool handles all the mouse and key
      * actions on behalf of this mapPane.  Different tools can be assigned in

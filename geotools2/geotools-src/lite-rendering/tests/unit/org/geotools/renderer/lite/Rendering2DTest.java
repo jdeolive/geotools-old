@@ -20,10 +20,12 @@ import com.vividsolutions.jts.geom.TopologyException;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Panel;
 import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.logging.Logger;
 
@@ -42,9 +44,8 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.filter.FilterFactory;
-import org.geotools.map.DefaultMap;
-import org.geotools.map.Map;
-import org.geotools.renderer.lite.LiteRenderer;
+import org.geotools.map.DefaultMapContext;
+import org.geotools.map.MapContext;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
 import org.geotools.styling.LineSymbolizer;
@@ -133,7 +134,6 @@ public class Rendering2DTest extends TestCase {
         
         FeatureCollection ft = datasource.getFeatures(Query.ALL);
         
-        Map map = new DefaultMap();
         StyleFactory sFac = StyleFactory.createStyleFactory();
         //The following is complex, and should be built from
         //an SLD document and not by hand
@@ -185,8 +185,9 @@ public class Rendering2DTest extends TestCase {
         Style style = sFac.createStyle();
         style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts, fts2, fts3, fts4, fts5});
         
-        map.addFeatureTable(ft,style);
-        LiteRenderer renderer = new LiteRenderer();
+		MapContext map = new DefaultMapContext();
+        map.addLayer(ft,style);
+        LiteRenderer renderer = new LiteRenderer(map);
         Frame frame = new Frame();
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
@@ -195,15 +196,13 @@ public class Rendering2DTest extends TestCase {
         frame.add(p);
         frame.setSize(300,300);
         frame.setVisible(true);
-        renderer.setOutput(p.getGraphics(),p.getBounds());
-        map.render(renderer,ex);//and finaly try and draw it!
+        renderer.paint((Graphics2D) p.getGraphics(),p.getBounds(), new AffineTransform());
         int w = 300, h = 600;
         BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
         Graphics g = image.getGraphics();
         g.setColor(Color.white);
         g.fillRect(0,0,w,h);
-        renderer.setOutput(g,new Rectangle(0,0,w,h));
-        map.render(renderer,ex);//and finaly try and draw it!
+        renderer.paint((Graphics2D) g,new Rectangle(0,0,w,h), new AffineTransform());
         
 //        File file = new File(base.getPath(), "RendererStyle.jpg"); 
 //        FileOutputStream out = new FileOutputStream(file);

@@ -32,13 +32,13 @@ import javax.media.jai.ImageMIPMap;
  *
  * @author Martin Desruisseaux
  * @author Andrea Aime
- * @version $Id: GridCoverageRenderer.java,v 1.4 2003/07/27 15:29:47 aaime Exp $
+ * @version $Id: GridCoverageRenderer.java,v 1.5 2004/03/14 18:44:27 aaime Exp $
  *
  * @task Add support for SLD stylers
  */
 final class GridCoverageRenderer {
     /** Tells if we should try an optimisation using pyramidal images. */
-    private static final boolean USE_PYRAMID = true;
+    private static final boolean USE_PYRAMID = false;
 
     /**
      * Decimation factor for image. A value of 0.5 means that each level in the

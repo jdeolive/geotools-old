@@ -52,6 +52,11 @@
       <version>2.0-B2</version>
     </dependency>
     <dependency>
+      <artifactId>map</artifactId>
+      <groupId>gt2</groupId>
+      <version>2.0-B2</version>
+    </dependency>
+    <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>2.0-B2</version>

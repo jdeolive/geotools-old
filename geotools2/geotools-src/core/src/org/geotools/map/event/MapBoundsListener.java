@@ -17,18 +17,15 @@
 package org.geotools.map.event;
 
 
-// Geotools dependencies
-import org.geotools.map.BoundingBox; // For JavaDoc
-
 // J2SE dependencies
 import java.util.EventListener;
 
 
 /**
- * The listener that's notified when a {@link BoundingBox} changes its area of interest.
+ * The listener that's notified when a bounding box changes its area of interest.
  *
- * @author Cameron Shorter
- * @version $Id: MapBoundsListener.java,v 1.1 2003/12/04 23:20:33 aaime Exp $
+ * @author Andrea Aime
+ * @version $Id: MapBoundsListener.java,v 1.2 2004/03/14 18:44:22 aaime Exp $
  *
  * @see AreaOfInterestEvent
  */

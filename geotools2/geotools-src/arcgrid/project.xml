@@ -88,6 +88,11 @@
       <version>2.0-B2</version>
       <url>http://www.geotools.org</url>
     </dependency>
+    <dependency>
+      <id>map</id>
+      <version>2.0-B2</version>
+      <url>http://www.geotools.org</url>
+    </dependency>
   </dependencies>
   <build>
     <unitTest>

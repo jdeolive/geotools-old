@@ -21,6 +21,18 @@
  */
 package org.geotools.styling;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Polygon;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.map.DefaultMapContext;
+import org.geotools.map.MapContext;
+import org.geotools.renderer.Renderer2D;
+import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.renderer.lite.LiteRenderer;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -28,25 +40,7 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
 import javax.media.jai.JAI;
-
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureTypeFactory;
-import org.geotools.map.Context;
-import org.geotools.map.ContextFactory;
-import org.geotools.map.DefaultMapContext;
-import org.geotools.map.Layer;
-import org.geotools.map.MapContext;
-import org.geotools.renderer.Renderer2D;
-import org.geotools.renderer.j2d.StyledRenderer;
-import org.geotools.renderer.lite.LiteRenderer;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -60,6 +54,8 @@ public class RenderStyleTest extends junit.framework.TestCase {
 
     /**
      * Creates a new DefaultMarkTest object.
+     *
+     * @param testName DOCUMENT ME!
      */
     public RenderStyleTest(java.lang.String testName) {
         super(testName);
@@ -67,6 +63,8 @@ public class RenderStyleTest extends junit.framework.TestCase {
 
     /**
      * Main
+     *
+     * @param args DOCUMENT ME!
      */
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
@@ -74,6 +72,8 @@ public class RenderStyleTest extends junit.framework.TestCase {
 
     /**
      * Suite
+     *
+     * @return DOCUMENT ME!
      */
     public static junit.framework.Test suite() {
         junit.framework.TestSuite suite = new junit.framework.TestSuite(RenderStyleTest.class);
@@ -83,6 +83,10 @@ public class RenderStyleTest extends junit.framework.TestCase {
 
     /**
      * Builds and returns the features used to perform this test
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws Exception DOCUMENT ME!
      */
     private FeatureCollection buildFeatureCollection()
         throws Exception {
@@ -194,10 +198,9 @@ public class RenderStyleTest extends junit.framework.TestCase {
                 }));
 
         // create complex fill style for polygons
-        Mark circle = sb.createMark(StyleBuilder.MARK_CIRCLE);
+        Mark circle = sb.createMark(StyleBuilder.MARK_CIRCLE, Color.YELLOW);
         Fill gfill = sb.createFill(Color.YELLOW, 0.5);
         gfill.setGraphicFill(sb.createGraphic(null, circle, null, 1, 10, 0));
-
         Stroke dashed = sb.createStroke(Color.YELLOW, 3, new float[] { 1f, 2f });
         style.addFeatureTypeStyle( //
             sb.createFeatureTypeStyle("polygon",
@@ -207,16 +210,18 @@ public class RenderStyleTest extends junit.framework.TestCase {
                 }));
 
         // create another one that refers to an external graphic
-        Mark triangle2 = sb.createMark(StyleBuilder.MARK_TRIANGLE, sb.createFill(Color.MAGENTA, 0.5), null);
+        Mark triangle2 = sb.createMark(StyleBuilder.MARK_TRIANGLE,
+                sb.createFill(Color.MAGENTA, 0.5), null);
         ExternalGraphic brick = sb.createExternalGraphic("http://www.ccg.leeds.ac.uk/ian/geotools/icons/brick1.gif",
                 "image/gif");
         Fill gfill2 = sb.createFill(Color.MAGENTA, 0.5);
         gfill2.setGraphicFill(sb.createGraphic(brick, triangle2, null, 1, 20, 0));
         style.addFeatureTypeStyle(sb.createFeatureTypeStyle("polygontest2",
-        sb.createPolygonSymbolizer(sb.createStroke(), gfill2)));
+                sb.createPolygonSymbolizer(sb.createStroke(), gfill2)));
 
         // create one with graphic stroke
-        Mark triangle3 = sb.createMark(StyleBuilder.MARK_TRIANGLE, sb.createFill(Color.MAGENTA, 0.5), null);
+        Mark triangle3 = sb.createMark(StyleBuilder.MARK_TRIANGLE,
+                sb.createFill(Color.MAGENTA, 0.5), null);
         Fill gfill3 = sb.createFill(Color.MAGENTA, 0.5);
         gfill3.setGraphicFill(sb.createGraphic(null, triangle3, null, 1, 10, 0));
 
@@ -237,79 +242,157 @@ public class RenderStyleTest extends junit.framework.TestCase {
         TextSymbolizer ts = sb.createStaticTextSymbolizer(Color.GREEN, font, "Point Label");
         ts.setHalo(sb.createHalo());
         style.addFeatureTypeStyle(sb.createFeatureTypeStyle("pointfeature",
-                new Symbolizer[] {
-                    sb.createPointSymbolizer(gr),
-                    ts
-                }));
+                new Symbolizer[] { sb.createPointSymbolizer(gr), ts }));
 
         return style;
     }
-    
-//    public void testCompareStyles() throws Exception {
-//        java.net.URL base = getClass().getResource("rs-testData/");
-//        
-//        Style style1 = loadStyleFromXml();
-//        Style style2 = buildStyle();
-//        
-//        FileWriter fw1 = new FileWriter(new File(base.getPath(), "styleXml.xml"));
-//        org.geotools.styling.XMLEncoder encoder1 = new org.geotools.styling.XMLEncoder(fw1);
-//        encoder1.encode(style1);
-//        fw1.close();
-//        
-//        
-//        FileWriter fw2 = new FileWriter(new File(base.getPath(), "styleBuilder.xml"));
-//        org.geotools.styling.XMLEncoder encoder2 = new org.geotools.styling.XMLEncoder(fw2);
-//        encoder2.encode(style2);
-//        fw2.close();
-//    }
-    
+
+    //    public void testCompareStyles() throws Exception {
+    //        java.net.URL base = getClass().getResource("rs-testData/");
+    //        
+    //        Style style1 = loadStyleFromXml();
+    //        Style style2 = buildStyle();
+    //        
+    //        FileWriter fw1 = new FileWriter(new File(base.getPath(), "styleXml.xml"));
+    //        org.geotools.styling.XMLEncoder encoder1 = new org.geotools.styling.XMLEncoder(fw1);
+    //        encoder1.encode(style1);
+    //        fw1.close();
+    //        
+    //        
+    //        FileWriter fw2 = new FileWriter(new File(base.getPath(), "styleBuilder.xml"));
+    //        org.geotools.styling.XMLEncoder encoder2 = new org.geotools.styling.XMLEncoder(fw2);
+    //        encoder2.encode(style2);
+    //        fw2.close();
+    //    }
     private LiteRenderer createLiteRenderedXmlStyle() throws Exception {
         MapContext ctx = new DefaultMapContext();
         ctx.addLayer(buildFeatureCollection(), loadStyleFromXml());
 
         LiteRenderer renderer = new LiteRenderer(ctx);
         renderer.setInteractive(false);
-        
+
         return renderer;
     }
 
     /**
      * Test lite renderer and style loaded from xml file
+     *
+     * @throws Exception DOCUMENT ME!
      */
     public void testLiteRendererXmlh250() throws Exception {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 400, 250, 400, 350);
     }
-    
+
     /**
      * Test lite renderer and style loaded from xml file
+     *
+     * @throws Exception DOCUMENT ME!
      */
     public void testLiteRendererXmlh450() throws Exception {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 400, 450, 400, 350);
     }
-    
+
     /**
      * Test lite renderer and style loaded from xml file
+     *
+     * @throws Exception DOCUMENT ME!
      */
     public void testLiteRendererXmlw200() throws Exception {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 200, 350, 400, 350);
     }
-    
+
     /**
      * Test lite renderer and style loaded from xml file
+     *
+     * @throws Exception DOCUMENT ME!
      */
     public void testLiteRendererXmlw400() throws Exception {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 400, 350, 400, 350);
     }
-    
+
     /**
      * Test lite renderer and style loaded from xml file
+     *
+     * @throws Exception DOCUMENT ME!
      */
     public void testLiteRendererXmlw600() throws Exception {
         performTestOnRenderer(createLiteRenderedXmlStyle(), "xml", 600, 350, 400, 350);
     }
 
+    private StyledRenderer createStyledRendererXmlStyle()
+        throws Exception {
+        MapContext map = new DefaultMapContext();
+        map.addLayer(buildFeatureCollection(), loadStyleFromXml());
+
+        StyledRenderer sr = new StyledRenderer(null);
+        sr.setMapContext(map);
+
+        return sr;
+    }
+
+    /**
+     * Test lite renderer and style loaded from xml file
+     *
+     * @throws Exception DOCUMENT ME!
+     */
+    public void testStyledRendererXmlh250() throws Exception {
+        performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 400, 250, 400, 350);
+    }
+
+    /**
+     * Test lite renderer and style loaded from xml file
+     *
+     * @throws Exception DOCUMENT ME!
+     */
+    public void testStyledRendererXmlh350() throws Exception {
+        performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 400, 350, 400, 350);
+    }
+
+    /**
+     * Test lite renderer and style loaded from xml file
+     *
+     * @throws Exception DOCUMENT ME!
+     */
+    public void testStyledRendererXmlw200() throws Exception {
+        performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 200, 350, 400, 350);
+    }
+
+    /**
+     * Test lite renderer and style loaded from xml file
+     *
+     * @throws Exception DOCUMENT ME!
+     */
+    public void testStyledRendererXmlw400() throws Exception {
+        performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 400, 350, 400, 350);
+    }
+
+    /**
+     * Test lite renderer and style loaded from xml file
+     *
+     * @throws Exception DOCUMENT ME!
+     */
+    public void testStyledRendererXmlw600() throws Exception {
+        performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 600, 350, 400, 350);
+    }
+
+    /**
+     * Test j2d renderer
+     *
+     * @throws Exception DOCUMENT ME!
+     */
+    public void testJ2DRendererBuilder() throws Exception {
+        MapContext map = new DefaultMapContext();
+        map.addLayer(buildFeatureCollection(), loadStyleFromXml());
+
+        StyledRenderer sr = new StyledRenderer(null);
+        sr.setMapContext(map);
+        performTestOnRenderer(sr, "builder", 400, 350, 400, 350);
+    }
+
     /**
      * Test lite renderer and style created with the style builder
+     *
+     * @throws Exception DOCUMENT ME!
      */
     public void testLiteRendererBuilder() throws Exception {
         MapContext ctx = new DefaultMapContext();
@@ -320,83 +403,30 @@ public class RenderStyleTest extends junit.framework.TestCase {
         performTestOnRenderer(renderer, "builder", 400, 350, 400, 350);
     }
 
-    private StyledRenderer createStyledRendererXmlStyle() throws Exception {
-        ContextFactory cf = ContextFactory.createFactory();
-        Context ctx = cf.createContext();
-        Layer layer = cf.createLayer(buildFeatureCollection(), loadStyleFromXml());
-        ctx.getLayerList().addLayer(layer);
-
-        StyledRenderer sr = new StyledRenderer(null);
-        sr.setContext(ctx);
-        
-        return sr;
-    }
-    
-    
-    /**
-     * Test lite renderer and style loaded from xml file
-     */
-    public void testStyledRendererXmlh250() throws Exception {
-        performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 400, 250, 400, 350);
-    }
-    
-    /**
-     * Test lite renderer and style loaded from xml file
-     */
-    public void testStyledRendererXmlh350() throws Exception {
-        performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 400, 350, 400, 350);
-    }
-    
-    /**
-     * Test lite renderer and style loaded from xml file
-     */
-    public void testStyledRendererXmlw200() throws Exception {
-        performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 200, 350, 400, 350);
-    }
-    
-    /**
-     * Test lite renderer and style loaded from xml file
-     */
-    public void testStyledRendererXmlw400() throws Exception {
-        performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 400, 350, 400, 350);
-    }
-    
-    /**
-     * Test lite renderer and style loaded from xml file
-     */
-    public void testStyledRendererXmlw600() throws Exception {
-        performTestOnRenderer(createStyledRendererXmlStyle(), "xml", 600, 350, 400, 350);
-    }
-    
-
-    /**
-     * Test j2d renderer
-     */
-    public void testJ2DRendererBuilder() throws Exception {
-        ContextFactory cf = ContextFactory.createFactory();
-        Context ctx = cf.createContext();
-        Layer layer = cf.createLayer(buildFeatureCollection(), buildStyle());
-        ctx.getLayerList().addLayer(layer);
-
-        StyledRenderer sr = new StyledRenderer(null);
-        sr.setContext(ctx);
-        performTestOnRenderer(sr, "builder", 400, 350, 400, 350);
-    }
-
     /**
      * Perform test on the passed renderer, which must be already configured with its context
+     *
+     * @param renderer DOCUMENT ME!
+     * @param fileSuffix DOCUMENT ME!
+     * @param width DOCUMENT ME!
+     * @param height DOCUMENT ME!
+     * @param dataWidth DOCUMENT ME!
+     * @param dataHeigth DOCUMENT ME!
+     *
+     * @throws Exception DOCUMENT ME!
      */
-    private void performTestOnRenderer(Renderer2D renderer, String fileSuffix, int width, int height, double dataWidth, double dataHeigth)
+    private void performTestOnRenderer(Renderer2D renderer, String fileSuffix, int width,
+        int height, double dataWidth, double dataHeigth)
         throws Exception {
-         if(!online()) {
-             System.out.println("WARNING: CANNOT REACH LEEDS HOST, TEST WON'T BE PERFORMED");
-             return;
-         }
-         
-        
+        if (!online()) {
+            System.out.println("WARNING: CANNOT REACH LEEDS HOST, TEST WON'T BE PERFORMED");
+
+            return;
+        }
+
         final double scalex = width / dataWidth;
         final double scaley = height / dataHeigth;
-            
+
         java.net.URL base = getClass().getResource("rs-testData/");
 
         AffineTransform at = new AffineTransform();
@@ -440,7 +470,8 @@ public class RenderStyleTest extends junit.framework.TestCase {
         }
 
         java.io.File file2 = new java.io.File(base.getPath() + "/exemplars/",
-                "RenderStyleTest_" + renderer.getClass().getName().replace('.', '_') + "_" + width + "x" + height + ".png");
+                "RenderStyleTest_" + renderer.getClass().getName().replace('.', '_') + "_" + width
+                + "x" + height + ".png");
 
         RenderedImage image2 = (RenderedImage) JAI.create("fileload", file2.toString());
 
@@ -528,16 +559,17 @@ public class RenderStyleTest extends junit.framework.TestCase {
 
         return point;
     }
-    
+
     // returns true if can reach leeds
     public boolean online() {
         boolean online = true;
+
         try {
             InetAddress address = InetAddress.getByName("www.ccg.leeds.ac.uk");
         } catch (UnknownHostException e) {
             online = false;
         }
+
         return online;
     }
-    
 }

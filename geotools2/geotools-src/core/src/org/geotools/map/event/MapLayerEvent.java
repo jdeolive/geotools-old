@@ -17,9 +17,6 @@
 package org.geotools.map.event;
 
 
-// Geotools dependencies
-import org.geotools.map.Layer; // For Javadoc
-
 // J2SE dependencies
 import java.util.EventObject;
 
@@ -30,7 +27,7 @@ import java.util.EventObject;
  * @author Andrea Aime
  * @author Ian Turton
  * @author Martin Desruisseaux
- * @version $Id: MapLayerEvent.java,v 1.1 2003/12/04 23:20:33 aaime Exp $
+ * @version $Id: MapLayerEvent.java,v 1.2 2004/03/14 18:44:22 aaime Exp $
  *
  * @see Layer
  * @see LayerListener

@@ -17,24 +17,17 @@
 package org.geotools.map.event;
 
 
-// Geotools dependencies
-import org.geotools.map.Layer; // For Javadoc
-import java.beans.PropertyChangeListener;
-
 // J2SE dependencies
 import java.util.EventListener;
-import java.util.EventObject;
 
 
 /**
  * The listener that's notified when some {@linkPlain MapLayer layer} property changes.
  *
- * @author Cameron Shorter
- * @author Martin Desruisseaux
- * @version $Id: MapLayerListener.java,v 1.1 2003/12/04 23:20:33 aaime Exp $
+ * @author Andrea Aime
  *
- * @see Layer
- * @see LayerEvent
+ * @see MapLayer
+ * @see MapLayerEvent
  */
 public interface MapLayerListener extends EventListener {
     /**

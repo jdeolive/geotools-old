@@ -10,12 +10,16 @@ package org.geotools.coverage;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Panel;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 
@@ -25,7 +29,8 @@ import junit.framework.TestSuite;
 
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.Filter;
-import org.geotools.map.DefaultMap;
+import org.geotools.map.DefaultMapContext;
+import org.geotools.map.MapContext;
 import org.geotools.renderer.lite.LiteRenderer;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.RasterSymbolizer;
@@ -58,23 +63,24 @@ public class TestImageDataSource extends TestCase {
     }
     private static boolean setup = false;
     private static ImageDataSource ds;
-    private static String dataFolder;
     
     public void setUp() throws Exception {
         if(setup) return;
         setup = true;
-        dataFolder = System.getProperty("dataFolder");
-        if(dataFolder==null){
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder+="/tests/unit/testData/";
-        }
-        ds = new ImageDataSource(dataFolder+"etopo.png");
+        ds = new ImageDataSource(getResourcePath("/testData/etopo.png"));
         
         if(ds == null){
-            fail("unable to build datasource " + dataFolder+"etopo.png");
+            fail("unable to build datasource /testData/etopo.png");
         }
         System.out.println("get a datasource " + ds);
+    }
+
+    private String getResourcePath(String resourceName) {
+        URL r = getClass().getResource(resourceName);
+        if (r == null) {
+        	throw new RuntimeException("Could not locate resource : " + resourceName);
+        }
+        return r.getFile();
     }
     
     
@@ -105,7 +111,7 @@ public class TestImageDataSource extends TestCase {
     public void testRenderImage() throws Exception{
 	Filter filter = null;
         FeatureCollection ft = ds.getFeatures(filter);
-        org.geotools.map.Map map = new DefaultMap();
+        MapContext mapContext = new DefaultMapContext();
         StyleFactory sFac = StyleFactory.createStyleFactory();
         Envelope ex = ds.getBounds();
         //The following is complex, and should be built from
@@ -116,8 +122,8 @@ public class TestImageDataSource extends TestCase {
         FeatureTypeStyle fts = sFac.createFeatureTypeStyle(new Rule[]{rule});
         Style style = sFac.createStyle();
         style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts});
-        map.addFeatureTable(ft,style);
-        LiteRenderer renderer = new LiteRenderer();
+        mapContext.addLayer(ft,style);
+        LiteRenderer renderer = new LiteRenderer(mapContext);
         Frame frame = new Frame();
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
@@ -127,22 +133,17 @@ public class TestImageDataSource extends TestCase {
         int w = 600, h = 300;
         frame.setSize(w,h);
         frame.setVisible(true);
-        renderer.setOutput(p.getGraphics(),p.getBounds());
-        map.render(renderer,ex);//and finaly try and draw it!
+		Rectangle screenRect = new Rectangle(w, h);
+		AffineTransform at = renderer.worldToScreenTransform(ft.getBounds(), screenRect);
+        renderer.paint((Graphics2D) p.getGraphics(), screenRect, at); 
         
         BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
         Graphics g = image.getGraphics();
         g.setColor(Color.white);
         g.fillRect(0,0,w,h);
-        renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
-        map.render(renderer,ex);//and finaly try and draw it!
-        String dataFolder = System.getProperty("dataFolder");
-        if(dataFolder==null){
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder+="/tests/unit/testData";
-        }
-        File file = new File(dataFolder, "RendererStyle.jpg"); 
+		renderer.paint((Graphics2D) p.getGraphics(), screenRect, at);
+        File file = new File(getResourcePath("/testData/etopo.png"));
+        file = new File(file.getParent(), "RendererStyle.jpg"); 
         FileOutputStream out = new FileOutputStream(file);
         ImageIO.write(image, "JPEG", out); 
         

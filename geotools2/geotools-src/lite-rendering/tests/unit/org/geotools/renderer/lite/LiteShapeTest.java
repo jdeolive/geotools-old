@@ -6,32 +6,18 @@
 
 package org.geotools.renderer.lite;
 
-import org.geotools.data.*;
-import com.vividsolutions.jts.geom.*;
-import org.geotools.feature.*;
-import org.geotools.styling.*;
-import org.geotools.map.*;
-import java.util.*;
-import java.io.*;
-import junit.framework.*;
-import java.awt.Frame;
-import java.awt.Panel;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.*;
-import java.io.*;
-import javax.imageio.*;
-import javax.swing.*;
-import org.geotools.map.BoundingBox;
-import org.geotools.map.BoundingBoxImpl;
-import org.geotools.renderer.Renderer;
-import org.geotools.renderer.lite.LiteRenderer;
-import org.geotools.renderer.lite.LiteShape;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.TopologyException;
 
 
 /**

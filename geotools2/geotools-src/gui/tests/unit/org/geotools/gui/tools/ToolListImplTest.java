@@ -16,27 +16,20 @@
  */
 package org.geotools.gui.tools;
 
-import junit.framework.*;
-
-import org.geotools.gui.tools.Tool;
-import org.geotools.gui.tools.ToolFactory;
-import org.geotools.gui.tools.event.SelectedToolListener;
-
-import org.geotools.map.ContextFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EventListener;
 import java.util.EventObject;
 
-import javax.swing.event.EventListenerList;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.geotools.gui.tools.event.SelectedToolListener;
 
 
 /**
  * ToolListImplTest.java JUnit based test
  *
  * @author Cameron Shorter
- * @version $Id: ToolListImplTest.java,v 1.3 2003/06/19 07:13:30 camerons Exp $
+ * @version $Id: ToolListImplTest.java,v 1.4 2004/03/14 18:44:25 aaime Exp $
  */
 public class ToolListImplTest extends TestCase implements SelectedToolListener {
     private ToolList globalToolList;
