@@ -432,7 +432,7 @@ class PointBuilder extends GeometryBuilder
     {
         if (EMPTY == null)
         {
-            EMPTY = factory.createPoint(null);
+            EMPTY = factory.createPoint((Coordinate)null);
         }
 
         return EMPTY;
