@@ -28,7 +28,12 @@ import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 import org.geotools.filter.*;
+import org.geotools.filter.SQLUnpacker;
+import org.geotools.filter.SQLEncoderPostgis;
+import org.geotools.filter.SQLEncoderException;
+
 import org.geotools.datasource.extents.EnvelopeExtent;
+
 
 //Logging system
 import java.util.logging.Logger;
@@ -38,7 +43,7 @@ import java.util.logging.Logger;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.4 2002/09/01 16:01:34 jmacgill Exp $
+ * @version $Id: PostgisDataSource.java,v 1.5 2002/10/10 23:29:35 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class PostgisDataSource implements org.geotools.data.DataSource {
@@ -75,8 +80,19 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     /** Well Known Text reader (from JTS). */
     private static WKTReader geometryReader = new WKTReader(geometryFactory);
     
+        /** Well Known Text writer (from JTS). */
+    private static WKTWriter geometryWriter = new WKTWriter();
+
     /** The maximum features allowed by the server for any given response. */
     private static int maxFeatures = 1000;
+
+    /** The srid of the data in the table.  HACK: This won't
+	work if a schema is passed.  Add srid to schema? */
+    private static int srid;
+
+ /** To create the sql where statement */
+    private static SQLEncoderPostgis encoder = new SQLEncoderPostgis();
+
 
     /** The maximum features allowed by the server for any given response. */
     private FeatureType schema = null;
@@ -86,6 +102,13 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
     /** A tablename. */
     private String tableName;
+
+
+
+    /** To get the part of the filter incorporated into the sql where statement */
+    private SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
+
+
 
     /**
      * Initializes the database and request handler.
@@ -241,6 +264,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         //LOGGER.fine("about to read geometry type");
         if( result.next()) {
             geometryType = result.getString("type");
+	    srid = result.getInt("srid");
+
             //LOGGER.fine("geometry type is: " + geometryType);
         }
         
@@ -256,7 +281,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      *
      * @return Full SQL statement.
      */ 
-    private static String makeSql(Filter filter, String tableName, FeatureType schema) {
+    public static String makeSql(Filter filter, String tableName, FeatureType schema) {
         StringBuffer sqlStatement = new StringBuffer("SELECT gid,");
         AttributeType[] attributeTypes = schema.getAttributeTypes();
 
@@ -269,10 +294,23 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             }
             if( i < attributeTypes.length - 1) {
                 sqlStatement.append(",");
-            }                
-        }
-        return sqlStatement.append(" FROM " + tableName + " LIMIT " + maxFeatures + ";").toString();
+	    }    
+	}
+	    encoder.setSRID(srid);
+	    String where = "";
+	    if (filter != null) {
+		try {    
+		    where = encoder.encode((AbstractFilter)filter);   
+		} catch (SQLEncoderException e) { 
+		    LOGGER.fine("Encoder error" + e.getMessage());
+		}
+		//_log.debug("where statement is " + where);
+	    }
+	    sqlStatement.append(" FROM " + tableName +" "+ where + " LIMIT " + maxFeatures + ";").toString();
+	    
+	    return sqlStatement.toString();            
     }
+    
 
 
     /**
@@ -331,7 +369,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             //LOGGER.fine("just made schema: " + schema.toString());
 
             //LOGGER.fine("about to run a query: " + makeSql(filter, tableName, schema));
-            ResultSet result = statement.executeQuery( makeSql(filter, tableName, schema));
+	    unpacker.unPackAND(filter);
+            ResultSet result = statement.executeQuery( makeSql(unpacker.getSupported(), tableName, schema));
 
             // set up a factory, attributes, and a counter for feature creation
             //LOGGER.fine("about to prepare feature reading");
@@ -370,6 +409,10 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
                 resultCounter++;
             }								
             
+	    //get rid of features that the encoder couldn't handle.
+	    filterFeatures(features, unpacker.getUnSupported());
+
+
             // add features to collection and close the result set
             collection.addFeatures((Feature[]) features.
                                    toArray(new Feature[features.size()]));				
@@ -391,14 +434,111 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
 
     /**
+     * Runs through a list of features and returns a list of the
+     * ones that are contained by the filter.  Hopefully when
+     * unpacking filters has more support this will do relatively
+     * little, as the SQL statement should do the majority of the filtering
+     *
+     * @param features The list to be tested.
+     * @param filter The filter to test with.
+     */
+    private void filterFeatures(List features, Filter filter){
+	if (filter != null) {
+	    List filteredFeatures = new ArrayList(maxFeatures);
+	    for (int i = 0; i < features.size(); i++){
+		if (!filter.contains((Feature) features.get(i))){
+		    features.remove(i);
+                i--; //remove shifts index, so we must compensate
+		}
+	    }
+	}
+    }
+
+    /**
      * Returns a feature collection, based on the passed filter.
      *
      * @param collection Add features to the PostGIS database.
      */ 
     public void addFeatures(FeatureCollection collection)
         throws DataSourceException {
-        throw new DataSourceException("Operation not supported.");
+        Feature[] featureArr;
+        AttributeType[] attributeTypes;
+        int geomPos;
+        int curFeature;
+        Object[] curAttributes;
+        String sql = "";
+        String featureID;
+        String geomSql = "";
+        int numAttributes;
+        String attrValue = "";
+	String geoText = "";
+        //int gid;
+        //Geometry curGeom = null;
+       
+	
+	featureArr = collection.getFeatures();
+        if (featureArr.length > 0) {
+	    schema = featureArr[0].getSchema();
+	    //TODO: check to make sure schema is same for feature collection
+	    attributeTypes = schema.getAttributeTypes(); 
+	    numAttributes = attributeTypes.length;     
+	    geomPos = schema.getDefaultGeometry().getPosition();
+	    try { 
+		Connection dbConnection = db.getConnection();
+		Statement statement = dbConnection.createStatement();
+		for (int i = 0; i < featureArr.length; i++){
+		    curAttributes = featureArr[i].getAttributes();
+		    
+		//need to change this...get names of cols from schema
+		    sql = "INSERT INTO " + tableName + 
+			" VALUES(";
+		    
+		    featureID = featureArr[i].getId(); 
+		    sql += addQuotes(featureID) + ", ";
+		    for (int j = 0; j < curAttributes.length; j++){
+			if (j == geomPos) {
+			    geoText =  geometryWriter.write((Geometry)curAttributes[j]);
+			    sql += "GeometryFromText('" + geoText + "', " + srid + ")"; 
+			} else {
+			    attrValue = addQuotes(curAttributes[j]);
+			    sql += attrValue;
+			}			
+			
+			if (j < curAttributes.length - 1){
+			    sql += ", ";
+			}
+		    }
+		    sql += ");";
+		    //_log.info("this sql statement = " + sql);
+		    statement.executeUpdate(sql);
+		}
+		statement.close();
+		dbConnection.close();
+	    } catch (SQLException e) {
+		//_log.info("Some sort of database connection error: " + e.getMessage());
+	    }    
+	}
+
+
     }
+
+
+
+    /**
+     * Adds quotes to an object for storage in postgis.  The object should
+     * be a string or a number.  To perform an insert strings need quotes
+     * around them, and numbers work fine with quotes, so this method can
+     * be called on unknown objects.
+     *
+     * @param value The object to add quotes to.
+     * @return a string representation of the object with quotes.
+     */
+    private String addQuotes(Object value){
+        String retString;
+        retString = "'" + value.toString() + "'";
+        return retString;
+    }
+
 
     /**
      * Removes the features specified by the passed filter from the
@@ -410,7 +550,65 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      */
     public void removeFeatures(Filter filter)
         throws DataSourceException {
-        throw new DataSourceException("Operation not supported.");
+	Feature[] featureArr;
+        Object[] curAttributes;
+        String sql = "";
+        Object featureID;
+        String geomSql = "";
+        String attrValue = "";
+        Object gidValue;
+        String gid = null;
+        AttributeType fidType;
+        String gidName;
+
+	unpacker.unPackOR(filter);
+	String whereStmt = null;
+	Filter encodableFilter = unpacker.getSupported();
+	Filter unEncodableFilter = unpacker.getUnSupported();
+	
+	try {
+	    Connection dbConnection = db.getConnection();
+            Statement statement = dbConnection.createStatement();
+	    
+	    if (encodableFilter != null) {
+		whereStmt = encoder.encode((AbstractFilter)encodableFilter);
+		sql = "DELETE from " + tableName + " " + whereStmt + ";";
+		//do actual delete
+		//_log.info("sql statment is " + sql);
+		statement.executeUpdate(sql);
+
+	    }
+	    
+	    if (unEncodableFilter != null) {
+		
+		featureArr = getFeatures(unEncodableFilter).getFeatures();
+		if (featureArr.length > 0) {
+		    sql = "DELETE FROM "  + tableName + " WHERE "; 
+		    for (int i = 0; i < featureArr.length; i++){
+			gidValue = featureArr[i].getId();
+			gid = addQuotes(gidValue);
+			sql += GID_NAME + " = " + gid;
+			//is there always going to be a field called gid?
+			if (i < featureArr.length - 1) {
+			    sql += " OR ";
+			} else {
+			    sql += ";";
+			}
+			
+		    }
+		    //_log.info("our delete says : " + sql);
+		    statement.executeUpdate(sql);
+		}
+            }
+
+	    statement.close();
+	    dbConnection.close();    
+        } catch (SQLException e) {
+	    LOGGER.fine("Error with sql " + e.getMessage());
+        } catch (SQLEncoderException e) {
+	    LOGGER.fine("error encoding sql from filter " + e.getMessage());
+	}
+
     }
     
     /**
@@ -442,8 +640,95 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      */
     public void modifyFeatures(AttributeType type, Object value, Filter filter)
         throws DataSourceException {
-        throw new DataSourceException("Operation not supported.");
+	Feature[] featureArr;
+        Object[] curAttributes;
+        String sql = "";
+        Object featureID;
+        String geomSql = "";
+        String attrValue = "";
+        Object gidValue;
+        String gid = null;
+        AttributeType fidType;
+        String gidName;
+	//        int gid = 0;
+        //int gidPos;
+
+
+	//check schema has filter???
+
+	unpacker.unPackOR(filter);
+	String whereStmt = null;
+	Filter encodableFilter = unpacker.getSupported();
+	Filter unEncodableFilter = unpacker.getUnSupported();
+	
+	try {
+	    Connection dbConnection = db.getConnection();
+            Statement statement = dbConnection.createStatement();
+	    
+	    if (encodableFilter != null) {
+		whereStmt = encoder.encode((AbstractFilter)encodableFilter);
+		sql = makeModifySql(type, value, whereStmt);
+		//_log.info("encoded modify is " + sql);
+		statement.executeUpdate(sql);
+	    }
+	    
+	    if (unEncodableFilter != null) {
+		
+		featureArr = getFeatures(unEncodableFilter).getFeatures();
+		if (featureArr.length > 0) {
+		   whereStmt = " WHERE "; 
+		    for (int i = 0; i < featureArr.length; i++){
+			gidValue = featureArr[i].getId();
+			gid = addQuotes(gidValue);
+			whereStmt += GID_NAME + " = " + gid;
+			//is there always going to be a field called gid?
+			if (i < featureArr.length - 1) {
+			    whereStmt += " OR ";
+			}	
+		    }
+		    sql = makeModifySql(type, value, whereStmt);
+		    //_log.info("unencoded modify is : " + sql);
+		    statement.executeUpdate(sql);
+		}
+            }
+
+	    statement.close();
+	    dbConnection.close();    
+        } catch (SQLException e) {
+              LOGGER.fine("Error with sql " + e.getMessage());
+        } catch (SQLEncoderException e) {
+	    LOGGER.fine("error encoding sql from filter " + e.getMessage());
+	}
+
+
     }
+
+        /**
+     * Creates a sql update statement.
+     *
+     * @param type the attribute to be changed.
+     * @param value the value to change it to.
+     * @param feature the feature to update.
+     * @return an update sql statement.
+     */ 
+    private String makeModifySql(AttributeType type, Object value, String whereStmt){
+        String sql;
+        String newValue;  
+	if (Geometry.class.isAssignableFrom(type.getType())) {
+	    //create the text to add geometry
+	    String geoText =  geometryWriter.write((Geometry)value);
+	    newValue = "GeometryFromText('" + geoText + "', " + srid + ")"; 
+	} else {
+	    //or add quotes, covers rest of cases
+	    newValue = addQuotes(value); 
+	}
+        //TODO error checking to make sure type matches schema
+        sql = "UPDATE " + tableName + " SET " + 
+            type.getName() + " = " + newValue + " " + whereStmt + ";";
+	
+        return sql;
+    }
+
     
 
     /**
