@@ -868,7 +868,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.22 2003/03/03 21:00:27 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.23 2003/03/11 09:11:00 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -1804,6 +1804,13 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
           Docbook XSL Stylesheets</ulink>, in particular, the section on
           <ulink url="http://www.sagehill.net/xml/docbookxsl/ModularDoc.html">writing
           modular docbook files</ulink>.</para>
+        </listitem>
+
+        <listitem>
+          <para><ulink url="http://xincluder.sourceforge.net/">Xincluder</ulink>
+          is a java open source project for processing <emphasis>xinlcude</emphasis>
+          tags, which might be able to be used to by maven to publish modular
+          docbook documents.</para>
         </listitem>
       </itemizedlist>
     </section>
