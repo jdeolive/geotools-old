@@ -18,6 +18,8 @@
  **/
 package org.geotools.styling;
 
+import java.util.Arrays;
+
 import org.geotools.filter.Expression;
 
 
@@ -25,7 +27,7 @@ import org.geotools.filter.Expression;
  *  A stroke defines how a line is rendered. 
  *
  *
- * @version $Id: StrokeImpl.java,v 1.10 2003/08/10 08:39:28 seangeo Exp $
+ * @version $Id: StrokeImpl.java,v 1.11 2003/08/10 14:10:10 seangeo Exp $
  * @author James Macgill, CCG
  */
 public class StrokeImpl implements Stroke, Cloneable {
@@ -405,7 +407,7 @@ public class StrokeImpl implements Stroke, Cloneable {
         if (color != null) {
             result = PRIME * result + color.hashCode();
         }
-        result = PRIME * result + hashCodeHelper(dashArray);
+        
         if (dashOffset != null) {
             result = PRIME * result + dashOffset.hashCode();
         }
@@ -427,26 +429,26 @@ public class StrokeImpl implements Stroke, Cloneable {
         if (width != null) {
             result = PRIME * result + width.hashCode();
         }
-
+        
+        if (dashArray != null) {
+            result = PRIME * result + hashCodeDashArray(dashArray);
+        }
+        
         return result;
     }
 
     /*
-     * Helper method to compute the hashCode of arbitrary arrays.
+     * Helper method to compute the hashCode of float arrays.
      */
-    private int hashCodeHelper(Object a) {
+    private int hashCodeDashArray(float[] a) {
         final int PRIME = 1000003;
         if (a == null) {
             return 0;
         }
-        if (!a.getClass().isArray()) {
-            return a.hashCode();
-        }
 
         int result = 0;
-        int aLength = java.lang.reflect.Array.getLength(a);
-        for (int i = 0; i < aLength; i++) {
-            result = PRIME * result + hashCodeHelper(java.lang.reflect.Array.get(a, i));
+        for (int i = 0; i < a.length; i++) {
+            result = PRIME * result + Float.floatToIntBits(a[i]);
         }
 
         return result;
@@ -546,39 +548,10 @@ public class StrokeImpl implements Stroke, Cloneable {
                 return false;
             }
         }
-        if (!equalsHelper(dashArray, other.dashArray)) {
+        if (!Arrays.equals(dashArray, other.dashArray)) {
             return false;
         }
         
-        return true;
-    }
-
-    /*
-     * Helper method to compare two arbitrary arrays.
-     */
-    private boolean equalsHelper(Object a, Object b) {
-        if (a == b) {
-            return true;
-        }
-        if (a == null || b == null) {
-            return false;
-        }
-
-        if (!a.getClass().isArray() || !b.getClass().isArray()) {
-            return a.equals(b);
-        }
-
-        int aLength = java.lang.reflect.Array.getLength(a);
-        if (aLength != java.lang.reflect.Array.getLength(b)) {
-            return false;
-        }
-
-        for (int i = 0; i < aLength; i++) {
-            if (!equalsHelper(java.lang.reflect.Array.get(a, i), java.lang.reflect.Array.get(b, i))) {
-                return false;
-            }
-        }
-
         return true;
     }
 
