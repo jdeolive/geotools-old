@@ -65,7 +65,7 @@ public class FilterCapabilities {
      * @return true if supported, false otherwise.
      */
     public boolean supports(Filter filter) {
-        short filterType = ((AbstractFilter) filter).getFilterType();
+        short filterType = filter.getFilterType();
 
         return supports(filterType);
     }
@@ -81,7 +81,7 @@ public class FilterCapabilities {
      */
     public boolean fullySupports(Filter filter) {
         boolean supports = true;
-        short filterType = ((AbstractFilter) filter).getFilterType();
+        short filterType = filter.getFilterType();
 
         if (AbstractFilter.isLogicFilter(filterType)) {
             Iterator filters = ((LogicFilter) filter).getFilterIterator();

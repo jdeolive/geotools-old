@@ -197,7 +197,7 @@ public class SQLUnpacker {
         if (capabilities.fullySupports(filter)) {
             retSup = filter;
         } else {
-            short type = ((AbstractFilter) filter).getFilterType();
+            short type = filter.getFilterType();
 
             if ((type == splitType) && capabilities.supports(splitType)) {
                 //TODO: one special case not covered, when capabilities does not support
