@@ -39,31 +39,20 @@
 <!-- states of the reactor and perform arbitrary actions based any        -->
 <!-- number and combination of conditions.                                -->
 <!-- ==================================================================== -->
-
 <!--
 <project default="build"
 -->
-<project
-         xmlns:reactor="reactor"
-         xmlns:j="jelly:core"
-         xmlns:u="jelly:util"
-         xmlns:ant="jelly:ant"
-         xmlns:maven="jelly:maven"
-         xmlns:m="maven"
-         xmlns:deploy="deploy"
-         xmlns:texen="texen"
-xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
-         default="info" >
-
- 
-  <!-- ================================================================== -->
-  <!-- B U I L D                                                          -->
-  <!-- ================================================================== -->
-  
-  <goal name="info">
-    <!-- this is tell people which targets to use, if we could detect 
+<project xmlns:reactor="reactor" xmlns:j="jelly:core" xmlns:u="jelly:util" xmlns:ant="jelly:ant" xmlns:maven="jelly:maven" xmlns:m="maven" xmlns:deploy="deploy" xmlns:texen="texen" xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary" default="info">
+	<!-- ================================================================== -->
+	<!-- B U I L D                                                          -->
+	<!-- ================================================================== -->
+	<goal name="info">
+		<!-- this is tell people which targets to use, if we could detect 
          the directory they are starting it in then we could automate this -->
-    <echo>
+		<echo>	
+	Information on building GT2	
+	Make sure you use 'maven build' in the top directory at least once in order to build all modules before working on individual ones.
+		
       If building a single module use one of:
         maven jar:install
         maven test
@@ -80,354 +69,210 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
       For more options use
         maven -g
     </echo>
-  </goal>
-  
-  <goal name="build:log">
-    <echo file="../../buildReport.txt" append="true">
-    starting ${pom.id}</echo>
-    <splash imageurl="file://${basedir}/xdocs/images/${pom.artifactId}.gif"/>
-  </goal> 
-  <postGoal name="clean">
-    <echo file="../../buildReport.txt" append="true">  cleaned</echo>
-  </postGoal> 
-  <postGoal name="java:compile">
-    <echo file="../../buildReport.txt" append="true">, compiled</echo>
-  </postGoal>
-  <postGoal name="test:test">
-    <echo file="../../buildReport.txt" append="true">, tested</echo>
-  </postGoal>
-  <postGoal name="jar:install">
-    <tstamp/>
-    <echo file="../../buildReport.txt" append="true">, INSTALLED ${TSTAMP}</echo>
-  </postGoal> 
-  
-  <goal name="build">
-  
-    <tstamp/>
-    <j:set var="gt2home" value="${basedir}"/>
-    <echo>
+	</goal>
+        <preGoal name="checkstyle:init">
+            <echo>preGoal in maven.xml is fudging checkstyle to use geotools config settings</echo>
+            <j:set var="maven.checkstyle.properties" value="../../geotools_checks.xml"/>
+        </preGoal>    
+	<goal name="build:log">
+		<echo file="../../buildReport.txt" append="true">
+    ${pom.id}</echo>
+		<!-- < imageurl="file://${basedir}/xdocs/images/${pom.artifactId}.gif"/> -->
+	</goal>
+	<postGoal name="clean">
+		<echo file="../../buildReport.txt" append="true">  cleaned</echo>
+	</postGoal>
+	<postGoal name="java:compile">
+		<echo file="../../buildReport.txt" append="true">, compiled</echo>
+	</postGoal>
+	<postGoal name="test:test">
+		<echo file="../../buildReport.txt" append="true">, tested</echo>
+	</postGoal>
+	<postGoal name="jar:install">
+		<tstamp/>
+		<echo file="../../buildReport.txt" append="true">, INSTALLED ${TSTAMP}</echo>
+	</postGoal>
+	<goal name="build">
+		<tstamp/>
+		<j:set var="gt2home" value="${basedir}"/>
+		<echo>
       looking for modules in: ${basedir}/geotools-src
       reporting progress to ${gt2home}
     </echo>
-    <echo file="${basedir}/buildReport.txt" append="false">GeoTools2 module build report ${DSTAMP}</echo>
-    <maven:reactor
-      basedir="${basedir}/geotools-src"
-      includes="*/project.xml"
-      goals="build:log,clean,jar:install"
-      banner="Building"
-      postProcessing="true"
-      ignoreFailures="true"
-    />  
-    <!--
-    <j:set
-      var = "ok"
-      value = "${reactorProjects}"
-    />
-
-    <maven:reactor
-      basedir="${basedir}/geotools-src"
-      includes="*/project.xml"
-      postProcessing="true"
-      ignoreFailures="true"
-    />
-    
-    <j:forEach var="module" items="${reactorProjects}">
-        <j:set var = "status" value = "failed"/>
-        <j:forEach var="item" items="${ok}">
-            <j:if test="${item == module}">
-                <j:set var = "status" value = "installed"/>
-            </j:if>
-         </j:forEach>
-         <echo>Module ${module} : ${status}</echo>
-    </j:forEach> -->
-     <loadfile
-      property="build.report"
-      srcFile="${basedir}/buildReport.txt"
-      failonerror="false"/>
-      <echo>BUILD REPORT (from buildReport.txt):
+		<echo file="${basedir}/buildReport.txt" append="false">GeoTools2 module build report ${DSTAMP}</echo>
+		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="build:log,clean,jar:install" banner="Building" postProcessing="true" ignoreFailures="true"/>
+		<loadfile property="build.report" srcFile="${basedir}/buildReport.txt" failonerror="false"/>
+		<echo>BUILD REPORT (from buildReport.txt):
       Sucessfull modules should read 'cleaned, compiled, tested, INSTALLED HHMM'
       ${build.report}
       If some modules failed to INSTALL, look for problems from the TOP DOWN as failures lower in the list will probaly be caused by ones higher up.
       If modules cleanded and compiled but were not tested look in geotools-src/modulename/target/test-reports for details.
+      The next line of output will say 'Build Sucessful'  even if some/all modules failed, please check the above report.
       </echo>
-    </goal>
-  
-  <goal name="build-fail">
-  
-
-    <echo>
+	</goal>
+	<goal name="build-fail">
+		<echo>
       looking for modules in: ${basedir}/geotools-src
 
     </echo>
-    <maven:reactor
-      basedir="${basedir}/geotools-src"
-      includes="*/project.xml"
-      goals="clean,jar:install"
-      banner="Building"
-      postProcessing="true"
-      ignoreFailures="false"
-    />
-
-    <j:set
-      var = "ok"
-      value = "${reactorProjects}"
-    />
- 
-    <maven:reactor
-      basedir="${basedir}/geotools-src"
-      includes="*/project.xml"
-      postProcessing="true"
-      ignoreFailures="true"
-    />
-
-    <j:forEach var="module" items="${reactorProjects}">
-        <j:set var = "status" value = "failed"/>
-        <j:forEach var="item" items="${ok}">
-            <j:if test="${item == module}">
-                <j:set var = "status" value = "installed"/>
-            </j:if>
-         </j:forEach>
-         <echo>Module ${module} : ${status}</echo>
-    </j:forEach>
-   
-
-  </goal>
-  
-  <goal name="snapshot">
-  
-    <echo>
+		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="clean,jar:install" banner="Building" postProcessing="true" ignoreFailures="false"/>
+		<j:set var="ok" value="${reactorProjects}"/>
+		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" postProcessing="true" ignoreFailures="true"/>
+		<j:forEach var="module" items="${reactorProjects}">
+			<j:set var="status" value="failed"/>
+			<j:forEach var="item" items="${ok}">
+				<j:if test="${item == module}">
+					<j:set var="status" value="installed"/>
+				</j:if>
+			</j:forEach>
+			<echo>Module ${module} : ${status}</echo>
+		</j:forEach>
+	</goal>
+	<goal name="snapshot">
+		<echo>
       looking for modules in: ${basedir}/geotools-src
       
     </echo>
-    <maven:reactor
-      basedir="${basedir}/geotools-src"
-      includes="*/project.xml"
-      goals="clean,jar:deploy-snapshot"
-      banner="Deploying"
-      ignoreFailures="true"
-    />
-    
-    <echo>
+		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="clean,jar:deploy-snapshot" banner="Deploying" ignoreFailures="true"/>
+		<echo>
       modules built and deployed:  ${reactorProjects}
     </echo>
-  
-  </goal>
-  
-  <!-- ================================================================== -->
-  <!-- W E B S I T E                                                      -->
-  <!-- ================================================================== -->
-  
-  <preGoal name="site:generate">
-    <attainGoal name="pmd"/>
-  </preGoal>
-
-  <goal name="allsite">
-
-    <!--
+	</goal>
+	<!-- ================================================================== -->
+	<!-- W E B S I T E                                                      -->
+	<!-- ================================================================== -->
+	<preGoal name="site:generate">
+		<attainGoal name="pmd"/>
+	</preGoal>
+	<goal name="allsite">
+		<!--
       ||
       || Generate the documentation for each of the commons projects.
       ||
     -->
-    
-    <maven:reactor
-      basedir="${basedir}/geotools-src"
-      includes="*/project.xml"
-      goals="site:generate"
-      banner="Generating site for"
-      ignoreFailures="true"
-    />
-      <j:set
-      var = "ok"
-      value = "${reactorProjects}"
-    />
-    
-    <maven:reactor
-      basedir="${basedir}/geotools-src"
-      includes="*/project.xml"
-      postProcessing="true"
-      ignoreFailures="true"
-    />
-    
-    <j:forEach var="module" items="${reactorProjects}">
-        <j:set var = "status" value = "failed"/>
-        <j:forEach var="item" items="${ok}">
-            <j:if test="${item == module}">
-                <j:set var = "status" value = "installed"/>
-            </j:if>
-         </j:forEach>
-         <echo>Module ${module} : ${status}</echo>
-    </j:forEach>
-     <j:file name="${basedir}/xdocs/buildreport.xml" prettyPrint="true">
-<document>
-	<properties>
-		<title>Javadoc Report</title>
-	</properties>
-	<body>
-		<section name="Javadoc Report">
-			<p/>
-			<source>
+		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="site:generate" banner="Generating site for" ignoreFailures="true"/>
+		<j:set var="ok" value="${reactorProjects}"/>
+		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" postProcessing="true" ignoreFailures="true"/>
+		<j:forEach var="module" items="${reactorProjects}">
+			<j:set var="status" value="failed"/>
+			<j:forEach var="item" items="${ok}">
+				<j:if test="${item == module}">
+					<j:set var="status" value="installed"/>
+				</j:if>
+			</j:forEach>
+			<echo>Module ${module} : ${status}</echo>
+		</j:forEach>
+		<j:file name="${basedir}/xdocs/buildreport.xml" prettyPrint="true">
+			<document>
+				<properties>
+					<title>Javadoc Report</title>
+				</properties>
+				<body>
+					<section name="Javadoc Report">
+						<p/>
+						<source>
                         The following is a list of all modules and their current status.
 If you are the maintainer of a module which has failed and which is not dependent on a module
-higher in the list which has also failed please try to resolve the issue.  <p />
-
-    <j:forEach var="module" items="${reactorProjects}">
-        <j:set var = "status" value = "failed"/>
-        <j:forEach var="item" items="${ok}">
-            <j:if test="${item == module}">
-                <j:set var = "status" value = "installed"/>
-            </j:if>
-         </j:forEach>
+higher in the list which has also failed please try to resolve the issue.  <p/>
+							<j:forEach var="module" items="${reactorProjects}">
+								<j:set var="status" value="failed"/>
+								<j:forEach var="item" items="${ok}">
+									<j:if test="${item == module}">
+										<j:set var="status" value="installed"/>
+									</j:if>
+								</j:forEach>
 Module ${module} : ${status}
-<p />
-    </j:forEach>
-    </source>
-    </section>
-    </body>
-    </document>
-    </j:file>     
-
-    
-    
-
-  </goal>
-  
-  <goal name="deploy-allsite">
-
-    <!--
+<p/>
+							</j:forEach>
+						</source>
+					</section>
+				</body>
+			</document>
+		</j:file>
+	</goal>
+	<goal name="deploy-allsite">
+		<!--
       ||
       || Deploy the documentation for each of the commons projects.
       ||
     -->
-
-    <maven:reactor
-      basedir="${basedir}/geotools-src"
-      includes="*/project.xml"
-      goals="clean,site:deploy"
-      banner="Deploying site for"
-      ignoreFailures="true"
-    />
-  </goal>
-
-  <!-- ================================================================== -->
-  <!-- F R O N T  E N D  W E B S I T E                                    -->
-  <!-- ================================================================== -->
-  
-  <goal name="site-front-end">
-  
-<echo>before reactor
+		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="clean,site:deploy" banner="Deploying site for" ignoreFailures="true"/>
+	</goal>
+	<!-- ================================================================== -->
+	<!-- F R O N T  E N D  W E B S I T E                                    -->
+	<!-- ================================================================== -->
+	<goal name="site-front-end">
+		<echo>before reactor
 </echo>
-    <maven:reactor
-      basedir="${basedir}/geotools-src"
-      includes="*/project.xml"
-      ignoreFailures="false"
-      postProcessing="true"
-    />
-<echo>after reactor
+		<maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" ignoreFailures="false" postProcessing="true"/>
+		<echo>after reactor
 </echo>
-    
-    <!--
+		<!--
       ||
       || Generate the documentation for the front-end site. First we will
       || generate the navigation based on the projects that we just
       || processed, then we will generate the front-end site itself.
       ||
     -->
-    
-    <echo>
+		<echo>
       reactor list = ${reactorProjects}
     </echo>
-    
-<velocity:merge name="xdocs/navigation.xml" 
-		basedir="${basedir}"
-		template="navigation.vm"
-/>
-
-    <attainGoal name="xdoc"/>
-
-  </goal>
-
-  <!-- ================================================================== -->
-  <!-- F R O N T  E N D  W E B S I T E                                    -->
-  <!-- ================================================================== -->
-
-  <goal
-    name="deploy-site-front-end">
-
-    <m:user-check user="${maven.username}"/>
-    
-    <attainGoal name="site-front-end"/>
-
-    <!-- This needs to taken from the project properties -->
-    <property name="maven.homepage" value="/seis/raid1/Apache/htdocs/software/geotools/"/>
-    <property name="maven.docs.dest" value="target/docs/"/>
-
-    <echo>
+		<velocity:merge name="xdocs/navigation.xml" basedir="${basedir}" template="navigation.vm"/>
+		<attainGoal name="xdoc"/>
+	</goal>
+	<!-- ================================================================== -->
+	<!-- F R O N T  E N D  W E B S I T E                                    -->
+	<!-- ================================================================== -->
+	<goal name="deploy-site-front-end">
+		<m:user-check user="${maven.username}"/>
+		<attainGoal name="site-front-end"/>
+		<!-- This needs to taken from the project properties -->
+		<property name="maven.homepage" value="/seis/raid1/Apache/htdocs/software/geotools/"/>
+		<property name="maven.docs.dest" value="target/docs/"/>
+		<echo>
       siteAddress = ${pom.siteAddress}
       siteDirectory = ${maven.homepage}
       maven.docs.dest = ${maven.docs.dest}
     </echo>
-
-    <tar tarfile="${maven.final.name}-site.tar" basedir="${maven.docs.dest}"/>
-    <gzip zipfile="${maven.final.name}-site.tar.gz" src="${maven.final.name}-site.tar"/>
-    <delete file="${maven.final.name}-site.tar"/>
-    
-    <!-- Make sure the destination directory exists before trying to copy -->
-    <exec dir="." executable="${maven.ssh.executable}">
-      <arg line="${pom.siteAddress} -l ${maven.username} 'mkdir -p ${maven.homepage}'"/>
-    </exec>
-
-    <exec dir="." executable="${maven.scp.executable}">
-      <arg value="${maven.final.name}-site.tar.gz"/>
-      <arg value="${maven.username}@${pom.siteAddress}:${maven.homepage}"/>
-    </exec>
-
-    <exec dir="." executable="${maven.ssh.executable}">
-      <arg line="${pom.siteAddress} -l ${maven.username} 'cd ${maven.homepage};gunzip ${maven.final.name}-site.tar.gz;tar xUvf ${maven.final.name}-site.tar;chmod -R g+u *;rm ${maven.final.name}-site.tar'"/>
-    </exec>
-
-    <delete file="${maven.final.name}-site.tar.gz"/>
-        
-  </goal>
-
-  <goal
-    name="deploy-srcdist">
-
-    <m:user-check user="${maven.username}"/>
-
-    <!-- This needs to taken from the project properties -->
-    <property name="maven.homepage" value="/seis/raid1/Apache/htdocs/software/geotools/"/>
-    <property name="maven.dist.dir" value="target"/>
-
-    <echo>
+		<tar tarfile="${maven.final.name}-site.tar" basedir="${maven.docs.dest}"/>
+		<gzip zipfile="${maven.final.name}-site.tar.gz" src="${maven.final.name}-site.tar"/>
+		<delete file="${maven.final.name}-site.tar"/>
+		<!-- Make sure the destination directory exists before trying to copy -->
+		<exec dir="." executable="${maven.ssh.executable}">
+			<arg line="${pom.siteAddress} -l ${maven.username} 'mkdir -p ${maven.homepage}'"/>
+		</exec>
+		<exec dir="." executable="${maven.scp.executable}">
+			<arg value="${maven.final.name}-site.tar.gz"/>
+			<arg value="${maven.username}@${pom.siteAddress}:${maven.homepage}"/>
+		</exec>
+		<exec dir="." executable="${maven.ssh.executable}">
+			<arg line="${pom.siteAddress} -l ${maven.username} 'cd ${maven.homepage};gunzip ${maven.final.name}-site.tar.gz;tar xUvf ${maven.final.name}-site.tar;chmod -R g+u *;rm ${maven.final.name}-site.tar'"/>
+		</exec>
+		<delete file="${maven.final.name}-site.tar.gz"/>
+	</goal>
+	<goal name="deploy-srcdist">
+		<m:user-check user="${maven.username}"/>
+		<!-- This needs to taken from the project properties -->
+		<property name="maven.homepage" value="/seis/raid1/Apache/htdocs/software/geotools/"/>
+		<property name="maven.dist.dir" value="target"/>
+		<echo>
       siteAddress = ${pom.siteAddress}
       siteDirectory = ${maven.homepage}
       maven.dist.dir = ${maven.dist.dir}
     </echo>
-
-    <!-- Create a tar.gz file -->
-    <ant:tar longfile="gnu" tarfile="${maven.dist.dir}/${maven.final.name}-src.tar" basedir=".." excludes="**/target/**, **/CVS" includes="geotools2/**">
+		<!-- Create a tar.gz file -->
+		<ant:tar longfile="gnu" tarfile="${maven.dist.dir}/${maven.final.name}-src.tar" basedir=".." excludes="**/target/**, **/CVS" includes="geotools2/**">
     </ant:tar>
-
-    <ant:gzip 
-      zipfile="${maven.dist.dir}/${maven.final.name}-src.tar.gz"
-      src="${maven.dist.dir}/${maven.final.name}-src.tar"
-    />
-    
-    <ant:delete file="${maven.dist.dir}/${maven.final.name}-src.tar"/>
-
-    <!-- Make sure the destination directory exists before trying to copy -->
-    <exec dir="." executable="${maven.ssh.executable}">
-      <arg line="${pom.siteAddress} -l ${maven.username} 'mkdir -p ${maven.homepage}'"/>
-    </exec>
-
-    <exec dir="." executable="${maven.scp.executable}">
-      <arg value="${maven.dist.dir}/${maven.final.name}-src.tar.gz"/>
-      <arg value="${maven.username}@${pom.siteAddress}:${maven.homepage}"/>
-    </exec>
-
-    <delete file="${maven.final.name}-src.tar.gz"/>
-        
-  </goal>
-
+		<ant:gzip zipfile="${maven.dist.dir}/${maven.final.name}-src.tar.gz" src="${maven.dist.dir}/${maven.final.name}-src.tar"/>
+		<ant:delete file="${maven.dist.dir}/${maven.final.name}-src.tar"/>
+		<!-- Make sure the destination directory exists before trying to copy -->
+		<exec dir="." executable="${maven.ssh.executable}">
+			<arg line="${pom.siteAddress} -l ${maven.username} 'mkdir -p ${maven.homepage}'"/>
+		</exec>
+		<exec dir="." executable="${maven.scp.executable}">
+			<arg value="${maven.dist.dir}/${maven.final.name}-src.tar.gz"/>
+			<arg value="${maven.username}@${pom.siteAddress}:${maven.homepage}"/>
+		</exec>
+		<delete file="${maven.final.name}-src.tar.gz"/>
+	</goal>
 </project>
-
