@@ -24,6 +24,8 @@ public class GeometryTransformer {
         if(geom instanceof LinearRing) return transformLinearRing((LinearRing)geom);
         if(geom instanceof LineString) return transformLineString((LineString)geom);
         if(geom instanceof Polygon) return transformPolygon((Polygon)geom);
+        if(geom instanceof MultiPolygon) return transformMultiPolygon((MultiPolygon) geom);
+        System.out.println("broken transform " + geom.toString());
         return null;//HACK: is this the right thing to do?
     }
     
@@ -55,5 +57,13 @@ public class GeometryTransformer {
            return new Polygon(exRing,holes,in.getPrecisionModel(),trans.getTargetSRID());
         }
         return  new Polygon(exRing,in.getPrecisionModel(),trans.getTargetSRID());
+    }
+    private MultiPolygon transformMultiPolygon(MultiPolygon in){
+        int npolys = in.getNumGeometries();
+        Polygon[] out = new Polygon[npolys];
+        for(int i=0;i<npolys;i++){
+            out[i]=transformPolygon((Polygon) in.getGeometryN(i));
+        }
+        return new MultiPolygon(out,in.getPrecisionModel(),trans.getTargetSRID());
     }
 }
