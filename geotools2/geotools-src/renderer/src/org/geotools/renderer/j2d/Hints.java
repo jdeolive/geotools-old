@@ -44,7 +44,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage; // For Javadoc
 
 // Geotools Dependencies
-import org.geotools.renderer.Isoline;
+import org.geotools.renderer.geom.Isoline;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CoordinateTransformationFactory;
 
@@ -55,7 +55,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * Rendering hints can be used to control some low-level details, like the expected
  * resolution.
  *
- * @version $Id: Hints.java,v 1.5 2003/01/29 23:18:08 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.6 2003/02/03 09:51:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {

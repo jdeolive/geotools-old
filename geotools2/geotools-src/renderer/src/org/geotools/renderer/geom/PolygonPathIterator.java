@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.geom;
 
 // Geometry
 import java.awt.geom.PathIterator;
@@ -43,7 +43,7 @@ import java.util.Iterator;
 /**
  * Itérateur balayant les points d'un polygone ou d'un isobath.
  *
- * @version $Id: PolygonPathIterator.java,v 1.2 2003/01/29 23:18:05 desruisseaux Exp $
+ * @version $Id: PolygonPathIterator.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class PolygonPathIterator implements PathIterator {

@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.geom;
 
 // J2SE and JAI dependencies
 import java.util.Locale;
@@ -49,7 +49,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * island on the ocean) or a {@link #DEPRESSION depression} (e.g. the coastline of a
  * lake in an island).
  *
- * @version $Id: InteriorType.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: InteriorType.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class InteriorType extends EnumeratedParameter {

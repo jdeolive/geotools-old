@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.geom;
 
 // Geometry and graphics
 import java.awt.Shape;
@@ -108,7 +108,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.9 2003/02/02 21:47:45 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -1852,7 +1852,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.9 2003/02/02 21:47:45 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon

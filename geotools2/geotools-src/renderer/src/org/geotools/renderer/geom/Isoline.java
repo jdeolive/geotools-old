@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.geom;
 
 // Geometry and graphics
 import java.awt.Shape;
@@ -83,7 +83,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Isoline.java,v 1.9 2003/02/02 21:47:45 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -1064,7 +1064,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.9 2003/02/02 21:47:45 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {

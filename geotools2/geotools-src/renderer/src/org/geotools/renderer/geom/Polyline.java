@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.geom;
 
 // Collections
 import java.util.List;
@@ -94,7 +94,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Polyline.java,v 1.7 2003/02/02 21:47:45 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Polyline implements Serializable {
@@ -1234,7 +1234,7 @@ final class Polyline implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Polyline.java,v 1.7 2003/02/02 21:47:45 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1277,7 +1277,7 @@ final class Polyline implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Polyline.java,v 1.7 2003/02/02 21:47:45 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {
@@ -1488,6 +1488,6 @@ final class Polyline implements Serializable {
     static void unexpectedException(final String classe, final String method,
                                     final TransformException exception)
     {
-        Utilities.unexpectedException("org.geotools.renderer", classe, method, exception);
+        Utilities.unexpectedException("org.geotools.renderer.geom", classe, method, exception);
     }
 }

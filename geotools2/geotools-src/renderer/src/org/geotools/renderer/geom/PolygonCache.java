@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.geom;
 
 // J2SE dependencies
 import java.lang.ref.Reference;
@@ -51,7 +51,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * There is at most one instance of this class for each instance of {@link Polygon}. This
  * class is strictly for internal use by {@link PolygonPathIterator}.
  *
- * @version $Id: PolygonCache.java,v 1.2 2003/01/31 23:15:37 desruisseaux Exp $
+ * @version $Id: PolygonCache.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: More work are needed: hold a strong reference to the array for some time before
@@ -170,7 +170,7 @@ final class PolygonCache {
                 recomputed = false;
                 return array;
             } catch (NoninvertibleTransformException exception) {
-                Utilities.unexpectedException("org.geotools.renderer", "Polygon",
+                Utilities.unexpectedException("org.geotools.renderer.geom", "Polygon",
                                               "getPathIterator", exception);
                 // Continue... On va simplement reconstruire le tableau à partir de la base.
             } else {

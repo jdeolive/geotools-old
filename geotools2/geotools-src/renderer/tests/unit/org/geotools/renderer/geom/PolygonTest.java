@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.geom;
 
 // J2SE dependencies
 import java.util.Arrays;
@@ -44,14 +44,14 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 // Geotools dependencies
-import org.geotools.renderer.Polygon;
+import org.geotools.renderer.geom.Polygon;
 import org.geotools.resources.Arguments;
 
 
 /**
  * Visual check of {@link Polygon}.
  *
- * @version $Id: PolygonTest.java,v 1.3 2003/01/30 23:34:41 desruisseaux Exp $
+ * @version $Id: PolygonTest.java,v 1.1 2003/02/03 09:52:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PolygonTest extends TestCase {

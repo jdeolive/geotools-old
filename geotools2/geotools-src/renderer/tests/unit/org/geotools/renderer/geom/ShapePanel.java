@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.geom;
 
 // Geometry
 import java.awt.Shape;
@@ -79,7 +79,7 @@ import java.awt.event.ActionEvent;
  * origin (0,0) is located in the lower left corner, as in the usual geometric
  * convention.
  *
- * @version $Id: ShapePanel.java,v 1.1 2003/01/20 00:06:35 desruisseaux Exp $
+ * @version $Id: ShapePanel.java,v 1.1 2003/02/03 09:52:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ShapePanel extends JPanel {

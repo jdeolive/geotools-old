@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.geom;
 
 // Java2D Geometry
 import java.awt.Shape;
@@ -81,7 +81,7 @@ import org.geotools.util.Statistics;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: GeoShape.java,v 1.5 2003/02/02 21:47:44 desruisseaux Exp $
+ * @version $Id: GeoShape.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GeoShape implements Shape, Cloneable, Serializable {
@@ -94,7 +94,7 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
     /**
      * The logger for the renderer module.
      */
-    static final Logger LOGGER = Logger.getLogger("org.geotools.renderer");
+    static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.geom");
 
     /**
      * Nom de cette forme. Il s'agit en général d'un nom géographique, par exemple
@@ -172,7 +172,7 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
             return getCoordinateTransformation(coordinateSystem, coordinateSystem);
         } catch (CannotCreateTransformException exception) {
             // Should not happen; we are just asking for an identity transform!
-            Utilities.unexpectedException("org.geotools.renderer", "GeoShape",
+            Utilities.unexpectedException("org.geotools.renderer.geom", "GeoShape",
                                           "getIdentityTransform", exception);
         }
         return null;

@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.geom;
 
 // J2SE dependencies
 import java.awt.geom.Line2D;
@@ -42,14 +42,14 @@ import junit.framework.*;
 
 // Geotools dependencies
 import org.geotools.resources.Geometry;
-import org.geotools.renderer.ShapePanel;
+import org.geotools.renderer.geom.ShapePanel;
 
 
 /**
  * Performs a visual check of {@link Geometry} computations. Those computations are
- * an essential part of {@link org.geotools.renderer.Polygon} internal working.
+ * an essential part of {@link org.geotools.renderer.geom.Polygon} internal working.
  *
- * @version $Id: GeometryTest.java,v 1.3 2003/01/30 23:34:41 desruisseaux Exp $
+ * @version $Id: GeometryTest.java,v 1.1 2003/02/03 09:52:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GeometryTest extends TestCase implements ShapePanel.Producer {

@@ -5,19 +5,9 @@
     <TITLE>package org.geotools.renderer</TITLE>
   </HEAD>
   <BODY>
-    <P ALIGN="justify">{@link java.awt.Shape} implementations used for the
-    rendering of geographic features. Some classes in this package are just
-    ordinary geometric shapes (for example {@link org.geotools.renderer.Arrow2D},
-    which may be used for rendering wind fields). Some other are more elaborated:
-    they extend {@link org.geotools.renderer.GeoShape}, which has support for
-    setting arbitrary two-dimensional
-    {@linkplain org.geotools.cs.CoordinateSystem coordinate system}.</P>
-
-    <TABLE>
-      <TR>
-        <TD ALIGN="center"><IMG SRC="doc-files/Arrow2D.png"><BR>{@link org.geotools.renderer.Arrow2D}</TD>
-        <TD ALIGN="center"><IMG SRC="doc-files/screenshot.png"><BR>{@link org.geotools.renderer.Isoline}</TD>
-      </TR>
-    </TABLE>
+    <P ALIGN="justify">Basic interface for rendering of features.
+    Rendering is the union of {@link org.geotools.core.Feature} and
+    styling targeted toward a rendering device
+    (e.g. {@link java.awt.Graphics2D}).</P>
   </BODY>
 </HTML>

@@ -56,10 +56,10 @@ import org.geotools.util.Statistics;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
-import org.geotools.renderer.InteriorType;
-import org.geotools.renderer.GeoShape;
-import org.geotools.renderer.Polygon;
-import org.geotools.renderer.Isoline;
+import org.geotools.renderer.geom.InteriorType;
+import org.geotools.renderer.geom.GeoShape;
+import org.geotools.renderer.geom.Polygon;
+import org.geotools.renderer.geom.Isoline;
 import org.geotools.resources.XMath;
 import org.geotools.resources.XDimension2D;
 import org.geotools.resources.XAffineTransform;
@@ -71,7 +71,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.5 2003/02/02 21:47:45 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.6 2003/02/03 09:52:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -243,7 +243,7 @@ public class RenderedIsoline extends RenderedLayer {
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.5 2003/02/02 21:47:45 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.6 2003/02/03 09:52:00 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class IsolineRenderer implements Polygon.Renderer {
@@ -391,7 +391,7 @@ public class RenderedIsoline extends RenderedLayer {
      * class is automatically registered at the {@link RenderedIsoline} construction
      * stage.
      *
-     * @version $Id: RenderedIsoline.java,v 1.5 2003/02/02 21:47:45 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.6 2003/02/03 09:52:00 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Tools extends org.geotools.renderer.j2d.Tools {

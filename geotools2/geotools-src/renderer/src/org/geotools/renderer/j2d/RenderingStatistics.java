@@ -49,7 +49,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * painting is in process. They are used for logging messages and have no impact
  * on future rendering.
  *
- * @version $Id: RenderingStatistics.java,v 1.1 2003/02/02 21:47:45 desruisseaux Exp $
+ * @version $Id: RenderingStatistics.java,v 1.2 2003/02/03 09:52:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RenderingStatistics {
@@ -69,8 +69,8 @@ final class RenderingStatistics {
 
     /**
      * The number of points recomputed, rendered and the total number of points while painting
-     * an {@link org.geotools.renderer.Isoline}. Those informations are updated only by {@link
-     * RenderedIsoline}.
+     * an {@link org.geotools.renderer.geom.Isoline}. Those informations are updated only by
+     * {@link RenderedIsoline}.
      */
     private int recomputed, rendered, total;
 
