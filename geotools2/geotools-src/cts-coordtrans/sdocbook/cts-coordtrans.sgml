@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+<section id="ctscoordinatetransforms">
+  <title>CTS Coordinate Transforms</title>
+
+  <para>Provides implementation for general positioning, coordinate systems,
+  and coordinate transformations. Geotools CTS and GCS modules are an open
+  source implementation of a subset of <ulink
+  url="http://www.opengis.org/techno/specs/">OpenGIS Coordinate Transformation
+  Services Specification</ulink> and <ulink
+  url="http://www.opengis.org/techno/specs/">OpenGIS Grid Coverages
+  Specification</ulink>. Being OpenGIS-compliant should allow developers to
+  switch between this free implementation and any commercial implementation
+  with no code change (providing that commercial implementations are OpenGIS
+  compliant).</para>
+
+  <section id="packages_organization">
+    <title>Packages organization</title>
+
+    <para>A Geotools&#39;s goal is to ensure interoperability with standard
+    Java packages like <ulink
+    url="http://java.sun.com/products/java-media/2D/">Java2D</ulink> and
+    <ulink url="http://java.sun.com/products/java-media/jai/">Java Advanced
+    Imaging</ulink>. However, it is not always possible to leverage Java
+    classes and be OpenGIS-compliant in the same time. Geotools workaround the
+    problem by providing two sets of packages:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>The <filename>org.opengis</filename> package is the standard
+        OpenGIS specification. Classes in this package are mostly interfaces,
+        with no implementation. Interfaces defined there are well suited for
+        RMI use, which implies that every method is declared to throws {@link
+        java.rmi.RemoteException}. Developers looking for strict OpenGIS
+        compliance and/or RMI use should look at this <filename>org.opengis</filename>
+        package.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <filename>org.geotools.pt</filename>, <filename>ct</filename>
+        and <filename>cs</filename> packages are org.opengis mirrors tuned for
+        Java and local use. They contains concrete classes (not interfaces).
+        There is generally a 1 to 1 correspondence between OpenGIS interfaces
+        and Geotools classes, so developers familiar with one package should
+        be familiar with the other. Geotools methods do not thrown
+        <literal>RemoteException</literal>, which make them easier for local
+        use but is not suitable for RMI use. Developers looking for Java2D
+        interoperability and/or local use may look at this
+        <filename>org.geotools</filename> packages.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>Factory classes allow the creation of OpenGIS objects (RMI enabled)
+    backed by Geotools classes, and conversely (Geotools classes used as a
+    wrapper around OpenGIS&#39;s interfaces). Internally, interoperability
+    between OpenGIS interfaces and Geotools classes is assured through a set
+    of RMI-aware adapters. Adapters are designed in such a way that the API
+    never hides a {@link java.rmi.RemoteException} into an unchecked
+    exception. {@link java.rmi.RemoteException} are either declared to be
+    thrown when applicable, or cough and rethrown as an other checked
+    exception (e.g. {@link org.geotools.ct.TransformException}) with the
+    remote exception as its cause.</para>
+  </section>
+
+  <section id="ctsjarfiles">
+    <title>JAR files and dependencies</title>
+
+    <para>The naming convention for JAR files is as follows: OpenGIS&#39;s
+    interfaces are packaged in JAR files starting with <filename>opengis</filename>,
+    while Geotools implementations are packaged in JAR files starting with
+    <filename>geotools</filename>. Each JAR filename ends with an abreviation
+    of the OpenGIS&#39;s specification thats apply: <filename>css</filename>
+    for <emphasis>Coordinate System Specification</emphasis> and
+    <filename>gcs</filename> for <emphasis>Grid Coverage Specification</emphasis>.
+    The same division is applied to loggers (the place where warning and
+    configuration messages are logged, see <ulink
+    url="http://java.sun.com/j2se/1.4/docs/guide/util/logging/">Java logging
+    API</ulink>).</para>
+
+    <table>
+      <title>Jar files and dependancies</title>
+
+      <tgroup cols="4">
+        <thead>
+          <row>
+            <entry>JAR file</entry>
+
+            <entry>Content</entry>
+
+            <entry>Dependencies</entry>
+
+            <entry>Logger</entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry><filename>opengis-css.jar</filename></entry>
+
+            <entry>OpenGIS&#39;s interfaces for <filename>CS</filename>,
+            <filename>CT</filename> and <filename>PT</filename> packages.</entry>
+
+            <entry>(none)</entry>
+
+            <entry>(none)</entry>
+          </row>
+
+          <row>
+            <entry><filename>geotools-css.jar</filename></entry>
+
+            <entry>Geotools implementation for <filename>CS</filename>,
+            <filename>CT</filename> and <filename>PT</filename> packages.</entry>
+
+            <entry><filename>opengis-css.jar</filename></entry>
+
+            <entry><filename>org.geotools.css</filename></entry>
+          </row>
+
+          <row>
+            <entry><filename>geotools-gcs.jar</filename></entry>
+
+            <entry>Geotools implementation for <filename>CV</filename>,
+            <filename>GC</filename> and <filename>GP</filename> packages.</entry>
+
+            <entry><filename>geotools-css.jar</filename></entry>
+
+            <entry><filename>org.geotools.gcs</filename></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+</section>
