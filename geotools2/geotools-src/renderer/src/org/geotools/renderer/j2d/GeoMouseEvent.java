@@ -64,7 +64,7 @@ import org.geotools.resources.Utilities;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.10 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.11 2004/02/17 21:11:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GeoMouseEvent extends MouseEvent {
@@ -269,5 +269,33 @@ public final class GeoMouseEvent extends MouseEvent {
             py = dest.ord[1];
         }
         return dest;
+    }
+
+    /**
+     * Returns the transform from the widget coordinate system to the
+     * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system}.
+     * More specifically, this is the transform from {@link RenderingContext#textCS textCS}
+     * to {@link RenderingContext#mapCS mapCS}. This transform is usually (but not always)
+     * {@linkplain java.awt.geom.AffineTransform affine}.
+     * <br><br>
+     * <strong>IMPLEMENTATION NOTE:</strong> In current implementation, this transform do not
+     * apply any correction for {@linkplain DeformableViewer deformable viewer}. For fetching
+     * current mouse coordinate, it is better to invokes {@link #getMapCoordinate}. The later
+     * corrects for deformable viewers. A future version may includes the correction in the
+     * <code>textToMap</code> math transform, in which case this transform may no longer be
+     * affine.
+     *
+     * @return The transform from widget CRS to renderer CRS.
+     */
+    public MathTransform2D getTextToMap() {
+        try {
+            return (MathTransform2D) context.renderer.getMathTransform(
+                   context.textCS, context.mapCS, "GeoMouseEvent", "getTextToMap");
+        } catch (TransformException exception) {
+            // Should not happen, since the transform should be affine in most cases.
+            IllegalStateException e = new IllegalStateException(exception.getLocalizedMessage());
+            e.initCause(exception);
+            throw e;
+        }
     }
 }
