@@ -56,6 +56,7 @@ import java.beans.PropertyChangeListener;
 // Miscellaneous J2SE
 import java.util.Locale;
 import java.util.EventListener;
+import java.text.NumberFormat;
 
 // Java Advanced Imaging
 import javax.media.jai.PlanarImage; // For Javadoc
@@ -84,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.11 2003/02/26 12:06:06 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.12 2003/03/01 22:06:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -181,6 +182,31 @@ public abstract class RenderedLayer {
     protected final PropertyChangeSupport listeners;
 
     /**
+     * The format used during the last call to {@link #getName}. We use only one instance for
+     * all layers, since an application is likely to use only one locale. However, more locales
+     * are allowed; it will just be slower.
+     */
+    private static Format format;
+
+    /**
+     * Convenience class for {@link RenderedLayer#getName}.
+     * This class should be immutable and thread-safe.
+     */
+    private static final class Format {
+        /** The locale of the {@link #format}. */
+        public final Locale locale;
+
+        /** The format in the {@link #locale}. */
+        public final NumberFormat format;
+
+        /** Construct a format for the given locale. */
+        public Format(final Locale locale) {
+            this.locale = locale;
+            this.format = NumberFormat.getNumberInstance(locale);
+        }
+    }
+
+    /**
      * Construct a new rendered layer. The {@linkplain #getCoordinateSystem coordinate system}
      * default to {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984} and the {@linkplain
      * #getZOrder z-order} default to positive infinity (i.e. this layer is drawn on top of
@@ -197,8 +223,9 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Returns this layer's name. Default implementation returns the class name with
-     * the layer's {@linkplain #getZOrder z-order}.
+     * Returns this layer's name. The default implementation returns
+     * only the {@linkplain #getZOrder z-order}  formatted according
+     * the given locale.
      *
      * @param  locale The desired locale, or <code>null</code> for a default locale.
      * @return This layer's name.
@@ -206,8 +233,15 @@ public abstract class RenderedLayer {
      * @see #getLocale
      * @see Renderer#getName
      */
-    public String getName(final Locale locale) {
-        return Utilities.getShortClassName(this) + '[' + getZOrder() + ']';
+    public String getName(Locale locale) {
+        if (locale == null) {
+            locale = Locale.getDefault();
+        }
+        Format format = this.format; // Avoid the need for synchronization.
+        if (format==null || !format.locale.equals(locale)) {
+            this.format = format = new Format(locale);
+        }
+        return format.format.format(getZOrder());
     }
 
     /**
@@ -755,5 +789,13 @@ public abstract class RenderedLayer {
                 listeners.removePropertyChangeListener(list[i]);
             }
         }
+    }
+
+    /**
+     * Returns a string representation of this layer. This method is for debugging purpose
+     * only and may changes in any future version.
+     */
+    public String toString() {
+        return Utilities.getShortClassName(this) + '[' + getName(null) + ']';
     }
 }

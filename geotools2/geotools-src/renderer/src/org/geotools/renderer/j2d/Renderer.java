@@ -99,7 +99,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.17 2003/02/26 12:06:06 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.18 2003/03/01 22:06:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -1480,5 +1480,27 @@ public class Renderer {
         for (int i=list.length; --i>=0;) {
             listeners.removePropertyChangeListener(list[i]);
         }
+    }
+
+    /**
+     * Returns a string representation of this renderer and all its {@link RenderedLayer}s.
+     * This method is for debugging purpose only and may change in any future version.
+     */
+    public synchronized String toString() {
+        sortLayers();
+        final String lineSeparator = System.getProperty("line.separator", "\n");
+        final StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(this));
+        buffer.append("[\"");
+        buffer.append(getName(null));
+        buffer.append("\", ");
+        buffer.append(layerCount);
+        buffer.append(" layers]");
+        buffer.append(lineSeparator);
+        for (int i=0; i<layerCount; i++) {
+            buffer.append("    ");
+            buffer.append(layers[i]);
+            buffer.append(lineSeparator);
+        }
+        return buffer.toString();
     }
 }

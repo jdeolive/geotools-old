@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       Arrows sizes and direction depends of the sample values.</li>
  * </ul>
  *
- * @version $Id: RenderedGridMarks.java,v 1.5 2003/02/26 12:06:06 desruisseaux Exp $
+ * @version $Id: RenderedGridMarks.java,v 1.6 2003/03/01 22:06:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridMarks extends RenderedMarks {
@@ -234,6 +234,21 @@ public class RenderedGridMarks extends RenderedMarks {
             e = new IllegalArgumentException(exception.getLocalizedMessage());
             e.initCause(exception);
             throw e;
+        }
+    }
+
+    /**
+     * Returns the name of this layer.
+     *
+     * @param  locale The desired locale, or <code>null</code> for a default locale.
+     * @return This layer's name.
+     */
+    public String getName(final Locale locale) {
+        synchronized (getTreeLock()) {
+            if (coverage == null) {
+                return super.getName(locale);
+            }
+            return '"' + coverage.getName(locale) + "\": " + super.getName(locale);
         }
     }
 
