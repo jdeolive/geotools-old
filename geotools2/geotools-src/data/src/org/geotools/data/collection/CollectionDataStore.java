@@ -114,7 +114,7 @@ public class CollectionDataStore extends AbstractDataStore {
                     }
 
                     try {
-                        return featureType.duplicate((Feature) iterator.next());
+                        return iterator.next();
                     } catch (NoSuchElementException end) {
                         throw new DataSourceException("There are no more Features", end);
                     }
