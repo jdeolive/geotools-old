@@ -67,7 +67,7 @@ import javax.media.jai.ParameterList;
  * Conversions to, and conversions between, projected spatial coordinate
  * systems often do not preserve distances, areas and angles.
  *
- * @version $Id: ProjectedCoordinateSystem.java,v 1.8 2003/01/20 23:16:13 desruisseaux Exp $
+ * @version $Id: ProjectedCoordinateSystem.java,v 1.9 2003/04/22 11:02:34 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -78,6 +78,11 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = 5412822472156531329L;
+
+    /**
+     * Small value for comparaison of <code>double</code> types.
+     */
+    private static final double EPS = 1E-6;
     
     /**
      * The linear unit.
@@ -136,12 +141,14 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
         ensureLinearUnit(unit);
         
         final Ellipsoid ellipsoid = getHorizontalDatum().getEllipsoid();
-        final double    semiMajor = ellipsoid.getSemiMajorAxis();
-        final double    semiMinor = ellipsoid.getSemiMinorAxis();
+        final Unit ellipsoidUnit  = ellipsoid.getAxisUnit();
+        final double  semiMajor = Unit.METRE.convert(ellipsoid.getSemiMajorAxis(), ellipsoidUnit);
+        final double  semiMinor = Unit.METRE.convert(ellipsoid.getSemiMinorAxis(), ellipsoidUnit);
         String invalidParameter = null;
         boolean resetAxisLength = false;
         try {
-            if (semiMinor != projection.getValue("semi_minor")) {
+            // Use '!(...) <= EPS' in order to reject NaN values.
+            if (!(Math.abs(semiMinor - projection.getValue("semi_minor")) <= EPS)) {
                 invalidParameter = "semi_minor";
             }
         } catch (MissingParameterException exception) {
@@ -149,7 +156,8 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
             resetAxisLength = true;
         }
         try {
-            if (semiMajor != projection.getValue("semi_major")) {
+            // Use '!(...) <= EPS' in order to reject NaN values.
+            if (!(Math.abs(semiMajor - projection.getValue("semi_major")) <= EPS)) {
                 invalidParameter = "semi_major";
             }
         } catch (MissingParameterException exception) {
