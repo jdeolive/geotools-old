@@ -24,6 +24,14 @@ id="index">
 
         <surname>Desruisseaux</surname>
       </author>
+      <author>
+          <firstname>Chris</firstname>
+          <surname>Holmes</surname>
+      </author>
+      <author>
+          <firstname>Andrea</firstname>
+          <surname>Aime</surname>
+      </author>
 
       <editor>
         <firstname>Cameron</firstname>
@@ -32,7 +40,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2003/01/05 10:27:48 $</date>
+    <date>$Date: 2003/01/09 10:54:13 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
