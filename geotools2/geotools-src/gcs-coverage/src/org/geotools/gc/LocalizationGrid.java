@@ -42,34 +42,84 @@ import java.util.Arrays;
 
 // Geotools dependencies
 import org.geotools.ct.MathTransform2D;
+import org.geotools.cs.FittedCoordinateSystem; // For javadoc
+import org.geotools.cs.GeographicCoordinateSystem; // For javadoc
 
 
 /**
  * A factory for {@link MathTransform2D} backed by a <cite>grid of localization</cite>.
- * A grid of localization can be seen as a two-dimensional array of coordinate points.
- * Input coordinates are index in this two-dimensional array. Those input coordinates
- * (or index) should be in the range
- *
- * <code>x</sub>input</sub>&nbsp;=&nbsp;[0..width-1]</code> and
- * <code>y</sub>input</sub>&nbsp;=&nbsp;[0..height-1]</code> inclusive,
- *
- * where <code>width</code> and <code>height</code>  are the number of columns and rows
- * in the grid of localization. Output coordinates are the values stored in the grid of
- * localization at the specified index.
+ * A grid of localization is a two-dimensional array (or a matrix) of coordinate points.
+ * The grid size is <code>width</code>&nbsp;&times;&nbsp;<code>height</code>. Input coordinates
+ * are (<var>i</var>,<var>j</var>) index in the grid, where <var>i</var> must be in the range
+ * <code>[0..width-1]</code> and <var>j</var> in the range <code>[0..height-1]</code> inclusive.
+ * Output coordinates are the values stored in the grid of localization at the specified index.
  * <br><br>
- * A grid of localization can be used for an image in which the "real world" coordinates
- * of each pixel is know.   If the real world coordinates is not know for each pixel but
- * only for some pixels at a fixed interval, then a transformation can be constructed by
- * the concatenation of an affine transform with a grid of localization.
+ * The <code>LocalizationGrid</code> class is usefull when the
+ * &quot;{@linkplain GridGeometry#getGridToCoordinateSystem grid to coordinate system}&quot;
+ * transform for a coverage is not some kind of global mathematical relationship like an
+ * {@linkplain AffineTransform affine transform}. Instead, the &quot;real world&quot; coordinates
+ * are explicitly specified for each pixels. If the real world coordinates are know only for some
+ * pixels at a fixed interval, then a transformation can be constructed by the concatenation of
+ * an affine transform with a grid of localization. After a <code>LocalizationGrid</code> object
+ * has been fully constructed (i.e. real world coordinates have been specified for all grid cells),
+ * a transformation from grid coordinates to &quot;real world&quot; coordinates can be obtained with
+ * the {@link #getMathTransform} method. If this transformation is close enough to an affine
+ * transform, then an instance of {@link AffineTransform} is returned. Otherwise, a transform
+ * backed by the localization grid is returned.
  * <br><br>
- * A transformation from grid coordinates to "real world" coordinates can be obtained by
- * the {@link #getMathTransform} method.    If this transformation is close enough to an
- * affine transform, then an instance of {@link AffineTransform} is returned. Otherwise,
- * a transform backed by the localization grid is returned.
+ * The example below goes through the steps of constructing a coordinate system for a grid coverage
+ * from its grid of localization. This example assumes that the &quot;real world&quot; coordinates
+ * are longitudes and latitudes on the {@linkplain GeographicCoordinateSystem#WGS84 WGS84} ellipsoid.
  *
- * @version $Id: LocalizationGrid.java,v 1.8 2003/05/13 10:59:52 desruisseaux Exp $
+ * <blockquote><pre>
+ * <FONT color='#008000'>//
+ * // Constructs a localization grid of size 10&times;10.
+ * //</FONT>
+ * LocalizationGrid grid = new LocalizationGrid(10,10);
+ * for (int j=0; j<10; j++) {
+ *     for (int i=0; i<10; i++) {
+ *         double x = ...; <FONT color='#008000'>// Set longitude here</FONT>
+ *         double y = ...; <FONT color='#008000'>// Set latitude here</FONT>
+ *         grid.{@link #setLocalizationPoint(int,int,double,double) setLocalizationPoint}(i,j,x,y);
+ *     }
+ * }
+ * <FONT color='#008000'>//
+ * // Constructs the grid coordinate system.
+ * //</FONT>
+ * CoordinateSystem realCS = GeographicCoordinateSystem.WGS84;
+ * CoordinateSystem gridCS = new {@link FittedCoordinateSystem}("The grid CS", realCS, grid.{@link #getMathTransform()},
+ *                               new AxisInfo[] {
+ *                                   AxisInfo.X,
+ *                                   AxisInfo.Y});
+ * <FONT color='#008000'>//
+ * // Constructs the grid coverage using the grid coordinate system (not the &quot;real world&quot;
+ * // one). It is usefull to display the coverage in its native CS before we resample it.
+ * // Note that if the grid of localization does not define the geographic location  for
+ * // all pixels, then we need to specify some affine transform in place of the IDENTITY
+ * // argument. For example if the grid of localization defines the location of 1 pixel,
+ * // then skip 3, then defines the location of 1 pixel, etc., then the affine transform
+ * // should be AffineTransform.getScaleInstance(0.25, 0.25).
+ * //</FONT>
+ * GridCoverage coverage;
+ * coverage = new GridCoverage("The grid coverage", theRaster, gridCS,
+ *                             MathTransform2D.IDENTITY, ...);
+ * FrameFactory.show(coverage);
+ * <FONT color='#008000'>//
+ * // Project the coverage from its current 'gridCS' to the 'realCS'. If the grid of
+ * // localization was built from the orbit of some satellite, then the projected
+ * // coverage will tpypically have a curved aspect.
+ * //</FONT>
+ * GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
+ * coverage = processor.doOperation("Resample",         coverage,
+ *                                  "CoordinateSystem", realCS);
+ * FrameFactory.show(coverage);
+ * </pre></blockquote>
+ *
+ * @version $Id: LocalizationGrid.java,v 1.9 2003/08/26 12:43:46 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
+ *
+ * @see FittedCoordinateSystem
  */
 public class LocalizationGrid {
     /**
@@ -157,8 +207,8 @@ public class LocalizationGrid {
 
     /**
      * Returns the grid size. Grid coordinates are always in the range
-     * <code>x</sub>input</sub>&nbsp;=&nbsp;[0..width-1]</code> and
-     * <code>y</sub>input</sub>&nbsp;=&nbsp;[0..height-1]</code> inclusive.
+     * <code>x<sub>input</sub>&nbsp;=&nbsp;[0..width-1]</code> and
+     * <code>y<sub>input</sub>&nbsp;=&nbsp;[0..height-1]</code> inclusive.
      */
     public Dimension getSize() {
         return new Dimension(width, height);
@@ -548,6 +598,8 @@ public class LocalizationGrid {
 
     /**
      * Returns a math transform from grid to "real world" coordinates.
+     *
+     * @return A transform from grid to real world coordinates.
      */
     public synchronized MathTransform2D getMathTransform() {
         if (transform == null) {
