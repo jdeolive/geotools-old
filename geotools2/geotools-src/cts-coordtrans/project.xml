@@ -2,34 +2,16 @@
 
 <project>
   <pomVersion>3</pomVersion>
+  <extend>../../project.xml</extend>
   <name>geotools-cts-coordtrans</name>
   <id>cts-coordtrans</id>
-  <logo>/images/cts.gif</logo>
-  <currentVersion>0.6</currentVersion>
-  <organization>
-    <name>GeoTools</name>
-    <url>http://www.geotools.org</url>
-    <logo>/images/gtLogo.gif</logo>
-  </organization>
-  <inceptionYear>1996</inceptionYear>
-  <package>org.geotools</package>
-  <shortDescription>Coordinate Tranformation Services</shortDescription>
-  <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description>Implementation of OGC Coordinate Transformation Services</description>
-  <url>http://www.geotools.org/</url>
-  <cvsWebUrl/>
-  <issueTrackingUrl/>
-  <siteAddress>www.geotools.org</siteAddress>
-  <siteDirectory/>
-  <distributionDirectory/>
   
-  <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/cts-coordtrans</connection>
-    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/cts-coordtrans/</url>
-  </repository>
-
-  <mailingLists/>
-
+  <currentVersion>0.6</currentVersion>
+  
+  
+  <shortDescription>Coordinate Tranformation Services</shortDescription>
+  <description>Implementation of OGC Coordinate Transformation Services</description>
+  
   <developers>
     <developer>
       <name>Martin Desruisseaux</name>
@@ -45,40 +27,24 @@
 
   <dependencies>
     <dependency>
-      <id>opengis-css</id>
+      <id>opengis+css</id>
       <version>0.1</version>
     </dependency>
     <dependency>
       <id>resources</id>
       <version>0.1</version>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <id>vecmath</id>
       <version>1.2.1</version>
-    </dependency>
+    </dependency> -->
     <dependency>
       <id>core</id>
       <version>0.1</version>
     </dependency>
   </dependencies>
 
-  <build>
-    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-    <sourceDirectory>src/</sourceDirectory>
-    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
-    <integrationUnitTestSourceDirectory/>
-    <aspectSourceDirectories/>
-    <unitTestPatterns>
-      <unitTestPattern>include = **/*Test.java</unitTestPattern>
-    </unitTestPatterns>
-    <integrationUnitTestPatterns/>
-     <resources>
-      <includes>
-         <include>*.utf</include> 
-       </includes>
-    </resources>
-    <jars/>
-
+  
     <contributors>
       <contributor>
         <name>Yann Cezard</name>
@@ -95,5 +61,32 @@
         </roles>
       </contributor>
     </contributors>
+<build>
+    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
+    
+    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+    <integrationUnitTestSourceDirectory/>
+    <aspectSourceDirectories/>
+    
+    <integrationUnitTestPatterns/>
+    <sourceDirectory>src</sourceDirectory>
+    <resourcesSourceDirectory>src</resourcesSourceDirectory>
+    <resources>
+    
+        <includes>
+            <include>**/*.serialized</include> 
+            <include>**/*.txt</include> 
+             <include>**/*.utf</include> 
+        </includes>
+    </resources>
+
+    
+    <jars/>
+
+    <unitTest>
+      <includes>
+        <include>**/GeocentricTransformTest.java</include>
+      </includes>
+    </unitTest>
   </build>
 </project>

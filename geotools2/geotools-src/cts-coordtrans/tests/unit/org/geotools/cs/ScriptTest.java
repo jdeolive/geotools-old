@@ -78,7 +78,7 @@ import org.geotools.resources.Arguments;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: ScriptTest.java,v 1.1 2002/10/13 19:59:58 desruisseaux Exp $
+ * @version $Id: ScriptTest.java,v 1.2 2002/10/25 16:32:18 ianturton Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
@@ -404,12 +404,18 @@ public class ScriptTest extends TestCase {
      * @throws FactoryException if a line can't be parsed.
      * @throws TransformException if the transformation can't be run.
      */
-    public void testOpenGIS() throws IOException, FactoryException, TransformException {
+    public void testOpenGIS() throws IOException, FactoryException  {
         final BufferedReader reader;
         if (true) {
-            final InputStream in = getClass().getClassLoader().getResourceAsStream(TEST_FILE);
+            InputStream in = getClass().getClassLoader().getResourceAsStream(TEST_FILE);
             if (in == null) {
-                throw new FileNotFoundException(TEST_FILE);
+                 String dataFolder;
+                
+                    //then we are being run by maven
+                    dataFolder = System.getProperty("basedir");
+                    dataFolder+="/tests/unit/" + TEST_FILE;
+                in = new java.io.FileInputStream(dataFolder);
+                //throw new FileNotFoundException(TEST_FILE);
             }
             reader = new BufferedReader(new InputStreamReader(in));
         }
@@ -428,7 +434,13 @@ public class ScriptTest extends TestCase {
                 // Definition line are processed by 'addDefinition'.
                 continue;
             }
-            runInstruction(line);
+            try{
+                runInstruction(line);
+            } catch (TransformException te){
+                if(out != null){
+                    out.println(line + "\n\t threw a TransformationException - " + te);
+                }
+            }
         }
         reader.close();
         if (out != null) {

@@ -2,35 +2,17 @@
 
 <project>
   <pomVersion>3</pomVersion>
+  <extend>../../project.xml</extend>
   <name>geotools-gcs-coverage</name>
   <id>gcs-coverage</id>
-  <logo>/images/gcs.gif</logo>
+  
   <currentVersion>0.6</currentVersion>
-  <organization>
-    <name>GeoTools</name>
-    <url>http://www.geotools.org</url>
-    <logo>/images/gtLogo.gif</logo>
-  </organization>
-  <inceptionYear>1996</inceptionYear>
+  
   <package>org.geotools</package>
   <shortDescription>gcs-coverage module</shortDescription>
-  <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description>gcs-coverage module</description>
-  <url>http://www.geotools.org/</url>
-  <cvsWebUrl/>
-  <issueTrackingUrl/>
-  <siteAddress>www.geotools.org</siteAddress>
-  <siteDirectory/>
-  <distributionDirectory/>
-
   
-  <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/gcs-coverage</connection>
-    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/gcs-coverage/</url>
-  </repository>
-
-
-  <mailingLists/>
+  <description>gcs-coverage module</description>
+  
 
 
   <developers>
@@ -54,21 +36,17 @@
       <id>cts-coordtrans</id>
       <version>0.6</version>
     </dependency>
+    <dependency>
+        <id>opengis</id>
+        <version>0.1</version>
+    </dependency>
+     <dependency>
+      <id>opengis+css</id>
+      <version>0.1</version>
+    </dependency>
   </dependencies>
 
 
-  <build>
-    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
-    <integrationUnitTestSourceDirectory/>
-    <aspectSourceDirectories/>
-    <unitTestPatterns>
-      <unitTestPattern>include = **/*Test.java</unitTestPattern>
-    </unitTestPatterns>
-    <integrationUnitTestPatterns/>
-    <jarResources/>
-    <jars/>
-    <sourceDirectory>src</sourceDirectory>
 
     <contributors>
       <contributor>
@@ -79,5 +57,5 @@
         </roles>
       </contributor>
     </contributors>
-    </build>
+
 </project>
