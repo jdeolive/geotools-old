@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE appendix PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+  <appendix id="umllegend">
+    <title>UML Legend</title>
+
+    <table colsep="0" rowsep="0" role="">
+      <title>Legend for UML class diagrams</title>
+
+      <tgroup colsep="0" rowsep="0" cols="2">
+        <tbody>
+          <row>
+            <entry><mediaobject><imageobject><imagedata
+            fileref="images/design/PackageIcon.png" format="PNG" align="left"
+            revisionflag="off" /></imageobject></mediaobject></entry>
+
+            <entry>Package</entry>
+          </row>
+
+          <row>
+            <entry><mediaobject><imageobject><imagedata
+            fileref="images/design/DependencyIcon.png" /></imageobject></mediaobject></entry>
+
+            <entry>Dependencies between packages. This expresses that classes
+            within a package use classes from the package it depends on.</entry>
+          </row>
+
+          <row>
+            <entry><mediaobject><imageobject><imagedata
+            fileref="images/design/InterfaceIcon.png" format="PNG"
+            align="left" revisionflag="off" /></imageobject></mediaobject></entry>
+
+            <entry>Interfaces. An Interface is restricted to only contain
+            operations but no attributes. Also, operations are abstract and
+            have no implementation.</entry>
+          </row>
+
+          <row>
+            <entry><mediaobject><imageobject><imagedata
+            fileref="images/design/ClassIcon.png" format="PNG" align="left"
+            revisionflag="off" /></imageobject></mediaobject></entry>
+
+            <entry>Classes. Classes hold operations and attributes and have
+            relations to other classes via association or inheritance
+            relations.</entry>
+          </row>
+
+          <row>
+            <entry><mediaobject><imageobject><imagedata
+            fileref="images/design/InheritanceIcon.png" format="PNG"
+            align="left" revisionflag="off" /></imageobject></mediaobject></entry>
+
+            <entry>Inheritance relations. Between interfaces or between
+            classes.</entry>
+          </row>
+
+          <row>
+            <entry><mediaobject><imageobject><imagedata
+            fileref="images/design/RealizationIcon.png" format="PNG"
+            align="left" revisionflag="off" /></imageobject></mediaobject></entry>
+
+            <entry>Implementation relations. Only between interfaces and
+            classes.</entry>
+          </row>
+
+          <row>
+            <entry><mediaobject><imageobject><imagedata
+            fileref="images/design/AssociationIcon.png" format="PNG"
+            align="left" revisionflag="off" /></imageobject></mediaobject></entry>
+
+            <entry>Association relations. Associations are relations between
+            classes. They often include navigation arrows, and multiplicity
+            (eg 1..*).</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </appendix>

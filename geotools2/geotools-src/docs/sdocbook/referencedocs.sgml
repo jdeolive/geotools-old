@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+<section>
+  <title id="referencedocuments">Reference documents.</title>
+
+  <itemizedlist>
+    <listitem>
+      <para><citetitle>Design Patterns, Elements of Reusable Object-Oriented
+      Software</citetitle>, Erich Gamma, Richard Helm, Ralph Johnson, John
+      Vlissides. An excellent book describing reusable design patterns, some
+      of which are referenced in this document.</para>
+    </listitem>
+
+    <listitem>
+      <para><citetitle>Geotools2 Javadocs</citetitle>.</para>
+    </listitem>
+
+    <listitem>
+      <para><ulink url="http://www.pogner.demon.co.uk/mil_498/sdd-did.htm">MIL-STD
+      498 Software Design Description Data Item Description (SDD DID)</ulink>.
+      The Geotools design document is loosely based on this SDD DID.</para>
+    </listitem>
+  </itemizedlist>
+</section>
