@@ -42,10 +42,11 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collection;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.IllegalPathStateException;
 
@@ -61,29 +62,26 @@ import org.geotools.resources.XArray;
 
 
 /**
- * Classe fusionnant des segments de traîts de côte ({@link Polyline}). Cette classe analysera
- * tous les polylignes disponibles, puis tentera de fusionner ensemble celles qui semblent
- * représenter la même côte, île ou lac. Elle pourra aussi refermer les formes géométriques
- * des continents qui ont été coupés par le bord de la carte. Cette classe est très utile après
- * la lecture d'un fichier de données bathymétriques généré par l'atlas digitalisé GEBCO. Ce
- * dernier ne dessine pas les côtes d'un seul trait. Avoir un trait de côte divisé en plusieurs
- * segments nous empêche de déterminer si un point se trouve sur la terre ferme ou sur la mer.
- * Par le fait même, ça rend difficile tout remplissage des terres. Cette classe tente d'y
- * remédier en procédant grosso-modo comme suit:<p>
+ * Classes assembling pieces of polygons ({@link Polyline})  in order to create closed polygons
+ * ({@link Polygon}). This class analyses all available {@link Polyline} and merge together the
+ * polylines that look like parts of the same polygons. This class can also complete the polygons
+ * that were cut by the map border.
+ *
+ * This class is usefull in the context of isolines digitalized from many consecutive maps
+ * (for example the GEBCO digital atlas).  It is not possible to fill polygons with Java2D
+ * if the polygons are broke in many pieces.  Running this class <strong>once</strong> for
+ * a given set of isolines before renderering help to repair them. The algorithm is:
  *
  * <ol>
- *     <li>Les polylignes seront examinées deux par deux. Toutes les combinaisons
- *         possibles de paires de polylignes seront évaluées.</li>
- *     <li>Pour deux polylignes données, la plus courte distance qui sépare deux extrémités
- *         sera calculée. Tous les agencements possibles entre le début ou la fin d'une
- *         polyligne avec le début ou la fin de l'autre seront évaluées.</li>
- *     <li>Parmis toutes les combinaisons possibles évaluées aux étapes 1 et 2, on recherche
- *         la plus courte distance entre deux extrémités. On ignore les cas où la polyligne la
- *         plus près d'une polyligne est elle-même (c'est-à-dire que la distance entre son début
- *         et sa fin est plus courte qu'avec tous autre agencement), car ils décrivent des
- *         îles ou lacs complets.</li>
- *     <li>Tant qu'on a trouve deux polylignes très proches l'une de l'autre, on procède à leur
- *         fusion puis on recommence à l'étape 1.</li>
+ *   <li>A list of all possible pairs of polylines is built.</li>
+ *   <li>For any pair of polylines, the shortest distance between their extremities is
+ *       computed. All combinaisons between the begining and the end of a polyline with
+ *       the begining or end of the other polyline are taken in account.</li>
+ *   <li>The pair with the shorest distance is identified. When the shortest distance
+ *       from one polyline's extremity is the other extremity of the same polyline, then
+ *       the polyline is identified as a closed polygon (e.g. an island or a lake).
+ *       Otherwise, the closest polylines are merged together.</li>
+ *   <li>The loop is reexecuted from step 1 until no more polyline has been merged.</li>
  * </ol>
  *
  * <blockquote>
@@ -93,61 +91,61 @@ import org.geotools.resources.XArray;
  *           d'un seul point).
  * </blockquote>
  *
- * @version $Id: PolygonAssembler.java,v 1.1 2003/02/04 12:30:52 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.2 2003/02/04 23:16:51 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @task TODO: Localize logging and progress messages.
  */
 final class PolygonAssembler implements Comparator {
     /**
-     * The level for logging message.
+     * The level for logging messages.
      */
     private static final Level LEVEL = Level.FINEST;
 
     /**
-     * Object à utiliser pour informer des progrès de l'analyse.
-     * Si aucun objet n'est utilisé, ce champs peut être nul.
+     * The progress listener, or <code>null</code> if none.
      */
     private final ProgressListener progress;
 
     /**
-     * Forme géométrique de la région dans laquelle couper les polygones.
+     * Forme géométrique de la région dans laquelle ont été découpés les polygones.
      */
     private final Shape clip;
 
     /**
      * Constante à utiliser dans les appels de {@link Shape#getPathIterator(AffineTransform,double)}
-     * afin d'obtenir une succéssions de segments de droites qui approximerait raisonablement les
+     * afin d'obtenir une successions de segments de droites qui approximerait raisonablement les
      * courbes.
      */
     private final double flatness;
 
     /**
-     * Tableau de polygones à traiter. Ce tableau peut avoir une longueur de 0,
-     * mais ne devrait jamais être nul.
+     * The list of polygons to process. May have a length of 0, but should never be null
+     * after {@link #setIsoline} has been invoked.
      */
     private Polygon[] polygons;
 
     /**
      * Isoligne présentement en cours d'analyse.
      */
-    private final Isoline isoline;
+    private Isoline isoline;
 
     /**
      * Ellipsoïde à utiliser pour calculer les distances, ou <code>null</code> si le
      * système de coordonnées est cartésien. Cette information est déduite à partir
      * du système de coordonnées de l'isoligne {@link #isoline}.
      */
-    private final Ellipsoid ellipsoid;
+    private Ellipsoid ellipsoid;
 
     /**
-     * Distance maximale (en mètres) autorisé entre deux segments pour
-     * permettre leur rattachement. En première approximation, la valeur
-     * {@link Double.POSITIVE_INFINITY} donne des résultats acceptables
-     * dans plusieurs cas.
+     * Distance maximale (en mètres) autorisée entre deux extrémités de polylignes
+     * pour permettre leur rattachement. En première approximation, la valeur
+     * {@link Double.POSITIVE_INFINITY} donne des résultats acceptables dans plusieurs cas.
      */
     private final double dmax = Double.POSITIVE_INFINITY;
 
     /**
-     * Table des traits de côtes à fusionner. Les valeurs de cette table seront des objets
+     * Table des polylignes à fusionner. Les valeurs de cette table seront des objets
      * {@link FermionPair}, tandis que les clés seront des objets {@link Fermion}.
      */
     private final Map fermions = new HashMap();
@@ -164,18 +162,12 @@ final class PolygonAssembler implements Comparator {
      * créées une fois pour toutes ici plutôt que d'allouer de la mémoire à
      * chaque exécution d'une boucle.
      */
-    private final transient Point2D.Double jFirstCoord = new Point2D.Double();
-    private final transient Point2D.Double jLastCoord  = new Point2D.Double();
-    private final transient Point2D.Double iFirstCoord = new Point2D.Double();
-    private final transient Point2D.Double iLastCoord  = new Point2D.Double();
     private final transient Point2D.Double jFirstPoint = new Point2D.Double();
     private final transient Point2D.Double jLastPoint  = new Point2D.Double();
     private final transient Point2D.Double iFirstPoint = new Point2D.Double();
     private final transient Point2D.Double iLastPoint  = new Point2D.Double();
-
-    private final transient Point2D.Double point = new Point2D.Double();
-    private final transient Point2D.Double coord = new Point2D.Double();
-    private final transient Line2D .Double  line = new Line2D .Double();
+    private final transient Point2D.Double tmpPoint    = new Point2D.Double();
+    private final transient Line2D .Double pathLine    = new Line2D .Double();
 
     /**
      * Buffer réservé à un usage interne par la méthode {@link #nextSegment}.
@@ -183,36 +175,153 @@ final class PolygonAssembler implements Comparator {
     private final transient double[] pitBuffer = new double[8];
 
     /**
-     * Construit un objet qui assemblera les polygone de l'isoligne spécifiée.
+     * Construit un objet qui assemblera les polygones de l'isoligne spécifiée.
      *
-     * @param isoline  Isoligne à assembler.
      * @param clip     Les limites de la carte exprimées selon le système de coordonnées
-     *                 de l'isologne.   Si cet argument est nul, cette méthode utilisera
-     *                 les limites retournées par {@link Isoline#getBounds2D}.
+     *                 des isolignes qui seront à traiter.
      * @param progress Objet à utiliser pour informer des progrès, ou <code>null</code>
      *                 s'il n'y en a pas.
+     *
+     * @see #setIsoline
      */
-    public PolygonAssembler(final Isoline isoline, final Shape clip, final ProgressListener progress)
-    {
+    private PolygonAssembler(final Shape clip, final ProgressListener progress) {
         this.progress  = progress;
-        this.isoline   = isoline;
-        this.ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isoline.getCoordinateSystem());
         this.flatness  = Polygon.getFlatness(clip);
-        this.clip      = (clip!=null) ? clip : isoline.getBounds2D();
-        GeoShape.LOGGER.log(LEVEL, "Begining polygons assemblage for isoline "+isoline.value);
-        updatePolygonsArray();
+        this.clip      = clip;
     }
 
+
+
+
+    ///////////////////////////////////////////////////////////////////
+    //////////                                               //////////
+    //////////          H E L P E R   M E T H O D S          //////////
+    //////////                                               //////////
+    ///////////////////////////////////////////////////////////////////
+
     /**
-     * Met à jour le champs {@link #polygons} à partir de {@link #isoline}.
+     * Set the next isoline to process. This method must be invoked first, before any
+     * processing. It is legal to invoke this method with the current isoline (i.e.
+     * {@link #isoline}); it will update internal fields according the current state
+     * of the isolone.
+     *
+     * @param isoline A new isoline to process, or {@link #isoline} for updating
+     *        <code>PolygonAssembler</code> according the current isoline state.
      */
-    private void updatePolygonsArray() {
+    private void setIsoline(final Isoline isoline) {
+        if (isoline != this.isoline) {
+            // TODO: localize
+            GeoShape.LOGGER.log(LEVEL, "Assembling isoline "+isoline.value);
+            this.isoline = isoline;
+        }
+        this.ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isoline.getCoordinateSystem());
         final Collection set = isoline.getPolygons();
-        polygons = (Polygon[]) XArray.resize(set.toArray(polygons), set.size());;
+        polygons = (Polygon[]) XArray.resize(set.toArray(polygons), set.size());
+        isoline.removeAll();
     }
 
     /**
-     * Returns the squared distance between point <code>P1</code> and <code>P2</code>.
+     * Update the isoline with newly completed polygons.
+     *
+     * @throws TransformException if a transformation was needed and failed.
+     */
+    private void updateIsoline() throws TransformException {
+        isoline.removeAll();
+        for (int i=0; i<polygons.length; i++) {
+            isoline.add(polygons[i]);
+        }
+    }
+
+    /**
+     * Compare la distance séparant deux objets {@link IntersectionPoint}.
+     * Cette méthode est réservée à un usage interne afin de classer des
+     * liste de points d'intersections avant leur traitement.
+     */
+    public int compare(final Object a, final Object b) {
+        final double dA = ((IntersectionPoint) a).minDistanceSq;
+        final double dB = ((IntersectionPoint) b).minDistanceSq;
+        if (dA < dB) return -1;
+        if (dA > dB) return +1;
+        return 0;
+    }
+
+    /**
+     * Affecte à la ligne spécifiée les coordonnées du prochain segment de la forme
+     * géométrique balayée par <code>it</code>. Ce segment doit être décrit par une
+     * instruction <code>SEG_MOVETO</code> ou un <code>SEG_LINETO</code> suivie d'une
+     * instruction <code>SEG_LINETO</code> ou <code>SEG_CLOSE</code>. Un seul appel à
+     * <code>pit.next()</code> sera fait (de sorte que vous n'avez pas à l'appeller
+     * vous-même), à moins qu'il y avait plusieurs instructions <code>SEG_MOVETO</code>
+     * consécutifs. Dans ce dernier cas, seul le dernier sera pris en compte.
+     * <p>
+     * Le tableau <code>pitBuffer</code> sera utilisé lors des appels à la méthode
+     * <code>pit.currentSegment(double[])</code>. Selon les spécifications de cette
+     * dernière, le tableau doit avoir une longueur d'au moins 6 éléments. Toutefois
+     * cette méthode exige un tableau de 8 éléments, car elle utilisera les éléments
+     * 6 et 7 pour sauvegarder les coordonnées du dernier <code>SEG_MOVETO</code>
+     * rencontré. Cette information est nécessaire pour permettre la fermeture correcte
+     * d'un polygone lors de la prochaine instruction <code>SEG_CLOSE</code>.
+     * <p>
+     * L'exemple suivant affiche sur le périphérique de sortie standard les coordonnées
+     * de toutes les droites qui composent la forme géométrique <var>s</var>.
+     *
+     * <blockquote><pre>
+     * &nbsp;void exemple(Shape s) {
+     * &nbsp;    PathIterator pit=s.getPathIterator(null, 1);
+     * &nbsp;    while (!pit.isDone()) {
+     * &nbsp;         boolean closed = nextSegment(pit);
+     * &nbsp;         System.out.println({@link #pathLine});
+     * &nbsp;         if (closed) break;
+     * &nbsp;    }
+     * &nbsp;}
+     * </pre></blockquote>
+     *
+     * @param pit Objet balayant le contour d'une forme géométrique.
+     *
+     * @return <code>false</code> si la ligne s'est terminée par une instruction
+     *         <code>SEG_LINETO</code>, <code>true</code> si elle s'est terminée
+     *         par une instruction <code>SEG_CLOSE</code>. Cette information peut
+     *         être vu comme une estimation de ce que devrait donner le prochain
+     *         appel à la méthode <code>it.isDone()</code> après un appel à <code>it.next()</code>.
+     *
+     * @throws IllegalPathStateException si une instruction <code>SEG_QUADTO</code>
+     *         ou <code>SEG_CUBICTO</code> a été rencontrée.
+     *
+     * @see java.awt.geom.PathIterator#currentSegment(double[])
+     */
+    private boolean nextSegment(final PathIterator pit) {
+        loop: while(true) {
+            switch (pit.currentSegment(pitBuffer)) {
+                case PathIterator.SEG_MOVETO: {
+                    System.arraycopy(pitBuffer,0, pitBuffer,6, 2);
+                    // fall through
+                }
+                case PathIterator.SEG_LINETO: {
+                    final double x=pitBuffer[0];
+                    final double y=pitBuffer[1];
+                    pit.next();
+                    switch (pit.currentSegment(pitBuffer)) {
+                        case PathIterator.SEG_MOVETO: {
+                            System.arraycopy(pitBuffer,0, pitBuffer,6, 2);
+                            continue loop;
+                        }
+                        case PathIterator.SEG_LINETO: {
+                            pathLine.setLine(x,y,pitBuffer[0],pitBuffer[1]);
+                            return false;
+                        }
+                        case PathIterator.SEG_CLOSE: {
+                            pathLine.setLine(x,y,pitBuffer[6],pitBuffer[7]);
+                            return true;
+                        }
+                    }
+                }
+            }
+            throw new IllegalPathStateException();
+        }
+    }
+
+    /**
+     * Returns the squared distance between points <code>P1</code> and <code>P2</code>.
      * If {@link #ellipsoid} is non-null (i.e. if the underlying coordinate system is
      * a geographic one), then the orthordomic distance will be computed.
      */
@@ -237,18 +346,30 @@ final class PolygonAssembler implements Comparator {
     /**
      * Recherche un objet <code>FermionPair</code> qui contient au moins un lien vers
      * la polyligne <code>path</code> spécifiée avec la valeur <code>mergeEnd</code>
-     * correspondante. Cette méthode vérifiera indifférement les champs <code>i.path</code> et
-     * <code>j.path</code>. Si aucun objet répondant aux critères ne fut trouvé, cette méthode
-     * retournera <code>null</code>.
+     * correspondante. L'objet <code>path</code> spécifié peut correspondre indifférement
+     * à un champ <code>i.path</code> ou <code>j.path</code>. Si aucun objet répondant
+     * aux critères ne fut trouvé, alors cette méthode retournera <code>null</code>.
      *
-     * @param path Polyligne à rechercher.
-     * @param mergeEnd Valeur de <code>mergeEnd</code> désiré pour ce segment.
+     * @param  path Polyligne à rechercher.
+     * @param  mergeEnd Valeur de <code>mergeEnd</code> pour la polyligne à rechercher.
      * @return La paire de polylignes trouvée, ou <code>null</code> s'il n'y en a pas.
      */
     private FermionPair get(final Polygon path, final boolean mergeEnd) {
         key.path     = path;
         key.mergeEnd = mergeEnd;
         return (FermionPair) fermions.get(key);
+    }
+
+    /**
+     * Remove a polygon from the {@link #polygons} list.
+     */
+    private void remove(final Polygon polygon) {
+        for (int i=polygons.length; --i>=0;) {
+            if (polygons[i] == polygon) {
+                polygons = (Polygon[]) XArray.remove(polygons, i, 1);
+                // There should be no other polygons, but continue just in case...
+            }
+        }
     }
 
     /**
@@ -264,11 +385,11 @@ final class PolygonAssembler implements Comparator {
     }
 
     /**
-     * Ajoute une paire de polylignes à la liste. Cette paire de polylignes sera enregistrée à
-     * partir de ses deux clés, <var>i</var> et <var>j</var>, de sorte qu'il sera possible de
-     * la retrouver à partir de n'importe quelle de ces clés.
+     * Ajoute une paire de polylignes. Cette paire de polylignes sera identifiée par
+     * ses deux clés {@link FermionPair#i} et {@link FermionPair#j}, de sorte qu'il
+     * sera possible de la retrouver à partir de n'importe quelle de ces clés.
      *
-     * @param pair Paire de segment à ajouter à la liste.
+     * @param pair Paire de polylignes à ajouter à la liste.
      */
     private void put(final FermionPair pair) {
         fermions.put(pair.i, pair);
@@ -358,12 +479,10 @@ final class PolygonAssembler implements Comparator {
     /**
      * Remplace toutes les occurences de la polyligne <code>searchFor</code> par la polyligne
      * <code>replaceBy</code>. Cette méthode est appellée après que ces deux polylignes aient
-     * été fusionnées ensemble. Après la fusion, elles pointent toutes deux vers les mêmes
-     * données. Ne pas utiliser une référence unique pour ces données peut faire croire à
-     * l'algorithme qu'il y a encore deux jeux de données, alors que ce n'est plus le cas.
-     * La rêgle voulant qu'il n'y ait jamais deux segments avec la même valeur de
+     * été fusionnées ensemble. Après la fusion, une des deux polylignes n'est plus nécessaire.
+     * La rêgle voulant qu'il n'y ait jamais deux polylihnes avec la même valeur de
      * <code>mergeEnd</code> restera respectée si cette méthode n'est appellée qu'après
-     * une fusion.
+     * une fusion pour suprimer la polyligne en trop.
      *
      * @param searchFor Polyligne à remplacer.
      * @param replaceBy Polyligne remplaçant <code>searchFor</code>.
@@ -383,23 +502,21 @@ final class PolygonAssembler implements Comparator {
     }
 
     /**
-     * Indique que la polyligne <code>polygon</code> pourrait représenter une île complète.
-     * Cette méthode est appellée lorsque l'on croit que <code>polygon</code> décrit une forme
-     * géométrique qui est déjà refermée. Cette méthode vérifiera d'abord s'il existe d'autres
-     * spécifications pour cette polyligne. Si c'est le cas, et si l'ancienne spécification
-     * était meilleure (c'est-à-dire que la distance qu'elle avait mesuré était inférieure à
-     * la valeur de l'argument <code>distance</code> de cette méthode), alors rien ne sera fait.
-     * Sinon la nouvelle spécification prendra la place de l'ancienne.
+     * Indique que la polyligne <code>polygon</code> pourrait représenter un polygon fermé.
+     * Cette méthode vérifiera d'abord s'il existe d'autres objets {@link FermionPair} pour
+     * cette polyligne. Si c'est le cas, et si la distance mesurée par ces {@link FermionPair}
+     * est inférieure à la valeur de l'argument <code>sqrt(distanceSq)</code> de cette méthode,
+     * alors rien ne sera fait.
      *
-     * @param polygon Référence vers la polyligne représentant peut-être une île.
-     * @param distanceSq Carré de la distance entre le premier et dernier point de cette île.
+     * @param polygon Référence vers la polyligne représentant peut-être un polygone fermé.
+     * @param distanceSq Carré de la distance entre le premier et dernier point de ce polygone.
      * @return <code>true</code> si une information précédemment calculée a dû
      *         être supprimée. Dans ce cas, toutes la boucle calculant ces
      *         information devra être refaite.
      *
-     * @see #canMerge
+     * @see #candidateToMerging
      */
-    private boolean setPolygon(final Polygon polygon, final double distanceSq) {
+    private boolean candidateToClosing(final Polygon polygon, final double distanceSq) {
         /*
          * Recherche les objets <code>FermionPair</code> se référant déjà à la polyligne
          * <code>polygon</code>. Au besoin, un nouvel objet sera créé si aucun n'avait été
@@ -418,10 +535,6 @@ final class PolygonAssembler implements Comparator {
         if (op == null) {
             op = np;
         }
-        /*
-         * Vérifie maintenant si la distance spécifiée à cette méthode
-         * est plus courte que celles des autres combinaisons.
-         */
         if (distanceSq<np.minDistanceSq && distanceSq<op.minDistanceSq) {
             /*
              * Élimine toutes les références vers <code>op</code> et <code>np</code>. Par
@@ -443,7 +556,7 @@ final class PolygonAssembler implements Comparator {
 
     /**
      * Déclare que les polylignes <code>jPath</code> et <code>iPath</code> pourraient être
-     * fusionnées. Cette informations ne sera retenue que si la distance <code>distance</code>
+     * fusionnées. Cette information ne sera retenue que si la distance <code>sqrt(distanceSQ)</code>
      * spécifiée en argument est plus courte que ce qui avait été mémorisé précédemment.
      *
      * @param jPath      Pointeur vers une des polylignes à fusionner.
@@ -457,11 +570,11 @@ final class PolygonAssembler implements Comparator {
      *         être supprimée. Dans ce cas, toutes la boucle calculant ces
      *         information devra être refaite.
      *
-     * @see #setPolygon
+     * @see #candidateToClosing
      */
-    private boolean canMerge(final Polygon jPath, final boolean mergeEndJ,
-                             final Polygon iPath, final boolean mergeEndI,
-                             final double distanceSq)
+    private boolean candidateToMerging(final Polygon jPath, final boolean mergeEndJ,
+                                       final Polygon iPath, final boolean mergeEndI,
+                                       final double distanceSq)
     {
         assert (jPath != iPath);
         /*
@@ -478,7 +591,7 @@ final class PolygonAssembler implements Comparator {
             }
         }
         if (pj == null) {
-            pj=pi;
+            pj = pi;
         }
         /*
          * Vérifie maintenant si la distance spécifiée en argument est inférieure
@@ -500,15 +613,24 @@ final class PolygonAssembler implements Comparator {
         return false;
     }
 
+
+
+
+    ///////////////////////////////////////////////////////////////////
+    //////////                                               //////////
+    //////////     P O L Y G O N S   A S S E M B L A G E     //////////
+    //////////                                               //////////
+    ///////////////////////////////////////////////////////////////////
+
     /**
      * Dresse une liste des paires de polylignes les plus rapprochées. Si cette liste
      * existait déjà, alors cette méthode ne fera que la remettre à jour en tentant
      * d'éviter de répéter certains calculs inutiles.
      */
-    private void update() {
-        GeoShape.LOGGER.log(LEVEL, "Updating internal database");
+    private void updateFermions() {
         if (progress != null) {
-            progress.setDescription("Assembling polygons"); // TODO: localize
+            progress.setDescription("Analyzing"); // TODO: localize
+            progress.progress(0);
         }
         boolean hasChanged;
         while (true) {
@@ -521,7 +643,7 @@ final class PolygonAssembler implements Comparator {
                         /*
                          * Utiliser 'j' directement pour informer des progrès ne donne pas
                          * une progression linéaire, car l'algorithme ci-dessous utilise
-                         * deux blocs 'for' imbriquées. Le temps nécéssaire au calcul est de
+                         * deux blocs 'for' imbriqués. Le temps nécéssaire au calcul est de
                          * l'ordre de O(n²) ou n est le nombre de polylignes restant à traiter.
                          * On utilisera donc plutôt la formule ci-dessous, qui ferra paraître
                          * linéaire la progression.
@@ -536,57 +658,57 @@ final class PolygonAssembler implements Comparator {
                          * si les informations dans la cache ne sont plus valides pour cette
                          * polyligne. Les prochaines lignes calculent la distance entre le premier
                          * et le dernier point de la polyligne j. On part de l'hypothèse que j est
-                         * une île ou un lac complet.
+                         * un polygon fermé (île ou lac par exemple).
                          */
                         double minDistanceSq;
-                        minDistanceSq = distanceSq(jPath.getFirstPoint(jFirstCoord),
-                                                   jPath.getLastPoint (jLastCoord));
-                        tryAgain |= setPolygon(jPath, minDistanceSq);
+                        minDistanceSq = distanceSq(jPath.getFirstPoint(jFirstPoint),
+                                                   jPath.getLastPoint (jLastPoint));
+                        tryAgain |= candidateToClosing(jPath, minDistanceSq);
                         if (minDistanceSq != 0) { // Simple optimisation (pourrait être retirée)
                             /*
                              * On vérifie maintenant si, dans les prochaines polylignes, il y en
                              * aurait une dont le début ou la fin serait plus proche du début
                              * ou de la fin de la polyligne j. Si on trouve une telle polyligne,
                              * elle sera désignée par i et remplacera l'hypothèse précédente à
-                             * l'effet que j est une île.
+                             * l'effet que j est un polygon fermé.
                              */
                             for (int i=j+1; i<polygons.length; i++) {
                                 final Polygon iPath = polygons[i];
                                 if (!isDone(iPath)) {
-                                    minDistanceSq = distanceSq(iPath.getFirstPoint(iFirstCoord),
-                                                               iPath.getLastPoint (iLastCoord));
-                                    tryAgain |= setPolygon(iPath, minDistanceSq);
+                                    minDistanceSq = distanceSq(iPath.getFirstPoint(iFirstPoint),
+                                                               iPath.getLastPoint (iLastPoint));
+                                    tryAgain |= candidateToClosing(iPath, minDistanceSq);
                                     /*
                                      * Les conditions suivantes recherche avec quel agencement
                                      * des polylignes i et j on obtient la plus courte distance
                                      * possible. On commence par calculer cette distance en
                                      * supposant qu'aucune polyligne n'est inversée.
                                      */
-                                    tryAgain |= canMerge(jPath, true, iPath, false,
-                                                         distanceSq(jLastCoord, iFirstCoord));
+                                    tryAgain |= candidateToMerging(jPath, true, iPath, false,
+                                                        distanceSq(jLastPoint, iFirstPoint));
                                     /*
                                      * Distance si l'on suppose que la polyligne J est inversée.
                                      */
-                                    tryAgain |= canMerge(jPath, false, iPath, false,
-                                                         distanceSq(jFirstCoord, iFirstCoord));
+                                    tryAgain |= candidateToMerging(jPath, false, iPath, false,
+                                                        distanceSq(jFirstPoint, iFirstPoint));
                                     /*
                                      * Distance si l'on suppose que la polyligne I est inversée.
                                      */
-                                    tryAgain |= canMerge(jPath, true, iPath, true,
-                                                         distanceSq(jLastCoord, iLastCoord));
+                                    tryAgain |= candidateToMerging(jPath, true, iPath, true,
+                                                        distanceSq(jLastPoint, iLastPoint));
                                     /*
                                      * Distance si l'on suppose que les deux polylignes sont
                                      * inversées. Notez que fusionner I à J après avoir inversé
                                      * ces deux polylignes revient à fusionner J à I sans les
                                      * inverser, ce qui est plus rapide.
                                      */
-                                    tryAgain |= canMerge(jPath, false, iPath, true,
-                                                         distanceSq(jFirstCoord, iLastCoord));
+                                    tryAgain |= candidateToMerging(jPath, false, iPath, true,
+                                                        distanceSq(jFirstPoint, iLastPoint));
                                     /*
                                      * Si l'on vient de trouver que cette polyligne i est plus près
                                      * de la polyligne j que tous les autres jusqu'à maintenant
                                      * (incluant j lui-même), alors on mémorisera dans la cache
-                                     * que j devrait être fusionné avec i. Mais la boucle n'est
+                                     * que j devrait être fusionnée avec i. Mais la boucle n'est
                                      * pas terminée et une meilleure combinaison peut encore
                                      * être trouvée...
                                      */
@@ -618,26 +740,26 @@ final class PolygonAssembler implements Comparator {
 
     /**
      * Examine toutes les polylignes en mémoire et rattachent ensemble celles qui semblent faire
-     * partie d'une même côte ou d'une même île. Cette méthode est très utile après la lecture
-     * d'un fichier de données bathymétriques généré par l'atlas digitalisé GEBCO. Ce dernier ne
-     * dessine pas les côtes d'un seul trait. Avoir un trait de côte divisé en plusieurs segments
-     * nous empêche de déterminer si un point se trouve sur la terre ferme ou sur la mer. Par le
-     * fait même, ça rend difficile tout remplissage des terres. Cette méthode tente d'y remédier
-     * en procédant grosso-modo comme suit:<p>
+     * partie d'un même polygone fermé (par exemple un trait de côte ou une île).  Cette méthode
+     * est très utile après la lecture d'un fichier de données bathymétriques généré par l'atlas
+     * digitalisé GEBCO. Ce dernier ne dessine pas les côtes d'un seul trait.  Avoir un trait de
+     * côte divisé en plusieurs segments nous empêche de déterminer si un point se trouve sur la
+     * terre ferme ou sur la mer. Par le fait même, ça rend difficile tout remplissage des terres.
+     * Cette méthode tente d'y remédier en procédant grosso-modo comme suit:<p>
      *
      * <ol>
-     *     <li>Les polylignes seront examinées deux par deux. Toutes les combinaisons
-     *         possibles de paires de polylignes seront évaluées.</li>
-     *     <li>Pour deux polylignes données, la plus courte distance qui sépare deux extrémités
-     *         sera calculée. Tous les agencements possibles entre le début ou la fin d'une
-     *         polyligne avec le début ou la fin de l'autre seront évaluées.</li>
-     *     <li>Parmis toutes les combinaisons possibles évaluées aux étapes 1 et 2, on recherche
-     *         la plus courte distance entre deux extrémités. On ignore les cas où la polyligne la
-     *         plus près d'une polyligne est elle-même (c'est-à-dire que la distance entre son début
-     *         et sa fin est plus courte qu'avec tous autre agencement), car ils décrivent des
-     *         îles ou lacs complets.</li>
-     *     <li>Tant qu'on a trouve deux polylignes très proches l'une de l'autre, on procède à leur
-     *         fusion puis on recommence à l'étape 1.</li>
+     *   <li>Les polylignes seront examinées deux par deux. Toutes les combinaisons
+     *       possibles de paires de polylignes seront évaluées.</li>
+     *   <li>Pour deux polylignes données, la plus courte distance qui sépare deux extrémités
+     *       sera calculée. Tous les agencements possibles entre le début ou la fin d'une
+     *       polyligne avec le début ou la fin de l'autre seront évaluées.</li>
+     *   <li>Parmis toutes les combinaisons possibles évaluées aux étapes 1 et 2, on recherche
+     *       la plus courte distance entre deux extrémités. On ignore les cas où la polyligne la
+     *       plus près d'une polyligne est elle-même (c'est-à-dire que la distance entre son début
+     *       et sa fin est plus courte qu'avec tous autre agencement), car ils décrivent des
+     *       polygones fermés.</li>
+     *   <li>Tant qu'on a trouve deux polylignes très proches l'une de l'autre, on procède à leur
+     *       fusion puis on recommence à l'étape 1.</li>
      * </ol>
      *
      * <blockquote>
@@ -647,19 +769,19 @@ final class PolygonAssembler implements Comparator {
      *           d'un seul point).
      * </blockquote>
      *
-     * @throws TransformException if a transformation failed during the operation.
+     * @throws TransformException if a transformation was needed and failed.
      */
-    private void mergePolylines() throws TransformException {
-        update();
+    private void assemblePolygons() throws TransformException {
+        updateFermions();
         final StringBuffer message;
         if (GeoShape.LOGGER.isLoggable(LEVEL)) {
-            GeoShape.LOGGER.log(LEVEL, "Merging polylines in closed polygons");
             message = new StringBuffer();
         } else {
             message = null;
         }
         if (progress != null) {
-            progress.setDescription("Closing polygons"); // TODO: localize
+            progress.setDescription("Assembling polygons"); // TODO: localize
+            progress.progress(0);
         }
         int count = 0;
         final float progressScale = 100f / fermions.size();
@@ -678,7 +800,7 @@ final class PolygonAssembler implements Comparator {
             if (pair.i.path!=pair.j.path && pair.minDistanceSq<=dmaxSq) {
                 remove(pair); // Retire aussi l'autre référence
                 /*
-                 * Initialise des variables internes* qui pointeront vers les données.
+                 * Initialise des variables internes qui pointeront vers les données.
                  */
                 final int overlap = (pair.minDistanceSq==0) ? 1 : 0;
                 if (message != null) {
@@ -696,19 +818,19 @@ final class PolygonAssembler implements Comparator {
                  * méthode <code>reverse</code>).
                  */
                 if (pair.i.mergeEnd == pair.j.mergeEnd) {
-                        if (pair.i.path.getPointCount() <= pair.j.path.getPointCount()) {
-                            reverse(pair.i.path);
-                            pair.i.mergeEnd = !pair.i.mergeEnd;
-                            if (message != null) {
-                                message.append("(reverse #1) ");
-                            }
-                        } else {
-                            reverse(pair.j.path);
-                            pair.j.mergeEnd = !pair.j.mergeEnd;
-                            if (message != null) {
-                                message.append("(reverse #2) ");
-                            }
+                    if (pair.i.path.getPointCount() <= pair.j.path.getPointCount()) {
+                        reverse(pair.i.path);
+                        pair.i.mergeEnd = !pair.i.mergeEnd;
+                        if (message != null) {
+                            message.append("(reverse #1) ");
                         }
+                    } else {
+                        reverse(pair.j.path);
+                        pair.j.mergeEnd = !pair.j.mergeEnd;
+                        if (message != null) {
+                            message.append("(reverse #2) ");
+                        }
+                    }
                 }
                 if (pair.j.mergeEnd && !pair.i.mergeEnd) {
                     if (message != null) {
@@ -717,19 +839,16 @@ final class PolygonAssembler implements Comparator {
                     }
                     pair.j.path.append(pair.i.path.subpoly(overlap));
                     replace(pair.i.path, pair.j.path);
-                    if (!isoline.remove(pair.i.path)) {
-                        throw new AssertionError();
-                    }
+                    remove(pair.i.path);
                 }
-                if (pair.i.mergeEnd && !pair.j.mergeEnd) {
+                else if (pair.i.mergeEnd && !pair.j.mergeEnd) {
                     if (message != null) {
                         message.append("Append #2 to #1");
                         GeoShape.LOGGER.log(LEVEL, message.toString());
                     }
                     pair.i.path.append(pair.j.path.subpoly(overlap));
                     replace(pair.j.path, pair.i.path);
-                    if (!isoline.remove(pair.j.path))
-                        throw new AssertionError();
+                    remove(pair.j.path);
                 }
                 /*
                  * Les opérations précédentes ayant modifié la liste, on
@@ -738,45 +857,50 @@ final class PolygonAssembler implements Comparator {
                 it = fermions.values().iterator();
             }
         }
-        /*
-         * On redemande de nouveau la liste des îles plutôt que de continuer à utiliser
-         * le champs <code>polygons</code> tel qu'initialisé lors de la construction car
-         * le nombre de polygones aura vraissemblablement diminué.
-         */
-        updatePolygonsArray();
     }
+
+
+
+
+    ///////////////////////////////////////////////////////////////////
+    //////////                                               //////////
+    //////////     P O L Y G O N S   C O M P L E T I O N     //////////
+    //////////                                               //////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * Examine toutes les polylignes en mémoire et rattachent ensemble celles qui semblent faire
-     * partie d'une même côte ou d'une même île. Cette méthode va aussi tenter de complèter
-     * les polygones de façon à pouvoir les remplir. Elle est généralement appellée pour
-     * l'isoligne correspondant au niveau 0. Les autres profondeurs utiliseront
-     * {@link #mergePolylines} afin de ne pas complèter les polygones.
+     * partie d'un même polygone fermé. Cette méthode va aussi tenter de complèter les polygones
+     * de façon à pouvoir les remplir. Elle est généralement appellée pour l'isoligne correspondant
+     * au niveau 0. Les autres profondeurs utiliseront {@link #assemblePolygons} afin de ne pas
+     * complèter les polygones.
      *
      * Pour pouvoir complèter correctement les polygones, cette méthode a besoin de connaître
      * la forme géométrique des limites de la carte. Il ne s'agit pas des limites que vous
      * souhaitez donner à la carte, mais des limites qui avaient été spécifiées au logiciel
-     * qui a produit les données du graphique de contour. Dans la très grande majorité des cas,
-     * cette forme est un rectangle. Mais cette méthode accepte aussi d'autres formes telles
-     * qu'un cercle ou un triangle. La principale restriction est que cette forme doit contenir
-     * une et une seule surface fermée. Cette forme géométrique aura été spécifiée lors de la
-     * construction de cet objet.
+     * qui a produit les données des polylignes. Dans la très grande majorité des cas, cette
+     * forme est un rectangle. Mais cette méthode accepte aussi d'autres formes telles qu'un
+     * cercle ou un triangle. La principale restriction est que cette forme doit contenir une
+     * et une seule surface fermée. Cette forme géométrique aura été spécifiée lors de la
+     * construction de cet objet <code>PolygonAssembler</code>.
      *
-     * @param ptRef  La coordonnée d'un point en mer, dans les unités de la projection
-     *               cartographique. Ce point <u>doit</u> être sur l'un des bords de la
-     *               carte (gauche, droit, haut ou bas si {@link #clip} est un
-     *               rectangle). Si elle n'est pas exactement sur un des bords, elle sera
-     *               projetée sur le bord le plus proche.
+     * @param ptRef  La coordonnée d'un point en mer, selon le système de coordonnées de l'isoligne
+     *               en cours ({@link #isoline}). Ce point <u>doit</u> être sur l'un des bords de
+     *               la carte (gauche, droit, haut ou bas si {@link #clip} est un rectangle). S'il
+     *               n'est pas exactement sur un des bords, il sera projeté sur le bord le plus
+     *               proche.
      * @param inside Normalement <code>false</code>. Si toutefois l'argument <code>sea</code>
      *               ne représente non pas un point en mer mais plutot un point sur la
      *               terre ferme, alors spécifiez <code>true</code> pour cet argument.
      *
-     * @throws TransformException if a transformation failed during the operation.
+     * @throws TransformException if a transformation was needed and failed.
      * @throws IllegalStateException si une erreur est survenue lors du traitement des isolignes.
      * @throws IllegalArgumentException Si un problème d'unités est survenu. En principe, cette
      *         erreur ne devrait pas se produre.
      */
-    public void closePolygons(final Point2D ptRef, final boolean inside) throws TransformException {
+    private void completePolygons(final Point2D ptRef, final boolean inside)
+            throws TransformException
+    {
         if (progress != null) {
             progress.setDescription("Creating map border"); // TODO: localize
             progress.progress(0);
@@ -797,39 +921,30 @@ final class PolygonAssembler implements Comparator {
         startingPoint.coordinateSystem = isoline.getCoordinateSystem();
         PathIterator pit               = clip.getPathIterator(null, flatness);
         for (int border=0; !pit.isDone(); border++) {
-            final boolean close = nextSegment(pit); // Update 'line'
-            if (!isSingularity(line)) {
-                final Point2D projected = Geometry.nearestColinearPoint(line, ptRef);
+            final boolean closed = nextSegment(pit); // Update 'pathLine'
+            if (!isSingularity(pathLine)) {
+                final Point2D projected = Geometry.nearestColinearPoint(pathLine, ptRef);
                 final double distanceSq = ptRef.distanceSq(projected);
                 if (distanceSq < startingPoint.minDistanceSq) {
-                    startingPoint.setLocation(projected, line, border);
+                    startingPoint.setLocation(projected, pathLine, border);
                     startingPoint.minDistanceSq = distanceSq;
                 }
             }
-            if (close) break;
+            if (closed) break;
         }
         GeoShape.LOGGER.log(LEVEL, "Reference point: "+startingPoint);
         if (startingPoint.minDistanceSq > flatness) {
             throw new IllegalStateException("Reference point is too far away"); // TODO: localize
         }
+        updateFermions();
         /*
-         * Avant de rattacher les polylignes, oublie toutes les anciennes bordures qui fermaient
-         * les polygones. Procède ensuite aux calculs de distances entre toutes les combinaisons
-         * de polylignes.
+         * Les variables suivantes sont créées ici une fois pour toutes plutôt
+         * que d'être créées à chaque exécution de la prochaine boucle.
          */
-//        isoline.detach();
-        updatePolygonsArray();
-        update();
-        /*
-         * Les variables suivantes sont réservées sont créées ici une
-         * fois pour toutes plutôt que d'être créées à chaque exécution
-         * de la prochaine boucle.
-         */
-        final Point2D.Double[] iCoords = {iFirstCoord, iLastCoord};
         final Point2D.Double[] iPoints = {iFirstPoint, iLastPoint};
         final Line           interpole = new Line();
         /*
-         * Construit une liste des points d'intersections entre les polygones et la bordure de
+         * Construit une liste des points d'intersections entre les polylignes et la bordure de
          * la carte. Après l'exécution de ce bloc, une série d'objets {@link IntersectionPoint}
          * aura été placée dans la liste {@link #intersections}. Pour chaque polyligne dont le
          * début ou la fin intercepte avec un des bords de la carte, {@link IntersectionPoint}
@@ -856,24 +971,18 @@ final class PolygonAssembler implements Comparator {
             boolean append = false;
             do {
                 Point2D.Double extremCoord;
-                Point2D.Double extremPoint;
                 if (!append) {
-                    iPath.getFirstPoints(iCoords);
-                    extremCoord = iFirstCoord;
-                    extremPoint = iFirstPoint;
+                    iPath.getFirstPoints(iPoints);
+                    extremCoord = iFirstPoint;
                 } else {
-                    iPath.getLastPoints(iCoords);
-                    extremCoord = iLastCoord;
-                    extremPoint = iLastPoint;
+                    iPath.getLastPoints(iPoints);
+                    extremCoord = iLastPoint;
                 }
-                // TODO: remove that (seem redundant)
-                iFirstPoint.setLocation(iFirstCoord.x, iFirstCoord.y);
-                iLastPoint .setLocation( iLastCoord.x,  iLastCoord.y);
                 /*
                  * Interpole linéairement les éventuels points d'intersections avec les bords
                  * de la carte et vérifie si la distance entre les points originaux et les
-                 * points interpollés est plus petite que celles qui ont été calculées par
-                 * la méthode {@link #update}.
+                 * points interpolés est plus petite que celles qui ont été calculées par
+                 * la méthode {@link #updateFermions}.
                  */
                 FermionPair info = null;
                 IntersectionPoint intersectPoint = null;
@@ -881,9 +990,9 @@ final class PolygonAssembler implements Comparator {
                 double minDistanceSq = Double.POSITIVE_INFINITY;
                 pit = clip.getPathIterator(null, flatness);
                 for (int border=0; !pit.isDone(); border++) {
-                    final boolean close = nextSegment(pit); // Update 'line'
-                    if (!isSingularity(line)) {
-                        final Point2D intPt = interpole.intersectionPoint(line);
+                    final boolean closed = nextSegment(pit); // Update 'pathLine'
+                    if (!isSingularity(pathLine)) {
+                        final Point2D intPt = interpole.intersectionPoint(pathLine);
                         if (intPt != null) {
                             /*
                              * <code>intPt</code> contient le point d'intersection de la polyligne
@@ -891,13 +1000,14 @@ final class PolygonAssembler implements Comparator {
                              * points <code>extrem*</code> (calculés précédemment) contiennent les
                              * coordonnées du point à l'extrémité (début ou fin) de la polyligne.
                              */
-                            double compare = distanceSq(intPt, extremPoint);
+                            double compare = distanceSq(intPt, extremCoord);
                             if (compare < minDistanceSq) {
                                 minDistanceSq = compare;
                                 /*
                                  * On vérifie maintenant si la distance entre les deux points
                                  * calculée précédemment est plus courte que la plus courte
-                                 * distance entre cette polyligne et n'importe quel autre polyligne.
+                                 * distance entre cette polyligne et n'importe quelle autre
+                                 * polyligne.
                                  */
                                 if (info == null) {
                                     info = get(iPath, append);
@@ -907,7 +1017,7 @@ final class PolygonAssembler implements Comparator {
                                         intersectPoint = new IntersectionPoint();
                                         intersections.add(intersectPoint);
                                     }
-                                    intersectPoint.setLocation(intPt, line, border);
+                                    intersectPoint.setLocation(intPt, pathLine, border);
                                     intersectPoint.path             = iPath;
                                     intersectPoint.append           = append;
                                     intersectPoint.coordinateSystem = isoline.getCoordinateSystem();
@@ -917,26 +1027,26 @@ final class PolygonAssembler implements Comparator {
                             }
                         }
                     }
-                    if (close) break;
+                    if (closed) break;
                 }
             }
             while ((append=!append) == true);
         }
         /*
-         * Construit une bordure pour les polygones. Pour fonctionner, cette méthode a besoin qu'on
-         * lui ait calculé à l'avance tous les points d'intersections entre tous les polygones et la
-         * bordure de la carte. Ces points d'intersections doivent être fournis sous forme d'objets
-         * {@link IntersectionPoint} regroupés dans l'ensemble {@link #intersections}. Ce code a
-         * aussi besoin d'un point de référence, <code>startingPoint</code>. Ce point ne doit pas
-         * être égal à un des points d'intersection de <code>intersections</code>. Il doit s'agir
-         * d'un point se trouvant soit à l'intérieur, soit à l'extérieur des polygones mais jamais
-         * sur leurs contours. L'argument <code>inside</code> indique si ce point se trouve à
-         * l'intérieur ou à l'extérieur des polygones.
+         * Construit une bordure pour les polylignes. Pour fonctionner, cette méthode a besoin
+         * qu'on lui ait calculé à l'avance les points d'intersections entre tous les polylignes
+         * et la bordure de la carte. Ces points d'intersections doivent être fournis sous forme
+         * d'objets {@link IntersectionPoint} regroupés dans l'ensemble <code>intersections</code>.
+         * Ce code a aussi besoin d'un point de référence, <code>startingPoint</code>. Ce point
+         * ne doit pas être égal à un des points d'intersection de <code>intersections</code>.
+         * Il doit s'agir d'un point se trouvant soit à l'intérieur, soit à l'extérieur des
+         * polylignes mais jamais sur leurs contours. L'argument <code>inside</code> indique
+         * si ce point se trouve à l'intérieur ou à l'extérieur des polylignes.
          */
         pit = null;
         /*
          * La variable suivante indiquent le nombre de points d'intersections qui, pour
-         * une raison quelconque, devraient être ignorées. Le nombre d'intersection avec
+         * une raison quelconque, devraient être ignorés. Le nombre d'intersections avec
          * la bordure de la carte devrait en principe être un nombre pair. Toutefois, si
          * ce nombre est impair, alors cette variable sera incrémentée de 1 afin d'ignorer
          * le point d'intersection qui semble le moins approprié (celui qui est le plus loin
@@ -952,13 +1062,6 @@ final class PolygonAssembler implements Comparator {
          */
         IntersectionPoint[] intersectPoints = new IntersectionPoint[intersections.size()];
         intersectPoints = (IntersectionPoint[]) intersections.toArray(intersectPoints);
-        /*
-         * En principe, le nombre de points d'intersection entre les polylignes et
-         * la bordure de la carte devrait être pair. Si ce n'est pas le cas (il
-         * s'agirait alors d'une malformation de la carte), on devra ignorer un
-         * des points d'intersection. On ignorera celui qui se trouve le plus
-         * loin de son polygone.
-         */
         countIntersectionsToRemove += (intersectPoints.length & 1);
         if (countIntersectionsToRemove > 0) {
             if (countIntersectionsToRemove > intersectPoints.length) {
@@ -1024,7 +1127,6 @@ final class PolygonAssembler implements Comparator {
         boolean           traceLine          = false;
         IntersectionPoint lastIntersectPoint = null;
         IntersectionPoint intersectPoint;
-        GeoShape.LOGGER.log(LEVEL, "Creating map border");
         while ((intersectPoint=intersectPoints[indexNextIntersect]) != null) {
             final int indexLastIntersect = indexNextIntersect++;
             if (indexNextIntersect >= intersectPoints.length) {
@@ -1073,8 +1175,8 @@ final class PolygonAssembler implements Comparator {
                      * agrandi au grés des besoins.
                      */
                     do {
-                        buffer[length++] = (float) line.x2;
-                        buffer[length++] = (float) line.y2;
+                        buffer[length++] = (float) pathLine.x2;
+                        buffer[length++] = (float) pathLine.y2;
                         if (buffer[length-4]==buffer[length-2] &&
                             buffer[length-3]==buffer[length-1])
                         {
@@ -1098,7 +1200,7 @@ final class PolygonAssembler implements Comparator {
                 /*
                  * Mémorise les coordonnées du dernier point, de la même façon
                  * qu'on avait mémorisé ceux du premier point plus haut dans
-                 * <code>iFirstCoord</code>.
+                 * <code>iFirstPoint</code>.
                  */
                 buffer[length++] = (float) intersectPoint.x;
                 buffer[length++] = (float) intersectPoint.y;
@@ -1130,24 +1232,20 @@ final class PolygonAssembler implements Comparator {
         if (traceLine) {
             throw new AssertionError("Odd intersects");
         }
-        mergePolylines();
-        /*
-         * Vérifie maintenant s'il y a des lacs compris sur des îles, ou des îles dans des
-         * lacs, etc. Rien ne sera fait si les formes géométriques n'ont pas été refermées.
-         */
+        assemblePolygons();
         for (int i=0; i<polygons.length; i++) {
-// TODO: was setType(...)
-            polygons[i].close(InteriorType.ELEVATION);
+            polygons[i].close(InteriorType.FLAT);
         }
-//        isoline.recompute();
-//        isoline.sort(progress);
-        updatePolygonsArray();
+        /*
+         * It is up to {@link Isoline} to decide if polygons are elevation
+         * (e.g. island) or depression (e.g. lake). It will be done later.
+         */
     }
 
     /**
-     * Examine toutes les polylignes en mémoire et rattachent ensemble celles qui semblent
-     * faire partie d'une même côte ou d'une même île. Cette méthode est identique à
-     * {@link #closePolygons(Point2D,boolean)}, excepté qu'elle déterminera elle-même
+     * Examine toutes les polylignes en mémoire et rattachent ensemble celles qui
+     * semblent faire partie d'un même polygone fermé. Cette méthode est identique
+     * à {@link #completePolygons(Point2D,boolean)}, excepté qu'elle déterminera elle-même
      * le point de référence à partir de l'isoligne spécifiée. L'isoligne spécifiée servira
      * uniquement de référence. Il ne doit pas être le même que celui qui a été spécifié
      * lors de la construction de cet objet.
@@ -1156,28 +1254,28 @@ final class PolygonAssembler implements Comparator {
      * @throws NullPointerException si <code>otherIsoline</code> est nul ou ne contient pas de données.
      * @throws IllegalArgumentException Si un problème d'unités est survenu. En principe, cette erreur
      *         ne devrait pas se produre.
-     * @throws TransformException if a transformation failed during the operation.
+     * @throws TransformException if a transformation was needed and failed.
      */
-    public void closePolygons(final Isoline otherIsoline) throws TransformException {
+    private void completePolygons(final Isoline otherIsoline) throws TransformException {
         if (otherIsoline.value == isoline.value) {
             throw new IllegalArgumentException("Same isoline level");
         }
         /*
          * 'refPt' contiendra le point de référence, qui servira à différencier
          * la terre de la mer. La création d'un objet {@link Point2D.Double} est
-         * nécessaire car la méthode {@link #update} écrasera les valeurs des
-         * autres coordonnées internes à cet objet.
+         * nécessaire car la méthode {@link #updateFermions} écrasera les valeurs
+         * des autres coordonnées internes à cet objet.
          */
         final Point2D.Double refPt = new Point2D.Double();
         double minDistanceSq       = Double.POSITIVE_INFINITY;
         final PathIterator pit     = clip.getPathIterator(null, flatness);
         while (!pit.isDone()) {
-            final boolean close = nextSegment(pit);
-            if (!isSingularity(line)) {
+            final boolean closed = nextSegment(pit);
+            if (!isSingularity(pathLine)) {
                 /*
-                 * 'line' représente maintenant une des bordure de la carte.
-                 * On recherchera maintenant le polygone qui se termine le
-                 * plus près de cette bordure.
+                 * 'pathLine' représente maintenant une des bordure de la carte.
+                 * On recherchera maintenant le polygone qui se termine le plus
+                 * près de cette bordure.
                  */
                 final Iterator iterator = otherIsoline.getPolygons().iterator();
                 while (iterator.hasNext()) {
@@ -1185,133 +1283,89 @@ final class PolygonAssembler implements Comparator {
                     boolean first = true;
                     do { // Cette boucle sera exécutée deux fois
                         double distanceSq;
-                        /*
-                         * Obtient une coordonnée située à l'extrémité du polygone.
-                         */
                         if (first) {
-                            jPath.getFirstPoint(coord);
+                            jPath.getFirstPoint(tmpPoint);
                         } else {
-                            jPath.getLastPoint(coord);
+                            jPath.getLastPoint(tmpPoint);
                         }
-                        point.setLocation(coord.x, coord.y);
                         /*
                          * Calcule la distance entre l'extrémité
                          * du polygone et la bordure de la carte.
                          */
-                        final Point2D projected = Geometry.nearestColinearPoint(line, point);
-                        distanceSq = distanceSq(point, projected);
-                        /*
-                         * Si la distance calculée est la plus courte
-                         * qui ait été obtenue jusqu'à maintenant,
-                         * retient les coordonnées de ce point.
-                         */
+                        final Point2D projected = Geometry.nearestColinearPoint(pathLine, tmpPoint);
+                        distanceSq = distanceSq(tmpPoint, projected);
                         if (distanceSq < minDistanceSq) {
                             minDistanceSq = distanceSq;
-                            refPt.setLocation(point);
+                            refPt.setLocation(tmpPoint);
                         }
                     }
                     while ((first=!first) == false);
                 }
             }
-            if (close) break;
+            if (closed) break;
         }
-        closePolygons(refPt, isoline.value < otherIsoline.value);
+        completePolygons(refPt, isoline.value < otherIsoline.value);
     }
 
+
+
+
+    ///////////////////////////////////////////////////////////////////
+    //////////                                               //////////
+    //////////             M E A N   M E T H O D             //////////
+    //////////                                               //////////
+    ///////////////////////////////////////////////////////////////////
+
     /**
-     * Affecte à la ligne spécifiée les coordonnées du prochain segment de la forme
-     * géométrique balayée par <code>it</code>. Ce segment doit être décrit par une
-     * instruction <code>SEG_MOVETO</code> ou un <code>SEG_LINETO</code> suivie d'une
-     * instruction <code>SEG_LINETO</code> ou <code>SEG_CLOSE</code>. Un seul appel à
-     * <code>pit.next()</code> sera fait (de sorte que vous n'avez pas à l'appeller
-     * vous-même), à moins qu'il y avait plusieurs instructions <code>SEG_MOVETO</code>
-     * consécutifs. Dans ce dernier cas, seul le dernier sera pris en compte.
-     * <p>
-     * Le tableau <code>pitBuffer</code> sera utilisé lors des appels à la méthode
-     * <code>pit.currentSegment(double[])</code>. Selon les spécifications de cette
-     * dernière, le tableau doit avoir une longueur d'au moins 6 éléments. Toutefois
-     * cette méthode exige un tableau de 8 éléments, car elle utilisera les éléments
-     * 6 et 7 pour sauvegarder les coordonnées du dernier <code>SEG_MOVETO</code>
-     * rencontré. Cette information est nécessaire pour permettre la fermeture correcte
-     * d'un polygone lors de la prochaine instruction <code>SEG_CLOSE</code>.
-     * <p>
-     * L'exemple suivant affiche sur le périphérique de sortie standard les coordonnées
-     * de toutes les droites qui composent la forme géométrique <var>s</var>.
+     * Mean method. Assemble all polygons in the specified set of isolines.
+     * The isolines are updated in place.
      *
-     * <blockquote><pre>
-     * &nbsp;void exemple(Shape s)
-     * &nbsp;{
-     * &nbsp;    PathIterator pit=s.getPathIterator(null, 1);
-     * &nbsp;    while (!pit.isDone())
-     * &nbsp;    {
-     * &nbsp;         boolean close=nextSegment(pit);
-     * &nbsp;         System.out.println({@link #line});
-     * &nbsp;         if (close) break;
-     * &nbsp;    }
-     * &nbsp;}
-     * </pre></blockquote>
-     *
-     * @param pit Objet balayant le contour d'une forme géométrique.
-     *
-     * @return <code>false</code> si la ligne s'est terminée par une instruction
-     *         <code>SEG_LINETO</code>, <code>true</code> si elle s'est terminée
-     *         par une instruction <code>SEG_CLOSE</code>. Cette information peut
-     *         être vu comme une estimation de ce que devrait donner le prochain
-     *         appel à la méthode <code>it.isDone()</code> après un appel à <code>it.next()</code>.
-     *
-     * @throws IllegalPathStateException si une instruction <code>SEG_QUADTO</code>
-     *         ou <code>SEG_CUBICTO</code> a été rencontrée.
-     *
-     * @see java.awt.geom.PathIterator#currentSegment(double[])
+     * @param  isolines Isolines to assemble.
+     * @param  toComplete {@link Isoline#value} of isoline to complete with map border.
+     *         Usually, only the coast line is completed (<code>value==0</code>).
+     * @param  The boundind shape of the map, or <code>null</code> for assuming a rectangular
+     *         map inferred from the <code>isolines</code>. This is the bounding shape of the
+     *         software which that isoline data, not an arbitrary clip that the application
+     *         would like.
+     * @param  progress An optional progress listener (<code>null</code> in none).
+     * @throws TransformException if a transformation was needed and failed.
      */
-    private final boolean nextSegment(final PathIterator pit) {
-        loop: while(true) {
-            switch (pit.currentSegment(pitBuffer)) {
-                case PathIterator.SEG_MOVETO: {
-                    System.arraycopy(pitBuffer,0, pitBuffer,6, 2);
-                    // fall through
-                }
-                case PathIterator.SEG_LINETO: {
-                    final double x=pitBuffer[0];
-                    final double y=pitBuffer[1];
-                    pit.next();
-                    switch (pit.currentSegment(pitBuffer)) {
-                        case PathIterator.SEG_MOVETO: {
-                            System.arraycopy(pitBuffer,0, pitBuffer,6, 2);
-                            continue loop;
-                        }
-                        case PathIterator.SEG_LINETO: {
-                            line.setLine(x,y,pitBuffer[0],pitBuffer[1]);
-                            return false;
-                        }
-                        case PathIterator.SEG_CLOSE: {
-                            line.setLine(x,y,pitBuffer[6],pitBuffer[7]);
-                            return true;
-                        }
-                    }
+    public static void assemble(final Isoline[]        isolines,
+                                final float[]          toComplete,
+                                      Shape            mapBounds,
+                                final ProgressListener progress)
+            throws TransformException
+    {
+        if (progress != null) {
+            progress.setDescription("Analyzing"); // TODO: localize
+            progress.started();
+        }
+        Arrays.sort(isolines);
+        Arrays.sort(toComplete);
+        if (mapBounds == null) {
+            Rectangle2D bounds = null;
+            for (int i=0; i<isolines.length; i++) {
+                final Rectangle2D toAdd = isolines[i].getBounds2D();
+                if (bounds == null) {
+                    bounds = toAdd;
+                } else {
+                    bounds.add(toAdd);
                 }
             }
-            throw new IllegalPathStateException();
+            mapBounds = bounds;
+        }
+        final PolygonAssembler assembler = new PolygonAssembler(mapBounds, progress);
+        for (int i=0; i<isolines.length; i++) {
+            assembler.setIsoline(isolines[i]);
+            if (isolines.length > 1  &&  Arrays.binarySearch(toComplete, isolines[i].value) >= 0) {
+                assembler.completePolygons(isolines[i!=0 ? 0 : isolines.length-1]);
+            } else {
+                assembler.assemblePolygons();
+            }
+            assembler.updateIsoline();
+        }
+        if (progress != null) {
+            progress.complete();
         }
     }
-
-    /**
-     * Compare la distance séparant deux objets {@link IntersectionPoint}.
-     * Cette méthode est réservée à un usage interne afin de classer des
-     * liste de points d'intersections avant leur traitement.
-     */
-    public final int compare(final Object a, final Object b) {
-        final double dA = ((IntersectionPoint) a).minDistanceSq;
-        final double dB = ((IntersectionPoint) b).minDistanceSq;
-        if (dA < dB) return -1;
-        if (dA > dB) return +1;
-        return 0;
-    }
 }
-
-
-////////////////////////////////////////////////////////////////
-//// TODO: Revisit all 'isoline.remove(Polygon) invocation. The
-///        remaining polygons are unmodified in the isoline, since
-///        we are working on polygon clones.
-////////////////////////////////////////////////////////////////

@@ -59,6 +59,7 @@ import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
 import org.geotools.cs.ProjectedCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
+import org.geotools.util.ProgressListener;
 import org.geotools.math.Statistics;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
@@ -83,7 +84,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Isoline.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.3 2003/02/04 23:16:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -820,6 +821,14 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
+     * Remove all polygons from this isoline.
+     */
+    public synchronized void removeAll() {
+        polygons = null;
+        clearCache();
+    }
+
+    /**
      * Returns the isoline's resolution.  The mean resolution is the mean distance between
      * every pair of consecutive points in this isoline  (ignoring "extra" points used for
      * drawing a border, if there is one). This method try to express the resolution in
@@ -1059,6 +1068,65 @@ public class Isoline extends GeoShape implements Comparable {
         // TODO
     }
 
+    /**
+     * Assemble all polygons in the specified set of isolines. This method assemble polylines in
+     * order to create closed {@linkplain Polygon polygons}. It analyses all available polylines
+     * and merge together the polylines that look like parts of the same polygons. This class can
+     * also complete the polygons that were cut by the map border.
+     *
+     * This method is usefull in the context of isolines digitalized from many consecutive maps
+     * (for example the GEBCO digital atlas).  It is not possible to fill polygons with Java2D
+     * if the polygons are broke in many pieces. Running this method <strong>once</strong> for
+     * a given set of isolines before renderering help to repair them. The algorithm is:
+     *
+     * <ol>
+     *   <li>A list of all possible pairs of polylines is built.</li>
+     *   <li>For any pair of polylines, the shortest distance between their extremities is
+     *       computed. All combinaisons between the begining and the end of a polyline with
+     *       the begining or end of the other polyline are taken in account.</li>
+     *   <li>The pair with the shorest distance is identified. When the shortest distance
+     *       from one polyline's extremity is the other extremity of the same polyline, then
+     *       the polyline is identified as a closed polygon (e.g. an island or a lake).
+     *       Otherwise, the closest polylines are merged together.</li>
+     *   <li>The loop is reexecuted from step 1 until no more polyline has been merged.</li>
+     * </ol>
+     *
+     * @param  isolines Isolines to assemble. Isolines are updated in place.
+     * @param  toComplete {@link Isoline#value} of isoline to complete with map border.
+     *         Usually, only the coast line is completed (<code>value==0</code>).
+     * @param  The boundind shape of the map, or <code>null</code> for assuming a rectangular
+     *         map inferred from the <code>isolines</code>. This is the bounding shape of the
+     *         software that created isoline data, not an arbitrary clip that the application
+     *         would like.
+     * @param  progress An optional progress listener (<code>null</code> in none).
+     * @throws TransformException if a transformation was required and failed.
+     */
+    public static void assemble(final Isoline[]        isolines,
+                                final float[]          toComplete,
+                                final Shape            mapBounds,
+                                final ProgressListener progress)
+            throws TransformException
+    {
+        PolygonAssembler.assemble((Isoline[])isolines.clone(),
+                                  (float[])toComplete.clone(),
+                                  mapBounds, progress);
+    }
+
+    /**
+     * Assemble all polygons in the specified set of isolines. This is a convenience method for
+     * <code>{@link #assemble(Isoline[],float[],Shape,ProgressListener) assemble}(isolines,
+     * new float[]{0}, null, progress)</code>.
+     *
+     * @param  isolines Isolines to assemble. Isolines are updated in place.
+     * @param  progress An optional progress listener (<code>null</code> in none).
+     * @throws TransformException if a transformation was required and failed.
+     */
+    public static void assemble(final Isoline[]        isolines,
+                                final ProgressListener progress)
+            throws TransformException
+    {
+        assemble(isolines, new float[]{0}, null, progress);
+    }
 
 
 
@@ -1066,7 +1134,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.3 2003/02/04 23:16:50 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {
