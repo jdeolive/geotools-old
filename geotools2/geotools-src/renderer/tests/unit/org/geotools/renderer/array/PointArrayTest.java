@@ -36,18 +36,21 @@ package org.geotools.renderer.array;
 // J2SE dependencies
 import java.util.Random;
 import java.util.Arrays;
-import org.geotools.resources.XArray;
+import java.lang.reflect.Array;
 
 // JUnit dependencies
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+// Geotools dependencies
+import org.geotools.resources.XArray;
+
 
 /**
  * Test the <code>org.geotools.renderer.array</code> package.
  *
- * @version $Id: PointArrayTest.java,v 1.4 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: PointArrayTest.java,v 1.5 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PointArrayTest extends TestCase {
@@ -55,6 +58,11 @@ public class PointArrayTest extends TestCase {
      * Set to <code>true</code> for printing some informations to the standard output.
      */
     private static boolean PRINT = false;
+
+    /**
+     * The object to use for generating random numbers.
+     */
+    private final Random random = new Random();
 
     /**
      * Returns the test suite.
@@ -71,12 +79,11 @@ public class PointArrayTest extends TestCase {
     }
 
     /**
-     * Run the test.
+     * Test {@link DefaultArray} and its subclasses.
      */
-    public void testPointArray() {
-        final Random random = new Random();
+    public void testDefaultArray() {
         float[] checkPoints = new float[2];
-        PointArray   points = PointArray.getInstance(checkPoints);
+        PointArray   points = new DefaultArray(checkPoints);
         for (int i=0; i<2000; i++) {
             /*
              * Construit un tableau (de longueur paire) qui sera inséré au milieu
@@ -135,7 +142,7 @@ public class PointArrayTest extends TestCase {
                 case 2: {
                     checkPoints=points.toArray();
                     Arrays.sort(checkPoints);
-                    points = PointArray.getInstance(checkPoints);
+                    points = new DefaultArray(checkPoints);
                     break;
                 }
                 case 3: {
@@ -178,6 +185,93 @@ public class PointArrayTest extends TestCase {
     }
 
     /**
+     * Test {@link GenericArray}.
+     */
+    public void testGenericArray() {
+        for (int xt=0; xt<8; xt++) {
+            for (int yt=0; yt<8; yt++) {
+                final Object x = create(xt);
+                final Object y = create(yt);
+                final GenericArray array = new GenericArray(x,y);
+                final float[] data = array.toArray();
+                if (xt>=2 && yt>=2) {
+                    for (int i=0; i<data.length; i++) {
+                        final double value = Array.getDouble((i&1)==0 ? x : y, i/2);
+                        assertEquals("GenericArray.toArray() returned wrong values",
+                                     Float.floatToIntBits((float)value),
+                                     Float.floatToIntBits(data[i]));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns a random array of one of the primitive Java type.
+     */
+    private Object create(final int type) {
+        final int length = 128;
+        switch (type) {
+            case 0: {
+                final boolean[] array = new boolean[length];
+                for (int i=0; i<array.length; i++) {
+                    array[i] = random.nextBoolean();
+                }
+                return array;
+            }
+            case 1: {
+                final char[] array = new char[length];
+                for (int i=0; i<array.length; i++) {
+                    array[i] = (char)random.nextInt();
+                }
+                return array;
+            }
+            case 2: {
+                final byte[] array = new byte[length];
+                for (int i=0; i<array.length; i++) {
+                    array[i] = (byte)random.nextInt();
+                }
+                return array;
+            }
+            case 3: {
+                final short[] array = new short[length];
+                for (int i=0; i<array.length; i++) {
+                    array[i] = (short)random.nextInt();
+                }
+                return array;
+            }
+            case 4: {
+                final int[] array = new int[length];
+                for (int i=0; i<array.length; i++) {
+                    array[i] = random.nextInt();
+                }
+                return array;
+            }
+            case 5: {
+                final long[] array = new long[length];
+                for (int i=0; i<array.length; i++) {
+                    array[i] = random.nextLong();
+                }
+                return array;
+            }
+            case 6: {
+                final float[] array = new float[length];
+                for (int i=0; i<array.length; i++) {
+                    array[i] = random.nextFloat();
+                }
+                return array;
+            }
+            default: {
+                final double[] array = new double[length];
+                for (int i=0; i<array.length; i++) {
+                    array[i] = random.nextDouble();
+                }
+                return array;
+            }
+        }
+    }
+
+    /**
      * Vérifie le bon fonctionnement de cette classe. Cette méthode peut être appelée
      * sans argument.  Les assertions doivent être activées (option <code>-ea</code>)
      * pour que la vérification soit effective. Cette méthode peut aussi être exécutée
@@ -185,6 +279,8 @@ public class PointArrayTest extends TestCase {
      */
     public static void main(final String[] args) {
         PRINT = true;
-        new PointArrayTest(null).testPointArray();
+        final PointArrayTest test = new PointArrayTest(null);
+        test.testDefaultArray();
+        test.testGenericArray();
     }
 }

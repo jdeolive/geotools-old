@@ -44,14 +44,14 @@ import org.geotools.resources.XArray;
 
 /**
  * An object containing an uncompressed <strong>copy</strong> of points from a {@link PointArray}.
- * This object is used as an argument for {@link PointArray#toArray(ArrayData,int,float)} method.
+ * This object is used as an argument for {@link PointArray#toArray(ArrayData,float)} method.
  * Copying data is required because data will typically be transformed with
  * {@link org.geotools.ct.MathTransform}.
  *
  * This class (like the whole <code>org.geotools.renderer.array</code> package)
  * is for internal use by {@link org.geotools.renderer.geom.Polygon} only.
  *
- * @version $Id: ArrayData.java,v 1.3 2003/05/13 11:00:45 desruisseaux Exp $
+ * @version $Id: ArrayData.java,v 1.4 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ArrayData {

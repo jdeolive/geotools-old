@@ -34,7 +34,11 @@
 package org.geotools.renderer.array;
 
 // Divers
+import java.awt.Shape;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.PathIterator;
+import java.awt.geom.AffineTransform;
 import java.io.Serializable;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.renderer.Resources;
@@ -56,59 +60,21 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Pour un point situé à l'index <code>i</code>, les coordonnées <var>x</var> et <var>y</var>
  * correspondantes se trouvent aux index <code>2*i</code> et <code>2*i+1</code> respectivement.
  *
- * @version $Id: PointArray.java,v 1.8 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: PointArray.java,v 1.9 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see DefaultArray
+ * @see GenericArray
+ * @see JTSArray
+ * @see DefaultArray#getInstance
+ * @see org.geotools.renderer.j2d.Renderer
+ * @see org.geotools.gui.swing.MapPane
  */
 public abstract class PointArray implements Serializable {
     /**
-     * Numéro de série (pour compatibilité avec des versions antérieures).
+     * Serial version for compatibility with previous version.
      */
     private static final long serialVersionUID = 1281113806110831086L;
-
-    /**
-     * Retourne un tableau de points enveloppant le tableau de coordonnées
-     * spécifié en argument. Si le tableau spécifié est nul ou de longueur
-     * 0, alors cette méthode retourne <code>null</code>.
-     *
-     * @param  array Tableau de coordonnées (<var>x</var>,<var>y</var>).
-     *         Ce tableau doit obligatoirement avoir une longueur paire.
-     * @return Le tableau de points. Ce tableau ne sera pas affecté par
-     *         les éventuelles modifications aux données du tableau
-     *         <code>array</code>.
-     */
-    public static PointArray getInstance(float[] array) {
-        if (array==null || array.length==0) {
-            return null;
-        }
-        return new DefaultArray(array);
-        // Le constructeur de 'DefaultArray' vérifiera
-        // si le tableau est de longueur paire.
-    }
-
-    /**
-     * Retourne un tableau de points enveloppant le tableau de coordonnées
-     * spécifié en argument. Si le tablean ne contient aucun point, alors
-     * cette méthode retourne <code>null</code>.
-     *
-     * @param  array Tableau de coordonnées (<var>x</var>,<var>y</var>).
-     * @param  lower Index de la première coordonnées <var>x</var> à
-     *         prendre en compte dans le tableau <code>array</code>.
-     * @param  upper Index suivant celui de la dernière coordonnée <var>y</var> à
-     *         prendre en compte dans le tableau <code>array</code>. La différence
-     *         <code>upper-lower</code> doit obligatoirement être paire.
-     * @return Le tableau de points. Ce tableau ne sera pas affecté par
-     *         les éventuelles modifications aux données du tableau
-     *         <code>array</code>.
-     */
-    public static PointArray getInstance(final float[] array, final int lower, final int upper) {
-        checkRange(array, lower, upper);
-        if (upper == lower) {
-            return null;
-        }
-        final float[] newArray = new float[upper-lower];
-        System.arraycopy(array, lower, newArray, 0, newArray.length);
-        return new DefaultArray(newArray);
-    }
 
     /**
      * Vérifie la validité des arguments spécifiés.
@@ -145,7 +111,7 @@ public abstract class PointArray implements Serializable {
     }
 
     /**
-     * Constructeur par défaut.
+     * Construct a new array.
      */
     protected PointArray() {
     }
@@ -175,7 +141,7 @@ public abstract class PointArray implements Serializable {
     }
 
     /**
-     * Retourne le nombre de points dans ce tableau.
+     * Returns the number of points in this array.
      */
     public abstract int count();
 
@@ -191,30 +157,54 @@ public abstract class PointArray implements Serializable {
     public abstract long getMemoryUsage();
 
     /**
-     * Mémorise dans l'objet spécifié
-     * les coordonnées du premier point.
+     * Returns the first point in this array. If <code>point</code> is null, a new
+     * {@link Point2D} object is allocated and then the result is stored in this object.
+     * In either case <code>point</code>, which contains the first point, is returned for
+     * convenience.
      *
-     * @param  point Point dans lequel mémoriser la coordonnée.
-     * @return L'argument <code>point</code>, ou un nouveau point
-     *         si <code>point</code> était nul.
+     * @param  point The object in which to store the first point, or <code>null</code>.
+     * @return <code>point</code> or a new {@link Point2D}, which contains the first point.
      */
     public abstract Point2D getFirstPoint(final Point2D point);
 
     /**
-     * Mémorise dans l'objet spécifié
-     * les coordonnées du dernier point.
+     * Returns the last point in this array. If <code>point</code> is null, a new
+     * {@link Point2D} object is allocated and then the result is stored in this object.
+     * In either case <code>point</code>, which contains the last point, is returned for
+     * convenience.
      *
-     * @param  point Point dans lequel mémoriser la coordonnée.
-     * @return L'argument <code>point</code>, ou un nouveau point
-     *         si <code>point</code> était nul.
+     * @param  point The object in which to store the last point, or <code>null</code>.
+     * @return <code>point</code> or a new {@link Point2D}, which contains the last point.
      */
     public abstract Point2D getLastPoint(final Point2D point);
 
     /**
-     * Retourne un itérateur qui balaiera les
-     * points partir de l'index spécifié.
+     * Returns an iterator object that iterates along the point coordinates.
+     *
+     * @param  index Index of the first point to returns in the iteration.
+     * @return The iterator.
      */
     public abstract PointIterator iterator(final int index);
+
+    /**
+     * Returns an iterator object that iterates along the point coordinates,
+     * or <code>null</code> if this class do not support this method. In this
+     * case, {@link ShapeAdapter} will fallback on a default path iterator.
+     *
+     * @see #toShape
+     * @see ShapeAdapter#getPathIterator(AffineTransform)
+     */
+    PathIterator getPathIterator(final AffineTransform at) {
+        return null;
+    }
+    
+    /**
+     * Returns the bounding box of all <var>x</var> and <var>y</var> ordinates,
+     * or <code>null</code> if this bounding box is to expensive to compute.
+     */
+    Rectangle2D getBounds2D() {
+        return null;
+    }
 
     /**
      * Retourne un tableau enveloppant les mêmes points que le tableau courant,
@@ -364,14 +354,26 @@ public abstract class PointArray implements Serializable {
     }
 
     /**
+     * Returns this <code>PointArray</code> as a {@linkplain Shape shape}.  This shape is not
+     * designed for map rendering. It is rather a debugging tool, as well as a convenient way
+     * to draw lines in some simple context (e.g. {@link org.geotools.gui.swing.Plot2D}).
+     *
+     * @param transform An optional transform to apply on coordinates, or <code>null</code> if none.
+     * @return The lines in this <code>PointArray</code> as a Java2D {@linkplain Shape shape}.
+     */
+    public final Shape toShape(final AffineTransform transform) {
+        return new ShapeAdapter(this, transform, getBounds2D());
+    }
+
+    /**
      * Retourne une chaîne de caractères représentant ce tableau. Cette chaîne
      * contiendra le nom de la classe utilisée, le nombre de points ainsi que
      * les points de départ et d'arrivé.
      */
     public final String toString() {
-        final Point2D.Float point=new Point2D.Float();
-        final StringBuffer buffer=new StringBuffer(Utilities.getShortClassName(this));
-        final int count=count();
+        final Point2D.Float point = new Point2D.Float();
+        final StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(this));
+        final int count = count();
         buffer.append('[');
         buffer.append(count);
         buffer.append(" points");

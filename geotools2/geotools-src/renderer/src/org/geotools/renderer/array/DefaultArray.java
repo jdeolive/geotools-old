@@ -41,33 +41,37 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
- * Implémentation par défaut de {@link PointArray}. Cette classe enveloppe
- * un tableau de <code>float[]</code> sans utiliser quelle que compression
- * que ce soit. L'implémentation par défaut est imutable. Toutefois, certaines
- * classes dérivées (notamment {@link DynamicArray}) ne le seront pas forcément.
+ * Default implementation of {@link PointArray} wrapping an array of (<var>x</var>,<var>y</var>)
+ * coordinates as a flat <code>float[]</code> array. The default implementation is immutable and
+ * doesn't use any compression technic. However, subclasses may be mutable (i.e. support the
+ * {@link #insertAt insertAt(...)} method) or compress data.
  *
- * @version $Id: DefaultArray.java,v 1.7 2003/05/13 11:00:45 desruisseaux Exp $
+ * @version $Id: DefaultArray.java,v 1.8 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see #getInstance
  */
-class DefaultArray extends PointArray {
+public class DefaultArray extends PointArray implements RandomAccess {
     /**
-     * Numéro de série (pour compatibilité avec des versions antérieures).
+     * Serial version for compatibility with previous version.
      */
     private static final long serialVersionUID = 3160219929318094867L;
 
     /**
-     * Tableaux des coordonnées à envelopper. Ces coordonnées
-     * sont normalement mémorisées sous forme de paires (x,y).
+     * The array of (<var>x</var>,<var>y</var>) coordinates.
      */
     protected float[] array;
 
     /**
-     * Enveloppe le tableau <code>float[]</code> spécifié. Ce tableau
-     * ne sera pas copié. Il devra obligatoirement avoir une longueur
-     * paire.
+     * Wrap the given (<var>x</var>,<var>y</var>) array. The constructor stores a direct
+     * reference to <code>array</code> (i.e. the array is not copied). Do not modify the
+     * data after construction if this <code>DefaultArray</code> should be immutable.
+     *
+     * @param  array The array of (<var>x</var>,<var>y</var>) coordinates.
+     * @throws IllegalArgumentException if the array's length is not even.
      */
-    public DefaultArray(final float[] array) {
-        this.array=array;
+    public DefaultArray(final float[] array) throws IllegalArgumentException {
+        this.array = array;
         if ((array.length & 1) != 0) {
             throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_ODD_ARRAY_LENGTH_$1,
                                                new Integer(array.length)));
@@ -75,21 +79,54 @@ class DefaultArray extends PointArray {
     }
 
     /**
-     * Retourne l'index de la première coordonnée valide.
+     * Returns a <code>PointArray</code> object wrapping the given (<var>x</var>,<var>y</var>)
+     * array between the specified bounds. If the array doesn't contains any data (i.e. if
+     * <code>lower==upper</code>), then this method returns <code>null</code>.
+     *
+     * @param  array The array of (<var>x</var>,<var>y</var>) coordinates.
+     * @param  lower Index of the first <var>x</var> ordinate in <code>array</code>.
+     * @param  upper Index after the last <var>y</var> oordinate in <code>array</code>.
+     *         The difference <code>upper-lower</code> must be even.
+     * @param  copy <code>true</code> if this method should copy the array (in order to
+     *         protect the <code>PointArray</code> from changes), or <code>false</code>
+     *         for a direct reference without copying. In the later case, the caller is
+     *         responsable to ensure that the array will not be modified externally.
+     * @return The <code>PointArray</code> object wrapping the given <code>array</code>.
+     */
+    public static PointArray getInstance(final float[] array, final int lower, final int upper,
+                                         final boolean copy)
+    {
+        checkRange(array, lower, upper);
+        if (upper == lower) {
+            return null;
+        }
+        if (copy) {
+            final float[] newArray = new float[upper-lower];
+            System.arraycopy(array, lower, newArray, 0, newArray.length);
+            return new DefaultArray(newArray);
+        } else if (lower==0 && upper==array.length) {
+            return new DefaultArray(array);
+        } else {
+            return new SubArray(array, lower, upper);
+        }
+    }
+
+    /**
+     * Returns the index of the first valid ordinate (inclusive).
      */
     protected int lower() {
         return 0;
     }
 
     /**
-     * Retourne l'index suivant celui de la dernière coordonnée valide.
+     * Returns the index after the last valid ordinate.
      */
     protected int upper() {
         return array.length;
     }
 
     /**
-     * Retourne le nombre de points dans ce tableau.
+     * Returns the number of points in this array.
      */
     public final int count() {
         return (upper()-lower())/2;
@@ -104,11 +141,11 @@ class DefaultArray extends PointArray {
     }
 
     /**
-     * Mémorise dans l'objet spécifié les coordonnées du premier point.
+     * Returns the first point in this array. If <code>point</code> is null, a new
+     * {@link Point2D} object is allocated and then the result is stored in this object.
      *
-     * @param  point Point dans lequel mémoriser la coordonnée.
-     * @return L'argument <code>point</code>, ou un nouveau point
-     *         si <code>point</code> était nul.
+     * @param  point The object in which to store the first point, or <code>null</code>.
+     * @return <code>point</code> or a new {@link Point2D}, which contains the first point.
      */
     public final Point2D getFirstPoint(final Point2D point) {
         final int lower=lower();
@@ -124,11 +161,11 @@ class DefaultArray extends PointArray {
     }
 
     /**
-     * Mémorise dans l'objet spécifié les coordonnées du dernier point.
+     * Returns the last point in this array. If <code>point</code> is null, a new
+     * {@link Point2D} object is allocated and then the result is stored in this object.
      *
-     * @param  point Point dans lequel mémoriser la coordonnée.
-     * @return L'argument <code>point</code>, ou un nouveau point
-     *         si <code>point</code> était nul.
+     * @param  point The object in which to store the last point, or <code>null</code>.
+     * @return <code>point</code> or a new {@link Point2D}, which contains the last point.
      */
     public final Point2D getLastPoint(final Point2D point) {
         final int upper=upper();
@@ -144,7 +181,22 @@ class DefaultArray extends PointArray {
     }
 
     /**
-     * Retourne un itérateur qui balaiera les points partir de l'index spécifié.
+     * Returns the point at the specified index.
+     *
+     * @param  index The index from 0 inclusive to {@link #count} exclusive.
+     * @return The point at the given index.
+     * @throws IndexOutOfBoundsException if <code>index</code> is out of bounds.
+     */
+    public Point2D getValue(int index) throws IndexOutOfBoundsException {
+        index *= 2;
+        return new Point2D.Float(array[index], array[index+1]);
+    }
+
+    /**
+     * Returns an iterator object that iterates along the point coordinates.
+     *
+     * @param  index Index of the first point to returns in the iteration.
+     * @return The iterator.
      */
     public final PointIterator iterator(final int index) {
         return new DefaultIterator(array, (2*index)+lower(), upper());

@@ -46,7 +46,7 @@ import java.awt.geom.Point2D;
  * cet ordre: {@link #nextX} d'abord, suivit de {@link #nextY}. Tout manquement à cette règle (par
  * exemple appeller {@link #nextX} deux fois de suite) peut produire des résultats erronées.
  *
- * @version $Id: PointIterator.java,v 1.3 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: PointIterator.java,v 1.4 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Once J2SE 1.5 will be available, this class should implements
@@ -84,7 +84,7 @@ public abstract class PointIterator implements Iterator, Cloneable {
      * puis avance au point suivant. Cette méthode combine un appel de
      * {@link #nextX} suivit de {@link #nextY}.
      */
-    public final Object next() {
+    public Object next() {
         return new Point2D.Float(nextX(), nextY());
     }
 
@@ -105,9 +105,8 @@ public abstract class PointIterator implements Iterator, Cloneable {
         try {
             return super.clone();
         } catch (CloneNotSupportedException exception) {
-            InternalError e=new InternalError(exception.getLocalizedMessage());
-            e.initCause(exception);
-            throw e;
+            // Should not happen, since we are cloneable
+            throw new AssertionError(exception);
         }
     }
 }

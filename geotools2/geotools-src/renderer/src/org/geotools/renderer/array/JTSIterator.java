@@ -32,14 +32,15 @@
  */
 package org.geotools.renderer.array;
 
-// JTS dependencies
+// Dependencies
+import java.awt.geom.Point2D;
 import com.vividsolutions.jts.geom.Coordinate;
 
 
 /**
  * Itérateur balayant les données d'un tableau {@link JTSArray}.
  *
- * @version $Id: JTSIterator.java,v 1.2 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: JTSIterator.java,v 1.3 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class JTSIterator extends PointIterator {
@@ -90,5 +91,15 @@ final class JTSIterator extends PointIterator {
      */
     public float nextY() {
         return (float)coords[index++].y;
+    }
+
+    /**
+     * Retourne la valeur du point courant dans un objet {@link Point2D},
+     * puis avance au point suivant. Cette méthode combine un appel de
+     * {@link #nextX} suivit de {@link #nextY}.
+     */
+    public Object next() {
+        final Coordinate coord = coords[index++];
+        return new Point2D.Double(coord.x, coord.y);
     }
 }

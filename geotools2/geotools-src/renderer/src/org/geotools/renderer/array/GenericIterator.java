@@ -34,20 +34,21 @@
 package org.geotools.renderer.array;
 
 // J2SE dependencies
+import java.awt.Point;
 import java.awt.geom.Point2D;
 
 
 /**
- * Itérateur balayant les données d'un tableau {@link DefaultArray}.
+ * Itérateur balayant les données d'un tableau {@link GenericArray}.
  *
- * @version $Id: DefaultIterator.java,v 1.4 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: GenericIterator.java,v 1.1 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class DefaultIterator extends PointIterator {
+final class GenericIterator extends PointIterator {
     /**
-     * Tableau de données à balayer.
+     * The <var>x</var> and <var>y</var> vectors.
      */
-    private final float[] array;
+    private final GenericArray.Vector x,y;
 
     /**
      * Index suivant celui de la dernière donnée à balayer.
@@ -60,13 +61,19 @@ final class DefaultIterator extends PointIterator {
     private int index;
 
     /**
+     * The data type for {@link #next}.
+     */
+    private final int type;
+
+    /**
      * Construit un itérateur qui balaiera la plage spécifiée d'un tableau de données.
      */
-    public DefaultIterator(float[] array, int lower, int upper) {
-        this.array = array;
+    public GenericIterator(GenericArray.Vector x, GenericArray.Vector y, int lower, int upper) {
+        this.x     = x;
+        this.y     = y;
         this.index = lower;
         this.upper = upper;
-        assert (index & 1) == 0;
+        this.type  = Math.max(x.type(), y.type());
     }
 
     /**
@@ -77,23 +84,17 @@ final class DefaultIterator extends PointIterator {
     }
 
     /**
-     * Retourne la valeur de la longitude courante. Avant d'appeller
-     * une seconde fois cette méthode, il faudra <g>obligatoirement</g>
-     * avoir appelé {@link #nextY}.
+     * Retourne la valeur de la longitude courante.
      */
     public float nextX() {
-        assert (index & 1) == 0;
-        return array[index++];
+        return x.getAsFloat(index);
     }
 
     /**
-     * Retourne la valeur de la latitude courante, puis avance au point
-     * suivant. Chaque appel de cette méthode doit <g>obligatoirement</g>
-     * avoir été précédée d'un appel à la méthode {@link #nextX}.
+     * Retourne la valeur de la latitude courante, puis avance au point suivant.
      */
     public float nextY() {
-        assert (index & 1) != 0;
-        return array[index++];
+        return y.getAsFloat(index++);
     }
 
     /**
@@ -102,7 +103,10 @@ final class DefaultIterator extends PointIterator {
      * {@link #nextX} suivit de {@link #nextY}.
      */
     public Object next() {
-        assert (index & 1) == 0;
-        return new Point2D.Float(array[index++], array[index++]);
+        switch (type) {
+            case 0:  return new Point         (x.getAsInteger(index), y.getAsInteger(index++));
+            case 1:  return new Point2D.Float (x.getAsFloat  (index), y.getAsFloat  (index++));
+            default: return new Point2D.Double(x.getAsDouble (index), y.getAsDouble (index++));
+        }
     }
 }

@@ -35,15 +35,14 @@ package org.geotools.renderer.array;
 
 
 /**
- * Enveloppe un tableau <code>float[]</code> dans
- * lequel des données pourront être ajoutés.
+ * Enveloppe un tableau <code>float[]</code> dans lequel des données pourront être ajoutées.
  *
- * @version $Id: DynamicArray.java,v 1.7 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: DynamicArray.java,v 1.8 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DynamicArray extends SubArray {
     /**
-     * Numéro de série (pour compatibilité avec des versions antérieures).
+     * Serial version for compatibility with previous version.
      */
     private static final long serialVersionUID = 3336921710471431118L;
 
@@ -81,7 +80,7 @@ final class DynamicArray extends SubArray {
     public PointArray subarray(int lower, int upper) {
         lower = 2*lower + this.lower;
         upper = 2*upper + this.lower;
-        return getInstance(array, lower, upper);
+        return getInstance(array, lower, upper, true);
     }
 
     /**
@@ -210,7 +209,7 @@ final class DynamicArray extends SubArray {
         if (compress && count()>=8) {
             return new CompressedArray(array, lower, upper);
         }
-        PointArray points = getInstance(array, lower, upper);
+        PointArray points = getInstance(array, lower, upper, true);
         if (points != null) {
             points = points.getFinal(compress);
         }

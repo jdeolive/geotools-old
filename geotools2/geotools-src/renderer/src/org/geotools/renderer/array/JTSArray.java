@@ -36,23 +36,29 @@ package org.geotools.renderer.array;
 import java.awt.geom.Point2D;
 
 // JTS dependencies
-import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
 
 // Geotools dependencies
 import org.geotools.resources.XArray;
 
 
 /**
- * A wrapper around an array of JTS {@link Coordinate}s. This array is
- * usually a reference to the internal array of a {@link LineString} object.
+ * A wrapper around an array of JTS {@link Coordinate}s. As of JTS 1.3, {@link LineString} stores
+ * its internal data as an array of type <code>Coordinate[]</code>.    This <code>JTSArray</code>
+ * class wrap directly this {@link LineString} internal array,  in order to avoid object creation
+ * and copies.
  *
- * @version $Id: JTSArray.java,v 1.4 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: JTSArray.java,v 1.5 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see DefaultArray
+ * @see GenericArray
+ * @see DefaultArray#getInstance
  */
-public final class JTSArray extends PointArray {
+public final class JTSArray extends PointArray implements RandomAccess {
     /**
-     * Numéro de série (pour compatibilité avec des versions antérieures).
+     * Serial version for compatibility with previous version.
      */
     private static final long serialVersionUID = 5944964058006239460L;
 
@@ -71,6 +77,8 @@ public final class JTSArray extends PointArray {
 
     /**
      * Construct a new <code>JTSArray</code> for the specified coordinate points.
+     *
+     * @param coords The array of coordinate points. This array is not cloned.
      */
     public JTSArray(final Coordinate[] coords) {
         this.coords = coords;
@@ -80,6 +88,10 @@ public final class JTSArray extends PointArray {
 
     /**
      * Construct a new <code>JTSArray</code> which is a sub-array of the specified coordinates.
+     *
+     * @param coords The array of coordinate points. This array is not cloned.
+     * @param lower  The first coordinate to use (inclusive).
+     * @param upper  The last  coordinate to use (exclusive).
      */
     public JTSArray(final Coordinate[] coords, final int lower, final int upper) {
         this.coords = coords;
@@ -111,14 +123,18 @@ public final class JTSArray extends PointArray {
     }
 
     /**
-     * Returns the number of points in this geometry.
+     * Returns the number of points in this array.
      */
     public final int count() {
         return upper-lower;
     }
     
     /**
-     * Returns the first point in the specified object.
+     * Returns the first point in this array. If <code>point</code> is null, a new
+     * {@link Point2D} object is allocated and then the result is stored in this object.
+     *
+     * @param  point The object in which to store the first point, or <code>null</code>.
+     * @return <code>point</code> or a new {@link Point2D}, which contains the first point.
      */
     public final Point2D getFirstPoint(final Point2D point) {
         final Coordinate coord = coords[lower];
@@ -131,7 +147,11 @@ public final class JTSArray extends PointArray {
     }
     
     /**
-     * Returns the list point in the specified object.
+     * Returns the last point in this array. If <code>point</code> is null, a new
+     * {@link Point2D} object is allocated and then the result is stored in this object.
+     *
+     * @param  point The object in which to store the last point, or <code>null</code>.
+     * @return <code>point</code> or a new {@link Point2D}, which contains the last point.
      */
     public final Point2D getLastPoint(final Point2D point) {
         final Coordinate coord = coords[upper-1];
@@ -144,7 +164,28 @@ public final class JTSArray extends PointArray {
     }
 
     /**
-     * Retourne un itérateur qui balaiera les points partir de l'index spécifié.
+     * Returns the point at the specified index.
+     *
+     * @param  index The index from 0 inclusive to {@link #count} exclusive.
+     * @return The point at the given index.
+     * @throws IndexOutOfBoundsException if <code>index</code> is out of bounds.
+     */
+    public Point2D getValue(int index) throws IndexOutOfBoundsException {
+        if (index >= 0) {
+            index += lower;
+            if (index < upper) {
+                final Coordinate coord = coords[index];
+                return new Point2D.Double(coord.x, coord.y);
+            }
+        }
+        throw new IndexOutOfBoundsException();
+    }
+
+    /**
+     * Returns an iterator object that iterates along the point coordinates.
+     *
+     * @param  index Index of the first point to returns in the iteration.
+     * @return The iterator.
      */
     public final PointIterator iterator(final int index) {
         return new JTSIterator(coords, index+lower, upper);
@@ -215,25 +256,23 @@ public final class JTSArray extends PointArray {
         }
         final int offset = dest.length;
         float[]   copy   = dest.array;
-        final int upper  = upper() - 2;
-        int       src    = lower();
+        int       src    = lower;
         int       dst    = offset;
         if (src < upper) {
             if (copy.length <= dst) {
-                dest.array = copy = XArray.resize(copy, capacity(src, dst, offset));
+                dest.array = copy = XArray.resize(copy, capacity(2*src, dst, offset));
             }
             double lastX, lastY;
-            Coordinate coord = coords[src >> 1];
+            Coordinate coord = coords[src];
             copy[dst++] = (float)(lastX = coord.x);
             copy[dst++] = (float)(lastY = coord.y);
-            while (src < upper) {
-                final int curr = (src+=2) >> 1;
-                coord = coords[curr];
+            while (++src < upper) {
+                coord = coords[src];
                 final double dx = coord.x - lastX;
                 final double dy = coord.y - lastY;
                 if ((dx*dx + dy*dy) >= resolution2) {
                     if (copy.length <= dst) {
-                        dest.array = copy = XArray.resize(copy, capacity(src, dst, offset));
+                        dest.array = copy = XArray.resize(copy, capacity(2*src, dst, offset));
                     }
                     copy[dst++] = (float)(lastX = coord.x);
                     copy[dst++] = (float)(lastY = coord.y);

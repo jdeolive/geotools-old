@@ -33,6 +33,9 @@
  */
 package org.geotools.renderer.array;
 
+// J2SE dependencies
+import java.awt.geom.Point2D;
+
 
 /**
  * Classe enveloppant une portion seulement d'un tableau <code>float[]</code>.
@@ -40,7 +43,7 @@ package org.geotools.renderer.array;
  * L'implémentation par défaut de cette classe est imutable. Toutefois, certaines
  * classes dérivées (notamment {@link DynamicArray}) ne le seront pas forcément.
  *
- * @version $Id: SubArray.java,v 1.4 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: SubArray.java,v 1.5 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class SubArray extends DefaultArray {
@@ -83,6 +86,23 @@ class SubArray extends DefaultArray {
      */
     protected final int upper() {
         return upper;
+    }
+
+    /**
+     * Returns the point at the specified index.
+     *
+     * @param  index The index from 0 inclusive to {@link #count} exclusive.
+     * @return The point at the given index.
+     * @throws IndexOutOfBoundsException if <code>index</code> is out of bounds.
+     */
+    public final Point2D getValue(int index) throws IndexOutOfBoundsException {
+        if (index >= 0) {
+            index = 2*index + lower;
+            if (index < upper) {
+                return new Point2D.Float(array[index], array[index+1]);
+            }
+        }
+        throw new IndexOutOfBoundsException();
     }
 
     /**

@@ -50,6 +50,7 @@ import java.awt.geom.GeneralPath;
 // Arrays
 import org.geotools.renderer.array.ArrayData;
 import org.geotools.renderer.array.PointArray;
+import org.geotools.renderer.array.DefaultArray;
 import org.geotools.renderer.array.PointIterator;
 
 // Coordinate systems
@@ -100,13 +101,12 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Polyline.java,v 1.8 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.9 2003/05/23 17:58:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Polyline implements Serializable {
     /**
-     * Numéro de version pour compatibilité avec des bathymétries
-     * enregistrées sous d'anciennes versions.
+     * Serial version for compatibility with previous version.
      */
     private static final long serialVersionUID = -18866207694621371L;
 
@@ -227,7 +227,7 @@ final class Polyline implements Serializable {
                         break;
                     }
                 }
-                final PointArray points = PointArray.getInstance(data, lowerValid, i);
+                final PointArray points = DefaultArray.getInstance(data, lowerValid, i, true);
                 if (points != null) {
                     polylines.add(new Polyline(points));
                 }
@@ -740,7 +740,7 @@ final class Polyline implements Serializable {
             }
         }
         if (suffix == null) {
-            suffix = PointArray.getInstance(data, lower, upper);
+            suffix = DefaultArray.getInstance(data, lower, upper, true);
         } else {
             suffix = suffix.insertAt(toEnd ? suffix.count() : 0, data, lower, upper, false);
         }
@@ -1133,7 +1133,7 @@ final class Polyline implements Serializable {
             if (inverseTransform != null) {
                 inverseTransform.transform(array, 0, array, 0, array.length/2);
             }
-            scan.array = PointArray.getInstance(array);
+            scan.array = (array!=null && array.length!=0) ? new DefaultArray(array) : null;
         }
     }
 
@@ -1400,7 +1400,7 @@ final class Polyline implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Polyline.java,v 1.8 2003/05/13 11:00:46 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.9 2003/05/23 17:58:59 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1443,7 +1443,7 @@ final class Polyline implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Polyline.java,v 1.8 2003/05/13 11:00:46 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.9 2003/05/23 17:58:59 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {
