@@ -21,15 +21,15 @@ package org.geotools.gui.widget;
  *
  */
 
-import org.geotools.gui.tools.AbstractToolImpl;
 import java.util.EventObject;
+import org.geotools.gui.tools.AbstractTool;
 import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.events.LayerListListener;
 
 /**
  * This class provides core functionality for drawing a map.  A redraw is
  * required if any of the parameters in the associated Context changes.
- * @version $Id: MapPane.java,v 1.1 2003/01/30 09:51:47 camerons Exp $
+ * @version $Id: MapPane.java,v 1.2 2003/01/30 10:14:37 camerons Exp $
  * @author Cameron Shorter
  * @task TODO Should extend LayerListener as well.  Ie, if features inside a \
  * layer change, then a redraw is required.
@@ -46,12 +46,12 @@ public interface MapPane
      * @param tool The tool to use for this mapPane.
      * @throws IllegalArgumentException if tool is null.
      */
-    public void setTool(AbstractToolImpl tool) throws IllegalArgumentException;
+    public void setTool(AbstractTool tool) throws IllegalArgumentException;
 
     /**
      * Get the tool assigned to this mapPane.  If none is assigned, then null
      * is returned.
      * @return The tool assigned to this mapPane.
      */
-    public AbstractToolImpl getTool();
+    public AbstractTool getTool();
 }
