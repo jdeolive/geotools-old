@@ -11,8 +11,7 @@
         <ant antfile="build-maven.xml" dir="..\algorithms" inheritall="true" target="maven:install-jar"/>
         <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:install-jar"/>
         <ant antfile="build-maven.xml" dir="..\resources" inheritall="true" target="maven:install-jar"/>
-        <ant antfile="build-maven.xml" dir="..\cts-coordtrans" inheritall="true" target="maven:install-jar"/>
-    </target>
+       </target>
     
     <target name="sites">
         <ant antfile="build-maven.xml" dir="..\core" inheritall="true" target="maven:site"/>
@@ -20,7 +19,6 @@
         <ant antfile="build-maven.xml" dir="..\algorithms" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\resources" inheritall="true" target="maven:site"/>
-        <ant antfile="build-maven.xml" dir="..\cts-coordtrans" inheritall="true" target="maven:site"/>
     </target>
     
     
