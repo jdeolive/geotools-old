@@ -115,7 +115,24 @@ public interface Catalog {
      *
      * @return NameSpaceMetaData for prefix
      */
-    NamespaceMetaData getNamespace(String prefix);
+    NamespaceMetaData getNamespaceMetaData(String prefix);
+    
+    /**
+     * Convience method for accessing FeatureSoruce.
+     * <p>
+     * This method should be equivilient to:
+     * </p>
+     * <pre><code>
+     * getNameSpaceMetaData( prefix ).getFeatureTypeMetaData().getFeatureSource();
+     * </code></pre>
+     * <p>
+     * I am not sure we should force interfaces to provide convience methods?
+     * </p>
+     * @param prefix
+     * @param typeName
+     * @return
+     */
+    FeatureSource getFeatureSource( String prefix, String typeName ) throws IOException;
 
     /**
      * Registers all FeatureTypes provided by dataStore with this catalog
@@ -146,16 +163,16 @@ public interface Catalog {
     void registerDataStore(DataStore dataStore) throws IOException;
 
     /**
-     * Access to a DataStore for a specific <code>namespace</code>.
+     * Access to the DataStores registed to this Catalog.
      * 
-     * <p></p>
-     *
-     * @param namespace Namespace to query for DataStore
-     *
-     * @return DataStore for the provided <code>namespace</code>
+     * @return Set of registered DataStores
      */
-    Set getDataStores(String namespace);
+    Set getDataStores();
 
+    //
+    // Lock Management
+    //
+    
     /**
      * Refresh feature lock as indicated by the WFS locking specification.
      * 
@@ -175,8 +192,7 @@ public interface Catalog {
         throws IOException;
 
     /**
-     * Release feature lock.
-     * 
+     * Release feature lock by lockID.
      * <p>
      * Release the indicated locks for each each DataStore managed by this
      * Catalog.

@@ -20,6 +20,8 @@
 package org.geotools.data;
 
 import org.geotools.feature.FeatureType;
+
+import java.io.IOException;
 import java.util.List;
 
 
@@ -35,16 +37,19 @@ import java.util.List;
  *
  * @author jgarnett, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: FeatureTypeMetaData.java,v 1.1 2004/01/10 00:41:46 jive Exp $
+ * @version $Id: FeatureTypeMetaData.java,v 1.2 2004/01/11 02:34:29 jive Exp $
  */
 public interface FeatureTypeMetaData extends MetaData {
+    
     /**
      * Access FeatureType (schema) information for this FeatureType.
      * 
      * <p>
-     * It is assumed that the interface will call through to the DataStore to
-     * retrive the FeatureType.
+     * Opperates as a convience method for:
      * </p>
+     * <pre><code>
+     * <b>return</b> getDataStoreMetaData().getDataStore().getSchema( typeName );
+     * </code></pre>
      * 
      * <p>
      * This relationship should be turned around, the FeatureType should
@@ -53,8 +58,22 @@ public interface FeatureTypeMetaData extends MetaData {
      *
      * @return Schema information for this DataType
      */
-    public FeatureType getFeatureType(String typeName);
+    public FeatureType getFeatureType(String typeName) throws IOException;
 
+    /**
+     * Provides access to the real FeatureSource used to work with data.
+     * <p>
+     * Opperates as a convience method for:
+     * </p>
+     * <pre><code>
+     * <b>return</b> getDataStoreMetaData().getDataStore().getFeatureSource( typeName );
+     * </code></pre>
+     * 
+     * @param typeName
+     * @return
+     */
+    public FeatureSource getFeatureSource( String typeName ) throws IOException;
+    
     /**
      * Access DataStore meta data that defines this FeatureType.
      *
@@ -64,7 +83,9 @@ public interface FeatureTypeMetaData extends MetaData {
 
     /**
      * List of atributes names.
-     *
+     * <p>
+     * When moving to jdk15 this should become a strongly typed StringList
+     * </p>
      * @return List of Names ad defined by FeatureType
      */
     public List getAttributeNames();

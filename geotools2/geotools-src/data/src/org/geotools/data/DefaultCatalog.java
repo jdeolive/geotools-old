@@ -67,7 +67,7 @@ public class DefaultCatalog implements Catalog {
      * @param prefix Prefix used for Namespace
      * @return Namespace associated with Prefix
      */
-    public synchronized NamespaceMetaData getNamespace(String prefix) {
+    public synchronized NamespaceMetaData getNamespaceMetaData(String prefix) {
         if( namespaces.containsKey( prefix)){
             return (NamespaceMetaData) namespaces.get( prefix );
         }
@@ -237,6 +237,39 @@ public class DefaultCatalog implements Catalog {
      * @return
      */
     public Set getDataStores(String namespace) {
+        return Collections.unmodifiableSet( datastores );
+    }
+    
+    /**
+     * Convience method for Accessing FeatureSource by prefix:typeName.
+     * <p>
+     * This method is part of the public Catalog API. It allows the Validation
+     * framework to be writen using only public Geotools2 interfaces.
+     * </p>
+     * @see org.geotools.data.Catalog#getFeatureSource(java.lang.String, java.lang.String)
+     * 
+     * @param prefix Namespace prefix in which the FeatureType available
+     * @param typeName typeNamed used to identify FeatureType
+     * @return
+     */
+    public FeatureSource getFeatureSource(String prefix, String typeName) throws IOException {
+        NamespaceMetaData namespace = getNamespaceMetaData( prefix );
+        FeatureTypeMetaData featureType = namespace.getFeatureTypeMetaData( typeName );
+        DataStoreMetaData dataStore = featureType.getDataStoreMetaData();
+        
+        return dataStore.getDataStore().getFeatureSource( typeName );       
+    }
+    /**
+     * Access to the set of DataStores in use by GeoServer.
+     * <p>
+     * The provided Set may not be modified :-)
+     * </p>
+     * @see org.geotools.data.Catalog#getDataStores(java.lang.String)
+     * 
+     * @param namespace
+     * @return
+     */
+    public Set getDataStores() {
         return Collections.unmodifiableSet( datastores );
     }
 }
