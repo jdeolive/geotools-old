@@ -79,7 +79,8 @@ public class SDEQuery
             connection = null;
             connectionPool = null;
           }
-          query.close();
+          if(query != null)
+            query.close();
         }catch (SeException ex) {
           LOGGER.warning("Trying to close an SeQuery: " + ex.getMessage());
         }

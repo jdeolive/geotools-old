@@ -435,7 +435,8 @@ public class SdeAdapter
                     }
                 }
             }catch (Throwable ex){
-                sdeQuery.close();
+                if(sdeQuery != null)
+                  sdeQuery.close();
                 String message = "Encoder error" + ex.getMessage();
                 LOGGER.warning(message);
                 throw new DataSourceException(message, ex);
@@ -550,7 +551,7 @@ public class SdeAdapter
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 class SdeTypeDef
 {

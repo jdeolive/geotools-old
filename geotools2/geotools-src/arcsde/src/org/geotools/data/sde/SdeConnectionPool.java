@@ -1,3 +1,7 @@
+/* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
+ * This code is licensed under the GPL 2.0 license, availible at the root
+ * application directory.
+ */
 /*
  *    Geotools2 - OpenSource mapping toolkit
  *    http://geotools.org
@@ -39,8 +43,7 @@ import java.util.logging.*;
  * @task TODO: make it read a properties file to get connection pool
  *       information, such as min/max connections, expire time, etc.
  */
-public class SdeConnectionPool
-{
+public class SdeConnectionPool {
     /** package's logger */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.data.sde");
@@ -126,10 +129,8 @@ public class SdeConnectionPool
      * @throws NullPointerException DOCUMENT ME!
      */
     protected SdeConnectionPool(SdeConnectionConfig config)
-        throws DataSourceException
-    {
-        if (config == null)
-        {
+        throws DataSourceException {
+        if (config == null) {
             throw new NullPointerException("parameter config can't be null");
         }
 
@@ -141,23 +142,16 @@ public class SdeConnectionPool
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public void populate() throws DataSourceException
-    {
-        synchronized (mutex)
-        {
+    public void populate() throws DataSourceException {
+        synchronized (mutex) {
             int increment = getIncrementStep();
-
             int actual = 0;
 
             while ((actual++ < increment)
-                    && (getNumConnections() < getMaxConnections()))
-            {
-                try
-                {
+                    && (getNumConnections() < getMaxConnections())) {
+                try {
                     availableConnections.add(newConnection());
-                }
-                catch (SeException ex)
-                {
+                } catch (SeException ex) {
                     throw new DataSourceException("Can't create connection to "
                         + config.getServerName() + ": " + ex.getMessage(), ex);
                 }
@@ -170,8 +164,7 @@ public class SdeConnectionPool
      *
      * @return DOCUMENT ME!
      */
-    private int getNumConnections()
-    {
+    private int getNumConnections() {
         return usedConnections.size() + availableConnections.size();
     }
 
@@ -180,22 +173,19 @@ public class SdeConnectionPool
      *
      * @param seConnection DOCUMENT ME!
      */
-    public void release(SeConnection seConnection)
-    {
-        if (seConnection == null)
-        {
+    public void release(SeConnection seConnection) {
+        if (seConnection == null) {
             return;
         }
 
-        synchronized (mutex)
-        {
+        synchronized (mutex) {
             usedConnections.remove(seConnection);
 
-            if (availableConnections.contains(seConnection))
+            if (availableConnections.contains(seConnection)) {
                 LOGGER.fine("trying to free an already freed connection...");
-
-            else
+            } else {
                 availableConnections.add(seConnection);
+            }
 
             LOGGER.fine(seConnection + " freed");
         }
@@ -204,49 +194,37 @@ public class SdeConnectionPool
     /**
      * closes all connections in this pool
      */
-    public void close()
-    {
-        synchronized (mutex)
-        {
+    public void close() {
+        synchronized (mutex) {
             databaseLayers = null;
 
             int used = usedConnections.size();
-
             int available = availableConnections.size();
 
-            for (int i = 0; i < used; i++)
-            {
+            for (int i = 0; i < used; i++) {
                 SeConnection mPool = (SeConnection) usedConnections.removeFirst();
 
-                try
-                {
+                try {
                     mPool.close();
-                }
-                catch (SeException e)
-                {
+                } catch (SeException e) {
                     LOGGER.warning("Failed to close in use PooledConnection: "
                         + e);
                 }
             }
 
-            for (int i = 0; i < available; i++)
-            {
+            for (int i = 0; i < available; i++) {
                 SeConnection mPool = (SeConnection) availableConnections
                     .removeFirst();
 
-                try
-                {
+                try {
                     mPool.close();
-                }
-                catch (SeException e)
-                {
+                } catch (SeException e) {
                     LOGGER.warning("Failed to close free PooledConnection: "
                         + e);
                 }
             }
 
             closed = true;
-
             LOGGER.info("SDE connection pool closed. " + (used + available)
                 + " connections freed");
         }
@@ -258,30 +236,26 @@ public class SdeConnectionPool
      * @return DOCUMENT ME!
      *
      * @throws DataSourceException DOCUMENT ME!
+     * @throws IllegalStateException DOCUMENT ME!
      * @throws UnavailableConnectionException DOCUMENT ME!
      */
-    public SeConnection getConnection()
-        throws DataSourceException
-    {
+    public SeConnection getConnection() throws DataSourceException {
         SeConnection conn = null;
 
-        if (closed)
-        {
-            throw new IllegalStateException("The ConnectionPool has been closed.");
-        }
-
-        //if there are no available connections
-        if (availableConnections.size() == 0)
-        {
-            //first, try to create new ones
-            populate();
+        if (closed) {
+            throw new IllegalStateException(
+                "The ConnectionPool has been closed.");
         }
 
         //and check again
-        synchronized (mutex)
-        {
-            if (availableConnections.size() > 0)
-            {
+        synchronized (mutex) {
+            //if there are no available connections
+            if (availableConnections.size() == 0) {
+                //first, try to create new ones
+                populate();
+            }
+
+            if (availableConnections.size() > 0) {
                 return getAvailable();
             }
         }
@@ -289,26 +263,20 @@ public class SdeConnectionPool
         long timeWaited = 0;
 
         //then, wait until a connection be freed or the time out has been reached
-        while (timeWaited <= getMaxWaitTime())
-        {
+        while (timeWaited <= getMaxWaitTime()) {
             LOGGER.finer("waiting for connection...");
 
-            try
-            {
+            try {
                 Thread.sleep(getWaitTime());
-            }
-            catch (InterruptedException ex)
-            {
+            } catch (InterruptedException ex) {
                 throw new DataSourceException(
                     "Interrupted while waiting for an available connection");
             }
 
             timeWaited += getWaitTime();
 
-            synchronized (mutex)
-            {
-                if (availableConnections.size() > 0)
-                {
+            synchronized (mutex) {
+                if (availableConnections.size() > 0) {
                     return getAvailable();
                 }
             }
@@ -323,8 +291,7 @@ public class SdeConnectionPool
      *
      * @return DOCUMENT ME!
      */
-    private SeConnection getAvailable()
-    {
+    private SeConnection getAvailable() {
         LOGGER.finest("Getting available connection.");
 
         SeConnection conn = (SeConnection) availableConnections.removeFirst();
@@ -341,27 +308,21 @@ public class SdeConnectionPool
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    private SeConnection newPooledConnection() throws DataSourceException
-    {
+    private SeConnection newPooledConnection() throws DataSourceException {
         int existents = availableConnections.size() + usedConnections.size();
 
         //one never knows...
-        if (existents >= maxConnections)
-        {
+        if (existents >= maxConnections) {
             throw new DataSourceException(
                 "Maximun number of connections reached");
         }
 
         SeConnection connection = null;
 
-        try
-        {
+        try {
             connection = newConnection();
-
             usedConnections.add(connection);
-        }
-        catch (SeException ex)
-        {
+        } catch (SeException ex) {
             throw new DataSourceException(
                 "can't create a sde pooled connection: "
                 + ex.getSeError().getSdeErrMsg(), ex);
@@ -377,12 +338,10 @@ public class SdeConnectionPool
      *
      * @throws SeException DOCUMENT ME!
      */
-    private SeConnection newConnection() throws SeException
-    {
+    private SeConnection newConnection() throws SeException {
         SeConnection seConn = new SeConnection(config.getServerName(),
                 config.getPortNumber().intValue(), config.getDatabaseName(),
                 config.getUserName(), config.getUserPassword());
-
         LOGGER.fine("***************\ncreated new connection " + seConn
             + "\n*****************");
 
@@ -398,17 +357,11 @@ public class SdeConnectionPool
            System.out.println("getStreamPoolSize=" + stSpec.getStreamPoolSize());
          */
         stSpec.setMinBufSize(1024 * 1024);
-
         stSpec.setMaxBufSize(10 * 1024 * 1024);
-
         stSpec.setMaxArraySize(10000);
-
         stSpec.setMinObjects(1024);
-
         stSpec.setAttributeArraySize(1024 * 1024);
-
         stSpec.setShapePointArraySize(1024 * 1024);
-
         stSpec.setStreamPoolSize(10);
 
         /*
@@ -433,28 +386,22 @@ public class SdeConnectionPool
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public SeLayer getSdeLayer(String typeName) throws DataSourceException
-    {
+    public SeLayer getSdeLayer(String typeName) throws DataSourceException {
         Vector layers = getAvailableSdeLayers();
         SeLayer layer = null;
 
-        try
-        {
-            for (Iterator it = layers.iterator(); it.hasNext();)
-            {
+        try {
+            for (Iterator it = layers.iterator(); it.hasNext();) {
                 layer = (SeLayer) it.next();
 
                 if (layer.getQualifiedName().equals(typeName)
-                        || layer.getName().equals(typeName))
-                {
+                        || layer.getName().equals(typeName)) {
                     break;
                 }
 
                 layer = null;
             }
-        }
-        catch (SeException ex)
-        {
+        } catch (SeException ex) {
             throw new DataSourceException(ex.getMessage(), ex);
         }
 
@@ -470,22 +417,16 @@ public class SdeConnectionPool
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    SeTable getSdeTable(String tableName) throws DataSourceException
-    {
+    SeTable getSdeTable(String tableName) throws DataSourceException {
         SeTable table = null;
         SeConnection sdeConn = null;
 
-        try
-        {
+        try {
             sdeConn = getConnection();
             table = new SeTable(sdeConn, tableName);
-        }
-        catch (SeException ex)
-        {
+        } catch (SeException ex) {
             throw new DataSourceException(ex.getMessage(), ex);
-        }
-        finally
-        {
+        } finally {
             release(sdeConn);
         }
 
@@ -500,23 +441,16 @@ public class SdeConnectionPool
      *
      * @throws DataSourceException
      */
-    public Vector getAvailableSdeLayers() throws DataSourceException
-    {
-        if (databaseLayers == null)
-        {
+    public Vector getAvailableSdeLayers() throws DataSourceException {
+        if (databaseLayers == null) {
             SeConnection sdeConn = getConnection();
 
-            try
-            {
+            try {
                 databaseLayers = sdeConn.getLayers();
-            }
-            catch (SeException ex)
-            {
+            } catch (SeException ex) {
                 throw new DataSourceException("Error getting table list:"
                     + ex.getMessage(), ex);
-            }
-            finally
-            {
+            } finally {
                 release(sdeConn);
             }
         }
@@ -529,8 +463,7 @@ public class SdeConnectionPool
      *
      * @return DOCUMENT ME!
      */
-    public boolean isClosed()
-    {
+    public boolean isClosed() {
         return closed;
     }
 
@@ -539,19 +472,16 @@ public class SdeConnectionPool
      *
      * @return DOCUMENT ME!
      */
-    public SdeConnectionConfig getConfig()
-    {
+    public SdeConnectionConfig getConfig() {
         return config;
     }
-
 
     /**
      * DOCUMENT ME!
      *
      * @return DOCUMENT ME!
      */
-    public int getIncrementStep()
-    {
+    public int getIncrementStep() {
         return incrementStep;
     }
 
@@ -560,8 +490,7 @@ public class SdeConnectionPool
      *
      * @return DOCUMENT ME!
      */
-    public int getMaxConnections()
-    {
+    public int getMaxConnections() {
         return maxConnections;
     }
 
@@ -570,8 +499,7 @@ public class SdeConnectionPool
      *
      * @return DOCUMENT ME!
      */
-    public long getMaxWaitTime()
-    {
+    public long getMaxWaitTime() {
         return maxWaitTime;
     }
 
@@ -580,8 +508,7 @@ public class SdeConnectionPool
      *
      * @return DOCUMENT ME!
      */
-    public int getMinConnections()
-    {
+    public int getMinConnections() {
         return minConnections;
     }
 
@@ -590,11 +517,9 @@ public class SdeConnectionPool
      *
      * @return DOCUMENT ME!
      */
-    public long getWaitTime()
-    {
+    public long getWaitTime() {
         return waitTime;
     }
-
     //
 }
 

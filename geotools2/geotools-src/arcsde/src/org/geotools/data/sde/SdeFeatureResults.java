@@ -90,7 +90,8 @@ public class SdeFeatureResults implements FeatureResults
         }
         finally
         {
-            sdeQuery.close();
+            if(sdeQuery != null)
+              sdeQuery.close();
         }
     }
 

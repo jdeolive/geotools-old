@@ -71,7 +71,8 @@ public class SdeFeatureReader implements org.geotools.data.FeatureReader
         }
         catch (SeException ex)
         {
-            sdeQuery.close();
+            if(sdeQuery != null)
+              sdeQuery.close();
             throw new DataSourceException("Can't fetch query results row: "
                 + ex.getMessage(), ex);
         }
