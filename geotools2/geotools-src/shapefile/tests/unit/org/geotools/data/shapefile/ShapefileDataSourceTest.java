@@ -58,21 +58,32 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
   }
   
   
-  public void testQueryFill() throws Exception {
+  public void testQuerySubset() throws Exception {
     QueryImpl qi = new QueryImpl();
-    qi.setProperties(new AttributeTypeDefault[] {new AttributeTypeDefault("Billy",String.class)});
+    qi.setProperties(new AttributeTypeDefault[] {new AttributeTypeDefault("STATE_NAME",String.class)});
     Feature[] features = loadFeatures(STATE_POP,qi);
+    
     assertEquals("Number of Features loaded",49,features.length);
-    
     FeatureType schema = features[0].getSchema();
-    assertNotNull(schema.getDefaultGeometry());
-    assertEquals("Number of Attributes",254,schema.getAttributeTypes().length);
-    assertEquals("Value of statename is wrong",features[0].getAttribute("STATE_NAME"),"Illinois");
-    assertEquals("Value of land area is wrong",((Double)features[0].getAttribute("LAND_KM")).doubleValue(),143986.61,0.001);
     
-    for (int i = 0, ii = features.length; i < ii; i++) {
-      assertNull(features[i].getAttribute("Billy")); 
-    }
-    
+    assertEquals("Number of Attributes",2,schema.getAttributeTypes().length);
   }
+  
+//  public void testQueryFill() throws Exception {
+//    QueryImpl qi = new QueryImpl();
+//    qi.setProperties(new AttributeTypeDefault[] {new AttributeTypeDefault("Billy",String.class)});
+//    Feature[] features = loadFeatures(STATE_POP,qi);
+//    assertEquals("Number of Features loaded",49,features.length);
+//    
+//    FeatureType schema = features[0].getSchema();
+//    assertNotNull(schema.getDefaultGeometry());
+//    assertEquals("Number of Attributes",254,schema.getAttributeTypes().length);
+//    assertEquals("Value of statename is wrong",features[0].getAttribute("STATE_NAME"),"Illinois");
+//    assertEquals("Value of land area is wrong",((Double)features[0].getAttribute("LAND_KM")).doubleValue(),143986.61,0.001);
+//    
+//    for (int i = 0, ii = features.length; i < ii; i++) {
+//      assertNull(features[i].getAttribute("Billy")); 
+//    }
+//    
+//  }
 }
