@@ -11,6 +11,7 @@ import org.geotools.filter.Filter;
 import org.geotools.filter.SQLEncoder;
 import org.geotools.filter.SQLUnpacker;
 import org.geotools.filter.SQLEncoderException;
+import org.geotools.filter.FilterCapabilities;
 
 /** Provides ...
  * 
@@ -51,7 +52,8 @@ public class DefaultSQLBuilder implements SQLBuilder {
     }
 
     public Filter getPostQueryFilter(Filter filter){
-        SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
+        FilterCapabilities cap = encoder.getCapabilities();
+        SQLUnpacker unpacker = new SQLUnpacker(cap);
     	//figure out which of the filter we can use.
     	unpacker.unPackAND(filter);
     	return unpacker.getUnSupported();
@@ -115,7 +117,7 @@ public class DefaultSQLBuilder implements SQLBuilder {
      * </p>
      */
     public void sqlWhere( StringBuffer sql, Filter preFilter ) throws SQLEncoderException{
-        if (preFilter != null || preFilter == Filter.NONE) {
+        if (preFilter != null && preFilter != Filter.NONE) {
             String where = encoder.encode( preFilter);
             sql.append(" ");
             sql.append(where);
