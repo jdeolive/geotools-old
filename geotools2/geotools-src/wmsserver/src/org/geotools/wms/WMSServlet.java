@@ -220,7 +220,7 @@ public class WMSServlet extends HttpServlet {
             String xml = capabilitiesToXML(capabilities);
             
             // Send to client
-            response.setContentType("text/xml");
+            response.setContentType("application/vnd.ogc.wms_xml");
             
             PrintWriter pr = response.getWriter();
             pr.print(xml);

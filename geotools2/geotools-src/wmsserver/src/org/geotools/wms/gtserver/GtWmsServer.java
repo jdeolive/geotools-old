@@ -243,7 +243,6 @@ public class GtWmsServer implements WMSServer {
 
             for (int i = 0; i < layer.length; i++) {
                 Style layerstyle;
-                
                 LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer[i]);
 
                 if ((style != null) && (style[i] != "")) {
