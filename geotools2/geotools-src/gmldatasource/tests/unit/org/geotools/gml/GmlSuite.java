@@ -6,9 +6,9 @@ package org.geotools.gml;
  *
  * Created on 04 March 2002, 16:09
  */
-import org.geotools.datasource.*;
+import org.geotools.data.*;
 import org.geotools.datasource.extents.*;
-import org.geotools.featuretable.*;
+import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import java.net.URL;
@@ -25,7 +25,7 @@ public class GmlSuite extends TestCase {
     
     static int NTests = 6;
     
-    FeatureTable table = null;
+    FeatureCollection table = null;
     
     public GmlSuite(java.lang.String testName) {
         super(testName);
@@ -40,7 +40,7 @@ public class GmlSuite extends TestCase {
         return suite;
     }
     
-    public void testGeometryDataSource() throws Exception{
+   /* public void testGeometryDataSource() throws Exception{
         System.out.println("Testing basic Geometry Loaders");
         int[] results = {1,1,1,1,2,2,5,1,1};
         for(int i=0;i<results.length;i++){
@@ -48,16 +48,16 @@ public class GmlSuite extends TestCase {
             System.out.println("testing "+file);
             useGeometryDataSource(file,results[i]);
         }
-    }
-    public void useGeometryDataSource(String file, int result) throws Exception{
+    }*/
+  /*  public void useGeometryDataSource(String file, int result) throws Exception{
         //System.out.println("testDataSource");
         try{
             String dataFolder = System.getProperty("dataFolder");
             URL url = new URL("file:///"+dataFolder+"/"+file);
-            System.out.println("Testing ability to load "+file+" using Geometrydatasource");
-            GMLGeometryDataSource ds = new GMLGeometryDataSource(url.toString());
+            System.out.println("Testing ability to load "+file+" using GMLdatasource");
+            GMLDataSource ds = new GMLDataSource(url.toString());
             
-            table = new DefaultFeatureTable(ds);
+            table = new FeatureCollectionDefault(ds);
             
             
             
@@ -88,7 +88,7 @@ public class GmlSuite extends TestCase {
             e.printStackTrace();
             fail("Load failed because of exception "+e.toString());
         }
-    }
+    }*/
     public void testGMLDataSource()throws Exception{
         try{
             String dataFolder = System.getProperty("dataFolder");
@@ -96,7 +96,7 @@ public class GmlSuite extends TestCase {
             System.out.println("Testing ability to load "+url+" as Feature datasource");
             DataSource ds = new GMLDataSource(url);
             
-            table = new DefaultFeatureTable(ds);
+            table = new FeatureCollectionDefault(ds);
             
             
             
