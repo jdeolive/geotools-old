@@ -80,7 +80,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.4 2003/02/21 23:08:44 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.5 2003/02/22 22:36:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -95,7 +95,7 @@ public class RenderedGridCoverage extends RenderedLayer {
      * the resolution of previous level. This value is used only if
      * {@link #USE_PYRAMID} is <code>true</code>.
      */
-    private static final float DOWN_SAMPLER = 0.5f;
+    private static final float DOWN_SAMPLER = 0.25f;
 
     /**
      * Natural logarithm of {@link #DOWN_SAMPLER}. Used
@@ -226,6 +226,7 @@ public class RenderedGridCoverage extends RenderedLayer {
             }
         }
         listeners.firePropertyChange("gridCoverage", oldCoverage, coverage);
+        repaint();
     }
 
     /**
@@ -329,7 +330,7 @@ public class RenderedGridCoverage extends RenderedLayer {
             if (renderer != null) {
                 hints = renderer.hints;
                 if (hints != null) {
-                    jai = (JAI) hints.get(org.geotools.gp.Hints.JAI_INSTANCE);
+                    jai = (JAI) hints.get(Hints.JAI_INSTANCE);
                 }
             }
             if (jai == null) {
@@ -370,6 +371,22 @@ public class RenderedGridCoverage extends RenderedLayer {
      */
     public GridCoverage getGridCoverage() {
         return sourceCoverage;
+    }
+
+    /**
+     * Returns the name of this layer.
+     *
+     * @param  locale The desired locale, or <code>null</code> for a default locale.
+     * @return This layer's name.
+     */
+    public String getName(final Locale locale) {
+        synchronized (getTreeLock()) {
+            if (coverage == null) {
+                return super.getName(locale);
+            }
+            return Utilities.getShortClassName(this) +
+                   "[\"" + coverage.getName(locale) + "\", " + getZOrder() + ']';
+        }
     }
 
     /**
@@ -447,8 +464,8 @@ public class RenderedGridCoverage extends RenderedLayer {
                 gridToCoordinate = (AffineTransform) coverage.getGridGeometry()
                                                              .getGridToCoordinateSystem2D();
             } catch (ClassCastException exception) {
-                throw new TransformException("Non-affine transformations not yet implemented",
-                                             exception);
+                throw new TransformException(Resources.getResources(getLocale()).getString(
+                                             ResourceKeys.ERROR_NON_AFFINE_TRANSFORM), exception);
             }
             final AffineTransform transform;
             final RenderedImage   image; // The image to display (will be computed below).
@@ -476,8 +493,10 @@ public class RenderedGridCoverage extends RenderedLayer {
                 if (level != images.getCurrentLevel()) {
                     final Logger logger = Logger.getLogger("org.geotools.renderer.j2d");
                     if (logger.isLoggable(Level.FINE)) {
-                        final LogRecord record = Resources.getResources(getLocale()).getLogRecord(
-                                           Level.FINE, ResourceKeys.RESSAMPLING_RENDERED_IMAGE_$2,
+                        final Locale locale = getLocale();
+                        final LogRecord record = Resources.getResources(locale).getLogRecord(
+                                           Level.FINE, ResourceKeys.RESSAMPLING_RENDERED_IMAGE_$3,
+                                           coverage.getName(locale),
                                            new Integer(level), new Integer(maxLevel));
                         record.setSourceClassName(Utilities.getShortClassName(this));
                         record.setSourceMethodName("paint");

@@ -55,10 +55,19 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * Rendering hints can be used to control some low-level details, like the expected
  * resolution.
  *
- * @version $Id: Hints.java,v 1.6 2003/02/03 09:51:59 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.7 2003/02/22 22:36:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
+    /**
+     * Key for setting a {@link JAI} object other than the default one when a JAI operation must be
+     * applied. This is used especially for the {@linkplain javax.media.jai.operator.ScaleDescriptor
+     * scale} operation when rendering an image with {@link RenderedGridCoverage}. This is the same
+     * key than <code>org.geotools.gp</code> {@link org.geotools.gp.Hints#JAI_INSTANCE} and is
+     * declared here only for convenience.
+     */
+    public static final RenderingHints.Key JAI_INSTANCE = org.geotools.gp.Hints.JAI_INSTANCE;
+
     /**
      * Key for setting a {@link CoordinateTransformationFactory} object other
      * than the default one when coordinate transformations must be performed

@@ -83,7 +83,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.9 2003/02/20 11:18:08 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.10 2003/02/22 22:36:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -262,12 +262,14 @@ public abstract class RenderedLayer {
     protected void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
         final CoordinateSystem oldCS;
         synchronized (getTreeLock()) {
-            oldCS = coordinateSystem;
+            clearCache();
+            oldCS              = coordinateSystem;
             coordinateSystem   = CTSUtilities.getCoordinateSystem2D(cs);
             preferredArea      = null;
             preferredPixelSize = null;
         }
         listeners.firePropertyChange("coordinateSystem", oldCS, cs);
+        repaint();
     }
 
     /**

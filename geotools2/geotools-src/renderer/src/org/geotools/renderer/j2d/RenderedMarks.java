@@ -91,7 +91,7 @@ import org.geotools.resources.XAffineTransform;
  *   <li>{@link #paint(Graphics2D, Shape, int)}</li>
  * </ul>
  *
- * @version $Id: RenderedMarks.java,v 1.3 2003/02/20 11:18:08 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.4 2003/02/22 22:36:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -149,7 +149,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      * par défaut (WGS 1984).    Ce système de coordonnées peut
      * être changé par un appel à {@link #setCoordinateSystem}.
      */
-    protected RenderedMarks() {
+    public RenderedMarks() {
         super();
     }
 
@@ -425,7 +425,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                 boolean  shapeIsPolygon   = false;
                 /*
                  * Balaie les données de chaques marques. Pour chacune d'elles,
-                 * on définiera une transformation affine qui prendra en compte
+                 * on définira une transformation affine qui prendra en compte
                  * les translations et rotations de la marque. Cette transformation
                  * servira à transformer les coordonnées de la marque "modèle" en
                  * coordonnées pixels propres à chaque marque.
@@ -698,10 +698,8 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
      * @param  index Index de la marque sur laquelle traîne le curseur.
      * @return Le texte à afficher lorsque la souris traîne sur cette station.
      *         Ce texte peut être nul pour signifier qu'il ne faut pas en écrire.
-     *
-     * @deprecated This method may be removed in a future version.
      */
-    protected String getToolTipText(int index) {
+    String getToolTipText(int index) {
         return null;
     }
 

@@ -29,12 +29,13 @@ public interface ResourceKeys
     public static final int INITIALIZING_TRANSFORMATION_$2           =     3;
     public static final int PAINTING_$2                              =    10;
     public static final int POLYGON_CACHE_USE_$3                     =     9;
-    public static final int RESSAMPLING_RENDERED_IMAGE_$2            =    15;
+    public static final int RESSAMPLING_RENDERED_IMAGE_$3            =    15;
 
     public static final int WARNING_EXCESSIVE_MEMORY_USAGE           =     7;
 
     public static final int ERROR_BAD_ARGUMENT_$2                    =    12;
     public static final int ERROR_BAD_RANGE_$2                       =     0;
+    public static final int ERROR_NON_AFFINE_TRANSFORM               =    16;
     public static final int ERROR_NON_CARTESIAN_COORDINATE_SYSTEM_$1 =     2;
     public static final int ERROR_NOT_GREATER_THAN_ZERO_$1           =    13;
     public static final int ERROR_ODD_ARRAY_LENGTH_$1                =     1;
