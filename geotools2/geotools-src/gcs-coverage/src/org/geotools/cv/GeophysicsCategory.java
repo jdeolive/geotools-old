@@ -59,7 +59,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * values.   By definition, the {@link #getSampleToGeophysics} method for this class returns
  * the identity transform, or <code>null</code> if this category is a qualitative one.
  *
- * @version $Id: GeophysicsCategory.java,v 1.3 2003/04/12 00:04:37 desruisseaux Exp $
+ * @version $Id: GeophysicsCategory.java,v 1.4 2003/04/13 17:21:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GeophysicsCategory extends Category {
@@ -150,19 +150,15 @@ final class GeophysicsCategory extends Category {
     }
 
     /**
-     * Changes the mapping from sample to geophysics values. A special processing is done
-     * for ranges made of {@link Double#NaN} values, since they can't be rescaled directly.
+     * Changes the mapping from sample to geophysics values.
      */
-    public Category concatenate(final MathTransform1D tx, final Range constraint)
-            throws TransformException
-    {
-        if (!isQuantitative()) {
-            // Assertion: concatenate should transform the range only.
-            assert inverse.getSampleToGeophysics()==null : inverse;
-            return inverse.concatenate(tx, null).inverse;
-            // No 'constraint' argument because NaN values can't be constrained.
+    public Category rescale(MathTransform1D sampleToGeophysics) {
+        if (sampleToGeophysics.isIdentity()) {
+            return this;
         }
-        return super.concatenate(tx, constraint);
+        sampleToGeophysics = (MathTransform1D)MathTransformFactory.getDefault()
+                .createConcatenatedTransform(inverse.getSampleToGeophysics(), sampleToGeophysics);
+        return inverse.rescale(sampleToGeophysics).inverse;
     }
 
     /**

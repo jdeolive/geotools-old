@@ -97,7 +97,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.10 2003/04/12 00:04:37 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.11 2003/04/13 17:21:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
@@ -406,7 +406,7 @@ public class Category implements Serializable {
         this.maximum   = doubleValue(type, range.getMaxValue(), maxInc ? 0 : -1);
         /*
          * If we are constructing a qualitative category for a single NaN value,
-         * accept it as a valid one. We will consider it as a geophysics category.
+         * accepts it as a valid one.
          */
         if (sampleToGeophysics==null && minInc && maxInc && Double.isNaN(minimum) &&
             Double.doubleToRawLongBits(minimum) == Double.doubleToRawLongBits(maximum))
@@ -787,68 +787,30 @@ public class Category implements Serializable {
 
     /**
      * Changes the mapping from sample to geophysics values. This method returns a category with
-     * a {@linkplain #getSampleToGeophysics sample to geophysics} transformation set to the
-     * {@linkplain MathTransformFactory#createConcatenatedTransform concatenation} of the
-     * specified transform <var>tx</var> with this category's transform. For an identical sample
-     * value <var>s</var>, the pseudo-codes below should produce identical results:
+     * a &quot;{@linkplain #getSampleToGeophysics sample to geophysics}&quot; transformation set
+     * to the specified one. Other properties like the {@linkplain #getRange sample value range}
+     * and the {@linkplain #getColors colors} are unchanged.
+     * <br><br>
+     * <strong>Note about geophysics categories:</strong> The above rules are straightforward
+     * when applied on non-geophysics category, but this method can be invoked on geophysics
+     * category (as returned by <code>{@linkplain #geophysics geophysics}(true)</code>) as well.
+     * Since geophysics categories are already the result of some &quot;sample to geophysics&quot;
+     * transformation, invoking this method on those is equivalent to
+     * {@linkplain MathTransformFactory#createConcatenatedTransform concatenate}
+     * this &quot;sample to geophysics&quot; transform with the specified one.
      *
-     * <blockquote><table border='1' cellpadding='12'><tr>
-     * <td nowrap><code>
-     *     double s = ...<br>
-     *     s = tx.transform(s);<br>
-     *     s = getSampleToGeophysics().transform(s);<br>
-     * </code></td>
-     * <td nowrap><code>
-     *     double s = ...<br>
-     *     Category cc = concatenate(tx);<br>
-     *     s = cc.getSampleToGeophysics().transform(s);<br>
-     * </code></td>
-     * </tr></table></blockquote>
-     *
-     * Note that the convention is the same than for
-     * {@link java.awt.geom.AffineTransform#concatenate AffineTransform}: the result is as
-     * if the transform <code>tx</code> was applied first, then this category's transform
-     * last. The resulting category's {@linkplain #getRange range} is adjusted according.
-     *
-     * @param  tx The transform to {@linkplain MathTransformFactory#createConcatenatedTransform
-     *         concatenate} to this {@linkplain #getSampleToGeophysics sample to geophysics}
-     *         transformation.
-     * @param  constraint An optional range constraint. If non-null, then the returned
-     *         category's {@linkplain #getRange range} will not be wider than this constraint.
-     * @return A category using the concatenated transformation.
-     * @throws TransformException If the transformation can't be applied.
+     * @param  sampleToGeophysics The new {@linkplain #getSampleToGeophysics sample to geophysics}
+     *         transform.
+     * @return A category using the specified transform.
      *
      * @see #getSampleToGeophysics
      * @see SampleDimension#rescale
      */
-    public Category concatenate(MathTransform1D tx, final Range constraint)
-            throws TransformException
-    {
-        if (tx.isIdentity()) {
+    public Category rescale(final MathTransform1D sampleToGeophysics) {
+        if (Utilities.equals(sampleToGeophysics, transform)) {
             return this;
         }
-        Range txRange = transform((MathTransform1D)tx.inverse(), getRange(), false);
-        Range reduced = txRange;
-        if (constraint != null) {
-            reduced = reduced.intersect(constraint);
-        }
-        final MathTransform1D current = getSampleToGeophysics();
-        if (current != null) {
-            tx = (MathTransform1D)MathTransformFactory.getDefault()
-                         .createConcatenatedTransform(tx, current);
-            if (tx.isIdentity()) {
-                return geophysics(true);
-            }
-        } else {
-            tx = null;
-        }
-        final Category category = new Category(name, ARGB, reduced, tx);
-        if (reduced.equals(txRange)) {
-            // Share the range (which should be equals) as a slight
-            // optimization. Also help to avoid rounding errors.
-            category.inverse.range = NumberRange.cast(geophysics(true).getRange());
-        }
-        return category;
+        return new Category(name, ARGB, range, sampleToGeophysics);
     }
 
     /**

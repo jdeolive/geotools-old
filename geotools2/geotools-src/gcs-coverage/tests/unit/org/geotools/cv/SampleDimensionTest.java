@@ -54,7 +54,7 @@ import junit.framework.TestSuite;
  * rely on {@link CategoryList} for many of its work, many <code>SampleDimension</code>
  * tests are actually <code>CategoryList</code> tests.
  *
- * @version $Id: SampleDimensionTest.java,v 1.6 2003/04/12 00:04:37 desruisseaux Exp $
+ * @version $Id: SampleDimensionTest.java,v 1.7 2003/04/13 17:21:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class SampleDimensionTest extends TestCase {
@@ -210,18 +210,16 @@ public class SampleDimensionTest extends TestCase {
      */
     public void testRescale() {
         SampleDimension scaled;
-        scaled = test.geophysics(true).rescale(2, -6, false);
+        scaled = test.geophysics(false).rescale(2, -6);
         assertEquals("Incorrect scale",     2, scaled.getScale(),        EPS);
         assertEquals("Incorrect offset",   -6, scaled.getOffset(),       EPS);
         assertEquals("Incorrect minimum",   0, scaled.getMinimumValue(), EPS);
         assertEquals("Incorrect maximum", 255, scaled.getMaximumValue(), EPS);
-        System.out.println(scaled);
 
-        scaled = test.geophysics(false).rescale(2, -6, false);
+        scaled = test.geophysics(true).rescale(2, -6).geophysics(false);
         assertEquals("Incorrect scale",   scale*2,         scaled.getScale(),        EPS);
-        assertEquals("Incorrect offset",  offset-6*scale,  scaled.getOffset(),       EPS);
+        assertEquals("Incorrect offset",  offset*2-6,      scaled.getOffset(),       EPS);
         assertEquals("Incorrect minimum",   0,             scaled.getMinimumValue(), EPS);
         assertEquals("Incorrect maximum", 255,             scaled.getMaximumValue(), EPS);
-        System.out.println(scaled);
     }
 }

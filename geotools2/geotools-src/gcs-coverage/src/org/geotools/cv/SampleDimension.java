@@ -111,7 +111,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.20 2003/04/12 00:04:37 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.21 2003/04/13 17:21:19 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1169,86 +1169,27 @@ public class SampleDimension implements Serializable {
 
     /**
      * Returns a sample dimension using new {@link #getScale scale} and {@link #getOffset offset}
-     * coefficients. Those coefficients are {@linkplain Category#concatenate concatenated} with
-     * this <code>SampleDimension</code>'s scale and offset. In the special case where this method
-     * is invoked on a geophysics sample dimension (as returned by <code>{@linkplain #geophysics
-     * geophysics}(true)</code>), this is equivalent to creating a sample dimension with exactly
-     * the specified <code>scale</code> and <code>offset</code> coefficients.
+     * coefficients.
      *
      * @param scale  The value which is multiplied to grid values for the new sample dimension.
      * @param offset The value to add to grid values for the new sample dimension.
-     * @param rescaleNodata <code>true</code> if {@linkplain #getNoDataValue nodata values}
-     *                      should be rescaled as well. If <code>false</code>, then only
-     *                      {@linkplain Category#isQuantitative quantitative categories}
-     *                      are rescaled; &quot;no data&quot; values stay inchanged.
      *
      * @see #getScale
      * @see #getOffset
-     * @see Category#concatenate
+     * @see Category#rescale
      */
-    public SampleDimension rescale(final double scale, final double offset,
-                                   final boolean rescaleNodata)
-    {
-        if (scale==1 && offset==0) {
-            return this;
-        }
-        final MathTransform1D tx = Category.createLinearTransform(scale, offset);
-        /*
-         * We require an array of non-geophysics categories because we want the array to be sorted
-         * in index order without NaN values. This is needed for computing the 'constraint' range.
-         * Furthermore, the result of Category.concatenate(...) is always non-geophysics. We will
-         * switch back to the right type just before to apply the concatenation.
-         */
-        final Category[] categories = (Category[]) geophysics(false).getCategories().toArray();
+    public SampleDimension rescale(final double scale, final double offset) {
+        final MathTransform1D sampleToGeophysics = Category.createLinearTransform(scale, offset);
+        final Category[] categories = (Category[]) getCategories().toArray();
+        final Category[] reference  = (Category[]) categories.clone();
         for (int i=0; i<categories.length; i++) {
-            Range constraint = null;
-            if (!rescaleNodata) {
-                if (!categories[i].isQuantitative()) {
-                    continue;
-                }
-                /*
-                 * We are going to rescale a quantitative category that may be bounded by
-                 * qualitative categories. Since the qualitatives categories doesn't move,
-                 * we have to constraint the range for the rescaled category in such a way
-                 * that it will not overlaps with other categories.
-                 */
-                Number      minimum = null;
-                Number      maximum = null;
-                boolean minIncluded = false;
-                boolean maxIncluded = false;
-                for (int j=i; --j>=0;) {
-                    if (!categories[j].isQuantitative()) {
-                        final Range bound = categories[j].geophysics(false).getRange();
-                        minimum = (Number) bound.getMaxValue(); // May be null, but not NaN.
-                        minIncluded = !bound.isMaxIncluded();
-                        break;
-                    }
-                }
-                for (int j=i; ++j<categories.length;) {
-                    if (!categories[j].isQuantitative()) {
-                        final Range bound = categories[j].geophysics(false).getRange();
-                        maximum = (Number) bound.getMinValue(); // May be null, but not NaN.
-                        maxIncluded = !bound.isMinIncluded();
-                        break;
-                    }
-                }
-                if (minimum!=null || maximum!=null) {
-                    final Class classe = ClassChanger.getWidestClass(minimum, maximum);
-                    constraint = new NumberRange(classe,
-                                                 ClassChanger.cast(minimum, classe), minIncluded,
-                                                 ClassChanger.cast(maximum, classe), maxIncluded);
-                }
+            if (categories[i].isQuantitative()) {
+                categories[i] = categories[i].rescale(sampleToGeophysics);
             }
-            try {
-                categories[i] = categories[i].geophysics(isGeophysics).concatenate(tx, constraint);
-            } catch (TransformException cause) {
-                // Should not happen for valid coefficients, since the transform is linear.
-                IllegalArgumentException exception = new IllegalArgumentException(Resources.format(
-                                                     ResourceKeys.ERROR_BAD_TRANSFORM_$1,
-                                                     Utilities.getShortClassName(tx)));
-                exception.initCause(cause);
-                throw exception;
-            }
+            categories[i] = categories[i].geophysics(isGeophysics);
+        }
+        if (Arrays.equals(categories, reference)) {
+            return this;
         }
         return new SampleDimension(categories, getUnits());
     }

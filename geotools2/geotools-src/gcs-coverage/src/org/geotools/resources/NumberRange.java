@@ -42,12 +42,10 @@ import org.geotools.resources.ClassChanger;
 
 
 /**
- * A range of numbers.
+ * A range of numbers. {@linkplain #union Union} and {@linkplain #intersect intersection}
+ * are computed as usual, except that widening conversions will be applied as needed.
  *
- * @task TODO: Method {@link #getMinValue} and {@link #getMaxValue} should be overriden
- *             in order to returns a {@link Number} when J2SE 1.5 will be available.
- *
- * @version $Id: NumberRange.java,v 1.1 2003/04/12 00:04:37 desruisseaux Exp $
+ * @version $Id: NumberRange.java,v 1.2 2003/04/13 17:21:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class NumberRange extends Range {
@@ -57,23 +55,92 @@ public final class NumberRange extends Range {
     private static final long serialVersionUID = -9094125174113731181L;
 
     /**
-     * Construct an inclusive range.
+     * Construct an inclusive range of <code>byte</code> values.
+     *
+     * @param minimum The minimum value, inclusive.
+     * @param maximum The maximum value, <strong>inclusive</strong>.
      */
-    public NumberRange(final Class classe, final Number minValue, final Number maxValue) {
-        super(classe, (Comparable)minValue, (Comparable)maxValue);
+    public NumberRange(final byte minimum, final byte maximum) {
+        super(Byte.class, new Byte(minimum), new Byte(maximum));
     }
 
     /**
-     * Construct a range.
+     * Construct an inclusive range of <code>short</code> values.
+     *
+     * @param minimum The minimum value, inclusive.
+     * @param maximum The maximum value, <strong>inclusive</strong>.
      */
-    public NumberRange(final Class classe, final Number minValue, final boolean isMinIncluded,
-                                           final Number maxValue, final boolean isMaxIncluded)
+    public NumberRange(final short minimum, final short maximum) {
+        super(Short.class, new Short(minimum), new Short(maximum));
+    }
+
+    /**
+     * Construct an inclusive range of <code>int</code> values.
+     *
+     * @param minimum The minimum value, inclusive.
+     * @param maximum The maximum value, <strong>inclusive</strong>.
+     */
+    public NumberRange(final int minimum, final int maximum) {
+        super(Integer.class, new Integer(minimum), new Integer(maximum));
+    }
+
+    /**
+     * Construct an inclusive range of <code>long</code> values.
+     *
+     * @param minimum The minimum value, inclusive.
+     * @param maximum The maximum value, <strong>inclusive</strong>.
+     */
+    public NumberRange(final long minimum, final long maximum) {
+        super(Long.class, new Long(minimum), new Long(maximum));
+    }
+
+    /**
+     * Construct an inclusive range of <code>float</code> values.
+     *
+     * @param minimum The minimum value, inclusive.
+     * @param maximum The maximum value, <strong>inclusive</strong>.
+     */
+    public NumberRange(final float minimum, final float maximum) {
+        super(Float.class, new Float(minimum), new Float(maximum));
+    }
+
+    /**
+     * Construct an inclusive range of <code>double</code> values.
+     *
+     * @param minimum The minimum value, inclusive.
+     * @param maximum The maximum value, <strong>inclusive</strong>.
+     */
+    public NumberRange(final double minimum, final double maximum) {
+        super(Double.class, new Double(minimum), new Double(maximum));
+    }
+
+    /**
+     * Construct an inclusive range of {@link Number} objects.
+     *
+     * @param classe One of {@link Byte}, {@link Short}, {@link Integer}, {@link Long},
+     *               {@link Float} or {@link Double}.
+     * @param minimum The minimum value, inclusive.
+     * @param maximum The maximum value, <strong>inclusive</strong>.
+     */
+    public NumberRange(final Class classe, final Number minimum, final Number maximum) {
+        super(classe, (Comparable)minimum, (Comparable)maximum);
+    }
+
+    /**
+     * Construct a range of {@link Number} objects.
+     */
+    public NumberRange(final Class classe, final Number minimum, final boolean isMinIncluded,
+                                           final Number maximum, final boolean isMaxIncluded)
     {
-        super(classe, (Comparable)minValue, isMinIncluded, (Comparable)maxValue, isMaxIncluded);
+        super(classe, (Comparable)minimum, isMinIncluded, (Comparable)maximum, isMaxIncluded);
     }
 
     /**
-     * Cast the specified {@link Range} to a {@link NumberRange}.
+     * Cast the specified {@link Range} to a <code>NumberRange</code> object. If the specified
+     * range is already an instance of <code>NumberRange</code>, then it is returned unchanged.
+     *
+     * @param  range The range to cast
+     * @return The same range than <code>range</code> as a <code>NumberRange</code> object.
      */
     public static NumberRange cast(final Range range) {
         if (range instanceof NumberRange) {
@@ -105,7 +172,8 @@ public final class NumberRange extends Range {
      *
      * @param  type The class to cast to. Must be one of {@link Byte}, {@link Short},
      *              {@link Integer}, {@link Long}, {@link Float} or {@link Double}.
-     * @return The casted range, or <code>this</code>.
+     * @return The casted range, or <code>this</code> if this range already uses
+     *         the specified type.
      */
     public NumberRange cast(final Class type) {
         return cast(this, type);
@@ -113,7 +181,10 @@ public final class NumberRange extends Range {
 
     /**
      * Returns the union of this range with the given range.
-     * The type will be widen as needed.
+     * Widening conversions will be applied as needed.
+     *
+     * @task TODO: The return type will be changed to <code>NumberRange</code> when
+     *             J2SE 1.5 will be available.
      */
     public Range union(final Range range) {
         final Class type = ClassChanger.getWidestClass(getElementClass(), range.getElementClass());
@@ -129,7 +200,7 @@ public final class NumberRange extends Range {
 
     /**
      * Returns the intersection of this range with the given range.
-     * The type will be widen as needed.
+     * Widening conversions will be applied as needed.
      *
      * @task TODO: The return type will be changed to <code>NumberRange</code> when
      *             J2SE 1.5 will be available.
@@ -152,11 +223,26 @@ public final class NumberRange extends Range {
 
     /**
      * Performs the intersection (no type check).
-     *
-     * @task TODO: The return type will be changed to <code>NumberRange</code> when
-     *             J2SE 1.5 will be available.
      */
     private Range intersect0(final Range range) {
         return super.intersect(range);
+    }
+
+    /**
+     * Returns the {@linkplain #getMinValue minimum value} as a <code>double</code>.
+     * If this range is unbounded, then {@link Double#NEGATIVE_INFINITY} is returned.
+     */
+    public double getMinimum() {
+        final Number value = (Number) getMinValue();
+        return (value!=null) ? value.doubleValue() : Double.NEGATIVE_INFINITY;
+    }
+
+    /**
+     * Returns the {@linkplain #getMaxValue maximum value} as a <code>double</code>.
+     * If this range is unbounded, then {@link Double#POSITIVE_INFINITY} is returned.
+     */
+    public double getMaximum() {
+        final Number value = (Number) getMaxValue();
+        return (value!=null) ? value.doubleValue() : Double.POSITIVE_INFINITY;
     }
 }
