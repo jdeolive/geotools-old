@@ -105,8 +105,7 @@ public class DefaultFeatureResults implements FeatureResults {
      * @throws IOException If results could not be obtained
      */
     public FeatureReader reader() throws IOException {
-        return featureSource.getDataStore().getFeatureReader(featureSource
-            .getSchema(), query.getFilter(), getTransaction());
+        return featureSource.getDataStore().getFeatureReader( getSchema(), query.getFilter(), getTransaction());
     }
 
     /**
@@ -138,7 +137,9 @@ public class DefaultFeatureResults implements FeatureResults {
             Feature feature;
             bounds = new Envelope();
             FeatureReader reader = reader();
-            
+            if( reader.getFeatureType().getDefaultGeometry() == null ){
+                throw new IOException( "No default Geometry specified" );
+            }
             while (reader.hasNext()) {
                 feature = reader.next();
                 bounds.expandToInclude(feature.getBounds());

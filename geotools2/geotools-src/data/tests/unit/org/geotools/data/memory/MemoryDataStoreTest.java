@@ -16,11 +16,13 @@
  */
 package org.geotools.data.memory;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataTestCase;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.DefaultQuery;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.DiffFeatureReader;
 import org.geotools.data.EmptyFeatureReader;
@@ -782,8 +784,34 @@ public class MemoryDataStoreTest extends DataTestCase {
         
         FeatureResults some = road.getFeatures( rd12Filter );
         assertEquals(2, some.getCount());
-        assertEquals( rd12Bounds, some.getBounds() );                
+        assertEquals( rd12Bounds, some.getBounds() );
+        assertEquals( some.getSchema(), road.getSchema() );
         
+        DefaultQuery query = new DefaultQuery( rd12Filter, new String[]{ "name", });
+        
+        FeatureResults half = road.getFeatures( query );
+        assertEquals( 2, half.getCount());
+        assertEquals( 1, half.getSchema().getAttributeCount() );
+        FeatureReader reader = half.reader();
+        FeatureType type = reader.getFeatureType();
+        reader.close();
+        FeatureType actual = half.getSchema();
+        
+        assertEquals( type.getTypeName(), actual.getTypeName() );
+        assertEquals( type.getNamespace(), actual.getNamespace() );
+        assertEquals( type.getAttributeCount(), actual.getAttributeCount() );
+        for( int i=0; i<type.getAttributeCount(); i++){
+            assertEquals( type.getAttributeType( i ), actual.getAttributeType( i ));
+        }
+        assertNull( type.getDefaultGeometry() );
+        assertEquals( type.getDefaultGeometry(), actual.getDefaultGeometry() );
+        assertEquals( type, actual );
+        try {
+            assertNull( half.getBounds() );
+            fail("half does not specify a default geometry");            
+        }
+        catch( IOException io ){            
+        }
     }
 
     public void testGetFeatureSourceRiver()
