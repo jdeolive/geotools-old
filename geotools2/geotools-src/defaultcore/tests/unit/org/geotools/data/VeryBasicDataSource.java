@@ -54,7 +54,8 @@ public class VeryBasicDataSource extends AbstractDataSource
             StringBuffer sb = new StringBuffer();
             
             while (reader.ready() && !stopped) {
-                sb.append(reader.readLine()).append('\n');
+                sb.append(reader.readLine());
+                sb.append('\n');
             }
             if (stopped) return;
             // Split up the string into rows
