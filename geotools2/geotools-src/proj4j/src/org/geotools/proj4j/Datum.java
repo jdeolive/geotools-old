@@ -7,16 +7,28 @@
 package org.geotools.proj4j;
 
 import java.util.StringTokenizer;
-/**
+/** Stores the defenition of a Datum
  *
- * @author  James Macgill
+ * @author James Macgill
  */
 public class Datum {
+    /** Conversion factor between seconds and radians
+     */
     public static final double SEC_TO_RAD = 4.84813681109535993589914102357e-6;
+    /** constant for use in 'type' denotes unknown projection type
+     */
     public static final int  PJD_UNKNOWN   =0;
+    /** constant for use in 'type' denotes three parameter projection
+     */
     public static final int  PJD_3PARAM    =1;   /* Molodensky */
+    /** constant for use in 'type' denotes seven parameter projection
+     */
     public static final int  PJD_7PARAM    =2;   /* Molodensky */
+    /** constant for use in 'type' denotes projection uses a grid shift
+     */
     public static final int  PJD_GRIDSHIFT =3;
+    /** constant for use in 'type' denotes standard WSG84 datum
+     */
     public static final int  PJD_WGS84     =4;   /* WGS84 (or anything considered equivelent) */
     String    id;     /* datum keyword */
     String    defn;   /* ie. "to_wgs84=..." */
@@ -25,11 +37,11 @@ public class Datum {
     double[]    datumParams;
     int datumType;
     
-    /** Creates a new instance of Datum */
-    public Datum(ParamSet ps) throws ProjectionException{
-        setupDatum(ps);
-    }
-    protected void setupDatum(ParamSet params) throws ProjectionException{
+    /** Creates a new instance of Datum
+     * @param params A param set which may contain parameters for this datum
+     * @throws ProjectionException May be thrown if invalid paramiters are use to construct the dataum
+     */
+    public Datum(ParamSet params) throws ProjectionException{
         String name, towgs84, nadgrids;
         
         datumType = PJD_UNKNOWN;
@@ -102,10 +114,17 @@ public class Datum {
             
         }
     }
+    /** gets the datum definitttion as a string
+     * @return the datum params, e.g. towsg84=...
+     */
     public String getDefn(){
         return defn;
     }
     
+    /** gets the String id of this datums ellipse
+     * TODO: should probably return an Ellipse object instead
+     * @return String containing the id of this datums ellipse
+     */
     public String getEllipseID(){
         return ellipse_id;
     }
@@ -116,10 +135,17 @@ public class Datum {
         return datumParams.length;
     }
     
+    /** Get the datum params
+     * @return a double[] of the datum's params
+     */
     public double[] getParams(){
         return datumParams;
     }
     
+    /** Get the default parameters for a standard datum
+     * @param id The id string of the parameter to fetch defailts for
+     * @return A string[] containg default param values
+     */
     public static String[] getDefaultsForDatum(String id){
         for(int i=0;i<datums.length;i++){
             if(id.equalsIgnoreCase(datums[i][0])){
@@ -129,6 +155,8 @@ public class Datum {
         return null;
     }
     
+    /** List of standard datum defeintion
+     */
     public static final String[][] datums={
         new String[] {"WGS84","towgs84=0,0,0","WGS84",""},
         new String[] {"GGRS87","towgs84=-199.87,74.79,246.62", "GRS80","Greek_Geodetic_Reference_System_1987"},
