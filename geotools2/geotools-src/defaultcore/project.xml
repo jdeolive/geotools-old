@@ -28,7 +28,7 @@
       <name>James Macgill</name>
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
-      <organization>CCG</organization>
+      <organization>PennState</organization>
       <roles>
        <role>Module Maintainer</role>
        <role>Java Developer</role>
@@ -69,6 +69,33 @@
         <role>Java Developer</role>
       </roles>
     </developer>
+    <developer>
+          <name>Chris Holmes</name>
+          <id>cholmesny</id>
+          <email>cholmesny@users.sourceforge.net</email>
+          <organization>TOPP</organization>
+          <roles>
+            <role>Java Developer</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Martin Desruisseaux</name>
+          <id>desruisseaux</id>
+          <email>desruisseaux@users.sourceforge.net</email>
+          <organization>Institut de Recherche pour le Developpement (IRD)</organization>
+          <roles>
+            <role>Java Developer</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Ian Schneider</name>
+          <id>ianschne</id>
+          <email>ianschne@users.sourceforge.net</email>
+          <organization>USDA ARS</organization>
+          <roles>
+            <role>Java Developer</role>
+          </roles>
+      </developer>
     </developers>
   <dependencies>
     <dependency>
