@@ -1,14 +1,6 @@
 /*
- * DefaultRule.java
- *
- * Created on April 12, 2002, 2:49 PM
- */
-
-package org.geotools.styling;
-
-/**
- * Geotools - OpenSource mapping toolkit
- *            (C) 2002, Center for Computational Geography
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -24,12 +16,13 @@ package org.geotools.styling;
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *
- * Contacts:
- *     UNITED KINDOM: James Macgill j.macgill@geog.leeds.ac.uk
- *
- *
- * @author jamesm
+ */
+
+package org.geotools.styling;
+
+/**
+ * @version $Id: DefaultRule.java,v 1.4 2002/06/04 17:44:28 loxnard Exp $
+ * @author James Macgill
  */
 import java.util.ArrayList;
 
@@ -72,42 +65,48 @@ public class DefaultRule implements org.geotools.styling.Rule {
         return symbolizers;
     }
     
-    /** Getter for property abstractStr.
+    /**
+     * Getter for property abstractStr.
      * @return Value of property abstractStr.
      */
     public java.lang.String getAbstract() {
         return abstractStr;
     }
     
-    /** Setter for property abstractStr.
+    /**
+     * Setter for property abstractStr.
      * @param abstractStr New value of property abstractStr.
      */
     public void setAbstract(java.lang.String abstractStr) {
         this.abstractStr = abstractStr;
     }
     
-    /** Getter for property name.
+    /**
+     * Getter for property name.
      * @return Value of property name.
      */
     public java.lang.String getName() {
         return name;
     }
     
-    /** Setter for property name.
+    /**
+     * Setter for property name.
      * @param name New value of property name.
      */
     public void setName(java.lang.String name) {
         this.name = name;
     }
     
-    /** Getter for property title.
+    /**
+     * Getter for property title.
      * @return Value of property title.
      */
     public java.lang.String getTitle() {
         return title;
     }
     
-    /** Setter for property title.
+    /**
+     * Setter for property title.
      * @param title New value of property title.
      */
     public void setTitle(java.lang.String title) {

@@ -1,14 +1,6 @@
 /*
- * DefaultPolygonStyler.java
- * 
- * Created on April 11, 2002, 2:07 PM
- */
-
-package org.geotools.styling;
-
-/**
- * Geotools - OpenSource mapping toolkit
- *            (C) 2002, Center for Computational Geography
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -24,12 +16,13 @@ package org.geotools.styling;
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *
- * Contacts:
- *     UNITED KINDOM: James Macgill j.macgill@geog.leeds.ac.uk
- *
- *
- * @author jamesm
+ */
+
+package org.geotools.styling;
+
+/**
+ * @version $Id: DefaultPolygonSymbolizer.java,v 1.3 2002/06/04 17:43:05 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public class DefaultPolygonSymbolizer implements org.geotools.styling.PolygonSymbolizer {
 
@@ -50,12 +43,11 @@ public class DefaultPolygonSymbolizer implements org.geotools.styling.PolygonSym
      * by connecting its end point to its start point.
      *
      * The geometryPropertyName is the name of a geometry property in the
-     * Feature being styled typicaly features only have one geometry so in
-     * general the need to select one is not required.
+     * Feature being styled.  Typically, features only have one geometry so,
+     * in general, the need to select one is not required.
      *
      * Note: this moves a little away from the SLD spec which provides an
-     * XPath reference is given to a Geometry object, but does follow it
-     * in spirit.
+     * XPath reference to a Geometry object, but does follow it in spirit.
      *
      * @return String The name of the attribute in the feature being styled
      * that should be used.  If null then the default geometry should be used.
@@ -68,7 +60,6 @@ public class DefaultPolygonSymbolizer implements org.geotools.styling.PolygonSym
      * Provides the graphical-symbolization parameter to use to fill the area
      * of the geometry.
      *
-     *
      * @return The Fill style to use when rendering the area.
      */
     public Fill getFill() {
@@ -76,9 +67,8 @@ public class DefaultPolygonSymbolizer implements org.geotools.styling.PolygonSym
     }
     
     /**
-     * set the graphical-symbolization parameter to use to fill the area
+     * Sets the graphical-symbolization parameter to use to fill the area
      * of the geometry.
-     *
      *
      * @param f The Fill style to use when rendering the area.
      */
@@ -97,7 +87,7 @@ public class DefaultPolygonSymbolizer implements org.geotools.styling.PolygonSym
     }
     
     /**
-     * set the graphical-symbolization parameter to use for the outline
+     * Sets the graphical-symbolization parameter to use for the outline
      * of the Polygon.
      *
      * @param s The Stroke style to use when rendering lines.
