@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureResults;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.FeatureStore;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.feature.AttributeType;
@@ -322,5 +324,49 @@ public class PropertyDataStoreTest extends TestCase {
             }
         }
     }
+
+    public void testTransaction() throws Exception {
+        Transaction t1 = new DefaultTransaction();
+        Transaction t2 = new DefaultTransaction();
+    
+        FeatureType type = store.getSchema( "road" );
+        FeatureStore road = (FeatureStore) store.getFeatureSource("road");
+        FeatureStore road1 = (FeatureStore) store.getFeatureSource("road");
+        FeatureStore road2 = (FeatureStore) store.getFeatureSource("road");
+    
+        road1.setTransaction( t1 );
+        road2.setTransaction( t2 );
+
+        Filter filter1 = FilterFactory.createFilterFactory().createFidFilter("fid1");
+        Filter filter2 = FilterFactory.createFilterFactory().createFidFilter("fid2");        
+        
+        Feature feature =
+            type.create( new Object[]{ new Integer(5), "chris"}, "fid5" );
             
+        assertEquals( 4, road.getFeatures().getCount() );
+        assertEquals( 4, road1.getFeatures().getCount() );
+        assertEquals( 4, road2.getFeatures().getCount() );
+                
+        road1.removeFeatures( filter1 ); // road1 removes fid1 on t1
+        assertEquals( 4, road.getFeatures().getCount() );
+        assertEquals( 3, road1.getFeatures().getCount() );
+        assertEquals( 4, road2.getFeatures().getCount() );               
+        
+        FeatureReader reader = DataUtilities.reader( new Feature[]{ feature, });
+        road2.addFeatures( reader ); // road2 adds fid5 on t2
+    
+        assertEquals( 4, road.getFeatures().getCount() );
+        assertEquals( 3, road1.getFeatures().getCount() );
+        assertEquals( 5, road2.getFeatures().getCount() );        
+            
+        t1.commit();
+        assertEquals( 3, road.getFeatures().getCount() );
+        assertEquals( 3, road1.getFeatures().getCount() );
+        assertEquals( 4, road2.getFeatures().getCount() );                
+            
+        t2.commit();
+        assertEquals( 4, road.getFeatures().getCount() );
+        assertEquals( 4, road1.getFeatures().getCount() );
+        assertEquals( 4, road2.getFeatures().getCount() );
+    }
 }
