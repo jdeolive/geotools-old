@@ -20,6 +20,7 @@ import com.esri.sde.sdk.client.*;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSourceFactorySpi;
+import org.geotools.data.sde.old.SdeDataSource;
 import java.util.*;
 import java.util.logging.*;
 
@@ -30,7 +31,7 @@ import java.util.logging.*;
  * @author Gabriel Roldán
  * @version 0.1
  */
-public class SdeDatasourceFactory implements DataSourceFactorySpi
+public class SdeDataSourceFactory implements DataSourceFactorySpi
 {
     /** package's logger */
     protected static final Logger LOGGER = Logger.getLogger(
@@ -46,7 +47,7 @@ public class SdeDatasourceFactory implements DataSourceFactorySpi
     /**
      * empty constructor
      */
-    public SdeDatasourceFactory()
+    public SdeDataSourceFactory()
     {
     }
 
