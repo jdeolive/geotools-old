@@ -1,6 +1,7 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -11,10 +12,6 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
 package org.geotools.data;
@@ -30,9 +27,9 @@ import java.util.Set;
 
 
 /**
- * A special datasource implementation which provides access to features
- * stored in memory.  Unlike other datasources, it is not connected to any
- * external resources.  Instead, all of the features  it provides are stored
+ * A special datasource implementation which provides access to features stored
+ * in memory.  Unlike other datasources, it is not connected to any external
+ * resources.  Instead, all of the features  it provides are stored
  * internally.
  * 
  * <p>
@@ -43,7 +40,7 @@ import java.util.Set;
  *
  * @author James Macgill, CCG
  * @author Ian Turton, CCG
- * @version $Id: MemoryDataSource.java,v 1.9 2003/07/22 15:26:45 cholmesny Exp $
+ * @version $Id: MemoryDataSource.java,v 1.10 2003/09/03 18:23:45 cholmesny Exp $
  */
 public class MemoryDataSource extends AbstractDataSource implements DataSource {
     /** The envelope of the geometries of this datasource. */
@@ -60,10 +57,9 @@ public class MemoryDataSource extends AbstractDataSource implements DataSource {
 
     /**
      * Adds a new feature to the list of those stored within the datasource.
-     * The default geometry of the feature will be used to extend the
-     * bounding box of the datasource. Note, this is specific to
-     * MemoryDataSource and should not be confused with addFeatures in the
-     * DataSource interface.
+     * The default geometry of the feature will be used to extend the bounding
+     * box of the datasource. Note, this is specific to MemoryDataSource and
+     * should not be confused with addFeatures in the DataSource interface.
      *
      * @param feature The feature to add
      *
@@ -102,8 +98,8 @@ public class MemoryDataSource extends AbstractDataSource implements DataSource {
     }
 
     /**
-     * Gets the bounding box of this datasource using the default speed of
-     * this datasource as set by the implementer.
+     * Gets the bounding box of this datasource using the default speed of this
+     * datasource as set by the implementer.
      *
      * @return The bounding box of the datasource or null if unknown and too
      *         expensive for the method to calculate.
@@ -114,8 +110,8 @@ public class MemoryDataSource extends AbstractDataSource implements DataSource {
 
     /**
      * Loads features from the datasource into the passed collection, based on
-     * the passed filter.  Note that all data sources must support this
-     * method at a minimum.
+     * the passed filter.  Note that all data sources must support this method
+     * at a minimum.
      *
      * @param collection The collection to put the features into.
      * @param query An OpenGIS filter; specifies which features to retrieve.
@@ -151,13 +147,11 @@ public class MemoryDataSource extends AbstractDataSource implements DataSource {
      *
      * @throws DataSourceException never thrown.
      *
-     * @task HACK: we never type check to make sure all the features are of
-     *       the same type, so this will only return the first feature's
-     *       schema. Should this datasource allow features of different
-     *       types?
-     * @task REVISIT: most of this method was commented out, I've put the
-     *       lines back in, but I would like to know the reason they were
-     *       taken out.
+     * @task TODO: we never type check to make sure all the features are of the
+     *       same type, so this will only return the first feature's schema.
+     *       Should this datasource allow features of different types?
+     * @task REVISIT: most of this method was commented out, I've put the lines
+     *       back in, but I would like to know the reason they were taken out.
      */
     public FeatureType getSchema() throws DataSourceException {
         FeatureType featureType = null;
@@ -172,9 +166,8 @@ public class MemoryDataSource extends AbstractDataSource implements DataSource {
 
     /**
      * Creates the a metaData object.  This method should be overridden in any
-     * subclass implementing any functions beyond getFeatures, so that
-     * clients recieve the proper information about the datasource's
-     * capabilities.
+     * subclass implementing any functions beyond getFeatures, so that clients
+     * recieve the proper information about the datasource's capabilities.
      *
      * @return the metadata for this datasource.
      *
@@ -183,6 +176,7 @@ public class MemoryDataSource extends AbstractDataSource implements DataSource {
     protected DataSourceMetaData createMetaData() {
         MetaDataSupport memMeta = new MetaDataSupport();
         memMeta.setSupportsAdd(true);
+        memMeta.setSupportsGetBbox(true);
         memMeta.setFastBbox(true);
 
         return memMeta;
