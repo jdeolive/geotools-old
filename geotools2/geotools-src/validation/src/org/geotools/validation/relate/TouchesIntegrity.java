@@ -100,7 +100,7 @@ public class TouchesIntegrity extends RelationIntegrity {
 	 * <p>
 	 * This validation tests for a geometry touches another geometry. 
 	 * Uses JTS' Geometry.touches(Geometry) method.
-	 * 
+	 * Returns true if the DE-9IM intersection matrix for the two Geometrys is FT*******, F**T***** or F***T****.
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>
@@ -190,6 +190,7 @@ public class TouchesIntegrity extends RelationIntegrity {
 	 * <p>
 	 * This validation tests for a geometry that touches on itself. 
 	 * Uses JTS' Geometry.touches(Geometry) method.
+	 * Returns true if the DE-9IM intersection matrix for the two Geometrys is FT*******, F**T***** or F***T****.
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>
