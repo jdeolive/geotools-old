@@ -58,18 +58,23 @@ public class ShapefileTest extends TestCase {
     }
     
     
-    /*
+    
     public void testLoadingSamplePointFile() {
         
         String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
         try{
             URL url = new URL("file:///"+dataFolder+"/pointTest.shp");
             System.out.println("Testing ability to load "+url);
             URLConnection uc = url.openConnection();
             BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
             
-            LEDataInputStream sfile = new LEDataInputStream(in);
-            GeometryCollection shapes = Shapefile.read(sfile, new GeometryFactory());
+            Shapefile shapefile = new Shapefile(url);
+            GeometryCollection shapes = shapefile.read(new GeometryFactory());
             assertEquals("Number of Geometries loaded incorect",10,shapes.getNumGeometries());
         }
         catch(Exception e){
@@ -77,19 +82,22 @@ public class ShapefileTest extends TestCase {
             e.printStackTrace();
             fail("Load failed because of exception "+e.toString());
         }
-    }*/
-    /*
+    }
+    
     public void testLoadingSamplePolygonFile() {
         
         String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
         try{
             URL url = new URL("file:///"+dataFolder+"/polygonTest.shp");
             System.out.println("Testing ability to load "+url);
-            URLConnection uc = url.openConnection();
-            BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
-            System.out.println("polygon file length "+uc.getContentLength());
-            LEDataInputStream sfile = new LEDataInputStream(in);
-            GeometryCollection shapes = Shapefile.read(sfile, new GeometryFactory());
+            
+            Shapefile shapefile = new Shapefile(url);
+            GeometryCollection shapes = shapefile.read(new GeometryFactory());
             assertEquals("Number of Geometries loaded incorect",2,shapes.getNumGeometries());
         }
         catch(Exception e){
@@ -97,11 +105,59 @@ public class ShapefileTest extends TestCase {
             e.printStackTrace();
             fail("Load failed because of exception "+e.toString());
         }
-    }*/
+    }    
     
-    // Add test methods here, they have to start with 'test' name.
-    // for example:
-    // public void testHello() {}
-    
-    
+    /**
+     * It is posible for a point in a hole to touch the edge of its containing shell
+     * This test checks that such polygons can be loaded ok.
+     */
+    public void testPolygonHoleTouchAtEdge() {
+        
+        String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
+        try{
+            URL url = new URL("file:///"+dataFolder+"/holeTouchEdge.shp");
+            System.out.println("Testing ability to load "+url);
+            
+            Shapefile shapefile = new Shapefile(url);
+            GeometryCollection shapes = shapefile.read(new GeometryFactory());
+            assertEquals("Number of Geometries loaded incorect",1,shapes.getNumGeometries());
+        }
+        catch(Exception e){
+            System.out.println("Load failed becaouse of "+e);
+            e.printStackTrace();
+            fail("Load failed because of exception "+e.toString());
+        }
+    }    
+    /**
+     * It is posible for a shapefile to have extra information past the end
+     * of the normal feature area, this tests checks that this situation is
+     * delt with ok.
+     */
+    public void testExtraAtEnd() {
+        
+        String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
+        try{
+            URL url = new URL("file:///"+dataFolder+"/extraAtEnd.shp");
+            System.out.println("Testing ability to load "+url);
+            
+            Shapefile shapefile = new Shapefile(url);
+            GeometryCollection shapes = shapefile.read(new GeometryFactory());
+            assertEquals("Number of Geometries loaded incorect",3,shapes.getNumGeometries());
+        }
+        catch(Exception e){
+            System.out.println("Load failed becaouse of "+e);
+            e.printStackTrace();
+            fail("Load failed because of exception "+e.toString());
+        }
+    }    
 }
