@@ -133,7 +133,7 @@ import org.geotools.resources.Utilities;
  * }
  * </pre></blockquote>
  *
- * $Id: MouseReshapeTracker.java,v 1.2 2002/07/15 11:20:58 loxnard Exp $
+ * $Id: MouseReshapeTracker.java,v 1.3 2002/07/15 15:50:34 loxnard Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
@@ -247,9 +247,8 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * Indicates if the user is currently dragging the rectangle.
      * For this field to become <code>true</code>, the mouse must
      * have been over the rectangle as the user pressed the mouse button.
-     * TODO: Replace all occurrences of "isDraging" with "isDragging".
      */
-    private transient boolean isDraging;
+    private transient boolean isDragging;
 
     /**
      * Indicates which edges the user is currently adjusting with the mouse.
@@ -980,7 +979,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * one of its edges, and adjusts the mouse pointer icon accordingly.
      */
     public void mouseMoved(final MouseEvent event) {
-        if (!isDraging) {
+        if (!isDragging) {
             final Component source=event.getComponent();
             if (source != null) {
                 int x = event.getX(); tmp.x = x;
@@ -1059,7 +1058,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
                     if (drawnShape.contains(transform.inverseTransform(tmp, tmp))) {
                         mouseDX = tmp.x - drawnShape.getX();
                         mouseDY = tmp.y - drawnShape.getY();
-                        isDraging = true;
+                        isDragging = true;
                         e.consume();
                     }
                 } catch (NoninvertibleTransformException exception) {
@@ -1077,7 +1076,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * part, came from.
      */
     public void mouseDragged(final MouseEvent e) {
-        if (isDraging) {
+        if (isDragging) {
             final int adjustingLogicalSides = this.adjustingLogicalSides;
             final Component source = e.getComponent();
             if (source != null) try {
@@ -1208,8 +1207,8 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * that the changes are finished.
      */
     public void mouseReleased(final MouseEvent event) {
-        if (isDraging && (event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
-            isDraging = false;
+        if (isDragging && (event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+            isDragging = false;
             final Component source = event.getComponent();
             try {
                 tmp.x = event.getX();
@@ -1220,7 +1219,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
             } catch (NoninvertibleTransformException exception) {
                 // Ignore this exception.
             } try {
-                // It is essential that 'isDraging=false'.
+                // It is essential that 'isDragging=false'.
                 fireStateChanged();
             } catch (RuntimeException exception) {
                 ExceptionMonitor.show(source, exception);
@@ -1266,7 +1265,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * size of the visor has changed.
      */
     private void fireStateWillChange() {
-        stateWillChange(isDraging);
+        stateWillChange(isDragging);
     }
 
     /**
@@ -1275,7 +1274,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      */
     private void fireStateChanged() {
         updateEditors();
-        stateChanged(isDraging);
+        stateChanged(isDragging);
     }
 
     /**
