@@ -26,7 +26,7 @@ public class GuiSuite extends TestCase {
     }
     
     public static Test suite() {
-        org.apache.log4j.BasicConfigurator.configure();
+   //     org.apache.log4j.BasicConfigurator.configure();
         TestSuite suite = new TestSuite("All swing gui tests");
         suite.addTestSuite(NavigationPaneTest.class);
         suite.addTestSuite(FeatureTableModelTest.class);

@@ -13,10 +13,7 @@ import org.geotools.data.*;
 import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.*;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Hierarchy;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
+
 
 import java.io.*;
 import java.net.*;
@@ -29,7 +26,7 @@ import javax.swing.*;
  */
 public class FeatureTableModelTest extends TestCase {
     /** Standard logging instance */
-    private static Logger _log = Logger.getLogger(FeatureTableModelTest.class);
+    //private static Logger _log = Logger.getLogger(FeatureTableModelTest.class);
     
     /** Feature on which to preform tests */
     private static Feature testFeatures[] = null;
@@ -84,13 +81,13 @@ public class FeatureTableModelTest extends TestCase {
         FeatureType testSchema = null;
         
         // Create the schema attributes
-        _log.debug("creating flat feature...");
+        //_log.debug("creating flat feature...");
         AttributeType geometryAttribute =
         new AttributeTypeDefault("testGeometry", Geometry.class);
-        _log.debug("created geometry attribute");
+        //_log.debug("created geometry attribute");
         AttributeType booleanAttribute =
         new AttributeTypeDefault("testBoolean", Boolean.class);
-        _log.debug("created boolean attribute");
+        //_log.debug("created boolean attribute");
         AttributeType charAttribute =
         new AttributeTypeDefault("testCharacter", Character.class);
         AttributeType byteAttribute =
@@ -167,10 +164,10 @@ public class FeatureTableModelTest extends TestCase {
         testFeatures = new Feature[2];
         testFeatures[0] = factory.create(attributesA);
         testFeatures[1] = factory.create(attributesB);
-        _log.debug("...flat features created");
+        //_log.debug("...flat features created");
         }
         catch(TopologyException te){
-            _log.error("Unable to construct test geometies",te);
+    //        _log.error("Unable to construct test geometies",te);
             throw new IllegalFeatureException(te.toString());
         }
     }
