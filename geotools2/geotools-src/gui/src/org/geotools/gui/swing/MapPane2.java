@@ -23,7 +23,7 @@ package org.geotools.gui.swing;
 
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Graphics;
-import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import java.util.logging.Logger;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionDefault;
@@ -45,7 +45,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.6 2002/08/19 20:36:13 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.7 2002/08/19 20:38:34 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -53,7 +53,7 @@ import org.geotools.data.DataSourceException;
  * 2 maps which use the same data, but a different style.
  */
 
-public class MapPane2 extends JPanel implements
+public class MapPane2 extends JScrollPane implements
     AreaOfInterestChangedListener, LayerListChangedListener
 {
     /**
