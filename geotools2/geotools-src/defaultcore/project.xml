@@ -89,5 +89,6 @@
     <jarResources/>
     <jars/>
   </build>
+    <logo>/images/defaultcore.gif</logo>
 </project>
 
