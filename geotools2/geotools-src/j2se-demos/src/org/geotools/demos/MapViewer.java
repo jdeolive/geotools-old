@@ -5,7 +5,7 @@
  */
 
 package org.geotools.demos;
-
+import java.net.URL;
 import org.geotools.data.*;
 import org.geotools.gml.*;
 import org.geotools.map.*;
@@ -15,7 +15,7 @@ import org.geotools.gui.swing.MapPane;
 import org.geotools.styling.*;
 
 import org.geotools.datasource.extents.EnvelopeExtent;
-
+import java.lang.ClassLoader;
 import javax.swing.JFileChooser;
 import javax.swing.JSeparator;
 import javax.swing.JMenu;
@@ -54,7 +54,7 @@ public class MapViewer extends javax.swing.JFrame {
     /** Creates a new instance of MapViewer */
     public MapViewer() {
         initComponents();
-        //initComponents2();
+        initComponents2();
     }
     
     /** This method is called from within the constructor to
@@ -119,6 +119,13 @@ public class MapViewer extends javax.swing.JFrame {
     
     private void initComponents2()
     {
+        URL url=ClassLoader.getSystemResource("org.geotools.demos.MapViewer");
+        LOGGER.info("MapViewer="+url);
+        java.io.InputStream inStream=ClassLoader.getSystemResourceAsStream("simple.gml");
+        LOGGER.info("io simple.gml="+inStream);
+        url=ClassLoader.getSystemResource("org/geotools/demos/simple.gml");
+        LOGGER.info("simple.gml="+url);
+        if (1==1){return;}
         File f=new File("/home/cameron/work/geotools2/geotools-src/svgsupport/tests/unit/testData/simple.sld");
         try {
             GMLDataSource datasource = new GMLDataSource("file:///home/cameron/work/geotools2/geotools-src/svgsupport/tests/unit/testData/simple.gml");
