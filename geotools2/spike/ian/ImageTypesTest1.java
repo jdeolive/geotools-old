@@ -23,7 +23,7 @@ public class ImageTypesTest1 {
         if(types.length > 0){
             System.out.println("You can write the following formats:");
         }else{
-            System.out.println("You have no writers registered");
+            System.out.println("You have no writers registered, that's odd!");
         }
         for(int i=0;i<types.length;i++){
             System.out.println(types[i]);
@@ -32,7 +32,7 @@ public class ImageTypesTest1 {
         if(types.length > 0){
             System.out.println("You can read the following formats:");
         }else{
-            System.out.println("You have no readers registered");
+            System.out.println("You have no readers registered, that's odd!");
         }
         for(int i=0;i<types.length;i++){
             System.out.println(types[i]);
