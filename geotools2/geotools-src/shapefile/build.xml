@@ -1,54 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [
+    <!ENTITY common SYSTEM "..\gtbuild\common.xml">
+]>
+
 <project basedir="." default="all" name="shapefile">
-    <property file="build.ant.properties"/>
-    <target depends="test" name="all">
-        <!-- WRITEME -->
-    </target>
-    
-    <target name="compile">
-        <javac debug="true" srcdir="src">
-            <classpath>
-                <fileset dir="..\..\extbin\shapefile\lib\"/>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\core\release\"/>
-                <fileset dir="..\defaultcore\release\"/>
-            </classpath>
-        </javac>
-        <javac debug="true" srcdir="tests/unit">
-            <classpath>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\..\extbin\shapefile\lib\"/>
-                <fileset dir="..\..\extbin\gtbuild\lib\"/>
-                <fileset dir="..\core\release\"/>
-                <fileset dir="..\defaultcore\release\"/>
-                <path path="src"/>
-            </classpath>
-        </javac>
-    </target>
-    <target depends="compile" name="test">
-        <echo message="base dir is ${basedir}"/>
-        <junit fork="true" printsummary="true">
-            <formatter type="plain" />
-            <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
-            <classpath>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\..\extbin\shapefile\lib\"/>
-                <fileset dir="..\..\extbin\gtbuild\lib\"/>
-                <fileset dir="..\core\release\"/>
-                <fileset dir="..\defaultcore\release\"/>
-                <path path="src"/>
-                <path path="tests/unit/"/>
-            </classpath>
-            <test name="org.geotools.shapefile.ShapefileSuite"/>
-        </junit>
-    </target>
-    <target depends="test" name="release">
-        <mkdir dir="${releaseFolder}"/>
-        <jar basedir="src/" jarfile="${releaseFolder}/shapefile.jar"/>
-    </target>
-    <target name="clean">
-        <delete>
-            <fileset dir="src" includes="**/*.class"/>
-        </delete>
-    </target>
+    &common;
 </project>

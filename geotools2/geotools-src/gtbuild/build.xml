@@ -1,41 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="geotools">
     <target name="init">
-    <property file="build.ant.properties"/>
-    <path id="netbeans.ext">
-        
-        <fileset dir="..\..\extbin\gtbuild\lib\"/>
-        <pathelement location="..\..\extbin\gtbuild\lib\nbantext.jar"/>
-   
-    </path>
-    <taskdef classname="org.netbeans.nbbuild.CleanAll" name="cleanall" >
-        <classpath refid="netbeans.ext"/>        
-    </taskdef>
-    <taskdef classname="org.netbeans.nbbuild.NbMerge"  name="nbmerge">
-        <classpath refid="netbeans.ext"/>        
-    </taskdef>    
-    <taskdef classname="org.netbeans.nbbuild.ConfigureModules"  name="configmods">
-        <classpath refid="netbeans.ext"/>        
-    </taskdef>    
-    <taskdef classname="org.netbeans.nbbuild.MakeUpdateDesc" name="makeupdatedesc">
-        <classpath refid="netbeans.ext"/>        
-    </taskdef>    
-    <taskdef classname="org.netbeans.nbbuild.ForEach" name="for-each">
-        <classpath refid="netbeans.ext"/>        
-    </taskdef>    
-    <taskdef classname="org.netbeans.nbbuild.CheckValue" name="check">
-        <classpath refid="netbeans.ext"/>        
-    </taskdef>    
-    <mkdir dir="${releaseFolder}"/>
+        <property file="build.ant.properties"/>
+        <path id="netbeans.ext">
+
+            <fileset dir="..\..\extbin\gtbuild\lib\"/>
+            <pathelement location="..\..\extbin\gtbuild\lib\nbantext.jar"/>
+
+        </path>
+        <taskdef classname="org.netbeans.nbbuild.CleanAll" name="cleanall" >
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>
+        <taskdef classname="org.netbeans.nbbuild.NbMerge"  name="nbmerge">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>    
+        <taskdef classname="org.netbeans.nbbuild.ConfigureModules"  name="configmods">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>    
+        <taskdef classname="org.netbeans.nbbuild.MakeUpdateDesc" name="makeupdatedesc">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>    
+        <taskdef classname="org.netbeans.nbbuild.ForEach" name="for-each">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>    
+        <taskdef classname="org.netbeans.nbbuild.CheckValue" name="check">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>    
+        <mkdir dir="${releaseFolder}"/>
     </target>    
+    
     <target name="all" depends="build">
         <!-- WRITEME -->
     </target>
+
     <target name="build" depends="init">
         <for-each startdir=".." target="release" locations="${modules}"/>
-        <!--ant dir="../core/" target="release" /-->
     </target>
-    <target name="clean">
+
+    <target name="clean" depends="init">        
+        <for-each startdir=".." target="clean" locations="${modules}"/>
         <delete dir="${releaseFolder}"/>
     </target>
 
