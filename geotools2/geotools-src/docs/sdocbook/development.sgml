@@ -428,7 +428,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.10 2003/01/11 03:19:43 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.11 2003/01/11 21:31:19 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -875,9 +875,7 @@ org.geotools.cts.level = INFO</programlisting>
       utilities and brings them together in a in an easy to use tool.</para>
 
       <para>They key part of maven is the use of project files, you should now
-      be able to find a project.xml file in every active module (note for
-      example that awtRenderer does not have one, this is because it is very
-      out of date and not currently being developed)</para>
+      be able to find a project.xml file in all the active modules.</para>
 
       <para>The project file tells you the name of the module, who maintains
       it, who develops it, what version it has reached and what it depends on.
@@ -888,14 +886,13 @@ org.geotools.cts.level = INFO</programlisting>
       <para>The most important part of the project file is the dependencies
       section as maven uses this to determine what order to build the modules
       in and what support jars to download when needed. (If we move over to
-      maven exclusively we will no longer need the extbin folder)</para>
+      maven exclusively we will no longer need the extbin folder).</para>
 
       <section id="gettingmaven">
         <title>Getting Maven</title>
 
-        <para>You will need Maven 1.0 beta 7 installed in order to use the
-        maven build process on your machine, you can download it from: <ulink
-        url="http://www.ibiblio.org/maven/maven/distributions/">http://www.ibiblio.org/maven/maven/distributions/</ulink></para>
+        <para>You will need Maven 1.0 beta 7 or later which you can download
+        from: <ulink url="http://www.ibiblio.org/maven/maven/distributions/">http://www.ibiblio.org/maven/maven/distributions/</ulink></para>
       </section>
 
       <section id="installingmaven">
@@ -968,12 +965,12 @@ org.geotools.cts.level = INFO</programlisting>
         full build yet then the build may fail because it can&#39;t find the
         jar for a module it depends on. An error caused by not having another
         GT2 module installed can be a little missleading, for example the
-        error may look something like: Error: unable to download core-0.1.jar.
-        This is because Maven failed to find core-0.1.jar in the local
-        repository (where a full build should have put it) so it tried to
-        download and fails. If you see an error like that either do a full
-        build or change into the module which is missing (core in this case)
-        and type</para>
+        error may look something like: <command>Error: unable to download
+        core-0.1.jar</command>. This is because Maven failed to find
+        core-0.1.jar in the local repository (where a full build should have
+        put it) so it tried to download and fails. If you see an error like
+        that either do a full build or change into the module which is missing
+        (core in this case) and type</para>
 
         <para><command>maven jar:install</command></para>
 
@@ -985,15 +982,46 @@ org.geotools.cts.level = INFO</programlisting>
       <section id="mavenothers">
         <title>Doing things other than building</title>
 
-        <para>In any individual module home you can type maven -g to see a
-        full list of goals that can be run for that module.</para>
+        <para>In any individual module home you can type <command>maven -g</command>
+        to see a full list of goals that can be run for that module. Handy
+        examples include...</para>
 
-        <para>Handy examples include... maven site (generates a web site in
-        the target\docs folder which provides a LOT of information about the
-        module) maven javadoc (generates the javadoc for the module, look in
-        target for output) maven test (runs the tests, look in
-        target/test-reports for output) maven jar:install (installs the module
-        into the Maven repository for use by other modules)</para>
+        <variablelist>
+          <varlistentry>
+            <term><command>maven site</command></term>
+
+            <listitem>
+              <para>generates a web site in the target\docs folder which
+              provides a LOT of information about the module.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><command>maven javadoc</command></term>
+
+            <listitem>
+              <para>generates the javadoc for the module, look in target for
+              output) maven test.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><command>maven test</command></term>
+
+            <listitem>
+              <para>runs the tests, look in target/test-reports for output</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><command>maven jar:install</command></term>
+
+            <listitem>
+              <para>installs the module into the Maven repository for use by
+              other modules</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
       </section>
 
       <section id="mavenprojectstructure">
@@ -1003,17 +1031,60 @@ org.geotools.cts.level = INFO</programlisting>
         important as mentioned above are the project.xml files, there are
         however a few others, the layout is as follows:</para>
 
-        <para>geotools2\project.xml - the parent template project file which
-        the module files extend geotools2\maven.xml - a control file which
-        marshals the building of ALL modules and will soon generate a full
-        website geotools2\geotools-src\module\project.xml - the specific
-        project file for a given module
-        geotools2\geotools-src\module\build.properties - some control
-        properties that will eventually be inherited from a parent, but not
-        yet. geotools2\geotools-src\module\target - folder generated during
-        builds that contains all output (classes, jars and reports)
-        geotools2\geotools-src\module\xdocs - contains files such as logos or
-        additional web pages that go into the web site</para>
+        <variablelist>
+          <varlistentry>
+            <term><filename>geotools2\project.xml</filename></term>
+
+            <listitem>
+              <para> the parent template project file which the module files
+              extend.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>geotools2\maven.xml</filename></term>
+
+            <listitem>
+              <para>a control file which marshals the building of ALL modules
+              and will soon generate a full website.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>geotools2\geotools-src\module\project.xml</filename></term>
+
+            <listitem>
+              <para>the specific project file for a given module</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>geotools2\geotools-src\module\build.properties</filename></term>
+
+            <listitem>
+              <para>some control properties that will eventually be inherited
+              from a parent, but not yet.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>geotools2\geotools-src\module\target</filename></term>
+
+            <listitem>
+              <para>folder generated during builds that contains all output
+              (classes, jars and reports)</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>geotools2\geotools-src\module\xdocs</filename></term>
+
+            <listitem>
+              <para>contains files such as logos or additional web pages that
+              go into the web site</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
       </section>
 
       <section id="mavenremotestructure">
@@ -1025,21 +1096,19 @@ org.geotools.cts.level = INFO</programlisting>
 
         <para>If a module you are developing needs a third party jar to
         operate then this is the place to put it, the naming convention is:
-        projectname/jars/jarname-version.jar</para>
+        <filename>projectname/jars/jarname-version.jar</filename> .</para>
 
         <para>You can find the remote repository on the shell sever
-        (shell.sourceforge.net) at
-        /home/groups/g/ge/geotools/htdocs/gt2modules/extbin it has group
-        permissions set so you should be able to modify it if you have
-        developer rights. Be sure to set the appropriate permissions so all
-        can download it, and so other developers can modify it.</para>
+        (shell.sourceforge.net) at <filename>/home/groups/g/ge/geotools/htdocs/gt2modules/extbin</filename>
+        it has group permissions set so you should be able to modify it if you
+        have developer rights. Be sure to set the appropriate permissions so
+        all can download it, and so other developers can modify it.</para>
 
         <para>So, for example, we use JTS version 1.0 in a number of modules,
         you can find this jar online at:<ulink
         url="http://www.geotools.org/gt2modules/extbin/JTS/jars/JTS-1.0.jar">http://www.geotools.org/gt2modules/extbin/JTS/jars/JTS-1.0.jar</ulink></para>
 
-        <para>Which is stored on the server in
-        /home/groups/g/ge/geotools/htdocs/gt2modules/extbin/JTS/jars/JTS-1.0.jar</para>
+        <para>Which is stored on the server in <filename>/home/groups/g/ge/geotools/htdocs/gt2modules/extbin/JTS/jars/JTS-1.0.jar</filename></para>
 
         <para>Any module which needs to depend on JTS will then have the
         following tag in its project.xml file:</para>
@@ -1059,20 +1128,22 @@ org.geotools.cts.level = INFO</programlisting>
 
         <para>Maven complicates things on the logging front, as it does a lot
         of redirection. By default the logs from testing end up in
-        /target/test-reports of each module sub-directory. There should be XML
-        and txt files for the results of each test. Be sure to check both, as
-        one of the wrinkles of maven makes it so the output isn&#39;t always
-        exactly the same. To have maven display the logging as it tests
-        instead of just writing to files set the maven.junit.usefile property
-        to false. To set a property, you can either pass it in from the
-        command line with the -D flag (maven -Dmaven.junit.usefile=false) or
-        set it in the build.properties file (just add the line
-        &#39;maven.junit.usefile=false&#39;). Another helpful testing hint: in
-        order to run only one test, call &#39;maven test:single&#39; and set
-        the test case property to the full name
-        (org.geotools.package.ClassTest) of the test to run. If you are having
-        problems with logging output levels be sure to read section 2.5 on
-        logging.</para>
+        <filename>target/test-reports</filename> of each module sub-directory.
+        There should be XML and txt files for the results of each test. Be
+        sure to check both, as one of the wrinkles of maven makes it so the
+        output isn&#39;t always exactly the same. To have maven display the
+        logging as it tests instead of just writing to files set the
+        <literal>maven.junit.usefile</literal> property to false. To set a
+        property, you can either pass it in from the command line with the -D
+        flag (<command>maven -Dmaven.junit.usefile=false</command>) or set it
+        in the <filename>build.properties</filename> file (just add the line
+        <command>maven.junit.usefile=false</command>).</para>
+
+        <para>Another helpful testing hint: in order to run only one test,
+        call <command>maven test:single</command> and set the test case
+        property to the full name (<filename>org.geotools.package.ClassTest</filename>)
+        of the test to run. If you are having problems with logging output
+        levels be sure to read the <link linkend="logging">logging section</link>.</para>
       </section>
     </section>
 
