@@ -369,7 +369,7 @@ public class SLDStyleFactory {
         //int size = ((Number) sldGraphic.getSize().getValue(feature)).intValue();
         int size;
         try{
-            size = Integer.parseInt(sldGraphic.getSize().getValue(feature).toString());
+            size = (int) Double.parseDouble(sldGraphic.getSize().getValue(feature).toString());
         }
         catch(NumberFormatException nfe){
             size = 1;
