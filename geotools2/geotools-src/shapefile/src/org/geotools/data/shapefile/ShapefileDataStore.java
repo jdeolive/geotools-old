@@ -370,10 +370,10 @@ public class ShapefileDataStore extends AbstractDataStore {
                 shp.close();
                 dbf.close();
             } finally {
-                shp = null;
+            	row = null;
+            	record = null;
+            	shp = null;
                 dbf = null;
-                row = null;
-                record = null;
             }
         }
         
@@ -607,10 +607,12 @@ public class ShapefileDataStore extends AbstractDataStore {
                 } finally {
                     shpWriter.close();
                     dbfWriter.close();
+                    dbfChannel.close();
                 }
                 reader = null;
                 shpWriter = null;
                 dbfWriter = null;
+                dbfChannel = null;
                 clean();
             }
         }

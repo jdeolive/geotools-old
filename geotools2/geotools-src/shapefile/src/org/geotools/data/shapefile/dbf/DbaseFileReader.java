@@ -31,6 +31,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import org.geotools.resources.NumberParser;
+import org.geotools.io.NIOBufferUtils;
 
 
 /** A DbaseFileReader is used to read a dbase III format file.
@@ -183,10 +184,15 @@ public class DbaseFileReader {
     if (channel.isOpen()) {
       channel.close();
     }
+	if(buffer instanceof MappedByteBuffer) {
+	  NIOBufferUtils.clean(buffer);
+	}
+	buffer = null;
     channel = null;
+	charBuffer = null;
+	decoder = null;
     header = null;
-    buffer = null;
-    charBuffer = null;
+    row = null;
   }
   
   /** Query the reader as to whether there is another record.

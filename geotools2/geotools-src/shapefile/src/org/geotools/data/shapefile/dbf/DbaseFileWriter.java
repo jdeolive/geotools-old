@@ -26,6 +26,7 @@ import java.io.*;
 import java.nio.channels.*;
 import java.nio.*;
 import java.text.*;
+import org.geotools.io.NIOBufferUtils;
 
 import java.util.*;
 
@@ -169,6 +170,13 @@ public class DbaseFileWriter  {
     buffer.put((byte) 0).position(0).limit(1);
     write();
     channel.close();
+	if(buffer instanceof MappedByteBuffer) {
+		NIOBufferUtils.clean(buffer);
+	}
+    
+    buffer = null;
+    channel = null;
+    formatter = null;
   }
   
   
