@@ -66,6 +66,15 @@ public class DefaultQuery implements Query {
     }
 
     /**
+     * Query with typeName.
+     * <p>
+     * </p>
+     * @param typeName the name of the featureType to retrieve
+     */
+    public DefaultQuery( String typeName ){
+        this( typeName, Filter.NONE );
+    }
+    /**
      * Constructor that sets the filter.
      * <p>
      * Using a Query with only a filter, and no typeName, almost always
