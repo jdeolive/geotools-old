@@ -119,7 +119,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.23 2004/02/12 20:45:52 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.24 2004/04/05 03:48:01 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -141,6 +141,11 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
 
     /** Preference node for the EPSG factory implementation classname. */
     private static final String IMPLEMENTATION = "EPSG Factory";
+
+    /**
+     * The EPSG code for the WGS84 coordinate reference system.
+     */
+    private static final short WGS84_CRS_CODE = 4326;
 
     /**
      * List of tables and columns to test for codes values.
@@ -1005,8 +1010,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             stmt.setString(1, code);
             final ResultSet result = stmt.executeQuery();
             while (result.next()) {
-                final WGS84ConversionInfo info = new WGS84ConversionInfo();
-                final Parameter[] param = createParameter(getString(result, 1, code));
+                final Parameter[] param = createParameters(getString(result, 1, code));
                 if ((param != null) && (param.length != 0)) {
                     final String areaOfUse    = result.getString(2); // Accept null.
                     final String methodOpCode = getString(result, 3, code);
@@ -1014,6 +1018,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                     // it is the case (for example 9618, with a radian Unit).
                     // So limiting to 9603 and 9606 cases for the moment.
                     if (methodOpCode.equals("9603") || methodOpCode.equals("9606")) {
+                        final WGS84ConversionInfo info = new WGS84ConversionInfo();
                         // First we get the description of the area of use
                         info.areaOfUse = areaOfUse;
 
@@ -1188,13 +1193,13 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
              * paranoiac check and verify if there is more records.
              */
             while (result.next()) {
-                final int          dimension =                 getInt   (result, 1, code);
-                final String    coordSysCode =                 getString(result, 2, code);
-                final String            name =                 getString(result, 3, code);
-                final String     geoCoordSys =                 getString(result, 4, code);
-                final String   operationName =                 getString(result, 5, code);
-                final String  classification = fromEPSGtoOGC  (getString(result, 6, code));
-                final Parameter[] parameters = createParameter(getString(result, 7, code));
+                final int          dimension =                  getInt   (result, 1, code);
+                final String    coordSysCode =                  getString(result, 2, code);
+                final String            name =                  getString(result, 3, code);
+                final String     geoCoordSys =                  getString(result, 4, code);
+                final String   operationName =                  getString(result, 5, code);
+                final String  classification = fromEPSGtoOGC   (getString(result, 6, code));
+                final Parameter[] parameters = createParameters(getString(result, 7, code));
                 final String         remarks = result.getString(8);
                 final AxisInfo[]   axisInfos = createAxisInfos(coordSysCode, dimension);
                 final CharSequence       prp = pack(name, code, remarks);
@@ -1480,7 +1485,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * @task HACK: This method has a temporary hack when PARAMETER_VALUE_FILE_RE
      *             is defined instead of PARAMETER_VALUE.
      */
-    private Parameter[] createParameter(final String code) throws SQLException, FactoryException {
+    private Parameter[] createParameters(final String code) throws SQLException, FactoryException {
         final List list = new ArrayList();
         final PreparedStatement stmt;
         stmt = prepareStatement("Parameter", "select "
