@@ -65,6 +65,11 @@ public class WMSServlet extends HttpServlet {
     public static final String PARAM_EXCEPTIONS = "EXCEPTIONS";
     public static final String PARAM_TIME = "TIME";
     public static final String PARAM_ELEVATION = "ELEVATION";
+    
+    // additional getLegend parameters
+    public static final String PARAM_SCALE = "SCALE";
+    public static final String PARAM_RULE = "RULE";
+   
 
     // cache controls
     public static final String PARAM_USECACHE = "USECACHE";
@@ -496,7 +501,7 @@ public class WMSServlet extends HttpServlet {
      * @throws WMSException DOCUMENT ME!
      */
     public void formatImageOutputStream(String format, BufferedImage image,
-        OutputStream outStream) throws WMSException {
+        OutputStream outStream) throws Exception {
         if (format.equalsIgnoreCase("jpeg")) {
             format = "image/jpeg";
         }
@@ -510,19 +515,13 @@ public class WMSServlet extends HttpServlet {
 
         ImageWriter writer = (ImageWriter) it.next();
         ImageOutputStream ioutstream = null;
-        try {
-            ioutstream = ImageIO.createImageOutputStream(outStream);
-            writer.setOutput(ioutstream);
-            writer.write(image);
-            writer.dispose();
-            ioutstream.close();
-        } catch (IOException ioexp) {
-            throw new WMSException(null, "IOException : " + ioexp.getMessage());
-        } finally{
-            writer = null;
-            
-            ioutstream = null;
-        }
+        
+        ioutstream = ImageIO.createImageOutputStream(outStream);
+        writer.setOutput(ioutstream);
+        writer.write(image);
+        writer.dispose();
+        ioutstream.close();
+        
     }
 
     /**
@@ -640,7 +639,7 @@ public class WMSServlet extends HttpServlet {
         }
     }
     
-    private void doGetLegendGraphic(HttpServletRequest request,
+    public void doGetLegendGraphic(HttpServletRequest request,
         HttpServletResponse response) throws ServletException, IOException {
     
         BufferedImage image = null;
@@ -649,6 +648,7 @@ public class WMSServlet extends HttpServlet {
         String[] layers = commaSeparated(getParameter(request, PARAM_LAYERS));
         String[] styles = commaSeparated(getParameter(request, PARAM_STYLES),
             layers.length);
+        double scale = doubleParam(getParameter(request,PARAM_SCALE));
         int width = posIntParam(getParameter(request, PARAM_WIDTH));
         int height = posIntParam(getParameter(request, PARAM_HEIGHT));
         boolean trans = boolParam(getParameter(request, PARAM_TRANSPARENT));
@@ -657,8 +657,12 @@ public class WMSServlet extends HttpServlet {
         if(format==null || format.equals("")){
             format=negotiateFormat(request);
         }
+        if(scale == Double.NaN){
+            scale=1;
+        }
+        
         try{
-            image=server.getLegend(layers,styles,width,height,trans,bgcolor);
+            image=server.getLegend(layers,styles,width,height,trans,bgcolor,scale);  
         } catch (WMSException wmsexp) {
             doException(wmsexp.getCode(), wmsexp.getMessage(), request,
                 response, exceptions);
@@ -698,11 +702,11 @@ public class WMSServlet extends HttpServlet {
                     "Image generation failed because of: " +
                     exp.getStackTrace()[0] + "Check JAI configuration");
             }
-        }finally{
+        }//finally{
 
-            out.close();
-            image = null;
-        }
+//            out.close();
+//            image = null;
+//        }
 
     }
     private WMSFeatureFormatter getFeatureFormatter(String mime)
