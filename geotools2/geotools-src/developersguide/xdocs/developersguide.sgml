@@ -8,15 +8,17 @@ title="Previous docbook stylesheet"
 alternate="yes"
 ?>
 
-<!-- format for simplified docbook below -->
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 
-<!-- local dtd file -->
-<!--"file:/usr/java/xxe-m13p1-bin/dtd/docbook/docbookx.dtd"-->
+<!-- local dtd file (assuming you have it installed in this directory) -->
+<!--"file:/usr/share/sgml/simple4125/sdocbook.dtd"-->
+
+<!-- remote dtd file -->
+<!--"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd"-->
 
 <article id="index">
-    <!-- $Id: developersguide.sgml,v 1.7 2002/06/15 19:11:24 camerons Exp $ -->
+    <!-- $Id: developersguide.sgml,v 1.8 2002/06/15 19:29:23 camerons Exp $ -->
     <articleinfo>
         <title>Geotools2 Developer Guide</title>
 
@@ -25,7 +27,7 @@ alternate="yes"
             <surname>Shorter</surname>
         </author>
 
-        <date>$Date: 2002/06/15 19:11:24 $</date>
+        <date>$Date: 2002/06/15 19:29:23 $</date>
 
         <abstract>
             <para>Guide to aid <filename>geotools2</filename> development.</para>
