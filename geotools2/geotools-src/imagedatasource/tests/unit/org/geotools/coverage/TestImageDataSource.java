@@ -83,8 +83,9 @@ public class TestImageDataSource extends TestCase {
     /** Test of getFeatures method, of class org.geotools.coverage.PNGDataSource. */
     public void testGetFeatures() throws Exception{
         System.out.println("testGetFeatures");
-        
-        FeatureCollection fc = ds.getFeatures(null);
+	//HACK: We need a Filter.ALL or a getFeatures()
+        Filter filter = null;
+        FeatureCollection fc = ds.getFeatures(filter);
         
         
     }
@@ -100,7 +101,8 @@ public class TestImageDataSource extends TestCase {
     }
     
     public void testRenderImage() throws Exception{
-        FeatureCollection ft = ds.getFeatures(null);
+	Filter filter = null;
+        FeatureCollection ft = ds.getFeatures(filter);
         org.geotools.map.Map map = new DefaultMap();
         StyleFactory sFac = StyleFactory.createStyleFactory();
         EnvelopeExtent ex = new EnvelopeExtent(ds.getBbox());
