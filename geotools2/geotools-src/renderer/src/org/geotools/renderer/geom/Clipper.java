@@ -56,7 +56,7 @@ import org.geotools.resources.XArray;
  * The clipping area to apply on a {@link Geometry} object. A <code>Clipper</code> object
  * contains the clip as a {@link Rectangle2D} and its {@link CoordinateSystem}.
  *
- * @version $Id: Clipper.java,v 1.11 2003/11/28 23:33:12 desruisseaux Exp $
+ * @version $Id: Clipper.java,v 1.12 2004/05/10 22:21:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Geometry#clip
@@ -650,6 +650,7 @@ public final class Clipper {
                                                     polyline.getCoordinateSystem());
                 assert results.length == 1;
                 result = results[0];
+                result.setUserObject(polyline.getUserObject());
                 result.setStyle(polyline.getStyle());
                 if (isClosed) {
                     result.close();
@@ -664,6 +665,7 @@ public final class Clipper {
                 final Polyline clipAsPolyline = new Polyline(clip, polyline.getCoordinateSystem());
                 if (polyline.intersects(clipAsPolyline)) {
                     result = clipAsPolyline;
+                    result.setUserObject(polyline.getUserObject());
                     result.setStyle(polyline.getStyle());
                     if (isClosed) {
                         result.close();

@@ -59,7 +59,7 @@ import org.geotools.math.Statistics;
  * to the wrapped geometry. Consequently, <strong>changes in this geometry will impact
  * on the wrapped geometry</strong>, and conversely.
  *
- * @version $Id: GeometryProxy.java,v 1.6 2004/02/13 14:28:05 aaime Exp $
+ * @version $Id: GeometryProxy.java,v 1.7 2004/05/10 22:21:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GeometryProxy extends Geometry {
@@ -115,6 +115,22 @@ public final class GeometryProxy extends Geometry {
             throws TransformException
     {
         geometry.setCoordinateSystem(coordinateSystem);
+    }
+
+    /**
+     * Returns the user object attached to this geometry, which is the same
+     * than the user object for the wrapped geometry.
+     */
+    public Object getUserObject() {
+        return geometry.getUserObject();
+    }
+
+    /**
+     * Set the user object for for the wrapped geometry. The user object for this proxy will
+     * always stay null (for avoiding memory leak), but the user should never realize that.
+     */
+    public void setUserObject(final Object userObject) {
+        geometry.setUserObject(userObject);
     }
 
     /**

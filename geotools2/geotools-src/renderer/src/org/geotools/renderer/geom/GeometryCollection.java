@@ -98,7 +98,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.17 2004/03/08 11:32:45 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.18 2004/05/10 22:21:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -636,7 +636,8 @@ public class GeometryCollection extends Geometry implements Comparable {
             final Geometry toClip  = geometries[i];
             final Geometry clipped = toClip.clip(clipper);
             if (clipped!=null && !clipped.isEmpty()) {
-                assert Utilities.equals(toClip.getStyle(), clipped.getStyle()) : clipped;
+                assert Utilities.equals(toClip.getUserObject(), clipped.getUserObject()) : clipped;
+                assert Utilities.equals(toClip.getStyle(),      clipped.getStyle())      : clipped;
                 clips[clipCount++] = clipped;
                 if (toClip != clipped) {
                     changed = true;
@@ -1414,7 +1415,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.17 2004/03/08 11:32:45 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.18 2004/05/10 22:21:57 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static abstract class Filtered extends AbstractCollection {

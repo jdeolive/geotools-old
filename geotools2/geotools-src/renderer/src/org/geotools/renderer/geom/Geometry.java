@@ -66,6 +66,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
 import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.TransformException;
+import org.geotools.feature.Feature; // For Javadoc
 import org.geotools.renderer.style.Style;
 import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.Utilities;
@@ -90,7 +91,7 @@ import org.geotools.util.Cloneable;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.14 2004/03/08 11:32:45 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.15 2004/05/10 22:21:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -122,12 +123,20 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     public static final CoordinateSystem DEFAULT_COORDINATE_SYSTEM = LocalCoordinateSystem.PROMISCUOUS;
 
     /**
+     * A user object. This is often the {@linkplain Feature feature} where this geometry
+     * come from, or an ID for this feature as a {@linkplain String character string}.
+     * This information is stored here in order to allow faster retrieval of the
+     * {@linkplain Feature feature} under the mouse cursor.
+     */
+    private Object userObject;
+
+    /**
      * The resolved style for this geometry, or <code>null</code> if none.
      */
     private Style style;
     
     /**
-     * A generic identifier for this geometry. 
+     * A generic identifier for this geometry.
      */
     private String ID;
 
@@ -156,6 +165,45 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      */
     public String getName(final Locale locale) {
         return null;
+    }
+    
+    /**
+     * Returns the geometry ID. The ID is string that identifies the current
+     * geometry and its application specific, that is, the renderer won't use it
+     * in any special way.
+     *
+     * @return The geometry ID, or <code>null</code> if none.
+     */
+    public String getID() {
+        return ID;
+    }
+
+    /**
+     * Sets the geometry ID.
+     *
+     * @param The geometry ID.
+     */
+    public void setID(final String ID) {
+        this.ID = ID;
+    }
+
+    /**
+     * Returns the user object attached to this geometry. This is often the
+     * {@linkplain Feature feature} where this geometry come from, or an ID
+     * for this feature as a {@linkplain String character string}.
+     */
+    public Object getUserObject() {
+    	return userObject;
+    }
+
+    /**
+     * Set the user object for this geometry. This is often the {@linkplain Feature feature}
+     * where this geometry come from, or an ID for this geometry as a {@linkplain String
+     * character string}. The renderer will not use this information in any way. It is stored
+     * here mostly for faster retrieval of the {@linkplain Feature feature} under the mouse cursor.
+     */
+    public void setUserObject(final Object userObject) {
+    	this.userObject = userObject;
     }
 
     /**
@@ -698,23 +746,4 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
         buffer.append(']');
         return buffer.toString();
     }
-    
-    /**
-     * Returns the geometry ID. The ID is string that identifies the current
-     * geometry and its application specific, that is, the renderer won't use it
-     * in any special way
-     * @return
-     */
-    public String getID() {
-        return ID;
-    }
-
-    /**
-     * Sets the geometry ID
-     * @param object
-     */
-    public void setID(String object) {
-        ID = object;
-    }
-
 }
