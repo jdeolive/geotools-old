@@ -53,7 +53,7 @@ import java.io.ObjectStreamException;
  * class work correctly with {@linkplain Double#POSITIVE_INFINITE infinites} and
  * {@linkplain Double#NaN NaN} values.
  *
- * @version $Id: XRectangle2D.java,v 1.5 2003/09/30 10:39:07 desruisseaux Exp $
+ * @version $Id: XRectangle2D.java,v 1.6 2003/11/15 14:21:59 aaime Exp $
  * @author Martin Desruisseaux
  */
 public class XRectangle2D extends Rectangle2D implements Serializable {
@@ -403,7 +403,10 @@ public class XRectangle2D extends Rectangle2D implements Serializable {
         double y      = rect.getY();
         double width  = rect.getWidth();
         double height = rect.getHeight();
-        if (width == 0) {
+        if(width == 0 && height == 0) {
+            width = EPS;
+            height = EPS;
+        } else if (width == 0) {
             width = height*EPS;
             x -= 0.5*width;
         } else if (height == 0) {
