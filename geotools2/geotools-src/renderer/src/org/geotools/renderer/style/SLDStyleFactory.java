@@ -52,12 +52,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.util.Range;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.geotools.feature.Feature;
 import org.geotools.filter.Expression;
 import org.geotools.styling.ExternalGraphic;
@@ -72,6 +74,7 @@ import org.geotools.styling.Mark;
 import org.geotools.styling.PointPlacement;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.StyleAttributeExtractor;
 import org.geotools.styling.Symbol;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextMark;
@@ -117,7 +120,7 @@ public class SLDStyleFactory {
 
     /** This one is used as the observer object in image tracks */
     private static final Canvas obs = new Canvas();
-
+ 
     static { //static block to populate the lookups
         joinLookup.put("miter", new Integer(BasicStroke.JOIN_MITER));
         joinLookup.put("bevel", new Integer(BasicStroke.JOIN_BEVEL));
@@ -151,6 +154,12 @@ public class SLDStyleFactory {
         wellKnownMarks.add("x");
         wellKnownMarks.add("arrow");
     }
+    
+    /** Symbolizers that depend on attributes */
+    WeakHashMap dynamicSymbolizers = new WeakHashMap();
+    
+    /** Symbolizers that do not depend on attributes */
+    WeakHashMap staticSymbolizers = new WeakHashMap();
 
     private static Set getSupportedGraphicFormats() {
         if (supportedGraphicFormats == null) {
@@ -165,9 +174,53 @@ public class SLDStyleFactory {
 
         return supportedGraphicFormats;
     }
+    
+    /**
+     * Simple key used to cache Style2D objects based on the originating
+     * symbolizer and scale range. Will compare symbolizers by identity,
+     * avoiding a possibly very long comparison
+     * @author aaime
+     */
+    private static class SymbolizerKey {
+        private Symbolizer symbolizer;
+        private double minScale;
+        private double maxScale;
+        
+        public SymbolizerKey(Symbolizer symbolizer, Range scaleRange) {
+            this.symbolizer = symbolizer;
+            minScale = ((Number) scaleRange.getMinValue()).doubleValue();
+            maxScale = ((Number) scaleRange.getMaxValue()).doubleValue();
+        }
+        
+        
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        public boolean equals(Object obj) {
+            if(!(obj instanceof SymbolizerKey))
+                return false;
+            
+            SymbolizerKey other = (SymbolizerKey) obj;
+            return other.symbolizer == symbolizer && other.minScale == minScale && 
+                other.maxScale == maxScale;
+        }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        public int hashCode() {
+            return (new HashCodeBuilder()).append(symbolizer).append(minScale).append(maxScale).toHashCode();
+        }
+
+    }
 
     /**
-     * Creates a rendered style
+     * <p>Creates a rendered style</p>
+     * 
+     * <p>Makes use of a symbolizer cache based on identity to avoid recomputing
+     *    over and over the same style object and to reduce memory usage. The same
+     *    Style2D object will be returned by subsequent calls using the same
+     *    feature independent symbolizer with the same scaleRange. 
      *
      * @param f The feature
      * @param symbolizer The SLD symbolizer
@@ -179,6 +232,37 @@ public class SLDStyleFactory {
     public Style2D createStyle(Feature f, Symbolizer symbolizer, Range scaleRange) {
         Style2D style = null;
 
+        SymbolizerKey key = new SymbolizerKey(symbolizer, scaleRange);
+        style = (Style2D) staticSymbolizers.get(key);
+        if(style == null) {
+            style = createStyleInternal(f, symbolizer, scaleRange);
+            // if known dynamic symbolizer return the style
+            if(dynamicSymbolizers.containsKey(key)) {
+                return style;
+            } else {
+                // lets see if it's static or dynamic
+                StyleAttributeExtractor sae = new StyleAttributeExtractor();
+                sae.visit(symbolizer);
+                Set nameSet = sae.getAttributeNameSet();
+                
+                if(nameSet == null || nameSet.size() == 0) {
+                    staticSymbolizers.put(key, style);
+                } else {
+                    dynamicSymbolizers.put(key, null);
+                }
+            }
+                
+        }             
+        
+        return style;
+    }
+
+    /**
+     * Really creates the symbolizer
+     */
+    private Style2D createStyleInternal(Feature f, Symbolizer symbolizer, Range scaleRange) {
+        Style2D style = null;  
+        
         if (symbolizer instanceof PolygonSymbolizer) {
             style = createPolygonStyle(f, (PolygonSymbolizer) symbolizer, scaleRange);
         } else if (symbolizer instanceof LineSymbolizer) {
@@ -188,7 +272,7 @@ public class SLDStyleFactory {
         } else if (symbolizer instanceof TextSymbolizer) {
             style = createTextStyle(f, (TextSymbolizer) symbolizer, scaleRange);
         }
-
+        
         return style;
     }
 
