@@ -4,11 +4,12 @@
 
   <title>Filter</title>
 
-  <body>
+  
+    <body>
     <links>
-      <item name="core" href="/../../../defaultcore/target/docs/"/>
-      <item name="defaultcore" href="/../../../defaultcore/target/docs/"/>
-      <item name="filter" href="/../../../filter/target/docs/"/>
+      <item name="core" href="/../../../defaultcore/target/docs/"></item>
+      <item name="defaultcore" href="/../../../defaultcore/target/docs/"></item>
+      <item name="filter" href="/../../../filter/target/docs/"></item>
             <item name="algorithms" href="/../../../algorithms/target/docs/"></item>
         </links>
     <!-- <menu name="Overview">
