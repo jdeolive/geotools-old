@@ -27,7 +27,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilter.java,v 1.3 2002/07/12 20:18:14 robhranac Exp $
+ * @version $Id: LikeFilter.java,v 1.4 2002/07/16 10:21:36 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LikeFilter extends AbstractFilter {
@@ -102,13 +102,44 @@ public class LikeFilter extends AbstractFilter {
         //  (1) If a user-defined wildcard exists, replace with Java wildcard
         //  (2) If a user-defined escape exists, Java wildcard + user-escape
         //  Then, test for matching pattern and return result.
+        
+        char esc = escape.charAt(0);
+        
+        if(esc == '.' || esc == '?' || esc == '*' || esc == '^' || esc == '$' ||
+            esc == '\\' || esc == '+' || esc == '[' || esc == ']' || esc == '(' ||
+            esc == ')' || esc == '|') {
+                escape = "\\\\"+escape;
+                _log.debug("escape "+escape);
+        }
+        char wcs = wildcardSingle.charAt(0);
+        
+        if(wcs == '.' || wcs == '?' || wcs == '*' || wcs == '^' || wcs == '$' ||
+            wcs == '\\' || wcs == '+' || wcs == '[' || wcs == ']' || wcs == '(' ||
+            wcs == ')' || wcs == '|') {
+                wildcardSingle = "\\"+wildcardSingle;
+                _log.debug("wildcardSingle "+wildcardSingle);
+        }
+        char wcm = wildcardMulti.charAt(0);
+        
+        if(wcm == '.' || wcm == '?' || wcm == '*' || wcm == '^' || wcm == '$' ||
+            wcm == '\\' || wcm == '+' || wcm == '[' || wcm == ']' || wcm == '(' ||
+            wcm == ')' || wcm == '|') {
+                wildcardMulti = "\\"+wildcardMulti;
+                _log.debug("wildcardMulti "+wildcardMulti);
+        }
+        _log.debug("start pattern = "+pattern);
         pattern = pattern.replaceAll(wildcardSingle, ".?");
-        pattern = pattern.replaceAll(escape + wildcardSingle, "\\?");
+        _log.debug("post single pattern = "+pattern);
+        pattern = pattern.replaceAll(escape + "\\.\\?", "\\"+wildcardSingle);
+        _log.debug("post esc single pattern = "+pattern);
 
         pattern = pattern.replaceAll(wildcardMulti, ".*");
-        pattern = pattern.replaceAll(escape + wildcardMulti, "\\*");
+        _log.debug("post multi pattern = "+pattern);
+        pattern = pattern.replaceAll(escape + "\\.\\*", "\\"+wildcardMulti);
+        _log.debug("post esc multi pattern = "+pattern);
 
-        pattern = pattern.replaceAll(escape, "\\");
+        pattern = pattern.replaceAll(escape, "\\\\");
+        _log.debug("post esc pattern = "+pattern);
 
         this.pattern = pattern;
     }
