@@ -37,6 +37,7 @@ import java.util.logging.Logger;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Formatter;
+import java.util.logging.StreamHandler;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.SimpleFormatter;
 
@@ -46,6 +47,7 @@ import java.util.prefs.Preferences;
 // Writer
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import org.geotools.io.LineWriter;
 
 
@@ -59,10 +61,10 @@ import org.geotools.io.LineWriter;
  * [core FINE] A log message logged with level FINE from the "org.geotools.core" logger.
  * </pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.2 2002/08/16 18:06:57 desruisseaux Exp $
+ * @version $Id: MonolineFormatter.java,v 1.3 2002/08/19 18:15:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class MonolineFormatter extends Formatter {
+public class MonolineFormatter extends Formatter {
     /**
      * The string to write at the begining of every log header (e.g. "[FINE core]").
      */
@@ -185,6 +187,60 @@ final class MonolineFormatter extends Formatter {
     }
 
     /**
+     * Setup a <code>MonolineFormatter</code> for the specified logger and its children.
+     * This method search for all instances of {@link ConsoleHandler} using the {@link
+     * SimpleFormatter}. If such instances are found, they are replaced by a single
+     * instance of <code>MonolineFormatter</code> writting to the {@linkplain System#out
+     * standard output stream} (instead of the {@linkplain System#err standard error stream}).
+     * This action has no effect on any loggers outside the <code>base</code> namespace.
+     *
+     * @param base The base logger name to apply the change on (e.g. "org.geotools").
+     */
+    public static void init(final String base) {
+        Formatter monoline = null;
+        final Logger logger = Logger.getLogger(base);
+        for (Logger parent=logger; parent.getUseParentHandlers();) {
+            parent = parent.getParent();
+            if (parent == null) {
+                break;
+            }
+            final Handler[] handlers = parent.getHandlers();
+            for (int i=0; i<handlers.length; i++) {
+                /*
+                 * Search for a ConsoleHandler. Search is performed in the target handler
+                 * and all its parent loggers. When a ConsoleHandler is found, it will be
+                 * replaced by the Stdout handler for 'logger' only.
+                 */
+                Handler handler = handlers[i];
+                if (handler.getClass().equals(ConsoleHandler.class)) {
+                    final Formatter formatter = handler.getFormatter();
+                    if (formatter.getClass().equals(SimpleFormatter.class)) {
+                        if (monoline == null) {
+                            monoline = new MonolineFormatter(base);
+                        }
+                        try {
+                            handler = new Stdout(handler, monoline);
+                        } catch (UnsupportedEncodingException exception) {
+                            unexpectedException(exception);
+                        } catch (SecurityException exception) {
+                            unexpectedException(exception);
+                        }
+                    }
+                }
+                logger.addHandler(handler);
+            }
+        }
+        logger.setUseParentHandlers(false);
+    }
+
+    /**
+     * Invoked when an error occurs during the initialization.
+     */
+    private static void unexpectedException(final Exception e) {
+        Utilities.unexpectedException("org.geotools.resources", "GeotoolsHandler", "init", e);
+    }
+
+    /**
      * Returns the header width. This is the default value to use for {@link #margin},
      * if no value has been explicitely set. This value can be set in user's preferences.
      */
@@ -198,5 +254,49 @@ final class MonolineFormatter extends Formatter {
      */
     static void setHeaderWidth(final int margin) {
         Preferences.userNodeForPackage(MonolineFormatter.class).putInt("logging.header", margin);
+    }
+
+    /**
+     * A {@link ConsoleHandler} sending output to {@link System#out} instead of {@link System#err}.
+     * This handler will use a {@link MonolineFormatter} writting log message on a single line.
+     *
+     * @task TODO: This class should subclass {@link ConsoleHandler}. Unfortunatly, this is
+     *             currently not possible because {@link ConsoleHandler#setOutputStream}
+     *             close {@link System#err}. If this bug get fixed, then {@link #close}
+     *             no longer need to be overriden.
+     */
+    private static final class Stdout extends StreamHandler {
+        /**
+         * Construct a handler.
+         *
+         * @param handler The handler to copy properties from.
+         * @param formatter The formatter to use.
+         */
+        public Stdout(final Handler handler, final Formatter formatter)
+            throws UnsupportedEncodingException
+        {
+            super(System.out, formatter);
+            setErrorManager(handler.getErrorManager());
+            setFilter      (handler.getFilter      ());
+            setLevel       (handler.getLevel       ());
+            setEncoding    (handler.getEncoding    ());
+        }
+
+        /**
+         * Publish a {@link LogRecord} and flush the stream.
+         */
+        public void publish(final LogRecord record) {
+            super.publish(record);	
+            flush();
+        }
+
+        /**
+         * Override {@link StreamHandler#close} to do a flush but not
+         * to close the output stream. That is, we do <b>not</b>
+         * close {@link System#out}.
+         */
+        public void close() {
+            flush();
+        }
     }
 }

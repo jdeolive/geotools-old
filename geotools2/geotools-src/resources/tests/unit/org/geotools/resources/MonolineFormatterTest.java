@@ -44,7 +44,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link MonolineFormatter} class.
  *
- * @version $Id: MonolineFormatterTest.java,v 1.1 2002/08/16 18:09:00 desruisseaux Exp $
+ * @version $Id: MonolineFormatterTest.java,v 1.2 2002/08/19 18:18:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatterTest extends TestCase {
@@ -71,7 +71,7 @@ public class MonolineFormatterTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        GeotoolsHandler.init("org.geotools");
+        MonolineFormatter.init("org.geotools");
     }
 
     /**
@@ -107,7 +107,7 @@ public class MonolineFormatterTest extends TestCase {
     public static void main(final String[] args) {
         final Arguments arguments = new Arguments(args);
         if (arguments.getFlag("-init")) {
-            GeotoolsHandler.init("org.geotools");
+            MonolineFormatter.init("org.geotools");
         }
         arguments.getRemainingArguments(0);
         new MonolineFormatterTest(null).testInitialization();
