@@ -10,6 +10,7 @@
     <description>A test layer</description>
     <Style id="dull" filename="styles/polyshp.sld"/>
     <Style id="silly" filename="styles/funkypolyshp.sld"/>
+    <Style id="population" filename="styles/popshade.sld"/>
    </Layer>
    
    <Layer id="rail">

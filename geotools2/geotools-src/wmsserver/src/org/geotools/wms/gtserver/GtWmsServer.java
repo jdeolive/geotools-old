@@ -25,8 +25,10 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.logging.Logger;
 
 import org.geotools.shapefile.*;
+import org.geotools.shapefile.DbaseFileReader;
 import org.geotools.data.postgis.*;
 import org.geotools.map.*;
 import org.geotools.renderer.*;
@@ -38,9 +40,6 @@ import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.data.DataSource;
-
-//Logging system
-import java.util.logging.Logger;
 
 import org.geotools.wms.*;
 
@@ -55,10 +54,9 @@ public class GtWmsServer implements WMSServer {
     org.geotools.map.Map map;
     
     public static final String LAYERS_PROPERTY = "layersxml";
-    /**
-     * The logger for the filter module.
-     */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.wmsserver");
+    
+    private static final Logger LOGGER = Logger.getLogger(
+                                                 "org.geotools.wmsserver");
     
     public GtWmsServer() {
         //		loadLayers();
@@ -99,8 +97,7 @@ public class GtWmsServer implements WMSServer {
                     else {
                         url = file.toURL();
                     }
-                    Shapefile shapes = new Shapefile(url);
-                    ShapefileDataSource sds = new ShapefileDataSource(shapes);
+                    ShapefileDataSource sds = new ShapefileDataSource(url);
                     
                     
                     Style style = new BasicPolygonStyle();//bad
@@ -120,9 +117,9 @@ public class GtWmsServer implements WMSServer {
                     System.out.println(host+" "+user+" "+passwd+" "+port+" "+database+" "+table);
                     
                     PostgisConnection db = new PostgisConnection(host,port,database);
-                    LOGGER.info("created new db connection");
+                    LOGGER.fine("created new db connection");
                     db.setLogin(user,passwd);
-                    LOGGER.info("set the login");
+                    LOGGER.fine("set the login");
                     PostgisDataSource ds = new PostgisDataSource(db, table);
                     
                     

@@ -166,7 +166,7 @@ public class WMSServlet extends HttpServlet {
      */
     public void doGetCapabilities(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         System.out.println("Sending capabilities");
-        
+        System.out.println("My path is " + request.getServletPath() +"?");
         try {
             // Get Capabilities object from server implementation
             Capabilities capabilities = server.getCapabilities();
