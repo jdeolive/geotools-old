@@ -32,7 +32,7 @@ import org.geotools.feature.*;
  * Implements Filter interface, with constants and default behaviors for
  * methods.
  *
- * @version $Id: AbstractFilter.java,v 1.7 2002/08/06 22:27:15 desruisseaux Exp $ 
+ * @version $Id: AbstractFilter.java,v 1.8 2002/09/05 20:35:50 robhranac Exp $ 
  * @author Rob Hranac, Vision for New York
  */
 public abstract class AbstractFilter implements Filter {
@@ -107,6 +107,9 @@ public abstract class AbstractFilter implements Filter {
 
     /** Defines a like filter, which is implemented by FilterLike. */
     public static final short LIKE = 20;
+
+    /** Defines a like filter, which is implemented by FilterLike. */
+    public static final short FID = 22;
 
 
     /**
@@ -263,6 +266,7 @@ public abstract class AbstractFilter implements Filter {
         if (isCompareFilter(filterType) ||
             isGeometryFilter(filterType) ||
             (filterType == NULL) ||
+            (filterType == FID) ||
             (filterType == LIKE)) {
             return true;
         }
