@@ -5,33 +5,24 @@
  */
 
 package org.geotools.styling;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Polygon;
+import java.util.Date;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureTypeFactory;
+//import org.geotools.renderer.lite.LiteRenderer;
+
 //import org.geotools.renderer.*;
-import org.geotools.data.*;
-import com.vividsolutions.jts.geom.*;
-import org.geotools.feature.*;
-import org.geotools.styling.*;
-import org.geotools.map.*;
-import java.util.*;
-import java.io.*;
-import junit.framework.*;
-import java.awt.Frame;
-import java.awt.Panel;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.*;
-import java.io.*;
-import javax.imageio.*;
-import javax.swing.*;
-import org.geotools.renderer.Java2DRenderer;
 
 
 /**
  *
  * @author jamesm,iant
  */
-public class RenderStyleTest extends TestCase {
+public class RenderStyleTest extends junit.framework.TestCase {
     
     public RenderStyleTest(java.lang.String testName) {
         super(testName);
@@ -42,8 +33,8 @@ public class RenderStyleTest extends TestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    public static Test suite() {
-        TestSuite suite = new TestSuite(RenderStyleTest.class);
+    public static junit.framework.Test suite() {
+        junit.framework.TestSuite suite = new junit.framework.TestSuite(RenderStyleTest.class);
         return suite;
     }
     
@@ -51,14 +42,14 @@ public class RenderStyleTest extends TestCase {
         //same as the datasource test, load in some features into a table
         
         // Request extent
-        Envelope ex = new Envelope(30, 350, 30, 350);
+        com.vividsolutions.jts.geom.Envelope ex = new com.vividsolutions.jts.geom.Envelope(30, 350, 30, 350);
         
-        AttributeType[] types = new AttributeType[1];
+        org.geotools.feature.AttributeType[] types = new org.geotools.feature.AttributeType[1];
         
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac,0,0);
-        types[0] = AttributeTypeFactory.newAttributeType("centerline", line.getClass());
-        FeatureType lineType = FeatureTypeFactory.newFeatureType(types,"linefeature");
+        types[0] = org.geotools.feature.AttributeTypeFactory.newAttributeType("centerline", line.getClass());
+        org.geotools.feature.FeatureType lineType = FeatureTypeFactory.newFeatureType(types,"linefeature");
         Feature lineFeature = lineType.create(new Object[]{line});
         
         LineString line2 = makeSampleLineString(geomFac,100,0);
@@ -71,8 +62,8 @@ public class RenderStyleTest extends TestCase {
         
         Polygon polygon = makeSamplePolygon(geomFac,0,0);
         
-        types[0] = AttributeTypeFactory.newAttributeType("edge", polygon.getClass());
-        FeatureType polygonType = FeatureTypeFactory.newFeatureType(types,"polygon");
+        types[0] = org.geotools.feature.AttributeTypeFactory.newAttributeType("edge", polygon.getClass());
+        org.geotools.feature.FeatureType polygonType = FeatureTypeFactory.newFeatureType(types,"polygon");
         Feature polygonFeature = polygonType.create(new Object[]{polygon});
         
         Polygon polygon2 = makeSamplePolygon(geomFac,0,150);
@@ -84,13 +75,13 @@ public class RenderStyleTest extends TestCase {
         Feature polygonFeature3 = polygonType.create(new Object[]{polygon3});
         
         
-        Point point = makeSamplePoint(geomFac,140.0,140.0);
-        types[0] = AttributeTypeFactory.newAttributeType("centre", point.getClass());
-        FeatureType pointType = FeatureTypeFactory.newFeatureType(types,"pointfeature");
+        com.vividsolutions.jts.geom.Point point = makeSamplePoint(geomFac,140.0,140.0);
+        types[0] = org.geotools.feature.AttributeTypeFactory.newAttributeType("centre", point.getClass());
+        org.geotools.feature.FeatureType pointType = FeatureTypeFactory.newFeatureType(types,"pointfeature");
         
         Feature pointFeature = pointType.create(new Object[]{point});
         
-        FeatureCollection ft = FeatureCollections.newCollection();
+        org.geotools.feature.FeatureCollection ft = org.geotools.feature.FeatureCollections.newCollection();
         ft.add(lineFeature);
         ft.add(lineFeature2);
         ft.add(lineFeature3);
@@ -99,16 +90,16 @@ public class RenderStyleTest extends TestCase {
         ft.add(polygonFeature3);
         ft.add(pointFeature);
         
-        org.geotools.map.Map map = new DefaultMap();
-//        String dataFolder = System.getProperty("dataFolder");
-//        if(dataFolder==null){
-//            //then we are being run by maven
-//            dataFolder = System.getProperty("basedir");
-//            if(dataFolder == null) dataFolder = ".";
-//            dataFolder+="/tests/unit/testData";
-//        }
+        org.geotools.map.Map map = new org.geotools.map.DefaultMap();
+        //        String dataFolder = System.getProperty("dataFolder");
+        //        if(dataFolder==null){
+        //            //then we are being run by maven
+        //            dataFolder = System.getProperty("basedir");
+        //            if(dataFolder == null) dataFolder = ".";
+        //            dataFolder+="/tests/unit/testData";
+        //        }
         java.net.URL base = getClass().getResource("testData/");
-        File f = new File(base.getPath(),"sample.sld");
+        java.io.File f = new java.io.File(base.getPath(),"sample.sld");
         
         System.out.println("testing reader using "+f.toString());
         StyleFactory factory = StyleFactory.createStyleFactory();
@@ -116,12 +107,13 @@ public class RenderStyleTest extends TestCase {
         Style[] style = stylereader.readXML();
         for(int i = 0; i< style.length; i++){
             map.addFeatureTable(ft,style[i]);
-            Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
-            Frame frame = new Frame("rendering test");
-            frame.addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
+            org.geotools.renderer.lite.LiteRenderer renderer = new org.geotools.renderer.lite.LiteRenderer();
+//            org.geotools.renderer.Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
+            java.awt.Frame frame = new java.awt.Frame("rendering test");
+            frame.addWindowListener(new java.awt.event.WindowAdapter() {
+                public void windowClosing(java.awt.event.WindowEvent e) {e.getWindow().dispose(); }
             });
-            Panel p = new Panel();
+            java.awt.Panel p = new java.awt.Panel();
             
             frame.add(p);
             
@@ -140,18 +132,18 @@ public class RenderStyleTest extends TestCase {
                 int w = wa[j];
                 int h= ha[j];
                 
-                BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
-                Graphics g = image.getGraphics();
-                g.setColor(Color.white);
+                java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(w,h,java.awt.image.BufferedImage.TYPE_INT_RGB);
+                java.awt.Graphics g = image.getGraphics();
+                g.setColor(java.awt.Color.white);
                 g.fillRect(0,0,w,h);
                 renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
                 start = new Date();
                 map.render(renderer,ex);//and finaly try and draw it!
                 end = new Date();
                 System.out.println("Time to render to image: " +(end.getTime() - start.getTime()));
-                File file = new File(base.getPath(), "RenderStyleTest"+i+"_"+j+".jpg"); 
-                FileOutputStream out = new FileOutputStream(file);
-                ImageIO.write(image, "JPEG", out); 
+                java.io.File file = new java.io.File(base.getPath(), "RenderStyleTest"+i+"_"+j+".png");
+                java.io.FileOutputStream out = new java.io.FileOutputStream(file);
+                javax.imageio.ImageIO.write(image, "PNG", out);
             }
             //Thread.sleep(5000);
             frame.dispose();
@@ -174,7 +166,7 @@ public class RenderStyleTest extends TestCase {
         return line;
     }
     
-    private com.vividsolutions.jts.geom.Polygon makeSamplePolygon(final GeometryFactory geomFac, double xoff, double yoff) {
+    private Polygon makeSamplePolygon(final GeometryFactory geomFac, double xoff, double yoff) {
         Coordinate[] polygonCoordinates = new Coordinate[10];
         polygonCoordinates[0] = new Coordinate(70+xoff,70+yoff);
         polygonCoordinates[1] = new Coordinate(60+xoff,90+yoff);
@@ -187,19 +179,19 @@ public class RenderStyleTest extends TestCase {
         polygonCoordinates[8] = new Coordinate(110+xoff,70+yoff);
         polygonCoordinates[9] = new Coordinate(70+xoff,70+yoff);
         try{
-            LinearRing ring = geomFac.createLinearRing(polygonCoordinates);
-            com.vividsolutions.jts.geom.Polygon polyg = geomFac.createPolygon(ring,null);
+            com.vividsolutions.jts.geom.LinearRing ring = geomFac.createLinearRing(polygonCoordinates);
+            Polygon polyg = geomFac.createPolygon(ring,null);
             return polyg;
         }
-        catch(TopologyException te){
+        catch(com.vividsolutions.jts.geom.TopologyException te){
             fail("Error creating sample polygon for testing "+te);
         }
         return null;
     }
     
-    private Point makeSamplePoint(final GeometryFactory geomFac, double x, double y) {
+    private com.vividsolutions.jts.geom.Point makeSamplePoint(final GeometryFactory geomFac, double x, double y) {
         Coordinate c = new Coordinate(x,y);
-        Point point = geomFac.createPoint(c);
+        com.vividsolutions.jts.geom.Point point = geomFac.createPoint(c);
         return point;
     }
 }

@@ -6,88 +6,74 @@
 
 package org.geotools.styling;
 
-import org.geotools.renderer.*;
-import org.geotools.data.*;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.feature.*;
-import org.geotools.styling.*;
-import org.geotools.map.*;
-import java.util.*;
-import java.io.*;
-import junit.framework.*;
-import java.awt.Frame;
-import java.awt.Panel;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.*;
-import java.io.*;
-import javax.imageio.*;
-import javax.swing.*;
-
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import org.geotools.feature.AttributeTypeFactory;
+import javax.media.jai.JAI;
 
 /**
  *
  * @author  iant
  */
-public class TextTest extends TestCase {
+public class TextTest extends junit.framework.TestCase {
     
     /** Creates a new instance of TextTest */
     public TextTest(java.lang.String testName) {
         super(testName);
-       
+        
     }
     
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
     }
     
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TextTest.class);
+    public static junit.framework.Test suite() {
+        junit.framework.TestSuite suite = new junit.framework.TestSuite(TextTest.class);
         return suite;
     }
     
     public void testTextRender()throws Exception {
         System.out.println("\n\nText Test\n\n");
-        Frame frame = new Frame("text test");
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
+        java.awt.Frame frame = new java.awt.Frame("text test");
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent e) {e.getWindow().dispose(); }
         });
-        Envelope ex = new Envelope(0, 50, 0, 100);
+        com.vividsolutions.jts.geom.Envelope ex = new com.vividsolutions.jts.geom.Envelope(0, 50, 0, 100);
         frame.setSize(300,600);
         GeometryFactory geomFac = new GeometryFactory();
-        ArrayList features = new ArrayList();
+        java.util.ArrayList features = new java.util.ArrayList();
         int points = 4;
         int rows = 3;
-        AttributeType[] pointAttribute = new AttributeType[3];
+        org.geotools.feature.AttributeType[] pointAttribute = new org.geotools.feature.AttributeType[3];
         pointAttribute[0] = AttributeTypeFactory.newAttributeType("centre", com.vividsolutions.jts.geom.Point.class);
         pointAttribute[1] = AttributeTypeFactory.newAttributeType("size",Double.class);
         pointAttribute[2] = AttributeTypeFactory.newAttributeType("rotation",Double.class);
-        FeatureType pointType = FeatureTypeFactory.newFeatureType(pointAttribute,"testPoint");
+        org.geotools.feature.FeatureType pointType = org.geotools.feature.FeatureTypeFactory.newFeatureType(pointAttribute,"testPoint");
         for(int j=0;j<rows;j++){
             double angle =0.0;
             for(int i=0; i<points; i++){
-
-                Point point = makeSamplePoint(geomFac,
-                    2.0+(double)i*((ex.getWidth()-4)/points), 
-                    50.0+(double)j*((50)/rows));
+                
+                com.vividsolutions.jts.geom.Point point = makeSamplePoint(geomFac,
+                2.0+(double)i*((ex.getWidth()-4)/points),
+                50.0+(double)j*((50)/rows));
                 
                 Double size = new Double(5.0+j*5);
                 Double rotation = new Double(angle);
                 angle+=90.0;
-                Feature pointFeature = pointType.create(new Object[]{point,size,rotation});
-//                System.out.println(""+pointFeature);
+                org.geotools.feature.Feature pointFeature = pointType.create(new Object[]{point,size,rotation});
+                //                System.out.println(""+pointFeature);
                 features.add(pointFeature);
             }
         }
         
-        AttributeType[] lineAttribute = new AttributeType[3];
-        lineAttribute[0] = AttributeTypeFactory.newAttributeType("edge", com.vividsolutions.jts.geom.LineString.class);
+        org.geotools.feature.AttributeType[] lineAttribute = new org.geotools.feature.AttributeType[3];
+        lineAttribute[0] = AttributeTypeFactory.newAttributeType("edge", LineString.class);
         lineAttribute[1] = AttributeTypeFactory.newAttributeType("size",Double.class);
         lineAttribute[2] = AttributeTypeFactory.newAttributeType("perpendicularoffset",Double.class);
-        FeatureType lineType = FeatureTypeFactory.newFeatureType(lineAttribute,"testLine");
+        org.geotools.feature.FeatureType lineType = org.geotools.feature.FeatureTypeFactory.newFeatureType(lineAttribute,"testLine");
         rows = 2;
         points = 3;
         
@@ -100,34 +86,34 @@ public class TextTest extends TestCase {
                 Double size = new Double(12);
                 Double poffset = new Double(off);
                 sign--;
-                Feature lineFeature = lineType.create(new Object[]{line,size,poffset});
+                org.geotools.feature.Feature lineFeature = lineType.create(new Object[]{line,size,poffset});
                 features.add(lineFeature);
-            }   
+            }
             off-=2;
         }
         
         System.out.println("got "+features.size()+" features");
-        FeatureCollection ft = FeatureCollections.newCollection();
+        org.geotools.feature.FeatureCollection ft = org.geotools.feature.FeatureCollections.newCollection();
         ft.addAll(features);
         
-        org.geotools.map.Map map = new DefaultMap();
-//        String dataFolder = System.getProperty("dataFolder");
-//        if(dataFolder==null){
-//            //then we are being run by maven
-//            dataFolder = System.getProperty("basedir");
-//            if(dataFolder == null) dataFolder = ".";
-//            dataFolder+="/tests/unit/testData";
-//        }
+        org.geotools.map.Map map = new org.geotools.map.DefaultMap();
+        //        String dataFolder = System.getProperty("dataFolder");
+        //        if(dataFolder==null){
+        //            //then we are being run by maven
+        //            dataFolder = System.getProperty("basedir");
+        //            if(dataFolder == null) dataFolder = ".";
+        //            dataFolder+="/tests/unit/testData";
+        //        }
         java.net.URL url = getClass().getResource("testData/");
-        File f = new File(url.getPath(),"textTest.sld");
+        java.io.File f = new java.io.File(url.getPath(),"textTest.sld");
         System.out.println("testing reader using "+f.toString());
         StyleFactory factory = StyleFactory.createStyleFactory();
         SLDStyle stylereader = new SLDStyle(factory,f);
         Style[] style = stylereader.readXML();
         map.addFeatureTable(ft,style[0]);
-        Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
-        
-        Panel p = new Panel();
+        org.geotools.renderer.lite.LiteRenderer renderer = new org.geotools.renderer.lite.LiteRenderer();
+//        org.geotools.renderer.Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
+        java.awt.Panel p = new java.awt.Panel();
         frame.add(p);
         
         frame.setLocation(600,0);
@@ -135,22 +121,42 @@ public class TextTest extends TestCase {
         renderer.setOutput(p.getGraphics(),p.getBounds());
         map.render(renderer,ex);//and finaly try and draw it!
         int w = 300, h = 600;
-        BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
-        Graphics g = image.getGraphics();
-        g.setColor(Color.white);
+        java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(w,h,java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.awt.Graphics g = image.getGraphics();
+        g.setColor(java.awt.Color.white);
         g.fillRect(0,0,w,h);
         renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
         map.render(renderer,ex);//and finaly try and draw it!
-        File file = new File(url.getPath(), "TextTest.jpg"); 
-        FileOutputStream out = new FileOutputStream(file);
-        ImageIO.write(image, "JPEG", out); 
+        java.io.File file = new java.io.File(url.getPath(), "TextTest.png");
+        java.io.FileOutputStream out = new java.io.FileOutputStream(file);
+        javax.imageio.ImageIO.write(image, "PNG", out);
         
+        java.io.File file2 = new java.io.File(url.getPath()+"/exemplars/", "TextTest.png");
+        System.out.println("about to load "+file2+" to carry out checks");
+        
+        RenderedImage image2 = (RenderedImage) JAI.create("fileload", file2.toString());
+        
+        
+        
+        assertNotNull("Failed to load exemplar image",image2); 
+        Raster data = image.getData();
+        Raster data2 = image2.getData(); 
+        int [] pix=null;
+        int [] pix2=null;
+        for(int band=0;band<data2.getNumBands();band++){
+            pix=data.getSamples(0,0,image.getWidth(),image.getHeight(),band,pix); 
+            pix2=data2.getSamples(0,0,image2.getWidth(),image2.getHeight(),band,pix2);
+            System.out.println("band "+band+" pix "+pix.length+" pix2 "+pix2.length);
+            for(int i=0;i<pix.length;i++){
+                assertEquals("mismatch in image comparision at ("+i+")",pix[i],pix2[i]);
+            }
+        }
         //Thread.sleep(5000);
         frame.dispose();
     }
-    private Point makeSamplePoint(final GeometryFactory geomFac,double x, double y) {
+    private com.vividsolutions.jts.geom.Point makeSamplePoint(final GeometryFactory geomFac, double x, double y) {
         Coordinate c = new Coordinate(x,y);
-        Point point = geomFac.createPoint(c);
+        com.vividsolutions.jts.geom.Point point = geomFac.createPoint(c);
         return point;
     }
     private LineString makeSampleLineString(final GeometryFactory geomFac, double xoff, double yoff) {
