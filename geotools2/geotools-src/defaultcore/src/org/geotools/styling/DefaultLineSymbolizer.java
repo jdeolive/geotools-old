@@ -32,7 +32,8 @@ package org.geotools.styling;
  * @author jamesm
  */
 public class DefaultLineSymbolizer implements org.geotools.styling.LineSymbolizer {
-
+    private Stroke stroke = new DefaultStroke();
+    
     /** Creates a new instance of DefaultLineSymbolizer */
     public DefaultLineSymbolizer() {
     }
@@ -69,7 +70,17 @@ public class DefaultLineSymbolizer implements org.geotools.styling.LineSymbolize
      * @return The Stroke style to use when rendering lines.
      */
     public Stroke getStroke() {
-        return new DefaultStroke();//HACK: should not return a new one each time?
+        return stroke;
+    }
+    
+    /**
+     * Sets the graphical-symbolization parameter to use for the
+     * liniar geometry.
+     *
+     * @param s The Stroke style to use when rendering lines.
+     */
+    public void setStroke(Stroke s) {
+        stroke = s;
     }
     
 }
