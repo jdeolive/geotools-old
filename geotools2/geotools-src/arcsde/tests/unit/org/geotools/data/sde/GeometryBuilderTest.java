@@ -72,7 +72,6 @@ public class GeometryBuilderTest extends TestCase
     protected void setUp() throws Exception
     {
         super.setUp();
-
         this.wktReader = new WKTReader();
     }
 
@@ -86,6 +85,16 @@ public class GeometryBuilderTest extends TestCase
         geometryBuilder = null;
         wktReader = null;
         super.tearDown();
+    }
+
+    public void testGetDefaultValues()
+    {
+      testGetDefaultValue(Point.class);
+      testGetDefaultValue(MultiPoint.class);
+      testGetDefaultValue(LineString.class);
+      testGetDefaultValue(MultiLineString.class);
+      testGetDefaultValue(Polygon.class);
+      testGetDefaultValue(MultiPolygon.class);
     }
 
     /**
@@ -320,4 +329,17 @@ public class GeometryBuilderTest extends TestCase
 
         return (Geometry[]) testGeoms.toArray(new Geometry[0]);
     }
+
+    /**
+     * given a geometry class, tests that GeometryBuilder.defaultValueFor
+     * that class returns an empty geometry of the same geometry class
+     */
+    private void testGetDefaultValue(Class geometryClass)
+    {
+      Geometry geom = GeometryBuilder.defaultValueFor(geometryClass);
+      assertNotNull(geom);
+      assertTrue(geom.isEmpty());
+      assertTrue(geometryClass.isAssignableFrom(geom.getClass()));
+    }
+
 }
