@@ -373,18 +373,23 @@ public class DbaseFileReader {
           // (D)date (Date)
         case 'd':
         case 'D':
-          String tempString = charBuffer.subSequence(fieldOffset,fieldOffset + 4).toString();
-          int tempYear = Integer.parseInt(tempString);
-          tempString = charBuffer.subSequence(fieldOffset + 4,fieldOffset + 6).toString();
-          int tempMonth = Integer.parseInt(tempString) - 1;
-          tempString = charBuffer.subSequence(fieldOffset + 6,fieldOffset + 8).toString();
-          int tempDay = Integer.parseInt(tempString);
-          Calendar cal = Calendar.getInstance();
-          cal.clear();
-          cal.set(cal.YEAR,tempYear);
-          cal.set(cal.MONTH, tempMonth);
-          cal.set(cal.DAY_OF_MONTH, tempDay);
-          object = cal.getTime();
+            try{
+              String tempString = charBuffer.subSequence(fieldOffset,fieldOffset + 4).toString();
+              int tempYear = Integer.parseInt(tempString);
+              tempString = charBuffer.subSequence(fieldOffset + 4,fieldOffset + 6).toString();
+              int tempMonth = Integer.parseInt(tempString) - 1;
+              tempString = charBuffer.subSequence(fieldOffset + 6,fieldOffset + 8).toString();
+              int tempDay = Integer.parseInt(tempString);
+              Calendar cal = Calendar.getInstance();
+              cal.clear();
+              cal.set(cal.YEAR,tempYear);
+              cal.set(cal.MONTH, tempMonth);
+              cal.set(cal.DAY_OF_MONTH, tempDay);
+              object = cal.getTime();
+            }
+            catch(NumberFormatException nfe){
+                //todo: use progresslistener, this isn't a grave error.
+            }
           break;
           
           // (F)floating (Double)
