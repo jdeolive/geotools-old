@@ -2,6 +2,7 @@ package org.geotools.gml;
 
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
@@ -15,7 +16,7 @@ import org.geotools.datasource.*;
  * The source of data for Features. Shapefiles, database, etc. are referenced 
  * through this interface.
  * 
- *@version $Id: GMLDataSource.java,v 1.12 2002/05/02 17:02:55 ianturton Exp $
+ *@version $Id: GMLDataSource.java,v 1.13 2002/05/03 11:44:36 ianturton Exp $
  */
 public class GMLDataSource extends XMLFilterImpl 
     implements DataSource, GMLHandlerFeature {
@@ -24,21 +25,36 @@ public class GMLDataSource extends XMLFilterImpl
     private String defaultParser = "org.apache.xerces.parsers.SAXParser";
     
     /** Holds a URI for the GML data */
-    private String uri;
+    private InputSource uri;
     
     /** Temporary storage for the features loaded from GML. */
     private Vector features = new Vector();
     
     
     public GMLDataSource(String uri) {
-        this.uri = uri;
+        setUri(uri);
+    }
+    
+    public GMLDataSource(URL uri) throws DataSourceException{
+        setUri(uri);
     }
     
     
     public void setUri(String uri) {
-        this.uri = uri;
+        this.uri = new InputSource(uri);
     }
     
+    public void setUri(URL uri) throws DataSourceException{
+        InputStream in = null;
+        try{
+            in = uri.openStream();
+        }catch (IOException e){
+            throw new DataSourceException("Error reading url "+uri.toString()+" in GMLGeometryDataSource"+
+                "\n"+e);
+        }
+        this.uri = new InputSource(in);
+    }
+        
 
     public void setParser(String parser) {
         this.defaultParser = parser;
