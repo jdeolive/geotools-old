@@ -1,11 +1,11 @@
-This is the readme file for the ArcSDE DataSource of the geotools2 project.
+This is the readme file for the ArcSDE DataStore of the geotools2 project.
 
 Unit testing the ArcSDE DataSource over a live database is disabled
 due to the lack of a publicly available one.
 
 If you have a live ArcSDE database and want to run the
 unit tests over it, remove or comment the line
-<exclude>**/SdeDataSourceTest.java</exclude>
+<exclude>**/SdeDataStoreTest.java</exclude>
 on project.xml and see tests/unit/testData/testparams.properties
 for instructions on setting up testing and connection options.
 
