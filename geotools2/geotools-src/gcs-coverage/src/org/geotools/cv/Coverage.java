@@ -86,6 +86,9 @@ import org.geotools.resources.XAffineTransform;
 import org.geotools.resources.gcs.ResourceKeys;
 import org.geotools.resources.gcs.Resources;
 
+// OpenGIS dependencies
+import org.opengis.cv.CV_Coverage;
+
 
 /**
  * Base class of all coverage type. {@linkplain org.geotools.gc.GridCoverage Grid coverages}
@@ -110,6 +113,8 @@ import org.geotools.resources.gcs.Resources;
  * @version 1.00
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
+ *
+ * @see org.opengis.cv.CV_Coverage
  */
 public abstract class Coverage extends PropertySourceImpl implements Dimensioned {
     /**
@@ -235,6 +240,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * @return The coordinate system, or <code>null</code> if this coverage
      *         does not have an associated coordinate system.
      *
+     * @see CV_Coverage#getCoordinateSystem()
      * @see org.geotools.gc.GridGeometry#getGridToCoordinateSystem
      */
     public CoordinateSystem getCoordinateSystem() {
@@ -246,6 +252,8 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * system coordinates. May be null if this coverage has no associated
      * coordinate system. The default implementation returns the coordinate
      * system envelope if there is one.
+     *
+     * @see CV_Coverage#getEnvelope()
      */
     public Envelope getEnvelope() {
         final CoordinateSystem cs = getCoordinateSystem();
@@ -266,6 +274,8 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      *
      * @param  locale The desired locale, or <code>null</code> for the default locale.
      * @return The names of each dimension. The array's length is equals to {@link #getDimension}.
+     *
+     * @see CV_Coverage#getDimensionNames()
      */
     public String[] getDimensionNames(final Locale locale) {
         final CoordinateSystem cs = getCoordinateSystem();
@@ -285,6 +295,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * include such things as description, data type of the value (bit, byte, integer...),
      * the no data values, minimum and maximum values and a color table if one is associated
      * with the dimension. A coverage must have at least one sample dimension.
+     *
+     * @see CV_Coverage#getNumSampleDimensions()
+     * @see CV_Coverage#getSampleDimension(int)
      */
     public abstract SampleDimension[] getSampleDimensions();
     
@@ -301,6 +314,8 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      *               <code>{@link #getSampleDimensions()}.length</code> long.
      * @return The <code>dest</code> array, or a newly created array if <code>dest</code> was null.
      * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     *
+     * @see CV_Coverage#evaluateAsBoolean
      */
     public boolean[] evaluate(final CoordinatePoint coord, boolean[] dest) throws PointOutsideCoverageException {
         final double[] result = evaluate(coord, (double[])null);
@@ -325,6 +340,8 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      *               <code>{@link #getSampleDimensions()}.length</code> long.
      * @return The <code>dest</code> array, or a newly created array if <code>dest</code> was null.
      * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     *
+     * @see CV_Coverage#evaluateAsInteger
      */
     public int[] evaluate(final CoordinatePoint coord, int[] dest) throws PointOutsideCoverageException {
         final double[] result = evaluate(coord, (double[])null);
@@ -375,6 +392,8 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      *               <code>{@link #getSampleDimensions()}.length</code> long.
      * @return The <code>dest</code> array, or a newly created array if <code>dest</code> was null.
      * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     *
+     * @see CV_Coverage#evaluateAsDouble
      */
     public abstract double[] evaluate(CoordinatePoint coord, double[] dest) throws PointOutsideCoverageException;
     
@@ -540,7 +559,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
             final Shape                 area = context.getAreaOfInterest();
             final Rectangle2D        srcRect = (area!=null) ? area.getBounds2D() : bounds;
             final Rectangle          dstRect = (Rectangle) XAffineTransform.transform(transform, srcRect, new Rectangle());
-            final ColorModel      colorModel = catg[0].getCategoryList().getColorModel(true, catg.length);
+            final ColorModel      colorModel = catg[0].getCategoryList().getColorModel(true, 0, catg.length);
             final Dimension         tileSize = ImageUtilities.toTileSize(dstRect.getSize());
             final SampleModel    sampleModel = colorModel.createCompatibleSampleModel(tileSize.width, tileSize.height);
             final TiledImage           image = new TiledImage(dstRect.x, dstRect.y, dstRect.width, dstRect.height, 0, 0, sampleModel, colorModel);
