@@ -62,13 +62,14 @@ public class NumberParserTest extends TestCase {
     assertEquals(Double.parseDouble(s), NumberParser.parseDouble(s),0); 
   }
   
-  private void test(String s) {
+  private void testDouble(String s) {
     boolean javafail = false;
     boolean gtfail = false;
     double javadouble = 0;
     double gtdouble = 0;
     try {
-      javadouble = Double.parseDouble(s);
+      // lets trim just to make sure
+      javadouble = Double.parseDouble(s.trim());
     } catch (NumberFormatException nfe) {
       javafail = true;
     }
@@ -85,30 +86,63 @@ public class NumberParserTest extends TestCase {
       assertEquals(javadouble,gtdouble, 0);
   }
   
+  private void testInteger(String s) {
+    boolean javafail = false;
+    boolean gtfail = false;
+    int javaint = 0;
+    int gtint = 0;
+    try {
+      // Integer parse will not trim values...
+      javaint = Integer.parseInt(s.trim());
+    } catch (NumberFormatException nfe) {
+      javafail = true;
+    }
+    try {
+      gtint = NumberParser.parseInt(s);
+    } catch (NumberFormatException nfe) {
+      gtfail = true;
+    }
+    if (javafail)
+      assertTrue("gtfailure '" + s + "' = " + gtint, gtfail);
+    if (gtfail)
+      assertTrue("javafailure '" + s + "' = " + javaint, javafail);
+    if (!javafail && !gtfail)
+      assertEquals(javaint,gtint, 0);
+  }
+  
   public void testValidDoubles() {
-    test("4.275");
-    test("0.123e5");
-    test(".123e5");
-    test("23e5");
-    test("3e5");
-    test("         123.456   ");
-    test("         123e123   ");
-    test("         123.456   ");
-    test("10e");
-    test("10.");
-    test("10.e");
-    test(".");
+    testDouble("4.275");
+    testDouble("0.123e5");
+    testDouble(".123e5");
+    testDouble("23e5");
+    testDouble("3e5");
+    testDouble("         123.456   ");
+    testDouble("         123e123   ");
+    testDouble("         123.456   ");
+    testDouble("10e");
+    testDouble("10.");
+    testDouble("10.e");
+    testDouble(".");
+    testDouble(" -2000 ");
     
     // check garbage bytes robustness
     char[] zeros = new char [] {0,49,49,0};
     assertEquals( (double) 11,NumberParser.parseDouble(new String(zeros)), 0);
   }
   
+  public void testValidIntegers() {
+    testInteger("400");
+    testInteger(" 400");
+    testInteger(" 400 ");
+    testInteger("400 ");
+    testInteger(" -2000 ");
+  }
+  
   public void testInvalidDoubles() {
-    test(""); 
-    test("x");
-    test("e");
-    test("\b");
+    testDouble(""); 
+    testDouble("x");
+    testDouble("e");
+    testDouble("\b");
   }
   
   public static void main(String[] args) {
