@@ -33,40 +33,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.14 2004/01/28 22:20:55 ianschneider Exp $
+ * @version $Id: DefaultFeature.java,v 1.15 2004/02/11 21:37:02 ianschneider Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
 public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
-    /*
-     * Redesign notes, from FeatureFlat:
-     *
-     * getId -> getID
-     *  standards naming -ch
-     *
-     * getSchema -> getFeatureType
-     *  API clarity -ch
-     *
-     * Object[] getAttributes() -> Object[] getAttributes(Object[])
-     *  Performance enhancements.  Ian, check this code -ch
-     *
-     * Added getAttribute(int index) -ch
-     *
-     * Got rid of SchemaException on getAttributes -ch
-     *
-     * Implemented getBounds, with lazy computation.  If someone
-     * could check this that'd be great - needs test cases.  I
-     * made it so whenever a geometry is set the bounds are set to null.
-     * Bounds are computed whenever getBounds is called and its not null,
-     * then is cached. -ch
-     *
-     *
-     */
-
-    /** The logger for the default core module. */
-
-    //private static final Logger LOGGER = Logger.getLogger(
-    //        "org.geotools.defaultcore");
 
     /** The unique id of this feature */
     private final String featureId;
@@ -136,26 +107,6 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
         return "feature-" + System.identityHashCode(this);
     }
 
-    /**
-     * Finds the attribute position by its name.
-     *
-     * @param name the name of the attribute to find.
-     *
-     * @return the position of the attribute of name.
-     */
-    protected int findAttributeByName(String name) {
-        FeatureType schema = getFeatureType();
-
-        for (int i = 0, ii = schema.getAttributeCount(); i < ii; i++) {
-            AttributeType type = schema.getAttributeType(i);
-
-            if (type.getName().equals(name)) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
 
     /**
      * Gets a reference to the feature type schema for this feature.
@@ -209,7 +160,7 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
      * @return Attribute.
      */
     public Object getAttribute(String xPath) {
-        int idx = findAttributeByName(xPath);
+        int idx = schema.find(xPath);
 
         if (idx == -1) {
             return null;
@@ -293,7 +244,7 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
      */
     public void setAttribute(String xPath, Object attribute)
         throws IllegalAttributeException {
-        int idx = findAttributeByName(xPath);
+        int idx = schema.find(xPath);
 
         if (idx < 0) {
             throw new IllegalAttributeException("No attribute named " + xPath);
