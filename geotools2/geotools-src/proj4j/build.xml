@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="proj4j">
+    <property file="build.ant.properties"/>
     <target depends="test" name="all">
         <!-- WRITEME -->
     </target>
     
     <target name="compile">
-        <javac debug="true" srcdir="src">
-
-        </javac>
+        <javac debug="true" srcdir="src"/>
+    </target>
+    <target depends="compile" name="compile-tests">    
         <javac debug="true" srcdir="tests/unit">
             <classpath>
                 <path path="src"/>
@@ -15,7 +16,7 @@
             </classpath>
         </javac>
     </target>
-    <target depends="compile" name="test">
+    <target depends="compile-tests" name="test">
         <junit fork="false" printsummary="true">
         <formatter type="plain"/>
         <classpath>
@@ -26,6 +27,10 @@
             </classpath>
             <test name="org.geotools.proj4j.Proj4jSuite"/>
         </junit>
+    </target>
+    <target depends="test" name="release">
+        <mkdir dir="${releaseFolder}"/>
+        <jar jarfile="${releaseFolder}/proj4j.jar" basedir="src/"/>
     </target>
     <target name="buildTODOlist">
         
