@@ -1,7 +1,18 @@
 /*
- * ColorMapImpl.java
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
- * Created on 13 November 2002, 13:51
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
  */
 package org.geotools.styling;
 
@@ -10,8 +21,9 @@ import java.util.List;
 
 
 /**
+ * A simple implementation of the color map interface.
  *
- * @author  iant
+ * @author iant
  * @author aaime
  */
 public class ColorMapImpl implements ColorMap {
@@ -41,10 +53,10 @@ public class ColorMapImpl implements ColorMap {
      * @see org.geotools.styling.ColorMap#setType(int)
      */
     public void setType(int type) {
-        if(type < TYPE_RAMP || type > TYPE_VALUES) {
+        if ((type < TYPE_RAMP) || (type > TYPE_VALUES)) {
             throw new IllegalArgumentException();
         }
-        
-        this.type = type;        
+
+        this.type = type;
     }
 }
