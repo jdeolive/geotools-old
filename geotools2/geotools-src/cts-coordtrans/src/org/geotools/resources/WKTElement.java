@@ -36,6 +36,7 @@ package org.geotools.resources;
 import java.util.List;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Collections;
 
 // Parsing
 import java.util.Locale;
@@ -47,14 +48,16 @@ import java.text.ParseException;
 import java.io.PrintWriter;
 
 // Resources
+import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
 
 /**
- * An element in a <cite>Well Know Text</cite> (WKT). Such element are made of {@link String},
- * {@link Number} and other {@link WKTElement}. For example:
+ * An element in a <cite>Well Know Text</cite> (WKT).
+ * A <code>WKTElement</code> is made of {@link String}, {@link Number}
+ * and other {@link WKTElement}. For example:
  *
  * <blockquote><pre>
  * PRIMEM["Greenwich", 0.0, AUTHORITY["some authority", "Greenwich"]]
@@ -64,15 +67,15 @@ import org.geotools.resources.cts.ResourceKeys;
  * The result is a tree, which can be printed with {@link #print}.
  * Elements can be pull in a <cite>first in, first out</cite> order.
  *
- * @version $Id: WKTElement.java,v 1.1 2002/09/03 09:43:24 desruisseaux Exp $
+ * @version $Id: WKTElement.java,v 1.2 2002/09/03 17:53:00 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
 public final class WKTElement {    
     /**
-     * The position where children elements start in the string to be parsed.
+     * The position where this element starts in the string to be parsed.
      */
-    public final int offset;
+    private final int offset;
 
     /**
      * Keyword of this entity. For example: "PRIMEM".
@@ -87,6 +90,18 @@ public final class WKTElement {
     private final List list;
 
     /**
+     * Construct a root element.
+     *
+     * @param element The only children for this root.
+     */
+    WKTElement(final WKTElement singleton) {
+        offset  = 0;
+        keyword = null;
+        list    = new LinkedList();
+        list.add(singleton);
+    }
+
+    /**
      * Construct a new <code>WKTElement</code>.
      *
      * @param  text       The text to parse.
@@ -94,7 +109,7 @@ public final class WKTElement {
      *                    In output, the first character after the separator.
      * @param  separator  The character to search.
      */ 
-    public WKTElement(final WKTFormat format, final String text, final ParsePosition position)
+    WKTElement(final WKTFormat format, final String text, final ParsePosition position)
         throws ParseException
     {
         /*
@@ -106,6 +121,7 @@ public final class WKTElement {
         while (lower<length && Character.isSpaceChar(text.charAt(lower))) {
             lower++;
         }
+        offset = lower;
         int upper = lower;
         while (upper<length && Character.isUnicodeIdentifierPart(text.charAt(upper))) {
             upper++;
@@ -116,7 +132,6 @@ public final class WKTElement {
         }
         keyword = text.substring(lower, upper).toUpperCase(format.locale);
         position.setIndex(upper);
-        offset = upper;
         /*
          * Parse the opening bracket, then parse all elements inside the bracket.
          * Elements are parser sequentially and their type are selected according
@@ -134,7 +149,7 @@ public final class WKTElement {
         list = new LinkedList();
         do {
             if (position.getIndex() >= length) {
-                throw new ParseException(missingCharacter(format.closingBracket), length);
+                throw missingCharacter(format.closingBracket, length);
             }
             //
             // Try to parse the next element as a quoted string. We will take
@@ -145,7 +160,7 @@ public final class WKTElement {
                 upper = text.indexOf(format.textDelimitor, lower+1);
                 if (upper < lower) {
                     position.setErrorIndex(++lower);
-                    throw new ParseException(missingCharacter(format.textDelimitor), lower);
+                    throw missingCharacter(format.textDelimitor, lower);
                 }
                 list.add(text.substring(lower, upper).trim());
                 position.setIndex(upper + 1);
@@ -231,6 +246,34 @@ public final class WKTElement {
         }
     }
 
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    ////////                                                                      ////////
+    ////////    Construction of a ParseException when a string can't be parsed    ////////
+    ////////                                                                      ////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * Returns a {@link ParseException} with the specified cause. A localized string
+     * <code>"Error in <{@link #keyword}>"</code> will be prepend to the message.
+     * The error index will be the starting index of this <code>WKTElement</code>.
+     *
+     * @param  cause   The cause of the failure, or <code>null</code> if none.
+     * @param  message The message explaining the cause of the failure, or <code>null</code>
+     *                 for reusing the same message than <code>cause</code>.
+     * @return The exception to be thrown.
+     */
+    public ParseException parseFailed(final Exception cause, String message) {
+        if (message == null) {
+            message = cause.getLocalizedMessage();
+        }
+        ParseException exception = new ParseException(complete(message), offset);
+        exception = trim("parseFailed", exception);
+        exception.initCause(cause);
+        return exception;
+    }
+
     /**
      * Returns a {@link ParseException} with a "Unparsable string" message. The error message
      * is built from the specified string starting at the specified position. Properties
@@ -253,18 +296,21 @@ public final class WKTElement {
                 }
             }
         }
-        return new ParseException(complete(Resources.format(ResourceKeys.ERROR_UNPARSABLE_STRING_$2,
-                text.substring(position.getIndex()), text.substring(lower, upper))), lower);
+        return trim("unparsableString", new ParseException(complete(
+                    Resources.format(ResourceKeys.ERROR_UNPARSABLE_STRING_$2,
+                    text.substring(position.getIndex()), text.substring(lower, upper))), lower));
     }
 
     /**
-     * Returns a message saying that a character is missing.
+     * Returns an exception saying that a character is missing.
      *
      * @param c The missing character.
+     * @param position The error position.
      */
-    private String missingCharacter(final char c) {
-        return complete(Resources.format(
-                        ResourceKeys.ERROR_MISSING_CHARACTER_$1, new Character(c)));
+    private ParseException missingCharacter(final char c, final int position) {
+        return trim("missingCharacter", new ParseException(complete(
+                    Resources.format(ResourceKeys.ERROR_MISSING_CHARACTER_$1, new Character(c))),
+                    position));
     }
 
     /**
@@ -273,12 +319,13 @@ public final class WKTElement {
      * @param key The name of the missing parameter.
      */
     private ParseException missingParameter(final String key) {
-        return new ParseException(complete(Resources.format(
-                    ResourceKeys.ERROR_MISSING_PARAMETER_$1, key)), offset);
+        return trim("missingParameter", new ParseException(complete(
+                    Resources.format(ResourceKeys.ERROR_MISSING_PARAMETER_$1, key)),
+                    offset + keyword.length()));
     }
 
     /**
-     * Append a prefix "Error in XXX" before the error message.
+     * Append a prefix "Error in <keyword>: " before the error message.
      *
      * @param  message The message to complete.
      * @return The completed message.
@@ -290,6 +337,34 @@ public final class WKTElement {
         return message;
     }
 
+    /**
+     * Remove the exception factory method from the stack trace. The factory is
+     * not the place where the failure occurs; the error occurs in the factory's
+     * caller.
+     *
+     * @param  factory   The name of the factory method.
+     * @param  exception The exception to trim.
+     * @return <code>exception</code> for convenience.
+     */
+    private static ParseException trim(final String factory, final ParseException exception) {
+        StackTraceElement[] trace = exception.getStackTrace();
+        if (trace!=null && trace.length!=0) {
+            if (factory.equals(trace[0].getMethodName())) {
+                trace = (StackTraceElement[]) XArray.remove(trace, 0, 1);
+                exception.setStackTrace(trace);
+            }
+        }
+        return exception;
+    }
+
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    ////////                                                                      ////////
+    ////////    Pull elements from the tree                                       ////////
+    ////////                                                                      ////////
+    //////////////////////////////////////////////////////////////////////////////////////
     /**
      * Removes the next {@link Number} from the list and returns it.
      *
@@ -338,7 +413,7 @@ public final class WKTElement {
      * @throws ParseException if no more element is available.
      */
     public WKTElement pullElement(final String key) throws ParseException {
-        final WKTElement element = pullOptionalElement(keyword);
+        final WKTElement element = pullOptionalElement(key);
         if (element != null) {
             return element;
         }
@@ -392,6 +467,14 @@ public final class WKTElement {
     }
 
     /**
+     * Returns the next element, or <code>null</code> if there is no more
+     * element. The element is <strong>not</strong> removed from the list.
+     */
+    public Object peek() {
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    /**
      * Close this element.
      *
      * @throws ParseException If the list still contains some unprocessed elements.
@@ -399,7 +482,8 @@ public final class WKTElement {
     public void close() throws ParseException {
         if (list!=null && !list.isEmpty()) {
             throw new ParseException(complete(Resources.format(
-                        ResourceKeys.ERROR_UNEXPECTED_PARAMETER_$1, list.get(0))), offset);
+                        ResourceKeys.ERROR_UNEXPECTED_PARAMETER_$1, list.get(0))),
+                        offset+keyword.length());
         }
     }
 

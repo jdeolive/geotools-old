@@ -38,6 +38,8 @@ import java.text.Format;
 import java.text.NumberFormat;
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
+import java.text.ParsePosition;
+import java.text.ParseException;
 
 
 /**
@@ -46,7 +48,7 @@ import java.text.FieldPosition;
  * etc.). This is a relatively light object compared to their subclasses and can be used when
  * parsing are not needed.
  *
- * @version $Id: WKTFormat.java,v 1.1 2002/09/03 09:43:24 desruisseaux Exp $
+ * @version $Id: WKTFormat.java,v 1.2 2002/09/03 17:53:00 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -106,11 +108,60 @@ public abstract class WKTFormat extends Format {
     }
 
     /**
-     * Format the specified object. Default implementation just append {@link Object#toString},
-     * since the <code>toString()</code> implementation for most {@link org.geotools.cs.Info}
-     * objects is to returns a WKT. Subclasses shoud override this method.
+     * Returns a tree of {@link WKTElement} for the specified text.
+     *
+     * @param  text       The text to parse.
+     * @param  position   In input, the position where to start parsing from.
+     *                    In output, the first character after the separator.
+     * @param  separator  The character to search.
      */
-    public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
-        return toAppendTo.append(obj);
+    protected final WKTElement getTree(final String text, final ParsePosition position)
+        throws ParseException
+    {
+        return new WKTElement(new WKTElement(this, text, position));
+    }
+
+
+    /**
+     * Parses the next element in the specified <cite>Well Know Text</cite> (WKT) tree.
+     *
+     * @param  element The element to be parsed.
+     * @return The object.
+     * @throws ParseException if the element can't be parsed.
+     */
+    protected abstract Object parse(final WKTElement element) throws ParseException;
+
+    /**
+     * Parses a <cite>Well Know Text</cite> (WKT).
+     *
+     * @param  text The text to be parsed.
+     * @return The object.
+     * @throws ParseException if the string can't be parsed.
+     */
+    public final Object parseObject(final String text) throws ParseException {
+        final WKTElement element = getTree(text, new ParsePosition(0));
+        final Object object = parse(element);
+        element.close();
+        return object;
+    }
+    
+    /**
+     * Parses a <cite>Well Know Text</cite> (WKT).
+     *
+     * @param  text The text to be parsed.
+     * @param  position The position to start parsing from.
+     * @return The object.
+     */
+    public final Object parseObject(final String text, final ParsePosition position) {
+        final int origin = position.getIndex();
+        try {
+            return parse(getTree(text, position));
+        } catch (ParseException exception) {
+            position.setIndex(origin);
+            if (position.getErrorIndex() < origin) {
+                position.setErrorIndex(exception.getErrorOffset());
+            }
+            return null;
+        }
     }
 }

@@ -42,6 +42,9 @@ import java.rmi.ServerException;
 import java.rmi.server.RemoteObject;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
+import java.text.ParseException;
+import java.text.Format;
+import java.util.Locale;
 
 // JAI dependencies
 import javax.media.jai.ParameterList;
@@ -94,7 +97,7 @@ import org.geotools.util.WeakHashSet;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.6 2002/07/31 10:19:29 desruisseaux Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.7 2002/09/03 17:52:59 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -106,6 +109,12 @@ public class CoordinateSystemFactory {
      * Will be constructed only when first needed.
      */
     private static CoordinateSystemFactory DEFAULT;
+
+    /**
+     * The object to use for parsing <cite>Well-Known Text</cite> (WKT) strings.
+     * Will be created only when first needed.
+     */
+    private transient WKTParser parser;
     
     /**
      * Set of weak references to existing coordinate systems.
@@ -616,6 +625,57 @@ public class CoordinateSystemFactory {
     {
         return (LocalDatum) pool.canonicalize(new LocalDatum(name, type));
     }
+        
+    /**
+     * Creates a coordinate system object from a <cite>Well-Known Text</cite> (WKT) string.
+     * WKT are part of <cite>Coordinate Transformation Services Specification</cite>. For
+     * example, the following is a WKT for a geocentric coordinate system:
+     *
+     * <blockquote><pre>
+     * GEOCCS["Geocentric",
+     *   DATUM["WGS_1984",
+     *     SPHEROID["WGS 84", 6378137, 298.257223563, AUTHORITY["EPSG","7030"]],
+     *     TOWGS84[0,0,0,0,0,0,0], AUTHORITY["EPSG","6326"]],
+     *   PRIMEM["Greenwich",0], UNIT["Meter",1],
+     *   AXIS["X", OTHER],
+     *   AXIS["Y", EAST],
+     *   AXIS["Z", NORTH]]
+     * </pre></blockquote>
+     *
+     * @param  text The <cite>Well-Known Text</cite>.
+     * @return The coordinate system (never <code>null</code>).
+     * @throws FactoryException if the Well-Known Text can't be parsed,
+     *         or if the coordinate system creation failed from some other reason.
+     */
+    public CoordinateSystem createFromWKT(final String text) throws FactoryException {
+        if (parser == null) {
+            // Not a big deal if we are not synchronized. If this method is invoked in
+            // same time by two different threads, we may have two WKTParser objects
+            // for a short time. It doesn't hurt...
+            parser = new WKTParser(Locale.US, this);
+        }
+        try {
+            return parser.parseCoordinateSystem(text);
+        } catch (ParseException exception) {
+            final Throwable cause = exception.getCause();
+            if (cause instanceof FactoryException) {
+                throw (FactoryException) cause;
+            }
+            throw new FactoryException(exception.getLocalizedMessage(), exception);
+        }
+    }
+
+    /**
+     * Returns an object to use for parsing and formatting <cite>Well-Known Text</cite>.
+     * The {@link Format#parseObject(String)} method can be used for parsing coordinate
+     * systems, datum, ellipsoid and prime meridian.
+     *
+     * @param locale The locale for the parser (usually {@link Locale#US}. This locale
+     *        will affect the way numbers are parsed.
+     */
+    public Format getWKTFormat(final Locale locale) {
+        return new WKTParser(locale, this);
+    }
 
     /**
      * Returns an OpenGIS interface for this info.
@@ -692,10 +752,14 @@ public class CoordinateSystemFactory {
         /**
          * Creates a coordinate system object from a Well-Known Text string.
          */
-        public CS_CoordinateSystem createFromWKT(String wellKnownText)
+        public CS_CoordinateSystem createFromWKT(String text)
             throws RemoteException
         {
-            throw new UnsupportedOperationException("WKT parsing not yet implemented");
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createFromWKT(text));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
         }
         
         /**
