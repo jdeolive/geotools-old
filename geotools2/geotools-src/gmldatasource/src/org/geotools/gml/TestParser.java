@@ -1,8 +1,23 @@
 /*
- * Copyright (c) 2001 Vision for New York - www.vfny.org.  All rights reserved.
- * This code is licensed under the GPL 2.0 license, availible at the root 
- * application directory.
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
+
 package org.geotools.gml;
 
 import java.io.*;
@@ -22,20 +37,19 @@ import org.geotools.feature.*;
  * <p>Illustrates the way that you chain the filters together.  Note that 
  * TestHandler is considered the 'parent' of GMLFilterGeometry 
  * (its 'child').  In turn, GMLFilterGeometry is the 'parent' of 
- * GMLFilterDocument, etc.  Each parent recieves pre-processed data from 
+ * GMLFilterDocument, etc.  Each parent receives pre-processed data from 
  * its child either via the defalut content handler methods or the specialized
  * GMLHandler methods.</p>
  *
  * <p>This small class simply illustrates how simple it is to parse GML into 
  * JTS objects using the structure in this package.  You are encouraged to copy
  * the code in this class and use it as a starting point for your own GML 
- * parser.  Of course, you should replace <code>TestHandler</code> with your own
- * class.  The only requirement of your new class is that it implements 
+ * parser.  Of course, you should replace <code>TestHandler</code> with your
+ * own class.  The only requirement of your new class is that it implements 
  * <code>GMLHandlerJTS</code>.  That's it!</p>
  * 
+ * @version $Id: TestParser.java,v 1.7 2002/06/05 11:48:54 loxnard Exp $
  * @author Rob Hranac, Vision for New York
- * @version alpha, 12/01/01
- *
  */
 public class TestParser {
 
@@ -114,7 +128,7 @@ public class TestParser {
         //parsedFeatures.
         
         // chains all the appropriate filters together (in correct order)
-        //  and initiates parsing
+        // and initiates parsing
         
         
     }
