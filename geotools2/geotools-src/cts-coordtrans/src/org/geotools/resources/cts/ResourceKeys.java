@@ -102,6 +102,7 @@ public interface ResourceKeys
     public static final int ERROR_NOT_AN_ANGLE_OBJECT_$1                =    67;
     public static final int ERROR_NOT_TWO_DIMENSIONAL_$1                =    68;
     public static final int ERROR_NO_CONVERGENCE                        =    69;
+    public static final int ERROR_NO_CONVERGENCE_$2                     =    90;
     public static final int ERROR_NO_DESTINATION_AXIS_$1                =    70;
     public static final int ERROR_NO_SUCH_AUTHORITY_CODE_$2             =    82;
     public static final int ERROR_NO_TRANSFORMATION_PATH_$2             =    71;

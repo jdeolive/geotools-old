@@ -48,6 +48,8 @@ import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
+import org.geotools.pt.CoordinateFormat;
+import org.geotools.pt.CoordinatePoint;
 
 // J2SE dependencies
 import java.lang.Double; // For JavaDoc
@@ -62,7 +64,7 @@ import java.rmi.RemoteException;
  * the measurement of the shape and the size of the Earth to approximate
  * the geoid as close as possible.
  *
- * @version $Id: Ellipsoid.java,v 1.9 2003/01/20 23:16:09 desruisseaux Exp $
+ * @version $Id: Ellipsoid.java,v 1.10 2003/02/05 22:57:42 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -351,7 +353,7 @@ public class Ellipsoid extends Info {
                 if (false) {
                     // 'faz' and 'baz' are forward azimuths at both points.
                     // Since the current API can't returns this result, it
-                    // doesn't work to compute it at this time.
+                    // doesn't worth to compute it at this time.
                     faz = Math.atan2(tu1, tu2);
                     baz = Math.atan2(cu1*sx, baz*cx - su1*cu2)+Math.PI;
                 }
@@ -368,14 +370,18 @@ public class Ellipsoid extends Info {
         }
         // No convergence. It may be because coordinate points
         // are equals or because they are at antipodes.
-        if (Math.abs(x1-x2)<=EPS && Math.abs(y1-y2)<=EPS) {
+        final double LEPS = 1E-10;
+        if (Math.abs(x1-x2)<=LEPS && Math.abs(y1-y2)<=LEPS) {
             return 0; // Coordinate points are equals
         }
-        if (Math.abs(y1)<=EPS && Math.abs(y2)<=EPS) {
+        if (Math.abs(y1)<=LEPS && Math.abs(y2)<=LEPS) {
             return Math.abs(x1-x2) * getSemiMajorAxis(); // Points are on the equator.
         }
         // Other cases: no solution for this algorithm.
-        throw new ArithmeticException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
+        final CoordinateFormat format = new CoordinateFormat();
+        throw new ArithmeticException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE_$2,
+                    format.format(new CoordinatePoint(Math.toDegrees(x1),Math.toDegrees(y1))),
+                    format.format(new CoordinatePoint(Math.toDegrees(x2),Math.toDegrees(y2)))));
     }
     
     /**

@@ -505,15 +505,15 @@ public class AngleFormat extends Format {
          */
         double minutes  = Double.NaN;
         double secondes = Double.NaN;
-        if (width1!=0) {
+        if (width1!=0 && !Double.isNaN(angle)) {
             int tmp = (int) degrees; // Arrondie vers 0 même si négatif.
             minutes = Math.abs(degrees-tmp)*60;
-            degrees  = tmp;
+            degrees = tmp;
             if (minutes<0 || minutes>60) {
                 // Erreur d'arrondissement (parce que l'angle est trop élevé)
                 throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_ANGLE_OVERFLOW_$1, new Double(angle)));
             }
-            if (width2!=0) {
+            if (width2 != 0) {
                 tmp      = (int) minutes; // Arrondie vers 0 même si négatif.
                 secondes = (minutes-tmp)*60;
                 minutes  = tmp;
@@ -544,12 +544,12 @@ public class AngleFormat extends Format {
          * des problèmes d'arrondissements. Procède maintenant à l'écriture
          * de l'angle.
          */
-        if (prefix!=null) {
+        if (prefix != null) {
             toAppendTo.append(prefix);
         }
         final int field;
-        if (pos!=null) {
-            field=pos.getField();
+        if (pos != null) {
+            field = pos.getField();
             pos.setBeginIndex(0);
             pos.setEndIndex(0);
         } else {
@@ -592,17 +592,17 @@ public class AngleFormat extends Format {
         if (!last) {
             numberFormat.setMinimumIntegerDigits(w);
             numberFormat.setMaximumFractionDigits(0);
-            toAppendTo=numberFormat.format(value, toAppendTo, dummy);
+            toAppendTo = numberFormat.format(value, toAppendTo, dummy);
         } else if (decimalSeparator) {
             numberFormat.setMinimumIntegerDigits(w);
             numberFormat.setMinimumFractionDigits(widthDecimal);
             numberFormat.setMaximumFractionDigits(widthDecimal);
-            toAppendTo=numberFormat.format(value, toAppendTo, dummy);
+            toAppendTo = numberFormat.format(value, toAppendTo, dummy);
         } else {
             value *= XMath.pow10(widthDecimal);
             numberFormat.setMaximumFractionDigits(0);
             numberFormat.setMinimumIntegerDigits(w+widthDecimal);
-            toAppendTo=numberFormat.format(value, toAppendTo, dummy);
+            toAppendTo = numberFormat.format(value, toAppendTo, dummy);
         }
         if (s!=null) {
             toAppendTo.append(s);
