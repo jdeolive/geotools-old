@@ -65,7 +65,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.16 2004/01/14 02:43:09 jive Exp $
+ * @version $Id: PostgisDataStore.java,v 1.17 2004/01/16 01:49:59 jive Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -316,8 +316,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
         try {
             String sqlStatement = "SELECT srid FROM GEOMETRY_COLUMNS WHERE "
-                + "f_table_name='" + tableName + "' AND f_geometry_column='"
-                + geometryColumnName + "';";
+                + "f_table_name='\"" + tableName + "\"' AND f_geometry_column='\""
+                + geometryColumnName + "\"';";
             dbConnection = getConnection(Transaction.AUTO_COMMIT);
 
             Statement statement = dbConnection.createStatement();
