@@ -37,8 +37,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import org.geotools.data.DataSource;
 
-import org.geotools.shapefile.Shapefile;
-import org.geotools.shapefile.ShapefileDataSource;
+
 
 /** Reads the layers defined in the layers.xml file and exposes them for use in an app.
  * Call read() to read all the layers.

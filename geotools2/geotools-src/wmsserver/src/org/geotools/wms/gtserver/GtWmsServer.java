@@ -49,9 +49,10 @@ import org.geotools.filter.GeometryFilter;
 import org.geotools.map.*;
 
 import org.geotools.renderer.*;
+import org.geotools.renderer.lite.LiteRenderer;
+import org.geotools.shapefile.ShapefileDataSource;
 
-import org.geotools.shapefile.*;
-import org.geotools.shapefile.DbaseFileReader;
+
 
 import org.geotools.styling.*;
 
@@ -69,7 +70,8 @@ public class GtWmsServer implements WMSServer {
     HashMap features = new HashMap();
     HashMap styles = new HashMap();
     URL base;
-    Java2DRenderer renderer = new Java2DRenderer();
+//    Java2DRenderer renderer = new Java2DRenderer();
+    Renderer renderer = new LiteRenderer();
 
     public GtWmsServer() {
         //		loadLayers();
@@ -273,6 +275,9 @@ public class GtWmsServer implements WMSServer {
                         layerstyle = stylereader.readXML();
                         styles.put(sldpath, layerstyle);
                         LOGGER.fine("sld loaded");
+                        if(layerstyle.isDefault()){
+                           layerdefn.defaultStyle = sldpath;
+                        }
                     }
                 } else {
                     if (layerdefn.defaultStyle != null) {
@@ -280,7 +285,7 @@ public class GtWmsServer implements WMSServer {
                                                  layerdefn.defaultStyle);
                         LOGGER.fine("looking for default:" + sldpath);
                         layerstyle =  (Style)styles.get(sldpath);
-                        if(layerstyle == null){
+                        if(sldpath!=null&&layerstyle == null){
                             File file = new File(sldpath);
                             URL url;
 
@@ -296,13 +301,16 @@ public class GtWmsServer implements WMSServer {
                             layerstyle = stylereader.readXML();
                             styles.put(sldpath, layerstyle);
                             //LOGGER.fine("sld loaded");
+                        }else{
+                            layerstyle = (org.geotools.styling.Style) styles.get(
+                                             layer[i]);
                         }
                     } else {
                         layerstyle = (org.geotools.styling.Style) styles.get(
                                              layer[i]);
                     }
                 }
-
+                
                 LOGGER.fine("style object is a " + layerstyle);
 
                 DataSource ds = (DataSource) features.get(layer[i]);
@@ -327,8 +335,10 @@ public class GtWmsServer implements WMSServer {
             renderer.setOutput(image.getGraphics(), 
                                new java.awt.Rectangle(width, height));
             LOGGER.fine("calling renderer");
+            Date start = new Date();
             map.render(renderer, env);
-            LOGGER.fine("returning image");
+            Date end = new Date();
+            LOGGER.fine("returning image after render time of " + (end.getTime()-start.getTime()));
 
             return image;
         } catch (Exception exp) {
@@ -364,7 +374,7 @@ public class GtWmsServer implements WMSServer {
             }
 
             cap.setSupportsGetFeatureInfo(true);
-
+            
             // Send result back to server
             return cap;
         } catch (Exception exp) {
