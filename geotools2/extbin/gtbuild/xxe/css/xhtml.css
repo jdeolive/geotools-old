@@ -1,0 +1,439 @@
+/* 
+ * A CSS stylesheet for XHTML 1.0 *Strict DTD*
+ *
+ * If you improve it, please send me (hussein@xmlmind.com) a copy.
+ */
+
+html,
+head, title,
+body,
+div,
+p,
+h1, h2, h3, h4, h5, h6,
+ul, ol, li,
+dl, dt, dd,
+address,
+hr,
+pre,
+blockquote { 
+    display: block;
+}
+
+base,
+meta,
+link,
+style,
+script,
+noscript {
+    display: tree;
+}
+
+object, param,
+map, area,
+form, label,
+input,
+select, optgroup, option,
+textarea,
+fieldset, legend,
+button { 
+    display: tree;
+}
+
+/*
+ * By default these elements are displayed inline:
+ *
+ * a,
+ * span,
+ * bdo,
+ * br,
+ * em, strong,
+ * dfn,
+ * code,
+ * samp,
+ * kbd,
+ * var,
+ * cite,
+ * abbr, acronym,
+ * q,
+ * sub, sup,
+ * tt, i, b,
+ * big, small,
+ * img
+ */
+
+/*
+ * Title styles
+ */
+
+title { 
+    text-align: center;
+    font-weight: bold;
+    font-size: 2em;
+    color: maroon;
+    margin-top: .67ex;
+    margin-bottom: .67ex;
+}
+
+h1, h2, h3, h4, h5, h6 { 
+    font-weight: bold;
+    color: maroon;
+}
+h1 { 
+    font-size: 1.5em;
+    margin-top: .83ex;
+    margin-bottom: .83ex;
+}
+h2 { 
+    font-size: 1.17em;
+    margin-top: 1ex;
+    margin-bottom: 1ex;
+}
+h3, h4, h5, h6 { 
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+
+/*
+ * Table style
+ */
+
+table { 
+    display: table;
+    border: 1 outset gray;
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+caption { 
+    display: table-caption;
+    font-style: italic;
+    text-align: center;
+    margin-left: 2ex;
+    margin-right: 2ex;
+    margin-top: 2;
+    margin-bottom: 2;
+}
+colgroup { 
+    display: table-column-group;
+}
+col { 
+    display: table-column;
+}
+thead, tbody, tfoot { 
+    display: table-row-group;
+    text-align: eval(attr(align));
+}
+tr { 
+    display: table-row;
+    text-align: eval(attr(align));
+}
+td, th { 
+    display: table-cell;
+    text-align: eval(attr(align));
+    vertical-align: eval(attr(valign));
+    row-span: eval(attr(rowspan));
+    column-span: eval(attr(colspan));    
+    border: 1 inset gray;
+    padding: 2;
+}
+th {
+    font-weight: bold;
+}
+
+/*
+ * Block styles
+ */
+
+p { 
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+
+ul { 
+    margin-left: 2ex;
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+ul > li {
+    margin-left: 2.5ex;
+}
+ul > li:before {
+    display: marker;
+    content: disc;
+}
+ul > li ul > li:before {
+    display: marker;
+    content: square;
+}
+ul > li ul > li ul > li:before {
+    display: marker;
+    content: icon(diamond);
+}
+ul > li ul > li ul > li ul > li:before {
+    display: marker;
+    content: circle;
+}
+
+ol { 
+    margin-left: 2ex;
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+ol > li {
+    margin-left: 6ex;
+}
+ol > li:before {
+    display: marker;
+    content: counter(n, decimal);
+    font-weight: bold;
+}
+ol[style~=lower-alpha] > li:before {
+    display: marker;
+    content: counter(n, lower-alpha);
+}
+ol[style~=upper-alpha] > li:before {
+    display: marker;
+    content: counter(n, upper-alpha);
+}
+ol[style~=lower-roman] > li:before {
+    display: marker;
+    content: counter(n, lower-roman);
+}
+ol[style~=upper-roman] > li:before {
+    display: marker;
+    content: counter(n, upper-roman);
+}
+
+ol ul, ul ol, ul ul, ol ol { 
+    margin-top: 0; 
+    margin-bottom: 0; 
+}
+
+dl {
+    margin-left: 2ex;
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+dt {
+    font-weight: bold; 
+}
+dd { 
+    margin-left: 4ex;
+}
+
+pre { 
+    white-space: pre;
+    background-color: #E0E0E0;
+    border: thin solid gray;
+    font-family: monospace;
+    font-size: .83em;
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+
+blockquote { 
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-top: 1.33ex;
+    margin-bottom: 1.33ex;
+}
+
+address { 
+    font-style: italic; 
+}
+
+hr { 
+    content: icon(invisible) icon(invisible);
+    border: 2 inset gray;
+}
+
+/* Wrap <div class="center"> around some blocks to center them. */
+.center { 
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center; 
+}
+
+/*
+ * Ins/del special case. When this is really needed, put the ins/del into
+ * a span to force inline display.
+ */
+
+ins {
+    display: block;
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent blue transparent transparent;
+    padding-right: 5px;
+}
+
+p ins,
+h1 ins, h2 ins, h3 ins, h4 ins, h5 ins, h6 ins,
+dt ins, 
+address ins,
+a ins,
+span ins,
+bdo ins,
+em ins, strong ins,
+dfn ins,
+code ins,
+samp ins,
+kbd ins,
+var ins,
+cite ins,
+abbr ins, acronym ins,
+q ins,
+sub ins, sup ins,
+tt ins, i ins, b ins,
+big ins, small ins {
+    display: inline;
+    text-decoration: underline;
+}
+
+del {
+    display: block;
+    color: gray;
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent gray transparent transparent;
+    padding-right: 5px;
+}
+
+p del,
+h1 del, h2 del, h3 del, h4 del, h5 del, h6 del,
+dt del, 
+address del,
+a del,
+span del,
+bdo del,
+em del, strong del,
+dfn del,
+code del,
+samp del,
+kbd del,
+var del,
+cite del,
+abbr del, acronym del,
+q del,
+sub del, sup del,
+tt del, i del, b del,
+big del, small del {
+    display: inline;
+    text-decoration: line-through;
+}
+
+/*
+ * Inline styles
+ */
+
+b, 
+strong { 
+    font-weight: bold; 
+}
+
+i, 
+em, 
+cite,
+q,
+var { 
+    font-style: italic; 
+}
+
+tt, 
+kbd, 
+code, 
+samp,
+var { 
+    font-family: monospace;
+    font-size: .83em; 
+}
+
+abbr, 
+acronym { 
+    font-weight: bold;
+}
+
+dfn {
+    background-color: #FFFFE0;
+}
+
+a[href] { 
+    color: navy;
+    text-decoration: underline;
+}
+a[name]:after { 
+    content: icon(right-target); 
+    color: olive;
+    vertical-align: text-top;
+}
+
+big { 
+    font-size: 1.17em;
+}
+small { 
+    font-size: .83em;
+}
+
+sub, 
+sup { 
+    font-size: .83em;
+}
+sub { 
+    vertical-align: sub;
+}
+sup { 
+    vertical-align: super;
+}
+
+br:before { 
+    content: "\A"; 
+    color: olive;
+}
+
+/* 
+ *  Showing a 400x200 thumbnail is sufficient. 
+ *  If you don't like that, replace the content property by a more traditional:
+ *  content: image(attr(src), attr(width), attr(height));
+ */
+img {
+    content: image(attr(src), -400, -200);
+}
+
+@media print {
+    base,
+    meta,
+    link,
+    style,
+    script,
+    noscript {
+	display: none;
+    }
+
+    meta[name=author][content],
+    meta[name=date][content] { 
+        display: block;
+	text-align: center;
+	/* 
+	 * Without paragraph(), a static text label is used 
+         * and words are not wrapped.
+	 */	
+        content: paragraph(attr(content));
+    }
+
+    colgroup, col { 
+        display: none;
+    }
+
+    * {
+	background-color: transparent;
+        line-height: 1.2;
+    }
+
+    pre {
+        background-color: #FFFFE0;
+        border: 1 solid #E0E0A0;
+    }
+
+    img {
+        content: image(attr(src), -500, -700, smooth);
+    }
+}
