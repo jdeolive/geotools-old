@@ -28,13 +28,20 @@ import java.nio.channels.*;
 import java.nio.channels.FileChannel;
 import org.geotools.data.AbstractAttributeIO;
 import org.geotools.data.AbstractDataStore;
+import org.geotools.data.AbstractFeatureLocking;
+import org.geotools.data.AbstractFeatureSource;
+import org.geotools.data.AbstractFeatureStore;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.AttributeWriter;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.EmptyFeatureReader;
+import org.geotools.data.FeatureListener;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.Query;
 import org.geotools.data.shapefile.dbf.DbaseFileException;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
@@ -43,6 +50,7 @@ import org.geotools.data.shapefile.shp.JTSUtilities;
 import org.geotools.data.shapefile.shp.ShapeHandler;
 import org.geotools.data.shapefile.shp.ShapeType;
 import org.geotools.data.shapefile.shp.ShapefileException;
+import org.geotools.data.shapefile.shp.ShapefileHeader;
 import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.geotools.data.shapefile.shp.ShapefileWriter;
 import org.geotools.feature.AttributeType;
@@ -52,6 +60,7 @@ import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
+import org.geotools.filter.Filter;
 
 /** A DataStore implementation which allows reading and writing from Shapefiles.
  * @author Ian Schneider
@@ -609,4 +618,118 @@ public class ShapefileDataStore extends AbstractDataStore {
         }
         
     }
+    
+    /** Gets the bounding box of the file represented by this data store
+     *  as a whole (that is, off all of the features in the shapefile)
+     *
+     * @return The bounding box of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    private Envelope getBounds() throws DataSourceException {
+    	// This is way quick!!!
+    	try {
+    		ByteBuffer buffer = ByteBuffer.allocateDirect(100);
+    		ReadableByteChannel in = getReadChannel(shpURL);
+    		in.read(buffer);
+    		buffer.flip();
+    		ShapefileHeader header = new ShapefileHeader();
+    		header.read(buffer, true);
+    		return new Envelope(header.minX(),header.maxX(),header.minY(),header.maxY() );
+    	} catch (IOException ioe) {
+    		// What now? This seems arbitrarily appropriate !
+    		throw new DataSourceException("Problem getting Bbox",ioe);
+    	}
+    }
+    
+    private Envelope getBounds(Query query) throws IOException {
+    	if(query == Query.ALL) {
+    		return getBounds();
+    	} else {
+    		return null; // too expensive
+    	}
+    }
+    
+	/**
+	 * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
+	 */
+	public FeatureSource getFeatureSource(final String typeName)
+	throws IOException {
+		final FeatureType featureType = getSchema(typeName);
+
+		if (isWriteable) {
+			if (getLockingManager() != null) {
+				return new AbstractFeatureLocking() {
+					public DataStore getDataStore() {
+						return ShapefileDataStore.this;
+					}
+
+					public void addFeatureListener(FeatureListener listener) {
+						listenerManager.addFeatureListener(this, listener);
+					}
+
+					public void removeFeatureListener(
+							FeatureListener listener) {
+						listenerManager.removeFeatureListener(this, listener);
+					}
+
+					public FeatureType getSchema() {
+						return featureType;
+					}
+					
+					public Envelope getBounds(Query query) throws IOException {
+						return ShapefileDataStore.this.getBounds(query);
+					}
+					
+					
+				};
+			} else {
+				return new AbstractFeatureStore() {
+					public DataStore getDataStore() {
+						return ShapefileDataStore.this;
+					}
+
+					public void addFeatureListener(FeatureListener listener) {
+						listenerManager.addFeatureListener(this, listener);
+					}
+
+					public void removeFeatureListener(
+							FeatureListener listener) {
+						listenerManager.removeFeatureListener(this, listener);
+					}
+
+					public FeatureType getSchema() {
+						return featureType;
+					}
+					
+					public Envelope getBounds(Query query) throws IOException {
+						return ShapefileDataStore.this.getBounds(query);
+					}
+				};
+			}
+		} else {
+			return new AbstractFeatureSource() {
+				public DataStore getDataStore() {
+					return ShapefileDataStore.this;
+				}
+
+				public void addFeatureListener(FeatureListener listener) {
+					listenerManager.addFeatureListener(this, listener);
+				}
+
+				public void removeFeatureListener(FeatureListener listener) {
+					listenerManager.removeFeatureListener(this, listener);
+				}
+
+				public FeatureType getSchema() {
+					return featureType;
+				}
+				
+				public Envelope getBounds(Query query) throws IOException {
+					return ShapefileDataStore.this.getBounds(query);
+				}
+			};
+		}
+	}
+	
+
 }
