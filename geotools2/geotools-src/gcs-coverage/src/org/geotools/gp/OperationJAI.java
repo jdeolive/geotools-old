@@ -95,7 +95,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.15 2003/04/17 11:39:34 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.16 2003/04/17 14:52:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -214,9 +214,9 @@ public class OperationJAI extends Operation {
         final Object[] parentDefaults = parent.getParamDefaults();
         
         final int    numSources = descriptor.getNumSources();
-        final String[]    names = new String[parentNames   .length + numSources];
-        final Class []  classes = new Class [parentClasses .length + numSources];
-        final Object[] defaults = new Object[parentDefaults.length + numSources];
+        final String[]    names = new String[length(parentNames   ) + numSources];
+        final Class []  classes = new Class [length(parentClasses ) + numSources];
+        final Object[] defaults = new Object[length(parentDefaults) + numSources];
         final Range[]    ranges = new Range [defaults.length];
         for (int i=0; i<ranges.length; i++) {
             if (i<numSources) {
@@ -231,6 +231,13 @@ public class OperationJAI extends Operation {
             }
         }
         return new ParameterListDescriptorImpl(descriptor, names, classes, defaults, ranges);
+    }
+
+    /**
+     * Returns the array length, of 0 if the array is <code>null</code>.
+     */
+    private static int length(final Object[] array) {
+        return (array!=null) ? array.length : 0;
     }
     
     /**
