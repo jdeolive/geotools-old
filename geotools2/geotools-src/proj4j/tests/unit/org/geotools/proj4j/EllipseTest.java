@@ -30,22 +30,22 @@ public class EllipseTest extends TestCase {
     }
     
     /** Test of getEllips method, of class org.geotools.proj4j.Ellips. */
-    public void testGetEllipse() {
+    public void testGetDefaultsForEllipse() {
         System.out.println("testGetEllips");
-        Ellipse test1 = Ellipse.getEllipse("MERIT");
+        String[] test1 = Ellipse.getDefaultsForEllipse("MERIT");
         assertNotNull(test1);
         
         System.out.println("    checking values are correct");
-        assertEquals("a=6378137.0",test1.getMajor());
-        assertEquals("rf=298.257",test1.getEll());
-        assertEquals("MERIT 1983",test1.getName());
+        assertEquals("a=6378137.0",test1[1]);
+        assertEquals("rf=298.257",test1[2]);
+        assertEquals("MERIT 1983",test1[3]);
         
         System.out.println("    checking case insensitive fetch");
-        Ellipse test2 = Ellipse.getEllipse("merit");
+        String[] test2 = Ellipse.getDefaultsForEllipse("merit");
         assertSame(test1,test2);
         
         System.out.println("    testing non existent ellipse is null");
-        Ellipse test3 = Ellipse.getEllipse("foobar");
+        String[] test3 = Ellipse.getDefaultsForEllipse("foobar");
         assertNull(test3);
     }
      

@@ -45,7 +45,16 @@ public class ParamSetTest extends TestCase {
         assertEquals("clrk66",params.getStringParam("ellips"));
         assertNull(params.getStringParam("foo"));
     }
-    
+    public void testAddParamIfNotSet(){
+        ParamSet params = new ParamSet();
+        params.addParam("proj=poly");
+        params.addParam("ellips","clrk66");
+        params.addParam("no_defs");
+        params.addParamIfNotSet("foo=bar");
+        assertEquals("bar",params.getStringParam("foo"));
+        params.addParamIfNotSet("proj=foobar");
+        assertEquals("poly",params.getStringParam("proj"));
+    }
     /** Test of contains method, of class org.geotools.proj4j.ParamSet. */
     public void testContains() {
         assertEquals(true,testSet.contains("testInt"));
