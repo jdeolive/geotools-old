@@ -33,7 +33,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.13 2003/12/01 17:51:55 ianschneider Exp $
+ * @version $Id: DefaultFeature.java,v 1.14 2004/01/28 22:20:55 ianschneider Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
@@ -442,10 +442,7 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
      * @return A unique int
      */
     public int hashCode() {
-        int hash = featureId.hashCode();
-        hash *= (13 * schema.hashCode());
-
-        return hash;
+        return featureId.hashCode() * schema.hashCode();
     }
 
     /**

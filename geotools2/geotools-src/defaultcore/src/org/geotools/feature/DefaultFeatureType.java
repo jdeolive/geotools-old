@@ -23,7 +23,7 @@ import java.util.Iterator;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.14 2003/12/19 00:23:55 jive Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.15 2004/01/28 22:21:40 ianschneider Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     /** The name of this FeatureType. */
@@ -40,6 +40,8 @@ public class DefaultFeatureType implements FeatureType {
 
     /** The default geometry AttributeType. */
     private final GeometryAttributeType defaultGeom;
+    
+    private final int hashCode;
 
     /** The position of the default Geometry 
      *  Leave as package protected for use by DefaultFeature
@@ -80,6 +82,8 @@ public class DefaultFeatureType implements FeatureType {
 
         // before doing this
         this.defaultGeom = defaultGeom;
+        
+        hashCode = computeHash();
     }
     
     /**
@@ -92,6 +96,7 @@ public class DefaultFeatureType implements FeatureType {
         this.ancestors = new FeatureType[0];
         this.defaultGeomIdx = -1;
         this.defaultGeom = null;
+        hashCode = computeHash();
     }
 
     /**
@@ -131,10 +136,10 @@ public class DefaultFeatureType implements FeatureType {
     public Feature duplicate(Feature original) throws IllegalAttributeException{
         if( original == null ) return null;
         FeatureType featureType = original.getFeatureType();
-        if (!featureType.equals(this)){ 
+        if (!featureType.equals(this)) { 
 	    throw new IllegalAttributeException("Feature type " + featureType
 						+ " does not match " + this);
-	}
+        }
         String id = original.getID();
         int numAtts = featureType.getAttributeCount();
         Object attributes[] = new Object[numAtts];
@@ -287,16 +292,17 @@ public class DefaultFeatureType implements FeatureType {
 
         return true;
     }
+    
+    private int computeHash() {
+        int hash = typeName.hashCode() ^ namespace.hashCode();
+        for (int i = 0, ii = types.length; i < ii; i++) {
+            hash ^= types[i].hashCode();
+        }
+        return hash;
+    }
 
     public int hashCode() {
-        int hash = typeName.hashCode();
-        hash *= namespace.hashCode();
-
-        for (int i = 0, ii = types.length; i < ii; i++) {
-            hash *= types[i].hashCode();
-        }
-
-        return hash;
+        return hashCode;
     }
 
     public String toString() {
@@ -413,4 +419,5 @@ public class DefaultFeatureType implements FeatureType {
         }
 
     }
+    
 }
