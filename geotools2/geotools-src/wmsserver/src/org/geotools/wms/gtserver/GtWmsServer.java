@@ -43,6 +43,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.logging.Logger;
+import org.apache.commons.collections.LRUMap;
 
 
 public class GtWmsServer implements WMSServer {
@@ -50,11 +51,11 @@ public class GtWmsServer implements WMSServer {
     public static final String LAYERS_PROPERTY = "layersxml";
     private static final Logger LOGGER = Logger.getLogger(
     "org.geotools.wmsserver");
-    
+    static StyleFactory factory = StyleFactory.createStyleFactory();
     /** The LayerEntry objects - one for each entry in the layers.xml file */
     HashMap layerEntries = new HashMap();
     HashMap features = new HashMap();
-    HashMap styles = new HashMap();
+    java.util.Map styles;
     URL base;
     
     //    Java2DRenderer renderer = new Java2DRenderer();
@@ -62,13 +63,15 @@ public class GtWmsServer implements WMSServer {
     
     public GtWmsServer() {
         //		loadLayers();
+        LRUMap stylebase = new LRUMap(50);
+        styles = Collections.synchronizedMap(stylebase);
     }
     
     /**
      * Loads the layers from layers.xml. Currently support the following data
      * sources: Shapefile (uk.ac.leeds.ccg.geotools.io.ShapefileReader).
      *
-     * @param filename DOCUMENT ME!
+     * @param filename - the layer file
      */
     private void loadLayers(String filename) {
         Iterator formats = DataSourceFinder.getAvailableDataSources();
@@ -160,7 +163,7 @@ public class GtWmsServer implements WMSServer {
                     cache.addFeature(list[i]);
                 }
                 
-                Style style = new BasicPolygonStyle(); //bad
+//                Style style = new BasicPolygonStyle(); //bad
                 DataSourceMetaData meta = ds.getMetaData();
                 
                 Envelope bbox = null;
@@ -176,7 +179,7 @@ public class GtWmsServer implements WMSServer {
                 entry.bbox[2] = bbox.getMaxX();
                 entry.bbox[3] = bbox.getMaxY();
                 features.put(entry.id, cache);
-                styles.put(entry.id, style);
+//                styles.put(entry.id, style);
             }
         } catch (Exception exp) {
             exp.printStackTrace();
@@ -268,7 +271,7 @@ public class GtWmsServer implements WMSServer {
             }
             
             LOGGER.fine("map setup");
-            
+            //Renderer renderer = new LiteRenderer();
             BufferedImage image = new BufferedImage(width, height,
             BufferedImage.TYPE_INT_RGB);
             Envelope env = new Envelope(bbox[0], bbox[2], bbox[1], bbox[3]);
@@ -291,7 +294,8 @@ public class GtWmsServer implements WMSServer {
             Date end = new Date();
             LOGGER.fine("returning image after render time of " +
             (end.getTime() - start.getTime()));
-            
+            //renderer = null;
+            map = null;
             return image;
         } catch (Exception exp) {
             exp.printStackTrace();
@@ -319,12 +323,10 @@ public class GtWmsServer implements WMSServer {
         
         if ((style != null) && (style[i] != "")) {
             layerstyle = loadStyle(style, i, layerstyle, layerdefn);
+            return layerstyle;
         } else {
-            if (layerdefn.defaultStyle != null) {
-                layerstyle = useDefaultStyle(layer, i, layerstyle, layerdefn);
-            } else {
-                layerstyle[0] = (org.geotools.styling.Style) styles.get(layer[i]);
-            }
+            layerstyle = useDefaultStyle(layer, i, layerstyle, layerdefn);
+            
         }
         
         return layerstyle;
@@ -345,10 +347,11 @@ public class GtWmsServer implements WMSServer {
     private Style[] useDefaultStyle(final String[] layer, final int i,
     Style[] layerstyle, final LayerEntry layerdefn)
     throws MalformedURLException {
-        String sldpath = (String) layerdefn.styles.get(layerdefn.defaultStyle);
+        LOGGER.fine("Default style "+layerdefn.defaultStyle);
+        String sldpath = (String)layerdefn.styles.get(layerdefn.defaultStyle);
         LOGGER.fine("looking for default:" + sldpath);
         layerstyle[0] = (Style) styles.get(sldpath);
-        
+        LOGGER.fine("from the cache "+layerstyle[0]);
         if ((sldpath != null) && (layerstyle[0] == null)) {
             File file = new File(sldpath);
             URL url;
@@ -358,17 +361,19 @@ public class GtWmsServer implements WMSServer {
             } else {
                 url = file.toURL();
             }
-            
+            LOGGER.fine("pulling default style from "+url.toString());
             //LOGGER.fine("loading sld from " + url);
-            StyleFactory factory = StyleFactory.createStyleFactory();
-            SLDStyle stylereader = new SLDStyle(factory, url);
-            layerstyle = stylereader.readXML();
-            styles.put(sldpath, layerstyle[0]);
+            try{
+                SLDStyle stylereader = new SLDStyle(factory, url);
+                layerstyle = stylereader.readXML();
+                styles.put(sldpath, layerstyle[0]);
+            }catch (java.io.IOException fnfe){
+                LOGGER.severe(fnfe.getMessage());
+                throw new RuntimeException(fnfe);
+            }
             
             //LOGGER.fine("sld loaded");
-        } else {
-            layerstyle[0] = (org.geotools.styling.Style) styles.get(sldpath);
-        }
+        } 
         
         return layerstyle;
     }
@@ -390,7 +395,7 @@ public class GtWmsServer implements WMSServer {
     Style[] layerstyle, final LayerEntry layerdefn)
     throws MalformedURLException, WMSException {
         String sldpath = (String) layerdefn.styles.get(style[i]);
-        LOGGER.finest("style != null, style[i] != null");
+        LOGGER.fine("style != null "+(style[i] != null));
         
         if (sldpath == null) {
             throw new WMSException(WMSException.WMSCODE_STYLENOTDEFINED,
@@ -401,7 +406,7 @@ public class GtWmsServer implements WMSServer {
         layerstyle[0] = (Style) styles.get(sldpath);
         
         if (layerstyle[0] == null) {
-            //LOGGER.fine("looking for " + sldpath);
+            LOGGER.fine("looking for " + sldpath);
             File file = new File(sldpath);
             URL url;
             
@@ -413,13 +418,17 @@ public class GtWmsServer implements WMSServer {
             
             LOGGER.fine("loading sld from " + url);
             
-            StyleFactory factory = StyleFactory.createStyleFactory();
-            SLDStyle stylereader = new SLDStyle(factory, url);
-            layerstyle = stylereader.readXML();
-            styles.put(sldpath, layerstyle[0]);
+            try{
+                SLDStyle stylereader = new SLDStyle(factory, url);
+                layerstyle = stylereader.readXML();
+                if(layerstyle[0]!=null)styles.put(sldpath, layerstyle[0]);
+            }catch (java.io.IOException ie){
+                throw new RuntimeException(ie);
+            }
             LOGGER.fine("sld loaded");
             
             if (layerstyle[0].isDefault()) {
+                LOGGER.fine("Changeing defaultstyle from "+layerdefn.defaultStyle+ " to "+sldpath);
                 layerdefn.defaultStyle = sldpath;
             }
         }
@@ -510,7 +519,7 @@ public class GtWmsServer implements WMSServer {
                 Envelope env = new Envelope(bbox[0], bbox[2], bbox[1], bbox[3]);
                 LOGGER.fine("setting up renderer");
                 
-                Java2DRenderer renderer = new Java2DRenderer();
+                //Java2DRenderer renderer = new Java2DRenderer();
                 
                 renderer.setOutput(image.getGraphics(),
                 new java.awt.Rectangle(width, height));
