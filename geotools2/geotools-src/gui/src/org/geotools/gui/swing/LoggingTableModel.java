@@ -69,7 +69,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * This model is used by {@link LoggingPanel} for displaying logging messages in
  * a {@link javax.swing.JTable}.
  *
- * @version $Id: LoggingTableModel.java,v 1.3 2002/09/04 10:32:54 desruisseaux Exp $
+ * @version $Id: LoggingTableModel.java,v 1.4 2002/09/04 12:52:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class LoggingTableModel extends Handler implements TableModel {
@@ -148,6 +148,9 @@ final class LoggingTableModel extends Handler implements TableModel {
      * memorize. If more messages are logged, then the oldiest messages will be discarted.
      */
     public synchronized void setCapacity(final int capacity) {
+        if (recordCount != 0) {
+            throw new IllegalStateException("Not yet implemented.");
+        }
         this.capacity = capacity;
     }
 
@@ -240,6 +243,7 @@ final class LoggingTableModel extends Handler implements TableModel {
             row[4] = record.getLevel().getLocalizedName();
             row[5] = getFormatter().formatMessage(record);
             cache.put(record, row);
+            assert cache.size() <= capacity;
         }
         return row[columnIndex];
     }
