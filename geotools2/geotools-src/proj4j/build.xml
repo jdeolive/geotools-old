@@ -30,7 +30,11 @@
     </target>
     <target depends="test" name="release">
         <mkdir dir="${releaseFolder}"/>
-        <jar basedir="src/" jarfile="${releaseFolder}/proj4j.jar"/>
+        <jar basedir="src/" jarfile="${releaseFolder}/proj4j.jar">
+            <include name="**/*.class"/>
+            <include name="**/*.properties"/>
+            <exclude name="**/*.java"/>
+        </jar>
     </target>
     <target name="buildTODOlist">
         
