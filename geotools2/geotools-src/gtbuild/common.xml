@@ -64,9 +64,9 @@
         <echo message="${project.name} cleaning tests"/>    
         <fileset dir="tests/unit/org/" includes="**/*.class"/>
     </target>
+    
     <target name="init">
-       
-
+        <mkdir dir="${releaseFolder}"/>
         <path id="netbeans.ext">
             <fileset dir="../../extbin/gtbuild/lib/"/>
             <pathelement location="../../extbin/gtbuild/lib/nbantext.jar"/>
@@ -103,7 +103,7 @@
     </target>
     <target name="prepare-compile" depends="init,set-classpath,add-extbin" >
         <!--echo message="Prep-compile: ${project.name}" /-->
-        <mkdir dir="${releaseFolder}"/>
+        
         <!--echo message="${project.name} about to call dependancies ${has.dependancies}"/-->
         <antcall target="dependancies"/>
         <!-- only one of the two following calls will suceed depending on whether the project has 
