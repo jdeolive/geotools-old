@@ -29,8 +29,8 @@
   <dependencies>
  
     <dependency>
-      <id>shapefile</id>
-      <version>0.1</version>
+      <id>commons-cli</id>
+      <version>1.0</version>
     </dependency>  
     
     <dependency>
