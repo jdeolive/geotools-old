@@ -41,6 +41,13 @@
       <version>2.2</version>
     </dependency>
     <dependency>
+        <id>commons-collections</id>
+        <version>2.1</version>
+        <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
+    </dependency>
+    <dependency>
       <id>core</id>
       <version>0.1</version>
       <properties>
@@ -141,6 +148,13 @@
     <dependency>
       <id>littleEndian</id>
       <version>1.0</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
+    </dependency>
+    <dependency>
+      <id>imagedatasource</id>
+      <version>0.1</version>
       <properties>
          <war.bundle.jar>true</war.bundle.jar>
       </properties>
