@@ -9,6 +9,8 @@ import org.geotools.filter.*;
 import org.geotools.datasource.extents.*;
 import java.sql.*;
 import java.util.logging.Logger;
+import java.util.logging.Level;
+import org.geotools.resources.Geotools;
 import org.geotools.filter.FilterFactory;
 
 public class PostgisTest extends TestCase {
@@ -19,6 +21,10 @@ public class PostgisTest extends TestCase {
     private static final Logger LOGGER = Logger.getLogger
 	("org.geotools.postgis");
     
+     static {
+    	Geotools.init("Log4JFormatter", Level.INFO);
+    }
+
     private static String FEATURE_TABLE = "testset";
 
     DataSource postgis = null;
@@ -112,7 +118,7 @@ public class PostgisTest extends TestCase {
         LOGGER.info("...ending type enforcement tests");
     }
 
-    public void testAdd() {
+        public void testAdd() {
 	int feaID = 20;
 	int geomID;
 	    
@@ -133,7 +139,7 @@ public class PostgisTest extends TestCase {
 	String name = "test add";
 	Integer code = new Integer(0);
 
-	Object[] attributes = { area, perimeter, testb_, 
+	Object[] attributes = { new Integer(feaID), area, perimeter, testb_, 
 				testb_id, name, code, code, the_geom };
 	try{
 	    FeatureFactory factory = new FeatureFactory(schema);
