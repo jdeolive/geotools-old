@@ -48,7 +48,7 @@ import org.geotools.feature.*;
  * own class.  The only requirement of your new class is that it implements 
  * <code>GMLHandlerJTS</code>.  That's it!</p>
  * 
- * @version $Id: TestParser.java,v 1.7 2002/06/05 11:48:54 loxnard Exp $
+ * @version $Id: TestParser.java,v 1.8 2002/07/12 17:36:33 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class TestParser {
@@ -57,10 +57,10 @@ public class TestParser {
         
         // set URI from the command line and echo the submitted URI
 
-        if((args.length > 0) && args[0].equals("-g")) {
+        if ((args.length > 0) && args[0].equals("-g")) {
             parseGeometries(args[1]);
         }
-        else if((args.length > 0) && args[0].equals("-f")) {
+        else if ((args.length > 0) && args[0].equals("-f")) {
             parseFeatures(args[1]);
         }
         else {
@@ -82,47 +82,47 @@ public class TestParser {
     public static void parseGeometries(String uri) {
         
         System.out.println("Parsing just the geometries in this GML resource:"
-                           + uri);
+        + uri);
         
         // chains all the appropriate filters together (in correct order)
         //  and initiates parsing
         try {
             TestHandler contentHandler = new TestHandler();
-            GMLFilterGeometry geometryFilter = new GMLFilterGeometry(contentHandler);						
+            GMLFilterGeometry geometryFilter = new GMLFilterGeometry(contentHandler);
             GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
             XMLReader parser = XMLReaderFactory.
-                createXMLReader("org.apache.xerces.parsers.SAXParser");
+            createXMLReader("org.apache.xerces.parsers.SAXParser");
             
             parser.setContentHandler(documentFilter);
             parser.parse(uri);
         }
         catch (IOException e) {
-            System.out.println("Error reading uri: " + uri );
+            System.out.println("Error reading uri: " + uri);
         }
         catch (SAXException e) {
-            System.out.println("Error in parsing: " + e.getMessage() );
+            System.out.println("Error in parsing: " + e.getMessage());
         }
         
-				
+        
     }
     
     
     public static void parseFeatures(String uri) {
-
+        
         System.out.println("Parsing the flat feature collection in this GML " +
-                           "resource:" + uri);
+        "resource:" + uri);
         
         GMLDataSource data = new GMLDataSource(uri);
         FeatureCollectionDefault featureCollection = new FeatureCollectionDefault(data);
-
-        Vector parsedFeatures = 
-           new Vector(java.util.Arrays.asList(featureCollection.getFeatures()));  
+        
+        Vector parsedFeatures =
+        new Vector(java.util.Arrays.asList(featureCollection.getFeatures()));
         FeatureFlat tempFeature;
         
-        for( int i = 0; i < parsedFeatures.size() ; i++ ) {
+        for (int i = 0; i < parsedFeatures.size(); i++) {
             tempFeature = (FeatureFlat) parsedFeatures.get(i);
             System.out.println("Parsed feature is ... "
-                               + tempFeature.toString() );						
+            + tempFeature.toString());
         }
         
         //parsedFeatures.

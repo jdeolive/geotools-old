@@ -33,14 +33,14 @@ import com.vividsolutions.jts.geom.*;
  * This very simple handler just prints every JTS geometry that it gets to the
  * standard output.
  * 
- * @version $Id: TestHandler.java,v 1.3 2002/06/05 11:47:12 loxnard Exp $
+ * @version $Id: TestHandler.java,v 1.4 2002/07/12 17:33:36 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class TestHandler extends XMLFilterImpl implements GMLHandlerJTS {
-
-
-		public void geometry(Geometry geometry) {
-				System.out.println( "here is the geometry: " + geometry.toString());
-		}
-
+    
+    
+    public void geometry(Geometry geometry) {
+        System.out.println("here is the geometry: " + geometry.toString());
+    }
+    
 }
