@@ -72,7 +72,6 @@ public class DbaseFileWriter  {
   
   private void init() throws IOException {
     buffer = ByteBuffer.allocateDirect(header.getRecordLength());
-    
   }
   
   private void write() throws IOException {
@@ -103,8 +102,15 @@ public class DbaseFileWriter  {
     
     for (int i = 0; i < header.getNumFields(); i++) {
       String fieldString = fieldString(record[i], i);
+//      if ( header.getFieldLength(i) != fieldString.getBytes().length) {
+//          System.out.println(i + " : " + header.getFieldName(i));
+//      }
+      
+      
       buffer.put(fieldString.getBytes());
+    
     }
+    
     
     write();
   }
@@ -139,9 +145,11 @@ public class DbaseFileWriter  {
       case 'n':
         // int?
         if (header.getFieldDecimalCount(col) == 0) {
+            
           o = formatter.getFieldString(
             fieldLen, 0, (Number) (obj == null ? NULL_NUMBER : obj)
           );
+            
           break;
         }
       case 'F':
@@ -158,7 +166,7 @@ public class DbaseFileWriter  {
       default:
         throw new RuntimeException("Unknown type " + header.getFieldType(col));
     }
-    
+
     return o;
   }
   
@@ -262,20 +270,20 @@ public class DbaseFileWriter  {
     public String getFieldString(int size, int decimalPlaces, Number n) {
       buffer.delete(0, buffer.length());
       
-      if(n != null) {
+      if (n != null) {
         numFormat.setMaximumFractionDigits(decimalPlaces);
         numFormat.setMinimumFractionDigits(decimalPlaces);
         numFormat.format(n, buffer, new FieldPosition(NumberFormat.INTEGER_FIELD));
       }
       
       int diff = size - buffer.length();
-      if(diff > 0) {
-        for(int i = 0; i < diff; i++) {
-          buffer.insert(0, ' ');
-        }
+      if (diff >= 0) {
+          while (diff-- > 0) {
+              buffer.insert(0, ' ');
+          }
+      } else {
+          buffer.setLength(size);
       }
-      
-      // buffer.setLength(size);
       return buffer.toString();
     }
   }
