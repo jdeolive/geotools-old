@@ -25,7 +25,7 @@ import junit.framework.TestSuite;
  * geotools2 ArcSDE test suite
  *
  * @author Gabriel Roldán
- * @version $Id: SdeTestSuite.java,v 1.5 2004/01/09 17:20:47 aaime Exp $
+ * @version $Id: SdeTestSuite.java,v 1.6 2004/02/02 18:35:31 groldan Exp $
  */
 public class SdeTestSuite extends TestCase
 {
@@ -50,6 +50,7 @@ public class SdeTestSuite extends TestCase
 
         suite.addTestSuite(org.geotools.data.sde.GeometryBuilderTest.class);
 
+        suite.addTestSuite(org.geotools.data.sde.SdeConnectionPoolTest.class);
         suite.addTestSuite(org.geotools.data.sde.SdeDataStoreTest.class);
 
         return suite;

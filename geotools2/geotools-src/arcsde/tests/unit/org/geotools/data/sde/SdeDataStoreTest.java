@@ -63,7 +63,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
  * SdeDatasource's test cases
  *
  * @author Gabriel Roldán
- * @version $Id: SdeDataStoreTest.java,v 1.7 2004/01/09 17:20:47 aaime Exp $
+ * @version $Id: SdeDataStoreTest.java,v 1.8 2004/02/02 18:35:31 groldan Exp $
  */
 public class SdeDataStoreTest extends TestCase
 {
@@ -272,12 +272,12 @@ public class SdeDataStoreTest extends TestCase
         {
             FeatureType type = FeatureTypeFactory.newFeatureType(att,
                     point_table);
-                    
-            Query q = new DefaultQuery( type.getTypeName() );                    
+
+            Query q = new DefaultQuery( type.getTypeName() );
             FeatureReader reader =
                 store.getFeatureReader( q, Transaction.AUTO_COMMIT);
             FeatureType retType = reader.getFeatureType();
-            assertEquals(retType.getAttributeCount(), 1);
+            assertEquals(10, retType.getAttributeCount());
             assertNotNull(retType.getDefaultGeometry());
             assertTrue(retType.hasAttributeType("SHAPE"));
 
