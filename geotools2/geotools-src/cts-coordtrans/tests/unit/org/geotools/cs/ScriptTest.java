@@ -80,7 +80,7 @@ import org.geotools.resources.Arguments;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: ScriptTest.java,v 1.3 2003/01/10 23:08:02 desruisseaux Exp $
+ * @version $Id: ScriptTest.java,v 1.4 2003/03/28 21:55:16 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
@@ -490,10 +490,15 @@ public class ScriptTest extends TestCase {
      */
     public static void main(final String[] args) throws Exception {
         final Arguments arguments = new Arguments(args);
+        final String script = arguments.getOptionalString("-test");
         final ScriptTest test = new ScriptTest(null);
         test.out = arguments.out;
         test.setUp();
-        test.testSimpleScript();
-        test.testOpenGIS();
+        if (script==null || script.equalsIgnoreCase("Simple")) {
+            test.testSimpleScript();
+        }
+        if (script==null || script.equalsIgnoreCase("OpenGIS")) {
+            test.testOpenGIS();
+        }
     }
 }

@@ -10,8 +10,14 @@
 // Coordinate systems
 set _WGS84_    =                    GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
 set _Mercator_ = PROJCS["Mercator", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Mercator_1SP"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 60.0], PARAMETER["latitude_of_origin", 45.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
-
-
+set _EPSG:4210_=GEOGCS["Arc 1960",DATUM["Arc_1960",SPHEROID["Clarke 1880 (RGS)",6378249.145,293.465,AUTHORITY["EPSG","7012"]],TOWGS84[-160,-6,-302,0,0,0,0],AUTHORITY["EPSG","6210"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4210"]]
+set _Nad27_=GEOGCS["NAD27",DATUM["North_American_Datum_1927",SPHEROID["Clarke 1866",6378206.4,294.978698213901,AUTHORITY["EPSG","7008"]],TOWGS84[-3,142,183,0,0,0,0],AUTHORITY["EPSG","6267"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4267"]]
+set _Osgb36_=GEOGCS["OSGB 1936",DATUM["OSGB_1936",SPHEROID["Airy 1830",6377563.396,299.3249646,AUTHORITY["EPSG","7001"]],TOWGS84[375,-111,431,0,0,0,0],AUTHORITY["EPSG","6277"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4277"]]
+set _Osgb36rad_=GEOGCS["OSGB 1936 rad",DATUM["OSGB_1936",SPHEROID["Airy 1830",6377563.396,299.3249646,AUTHORITY["EPSG","7001"]],TOWGS84[375,-111,431,0,0,0,0],AUTHORITY["EPSG","6277"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["Radians",1.0],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4277"]]
+set _NtfParis_=GEOGCS["NTF (Paris)",DATUM["Nouvelle_Triangulation_Francaise",SPHEROID["Clarke 1880 (IGN)",6378249.2,293.466021293627,AUTHORITY["EPSG","7011"]],TOWGS84[-168,-60,320,0,0,0,0],AUTHORITY["EPSG","6275"]],PRIMEM["Paris",2.5969213,AUTHORITY["EPSG","8903"]],UNIT["grad",0.015707963267949,AUTHORITY["EPSG","9105"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4807"]]
+set _NAD27Idaho_=PROJCS["NAD27 / Idaho Central",GEOGCS["NAD27",DATUM["North_American_Datum_1927",SPHEROID["Clarke 1866",6378206.4,294.978698213901,AUTHORITY["EPSG","7008"]],TOWGS84[-3,142,183,0,0,0,0],AUTHORITY["EPSG","6267"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4267"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",41.6666666666666],PARAMETER["central_meridian",-114],PARAMETER["scale_factor",0.999947368],PARAMETER["false_easting",152400.30480061],PARAMETER["false_northing",0],UNIT["US survey foot",0.304800609601219,AUTHORITY["EPSG","9003"]],AXIS["X",EAST],AXIS["Y",NORTH],AUTHORITY["EPSG","26769"]]
+set _NAD83Idaho_=PROJCS["NAD83 / Idaho  Central",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4269"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",41.6666666666666],PARAMETER["central_meridian",-114],PARAMETER["scale_factor",0.999947368],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["X",EAST],AXIS["Y",NORTH],AUTHORITY["EPSG","26969"]]
+set _Nad83_=GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4269"]]
 
 //////////////////////////////////
 // Tests transforms
@@ -27,8 +33,6 @@ pt_source=(70, 40)
 pt_target=(788468.3509397813, 3427056.247843599)
 
 
-
-
 ////////////////////////////
 // Inverse transforms
 
@@ -41,3 +45,106 @@ pt_target=(60, 0)
 
 pt_source=(788468.3509397813, 3427056.247843599)
 pt_target=(70, 40)
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// More transforms (RS Feb 2003)
+// the following test tranforms between different datums (and a few other things) 
+// to track down potential failures in the full test suite. Source to Target points 
+// were calculated with arc/info using user defined datums shift parameters.
+// all coords are in decimal degrees unless stated
+
+/////////////////Nairobi Test//////////////////
+//lat, long
+cs_source=_EPSG:4210_
+//long, lat
+cs_target=_WGS84_
+test_tolerance=(1e-6, 1e-6)
+
+pt_source=(-1.2833333333, 36.8166666666)
+pt_target=(36.81748504, -1.28594940)
+
+//the inverse of the above
+cs_source=_WGS84_
+cs_target=_EPSG:4210_
+
+pt_source=(36.81748504, -1.28594940)
+pt_target=( -1.28333333, 36.81666667)
+
+
+/////////////////Vancouver Test////////////////////
+//lat, long
+cs_source=_Nad27_
+cs_target=_WGS84_
+test_tolerance=(1e-6, 1e-6)
+
+pt_source=(49.2166666666, -123.1)
+pt_target=( -123.10109890, 49.21642307)
+
+//the inverse
+cs_source=_WGS84_
+cs_target=_Nad27_
+
+pt_source=(-123.10109890, 49.21642307)
+pt_target=(49.21666666, -123.10000000)
+
+
+/////////////////London Test////////////////////  
+//a transform using this datum shift (and a transverse mercator transform) is currently failing in CT_TestScript
+
+//lat, long
+cs_source=_Osgb36_
+cs_target=_WGS84_
+test_tolerance=(1e-6, 1e-6)
+
+pt_source=(51.5, -0.1166666667)
+pt_target=(-0.11825416, 51.50045749)
+
+//the inverse
+cs_source=_WGS84_
+cs_target=_Osgb36_
+
+pt_source=(-0.11825416, 51.50045749)
+pt_target=(51.5, -0.1166666667)
+
+
+//test dd to radians
+cs_source=_Osgb36_
+cs_target=_Osgb36rad_
+
+pt_source=(51.5, -0.1166666667)
+pt_target=(0.898844564, -0.002036217)
+
+//test radians to dd
+cs_source=_Osgb36rad_
+cs_target=_Osgb36_
+
+pt_source=(0.898844564, -0.002036217)
+pt_target=(51.5, -0.1166666667)
+
+//test involving radians to dd (with a datum shift)
+cs_source=_Osgb36rad_
+cs_target=_WGS84_
+
+pt_source=(0.898844564, -0.002036217)
+pt_target=(-0.11825416, 51.50045749)
+
+
+/////////////////Paris Tast////////////////////
+
+//lat, long
+cs_source=_NtfParis_
+//long, lat
+cs_target=_WGS84_
+test_tolerance=(1e-6, 1e-6)
+
+pt_source=(48.85, 0)
+pt_target=(2.33656753, 43.96499314)
+
+//inverse
+cs_source=_WGS84_
+cs_target=_NtfParis_
+
+pt_source=(2.33656753, 43.96499314)
+pt_target=(48.85, 0)
