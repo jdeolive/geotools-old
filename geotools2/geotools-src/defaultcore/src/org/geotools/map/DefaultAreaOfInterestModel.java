@@ -20,39 +20,47 @@
 package org.geotools.map;
 
 /**
- * AreaOfInterestModel stores AreaOfInterest associated with a geographic map.
- * Geotools uses a Model-View-Control (MVC) design to control maps.
- * The Tools classes process key and mouse actions, and the Renderers handle
- * displaying of the data.
+ * Stores Extent and Coordinate System associated with a Map Context.
+ * Note that there is no setCoordinateSystem, this is to ensure that this object
+ * doesn't depend on CoordinateTransform classes.  If you want to change
+ * CoordinateSystem, use the setExtent(extent,coordinateSystem) method and
+ * transform the coordinates in the calling application.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.6 2002/09/22 03:38:03 camerons Exp $
+ * @version $Id: DefaultAreaOfInterestModel.java,v 1.7 2002/12/03 19:39:08 camerons Exp $
  * @author Cameron Shorter
  * 
  */
 
+import java.lang.IllegalArgumentException;
 import java.util.Vector;
 import java.util.EventObject;
-import org.opengis.cs.*;
+//import org.opengis.cs.*;
 import com.vividsolutions.jts.geom.Envelope;
 import javax.swing.event.EventListenerList;
+import org.geotools.cs.CoordinateSystem;
 import org.geotools.map.events.*;
 
-public class DefaultAreaOfInterestModel implements AreaOfInterestModel {
+public class DefaultAreaOfInterestModel {
     
     private Envelope areaOfInterest;
-    private CS_CoordinateSystem coordinateSystem;
+    private CoordinateSystem coordinateSystem;
     private EventListenerList listenerList = new EventListenerList();
    
     /**
      * Initialise the model.
+     * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     public DefaultAreaOfInterestModel(
             Envelope areaOfInterest,
-            CS_CoordinateSystem coordinateSystem)
+            CoordinateSystem coordinateSystem) throws IllegalArgumentException
     {
+        if ((areaOfInterest==null) || (coordinateSystem==null)){
+            throw new IllegalArgumentException();
+        }
         this.areaOfInterest = areaOfInterest;
         this.coordinateSystem = coordinateSystem;
     }
+    
     /**
      * Register interest in receiving an AreaOfInterestChangedEvent.
      * @param ecl The object to notify when AreaOfInterest has changed.
@@ -92,12 +100,27 @@ public class DefaultAreaOfInterestModel implements AreaOfInterestModel {
     
     /**
      * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.
+     * Note that this is the only method to change coordinateSystem.  A
+     * <code>setCoordinateSystem</code> method is not provided to ensure
+     * this class is not dependant on transform classes.
      * @param areaOfInterest The new areaOfInterest.
      * @param coordinateSystem The coordinate system being using by this model.
      */
     public void setAreaOfInterest(
             Envelope areaOfInterest,
-            CS_CoordinateSystem coordinateSystem)
+            CoordinateSystem coordinateSystem)
+    {
+        this.areaOfInterest = areaOfInterest;
+        this.coordinateSystem = coordinateSystem;
+        fireAreaOfInterestChangedListener();
+    }
+    
+    /**
+     * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.
+     * @param areaOfInterest The new areaOfInterest.
+     */
+    public void setAreaOfInterest(
+            Envelope areaOfInterest)
     {
         this.areaOfInterest = areaOfInterest;
         this.coordinateSystem = coordinateSystem;
@@ -123,7 +146,7 @@ public class DefaultAreaOfInterestModel implements AreaOfInterestModel {
      * @param deltaMinY The relative change in the bottom left Y coordinate.
      * @param deltaMaxX The relative change in the top right X coordinate.
      * @param deltaMaxY The relative change in the top right Y coordinate.
-     */
+    
     public void changeRelativeAreaOfInterest(
             float deltaMinX,
             float deltaMaxX,
@@ -139,18 +162,13 @@ public class DefaultAreaOfInterestModel implements AreaOfInterestModel {
         areaOfInterest = newAreaOfInterest;
         fireAreaOfInterestChangedListener();
     }
-
-    /**
-     * Set the coordinateSystem.
      */
-    public void setCoordinateSystem(CS_CoordinateSystem coordinateSystem) {
-        this.coordinateSystem = coordinateSystem;
-    }
+
 
     /**
      * Get the coordinateSystem.
      */
-    public CS_CoordinateSystem getCoordinateSystem() {
+    public CoordinateSystem getCoordinateSystem() {
         return this.coordinateSystem;
     }
     
