@@ -1,52 +1,48 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-renderer-sldstyling</name>
   <id>rendering-styling</id>
-  
   <currentVersion>SNAPSHOT</currentVersion>
-
   <package>org.geotools</package>
-  <shortDescription>Rendering and sldstyling module</shortDescription>
- 
-  <description>Meta tests for rendering and sldstyling module</description>
- 
+  <shortDescription>Rendering and sldstyling
+  module</shortDescription>
+  <description>Meta tests for rendering and sldstyling
+  module</description>
   <developers>
-            
-        <developer>
+    <developer>
       <name>Ian Turton</name>
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-               <role>Module Maintainer</role>
-               <role>Java Developer</role>
-            </roles>
-        </developer>
-        <developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
       <name>Andrea Aime</name>
       <id>aaime</id>
       <email>aaime@users.sourceforge.net</email>
       <organization>SATA</organization>
-            <roles>
-                <role>Module Maintainer</role>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
   </developers>
   <dependencies>
-       <dependency>
+    <dependency>
       <id>commons-collections</id>
       <version>2.1</version>
-    </dependency>  
-        <dependency>
+    </dependency>
+    <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -55,19 +51,23 @@
       <id>opengis+css</id>
       <version>0.1</version>
       <url>http://www.opengis.org</url>
-    </dependency>   
-        
-        <dependency>
+    </dependency>
+    <dependency>
+      <id>opengis</id>
+      <version>SNAPSHOT</version>
+      <url>http://www.geotools.org</url>
+    </dependency>
+    <dependency>
       <artifactId>filter</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>lite-rendering</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -87,17 +87,17 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>gcs-coverage</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>cts-coordtrans</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-   <dependency>
+    <dependency>
       <artifactId>sldstyling</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -106,33 +106,29 @@
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
-    </dependency>  
+    </dependency>
     <dependency>
       <id>vecmath</id>
       <version>1.2.1</version>
       <url>http://java.sun.com/products/java-media/3D/</url>
     </dependency>
-    </dependencies>
-
-    <build>
-      <unitTest>
-        <includes>
-          <include>**/*Test.java</include>
-        </includes>
-
-        <resources>
-          <resource>
-            <directory>${basedir}/tests/unit</directory>
-              <includes>
-                 <include>**/*</include>
-              </includes>
-              <excludes>
-                 <exclude>**/*.class</exclude>
-              </excludes>
-          </resource>
-        </resources>
-      </unitTest>
-    </build>
-  
+  </dependencies>
+  <build>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <resources>
+        <resource>
+          <directory>${basedir}/tests/unit</directory>
+          <includes>
+            <include>**/*</include>
+          </includes>
+          <excludes>
+            <exclude>**/*.class</exclude>
+          </excludes>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
 </project>
-

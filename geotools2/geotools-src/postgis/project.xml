@@ -1,59 +1,54 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-postgis</name>
   <id>postgis</id>
   <currentVersion>SNAPSHOT</currentVersion>
-<versions>
-<version>
-  <id>b1</id>
-  <name>2.0-b1</name> 
-  <tag>GT_2_0_B1</tag> 
-</version>
-</versions>
-  
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
   <package>org.geotools</package>
   <shortDescription>postgis module</shortDescription>
-  
   <description>postgis module</description>
-  
   <developers>
-            
-        <developer>
+    <developer>
       <name>Rob Hranac</name>
       <id>robhranac</id>
       <email>robhranac@users.sourceforge.net</email>
       <organization>VFNY</organization>
-            <roles>
-               <role>Module Maintainer</role>
-               <role>Java Developer</role>
-            </roles>
-        </developer>
-        <developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
       <name>Chris Holmes</name>
       <id>cholmesny</id>
       <email>cholmesny@users.sourceforge.net</email>
       <organization>TOPP</organization>
-            <roles>
-		<role>Module Maintainer</role>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
-    </developers>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
   <dependencies>
-   <dependency>
+    <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-      <dependency>
+    <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -68,17 +63,17 @@
       <version>1.0</version>
       <url>http://postgis.refractions.net/download.php</url>
     </dependency>
-        <dependency>
+    <dependency>
       <id>postgresql</id>
       <version>3.0</version>
       <url>http://www.postgresql.com/</url>
     </dependency>
-      <dependency>
+    <dependency>
       <artifactId>filter</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-     <dependency>
+    <dependency>
       <artifactId>data</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -88,20 +83,16 @@
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
-    </dependencies>
-  
+  </dependencies>
   <build>
     <unitTest>
-    
       <!-- This section excludes the tests -->
       <excludes>
         <exclude>**/PostgisLockingTest.java</exclude>
         <exclude>**/PostgisTestSuite.java</exclude>
-         <exclude>**/PostgisDataStoreAPITest.java</exclude>
+        <exclude>**/PostgisDataStoreAPITest.java</exclude>
       </excludes>
       <!-- End exclude tests -->
     </unitTest>
-    </build>
-
+  </build>
 </project>
-

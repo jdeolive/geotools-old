@@ -1,43 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-mysql</name>
   <id>mysql</id>
-  
   <currentVersion>SNAPSHOT</currentVersion>
-  
   <package>org.geotools</package>
-  <shortDescription>MySQL DataSource Implementation</shortDescription>
+  <shortDescription>MySQL DataSource
+  Implementation</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description>
-    The MySQL module contains an implementation of the DataSource interface (found in core) for use with MySQL.  	
-  </description>
-  
-  
-
+  <description>The MySQL module contains an implementation of the
+  DataSource interface (found in core) for use with
+  MySQL.</description>
   <developers>
     <developer>
       <name>Chris Holmes</name>
       <id>cholmesny</id>
       <email>cholmesny@users.sourceforge.net</email>
       <organization>TOPP</organization>
-            <roles>
-		<role>Module Maintainer</role>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
     <developer>
       <name>James Macgill</name>
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
-    </developers>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
   <dependencies>
     <dependency>
       <id>JTS</id>
@@ -46,20 +41,18 @@
     </dependency>
     <dependency>
       <id>mm.mysql</id>
-            <version>2.0.14</version>
-            <url>http://mmmysql.sourceforge.net/</url>
-        </dependency>   
-        <dependency>
+      <version>2.0.14</version>
+      <url>http://mmmysql.sourceforge.net/</url>
+    </dependency>
+    <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-    </dependencies>
- 
+  </dependencies>
 </project>
-

@@ -1,60 +1,53 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-wmsserver</name>
   <extend>${basedir}/../../project.xml</extend>
   <id>wmsserver</id>
-  
   <currentVersion>SNAPSHOT</currentVersion>
-  
   <package>org.geotools</package>
   <shortDescription>wmsserver module</shortDescription>
-  
   <description>wmsserver module</description>
- 
   <developers>
-            
-        <developer>
+    <developer>
       <name>Ray Gallagher</name>
       <id>omyar</id>
       <email>omyar@users.sourceforge.net</email>
       <organization>none</organization>
-            <roles>
-               <role>Java Developer</role>
-            </roles>
-        </developer>
-         <developer>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
       <name>James Macgill</name>
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>ccg</organization>
-            <roles>
-               <role>Module Maintainer</role>
-               <role>Java Developer</role>
-            </roles>
-        </developer>
-        <developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
       <name>Ian Turton</name>
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-               
-               <role>Java Developer</role>
-            </roles>
-        </developer>
-    </developers>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
   <dependencies>
     <dependency>
       <id>servlet</id>
       <version>2.2</version>
     </dependency>
     <dependency>
-        <id>commons-collections</id>
-        <version>2.1</version>
-        <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+      <id>commons-collections</id>
+      <version>2.1</version>
+      <properties>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
@@ -62,15 +55,15 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
@@ -78,7 +71,7 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
@@ -86,55 +79,55 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
-    </dependency> 
+    </dependency>
     <dependency>
       <artifactId>mapinfo</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
-    </properties>
-    </dependency> 
+        <war.bundle.jar>true</war.bundle.jar>
+      </properties>
+    </dependency>
     <dependency>
       <artifactId>shapefile</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
-    </dependency>  
+    </dependency>
     <dependency>
       <artifactId>postgis</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
-    </dependency>   
-     <dependency>
+    </dependency>
+    <dependency>
       <id>postgis-driver</id>
       <version>1.0</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
       <url>http://postgis.refractions.net/download.php</url>
-    </dependency>  
+    </dependency>
     <dependency>
       <id>postgresql</id>
       <version>1.0</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
       <url>http://www.postgresql.com</url>
-    </dependency>       
-        <dependency>
+    </dependency>
+    <dependency>
       <artifactId>filter</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
@@ -142,7 +135,7 @@
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
@@ -150,7 +143,7 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
@@ -158,7 +151,7 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
@@ -166,7 +159,7 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
@@ -174,7 +167,7 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
@@ -182,14 +175,14 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
       <id>littleEndian</id>
       <version>1.0</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
@@ -197,31 +190,27 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
       <properties>
-         <war.bundle.jar>true</war.bundle.jar>
+        <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
   </dependencies>
-
   <!-- IanS added this for testing resources -->
   <build>
-      <unitTest>
-        <includes>
-          <include>**/*Test.java</include>
-        </includes>
-
-        <resources>
-          <resource>
-            <directory>${basedir}/tests/unit</directory>
-              <includes>
-                 <include>**/*</include>
-              </includes>
-              <excludes>
-                 <exclude>**/*.class</exclude>
-              </excludes>
-          </resource>
-        </resources>
-      </unitTest>
-    </build>
-  
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <resources>
+        <resource>
+          <directory>${basedir}/tests/unit</directory>
+          <includes>
+            <include>**/*</include>
+          </includes>
+          <excludes>
+            <exclude>**/*.class</exclude>
+          </excludes>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
 </project>
-

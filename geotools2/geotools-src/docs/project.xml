@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-docs</name>
@@ -18,17 +17,16 @@
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description>Geotools Documentation</description>
   <url>http://www.geotools.org/</url>
-  <cvsWebUrl/>
-  <issueTrackingUrl/>
-  <distributionDirectory/>
-  
+  <cvsWebUrl />
+  <issueTrackingUrl />
+  <distributionDirectory />
   <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/docs</connection>
-    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/docs/</url>
+    <connection>
+    scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/docs</connection>
+    <url>
+    http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/docs/</url>
   </repository>
-  
-
-  <mailingLists/>
+  <mailingLists />
   <developers>
     <developer>
       <name>Cameron Shorter</name>
@@ -40,21 +38,18 @@
       </roles>
     </developer>
   </developers>
-  <dependencies>
-  </dependencies>
+  <dependencies></dependencies>
   <build>
-    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-    
-    
-    <integrationUnitTestSourceDirectory/>
-    <aspectSourceDirectories/>
+    <nagEmailAddress>
+    jmacgill@users.sourceforge.net</nagEmailAddress>
+    <integrationUnitTestSourceDirectory />
+    <aspectSourceDirectories />
     <unitTestPatterns>
       <unitTestPattern>include = **/*Test.java</unitTestPattern>
     </unitTestPatterns>
-    <integrationUnitTestPatterns/>
-    <jarResources/>
-    <jars/>
+    <integrationUnitTestPatterns />
+    <jarResources />
+    <jars />
     <sourceDirectory>src/</sourceDirectory>
   </build>
 </project>
-

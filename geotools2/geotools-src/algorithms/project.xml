@@ -1,50 +1,43 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-algorithms</name>
   <extend>${basedir}/../../project.xml</extend>
   <id>algorithms</id>
- 
   <currentVersion>SNAPSHOT</currentVersion>
-  
   <package>org.geotools</package>
   <shortDescription>Useful Algorithms</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description>A set of useful algorithms for working with Geometries.</description>
-  
+  <description>A set of useful algorithms for working with
+  Geometries.</description>
   <developers>
     <developer>
       <name>James Macgill</name>
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-                
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
     <developer>
       <name>Andy Turner</name>
       <id>andyturner</id>
       <email>andyturner@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-                <role>Module Maintainer</role>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
-        
-    </developers>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
   <dependencies>
-    
     <dependency>
       <id>JTS</id>
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
-       
-        <dependency>
+    <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -60,6 +53,4 @@
       <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
-  
 </project>
-

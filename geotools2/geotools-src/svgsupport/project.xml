@@ -1,39 +1,31 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-svgsupport</name>
   <id>svgsupport</id>
-  
   <currentVersion>SNAPSHOT</currentVersion>
-<versions>
-<version>
-  <id>b1</id>
-  <name>2.0-b1</name> 
-  <tag>GT_2_0_B1</tag> 
-</version>
-</versions>
-  
-  
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
   <package>org.geotools</package>
   <shortDescription>svgsupport module</shortDescription>
-  
   <description>svgsupport module</description>
- 
-
   <developers>
-            
-        <developer>
+    <developer>
       <name>James Macgill</name>
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-               <role>Module Maintainer</role>
-               <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
   </developers>
   <dependencies>
     <dependency>
@@ -101,17 +93,14 @@
       <version>1.1.1</version>
       <url>http://xml.apache.org/batik/dist</url>
     </dependency>
-        <dependency>
-        <id>commons-collections</id>
-        <version>2.1</version>
+    <dependency>
+      <id>commons-collections</id>
+      <version>2.1</version>
     </dependency>
-    
     <dependency>
       <id>batik+awt+util</id>
       <version>1.1.1</version>
       <url>http://xml.apache.org/batik/dist</url>
     </dependency>
   </dependencies>
-  
 </project>
-

@@ -1,34 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-vpf</name>
   <id>vpf</id>
   <currentVersion>1.0.0</currentVersion>
- 
   <package>org.geotools.vpf</package>
   <shortDescription>vpf module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description>vpf module</description>
- 
-  <mailingLists/>
-
+  <mailingLists />
   <developers>
     <developer>
       <name>Artur Hefczyc</name>
       <id>kobit</id>
       <email>kobit@users.sourceforge.net</email>
       <organization>CCG</organization>
-        <roles>
-          <role>Module Maintainer</role>
-          <role>Java Developer</role>
-        </roles>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
     </developer>
   </developers>
-
   <dependencies>
-  <dependency>
+    <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -44,6 +39,5 @@
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
   </dependencies>
- 
-  <contributors/>
+  <contributors />
 </project>

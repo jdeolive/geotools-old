@@ -1,26 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-arcgrid</name>
   <id>arcgrid</id>
-  
   <currentVersion>SNAPSHOT</currentVersion>
-<versions>
-<version>
-  <id>b1</id>
-  <name>2.0-b1</name> 
-  <tag>GT_2_0_B1</tag> 
-</version>
-</versions>
-  
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
   <package>org.geotools</package>
   <shortDescription>ArcGrid datasource module</shortDescription>
-
-  <description>Datasource created to read ArcGrid raster format. </description>
-
-
+  <description>Datasource created to read ArcGrid raster
+  format.</description>
   <developers>
     <developer>
       <name>Christiaan ten Klooster</name>
@@ -95,14 +90,13 @@
         <include>**/*Test.java</include>
       </includes>
       <resources>
-          <resource>
-              <directory>${basedir}/tests/unit</directory>
-              <includes>
-                  <include>**/*.asc</include>
-              </includes>
-          </resource>
+        <resource>
+          <directory>${basedir}/tests/unit</directory>
+          <includes>
+            <include>**/*.asc</include>
+          </includes>
+        </resource>
       </resources>
     </unitTest>
-    </build>
+  </build>
 </project>
-

@@ -1,20 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-imagedatasource</name>
   <id>imagedatasource</id>
-  
   <currentVersion>SNAPSHOT</currentVersion>
-  
   <package>org.geotools</package>
   <shortDescription>Imagedatasource module</shortDescription>
-  
   <description>Imagedatasource module</description>
-  
-
-
   <developers>
     <developer>
       <name>Ian Turton</name>
@@ -54,17 +47,14 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-        <artifactId>java2drendering</artifactId>
+      <artifactId>java2drendering</artifactId>
       <groupId>gt2</groupId>
-        <version>SNAPSHOT</version>
+      <version>SNAPSHOT</version>
     </dependency>
-     
     <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
-
 </project>
-

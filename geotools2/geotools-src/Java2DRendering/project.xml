@@ -1,19 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-java2drendering</name>
   <id>java2drendering</id>
- 
   <currentVersion>SNAPSHOT</currentVersion>
-  
   <shortDescription>java2drendering module</shortDescription>
-  
   <description>java2drendering module.</description>
-  
-  
-
   <developers>
     <developer>
       <name>James Macgill</name>
@@ -42,7 +35,6 @@
         <role>Java Developer</role>
       </roles>
     </developer>
-        
   </developers>
   <dependencies>
     <dependency>
@@ -55,12 +47,12 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -75,30 +67,27 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
-        <id>commons-collections</id>
-        <version>2.1</version>
+    <dependency>
+      <id>commons-collections</id>
+      <version>2.1</version>
     </dependency>
-    </dependencies>
-    <build>
-      <unitTest>
-        <includes>
-          <include>**/*Test.java</include>
-        </includes>
-
-        <resources>
-          <resource>
-            <directory>${basedir}/tests/unit</directory>
-              <includes>
-                 <include>**/*</include>
-              </includes>
-              <excludes>
-                 <exclude>**/*.class</exclude>
-              </excludes>
-          </resource>
-        </resources>
-      </unitTest>
-    </build>
-  
+  </dependencies>
+  <build>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <resources>
+        <resource>
+          <directory>${basedir}/tests/unit</directory>
+          <includes>
+            <include>**/*</include>
+          </includes>
+          <excludes>
+            <exclude>**/*.class</exclude>
+          </excludes>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
 </project>
-

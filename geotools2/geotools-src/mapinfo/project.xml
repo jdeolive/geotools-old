@@ -1,41 +1,33 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-mapinfo</name>
   <extend>${basedir}/../../project.xml</extend>
   <id>mapinfo</id>
- 
   <currentVersion>SNAPSHOT</currentVersion>
- 
   <package>org.geotools</package>
   <shortDescription>mapinfo module</shortDescription>
-  
   <description>mapinfo module</description>
-  
- 
   <developers>
-            
-        <developer>
+    <developer>
       <name>Ray Gallagher</name>
       <id>omyar</id>
       <email>omyar@users.sourceforge.net</email>
       <organization>none</organization>
-            <roles>
-               <role>Module Maintainer</role>
-               <role>Java Developer</role>
-            </roles>
-        </developer>
-        
-         <developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
       <name>Jianhui Jin</name>
       <id></id>
       <email></email>
       <organization>CCG</organization>
-            <roles>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
   </developers>
   <dependencies>
     <dependency>
@@ -59,22 +51,20 @@
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
   </dependencies>
-  
   <build>
     <unitTest>
       <includes>
         <include>**/*Test.java</include>
       </includes>
       <resources>
-          <resource>
-              <directory>${basedir}/tests/unit</directory>
-              <includes>
-                  <include>**/*.mif</include>
-                  <include>**/*.mid</include>
-              </includes>
-          </resource>
+        <resource>
+          <directory>${basedir}/tests/unit</directory>
+          <includes>
+            <include>**/*.mif</include>
+            <include>**/*.mid</include>
+          </includes>
+        </resource>
       </resources>
     </unitTest>
-    </build>
+  </build>
 </project>
-

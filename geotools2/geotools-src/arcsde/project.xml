@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
@@ -14,14 +14,14 @@
       <id>groldan</id>
       <email>groldan@users.sourceforge.net</email>
       <organization>dominion t.i.</organization>
-        <roles>
-           <role>Module Maintainer</role>
-           <role>Java Developer</role>
-        </roles>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
     </developer>
   </developers>
   <dependencies>
-   <dependency>
+    <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -41,7 +41,7 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -51,7 +51,8 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-    <dependency><!-- just for testing pourposes... -->
+    <dependency>
+      <!-- just for testing pourposes... -->
       <artifactId>gmldatasource</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -73,24 +74,21 @@
         <include>**/*Test.java</include>
       </includes>
       <!-- This section excludes the tests, comment out if your
-           testData/testparams.properties are set correctly -->
+                 testData/testparams.properties are set correctly -->
       <excludes>
         <exclude>**/SdeDataStoreTest.java</exclude>
       </excludes>
       <!-- End exclude tests -->
       <resources>
-          <resource>
-              <directory>${basedir}/tests/unit</directory>
-              <includes>
-                  <include>**/*.properties</include>
-                  <include>**/*.wkt</include>
-                  <include>**/*.xml</include>
-              </includes>
-          </resource>
+        <resource>
+          <directory>${basedir}/tests/unit</directory>
+          <includes>
+            <include>**/*.properties</include>
+            <include>**/*.wkt</include>
+            <include>**/*.xml</include>
+          </includes>
+        </resource>
       </resources>
     </unitTest>
-    </build>
+  </build>
 </project>
-
-
-

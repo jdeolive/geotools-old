@@ -1,34 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-gmldatasource</name>
   <id>gmldatasource</id>
-  
   <currentVersion>SNAPSHOT</currentVersion>
-<versions>
-<version>
-  <id>b1</id>
-  <name>2.0-b1</name> 
-  <tag>GT_2_0_B1</tag> 
-</version>
-</versions>
- 
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
   <package>org.geotools</package>
   <shortDescription>gmldatasource module</shortDescription>
-
   <description>gmldatasource module</description>
- 
   <developers>
-      <developer>
+    <developer>
       <name>Darren Edmonds</name>
       <id>dledmonds</id>
       <email>dledmonds@users.sourceforge.net</email>
       <organization></organization>
       <roles>
-          <role>Module Maintainer</role>
-          <role>Java Developer</role>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
       </roles>
     </developer>
     <developer>
@@ -36,46 +31,47 @@
       <id>cholmesny</id>
       <email>cholmesny@users.sourceforge.net</email>
       <organization></organization>
-            <roles>
-                <role>Module Maintainer</role>
-                <role>Java Developer</role>
-            </roles>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
     </developer>
     <developer>
       <name>Rob Hranac</name>
       <id>robhranac</id>
       <email>robhranac@users.sourceforge.net</email>
       <organization></organization>
-            <roles>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
     <developer>
       <name>Ian Turton</name>
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization></organization>
-            <roles>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
   </developers>
   <contributors>
-   <contributor>
-     <name>Sean Geoghegan</name>
-     <id>seangeo</id>
-     <role>Bug Fixer</role>
-     <organization> Defence Science and Technology Organisation </organization>
+    <contributor>
+      <name>Sean Geoghegan</name>
+      <id>seangeo</id>
+      <role>Bug Fixer</role>
+      <organization>Defence Science and Technology
+      Organisation</organization>
     </contributor>
     <contributor>
       <name>William Stockhausen</name>
-      <organization>Virginia Institute of Marine Science</organization>
-            <roles>
-               <role>Bug Fixer</role>
-            </roles>
+      <organization>Virginia Institute of Marine
+      Science</organization>
+      <roles>
+        <role>Bug Fixer</role>
+      </roles>
     </contributor>
   </contributors>
-
   <dependencies>
     <dependency>
       <artifactId>core</artifactId>
@@ -87,7 +83,7 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -97,12 +93,10 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
-    </dependencies>
- 
+  </dependencies>
 </project>
-

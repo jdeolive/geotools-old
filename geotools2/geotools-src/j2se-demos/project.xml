@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
@@ -7,9 +6,8 @@
   <id>j2se-demos</id>
   <currentVersion>SNAPSHOT</currentVersion>
   <shortDescription>Demos for GeoTools2</shortDescription>
-  <description>
-    Demos of Geotools2 usable within the standard edition of java.
-  </description>
+  <description>Demos of Geotools2 usable within the standard
+  edition of java.</description>
   <url>http://www.geotools.org/</url>
   <developers>
     <developer>
@@ -50,7 +48,6 @@
       </roles>
     </developer>
   </developers>
-    
   <dependencies>
     <dependency>
       <id>JTS</id>
@@ -71,7 +68,7 @@
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
-    </dependency> 
+    </dependency>
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
@@ -87,7 +84,7 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-     <dependency>
+    <dependency>
       <artifactId>junit</artifactId>
       <groupId>junit</groupId>
       <version>3.8.1</version>
@@ -113,6 +110,4 @@
       <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
-    
 </project>
-

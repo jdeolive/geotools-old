@@ -1,46 +1,44 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
+<?xml version="1.0" encoding="iso-8859-1"?>
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-science</name>
-   <extend>${basedir}/../../project.xml</extend>
+  <extend>${basedir}/../../project.xml</extend>
   <id>science</id>
   <currentVersion>SNAPSHOT</currentVersion>
-<versions>
-<version>
-  <id>b1</id>
-  <name>2.0-b1</name> 
-  <tag>GT_2_0_B1</tag> 
-</version>
-</versions>
-
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
   <package>org.geotools</package>
   <shortDescription>science module</shortDescription>
-  <description>Contains algorithm found in environmental science</description>
-
+  <description>Contains algorithm found in environmental
+  science</description>
   <developers>
     <developer>
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
-      <organization>Institut de Recherche pour le Développement</organization>
+      <organization>Institut de Recherche pour le
+      D&#233;veloppement</organization>
       <roles>
         <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
     </developer>
   </developers>
-
   <contributors>
     <contributor>
-      <name>Rémi Eve</name>
-      <organization>Université de Montpellier II</organization>
+      <name>R&#233;mi Eve</name>
+      <organization>Universit&#233; de Montpellier
+      II</organization>
       <roles>
         <role>Java developper</role>
       </roles>
     </contributor>
   </contributors>
-
   <dependencies>
     <dependency>
       <artifactId>resources</artifactId>
@@ -54,5 +52,4 @@
       <url>http://junit.org/</url>
     </dependency>
   </dependencies>
-
 </project>

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
+<?xml version="1.0" encoding="iso-8859-1"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
@@ -7,8 +6,8 @@
   <id>renderer</id>
   <currentVersion>SNAPSHOT</currentVersion>
   <shortDescription>Rendering module</shortDescription>
-  <description>Rendering module (include a Java2D renderer).</description>
-
+  <description>Rendering module (include a Java2D
+  renderer).</description>
   <developers>
     <developer>
       <name>James Macgill</name>
@@ -32,24 +31,23 @@
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
-      <organization>Institut de recherche pour le développement</organization>
+      <organization>Institut de recherche pour le
+      d&#233;veloppement</organization>
       <roles>
         <role>Java Developer</role>
       </roles>
     </developer>
   </developers>
-
-  
   <contributors>
     <contributor>
-      <name>Rémi Eve</name>
-      <organization>Université de Montpellier II</organization>
+      <name>R&#233;mi Eve</name>
+      <organization>Universit&#233; de Montpellier
+      II</organization>
       <roles>
         <role>Java developper</role>
       </roles>
     </contributor>
   </contributors>
-
   <dependencies>
     <dependency>
       <id>JTS</id>
@@ -62,11 +60,16 @@
       <url>http://www.opengis.org</url>
     </dependency>
     <dependency>
+      <id>opengis</id>
+      <version>SNAPSHOT</version>
+      <url>http://www.geotools.org</url>
+    </dependency>
+    <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -90,12 +93,11 @@
       <artifactId>sldstyling</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
-    </dependency> 
+    </dependency>
     <dependency>
       <id>vecmath</id>
       <version>1.2.1</version>
       <url>http://java.sun.com/products/java-media/3D/</url>
     </dependency>
   </dependencies>
-  
 </project>

@@ -1,37 +1,34 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
+<?xml version="1.0" encoding="iso-8859-1"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-cts-coordtrans</name>
   <id>cts-coordtrans</id>
-  
   <currentVersion>SNAPSHOT</currentVersion>
-<versions>
-<version>
-  <id>b1</id>
-  <name>2.0-b1</name> 
-  <tag>GT_2_0_B1</tag> 
-</version>
-</versions>
-  
-  
-  <shortDescription>Coordinate Tranformation Services</shortDescription>
-  <description>Implementation of OGC Coordinate Transformation Services</description>
-  
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
+  <shortDescription>Coordinate Tranformation
+  Services</shortDescription>
+  <description>Implementation of OGC Coordinate Transformation
+  Services</description>
   <developers>
     <developer>
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
-      <organization>Institut de Recherche pour le Développement (IRD)</organization>
+      <organization>Institut de Recherche pour le
+      D&#233;veloppement (IRD)</organization>
       <roles>
         <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
     </developer>
   </developers>
-
   <dependencies>
     <dependency>
       <id>opengis+css</id>
@@ -39,12 +36,10 @@
       <url>http://www.opengis.org</url>
     </dependency>
     <dependency>
-        <id>opengis</id>
-        <version>SNAPSHOT</version>
-        <url>http://www.opengis.org</url>
+      <id>opengis</id>
+      <version>SNAPSHOT</version>
+      <url>http://www.opengis.org</url>
     </dependency>
-
-
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
@@ -55,32 +50,32 @@
       <version>1.2.1</version>
       <url>http://java.sun.com/products/java-media/3D/</url>
     </dependency>
-<dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
     <!--
-    <dependency>
-      <artifactId>core</artifactId>
-      <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    -->
+        <dependency>
+          <artifactId>core</artifactId>
+          <groupId>gt2</groupId>
+          <version>SNAPSHOT</version>
+        </dependency>
+        -->
   </dependencies>
-
-  
   <contributors>
     <contributor>
-      <name>Yann Cézard</name>
-      <organization>Université de Montpellier II</organization>
+      <name>Yann C&#233;zard</name>
+      <organization>Universit&#233; de Montpellier
+      II</organization>
       <roles>
         <role>Java developper</role>
       </roles>
     </contributor>
     <contributor>
-      <name>Rémi Eve</name>
-      <organization>Université de Montpellier II</organization>
+      <name>R&#233;mi Eve</name>
+      <organization>Universit&#233; de Montpellier
+      II</organization>
       <roles>
         <role>Java developper</role>
       </roles>
@@ -93,27 +88,23 @@
       </roles>
     </contributor>
   </contributors>
-
   <build>
-    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-    
+    <nagEmailAddress>
+    jmacgill@users.sourceforge.net</nagEmailAddress>
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
-    <integrationUnitTestSourceDirectory/>
-    <aspectSourceDirectories/>
-    
-    <integrationUnitTestPatterns/>
+    <integrationUnitTestSourceDirectory />
+    <aspectSourceDirectories />
+    <integrationUnitTestPatterns />
     <sourceDirectory>src</sourceDirectory>
     <resourcesSourceDirectory>src</resourcesSourceDirectory>
     <resources>
       <includes>
-        <include>**/*.serialized</include> 
-        <include>**/*.txt</include> 
-         <include>**/*.utf</include> 
+        <include>**/*.serialized</include>
+        <include>**/*.txt</include>
+        <include>**/*.utf</include>
       </includes>
     </resources>
-    
-    <jars/>
-
+    <jars />
     <unitTest>
       <includes>
         <include>**/GeocentricTransformTest.java</include>

@@ -1,60 +1,42 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-utils</name>
   <extend>${basedir}/../../project.xml</extend>
   <id>utils</id>
-  
   <currentVersion>SNAPSHOT</currentVersion>
-  
   <package>org.geotools</package>
   <shortDescription>utility module</shortDescription>
-  
   <description>general utilitiles</description>
- 
-  <developers>
-            
-      
-  </developers>
+  <developers></developers>
   <dependencies>
- 
     <dependency>
       <id>commons-cli</id>
       <version>1.0</version>
-    </dependency>  
-    
+    </dependency>
     <dependency>
       <artifactId>sldstyling</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
-    </dependency>  
-    
+    </dependency>
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
-    </dependency>  
-    
+    </dependency>
     <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-    
     <dependency>
       <artifactId>gmldatasource</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-    
     <dependency>
       <id>JTS</id>
       <version>1.4</version>
     </dependency>
-    
-    
   </dependencies>
-  
 </project>
-

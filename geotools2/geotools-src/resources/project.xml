@@ -1,36 +1,33 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
+<?xml version="1.0" encoding="iso-8859-1"?>
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-resources</name>
-   <extend>${basedir}/../../project.xml</extend>
+  <extend>${basedir}/../../project.xml</extend>
   <id>resources</id>
   <currentVersion>SNAPSHOT</currentVersion>
-<versions>
-<version>
-  <id>b1</id>
-  <name>2.0-b1</name> 
-  <tag>GT_2_0_B1</tag> 
-</version>
-</versions>
-
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
   <package>org.geotools</package>
   <shortDescription>resources module</shortDescription>
   <description>resources module</description>
-
   <developers>
     <developer>
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
-      <organization>Institut de recherche pour le développement</organization>
+      <organization>Institut de recherche pour le
+      d&#233;veloppement</organization>
       <roles>
         <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
     </developer>
   </developers>
-
   <dependencies>
     <dependency>
       <id>junit</id>
@@ -44,5 +41,4 @@
       <url>http://java.sun.com/products/java-media/3D/</url>
     </dependency>
   </dependencies>
-
 </project>

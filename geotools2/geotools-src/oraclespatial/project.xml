@@ -1,41 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-oraclespatial</name>
   <id>oracle-spatial</id>
-  
   <currentVersion>SNAPSHOT</currentVersion>
-<versions>
-<version>
-  <id>b1</id>
-  <name>2.0-b1</name> 
-  <tag>GT_2_0_B1</tag> 
-</version>
-</versions>
-  
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
   <package>org.geotools</package>
   <shortDescription>Oracle Spatial Module</shortDescription>
   <description>Oracle Spatial Module</description>
-  
   <developers>
     <developer>
       <name>Sean Geoghegan</name>
       <id>seangeo</id>
       <email>sean.geoghegan@dsto.defence.gov.au</email>
-      <organization>Defence Science and Technology Organisation</organization>
+      <organization>Defence Science and Technology
+      Organisation</organization>
       <roles>
         <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
-    </developer>       
-  <developer>
+    </developer>
+    <developer>
       <name>Simon Rass</name>
       <roles>
         <role>Bug Fixer</role>
       </roles>
-    </developer>       
+    </developer>
   </developers>
   <dependencies>
     <dependency>
@@ -43,7 +40,7 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
@@ -58,33 +55,29 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-    
     <!-- Use this when you dont have classes12 and sdoapi -->
     <dependency>
       <artifactId>dummy_spatial</artifactId>
       <groupId>oracle</groupId>
       <version>8.1.7</version>
-     </dependency>
-    <!-- End -->
-     
-     <!-- Commented out so we can build using the dummy_spatial jar 
-    <dependency>
-      <artifactId>sdoapi</artifactId>
-      <groupId>oracle</groupId>
-      <version>8.1.7</version>
     </dependency>
-    <dependency>
-      <artifactId>classes</artifactId>
-      <groupId>oracle</groupId>
-      <version>12</version>
-    </dependency>-->
-	 
-    
+    <!-- End -->
+    <!-- Commented out so we can build using the dummy_spatial jar 
+        <dependency>
+          <artifactId>sdoapi</artifactId>
+          <groupId>oracle</groupId>
+          <version>8.1.7</version>
+        </dependency>
+        <dependency>
+          <artifactId>classes</artifactId>
+          <groupId>oracle</groupId>
+          <version>12</version>
+        </dependency>-->
     <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
-    </dependency>        
+    </dependency>
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
@@ -95,34 +88,28 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-    </dependencies>
-    <build>
+  </dependencies>
+  <build>
     <unitTest>
-    
       <!-- This section excludes the tests -->
       <excludes>
         <exclude>**/*Test.java</exclude>
       </excludes>
-		<!--  End exclude tests -->
-      
+      <!--  End exclude tests -->
       <!-- This section includes the tests.
-           Uncomment to run tests.         
-      <includes>
-      	<include>**/*Test.java</include>
-      </includes>
-       End test includes -->
-      
+                 Uncomment to run tests.         
+            <includes>
+              <include>**/*Test.java</include>
+            </includes>
+             End test includes -->
       <resources>
-          <resource>
-              <directory>${basedir}/tests/unit</directory>
-              <includes>
-                  <include>testData/</include>
-              </includes>
-          </resource>
+        <resource>
+          <directory>${basedir}/tests/unit</directory>
+          <includes>
+            <include>testData/</include>
+          </includes>
+        </resource>
       </resources>
     </unitTest>
-    </build>
-
+  </build>
 </project>
-
- 

@@ -1,57 +1,49 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-lite-rendering</name>
   <id>lite-rendering</id>
- 
   <currentVersion>SNAPSHOT</currentVersion>
-<versions>
-<version>
-  <id>b1</id>
-  <name>2.0-b1</name> 
-  <tag>GT_2_0_B1</tag> 
-</version>
-</versions>
-  
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
   <shortDescription>lite-rendering module</shortDescription>
-  
   <description>lite-rendering module</description>
-  
-  
-
   <developers>
     <developer>
       <name>James Macgill</name>
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
     <developer>
       <name>Ian Turton</name>
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
     <developer>
       <name>Andrea Aime</name>
       <id>aaime</id>
       <email>aaime@users.sourceforge.net</email>
       <organization>SATA</organization>
-            <roles>
-                <role>Module Maintainer</role>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
-        
-    </developers>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
   <dependencies>
     <dependency>
       <artifactId>core</artifactId>
@@ -73,7 +65,7 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-   <dependency>
+    <dependency>
       <artifactId>gcs-coverage</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -87,29 +79,24 @@
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
-    </dependency>  
-    </dependencies>
-
-    <build>
-      <unitTest>
-        <includes>
-          <include>**/*Test.java</include>
-        </includes>
-
-        <resources>
-          <resource>
-            <directory>${basedir}/tests/unit</directory>
-              <includes>
-                 <include>**/*</include>
-              </includes>
-              <excludes>
-                 <exclude>**/*.class</exclude>
-              </excludes>
-          </resource>
-        </resources>
-      </unitTest>
-    </build>
-
-  
+    </dependency>
+  </dependencies>
+  <build>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <resources>
+        <resource>
+          <directory>${basedir}/tests/unit</directory>
+          <includes>
+            <include>**/*</include>
+          </includes>
+          <excludes>
+            <exclude>**/*.class</exclude>
+          </excludes>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
 </project>
-

@@ -1,84 +1,77 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-shapefile</name>
   <id>shapefile</id>
   <currentVersion>SNAPSHOT</currentVersion>
-<versions>
-<version>
-  <id>b1</id>
-  <name>2.0-b1</name> 
-  <tag>GT_2_0_B1</tag> 
-</version>
-</versions>
- 
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
   <package>org.geotools</package>
   <shortDescription>shapefile module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description>shapefile module</description>
- 
- 
-
-  <mailingLists/>
+  <mailingLists />
   <developers>
-            
-        <developer>
+    <developer>
       <name>James Macgill</name>
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-               <role>Module Maintainer</role>
-               <role>Java Developer</role>
-            </roles>
-        </developer>
-        
-        <developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
       <name>Ian Turton</name>
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
-      <developer>
-        <name>Darren Edmonds</name>
-        <id>dledmonds</id>
-        <email>dledmonds@btopenworld.com</email>
-        <organization></organization>
-          <roles>
-            <role>Java Developer</role>
-          </roles>
-      </developer>
-      <developer>
-        <name>Andrea Aime</name>
-        <id>aaime</id>
-        <email>aaime@libero.it</email>
-        <organization></organization>
-          <roles>
-            <role>Java Developer</role>
-          </roles>
-      </developer>
-      <developer>
-        <name>Ian Schneider</name>
-        <id>en</id>
-        <email>ianschneiderw@ars.usda.gov</email>
-        <organization>USDA/ARS</organization>
-        <roles>
-          <role>Java Developer</role>
-        </roles>
-      </developer>
-    </developers>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Darren Edmonds</name>
+      <id>dledmonds</id>
+      <email>dledmonds@btopenworld.com</email>
+      <organization></organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Andrea Aime</name>
+      <id>aaime</id>
+      <email>aaime@libero.it</email>
+      <organization></organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Ian Schneider</name>
+      <id>en</id>
+      <email>ianschneiderw@ars.usda.gov</email>
+      <organization>USDA/ARS</organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
   <dependencies>
     <dependency>
       <artifactId>data</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
-    </dependency> 
-  <dependency>
+    </dependency>
+    <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -88,68 +81,56 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
-        <dependency>
+    <dependency>
       <id>resources</id>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-       
-    </dependencies>
- 
-    <contributors>
-            
-        <contributor>
+  </dependencies>
+  <contributors>
+    <contributor>
       <name>Dave Blasby</name>
-      
-      
       <organization>Refractions Research</organization>
-            <roles>
-               <role>Bug Fixer</role>
-               
-            </roles>
-        </contributor>
-        <contributor>
+      <roles>
+        <role>Bug Fixer</role>
+      </roles>
+    </contributor>
+    <contributor>
       <name>William Stockhausen</name>
-      
-      
-      <organization>Virginia Institute of Marine Science</organization>
-            <roles>
-               <role>Bug Fixer</role>
-               
-            </roles>
-        </contributor>
-        <contributor>
+      <organization>Virginia Institute of Marine
+      Science</organization>
+      <roles>
+        <role>Bug Fixer</role>
+      </roles>
+    </contributor>
+    <contributor>
       <name>Ithaqua</name>
-      
-      
-      <organization>Virginia Institute of Marine Science</organization>
-            <roles>
-               <role>External Project Developer</role>
-               
-            </roles>
-        </contributor>
-    </contributors>
-    <build>
+      <organization>Virginia Institute of Marine
+      Science</organization>
+      <roles>
+        <role>External Project Developer</role>
+      </roles>
+    </contributor>
+  </contributors>
+  <build>
     <unitTest>
       <includes>
         <include>**/*Test.java</include>
       </includes>
       <resources>
-          <resource>
-              <directory>${basedir}/tests/unit</directory>
-              <includes>
-                  <include>**/data.zip</include>
-                  <include>**/*.wkt</include>
-              </includes>
-          </resource>
+        <resource>
+          <directory>${basedir}/tests/unit</directory>
+          <includes>
+            <include>**/data.zip</include>
+            <include>**/*.wkt</include>
+          </includes>
+        </resource>
       </resources>
     </unitTest>
-    </build>
-    
+  </build>
 </project>
-
