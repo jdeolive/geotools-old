@@ -39,7 +39,7 @@ import org.geotools.data.*;
  * they do not allow any nested elements, but they also restrict the
  * attribute objects to be very simple data types.</p>
  *
- * @version $Id: FeatureFactory.java,v 1.5 2002/08/16 15:37:34 cholmesny Exp $
+ * @version $Id: FeatureFactory.java,v 1.6 2003/05/20 14:44:52 jmacgill Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFactory {
@@ -49,7 +49,7 @@ public class FeatureFactory {
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
     
-    FeatureType schema; 
+    private FeatureType schema; 
 
     /**
      * Constructor.
