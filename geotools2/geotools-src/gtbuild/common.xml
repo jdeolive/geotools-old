@@ -1,195 +1,232 @@
-     <property file="build.ant.properties"/>
-    <target depends="release" name="all"> 
-            <!-- WRITEME -->
-    </target>
-    <target name="checkstyle" depends="checkstyle1,checkstyle2">
-        <!-- dummy target to call either of the dependancies depending on
-        value of checking used in init.
-        checking=true - checks to file
-        checking=screen - checks to file and screen
-        -->
-    </target>
-     <!-- TODO: failOnViolation should be set to true eventualy -->
-    <target name="checkstyle1" if="toBeChecked">
-         <echo message="using ${licence.header} as header check file"/>
-         <checkstyle failOnViolation="false" maxLineLen="100"> 
-            <fileset dir="src" includes="**/*.java"/>
-            
-            <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
-         </checkstyle>
-    </target>
-    <target name="checkstyle2" if="toBeCheckedToScreen">
-         <echo message="using ${licence.header} as header check file"/>
-         <checkstyle failOnViolation="false" maxLineLen="100"> 
-            <fileset dir="src" includes="**/*.java"/>
-            <formatter type="plain"/>
-            <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
-         </checkstyle>
-    </target>
-    <target depends="prepare-compile" description="compile the code for the package" name="compile">
-        <javac debug="true" srcdir="src">
-            <classpath refid="compile.path"/>
-        </javac>
-    </target>
-    <target depends="compile" name="compile-test" if="testsuite">
-        <javac debug="true" srcdir="tests/unit/org">
-            <classpath>
-                <path path="src"/>
-                <path refid="compile.path" />
-            </classpath>
-        </javac>
-    </target>
-    <target depends="compile-test,checkstyle" name="test" if="doTest">
+<!-- ========================================================================
+     GeoTools BUILD FILE
+     This build file is licensed under the LGPL 
 
-        <junit haltOnFailure="true" printsummary="true">
-            <formatter type="plain"/>
-            
-            <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
-            <classpath>
-                <path path="src"/>
-                <path path="tests/unit/"/>
-                <path refid="compile.path"/>
-            </classpath>
+     Formatting conventions for this file:
+       - two space indents
+       - 80 character line limits, when possible
+
+     Modified: 5/9/2002
+     Authors:  James MacGill, CCG
+               Ian Turton, CCG
+               Rob Hranac, VFNY
+    ======================================================================== -->
+
+<!-- ======================================================================= -->
+<!-- SET PROPERTIES                                                          -->
+<!-- ======================================================================= -->
+<!-- First, get module specific build file           -->
+<!-- Here are the properties this file expects:      -->
+<!--   path.compile - module compile path            -->
+<!--   path.compile - module compile path            -->
+<property file="build.ant.properties"/>
+
+<!-- Set base directories -->
+<property name="dir.root" value="../.."/>           
+<property name="dir.module" value="."/>           
+
+<!-- Set common directories -->
+<property name="dir.source" value="${dir.module}/src"/>
+<property name="dir.test" value="${dir.module}/unit/test"/>
+<property name="dir.external" value="${dir.root}/extbin/gtbuild/lib"/>
+
+<!-- Set all external library paths -->
+<path id="path.netbeans" path="${dir.external}/nbantext.jar"/>
+<path id="path.checkstyle" path="${dir.external}/checkstyle-all-2.1.jar"/>
 
 
-            <test fork="false" name="${testsuite}"/>
+<!-- ======================================================================= -->
+<!-- SET OPTIONAL TASK DEFINITIONS                                           -->
+<!-- ======================================================================= -->
+<taskdef name="forEach" 
+         classname="org.netbeans.nbbuild.ForEach" 
+         classpathref="path.netbeans"/>        
 
-        </junit>
-    </target>
-    <target depends="test" name="release">
-        <mkdir dir="${releaseFolder}"/>
-        <jar basedir="src/" jarfile="${releaseFolder}/${project.name}.jar"/>
-        <antcall target="copy-extlib"/>
-    </target>
+<taskdef name="check" 
+         classname="org.netbeans.nbbuild.CheckValue" 
+         classpathref="path.netbeans"/>        
+
+<taskdef name="checkstyle" 
+         classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" 
+         classpathref="path.checkstyle"/>
+
+
+<!-- ======================================================================= -->
+<!-- INITIALIZE                                                              -->
+<!-- ======================================================================= -->
+<target name="init" depends="modificationset">
+  <mkdir dir="${releaseFolder}"/>
+  <condition property="has.dependancies" >
+    <not>
+      <equals arg1="${dependancy}" arg2="$${dependancy}"/>
+    </not>
+  </condition>
+  <condition property="has.extbin" >           
+    <not>
+      <equals arg1="${extbin}" arg2="$${extbin}"/>
+    </not>            
+  </condition>
+  <condition property="cond.styleCheck" >
+    <equals arg1="${checking}" arg2="true"/>
+  </condition>
+  <condition property="cond.styleCheckToScreen" >
+    <equals arg1="${checking}" arg2="screen"/>
+  </condition>                
+</target>
+
+
+<!-- ======================================================================= -->
+<!-- PREPARE DEPENDENCIES                                                    -->
+<!-- ======================================================================= -->
+<!-- Recursively prepare dependencies -->
+<target name="prepare-compile" depends="init,set-classpath,add-extbin" >
+  <echo message="Prep-compile: ${project.name}"/>
+  <antcall target="dependancies"/>
+</target>
+
+<!-- Recursively prepare dependencies -->
+<target name="add-extbin" if="has.extbin">
+  <path id="compile.path">
+    <fileset dir="${dir.external}"/>
+    <fileset dir="${releaseFolder}"/>
+    <fileset dir="${extbin}"/>
+  </path>
+</target>
+
+<!-- Recursively prepare dependencies -->
+<target name="set-classpath" unless="has.extbin">
+  <path id="compile.path">
+    <fileset dir="${dir.external}"/>
+    <fileset dir="${releaseFolder}"/>
+  </path>
+</target>
+
+<!-- Recursively prepare dependencies -->
+<target name="dependancies" if="has.dependancies" >
+  <echo message="${project.name} calling dependancies"/>
+  <forEach startdir=".." locations="${dependancy}" target="release" inheritall="false">
+    <property name="releaseFolder" value="${releaseFolder}"/>
+    <property name="lastBuildAttemptTime" value="${lastBuildAttemptTime}"/>
+    <property name="checking" value="false"/>
+  </forEach>
+</target>
     
-    <target name="copy-extlib" if="has.extbin">
-        <echo message="${project.name}: copying from ${extbin} to ${releaseFolder}"/>
-        <copy todir="${releaseFolder}">
-            <fileset dir="${extbin}"/>
-        </copy>
-    </target>
 
-    <target name="clean" depends="init"> 
-        <echo message="${project.name} cleaning src + ${releaseFolder}"/>
-        <delete>
-            <fileset dir="src" includes="**/*.class"/>
-            <fileset dir="${releaseFolder}/" includes="*.jar"/>            
-        </delete>
-        <antcall target="clean-tests"/>
-    </target>
+<!-- ======================================================================= -->
+<!-- CHECK STYLE TASKS                                                       -->
+<!-- ======================================================================= -->
+<!-- Dummy target to call either of the dependancies depending on value of   -->
+<!-- checking used in init.                                                  -->
+<!--   checking=true - checks to file                                        -->
+<!--   checking=screen - checks to file and screen                           -->
+<!-- TODO: 3                                                                 --> 
+<!--   failOnViolation should be set to true eventualy                       -->
+<target name="checkstyle" depends="checkToFile,checkToScreen"/>
+
+<!-- Check this style to a file -->
+<target name="checkToFile" if="cond.styleCheck">
+  <echo message="using ${licence.header} as header check file"/>
+  <checkstyle failOnViolation="false" maxLineLen="100"> 
+    <fileset dir="src" includes="**/*.java"/>            
+    <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
+  </checkstyle>
+</target>
+
+<!-- Check this style to the screen -->
+<target name="checkToScreen" if="cond.styleCheckToScreen">
+  <echo message="using ${licence.header} as header check file"/>
+  <checkstyle failOnViolation="false" maxLineLen="100"> 
+    <fileset dir="src" includes="**/*.java"/>
+    <formatter type="plain"/>
+    <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
+  </checkstyle>
+</target>
+
+
+<!-- ======================================================================= -->
+<!-- COMPILE TASKS                                                           -->
+<!-- ======================================================================= -->
+<!-- Compiles all code for the module. -->
+<target name="compile" depends="prepare-compile" 
+        description="compile the code for the package">
+  <javac debug="true" srcdir="src" classpathref="compile.path"/>
+</target>
+
+<!-- Compiles all test code for the module. -->
+<target name="compile-test" depends="compile" if="testsuite">
+  <javac debug="true" 
+         srcdir="tests/unit/org" 
+         classpath="${dir.source}:${compile.path}"/>
+</target>
+
+<!-- Runs the unit tests on the module, if any exist. -->
+<target name="test" depends="compile-test,checkstyle" if="testsuite">
+  <junit fork="true" printsummary="true">
+    <!--formatter type="plain"/ -->
+    <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
+    <classpath>
+      <path path="${dir.source}"/>
+      <path path="${dir.test}"/>
+      <path refid="compile.path"/>
+    </classpath>
+    <test fork="false" name="${testsuite}"/>
+  </junit>
+</target>
+
+<!-- Copies all external libraries to release folder -->
+<target name="copy-extlib" if="has.extbin">
+  <echo message="${project.name}: copying from ${extbin} to ${releaseFolder}"/>
+  <copy todir="${releaseFolder}">
+    <fileset dir="${extbin}"/>
+  </copy>
+</target>
+
+
+<!-- ======================================================================= -->
+<!-- MAJOR TASKS                                                             -->
+<!-- ======================================================================= -->
+<!-- The default target for this project; should compile everything. -->
+<target  name="all" depends="release"/>
+
+<!-- Prepares a jar for this module. -->
+<target name="release" depends="test">
+  <mkdir dir="${releaseFolder}"/>
+  <jar basedir="src/" jarfile="${releaseFolder}/${project.name}.jar"/>
+  <antcall target="copy-extlib"/>
+</target>
+    
+<!-- Cleans the module. -->
+<target name="clean" depends="init"> 
+  <echo message="${project.name} cleaning src + ${releaseFolder}"/>
+  <delete>
+    <fileset dir="src" includes="**/*.class"/>
+    <fileset dir="${releaseFolder}/" includes="*.jar"/>            
+  </delete>
+  <antcall target="clean-tests"/>
+</target>
         
-    <target name="clean-tests" if="testsuite">
-        <echo message="${project.name} cleaning tests"/>    
-        <fileset dir="tests/unit/org/" includes="**/*.class"/>
-    </target>
+<!-- Cleans the tests for this module. -->
+<target name="clean-tests" if="testsuite">
+  <echo message="${project.name} cleaning tests"/>    
+  <fileset dir="tests/unit/org/" includes="**/*.class"/>
+</target>
     
 
-    <target name="prepare-compile" depends="init,set-classpath,add-extbin" >
-        <!--echo message="Prep-compile: ${project.name}" /-->
-        
-        <!--echo message="${project.name} about to call dependancies ${has.dependancies}"/-->
-        <antcall target="dependancies"/>
-        <!-- only one of the two following calls will suceed depending on whether the project has 
-         an ext bin or not. if it does we need to add it to the classpath-->
-        <!--antcall target="set-classpath"/-->
-        <!--antcall target="add-extbin"/-->
-    </target>
-    <target name="add-extbin" if="has.extbin">
-        <!--echo message="adding ${extbin} to classpath"/-->
-        <path id="compile.path">
-            <fileset dir="../../extbin/gtbuild/lib/"/>
-            <fileset dir="${releaseFolder}"/>
-            <fileset dir="${extbin}"/>
-        </path>
-    </target>
-    <target name="set-classpath" unless="has.extbin">
-        <path id="compile.path">
-            <fileset dir="../../extbin/gtbuild/lib/"/>
-            <fileset dir="${releaseFolder}"/>
-        </path>
-    </target>
-    <target name="dependancies" if="has.dependancies" >
-        <!--echo message="${project.name}: about to build ${dependancy}"/-->
-        <for-each startdir=".." locations="${dependancy}" target="release" inheritall="false" >
-            <property name="releaseFolder" value="${releaseFolder}"/>
-            <property name="lastBuildAttemptTime" value="${lastBuildAttemptTime}"/>
-            <property name="checking" value="false"/>
-            <property name="testing" value="false"/>
-        </for-each>
-    </target>
-    
-    <target name="modificationset" if="${lastBuildAttemptTime}">
-        <path id="cruisecontrol.ext">
-            <fileset dir="../../extbin/gtbuild/lib/"/>
-            <pathelement location="../../extbin/gtbuild/lib/cruisecontrol.jar"/>
-        </path>
-        <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet">
-            <classpath refid="cruisecontrol.ext"/>        
-        </taskdef>
-        <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
-            <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
-        </modificationset>
-    </target>
-        <target name="init" depends="modificationset">
-        <mkdir dir="${releaseFolder}"/>
-        <path id="netbeans.ext">
-            <fileset dir="../../extbin/gtbuild/lib/"/>
-            <pathelement location="../../extbin/gtbuild/lib/nbantext.jar"/>
-            
-        </path>
-        <path id="junit.ext" >
-            <fileset dir="../../extbin/gtbuild/lib/"/>
-            <pathelement location="../../extbin/gtbuild/lib/ant-optional-1.4.1.jar"/>
-        </path>
-        <taskdef classname="org.netbeans.nbbuild.ForEach" name="for-each">
-            <classpath refid="netbeans.ext"/>        
-        </taskdef>    
-        <taskdef classname="org.netbeans.nbbuild.CheckValue" name="check">
-            <classpath refid="netbeans.ext"/>        
-        </taskdef>
-        <taskdef classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
-            name="JUnit">
-          <classpath refid="junit.ext"/>        
-        </taskdef>  
- 
-        <path id="checkstyle.ext">
-            <fileset dir="../../extbin/gtbuild/lib/"/>
-            <pathelement location="../../extbin/gtbuild/lib/checkstyle-all.jar"/>
-        </path>
-       
-        <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" name="checkstyle">
-            <classpath refid="checkstyle.ext"/>
-        </taskdef>
-        <!--echo message="${project.name} dependancies = ${dependancy}"/-->
-        <condition property="has.dependancies" >
-            <not>
-                <equals arg1="${dependancy}" arg2="$${dependancy}"/>
-            </not>
-        </condition>
-        <!--echo message="${project.name} has dependancies = ${has.dependancies}"/-->
+<!-- ======================================================================= -->
+<!-- AUTOMATED TASKS                                                         -->
+<!-- ======================================================================= -->
+<!-- Ummm...I have no idea what this does. -->
+<target name="modificationset" if="${lastBuildAttemptTime}">
+  <path id="cruisecontrol.ext">
+    <fileset dir="../../extbin/gtbuild/lib/"/>
+    <pathelement location="../../extbin/gtbuild/lib/cruisecontrol.jar"/>
+  </path>
+  <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet">
+    <classpath refid="cruisecontrol.ext"/>        
+  </taskdef>
+  <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
+    <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
+  </modificationset>
+</target>
 
 
-        <condition property="has.extbin" >           
-            <not>
-                <equals arg1="${extbin}" arg2="$${extbin}"/>
-            </not>            
-        </condition>
-        <condition property="toBeChecked" >
-            <equals arg1="${checking}" arg2="true"/>
-        </condition>
-        <condition property="toBeCheckedToScreen" >
-            <equals arg1="${checking}" arg2="screen"/>
-        </condition>      
-        <condition property="doTest" >
-            <and>
-                <not>
-                    <equals arg1="${testing}" arg2="false"/>
-                </not>
-                <not>
-                    <equals arg1="${testsuite}" arg2="$${testsuite}"/>
-                </not>
-            </and>
-        </condition>
-                
-            
-    </target>
