@@ -54,14 +54,14 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link GridCoverage} implementation.
  *
- * @version $Id: GridCoverageTest.java,v 1.1 2002/07/27 12:43:05 desruisseaux Exp $
+ * @version $Id: GridCoverageTest.java,v 1.2 2002/07/27 22:09:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GridCoverageTest extends TestCase {
     /**
      * Pixel size (in degrees). Used for transforming pixel coordinates to degrees.
      */
-    private final static double PIXEL_SIZE = 0.25;
+    protected final static double PIXEL_SIZE = 0.25;
 
     /**
      * Scale factor for pixel transcoding.
@@ -74,10 +74,15 @@ public class GridCoverageTest extends TestCase {
     private static final double OFFSET = 5;
 
     /**
+     * The minimal valid value.
+     */
+    protected static final int BEGIN_VALID = 3;
+
+    /**
      * Small value for comparaison. Must be in <code>float</code>
      * range (not <code>double</code>).
      */
-    private static final double EPS = 1E-5;
+    protected static final double EPS = 1E-5;
 
     /**
      * Random number generator for this test.
@@ -100,6 +105,11 @@ public class GridCoverageTest extends TestCase {
      * left corner at 10°W 30°N.
      */
     private Rectangle2D bounds;
+
+    /**
+     * The grid coverage constructed from all fields above.
+     */
+    protected GridCoverage coverage;
 
     /**
      * Returns the test suite.
@@ -127,6 +137,7 @@ public class GridCoverageTest extends TestCase {
             new Category("Cloud",       null, 2),
             new Category("Temperature", null, 3, 256, SCALE, OFFSET)
         }, Unit.get("°C"));
+        assertEquals(3, BEGIN_VALID);
 
         image = new BufferedImage(120, 80, BufferedImage.TYPE_BYTE_GRAY);
         WritableRaster raster = image.getRaster();
@@ -137,16 +148,15 @@ public class GridCoverageTest extends TestCase {
         }
         bounds = new Rectangle2D.Double(-10, 30, PIXEL_SIZE*image.getWidth(),
                                                  PIXEL_SIZE*image.getHeight());
+        coverage = new GridCoverage("Test", image, GeographicCoordinateSystem.WGS84,
+                                    new Envelope(bounds), new SampleDimension[]{band},
+                                    null, null);
     }
 
     /**
      * Test the construction and access to a grid coverage.
      */
     public void testGridCoverage() {
-        GridCoverage coverage = new GridCoverage("Test", image, GeographicCoordinateSystem.WGS84,
-                                                 new Envelope(bounds), new SampleDimension[]{band},
-                                                 null, null);
-        coverage = applyOperation(coverage);
         assertSame(image.getTile(0,0), coverage.getRenderedImage().getTile(0,0));
 
         // Test the creation of a "geophysics" view.
@@ -165,9 +175,9 @@ public class GridCoverageTest extends TestCase {
         double[] bufferCov = null;
         double[] bufferGeo = null;
         final Raster data  = image.getRaster();
-        final double left  = bounds.getMinX() + (0.5*PIXEL_SIZE); // Pixel center
-        final double upper = bounds.getMaxY() - (0.5*PIXEL_SIZE); // Pixel center
-        final Point2D.Double point = new Point2D.Double();
+        final double left  = bounds.getMinX() + (0.5*PIXEL_SIZE); // Includes translation to center
+        final double upper = bounds.getMaxY() - (0.5*PIXEL_SIZE); // Includes translation to center
+        final Point2D.Double point = new Point2D.Double(); // Will maps to pixel center.
         for (int j=data.getHeight(); --j>=0;) {
             for (int i=data.getWidth(); --i>=0;) {
                 point.x = left  + PIXEL_SIZE*i;
@@ -178,20 +188,12 @@ public class GridCoverageTest extends TestCase {
                 assertEquals(r, bufferCov[band], EPS);
 
                 // Compare transcoded samples.
-                if (r < 3) {
+                if (r < BEGIN_VALID) {
                     assertTrue(Double.isNaN(bufferGeo[band]));
                 } else {
                     assertEquals(OFFSET + SCALE*r, bufferGeo[band], EPS);
                 }
             }
         }
-    }
-
-    /**
-     * Apply a transformation on the specified grid coverage. This method will be
-     * overrided by <code>InterpolatorTest</code> in <code>org.geotools.gp</code>.
-     */
-    protected GridCoverage applyOperation(final GridCoverage coverage) {
-        return coverage;
     }
 }
