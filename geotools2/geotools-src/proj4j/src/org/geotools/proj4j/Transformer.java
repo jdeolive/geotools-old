@@ -145,7 +145,7 @@ public class Transformer {
     {
         
         int io;
-        if( defn.datumType == Projection.PJD_3PARAM ) {
+        if( defn.datum.datumType == Datum.PJD_3PARAM ) {
             for(int i = 0; i < point_count; i++ ) {
                 io = i * point_offset;
                 
@@ -154,7 +154,7 @@ public class Transformer {
                 z[io] = z[io] + defn.datum.getParams()[2];
             }
         }
-        else if( defn.datumType == Projection.PJD_7PARAM ) {
+        else if( defn.datum.datumType == Datum.PJD_7PARAM ) {
             for(int i = 0; i < point_count; i++ ) {
                 io = i * point_offset;
                 double x_out, y_out, z_out;
@@ -182,7 +182,7 @@ public class Transformer {
     double x[], double y[], double z[] ) {
         
         int io;
-        if( defn.datumType == Projection.PJD_3PARAM ) {
+        if( defn.datum.datumType == Datum.PJD_3PARAM ) {
             
             for(int i = 0; i < point_count; i++ ) {
                 io = i * point_offset;
@@ -192,7 +192,7 @@ public class Transformer {
                 z[io] = z[io] - defn.datum.getParams()[2];
             }
         }
-        else if( defn.datumType == Projection.PJD_7PARAM ) {
+        else if( defn.datum.datumType == Datum.PJD_7PARAM ) {
             for(int i = 0; i < point_count; i++ ) {
                 io = i * point_offset;
                 double x_out, y_out, z_out;
@@ -232,17 +232,17 @@ public class Transformer {
         if( compareDatums( srcdefn, dstdefn ) )
             return;
         
-        src_a = srcdefn.a;
-        src_es = srcdefn.es;
+        src_a = srcdefn.ellipse.a;
+        src_es = srcdefn.ellipse.es;
         
-        dst_a = dstdefn.a;
-        dst_es = dstdefn.es;
+        dst_a = dstdefn.ellipse.a;
+        dst_es = dstdefn.ellipse.es;
         
         /* -------------------------------------------------------------------- */
         /*	If this datum requires grid shifts, then apply it to geodetic   */
         /*      coordinates.                                                    */
         /* -------------------------------------------------------------------- */
-        if( srcdefn.datumType == Projection.PJD_GRIDSHIFT ) {
+        if( srcdefn.datum.datumType == Datum.PJD_GRIDSHIFT ) {
             throw new ProjectionException("Grid shifts not yet supported");
         /*
         pj_apply_gridshift( pj_param(srcdefn->params,"snadgrids").s, 0,
@@ -256,7 +256,7 @@ public class Transformer {
          */
         }
         
-        if( dstdefn.datumType == Projection.PJD_GRIDSHIFT ) {
+        if( dstdefn.datum.datumType == Datum.PJD_GRIDSHIFT ) {
             dst_a = SRS_WGS84_SEMIMAJOR;
             dst_es = 0.006694379990;
         }
@@ -264,10 +264,10 @@ public class Transformer {
         /* ==================================================================== */
         /*      Do we need to go through geocentric coordinates?                */
         /* ==================================================================== */
-        if( srcdefn.datumType == Projection.PJD_3PARAM
-        || srcdefn.datumType == Projection.PJD_7PARAM
-        || dstdefn.datumType == Projection.PJD_3PARAM
-        || dstdefn.datumType == Projection.PJD_7PARAM) {
+        if( srcdefn.datum.datumType == Datum.PJD_3PARAM
+        || srcdefn.datum.datumType == Datum.PJD_7PARAM
+        || dstdefn.datum.datumType == Datum.PJD_3PARAM
+        || dstdefn.datum.datumType == Datum.PJD_7PARAM) {
             /* -------------------------------------------------------------------- */
             /*      Convert to geocentric coordinates.                              */
             /* -------------------------------------------------------------------- */
@@ -278,8 +278,8 @@ public class Transformer {
             /* -------------------------------------------------------------------- */
             /*      Convert between datums.                                         */
             /* -------------------------------------------------------------------- */
-            if( srcdefn.datumType != Projection.PJD_UNKNOWN
-            && dstdefn.datumType != Projection.PJD_UNKNOWN ) {
+            if( srcdefn.datum.datumType != Datum.PJD_UNKNOWN
+            && dstdefn.datum.datumType != Datum.PJD_UNKNOWN ) {
                 geocentricToWSG84( srcdefn, point_count, point_offset,x,y,z);
                 geocentricFromWSG84( dstdefn, point_count,point_offset,x,y,z);
             }
@@ -295,7 +295,7 @@ public class Transformer {
         /* -------------------------------------------------------------------- */
         /*      Apply grid shift to destination if required.                    */
         /* -------------------------------------------------------------------- */
-        if( dstdefn.datumType == Projection.PJD_GRIDSHIFT ) {
+        if( dstdefn.datum.datumType == Datum.PJD_GRIDSHIFT ) {
             throw new ProjectionException("Grid shifts not yet supported");
         /*
         pj_apply_gridshift( pj_param(dstdefn->params,"snadgrids").s, 1,
