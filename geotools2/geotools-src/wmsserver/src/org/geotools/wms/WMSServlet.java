@@ -443,19 +443,24 @@ public class WMSServlet extends HttpServlet {
     /** Converts this object into a WMS 1.1.1 compliant Capabilities XML string.
      */
     public String capabilitiesToXML(Capabilities cap) {
-        InputStream is = this.getClass().getResourceAsStream("capabilities.xml");
-        System.out.println("input stream " + is);
-        StringBuffer xml = new StringBuffer();
-        int length = 0;
-        byte [] b = new byte [100];
-        try {
+        String home = getServletContext().getRealPath("");
+        URL base,url;
+        try{
+            base = new File(home).toURL();
+            System.out.println("base set to " + base);
+            url = new URL(base,"capabilities.xml");
+            
+            
+            InputStream is =url.openStream();
+            System.out.println("input stream " + is + " from url " + url);
+            StringBuffer xml = new StringBuffer();
+            int length = 0;
+            byte [] b = new byte [100];
+            
             while ((length = is.read(b))!=-1)
                 xml.append(new String(b, 0, length));
-        }
-        catch(IOException ioexp) {
-            return null;
-        }
         
+
         // address of this service
         String resource = "<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\" "+
         "xlink:href=\"" + getUrl + "\"/>";
@@ -513,6 +518,10 @@ public class WMSServlet extends HttpServlet {
         xml.replace(xml.toString().indexOf(XML_LAYERS), xml.toString().indexOf(XML_LAYERS)+ XML_LAYERS.length(), layerStr);
         
         return xml.toString();
+        }
+        catch(IOException ioexp) {
+            return null;
+        }
     }
     
     /**
