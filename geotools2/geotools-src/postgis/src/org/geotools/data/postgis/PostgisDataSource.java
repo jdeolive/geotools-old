@@ -44,7 +44,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.16 2003/02/04 00:57:44 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.17 2003/02/07 22:57:16 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -64,6 +64,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.postgis");
     
+
     /** Factory for producing geometries (from JTS). */
     private static GeometryFactory geometryFactory = new GeometryFactory();
     
@@ -74,7 +75,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     private static WKTWriter geometryWriter = new WKTWriter();
 
     /** The limit on a select statement. */
-    private static final int HARD_MAX_FEATURES = 10000;
+    private static final int HARD_MAX_FEATURES = 100000;
 
     /** The maximum features allowed by the server for any given response. */
     private int maxFeatures = HARD_MAX_FEATURES;
@@ -83,8 +84,10 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     private int srid;
 
  /** To create the sql where statement */
-    private static SQLEncoderPostgis encoder = new SQLEncoderPostgis();
+    private SQLEncoderPostgis encoder = new SQLEncoderPostgis();
 
+    /** the name of the column to use for the featureId */
+    private String fidColumn;
 
     /** The maximum features allowed by the server for any given response. */
     private FeatureType schema = null;
@@ -115,6 +118,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    throw new DataSourceException("Couldn't make schema: " + e);
 	}
 	this.srid = getSrid();
+	encoder.setSRID(srid);
+	this.fidColumn = getFidColumn(dbConnection, tableName);
     }
 
     /**
@@ -150,6 +155,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	this.tableName = tableName;
 	this.schema = schema;
 	this.srid = getSrid();
+	encoder.setSRID(srid);
+	this.fidColumn = getFidColumn(dbConnection, tableName);
     }
 
     /**
@@ -207,15 +214,6 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         ResultSet result = statement.executeQuery("SELECT * FROM " 
 						  + tableName + " LIMIT 1;");
 
-	/*DatabaseMetaData dbMeta = dbConnection.getMetaData();
-	ResultSet pkeys = dbMeta.getPrimaryKeys(null, null, tableName);
-	while (pkeys.next()) {
-	    LOGGER.info("table is " + pkeys.getString(3) + ", column is " + 
-			pkeys.getString(4) + "pk name is " +
-			pkeys.getString(6));
-			}*/
-
-	
         ResultSetMetaData metaData = result.getMetaData();
         
 
@@ -318,8 +316,9 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * the column name if we have more than one srid per feature.
      */
     public static int querySRID(Connection dbConnection, String tableName) 
-	throws Exception {
-	 String sqlStatement = "SELECT srid FROM GEOMETRY_COLUMNS WHERE " + 
+	throws DataSourceException {
+	try {
+	String sqlStatement = "SELECT srid FROM GEOMETRY_COLUMNS WHERE " + 
             "f_table_name='" + tableName + "';";
 
         // retrieve the result set from the JDBC driver
@@ -334,8 +333,51 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    throw new DataSourceException("problem querying the db for srid " +
 					  "of " + tableName);
 	}
+    }
+	catch(SQLException e) {
+	    String message = "Some sort of database connection error: " 
+		+ e.getMessage();
+		LOGGER.warning(message);
+	    throw new DataSourceException(message, e);
+	}
 
     }
+
+    /**
+     * Figures out what database column to use as the identifier for the 
+     * feature.  For now it first tries to use the primary key (which should
+     * be the fid according to sfs for sql), and if there are none, then it
+     * uses the postgres specific invisible oid column.
+     *
+     * @param dbConnection The connection to the database.
+     * @param tableName The name of the table to get the id for.
+     * @return the name of the column to use as the fid.
+     * @tasks REVISIT: right now most postgis datasources probably won't have
+     * primary keys declared, but that should start to change if the next 
+     * shp2pgsql declares primary keys.  As things are written now, when primary
+     * keys are used the pk data will be returned twice, once with as the fid,
+     * and once as the column.  It is a fairly easy fix for a getFeatures, but
+     * insert will be a bit trickier, it will have to figure out what is next
+     * in the primary key index.
+     */
+   public static String getFidColumn(Connection dbConnection, 
+				      String tableName) {
+       String retString = "oid";
+       /*try {
+	   DatabaseMetaData dbMeta = dbConnection.getMetaData();
+	   //TODO: get values for catalog and schema?  this could mess up
+	   //if there are tables of same name and different catalog.
+	   ResultSet pkeys = dbMeta.getPrimaryKeys(null, null, tableName);
+	   if (pkeys.next()) {
+	       //get the name of the primary key column
+	       retString = pkeys.getString(6);
+	       //TODO: Figure out what to do if there are multiple pks
+	   }
+       } catch (SQLException e) {
+	   //do nothing, just use OID
+	   }*/
+       return retString;
+   }
 
     /**
      * Returns an attribute type for a geometry column in a feature table.
@@ -385,22 +427,25 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     public String makeSql(Filter filter, String tableName,
 			  FeatureType schema, boolean useLimit) 
 	throws DataSourceException{
-        StringBuffer sqlStatement = new StringBuffer("SELECT");
+	StringBuffer sqlStatement = new StringBuffer("SELECT ");
+	sqlStatement.append(fidColumn);
         AttributeType[] attributeTypes = schema.getAttributeTypes();
-
-        for( int i = 0; i < attributeTypes.length; i++) {
+	int numAttributes = attributeTypes.length;
+ 
+        for( int i = 0; i < numAttributes; i++) {
+	    String curAttName = attributeTypes[i].getName();
             if( Geometry.class.isAssignableFrom( attributeTypes[i].getType())) {
-                sqlStatement.append(" AsText(" + 
-				    attributeTypes[i].getName() + ")");
+                sqlStatement.append(", AsText(" + curAttName + ")");
+		//} REVISIT, see getIdColumn note.
+            //else if (fidColumn.equals(curAttName) {
+		//do nothing, already covered by fid
+	    } else {
+                sqlStatement.append(", " + curAttName);
             }
-            else {
-                sqlStatement.append(" " + attributeTypes[i].getName());
-            }
-            if( i < attributeTypes.length - 1) {
-                sqlStatement.append(",");
-	    }    
+            //if( i < attributeTypes.length - 1) {
+            //    sqlStatement.append(",");
+	    //}    
 	}
-	encoder.setSRID(srid);
 	String where = "";
 	LOGGER.finer("about to encode");
 	if (filter != null) {
@@ -511,26 +556,26 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
                 // grab featureId, which is the (hidden) objectid column and
                 //  always appears first 
-                featureId = result.getString(1);
+                featureId = tableName + "." + result.getString(1);
 
                 // create an individual attribute by looping through columns
-                LOGGER.fine("reading feature: " + resultCounter);
+                //LOGGER.finest("reading feature: " + resultCounter);
                 //LOGGER.fine("geometry position: " + geometryPosition);
                 for( col = 0; col < totalAttributes; col++) {
                     //LOGGER.fine("reading attribute: " + col);
                     if( col == geometryPosition) {
 			attributes[col] = geometryReader.read
-			    ( result.getString(col + 1));
+			    ( result.getString(col + 2));
                     }
                     else {
                         //LOGGER.fine("found attribute: " + result.getString(col + 2));
-                        attributes[col] = result.getObject(col + 1);
+                        attributes[col] = result.getObject(col + 2);
                     }
                 }
 		Feature curFeature = factory.create(attributes, featureId);
 		//LOGGER.finest("testing feature " + curFeature + " with filter: " + featureFilter);
 		if ((featureFilter == null) || featureFilter.contains(curFeature)) {
-		    //  LOGGER.finest("adding feature.....");
+		    //LOGGER.finest("adding feature: " + curFeature);
 		    features.add( curFeature);
 		    resultCounter++;
 		}
@@ -672,9 +717,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         Object featureID;
         //String geomSql = "";
         String attrValue = "";
-        Object fidValue;
         String fid = null;
-        String fidName = schema.getAttributeTypes()[0].getName();
 
 	unpacker.unPackOR(filter);
 	String whereStmt = null;
@@ -689,7 +732,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		whereStmt = encoder.encode((AbstractFilter)encodableFilter);
 		sql = "DELETE from " + tableName + " " + whereStmt + ";";
 		//do actual delete
-		LOGGER.finer("sql statment is " + sql);
+		LOGGER.fine("sql statment is " + sql);
 		statement.executeUpdate(sql);
 	    }
 	    
@@ -698,10 +741,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		if (featureArr.length > 0) {
 		    sql = "DELETE FROM "  + tableName + " WHERE "; 
 		    for (int i = 0; i < featureArr.length; i++){
-
-			fidValue = featureArr[i].getId();
-			fid = addQuotes(fidValue);
-			sql += fidName + " = " + fid;
+			fid = formatFid(featureArr[i]);
+			sql += fidColumn + " = " + fid;
 			if (i < featureArr.length - 1) {
 			    sql += " OR ";
 			} else {
@@ -709,7 +750,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 			}
 			
 		    }
-		    //LOGGER.info("our delete says : " + sql);
+		    LOGGER.fine("our delete says : " + sql);
 		    statement.executeUpdate(sql);
 		}
             }
@@ -748,9 +789,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	Feature[] featureArr;
 	Object[] curAttributes;
 	String sql = "";
-	Object fidValue;
 	String fid = null;
-	String fidName = schema.getAttributeTypes()[0].getName();
+	//String fidName = schema.getAttributeTypes()[0].getName();
 	//check schema with filter???
 	
 	unpacker.unPackOR(filter);
@@ -775,12 +815,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		if (featureArr.length > 0) {
 		    whereStmt = " WHERE "; 
 		    for (int i = 0; i < featureArr.length; i++){
-			//REVISIT: do away with id, 
-			// and just query first attribute?
-			fidValue = featureArr[i].getId();
-			fid = addQuotes(fidValue);
-			whereStmt += fidName + " = " + fid;
-			
+			fid = formatFid(featureArr[i]);
+			whereStmt += fidColumn + " = " + fid;
 			if (i < featureArr.length - 1) {
 			    whereStmt += " OR ";
 			}	
@@ -809,6 +845,14 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
     }
     
+    private String formatFid(Feature feature){
+	String fid = feature.getId();
+	if (fid.startsWith(tableName)) {
+	    //take out the tableName and the .
+	    fid = fid.substring(tableName.length() + 1);
+	}
+	return addQuotes(fid);
+    }
     /**
      * Modifies the passed attribute types with the passed objects in all
      * features that correspond to the passed OGS filter.  A convenience
