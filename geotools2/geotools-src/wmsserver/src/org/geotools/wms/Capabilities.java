@@ -128,7 +128,7 @@ public class Capabilities
 	/** Finds the layer with the given unique name
 	 * @return The Layer with the given name
 	 */
-	private Layer getLayer(String name)
+	public Layer getLayer(String name)
 	{
 		for (int i=0;i<layers.size();i++)
 		{
@@ -279,6 +279,10 @@ public class Capabilities
 		{
 			return styles;
 		}
+        
+        protected double[] getBbox(){
+            return bbox;
+        }
 	}		
 	
 	protected class Style
