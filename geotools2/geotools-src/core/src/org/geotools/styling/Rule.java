@@ -46,12 +46,12 @@ package org.geotools.styling;
  * (lim[x->0+](x)), and a missing MaxScale means there is no upper bound
  * (infinity).  0.28mm 
  *
- * @task add getFilters method to interface.
- * @task add hasElseFilter method to interface.
+ * 
  *
- * @version $Id: Rule.java,v 1.5 2002/07/12 15:33:46 loxnard Exp $
+ * @version $Id: Rule.java,v 1.6 2002/07/25 16:55:33 ianturton Exp $
  * @author James Macgill
  */
+import org.geotools.filter.Filter;
 public interface Rule {
    
     /**
@@ -71,8 +71,10 @@ public interface Rule {
      *         be active for.
      **/
     double getMaxScaleDenominator();
-    //public Filter[] getFilters();
-    //public boolean hasElseFilter();
+    
+    public Filter getFilter();
+    
+    public boolean hasElseFilter();
     
     /**
      * A set of equivalent Graphics in different formats which can be used

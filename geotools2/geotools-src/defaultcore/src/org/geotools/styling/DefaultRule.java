@@ -21,10 +21,11 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: DefaultRule.java,v 1.5 2002/07/11 17:37:57 loxnard Exp $
+ * @version $Id: DefaultRule.java,v 1.6 2002/07/25 16:55:33 ianturton Exp $
  * @author James Macgill
  */
 import java.util.ArrayList;
+import org.geotools.filter.Filter;
 
 public class DefaultRule implements org.geotools.styling.Rule {
 
@@ -36,7 +37,8 @@ public class DefaultRule implements org.geotools.styling.Rule {
     private String title = "title";
     
     private String abstractStr = "Abstract";
-    
+    private Filter filter = null;
+    private boolean hasElseFilter = false;
     /** Creates a new instance of DefaultRule */
     public DefaultRule() {
         symbolizers = new Symbolizer[0];
@@ -50,11 +52,11 @@ public class DefaultRule implements org.geotools.styling.Rule {
     }
     
     public double getMaxScaleDenominator() {
-        return Double.POSITIVE_INFINITY;//HACK: not nice this
+        return Double.POSITIVE_INFINITY; // this is correct
     }
     
     public double getMinScaleDenominator() {
-        return Double.NEGATIVE_INFINITY;//HACK: not nice this
+        return 0.0;
     }
     
     public void setSymbolizers(Symbolizer[] syms){
@@ -113,4 +115,21 @@ public class DefaultRule implements org.geotools.styling.Rule {
         this.title = title;
     }
     
+    public Filter getFilter() {
+        return filter;
+    }
+    
+    public void setFilter(Filter filter){
+        this.filter = filter;
+    }
+    
+    public boolean hasElseFilter() {
+        return hasElseFilter;
+    }
+    public void setElseFilter(boolean flag){
+        hasElseFilter = flag;
+    }
+    public void setHasElseFilter(){
+        hasElseFilter = true;
+    }
 }
