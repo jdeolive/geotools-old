@@ -1,7 +1,49 @@
-<?xml version="1.0"?>
-
-<project name="core" basedir="." default="all">
-    <target name="all">
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="core">
+    <target depends="test" name="all">
         <!-- WRITEME -->
     </target>
+
+    <target name="compile">
+        <javac debug="true"  srcdir="src">
+            <!-- excludes="/datasource/"-->
+            <classpath>
+                <fileset dir="..\..\extbin\core\lib\"/>
+                <pathelement location="../proj4j/release/proj4j.jar"/>
+            </classpath>
+
+            
+        </javac>
+        </target>
+        <target depends="compile" name="compile-test">
+        <javac debug="true" srcdir="tests/unit" >
+         <!-- excludes="org/geotools/datasource/**"-->
+            <classpath>
+                <fileset dir="..\..\extbin\core\lib\"/>
+                <fileset dir="..\..\extbin\gtbuild\lib\"/>
+                <path path="src"/>
+            </classpath>
+        </javac>
+    </target>
+    <target depends="compile-test" name="test">
+        <echo message="base dir is ${basedir}"/>
+        <junit fork="true" printsummary="true">
+            <formatter type="plain"/>
+            <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
+            <classpath>
+                <fileset dir="..\..\extbin\core\lib\"/>
+                <fileset dir="..\..\extbin\shapefile\lib\"/>
+                <fileset dir="..\..\extbin\gtbuild\lib\"/>
+                <path path="src"/>
+                <path path="tests/unit/"/>
+            </classpath>
+            <test name="org.geotools.datasource.DatasourceTest"/>
+        </junit>
+    </target>
+    <target name="clean">
+        <delete>
+            <fileset dir="src" includes="**/*.class"/>
+        </delete>
+    </target>
+
 </project>
