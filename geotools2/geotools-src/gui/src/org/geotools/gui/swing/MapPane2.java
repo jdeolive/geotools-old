@@ -48,7 +48,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.14 2003/01/21 19:38:27 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.15 2003/01/22 21:04:57 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -80,11 +80,6 @@ public class MapPane2 extends JPanel implements
     private static final Logger LOGGER = Logger.getLogger(
         "org.geotools.gui.swing.MapPane2");
 
-    /**
-     * The Screen Size of the map in screen coordinates.
-     */
-    private Rectangle widgetSize;
-    
     /**
      * Create a MapPane.
      * A MapPane marshals the drawing of maps.
@@ -151,10 +146,6 @@ public class MapPane2 extends JPanel implements
      * @task TODO create a layerList.getCoordinateSystem method
      */
     public void paintComponent(Graphics graphics) {
-//        LOGGER.info("MapPane2.size="+this.getSize()); 
-//        super.paintComponent(graphics);
-//        graphics.setColor(Color.BLUE);
-//        graphics.drawLine(20, 20, 200, 200);
         if (context.getBbox().getAreaOfInterest()==null){
             Envelope bBox=context.getLayerList().getBbox(false);
             if (bBox!=null){
@@ -168,7 +159,7 @@ public class MapPane2 extends JPanel implements
             }
         }
         //LOGGER.info("AreaOfInterest="+areaOfInterestModel);
-        renderer.setOutput(graphics,widgetSize);
+        renderer.setOutput(graphics,this.getVisibleRect());
 
         for (int i=0;i<context.getLayerList().getLayers().length;i++) {
             if (context.getLayerList().getLayers()[i].getVisability())
@@ -208,21 +199,5 @@ public class MapPane2 extends JPanel implements
     public void LayerListChanged(
             EventObject layerListChangedEvent) {
         repaint(getVisibleRect());
-    }
-    
-    /**
-     * Set the Screen Size of this widget.
-     * @size The size of the Map in Screen Coordinates.
-     */
-    public void setWidgetSize(Rectangle size){
-        this.widgetSize=size;
-    }
-
-    /**
-     * Get the Screen Size of this widget.
-     * @return The size of the Map in Screen Coordinates.
-     */
-    public Rectangle getwidgetSize(){
-        return this.widgetSize;
     }
 }

@@ -31,6 +31,7 @@ import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import org.opengis.cs.CS_CoordinateSystem;
@@ -68,7 +69,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.7 2003/01/21 11:56:04 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.8 2003/01/22 21:05:34 camerons Exp $
  *
  */
 
@@ -84,7 +85,7 @@ public class MapViewer2 extends JFrame {
 
     /** Creates new form MapViewer2 */
     public MapViewer2() {
-        //initComponents();
+        initComponents();
         initComponents2();
     }
 
@@ -95,7 +96,7 @@ public class MapViewer2 extends JFrame {
      */
     private void initComponents() {//GEN-BEGIN:initComponents
 
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        //getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -156,7 +157,6 @@ public class MapViewer2 extends JFrame {
             // Create MapPane and associate a Tool
             tool=new PanTool();
             mapPane = new MapPane2(tool, context);
-            mapPane.setWidgetSize(new Rectangle(300,300));
             mapPane.setBorder(
                 new javax.swing.border.TitledBorder("MapPane Map"));
             getContentPane().add(
@@ -165,6 +165,10 @@ public class MapViewer2 extends JFrame {
 //                    0, 0, 300, 420));
             mapPane.setSize(400,400);
             //pack();
+            
+            // Extra stuff for testing
+            JButton b1=new JButton("ok");
+            getContentPane().add(b1);
          } catch (Exception e){
             LOGGER.warning("Exception: "+e+" initialising MapView.");
         }
