@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="Algorithms">
+
+  <title>Algorithms</title>
+
+  <body>
+    <links>
+      <item name="core" href="/../../../defaultcore/target/docs/"/>
+      <item name="defaultcore" href="/../../../defaultcore/target/docs/"/>
+      <item name="filter" href="/../../../filter/target/docs/"/>
+            <item name="algorithms" href="/../../../algorithms/target/docs/"></item>
+        </links>
+    <!-- <menu name="Overview">
+      <item name="Goals" href="/goals.html"/>
+      <item name="Features" href="/features.html"/>
+      <item name="News and Status" href="/status.html"/>
+      <item name="Getting Started" href="/start/index.html"/>
+      <item name="Reference" href="/ref/index.html"/>
+      <item name="Plugins" href="/plugins/index.html"/>
+      <item name="Powered By" href="/powered.html"/>
+    </menu> -->
+  </body>
+</project>
+
