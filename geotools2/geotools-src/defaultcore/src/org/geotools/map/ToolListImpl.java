@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.map;
 
 import org.geotools.gui.tools.Tool;
@@ -28,11 +27,12 @@ import javax.swing.event.EventListenerList;
  * The tool which will process mouse events on a MapPane.
  *
  * @author Cameron Shorter
- * @version $Id: ToolListImpl.java,v 1.2 2003/04/25 10:40:32 camerons Exp $
+ * @version $Id: ToolListImpl.java,v 1.3 2003/05/10 10:11:25 camerons Exp $
  */
 public class ToolListImpl implements ToolList {
     /** The selected tool for this context. */
     private Tool tool;
+
     /** Classes to notify if the LayerList changes */
     private EventListenerList listenerList = new EventListenerList();
 
@@ -78,9 +78,7 @@ public class ToolListImpl implements ToolList {
 
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == SelectedToolListener.class) {
-                ((SelectedToolListener) listeners[i + 1]).selectedToolChanged(
-                    ece
-                );
+                ((SelectedToolListener) listeners[i + 1]).selectedToolChanged(ece);
             }
         }
     }

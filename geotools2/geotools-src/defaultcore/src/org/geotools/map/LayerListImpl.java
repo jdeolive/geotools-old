@@ -14,15 +14,8 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.map;
 
-/**
- * LayerList stores DataSources associated with a geographic map. Geotools uses
- * a Model-View-Control (MVC) design to control maps. The Tools classes
- * process key and mouse actions, and the Renderers handle displaying of the
- * data.
- */
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.map.events.LayerListListener;
@@ -35,23 +28,29 @@ import javax.swing.event.EventListenerList;
 
 
 /**
- * DOCUMENT ME!
+ * LayerList stores DataSources associated with a geographic map. Geotools uses
+ * a Model-View-Control (MVC) design to control maps. The Tools classes
+ * process key and mouse actions, and the Renderers handle displaying of the
+ * data.
  *
- * @author $author$
- * @version $Revision: 1.3 $
+ * @author Cameron Shorter
+ * @version $Id: LayerListImpl.java,v 1.4 2003/05/10 10:10:23 camerons Exp $
  */
 public class LayerListImpl implements LayerList {
     /** The class used for identifying for logging. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.map");
+
     /** The layers stored by this LayerList */
     private List layers = Collections.synchronizedList(new ArrayList());
+
     /** Classes to notify if the LayerList changes */
     private EventListenerList listenerList = new EventListenerList();
 
     /**
      * Create a Layer Model without any layers.
      */
-    protected LayerListImpl() {}
+    protected LayerListImpl() {
+    }
 
     /**
      * Create a Layer Model with one layer and trigger a LayerListChangedEvent.
@@ -205,16 +204,10 @@ public class LayerListImpl implements LayerList {
 
         for (int i = 0; i < layerArray.length; i++) {
             if (Bbox == null) {
-                Bbox =
-                    new EnvelopeExtent(
-                        layerArray[i].getDataSource().getBbox(quick)
-                    );
+                Bbox = new EnvelopeExtent(layerArray[i].getDataSource().getBbox(quick));
             } else {
-                Bbox.combine(
-                    new EnvelopeExtent(
-                        layerArray[i].getDataSource().getBbox(quick)
-                    )
-                );
+                Bbox.combine(new EnvelopeExtent(layerArray[i].getDataSource()
+                                                             .getBbox(quick)));
             }
         }
 
