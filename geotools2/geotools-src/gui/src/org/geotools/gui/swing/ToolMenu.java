@@ -32,7 +32,7 @@ import javax.swing.JMenuItem;
  * itself from the ToolList parameters.
  *
  * @author Cameron Shorter
- * @version $Id: ToolMenu.java,v 1.1 2003/05/17 20:38:44 camerons Exp $
+ * @version $Id: ToolMenu.java,v 1.2 2003/05/17 23:18:01 camerons Exp $
  */
 public class ToolMenu extends JMenu {
     /** The class used for identifying for logging. */
@@ -48,7 +48,7 @@ public class ToolMenu extends JMenu {
      * @param toolList The toolList to build the menu from.
      */
     public ToolMenu(ToolList toolList) {
-        toolList = toolList;
+        this.toolList = toolList;
 
         setText("Tool");
 
