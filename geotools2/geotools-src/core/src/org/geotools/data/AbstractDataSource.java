@@ -49,7 +49,7 @@ import java.util.Set;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.10 2003/07/22 14:43:53 cholmesny Exp $
+ * @version $Id: AbstractDataSource.java,v 1.1 2003/07/29 15:42:33 ianschneider Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** A support string for unsupported operations messages */
