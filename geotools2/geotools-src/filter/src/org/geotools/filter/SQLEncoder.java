@@ -42,7 +42,7 @@ import java.io.StringWriter;
  *
  * @author Chris Holmes, TOPP
  */
-public class SQLEncoder implements org.geotools.filter.FilterVisitor {
+public class SQLEncoder implements org.geotools.filter.FilterVisitorImpl {
     
     /** The standard SQL multicharacter wild card.*/
     private static String SQL_WILD_MULTI = "%";  
@@ -91,7 +91,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @param out the writer to encode the SQL to.
      * @param filter the Filter to be encoded.
      */
-    public SQLEncoder(Writer out, AbstractFilter filter)
+    public SQLEncoder(Writer out, AbstractFilterImpl filter)
 	throws SQLEncoderException {
         if (capabilities.fullySupports(filter)) {
 	    this.out = out;
@@ -115,7 +115,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @param out the writer to encode the SQL to.
      * @param filter the Filter to be encoded.
      */
-    public void encode(Writer out, AbstractFilter filter) 
+    public void encode(Writer out, AbstractFilterImpl filter) 
 	throws SQLEncoderException {
 	if (capabilities.fullySupports(filter)) {
 	    this.out = out;
@@ -139,7 +139,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @param filter the Filter to be encoded.
      * @return the string of the SQL where statement.
      */
-    public String encode(AbstractFilter filter)
+    public String encode(AbstractFilterImpl filter)
 	throws SQLEncoderException {
 	StringWriter output = new StringWriter();
 	encode(output, filter);
@@ -239,12 +239,12 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
 	    java.util.Iterator list = filter.getFilterIterator();
             if(filter.getFilterType() == AbstractFilter.LOGIC_NOT){
 		out.write(" NOT ("); 
-		((AbstractFilter)list.next()).accept(this);
+		((AbstractFilterImpl)list.next()).accept(this);
 		out.write(")");
 	    } else { //AND or OR
 		out.write("("); 
 		while(list.hasNext()){ 
-		    ((AbstractFilter)list.next()).accept(this);
+		    ((AbstractFilterImpl)list.next()).accept(this);
 		    if (list.hasNext()){
 			out.write(" " + type + " ");
 		    }

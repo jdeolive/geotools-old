@@ -195,7 +195,7 @@ AttributeType shortAttribute =
 	    gf.addLeftGeometry(left);
 
 	 SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
-	 String out = encoder.encode((AbstractFilter)gf);
+	 String out = encoder.encode((AbstractFilterImpl)gf);
 	 LOGGER.finer("Resulting SQL filter is \n"+ out);
 	 assertTrue(out.equals("WHERE testGeometry && GeometryFromText(" +
 			       "'POLYGON ((0 0, 0 300, 300 300, 300 0, 0 0))'"
@@ -215,7 +215,7 @@ AttributeType shortAttribute =
 	gf.addRightGeometry(right);
 	
 	SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
-	String out = encoder.encode((AbstractFilter)gf);
+	String out = encoder.encode((AbstractFilterImpl)gf);
 	LOGGER.finer("Resulting SQL filter is \n"+ out);
 	 assertTrue(out.equals("WHERE GeometryFromText(" +
 			       "'POLYGON ((10 10, 10 300, 300 300, 300 10, 10 10))'"
@@ -234,7 +234,7 @@ AttributeType shortAttribute =
 	gf.addLeftGeometry(left);
 	try {
 	    SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
-	    String out = encoder.encode((AbstractFilter)gf);
+	    String out = encoder.encode((AbstractFilterImpl)gf);
 	} catch (SQLEncoderException e) {
 	    LOGGER.finer(e.getMessage());
 	    assertTrue(e.getMessage().equals("Filter type not supported"));

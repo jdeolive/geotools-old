@@ -45,7 +45,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * @author Chris Holmes, TOPP
  */
 public class SQLEncoderPostgis extends SQLEncoder 
-    implements org.geotools.filter.FilterVisitor {
+    implements org.geotools.filter.FilterVisitorImpl {
     
     private static FilterCapabilities capabilities = SQLEncoder.getCapabilities();
     /** Standard java logger */
@@ -89,7 +89,7 @@ public class SQLEncoderPostgis extends SQLEncoder
      * @param out the writer to encode the SQL to.
      * @param filter the Filter to be encoded.
      */
-    public SQLEncoderPostgis(Writer out, AbstractFilter filter, int srid)
+    public SQLEncoderPostgis(Writer out, AbstractFilterImpl filter, int srid)
 	throws SQLEncoderException {
 	this(srid);
         if (capabilities.fullySupports(filter)) {

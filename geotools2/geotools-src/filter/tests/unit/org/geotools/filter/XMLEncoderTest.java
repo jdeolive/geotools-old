@@ -260,7 +260,7 @@ public class XMLEncoderTest extends TestCase {
                 //_log.getLoggerRepository().setThreshold(Level.DEBUG);
                 LOGGER.finer("filter: " + filter.getClass().toString());
                 StringWriter output = new StringWriter();
-                XMLEncoder encode = new XMLEncoder(output,(AbstractFilter)filter);
+                XMLEncoder encode = new XMLEncoder(output,(AbstractFilterImpl)filter);
                 LOGGER.finer("Resulting filter XML is \n"+output.getBuffer().toString());
             }
         }
