@@ -16,16 +16,17 @@
  */
 package org.geotools.styling;
 
-import java.net.URL;
-
 import org.geotools.factory.Factory;
 import org.geotools.factory.FactoryConfigurationError;
 import org.geotools.factory.FactoryFinder;
 import org.geotools.filter.Expression;
+import java.net.URL;
 
 
+/**
+ * Abstract base class for implementing style factories.
+ */
 public abstract class StyleFactory implements Factory {
-
     private static StyleFactory factory = null;
 
     /**
@@ -33,21 +34,18 @@ public abstract class StyleFactory implements Factory {
      *
      * @return An instance of the Factory, or null if the Factory could not be
      *         created.
+     *
+     * @throws FactoryConfigurationError DOCUMENT ME!
      */
-    public static StyleFactory createStyleFactory() 
-    throws FactoryConfigurationError {
-
+    public static StyleFactory createStyleFactory()
+        throws FactoryConfigurationError {
         if (factory == null) {
-            factory = (StyleFactory) FactoryFinder.findFactory(
-              "org.geotools.styling.StyleFactory", 
-              "org.geotools.styling.StyleFactoryImpl"
-            );
+            factory = (StyleFactory) FactoryFinder.findFactory("org.geotools.styling.StyleFactory",
+                    "org.geotools.styling.StyleFactoryImpl");
         }
 
         return factory;
     }
-
-    
 
     public abstract TextSymbolizer createTextSymbolizer(Fill fill,
         Font[] fonts, Halo halo, Expression label,
@@ -69,16 +67,46 @@ public abstract class StyleFactory implements Factory {
     public abstract Mark createMark(Expression wellKnownName, Stroke stroke,
         Fill fill, Expression size, Expression rotation);
 
+    /**
+     * Convinence method for obtaining a mark of a fixed shape
+     *
+     * @return a Mark that matches the name in this method.
+     */
     public abstract Mark getCircleMark();
 
+    /**
+     * Convinence method for obtaining a mark of a fixed shape
+     *
+     * @return a Mark that matches the name in this method.
+     */
     public abstract Mark getXMark();
 
+    /**
+     * Convinence method for obtaining a mark of a fixed shape
+     *
+     * @return a Mark that matches the name in this method.
+     */
     public abstract Mark getStarMark();
 
+    /**
+     * Convinence method for obtaining a mark of a fixed shape
+     *
+     * @return a Mark that matches the name in this method.
+     */
     public abstract Mark getSquareMark();
 
+    /**
+     * Convinence method for obtaining a mark of a fixed shape
+     *
+     * @return a Mark that matches the name in this method.
+     */
     public abstract Mark getCrossMark();
 
+    /**
+     * Convinence method for obtaining a mark of a fixed shape
+     *
+     * @return a Mark that matches the name in this method.
+     */
     public abstract Mark getTriangleMark();
 
     public abstract FeatureTypeStyle createFeatureTypeStyle(Rule[] rules);
@@ -108,11 +136,51 @@ public abstract class StyleFactory implements Factory {
     public abstract PointPlacement createPointPlacement(
         AnchorPoint anchorPoint, Displacement displacement, Expression rotation);
 
+    /**
+     * A convienice method to make a simple stroke
+     *
+     * @param color the color of the line
+     * @param width the width of the line
+     *
+     * @return the stroke object
+     *
+     * @see org.geotools.stroke
+     */
     public abstract Stroke createStroke(Expression color, Expression width);
 
+    /**
+     * A convienice method to make a simple stroke
+     *
+     * @param color the color of the line
+     * @param width The width of the line
+     * @param opacity The opacity of the line
+     *
+     * @return The stroke
+     *
+     * @see org.geotools.stroke
+     */
     public abstract Stroke createStroke(Expression color, Expression width,
         Expression opacity);
 
+    /**
+     * creates a stroke
+     *
+     * @param color The color of the line
+     * @param width The width of the line
+     * @param opacity The opacity of the line
+     * @param lineJoin - the type of Line joint
+     * @param lineCap - the type of line cap
+     * @param dashArray - an array of floats describing the dashes in the line
+     * @param dashOffset - where in the dash array to start drawing from
+     * @param graphicFill - a graphic object to fill the line with
+     * @param graphicStroke - a graphic object to draw the line with
+     *
+     * @return The completed stroke.
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     *
+     * @see org.geotools.stroke
+     */
     public abstract Stroke createStroke(Expression color, Expression width,
         Expression opacity, Expression lineJoin, Expression lineCap,
         float[] dashArray, Expression dashOffset, Graphic graphicFill,
@@ -166,13 +234,18 @@ public abstract class StyleFactory implements Factory {
 
     public abstract LineSymbolizer getDefaultLineSymbolizer();
 
+    /**
+     * Creates a default Text Symbolizer, using the defaultFill, defaultFont
+     * and defaultPointPlacement,  Sets the geometry attribute name to be
+     * geometry:text. No Halo is set. <b>The label is not set</b>
+     *
+     * @return A default TextSymbolizer
+     */
     public abstract TextSymbolizer getDefaultTextSymbolizer();
 
     public abstract Graphic getDefaultGraphic();
 
     public abstract Font getDefaultFont();
-    
-    public abstract PointPlacement getDefaultPointPlacement();
 
-    
+    public abstract PointPlacement getDefaultPointPlacement();
 }
