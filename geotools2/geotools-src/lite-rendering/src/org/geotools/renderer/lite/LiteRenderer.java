@@ -82,7 +82,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.8 2003/07/17 17:07:47 cholmesny Exp $
+ * @version $Id: LiteRenderer.java,v 1.9 2003/07/17 21:12:21 jmacgill Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -537,13 +537,18 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     if (isWithInScale(rules[k]) && !rules[k].hasElseFilter()) {
                         Filter filter = rules[k].getFilter();
                         Symbolizer[] symbolizers = rules[k].getSymbolizers();
-
+                        
                         String typeName = feature.getFeatureType().getTypeName();
-
+                        System.out.println("typename "+typeName+" fts " + fts.getFeatureTypeName());
+                        
                         if (((typeName != null) &&
-                                typeName.equalsIgnoreCase(
-                                    fts.getFeatureTypeName())) &&
-                                ((filter == null) || filter.contains(feature))) {
+                        (feature.getFeatureType().isDescendedFrom(null, fts.getFeatureTypeName()) ||
+                        typeName.equalsIgnoreCase(
+                        fts.getFeatureTypeName()))) &&
+                        ((filter == null) || filter.contains(feature))) {
+                            if(feature.getFeatureType().isDescendedFrom(null, fts.getFeatureTypeName())){
+                                System.out.println("made it by inheretance!");
+                            }
                             processSymbolizers(feature, symbolizers);
                         }
                     }
