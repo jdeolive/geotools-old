@@ -25,16 +25,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
-import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureResults;
 import org.geotools.data.FeatureSource;
-import org.geotools.data.Query;
-import org.geotools.data.Transaction;
 import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.IllegalAttributeException;
-import org.geotools.filter.Filter;
 import org.geotools.validation.ValidationResults;
 
 import com.vividsolutions.jts.geom.Envelope;
