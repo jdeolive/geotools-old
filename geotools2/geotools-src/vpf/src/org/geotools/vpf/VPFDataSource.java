@@ -46,6 +46,8 @@ public class VPFDataSource implements DataSource {
   
   protected Logger log = Logger.getLogger("org.geotools.vpf");
   protected File file = null;
+
+  protected VPFDataBase dataBase = null;
   
 
   public VPFDataSource(File file) 

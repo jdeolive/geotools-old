@@ -18,12 +18,13 @@
  */
 package org.geotools.vpf;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSourceFactorySpi;
-import java.net.URI;
-import java.io.File;
 
 
 /**
@@ -57,8 +58,15 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
     if(!canProcess(hashMap)){
       return null;
     }
-    File file = new File(new URI(url));
-    return new VPFDataSource(file);
+    try 
+    {
+      File file = new File(new URI((String)hashMap.get("url")));
+      return new VPFDataSource(file);
+    }
+    catch (URISyntaxException e)
+    {
+      return null;
+    } // end of try-catch
   }
 
   /**
@@ -83,14 +91,22 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
       return false;
     }
     String url =  (String)hashMap.get("url");
-    File file = new File(new File(new URI(url)), "dht");
-    if(file.exists() && !file.isDirectory()){
-      return true;
+    try 
+    {
+      File file = new File(new File(new URI(url)), "dht");
+      if(file.exists() && !file.isDirectory())
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      } // end of else
     }
-    else
+    catch (URISyntaxException e)
     {
       return false;
-    } // end of else
+    } // end of try-catch
   }
   
 }// VPFDataSourceFactory
