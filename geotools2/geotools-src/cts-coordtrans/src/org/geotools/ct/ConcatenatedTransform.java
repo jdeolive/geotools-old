@@ -52,7 +52,7 @@ import java.io.Serializable;
  * Base class for concatenated transform. Concatenated transforms are
  * serializable if all their step transforms are serializables.
  *
- * @version $Id: ConcatenatedTransform.java,v 1.1 2002/07/12 16:42:31 desruisseaux Exp $
+ * @version $Id: ConcatenatedTransform.java,v 1.2 2002/07/12 20:38:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class ConcatenatedTransform extends AbstractMathTransform implements Serializable {
@@ -117,10 +117,11 @@ class ConcatenatedTransform extends AbstractMathTransform implements Serializabl
      * @param provider  The math transform factory that created this concatenated transform.
      * @param tr1       The first math transform.
      * @param tr2       The second math transform.
+     * @return          The concatenated transform.
      */
-    public static MathTransform create(final MathTransformFactory provider,
-                                       final MathTransform tr1,
-                                       final MathTransform tr2)
+    public static ConcatenatedTransform create(final MathTransformFactory provider,
+                                               final MathTransform tr1,
+                                               final MathTransform tr2)
     {
         final int dimSource = tr1.getDimSource();
         final int dimTarget = tr2.getDimTarget();
@@ -130,7 +131,7 @@ class ConcatenatedTransform extends AbstractMathTransform implements Serializabl
         if (dimSource==1 && dimTarget==1) {
             if (tr1 instanceof MathTransform1D && tr2 instanceof MathTransform1D) {
                 return new ConcatenatedTransformDirect1D(provider, (MathTransform1D)tr1,
-                                                                 (MathTransform1D)tr2);
+                                                                   (MathTransform1D)tr2);
             } else {
                 return new ConcatenatedTransform1D(provider, tr1, tr2);
             }
@@ -141,7 +142,7 @@ class ConcatenatedTransform extends AbstractMathTransform implements Serializabl
         if (dimSource==2 && dimTarget==2) {
             if (tr1 instanceof MathTransform2D && tr2 instanceof MathTransform2D) {
                 return new ConcatenatedTransformDirect2D(provider, (MathTransform2D)tr1,
-                                                                 (MathTransform2D)tr2);
+                                                                   (MathTransform2D)tr2);
             } else {
                 return new ConcatenatedTransform2D(provider, tr1, tr2);
             }
