@@ -50,28 +50,35 @@ public class FilterDOMParser {
                     BetweenFilter bfilter = filterFactory.createBetweenFilter();
                     
                     NodeList kids = child.getChildNodes();
-                    for(int i=0;i<kids.getLength();i++){
-                        Node kid = kids.item(i);
-                        Node value;
+                    if(kids.getLength() < 3 ){
+                        throw new IllegalFilterException("wrong number of children in Between filter: expected 3 got " + kids.getLength());
+                    }
+                        
+                        Node value = child.getFirstChild();
+                        while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                        // first expression
+                        //value = kid.getFirstChild();
+                        //while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                        LOGGER.fine("add middle value -> "+value+"<-");
+                        bfilter.addMiddleValue(ExpressionDOMParser.parseExpression(value));
+                   for(int i = 0; i< kids.getLength();i++){
+                       Node kid = kids.item(i);
                         if(kid.getNodeName().equalsIgnoreCase("LowerBoundary")){
                             value = kid.getFirstChild();
                             while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                            LOGGER.fine("add left value -> "+value+"<-");
                             bfilter.addLeftValue(ExpressionDOMParser.parseExpression(value));
                         }
                         if(kid.getNodeName().equalsIgnoreCase("UpperBoundary")){
                             value = kid.getFirstChild();
                             while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                            LOGGER.fine("add right value -> "+value+"<-");
                             bfilter.addRightValue(ExpressionDOMParser.parseExpression(value));
                         }
-                        if(kid.getNodeName().equalsIgnoreCase("PropertyName")){
-                            bfilter.addMiddleValue(ExpressionDOMParser.parseExpression(kid));
-                        }
-                        if(kid.getNodeName().equalsIgnoreCase("MiddleValue")){
-                            value = kid.getFirstChild();
-                            while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                            bfilter.addMiddleValue(ExpressionDOMParser.parseExpression(value));
-                        }
-                    }
+                   }
+                    
+                        
+                    
                     return bfilter;
                 }else if(type==AbstractFilter.LIKE){
                     String wildcard=null,single=null,escape=null,pattern=null;
