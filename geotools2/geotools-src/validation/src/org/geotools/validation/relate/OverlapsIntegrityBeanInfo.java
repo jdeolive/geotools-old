@@ -27,14 +27,14 @@ import java.beans.PropertyDescriptor;
  * @author bowens
  *
  */
-public class OverlapsValidationBeanInfo extends RelationIntegrityBeanInfo 
+public class OverlapsIntegrityBeanInfo extends RelationIntegrityBeanInfo 
 {
 	
 	
 	/**
 	 * 
 	 */
-	public OverlapsValidationBeanInfo(){
+	public OverlapsIntegrityBeanInfo(){
         super();
     }
 
