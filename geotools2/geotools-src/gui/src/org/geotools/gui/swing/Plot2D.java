@@ -95,7 +95,7 @@ import org.geotools.resources.XMath;
  * <p align="center"><img src="doc-files/Plot2D.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: Plot2D.java,v 1.3 2003/06/03 18:08:58 desruisseaux Exp $
+ * @version $Id: Plot2D.java,v 1.4 2003/06/04 18:15:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see <A HREF="http://jgraph.sourceforge.net/">JGraph</A>
@@ -294,12 +294,13 @@ public class Plot2D extends ZoomPane {
      * @param y <var>y</var> values.
      * @throws ClassCastException if <var>x</var> and <var>y</var> are not arrays
      *         of a primitive type.
+     * @return The series added.
      * @throws MismatchedSizeException if arrays doesn't have the same length.
      */
-    public void addSeries(final String name, final Object x, final Object y)
+    public Series addSeries(final String name, final Object x, final Object y)
             throws ClassCastException, MismatchedSizeException
     {
-        addSeries(new DefaultSeries(name, x, y, this.series.size()));
+        return addSeries(new DefaultSeries(name, x, y, this.series.size()));
     }
 
     /**
@@ -311,22 +312,24 @@ public class Plot2D extends ZoomPane {
      * @param y <var>y</var> values.
      * @param lower Index of first point, inclusive.
      * @param upper Index of last point, exclusive.
+     * @return The series added.
      * @throws ClassCastException if <var>x</var> and <var>y</var> are not arrays
      *         of a primitive type.
      */
-    public void addSeries(final String name, final Object x, final Object y,
+    public Series addSeries(final String name, final Object x, final Object y,
                                              final int lower, final int upper)
             throws ClassCastException
     {
-        addSeries(new DefaultSeries(name, x, y, lower, upper, this.series.size()));
+        return addSeries(new DefaultSeries(name, x, y, lower, upper, this.series.size()));
     }
 
     /**
      * Add a new serie to the chart.
      *
      * @param series The serie to add.
+     * @return The series, for convenience.
      */
-    public void addSeries(final Series series) {
+    public Series addSeries(final Series series) {
         final Axis2D xAxis;
         final Axis2D yAxis;
         Rectangle2D bounds = null;
@@ -372,6 +375,7 @@ public class Plot2D extends ZoomPane {
         } else {
             repaint();
         }
+        return series;
     }
 
     /**
@@ -745,7 +749,7 @@ public class Plot2D extends ZoomPane {
      * data to draw as a {@link Shape}. It also contains the {@link Paint} and {@link Stroke}
      * attributes.
      *
-     * @version $Id: Plot2D.java,v 1.3 2003/06/03 18:08:58 desruisseaux Exp $
+     * @version $Id: Plot2D.java,v 1.4 2003/06/04 18:15:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Series {
@@ -790,7 +794,7 @@ public class Plot2D extends ZoomPane {
     /**
      * Default implementation of {@link Plot2D.Series}.
      *
-     * @version $Id: Plot2D.java,v 1.3 2003/06/03 18:08:58 desruisseaux Exp $
+     * @version $Id: Plot2D.java,v 1.4 2003/06/04 18:15:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class DefaultSeries extends GenericArray implements Series {
