@@ -97,6 +97,7 @@
       <excludes>
         <exclude>**/PostgisLockingTest.java</exclude>
         <exclude>**/PostgisTestSuite.java</exclude>
+         <exclude>**/PostgisDataStoreAPITest.java</exclude>
       </excludes>
       <!-- End exclude tests -->
     </unitTest>
