@@ -37,12 +37,9 @@ package org.geotools.cs;
 
 // Time
 import java.util.Date;
-import java.util.TimeZone;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
-import org.geotools.pt.Envelope;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -50,7 +47,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * A one-dimensional coordinate system suitable for time measurements.
  *
- * @version $Id: TemporalCoordinateSystem.java,v 1.10 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: TemporalCoordinateSystem.java,v 1.11 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TemporalCoordinateSystem extends CoordinateSystem {

@@ -36,7 +36,7 @@
 package org.geotools.ct;
 
 // Geotools dependencies
-import org.geotools.cs.Projection;
+import org.geotools.cs.Projection; // For JavaDoc
 import org.geotools.cs.FactoryException;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
@@ -47,7 +47,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * For example, this exception may be thrown when a map projection
  * was requested but the "semi_major" parameter was not specified.
  *
- * @version $Id: MissingParameterException.java,v 1.4 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: MissingParameterException.java,v 1.5 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Projection#getValue

@@ -35,15 +35,12 @@
  */
 package org.geotools.ct;
 
-// J2SE dependencies
-import java.io.Serializable;
-
 
 /**
  * A one dimensional, identity transform. Output values are identical to input values.
  * This class is really a special case of {@link LinearTransform1D} optimized for speed.
  *
- * @version $Id: IdentityTransform1D.java,v 1.2 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: IdentityTransform1D.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class IdentityTransform1D extends LinearTransform1D {

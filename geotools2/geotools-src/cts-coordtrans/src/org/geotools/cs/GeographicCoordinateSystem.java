@@ -47,7 +47,6 @@ import org.geotools.pt.Envelope;
 import org.geotools.pt.Latitude;
 import org.geotools.pt.Longitude;
 import org.geotools.pt.CoordinatePoint;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -65,7 +64,7 @@ import java.rmi.RemoteException;
  * which this is by examining the axes. You should also check the angular
  * units, since not all geographic coordinate systems use degrees.
  *
- * @version $Id: GeographicCoordinateSystem.java,v 1.9 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: GeographicCoordinateSystem.java,v 1.10 2003/08/04 17:11:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

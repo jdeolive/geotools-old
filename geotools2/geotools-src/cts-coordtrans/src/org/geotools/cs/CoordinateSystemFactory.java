@@ -38,7 +38,6 @@ package org.geotools.cs;
 // J2SE dependencies
 import java.awt.geom.Point2D;
 import java.rmi.RemoteException;
-import java.rmi.ServerException;
 import java.rmi.server.UnicastRemoteObject;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
@@ -48,7 +47,6 @@ import java.util.Locale;
 
 // JAI dependencies
 import javax.media.jai.ParameterList;
-import javax.media.jai.ParameterListImpl;
 
 // OpenGIS dependencies
 import org.opengis.cs.CS_Unit;
@@ -64,8 +62,6 @@ import org.opengis.cs.CS_CoordinateSystem;
 import org.opengis.cs.CS_CoordinateSystemFactory;
 import org.opengis.cs.CS_CompoundCoordinateSystem;
 import org.opengis.cs.CS_VerticalCoordinateSystem;
-import org.opengis.cs.CS_HorizontalCoordinateSystem;
-import org.opengis.cs.CS_GeocentricCoordinateSystem;
 import org.opengis.cs.CS_GeographicCoordinateSystem;
 import org.opengis.cs.CS_ProjectedCoordinateSystem;
 import org.opengis.cs.CS_FittedCoordinateSystem;
@@ -99,7 +95,7 @@ import org.geotools.ct.MathTransformFactory;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.16 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.17 2003/08/04 17:11:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

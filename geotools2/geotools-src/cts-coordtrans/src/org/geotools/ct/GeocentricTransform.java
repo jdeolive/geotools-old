@@ -35,19 +35,7 @@
  */
 package org.geotools.ct;
 
-// Geotools dependencies
-import org.geotools.pt.Matrix;
-import org.geotools.cs.Ellipsoid;
-import org.geotools.pt.CoordinatePoint;
-
-// Resources
-import org.geotools.units.Unit;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.cts.Resources;
-import org.geotools.resources.cts.ResourceKeys;
-import org.geotools.resources.XAffineTransform;
-
-// J2SE and JAI dependencies
+// J2SE dependencies
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.ObjectInputStream;
@@ -55,13 +43,21 @@ import java.io.ObjectInputStream;
 // JAI dependencies
 import javax.media.jai.ParameterList;
 
+// Geotools dependencies
+import org.geotools.cs.Ellipsoid;
+
+// Resources
+import org.geotools.units.Unit;
+import org.geotools.resources.cts.Resources;
+import org.geotools.resources.cts.ResourceKeys;
+
 
 /**
  * Transforms three dimensional geographic points  to geocentric
  * coordinate points. Input points must be longitudes, latitudes
  * and heights above the ellipsoid.
  *
- * @version $Id: GeocentricTransform.java,v 1.11 2003/06/30 21:59:52 desruisseaux Exp $
+ * @version $Id: GeocentricTransform.java,v 1.12 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Frank Warmerdam
  * @author Martin Desruisseaux
  */
@@ -503,7 +499,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * Inverse of a geocentric transform.
      *
-     * @version $Id: GeocentricTransform.java,v 1.11 2003/06/30 21:59:52 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.12 2003/08/04 17:11:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements Serializable {
@@ -558,7 +554,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * The provider for {@link GeocentricTransform}.
      *
-     * @version $Id: GeocentricTransform.java,v 1.11 2003/06/30 21:59:52 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.12 2003/08/04 17:11:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

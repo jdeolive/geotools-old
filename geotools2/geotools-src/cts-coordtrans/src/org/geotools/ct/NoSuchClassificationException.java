@@ -36,10 +36,10 @@
 package org.geotools.ct;
 
 // JAI dependencies
-import javax.media.jai.ParameterList;
+import javax.media.jai.ParameterList; // For javadoc
 
 // Geotools dependencies
-import org.geotools.cs.Projection;
+import org.geotools.cs.Projection; // For javadoc
 import org.geotools.cs.FactoryException;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
@@ -51,7 +51,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * exception may be thrown when the projection is given to
  * {@link MathTransformFactory#createParameterizedTransform(Projection)}.
  *
- * @version $Id: NoSuchClassificationException.java,v 1.2 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: NoSuchClassificationException.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Projection#getClassName

@@ -42,7 +42,7 @@ import org.geotools.pt.Matrix;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.AffineTransform;
-import javax.media.jai.PerspectiveTransform;
+import javax.media.jai.PerspectiveTransform; // For JavaDoc
 
 
 /**

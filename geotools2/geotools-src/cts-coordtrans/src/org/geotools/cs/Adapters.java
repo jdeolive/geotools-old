@@ -83,18 +83,17 @@ import org.geotools.resources.RemoteProxy;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 import org.geotools.ct.MathTransformFactory;
-import org.geotools.ct.MathTransform;
+import org.geotools.ct.MathTransform; // For javadoc
 
 
 /**
- * <FONT COLOR="#FF6633">Provide methods for interoperability with
- * <code>org.opengis.cs</code> package.</FONT>  All methods accept
- * null argument. All OpenGIS objects are suitable for RMI use.
+ * Provide methods for interoperability with OpenGIS CS package.
+ * All methods accept null argument. All OpenGIS objects are suitable for RMI use.
  *
  * A default instance of the <code>Adapters</code> classes is provided in the
  * {@link org.geotools.ct.Adapters#getDefault() org.geotools.ct} package.
  *
- * @version $Id: Adapters.java,v 1.12 2003/07/24 08:42:28 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.13 2003/08/04 17:11:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.ct.Adapters#getDefault()

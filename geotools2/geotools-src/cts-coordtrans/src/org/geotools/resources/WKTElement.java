@@ -36,11 +36,8 @@ package org.geotools.resources;
 import java.util.List;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Collections;
 
 // Parsing
-import java.util.Locale;
-import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.text.ParseException;
 
@@ -48,8 +45,6 @@ import java.text.ParseException;
 import java.io.PrintWriter;
 
 // Resources
-import org.geotools.resources.XArray;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -67,7 +62,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * The result is a tree, which can be printed with {@link #print}.
  * Elements can be pull in a <cite>first in, first out</cite> order.
  *
- * @version $Id: WKTElement.java,v 1.5 2003/05/13 10:58:49 desruisseaux Exp $
+ * @version $Id: WKTElement.java,v 1.6 2003/08/04 17:11:18 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

@@ -64,7 +64,7 @@ import java.rmi.RemoteException;
  * the measurement of the shape and the size of the Earth to approximate
  * the geoid as close as possible.
  *
- * @version $Id: Ellipsoid.java,v 1.12 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: Ellipsoid.java,v 1.13 2003/08/04 17:11:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -104,7 +104,7 @@ public class Ellipsoid extends Info {
     private final double inverseFlattening;
     
     /**
-     * Is the Inverse Flattening definitive for this ellipsoid?
+     * Tells if the Inverse Flattening definitive for this ellipsoid.
      *
      * @see #isIvfDefinitive
      */
@@ -256,7 +256,7 @@ public class Ellipsoid extends Info {
     }
     
     /**
-     * Is the Inverse Flattening definitive for this ellipsoid?
+     * Tells if the Inverse Flattening definitive for this ellipsoid.
      * Some ellipsoids use the IVF as the defining value, and calculate the
      * polar radius whenever asked. Other ellipsoids use the polar radius to
      * calculate the IVF whenever asked. This distinction can be important to
@@ -506,7 +506,7 @@ public class Ellipsoid extends Info {
         }
         
         /**
-         * Is the Inverse Flattening definitive for this ellipsoid?
+         * Tell if the Inverse Flattening definitive for this ellipsoid.
          */
         public boolean isIvfDefinitive() throws RemoteException {
             return Ellipsoid.this.isIvfDefinitive();

@@ -37,17 +37,12 @@ package org.geotools.cs;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
-import org.geotools.resources.cts.Resources;
-import org.geotools.resources.cts.ResourceKeys;
-
-// J2SE dependencies
-import java.util.Locale;
 
 
 /**
  * Procedure used to measure time.
  *
- * @version $Id: TemporalDatum.java,v 1.4 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: TemporalDatum.java,v 1.5 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TemporalDatum extends Datum {

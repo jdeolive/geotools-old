@@ -34,7 +34,6 @@ package org.geotools.cs;
 
 // J2SE dependencies
 import java.util.List;
-import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
@@ -60,7 +59,7 @@ import org.geotools.resources.DescriptorNaming;
  * Parser for <cite>Well Know Text</cite> (WKT).
  * Instances of this class are thread-safe.
  *
- * @version $Id: WKTParser.java,v 1.8 2003/05/14 10:15:39 desruisseaux Exp $
+ * @version $Id: WKTParser.java,v 1.9 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

@@ -43,8 +43,6 @@ import java.lang.ref.SoftReference;
 
 // Resources
 import org.geotools.resources.ClassChanger;
-import org.geotools.resources.cts.Resources;
-import org.geotools.resources.cts.ResourceKeys;
 
 
 /**

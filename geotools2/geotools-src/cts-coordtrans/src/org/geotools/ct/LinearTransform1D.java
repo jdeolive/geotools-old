@@ -40,9 +40,6 @@ import java.io.Serializable;
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
-import org.geotools.ct.MathTransform;
-import org.geotools.ct.AbstractMathTransform;
-import org.geotools.ct.NoninvertibleTransformException;
 import org.geotools.pt.CoordinatePoint;
 
 
@@ -55,7 +52,7 @@ import org.geotools.pt.CoordinatePoint;
  * This class is really a special case of {@link MatrixTransform} using a 2&times;2 affine
  * transform. However, this specialized <code>LinearTransform1D</code> class is faster.
  *
- * @version $Id: LinearTransform1D.java,v 1.7 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: LinearTransform1D.java,v 1.8 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class LinearTransform1D extends AbstractMathTransform

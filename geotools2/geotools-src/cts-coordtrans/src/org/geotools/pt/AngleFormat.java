@@ -36,7 +36,6 @@ package org.geotools.pt;
 // Text format
 import java.util.Locale;
 import java.text.Format;
-import java.text.NumberFormat;
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.ParsePosition;
@@ -45,7 +44,6 @@ import java.text.DecimalFormatSymbols;
 
 // Input/output
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.ObjectInputStream;
 
 // Resources

@@ -43,11 +43,8 @@ import javax.media.jai.PerspectiveTransform; // For JavaDoc
 import java.awt.geom.AffineTransform;
 
 // Miscellaneous
-import java.util.Arrays;
-import java.io.Serializable;
 import java.text.NumberFormat;
 import java.text.FieldPosition;
-import javax.vecmath.SingularMatrixException;
 
 // Resources
 import org.geotools.resources.Utilities;

@@ -36,9 +36,7 @@
 package org.geotools.ct;
 
 // Geotools dependences
-import org.geotools.cs.Datum;
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.cs.FactoryException;
 
 // Resources
 import org.geotools.resources.Utilities;
@@ -51,7 +49,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * It may be because there is no known path between source and coordinate systems,
  * or because the requested transformation is not available in the environment.
  *
- * @version $Id: CannotCreateTransformException.java,v 1.5 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: CannotCreateTransformException.java,v 1.6 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CannotCreateTransformException extends TransformException {

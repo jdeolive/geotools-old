@@ -38,10 +38,6 @@ package org.geotools.ct;
 // J2SE dependencies
 import java.io.Serializable;
 
-// Geotools dependencies
-import org.geotools.ct.MathTransform;
-import org.geotools.ct.AbstractMathTransform;
-
 
 /**
  * A one dimensional, logarithmic transform. Input values are converted into output values
@@ -51,7 +47,7 @@ import org.geotools.ct.AbstractMathTransform;
  *
  * This transform is the inverse of {@link ExponentialTransform1D}.
  *
- * @version $Id: LogarithmicTransform1D.java,v 1.3 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: LogarithmicTransform1D.java,v 1.4 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see ExponentialTransform1D

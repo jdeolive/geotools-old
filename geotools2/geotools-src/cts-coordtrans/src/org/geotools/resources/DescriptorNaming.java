@@ -50,7 +50,6 @@ import javax.media.jai.util.CaselessStringKey;
 
 // Resources
 import org.geotools.units.Unit;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.rsc.Resources;
 import org.geotools.resources.rsc.ResourceKeys;
 
@@ -60,7 +59,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * {@link org.geotools.cs.Projection} using this class for binding classification
  * name to parameter list descriptors.
  *
- * @version $Id: DescriptorNaming.java,v 1.6 2003/08/04 13:53:16 desruisseaux Exp $
+ * @version $Id: DescriptorNaming.java,v 1.7 2003/08/04 17:11:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class DescriptorNaming {

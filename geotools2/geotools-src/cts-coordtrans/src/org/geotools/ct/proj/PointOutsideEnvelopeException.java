@@ -35,18 +35,15 @@
  */
 package org.geotools.ct.proj;
 
-// J2SE dependencies
-import java.awt.geom.Point2D;
-
 // Geotools dependencies
-import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.CoordinateSystem; // For Javadoc
 
 
 /**
  * Thrown by {@link MapProjection} when a map projection failed because the point is
  * outside the envelope of validity. Bounds are usually 90°S to 90°N and 180°W to 180°E.
  *
- * @version $Id: PointOutsideEnvelopeException.java,v 1.2 2003/05/13 10:58:49 desruisseaux Exp $
+ * @version $Id: PointOutsideEnvelopeException.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see CoordinateSystem#getDefaultEnvelope

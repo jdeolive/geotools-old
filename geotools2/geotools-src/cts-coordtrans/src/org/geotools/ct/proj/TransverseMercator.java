@@ -62,10 +62,8 @@ import java.awt.geom.Point2D;
 
 // Geotools dependencies
 import org.geotools.cs.Projection;
-import org.geotools.cs.Ellipsoid;
-import org.geotools.pt.Latitude;
-import org.geotools.ct.MissingParameterException;
 import org.geotools.ct.MathTransform;
+import org.geotools.ct.MissingParameterException;
 
 // Resources
 import org.geotools.resources.cts.Resources;
@@ -110,7 +108,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://mathworld.wolfram.com/MercatorProjection.html">Transverse Mercator projection on MathWorld</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/transverse_mercator.html">&quot;Transverse_Mercator&quot; on Remote Sensing</A>
  *
- * @version $Id: TransverseMercator.java,v 1.2 2003/08/04 13:53:16 desruisseaux Exp $
+ * @version $Id: TransverseMercator.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -179,7 +177,7 @@ public class TransverseMercator extends CylindricalProjection {
     /**
      * Informations about a {@link TransverseMercator}.
      *
-     * @version $Id: TransverseMercator.java,v 1.2 2003/08/04 13:53:16 desruisseaux Exp $
+     * @version $Id: TransverseMercator.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */

@@ -35,25 +35,19 @@
  */
 package org.geotools.ct;
 
-// OpenGIS dependencies
-import org.opengis.pt.PT_Matrix;
-import org.opengis.pt.PT_CoordinatePoint;
-import org.opengis.ct.CT_MathTransform;
-import org.opengis.ct.CT_DomainFlags;
-
-// Geotools dependencies
-import org.geotools.pt.Matrix;
-import org.geotools.ct.DomainFlags;
-import org.geotools.pt.CoordinatePoint;
-import org.geotools.ct.TransformException;
-import org.geotools.ct.NoninvertibleTransformException;
-import org.geotools.resources.Utilities;
-
 // J2SE dependencies
-import java.util.Locale;
 import java.util.Arrays;
 import java.io.Serializable;
 import java.rmi.RemoteException;
+
+// OpenGIS dependencies
+import org.opengis.ct.CT_MathTransform;
+import org.opengis.pt.PT_CoordinatePoint;
+
+// Geotools dependencies
+import org.geotools.pt.Matrix;
+import org.geotools.pt.CoordinatePoint;
+import org.geotools.resources.Utilities;
 
 
 /**

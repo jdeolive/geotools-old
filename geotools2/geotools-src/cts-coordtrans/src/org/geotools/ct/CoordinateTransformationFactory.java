@@ -40,7 +40,6 @@ import java.util.Arrays;
 import java.rmi.RemoteException;
 import java.rmi.ServerException;
 import java.rmi.server.UnicastRemoteObject;
-import java.awt.geom.AffineTransform;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
 
@@ -56,11 +55,9 @@ import org.opengis.ct.CT_CoordinateTransformationFactory;
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
-import org.geotools.cs.AxisInfo;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.Projection;
 import org.geotools.cs.PrimeMeridian;
-import org.geotools.cs.VerticalDatum;
 import org.geotools.cs.HorizontalDatum;
 import org.geotools.cs.AxisOrientation;
 import org.geotools.cs.CoordinateSystem;
@@ -88,7 +85,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.16 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.17 2003/08/04 17:11:17 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *

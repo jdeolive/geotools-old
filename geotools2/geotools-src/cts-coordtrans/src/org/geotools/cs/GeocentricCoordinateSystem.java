@@ -43,7 +43,6 @@ import org.opengis.cs.CS_GeocentricCoordinateSystem;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -61,7 +60,7 @@ import java.rmi.RemoteException;
  * will point East (e.g. a right handed system), but you should
  * check the axes for non-default values.
  *
- * @version $Id: GeocentricCoordinateSystem.java,v 1.10 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: GeocentricCoordinateSystem.java,v 1.11 2003/08/04 17:11:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

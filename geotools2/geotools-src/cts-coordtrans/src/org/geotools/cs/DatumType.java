@@ -45,8 +45,6 @@ import java.util.NoSuchElementException;
 import javax.media.jai.EnumeratedParameter;
 
 // Geotools dependencies
-import org.geotools.util.WeakHashSet;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -58,7 +56,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * for local types. This will allow the OpenGIS Consortium to coordinate the
  * addition of new interoperable codes.
  *
- * @version $Id: DatumType.java,v 1.6 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: DatumType.java,v 1.7 2003/08/04 17:11:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

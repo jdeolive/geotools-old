@@ -47,7 +47,7 @@ import org.opengis.ct.CT_CoordinateTransformationFactory;
 // Geotools dependencies
 import org.geotools.resources.XArray;
 import org.geotools.cs.FactoryException;
-import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.CoordinateSystem; // For javadoc
 import org.geotools.cs.CoordinateSystemFactory;
 
 // J2SE and JAI dependencies
@@ -60,11 +60,10 @@ import javax.media.jai.ParameterListDescriptorImpl;
 
 
 /**
- * <FONT COLOR="#FF6633">Provide methods for interoperability with
- * <code>org.opengis.ct</code> package.</FONT>  All methods accept
- * null argument. All OpenGIS objects are suitable for RMI use.
+ * Provide methods for interoperability with OpenGIS CT package.
+ * All methods accept null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version $Id: Adapters.java,v 1.6 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.7 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters extends org.geotools.cs.Adapters {

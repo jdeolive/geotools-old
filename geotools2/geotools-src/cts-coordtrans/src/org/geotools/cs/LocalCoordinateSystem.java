@@ -41,11 +41,6 @@ import org.opengis.cs.CS_LocalCoordinateSystem;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
-import org.geotools.pt.Envelope;
-import org.geotools.pt.CoordinatePoint;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.cts.Resources;
-import org.geotools.resources.cts.ResourceKeys;
 
 // J2SE and Java3D dependencies
 import java.util.Arrays;
@@ -66,7 +61,7 @@ import javax.vecmath.MismatchedSizeException;
  * (E.g. from a database of transformations, which is created and
  * maintained from real-world measurements.)
  *
- * @version $Id: LocalCoordinateSystem.java,v 1.10 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: LocalCoordinateSystem.java,v 1.11 2003/08/04 17:11:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

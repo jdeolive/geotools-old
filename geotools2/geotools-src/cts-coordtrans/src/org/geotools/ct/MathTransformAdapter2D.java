@@ -41,12 +41,8 @@ import org.opengis.pt.PT_CoordinatePoint;
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
-import org.geotools.ct.TransformException;
-import org.geotools.ct.NoninvertibleTransformException;
-import org.geotools.resources.Geometry;
 
 // J2SE dependencies
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.rmi.RemoteException;
 

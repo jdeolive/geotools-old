@@ -51,13 +51,11 @@ import org.geotools.resources.cts.ResourceKeys;
 
 // J2SE utilities
 import java.util.Map;
-import java.util.Arrays;
 import java.util.Locale;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
 // Remote Method Invocation
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.io.ObjectStreamException;
@@ -85,7 +83,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version $Id: Info.java,v 1.13 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: Info.java,v 1.14 2003/08/04 17:11:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

@@ -48,12 +48,9 @@ import java.text.SimpleDateFormat;
 import org.geotools.units.Unit;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.AxisOrientation;
-import org.geotools.ct.MathTransform2D;
-import org.geotools.ct.TransformException;
 import org.geotools.cs.TemporalCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
-import org.geotools.cs.GeocentricCoordinateSystem;
-import org.geotools.ct.CannotCreateTransformException;
+import org.geotools.cs.GeocentricCoordinateSystem;  // For Javadoc
 import org.geotools.resources.CTSUtilities;
 
 
@@ -70,7 +67,7 @@ import org.geotools.resources.CTSUtilities;
  *
  * <strong>Note:</strong> parsing is not yet implemented in this version.
  *
- * @version $Id: CoordinateFormat.java,v 1.5 2003/07/18 13:27:01 desruisseaux Exp $
+ * @version $Id: CoordinateFormat.java,v 1.6 2003/08/04 17:11:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CoordinateFormat extends Format {

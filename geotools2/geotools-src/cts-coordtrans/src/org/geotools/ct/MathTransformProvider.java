@@ -45,11 +45,9 @@ import org.geotools.cs.FactoryException;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
-import org.geotools.resources.cts.ResourceKeys;
 
 // J2SE and JAI dependencies
 import java.util.Locale;
-import java.util.Arrays;
 import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListImpl;
@@ -65,7 +63,7 @@ import javax.media.jai.ParameterListDescriptorImpl;
  * <strong>Note: this class is not part of OpenGIS specification and
  * may change in a future version. Do not rely strongly on it.</strong>
  *
- * @version $Id: MathTransformProvider.java,v 1.6 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: MathTransformProvider.java,v 1.7 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MathTransformProvider {

@@ -37,7 +37,6 @@ import java.util.Locale;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.text.DecimalFormat;
-import java.text.FieldPosition;
 import java.text.ParsePosition;
 import java.text.ParseException;
 
@@ -48,7 +47,7 @@ import java.text.ParseException;
  * etc.). This is a relatively light object compared to their subclasses and can be used when
  * parsing are not needed.
  *
- * @version $Id: WKTFormat.java,v 1.4 2003/05/13 10:58:49 desruisseaux Exp $
+ * @version $Id: WKTFormat.java,v 1.5 2003/08/04 17:11:18 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

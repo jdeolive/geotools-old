@@ -35,11 +35,9 @@ package org.geotools.pt;
 // Miscellaneous
 import java.util.Arrays;
 import java.io.Serializable;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 // Resources
-import org.geotools.resources.Utilities;
 import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;

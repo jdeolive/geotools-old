@@ -42,7 +42,6 @@ import org.opengis.cs.CS_WGS84ConversionInfo;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
-import org.geotools.resources.Utilities;
 
 // J2SE dependencies
 import java.rmi.RemoteException;
@@ -51,7 +50,7 @@ import java.rmi.RemoteException;
 /**
  * Procedure used to measure positions on the surface of the Earth.
  *
- * @version $Id: HorizontalDatum.java,v 1.11 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: HorizontalDatum.java,v 1.12 2003/08/04 17:11:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

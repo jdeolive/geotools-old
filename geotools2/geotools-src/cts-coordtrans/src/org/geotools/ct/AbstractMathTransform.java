@@ -50,10 +50,7 @@ import javax.vecmath.SingularMatrixException;
 import java.rmi.RemoteException;
 
 // OpenGIS dependencies
-import org.opengis.pt.PT_Matrix;
-import org.opengis.pt.PT_CoordinatePoint;
 import org.opengis.ct.CT_MathTransform;
-import org.opengis.ct.CT_DomainFlags;
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
@@ -77,7 +74,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Subclasses must declare <code>implements&nbsp;MathTransform2D</code>
  * themself if they know to maps two-dimensional coordinate systems.
  *
- * @version $Id: AbstractMathTransform.java,v 1.11 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: AbstractMathTransform.java,v 1.12 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractMathTransform implements MathTransform {
@@ -622,7 +619,7 @@ public abstract class AbstractMathTransform implements MathTransform {
      * of the enclosing {@link MathTransform}. It is serializable only if the enclosing
      * math transform is also serializable.
      *
-     * @version $Id: AbstractMathTransform.java,v 1.11 2003/05/13 10:58:47 desruisseaux Exp $
+     * @version $Id: AbstractMathTransform.java,v 1.12 2003/08/04 17:11:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected abstract class Inverse extends AbstractMathTransform implements Serializable {

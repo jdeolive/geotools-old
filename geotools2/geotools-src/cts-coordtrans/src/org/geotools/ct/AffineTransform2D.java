@@ -40,22 +40,19 @@ import org.geotools.pt.Matrix;
 import org.geotools.pt.CoordinatePoint;
 
 // Resources
-import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 import org.geotools.resources.XAffineTransform;
 
 // J2SE dependencies
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.AffineTransform;
-import java.io.Serializable;
 
 
 /**
  * Transforms two-dimensional coordinate points using an {@link AffineTransform}.
  *
- * @version $Id: AffineTransform2D.java,v 1.4 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: AffineTransform2D.java,v 1.5 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class AffineTransform2D extends XAffineTransform implements MathTransform2D, LinearTransform {

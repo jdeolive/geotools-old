@@ -38,12 +38,10 @@ package org.geotools.cs;
 // Database connection
 import java.sql.Driver;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.Blob;
 
 // Preferences
 import java.util.prefs.Preferences;
@@ -57,7 +55,6 @@ import java.util.logging.LogRecord;
 // Collections and iterators
 import java.util.Map;
 import java.util.List;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -120,7 +117,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.14 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.15 2003/08/04 17:11:16 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */

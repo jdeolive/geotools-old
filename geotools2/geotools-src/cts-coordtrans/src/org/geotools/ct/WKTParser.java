@@ -48,20 +48,18 @@ import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.util.CaselessStringKey;
 
 // Geotools dependencies
-import org.geotools.units.Unit;
 import org.geotools.cs.FactoryException;
 import org.geotools.resources.WKTFormat;
 import org.geotools.resources.WKTElement;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
-import org.geotools.resources.DescriptorNaming;
 
 
 /**
  * Parser for <cite>Well Know Text</cite> (WKT).
  * Instances of this class are thread-safe.
  *
- * @version $Id: WKTParser.java,v 1.3 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: WKTParser.java,v 1.4 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

@@ -50,7 +50,6 @@ import org.geotools.resources.cts.ResourceKeys;
 
 // J2SE dependencies
 import java.util.Locale;
-import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.lang.ref.WeakReference;
@@ -70,7 +69,7 @@ import java.lang.ref.Reference;
  * If the transformation depends on empirically derived parameters (as in datum
  * transformations), then this is an ISO transformation.
  *
- * @version $Id: CoordinateTransformation.java,v 1.7 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: CoordinateTransformation.java,v 1.8 2003/08/04 17:11:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -372,7 +371,7 @@ public class CoordinateTransformation extends Info {
      * {@link UnsupportedOperationException}). This class
      * is suitable for RMI use.
      *
-     * @version $Id: CoordinateTransformation.java,v 1.7 2003/05/13 10:58:48 desruisseaux Exp $
+     * @version $Id: CoordinateTransformation.java,v 1.8 2003/08/04 17:11:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     final class Export extends UnicastRemoteObject implements CT_CoordinateTransformation {

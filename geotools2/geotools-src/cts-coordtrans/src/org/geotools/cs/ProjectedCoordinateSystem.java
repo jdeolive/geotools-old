@@ -43,15 +43,11 @@ import org.opengis.cs.CS_GeographicCoordinateSystem;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
-import org.geotools.pt.Envelope;
-import org.geotools.pt.CoordinatePoint;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 import org.geotools.ct.MissingParameterException;
 
 // J2SE and JAI dependencies
-import java.awt.geom.Point2D;
 import java.rmi.RemoteException;
 import javax.media.jai.ParameterList;
 
@@ -67,7 +63,7 @@ import javax.media.jai.ParameterList;
  * Conversions to, and conversions between, projected spatial coordinate
  * systems often do not preserve distances, areas and angles.
  *
- * @version $Id: ProjectedCoordinateSystem.java,v 1.11 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: ProjectedCoordinateSystem.java,v 1.12 2003/08/04 17:11:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

@@ -42,11 +42,9 @@ import java.util.Locale;
 import java.util.Arrays;
 import java.util.Collection;
 import java.io.Serializable;
-import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
 
 // Geotools dependencies
-import org.geotools.pt.Matrix;
 import org.geotools.pt.Latitude;
 import org.geotools.pt.Longitude;
 import org.geotools.cs.Projection;
@@ -57,7 +55,6 @@ import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.AbstractMathTransform;
 import org.geotools.ct.MissingParameterException;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -76,7 +73,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.12 2003/08/04 13:53:16 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.13 2003/08/04 17:11:17 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  *
@@ -568,7 +565,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * {@link MapProjection#inverseTransform(double,double,Point2D)} instead of
      * {@link MapProjection#transform(double,double,Point2D)}.
      *
-     * @version $Id: MapProjection.java,v 1.12 2003/08/04 13:53:16 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.13 2003/08/04 17:11:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {

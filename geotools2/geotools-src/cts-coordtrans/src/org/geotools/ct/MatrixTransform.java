@@ -35,19 +35,10 @@
  */
 package org.geotools.ct;
 
-// Geotools dependencies and resources
-import org.geotools.pt.Matrix;
-import org.geotools.pt.CoordinatePoint;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.cts.Resources;
-import org.geotools.resources.cts.ResourceKeys;
-import org.geotools.resources.XAffineTransform;
-
 // J2SE dependencies
-import java.awt.Shape;
-import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.io.Serializable;
+import java.awt.geom.Point2D;
 
 // JAI dependencies
 import javax.media.jai.ParameterList;
@@ -56,11 +47,17 @@ import javax.media.jai.ParameterList;
 import javax.vecmath.GMatrix;
 import javax.vecmath.SingularMatrixException;
 
+// Geotools dependencies and resources
+import org.geotools.pt.Matrix;
+import org.geotools.pt.CoordinatePoint;
+import org.geotools.resources.cts.Resources;
+import org.geotools.resources.cts.ResourceKeys;
+
 
 /**
  * Transforms multi-dimensional coordinate points using a {@link Matrix}.
  *
- * @version $Id: MatrixTransform.java,v 1.8 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: MatrixTransform.java,v 1.9 2003/08/04 17:11:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -388,7 +385,7 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
     /**
      * The provider for {@link MatrixTransform}.
      *
-     * @version $Id: MatrixTransform.java,v 1.8 2003/05/13 10:58:48 desruisseaux Exp $
+     * @version $Id: MatrixTransform.java,v 1.9 2003/08/04 17:11:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

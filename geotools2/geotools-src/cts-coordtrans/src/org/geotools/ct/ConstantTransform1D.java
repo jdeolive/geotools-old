@@ -37,7 +37,6 @@ package org.geotools.ct;
 
 // J2SE dependencies
 import java.util.Arrays;
-import java.io.Serializable;
 
 
 /**
@@ -46,7 +45,7 @@ import java.io.Serializable;
  * <code>{@link #scale} = 0</code> and <code>{@link #offset} = constant</code>. However, this
  * specialized <code>ConstantTransform1D</code> class is faster.
  *
- * @version $Id: ConstantTransform1D.java,v 1.2 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: ConstantTransform1D.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ConstantTransform1D extends LinearTransform1D {

@@ -35,6 +35,14 @@
  */
 package org.geotools.ct;
 
+// J2SE, JAI and Java3D dependencies
+import java.rmi.RemoteException;
+import java.rmi.ServerException;
+import java.rmi.server.UnicastRemoteObject;
+import java.awt.geom.AffineTransform;        // For JavaDoc
+import javax.media.jai.PerspectiveTransform; // For JavaDoc
+//import javax.media.j3d.Transform3D;
+
 // OpenGIS dependencies
 import org.opengis.pt.PT_Matrix;
 import org.opengis.pt.PT_CoordinatePoint;
@@ -48,14 +56,6 @@ import org.geotools.pt.MismatchedDimensionException;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
-// J2SE, JAI and Java3D dependencies
-import java.rmi.RemoteException;
-import java.rmi.ServerException;
-import java.rmi.server.UnicastRemoteObject;
-import java.awt.geom.AffineTransform;
-import javax.media.jai.PerspectiveTransform;
-//import javax.media.j3d.Transform3D;
-
 
 /**
  * Transforms multi-dimensional coordinate points. This interface transforms
@@ -67,7 +67,7 @@ import javax.media.jai.PerspectiveTransform;
  * from observations, the transformation is accurate to within the
  * limitations of those observations.
  *
- * @version $Id: MathTransform.java,v 1.6 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: MathTransform.java,v 1.7 2003/08/04 17:11:17 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -133,8 +133,8 @@ public interface MathTransform {
      *
      * @see org.opengis.ct.CT_MathTransform#transform
      */
-    public abstract CoordinatePoint transform(CoordinatePoint ptSrc,
-                                              CoordinatePoint ptDst) throws TransformException;
+    public abstract CoordinatePoint transform(CoordinatePoint ptSrc, CoordinatePoint ptDst)
+            throws MismatchedDimensionException, TransformException;
     
     /**
      * Transforms a list of coordinate point ordinal values.
@@ -239,7 +239,8 @@ public interface MathTransform {
      *
      * @see org.opengis.ct.CT_MathTransform#derivative
      */
-    public abstract Matrix derivative(final CoordinatePoint point) throws TransformException;
+    public abstract Matrix derivative(final CoordinatePoint point)
+            throws MismatchedDimensionException, TransformException;
     
     /**
      * Creates the inverse transform of this object. The target of the inverse transform
@@ -282,7 +283,7 @@ public interface MathTransform {
  * for methods throwing {@link UnsupportedOperationException}). This
  * class is suitable for RMI use.
  *
- * @version $Id: MathTransform.java,v 1.6 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: MathTransform.java,v 1.7 2003/08/04 17:11:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class MathTransformExport extends UnicastRemoteObject implements CT_MathTransform {

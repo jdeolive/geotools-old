@@ -38,16 +38,13 @@ package org.geotools.ct;
 // J2SE dependencies
 import java.util.Locale;
 import java.text.ParseException;
-import java.awt.geom.Point2D;
 import java.awt.geom.AffineTransform;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
-import java.rmi.ServerException;
 import java.rmi.server.UnicastRemoteObject;
 
-// Java3D and JAI dependencies
-import javax.vecmath.GMatrix;
+// JAI dependencies
 import javax.media.jai.ParameterList;
 import javax.media.jai.IntegerSequence;
 
@@ -59,7 +56,6 @@ import org.opengis.ct.CT_MathTransformFactory;
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
-import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.Projection;
 import org.geotools.cs.FactoryException;
 import org.geotools.ct.proj.Provider;
@@ -111,7 +107,7 @@ import org.geotools.resources.JAIUtilities;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.27 2003/08/04 13:53:16 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.28 2003/08/04 17:11:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -933,7 +929,7 @@ reduce:     for (int j=0; j<rows.length; j++) {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.27 2003/08/04 13:53:16 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.28 2003/08/04 17:11:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends UnicastRemoteObject implements CT_MathTransformFactory {

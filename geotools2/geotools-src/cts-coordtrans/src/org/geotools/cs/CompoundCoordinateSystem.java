@@ -43,7 +43,6 @@ import org.opengis.cs.CS_CompoundCoordinateSystem;
 import org.geotools.units.Unit;
 import org.geotools.pt.Envelope;
 import org.geotools.pt.CoordinatePoint;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -57,7 +56,7 @@ import java.rmi.RemoteException;
  * geographic or a projected coordinate system with a horizontal datum.
  * The other is a one-dimensional coordinate system with a vertical datum.
  *
- * @version $Id: CompoundCoordinateSystem.java,v 1.10 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: CompoundCoordinateSystem.java,v 1.11 2003/08/04 17:11:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

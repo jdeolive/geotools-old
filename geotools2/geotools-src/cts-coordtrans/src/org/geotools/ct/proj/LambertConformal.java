@@ -42,7 +42,6 @@ import java.awt.geom.Point2D;
 
 // Geotools dependencies
 import org.geotools.cs.Projection;
-import org.geotools.cs.Ellipsoid;
 import org.geotools.pt.Latitude;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MissingParameterException;
@@ -83,7 +82,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/lambert_conic_conformal_2sp.html">lambert_conic_conformal_2sp</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/lambert_conic_conformal_2sp_belgium.html">lambert_conic_conformal_2sp_belgium</A>
  *
- * @version $Id: LambertConformal.java,v 1.2 2003/08/04 13:53:16 desruisseaux Exp $
+ * @version $Id: LambertConformal.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -123,7 +122,7 @@ public class LambertConformal extends ConicProjection {
     /**
      * Informations about a {@link LambertConformalProjection}.
      *
-     * @version $Id: LambertConformal.java,v 1.2 2003/08/04 13:53:16 desruisseaux Exp $
+     * @version $Id: LambertConformal.java,v 1.3 2003/08/04 17:11:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */

@@ -41,24 +41,20 @@ import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
 
 // Geotools dependencies
-import org.geotools.pt.Matrix;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.HorizontalDatum;
 import org.geotools.cs.WGS84ConversionInfo;
-import org.geotools.pt.CoordinatePoint;
 
 // Resources
-import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
-import org.geotools.resources.XAffineTransform;
 
 
 /**
  * Transforms a three dimensional geographic points using
  * abridged versions of formulas derived by Molodenski.
  *
- * @version $Id: AbridgedMolodenskiTransform.java,v 1.8 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: AbridgedMolodenskiTransform.java,v 1.9 2003/08/04 17:11:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -291,7 +287,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     /**
      * The provider for {@link AbridgedMolodenskiTransform}.
      *
-     * @version $Id: AbridgedMolodenskiTransform.java,v 1.8 2003/05/13 10:58:47 desruisseaux Exp $
+     * @version $Id: AbridgedMolodenskiTransform.java,v 1.9 2003/08/04 17:11:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
