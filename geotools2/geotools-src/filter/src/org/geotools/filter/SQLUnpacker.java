@@ -181,8 +181,8 @@ public class SQLUnpacker {
 		    subPair = doUnPack((Filter)filters.next(), splitType);
 		    subSup = subPair.getSupported();
 		    subUnSup = subPair.getUnSupported();
-		    retSup = combineFilters(retSup, subSup);
-		    retUnSup = combineFilters(retUnSup, subUnSup);  
+		    retSup = combineFilters(retSup, subSup, splitType);
+		    retUnSup = combineFilters(retUnSup, subUnSup, splitType);  
 		}
 	    } else if ( type == AbstractFilter.LOGIC_NOT &&
 			capabilities.supports(AbstractFilter.LOGIC_NOT)){
@@ -215,11 +215,15 @@ public class SQLUnpacker {
      * @param filter2 the other filter to be combined.
      * @return the resulting combined filter.
      */
-    private Filter combineFilters(Filter filter1, Filter filter2){
+    private Filter combineFilters(Filter filter1, Filter filter2, short splitType){
 	Filter retFilter;
 	if (filter1 != null) {
 	    if (filter2 != null){
-		retFilter = filter1.and(filter2);
+		if (splitType == AbstractFilter.LOGIC_AND) {
+		    retFilter = filter1.and(filter2);
+		} else { //OR and AND only split types, this must be or.
+		    retFilter = filter1.or(filter2);
+		}
 	    } else {
 		retFilter = filter1;
 	    }
