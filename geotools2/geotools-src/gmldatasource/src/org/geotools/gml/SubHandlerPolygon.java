@@ -20,23 +20,29 @@
 
 package org.geotools.gml;
 
+// J2SE dependencies
 import java.util.ArrayList;
+import java.util.logging.Logger;
+
+// Java Topology Suite dependencies
 import com.vividsolutions.jts.geom.*;
 
-import org.apache.log4j.Logger;
 
 /**
  * Creates a Polygon geometry.
  *
- * @version $Id: SubHandlerPolygon.java,v 1.7 2002/07/21 19:36:27 jmacgill Exp $
+ * @version $Id: SubHandlerPolygon.java,v 1.8 2002/08/07 08:10:35 desruisseaux Exp $
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
 
  */
 
 public class SubHandlerPolygon extends SubHandler {
-    
-    private static Logger log = Logger.getLogger("gmldatasource");
+
+    /**
+     * The logger for the GML module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
     
     protected static com.vividsolutions.jts.algorithm.CGAlgorithms cga = 
         new com.vividsolutions.jts.algorithm.RobustCGAlgorithms();
@@ -92,10 +98,10 @@ public class SubHandlerPolygon extends SubHandler {
                      * points if necessary
                      */
                     if (cga.isCCW(points)){
-                        log.debug("good hole found");
+                        LOGGER.finer("good hole found");
                         innerBoundaries.add(ring);
                     } else {
-                        log.debug("bad hole found - fixing");
+                        LOGGER.finer("bad hole found - fixing");
                         Coordinate[] newPoints = new Coordinate[points.length];
                         for (int i = 0, j = points.length - 1; i < points.length; i++, j--){
                             newPoints[i] = points[j];
@@ -104,7 +110,7 @@ public class SubHandlerPolygon extends SubHandler {
                             ring = geometryFactory.createLinearRing(newPoints);
                             innerBoundaries.add(ring);
                         } catch (TopologyException e){
-                            log.warn("Caught Topology exception in GMLPolygonHandler");
+                            LOGGER.warning("Caught Topology exception in GMLPolygonHandler");
                             ring=null;
                         }
                     }
@@ -118,7 +124,7 @@ public class SubHandlerPolygon extends SubHandler {
                     geometryFactory);
                     Coordinate[] points = outerBoundary.getCoordinates();
                     if (cga.isCCW(points)){
-                        log.debug("bad outer ring - rebuilding");
+                        LOGGER.finer("bad outer ring - rebuilding");
                         Coordinate[] newPoints = new Coordinate[points.length];
                         for (int i = 0, j = points.length - 1; i < points.length; i++, j--){
                             newPoints[i]=points[j];
@@ -127,8 +133,8 @@ public class SubHandlerPolygon extends SubHandler {
                             outerBoundary =
                             geometryFactory.createLinearRing(newPoints);
                         } catch (TopologyException e){
-                            log.warn("Caught Topology exception in " + 
-                            "GMLPolygonHandler");
+                            LOGGER.warning("Caught Topology exception in " + 
+                                           "GMLPolygonHandler");
                             outerBoundary = null;
                         }
                     }
@@ -139,10 +145,10 @@ public class SubHandlerPolygon extends SubHandler {
         } else if (message.equals("outerBoundaryIs")) {
             //  or, if we are getting notice of an inner/outer boundary marker,
             // set current location appropriately
-           log.debug("new outer Boundary");
+           LOGGER.finer("new outer Boundary");
             location = OUTER_BOUNDARY;
         } else if (message.equals("innerBoundaryIs")) {
-            log.debug("new InnerBoundary");
+            LOGGER.finer("new InnerBoundary");
             location = INNER_BOUNDARY;
         }
         
@@ -198,7 +204,7 @@ public class SubHandlerPolygon extends SubHandler {
         for (int i = 0; i < innerBoundaries.size(); i++){
             LinearRing hole = (LinearRing) innerBoundaries.get(i);
             if (hole.crosses(outerBoundary)){
-                log.warn("Topology Error building polygon");
+                LOGGER.warning("Topology Error building polygon");
                 return null;
             }
         }

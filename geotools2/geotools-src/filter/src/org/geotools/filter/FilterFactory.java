@@ -20,7 +20,10 @@
 
 package org.geotools.filter;
 
-import org.apache.log4j.Logger;
+// J2SE dependencies
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.data.*;
 import org.geotools.feature.*;
 
@@ -28,13 +31,15 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: FilterFactory.java,v 1.2 2002/07/18 16:21:49 ianturton Exp $
+ * @version $Id: FilterFactory.java,v 1.3 2002/08/07 08:10:20 desruisseaux Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFactory {
 
-    /** Standard logging instance for this class. */
-    private static Logger _log = Logger.getLogger(FilterFactory.class);
+    /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** The (limited) REGEXP pattern. */
     private Filter currentFilter = null;
@@ -87,7 +92,7 @@ public class FilterFactory {
         }
         currentState = setInitialState(filterType);
         this.filterType = filterType;
-        _log.debug("reset attributes");
+        LOGGER.finer("reset attributes");
         attributes = new java.util.HashMap();
     }
 
@@ -114,8 +119,8 @@ public class FilterFactory {
         throws IllegalFilterException {
 
         // Handle all filter compare states and expressions
-        _log.debug("got expression: " + expression.toString());
-        _log.debug("current state (start): " + currentState);
+        LOGGER.finer("got expression: " + expression.toString());
+        LOGGER.finer("current state (start): " + currentState);
         if( filterType == AbstractFilter.BETWEEN ) {
             if( currentState.equals("attribute") ) {
                 ((BetweenFilter) currentFilter).addMiddleValue(expression);
@@ -200,7 +205,7 @@ public class FilterFactory {
                      + currentState);
             }
         }
-        _log.debug("current state (end): " + currentState);
+        LOGGER.finer("current state (end): " + currentState);
     }
 
 
@@ -245,9 +250,9 @@ public class FilterFactory {
 
     }
     public void setAttributes(org.xml.sax.Attributes atts){
-        _log.debug("received Attributes:");
+        LOGGER.finer("received Attributes:");
         for(int i=0;i<atts.getLength();i++){
-            _log.debug(atts.getLocalName(i)+","+atts.getValue(i));
+            LOGGER.finer(atts.getLocalName(i)+","+atts.getValue(i));
             this.attributes.put(atts.getLocalName(i),atts.getValue(i));
         }
         

@@ -20,19 +20,29 @@
 
 package org.geotools.filter;
 
-import org.apache.log4j.Logger;
+// J2SE dependencies
+import java.util.logging.Logger;
+
+// Java Topology Suite dependencies
 import com.vividsolutions.jts.geom.*;
+
+// Geotools dependencies
 import org.geotools.data.*;
 import org.geotools.feature.*;
+
+
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: ExpressionFactory.java,v 1.1 2002/07/16 19:36:48 robhranac Exp $
+ * @version $Id: ExpressionFactory.java,v 1.2 2002/08/07 08:10:20 desruisseaux Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionFactory {
 
-    private static Logger _log = Logger.getLogger(ExpressionFactory.class);
+    /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** The attribute value, which must be an attribute expression. */
     private ExpressionFactory expressionFactory = null;
@@ -68,9 +78,9 @@ public class ExpressionFactory {
      */
     public void start(String declaredType) throws IllegalFilterException{
 
-        _log.debug("incoming type: " + declaredType);
-        _log.debug("declared type: " + this.declaredType);
-        _log.debug("current state: " + currentState);
+        LOGGER.finer("incoming type: " + declaredType);
+        LOGGER.finer("declared type: " + this.declaredType);
+        LOGGER.finer("current state: " + currentState);
         
         if( expressionFactory == null) {
 
@@ -81,19 +91,19 @@ public class ExpressionFactory {
             if( ExpressionDefault.isMathExpression( convertType(declaredType) ) ) {
                 expressionFactory = new ExpressionFactory(schema);
                 currentExpression = new ExpressionMath(convertType(declaredType));
-                _log.debug("is math expression");
+                LOGGER.finer("is math expression");
             }
             else if( ExpressionDefault.
                      isLiteralExpression( convertType(declaredType) ) ) {
                 currentExpression = new ExpressionLiteral();
                 readCharacters = true;
-                _log.debug("is literal expression");
+                LOGGER.finer("is literal expression");
             }
             else if( ExpressionDefault.
                      isAttributeExpression( convertType(declaredType) ) ) {
                 currentExpression = new ExpressionAttribute(schema);
                 readCharacters = true;
-                _log.debug("is attribute expression");
+                LOGGER.finer("is attribute expression");
             }
             currentState = setInitialState(currentExpression);
             readyFlag = false;
@@ -112,10 +122,10 @@ public class ExpressionFactory {
      */
     public void end(String message) throws IllegalFilterException{
 
-        _log.debug("declared type: " + declaredType);
-        _log.debug("end message: " + message);
-        _log.debug("current state: " + currentState);
-        //_log.debug("expression factory: " + expressionFactory);
+        LOGGER.finer("declared type: " + declaredType);
+        LOGGER.finer("end message: " + message);
+        LOGGER.finer("current state: " + currentState);
+        LOGGER.finest("expression factory: " + expressionFactory);
 
         // first, check to see if there are internal (nested) expressions
         //  note that this is identical to checking if the currentExpression
@@ -136,14 +146,14 @@ public class ExpressionFactory {
                         addLeftValue(expressionFactory.create());
                     currentState = "rightValue";
                     expressionFactory = new ExpressionFactory(schema);
-                    _log.debug("just added left value: " + currentState);
+                    LOGGER.finer("just added left value: " + currentState);
                 }
                 else if( currentState.equals("rightValue") ) {
                     ((ExpressionMath) currentExpression).
                         addRightValue(expressionFactory.create());
                     currentState = "complete";
                     expressionFactory = null;
-                    _log.debug("just added right value: " + currentState);
+                    LOGGER.finer("just added right value: " + currentState);
                 }
                 else {
                     throw new IllegalFilterException
@@ -188,8 +198,8 @@ public class ExpressionFactory {
         // AT SOME POINT MUST MAKE THIS HANDLE A TYPED FEATURE
         // BY PASSING IT A FEATURE AND CHECKING ITS TYPE HERE
 
-        _log.debug("incoming message: " + message);
-        _log.debug("should read chars: " + readCharacters);
+        LOGGER.finer("incoming message: " + message);
+        LOGGER.finer("should read chars: " + readCharacters);
 
         // If an attribute path, set it.  Assumes undeclared type.
         if( currentExpression instanceof ExpressionAttribute &&
@@ -241,14 +251,14 @@ public class ExpressionFactory {
         throws IllegalFilterException {
 
         // Sets the geometry for the expression, as appropriate
-        _log.debug("got geometry: " + geometry.toString());
+        LOGGER.finer("got geometry: " + geometry.toString());
         //if( currentExpression.getType() == ExpressionDefault.LITERAL_GEOMETRY ) {
-        //_log.debug("got geometry: ");
+        //LOGGER.finer("got geometry: ");
         currentExpression = new ExpressionLiteral();
         ((ExpressionLiteral) currentExpression).setLiteral(geometry);
-        _log.debug("set expression: " + currentExpression.toString());
+        LOGGER.finer("set expression: " + currentExpression.toString());
         currentState = "complete";
-        _log.debug("set current state: " + currentState);
+        LOGGER.finer("set current state: " + currentState);
         //        }
             
     }
@@ -258,7 +268,7 @@ public class ExpressionFactory {
      *
      */
     public Expression create() {
-        _log.debug("about to create expression: " + currentExpression.toString());
+        LOGGER.finer("about to create expression: " + currentExpression.toString());
         return currentExpression;
     }
 

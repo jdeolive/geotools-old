@@ -6,49 +6,57 @@
 
 package org.geotools.filter;
 
+// J2SE dependencies
+import java.util.logging.Logger;
+import java.util.*;
+import org.w3c.dom.*;
+
+// Java Topology Suite dependencies
+import com.vividsolutions.jts.geom.*;
+
 /**
  *
  * @author  iant
  */
-import org.w3c.dom.*;
-import com.vividsolutions.jts.geom.*;
-import java.util.*;
-
 public class ExpressionXmlParser {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(ExpressionXmlParser.class);
+
+    /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
+
     /** Creates a new instance of ExpressionXmlParser */
     public ExpressionXmlParser() {
     }
     public static Expression parseExpression(Node root){
-        _log.info("parsingExpression "+root.getNodeName());
+        LOGGER.finer("parsingExpression "+root.getNodeName());
         
         //NodeList children = root.getChildNodes();
-        //_log.debug("children "+children);
+        //LOGGER.finest("children "+children);
         
         if(root == null || root.getNodeType() != Node.ELEMENT_NODE){
-            _log.debug("bad node input ");
+            LOGGER.finer("bad node input ");
             return null;
         }
-        _log.debug("processing root "+root.getNodeName());
+        LOGGER.finer("processing root "+root.getNodeName());
         Node child = root;
         if(child.getNodeName().equalsIgnoreCase("add")){
             try{
-                _log.info("processing an Add");
+                LOGGER.fine("processing an Add");
                 Node left=null,right=null;
                 
                 ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_ADD);
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                _log.debug("add left value -> "+value+"<-");
+                LOGGER.finer("add left value -> "+value+"<-");
                 math.addLeftValue(parseExpression(value));
                 value = value.getNextSibling();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                _log.debug("add right value -> "+value+"<-");
+                LOGGER.finer("add right value -> "+value+"<-");
                 math.addRightValue(parseExpression(value));
                 return math;
             }catch (IllegalFilterException ife){
-                _log.error("Unable to build expression ",ife);
+                LOGGER.warning("Unable to build expression " + ife);
                 return null;
             }
         }
@@ -60,7 +68,7 @@ public class ExpressionXmlParser {
                 math.addRightValue(parseExpression(child.getLastChild()));
                 return math;
             }catch (IllegalFilterException ife){
-                _log.error("Unable to build expression ",ife);
+                LOGGER.warning("Unable to build expression " + ife);
                 return null;
             }
         }
@@ -72,7 +80,7 @@ public class ExpressionXmlParser {
                 math.addRightValue(parseExpression(child.getLastChild()));
                 return math;
             }catch (IllegalFilterException ife){
-                _log.error("Unable to build expression ",ife);
+                LOGGER.warning("Unable to build expression " + ife);
                 return null;
             }
         }
@@ -84,20 +92,20 @@ public class ExpressionXmlParser {
                 math.addRightValue(parseExpression(child.getLastChild()));
                 return math;
             }catch (IllegalFilterException ife){
-                _log.error("Unable to build expression ",ife);
+                LOGGER.warning("Unable to build expression " + ife);
                 return null;
             }
         }
         if(child.getNodeName().equalsIgnoreCase("Literal")){
-            _log.info("processing literal "+child);
+            LOGGER.finer("processing literal "+child);
             
             NodeList kidList = child.getChildNodes();
-            //_log.debug("literal elements ("+kidList.getLength()+") "+kidList.toString());
+            LOGGER.finest("literal elements ("+kidList.getLength()+") "+kidList.toString());
             for(int i=0;i<kidList.getLength();i++){
                 Node kid = kidList.item(i);
-                //_log.debug("kid "+i+" "+kid);
+                LOGGER.finest("kid "+i+" "+kid);
                 if(kid==null){
-                    //_log.debug("Skipping ");
+                    LOGGER.finest("Skipping ");
                     continue;
                 }
                 if(kid.getNodeValue()==null){
@@ -105,54 +113,54 @@ public class ExpressionXmlParser {
                      * this is a bit tricky since our standard gml parser is SAX based and
                      * we're a DOM here.
                      */
-                    _log.debug("node "+kid.getNodeValue()+" namespace "+kid.getNamespaceURI());
-                    _log.info("a literal gml string?");
+                    LOGGER.finer("node "+kid.getNodeValue()+" namespace "+kid.getNamespaceURI());
+                    LOGGER.fine("a literal gml string?");
                     try{
                         Geometry geom = parseGML(kid);
                         if(geom!=null){
-                            _log.debug("built a "+geom.getGeometryType()+" from gml");
-                            _log.debug("\tpoints: "+geom.getNumPoints());
+                            LOGGER.finer("built a "+geom.getGeometryType()+" from gml");
+                            LOGGER.finer("\tpoints: "+geom.getNumPoints());
                         }else{
-                            _log.debug("got a null geometry back from gml parser");
+                            LOGGER.finer("got a null geometry back from gml parser");
                         }
                         return new ExpressionLiteral(geom);
                     } catch (IllegalFilterException ife){
-                        _log.error("Problem building GML/JTS object",ife);
+                        LOGGER.warning("Problem building GML/JTS object: " + ife);
                     }
                     return null;
                 }
                 if(kid.getNodeValue().trim().length()==0){
-                    //_log.debug("empty text element");
+                    LOGGER.finest("empty text element");
                     continue;
                 }
                 // debuging only
                 /*switch(kid.getNodeType()){
                     case Node.ELEMENT_NODE:
-                        _log.debug("element :"+kid);
+                        LOGGER.finer("element :"+kid);
                         break;
                     case Node.TEXT_NODE:
-                        _log.debug("text :"+kid);
+                        LOGGER.finer("text :"+kid);
                         break;
                     case Node.ATTRIBUTE_NODE:
-                        _log.debug("Attribute :"+kid);
+                        LOGGER.finer("Attribute :"+kid);
                         break;
                     case Node.CDATA_SECTION_NODE:
-                        _log.debug("Cdata :"+kid);
+                        LOGGER.finer("Cdata :"+kid);
                         break;
                     case Node.COMMENT_NODE:
-                        _log.debug("comment :"+kid);
+                        LOGGER.finer("comment :"+kid);
                         break;
                 } */
                 
                 
                 String nodeValue = kid.getNodeValue();
-                _log.debug("processing "+nodeValue);
+                LOGGER.finer("processing "+nodeValue);
                 
                 // see if it's an int
                 try{
                     try{
                         Integer I = new Integer(nodeValue);
-                        _log.debug("An integer");
+                        LOGGER.finer("An integer");
                         return new ExpressionLiteral(I);
                     } catch (NumberFormatException e){
                         /* really empty */
@@ -160,16 +168,16 @@ public class ExpressionXmlParser {
                     // A double?
                     try{
                         Double D = new Double(nodeValue);
-                        _log.debug("A double");
+                        LOGGER.finer("A double");
                         return new ExpressionLiteral(D);
                     } catch (NumberFormatException e){
                         /* really empty */
                     }
                     // must be a string (or we have a problem)
-                    _log.debug("defaulting to string");
+                    LOGGER.finer("defaulting to string");
                     return new ExpressionLiteral(nodeValue);
                 } catch (IllegalFilterException ife){
-                    _log.error("Unable to build expression ",ife);
+                    LOGGER.finer("Unable to build expression " + ife);
                     return null;
                 }
             }
@@ -182,21 +190,21 @@ public class ExpressionXmlParser {
                 attribute.setAttributePath(child.getFirstChild().getNodeValue());
                 return attribute;
             }catch (IllegalFilterException ife){
-                _log.error("Unable to build expression ",ife);
+                LOGGER.finer("Unable to build expression: " + ife);
                 return null;
             }
         }
         if(child.getNodeName().equalsIgnoreCase("Function")){
-            _log.info("function not yet implemented");
+            LOGGER.finer("function not yet implemented");
             // TODO: should have a name and a (or more?) expressions
             // TODO: find out what really happens here
             
         }
         
         if(child.getNodeType()== Node.TEXT_NODE){
-            _log.debug("processing a text node "+root.getNodeValue());
+            LOGGER.finer("processing a text node "+root.getNodeValue());
             String nodeValue = root.getNodeValue();
-            _log.info("Text name "+nodeValue);
+            LOGGER.finer("Text name "+nodeValue);
             // see if it's an int
             try{
                 try{
@@ -213,7 +221,7 @@ public class ExpressionXmlParser {
                 }
                 return new ExpressionLiteral(nodeValue);
             } catch (IllegalFilterException ife){
-                _log.error("Unable to build expression ",ife);
+                LOGGER.finer("Unable to build expression " + ife);
             }
         }
         
@@ -224,13 +232,13 @@ public class ExpressionXmlParser {
      */
     static GeometryFactory gfac = new GeometryFactory();
     public static Geometry parseGML(Node root){
-        _log.debug("processing gml "+root);
+        LOGGER.finer("processing gml "+root);
         java.util.ArrayList coords = new java.util.ArrayList();
         int type = 0;
         Node child = root;
         
         if(child.getNodeName().equalsIgnoreCase("gml:box")){
-            _log.debug("box");
+            LOGGER.finer("box");
             type = GML_BOX;
             coords = parseCoords(child);
             com.vividsolutions.jts.geom.Envelope env = new com.vividsolutions.jts.geom.Envelope();
@@ -254,14 +262,14 @@ public class ExpressionXmlParser {
             
         }
         if(child.getNodeName().equalsIgnoreCase("gml:polygon")){
-            _log.debug("polygon");
+            LOGGER.finer("polygon");
             type = GML_POLYGON;
             LinearRing  outer =null;
             ArrayList inner = new ArrayList();
             NodeList kids = root.getChildNodes();
             for(int i=0;i<kids.getLength();i++){
                 Node kid = kids.item(i);
-                _log.debug("doing "+kid);
+                LOGGER.finer("doing "+kid);
                 if(kid.getNodeName().equalsIgnoreCase("gml:outerBoundaryIs")){
                     outer = (LinearRing) parseGML(kid);
                 }
@@ -277,28 +285,28 @@ public class ExpressionXmlParser {
         }
         if(child.getNodeName().equalsIgnoreCase("gml:outerBoundaryIs") ||
         child.getNodeName().equalsIgnoreCase("gml:innerBoundaryIs") ){
-            _log.debug("Boundary layer");
+            LOGGER.finer("Boundary layer");
             NodeList kids = ((Element)child).getElementsByTagName("gml:LinearRing");
             
             return parseGML(kids.item(0));
         }
         
         if(child.getNodeName().equalsIgnoreCase("gml:linearRing")){
-            _log.debug("LinearRing");
+            LOGGER.finer("LinearRing");
             coords = parseCoords(child);
             com.vividsolutions.jts.geom.LinearRing r = null;
             
             try{
                 r = gfac.createLinearRing((Coordinate[])coords.toArray(new Coordinate[]{}));
             } catch (TopologyException te ){
-                _log.error("Topology Exception build linear ring ",te);
+                LOGGER.finer("Topology Exception build linear ring: " + te);
                 return null;
             }
             return r;
         }
         
         if(child.getNodeName().equalsIgnoreCase("gml:linestring")){
-            _log.debug("linestring");
+            LOGGER.finer("linestring");
             type = GML_LINESTRING;
             coords = parseCoords(child);
             com.vividsolutions.jts.geom.LineString r = null;
@@ -307,7 +315,7 @@ public class ExpressionXmlParser {
             return r;
         }
         if(child.getNodeName().equalsIgnoreCase("gml:point")){
-            _log.debug("point");
+            LOGGER.finer("point");
             type = GML_POINT;
             coords = parseCoords(child);
             com.vividsolutions.jts.geom.Point r = null;
@@ -315,7 +323,7 @@ public class ExpressionXmlParser {
             return r;
         }
         if(child.getNodeName().toLowerCase().startsWith("gml:multiPolygon")){
-            _log.debug("MultiPolygon");
+            LOGGER.finer("MultiPolygon");
             ArrayList gc = new ArrayList();
             // parse all children thru parseGML
             NodeList kids = child.getChildNodes();
@@ -329,19 +337,19 @@ public class ExpressionXmlParser {
     }
     
     public static java.util.ArrayList parseCoords(Node root){
-        _log.debug("parsing coordinate(s) "+root);
+        LOGGER.finer("parsing coordinate(s) "+root);
         ArrayList clist = new ArrayList();
         NodeList kids = root.getChildNodes();
         for(int i=0;i<kids.getLength();i++){
             Node child = kids.item(i);
-            _log.debug("doing "+child);
+            LOGGER.finer("doing "+child);
             if(child.getNodeName().equalsIgnoreCase("gml:coordinate")){
                 String internal = child.getNodeValue();
                 
                 
             }
             if(child.getNodeName().equalsIgnoreCase("gml:coordinates")){
-                _log.debug("coordinates "+child.getFirstChild().getNodeValue());
+                LOGGER.finer("coordinates "+child.getFirstChild().getNodeValue());
                 NodeList grandKids = child.getChildNodes();
                 for(int k=0;k<grandKids.getLength();k++){
                     Node grandKid = grandKids.item(k);

@@ -20,7 +20,8 @@
 
 package org.geotools.filter;
 
-import org.apache.log4j.Logger;
+// J2SE dependencies
+import java.util.logging.Logger;
 import java.io.Writer;
 
 /**
@@ -32,7 +33,11 @@ import java.io.Writer;
  */
 public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
-    private static Logger log = Logger.getLogger("filter");
+    /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
+
     private Writer out;
     
     /** Creates a new instance of XMLEncoder */
@@ -44,7 +49,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         out.write("</Fitler>");
         }
         catch(java.io.IOException ioe){
-            log.error("Unable to export filter",ioe);
+            LOGGER.warning("Unable to export filter" + ioe);
         }
     }
     
@@ -55,16 +60,16 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
      * @param filter The filter to visit
      */
     public void visit(AbstractFilter filter) {
-        log.warn("exporting unknown filter type");
+        LOGGER.warning("exporting unknown filter type");
     }
     
     public void visit(BetweenFilter filter) {
-        log.debug("exporting BetweenFilter");
+        LOGGER.finer("exporting BetweenFilter");
         ExpressionDefault left = (ExpressionDefault)filter.getLeftValue();
         ExpressionDefault right = (ExpressionDefault)filter.getRightValue();
         ExpressionDefault mid = (ExpressionDefault)filter.getMiddleValue();
-        log.debug("Filter type id is "+filter.getFilterType());
-        log.debug("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
+        LOGGER.finer("Filter type id is "+filter.getFilterType());
+        LOGGER.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
         try{
             out.write("<"+type+">\n");
@@ -77,11 +82,11 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             out.write("</"+type+">\n");
         }
         catch(java.io.IOException ioe){
-            log.error("Unable to export filter",ioe);
+            LOGGER.warning("Unable to export filter" + ioe);
         }
     }
     public void visit(LikeFilter filter){
-        log.debug("exporting like filter");
+        LOGGER.finer("exporting like filter");
         try{
             String wcm = filter.getWildcardMulti();
             String wcs = filter.getWildcardSingle();
@@ -92,11 +97,11 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             out.write("<Literal>\n"+filter.getPattern()+"\n</literal>\n");
             out.write("</PropertyIsLike>\n");
         } catch (java.io.IOException ioe){
-            log.error("Unable to export filter",ioe);
+            LOGGER.warning("Unable to export filter" + ioe);
         }
     }
     public void visit(LogicFilter filter){
-        log.debug("exporting LogicFilter");
+        LOGGER.finer("exporting LogicFilter");
         
         filter.getFilterType();
         
@@ -110,17 +115,17 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             out.write("</"+type+">\n");
         }
         catch(java.io.IOException ioe){
-            log.error("Unable to export filter",ioe);
+            LOGGER.warning("Unable to export filter" + ioe);
         }
     }
     
     public void visit(CompareFilter filter){
-        log.debug("exporting ComparisonFilter");
+        LOGGER.finer("exporting ComparisonFilter");
         
         ExpressionDefault left = (ExpressionDefault)filter.getLeftValue();
         ExpressionDefault right = (ExpressionDefault)filter.getRightValue();
-        log.debug("Filter type id is "+filter.getFilterType());
-        log.debug("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
+        LOGGER.finer("Filter type id is "+filter.getFilterType());
+        LOGGER.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
         try{
             out.write("<"+type+">\n");
@@ -129,12 +134,12 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             out.write("</"+type+">\n");
         }
         catch(java.io.IOException ioe){
-            log.error("Unable to export filter",ioe);
+            LOGGER.warning("Unable to export filter" + ioe);
         }
     }
     
     public void visit(GeometryFilter filter){
-        log.debug("exporting GeometryFilter");
+        LOGGER.finer("exporting GeometryFilter");
         ExpressionDefault left = (ExpressionDefault)filter.getLeftGeometry();
         ExpressionDefault right = (ExpressionDefault)filter.getRightGeometry();
         String type = (String)spatial.get(new Integer(filter.getFilterType()));
@@ -145,12 +150,12 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             out.write("</"+type+">\n");
         }
         catch(java.io.IOException ioe){
-            log.error("Unable to export filter",ioe);
+            LOGGER.warning("Unable to export filter" + ioe);
         }
     }
     
     public void visit(NullFilter filter) {
-        log.debug("exporting NullFilter");
+        LOGGER.finer("exporting NullFilter");
         ExpressionDefault expr = (ExpressionDefault)filter.getNullCheckValue();
        
 
@@ -161,7 +166,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             out.write("</"+type+">\n");
         }
         catch(java.io.IOException ioe){
-            log.error("Unable to export filter",ioe);
+            LOGGER.warning("Unable to export filter" + ioe);
         }
         
     }
@@ -169,17 +174,17 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
     
     public void visit(ExpressionAttribute expression) {
-        log.debug("exporting ExpressionAttribute");
+        LOGGER.finer("exporting ExpressionAttribute");
         try{
             out.write("<PropertyName>"+expression.getAttributePath()+"</PropertyName>\n");
         }
         catch(java.io.IOException ioe){
-            log.error("Unable to export expresion",ioe);
+            LOGGER.finer("Unable to export expresion: " + ioe);
         }
     }
     
     public void visit(ExpressionDefault expression) {
-        log.warn("exporting unknown (default) expression");
+        LOGGER.warning("exporting unknown (default) expression");
     }
     
     /**
@@ -189,17 +194,17 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
      *             writen as GML.
      */
     public void visit(ExpressionLiteral expression) {
-        log.debug("exporting LiteralExpression");
+        LOGGER.finer("exporting LiteralExpression");
         try{
             out.write("<Literal>"+expression.getLiteral()+"</Literal>\n");
         }
         catch(java.io.IOException ioe){
-            log.error("Unable to export expresion",ioe);
+            LOGGER.warning("Unable to export expresion" + ioe);
         }
     }
     
     public void visit(ExpressionMath expression) {
-        log.debug("exporting Expression Math");
+        LOGGER.finer("exporting Expression Math");
         
         String type = (String)expressions.get(new Integer(expression.getType()));
         try{
@@ -209,7 +214,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             out.write("</"+type+">\n");
         }
         catch(java.io.IOException ioe){
-            log.error("Unable to export expresion",ioe);
+            LOGGER.warning("Unable to export expresion: " + ioe);
         }
     }
     

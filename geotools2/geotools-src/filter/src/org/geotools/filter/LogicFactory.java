@@ -20,20 +20,23 @@
 
 package org.geotools.filter;
 
+// J2SE dependencies
 import java.util.*;
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
+
 
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LogicFactory.java,v 1.1 2002/07/16 19:36:48 robhranac Exp $
+ * @version $Id: LogicFactory.java,v 1.2 2002/08/07 08:10:20 desruisseaux Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LogicFactory {
 
-
-    /** The (limited) REGEXP pattern. */
-    private static Logger _log = Logger.getLogger(LogicFactory.class);
+    /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** The (limited) REGEXP pattern. */
     private short logicType = -1;
@@ -54,7 +57,7 @@ public class LogicFactory {
      * Constructor which flags the operator as between.
      */
     public LogicFactory () {
-        _log.debug("made new logic factory");
+        LOGGER.finer("made new logic factory");
     }
 
 
@@ -66,7 +69,7 @@ public class LogicFactory {
     public void start(short logicType)
         throws IllegalFilterException {
 
-        _log.debug("got a start element: " + logicType);
+        LOGGER.finer("got a start element: " + logicType);
         if( this.logicType != -1) {
             logicFactory = new LogicFactory();
             logicFactory.start(logicType);
@@ -88,10 +91,10 @@ public class LogicFactory {
     public void end(short logicType)
         throws IllegalFilterException {
         
-        _log.debug("got an end element: " + logicType);
+        LOGGER.finer("got an end element: " + logicType);
         if( logicFactory != null) {            
 
-            _log.debug("sending end element to nested logic filter: " + logicType);
+            LOGGER.finer("sending end element to nested logic filter: " + logicType);
             logicFactory.end(logicType);
             if( logicFactory.isComplete()) {            
                 subFilters.add( logicFactory.create());
@@ -99,7 +102,7 @@ public class LogicFactory {
             }
         }
         else if( this.logicType == logicType ) {
-            _log.debug("end element matched internal type: " + this.logicType);
+            LOGGER.finer("end element matched internal type: " + this.logicType);
             isComplete = true;            
         }
         else {
@@ -115,13 +118,13 @@ public class LogicFactory {
      */
     public void add(Filter filter) {
 
-        _log.debug("added a filter: " + filter.toString());
+        LOGGER.finer("added a filter: " + filter.toString());
         if( logicFactory != null) {            
-            _log.debug("adding to nested logic filter: " + filter.toString());
+            LOGGER.finer("adding to nested logic filter: " + filter.toString());
             logicFactory.add(filter);
         }
         else {
-            _log.debug("added to sub filters: " + filter.toString());
+            LOGGER.finer("added to sub filters: " + filter.toString());
             subFilters.add(filter);
         }
     }
@@ -136,9 +139,9 @@ public class LogicFactory {
 
         LogicFilter filter = null;
 
-        _log.debug("creating a logic filter");
+        LOGGER.finer("creating a logic filter");
         if( isComplete()) {
-            _log.debug("filter is complete, with type: " + this.logicType);
+            LOGGER.finer("filter is complete, with type: " + this.logicType);
             if( logicType == AbstractFilter.LOGIC_NOT) {
                 filter = new LogicFilter((Filter) subFilters.get(0), this.logicType);                 
             }

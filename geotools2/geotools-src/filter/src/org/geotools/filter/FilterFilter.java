@@ -20,14 +20,20 @@
 
 package org.geotools.filter;
 
+// J2SE dependencies
+import java.util.logging.Logger;
 import java.util.*;
 import java.math.*;
-import org.apache.log4j.Logger;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
+
+// Java Topology Suite dependencies
 import com.vividsolutions.jts.geom.Geometry;
+
+// Geotools dependencies
 import org.geotools.feature.*;
 import org.geotools.gml.GMLHandlerJTS;
+
 
 /**
  * Creates an OGC filter using a SAX filter.
@@ -36,12 +42,15 @@ import org.geotools.gml.GMLHandlerJTS;
  * extracts an OGC filter object from an XML stream and passes it to its parent
  * as a fully instantiated OGC filter object.</p>
  * 
- * @version $Id: FilterFilter.java,v 1.8 2002/07/18 16:21:49 ianturton Exp $
+ * @version $Id: FilterFilter.java,v 1.9 2002/08/07 08:10:20 desruisseaux Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
 
-    private static Logger _log = Logger.getLogger(FilterFilter.class);
+    /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
     private LogicFactory logicFactory;  
@@ -101,26 +110,26 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
         throws SAXException {
 
         short filterElementType = convertType(localName);
-        _log.debug("xml type: " + localName);
-        _log.debug("internal type: " + filterElementType);
-        _log.debug("Attributes: ");
+        LOGGER.finer("xml type: " + localName);
+        LOGGER.finer("internal type: " + filterElementType);
+        LOGGER.finer("Attributes: ");
         for(int i=0;i<atts.getLength();i++){
-            _log.debug(atts.getLocalName(i)+","+atts.getValue(i));
+            LOGGER.finer(atts.getLocalName(i)+","+atts.getValue(i));
         }
         try { 
             // if at a complex filter start, add it to the logic stack
             if( AbstractFilter.isLogicFilter(filterElementType) ) {
-                _log.debug("found a logic filter start");
+                LOGGER.finer("found a logic filter start");
                 isLogicFilter = true;
                 logicFactory.start(filterElementType);
             }
             
             // if at a simple filter start, tell the factory
             else if( AbstractFilter.isSimpleFilter(filterElementType) ) {
-                _log.debug("found a simple filter start");
+                LOGGER.finer("found a simple filter start");
                 filterFactory.start(filterElementType);
                 if(filterElementType == AbstractFilter.LIKE ){
-                    _log.debug("handle the attributes");
+                    LOGGER.finer("handle the attributes");
                     filterFactory.setAttributes(atts);
                 }
                             
@@ -128,7 +137,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
             
             // if at an expression start, tell the factory
             else if( ExpressionDefault.isExpression(filterElementType) ) {
-                _log.debug("found an expression filter start");
+                LOGGER.finer("found an expression filter start");
                 expressionFactory.start(localName);
             }
             else {
@@ -161,7 +170,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
         //  see the documentation for CoordinatesReader to see what this entails
         String message = new String(ch, start, length);
         try{
-            _log.debug("sent to expression factory: " + message);
+            LOGGER.finer("sent to expression factory: " + message);
             expressionFactory.message(message);
         }
         catch(IllegalFilterException ife){
@@ -191,21 +200,21 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
             // if at the end of a complex filter, simplify the logic stack
             //  appropriately
             if( AbstractFilter.isLogicFilter(filterElementType) ) {
-                _log.debug("found a logic filter end");
+                LOGGER.finer("found a logic filter end");
                 logicFactory.end( filterElementType);
 
                 // if the filter is done, pass along to the parent
                 if( logicFactory.isComplete()) {
-                    _log.debug("logic stack complete: " + logicFactory.toString());
+                    LOGGER.finer("logic stack complete: " + logicFactory.toString());
                     parent.filter( logicFactory.create());
-                    _log.debug("just created logic factory");
+                    LOGGER.finer("just created logic factory");
                 }
             }
             
             // if at the end of a simple filter, create it and push it on top of 
             //  the logic stack
             else if( AbstractFilter.isSimpleFilter(filterElementType) ) {
-                _log.debug("found a simple filter end");
+                LOGGER.finer("found a simple filter end");
 
                 // if the filter is done, pass along to the parent
                 if( isLogicFilter ) {
@@ -221,13 +230,13 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
             //  2. at end of an inner expression, pass the message along to current
             //      outer expression
             else if( ExpressionDefault.isExpression(filterElementType) ) {
-                _log.debug("found an expression filter end");
+                LOGGER.finer("found an expression filter end");
                 expressionFactory.end(localName);
-                _log.debug("sent end to expression factory");
+                LOGGER.finer("sent end to expression factory");
                 if( expressionFactory.isReady() ) {
-                    _log.debug("expression factory is ready: " + expressionFactory.isReady());
+                    LOGGER.finer("expression factory is ready: " + expressionFactory.isReady());
                     filterFactory.expression( expressionFactory.create());
-                    _log.debug("just add expression to filter");
+                    LOGGER.finer("just add expression to filter");
                 }
             }
         }
@@ -247,16 +256,16 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
 
         // Sends the geometry to the expression
         try {
-            _log.debug("got geometry: " + geometry.toString());
+            LOGGER.finer("got geometry: " + geometry.toString());
             expressionFactory.geometry(geometry);
-            _log.debug("gave geometry to expression factory");
+            LOGGER.finer("gave geometry to expression factory");
             if( expressionFactory.isReady() ) {
                 filterFactory.expression( expressionFactory.create());
-                _log.debug("expression factory made expression and sent to filter factory");
+                LOGGER.finer("expression factory made expression and sent to filter factory");
             }
         }
         catch(IllegalFilterException e) {
-            _log.debug("Had problems adding geometry: " + geometry.toString());
+            LOGGER.finer("Had problems adding geometry: " + geometry.toString());
         }
     }
 

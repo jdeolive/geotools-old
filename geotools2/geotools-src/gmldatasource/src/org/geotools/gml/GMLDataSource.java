@@ -20,37 +20,38 @@
 
 package org.geotools.gml;
 
+// J2SE dependencies
 import java.io.*;
 import java.util.*;
 import java.net.*;
-
+import java.util.logging.Logger;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
+// Geotools dependencies
 import org.geotools.feature.*;
 import org.geotools.data.*;
 import org.geotools.filter.*;
 
+// Java Topology Suite dependencies
 import com.vividsolutions.jts.geom.Envelope;
 
-
-//Logging system
-import org.apache.log4j.Logger;
 
 /**
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: GMLDataSource.java,v 1.19 2002/07/23 17:58:11 jmacgill Exp $
+ * @version $Id: GMLDataSource.java,v 1.20 2002/08/07 08:10:35 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class GMLDataSource extends XMLFilterImpl
 implements DataSource, GMLHandlerFeature {
-    
 
-    
-    private static Logger log = Logger.getLogger("gmldatasource");
+    /**
+     * The logger for the GML module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
     
     /** Specifies the default parser (Xerces). */
     private String defaultParser = "org.apache.xerces.parsers.SAXParser";
@@ -228,7 +229,7 @@ implements DataSource, GMLHandlerFeature {
         while(list.hasNext()){
             if (!filter.contains((Feature) list.next())) {
                 list.remove();
-                log.debug("feature filtered out");
+                LOGGER.finer("feature filtered out");
             }
         }
         

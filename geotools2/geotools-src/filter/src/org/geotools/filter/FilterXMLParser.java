@@ -6,36 +6,42 @@
 
 package org.geotools.filter;
 
+// J2SE dependencies
+import java.util.logging.Logger;
+import org.w3c.dom.*;
+
+
 /**
  * A dom based parser to build filters as per OGC 01-067
  *
  * @author  iant
  */
-import org.w3c.dom.*;
-
 public class FilterXMLParser {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(FilterXMLParser.class);
+
+    /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
     
     /** Creates a new instance of FilterXMLParser */
     public FilterXMLParser() {
     }
     public static Filter parseFilter(Node root){
-        _log.info("parsingFilter "+root.getNodeName());
+        LOGGER.fine("parsingFilter "+root.getNodeName());
         
         //NodeList children = root.getChildNodes();
-        //_log.debug("children "+children);
+        //LOGGER.finest("children "+children);
         
         if(root == null || root.getNodeType() != Node.ELEMENT_NODE){
-            _log.debug("bad node input ");
+            LOGGER.finer("bad node input ");
             return null;
         }
-        _log.debug("processing root "+root.getNodeName());
+        LOGGER.finer("processing root "+root.getNodeName());
         Node child = root;
         String childName = child.getNodeName();
-        _log.debug("looking up "+childName);
+        LOGGER.finer("looking up "+childName);
         if(comparisions.containsKey(childName)){
-            _log.debug("a comparision filter "+childName);
+            LOGGER.finer("a comparision filter "+childName);
             boolean like =false, between = false;
             try{
                 short type = ((Integer)comparisions.get(childName)).shortValue();
@@ -94,12 +100,12 @@ public class FilterXMLParser {
                     }
                     if(!(wildcard==null||single==null||escape==null||pattern==null)){
                         LikeFilter lfilter = new LikeFilter();
-                        _log.debug("Building like filter "+value.toString()+"\n"+pattern+" "+wildcard+" "+single+" "+escape);
+                        LOGGER.finer("Building like filter "+value.toString()+"\n"+pattern+" "+wildcard+" "+single+" "+escape);
                         lfilter.setValue(value);
                         lfilter.setPattern(pattern,wildcard,single,escape);
                         return lfilter;
                     }
-                    _log.error("Problem building like filter\n"+pattern+" "+wildcard+" "+single+" "+escape);
+                    LOGGER.finer("Problem building like filter\n"+pattern+" "+wildcard+" "+single+" "+escape);
                     return null;
                 }else{                    
                     filter = new CompareFilter(type);
@@ -109,67 +115,67 @@ public class FilterXMLParser {
 
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                _log.debug("add left value -> "+value+"<-");
+                LOGGER.finer("add left value -> "+value+"<-");
                 filter.addLeftValue(ExpressionXmlParser.parseExpression(value));
                 value = value.getNextSibling();
                 
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                _log.debug("add right value -> "+value+"<-");
+                LOGGER.finer("add right value -> "+value+"<-");
                 filter.addRightValue(ExpressionXmlParser.parseExpression(value));
                 return filter;
                 
             }catch (IllegalFilterException ife){
-                _log.error("Unable to build filter ",ife);
+                LOGGER.finer("Unable to build filter: " + ife);
                 return null;
             }
         } else if(spatial.containsKey(childName)){
-            _log.debug("a spatial filter "+childName);
+            LOGGER.finer("a spatial filter "+childName);
             try{
                 short type = ((Integer)spatial.get(childName)).shortValue();
                 GeometryFilter filter = new GeometryFilter(type);
                 Node value = child.getFirstChild();
                     while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                    _log.debug("add left value -> "+value+"<-");
+                    LOGGER.finer("add left value -> "+value+"<-");
                     filter.addLeftGeometry(ExpressionXmlParser.parseExpression(value));
                     value = value.getNextSibling();
                     
                     while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                    _log.debug("add right value -> "+value+"<-");
+                    LOGGER.finer("add right value -> "+value+"<-");
                     if(!(value.getNodeName().equalsIgnoreCase("Literal")
                     ||value.getNodeName().equalsIgnoreCase("propertyname"))){
                         Element literal = value.getOwnerDocument().createElement("literal");
                         
                         literal.appendChild(value);
-                        _log.debug("Built new literal "+literal);
+                        LOGGER.finer("Built new literal "+literal);
                         value = literal;
                     }
         
                     filter.addRightGeometry(ExpressionXmlParser.parseExpression(value));
                     return filter;
                 }catch (IllegalFilterException ife){
-                _log.error("Unable to build filter ",ife);
+                LOGGER.finer("Unable to build filter: " + ife);
                 return null;
             }
         } else if (logical.containsKey(childName)){
-            _log.debug("a logical filter "+childName);
+            LOGGER.finer("a logical filter "+childName);
             try{
                 short type = ((Integer)logical.get(childName)).shortValue();
-                _log.debug("logic type "+type);
+                LOGGER.finer("logic type "+type);
                 LogicFilter filter = new LogicFilter(type);
                 NodeList map = child.getChildNodes();
                 for(int i=0;i<map.getLength();i++){
                     Node kid=map.item(i);
                     if(kid == null || kid.getNodeType() != Node.ELEMENT_NODE) continue;
-                    _log.debug("adding to logic filter "+kid.getNodeName());
+                    LOGGER.finer("adding to logic filter "+kid.getNodeName());
                     filter.addFilter(parseFilter(kid));
                 }
                 return filter;
              }catch (IllegalFilterException ife){
-                _log.error("Unable to build filter ",ife);
+                LOGGER.finer("Unable to build filter: " + ife);
                 return null;
             }
         }
-        _log.info("unknown filter "+root);
+        LOGGER.finer("unknown filter "+root);
         return null;
     }
     
