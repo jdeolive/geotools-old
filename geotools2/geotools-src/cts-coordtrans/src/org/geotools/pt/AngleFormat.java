@@ -852,7 +852,7 @@ public class AngleFormat extends Format {
                                      final ParsePosition pos,
                                      final boolean spaceAsSeparator)
     {
-        double degrés   = Double.NaN;
+        double degrees   = Double.NaN;
         double minutes  = Double.NaN;
         double secondes = Double.NaN;
         final int length=source.length();
@@ -895,7 +895,7 @@ public class AngleFormat extends Format {
                 }
                 return null;
             }
-            degrés=fieldObject.doubleValue();
+            degrees=fieldObject.doubleValue();
             int indexEndField=pos.getIndex();
             boolean swapDM=true;
 BigBoss:    switch (skipSuffix(source, pos, DEGREES_FIELD)) {
@@ -918,8 +918,8 @@ BigBoss:    switch (skipSuffix(source, pos, DEGREES_FIELD)) {
                  * que la lecture est terminée.
                  */
                 case SECONDS_FIELD: {
-                    secondes = degrés;
-                    degrés = Double.NaN;
+                    secondes = degrees;
+                    degrees = Double.NaN;
                     break BigBoss;
                 }
                 /* ----------------------------------------------
@@ -1027,8 +1027,8 @@ BigBoss:    switch (skipSuffix(source, pos, DEGREES_FIELD)) {
                  */
                 case MINUTES_FIELD: {
                     if (swapDM) {
-                        minutes = degrés;
-                        degrés = Double.NaN;
+                        minutes = degrees;
+                        degrees = Double.NaN;
                     }
                     final int indexStartField = index = pos.getIndex();
                     while (index<length && Character.isSpaceChar(source.charAt(index))) {
@@ -1100,7 +1100,7 @@ BigBoss:    switch (skipSuffix(source, pos, DEGREES_FIELD)) {
         if (minutes<0) {
             secondes = -secondes;
         }
-        if (degrés<0) {
+        if (degrees<0) {
             minutes = -minutes;
             secondes = -secondes;
         }
@@ -1109,7 +1109,7 @@ BigBoss:    switch (skipSuffix(source, pos, DEGREES_FIELD)) {
             if (width2!=0) {
                 if (suffix1==null && Double.isNaN(secondes)) {
                     if (suffix0==null && Double.isNaN(minutes)) {
-                        degrés /= facteur;
+                        degrees /= facteur;
                     } else {
                         minutes /= facteur;
                     }
@@ -1119,12 +1119,12 @@ BigBoss:    switch (skipSuffix(source, pos, DEGREES_FIELD)) {
             } else if (Double.isNaN(secondes)) {
                 if (width1!=0) {
                     if (suffix0==null && Double.isNaN(minutes)) {
-                        degrés /= facteur;
+                        degrees /= facteur;
                     } else {
                         minutes /= facteur;
                     }
                 } else if (Double.isNaN(minutes)) {
-                    degrés /= facteur;
+                    degrees /= facteur;
                 }
             }
         }
@@ -1139,12 +1139,12 @@ BigBoss:    switch (skipSuffix(source, pos, DEGREES_FIELD)) {
                 ///////////////////
                 //// DDDMMSS.s ////
                 ///////////////////
-                secondes = degrés;
-                minutes  = (int) (degrés/facteur); // Arrondie vers 0
+                secondes = degrees;
+                minutes  = (int) (degrees/facteur); // Arrondie vers 0
                 secondes -= minutes*facteur;
                 facteur  = XMath.pow10(width1);
-                degrés   = (int) (minutes/facteur); // Arrondie vers 0
-                minutes -= degrés*facteur;
+                degrees   = (int) (minutes/facteur); // Arrondie vers 0
+                minutes -= degrees*facteur;
             } else {
                 ////////////////////
                 //// DDD°MMSS.s ////
@@ -1158,14 +1158,14 @@ BigBoss:    switch (skipSuffix(source, pos, DEGREES_FIELD)) {
             //// DDDMM.m ////
             /////////////////
             final double facteur = XMath.pow10(width1);
-            minutes = degrés;
-            degrés = (int) (degrés/facteur); // Arrondie vers 0
-            minutes -= degrés*facteur;
+            minutes = degrees;
+            degrees = (int) (degrees/facteur); // Arrondie vers 0
+            minutes -= degrees*facteur;
         }
         pos.setErrorIndex(-1);
-        if ( Double.isNaN(degrés))   degrés=0;
-        if (!Double.isNaN(minutes))  degrés += minutes/60;
-        if (!Double.isNaN(secondes)) degrés += secondes/3600;
+        if ( Double.isNaN(degrees))   degrees=0;
+        if (!Double.isNaN(minutes))  degrees += minutes/60;
+        if (!Double.isNaN(secondes)) degrees += secondes/3600;
         /////////////////////////////////////////////////////
         // BLOC C: Vérifie maintenant si l'angle ne serait //
         //         pas suivit d'un symbole N, S, E ou W.   //
@@ -1173,16 +1173,16 @@ BigBoss:    switch (skipSuffix(source, pos, DEGREES_FIELD)) {
         for (int index=pos.getIndex(); index<length; index++) {
             final char c=source.charAt(index);
             switch (Character.toUpperCase(c)) {
-                case NORTH: pos.setIndex(index+1); return new Latitude( degrés);
-                case SOUTH: pos.setIndex(index+1); return new Latitude(-degrés);
-                case EAST : pos.setIndex(index+1); return new Longitude( degrés);
-                case WEST : pos.setIndex(index+1); return new Longitude(-degrés);
+                case NORTH: pos.setIndex(index+1); return new Latitude( degrees);
+                case SOUTH: pos.setIndex(index+1); return new Latitude(-degrees);
+                case EAST : pos.setIndex(index+1); return new Longitude( degrees);
+                case WEST : pos.setIndex(index+1); return new Longitude(-degrees);
             }
             if (!Character.isSpaceChar(c)) {
                 break;
             }
         }
-        return new Angle(degrés);
+        return new Angle(degrees);
     }
     
     /**
