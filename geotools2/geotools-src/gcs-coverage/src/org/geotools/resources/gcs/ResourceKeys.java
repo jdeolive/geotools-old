@@ -42,6 +42,7 @@ public interface ResourceKeys
     public static final int MAGENTA                              =    15;
     public static final int NAME                                 =    16;
     public static final int NODATA                               =    17;
+    public static final int OPERATION_APPLIED_$3                 =    69;
     public static final int PALETTE                              =    18;
     public static final int POINT_COUNT_$3                       =    19;
     public static final int RED                                  =    20;
@@ -49,6 +50,7 @@ public interface ResourceKeys
     public static final int TRANSPARENCY                         =    22;
     public static final int UNDEFINED                            =    23;
     public static final int UNTITLED                             =    24;
+    public static final int VALUE                                =    68;
     public static final int YELLOW                               =    25;
 
     public static final int ERROR_AMBIGIOUS_AXIS_LENGTH          =    26;

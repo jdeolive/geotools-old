@@ -93,7 +93,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.8 2002/07/29 15:15:28 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.9 2002/08/08 18:35:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -291,7 +291,7 @@ public class OperationJAI extends Operation {
      *         parameters required for the operation.
      * @param  A set of rendering hints, or <code>null</code> if none.  The JAI
      *         instance to use for the <code>createNS</code> call will be fetch
-     *         from the {@link #JAI_INSTANCE} key.
+     *         from the {@link Hints#JAI_INSTANCE} key.
      * @return The result as a grid coverage.
      *
      * @see #doOperation(ParameterList, RenderingHints)
@@ -340,7 +340,7 @@ public class OperationJAI extends Operation {
         final RenderingHints exHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
         JAI processor = JAI.getDefaultInstance();
         if (hints != null) {
-            final Object value = hints.get(JAI_INSTANCE);
+            final Object value = hints.get(Hints.JAI_INSTANCE);
             if (value instanceof JAI) {
                 processor = (JAI) value;
             }

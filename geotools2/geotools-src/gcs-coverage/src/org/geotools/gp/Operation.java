@@ -71,7 +71,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.4 2002/07/27 22:08:44 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.5 2002/08/08 18:35:43 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -80,21 +80,6 @@ public abstract class Operation implements Serializable {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = -1280778129220703728L;
-
-    /**
-     * Key for setting a {@link CoordinateTransformationFactory} object other
-     * than the default one when coordinate transformations must be performed
-     * at rendering time.
-     */
-    public static final RenderingHints.Key COORDINATE_TRANSFORMATION_FACTORY =
-            new Key(0, CoordinateTransformationFactory.class);
-
-    /**
-     * Key for setting a {@link JAI} instance other than the default one when
-     * JAI operation must be performed at rendering time.
-     */
-    public static final RenderingHints.Key JAI_INSTANCE =
-            new Key(1, JAI.class);
 
     /**
      * <code>true</code> if all comutations should be applied on geophysics
@@ -111,10 +96,11 @@ public abstract class Operation implements Serializable {
      * implemented because currently not provided by JAI.
      */
     private static final String[] INTERPOLATION_NAMES= {
-        "NearestNeighbor",
+        "Nearest",          // JAI name
+        "NearestNeighbor",  // OpenGIS name
         "Bilinear",
         "Bicubic",
-        "Bicubic2"
+        "Bicubic2"          // Not in OpenGIS specification.
     };
     
     /**
@@ -122,6 +108,7 @@ public abstract class Operation implements Serializable {
      * Imaging) for {@link #INTERPOLATION_NAMES}.
      */
     private static final int[] INTERPOLATION_TYPES= {
+        Interpolation.INTERP_NEAREST,
         Interpolation.INTERP_NEAREST,
         Interpolation.INTERP_BILINEAR,
         Interpolation.INTERP_BICUBIC,
@@ -252,6 +239,21 @@ public abstract class Operation implements Serializable {
         throw new IllegalArgumentException(Resources.format(
                 ResourceKeys.ERROR_UNKNOW_INTERPOLATION_$1, type));
     }
+
+    /**
+     * Returns the interpolation name for the specified interpolation.
+     */
+    static String getInterpolationName(final Interpolation interp) {
+        final String prefix = "Interpolation";
+        for (Class classe = interp.getClass(); classe!=null; classe=classe.getSuperclass()) {
+            String name = Utilities.getShortName(classe);
+            int index = name.lastIndexOf(prefix);
+            if (index >= 0) {
+                return name.substring(index + prefix.length());
+            }
+        }
+        return Utilities.getShortClassName(interp);
+    }
     
     /**
      * Apply a process operation to a grid coverage. This method is invoked by
@@ -261,8 +263,8 @@ public abstract class Operation implements Serializable {
      *         required for the operation.
      * @param  A set of rendering hints, or <code>null</code> if none.
      *         The <code>GridCoverageProcessor</code> may provides hints
-     *         for the following keys: {@link #COORDINATE_TRANSFORMATION_FACTORY}
-     *         and {@link #JAI_INSTANCE}.
+     *         for the following keys: {@link Hints#COORDINATE_TRANSFORMATION_FACTORY}
+     *         and {@link Hints#JAI_INSTANCE}.
      * @return The result as a grid coverage.
      */
     protected abstract GridCoverage doOperation(final ParameterList  parameters,
@@ -305,9 +307,12 @@ public abstract class Operation implements Serializable {
      * The description include operation name and a list of parameters.
      *
      * @param  out The destination stream.
+     * @param  param A List of parameter values, or <code>null</code> if none.
+     *         If <code>null</code>, then default values will be printed instead
+     *         of actual values.
      * @throws IOException if an error occured will writing to the stream.
      */
-    public void print(final Writer out) throws IOException {
+    public void print(final Writer out, final ParameterList param) throws IOException {
         final String lineSeparator = System.getProperty("line.separator", "\n");
         out.write(' ');
         out.write(getName());
@@ -320,7 +325,7 @@ public abstract class Operation implements Serializable {
         table.nextColumn();
         table.write(resources.getString(ResourceKeys.CLASS));
         table.nextColumn();
-        table.write(resources.getString(ResourceKeys.DEFAULT_VALUE));
+        table.write(resources.getString(param!=null ? ResourceKeys.VALUE : ResourceKeys.DEFAULT_VALUE));
         table.nextLine();
         table.writeHorizontalSeparator();
         
@@ -333,49 +338,31 @@ public abstract class Operation implements Serializable {
             table.nextColumn();
             table.write(Utilities.getShortName(classes[i]));
             table.nextColumn();
-            if (defaults[i] != ParameterListDescriptor.NO_PARAMETER_DEFAULT) {
-                table.write(String.valueOf(defaults[i]));
+            Object value;
+            if (param != null) {
+                try {
+                    value = param.getObjectParameter(names[i]);
+                } catch (IllegalArgumentException exception) {
+                    // There is no parameter with the specified name.
+                    value = "#ERROR#";
+                } catch (IllegalStateException exception) {
+                    // The parameter is not set and there is no default.
+                    value = ParameterListDescriptor.NO_PARAMETER_DEFAULT;
+                }
+            } else {
+                value = defaults[i];
+            }
+            if (value != ParameterListDescriptor.NO_PARAMETER_DEFAULT) {
+                if (value instanceof GridCoverage) {
+                    value = ((GridCoverage) value).getName(null);
+                } else if (value instanceof Interpolation) {
+                    value = getInterpolationName((Interpolation) value);
+                }
+                table.write(String.valueOf(value));
             }
             table.nextLine();
         }
         table.writeHorizontalSeparator();
         table.flush();
-    }
-
-    /**
-     * Class of all rendering hint keys defined.
-     */
-    private static final class Key extends RenderingHints.Key
-    {
-        /**
-         * Base class of all values for this key.
-         *
-         * @task TODO: We could use only the class name (as a string)
-         *             here in order to defer class loading.
-         */
-        private final Class valueClass;
-
-        /**
-         * Construct a new key.
-         *
-         * @param id An ID. Must be unique for all instances of {@link Key}.
-         * @param valueClass Base class of all valid values.
-         */
-        Key(final int id, final Class valueClass) {
-            super(id);
-            this.valueClass = valueClass;
-        }
-
-        /**
-         * Returns <code>true</code> if the specified object is a valid
-         * value for this Key.
-         *
-         * @param  value The object to test for validity.
-         * @return <code>true</code> if the value is valid;
-         *         <code>false</code> otherwise.
-         */
-        public boolean isCompatibleValue(final Object value) {
-            return (value != null) && valueClass.isAssignableFrom(value.getClass());
-        }
     }
 }

@@ -102,7 +102,7 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.7 2002/07/28 19:25:30 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.8 2002/08/08 18:35:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: The "GridGeometry" parameter is currently not supported.
@@ -143,8 +143,8 @@ final class Resampler extends GridCoverage {
      * @param  targetGridGeometry The target grid geometry, or <code>null</code> for default.
      * @param  interpolation The interpolation to use.
      * @param  The rendering hingts. This is usually provided by a {@link GridCoverageProcessor}.
-     *         This method will looks for {@link Operation#COORDINATE_TRANSFORMATION_FACTORY}
-     *         and {@link Operation#JAI_INSTANCE} keys.
+     *         This method will looks for {@link Hints#COORDINATE_TRANSFORMATION_FACTORY}
+     *         and {@link Hints#JAI_INSTANCE} keys.
      * @return The new grid coverage, or <code>sourceCoverage</code> if no resampling was needed.
      * @throws TransformException if the grid coverage can't be reprojected.
      */
@@ -158,7 +158,7 @@ final class Resampler extends GridCoverage {
         /*
          * Gets the {@link JAI} instance to use from the rendering hints.
          */
-        Object property = (hints!=null) ? hints.get(Operation.JAI_INSTANCE) : null;
+        Object property = (hints!=null) ? hints.get(Hints.JAI_INSTANCE) : null;
         final JAI processor;
         if (property instanceof JAI) {
             processor = (JAI) property;
@@ -168,7 +168,7 @@ final class Resampler extends GridCoverage {
         /*
          * Gets the {@link CoordinateTransformationFactory} to use from the rendering hints.
          */
-        property = (hints!=null) ? hints.get(Operation.COORDINATE_TRANSFORMATION_FACTORY) : null;
+        property = (hints!=null) ? hints.get(Hints.COORDINATE_TRANSFORMATION_FACTORY) : null;
         final CoordinateTransformationFactory factory;
         if (property instanceof CoordinateTransformationFactory) {
             factory = (CoordinateTransformationFactory) property;
@@ -448,7 +448,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.7 2002/07/28 19:25:30 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.8 2002/08/08 18:35:43 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

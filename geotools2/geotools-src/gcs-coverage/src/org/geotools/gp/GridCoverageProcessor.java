@@ -56,7 +56,10 @@ import javax.media.jai.util.CaselessStringKey;
 import java.io.Writer;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.LogRecord;
 import java.awt.RenderingHints;
 
 // Geotools dependencies
@@ -74,7 +77,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.4 2002/07/27 12:40:49 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.5 2002/08/08 18:35:43 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -143,7 +146,7 @@ public class GridCoverageProcessor {
      * @param processor The {@link JAI} instance to use for instantiating JAI operations.
      */
     protected GridCoverageProcessor(final JAI processor) {
-        hints = (processor!=null) ? new RenderingHints(Operation.JAI_INSTANCE, processor) : null;
+        hints = (processor!=null) ? new RenderingHints(Hints.JAI_INSTANCE, processor) : null;
     }
     
     /**
@@ -314,7 +317,8 @@ public class GridCoverageProcessor {
      */
     public GridCoverage doOperation(final Operation operation, final ParameterList parameters) {
         Interpolation[] interpolations = null;
-        if (!operation.getName().equalsIgnoreCase("Interpolate")) {
+        final String operationName = operation.getName();
+        if (!operationName.equalsIgnoreCase("Interpolate")) {
             final String[] paramNames = parameters.getParameterListDescriptor().getParamNames();
             for (int i=0; i<paramNames.length; i++) {
                 final Object param = parameters.getObjectParameter(paramNames[i]);
@@ -337,6 +341,31 @@ public class GridCoverageProcessor {
         if (interpolations!=null && coverage!=null && !(coverage instanceof Interpolator)) {
             coverage = Interpolator.create(coverage, interpolations);
         }
+        // Check if the coverage has changed (i.e. if the operation
+        // really did something). If the coverage has changed, then
+        // an information message will be logger.
+        GridCoverage source;
+        try {
+            source = (GridCoverage) parameters.getObjectParameter("Source");
+        } catch (RuntimeException exception) {
+            // "Source" parameter may not exists. Conservatively
+            // assume that the operation did some usefull work.
+            source = null;
+        }
+        if (coverage != source) {
+            String interp = "Nearest";
+            if (interpolations!=null && interpolations.length != 0) {
+                interp = Operation.getInterpolationName(interpolations[0]);
+            }
+            final Locale locale = null; // Set locale here (if any).
+            final LogRecord record = Resources.getResources(locale).getLogRecord(
+                                     Level.FINE, ResourceKeys.OPERATION_APPLIED_$3,
+                                     ((source!=null) ? source : coverage).getName(locale),
+                                     operationName, interp);
+            record.setSourceClassName("GridCoverageProcessor");
+            record.setSourceMethodName("doOperation");
+            Logger.getLogger("org.geotools.gcs").log(record);
+        }
         return coverage;
     }
     
@@ -352,7 +381,7 @@ public class GridCoverageProcessor {
         final Operation[] operations = getOperations();
         for (int i=0; i<operations.length; i++) {
             out.write(lineSeparator);
-            operations[i].print(out);
+            operations[i].print(out, null);
         }
     }
 }

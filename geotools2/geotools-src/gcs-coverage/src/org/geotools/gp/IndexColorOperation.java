@@ -58,7 +58,7 @@ import org.geotools.cv.SampleDimension;
  * Operation applied only on image's colors. This operation work
  * only for source image using an {@link IndexColorModel}.
  *
- * @version $Id: IndexColorOperation.java,v 1.4 2002/07/27 12:40:49 desruisseaux Exp $
+ * @version $Id: IndexColorOperation.java,v 1.5 2002/08/08 18:35:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class IndexColorOperation extends Operation {
@@ -101,7 +101,7 @@ abstract class IndexColorOperation extends Operation {
         final int             mapSize = colors.getMapSize();
         final byte[] R=new byte[mapSize]; colors.getReds  (R);
         final byte[] G=new byte[mapSize]; colors.getGreens(G);
-        final byte[] B=new byte[mapSize]; colors.getBlues(B);
+        final byte[] B=new byte[mapSize]; colors.getBlues (B);
         transformColormap(R,G,B, bands[band], parameters);
         if (compare(colors, R,G,B)) {
             /*
