@@ -423,18 +423,13 @@ public class Adapters {
             return (LocalCoordinateSystem) ((CoordinateSystem.Export)cs).unwrap();
         }
         final LocalDatum datum = wrap(cs.getLocalDatum());
-        final AxisInfo[]  axes = new AxisInfo[cs.getDimension()];
-        Unit unit = null;
+        final Unit[]     units = new Unit[cs.getDimension()];
+        final AxisInfo[]  axes = new AxisInfo[units.length];
         for (int i=0; i<axes.length; i++) {
-            axes[i] = wrap(cs.getAxis(i));
-            Unit un = wrap(cs.getUnits(i));
-            if (unit==null) {
-                unit = un;
-            } else if (un!=null && !unit.equals(un)) {
-                throw new IllegalArgumentException();
-            }
+            axes [i] = wrap(cs.getAxis (i));
+            units[i] = wrap(cs.getUnits(i));
         }
-        return new LocalCoordinateSystem(new InfoProperties(cs), datum, unit, axes);
+        return new LocalCoordinateSystem(new InfoProperties(cs), datum, units, axes);
     }
     
     /**

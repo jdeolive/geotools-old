@@ -47,9 +47,10 @@ import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
-// J2SE dependencies
+// J2SE and Java3D dependencies
 import java.util.Arrays;
 import java.rmi.RemoteException;
+import javax.vecmath.MismatchedSizeException;
 
 
 /**
@@ -91,13 +92,22 @@ public class LocalCoordinateSystem extends CoordinateSystem {
      * Axes details.
      */
     private final AxisInfo[] axes;
+
+    /**
+     * Create an array of units. We had to create a method
+     * for this because the constructor needs to invoke it
+     * before to invoke <code>this(...)</code>.
+     */
+    private static Unit[] expand(final Unit unit, final int count) {
+        final Unit[] units = new Unit[count];
+        Arrays.fill(units, unit);
+        return units;
+    }
     
     /**
      * Creates a local coordinate system. The dimension of the local coordinate
      * system is determined by the size of the axis array.  All the axes will
-     * have the same units.  If you want to make a coordinate system with mixed
-     * units, then you can make a compound coordinate system from different local
-     * coordinate systems.
+     * have the same units.
      *
      * @param name  Name to give new object.
      * @param datum Local datum to use in created coordinate system.
@@ -111,16 +121,39 @@ public class LocalCoordinateSystem extends CoordinateSystem {
                                  final Unit         unit,
                                  final AxisInfo[]   axes)
     {
+        this(name, datum, expand(unit, axes.length), axes);
+    }
+    
+    /**
+     * Creates a local coordinate system. The dimension of the local coordinate
+     * system is determined by the size of the axis array.  All the axes will
+     * have the same units.
+     *
+     * @param name  Name to give new object.
+     * @param datum Local datum to use in created coordinate system.
+     * @param units Units to use in created coordinate system.
+     * @param axes  Axes to use in created coordinate system.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemFactory#createLocalCoordinateSystem
+     */
+    public LocalCoordinateSystem(final CharSequence name,
+                                 final LocalDatum   datum,
+                                 final Unit[]       units,
+                                 final AxisInfo[]   axes)
+    {
         super(name);
         ensureNonNull("datum", datum);
-        ensureNonNull("unit",  unit );
+        ensureNonNull("units", units);
         ensureNonNull("axes",  axes );
+        if (units.length != axes.length) {
+            throw new MismatchedSizeException();
+        }
         this.datum = datum;
-        this.units = new Unit[axes.length];
+        this.units = (Unit[])units.clone();
         this.axes  = (AxisInfo[])axes.clone();
         for (int i=0; i<this.axes.length; i++) {
-            this.units[i] = unit;
-            ensureNonNull("axes", this.axes, i);
+            ensureNonNull("units", this.units, i);
+            ensureNonNull("axes",  this.axes,  i);
         }
         checkAxis(datum.getDatumType());
     }
