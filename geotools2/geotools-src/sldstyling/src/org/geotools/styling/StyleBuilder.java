@@ -1504,6 +1504,7 @@ public class StyleBuilder {
         FeatureType schema) throws IllegalFilterException{
         //grab attribute col
         AttributeExpression value = ff.createAttributeExpression(schema,name);
+        String geomName = schema.getDefaultGeometry().getName();
         double [] values = new double[fc.size()];
         Iterator it = fc.iterator();
         int count=0;
@@ -1516,7 +1517,7 @@ public class StyleBuilder {
         //build style
         double[] breaks = ec.getBreaks();
         Style ret = createStyle();
-//        ret.setName(name);
+        ret.setName(name);
         Rule[] rules = new Rule[colors.length+1];
         CompareFilter cf1 = ff.createCompareFilter(AbstractFilter.COMPARE_LESS_THAN);
         cf1.addLeftValue(value);
@@ -1527,6 +1528,7 @@ public class StyleBuilder {
 //        rules[0].setName("lowest");
         Color c = this.createColor(colors[0]);
         PolygonSymbolizer symb1 = createPolygonSymbolizer(c,Color.black,1.0);
+        symb1.setGeometryPropertyName(geomName);
         rules[0].setSymbolizers(new Symbolizer[]{symb1});
         LOGGER.fine("added low class "+breaks[0]+" "+colors[0]);
 //        LOGGER.fine(rules[0].toString());
@@ -1541,6 +1543,7 @@ public class StyleBuilder {
             c = this.createColor(colors[i]);
             LOGGER.fine("color "+c.toString());
             PolygonSymbolizer symb = createPolygonSymbolizer(c,Color.black,1.0);
+            symb.setGeometryPropertyName(geomName);
             rules[i].setSymbolizers(new Symbolizer[]{symb});
             rules[i].setFilter(cf);
 //            rules[i].setName("class "+i);
@@ -1552,9 +1555,11 @@ public class StyleBuilder {
         LOGGER.fine(cf2.toString());
         rules[colors.length-1] = sf.createRule();
         rules[colors.length-1].setFilter(cf2);
-//        rules[colors.length-1].setName("top");
+        rules[colors.length-1].setName(geomName);
         c = this.createColor(colors[colors.length-1]);
         PolygonSymbolizer symb2 = createPolygonSymbolizer(c,Color.black,1.0);
+        symb2.setGeometryPropertyName(geomName);
+        
         rules[colors.length-1].setSymbolizers(new Symbolizer[]{symb2});
         LOGGER.fine("added upper class "+breaks[colors.length-2]+"  "+colors[colors.length-1]);
         rules[colors.length] = sf.createRule();
@@ -1562,7 +1567,7 @@ public class StyleBuilder {
         rules[colors.length].setSymbolizers(new Symbolizer[]{elsePoly});
         rules[colors.length].setIsElseFilter(true);
         FeatureTypeStyle ft = sf.createFeatureTypeStyle(rules);
-        ft.setFeatureTypeName(name);
+        ft.setFeatureTypeName("feature");
         ft.setName(name);
         ret.addFeatureTypeStyle(ft);
         
