@@ -54,10 +54,11 @@ import java.util.logging.LogRecord;
 // Collections and iterators
 import java.util.Map;
 import java.util.List;
-import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
 
@@ -89,7 +90,7 @@ import org.geotools.resources.cts.ResourceKeys;
  *       button to select it.</li>
  * </ul>
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.4 2002/07/30 17:17:49 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.5 2002/07/30 17:24:12 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -135,7 +136,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * originating method name (for example "Ellipsoid" for {@link #createEllipsoid},
      * while values are {@link PreparedStatement} objects.
      */
-    private final Map statements = new HashMap();
+    private final Map statements = new IdentityHashMap();
         
     /**
      * The connection to the EPSG database.
