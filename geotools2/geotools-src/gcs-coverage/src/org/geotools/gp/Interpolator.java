@@ -60,6 +60,7 @@ import javax.media.jai.ParameterListDescriptorImpl;
 import org.geotools.gc.GridCoverage;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
+import org.geotools.cv.CannotEvaluateException;
 import org.geotools.cv.PointOutsideCoverageException;
 import org.geotools.ct.NoninvertibleTransformException;
 
@@ -74,7 +75,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * interpolation (use the standard {@link GridCoverage} class for that).
  * It should work for other kinds of interpolation however.
  *
- * @version $Id: Interpolator.java,v 1.6 2002/09/16 10:34:10 desruisseaux Exp $
+ * @version $Id: Interpolator.java,v 1.7 2002/10/16 22:32:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Interpolator extends GridCoverage {
@@ -283,10 +284,12 @@ final class Interpolator extends GridCoverage {
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code>.
      * @return An array containing values.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      */
-    public int[] evaluate(final Point2D coord, int[] dest) throws PointOutsideCoverageException {
-        if (fallback!=null) {
+    public int[] evaluate(final Point2D coord, int[] dest) throws CannotEvaluateException {
+        if (fallback != null) {
             dest = super.evaluate(coord, dest);
         }
         try {
@@ -300,9 +303,7 @@ final class Interpolator extends GridCoverage {
                 }
             }
         } catch (TransformException exception) {
-            PointOutsideCoverageException e = new PointOutsideCoverageException(coord);
-            e.initCause(exception);
-            throw e;
+            throw new CannotEvaluateException(coord, exception);
         }
         throw new PointOutsideCoverageException(coord);
     }
@@ -313,9 +314,11 @@ final class Interpolator extends GridCoverage {
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code>.
      * @return An array containing values.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      */
-    public float[] evaluate(final Point2D coord, float[] dest) throws PointOutsideCoverageException {
+    public float[] evaluate(final Point2D coord, float[] dest) throws CannotEvaluateException {
         if (fallback!=null) {
             dest = super.evaluate(coord, dest);
         }
@@ -330,9 +333,7 @@ final class Interpolator extends GridCoverage {
                 }
             }
         } catch (TransformException exception) {
-            PointOutsideCoverageException e = new PointOutsideCoverageException(coord);
-            e.initCause(exception);
-            throw e;
+            throw new CannotEvaluateException(coord, exception);
         }
         throw new PointOutsideCoverageException(coord);
     }
@@ -343,9 +344,11 @@ final class Interpolator extends GridCoverage {
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code>.
      * @return An array containing values.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      */
-    public double[] evaluate(final Point2D coord, double[] dest) throws PointOutsideCoverageException {
+    public double[] evaluate(final Point2D coord, double[] dest) throws CannotEvaluateException {
         if (fallback!=null) {
             dest = super.evaluate(coord, dest);
         }
@@ -360,9 +363,7 @@ final class Interpolator extends GridCoverage {
                 }
             }
         } catch (TransformException exception) {
-            PointOutsideCoverageException e = new PointOutsideCoverageException(coord);
-            e.initCause(exception);
-            throw e;
+            throw new CannotEvaluateException(coord, exception);
         }
         throw new PointOutsideCoverageException(coord);
     }
@@ -602,7 +603,7 @@ final class Interpolator extends GridCoverage {
      * The default value is nearest neighbor. The new interpolation type operates
      * on all sample dimensions. See package description for more details.
      *
-     * @version $Id: Interpolator.java,v 1.6 2002/09/16 10:34:10 desruisseaux Exp $
+     * @version $Id: Interpolator.java,v 1.7 2002/10/16 22:32:19 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

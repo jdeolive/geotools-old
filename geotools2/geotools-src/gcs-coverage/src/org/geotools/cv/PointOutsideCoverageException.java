@@ -37,13 +37,9 @@ package org.geotools.cv;
 
 // J2SE dependencies
 import java.awt.geom.Point2D;
-import java.text.NumberFormat;
-import java.text.FieldPosition;
 
-// Geotools dependencies (CTS)
+// Geotools dependencies
 import org.geotools.pt.CoordinatePoint;
-
-// Resources
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -52,10 +48,10 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Throws when a <code>Coverage.evaluate</code>
  * method is invoked with a point outside coverage.
  *
- * @version $Id: PointOutsideCoverageException.java,v 1.2 2002/07/26 22:17:33 desruisseaux Exp $
+ * @version $Id: PointOutsideCoverageException.java,v 1.3 2002/10/16 22:32:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class PointOutsideCoverageException extends RuntimeException {
+public class PointOutsideCoverageException extends CannotEvaluateException {
     /**
      * Serial number for interoperability with different versions.
      */
@@ -86,22 +82,5 @@ public class PointOutsideCoverageException extends RuntimeException {
      */
     public PointOutsideCoverageException(final CoordinatePoint point) {
         super(Resources.format(ResourceKeys.ERROR_POINT_OUTSIDE_COVERAGE_$1, toString(point)));
-    }
-    
-    /**
-     * Construct a string for the specified point.
-     */
-    private static String toString(final CoordinatePoint point) {
-        final StringBuffer buffer = new StringBuffer();
-        final FieldPosition dummy = new FieldPosition(0);
-        final NumberFormat format = NumberFormat.getNumberInstance();
-        final int       dimension = point.getDimension();
-        for (int i=0; i<dimension; i++) {
-            if (i!=0) {
-                buffer.append(", ");
-            }
-            format.format(point.getOrdinate(i), buffer, dummy);
-        }
-        return buffer.toString();
     }
 }

@@ -70,6 +70,7 @@ import javax.media.jai.util.CaselessStringKey;
 import java.util.Arrays;
 import java.util.Locale;
 import java.rmi.RemoteException;
+import java.rmi.ServerException;
 import java.rmi.server.RemoteObject;
 import java.lang.ref.WeakReference;
 
@@ -99,9 +100,29 @@ import org.opengis.gc.GC_GridCoverage;
 
 
 /**
- * Base class of all coverage type. {@linkplain org.geotools.gc.GridCoverage Grid coverages}
- * are typically 2D while other coverages may be 3D or 4D. The dimension of grid coverage
- * may be queried in many ways:
+ * Base class of all coverage type. The essential property of coverage is to be able
+ * to generate a value for any point within its domain.  How coverage is represented
+ * internally is not a concern. For example consider the following different internal
+ * representations of coverage:
+ *
+ *  <ul>
+ *    <li>A coverage may be represented by a set of polygons which exhaustively
+ *        tile a plane (that is each point on the plane falls in precisely one polygon).
+ *        The value returned by the coverage for a point is the value of an attribute of
+ *        the polygon that contains the point.</li>
+ *    <li>A coverage may be represented by a grid of values.
+ *        The value returned by the coverage for a point is that of the grid value
+ *        whose location is nearest the point.</li>
+ *    <li>Coverage may be represented by a mathematical function.
+ *        The value returned by the coverage for a point is just the return value
+ *        of the function when supplied the coordinates of the point as arguments.</li>
+ *    <li>Coverage may be represented by combination of these.
+ *        For example, coverage may be represented by a combination of mathematical
+ *        functions valid over a set of polynomials.</LI>
+ * </ul>
+ *
+ * {@linkplain org.geotools.gc.GridCoverage Grid coverages} are typically 2D while other
+ * coverages may be 3D or 4D. The dimension of grid coverage may be queried in many ways:
  *
  * <ul>
  *   <li><code>{@link #getCoordinateSystem}.getDimension();</code></li>
@@ -113,12 +134,14 @@ import org.opengis.gc.GC_GridCoverage;
  * of grid coverage <strong>is not the same</strong> than the number of sample
  * dimensions (<code>{@link #getSampleDimensions()}.length</code>).  The later
  * may be better understood as the number of bands for 2D grid coverage.
+ * A coverage has a corresponding {@link SampleDimension} for each sample
+ * dimension in the coverage.
  * <br><br>
  * There is no <code>getMetadataValue(...)</code> method in this implementation.
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.9 2002/09/19 09:04:06 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.10 2002/10/16 22:32:19 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -211,6 +234,12 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * coverage can be accessed (re-projected) with new coordinate system with the
      * {@link org.geotools.gp.GridCoverageProcessor} component.
      * In this case, a new instance of a grid coverage is created.
+     * <br><br>
+     * Note: If a coverage does not have an associated coordinate system,
+     * the returned value will be <code>null</code>.
+     * The {@link org.geotools.gc.GridGeometry#getGridToCoordinateSystem
+     * GridGeometry.gridToCoordinateSystem}) attribute should also be
+     * <code>null</code> if the coordinate system is <code>null</code>.
      *
      * @return The coordinate system, or <code>null</code> if this coverage
      *         does not have an associated coordinate system.
@@ -223,10 +252,19 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
     }
     
     /**
-     * Returns The bounding box for the coverage domain in coordinate
-     * system coordinates. May be null if this coverage has no associated
-     * coordinate system. The default implementation returns the coordinate
-     * system envelope if there is one.
+     * Returns The bounding box for the coverage domain in coordinate system coordinates.
+     * May be null if this coverage has no associated coordinate system.
+     * For grid coverages, the grid cells are centered on each grid coordinate.
+     * The envelope for a 2-D grid coverage includes the following corner positions.
+     *
+     * <blockquote><pre>
+     * (Minimum row - 0.5, Minimum column - 0.5) for the minimum coordinates
+     * (Maximum row - 0.5, Maximum column - 0.5) for the maximum coordinates
+     * </pre></blockquote>
+     *
+     * The default implementation returns the coordinate system envelope if there is one.
+     *
+     * @return The bounding box for the coverage domain in coordinate system coordinates.
      *
      * @see CV_Coverage#getEnvelope()
      */
@@ -238,14 +276,23 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
     /**
      * Returns the dimension of the grid coverage. The default implementation
      * returns the dimension of the underlying {@link CoordinateSystem}.
+     *
+     * @return The number of dimensions of this coverage.
      */
     public int getDimension() {
         return getCoordinateSystem().getDimension();
     }
     
     /**
-     * Returns the names of each dimension in this coverage. Typically these names are
-     * "x", "y", "z" and "t". The default implementation ask for {@link CoordinateSystem}
+     * Returns the names of each dimension in this coverage. Typically these names
+     * are "x", "y", "z" and "t". The number of items in the sequence is the number
+     * of dimensions in the coverage. Grid coverages are typically 2D (<var>x</var>,
+     * <var>y</var>) while other coverages may be 3D (<var>x</var>, <var>y</var>,
+     * <var>z</var>) or 4D (<var>x</var>, <var>y</var>, <var>z</var>, <var>t</var>).
+     * The {@linkplain #getDimension number of dimensions} of the coverage is the
+     * number of entries in the list of dimension names.
+     *
+     * The default implementation ask for {@link CoordinateSystem}
      * axis names, or returns "x", "y"... if this coverage has no coordinate system.
      *
      * @param  locale The desired locale, or <code>null</code> for the default locale.
@@ -255,7 +302,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      */
     public String[] getDimensionNames(final Locale locale) {
         final CoordinateSystem cs = getCoordinateSystem();
-        if (cs!=null) {
+        if (cs != null) {
             final String[] names = new String[cs.getDimension()];
             for (int i=0; i<names.length; i++) {
                 names[i] = cs.getAxis(i).getName(locale);
@@ -277,6 +324,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * the no data values, minimum and maximum values and a color table if one is associated
      * with the dimension. A coverage must have at least one sample dimension.
      *
+     * @param  Index Index for sample dimension to retrieve. Indices are numbered 0 to (n-1).
+     * @return Sample dimension information for the coverage.
+     *
      * @see CV_Coverage#getNumSampleDimensions()
      * @see CV_Coverage#getSampleDimension(int)
      */
@@ -287,22 +337,26 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * A value for each sample dimension is included in the sequence. The default interpolation
      * type used when accessing grid values for points which fall between grid cells is
      * nearest neighbor. The coordinate system of the point is the same as the grid
-     * coverage coordinate system.
+     * coverage {@linkplain #getCoordinateSystem coordinate system}.
      *
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code> to
      *               create a new array. If non-null, this array must be at least
      *               <code>{@link #getSampleDimensions()}.length</code> long.
      * @return The <code>dest</code> array, or a newly created array if <code>dest</code> was null.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      *
      * @see CV_Coverage#evaluateAsBoolean
      */
     public boolean[] evaluate(final CoordinatePoint coord, boolean[] dest)
-            throws PointOutsideCoverageException
+            throws CannotEvaluateException
     {
         final double[] result = evaluate(coord, (double[])null);
-        if (dest==null)  dest = new boolean[result.length];
+        if (dest == null) {
+            dest = new boolean[result.length];
+        }
         for (int i=0; i<result.length; i++) {
             final double value = result[i];
             dest[i] = (!Double.isNaN(value) && value!=0);
@@ -315,22 +369,27 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * A value for each sample dimension is included in the sequence. The default
      * interpolation type used when accessing grid values for points which fall
      * between grid cells is nearest neighbor. The coordinate system of the
-     * point is the same as the grid coverage coordinate system.
+     * point is the same as the coverage {@linkplain #getCoordinateSystem
+     * coordinate system}.
      *
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code> to
      *               create a new array. If non-null, this array must be at least
      *               <code>{@link #getSampleDimensions()}.length</code> long.
      * @return The <code>dest</code> array, or a newly created array if <code>dest</code> was null.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      *
      * @see CV_Coverage#evaluateAsInteger
      */
     public byte[] evaluate(final CoordinatePoint coord, byte[] dest)
-            throws PointOutsideCoverageException
+            throws CannotEvaluateException
     {
         final double[] result = evaluate(coord, (double[])null);
-        if (dest==null)  dest = new byte[result.length];
+        if (dest == null) {
+            dest = new byte[result.length];
+        }
         for (int i=0; i<result.length; i++) {
             final double value = Math.rint(result[i]);
             dest[i] = (value < Byte.MIN_VALUE) ? Byte.MIN_VALUE :
@@ -344,22 +403,27 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * A value for each sample dimension is included in the sequence. The default
      * interpolation type used when accessing grid values for points which fall
      * between grid cells is nearest neighbor. The coordinate system of the
-     * point is the same as the grid coverage coordinate system.
+     * point is the same as the coverage {@linkplain #getCoordinateSystem
+     * coordinate system}.
      *
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code> to
      *               create a new array. If non-null, this array must be at least
      *               <code>{@link #getSampleDimensions()}.length</code> long.
      * @return The <code>dest</code> array, or a newly created array if <code>dest</code> was null.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      *
      * @see CV_Coverage#evaluateAsInteger
      */
     public int[] evaluate(final CoordinatePoint coord, int[] dest)
-            throws PointOutsideCoverageException
+            throws CannotEvaluateException
     {
         final double[] result = evaluate(coord, (double[])null);
-        if (dest==null)  dest = new int[result.length];
+        if (dest == null) {
+            dest = new int[result.length];
+        }
         for (int i=0; i<result.length; i++) {
             final double value = Math.rint(result[i]);
             dest[i] = (value < Integer.MIN_VALUE) ? Integer.MIN_VALUE :
@@ -372,21 +436,23 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * Returns a sequence of float values for a given point in the coverage.
      * A value for each sample dimension is included in the sequence. The default interpolation
      * type used when accessing grid values for points which fall between grid cells is
-     * nearest neighbor. The coordinate system of the point is the same as the grid coverage
-     * coordinate system.
+     * nearest neighbor. The coordinate system of the point is the same as the coverage
+     * {@linkplain #getCoordinateSystem coordinate system}.
      *
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code> to
      *               create a new array. If non-null, this array must be at least
      *               <code>{@link #getSampleDimensions()}.length</code> long.
      * @return The <code>dest</code> array, or a newly created array if <code>dest</code> was null.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      */
     public float[] evaluate(final CoordinatePoint coord, float[] dest)
-            throws PointOutsideCoverageException
+            throws CannotEvaluateException
     {
         final double[] result = evaluate(coord, (double[])null);
-        if (dest==null) {
+        if (dest == null) {
             dest = new float[result.length];
         }
         for (int i=0; i<result.length; i++) {
@@ -407,12 +473,14 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      *               create a new array. If non-null, this array must be at least
      *               <code>{@link #getSampleDimensions()}.length</code> long.
      * @return The <code>dest</code> array, or a newly created array if <code>dest</code> was null.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      *
      * @see CV_Coverage#evaluateAsDouble
      */
     public abstract double[] evaluate(CoordinatePoint coord, double[] dest)
-            throws PointOutsideCoverageException;
+            throws CannotEvaluateException;
     
     /**
      * Returns 2D view of this grid coverage as a renderable image.
@@ -691,10 +759,10 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.9 2002/09/19 09:04:06 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.10 2002/10/16 22:32:19 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    protected class Export extends RemoteObject implements CV_Coverage {
+    protected class Export extends RemoteObject implements CV_Coverage, PropertySource {
         /**
          * The originating adapter.
          */
@@ -703,7 +771,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         /**
          * Constructs a remote object. This object is automatically added to the cache in
          * the enclosing {@link Coverage} object. The cached <code>Export</code> instance
-         * can be queried with {@link Adapters#getExported(Coverage)}.
+         * can be queried with {@link Adapters#export(Coverage)}.
          *
          * @param adapters The originating adapter.
          */
@@ -722,6 +790,10 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         /**
          * Returns the names of each dimension in the coverage.
          * The default implementation invokes {@link Coverage#getDimensionNames}.
+         *
+         * @return the names of each dimension in the coverage.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public String[] getDimensionNames() throws RemoteException {
             return Coverage.this.getDimensionNames(null);
@@ -730,6 +802,10 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         /**
          * Returns The number of sample dimensions in the coverage.
          * The default implementation invokes {@link Coverage#getSampleDimensions}.
+         *
+         * @return the number of sample dimensions in the coverage.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public int getNumSampleDimensions() throws RemoteException {
             return Coverage.this.getSampleDimensions().length;
@@ -738,6 +814,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         /**
          * Retrieve sample dimension information for the coverage.
          * The default implementation invokes {@link Coverage#getSampleDimensions}.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public CV_SampleDimension getSampleDimension(int index) throws RemoteException {
             return adapters.export(Coverage.this.getSampleDimensions()[index]);
@@ -746,6 +825,10 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         /**
          * Returns the number of grid coverages which the grid coverage was derived from.
          * The default implementation returns <code>0</code>.
+         *
+         * @return the number of grid coverages which this coverage was derived from.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public int getNumSources() throws RemoteException {
             return 0;
@@ -755,6 +838,11 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          * Returns the source data for a grid coverage.
          * The default implementation throws an {@link ArrayIndexOutOfBoundsException},
          * since {@link #getNumSources} returned 0.
+         *
+         * @param  sourceDataIndex Source grid coverage index. Indexes start at 0.
+         * @return the source data for a grid coverage.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public GC_GridCoverage getSource(int sourceDataIndex) throws RemoteException {
             throw new ArrayIndexOutOfBoundsException(sourceDataIndex);
@@ -762,25 +850,87 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
 
         /**
          * Returns the list of metadata keywords for a coverage.
-         * The default implementation invokes {@link Coverage#getPropertyNames}.
+         * The default implementation invokes {@link #getPropertyNames}.
+         *
+         * @return the list of metadata keywords for a coverage.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public String[] getMetadataNames() throws RemoteException {
-            return Coverage.this.getPropertyNames();
+            return getPropertyNames();
         }
 
         /**
          * Retrieve the metadata value for a given metadata name.
-         * The default implementation invokes {@link Coverage#getProperty}.
+         * The default implementation invokes {@link #getProperty}
+         * and replace {@link java.awt.Image#UndefinedProperty} by
+         * <code>null</code>.
+         *
+         * @param  name Metadata keyword for which to retrieve data.
+         * @return the metadata value for a given metadata name.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public String getMetadataValue(String name) throws RemoteException {
-            final Object value = Coverage.this.getProperty(name);
+            final Object value = getProperty(name);
             return (value!=null && value!=Image.UndefinedProperty) ? value.toString() : null;
         }
 
         /**
-         * Returns coordinate system used when accessing a coverage or
-         * or grid coverage with the <code>evaluate</code> methods.
-         * The default implementation invokes {@link Coverage#getCoordinateSystem}.
+         * Returns an array of {@link String}s recognized as names by this property source.
+         * The default implementation invokes {@link Coverage#getPropertyNames()}.
+         *
+         * @return an array of strings giving the valid property names, or <code>null</code>.
+         */
+        public String[] getPropertyNames() {
+            return Coverage.this.getPropertyNames();
+        }
+
+        /**
+         * Returns an array of {@link String}s recognized as names by this property source
+         * that begin with the supplied prefix. The default implementation invokes {@link
+         * Coverage#getPropertyNames(String)}.
+         *
+         * @return an array of strings giving the valid property names.
+         */
+        public String[] getPropertyNames(final String prefix) {
+            return Coverage.this.getPropertyNames(prefix);
+        }
+
+        /**
+         * Returns the class expected to be returned by a request for the property with
+         * the specified name. If this information is unavailable, <code>null</code> will
+         * be returned.
+         *
+         * @param  name the name of the property.
+         * @return The class expected to be return by a request for the value
+         *         of this property, or <code>null</code>.
+         */
+        public Class getPropertyClass(final String name) {
+            return Coverage.this.getPropertyClass(name);
+        }
+
+        /**
+         * Returns the value of a property. If the property name is not recognized,
+         * then {@link java.awt.Image#UndefinedProperty} will be returned.
+         *
+         * @param  name the name of the property.
+         * @return the value of the property, or the value
+         *         {@link java.awt.Image#UndefinedProperty}.
+         */
+        public Object getProperty(final String name) {
+            return Coverage.this.getProperty(name);
+        }
+
+        /**
+         * Returns coordinate system used when accessing a coverage or grid coverage
+         * with the <code>evaluate</code> methods. The default implementation invokes
+         * {@link Coverage#getCoordinateSystem}.
+         *
+         * @return the coordinate system used when accessing a coverage or
+         *         grid coverage with the <code>evaluate</code> methods.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public CS_CoordinateSystem getCoordinateSystem() throws RemoteException {
             return adapters.CS.export(Coverage.this.getCoordinateSystem());
@@ -789,6 +939,10 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         /**
          * Returns the bounding box for the coverage domain in coordinate system coordinates.
          * The default implementation invokes {@link Coverage#getEnvelope}.
+         *
+         * @return the bounding box for the coverage domain in coordinate system coordinates.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public PT_Envelope getEnvelope() throws RemoteException {
             return adapters.PT.export(Coverage.this.getEnvelope());
@@ -799,6 +953,11 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          * The default implementation invokes one of other <code>CV_Coverage</code> method
          * (for example {@link #evaluateAsDouble}) according the underlying data type.
          *
+         * @param  point point at which to find the grid values.
+         * @return the value vector for a given point in the coverage.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
+         *
          * @task TODO: Check the underlying data type.
          */
         public Object evaluate(PT_CoordinatePoint point) throws RemoteException {
@@ -808,6 +967,11 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         /**
          * Return a sequence of Boolean values for a given point in the coverage.
          * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint, boolean[])}.
+         *
+         * @param  point point at which to find the coverage values.
+         * @return a sequence of boolean values for a given point in the coverage.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public boolean[] evaluateAsBoolean(PT_CoordinatePoint point) throws RemoteException {
             return Coverage.this.evaluate(adapters.PT.wrap(point), (boolean[]) null);
@@ -816,6 +980,11 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         /**
          * Return a sequence of unsigned byte values for a given point in the coverage.
          * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint, byte[])}.
+         *
+         * @param  point point at which to find the coverage values.
+         * @return a sequence of unsigned byte values for a given point in the coverage.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public byte[] evaluateAsByte(PT_CoordinatePoint point) throws RemoteException {
             return Coverage.this.evaluate(adapters.PT.wrap(point), (byte[]) null);
@@ -824,6 +993,11 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         /**
          * Return a sequence of integer values for a given point in the coverage.
          * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint, int[])}.
+         *
+         * @param  point point at which to find the grid values.
+         * @return a sequence of integer values for a given point in the coverage.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public int[] evaluateAsInteger(PT_CoordinatePoint point) throws RemoteException {
             return Coverage.this.evaluate(adapters.PT.wrap(point), (int[]) null);
@@ -832,6 +1006,11 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         /**
          * Return a sequence of double values for a given point in the coverage.
          * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint, double[])}.
+         *
+         * @param  point point at which to find the grid values.
+         * @return a sequence of double values for a given point in the coverage.
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public double[] evaluateAsDouble(PT_CoordinatePoint point) throws RemoteException {
             return Coverage.this.evaluate(adapters.PT.wrap(point), (double[]) null);

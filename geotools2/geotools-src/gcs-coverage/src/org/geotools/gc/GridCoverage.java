@@ -44,13 +44,12 @@ import java.awt.image.renderable.ParameterBlock;
 
 // Java Advanced Imaging
 import javax.media.jai.JAI;
-import javax.media.jai.Warp;
-import javax.media.jai.Histogram;
 import javax.media.jai.PlanarImage;
-import javax.media.jai.GraphicsJAI;
 import javax.media.jai.ImageFunction;
-import javax.media.jai.util.Range;
+import javax.media.jai.Interpolation;
+import javax.media.jai.InterpolationNearest;
 import javax.media.jai.util.CaselessStringKey;
+import javax.media.jai.remote.SerializableRenderedImage;
 
 // Geometry
 import java.awt.Point;
@@ -79,8 +78,12 @@ import java.util.Date;
 import java.util.Arrays;
 import java.text.DateFormat;
 import java.text.FieldPosition;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.ServerException;
 import java.rmi.server.RemoteObject;
+import java.io.NotSerializableException;
+import java.io.IOException;
 
 // OpenGIS dependencies
 import org.opengis.gc.GC_GridRange;
@@ -100,6 +103,7 @@ import org.geotools.ct.TransformException;
 import org.geotools.cv.Coverage;
 import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
+import org.geotools.cv.CannotEvaluateException;
 import org.geotools.cv.PointOutsideCoverageException;
 
 // Resources
@@ -123,7 +127,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.7 2002/09/16 10:34:10 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.8 2002/10/16 22:32:19 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -148,7 +152,7 @@ public class GridCoverage extends Coverage {
      * Pool of created object. Objects in this pool must be immutable.
      * Those objects will be shared among many grid coverages.
      */
-    private static final WeakHashSet pool=new WeakHashSet();
+    private static final WeakHashSet pool = new WeakHashSet();
     
     /**
      * An empty list of grid coverage.
@@ -609,6 +613,16 @@ public class GridCoverage extends Coverage {
     public SampleDimension[] getSampleDimensions() {
         return (SampleDimension[]) sampleDimensions.clone();
     }
+
+    /**
+     * Returns the interpolation used for all <code>evaluate(...)</code> methods.
+     * The default implementation returns {@link InterpolationNearest}.
+     *
+     * @return The interpolation.
+     */
+    public Interpolation getInterpolation() {
+        return Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+    }
     
     /**
      * Returns a sequence of integer values for a given point in the coverage.
@@ -616,10 +630,12 @@ public class GridCoverage extends Coverage {
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code>.
      * @return An array containing values.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      */
     public int[] evaluate(final CoordinatePoint coord, final int[] dest)
-        throws PointOutsideCoverageException
+        throws CannotEvaluateException
     {
         return evaluate(new Point2D.Double(coord.ord[0], coord.ord[1]), dest);
     }
@@ -630,10 +646,12 @@ public class GridCoverage extends Coverage {
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code>.
      * @return An array containing values.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      */
     public float[] evaluate(final CoordinatePoint coord, final float[] dest)
-        throws PointOutsideCoverageException
+        throws CannotEvaluateException
     {
         return evaluate(new Point2D.Double(coord.ord[0], coord.ord[1]), dest);
     }
@@ -644,10 +662,12 @@ public class GridCoverage extends Coverage {
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code>.
      * @return An array containing values.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      */
     public double[] evaluate(final CoordinatePoint coord, final double[] dest)
-        throws PointOutsideCoverageException
+        throws CannotEvaluateException
     {
         return evaluate(new Point2D.Double(coord.ord[0], coord.ord[1]), dest);
     }
@@ -658,10 +678,12 @@ public class GridCoverage extends Coverage {
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code>.
      * @return An array containing values.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      */
     public int[] evaluate(final Point2D coord, final int[] dest)
-        throws PointOutsideCoverageException
+        throws CannotEvaluateException
     {
         final Point2D pixel = gridGeometry.inverseTransform(coord);
         final double fx = pixel.getX();
@@ -682,10 +704,12 @@ public class GridCoverage extends Coverage {
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code>.
      * @return An array containing values.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      */
     public float[] evaluate(final Point2D coord, final float[] dest)
-        throws PointOutsideCoverageException
+        throws CannotEvaluateException
     {
         final Point2D pixel = gridGeometry.inverseTransform(coord);
         final double fx = pixel.getX();
@@ -706,10 +730,12 @@ public class GridCoverage extends Coverage {
      * @param  coord The coordinate point where to evaluate.
      * @param  dest  An array in which to store values, or <code>null</code>.
      * @return An array containing values.
-     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     * @throws CannotEvaluateException if the values can't be computed at the specified coordinate.
+     *         More specifically, {@link PointOutsideCoverageException} is thrown if the evaluation
+     *         failed because the input point has invalid coordinates.
      */
     public double[] evaluate(final Point2D coord, final double[] dest)
-        throws PointOutsideCoverageException
+        throws CannotEvaluateException
     {
         final Point2D pixel = gridGeometry.inverseTransform(coord);
         final double fx = pixel.getX();
@@ -909,19 +935,52 @@ public class GridCoverage extends Coverage {
     /////////////////////////////////////////////////////////////////////////
 
     /**
+     * Interface for OpenGIS's grid coverages capable to produces a {@link RenderedImage}.
+     * Socket connection are used for sending the rendered image through a network.
+     *
+     * @version $Id: GridCoverage.java,v 1.8 2002/10/16 22:32:19 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     */
+    protected static interface Renderable extends GC_GridCoverage {
+        /**
+         * Returns the underlying {@link RenderedImage} for this {@link GC_GridCoverage}.
+         * This method usually returns an instance of {@link SerializableRenderedImage},
+         * which is appropriate for use through a RMI API.
+         *
+         * @throws RemoteException if the remote connection failed.
+         * @throws NotSerializableException if the image is not serializable.
+         */
+        public abstract RenderedImage getRenderedImage() throws IOException;
+
+        /**
+         * Returns the interpolation used for <code>evaluate(...)</code> methods.
+         *
+         * @return The interpolation.
+         * @throws RemoteException if the remote connection failed.
+         */
+        public abstract Interpolation getInterpolation() throws RemoteException;
+    }
+
+    /**
      * Export a Geotools {@link GridCoverage} as an OpenGIS {@link GC_GridCoverage}
      * object. This class is suitable for RMI use. User should not create instance
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.7 2002/09/16 10:34:10 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.8 2002/10/16 22:32:19 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    protected class Export extends Coverage.Export implements GC_GridCoverage {
+    protected class Export extends Coverage.Export implements GC_GridCoverage, Renderable {
         /**
-         * Constructs a remote object. This object is automatically added to the cache in
-         * the enclosing {@link GridCoverage} object. The cached <code>Export</code> instance
-         * can be queried with {@link org.geotools.cv.Adapters#getExported(Coverage)}.
+         * The serialized {@link RenderedImage}, or <code>null</code> if this image
+         * is not yet serialized.
+         */
+        private SerializableRenderedImage serialized;
+
+        /**
+         * Constructs a remote object.  This object is automatically added to the cache
+         * in the enclosing {@link GridCoverage} object. The cached <code>Export</code>
+         * instance can be queried with {@link Adapters#export(GridCoverage)}.
          *
          * @param adapters The originating adapter.
          */
@@ -932,6 +991,9 @@ public class GridCoverage extends Coverage {
         /**
          * Returns the number of grid coverages which the grid coverage was derived from.
          * The default implementation invokes {@link GridCoverage#getSources}.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public int getNumSources() throws RemoteException {
             return GridCoverage.this.getSources().length;
@@ -940,6 +1002,9 @@ public class GridCoverage extends Coverage {
         /**
          * Returns the source data for a grid coverage.
          * The default implementation invokes {@link GridCoverage#getSources}.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public GC_GridCoverage getSource(int sourceDataIndex) throws RemoteException {
             return ((Adapters) adapters).export(GridCoverage.this.getSources()[sourceDataIndex]);
@@ -948,6 +1013,9 @@ public class GridCoverage extends Coverage {
         /**
          * Returns <code>true</code> if grid data can be edited.
          * The default implementation invokes {@link GridCoverage#isDataEditable}.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public boolean isDataEditable() throws RemoteException {
             return GridCoverage.this.isDataEditable();
@@ -955,6 +1023,9 @@ public class GridCoverage extends Coverage {
 
         /**
          * Returns information for the packing of grid coverage values.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public GC_GridPacking getGridPacking() throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -963,6 +1034,9 @@ public class GridCoverage extends Coverage {
         /**
          * Returns information for the grid coverage geometry.
          * The default implementation invokes {@link GridCoverage#getGridGeometry}.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public GC_GridGeometry getGridGeometry() throws RemoteException {
             return ((Adapters) adapters).export(GridCoverage.this.getGridGeometry());
@@ -972,6 +1046,9 @@ public class GridCoverage extends Coverage {
          * Return the grid geometry for an overview.
          * The default implementation throws an {@link ArrayIndexOutOfBoundsException},
          * since {@link #getNumOverviews} returned 0.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public GC_GridGeometry getOverviewGridGeometry(int overviewIndex) throws RemoteException {
             throw new ArrayIndexOutOfBoundsException(overviewIndex);
@@ -981,6 +1058,9 @@ public class GridCoverage extends Coverage {
          * Returns the number of predetermined overviews for the grid.
          * The default implementation returns 0, since this feature is not yet
          * implemented. It may be implemented in a future version.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public int getNumOverviews() throws RemoteException {
             return 0;
@@ -990,6 +1070,9 @@ public class GridCoverage extends Coverage {
          * Returns a pre-calculated overview for a grid coverage.
          * The default implementation throws an {@link ArrayIndexOutOfBoundsException},
          * since {@link #getNumOverviews} returned 0.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public GC_GridCoverage getOverview(int overviewIndex) throws RemoteException {
             throw new ArrayIndexOutOfBoundsException(overviewIndex);
@@ -998,6 +1081,9 @@ public class GridCoverage extends Coverage {
         /**
          * Returns the optimal size to use for each dimension when accessing grid values.
          * The default implementation returns the image's tiles size.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public int[] getOptimalDataBlockSizes() throws RemoteException {
             final int[] size = new int[getDimension()];
@@ -1012,6 +1098,9 @@ public class GridCoverage extends Coverage {
 
         /**
          * Return a sequence of boolean values for a block.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public boolean[] getDataBlockAsBoolean(GC_GridRange gridRange) throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -1019,6 +1108,9 @@ public class GridCoverage extends Coverage {
 
         /**
          * Return a sequence of byte values for a block.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public byte[] getDataBlockAsByte(GC_GridRange gridRange) throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -1026,6 +1118,9 @@ public class GridCoverage extends Coverage {
 
         /**
          * Return a sequence of int values for a block.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public int[] getDataBlockAsInteger(GC_GridRange gridRange) throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -1033,6 +1128,9 @@ public class GridCoverage extends Coverage {
 
         /**
          * Return a sequence of double values for a block.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public double[] getValueBlockAsDouble(GC_GridRange gridRange) throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -1040,6 +1138,9 @@ public class GridCoverage extends Coverage {
 
         /**
          * Return a block of grid coverage data for all sample dimensions.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public byte[] getPackedDataBlock(GC_GridRange gridRange) throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -1047,6 +1148,9 @@ public class GridCoverage extends Coverage {
 
         /**
          * Set a block of boolean values for all sample dimensions.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public void setDataBlockAsBoolean(GC_GridRange gridRange, boolean[] values) throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -1054,6 +1158,9 @@ public class GridCoverage extends Coverage {
 
         /**
          * Set a block of byte values for all sample dimensions.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public void setDataBlockAsByte(GC_GridRange gridRange, byte[] values) throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -1061,6 +1168,9 @@ public class GridCoverage extends Coverage {
 
         /**
          * Set a block of bint values for all sample dimensions.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public void setDataBlockAsInteger(GC_GridRange gridRange, int[] values) throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -1068,6 +1178,9 @@ public class GridCoverage extends Coverage {
 
         /**
          * Set a block of double values for all sample dimensions.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public void setDataBlockAsDouble(GC_GridRange gridRange, double[] values) throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -1075,9 +1188,38 @@ public class GridCoverage extends Coverage {
 
         /**
          * Set a block of grid coverage data for all sample dimensions.
+         *
+         * @throws RemoteException if a remote call failed. More specifically, the exception will
+         *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public void setPackedDataBlock(GC_GridRange gridRange, byte [] values) throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Returns the underlying {@link RenderedImage} for this {@link GC_GridCoverage}.
+         * This method usually returns an instance of {@link SerializableRenderedImage},
+         * which is appropriate for use through a RMI API.
+         *
+         * @throws RemoteException if the remote connection failed.
+         * @throws NotSerializableException if the image is not serializable.
+         */
+        public synchronized RenderedImage getRenderedImage() throws IOException {
+            if (serialized == null) {
+                serialized = new SerializableRenderedImage(GridCoverage.this.getRenderedImage(),
+                                                           false, null, "gzip", null, null);
+            }
+            return serialized;
+        }
+
+        /**
+         * Returns the interpolation used for <code>evaluate(...)</code> methods.
+         *
+         * @return The interpolation.
+         * @throws RemoteException if the remote connection failed.
+         */
+        public Interpolation getInterpolation() throws RemoteException {
+            return GridCoverage.this.getInterpolation();
         }
     }
 }

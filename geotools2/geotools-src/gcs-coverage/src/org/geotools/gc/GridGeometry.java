@@ -63,7 +63,7 @@ import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.TransformException;
 import org.geotools.pt.MismatchedDimensionException;
-import org.geotools.cv.PointOutsideCoverageException;
+import org.geotools.cv.CannotEvaluateException;
 import org.geotools.ct.NoninvertibleTransformException;
 
 // Resources
@@ -77,7 +77,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Describes the valid range of grid coordinates and the math
  * transform to transform grid coordinates to real world coordinates.
  *
- * @version $Id: GridGeometry.java,v 1.3 2002/09/15 21:50:59 desruisseaux Exp $
+ * @version $Id: GridGeometry.java,v 1.4 2002/10/16 22:32:19 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -348,16 +348,14 @@ public class GridGeometry implements Dimensioned, Serializable {
      * @return A new point in the grid coordinate system.
      * @throws IllegalStateException if a two-dimensional inverse
      *         transform is not available for this grid geometry.
-     * @throws PointOutsideCoverageException if the transformation failed.
+     * @throws CannotEvaluateException if the transformation failed.
      */
     final Point2D inverseTransform(final Point2D point) throws IllegalStateException {
         if (gridFromCoordinateSystem2D != null) {
             try {
                 return gridFromCoordinateSystem2D.transform(point, null);
             } catch (TransformException exception) {
-                final PointOutsideCoverageException e=new PointOutsideCoverageException(point);
-                e.initCause(exception);
-                throw e;
+                throw new CannotEvaluateException(point, exception);
             }
         }
         throw new IllegalStateException(Resources.format(

@@ -33,7 +33,17 @@
 package org.geotools.gc;
 
 // J2SE dependencies
+import java.io.IOException;
 import java.rmi.RemoteException;
+import java.awt.image.RenderedImage;
+
+// JAI dependencies
+import javax.media.jai.PlanarImage;
+import javax.media.jai.PropertySource;
+import javax.media.jai.Interpolation;
+import javax.media.jai.InterpolationNearest;
+import javax.media.jai.RenderedImageAdapter;
+import javax.media.jai.remote.SerializableRenderedImage;
 
 // OpenGIS dependencies
 import org.opengis.gc.GC_GridRange;
@@ -43,14 +53,18 @@ import org.opengis.cv.CV_Coverage;
 
 // Geotools dependencies
 import org.geotools.cv.Coverage;
+import org.geotools.cv.SampleDimension;
+import org.geotools.cs.CoordinateSystem;
 
 
 /**
- * <FONT COLOR="#FF6633">Provide methods for interoperability
- * with <code>org.opengis.gc</code> package.</FONT>
- * All methods accept null argument.
+ * <FONT COLOR="#FF6633">Provide methods for interoperability with
+ * <code>org.opengis.gc</code> package.</FONT>  All methods accept
+ * null argument. This class has no default instance, since the
+ * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
+ * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.2 2002/09/16 10:34:10 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.3 2002/10/16 22:32:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -99,27 +113,22 @@ public class Adapters extends org.geotools.cv.Adapters {
      * @return The OpenGIS  object. 
      */
     public GC_GridCoverage export(final GridCoverage coverage) {
-        if (coverage == null) {
-            return null;
-        }
-        final CV_Coverage candidate = getExported(coverage);
-        if (candidate instanceof GC_GridCoverage) {
-            return (GC_GridCoverage) candidate;
-        }
-        return coverage.new Export(this);
+        return (GC_GridCoverage) super.export(coverage);
     }
 
     /**
-     * Returns an OpenGIS interface for a coverage.
+     * Performs the wrapping of a Geotools object. This method is invoked by
+     * {@link #export(Coverage)} and {@link #export(GridCoverage)} if an
+     * OpenGIS object is not already presents in the cache.
      *
      * @param  The Geotools object.
      * @return The OpenGIS  object. 
      */
-    public CV_Coverage export(final Coverage coverage) {
+    protected CV_Coverage doExport(final Coverage coverage) {
         if (coverage instanceof GridCoverage) {
-            return export((GridCoverage) coverage);
+            return ((GridCoverage) coverage).new Export(this);
         } else {
-            return super.export(coverage);
+            return super.doExport(coverage);
         }
     }
 
@@ -167,31 +176,122 @@ public class Adapters extends org.geotools.cv.Adapters {
      *
      * @param  The OpenGIS  object.
      * @return The Geotools object. 
-     * @throws RemoteException if an operation failed while querying the OpenGIS object.
+     * @throws IOException if an operation failed while querying the OpenGIS object.
+     *         <code>IOException</code> is declared instead of {@link RemoteException}
+     *         because the {@link GridCoverage} implementation may needs to open a
+     *         socket connection in order to send image data through the network.
      */
-    public GridCoverage wrap(final GC_GridCoverage coverage) throws RemoteException {
-        if (coverage == null) {
-            return null;
-        }
-        final Coverage candidate = getWrapped(coverage);
-        if (candidate instanceof GridCoverage) {
-            return (GridCoverage) candidate;
-        }
-        throw new UnsupportedOperationException("Not yet implemented");
+    public GridCoverage wrap(final GC_GridCoverage coverage) throws IOException {
+        return (GridCoverage) super.wrap(coverage);
     }
 
     /**
-     * Returns a coverage from an OpenGIS's interface.
+     * Performs the wrapping of an OpenGIS's interface. This method is invoked by
+     * {@link #wrap(CV_Coverage)} and {@link #wrap(GC_GridCoverage)} if a Geotools
+     * object is not already presents in the cache.
      *
      * @param  The OpenGIS  object.
      * @return The Geotools object. 
-     * @throws RemoteException if an operation failed while querying the OpenGIS object.
+     * @throws IOException if an operation failed while querying the OpenGIS object.
+     *         <code>IOException</code> is declared instead of {@link RemoteException}
+     *         because the {@link GridCoverage} implementation may needs to open a
+     *         socket connection in order to send image data through the network.
+     *
+     * @task REVISIT: What to do with interpolation? We can query the interpolation with
+     *                <code>GridCoverage.Renderable.getInterpolation()</code> and invoke
+     *                <code>GridCoverageProcessor.doOperation("Interpolate", ...),   but
+     *                the later would introduce a dependency to the "gp" package. An other
+     *                solution is to override this method in <code>org.geotools.gp.Adapters</code>.
+     *
+     * @task TODO: Implement a {@link RenderedImage} constructing tiles uppon request
+     *             by invoking {@link GC_GridCoverage#getPackedDataBlock}. It would be
+     *             used when a {@link SerializableRenderedImage} is not available.
      */
-    public Coverage wrap(final CV_Coverage coverage) throws RemoteException {
+    protected Coverage doWrap(final CV_Coverage coverage) throws IOException {
         if (coverage instanceof GC_GridCoverage) {
-            return wrap((GC_GridCoverage) coverage);
+            final GC_GridCoverage   grid  = (GC_GridCoverage) coverage;
+            final SampleDimension[] bands = new SampleDimension[grid.getNumSampleDimensions()];
+            for (int i=0; i<bands.length; i++) {
+                bands[i] = wrap(grid.getSampleDimension(i));
+            }
+            final RenderedImage image;
+            if (coverage instanceof GridCoverage.Renderable) {
+                image = ((GridCoverage.Renderable) coverage).getRenderedImage();
+            } else {
+                // Implementing the general case is possible using
+                // CV_GridCoverage.getPackedDataBlock(...), but it
+                // would be a lot of work.
+                throw new UnsupportedOperationException("Not yet implemented");
+            }
+            final GridCoverage gridCoverage = new GridCoverage(
+                    bands[0].getDescription(null),
+                    new ImageProxy(image, getPropertySource(grid)),
+                    CS.wrap(grid.getCoordinateSystem()),
+                    wrap(grid.getGridGeometry()).getGridToCoordinateSystem(),
+                    bands,
+                    null,   // Sources GridCoverage (ignored)
+                    null);  // Map of properties (ignored)
+            return gridCoverage;
         } else {
-            return super.wrap(coverage);
+            return super.doWrap(coverage);
+        }
+    }
+
+    /**
+     * A wrapper for a non-writable {@link RenderedImage}. The tile layout, sample model,
+     * and so forth are preserved.  Calls to {@link #getTile()}, {@link #getData()}, and
+     * {@link #copyData()} are forwarded to the image being adapted. The source image is
+     * assumed to be immutable. If the image source implements {@link WritableRenderedImage},
+     * a {@link javax.media.jai.WritableRenderedImageAdapter} should be used.
+     * <br><br>
+     * If the wrapped image is an instance of {@link SerializableRenderedImage}, then
+     * invoking {@link #dispose} will also dispose the serializable image,  which may
+     * close socket connection.
+     *
+     * @version $Id: Adapters.java,v 1.3 2002/10/16 22:32:19 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     */
+    private static final class ImageProxy extends RenderedImageAdapter {
+        /**
+         * Construct a {@link RenderedImage} adapter.
+         *
+         * @param  image  A {@link RenderedImage} to be wrapped as a {@link PlanarImage}.
+         * @param  source Properties to add to this image (may be null). The actual property
+         *         values are not requested at this time but instead an entry for the name of
+         *         each property emitted by the {@link PropertySource} is added to the
+         *         <code>name-PropertySource</code> mapping.
+         * @throws IOException If a Remote Method Invocation failed.
+         */
+        public ImageProxy(RenderedImage image, PropertySource source) throws RemoteException {
+            super(image);
+            try {
+                properties.addProperties(source);
+            } catch (RuntimeException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof RemoteException) {
+                    // May occurs when the WritablePropertySourceImpl class
+                    // fetch values from the CoverageProperties adapter.
+                    throw (RemoteException) cause;
+                }
+                throw exception;
+            }
+        }
+
+        /**
+         * Provides a hint that an image will no longer be accessed from a reference in
+         * user space. The results are equivalent to those that occur when the program
+         * loses its last reference to this image, the garbage collector discovers this,
+         * and finalize is called. This can be used as a hint in situations where waiting
+         * for garbage collection would be overly conservative. The results of referencing
+         * an image after a call to <code>dispose()</code> are undefined.
+         */
+        public void dispose() {
+            super.dispose();
+            if (theImage instanceof PlanarImage) {
+                ((PlanarImage) theImage).dispose();
+            } else if (theImage instanceof SerializableRenderedImage) {
+                ((SerializableRenderedImage) theImage).dispose();
+            }
         }
     }
 }

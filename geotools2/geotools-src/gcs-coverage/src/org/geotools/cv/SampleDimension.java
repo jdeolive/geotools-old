@@ -101,7 +101,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.9 2002/09/15 21:50:59 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.10 2002/10/16 22:32:19 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1097,11 +1097,15 @@ public class SampleDimension implements Serializable {
             if (model instanceof IndexColorModel) {
                 final IndexColorModel index = (IndexColorModel) model;
                 final int[][] palette = new int[index.getMapSize()][];
+                final boolean hasAlpha = index.hasAlpha();
                 for (int i=0; i<palette.length; i++) {
-                    final int[] RGB = palette[i] = new int[3];
+                    final int[] RGB = palette[i] = new int[hasAlpha ? 4 : 3];
                     RGB[0] = index.getRed  (i);
                     RGB[1] = index.getGreen(i);
                     RGB[2] = index.getBlue (i);
+                    if (hasAlpha) {
+                        RGB[3] = index.getAlpha(i);
+                    }
                 }
                 return palette;
             } else {
