@@ -69,7 +69,7 @@ import java.lang.ref.WeakReference;
 
 // JAI dependencies
 import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage; // For JavaDoc
+import javax.media.jai.PlanarImage;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.ImageFunction;
 import javax.media.jai.PropertySource;
@@ -144,7 +144,7 @@ import org.geotools.resources.gcs.Resources;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.19 2003/08/08 17:58:21 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.20 2003/08/09 22:13:11 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -516,7 +516,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * view of a coverage (which may or may not be a {@linkplain org.geotools.gc.GridCoverage grid
      * coverage}).
      *
-     * @version $Id: Coverage.java,v 1.19 2003/08/08 17:58:21 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.20 2003/08/09 22:13:11 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Coverage#getRenderableImage
@@ -716,10 +716,11 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
              * If the image can be created using the ImageFunction operation, do it.
              * It allow JAI to defer the computation until a tile is really requested.
              */
+            final PlanarImage image;
             if ((area==null || area instanceof Rectangle2D) &&
                 csToGrid.getShearX()==0 && csToGrid.getShearY()==0)
             {
-                return JAI.create("ImageFunction",
+                image = JAI.create("ImageFunction",
                        new ParameterBlock()
                                 .add(this)                          // The functional description
                                 .add(gridBounds.width)                    // The image width
@@ -735,52 +736,67 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
                                 .setTileHeight (tileSize.height)
                                 .setSampleModel(sampleModel)
                                 .setColorModel (colorModel)));
+            } else {
+                /*
+                 * Creates immediately a rendered image using a given render context. This block
+                 * is run when the image can't be created with JAI's ImageFunction operator, for
+                 * example because the affine transform swap axis or because there is an area of
+                 * interest.
+                 */
+                // Clones the coordinate point in order to allow multi-thread invocation.
+                final CoordinatePoint coordinate = new CoordinatePoint(this.coordinate);
+                final TiledImage tiled = new TiledImage(gridBounds.x, gridBounds.y,
+                                                        gridBounds.width, gridBounds.height,
+                                                        0, 0, sampleModel, colorModel);
+                final Point2D.Double point2D = new Point2D.Double();
+                final int     numBands = tiled.getNumBands();
+                final double[] samples = new double[numBands];
+                final double[] padNaNs = new double[numBands];
+                Arrays.fill(padNaNs, Double.NaN);
+                final WritableRectIter iterator = RectIterFactory.createWritable(tiled, gridBounds);
+                if (!iterator.finishedLines()) try {
+                    int y=gridBounds.y; do {
+                        iterator.startPixels();
+                        if (!iterator.finishedPixels()) {
+                            int x=gridBounds.x; do {
+                                point2D.x = x;
+                                point2D.y = y;
+                                csToGrid.inverseTransform(point2D, point2D);
+                                if (area==null || area.contains(point2D)) {
+                                    coordinate.ord[xAxis] = point2D.x;
+                                    coordinate.ord[yAxis] = point2D.y;
+                                    iterator.setPixel(evaluate(coordinate, samples));
+                                } else {
+                                    iterator.setPixel(padNaNs);
+                                }
+                                x++;
+                            }
+                            while (!iterator.nextPixelDone());
+                            assert(x == gridBounds.x + gridBounds.width);
+                            y++;
+                        }
+                    }
+                    while (!iterator.nextLineDone());
+                    assert(y == gridBounds.y + gridBounds.height);
+                }
+                catch (NoninvertibleTransformException exception) {
+                    final IllegalArgumentException e= new IllegalArgumentException("RenderContext");
+                    e.initCause(exception);
+                    throw e;
+                }
+                image = tiled;
             }
             /*
-             * Creates immediately a rendered image using a given render context. This block is
-             * run when the image can't be created with JAI's ImageFunction operator, for example
-             * because the affine transform swap axis or because there is an area of interest.
+             * Add a 'gridToCoordinateSystem' property to the image. This is an important
+             * information for constructing a GridCoverage from this image later.
              */
-            // Clones the coordinate point in order to allow multi-thread invocation.
-            final CoordinatePoint coordinate = new CoordinatePoint(this.coordinate);
-            final TiledImage image = new TiledImage(gridBounds.x, gridBounds.y,
-                                                    gridBounds.width, gridBounds.height,
-                                                    0, 0, sampleModel, colorModel);
-            final Point2D.Double point2D = new Point2D.Double();
-            final int     numBands = image.getNumBands();
-            final double[] samples = new double[numBands];
-            final double[] padNaNs = new double[numBands];
-            Arrays.fill(padNaNs, Double.NaN);
-            final WritableRectIter iterator = RectIterFactory.createWritable(image, gridBounds);
-            if (!iterator.finishedLines()) try {
-                int y=gridBounds.y; do {
-                    iterator.startPixels();
-                    if (!iterator.finishedPixels()) {
-                        int x=gridBounds.x; do {
-                            point2D.x = x;
-                            point2D.y = y;
-                            csToGrid.inverseTransform(point2D, point2D);
-                            if (area==null || area.contains(point2D)) {
-                                coordinate.ord[xAxis] = point2D.x;
-                                coordinate.ord[yAxis] = point2D.y;
-                                iterator.setPixel(evaluate(coordinate, samples));
-                            } else {
-                                iterator.setPixel(padNaNs);
-                            }
-                            x++;
-                        }
-                        while (!iterator.nextPixelDone());
-                        assert(x == gridBounds.x + gridBounds.width);
-                        y++;
-                    }
-                }
-                while (!iterator.nextLineDone());
-                assert(y == gridBounds.y + gridBounds.height);
-            }
-            catch (NoninvertibleTransformException exception) {
-                final IllegalArgumentException e = new IllegalArgumentException("RenderContext");
-                e.initCause(exception);
-                throw e;
+            try {
+                image.setProperty("gridToCoordinateSystem", csToGrid.createInverse());
+            } catch (NoninvertibleTransformException exception) {
+                // Can't add the property. Too bad, the image has been created anyway.
+                // Maybe the user know what he is doing...
+                Utilities.unexpectedException("org.geotools.cv", "Coverage.Renderable",
+                                              "createRendering", exception);
             }
             return image;
         }
@@ -959,7 +975,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.19 2003/08/08 17:58:21 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.20 2003/08/09 22:13:11 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends UnicastRemoteObject implements CV_Coverage, PropertySource {

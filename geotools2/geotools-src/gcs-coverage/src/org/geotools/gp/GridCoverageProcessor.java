@@ -81,7 +81,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.34 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.35 2003/08/09 22:13:11 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -442,12 +442,22 @@ public class GridCoverageProcessor {
     public synchronized GridCoverage doOperation(final Operation     operation,
                                                  final ParameterList parameters)
     {
+        GridCoverage source;
+        try {
+            source = (GridCoverage) parameters.getObjectParameter("Source");
+        } catch (RuntimeException exception) {
+            // "Source" parameter may not exists. Conservatively
+            // assume that the operation will do some usefull work.
+            source = null;
+        }
         /*
          * Check if the result for this operation is already available in the cache.
          */
+        final String operationName = operation.getName();
         final CacheKey cacheKey = new CacheKey(operation, parameters);
         GridCoverage coverage = (GridCoverage) cache.get(cacheKey);
         if (coverage != null) {
+            log(source, coverage, operationName, true);
             return coverage;
         }
         /*
@@ -455,7 +465,6 @@ public class GridCoverageProcessor {
          * The same interpolation will be applied on the result.
          */
         Interpolation[] interpolations = null;
-        final String operationName = operation.getName();
         if (!operationName.equalsIgnoreCase("Interpolate")) {
             final String[] paramNames = parameters.getParameterListDescriptor().getParamNames();
             for (int i=0; i<paramNames.length; i++) {
@@ -482,33 +491,41 @@ public class GridCoverageProcessor {
         if (interpolations!=null && coverage!=null && !(coverage instanceof Interpolator)) {
             coverage = Interpolator.create(coverage, interpolations);
         }
-        // Check if the coverage has changed (i.e. if the operation
-        // really did something). If the coverage has changed, then
-        // an information message will be logger.
-        GridCoverage source;
-        try {
-            source = (GridCoverage) parameters.getObjectParameter("Source");
-        } catch (RuntimeException exception) {
-            // "Source" parameter may not exists. Conservatively
-            // assume that the operation did some usefull work.
-            source = null;
-        }
         if (coverage != source) {
-            String interp = "Nearest";
-            if (coverage instanceof Interpolator) {
-                interp = ((Interpolator)coverage).getInterpolationName();
-            }
-            final Locale locale = null; // Set locale here (if any).
-            final LogRecord record = Resources.getResources(locale).getLogRecord(
-                                     Level.FINE, ResourceKeys.OPERATION_APPLIED_$3,
-                                     ((source!=null) ? source : coverage).getName(locale),
-                                     operationName, interp);
-            record.setSourceClassName("GridCoverageProcessor");
-            record.setSourceMethodName("doOperation");
-            Logger.getLogger("org.geotools.gp").log(record);
+            log(source, coverage, operationName, false);
             cache.put(cacheKey, coverage);
         }
         return coverage;
+    }
+
+    /**
+     * Log a message for an operation. The message will be logged only if the source grid
+     * coverage is different from the result (i.e. if the operation did some work).
+     *
+     * @param source The source grid coverage.
+     * @param result The resulting grid coverage.
+     * @param operationName the operation name.
+     * @param fromCache <code>true</code> if the result has been fetch from the cache.
+     */
+    private static void log(final GridCoverage  source,
+                            final GridCoverage  result,
+                            final String operationName,
+                            final boolean    fromCache)
+    {
+        if (source != result) {
+            String interp = "Nearest";
+            if (result instanceof Interpolator) {
+                interp = ((Interpolator)result).getInterpolationName();
+            }
+            final Locale locale = null; // Set locale here (if any).
+            final LogRecord record = Resources.getResources(locale).getLogRecord(
+                                     Level.FINE, ResourceKeys.OPERATION_APPLIED_$4,
+                                     ((source!=null) ? source : result).getName(locale),
+                                     operationName, interp, new Integer(fromCache ? 1:0));
+            record.setSourceClassName("GridCoverageProcessor");
+            record.setSourceMethodName("doOperation");
+            Logger.getLogger("org.geotools.gp").log(record);
+        }
     }
 
     /**
@@ -521,7 +538,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.34 2003/08/04 19:07:22 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.35 2003/08/09 22:13:11 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {
@@ -531,7 +548,7 @@ public class GridCoverageProcessor {
         /** The parameters names, including source grid coverages. */
         private final String[] names;
 
-        /**The parameters values. {@link Coverage} objects will use weak references. */
+        /** The parameters values. {@link Coverage} objects will use weak references. */
         private final Object[] values;
 
         /** The hash code value for this key. */
@@ -550,15 +567,20 @@ public class GridCoverageProcessor {
             if (names != null) {
                 values = new Object[names.length];
                 for (int i=0; i<names.length; i++) {
+                    Object value;
                     try {
-                        values[i] = parameters.getObjectParameter(names[i]);
-                        if (values[i] instanceof Coverage) {
-                            values[i] = new Ref(values[i]);
+                        value = parameters.getObjectParameter(names[i]);
+                        if (value instanceof Coverage) {
+                            value = new Ref(value);
+                        }
+                        if (value != null) {
+                            hashCode = 37*hashCode + value.hashCode();
                         }
                     } catch (IllegalStateException exception) {
                         // Parameter not set. This is not really an error.
-                        values[i] = ParameterListDescriptor.NO_PARAMETER_DEFAULT;
+                        value = ParameterListDescriptor.NO_PARAMETER_DEFAULT;
                     }
+                    values[i] = value;
                 }
             } else {
                 values = null;
