@@ -27,7 +27,7 @@ import com.vividsolutions.jts.geom.*;
 /**
  * Creates a Polygon geometry.
  *
- * @version $Id: SubHandlerPolygon.java,v 1.4 2002/06/05 11:46:20 loxnard Exp $
+ * @version $Id: SubHandlerPolygon.java,v 1.5 2002/07/12 17:15:57 loxnard Exp $
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
 
@@ -79,9 +79,9 @@ public class SubHandlerPolygon extends SubHandler {
         // add it to the outer boundary if we are reading it and at the end of
         // the LinearRing
         // create a new linear ring, if we are at the start of a new linear ring
-        if( message.equals("LinearRing") ) {
-            if( type == GEOMETRY_END ) {
-                if( location == INNER_BOUNDARY ) {
+        if (message.equals("LinearRing")) {
+            if (type == GEOMETRY_END) {
+                if (location == INNER_BOUNDARY) {
                     LinearRing ring = (LinearRing) currentHandler.create(geometryFactory);
                     Coordinate[] points = ring.getCoordinates();
                     /* it is important later that internal rings (holes) are
@@ -94,10 +94,10 @@ public class SubHandlerPolygon extends SubHandler {
                     } else {
                         System.out.println("bad hole found - fixing");
                         Coordinate[] newPoints = new Coordinate[points.length];
-                        for(int i=0,j=points.length-1;i<points.length;i++,j--){
-                            newPoints[i]=points[j];
+                        for (int i = 0, j = points.length - 1; i < points.length; i++, j--){
+                            newPoints[i] = points[j];
                         }
-                        try{
+                        try {
                             ring = geometryFactory.createLinearRing(newPoints);
                             innerBoundaries.add(ring);
                         } catch (TopologyException e){
@@ -106,7 +106,7 @@ public class SubHandlerPolygon extends SubHandler {
                         }
                     }
                     
-                } else if( location == OUTER_BOUNDARY ) {
+                } else if (location == OUTER_BOUNDARY) {
                     /* it is important later that the outerboundary is
                      * clockwise  - so we reverse the
                      * points if necessary
@@ -117,28 +117,28 @@ public class SubHandlerPolygon extends SubHandler {
                     if (cga.isCCW(points)){
                         System.out.println("bad outer ring - rebuilding");
                         Coordinate[] newPoints = new Coordinate[points.length];
-                        for(int i=0,j=points.length-1;i<points.length;i++,j--){
+                        for (int i = 0, j = points.length - 1; i < points.length; i++, j--){
                             newPoints[i]=points[j];
                         }
-                        try{
+                        try {
                             outerBoundary =
                             geometryFactory.createLinearRing(newPoints);
                         } catch (TopologyException e){
-                            System.err.println("Caught Topology exception in "+
+                            System.err.println("Caught Topology exception in " + 
                             "GMLPolygonHandler");
                             outerBoundary = null;
                         }
                     }
                 }
-            } else if ( type == GEOMETRY_START ) {
+            } else if (type == GEOMETRY_START) {
                 currentHandler = new SubHandlerLinearRing();
             }
-        } else if( message.equals("outerBoundaryIs") ) {
+        } else if (message.equals("outerBoundaryIs")) {
             //  or, if we are getting notice of an inner/outer boundary marker,
             // set current location appropriately
             System.out.println("new outer Boundary");
             location = OUTER_BOUNDARY;
-        } else if( message.equals("innerBoundaryIs") ) {
+        } else if (message.equals("innerBoundaryIs")) {
             System.out.println("new InnerBoundary");
             location = INNER_BOUNDARY;
         }
@@ -167,8 +167,8 @@ public class SubHandlerPolygon extends SubHandler {
         // the conditions checked here are that the endGeometry message that
         // prompted this check is a Polygon and that this Polygon has an outer
         // boundary; if true, then return the all go signal
-        if( message.equals("Polygon") ) {
-            if( outerBoundary != null ) {
+        if (message.equals("Polygon")) {
+            if (outerBoundary != null) {
                 return true;
             }
             else {
@@ -192,14 +192,14 @@ public class SubHandlerPolygon extends SubHandler {
      * @return Completed OGC Polygon.
      */
     public Geometry create(GeometryFactory geometryFactory) {
-        for (int i=0; i < innerBoundaries.size();i++){
-            LinearRing hole = (LinearRing)innerBoundaries.get(i);
-            if(hole.crosses(outerBoundary)){
+        for (int i = 0; i < innerBoundaries.size(); i++){
+            LinearRing hole = (LinearRing) innerBoundaries.get(i);
+            if (hole.crosses(outerBoundary)){
                 System.err.println("Topology Error building polygon");
                 return null;
             }
         }
-        return geometryFactory.createPolygon(outerBoundary,(LinearRing[])innerBoundaries.toArray(new LinearRing[0]));
+        return geometryFactory.createPolygon(outerBoundary, (LinearRing[]) innerBoundaries.toArray(new LinearRing[0]));
     }
     
     

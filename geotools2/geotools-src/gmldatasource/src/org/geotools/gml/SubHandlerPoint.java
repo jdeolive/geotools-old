@@ -20,13 +20,12 @@
 
 package org.geotools.gml;
 
-import org.geotools.gml.*;
 import com.vividsolutions.jts.geom.*;
 
 /**
  * Creates an OGC simple point.
  *
- * @version $Id: SubHandlerPoint.java,v 1.3 2002/06/05 11:42:44 loxnard Exp $
+ * @version $Id: SubHandlerPoint.java,v 1.4 2002/07/12 17:12:38 loxnard Exp $
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
  */
@@ -59,9 +58,12 @@ public class SubHandlerPoint extends SubHandler {
      * @return Ready for creation flag.
      */    
     public boolean isComplete(String message){
-
-        if( this.coordinate != null) { return true; }
-				else                         { return false; }
+        
+        if (this.coordinate != null) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
 

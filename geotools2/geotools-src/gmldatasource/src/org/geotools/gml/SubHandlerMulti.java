@@ -22,13 +22,12 @@ package org.geotools.gml;
 
 import java.util.*;
 import com.vividsolutions.jts.geom.*;
-import org.geotools.gml.*;
 
 /** 
  * Creates a MultiPoint, MultiLineString, or MultiPolygon geometry as required
  * by the internal functions.
  *
- * @version $Id: SubHandlerMulti.java,v 1.3 2002/06/05 11:41:12 loxnard Exp $
+ * @version $Id: SubHandlerMulti.java,v 1.4 2002/07/12 17:11:24 loxnard Exp $
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
   */
@@ -53,8 +52,11 @@ public class SubHandlerMulti extends SubHandler {
     /** Remembers whether or not the internal type is set already. */    
     private boolean internalTypeSet = false;
 
-    /** Remembers the list of all possible sub (base) types for this multi type. */    
-		private static final Collection BASE_GEOMETRY_TYPES = new Vector( java.util.Arrays.asList(new String[] {"Point","LineString","Polygon"}) );
+               /**
+                * Remembers the list of all possible sub (base) types for this
+                *  multi type.
+                */    
+                private static final Collection BASE_GEOMETRY_TYPES = new Vector(java.util.Arrays.asList(new String[] {"Point", "LineString", "Polygon"}));
 
 
     /** Empty constructor. */
@@ -68,28 +70,28 @@ public class SubHandlerMulti extends SubHandler {
      * @param type Whether or not it is at a start or end.
      */    
     public void subGeometry(String message, int type) {
-
-				// if the internal type is not yet set, set it
-				if( !internalTypeSet ) {
-						if( BASE_GEOMETRY_TYPES.contains(message) ) {
-								internalType = message;
-								internalTypeSet = true;
-						}						
-				}
-				
-				// if the internal type is already set, then either:
-				// create a new handler, if at start of geometry, or
-				// return the completed geometry, if at the end of it
-        if( message.equals(internalType) ) {
-						if( type == GEOMETRY_START ) {
-								currentHandler = handlerFactory.create(internalType);
-						}
-						else if( type == GEOMETRY_END ) {
-								geometries.add( currentHandler.create(geometryFactory) );
-						}
-				}
+        
+        // if the internal type is not yet set, set it
+        if (!internalTypeSet) {
+            if (BASE_GEOMETRY_TYPES.contains(message)) {
+                internalType = message;
+                internalTypeSet = true;
+            }
+        }
+        
+        // if the internal type is already set, then either:
+        // create a new handler, if at start of geometry, or
+        // return the completed geometry, if at the end of it
+        if (message.equals(internalType)) {
+            if (type == GEOMETRY_START) {
+                currentHandler = handlerFactory.create(internalType);
+            }
+            else if (type == GEOMETRY_END) {
+                geometries.add(currentHandler.create(geometryFactory));
+            }
+        }
     }
-    
+
 
     /** 
      * Adds a coordinate to the current internal (sub) geometry.
@@ -97,7 +99,7 @@ public class SubHandlerMulti extends SubHandler {
      * @param coordinate The coordinate.
      */    
     public void addCoordinate(Coordinate coordinate) {
-				currentHandler.addCoordinate(coordinate);
+        currentHandler.addCoordinate(coordinate);
     }
 
     
@@ -107,29 +109,38 @@ public class SubHandlerMulti extends SubHandler {
      * @param message The geometry element that prompted this check.
      */    
     public boolean isComplete(String message) {
-
-				if( message.equals("Multi" + internalType) ) { 
-						return true; 
-				}
-				else {
-						return false;
-				}
+        
+        if (message.equals("Multi" + internalType)) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     
     /** 
      * Returns a completed multi type.
      *
-     * @param geometryFactory The factory this method should use to create the multi type. 
+     * @param geometryFactory The factory this method should use to create
+     * the multi type. 
      * @return Appropriate multi geometry type.
      */    
     public Geometry create(GeometryFactory geometryFactory) {
         
-				if( internalType.equals("Point") )           { return geometryFactory.createMultiPoint( geometryFactory.toPointArray(geometries) ); }
-				else if( internalType.equals("LineString") ) { return geometryFactory.createMultiLineString( geometryFactory.toLineStringArray(geometries) ); }
-				else if( internalType.equals("Polygon") )    { return geometryFactory.createMultiPolygon( geometryFactory.toPolygonArray(geometries) ); }
-				else                                         { return null; }
-		}
-
+        if (internalType.equals("Point")) {
+            return geometryFactory.createMultiPoint(geometryFactory.toPointArray(geometries));
+        }
+        else if (internalType.equals("LineString")) {
+            return geometryFactory.createMultiLineString(geometryFactory.toLineStringArray(geometries));
+        }
+        else if (internalType.equals("Polygon")) {
+            return geometryFactory.createMultiPolygon(geometryFactory.toPolygonArray(geometries));
+        }
+        else {
+            return null;
+        }
+    }
+    
     
 }
