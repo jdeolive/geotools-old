@@ -782,9 +782,6 @@ public class DataUtilities {
                 hint = typeSpec.substring( split2+1 );                
             }            
         }
-        System.out.println( "name:"+name);
-        System.out.println( "type:"+type);
-        System.out.println( "hint:"+hint);
         try {
             if( hint != null && hint.indexOf("nillable") != -1 ){
                 return AttributeTypeFactory.newAttributeType(name, type(type), true );
