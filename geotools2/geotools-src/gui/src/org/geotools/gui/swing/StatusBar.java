@@ -34,12 +34,15 @@ package org.geotools.gui.swing;
 
 // J2SE dependencies
 import java.util.Arrays;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.IllegalComponentStateException;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JLabel;
 import javax.swing.JComponent;
@@ -79,7 +82,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * {@link #getCoordinateFormat}.setCoordinateSystem(...);
  * </pre></blockquote>
  *
- * @version $Id: StatusBar.java,v 1.1 2003/02/01 22:41:33 desruisseaux Exp $
+ * @version $Id: StatusBar.java,v 1.2 2003/02/22 22:37:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class StatusBar extends JComponent implements MouseMotionListener {
@@ -145,9 +148,24 @@ public class StatusBar extends JComponent implements MouseMotionListener {
         config(message);
         config(coordinate);
         final Dimension size = coordinate.getPreferredSize();
-        size.width=200; coordinate.setPreferredSize(size);
+        size.width=250; coordinate.setPreferredSize(size);
         progress.setBorder(BorderFactory.createLoweredBevelBorder());
         this.progress = progress.getModel();
+    }
+
+    /**
+     * Construct a new status bar and register listeners.
+     *
+     * @param mapPane The map pane (usually a {@link MapPane} instance).
+     */
+    public StatusBar(final Component mapPane) {
+        this();
+        mapPane.addMouseMotionListener(this);
+        mapPane.addMouseListener(new MouseAdapter() {
+            public void mouseExited(final MouseEvent e) {
+                setCoordinate(null);
+            }
+        });
     }
 
     /**
@@ -264,7 +282,7 @@ public class StatusBar extends JComponent implements MouseMotionListener {
     /**
      * Classe chargée de réagir au progrès de la lecture.
      *
-     * @version $Id: StatusBar.java,v 1.1 2003/02/01 22:41:33 desruisseaux Exp $
+     * @version $Id: StatusBar.java,v 1.2 2003/02/22 22:37:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class ProgressListener implements IIOReadProgressListener, Runnable {
