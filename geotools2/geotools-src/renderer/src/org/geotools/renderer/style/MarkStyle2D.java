@@ -20,13 +20,14 @@ package org.geotools.renderer.style;
 import org.geotools.renderer.j2d.TransformedShape;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 
 
 /**
  * Style to represent points as small filled and stroked shapes
  *
  * @author Andrea Aime
- * @version $Id: MarkStyle2D.java,v 1.1 2003/11/01 17:34:28 aaime Exp $
+ * @version $Id: MarkStyle2D.java,v 1.2 2003/11/02 21:08:29 aaime Exp $
  */
 public class MarkStyle2D extends PolygonStyle2D {
     Shape shape;
@@ -62,13 +63,14 @@ public class MarkStyle2D extends PolygonStyle2D {
      */
     public Shape getTransformedShape(float x, float y) {
         if (shape != null) {
-            int shapeSize = Math.max(shape.getBounds().width, shape.getBounds().height);
-            float scale = size / shapeSize;
+            Rectangle2D bounds = shape.getBounds2D();
+            double shapeSize = Math.max(bounds.getWidth(), bounds.getHeight());
+            double scale = size / shapeSize;
             TransformedShape ts = new TransformedShape();
             ts.shape = shape;
             ts.translate(x, y);
             ts.rotate(rotation);
-            ts.scale(scale);
+            ts.scale(scale, -scale);
 
             return ts;
         } else {
