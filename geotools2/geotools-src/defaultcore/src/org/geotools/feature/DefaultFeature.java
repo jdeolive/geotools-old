@@ -33,7 +33,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.9 2003/09/02 18:36:51 ianschneider Exp $
+ * @version $Id: DefaultFeature.java,v 1.10 2003/09/08 18:16:50 ianschneider Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
@@ -368,8 +368,19 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
 
             for (int i = 0, n = schema.getAttributeCount(); i < n; i++) {
                 if (schema.getAttributeType(i).isGeometry()) {
-                    bounds.expandToInclude(((Geometry) attributes[i])
-                        .getEnvelopeInternal());
+                    Geometry g = (Geometry) attributes[i];
+                    // IanS - check for null geometry!
+                    if (g == null) {
+                        continue;
+                    }
+                    Envelope e = g.getEnvelopeInternal();
+                    // IanS
+                    // as of JTS 1.3, expandToInclude does not check to see if
+                    // Envelope is "null", and simply adds the flagged values.
+                    // This ensures that this behavior does not occur.
+                    if (! e.isNull() ) {
+                        bounds.expandToInclude(e);
+                    }
                 }
             }
         }

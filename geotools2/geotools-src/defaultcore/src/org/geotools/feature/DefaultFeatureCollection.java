@@ -37,7 +37,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * speed then a {@link HashSet}.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureCollection.java,v 1.4 2003/08/28 14:02:14 desruisseaux Exp $
+ * @version $Id: DefaultFeatureCollection.java,v 1.5 2003/09/08 18:16:50 ianschneider Exp $
  */
 public class DefaultFeatureCollection extends AbstractCollection implements FeatureCollection {
     /** Internal feature storage list */
@@ -70,7 +70,12 @@ public class DefaultFeatureCollection extends AbstractCollection implements Feat
 
             for (Iterator i = features.iterator(); i.hasNext();) {
                 Envelope geomBounds = ((Feature) i.next()).getBounds();
-                bounds.expandToInclude(geomBounds);
+                // IanS - as of 1.3, JTS expandToInclude ignores "null" Envelope
+                // and simply adds the new bounds...
+                // This check ensures this behavior does not occur.
+                if ( ! geomBounds.isNull() ) {
+                    bounds.expandToInclude(geomBounds);
+                }
             }
         }
 
