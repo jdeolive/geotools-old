@@ -16,7 +16,8 @@
       </listitem>
 
       <listitem>
-        <para>ant version 1.5beta1 or later</para>
+        <para>ant version 1.5beta1 or later. [to do: Do we still need ant, or
+        does it come with maven?]</para>
       </listitem>
 
       <listitem>
@@ -44,32 +45,39 @@
     date I&#39;m yet to see a good open source requirements tracing tool.</para>
   </section>
 
-  <section id="java">
-    <title>Java</title>
+  <section>
+    <title>Language</title>
 
-    <para>This project is written in Java requires version 1.4 or greater. To
-    ensure the classes compile without errors, you need to specify that you
-    are using 1.4 or greater using the following options:</para>
+    <para>This section describes the language(s) and compilers used by this
+    project.</para>
 
-    <blockquote>
-      <para><command>javac -source 1.4 [other options] [files to compile]</command></para>
-    </blockquote>
+    <section id="java">
+      <title>Java</title>
 
-    <para>Make sure you update <link linkend="netbeanscompileoptions">compile
-    options in Netbeans</link> if you use Netbeans.</para>
+      <para>This project is written in Java requires version 1.4 or greater.
+      To ensure the classes compile without errors, you need to specify that
+      you are using 1.4 or greater using the following options:</para>
 
-    <para>If you use <filename>ant</filename> for compiling, or building
-    javadocs or similar, then you will need to include something like:</para>
+      <blockquote>
+        <para><command>javac -source 1.4 [other options] [files to compile]</command></para>
+      </blockquote>
 
-    <para><command>&#60;javadoc source=&#34;1.4&#34;&#62;...</command></para>
+      <para>Make sure you update <link linkend="netbeanscompileoptions">compile
+      options in Netbeans</link> if you use Netbeans.</para>
 
-    <section>
-      <title>Java from Sun</title>
+      <para>If you use <filename>ant</filename> for compiling, or building
+      javadocs or similar, then you will need to include something like:</para>
 
-      <para>So far, I have only tested this project with <ulink
-      url="http://java.sun.com">Sun&#39;s Software Development Kit (SDK)</ulink>.
-      If you try another java compiler then let me know how successful you are
-      and we can include it here.</para>
+      <para><command>&#60;javadoc source=&#34;1.4&#34;&#62;...</command></para>
+
+      <section>
+        <title>Java from Sun</title>
+
+        <para>So far, I have only tested this project with <ulink
+        url="http://java.sun.com">Sun&#39;s Software Development Kit (SDK)</ulink>.
+        If you try another java compiler then let me know how successful you
+        are and we can include it here.</para>
+      </section>
     </section>
   </section>
 
@@ -901,7 +909,7 @@ ant</programlisting>
 
         <itemizedlist>
           <listitem>
-            <para>Tools-&#62;Update Center</para>
+            <para><command>Tools-&#62;Update Center</command></para>
           </listitem>
         </itemizedlist>
 
@@ -909,17 +917,12 @@ ant</programlisting>
 
         <itemizedlist>
           <listitem>
-            <para>Tools-&#62;Options-&#62;System-&#62;Modules (for Netbeans
-            3.3)</para>
+            <para><command>Tools-&#62;Options-&#62;IDE
+            Configuration-&#62;System-&#62;Modules</command></para>
           </listitem>
 
           <listitem>
-            <para>Tools-&#62;Options-&#62;IDE
-            Configuration-&#62;System-&#62;Modules (for Netbeans 3.4)</para>
-          </listitem>
-
-          <listitem>
-            <para>right click on <command><command>Modules</command></command></para>
+            <para>right click on <command>Modules</command></para>
           </listitem>
 
           <listitem>
@@ -944,9 +947,26 @@ ant</programlisting>
           </listitem>
 
           <listitem>
-            <para><ulink url="http://jalopy.sourceforge.net">Jalopy</ulink> is
-            a Source Code Formatter which should be used to ensure Geotools
-            code is written in a consistant style.</para>
+            <para> <link linkend="jalopy">Jalopy</link> is a Source Code
+            Formatter which should be used to ensure Geotools code is written
+            in a consistant style. Download the <ulink
+            url="http://jalopy.sourceforge.net/download.html">zipped</ulink>
+            .nbm file and install from a local directory.</para>
+
+            <blockquote>
+              <para><command>Tools-&#62;Update Center-&#62;Install Manually
+              Downloaded Modules-&#62;&#60;select .nbm file&#62;</command></para>
+            </blockquote>
+
+            <para>After installing, refer to the <link linkend="jalopy">Jalopy</link>
+            section to configure.</para>
+          </listitem>
+
+          <listitem>
+            <para><filename>RefactorIt</filename> is a useful module for
+            changing many classes at once, and provide a free licence for open
+            source projects like geotools. See <xref linkend="refactorit" />
+            for more details. Installation instructions are in the download.</para>
           </listitem>
 
           <listitem>
@@ -957,16 +977,9 @@ ant</programlisting>
 
           <listitem>
             <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
-            is a Unified Modeling Language (UML) editor which we occasionally
-            use to explain ideas about design. You can get away without
-            installing this.</para>
-          </listitem>
-
-          <listitem>
-            <para><filename>RefactorIt</filename> is a useful module for
-            changing many classes at once, and provide a free licence for open
-            source projects like geotools. See <xref linkend="refactorit" />
-            for more details. Installation instructions are in the download.</para>
+            is a Unified Modeling Language (UML) editor which we use to
+            explain ideas about design. You can get away without installing
+            this.</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -1077,14 +1090,14 @@ cp -pr .netbeans/ .netbeans.orig</programlisting>
       <title>Jalopy</title>
 
       <para><ulink url="http://jalopy.sourceforge.net">Jalopy</ulink> is a
-      source code formatter for Java. It layouts any valid Java source code
-      according to widely configurable rules to meet a certain coding style
-      without putting a formatting burden on individual developers.</para>
+      source code formatter for Java. It lays out any valid Java source code
+      according to configurable rules to meet a coding style without putting a
+      formatting burden on individual developers.</para>
 
       <para>Jalopy can be integrated into a number of IDEs, and a
       project&#39;s coding convensions can be stored centrally and imported by
       all developers. Installation is straight forward, refer to the Jalopy
-      documentation.</para>
+      documentation for details.</para>
 
       <para>Each developer should setup Jalopy in their prefered IDE and then
       import this project&#39;s coding convensions, <ulink
