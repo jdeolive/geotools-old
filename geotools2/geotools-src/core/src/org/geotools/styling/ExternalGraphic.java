@@ -26,12 +26,17 @@ package org.geotools.styling;
 import java.net.URL;
 
 /**
- * Holds a reference to an external graphics file with a URL to its location and its expected MIME type.
- * Knowing the MIME type in advance allows stylers to select best-supported formats from a list of external graphics.<p>
+ * Holds a reference to an external graphics file with a URL to its location
+ * and its expected MIME type.
+ * Knowing the MIME type in advance allows stylers to select best-supported
+ * formats from a list of external graphics.<p>
  *
- * The details of this object are taken from the OGC Styled-Layer Descriptor Report (OGC 01-077) version 0.7.2
- * Renderers can use this infomration when displaying styled features, though it must be remembered that not all renderers will be able to
- * fully represent strokes as set out by this interface, for example opacity may not be supported.
+ * The details of this object are taken from the OGC Styled-Layer Descriptor
+ * Report (OGC 01-077) version 0.7.2.
+ * Renderers can use this information when displaying styled features, though
+ * it must be remembered that not all renderers will be able to fully represent
+ * strokes as set out by this interface.  For example, opacity may not be
+ * supported.
  *
  * @author  jamesm
  */
@@ -39,15 +44,14 @@ public interface ExternalGraphic {
 
     /**
      * Provides the URL for where the external graphic resouce can be located.
-     *
      * @return The URL of the ExternalGraphic
      */
     public URL getLocation();
     
     /**
-     * Privides the format of the external graphic
-     *
-     * @return The format of the external graphic.  Reported as its MIME type in a String object.
+     * Provides the format of the external graphic.
+     * @return The format of the external graphic.  Reported as its MIME type
+     * in a String object.
      **/
     public String getFormat();
     

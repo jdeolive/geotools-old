@@ -22,26 +22,34 @@ package org.geotools.datasource;
 
 import org.geotools.featuretable.*;
 /**
- * The source of data for Features. Shapefiles, database, etc. are referenced through
- * this interface.
- * @version $Id: DataSource.java,v 1.6 2002/04/16 16:20:03 jmacgill Exp $
+ * The source of data for Features. Shapefiles, database, etc. are referenced
+ * through this interface.
+ * @version $Id: DataSource.java,v 1.7 2002/04/21 15:38:10 jmacgill Exp $
+ * @author ray
  */
 public interface DataSource {
-    /** Loads Feature rows for the given Extent from the datasource
+    /**
+     * Loads Feature rows for the given Extent from the datasource.
      * @param ft featureTable to load features into
-     * @param ex an extent defining which features to load - null means all features
+     * @param ex an extent defining which features to load - null means all
+     * features
      * @throws DataSourceException if anything goes wrong
      */
-    public void importFeatures(FeatureTable ft, Extent ex) throws DataSourceException;
+    public void importFeatures(FeatureTable ft, Extent ex)
+           throws DataSourceException;
     
-    /** Saves the given features to the datasource
-     * @param ft feature table to get features from
+    /**
+     * Saves the given features to the datasource.
+     * @param ft featureTable to get features from
      * @param ex extent to define which features to write - null means all
-     * @throws DataSourceException if anything goes wrong or if exporting is not supported
+     * @throws DataSourceException if anything goes wrong or if exporting is
+     * not supported
      */
-    public void exportFeatures(FeatureTable ft, Extent ex) throws DataSourceException;
+    public void exportFeatures(FeatureTable ft, Extent ex)
+           throws DataSourceException;
     
-    /** Stops this DataSource from loading
+    /**
+     * Stops this DataSource from loading.
      */
     public void stopLoading();
     

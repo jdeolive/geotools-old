@@ -54,20 +54,24 @@ public interface Fill {
     
     
     /**
-     * This specifies the level of translucency to use when rendering the fill.<br>
-     * The value is encoded as a floating-point value between 0.0 and 1.0 with 0.0
-     * representing totaly transparent and 1.0 representing totaly opaque, with a linear scale of
-     * translucency for intermediate values.<br>
+     * This specifies the level of translucency to use when rendering the fill.
+     * <br>
+     * The value is encoded as a floating-point value between 0.0 and 1.0
+     * with 0.0 representing totally transparent and 1.0 representing totally opaque,
+     * with a linear scale of translucency for intermediate values.<br>
      * For example, "0.65" would represent 65% opacity.  The default value is 1.0 (opaque)
      *
-     * @return The opacity of the fill, where 0.0 is completly transparent and 1.0 is completly opaque.
+     * @return The opacity of the fill, where 0.0 is completly transparent
+     * and 1.0 is completly opaque.
      */
     public double getOpacity();
     
     /**
-     * This parameter indicates that a stipple-fill repeated graphic will be used and specifed the fill graphic to use.
+     * This parameter indicates that a stipple-fill repeated graphic will be 
+     * used and specifies the fill graphic to use.
      * 
-     * @return The graphic to use as a stipple fill.  If null then no Stipple fill should be used.
+     * @return The graphic to use as a stipple fill.  If null then no Stipple
+     * fill should be used.
      */
     public Graphic getGraphicFill();
 }
