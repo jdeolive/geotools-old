@@ -79,6 +79,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
 
 // Resources
 import org.geotools.util.NumberRange;
+import org.geotools.resources.XArray;
 import org.geotools.resources.JAIUtilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.GCSUtilities;
@@ -108,7 +109,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.19 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.20 2003/10/14 22:12:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Resampler extends GridCoverage {
@@ -593,7 +594,10 @@ final class Resampler extends GridCoverage {
             }
         }
         /*
-         * Construct the final grid coverage.
+         * Construct the final grid coverage, then log a message as in the following example:
+         *
+         *     Resampled coverage "Foo" using the "Warp" image operation on geophysics
+         *     pixels values. Background color is 255.
          */
         if (targetCoverage == null) {
             targetCoverage = new Resampler(sourceCoverage, targetImage, targetCS, targetGG);
@@ -605,6 +609,15 @@ final class Resampler extends GridCoverage {
         assert targetGG!=null || targetImage.getBounds().equals(sourceImage.getBounds());
         assert targetCoverage.getGridGeometry().getGridRange().getSubGridRange(0,2).toRectangle()
                              .equals(targetImage.getBounds()) : targetGG;
+
+        final Locale locale = Locale.getDefault();
+        log(Resources.getResources(locale).getLogRecord(Level.FINE,
+            ResourceKeys.RESAMPLE_APPLIED_$4,
+            sourceCoverage.getName(locale),
+            targetImage.getOperationName(),
+            new Integer(sourceCoverage == sourceCoverage.geophysics(true) ? 1 : 0),
+            background.length==1 ? (Object) new Double(background[0]) :
+                                   (Object) XArray.toString(background, locale)));
         return targetCoverage;
     }
 
@@ -665,6 +678,15 @@ final class Resampler extends GridCoverage {
         }
         return true;
     }
+
+    /**
+     * Log a message.
+     */
+    private static void log(final LogRecord record) {
+        record.setSourceClassName("GridCoverageProcessor");
+        record.setSourceMethodName("doOperation(\"Resample\")");
+        Logger.getLogger("org.geotools.gp").log(record);
+    }
     
     /**
      * Returns the coverage name, localized for the supplied locale.
@@ -684,7 +706,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.19 2003/08/04 19:07:22 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.20 2003/10/14 22:12:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {
@@ -765,11 +787,8 @@ final class Resampler extends GridCoverage {
                 }
                 if (mismatche) {
                     final Locale locale = Locale.getDefault();
-                    final LogRecord record = Resources.getResources(locale).getLogRecord(Level.WARNING,
-                             ResourceKeys.WARNING_ADJUSTED_GRID_GEOMETRY_$1, coverage.getName(locale));
-                    record.setSourceClassName("GridCoverageProcessor");
-                    record.setSourceMethodName("doOperation(\"Resample\")");
-                    Logger.getLogger("org.geotools.gp").log(record);
+                    log(Resources.getResources(locale).getLogRecord(Level.WARNING,
+                        ResourceKeys.WARNING_ADJUSTED_GRID_GEOMETRY_$1, coverage.getName(locale)));
                 }
             }
             return coverage;
