@@ -20,17 +20,22 @@
 
 package org.geotools.renderer;
 
-/**
- * @version $Id: Java2DMark.java,v 1.5 2002/07/12 16:33:49 loxnard Exp $
- * @author Ian Turton
- */
 
 import java.awt.*;
 import java.awt.geom.*;
+import java.util.logging.Logger;
 
+/**
+ * @version $Id: Java2DMark.java,v 1.6 2002/08/07 07:36:27 desruisseaux Exp $
+ * @author Ian Turton
+ */
 public class Java2DMark {
-    private static org.apache.log4j.Logger _log =
-        org.apache.log4j.Logger.getLogger(Java2DMark.class);
+
+    /**
+     * The logger for the rendering module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.rendering");
+
     /** Creates a new instance of Java2DMark */
     public Java2DMark() {
         
@@ -93,35 +98,36 @@ public class Java2DMark {
             arrow.lineTo(0f, -.5f);
             
     }
+
     static Shape getWellKnownMark(String wellKnownName){
-        _log.debug("fetching mark of name " + wellKnownName);
+        LOGGER.finer("fetching mark of name " + wellKnownName);
         if (wellKnownName.equalsIgnoreCase("cross")){
-            _log.debug("returning cross");
+            LOGGER.finer("returning cross");
             return cross;
         }
         if (wellKnownName.equalsIgnoreCase("circle")){
-            _log.debug("returning circle");
+            LOGGER.finer("returning circle");
             return new java.awt.geom.Ellipse2D.Double(-.5, -.5, 1., 1.);
         }
         if (wellKnownName.equalsIgnoreCase("triangle")){
-            _log.debug("returning triangle");
+            LOGGER.finer("returning triangle");
             
             return triangle;
         }
         if (wellKnownName.equalsIgnoreCase("X")){
-            _log.debug("returning X");
+            LOGGER.finer("returning X");
             return X;
         }
         if (wellKnownName.equalsIgnoreCase("star")){
-            _log.debug("returning star");
+            LOGGER.finer("returning star");
             return star;
         }
         if (wellKnownName.equalsIgnoreCase("arrow")){
-            _log.debug("returning arrow");
+            LOGGER.finer("returning arrow");
             return arrow;
         }
         // failing that return a square?
-        _log.debug("returning square");
+        LOGGER.finer("returning square");
         return new Rectangle2D.Double(-.5, -.5, 1., 1.);
     }
 }

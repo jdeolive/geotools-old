@@ -46,15 +46,19 @@ import java.awt.font.TextLayout;
 import java.util.HashSet;
 
 //Logging system
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.49 2002/08/02 16:43:23 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.50 2002/08/07 07:36:27 desruisseaux Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
     
-    private static Logger _log = Logger.getLogger(Java2DRenderer.class);
+    /**
+     * The logger for the rendering module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.rendering");
+
     /**
      * Flag which determines if the renderer is interactive or not.
      * An interactive renderer will return rather than waiting for time
@@ -151,7 +155,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         if (graphics == null) {
             return;
         }
-        _log.info("renderering " + features.length + " features");
+        LOGGER.fine("renderering " + features.length + " features");
         mapExtent = map;
         //set up the affine transform and calculate scale values
         AffineTransform at = new AffineTransform();
@@ -207,11 +211,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 Feature feature = features[j];
                 if(!mapExtent.overlaps(feature.getDefaultGeometry().getEnvelopeInternal())){
                     // if its off screen don't bother drawing it
-                    _log.debug("skipping " + feature.toString());
+                    LOGGER.finer("skipping " + feature.toString());
                     continue;
                 }
-                _log.info("feature is " + feature.getSchema().getTypeName() +
-                " type styler is " + fts.getFeatureTypeName());
+                LOGGER.fine("feature is " + feature.getSchema().getTypeName() +
+                            " type styler is " + fts.getFeatureTypeName());
                 if (feature.getSchema().getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
                     //this styler is for this type of feature
                     //now find which rule applies
@@ -225,7 +229,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                             Filter filter = rules[k].getFilter();
                             
                             if(filter == null || filter.contains(feature) == true){
-                                _log.info("rule passed, moving on to symobolizers");
+                                LOGGER.fine("rule passed, moving on to symobolizers");
                                 //yes it does
                                 //this gives us a list of symbolizers
                                 Symbolizer[] symbolizers = rules[k].getSymbolizers();
@@ -240,7 +244,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                         //if none of the above rules applied do any of them have elsefilters that do
                         if (rules[k].getMinScaleDenominator() < scaleDenominator && rules[k].getMaxScaleDenominator() > scaleDenominator){
                             if ( rules[k].hasElseFilter() ) {
-                                _log.info("rule passed as else filter, moving on to symobolizers");
+                                LOGGER.fine("rule passed as else filter, moving on to symobolizers");
                                 Symbolizer[] symbolizers = rules[k].getSymbolizers();
                                 processSymbolizers(feature, symbolizers);
                             }
@@ -261,7 +265,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      */
     private void processSymbolizers(final Feature feature, final Symbolizer[] symbolizers) {
         for (int m = 0; m < symbolizers.length; m++){
-            _log.info("applying symbolizer " + symbolizers[m]);
+            LOGGER.fine("applying symbolizer " + symbolizers[m]);
             if (symbolizers[m] instanceof PolygonSymbolizer){
                 renderPolygon(feature, (PolygonSymbolizer)symbolizers[m]);
             }
@@ -292,7 +296,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @param symbolizer The polygon symbolizer to apply
      **/
     private void renderPolygon(Feature feature, PolygonSymbolizer symbolizer){
-        _log.info("rendering polygon with a scale of " + this.scaleDenominator);
+        LOGGER.fine("rendering polygon with a scale of " + this.scaleDenominator);
         Fill fill = symbolizer.getFill();
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
@@ -305,7 +309,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         if (fill != null){
             applyFill(graphics,fill, feature);
-            _log.debug("paint in renderPoly: " + graphics.getPaint());
+            LOGGER.finer("paint in renderPoly: " + graphics.getPaint());
             
             graphics.fill(path);
             // shouldn't we reset the graphics when we return finished?
@@ -314,7 +318,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         if (symbolizer.getStroke() != null) {
             Stroke stroke = symbolizer.getStroke();
             applyStroke(graphics, stroke, feature);
-            _log.debug("path is " + graphics.getTransform().createTransformedShape(path).getBounds2D().toString());
+            LOGGER.finer("path is " + graphics.getTransform().createTransformedShape(path).getBounds2D().toString());
             if (stroke.getGraphicStroke() == null){
                 graphics.draw(path);
             } else{
@@ -364,46 +368,46 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     private void renderPoint(Feature feature, PointSymbolizer symbolizer){
-        _log.info("rendering a point from " + feature);
+        LOGGER.fine("rendering a point from " + feature);
         org.geotools.styling.Graphic sldgraphic = symbolizer.getGraphic();
-        //_log.debug("sldgraphic = " + sldgraphic);
+        LOGGER.finest("sldgraphic = " + sldgraphic);
         
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
         if (geom.isEmpty()){
-            _log.debug("empty geometry");
+            LOGGER.finer("empty geometry");
             return;
         }
         // TODO: consider if mark and externalgraphic should share an ancestor?
         /*
         if (null != (Object)sldgraphic.getExternalGraphics()){
-            _log.debug("rendering External graphic");
+            LOGGER.finer("rendering External graphic");
             renderExternalGraphic(geom, sldgraphic, feature);
         } else{
-            _log.debug("rendering mark");
+            LOGGER.finer("rendering mark");
             renderMark(geom, sldgraphic, feature);
         }
          */
         Symbol[] symbols = sldgraphic.getSymbols();
         boolean flag = false;
         for(int i = 0; i < symbols.length; i++){
-            _log.debug("trying to render symbol " + i );
+            LOGGER.finer("trying to render symbol " + i );
             if (symbols[i] instanceof ExternalGraphic ){
-                _log.debug("rendering External graphic");
+                LOGGER.finer("rendering External graphic");
                 flag = renderExternalGraphic(geom, sldgraphic, feature, (ExternalGraphic) symbols[i]);
                 if(flag){
                     return;
                 }
             }
             if(symbols[i] instanceof DefaultMark ){
-                _log.debug("rendering mark @ PointRenderer " + symbols[i].toString());
+                LOGGER.finer("rendering mark @ PointRenderer " + symbols[i].toString());
                 flag = renderMark(geom, sldgraphic, feature, (DefaultMark) symbols[i]);
                 if (flag){
                     return;
                 }
             }
             if(symbols[i] instanceof TextMark){
-                _log.debug("rendering text symbol");
+                LOGGER.finer("rendering text symbol");
                 flag = renderTextSymbol(geom, sldgraphic, feature, (TextMark) symbols[i]);
                 if (flag){
                     return;
@@ -415,22 +419,22 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     private void renderText(Feature feature, TextSymbolizer symbolizer) {
         
         
-        _log.debug("rendering text");
+        LOGGER.finer("rendering text");
         
         String geomName = symbolizer.getGeometryPropertyName();
-        _log.debug("geomName = " + geomName);
+        LOGGER.finer("geomName = " + geomName);
         Geometry geom = findGeometry(feature, geomName);
         if (geom.isEmpty()){
-            _log.debug("empty geometry");
+            LOGGER.finer("empty geometry");
             return;
         }
         Object obj = symbolizer.getLabel().getValue(feature);
         if (obj == null){
-            _log.debug("Null label in render text");
+            LOGGER.finer("Null label in render text");
             return;
         }
         String label = obj.toString();
-        _log.debug("label is " + label);
+        LOGGER.finer("label is " + label);
         if (label == null) {
             return;
         }
@@ -439,7 +443,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         if (fontFamilies == null){
             java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
             fontFamilies = ge.getAvailableFontFamilyNames();
-            //_log.debug("there are "+fontFamilies.length+" fonts available");
+            LOGGER.finest("there are "+fontFamilies.length+" fonts available");
         }
         
         java.awt.Font javaFont = null;
@@ -453,7 +457,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             
             
             for (int i = 0; i < fontFamilies.length; i++){
-                //_log.debug(fontFamilies[i]);
+                LOGGER.finest(fontFamilies[i]);
                 if (requestedFont.equalsIgnoreCase(fontFamilies[i])){
                     String reqStyle = (String)fonts[k].getFontStyle().getValue(feature);
                     
@@ -468,7 +472,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                         styleCode = styleCode|java.awt.Font.BOLD;
                     }
                     size = ((Number)fonts[k].getFontSize().getValue(feature)).intValue();
-                    _log.debug("requesting " + requestedFont + " " + styleCode + " " + size);
+                    LOGGER.finer("requesting " + requestedFont + " " + styleCode + " " + size);
                     javaFont = new java.awt.Font(requestedFont, styleCode, size);
                     break;
                 }
@@ -490,20 +494,20 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         double tx = 0, ty = 0;
         if (placement instanceof PointPlacement){
             //HACK: this will fail if the geometry of the feature isn't a point
-            _log.debug("setting pointPlacement");
+            LOGGER.finer("setting pointPlacement");
             tx = ((Point) geom).getX();
             ty = ((Point) geom).getY();
             PointPlacement p = (PointPlacement) placement;
             x = ((Number) p.getAnchorPoint().getAnchorPointX().getValue(feature)).doubleValue()*-textBounds.getWidth();
             y = ((Number) p.getAnchorPoint().getAnchorPointY().getValue(feature)).doubleValue()*textBounds.getHeight();
-            _log.debug("anchor point (" + x + "," + y + ")");
+            LOGGER.finer("anchor point (" + x + "," + y + ")");
             x += ((Number)p.getDisplacement().getDisplacementX().getValue(feature)).doubleValue();
             y += ((Number)p.getDisplacement().getDisplacementY().getValue(feature)).doubleValue();
-            _log.debug("total displacement (" + x + "," + y + ")");
+            LOGGER.finer("total displacement (" + x + "," + y + ")");
             rotation = ((Number) p.getRotation().getValue(feature)).doubleValue();
             rotation *= Math.PI / 180.0;
         }else if (placement instanceof LinePlacement){
-            _log.debug("setting line placement");
+            LOGGER.finer("setting line placement");
             //HACK: this will fail if the geometry of the feature is not a linestring
             double offset = ((Number) ((LinePlacement) placement).getPerpendicularOffset().getValue(feature)).doubleValue();
             LineString line = ((LineString) geom);
@@ -523,7 +527,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 y = offset + textBounds.getHeight();
             }
             
-            _log.debug("offset = " + offset + " x = " + x + " y " + y);
+            LOGGER.finer("offset = " + offset + " x = " + x + " y " + y);
         }
         Halo halo = symbolizer.getHalo();
         
@@ -544,19 +548,19 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         temp.transform(mapCentre, graphicCentre);
         labelAT.translate(graphicCentre.getX(), graphicCentre.getY());
         
-        _log.debug("rotation " + rotation);
+        LOGGER.finer("rotation " + rotation);
         double shearY = temp.getShearY();
         double scaleY = temp.getScaleY();
         
         double originalRotation = Math.atan(shearY/scaleY);
-        _log.debug("originalRotation " + originalRotation);
+        LOGGER.finer("originalRotation " + originalRotation);
         labelAT.rotate(rotation-originalRotation);
         
         graphics.setTransform(labelAT);
         
         applyFill(graphics, fill, feature);
         // we move this to the centre of the image.
-        _log.debug("about to draw at " + x + "," + y + " with the start of the string at "
+        LOGGER.finer("about to draw at " + x + "," + y + " with the start of the string at "
         + (x + dx) + "," + (y+dy));
         tl.draw(graphic, (float)dx, (float)dy);
         //graphics.drawString(label,(float)x,(float)y);
@@ -568,7 +572,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     private void drawHalo(Halo halo, Graphics2D graphic, double x, double y, double dx, double dy, TextLayout tl, Feature feature, double rotation){
-        _log.debug("doing halo");
+        LOGGER.finer("doing halo");
         
                 /*
                  * Creates an outline shape from the TextLayout.
@@ -581,12 +585,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         temp.transform(mapCentre, graphicCentre);
         labelAT.translate(graphicCentre.getX(), graphicCentre.getY());
         
-        _log.debug("rotation " + rotation);
+        LOGGER.finer("rotation " + rotation);
         double shearY = temp.getShearY();
         double scaleY = temp.getScaleY();
         
         double originalRotation = Math.atan(shearY/scaleY);
-        _log.debug("originalRotation " + originalRotation);
+        LOGGER.finer("originalRotation " + originalRotation);
         labelAT.rotate(rotation-originalRotation);
         
         graphics.setTransform(labelAT);
@@ -621,7 +625,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             renderImage((Point) geom, img, size, rotation);
             return true;
                 /*} catch (MalformedFilterException mfe){
-                    _log.fatal("",mfe);
+                    LOGGER.severe(""+mfe);
                 }*/
         } else{
             // if we get to here we need to render the marks;
@@ -645,14 +649,14 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     private BufferedImage getImage(ExternalGraphic eg){
-        _log.info("got a " + eg.getFormat());
+        LOGGER.fine("got a " + eg.getFormat());
         if (supportedGraphicFormats.contains(eg.getFormat().toLowerCase())){
             if (eg.getFormat().equalsIgnoreCase("image/gif") ||
             eg.getFormat().equalsIgnoreCase("image/jpg") ||
             eg.getFormat().equalsIgnoreCase("image/png")){
-                _log.debug("a java supported format");
+                LOGGER.finer("a java supported format");
                 BufferedImage img = imageLoader.get(eg.getLocation(),isInteractive());
-                _log.warn("Image return = " + img);
+                LOGGER.fine("Image return = " + img);
                 if (img != null){
                     return img;
                 } else {
@@ -676,7 +680,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             return false;
         }
         String name  = mark.getWellKnownName().getValue(feature).toString();
-        _log.debug("rendering mark " + name);
+        LOGGER.finer("rendering mark " + name);
         if (!wellKnownMarks.contains(name)){
             return false;
         }
@@ -694,7 +698,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         Mark mark;
         
         if (marks == null || marks.length == 0){
-            _log.debug("choosing a default mark as no marks returned");
+            LOGGER.finer("choosing a default mark as no marks returned");
             mark = new DefaultMark();
             return mark;
         }
@@ -708,7 +712,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             }
             
         }
-        _log.debug("going for a defaultMark");
+        LOGGER.finer("going for a defaultMark");
         mark = new DefaultMark();
         return mark;
         
@@ -721,7 +725,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     
     private void renderImage(double tx, double ty, BufferedImage img, int size,
     double rotation){
-        _log.info("drawing Image @" + tx + "," + ty);
+        LOGGER.fine("drawing Image @" + tx + "," + ty);
         AffineTransform temp = graphics.getTransform();
         AffineTransform markAT = new AffineTransform();
         Point2D mapCentre = new Point2D.Double(tx, ty);
@@ -732,13 +736,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         double scaleY = temp.getScaleY();
         
         double originalRotation = Math.atan(shearY/scaleY);
-        _log.debug("originalRotation " + originalRotation);
+        LOGGER.finer("originalRotation " + originalRotation);
         markAT.rotate(rotation-originalRotation);
         
         double unitSize = Math.max(img.getWidth(), img.getHeight());
         
         double drawSize = (double) size / unitSize;
-        _log.debug("unitsize " + unitSize + " size = " + size + " -> scale " + drawSize);
+        LOGGER.finer("unitsize " + unitSize + " size = " + size + " -> scale " + drawSize);
         markAT.scale(drawSize, drawSize);
         graphics.setTransform(markAT);
         // we moved the origin to the centre of the image.
@@ -768,7 +772,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         double scaleY = temp.getScaleY();
         
         double originalRotation = Math.atan(shearY/scaleY);
-        _log.debug("originalRotation " + originalRotation);
+        LOGGER.finer("originalRotation " + originalRotation);
         markAT.rotate(rotation-originalRotation);
         double unitSize = 1.0; // getbounds is broken !!!
         double drawSize = (double) size / unitSize;
@@ -777,12 +781,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         graphic.setTransform(markAT);
         if (mark.getFill() != null){
-            _log.debug("applying fill to mark");
+            LOGGER.finer("applying fill to mark");
             applyFill(graphic, mark.getFill(), null);
             graphic.fill(shape);
         }
         if (mark.getStroke() != null){
-            _log.debug("applying stroke to mark");
+            LOGGER.finer("applying stroke to mark");
             applyStroke(graphic, mark.getStroke(), null);
             graphic.draw(shape);
         }
@@ -811,7 +815,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         if (fontFamilies == null){
             java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
             fontFamilies = ge.getAvailableFontFamilyNames();
-            //_log.debug("there are "+fontFamilies.length+" fonts available");
+            LOGGER.finest("there are "+fontFamilies.length+" fonts available");
         }
         
         java.awt.Font javaFont = null;
@@ -823,7 +827,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             requestedFont = fonts[k].getFontFamily().getValue(feature).toString();
             
             for (int i = 0; i < fontFamilies.length; i++){
-                //_log.debug(fontFamilies[i]);
+                LOGGER.finest(fontFamilies[i]);
                 if (requestedFont.equalsIgnoreCase(fontFamilies[i])){
                     String reqStyle = (String)fonts[k].getFontStyle().getValue(feature);
                     
@@ -838,7 +842,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                         styleCode = styleCode|java.awt.Font.BOLD;
                     }
                     size = ((Number)fonts[k].getFontSize().getValue(feature)).intValue();
-                    _log.debug("requesting " + requestedFont + " " + styleCode + " " + size);
+                    LOGGER.finest("requesting " + requestedFont + " " + styleCode + " " + size);
                     javaFont = new java.awt.Font(requestedFont, styleCode, size);
                     break;
                 }
@@ -848,10 +852,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         
         if (javaFont != null){
-            _log.debug("found font " + javaFont.getFamily());
+            LOGGER.finer("found font " + javaFont.getFamily());
             graphic.setFont(javaFont);
         } else {
-            _log.debug("failed to find font " + requestedFont);
+            LOGGER.finer("failed to find font " + requestedFont);
             return false;
         }
         String symbol = mark.getSymbol().getValue(feature).toString();
@@ -874,7 +878,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         
         graphic.setColor(Color.decode((String) fill.getColor().getValue(feature)));
-        _log.debug("Setting fill: " + graphic.getColor().toString());
+        LOGGER.finer("Setting fill: " + graphic.getColor().toString());
         Number value = (Number) fill.getOpacity().getValue(feature);
         float opacity = value.floatValue();
         graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
@@ -885,16 +889,16 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         if (gr != null){
             setTexture(graphic, gr, feature);
         } else{
-            _log.debug("no graphic fill set");
+            LOGGER.finer("no graphic fill set");
         }
     }
     
     private void setTexture(Graphics2D graphic, Graphic gr, Feature feature){
         BufferedImage image = getExternalGraphic(gr);
         if (image != null){
-            _log.debug("got an image in graphic fill");
+            LOGGER.finer("got an image in graphic fill");
         } else{
-            _log.debug("going for the mark from graphic fill");
+            LOGGER.finer("going for the mark from graphic fill");
             
             Mark mark = getMark(gr, feature);
             int size = 200;
@@ -922,7 +926,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         size = ((Number) gr.getSize().getValue(feature)).intValue();
         
         double drawSize = (double) size / unitSize;
-        _log.debug("size = " + size + " unitsize " + unitSize + " drawSize " + drawSize);
+        LOGGER.finer("size = " + size + " unitsize " + unitSize + " drawSize " + drawSize);
         AffineTransform at = graphics.getTransform();
         double scaleX = drawSize / at.getScaleX();
         double scaleY = drawSize / -at.getScaleY();
@@ -933,17 +937,17 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
              * small e.g. 1 or 2 pixels when the drawScale is large, this makes
              * the image fill look very poor - I have no idea how to fix this.
              */
-        _log.debug("scale " + scaleX + " " + scaleY);
+        LOGGER.finer("scale " + scaleX + " " + scaleY);
         width *= scaleX;
         height *= scaleY;
         Rectangle2D.Double rect = new Rectangle2D.Double(0.0, 0.0, width, height);
         java.awt.TexturePaint imagePaint = new java.awt.TexturePaint(image, rect);
         graphic.setPaint(imagePaint);
-        _log.debug("applied TexturePaint " + imagePaint);
+        LOGGER.finer("applied TexturePaint " + imagePaint);
     }
     
     private void resetFill(){
-        _log.debug("reseting the graphics");
+        LOGGER.finer("reseting the graphics");
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
         //graphics.setPaint(null);
     }
@@ -997,7 +1001,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         float dashOffset = value.floatValue();
         value = (Number) stroke.getOpacity().getValue(feature);
         float opacity = value.floatValue();
-        _log.debug("width, dashoffset, opacity " + width + " " + dashOffset + " " + opacity);
+        LOGGER.finer("width, dashoffset, opacity " + width + " " + dashOffset + " " + opacity);
         
         BasicStroke stroke2d;
         //TODO: It should not be necessary to divide each value by scale.
@@ -1020,7 +1024,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         if (gr != null){
             setTexture(graphic, gr, feature);
         } else{
-            _log.debug("no graphic fill set");
+            LOGGER.finer("no graphic fill set");
         }
         //System.out.println("stroke color "+graphics.getColor());
     }
@@ -1033,7 +1037,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @param path the general path to be drawn
      */
     private void drawWithGraphicStroke(Graphics2D graphic, GeneralPath path, org.geotools.styling.Graphic gFill, Feature feature){
-        _log.debug("drawing a graphicalStroke");
+        LOGGER.finer("drawing a graphicalStroke");
         int trueImageHeight = 0;
         int trueImageWidth = 0;
         // get the image to draw
@@ -1041,9 +1045,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         if (image != null){
             trueImageWidth = image.getWidth();
             trueImageHeight = image.getHeight();
-            _log.debug("got an image in graphic fill");
+            LOGGER.finer("got an image in graphic fill");
         } else{
-            _log.debug("going for the mark from graphic fill");
+            LOGGER.finer("going for the mark from graphic fill");
             
             Mark mark = getMark(gFill, feature);
             int size = 200;
@@ -1075,7 +1079,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         double scaleX = graphic.getTransform().getScaleX();
         double scaleY = -graphic.getTransform().getScaleY();
-        _log.debug("scale X " + scaleX + " Y " + scaleY);
+        LOGGER.finer("scale X " + scaleX + " Y " + scaleY);
         PathIterator pi = path.getPathIterator(null, 10.0);
         double[] coords = new double[6];
         int type;
@@ -1091,24 +1095,24 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         first[1] = coords[1];
         previous[0] = coords[0];
         previous[1] = coords[1];
-        _log.debug("starting at " + first[0] + "," + first[1]);
+        LOGGER.finer("starting at " + first[0] + "," + first[1]);
         pi.next();
         while (!pi.isDone()){
             type = pi.currentSegment(coords);
             switch (type){
                 case PathIterator.SEG_MOVETO:
                     // nothing to do?
-                    _log.debug("moving to " + coords[0] + "," + coords[1]);
+                    LOGGER.finer("moving to " + coords[0] + "," + coords[1]);
                     break;
                 case PathIterator.SEG_CLOSE:
                     // draw back to first from previous
                     coords[0] = first[0];
                     coords[1] = first[1];
-                    _log.debug("closing from " + previous[0] + "," + previous[1] + " to " + coords[0] + "," + coords[1]);
+                    LOGGER.finer("closing from " + previous[0] + "," + previous[1] + " to " + coords[0] + "," + coords[1]);
                     // no break here - fall through to next section
                 case PathIterator.SEG_LINETO:
                     // draw from previous to coords
-                    _log.debug("drawing from " + previous[0] + "," + previous[1] + " to " + coords[0] + "," + coords[1]);
+                    LOGGER.finer("drawing from " + previous[0] + "," + previous[1] + " to " + coords[0] + "," + coords[1]);
                     double dx = coords[0] - previous[0];
                     double dy = coords[1] - previous[1];
                     double len = Math.sqrt(dx * dx + dy * dy) * scaleX;// - imageWidth;
@@ -1120,12 +1124,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     dy = Math.cos(theta) * imageHeight / scaleY;
                     //int dx2 = (int)Math.round(dy/2d);
                     //int dy2 = (int)Math.round(dx/2d);
-                    //_log.debug("dx = "+dx+" dy "+dy+" step = "+Math.sqrt(dx*dx+dy*dy));
+                    LOGGER.finest("dx = "+dx+" dy "+dy+" step = "+Math.sqrt(dx*dx+dy*dy));
                     
                     double rotation = theta - (Math.PI / 2d);
                     double x = previous[0] + dx / 2.0, y = previous[1] + dy / 2.0;
                     
-                    _log.debug("len =" + len + " imageWidth " + imageWidth);
+                    LOGGER.finer("len =" + len + " imageWidth " + imageWidth);
                     double dist = 0;
                     for (dist =0; dist < len - imageWidth; dist += imageWidth){
                         /*graphic.drawImage(image2,(int)x-midx,(int)y-midy,null); */
@@ -1134,12 +1138,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                         x += dx;
                         y += dy;
                     }
-                    _log.debug("loop end dist " + dist + " len " + len + " " + (len - dist));
+                    LOGGER.finer("loop end dist " + dist + " len " + len + " " + (len - dist));
                     if ((len - dist) > 0.0){
                         double remainder = len - dist;
                         
                         //clip and render image
-                        _log.debug("about to use clipped image " + remainder);
+                        LOGGER.finer("about to use clipped image " + remainder);
                         
                         BufferedImage img = new BufferedImage(trueImageHeight, trueImageWidth, BufferedImage.TYPE_INT_ARGB);
                         Graphics2D ig = img.createGraphics();
@@ -1241,7 +1245,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 geom = (Geometry) feature.getAttribute(geomName);
             }
             catch (IllegalFeatureException ife){
-                _log.warn("Geometry " + geomName + " not found ",ife);
+                LOGGER.fine("Geometry " + geomName + " not found " + ife);
                 //hack: not sure if null is the right thing to return at this point
                 geom = null;
             }

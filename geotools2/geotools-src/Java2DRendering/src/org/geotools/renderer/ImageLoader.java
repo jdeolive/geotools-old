@@ -20,25 +20,30 @@
 
 package org.geotools.renderer;
 
-/**
- * $Id: ImageLoader.java,v 1.5 2002/07/12 16:36:23 loxnard Exp $
- * @author Ian Turton
- */
+// J2SE dependencies
 import java.net.*;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-//Logging system
-import org.apache.log4j.Logger;
-
+/**
+ * $Id: ImageLoader.java,v 1.6 2002/08/07 07:36:26 desruisseaux Exp $
+ * @author Ian Turton
+ */
 public class ImageLoader implements Runnable{
+    /**
+     * The logger for the rendering module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.rendering");
+
     static HashMap images = new HashMap();
     static Canvas obs = new Canvas();
     static MediaTracker tracker = new MediaTracker(obs);
     static int imageID = 1;
     static java.awt.Toolkit tk = java.awt.Toolkit.getDefaultToolkit();
-    private static Logger _log = Logger.getLogger(ImageLoader.class);
+
     /**
      * Creates a new instance of ImageLoader
      */
@@ -50,26 +55,28 @@ public class ImageLoader implements Runnable{
         
         int localId = imageID;
         this.location = location;
-        //_log.debug("adding image, interactive? "+interactive);
+        LOGGER.finest("adding image, interactive? "+interactive);
         Thread t = new Thread(this);
         t.start();
         if (interactive){
-            //_log.debug("fast return");
+            LOGGER.finest("fast return");
             return;
         } else{
             waiting = true;
             while (waiting){
-                //_log.debug("waiting..."+waiting);
+                LOGGER.finest("waiting..."+waiting);
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e){
                 }
             }
-            //_log.debug(""+localId+" complete?: "+((tracker.statusID(localId,true)&tracker.COMPLETE) == tracker.COMPLETE));
-            //_log.debug(""+localId+" abort?: "+((tracker.statusID(localId,true)&tracker.ABORTED) == tracker.ABORTED));
-            //_log.debug(""+localId+" error?: "+((tracker.statusID(localId,true)&tracker.ERRORED) == tracker.ERRORED));
-            //_log.debug(""+localId+" loading?: "+((tracker.statusID(localId,true)&tracker.LOADING) == tracker.LOADING));
-            //_log.debug(""+localId+"slow return "+waiting);
+            if (LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.finest(""+localId+" complete?: "+((tracker.statusID(localId,true)&tracker.COMPLETE) == tracker.COMPLETE));
+                LOGGER.finest(""+localId+" abort?: "+((tracker.statusID(localId,true)&tracker.ABORTED) == tracker.ABORTED));
+                LOGGER.finest(""+localId+" error?: "+((tracker.statusID(localId,true)&tracker.ERRORED) == tracker.ERRORED));
+                LOGGER.finest(""+localId+" loading?: "+((tracker.statusID(localId,true)&tracker.LOADING) == tracker.LOADING));
+                LOGGER.finest(""+localId+"slow return "+waiting);
+            }
             return;
         }
             
@@ -77,13 +84,13 @@ public class ImageLoader implements Runnable{
     
     public BufferedImage get(URL location, boolean interactive){
         if (images.containsKey(location)){
-            //_log.debug("found it ");
+            LOGGER.finest("found it");
             return (BufferedImage) images.get(location);
         } else{
             if (!interactive){
                 images.put(location, null);
             }
-            //_log.debug("adding "+location);
+            LOGGER.finest("adding "+location);
             add(location, interactive);
             return (BufferedImage) images.get(location);
         }
@@ -98,7 +105,7 @@ public class ImageLoader implements Runnable{
             tracker.addImage(img, myID);
             
         } catch ( Exception e ) {
-            _log.error("Exception fetching image from " + location + "\n" + e);
+            LOGGER.warning("Exception fetching image from " + location + "\n" + e);
             images.remove(location);
             waiting = false;
             return;
@@ -107,7 +114,7 @@ public class ImageLoader implements Runnable{
         try {
             while ((tracker.statusID(myID, true)&tracker.LOADING) != 0){
                 tracker.waitForID(myID, 500);
-                //_log.debug(""+myID+"loading - waiting....");
+                LOGGER.finest(""+myID+"loading - waiting....");
             }
         } catch (InterruptedException ie){
         }
@@ -116,14 +123,14 @@ public class ImageLoader implements Runnable{
         
         
         if (state == tracker.ERRORED){
-            _log.debug("" + myID + " Error loading");
+            LOGGER.finer("" + myID + " Error loading");
             images.remove(location);
             waiting = false;
             return;
         }
         
         if ((state&tracker.COMPLETE) == tracker.COMPLETE){
-            //_log.debug(""+myID+"completed load");
+            LOGGER.finest("" + myID + "completed load");
             int iw = img.getWidth(obs);
             int ih = img.getHeight(obs);
             BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB);
@@ -135,7 +142,7 @@ public class ImageLoader implements Runnable{
             return;
         }
         
-        _log.debug("" + myID + " whoops - some other outcome " + state);
+        LOGGER.finer("" + myID + " whoops - some other outcome " + state);
         waiting = false;
         return;
     }
