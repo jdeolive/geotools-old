@@ -25,7 +25,7 @@ package org.geotools.styling;
   * TODO:This is unfinished as it currently returns fixed values with no way
   * to change them.
   *
-  * @version $Id: StrokeImpl.java,v 1.2 2002/10/14 17:09:03 ianturton Exp $
+  * @version $Id: StrokeImpl.java,v 1.3 2002/10/22 17:01:50 ianturton Exp $
   * @author James Macgill, CCG
   */
 
@@ -44,21 +44,21 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     
     /** Creates a new instance of Stroke */
     protected StrokeImpl() {
-        try {
-            color = new ExpressionLiteral("#000000");
-            dashArray = null;//HACK: is this an acceptable return?
-            dashOffset = new ExpressionLiteral(new Integer(0));
-            fillGraphic = null;
-            strokeGraphic = null;
-            lineCap = new ExpressionLiteral("butt");
-            lineJoin = new ExpressionLiteral("miter");
-            opacity = new ExpressionLiteral(new Integer(1));
-            width = new ExpressionLiteral(new Integer(1));
-        } catch (IllegalFilterException ife){
-            //we should never be in here
-            //TODO: log this as a fatal exception
-            System.err.println("DefaultStroke constructor failed " + ife);
-        }
+//        try {
+//            color = new ExpressionLiteral("#000000");
+//            dashArray = null;//HACK: is this an acceptable return?
+//            dashOffset = new ExpressionLiteral(new Integer(0));
+//            fillGraphic = null;
+//            strokeGraphic = null;
+//            lineCap = new ExpressionLiteral("butt");
+//            lineJoin = new ExpressionLiteral("miter");
+//            opacity = new ExpressionLiteral(new Integer(1));
+//            width = new ExpressionLiteral(new Integer(1));
+//        } catch (IllegalFilterException ife){
+//            //we should never be in here
+//            //TODO: log this as a fatal exception
+//            System.err.println("DefaultStroke constructor failed " + ife);
+//        }
     }
     
     /**

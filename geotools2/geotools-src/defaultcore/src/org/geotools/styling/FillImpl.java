@@ -32,7 +32,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FillImpl.java,v 1.2 2002/10/14 17:08:58 ianturton Exp $
+ * @version $Id: FillImpl.java,v 1.3 2002/10/22 17:01:50 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -51,12 +51,7 @@ public class FillImpl implements org.geotools.styling.Fill {
     
     /** Creates a new instance of DefaultFill */
     protected FillImpl() {
-        try {
-            color = new org.geotools.filter.ExpressionLiteral("#808080");
-            opacity = new org.geotools.filter.ExpressionLiteral(new Double(1.0));
-        } catch (org.geotools.filter.IllegalFilterException ife){
-            LOGGER.severe("Failed to build default fill: " + ife);
-        }
+        
     }
     
     /**

@@ -29,12 +29,14 @@ public class TextMark extends MarkImpl implements Mark, Symbol {
     Expression symbol;
     /** Creates a new instance of TextMark */
     public TextMark(Font font, String symbol) {
+        super();
         addFont(font);
         setSymbol(symbol);
         wellKnownName = new ExpressionLiteral("Symbol");
     }
     
     public TextMark(Font font, Expression symbol) {
+        super();
         addFont(font);
         setSymbol(symbol);
         wellKnownName = new ExpressionLiteral("Symbol");

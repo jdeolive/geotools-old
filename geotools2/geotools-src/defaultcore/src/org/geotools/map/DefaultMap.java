@@ -29,12 +29,14 @@ import org.geotools.styling.*;
 import org.opengis.cs.*;
 import com.vividsolutions.jts.geom.Envelope;
 
+//logging
+import java.util.logging.Logger;
 /**
- * @version $Id: DefaultMap.java,v 1.6 2002/07/22 09:18:24 jmacgill Exp $
+ * @version $Id: DefaultMap.java,v 1.7 2002/10/22 17:01:50 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class DefaultMap implements org.geotools.map.Map {
-    
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
     private Hashtable tables = new Hashtable();
     
     /** Creates a new instance of DefaultMap */
@@ -65,7 +67,9 @@ public class DefaultMap implements org.geotools.map.Map {
             FeatureCollection ft = (FeatureCollection) layers.nextElement();
             Style style = (Style) tables.get(ft);
             try {
+                LOGGER.finer("Envelope = " + envelope.toString());
                 Feature[] features = ft.getFeatures(new EnvelopeExtent(envelope));//TODO: this could be a bottle neck
+                LOGGER.finest("real renderer call " + features.length + " features");
                 renderer.render(features, envelope, style);
             }
             catch (DataSourceException dse){

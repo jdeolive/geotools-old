@@ -9,65 +9,26 @@ package org.geotools.styling;
 
 import org.geotools.filter.*;
 /**
- * Factory for creating Styles. All style elements are returned as Interfaces from org.geotools.core as opposed 
+ * Factory for creating Styles. All style elements are returned as Interfaces from org.geotools.core as opposed
  * to Implementations from org.geotools.defaultcore.
  *
- * @version $Id: StyleFactoryImpl.java,v 1.1 2002/10/17 16:54:55 ianturton Exp $
+ * @version $Id: StyleFactoryImpl.java,v 1.2 2002/10/22 17:02:05 ianturton Exp $
  * @author  iant
  */
-public class StyleFactoryImpl extends StyleFactory { 
+public class StyleFactoryImpl extends StyleFactory {
     
     /** Creates a new instance of StyleFactory */
     protected StyleFactoryImpl() {
     }
     
-     
-   
-    
-    /** reads an SLD Style from the named file
-     * @param filename the name of the file to be read
-     * @return the style
-     */    
-    public Style readXML(String filename){
-        SLDStyle style = new SLDStyle(filename);
-        return style;
-    }
-    
-    /** reads an SLD Style from the file
-     * @param file the file to read
-     * @return the style
-     */    
-    public Style readXML(java.io.File file){
-        SLDStyle style = new SLDStyle(file);
-        return style;
-    }
-    
-    /** reads an SLD Style from the url
-     * @param url The url to read the style from
-     * @return The style
-     */    
-    public Style readXML(java.net.URL url){
-        SLDStyle style = new SLDStyle(url);
-        return style;
-    }
-    
-    /** reads an SLD Style from the inputstream
-     * @param in The inputstream to be read
-     * @return The style
-     */    
-    public Style readXML(java.io.InputStream in){
-        SLDStyle style = new SLDStyle(in);
-        return style;
-    }
-    
     public Style createStyle(){
         return new StyleImpl();
     }
-    public  PointSymbolizer createPointSymbolizer(){
+    public PointSymbolizer createPointSymbolizer(){
         return new PointSymbolizerImpl();
     }
     
-    public  PointSymbolizer createPointSymbolizer(Graphic graphic, String geometryPropertyName){
+    public PointSymbolizer createPointSymbolizer(Graphic graphic, String geometryPropertyName){
         PointSymbolizer pSymb = new PointSymbolizerImpl();
         pSymb.setGeometryPropertyName(geometryPropertyName);
         pSymb.setGraphic(graphic);
@@ -78,29 +39,29 @@ public class StyleFactoryImpl extends StyleFactory {
         return new PolygonSymbolizerImpl();
     }
     
-    public  PolygonSymbolizer createPolygonSymbolizer(Stroke stroke, Fill fill, String geometryPropertyName){
+    public PolygonSymbolizer createPolygonSymbolizer(Stroke stroke, Fill fill, String geometryPropertyName){
         PolygonSymbolizer pSymb = new PolygonSymbolizerImpl();
         pSymb.setGeometryPropertyName(geometryPropertyName);
         pSymb.setStroke(stroke);
         pSymb.setFill(fill);
         return pSymb;
     }
-    public  LineSymbolizer createLineSymbolizer(){
+    public LineSymbolizer createLineSymbolizer(){
         return new LineSymbolizerImpl();
     }
     
-    public  LineSymbolizer createLineSymbolizer(Stroke stroke, String geometryPropertyName){
+    public LineSymbolizer createLineSymbolizer(Stroke stroke, String geometryPropertyName){
         LineSymbolizer lSymb = new LineSymbolizerImpl();
         lSymb.setGeometryPropertyName(geometryPropertyName);
         lSymb.setStroke(stroke);
         
         return lSymb;
     }
-    public  TextSymbolizer createTextSymbolizer(){
+    public TextSymbolizer createTextSymbolizer(){
         return new TextSymbolizerImpl();
     }
     
-    public  TextSymbolizer createTextSymbolizer(Fill fill, Font[] fonts, Halo halo, Expression label, LabelPlacement labelPlacement, String geometryPropertyName){
+    public TextSymbolizer createTextSymbolizer(Fill fill, Font[] fonts, Halo halo, Expression label, LabelPlacement labelPlacement, String geometryPropertyName){
         TextSymbolizer tSymb = new TextSymbolizerImpl();
         tSymb.setFill(fill);
         tSymb.setFonts(fonts);
@@ -112,7 +73,7 @@ public class StyleFactoryImpl extends StyleFactory {
         
         return tSymb;
     }
-    public  FeatureTypeStyle createFeatureTypeStyle(){
+    public FeatureTypeStyle createFeatureTypeStyle(){
         return new FeatureTypeStyleImpl();
     }
     
@@ -128,7 +89,7 @@ public class StyleFactoryImpl extends StyleFactory {
      * @param color the color of the line
      * @param width the width of the line
      * @return the stroke object
-     */    
+     */
     public Stroke createStroke(Expression color, Expression width){
         return createStroke(color,width,new ExpressionLiteral(1.0));
     }
@@ -138,13 +99,13 @@ public class StyleFactoryImpl extends StyleFactory {
      * @param width The width of the line
      * @param opacity The opacity of the line
      * @return The stroke
-     */    
+     */
     public Stroke createStroke(Expression color, Expression width, Expression opacity){
         return createStroke(color, width,opacity,new ExpressionLiteral("bevel"),
-            new ExpressionLiteral("square"),null,new ExpressionLiteral(0.0),null,null);
+        new ExpressionLiteral("square"),null,new ExpressionLiteral(0.0),null,null);
     }
     
-    /** creates a stroke 
+    /** creates a stroke
      * @see org.geotools.stroke
      * @param color The color of the line
      * @param width The width of the line
@@ -158,18 +119,18 @@ public class StyleFactoryImpl extends StyleFactory {
      * @return The completed stroke.
      */
     public Stroke createStroke(Expression color, Expression width, Expression opacity, Expression lineJoin,
-        Expression lineCap, float[] dashArray, Expression dashOffset, Graphic graphicFill, Graphic graphicStroke){
-            Stroke stroke = new StrokeImpl();
-            stroke.setColor(color);
-            stroke.setWidth(width);
-            stroke.setOpacity(opacity);
-            stroke.setLineJoin(lineJoin);
-            stroke.setLineCap(lineCap);
-            stroke.setDashArray(dashArray);
-            stroke.setDashOffset(dashOffset);
-            stroke.setGraphicFill(graphicFill);
-            stroke.setGraphicStroke(graphicStroke);
-            return stroke;
+    Expression lineCap, float[] dashArray, Expression dashOffset, Graphic graphicFill, Graphic graphicStroke){
+        Stroke stroke = new StrokeImpl();
+        stroke.setColor(color);
+        stroke.setWidth(width);
+        stroke.setOpacity(opacity);
+        stroke.setLineJoin(lineJoin);
+        stroke.setLineCap(lineCap);
+        stroke.setDashArray(dashArray);
+        stroke.setDashOffset(dashOffset);
+        stroke.setGraphicFill(graphicFill);
+        stroke.setGraphicStroke(graphicStroke);
+        return stroke;
     }
     
     public Stroke createStroke(){
@@ -193,9 +154,6 @@ public class StyleFactoryImpl extends StyleFactory {
         return createFill(color,null,new ExpressionLiteral(1.0),null);
     }
     
-    public Fill createFill(){
-        return new FillImpl();
-    }
     
     public Mark createMark(Expression wellKnownName, Stroke stroke, Fill fill, Expression size, Expression rotation){
         Mark mark = new MarkImpl();
@@ -207,33 +165,32 @@ public class StyleFactoryImpl extends StyleFactory {
         return mark;
     }
     
-    public Mark createSquareMark(){
-        Mark mark = new MarkImpl();
-        mark.setWellKnownName(new ExpressionLiteral("Square"));
+    public Mark getSquareMark(){
+        Mark mark = getDefaultMark();
         return mark;
     }
-    public Mark createCircleMark(){
-        Mark mark = new MarkImpl();
+    public Mark getCircleMark(){
+        Mark mark = getDefaultMark();
         mark.setWellKnownName(new ExpressionLiteral("Circle"));
         return mark;
-    }    
-    public Mark createCrossMark(){
-        Mark mark = new MarkImpl();
+    }
+    public Mark getCrossMark(){
+        Mark mark = getDefaultMark();
         mark.setWellKnownName(new ExpressionLiteral("Cross"));
         return mark;
     }
-    public Mark createXMark(){
-        Mark mark = new MarkImpl();
+    public Mark getXMark(){
+        Mark mark = getDefaultMark();
         mark.setWellKnownName(new ExpressionLiteral("X"));
         return mark;
     }
-    public Mark createTriangleMark(){
-        Mark mark = new MarkImpl();
+    public Mark getTriangleMark(){
+        Mark mark = getDefaultMark();
         mark.setWellKnownName(new ExpressionLiteral("Triangle"));
         return mark;
     }
-    public Mark createStarMark(){
-        Mark mark = new MarkImpl();
+    public Mark getStarMark(){
+        Mark mark = getDefaultMark();
         mark.setWellKnownName(new ExpressionLiteral("Star"));
         return mark;
     }
@@ -242,23 +199,24 @@ public class StyleFactoryImpl extends StyleFactory {
         return mark;
     }
     
-    public Graphic createGraphic(ExternalGraphic[] externalGraphics, Mark[] marks, Symbol[] symbols, 
-        Expression opacity, Expression size, Expression rotation){
-            Graphic graphic = new GraphicImpl();
-            graphic.setExternalGraphics(externalGraphics);
-            graphic.setMarks(marks);
-            graphic.setSymbols(symbols);
-            graphic.setOpacity(opacity);
-            graphic.setSize(size);
-            graphic.setRotation(rotation);
-            return graphic;
-    }
-    public Graphic createGraphic(){
-        return new GraphicImpl();
+    public Graphic createGraphic(ExternalGraphic[] externalGraphics, Mark[] marks, Symbol[] symbols,
+    Expression opacity, Expression size, Expression rotation){
+        Graphic graphic = new GraphicImpl();
+        graphic.setExternalGraphics(externalGraphics);
+        graphic.setMarks(marks);
+        graphic.setSymbols(symbols);
+        graphic.setOpacity(opacity);
+        graphic.setSize(size);
+        graphic.setRotation(rotation);
+        return graphic;
     }
     
-    public ExternalGraphic createExternalGraphic(){
-        return new ExternalGraphicImpl();
+    
+    public ExternalGraphic createExternalGraphic(String uri, String format){
+        ExternalGraphic eg = new ExternalGraphicImpl();
+        eg.setURI(uri);
+        eg.setFormat(format);
+        return eg;
     }
     public ExternalGraphic createExternalGraphic(java.net.URL url, String format){
         ExternalGraphic eg = new ExternalGraphicImpl();
@@ -266,9 +224,7 @@ public class StyleFactoryImpl extends StyleFactory {
         eg.setFormat(format);
         return eg;
     }
-    public Font createFont(){
-        return new FontImpl();
-    }
+    
     
     public Font createFont(Expression fontFamily, Expression fontStyle, Expression fontWeight, Expression fontSize){
         Font font = new FontImpl();
@@ -301,19 +257,11 @@ public class StyleFactoryImpl extends StyleFactory {
         return pp;
     }
     
-    public AnchorPoint createAnchorPoint(){
-        return new AnchorPointImpl();
-    }
-    
     public AnchorPoint createAnchorPoint(Expression x, Expression y){
         AnchorPoint anchorPoint = new AnchorPointImpl();
         anchorPoint.setAnchorPointX(x);
         anchorPoint.setAnchorPointY(y);
         return anchorPoint;
-    }
-    
-    public Displacement createDisplacement(){
-        return new DisplacementImpl();
     }
     
     public Displacement createDisplacement(Expression x, Expression y){
@@ -323,14 +271,91 @@ public class StyleFactoryImpl extends StyleFactory {
         return displacement;
     }
     
-    public Halo createHalo(){
-        return new HaloImpl();
-    }
-    
     public Halo createHalo(Fill fill, Expression radius){
         Halo halo = new HaloImpl();
         halo.setFill(fill);
         halo.setRadius(radius);
         return halo;
+    }
+    
+    public Fill getDefaultFill() {
+        Fill fill = new FillImpl();
+        try {
+            fill.setColor(new org.geotools.filter.ExpressionLiteral("#808080"));
+            fill.setOpacity(new org.geotools.filter.ExpressionLiteral(new Double(1.0)));
+        } catch (org.geotools.filter.IllegalFilterException ife){
+            severe("getDefaultFill", "Failed to build default fill:",ife);
+        }
+        return fill;
+    }
+    
+    public LineSymbolizer getDefaultLineSymbolizer() {
+        return createLineSymbolizer(getDefaultStroke(), "geometry:line");
+    }
+    
+    public Mark getDefaultMark() {
+        return getSquareMark();
+    }
+    
+    public PointSymbolizer getDefaultPointSymbolizer() {
+        return createPointSymbolizer(getDefaultGraphic(), "geometry:point");
+    }
+    
+    public PolygonSymbolizer getDefaultPolygonSymbolizer() {
+        return createPolygonSymbolizer(getDefaultStroke(), getDefaultFill(), "geometry:polygon");
+    }
+    
+    public Stroke getDefaultStroke() {
+        try{
+            Stroke stroke = createStroke(new ExpressionLiteral("#000000"), new ExpressionLiteral(new Integer(1)));
+            
+            stroke.setDashOffset(new ExpressionLiteral(new Integer(0)));
+            stroke.setLineCap(new ExpressionLiteral("butt"));
+            stroke.setLineJoin(new ExpressionLiteral("miter"));
+            stroke.setOpacity(new ExpressionLiteral(new Integer(1)));
+            
+            return stroke;
+        } catch (IllegalFilterException ife){
+            //we should never be in here
+            severe("getDefaultStroke", "DefaultStroke constructor failed ", ife);
+            
+            return null;
+        }
+    }
+    
+    public Style getDefaultStyle() {
+        Style style = createStyle();
+        
+        return style;
+    }
+    
+    public TextSymbolizer getDefaultTextSymbolizer() {
+        return createTextSymbolizer(getDefaultFill(), new Font[]{getDefaultFont()}, null, null, null, "gemoerty:text");
+    }
+    
+    public Font getDefaultFont(){
+        Font font = new FontImpl();
+        try {
+            font.setFontSize(new org.geotools.filter.ExpressionLiteral(new Integer(10)));
+            font.setFontStyle(new org.geotools.filter.ExpressionLiteral("normal"));
+            font.setFontWeight(new org.geotools.filter.ExpressionLiteral("normal"));
+            font.setFontFamily(new org.geotools.filter.ExpressionLiteral("Courier"));
+        } catch (org.geotools.filter.IllegalFilterException ife){
+            severe("getDefaultFont","Failed to build defaultFont:", ife);
+        }
+        return font;
+    }
+    
+    public Graphic getDefaultGraphic(){
+        Graphic gr = new GraphicImpl();
+        try {
+            gr.setSize(new ExpressionLiteral(new Integer(6)));
+            gr.setOpacity(new ExpressionLiteral(new Double(1.0)));
+            gr.setRotation(new ExpressionLiteral(new Double(0.0)));
+        } catch (IllegalFilterException ife){
+            severe("getDefaultGraphic", "Failed to build default graphic", ife);
+        }
+        
+        return gr;
     }
 }

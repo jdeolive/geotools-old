@@ -40,7 +40,7 @@ import org.w3c.dom.*;
  *
  * It currently implements Style but it shouldn't!
  * 
- * @version $Id: SLDStyle.java,v 1.25 2002/10/21 16:12:58 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.26 2002/10/22 17:02:57 ianturton Exp $
  * @author Ian Turton
  */
 public class SLDStyle {
@@ -491,7 +491,7 @@ public class SLDStyle {
             LOGGER.finest("processing graphic " + root);
         }
         
-        Graphic graphic = factory.createGraphic();
+        Graphic graphic = factory.getDefaultGraphic();
 
         NodeList children = root.getChildNodes();
 
@@ -594,8 +594,8 @@ public class SLDStyle {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("processing external graphic ");
         }
-
-        ExternalGraphic extgraph = factory.createExternalGraphic();
+        String format = "" ,uri = "";
+        
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -625,7 +625,7 @@ public class SLDStyle {
                     if (map.item(k).getNodeName()
                            .equalsIgnoreCase("xlink:href")) {
                         LOGGER.finest("seting ExtGraph uri " + res);
-                        extgraph.setURI(res);
+                        uri = res;
                     }
                 }
             }
@@ -634,15 +634,16 @@ public class SLDStyle {
                 LOGGER.finest("format child is " + child);
                 LOGGER.finest("seting ExtGraph format " + 
                               child.getFirstChild().getNodeValue());
-                extgraph.setFormat(child.getFirstChild().getNodeValue());
+                format = (child.getFirstChild().getNodeValue());
             }
         }
-
+        ExternalGraphic extgraph = factory.createExternalGraphic(uri, format);
+        
         return extgraph;
     }
 
     private Stroke parseStroke(Node root) {
-        Stroke stroke = factory.createStroke();
+        Stroke stroke = factory.getDefaultStroke();
         NodeList list = ((Element) root).getElementsByTagName("GraphicFill");
 
         if (list.getLength() > 0) {
@@ -772,7 +773,7 @@ public class SLDStyle {
             LOGGER.finest("parsing fill ");
         }
 
-        Fill fill = factory.createFill();
+        Fill fill = factory.getDefaultFill();
         NodeList list = ((Element) root).getElementsByTagName("GraphicFill");
 
         if (list.getLength() > 0) {
@@ -883,7 +884,7 @@ public class SLDStyle {
             LOGGER.finest("parsing font");
         }
 
-        Font font = factory.createFont();
+        Font font = factory.getDefaultFont();
         NodeList list = ((Element) root).getElementsByTagName("CssParameter");
 
         for (int i = 0; i < list.getLength(); i++) {
@@ -1009,7 +1010,8 @@ public class SLDStyle {
             LOGGER.finest("parsing anchorPoint");
         }
 
-        AnchorPoint dap = factory.createAnchorPoint();
+        Expression x = null, y = null;
+        
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -1021,14 +1023,14 @@ public class SLDStyle {
             }
 
             if (child.getNodeName().equalsIgnoreCase("AnchorPointX")) {
-                dap.setAnchorPointX(parseCssParameter(child));
+                x = (parseCssParameter(child));
             }
 
             if (child.getNodeName().equalsIgnoreCase("AnchorPointY")) {
-                dap.setAnchorPointY(parseCssParameter(child));
+                y = (parseCssParameter(child));
             }
         }
-
+        AnchorPoint dap = factory.createAnchorPoint(x,y);
         return dap;
     }
 
@@ -1037,7 +1039,7 @@ public class SLDStyle {
             LOGGER.finest("parsing displacment");
         }
 
-        Displacement dd = factory.createDisplacement();
+        Expression x = null, y = null;
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -1049,14 +1051,14 @@ public class SLDStyle {
             }
 
             if (child.getNodeName().equalsIgnoreCase("DisplacementX")) {
-                dd.setDisplacementX(parseCssParameter(child));
+                x = (parseCssParameter(child));
             }
 
             if (child.getNodeName().equalsIgnoreCase("DisplacementY")) {
-                dd.setDisplacementY(parseCssParameter(child));
+                y = (parseCssParameter(child));
             }
         }
-
+        Displacement dd = factory.createDisplacement(x,y);
         return dd;
     }
 
@@ -1064,8 +1066,8 @@ public class SLDStyle {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing halo");
         }
-
-        Halo halo = factory.createHalo();
+        Halo halo = factory.createHalo(factory.getDefaultFill(),new ExpressionLiteral(0));
+       
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {

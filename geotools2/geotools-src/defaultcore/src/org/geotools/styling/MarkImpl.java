@@ -33,7 +33,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: MarkImpl.java,v 1.4 2002/10/16 16:57:21 ianturton Exp $
+ * @version $Id: MarkImpl.java,v 1.5 2002/10/22 17:02:05 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class MarkImpl implements Mark, Symbol {
@@ -41,10 +41,10 @@ public class MarkImpl implements Mark, Symbol {
     /**
      * The logger for the default core module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.styling");
     
-    Fill fill = new FillImpl();
-    Stroke stroke = new StrokeImpl();
+    Fill fill;
+    Stroke stroke;
     
     //Polygon shape;
     private Expression wellKnownName = null;
@@ -57,16 +57,21 @@ public class MarkImpl implements Mark, Symbol {
     protected MarkImpl() {
         LOGGER.fine("creating defaultMark");
         try {
+            StyleFactory sf = new StyleFactoryImpl();
+            fill = sf.getDefaultFill();
+            stroke = sf.getDefaultStroke();
+            
             wellKnownName = new ExpressionLiteral("square");
             size = new ExpressionLiteral(new Integer(6));
             rotation = new ExpressionLiteral(new Double(0.0));
         } catch (IllegalFilterException ife){
             severe("<init>", "Failed to build default mark: ", ife);
-        }
+        } 
     }
     
     public MarkImpl(String name){
-        LOGGER.info("creating " + name + " type mark");
+        this();
+        LOGGER.fine("creating " + name + " type mark");
         setWellKnownName(name);
     }
     

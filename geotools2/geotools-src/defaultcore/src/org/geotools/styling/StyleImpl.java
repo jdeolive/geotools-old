@@ -19,14 +19,23 @@
 
 package org.geotools.styling;
 
+// J2SE dependencies
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
 import java.util.ArrayList;
 import java.util.Arrays;
 /**
- * @version $Id: StyleImpl.java,v 1.5 2002/10/22 10:46:45 ianturton Exp $
+ * @version $Id: StyleImpl.java,v 1.6 2002/10/22 17:02:05 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style {
 
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.styling");
+    
     ArrayList featureTypeStyleList = new ArrayList();
     String abstractText = "";
     String name = "Default Styler";
@@ -35,17 +44,7 @@ public class StyleImpl implements org.geotools.styling.Style {
     
     /** Creates a new instance of DefaultStyle */
     protected StyleImpl() {
-//        featureTypeStyleList = new FeatureTypeStyleImpl[1];
-//        featureTypeStyleList[0] = new FeatureTypeStyleImpl();
-//        featureTypeStyleList[0].setFeatureTypeName("default");
-//        RuleImpl [] rules = new RuleImpl[1];
-//        rules[0] = new RuleImpl();
-//        Symbolizer[] symbolizers = new Symbolizer[3];
-//        symbolizers[0] = new PolygonSymbolizerImpl();
-//        symbolizers[1] = new LineSymbolizerImpl();
-//        symbolizers[2] = new PointSymbolizerImpl();
-//        rules[0].setSymbolizers(symbolizers);
-//        ((FeatureTypeStyleImpl)featureTypeStyleList[0]).setRules(rules);
+
     }
 
     public String getAbstract() {
@@ -54,10 +53,10 @@ public class StyleImpl implements org.geotools.styling.Style {
     
     public FeatureTypeStyle[] getFeatureTypeStyles() {
        if( featureTypeStyleList == null || featureTypeStyleList.size() == 0){
-           System.out.println("returning null styler");
+           LOGGER.fine("returning empty featureTypeStyle");
            return new FeatureTypeStyleImpl[]{new FeatureTypeStyleImpl()};
        }
-       System.out.println("number of fts set " + featureTypeStyleList.size());
+       LOGGER.fine("number of fts set " + featureTypeStyleList.size());
        return (FeatureTypeStyle[]) featureTypeStyleList.toArray(new FeatureTypeStyle[]{});
        
     }
@@ -67,7 +66,7 @@ public class StyleImpl implements org.geotools.styling.Style {
         for(int i=0;i<featureTypeStyles.length;i++){
             addFeatureTypeStyle(featureTypeStyles[i]);
         }
-        System.err.println("StyleImpl added " + featureTypeStyleList.size() + " feature types");
+        LOGGER.fine("StyleImpl added " + featureTypeStyleList.size() + " feature types");
     }
     
     public String getName() {
@@ -102,4 +101,13 @@ public class StyleImpl implements org.geotools.styling.Style {
         featureTypeStyleList.add(type);
     }
     
+    /**
+     * Convenience method for logging a message with an exception.
+     */
+    private static void severe(final String method, final String message, final Exception exception) {
+        final LogRecord record = new LogRecord(Level.SEVERE, message);
+        record.setSourceMethodName(method);
+        record.setThrown(exception);
+        LOGGER.log(record);
+    }
 }

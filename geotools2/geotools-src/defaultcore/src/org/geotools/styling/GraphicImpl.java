@@ -31,7 +31,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: GraphicImpl.java,v 1.2 2002/10/14 17:08:57 ianturton Exp $
+ * @version $Id: GraphicImpl.java,v 1.3 2002/10/22 17:01:50 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class GraphicImpl implements org.geotools.styling.Graphic {
@@ -49,13 +49,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     private Expression opacity = null;
     /** Creates a new instance of DefaultGraphic */
     protected GraphicImpl() {
-         try {
-            size = new ExpressionLiteral(new Integer(6));
-            opacity = new ExpressionLiteral(new Double(1.0));
-            rotation = new ExpressionLiteral(new Double(0.0));
-        } catch (IllegalFilterException ife){
-            severe("<init>", "Failed to build default graphic", ife);
-        }
+         
     }
 
     /**

@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: Style.java,v 1.6 2002/10/21 16:09:39 ianturton Exp $
+ * @version $Id: Style.java,v 1.7 2002/10/22 17:02:04 ianturton Exp $
  * @author James Macgill
  */
 public interface Style {
@@ -37,5 +37,6 @@ public interface Style {
     FeatureTypeStyle[] getFeatureTypeStyles();
     void setFeatureTypeStyles(FeatureTypeStyle[] types);
     void addFeatureTypeStyle(FeatureTypeStyle type);
+
 }
 

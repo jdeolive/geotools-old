@@ -2,24 +2,59 @@ package org.geotools.styling;
 
 import java.net.URL;
 import org.geotools.filter.Expression;
-
+// J2SE dependencies
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
 
 
 public abstract class StyleFactory {
+    /**
+     * The logger 
+     */
+    protected static final Logger LOGGER = Logger.getLogger("org.geotools.styling"); 
     
     /** creates an instance of a style factory
      * @return an instance of the style factory
      */   
     
-    public static StyleFactory createStyleFactory() throws Exception{ //HACK - do this properly
-        return (StyleFactory)Class.forName("org.geotools.styling.StyleFactoryImpl").newInstance(); 
+    public static StyleFactory createStyleFactory() throws StyleFactoryCreationException{ 
+        String factoryClass = System.getProperty("StyleFactoryImpl");
+        LOGGER.fine("loaded property = " + factoryClass);
+        StyleFactory sf = null;
+        if(factoryClass != null && factoryClass != ""){
+            try{
+                sf = createStyleFactory(factoryClass); 
+            } catch (StyleFactoryCreationException e){
+                // do nothing yet or should we give up now
+                LOGGER.info("Failed to create " + factoryClass + " because \n" + e);
+            }
+        }else{
+            sf = createStyleFactory("org.geotools.styling.StyleFactoryImpl");
+        }
+        return sf;
     }
     
+    public static StyleFactory createStyleFactory(String factoryClass) throws StyleFactoryCreationException{
+        try{
+            return (StyleFactory)Class.forName(factoryClass).newInstance();
+        } catch (ClassNotFoundException cnfe){
+            severe("createStyleFactory", "failed to find implementation " + factoryClass, cnfe);
+            throw new StyleFactoryCreationException("Failed to find implementation " + factoryClass, cnfe); 
+        } catch (InstantiationException ie){
+            severe("createStyleFactory", "failed to insantiate implementation " + factoryClass, ie);
+            throw new StyleFactoryCreationException("Failed to insantiate implementation " + factoryClass, ie);
+        } catch (IllegalAccessException iae){
+            severe("createStyleFactory", "failed to access implementation " + factoryClass, iae);
+            throw new StyleFactoryCreationException("Failed to access implementation " + factoryClass, iae);
+        }
+    }
+        
     public abstract TextSymbolizer createTextSymbolizer(Fill fill, Font[] fonts, Halo halo, Expression label, LabelPlacement labelPlacement, String geometryPropertyName);
     
     public abstract ExternalGraphic createExternalGraphic(URL url, String format);
-
-    public abstract Font createFont();
+    
+    public abstract ExternalGraphic createExternalGraphic(String uri, String format);
 
     public abstract AnchorPoint createAnchorPoint(Expression x, Expression y);
 
@@ -31,21 +66,19 @@ public abstract class StyleFactory {
 
     public abstract PointPlacement createPointPlacement();
 
-    public abstract Mark createMark();
-
     public abstract Mark createMark(Expression wellKnownName, Stroke stroke, Fill fill, Expression size, Expression rotation);
 
-    public abstract Mark createCircleMark();    
+    public abstract Mark getCircleMark();    
     
-    public abstract Mark createXMark();
+    public abstract Mark getXMark();
 
-    public abstract Mark createStarMark();
+    public abstract Mark getStarMark();
 
-    public abstract Mark createSquareMark();
+    public abstract Mark getSquareMark();
 
-    public abstract Mark createCrossMark();
+    public abstract Mark getCrossMark();
 
-    public abstract Mark createTriangleMark();
+    public abstract Mark getTriangleMark();
 
     public abstract FeatureTypeStyle createFeatureTypeStyle(Rule[] rules);
 
@@ -54,10 +87,6 @@ public abstract class StyleFactory {
     public abstract PolygonSymbolizer createPolygonSymbolizer();
 
     public abstract Halo createHalo(Fill fill, Expression radius);
-    
-    public abstract Halo createHalo();
-
-    public abstract Graphic createGraphic();
 
     public abstract Fill createFill(Expression color, Expression backgroundColor, Expression opacity, Graphic graphicFill);
 
@@ -67,8 +96,6 @@ public abstract class StyleFactory {
 
     public abstract Style createStyle();
 
-    public abstract Fill createFill();
-
     public abstract Fill createFill(Expression color, Expression opacity);
 
     public abstract Fill createFill(Expression color);
@@ -77,17 +104,11 @@ public abstract class StyleFactory {
 
     public abstract PointPlacement createPointPlacement(AnchorPoint anchorPoint, Displacement displacement, Expression rotation);
 
-    public abstract Stroke createStroke();
-        
     public abstract Stroke createStroke(Expression color, Expression width);
 
     public abstract Stroke createStroke(Expression color, Expression width, Expression opacity);
 
     public abstract Stroke createStroke(Expression color, Expression width, Expression opacity, Expression lineJoin, Expression lineCap, float[] dashArray, Expression dashOffset, Graphic graphicFill, Graphic graphicStroke);
-
-    public abstract AnchorPoint createAnchorPoint();
-
-    public abstract Displacement createDisplacement();
 
     public abstract Rule createRule();
 
@@ -95,12 +116,42 @@ public abstract class StyleFactory {
 
     public abstract FeatureTypeStyle createFeatureTypeStyle();
 
-    public abstract ExternalGraphic createExternalGraphic();
-
     public abstract Graphic createGraphic(ExternalGraphic[] externalGraphics, Mark[] marks, Symbol[] symbols, Expression opacity, Expression size, Expression rotation);
 
     public abstract Font createFont(Expression fontFamily, Expression fontStyle, Expression fontWeight, Expression fontSize);
 
+    public abstract Mark createMark();
+    
     public abstract PolygonSymbolizer createPolygonSymbolizer(Stroke stroke, Fill fill, String geometryPropertyName);
 
+    public abstract Style getDefaultStyle();
+    
+    public abstract Stroke getDefaultStroke();
+    
+    public abstract Fill getDefaultFill();
+    
+    public abstract Mark getDefaultMark();
+    
+    public abstract PointSymbolizer getDefaultPointSymbolizer();
+    
+    public abstract PolygonSymbolizer getDefaultPolygonSymbolizer();
+    
+    public abstract LineSymbolizer getDefaultLineSymbolizer();
+    
+    public abstract TextSymbolizer getDefaultTextSymbolizer();
+    
+    public abstract Graphic getDefaultGraphic();
+    
+    public abstract Font getDefaultFont();
+    
+    
+    /**
+     * Convenience method for logging a message with an exception.
+     */
+    protected static void severe(final String method, final String message, final Exception exception) {
+        final LogRecord record = new LogRecord(Level.SEVERE, message);
+        record.setSourceMethodName(method);
+        record.setThrown(exception);
+        LOGGER.log(record);
+    }
 }
