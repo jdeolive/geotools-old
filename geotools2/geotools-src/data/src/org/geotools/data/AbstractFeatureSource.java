@@ -98,7 +98,7 @@ public abstract class AbstractFeatureSource implements FeatureSource {
      * @throws IOException If results could not be obtained
      */
     public FeatureResults getFeatures(Filter filter) throws IOException {
-        return getFeatures(new DefaultQuery(filter));
+        return getFeatures( new DefaultQuery(getSchema().getTypeName(), filter ));
     }
 
     /**
