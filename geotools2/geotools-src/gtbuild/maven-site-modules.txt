@@ -1,0 +1,10 @@
+core
+algorithms
+shapefile
+defaultcore
+Java2DRendering
+gmldatasource
+postgis
+gui
+filter
+cts-coordtrans
