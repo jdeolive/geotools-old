@@ -59,7 +59,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * {@link org.geotools.cs.Projection} using this class for binding classification
  * name to parameter list descriptors.
  *
- * @version $Id: DescriptorNaming.java,v 1.7 2003/08/04 17:11:18 desruisseaux Exp $
+ * @version $Id: DescriptorNaming.java,v 1.8 2004/01/25 21:38:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class DescriptorNaming {
@@ -138,14 +138,14 @@ public final class DescriptorNaming {
     private void bindDefaults(final String method) {
         try {
             final  Class c = Class.forName(initializer);
-            final Method m = c.getMethod("getDefault", null);
+            final Method m = c.getMethod("getDefaults", null);
             m.invoke(null, null);
         } catch (ClassNotFoundException exception) {
             Utilities.unexpectedException(logger, "DescriptorNaming", method, exception);
         } catch (NoSuchMethodException exception) {
-            // No "getDefault()" static method. Ignore...
+            // No "getDefaults()" static method. Ignore...
         } catch (IllegalAccessException exception) {
-            // The method is not public. Treat it as if they were no "getDefault()" method.
+            // The method is not public. Treat it as if they were no "getDefaults()" method.
         } catch (InvocationTargetException exception) {
             Utilities.unexpectedException(logger, "DescriptorNaming", method, exception);
         }
