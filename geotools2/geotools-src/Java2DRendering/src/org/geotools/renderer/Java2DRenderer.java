@@ -56,7 +56,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.75 2003/05/04 09:53:22 camerons Exp $
+ * @version $Id: Java2DRenderer.java,v 1.76 2003/05/04 21:52:32 camerons Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -228,8 +228,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
      *        pixels).
      *
      * @task TODO Move this functionality into render(Graphics2D,
-     *       CT_MathTransform).
-     * @deprecated Use render(Graphics2D, CT_MathTransform) instead.
+     *       AffineTransform).
+     * @deprecated Use render(Graphics2D, AffineTransform) instead.
      */
     public void render(Graphics2D graphics, Rectangle paintArea) {
         Date start = new Date();
@@ -601,6 +601,6 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
      *
      * @task TODO Populate this method.
      */
-    public void render(Graphics2D graphics, CT_MathTransform transform) {
+    public void paint(Graphics2D graphics, AffineTransform transform) {
     }
 }

@@ -19,7 +19,6 @@ package org.geotools.renderer;
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.Feature;
 import org.geotools.styling.Style;
-import org.opengis.ct.CT_MathTransform;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -30,7 +29,7 @@ import java.awt.geom.AffineTransform;
  * draw, BoundingBox, Size, and Style from this.context.
  *
  * @author Cameron Shorter
- * @version $Id: Renderer2D.java,v 1.4 2003/05/04 09:49:44 camerons Exp $
+ * @version $Id: Renderer2D.java,v 1.5 2003/05/04 21:52:31 camerons Exp $
  *
  * @task REVISIT Renderer2D should extend Renderer once Renderer has been
  *       cleaned up.
@@ -44,7 +43,7 @@ public interface Renderer2D {
      * @param paintArea The size of the output area in output units (eg:
      *        pixels).
      *
-     * @deprecated Use render(Graphics2D CT_MathTransform) instead.
+     * @deprecated Use render(Graphics2D AffineTransform) instead.
      */
     void render(Graphics2D graphics, Rectangle paintArea);
 
@@ -56,5 +55,5 @@ public interface Renderer2D {
      * @param transform A transform which converts World coordinates to Screen
      *        coordinates.
      */
-    public void render(Graphics2D graphics, CT_MathTransform transform);
+    public void paint(Graphics2D graphics, AffineTransform transform);
 }
