@@ -49,12 +49,12 @@ import java.util.logging.Logger;
  *
  * @author iant
  */
-public class ExpressionDOMParser {
+public final class ExpressionDOMParser {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** Factory for creating filters. */
-    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory
+    private static final FilterFactory FILTER_FACT = FilterFactory
         .createFilterFactory();
 
     /** Factory for creating geometry objects */
@@ -72,10 +72,13 @@ public class ExpressionDOMParser {
     /** int representation of a point */
     private static final int GML_POINT = 4;
 
+    /** number of coordinates in a box */
+    private static final int NUM_BOX_COORDS = 5;
+
     /**
      * Creates a new instance of ExpressionXmlParser
      */
-    public ExpressionDOMParser() {
+    private ExpressionDOMParser() {
     }
 
     /**
@@ -106,7 +109,7 @@ public class ExpressionDOMParser {
 
                 //Node left = null;
                 //Node right = null;
-                MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_ADD);
+                MathExpression math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_ADD);
                 Node value = child.getFirstChild();
 
                 while (value.getNodeType() != Node.ELEMENT_NODE) {
@@ -135,7 +138,9 @@ public class ExpressionDOMParser {
         if (child.getNodeName().equalsIgnoreCase("sub")) {
             try {
                 //NodeList kids = child.getChildNodes();
-                MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_SUBTRACT);
+                MathExpression math;
+                math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_SUBTRACT);
+
                 Node value = child.getFirstChild();
 
                 while (value.getNodeType() != Node.ELEMENT_NODE) {
@@ -164,7 +169,9 @@ public class ExpressionDOMParser {
         if (child.getNodeName().equalsIgnoreCase("mul")) {
             try {
                 //NodeList kids = child.getChildNodes();
-                MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_MULTIPLY);
+                MathExpression math;
+                math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_MULTIPLY);
+
                 Node value = child.getFirstChild();
 
                 while (value.getNodeType() != Node.ELEMENT_NODE) {
@@ -192,7 +199,9 @@ public class ExpressionDOMParser {
 
         if (child.getNodeName().equalsIgnoreCase("div")) {
             try {
-                MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_DIVIDE);
+                MathExpression math;
+                math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_DIVIDE);
+
                 Node value = child.getFirstChild();
 
                 while (value.getNodeType() != Node.ELEMENT_NODE) {
@@ -256,7 +265,7 @@ public class ExpressionDOMParser {
                                 "got a null geometry back from gml parser");
                         }
 
-                        return filterFactory.createLiteralExpression(geom);
+                        return FILTER_FACT.createLiteralExpression(geom);
                     } catch (IllegalFilterException ife) {
                         LOGGER.warning("Problem building GML/JTS object: "
                             + ife);
@@ -299,7 +308,7 @@ public class ExpressionDOMParser {
                         Integer intLit = new Integer(nodeValue);
                         LOGGER.finer("An integer");
 
-                        return filterFactory.createLiteralExpression(intLit);
+                        return FILTER_FACT.createLiteralExpression(intLit);
                     } catch (NumberFormatException e) {
                         /* really empty */
                     }
@@ -309,7 +318,7 @@ public class ExpressionDOMParser {
                         Double doubleLit = new Double(nodeValue);
                         LOGGER.finer("A double");
 
-                        return filterFactory.createLiteralExpression(doubleLit);
+                        return FILTER_FACT.createLiteralExpression(doubleLit);
                     } catch (NumberFormatException e) {
                         /* really empty */
                     }
@@ -317,7 +326,7 @@ public class ExpressionDOMParser {
                     // must be a string (or we have a problem)
                     LOGGER.finer("defaulting to string");
 
-                    return filterFactory.createLiteralExpression(nodeValue);
+                    return FILTER_FACT.createLiteralExpression(nodeValue);
                 } catch (IllegalFilterException ife) {
                     LOGGER.finer("Unable to build expression " + ife);
 
@@ -329,7 +338,7 @@ public class ExpressionDOMParser {
         if (child.getNodeName().equalsIgnoreCase("PropertyName")) {
             try {
                 //NodeList kids = child.getChildNodes();
-                AttributeExpression attribute = filterFactory
+                AttributeExpression attribute = FILTER_FACT
                     .createAttributeExpression(null);
                 attribute.setAttributePath(child.getFirstChild().getNodeValue());
 
@@ -353,7 +362,7 @@ public class ExpressionDOMParser {
                 LOGGER.fine("attribute " + name + " with value of " + res);
 
                 if (name.equalsIgnoreCase("name")) {
-                    func = filterFactory.createFunctionExpression(res);
+                    func = FILTER_FACT.createFunctionExpression(res);
                 }
             }
 
@@ -392,7 +401,7 @@ public class ExpressionDOMParser {
                 try {
                     Integer intLiteral = new Integer(nodeValue);
 
-                    return filterFactory.createLiteralExpression(intLiteral);
+                    return FILTER_FACT.createLiteralExpression(intLiteral);
                 } catch (NumberFormatException e) {
                     /* really empty */
                 }
@@ -400,12 +409,12 @@ public class ExpressionDOMParser {
                 try {
                     Double doubleLit = new Double(nodeValue);
 
-                    return filterFactory.createLiteralExpression(doubleLit);
+                    return FILTER_FACT.createLiteralExpression(doubleLit);
                 } catch (NumberFormatException e) {
                     /* really empty */
                 }
 
-                return filterFactory.createLiteralExpression(nodeValue);
+                return FILTER_FACT.createLiteralExpression(nodeValue);
             } catch (IllegalFilterException ife) {
                 LOGGER.finer("Unable to build expression " + ife);
             }
@@ -439,7 +448,7 @@ public class ExpressionDOMParser {
                 env.expandToInclude((Coordinate) coordList.get(i));
             }
 
-            Coordinate[] coords = new Coordinate[5];
+            Coordinate[] coords = new Coordinate[NUM_BOX_COORDS];
             coords[0] = new Coordinate(env.getMinX(), env.getMinY());
             coords[1] = new Coordinate(env.getMinX(), env.getMaxY());
             coords[2] = new Coordinate(env.getMaxX(), env.getMaxY());
@@ -506,7 +515,7 @@ public class ExpressionDOMParser {
 
             try {
                 ring = gfac.createLinearRing((Coordinate[]) coordList.toArray(
-                            new Coordinate[] {  }));
+                            new Coordinate[] {}));
             } catch (TopologyException te) {
                 LOGGER.finer("Topology Exception build linear ring: " + te);
 
@@ -523,7 +532,7 @@ public class ExpressionDOMParser {
 
             com.vividsolutions.jts.geom.LineString line = null;
             line = gfac.createLineString((Coordinate[]) coordList.toArray(
-                        new Coordinate[] {  }));
+                        new Coordinate[] {}));
 
             return line;
         }
