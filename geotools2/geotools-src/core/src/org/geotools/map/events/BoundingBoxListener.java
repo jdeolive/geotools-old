@@ -16,20 +16,14 @@
  */
 package org.geotools.map.events;
 
-import java.util.EventListener;
-
 
 /**
- * Methods to handle a change in AreaOfInterest
+ * Legacy listener.
  *
  * @author Cameron Shorter
- * @version $Id: BoundingBoxListener.java,v 1.4 2003/08/07 22:44:51 cholmesny Exp $
+ * @version $Id: BoundingBoxListener.java,v 1.5 2003/08/18 16:32:31 desruisseaux Exp $
+ *
+ * @deprecated Use {@link org.geotools.map.event.BoundingBoxListener} instead.
  */
-public interface BoundingBoxListener extends EventListener {
-    /**
-     * Process an BoundingBoxEvent, probably triggers a redraw.
-     *
-     * @param boundingBoxEvent The new extent.
-     */
-    void areaOfInterestChanged(BoundingBoxEvent boundingBoxEvent);
+public interface BoundingBoxListener extends org.geotools.map.event.BoundingBoxListener {
 }

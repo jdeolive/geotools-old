@@ -16,82 +16,122 @@
  */
 package org.geotools.map;
 
+// JTS dependencies
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.map.events.LayerListListener;
+
+// Geotools dependencies
+import org.geotools.feature.FeatureCollection;
+import org.geotools.map.event.LayerListEvent;
+import org.geotools.map.event.LayerListListener;
 
 
 /**
- * LayerList stores DataSources associated with a geographic map. Geotools uses
- * a Model-View-Control (MVC) design to control maps. The Tools classes
- * process key and mouse actions, and the Renderers handle displaying of the
- * data.
+ * A list of {@link Layer}s. <code>LayerList</code> stores {@link FeatureCollection}s
+ * associated with a geographic map. Geotools uses a Model-View-Control (MVC) design
+ * to control maps. The tools classes process key and mouse actions, and the
+ * renderers handle displaying of the data.
+ *
+ * @author Cameron Shorter
+ * @version $Id: LayerList.java,v 1.10 2003/08/18 16:32:31 desruisseaux Exp $
  *
  * @task TODO: Add incrementOrder(layer) decrementOrderLayer makeFirst(layer)
  *       makLast(Layer) and Layer getNext(Layer);
  */
 public interface LayerList {
     /**
-     * Register interest in receiving a LayerListChangedEvent.  A
-     * LayerListChangedEvent is sent if a layer is added or removed, but not
-     * if the data within a layer changes.
-     *
-     * @param llce The object to notify when Layers have changed.
-     */
-    void addLayerListChangedListener(LayerListListener llce);
-
-    /**
-     * Remove interest in receiving an LayerListChangedEvent.
-     *
-     * @param llcl The object to stop sending LayerListChangedEvents.
-     */
-    void removeLayerListChangedListener(LayerListListener llcl);
-
-    /**
-     * Add a new layer and trigger a LayerListChangedEvent.
+     * Add a new layer and trigger a {@link LayerListEvent}.
      *
      * @param layer Then new layer that has been added.
      */
     void addLayer(Layer layer);
 
     /**
-     * Remove a layer and trigger a LayerListChangedEvent.
+     * Remove a layer and trigger a {@link LayerListEvent}.
      *
      * @param layer Then new layer that has been removed.
      */
     void removeLayer(Layer layer);
 
     /**
-     * Add an array of new layers and trigger a LayerListChangedEvent.
+     * Add an array of new layers and trigger a {@link LayerListEvent}.
      *
-     * @param layer The new layers that are to be added.
+     * @param layers The new layers that are to be added.
      */
-    void addLayers(Layer[] layer);
+    void addLayers(Layer[] layers);
 
     /**
-     * Remove an array of new layers and trigger a LayerListChangedEvent.
+     * Remove an array of layers and trigger a {@link LayerListEvent}.
      *
-     * @param layer The layers that are to be removed.
+     * @param layers The layers that are to be removed.
      */
-    void removeLayers(Layer[] layer);
+    void removeLayers(Layer[] layers);
 
     /**
-     * Return this model's list of layers.  If no layers are present, then null
-     * is returned.
+     * Return this model's list of layers.  If no layers are present, then an
+     * empty array is returned.
      *
      * @return This model's list of layers.
      */
     Layer[] getLayers();
 
     /**
-     * Get the bounding box of all the layers in this LayerList. If all the
-     * layers cannot determine the bounding box in the speed required for each
-     * layer, then null is returned.
+     * Get the bounding box of all the layers in this <code>LayerList</code>.
+     * If all the layers cannot determine the bounding box in the speed required
+     * for each layer, then null is returned.
      *
-     * @return The bounding box of the datasource or null if unknown and too
+     * @return The bounding box of the features or null if unknown and too
      *         expensive for the method to calculate.
      *
      * @task REVISIT: Consider changing return of getBbox to Filter once
      *       Filters can be unpacked.
      */
+    Envelope getBounds();
+
+    /**
+     * Get the bounding box of all the layers in this <code>LayerList</code>.
+     * If all the layers cannot determine the bounding box in the speed required
+     * for each layer, then null is returned.
+     *
+     * @return The bounding box of the features or null if unknown and too
+     *         expensive for the method to calculate.
+     *
+     * @deprecated Use {@link #getBounds} instead.
+     */
     Envelope getBbox();
+
+    /**
+     * Register interest in receiving a {@link LayerListEvent}.  A
+     * <code>LayerListEvent</code> is sent if a layer is added or
+     * removed, but not if the data within a layer changes.
+     *
+     * @param listener The object to notify when Layers have changed.
+     */
+    void addLayerListListener(LayerListListener listener);
+
+    /**
+     * Remove interest in receiving {@link LayerListEvent}.
+     *
+     * @param listener The object to stop sending <code>LayerListEvent</code>s.
+     */
+    void removeLayerListListener(LayerListListener listener);
+
+    /**
+     * Register interest in receiving a {@link LayerListEvent}.  A
+     * <code>LayerListEvent</code> is sent if a layer is added or
+     * removed, but not if the data within a layer changes.
+     *
+     * @param llce The object to notify when Layers have changed.
+     *
+     * @deprecated Use {@link #addLayerListListener} instead.
+     */
+    void addLayerListChangedListener(LayerListListener llce);
+
+    /**
+     * Remove interest in receiving {@link LayerListEvent}.
+     *
+     * @param llcl The object to stop sending LayerListChangedEvents.
+     *
+     * @deprecated Use {@link #removeLayerListListener} instead.
+     */
+    void removeLayerListChangedListener(LayerListListener llcl);
 }

@@ -14,24 +14,31 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.map.events;
+package org.geotools.map.event;
+
+// J2SE dependencies
+import java.util.EventObject;
+
+// Geotools dependencies
+import org.geotools.map.LayerList;  // For Javadoc
 
 
 /**
- * Legacy event.
+ * Event fired when some {@linkplain LayerList layer list} property changes.
  *
- * @author Cameron Shorter
- * @version $Id: BoundingBoxEvent.java,v 1.4 2003/08/18 16:32:31 desruisseaux Exp $
+ * @author Martin Desruisseaux
+ * @version $Id: LayerListEvent.java,v 1.1 2003/08/18 16:32:31 desruisseaux Exp $
  *
- * @deprecated Use {@link org.geotools.map.event.BoundingBoxEvent} instead.
+ * @see LayerList
+ * @see LayerListListener
  */
-public class BoundingBoxEvent extends org.geotools.map.event.BoundingBoxEvent {
+public class LayerListEvent extends EventObject {
     /**
-     * Constructs a new event.
+     * Creates a new instance of <code>LayerListEvent</code>.
      *
-     * @param source The event source.
+     * @param source The source of the event change.
      */
-    public BoundingBoxEvent(final Object source) {
+    public LayerListEvent(final Object source) {
         super(source);
     }
 }

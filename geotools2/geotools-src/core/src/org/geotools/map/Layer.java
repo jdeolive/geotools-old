@@ -16,17 +16,30 @@
  */
 package org.geotools.map;
 
+// Geotools dependencies
 import org.geotools.feature.FeatureCollection;
 import org.geotools.styling.Style;
+import org.geotools.map.event.LayerEvent;    // For Javadoc
+import org.geotools.map.event.LayerListener;
 
 
 /**
- * Layer is an aggregation of both a FeatureCollection and Style.
+ * A layer to be rendered on a device. A layer is an aggregation of both a
+ * {@link FeatureCollection} and a {@link Style}.
  *
  * @author Cameron Shorter
- * @version $Id: Layer.java,v 1.7 2003/08/07 22:11:22 cholmesny Exp $
+ * @author Martin Desruisseaux
+ * @version $Id: Layer.java,v 1.8 2003/08/18 16:32:31 desruisseaux Exp $
  */
 public interface Layer {
+    /**
+     * Get the feature collection for this layer.  If features has not been
+     * set yet, then null is returned. 
+     *
+     * @return the features for this layer.
+     */
+    FeatureCollection getFeatures(); // Ammended (IanS) changed to FeatureCollection
+
     /**
      * Get the style for this layer.  If style has not been set, then null is
      * returned.
@@ -36,19 +49,46 @@ public interface Layer {
     Style getStyle();
 
     /**
-     * Get the feature collection for this layer.  If dataSource has not been
-     * set yet, then null is returned. Ammended (IanS) changed to
-     * FeatureCollection
+     * Get the title of this layer. If title has not been defined then an
+     * empty string is returned.
      *
-     * @return the features for this layer.
+     * @return The title of this layer.
      */
-    FeatureCollection getFeatures();
+    String getTitle();
+
+    /**
+     * Set the title of this layer. A {@link LayerEvent} is fired
+     * if the new title is different from the previous one.
+     *
+     * @param title The title of this layer.
+     */
+    void setTitle(String title);
+
+    /**
+     * Determine whether this layer is visible on a map pane or whether the
+     * layer is hidden.
+     *
+     * @return <code>true</code> if the layer is visible,
+     *         or <code>false</code> if the layer is hidden.
+     */
+    boolean isVisible();
+
+    /**
+     * Specify whether this layer is visible on a map pane or whether the layer
+     * is hidden. A {@link LayerEvent} is fired if the visibility changed.
+     *
+     * @param visible Show the layer if <code>true</code>, or
+     *                hide the layer if <code>false</code>
+     */
+    void setVisible(boolean visible);
 
     /**
      * Specify whether this layer is visable on a MapPane or whether the layer
      * is hidden.
      *
      * @param visable Set the layer visable if TRUE.
+     *
+     * @deprecated Use {@link #setVisible} instead.
      */
     void setVisability(boolean visable);
 
@@ -59,13 +99,23 @@ public interface Layer {
      * @return TRUE if the layer is visable.
      *
      * @task There is a typo here, change name to getVisibility()
+     *
+     * @deprecated Use {@link #isVisible} instead.
      */
     boolean getVisability();
 
     /**
-     * Set the title of this layer.
+     * Add a listener to notify when a layer property changes. Changes
+     * include layer visibility and the title text.
      *
-     * @param title The title of this layer.
+     * @param listener The listener to add to the listener list.
      */
-    void setTitle(String title);
+    void addLayerListener(LayerListener listener);
+
+    /**
+     * Removes a listener from the listener list for this layer.
+     *
+     * @param listener The listener to remove from the listener list.
+     */
+    void removeLayerListener(LayerListener listener);
 }

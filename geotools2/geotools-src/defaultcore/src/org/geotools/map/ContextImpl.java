@@ -14,29 +14,18 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.map;
-
-//import java.util.logging.Logger;
 
 
 /**
- * Store context information about a map display.  This object is based on the
- * OGC Web Map Context Specification.
+ * Legacy implementation of {@link Context}
  *
- * @author $author$
- * @version $Revision: 1.11 $
+ * @author Cameron Shorter
+ * @version $Id: ContextImpl.java,v 1.12 2003/08/18 16:33:06 desruisseaux Exp $
+ *
+ * @deprecated Use {@link DefaultContext} instead.
  */
-public class ContextImpl implements Context {
-    //private static final Logger LOGGER =
-    //   Logger.getLogger("org.geotools.map.ContextImpl");
-    private BoundingBox bbox;
-    private LayerList layerList;
-    private String title;
-    private String _abstract;
-    private String contactInformation;
-    private String[] keywords;
-
+public class ContextImpl extends DefaultContext {
     /**
      * Initialise the context.
      *
@@ -52,143 +41,14 @@ public class ContextImpl implements Context {
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    protected ContextImpl(
-        BoundingBox bbox,
-        LayerList layerList,
-        String title,
-        String _abstract,
-        String[] keywords,
-        String contactInformation
-    ) throws IllegalArgumentException {
-        if (
-            (bbox == null) || (layerList == null)
-                || (title == null)
-        ) {
-            throw new IllegalArgumentException();
-        } else {
-            this.bbox = bbox;
-            this.layerList = layerList;
-            this.setTitle(title);
-            this.setAbstract(_abstract);
-            this.setKeywords(keywords);
-            this.setContactInformation(contactInformation);
-        }
-    }
-
-    //    /*
-    //     * Create a copy of this class
-    //     */
-    //    public Object clone() {
-    //        return new ContextImpl(
-    //            bbox,
-    //            layerList,
-    //            title, 
-    //            _abstract,
-    //            keywords, 
-    //            contactInformation);
-    //    }
-    /**
-     * Returns a BoundingBox associated with this context.
-     *
-     * @return The BoundingBox.
-     */
-    public BoundingBox getBbox() {
-        return this.bbox;
-    }
-
-    /**
-     * Returns a list of layers associated with this context.
-     *
-     * @return The LayerList.
-     */
-    public LayerList getLayerList() {
-        return this.layerList;
-    }
-
-    /**
-     * Get the abstract which describes this interface, returns an empty string
-     * if this has not been set yet.
-     *
-     * @return The Abstract.
-     */
-    public String getAbstract() {
-        if (this._abstract == null) {
-            return "";
-        } else {
-            return this._abstract;
-        }
-    }
-
-    /**
-     * Set an abstract which describes this context.
-     *
-     * @param _abstract the Abstract.
-     */
-    public void setAbstract(final String _abstract) {
-        this._abstract = _abstract;
-    }
-
-    /**
-     * Get the contact information associated with this context, returns an
-     * empty string if contactInformation has not been set.
-     *
-     * @return the ContactInformation.
-     */
-    public String getContactInformation() {
-        if (this.contactInformation == null) {
-            return "";
-        } else {
-            return this.contactInformation;
-        }
-    }
-
-    /**
-     * Set contact inforation associated with this class.
-     *
-     * @param contactInformation the ContactInformation.
-     */
-    public void setContactInformation(final String contactInformation) {
-        this.contactInformation = contactInformation;
-    }
-
-    /* Get an array of keywords associated with this context, returns an
-     * empty string if no keywords have been set */
-    public String[] getKeywords() {
-        if (this.keywords == null) {
-            return new String[0];
-        } else {
-            return this.keywords;
-        }
-    }
-
-    /**
-     * Set an array of keywords to associate with this context.
-     *
-     * @param keywords the Keywords.
-     */
-    public void setKeywords(final String[] keywords) {
-        this.keywords = keywords;
-    }
-
-    /**
-     * Get the title, returns an empty string if it has not been set yet.
-     *
-     * @return the title, or an empty string if it has not been set.
-     */
-    public String getTitle() {
-        if (this.title == null) {
-            return "";
-        } else {
-            return this.title;
-        }
-    }
-
-    /**
-     * Set the title of this context.
-     *
-     * @param title the title.
-     */
-    public void setTitle(final String title) {
-        this.title = title;
+    protected ContextImpl(final BoundingBox bbox,
+                          final LayerList   layerList,
+                          final String      title,
+                          final String      _abstract,
+                          final String[]    keywords,
+                          final String      contactInformation)
+            throws IllegalArgumentException
+    {
+        super(bbox, layerList, title, _abstract, keywords, contactInformation);
     }
 }

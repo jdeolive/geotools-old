@@ -16,63 +16,73 @@
  */
 package org.geotools.map;
 
+// JTS dependencies
 import com.vividsolutions.jts.geom.Envelope;
+
+// OpenGIS dependencies
+import org.opengis.cs.CS_CoordinateSystem;
+
+// Geotools dependencies
 import org.geotools.factory.Factory;
 import org.geotools.factory.FactoryConfigurationError;
 import org.geotools.factory.FactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.styling.Style;
-import org.opengis.cs.CS_CoordinateSystem;
 
 
 /**
- * An implementation of ContextFactory to be used to construct Context classes.
- * It should not be called directly.  Instead it should be created from
- * ContextFactory, and ContextFactory methods should be called instead.
+ * A factory to be used to construct {@link Context} classes. Those classes should not
+ * be constructed directly.  Instead it should be created from {@link #createFactory},
+ * and <code>ContextFactory</code> methods should be called instead.
  *
- * @version $Id: ContextFactory.java,v 1.14 2003/08/07 22:11:58 cholmesny Exp $
+ * @author Cameron Shorter
+ * @version $Id: ContextFactory.java,v 1.15 2003/08/18 16:32:31 desruisseaux Exp $
  */
 public abstract class ContextFactory implements Factory {
-    /** A cached factory to be returned by createFactory. */
+    /**
+     * A cached factory to be returned by createFactory.
+     */
     private static ContextFactory factory = null;
 
     /**
      * Create an instance of the factory.
      *
-     * @return An instance of ContextFactory, or null if ContextFactory could
-     *         not be created.
-     *
+     * @return An instance of ContextFactory.
      * @throws FactoryConfigurationError for any errors in configuration.
      */
-    public static ContextFactory createFactory()
-        throws FactoryConfigurationError {
+    public static ContextFactory createFactory() throws FactoryConfigurationError {
         if (factory == null) {
             factory = (ContextFactory) FactoryFinder.findFactory(
                     "org.geotools.map.ContextFactory",
-                    "org.geotools.map.ContextFactoryImpl");
+                    "org.geotools.map.DefaultContextFactory");
         }
-
         return factory;
     }
 
     /**
-     * Create a BoundingBox.
+     * Construct a default factory.
+     */
+    protected ContextFactory() {
+    }
+
+    /**
+     * Create a bounding box.
      *
-     * @param bbox The extent associated with this class.
-     * @param coordinateSystem The coordinate system associated with this
-     *        class.
+     * @param bounds The extent associated with the bounding box.
+     * @param coordinateSystem The coordinate system associated with the bounding box.
      *
      * @return A BoundingBox.
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public abstract BoundingBox createBoundingBox(Envelope bbox,
-        CS_CoordinateSystem coordinateSystem) throws IllegalArgumentException;
+    public abstract BoundingBox createBoundingBox(Envelope            bounds,
+                                                  CS_CoordinateSystem coordinateSystem)
+        throws IllegalArgumentException;
 
     /**
-     * Create a Context.
+     * Create a context.
      *
-     * @param bbox The extent associated with this class.
+     * @param bounds The extent associated with the context.
      * @param layerList The list of layers associated with this context.
      * @param title The name of this context.  Must be set.
      * @param cabstract A description of this context.  Optional, set to null
@@ -86,17 +96,22 @@ public abstract class ContextFactory implements Factory {
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public abstract Context createContext(BoundingBox bbox,
-        LayerList layerList, String title, String cabstract, String[] keywords,
-        String contactInformation) throws IllegalArgumentException;
+    public abstract Context createContext(BoundingBox bounds,
+                                          LayerList   layerList,
+                                          String      title,
+                                          String      cabstract,
+                                          String[]    keywords,
+                                          String      contactInformation)
+        throws IllegalArgumentException;
 
     /**
      * Create a Context with default parameters.<br>
-     * boundingBox = layerList = empty list <br>
-     * title = "" <br>
-     * _abstract = ""<br>
-     * keywords = empty array<br>
-     * contactInformation = ""
+     * <code>boundingBox</code> = null<br>
+     * <code>layerList</code> = empty list<br>
+     * <code>title</code> = ""<br>
+     * <code>abstract</code> = ""<br>
+     * <code>keywords</code> = empty array<br>
+     * <code>contactInformation</code> = ""
      *
      * @return A default Context class.
      */

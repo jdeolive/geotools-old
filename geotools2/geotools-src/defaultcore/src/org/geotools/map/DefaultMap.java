@@ -34,9 +34,9 @@ import java.util.List;
  * 
  *
  * @author James Macgill, CCG
- * @version $Id: DefaultMap.java,v 1.16 2003/08/11 20:29:46 aaime Exp $
+ * @version $Id: DefaultMap.java,v 1.17 2003/08/18 16:33:06 desruisseaux Exp $
  *
- * @deprecated Use ContextImpl instead.
+ * @deprecated Use {@link DefaultContext} instead.
  */
 public class DefaultMap implements org.geotools.map.Map {
     //    private static final Logger LOGGER =

@@ -16,21 +16,14 @@
  */
 package org.geotools.map.events;
 
-import java.util.EventListener;
-import java.util.EventObject;
-
 
 /**
- * Methods to handle a change in the Layers.
+ * Legacy listener.
  *
  * @author Cameron Shorter
- * @version $Id: LayerListener.java,v 1.3 2003/08/07 22:44:51 cholmesny Exp $
+ * @version $Id: LayerListener.java,v 1.4 2003/08/18 16:32:31 desruisseaux Exp $
+ *
+ * @deprecated Use {@link org.geotools.map.event.LayerListener} instead.
  */
-public interface LayerListener extends EventListener {
-    /**
-     * Process an LayerChangedEvent, probably involves a redraw.
-     *
-     * @param layerChangedEvent The new extent.
-     */
-    void layerChanged(EventObject layerChangedEvent);
+public interface LayerListener extends org.geotools.map.event.LayerListener {
 }

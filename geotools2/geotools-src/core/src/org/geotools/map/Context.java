@@ -21,11 +21,11 @@ package org.geotools.map;
  * OGC Web Map Context Specification.
  *
  * @author Cameron Shorter
- * @version $Id: Context.java,v 1.7 2003/08/07 22:11:22 cholmesny Exp $
+ * @version $Id: Context.java,v 1.8 2003/08/18 16:32:31 desruisseaux Exp $
  */
 public interface Context {
     /**
-     * Returns a BoundingBox associated with this context.
+     * Returns a bounding box associated with this context.
      *
      * @return The BoundingBox.
      */
@@ -70,7 +70,7 @@ public interface Context {
 
     /**
      * Get an array of keywords associated with this context, returns an empty
-     * string if no keywords have been set
+     * array if no keywords have been set
      *
      * @return array of keywords
      */

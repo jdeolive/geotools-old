@@ -22,14 +22,14 @@ package org.geotools.map.events;
 import java.util.EventListener;
 
 /**
- * Methods to handle a change in visability of a layer.  After being notified
- * that LayerVisability has changed, the method should call the layer to
- * determine it's visability.
+ * Legacy listener.
+ *
  * @author Cameron Shorter
- * @version $Id: LayerVisabilityListener.java,v 1.2 2003/07/10 16:19:12 ianturton Exp $
+ * @version $Id: LayerVisabilityListener.java,v 1.3 2003/08/18 16:32:31 desruisseaux Exp $
+ *
+ * @deprecated Use {@link org.geotools.map.event.LayerListener} instead.
  */
 public interface LayerVisabilityListener extends EventListener {
-
     /**
      * Process an event notifying that the visability of a layer has changed.
      * After receiving the event, layer.getVisability() should be called to

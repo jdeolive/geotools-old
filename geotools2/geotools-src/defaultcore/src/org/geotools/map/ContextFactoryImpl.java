@@ -16,147 +16,20 @@
  */
 package org.geotools.map;
 
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.cs.CoordinateSystem;
-import org.geotools.cs.CoordinateSystemFactory;
-import org.geotools.cs.HorizontalDatum;
-import org.geotools.ct.Adapters;
-import org.geotools.styling.Style;
-import org.opengis.cs.CS_CoordinateSystem;
-import java.util.logging.Logger;
-import org.geotools.feature.FeatureCollection;
-
 
 /**
- * An implementation of ContextFactory to be used to construct context classes.
- * It should not be called directly.  Instead it should be created from
- * ContextFactory, and ContextFactory methods should be called instead.
+ * Legacy implementation of {@link ContextFactory}
+ *
+ * @author Cameron Shorter
+ * @version $Id: ContextFactoryImpl.java,v 1.12 2003/08/18 16:33:06 desruisseaux Exp $
+ *
+ * @deprecated Use {@link DefaultContextFactory} instead.
  */
-public class ContextFactoryImpl extends ContextFactory {
-    /** The class used for identifying for logging. */
-    private static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.map.ContextFactoryImpl");
-
-    /** Translates between coordinate systems */
-    private Adapters adapters = Adapters.getDefault();
-
+public class ContextFactoryImpl extends DefaultContextFactory {
     /**
      * Create an instance of ContextFactoryImpl.  Note that this constructor
-     * should only be called from ContextFactory.
+     * should only be called from {@link #createFactory}.
      */
-    protected void ContextFactoryImpl() {
+    public ContextFactoryImpl() {
     }
-
-    /**
-     * Create a BoundingBox.
-     *
-     * @param bbox The extent associated with this class.
-     * @param coordinateSystem The coordinate system associated with this
-     *        class.
-     *
-     * @return The BoundingBox.
-     *
-     * @throws IllegalArgumentException if an argument is <code>null</code>.
-     */
-    public BoundingBox createBoundingBox(Envelope bbox,
-        CS_CoordinateSystem coordinateSystem) throws IllegalArgumentException {
-        return new BoundingBoxImpl(bbox, coordinateSystem);
-    }
-
-    /**
-     * Create a Context.
-     *
-     * @param bbox The extent associated with this class.
-     * @param layerList The list of layers associated with this context.
-     * @param title The name of this context.  Must be set.
-     * @param _abstract A description of this context.  Optional, set to null
-     *        if none exists.
-     * @param keywords An array of keywords to be used when searching for this
-     *        context.  Optional, set to null if none exists.
-     * @param contactInformation Contact details for the person who created
-     *        this context.  Optional, set to null if none exists.
-     *
-     * @return A new Context
-     *
-     * @throws IllegalArgumentException if an argument is <code>null</code>.
-     */
-    public Context createContext(BoundingBox bbox, LayerList layerList,
-        String title, String _abstract, String[] keywords,
-        String contactInformation) throws IllegalArgumentException {
-        return new ContextImpl(bbox, layerList, title, _abstract, keywords,
-            contactInformation);
-    }
-
-    /**
-     * Create a Context with default parameters.<br>
-     * boundingBox = WGS84 GeographicCoordinateSystem, (-180,-90),(180,90)<br>
-     * layerList = empty list <br>
-     * title = "" <br>
-     * _abstract = ""<br>
-     * keywords = empty array<br>
-     * contactInformation = ""<br>
-     *
-     * @return A default Context class.
-     *
-     * @throws RuntimeException If there is a FactoryException or
-     *         RemoteException.
-     */
-    public Context createContext() {
-        try {
-            CoordinateSystem cs = CoordinateSystemFactory.getDefault()
-                                                         .createGeographicCoordinateSystem("WGS84",
-                    HorizontalDatum.WGS84);
-            org.geotools.pt.Envelope envelope = cs.getDefaultEnvelope();
-            Envelope envelope2 = new Envelope(envelope.getMinimum(0),
-                    envelope.getMaximum(0), envelope.getMinimum(1),
-                    envelope.getMaximum(1));
-
-            CS_CoordinateSystem cs1 = adapters.export(cs);
-
-            return createContext(createBoundingBox(envelope2, cs1),
-                createLayerList(), // empty LayerList
-                "", // title
-                "", // _abstract
-                null, // keywords
-                "" // contactInformation
-            );
-        } catch (org.geotools.cs.FactoryException e) {
-            LOGGER.warning(
-                "CS Factory Exception, check your CLASSPATH.  Cause is: " +
-                e.getCause());
-            throw new RuntimeException();
-        } catch (java.rmi.RemoteException e) {
-            LOGGER.warning("CS RemoteExcepion.  Cause is: " + e.getCause());
-            throw new RuntimeException();
-        }
-    }
-
-    /**
-     * Creates a Layer.
-     *
-     * @param dataSource The dataSource to query in order to get features for
-     *        this layer.
-     * @param style The style to use when rendering features associated with
-     *        this layer.
-     *
-     * @return A new Layer.
-     *
-     * @throws IllegalArgumentException if an argument is <code>null</code>.
-     */
-    public Layer createLayer(FeatureCollection features, Style style)
-        throws IllegalArgumentException {
-        return new LayerImpl(features, style);
-    }
-
-    /**
-     * Create a LayerList.
-     *
-     * @return A new LayerList.
-     */
-    public LayerList createLayerList() {
-        return new LayerListImpl();
-    }
-    
-
-    
 }

@@ -16,89 +16,78 @@
  */
 package org.geotools.map;
 
+// JTS dependencies
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.map.events.BoundingBoxListener;
+
+// OpenGIS dependencies
 import org.opengis.cs.CS_CoordinateSystem;
 import org.opengis.ct.CT_MathTransform;
 
+// Geotools dependencies
+import org.geotools.map.event.BoundingBoxEvent;
+import org.geotools.map.event.BoundingBoxListener;
+
 
 /**
- * Stores Extent and CoordinateSystem associated with a Map Context. Note that
- * there is no setCoordinateSystem, this is to ensure that this object doesn't
- * depend on CoordinateTransform classes.  If you want to change
- * CoordinateSystem, use the setExtent(extent,coordinateSystem) method and
- * transform the coordinates in the calling application.<br>
- * Extent and CoordinateSystem are cloned during construction and when
- * returned. This is to ensure only this class can change their values.
- * @version $Id: BoundingBox.java,v 1.9 2003/08/07 22:11:22 cholmesny Exp $
+ * Stores extent and {@linkplain CS_CoordinateSystem coordinate system} associated with a map
+ * {@linkplain Context context}. Note that there is no <code>setCoordinateSystem(...)</code>
+ * method, this is to ensure that this object doesn't depend on <code>CoordinateTransform</code>
+ * classes.  If you want to change <code>CoordinateSystem</code>, use the
+ * <code>setAreaOfInterest(extent,coordinateSystem)</code> method and transform
+ * the coordinates in the calling application.
+ * <br><br>
+ * Area of interest is cloned during construction and when returned.
+ * This is to ensure only this class can change their values.
+ *
+ * @version $Id: BoundingBox.java,v 1.10 2003/08/18 16:32:30 desruisseaux Exp $
+ * @author Cameron Shorter
+ * @author Martin Desruisseaux
+ *
+ * @task REVISIT: This interface should probably not extends Cloneable; this decision is up to the
+ *                implementation class. If we remove Cloneable, we must remove the clone() method
+ *                as well.
  */
 public interface BoundingBox extends Cloneable {
     /**
-     * Register interest in receiving an AreaOfInterestChangedEvent.
+     * Set a new area of interest and trigger a {@link BoundingBoxEvent}.
+     * Note that this is the only method to change coordinate system.  A
+     * <code>setCoordinateSystem</code> method is not provided to ensure
+     * this class is not dependant on transform classes.
      *
-     * @param ecl The object to notify when AreaOfInterest has changed.
-     * @param sendEvent After registering this listener, send a changeEvent to
-     *        all listeners.
-     */
-    void addAreaOfInterestChangedListener(BoundingBoxListener ecl,
-        boolean sendEvent);
-
-    /**
-     * Register interest in receiving an AreaOfInterestChangedEvent.
-     *
-     * @param ecl The object to notify when AreaOfInterest has changed.
-     */
-    void addAreaOfInterestChangedListener(BoundingBoxListener ecl);
-
-    /**
-     * Remove interest in receiving an AreaOfInterestChangedEvent.
-     *
-     * @param ecl The object to stop sending AreaOfInterestChanged Events.
-     */
-    void removeAreaOfInterestChangedListener(BoundingBoxListener ecl);
-
-    /**
-     * Set a new AreaOfInterest and trigger an AreaOfInterestEvent. Note that
-     * this is the only method to change coordinateSystem.  A
-     * <code>setCoordinateSystem</code> method is not provided to ensure this
-     * class is not dependant on transform classes.
-     *
-     * @param bbox The new areaOfInterest.
+     * @param areaOfInterest The new areaOfInterest.
      * @param coordinateSystem The coordinate system being using by this model.
-     *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    void setAreaOfInterest(Envelope bbox, CS_CoordinateSystem coordinateSystem)
+    void setAreaOfInterest(Envelope areaOfInterest, CS_CoordinateSystem coordinateSystem)
         throws IllegalArgumentException;
 
     /**
-     * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.
+     * Set a new area of interest and trigger an {@link BoundingBoxEvent}.
      *
-     * @param areaOfInterest The new areaOfInterest.
-     *
+     * @param areaOfInterest The new area of interest.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     void setAreaOfInterest(Envelope areaOfInterest);
 
     /**
-     * Gets the current AreaOfInterest.
+     * Gets the current area of interest.
      *
-     * @return Current AreaOfInterest
+     * @return Current area of interest
      */
     Envelope getAreaOfInterest();
 
     /**
-     * Get the coordinateSystem.
+     * Get the current coordinate system.
      *
      * @return the coordinate system of this box.
      */
     CS_CoordinateSystem getCoordinateSystem();
 
     /**
-     * Transform the coordinates according to the provided transform.  Useful
-     * for zooming and panning processes.
+     * Transform the coordinates according to the provided transform.
+     * Useful for zooming and panning processes.
      *
-     * @param transform The transform to change AreaOfInterest.
+     * @param transform The transform to change area of interest.
      */
     void transform(CT_MathTransform transform);
 
@@ -108,4 +97,47 @@ public interface BoundingBox extends Cloneable {
      * @return a copy of this object.
      */
     Object clone();
+
+    /**
+     * Register interest in receiving {@link BoundingBoxEvent}s.
+     *
+     * @param listener The object to notify when the area of interest has changed.
+     */
+    void addBoundingBoxListener(BoundingBoxListener listener);
+
+    /**
+     * Remove interest in receiving a {@link BoundingBoxEvent}s.
+     *
+     * @param listener The object to stop sending change events.
+     */
+    void removeBoundingBoxListener(BoundingBoxListener listener);
+
+    /**
+     * Register interest in receiving an {@link BoundingBoxEvent}.
+     *
+     * @param ecl The object to notify when AreaOfInterest has changed.
+     * @param sendEvent After registering this listener, send a changeEvent to
+     *        all listeners.
+     *
+     * @deprecated Use {@link #addBoundingBoxListener} instead.
+     */
+    void addAreaOfInterestChangedListener(BoundingBoxListener ecl, boolean sendEvent);
+
+    /**
+     * Register interest in receiving an BoundingBoxEvent.
+     *
+     * @param ecl The object to notify when AreaOfInterest has changed.
+     *
+     * @deprecated Use {@link #addBoundingBoxListener} instead.
+     */
+    void addAreaOfInterestChangedListener(BoundingBoxListener ecl);
+
+    /**
+     * Remove interest in receiving an BoundingBoxEvent.
+     *
+     * @param ecl The object to stop sending AreaOfInterestChanged Events.
+     *
+     * @deprecated Use {@link #removeBoundingBoxListener} instead.
+     */
+    void removeAreaOfInterestChangedListener(BoundingBoxListener ecl);
 }

@@ -31,8 +31,8 @@ import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.FactoryException;
 import org.geotools.cs.HorizontalDatum;
 import org.geotools.ct.MathTransform;
-import org.geotools.map.events.BoundingBoxEvent;
-import org.geotools.map.events.BoundingBoxListener;
+import org.geotools.map.event.BoundingBoxEvent;
+import org.geotools.map.event.BoundingBoxListener;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -54,10 +54,10 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
     /** Test suite for this test case */
     private TestSuite suite = null;
     
-    private BoundingBoxImpl boundingBox = null;
+    private DefaultBoundingBox boundingBox = null;
     private Envelope envelope = null;
     private CoordinateSystem cs = null;
-    private BoundingBoxImpl bbox;
+    private DefaultBoundingBox bbox;
 
     /** 
      * Constructor with test name.
@@ -91,14 +91,14 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
         cs = CoordinateSystemFactory.getDefault()
                 .createGeographicCoordinateSystem("WGS84",HorizontalDatum.WGS84);
 
-        bbox = new BoundingBoxImpl(envelope,cs);
+        bbox = new DefaultBoundingBox(envelope,cs);
     }
 
     /** Test normal constuctors. */
     public void testConstructor(){
-        BoundingBoxImpl bbox1;
+        DefaultBoundingBox bbox1;
         try {
-            bbox1= new BoundingBoxImpl(envelope,cs);
+            bbox1= new DefaultBoundingBox(envelope,cs);
         } catch (IllegalArgumentException e) {
             fail("exception raised using default contructor");
         }
@@ -107,8 +107,8 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
     /** Test null constuctors.  Should raise an exception */
     public void testNullConstructor1(){
         try {
-            BoundingBoxImpl bbox1=
-                new BoundingBoxImpl(null,(CoordinateSystem)null);
+            DefaultBoundingBox bbox1=
+                new DefaultBoundingBox(null,(CoordinateSystem)null);
             // If an exception has not been raised yet, then fail the test.
             fail("No exception when creating using a null contructor");
         } catch (IllegalArgumentException e) {
@@ -118,8 +118,8 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
     /** Test null constuctors.  Should raise an exception */
     public void testNullConstructor2(){
         try {
-            BoundingBoxImpl bbox1=
-                new BoundingBoxImpl(envelope,(CoordinateSystem)null);
+            DefaultBoundingBox bbox1=
+                new DefaultBoundingBox(envelope,(CoordinateSystem)null);
             // If an exception has not been raised yet, then fail the test.
             fail("No exception when creating using a null Coord System");
         } catch (IllegalArgumentException e) {
@@ -129,8 +129,8 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
     /** Test null constuctors.  Should raise an exception */
     public void testNullConstructor3(){
         try {
-            BoundingBoxImpl bbox1=
-                new BoundingBoxImpl(null,cs);
+            DefaultBoundingBox bbox1=
+                new DefaultBoundingBox(null,cs);
             // If an exception has not been raised yet, then fail the test.
             fail("No exception when creating using a null Bbox");
         } catch (IllegalArgumentException e) {
@@ -141,11 +141,11 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
       * not trigger an event after deregistering */
     public void testChangeEvent(){
         changeEventSent=false;
-        BoundingBoxImpl bbox1;
+        DefaultBoundingBox bbox1;
         try {
-            bbox1= new BoundingBoxImpl(envelope,cs);
+            bbox1= new DefaultBoundingBox(envelope,cs);
 
-            bbox1.addAreaOfInterestChangedListener(this);
+            bbox1.addBoundingBoxListener(this);
             bbox1.setAreaOfInterest(new Envelope(5.0, 5.0, 10.0,10.0));
             // areaOfInterest() should be called and changeEventSent set TRUE.
         
@@ -155,7 +155,7 @@ public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener
             assertTrue("Event not sent after bbox change",changeEventSent);
 
             changeEventSent=false;
-            bbox1.removeAreaOfInterestChangedListener(this);
+            bbox1.removeBoundingBoxListener(this);
             bbox1.setAreaOfInterest(new Envelope(5.0, 5.0, 11.0,11.0));
         
             Thread.sleep(1000);

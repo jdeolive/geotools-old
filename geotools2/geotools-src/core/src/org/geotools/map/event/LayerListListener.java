@@ -14,16 +14,28 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.map.events;
+package org.geotools.map.event;
+
+// J2SE dependencies
+import java.util.EventListener;
+import java.util.EventObject;
+
+// Geotools dependencies
+import org.geotools.map.LayerList;  // For Javadoc
 
 
 /**
- * Legacy listener.
+ * The listener that's notified when some {@linkplain LayerList layer list} property changes.
  *
  * @author Cameron Shorter
- * @version $Id: LayerListListener.java,v 1.3 2003/08/18 16:32:31 desruisseaux Exp $
- *
- * @deprecated Use {@link org.geotools.map.event.LayerListListener} instead.
+ * @version $Id: LayerListListener.java,v 1.1 2003/08/18 16:32:31 desruisseaux Exp $
  */
-public interface LayerListListener extends org.geotools.map.event.LayerListListener {
+public interface LayerListListener extends EventListener {
+    /**
+     * Invoked when some layer list property changed.
+     * The implementation will typically involves a redraw.
+     *
+     * @param event The event.
+     */
+    void layerListChanged(EventObject event);
 }
