@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.42 2002/07/09 13:13:04 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.43 2002/07/09 14:15:58 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -664,8 +664,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         _log.debug("unitsize "+unitSize+" size = "+size+" -> scale "+drawSize);
         markAT.scale(drawSize,drawSize);
         graphics.setTransform(markAT);
-        // we move this to the centre of the image.
+        // we moved the origin to the centre of the image.
+       
         graphics.drawImage(img,-img.getWidth()/2,-img.getHeight()/2,obs);
+        //graphics.setColor(Color.red);  
+        //graphics.drawRect(-img.getWidth()/2,-img.getHeight()/2,img.getWidth(),img.getHeight());
         graphics.setTransform(temp);
         return;
     }
@@ -879,17 +882,21 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      */
     private void drawWithGraphicStroke(Graphics2D graphic, GeneralPath path, org.geotools.styling.Graphic gFill, Feature feature){
         _log.debug("drawing a graphicalStroke");
-        
-        
+        int trueImageHeight = 0;
+        int trueImageWidth = 0;
         // get the image to draw
         BufferedImage image = getExternalGraphic(gFill);
         if(image != null){
+            trueImageWidth = image.getWidth();
+            trueImageHeight = image.getHeight();
             _log.debug("got an image in graphic fill");
         }else{
             _log.debug("going for the mark from graphic fill");
             
             Mark mark = getMark(gFill,feature);
-            int size=200;
+            int size =200;
+            trueImageWidth=size;
+            trueImageHeight=size;
             
             image = new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);
             Graphics2D g1 = image.createGraphics();
@@ -958,10 +965,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     _log.debug("drawing from "+previous[0]+","+previous[1]+" to "+coords[0]+","+coords[1]);
                     double dx = coords[0]-previous[0];
                     double dy = coords[1]-previous[1];
-                    double len = Math.sqrt(dx*dx+dy*dy)*scaleX - imageWidth;
-                    if(len<=0){
-                        len=imageWidth-1;
-                    }
+                    double len = Math.sqrt(dx*dx+dy*dy)*scaleX;// - imageWidth;
+                    //if(len<=0){
+                        //len=imageWidth-1;
+                    //}
                     double theta = Math.atan2(dx,dy);
                     dx = Math.sin(theta)*imageWidth/scaleX;
                     dy = Math.cos(theta)*imageHeight/scaleY;
@@ -974,24 +981,25 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     
                     _log.debug("len ="+len+" imageWidth "+imageWidth);
                     double dist =0;
-                    for(dist =0;dist<len;dist+=imageWidth){
+                    for(dist =0;dist<len-imageWidth;dist+=imageWidth){
                         /*graphic.drawImage(image2,(int)x-midx,(int)y-midy,null); */
                         renderImage(x,y,image,size,rotation);
                         
                         x+= dx;
                         y+= dy;
                     }
-                    _log.debug("loop end dist "+dist+" len "+len);
-                    if((dist-len)>1.0){
-                        int remainder = (int)(dist - len);
-                        if(remainder<0) break;
+                    _log.debug("loop end dist "+dist+" len "+len+" "+(len-dist));
+                    if((len-dist)>0.0){
+                        double remainder = len-dist;
+                        
                         //clip and render image
                         _log.debug("about to use cliped image "+remainder);
                         
-                        BufferedImage img = new BufferedImage(imageWidth,imageHeight,BufferedImage.TYPE_INT_ARGB);
+                        BufferedImage img = new BufferedImage(trueImageHeight,trueImageWidth,BufferedImage.TYPE_INT_ARGB);
                         Graphics2D ig = img.createGraphics();
-                        ig.setClip(0,0,remainder,imageHeight);
-                        ig.drawImage(image,0,0,imageWidth,imageHeight,obs);
+                        ig.setClip(0,0,(int)((double)trueImageWidth*remainder/(double)size),trueImageHeight);
+                        
+                        ig.drawImage(image,0,0,trueImageWidth,trueImageHeight,obs);
                         
                         renderImage(x,y,img,size,rotation);
                                                 
