@@ -74,9 +74,13 @@
       <unitTestPattern>include = **/*Test.java</unitTestPattern>
     </unitTestPatterns>
     <integrationUnitTestPatterns/>
-    <jarResources>
-        <jarResource>include = *.utf</jarResource>
-    </jarResources>
+     <resources>
+      <includes>
+         <include>*.utf</include> 
+          
+          
+       </includes>
+    </resources>
     <jars/>
   </build>
 </project>
