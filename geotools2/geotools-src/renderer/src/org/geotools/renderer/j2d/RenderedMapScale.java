@@ -86,7 +86,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       is determined using orthodromic distance computation.</li>
  * </ul>
  *
- * @version $Id: RenderedMapScale.java,v 1.9 2003/10/01 19:50:49 desruisseaux Exp $
+ * @version $Id: RenderedMapScale.java,v 1.10 2003/10/01 20:13:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedMapScale extends RenderedLegend {
@@ -104,8 +104,8 @@ public class RenderedMapScale extends RenderedLegend {
     private boolean forceGeodesic = false;
 
     /**
-     * Unité à utiliser pour représenter les distances.
-     * La valeur par défaut sera des kilomètres ("km").
+     * Unit of length to be used for the map scale.
+     * The default one is kilometers ("km").
      */
     private Unit units = Unit.KILOMETRE;
 
@@ -124,46 +124,51 @@ public class RenderedMapScale extends RenderedLegend {
     private static final boolean horizontal = true;
 
     /**
-     * Nombre de sous-divisions à placer dans l'échelle. Ces sous-divisions sont
-     * des rectangles plus petits qui apparaissent dans le rectangle principal.
+     * The amount of sub-division (or outer rectangles) to draw in the map scale.
      */
     private int subDivisions = 3;
 
     /**
-     * Longueur maximale de l'échelle, en pixels. La longueur logique dépendra du facteur de
-     * zoom de la carte; cette classe tentera de donner à l'échelle une longueur logique
-     * qui correspond à un chiffre rond.
+     * The maximum length of map scale in pixels. The actual length may be smaller,
+     * since <code>RenderedMapScale</code> will try to round the logical length
+     * (e.g. in order to format round labels in kilometres). The logical length
+     * is zoom dependent and will be computed at rendering time from the length
+     * in pixels.
      */
     private int maximumLength = 300;
 
     /**
-     * Épaisseur de l'échelle en pixels. Cette épaisseur sera
-     * constante quelle que soit la longueur de l'échelle.
+     * The map scale thickness. This is the height of rectangles making
+     * horizontal map scale (the "outer" rectangles). This thickness do
+     * not depends on the scale value.
      */
     private int thickness = 10;
 
     /**
-     * Nombre de pixels de la barre noir à l'intérieur des rectangles blancs.
+     * The thickness of "inner" rectangles.
      */
     private int thicknessSub = 3;
 
     /**
-     * Couleur du texte des graduations et de l'étiquette de l'échelle.
+     * The color for map scale label and the legend.
      */
     private Paint foreground = Color.WHITE;
 
     /**
-     * Couleur des rectangles extérieurs de l'échelle.
+     * The color for "outer" rectangle. A few of those rectangle (usually 3)
+     * side-by-side make up the map scale.
      */
     private Paint outerRectColor = new Color(215, 235, 255);
 
     /**
-     * Couleur des rectangles intérieurs de l'échelle.
+     * The color for "inner" rectangle. This is the rectangle
+     * to be drawn inside 1 over 2 "outer" rectangle.
      */
     private Paint innerRectColor = Color.BLACK;
 
     /**
-     * Couleur de l'arrière plan de l'échelle, or <code>null</code> pour ne pas en mettre.
+     * The background color, or <code>null</code> null if none.
+     * Default to a slightly transparent blue-gray color.
      */
     private Paint background = new Color(32,32,64,64);
 
@@ -285,7 +290,7 @@ public class RenderedMapScale extends RenderedLegend {
     }
 
     /**
-     * Returns the maximum length of map scale in pixels. The actual size may be smaller,
+     * Returns the maximum length of map scale in pixels. The actual length may be smaller,
      * since <code>RenderedMapScale</code> will try to round the logical length (e.g. in
      * order to format round labels in kilometres). The logical length is zoom dependent
      * and will be computed at rendering time from the length in pixels.
@@ -312,8 +317,8 @@ public class RenderedMapScale extends RenderedLegend {
     }
 
     /**
-     * Retourne l'épaisseur de l'échelle en pixels. Cette épaisseur
-     * restera constante quelle que soit la longueur de l'échelle.
+     * Returns the map scale thickness. This is the height of rectangles making
+     * horizontal map scale. This thickness do not depends on the scale value.
      *
      * @return The map scale thickness, in dots.
      */
@@ -322,8 +327,8 @@ public class RenderedMapScale extends RenderedLegend {
     }
 
     /**
-     * Modifie l'épaisseur de l'échelle en pixels. Cette épaisseur
-     * restera constante quelle que soit la longueur de l'échelle.
+     * Sets the map scale thickness. This is the height of rectangles making
+     * horizontal map scale. This thickness do not depends on the scale value.
      *
      * @param thickness The new map scale thickness, in dots.
      */
@@ -407,7 +412,7 @@ public class RenderedMapScale extends RenderedLegend {
 
     /**
      * Paint an error message. This method is invoked when the rendering coordinate
-     * system use unknow units.
+     * system uses unknow units.
      *
      * @param  context Information relatives to the rendering context.
      * @throws TransformException If a coordinate transformation failed
@@ -590,7 +595,7 @@ public class RenderedMapScale extends RenderedLegend {
             lastLogicalLength = logicalLength;
         } else {
             /*
-             * The cached glyphs are still valids. However, the labels way have been
+             * The cached glyphs are still valids. However, the labels may have been
              * translated because of a different visual length. Update the labels positions.
              */
             final double adjust = visualLength-lastVisualLength;
@@ -656,9 +661,8 @@ public class RenderedMapScale extends RenderedLegend {
             rect.x += visualLength;
         }
         /*
-         * Écrit les graduations, les unités ainsi que la légende de
-         * l'échelle. Tous ces textes ont été préparés à l'avance un
-         * peu plus haut.
+         * Writes tick labels, units and map scale legend. All those
+         * texts has been prepared and cached as glyph vectors.
          */
         graphics.setPaint(foreground);
         for (int i=0; i<tickGlyphs.length; i++) {
@@ -676,7 +680,7 @@ public class RenderedMapScale extends RenderedLegend {
     }
 
     /**
-     * Efface les données qui avaient été conservées dans une cache interne.
+     * Clear the memory cache.
      */
     void clearCache() {
         lastLogicalLength = Double.NaN;
