@@ -67,7 +67,7 @@ import org.geotools.ct.MathTransform2D;
  * affine transform, then an instance of {@link AffineTransform} is returned. Otherwise,
  * a transform backed by the localization grid is returned.
  *
- * @version $Id: LocalizationGrid.java,v 1.6 2002/08/12 13:48:36 desruisseaux Exp $
+ * @version $Id: LocalizationGrid.java,v 1.7 2003/02/28 11:43:16 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -359,6 +359,105 @@ public class LocalizationGrid {
             }
         }
         return flags;
+    }
+   
+    /**
+     * Make sure that the grid doesn't contains identical consecutive ordinates. If many
+     * consecutives ordinates are found to be identical in a row or in a column, then
+     * the first one is left inchanged and the other ones are linearly interpolated.
+     */
+    public void removeSingularities() {
+        removeSingularities(X_OFFSET, false);
+        removeSingularities(X_OFFSET, true );
+        removeSingularities(Y_OFFSET, false);
+        removeSingularities(Y_OFFSET, true );
+    }
+
+    /**
+     * Apply a linear interpolation on consecutive identical ordinates.
+     *
+     * @param index     The offset of the ordinate to test.
+     *                  Should be {@link #X_OFFSET} or {@link #Y_OFFSET}.
+     * @param vertical  <code>true</code> to scan the grid vertically, or
+     *                  <code>false</code> to scan the grid horizontally.
+     */
+    private void removeSingularities(final int index, final boolean vertical) {
+        final int step, val1, val2;
+
+        if (vertical) {
+            step = CP_LENGTH*width;
+            val1 = width;
+            val2 = height;
+        } else {
+            step = CP_LENGTH;
+            val1 = height;
+            val2 = width;
+        }
+        for (int i=0; i<val1; i++) {
+            final int offset;
+            if (vertical) {
+                offset = computeOffset(i,0) + index;
+            } else {
+                offset = computeOffset(0,i) + index;
+            }
+            int singularityOffset = -1;
+            for (int j=1; j<val2 ; j++) {
+                final int previousOffset = offset+step*(j-1);
+                final int currentOffset  = previousOffset + step;
+                if (grid[previousOffset] == grid [currentOffset]) {
+                    if (singularityOffset == -1) {
+                        singularityOffset = (previousOffset==offset) ? previousOffset
+                                                                     : previousOffset-step;
+                    }
+                } else if (singularityOffset != -1) {
+                    final int num = (currentOffset-singularityOffset)/step + 1;
+                    replaceSingularity(grid, singularityOffset,num,step);
+                    singularityOffset = -1;
+                }
+            }
+            if (singularityOffset != -1) {
+                final int currentOffset = offset+step*(val2-1);
+                final int num = (currentOffset-singularityOffset)/step + 1;
+                replaceSingularity(grid,singularityOffset,num,step);                
+            }            
+        }        
+    }         
+       
+    /**
+     * Replace consecutive singularity by linear values in sub-array.
+     *
+     * Example (we consider a grid of five element with singularity) :
+     *
+     *                  before
+     *              *--*--*--*--*--*
+     *              |07|08|08|08|11|
+     *              *--*--*--*--*--*
+     * 
+     * Params are : offset = 0, num = 5, step = 1
+     *
+     *                  after
+     *              *--*--*--*--*--*
+     *              |07|08|09|10|11|
+     *              *--*--*--*--*--*
+     *                |           |
+     *                |           |
+     *              linear values are
+     *              computed with these
+     *              values
+     *
+     * @param grid The {link #grid} array.
+     * @param offset The first element.
+     * @param num    The number of element.
+     * @param step   The amount to increment <code>offset</code> in order to reach the next element.
+     */
+    private static void replaceSingularity(final double[] grid, int offset, int num, final int step)
+    {
+        final double increment = (grid[offset+(num-1)*step] - grid[offset])/((double)(num-1));
+        final double value = grid[offset];
+        offset+= step;
+        for (int i=0; i<(num-2); i++, offset += step) {
+            grid[offset] = value + (increment * (i+1));
+        }
     }
 
     /**
