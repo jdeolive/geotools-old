@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?xml-stylesheet type="text/css"
-href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
+href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
 ?>
 <!DOCTYPE article PUBLIC "-//Norman Walsh//DTD Simplified DocBook XML V4.1.2.4//EN"
-"file:../../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
+"file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
 <article id="index">
   <articleinfo>
     <title>Geotools2 Developer Guide</title>
@@ -14,7 +14,7 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/07/30 11:05:34 $</date>
+    <date>$Date: 2002/08/02 19:55:07 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -44,13 +44,13 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
       Low level modules, like DataSource, can be used as base classes by
       external Geographic Applications.</para>
 
-      <para>Each module has its own home page which provides an overview of the
-      module, contact details for the modules developer, a list of all develoeprs
-      and contributors, dependancy information, full javadocs, unit test reports
-      and lists of outstanding tasks.  A full list of the module homepages can
-      be found at <ulink url="http://modules.geotools.org"> modules.geotools.org
-      </ulink>.</para>
-      
+      <para>Each module has its own home page which provides an overview of
+      the module, contact details for the modules developer, a list of all
+      develoeprs and contributors, dependancy information, full javadocs, unit
+      test reports and lists of outstanding tasks. A full list of the module
+      homepages can be found at <ulink url="http://modules.geotools.org">
+      modules.geotools.org </ulink>.</para>
+
       <para>Geotools derived its directory structure from <ulink
       url="http://www.netbeans.org">Netbeans</ulink>.</para>
 
@@ -74,33 +74,34 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
           classes.</para>
         </listitem>
       </itemizedlist>
-      
-      <para>Within the core module the key packages are set out.  Each package contains interfaces
-      which define a major part of the functionality of GeoTools2.  Given the 
-      intention to follow the OGC standards wherever possible, many of the packages
-      relate to specific OGC specifications.</para>
-      
+
+      <para>Within the core module the key packages are set out. Each package
+      contains interfaces which define a major part of the functionality of
+      GeoTools2. Given the intention to follow the OGC standards wherever
+      possible, many of the packages relate to specific OGC specifications.</para>
+
       <itemizedlist>
         <listitem>
           <para><filename>data</filename></para>
 
-          <para>Contains the interface for DataSources.  Several GeoTools2 modules
-          provide implementations of this interface.  Examples include the
-          shapefile module, the postgis module and the gmldatasource module</para>
-          
-          <para>Developers familier with formats not yet supported are encurage to
-          write a module to provide access to it.</para>
+          <para>Contains the interface for DataSources. Several GeoTools2
+          modules provide implementations of this interface. Examples include
+          the shapefile module, the postgis module and the gmldatasource
+          module</para>
+
+          <para>Developers familier with formats not yet supported are
+          encurage to write a module to provide access to it.</para>
         </listitem>
-        
+
         <listitem>
           <para><filename>feature</filename></para>
 
-          <para>Provides interfaces for classes which represent OGC features.  The
-          defaultcore module provides a simple Flat implementation of the Feature interface.
-          A full implementation is still needed which supports complex nested Feature types.
-          </para>
+          <para>Provides interfaces for classes which represent OGC features.
+          The defaultcore module provides a simple Flat implementation of the
+          Feature interface. A full implementation is still needed which
+          supports complex nested Feature types.</para>
         </listitem>
-      </itemizedlist>       
+      </itemizedlist>
     </section>
 
     <section>
@@ -348,11 +349,12 @@ public class ThisClass {
         </listitem>
 
         <listitem>
-          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.25 2002/07/30 11:05:34 camerons Exp $</emphasis>.
-          When you commit your file into CVS, this will be expanded to
-          something like:</para>
+          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.25
+          2002/07/30 11:05:34 camerons Exp $</emphasis>. When you commit your
+          file into CVS, this will be expanded to something like:</para>
 
-          <para>$Id: developersguide.sgml,v 1.25 2002/07/30 11:05:34 camerons Exp $</para>
+          <para>$Id: developersguide.sgml,v 1.25 2002/07/30 11:05:34 camerons
+          Exp $</para>
         </listitem>
       </orderedlist>
     </section>
@@ -746,13 +748,6 @@ void example(int i) {
         the geotools directory. This enables filename auto-completion and
         &#34;go to declaration&#34;.</para>
 
-        <para>You will need to mount all the geotools jar files. First, the
-        geotools jar files need to be created using ant or maven. Then in the
-        Netbeans Explorer, right click on Filesystems, select
-        Mount-&#62;Archive, then select <filename>geotools2/release/&#60;filename&#62;.jar</filename>.
-        Repeat for all the jar files in the <filename>geotools2/release</filename>
-        directory.</para>
-
         <para>If you want to debug files using Netbeans, you will need to
         mount the source module directories based on the root source directory
         of that module. To do this, you will need to ensure the &#34;View over
@@ -762,6 +757,19 @@ void example(int i) {
         New Filesystem. If you are running any test or demonstration programs,
         you will probably also need to mount their directory using the same
         method.</para>
+
+        <para>You will need to mount all the geotools jar files. First, the
+        geotools jar files need to be created using ant or maven. Then in the
+        Netbeans Explorer, right click on Filesystems, select
+        Mount-&#62;Archive, then select <filename>geotools2/release/&#60;filename&#62;.jar</filename>.
+        Repeat for all the jar files in the <filename>geotools2/release</filename>
+        directory.</para>
+
+        <para>Make sure you mount the jar files after you mount the module
+        directories to ensure that Netbeans CLASSPATH looks at the module
+        directories first. This means that compiled code in the Netbeans
+        modules will take precedance over the jar files and you will not need
+        to do a full build during development.</para>
       </section>
     </section>
   </section>
