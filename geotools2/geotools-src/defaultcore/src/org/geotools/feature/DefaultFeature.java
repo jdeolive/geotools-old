@@ -33,11 +33,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.6 2003/08/20 19:56:18 cholmesny Exp $
+ * @version $Id: DefaultFeature.java,v 1.7 2003/08/29 08:24:41 seangeo Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
-public class DefaultFeature implements Feature {
+public class DefaultFeature implements Feature, Cloneable {
     /*
      * Redesign notes, from FeatureFlat:
      *
@@ -403,17 +403,21 @@ public class DefaultFeature implements Feature {
      *
      * @return A default feature.
      */
-    public Object clone() {
-        DefaultFeature exactCopy = null;
-
+    public Object clone() {        
         try {
-            exactCopy = new DefaultFeature(this.schema, this.attributes);
-        } catch (IllegalAttributeException iae) {
-            // Can never happen
-            throw new RuntimeException("The impossible has happend", iae);
+            DefaultFeature clone = (DefaultFeature) super.clone();            
+            for (int i = 0; i < attributes.length; i++) {
+                try {
+                    clone.setAttribute(i, attributes[i]);
+                } catch (IllegalAttributeException e1) {
+                    throw new RuntimeException("The impossible has happened",e1);
+                }
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("The impossible has happened", e);
         }
 
-        return exactCopy;
     }
 
     /**
