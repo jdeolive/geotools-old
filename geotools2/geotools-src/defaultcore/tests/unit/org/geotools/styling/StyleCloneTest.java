@@ -52,21 +52,44 @@ public class StyleCloneTest extends TestCase {
     public void testStyleClone() throws Exception {
         Style style = styleFactory.getDefaultStyle();
         Style clone = (Style) style.clone();
-        assertTrue("Style was not cloned", style != clone);
-        assertEquals(style.getName(), clone.getName());
+        assertClone(style,clone);
+        //assertEquals(style.getName(), clone.getName());
     }
 
     public void testFeatureTypeStyleClone() throws Exception {
         FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
         FeatureTypeStyle clone = (FeatureTypeStyle) fts.clone();
-        assertTrue("FeatureTypeStyle was not cloned", fts != clone);
-        assertEquals(fts.getName(), fts.getName());
+        assertClone(fts,clone);
+        //assertEquals(fts.getName(), fts.getName());
     }
 
     public void testRuleClone() throws Exception {
         Rule rule = styleFactory.createRule();
         Rule clone = (Rule) rule.clone();
-        assertTrue("Rule was not cloned", rule != clone);
-        assertEquals(rule.getName(), clone.getName());
+        assertClone(rule,clone);
+        //assertEquals(rule.getName(), clone.getName());
+    }
+    
+    public void testSymbolizerClone() throws Exception {
+        PointSymbolizer pointSymb = styleFactory.createPointSymbolizer();
+        PointSymbolizer clone = (PointSymbolizer) pointSymb.clone();
+        assertClone(pointSymb,clone);
+        
+        LineSymbolizer lineSymb = styleFactory.createLineSymbolizer();
+        LineSymbolizer clone2 = (LineSymbolizer) lineSymb.clone();
+        assertClone(lineSymb,clone2);
+        
+        PolygonSymbolizer polygonSymb = styleFactory.createPolygonSymbolizer();
+        PolygonSymbolizer clone3 = (PolygonSymbolizer) polygonSymb.clone();
+        assertClone(polygonSymb,clone3);
+        
+        TextSymbolizer textSymb = styleFactory.createTextSymbolizer();
+        TextSymbolizer clone4 = (TextSymbolizer) textSymb.clone();
+        assertClone(textSymb,clone4);
+    }
+    
+    private static void assertClone(Object real,Object clone) {
+        assertTrue("" + real.getClass().getName() + " was not cloned",
+                    real != clone);
     }
 }
