@@ -32,7 +32,9 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * A set of constructs and utility methods used to test the data module.
@@ -54,7 +56,7 @@ import com.vividsolutions.jts.geom.MultiLineString;
 public class DataTestCase extends TestCase {
     protected GeometryFactory gf;
     protected FeatureType roadType; // road: id,geom,name
-    protected FeatureType subRoadType; // road: id,geom
+    protected FeatureType subRoadType; // road: id,geom    
     protected Feature[] roadFeatures;
     protected Envelope roadBounds;
     protected Envelope rd12Bounds;    
@@ -62,13 +64,19 @@ public class DataTestCase extends TestCase {
     protected Filter rd2Filter;
     protected Filter rd12Filter;
     protected Feature newRoad;
+    
     protected FeatureType riverType; // river: id, geom, river, flow
     protected FeatureType subRiverType; // river: river, flow     
     protected Feature[] riverFeatures;
     protected Envelope riverBounds;
     protected Filter rv1Filter;
-    protected Feature newRiver;
+    protected Feature newRiver;    
 
+    protected FeatureType lakeType; // lake: id, geom, name
+    protected Feature[] lakeFeatures;
+    protected Envelope lakeBounds;
+    
+    
     /**
      * Constructor for DataUtilitiesTest.
      *
@@ -179,11 +187,32 @@ public class DataTestCase extends TestCase {
         //           + 13,3
         //                     
         newRiver = riverType.create(new Object[] {
-                    new Integer(3),
-                    lines(new int[][] {
-                            { 9, 5, 11, 5, 13, 3 }
-                        }), "rv3", new Double(1.5)
-                }, "river.rv3");
+                new Integer(3),
+                lines(new int[][] {
+                        { 9, 5, 11, 5, 13, 3 }
+                    }), "rv3", new Double(1.5)
+            },
+            "river.rv3"
+        );
+        
+        lakeType = DataUtilities.createType(namespace+".lake",
+                    "id:0,geom:Polygon:nillable,name:String");
+        lakeFeatures = new Feature[1];
+        //             + 14,8
+        //            / \
+        //      12,6 +   + 16,6
+        //            \  | 
+        //        14,4 +-+ 16,4
+        //
+        lakeFeatures[0] = lakeType.create( new Object[]{
+                new Integer(0),
+                polygon( new int[]{ 12,6, 14,8, 16,6, 16,4, 14,4, 12,6} ),
+                "muddy"
+            },
+            "lake.lk1"
+        );
+        lakeBounds = new Envelope();
+        lakeBounds.expandToInclude(lakeFeatures[0].getBounds());                 
     }
 
     /*
@@ -224,6 +253,35 @@ public class DataTestCase extends TestCase {
         }
 
         return gf.createMultiLineString(lines);
+    }
+    
+    public Polygon polygon( int[] xy ){
+        LinearRing shell = ring( xy );        
+        return gf.createPolygon( shell, null );        
+    }
+
+    public Polygon polygon( int[] xy, int []holes[] ){
+        if( holes == null || holes.length == 0){
+           return polygon( xy );
+        }
+        LinearRing shell = ring( xy );        
+        
+        LinearRing[] rings = new LinearRing[holes.length];
+
+        for (int i = 0; i < xy.length; i++) {
+            rings[i] = ring(holes[i]);
+        }        
+        return gf.createPolygon( shell, rings );        
+    }
+        
+    public LinearRing ring( int[] xy ){
+        Coordinate[] coords = new Coordinate[xy.length / 2];
+
+        for (int i = 0; i < xy.length; i += 2) {
+            coords[i / 2] = new Coordinate(xy[i], xy[i + 1]);
+        }
+
+        return gf.createLinearRing(coords);        
     }
     //  need to special case Geometry
     protected void assertEquals(Geometry expected, Geometry actual) {
