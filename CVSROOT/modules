@@ -25,7 +25,7 @@
 # can be useful for creating a module that consists of many directories
 # spread out over the entire source repository.
 main geotools
-gettingstarted -d GettingStartedwebsite/help
+gettingstarted -d GettingStarted website/help
 src -d GeoTools geotools/src
 release geotools/src &gettingstarted
 
