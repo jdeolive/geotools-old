@@ -33,7 +33,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: MarkImpl.java,v 1.1 2002/10/14 13:08:16 ianturton Exp $
+ * @version $Id: MarkImpl.java,v 1.2 2002/10/14 14:18:38 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class MarkImpl implements Mark, Symbol {
@@ -43,8 +43,8 @@ public class MarkImpl implements Mark, Symbol {
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
     
-    Fill fill = new DefaultFill();
-    Stroke stroke = new DefaultStroke();
+    Fill fill = new FillImpl();
+    Stroke stroke = new StrokeImpl();
     
     //Polygon shape;
     private Expression wellKnownName = null;

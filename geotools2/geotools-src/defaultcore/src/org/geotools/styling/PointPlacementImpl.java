@@ -28,21 +28,21 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: DefaultPointPlacement.java,v 1.3 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: PointPlacementImpl.java,v 1.1 2002/10/14 14:16:30 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultPointPlacement implements PointPlacement {
+public class PointPlacementImpl implements PointPlacement {
 
     /**
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
-    AnchorPoint anchorPoint = new DefaultAnchorPoint();
-    Displacement displacement = new DefaultDisplacement();
+    AnchorPoint anchorPoint = new AnchorPointImpl();
+    Displacement displacement = new DisplacementImpl();
     Expression rotation = null;
     /** Creates a new instance of DefaultPointPlacement */
-    public DefaultPointPlacement() {
+    public PointPlacementImpl() {
         try {
             rotation = new org.geotools.filter.ExpressionLiteral(new Integer(0));
         } catch (org.geotools.filter.IllegalFilterException ife){

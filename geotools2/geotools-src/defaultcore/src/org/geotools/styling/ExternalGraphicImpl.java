@@ -27,10 +27,10 @@ import java.util.logging.Logger;
 
 
 /**
- * @version $Id: DefaultExternalGraphic.java,v 1.6 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: ExternalGraphicImpl.java,v 1.1 2002/10/14 14:18:06 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultExternalGraphic implements ExternalGraphic,Symbol {
+public class ExternalGraphicImpl implements ExternalGraphic,Symbol {
 
     /**
      * The logger for the default core module.
@@ -40,7 +40,7 @@ public class DefaultExternalGraphic implements ExternalGraphic,Symbol {
     URL location = null;
     String format = "";
     /** Creates a new instance of DefaultExternalGraphic */
-    public DefaultExternalGraphic(){
+    public ExternalGraphicImpl(){
     }
 
     public void setURI(String uri){

@@ -28,10 +28,10 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: DefaultAnchorPoint.java,v 1.4 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: AnchorPointImpl.java,v 1.1 2002/10/14 14:16:15 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultAnchorPoint implements AnchorPoint {
+public class AnchorPointImpl implements AnchorPoint {
 
     /**
      * The logger for the default core module.
@@ -41,7 +41,7 @@ public class DefaultAnchorPoint implements AnchorPoint {
     private Expression anchorPointX = null;
     private Expression anchorPointY = null;
     /** Creates a new instance of DefaultAnchorPoint */
-    public DefaultAnchorPoint() {
+    public AnchorPointImpl() {
         try {
             anchorPointX = new org.geotools.filter.ExpressionLiteral(new Double(0.0));
             anchorPointY = new org.geotools.filter.ExpressionLiteral(new Double(0.5));

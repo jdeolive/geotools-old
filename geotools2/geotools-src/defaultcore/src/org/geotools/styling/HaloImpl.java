@@ -28,20 +28,20 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: DefaultHalo.java,v 1.4 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: HaloImpl.java,v 1.1 2002/10/14 14:16:18 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultHalo implements Halo {
+public class HaloImpl implements Halo {
 
     /**
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
-    private DefaultFill fill = new DefaultFill();
+    private FillImpl fill = new FillImpl();
     private Expression radius = null;
     /** Creates a new instance of DefaultHalo */
-    public DefaultHalo() {
+    public HaloImpl() {
         try {
             radius = new org.geotools.filter.ExpressionLiteral(new Integer(1));
         } catch (org.geotools.filter.IllegalFilterException ife){
@@ -60,7 +60,7 @@ public class DefaultHalo implements Halo {
     /** Setter for property fill.
      * @param fill New value of property fill.
      */
-    public void setFill(org.geotools.styling.DefaultFill fill) {
+    public void setFill(org.geotools.styling.FillImpl fill) {
         this.fill = fill;
     }
     

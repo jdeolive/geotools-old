@@ -28,10 +28,10 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: DefaultLinePlacement.java,v 1.3 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: LinePlacementImpl.java,v 1.1 2002/10/14 14:16:39 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultLinePlacement implements LinePlacement {
+public class LinePlacementImpl implements LinePlacement {
 
     /**
      * The logger for the default core module.
@@ -41,7 +41,7 @@ public class DefaultLinePlacement implements LinePlacement {
     private Expression perpendicularOffset = null;
     
     /** Creates a new instance of DefaultLinePlacement */
-    public DefaultLinePlacement() {
+    public LinePlacementImpl() {
         try {
             perpendicularOffset = new org.geotools.filter.ExpressionLiteral(new Integer(0));
         } catch (org.geotools.filter.IllegalFilterException ife){

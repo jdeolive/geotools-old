@@ -28,10 +28,10 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: DefaultDisplacement.java,v 1.3 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: DisplacementImpl.java,v 1.1 2002/10/14 14:16:31 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultDisplacement implements Displacement {
+public class DisplacementImpl implements Displacement {
 
     /**
      * The logger for the default core module.
@@ -41,7 +41,7 @@ public class DefaultDisplacement implements Displacement {
     private Expression displacementX = null;
     private Expression displacementY = null;
     /** Creates a new instance of DefaultDisplacement */
-    public DefaultDisplacement() {
+    public DisplacementImpl() {
         try {
             displacementX = new org.geotools.filter.ExpressionLiteral(new Integer(0));
             displacementY = new org.geotools.filter.ExpressionLiteral(new Integer(0));

@@ -23,14 +23,14 @@ package org.geotools.styling;
 import org.geotools.filter.*;
 import java.util.ArrayList;
 /**
- * @version $Id: TextSymbolizerImpl.java,v 1.1 2002/10/14 13:05:26 ianturton Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.2 2002/10/14 14:18:32 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer {
-    DefaultFill fill = new DefaultFill();
+    FillImpl fill = new FillImpl();
     ArrayList fonts = new ArrayList();
-    Halo halo = new DefaultHalo();
-    LabelPlacement labelPlacement = new DefaultPointPlacement();
+    Halo halo = new HaloImpl();
+    LabelPlacement labelPlacement = new PointPlacementImpl();
     String geometryPropertyName = null;
     Expression label = null;
     /** Creates a new instance of DefaultTextSymbolizer */
@@ -70,7 +70,7 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     /** Setter for property fill.
      * @param fill New value of property fill.
      */
-    public void setFill(org.geotools.styling.DefaultFill fill) {
+    public void setFill(org.geotools.styling.FillImpl fill) {
         this.fill = fill;
     }
     /**
@@ -80,7 +80,7 @@ public class TextSymbolizerImpl implements TextSymbolizer {
      */
     public Font[] getFonts() {
         if (fonts.size() == 0){
-            fonts.add(new DefaultFont());
+            fonts.add(new FontImpl());
         }
         return (Font[]) fonts.toArray(new Font[]{});
     }

@@ -28,10 +28,10 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: DefaultFont.java,v 1.4 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: FontImpl.java,v 1.1 2002/10/14 14:16:11 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultFont implements Font {
+public class FontImpl implements Font {
 
     /**
      * The logger for the default core module.
@@ -43,7 +43,7 @@ public class DefaultFont implements Font {
     private Expression fontStyle = null;
     private Expression fontWeight = null;
     /** Creates a new instance of DefaultFont */
-    public DefaultFont() {
+    public FontImpl() {
         try {
             fontSize = new org.geotools.filter.ExpressionLiteral(new Integer(10));
             fontStyle = new org.geotools.filter.ExpressionLiteral("normal");

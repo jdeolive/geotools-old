@@ -21,13 +21,13 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PolygonSymbolizerImpl.java,v 1.1 2002/10/14 13:17:37 ianturton Exp $
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.2 2002/10/14 14:18:17 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class PolygonSymbolizerImpl implements org.geotools.styling.PolygonSymbolizer {
 
-    private Fill fill = new DefaultFill();
-    private Stroke stroke = new DefaultStroke();
+    private Fill fill = new FillImpl();
+    private Stroke stroke = new StrokeImpl();
     private String geometryPropertyName = null;
     /** Creates a new instance of DefaultPolygonStyler */
     public PolygonSymbolizerImpl() {

@@ -21,11 +21,11 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: LineSymbolizerImpl.java,v 1.1 2002/10/14 13:00:20 ianturton Exp $
+ * @version $Id: LineSymbolizerImpl.java,v 1.2 2002/10/14 14:18:37 ianturton Exp $
  * @author James Macgill
  */
 public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
-    private Stroke stroke = new DefaultStroke();
+    private Stroke stroke = new StrokeImpl();
     private String geometryName = null;
     /** Creates a new instance of DefaultLineSymbolizer */
     public LineSymbolizerImpl() {

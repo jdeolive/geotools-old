@@ -17,7 +17,7 @@ import org.geotools.filter.*;
  *
  * @author  iant
  */
-public class TextMark extends DefaultMark implements Mark, Symbol {
+public class TextMark extends MarkImpl implements Mark, Symbol {
     
     /**
      * The logger for the default core module.

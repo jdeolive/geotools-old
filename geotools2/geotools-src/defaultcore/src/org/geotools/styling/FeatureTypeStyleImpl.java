@@ -21,17 +21,17 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: DefaultFeatureTypeStyle.java,v 1.6 2002/07/11 17:24:04 loxnard Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.1 2002/10/14 14:16:14 ianturton Exp $
  * @author James Macgill
  */
-public class DefaultFeatureTypeStyle implements org.geotools.styling.FeatureTypeStyle {
+public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeStyle {
     private Rule[] ruleList;// Possibly not the best storage
     private String featureTypeName = "feature";
     String name = "name";
     String title = "title";
     String abstractStr = "abstract";
     /** Creates a new instance of DefaultFeatureTypeStyle */
-    public DefaultFeatureTypeStyle() {
+    public FeatureTypeStyleImpl() {
         ruleList = new Rule[0];
     }
     
