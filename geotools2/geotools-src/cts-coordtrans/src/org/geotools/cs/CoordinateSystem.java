@@ -35,11 +35,14 @@
  */
 package org.geotools.cs;
 
-// OpenGIS dependencies
+// OpenGIS 1.0 dependencies
 import org.opengis.cs.CS_Unit;
 import org.opengis.cs.CS_AxisInfo;
 import org.opengis.pt.PT_Envelope;
 import org.opengis.cs.CS_CoordinateSystem;
+
+// OpenGIS 2.0 dependencies
+import org.opengis.sc.CoordinateReferenceSystem;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
@@ -72,13 +75,21 @@ import java.rmi.RemoteException;
  * of the Earth.  This mapping from the mathematical space into real-world
  * locations is called a Datum.
  *
- * @version $Id: CoordinateSystem.java,v 1.12 2003/11/20 22:18:25 jive Exp $
+ * <br><br>
+ * <STRONG>NOTE:</STRONG> This <code>CoordinateSystem</code> class implements the OpenGIS&reg;
+ * Coordinate System specification 1.0, not 2.0. The {@link CoordinateReferenceSystem} interface
+ * come from specification 2.0 and appears in the <code>implements</code> clause only as a patch
+ * for anticipating a future transition to OGC spec. 2.0.
+ *
+ * @version $Id: CoordinateSystem.java,v 1.13 2003/11/26 00:23:06 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
  * @see org.opengis.cs.CS_CoordinateSystem
  */
-public abstract class CoordinateSystem extends Info implements Dimensioned {
+public abstract class CoordinateSystem extends Info implements Dimensioned,
+                                                               CoordinateReferenceSystem
+{
     /**
      * Serial number for interoperability with different versions.
      */
