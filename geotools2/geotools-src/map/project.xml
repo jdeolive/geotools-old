@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../project.xml</extend>
+  <name>geotools-map</name>
+  <id>map</id>
+  <currentVersion>SNAPSHOT</currentVersion>
+  <versions>
+    <version>
+      <id>b1</id>
+      <name>2.0-b1</name>
+      <tag>GT_2_0_B1</tag>
+    </version>
+  </versions>
+  <package>org.geotools</package>
+  <shortDescription>Standard implementation of the map context interfaces in
+  the core module</shortDescription>
+  <gumpRepositoryId>geotools</gumpRepositoryId>
+  <description>Standard implementation of the map context interfaces in
+  the core module</description>
+  <developers>
+    <developer>
+      <name>Andrea Aime</name>
+      <id>aaime</id>
+      <email>andrea.aime@aliceposta.it</email>
+      <organization>SATA</organization>
+      <roles>
+        <role>Mantainer</role>
+      </roles>
+    </developer>
+  </developers>
+  <dependencies>
+    <dependency>
+      <artifactId>core</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <id>JTS</id>
+      <version>1.4</version>
+      <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
+    </dependency>
+    <dependency>
+      <artifactId>cts-coordtrans</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <artifactId>resources</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <id>opengis+css</id>
+      <version>0.1</version>
+      <url>http://www.opengis.org</url>
+    </dependency>
+    <dependency>
+      <id>opengis</id>
+      <version>SNAPSHOT</version>
+      <url>http://www.geotools.org</url>
+    </dependency>
+    <dependency>
+      <id>defaultcore</id>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+      <url>http://www.geotools.org</url>
+    </dependency>
+    <dependency>
+      <id>data</id>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+      <url>http://www.geotools.org</url>
+    </dependency>
+  </dependencies>
+  <build>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <resources>
+        <resource>
+          <directory>${basedir}/tests/unit</directory>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
+</project>
