@@ -126,8 +126,7 @@ public class AttributeTypeTest extends TestCase {
         }
         
         
-        
-        type = AttributeTypeFactory.newAttributeType("testAttribute", List.class, false);
+        type = AttributeTypeFactory.newAttributeType("testAttribute", List.class, true);
         try{
             type.validate(new ArrayList());
         }
@@ -138,14 +137,12 @@ public class AttributeTypeTest extends TestCase {
         
     }
     
-    public void testFeatureConstruction() throws SchemaException {
+    public void testFeatureConstruction() throws Exception {
         FeatureType a = FeatureTypeFactory.newFeatureType(new AttributeType[]{},"noAttribs");
         FeatureType b = FeatureTypeFactory.newFeatureType(new AttributeType[]{AttributeTypeFactory.newAttributeType("testAttribute", Double.class)},"oneAttribs");
         //Direct construction should never be used like this, however it is the only way to test
         //the code fully
-        AttributeType feat = new DefaultAttributeType.Feature("good",  a, false);
-        assertNotNull(feat);
-        
+        AttributeType feat = new DefaultAttributeType.Feature("good",  a, false,a.create(new Object[0]));        
     }
     
     public void testFeatureValidate() throws SchemaException {
@@ -188,16 +185,10 @@ public class AttributeTypeTest extends TestCase {
     public void testNumericConstruction(){
         //Direct construction should never be used like this, however it is the only way to test
         //the code fully
-        AttributeType num = new DefaultAttributeType.Numeric("good",  Double.class, false);
+        AttributeType num = new DefaultAttributeType.Numeric("good",  Double.class, false, 0,new Double(0));
         
-        // what is this crazy action? If you call "new", one of two things happens
-        // 1) you get an object, rendering this assertion rather useless
-        // 2) some exception is thrown - in which case this statement wouldn't even
-        //    be executed!!!
-        // -IanS
-        assertNotNull(num);
         try{
-            num = new DefaultAttributeType.Numeric("bad",  String.class, false);
+            num = new DefaultAttributeType.Numeric("bad",  String.class, false,0,new Double(0));
             fail("Numeric type should not be constructable with type String");
         }
         catch(IllegalArgumentException iae){
