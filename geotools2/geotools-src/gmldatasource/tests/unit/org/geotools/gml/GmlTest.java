@@ -71,8 +71,8 @@ public class GmlTest extends TestCase {
             Iterator i = table.iterator();
             System.out.println("Got "+ table.size() + " features");
             while(i.hasNext()){
-                
-                System.out.println("Feature: "+i.next());
+                i.next();
+                // System.out.println("Feature: "+i.next());
             }
         }catch(Exception e){
             System.out.println(e);

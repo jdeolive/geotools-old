@@ -126,8 +126,7 @@ public class ProducerTest extends TestCase {
 	table.add(testFeature);
 	table.add(lineFeature);
 	table.add(polygonFeature);
-	    System.out.println("the feature collection is " + table + ", and "
-			       + "the first feat is " + table.features().next());
+	    //System.out.println("the feature collection is " + table + ", and " + "the first feat is " + table.features().next());
 	    
 	    FeatureTransformer fr = new FeatureTransformer();
 	    fr.setPrettyPrint(true);
