@@ -719,6 +719,15 @@ public class DataUtilities {
         return true;
     }
 
+    /**
+     * Create a derived FeatureType<p>
+     * 
+     * @param featureType
+     * @param properties
+     * @param override
+     * @return
+     * @throws SchemaException
+     */
     public static FeatureType createSubType(FeatureType featureType, String[] properties,
         CoordinateSystem override) throws SchemaException {
         if ((properties == null) && (override == null)) {
