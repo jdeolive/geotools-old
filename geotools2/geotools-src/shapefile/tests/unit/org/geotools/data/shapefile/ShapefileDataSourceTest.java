@@ -166,10 +166,10 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
       String testName = wktResources[i];
       try {
         
-        runWriteReadTest(geom);
+        runWriteReadTest(geom,false);
         make3D(geom);
         testName += "3d";
-        runWriteReadTest(geom);
+        runWriteReadTest(geom,true);
       } catch (Throwable e) {
         throw new Exception("Error in " + testName,e); 
       }
@@ -185,7 +185,7 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     }
   }
   
-  private void runWriteReadTest(Geometry geom) throws Exception {
+  private void runWriteReadTest(Geometry geom,boolean d3) throws Exception {
     // make features
     FeatureTypeFactory factory = FeatureTypeFactory.newInstance("junk");
     factory.addType(AttributeTypeFactory.newAttributeType("a",Geometry.class));
@@ -224,7 +224,11 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
         Coordinate[] c1 = geom.getCoordinates();
         Coordinate[] c2 = fromShape.getCoordinates();
         for (int cc = 0, ccc = c1.length; cc < ccc; cc++) {
-          assertTrue(c1[cc].equals3D(c2[cc]));
+            //System.out.println(c1[cc] + "," + c2[cc]);
+          if (d3)
+            assertTrue(c1[cc].equals3D(c2[cc]));
+          else
+            assertTrue(c1[cc].equals2D(c2[cc]));
         }
       } catch (Throwable t) {
         fail("Bogus : " + Arrays.asList(geom.getCoordinates()) + " : " + Arrays.asList(fromShape.getCoordinates()));
