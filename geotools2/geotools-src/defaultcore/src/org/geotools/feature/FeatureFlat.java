@@ -36,7 +36,7 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.17 2002/11/25 15:27:51 robhranac Exp $
+ * @version $Id: FeatureFlat.java,v 1.18 2003/01/02 19:48:08 cholmesny Exp $
  * @author Rob Hranac, TOPP
  */
 public class FeatureFlat implements Feature {
@@ -104,9 +104,12 @@ public class FeatureFlat implements Feature {
         // Gets the number of attributes from feature and uses to set valid flag
         int n = schema.attributeTotal();
         boolean isValid = (n == attributes.length);
-        LOGGER.finest("schema attributes: " + n);
-        LOGGER.finest ("passed attributes: " + attributes.length);
-        LOGGER.finer ("is right length: " + isValid);
+	final boolean loggable = LOGGER.isLoggable(Level.FINEST);
+	if(loggable) {
+	    LOGGER.finest("schema attributes: " + n);
+	    LOGGER.finest ("passed attributes: " + attributes.length);
+	    LOGGER.finest ("is right length: " + isValid);
+	}
         if(!isValid){
             throw new IllegalFeatureException("Wrong number of attributes expected " + n + " got " + attributes.length);
         }
@@ -117,24 +120,32 @@ public class FeatureFlat implements Feature {
             if(!isValid){
                 
 
-                String existingType = schema.getAttributeType(i).getType().toString();
+                String existingType = 
+		    schema.getAttributeType(i).getType().toString();
                 String targetType = attributes[i].getClass().getName();
                 LOGGER.warning("target type:" + attributes[i].toString());
-                LOGGER.warning("validity check:" + schema.getAttributeType(i).getName());
+                LOGGER.warning("validity check:" 
+			       + schema.getAttributeType(i).getName());
                 LOGGER.warning("existing type:" + existingType );
                 LOGGER.warning("target type:" + targetType );
-                throw new IllegalFeatureException("Attribute[" + i + "] is of wrong type.\n" +
-                                           "expected " + existingType + " got " + targetType);
+                throw new IllegalFeatureException("Attribute[" + i + "] is of"
+						  + "wrong type.\n" + 
+						  "expected " + existingType 
+						  + " got " + targetType);
             }
         }
 
         // Add if it is valid, otherwise throw an exception.
         if (isValid) {
-            LOGGER.finest("about to copy");
-            this.attributes = new Object[n];
-            System.arraycopy(attributes, 0, this.attributes, 0, n);
-            LOGGER.finest("just copied");
-        }
+	    if(loggable) {
+		LOGGER.finest("about to copy");
+	    }
+	    this.attributes = new Object[n];
+	    System.arraycopy(attributes, 0, this.attributes, 0, n);
+	    if(loggable) {
+		LOGGER.finest("just copied");
+	    }
+	}   
         else {
             throw new IllegalFeatureException("You have attempted to create an invalid feature " +
                                               "instance.");
@@ -312,8 +323,11 @@ public class FeatureFlat implements Feature {
      */
     public Geometry getDefaultGeometry() {
         AttributeType gType = schema.getDefaultGeometry();
-        LOGGER.finer("schema " + schema + " \n gType = " + gType);
-        LOGGER.finer("fetching geometry from " + gType.getPosition() + " -> " + attributes[gType.getPosition()]);
+	if(LOGGER.isLoggable(Level.FINER)) {
+	    LOGGER.finer("schema " + schema + " \n gType = " + gType);
+	    LOGGER.finer("fetching geometry from " + gType.getPosition() 
+			 + " -> " + attributes[gType.getPosition()]);
+	}
         return (Geometry) ((Geometry) attributes[gType.getPosition()]).clone();
     }
 
