@@ -34,6 +34,9 @@ package org.geotools.styling;
 public class DefaultFeatureTypeStyle implements org.geotools.styling.FeatureTypeStyle {
     private Rule[] ruleList;// Possibly not the best storage
     private String featureTypeName = "feature";
+    String name = "name";
+    String title = "title";
+    String abstractStr = "abstract";
     /** Creates a new instance of DefaultFeatureTypeStyle */
     public DefaultFeatureTypeStyle() {
         ruleList = new Rule[0];
@@ -57,6 +60,48 @@ public class DefaultFeatureTypeStyle implements org.geotools.styling.FeatureType
     
     public void setFeatureTypeName(String name) {
         featureTypeName=name;
+    }
+    
+    /** Getter for property abstractStr.
+     * @return Value of property abstractStr.
+     */
+    public java.lang.String getAbstract() {
+        return abstractStr;
+    }
+    
+    /** Setter for property abstractStr.
+     * @param abstractStr New value of property abstractStr.
+     */
+    public void setAbstract(java.lang.String abstractStr) {
+        this.abstractStr = abstractStr;
+    }
+    
+    /** Getter for property name.
+     * @return Value of property name.
+     */
+    public java.lang.String getName() {
+        return name;
+    }
+    
+    /** Setter for property name.
+     * @param name New value of property name.
+     */
+    public void setName(java.lang.String name) {
+        this.name = name;
+    }
+    
+    /** Getter for property title.
+     * @return Value of property title.
+     */
+    public java.lang.String getTitle() {
+        return title;
+    }
+    
+    /** Setter for property title.
+     * @param title New value of property title.
+     */
+    public void setTitle(java.lang.String title) {
+        this.title = title;
     }
     
 }

@@ -30,6 +30,10 @@ public class DefaultFill implements org.geotools.styling.Fill {
 
     String color = "#808080";
     
+    private double opacity = 1.0;
+    
+    private Graphic graphicFill = null;
+    
     /** Creates a new instance of DefaultFill */
     public DefaultFill() {
     }
@@ -68,17 +72,8 @@ public class DefaultFill implements org.geotools.styling.Fill {
         color = rgb;
     }
     
-    /**
-     * This parameter indicates that a stipple-fill repeated graphic will be used and 
-     * specifed the fill graphic to use.
-     *
-     * @return The graphic to use as a stipple fill.  
-     *  If null then no Stipple fill should be used.
-     */
-    public Graphic getGraphicFill() {
-        return null;
-    }
     
+
     /**
      * This specifies the level of translucency to use when rendering the fill.
      * <br>
@@ -92,7 +87,34 @@ public class DefaultFill implements org.geotools.styling.Fill {
      *  and 1.0 is completly opaque.
      */
     public double getOpacity() {
-        return 1.0;
+        return opacity;
+    }
+    
+    /** Setter for property opacity.
+     * @param opacity New value of property opacity.
+     */
+    public void setOpacity(double opacity) {
+        this.opacity = opacity;
+    }
+    
+    /**
+     * This parameter indicates that a stipple-fill repeated graphic will be used and 
+     * specifed the fill graphic to use.
+     *
+     * @return graphic The graphic to use as a stipple fill.  
+     *  If null then no Stipple fill should be used.
+     */
+   
+    
+    public org.geotools.styling.Graphic getGraphicFill() {
+        return graphicFill;
+    }
+    
+    /** Setter for property graphic.
+     * @param graphic New value of property graphic.
+     */
+    public void setGraphicFill(org.geotools.styling.Graphic graphic) {
+        this.graphicFill = graphicFill;
     }
     
 }

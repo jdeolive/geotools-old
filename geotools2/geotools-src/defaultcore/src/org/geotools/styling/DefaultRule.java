@@ -31,9 +31,18 @@ package org.geotools.styling;
  *
  * @author jamesm
  */
+import java.util.ArrayList;
+
 public class DefaultRule implements org.geotools.styling.Rule {
 
     private Symbolizer[] symbolizers;
+    private ArrayList graphics = new ArrayList();
+    
+    private String name = "name";
+    
+    private String title = "title";
+    
+    private String abstractStr = "Abstract";
     
     /** Creates a new instance of DefaultRule */
     public DefaultRule() {
@@ -41,7 +50,10 @@ public class DefaultRule implements org.geotools.styling.Rule {
     }
 
     public Graphic[] getLegendGraphic() {
-        return null;//TODO: implement a proper return here
+        return (Graphic[])graphics.toArray(new Graphic[0]);
+    }
+    public void addLegendGraphic(Graphic g){
+        graphics.add(g);
     }
     
     public double getMaxScaleDenominator() {
@@ -58,6 +70,48 @@ public class DefaultRule implements org.geotools.styling.Rule {
     
     public Symbolizer[] getSymbolizers() {
         return symbolizers;
+    }
+    
+    /** Getter for property abstractStr.
+     * @return Value of property abstractStr.
+     */
+    public java.lang.String getAbstract() {
+        return abstractStr;
+    }
+    
+    /** Setter for property abstractStr.
+     * @param abstractStr New value of property abstractStr.
+     */
+    public void setAbstract(java.lang.String abstractStr) {
+        this.abstractStr = abstractStr;
+    }
+    
+    /** Getter for property name.
+     * @return Value of property name.
+     */
+    public java.lang.String getName() {
+        return name;
+    }
+    
+    /** Setter for property name.
+     * @param name New value of property name.
+     */
+    public void setName(java.lang.String name) {
+        this.name = name;
+    }
+    
+    /** Getter for property title.
+     * @return Value of property title.
+     */
+    public java.lang.String getTitle() {
+        return title;
+    }
+    
+    /** Setter for property title.
+     * @param title New value of property title.
+     */
+    public void setTitle(java.lang.String title) {
+        this.title = title;
     }
     
 }
