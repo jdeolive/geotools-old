@@ -58,7 +58,7 @@ import junit.framework.TestSuite;
  *   <li>{@link Ellipsoid}</li>
  * </ul>
  *
- * @version $Id: GeocentricTransformTest.java,v 1.2 2002/07/12 10:05:43 desruisseaux Exp $
+ * @version $Id: GeocentricTransformTest.java,v 1.3 2002/07/12 14:37:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GeocentricTransformTest extends TransformationTest {
@@ -156,6 +156,7 @@ public class GeocentricTransformTest extends TransformationTest {
         assertEquals("Source dimension", 3, dimension);
         assertEquals("Target dimension", 3, transform.getDimTarget());
         assertSame("Inverse transform", transform, transform.inverse().inverse());
+        assertInterfaced(transform);
         /*
          * Construct an array of 850 random points. The first 8 points
          * are initialized to know values. Other points are left random.
