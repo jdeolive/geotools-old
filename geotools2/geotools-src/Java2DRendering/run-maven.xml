@@ -15,12 +15,23 @@
     </and>
   </condition>
   <condition property="maven" value="maven.bat">
-    <istrue value="${mavenbat}"/>
+    <not>
+        <equals arg1="${mavenbat}" arg2="$${mavenbat}"/>
+    </not>
+    <!-- <istrue value="${mavenbat}"/> uncomment instead if you have ant 1.5+ -->
   </condition>
+  <!-- I have no idea what the correct command for maven on a mac is so assumed it has more sense than windows
+   if you know better please fix. -->
   <condition property="maven" value="maven">
-      <or>  
-        <istrue value="${mavenunix}"/>
-        <istrue value="${mavenmac}"/>
+      <or>
+        <not>
+            <equals arg1="${mavenunix}" arg2="$${mavenunix}"/>
+        </not>
+        <not>
+            <equals arg1="${mavenmac}" arg2="$${mavenmac}"/>
+        </not>
+        <!-- <istrue value="${mavenunix}"/>
+        <istrue value="${mavenmac}"/> as above -->
     </or>
   </condition>
 </target>
