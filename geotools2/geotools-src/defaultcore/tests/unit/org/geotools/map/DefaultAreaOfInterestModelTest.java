@@ -142,7 +142,8 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
         bbox.addAreaOfInterestChangedListener(this);
         bbox.setAreaOfInterest(new Envelope(5.0, 5.0, 10.0,10.0));
         try{
-            this.wait(1000); //delay 1 sec to allow a new thread to call
+            Thread.sleep(1000);
+            //delay 1 sec to allow a new thread to call
                              //areaOfInterestChangedEvent.
         }catch (java.lang.InterruptedException e){}
         this.assertTrue("Event not sent after bbox change",changeEventSent);
