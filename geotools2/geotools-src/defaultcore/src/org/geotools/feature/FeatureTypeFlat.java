@@ -21,7 +21,7 @@
 package org.geotools.feature;
 
 import java.util.*;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.data.*;
 
@@ -37,13 +37,13 @@ import org.geotools.data.*;
  * do not allow any nested elements, but they also restrict the attribute
  * objects to be very simple data types.</p>
  *
- * @version $Id: FeatureTypeFlat.java,v 1.13 2002/07/12 12:49:23 loxnard Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.14 2002/07/25 09:44:58 ianturton Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat implements FeatureType {
 
 
-    private static Category _log = Category.getInstance(FeatureTypeFlat.class.getName());
+    private static Logger _log = Logger.getLogger(FeatureTypeFlat.class);
 
     /** List of allowed attribute classes: primitive wrappers and String. */
     protected static final List ALLOWED_TYPES = 
@@ -116,13 +116,13 @@ public class FeatureTypeFlat implements FeatureType {
         // run through each attribute type
         for (int i = 0; i < n; i++) {
 
-            _log.info("starting attribute: " + attributeTypes[i].getName() + " [" + i + "]");
-            _log.info("type: " + attributeTypes[i].getType());
-            _log.info("is a geometry: " + Geometry.class.isAssignableFrom(attributeTypes[i].getType()));
+            _log.debug("starting attribute: " + attributeTypes[i].getName() + " [" + i + "]");
+            _log.debug("type: " + attributeTypes[i].getType());
+            _log.debug("is a geometry: " + Geometry.class.isAssignableFrom(attributeTypes[i].getType()));
 
             // if it is a conforming non-geometry, initialize feature type
             if (isAllowed(attributeTypes[i])) {
-            _log.info("is ok attribute");
+            _log.debug("is ok attribute");
                 
                 attributeTypes[i] = attributeTypes[i].setPosition(i);
                 _log.debug("Pos = " + attributeTypes[i].getPosition());
@@ -135,7 +135,7 @@ public class FeatureTypeFlat implements FeatureType {
             else if ((Geometry.class.
                        isAssignableFrom(attributeTypes[i].getType())) &&
                      (attributeTypes[i].getOccurrences() == 1)) {
-            _log.info("is ok geometry");
+            _log.debug("is ok geometry");
                 isValid = isValid && (geometryPosition == -1);
                 geometryPosition = i;
                 _log.debug("GeomPosition = " + geometryPosition);
@@ -145,7 +145,7 @@ public class FeatureTypeFlat implements FeatureType {
 
             // if it is neither, set validity flag to false
             else {
-            _log.info("is bad");
+            _log.debug("is bad");
                 isValid = false; 
             }
         }
@@ -180,17 +180,17 @@ public class FeatureTypeFlat implements FeatureType {
         ArrayList tempAttributes = new ArrayList(Arrays.asList(schema.attributeTypes));
         AttributeType tempAttribute = attribute.setPosition(tempAttributes.size());
 
-        //_log.info("attributes size (before add): " + tempAttributes.size());
+        //_log.debug("attributes size (before add): " + tempAttributes.size());
         tempAttributes.add(tempAttribute);            
         tempAttributes.trimToSize();
-        //_log.info("attributes size (after add): " + tempAttributes.size());
+        //_log.debug("attributes size (after add): " + tempAttributes.size());
         schema.attributeTypes = (AttributeType []) tempAttributes.toArray(new AttributeType [] {});
-        //_log.info("attributes size (new): " + schema.attributeTypes.length);
+        //_log.debug("attributes size (new): " + schema.attributeTypes.length);
 
-        //_log.info("attribute: " + tempAttribute);
-        //_log.info("putting attribute: " + attribute.getName());
+        //_log.debug("attribute: " + tempAttribute);
+        //_log.debug("putting attribute: " + attribute.getName());
         schema.nameMap.put(attribute.getName(), tempAttribute);
-        //_log.info("getting attribute: " + schema.nameMap.get(attribute.getName()));
+        //_log.debug("getting attribute: " + schema.nameMap.get(attribute.getName()));
         return schema;
     }
 
@@ -314,26 +314,26 @@ public class FeatureTypeFlat implements FeatureType {
     public FeatureType setAttributeType(AttributeType attribute)
         throws SchemaException {
 
-        //_log.info("got attribute: " + attribute.toString());
+        //_log.debug("got attribute: " + attribute.toString());
         FeatureTypeFlat schemaCopy = (FeatureTypeFlat) this.clone();
         if (isAllowed(attribute)) {
             //hack: the following line used to be in NOT form
             if (hasAttributeType(attribute.getName())) {
-                //_log.info("attribute already exists");
+                //_log.debug("attribute already exists");
                 int i = getAttributeType(attribute.getName()).getPosition();
                 attribute = attribute.setPosition(i);
                 schemaCopy = removeAttribute(attribute.getName(), schemaCopy);
             }
-            //_log.info("ready to add");
+            //_log.debug("ready to add");
             schemaCopy = addAttribute(attribute, schemaCopy);
-            //_log.info("size after added: " + schemaCopy.attributeTypes.length);
-            //_log.info("added");
+            //_log.debug("size after added: " + schemaCopy.attributeTypes.length);
+            //_log.debug("added");
         }
         else if ((Geometry.class.
                    isAssignableFrom(attribute.getType())) &&
                  (attribute.getOccurrences() == 1) && 
                  (hasAttributeType(attribute.getName()))) {
-                //_log.info("attribute already exists");
+                //_log.debug("attribute already exists");
                 int i = getAttributeType(attribute.getName()).getPosition();
                 attribute = attribute.setPosition(i);
                 schemaCopy = removeAttribute(attribute.getName(), schemaCopy);
@@ -347,7 +347,7 @@ public class FeatureTypeFlat implements FeatureType {
             throw new SchemaException(message);
         }
 
-        //_log.info("about to return");
+        //_log.debug("about to return");
         return schemaCopy;
     }
 
@@ -467,19 +467,19 @@ public class FeatureTypeFlat implements FeatureType {
   
     public AttributeType getAttributeType(String xPath) {
 
-        //_log.info("has element: " + nameMap.containsValue(attributeTypes[1]));
+        //_log.debug("has element: " + nameMap.containsValue(attributeTypes[1]));
         /*_log.debug("in getAttributeType()");
-        _log.info("getting attribute: " + nameMap.get(xPath));
-          _log.info("getting map size: " + nameMap.size());
+        _log.debug("getting attribute: " + nameMap.get(xPath));
+          _log.debug("getting map size: " + nameMap.size());
         Set mySet = nameMap.keySet(); 
         Iterator myIt = mySet.iterator();
         while( myIt.hasNext() ) {
-            _log.info("keys: " + myIt.next());            
+            _log.debug("keys: " + myIt.next());            
         }
         Collection myCol = nameMap.keySet(); 
         myIt = myCol.iterator();
         while( myIt.hasNext() ) {
-            _log.info("values: " + myIt.next());            
+            _log.debug("values: " + myIt.next());            
         }
         _log.debug("returning: "+(nameMap.get(xPath)));
          */
@@ -509,16 +509,16 @@ public class FeatureTypeFlat implements FeatureType {
 
         //copy.attributeTypes = new AttributeType[attributeTypes.length];
         //System.arraycopy(this.attributeTypes, 0, copy.attributeTypes, 0, attributeTypes.length);
-        //_log.info("attribute length (original): " + attributeTypes.length);
-        //_log.info("attribute length (copy): " + copy.attributeTypes.length);        
-        //_log.info("copied attributes");
+        //_log.debug("attribute length (original): " + attributeTypes.length);
+        //_log.debug("attribute length (copy): " + copy.attributeTypes.length);        
+        //_log.debug("copied attributes");
         //copy.name = this.name;
         //copy.namespace = this.namespace;
         //copy.occurrences = this.occurrences;
         //copy.position = this.position;
         //copy.geometryPosition = this.geometryPosition;
         //copy.nameMap = (HashMap) nameMap.clone();
-        //_log.info("test geometry there: " + nameMap.get("testGeometry"));
+        //_log.debug("test geometry there: " + nameMap.get("testGeometry"));
 
         return copy;
     }
