@@ -49,7 +49,7 @@ import java.util.Set;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.1 2003/07/29 15:42:33 ianschneider Exp $
+ * @version $Id: AbstractDataSource.java,v 1.2 2003/07/31 21:54:19 jmacgill Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** A support string for unsupported operations messages */
@@ -228,8 +228,8 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public void modifyFeatures(AttributeType type, Object value, Filter filter)
         throws DataSourceException, UnsupportedOperationException {
-        AttributeType[] singleType = { type };
-        Object[] singleVal = { value };
+        AttributeType[] singleType = {type};
+        Object[] singleVal = {value};
         modifyFeatures(singleType, singleVal, filter);
     }
 
@@ -382,8 +382,7 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public void abortLoading() throws UnsupportedOperationException {
         if (!getMetaData().supportsAbort()) {
-            throw new UnsupportedOperationException(supportMsg 
-                + "abortLoading");
+            throw new UnsupportedOperationException(supportMsg + "abortLoading");
         }
     }
 

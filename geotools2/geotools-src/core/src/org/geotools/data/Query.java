@@ -32,18 +32,18 @@ import org.geotools.filter.Filter;
  * and discarding when the max is reached.
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.5 2003/07/17 07:09:51 ianschneider Exp $
+ * @version $Id: Query.java,v 1.6 2003/07/31 21:54:19 jmacgill Exp $
  */
 public interface Query {
     /** So getMaxFeatures does not return null we use a very large number. */
-    public static final int DEFAULT_MAX = 100000000;
+    static final int DEFAULT_MAX = 100000000;
 
     /**
      * Implements a query that will fetch all features from a datasource. This
      * query should retrieve all properties, with no maxFeatures, no
      * filtering, and the default featureType.
      */
-    static final Query ALL = new Query() {
+    final Query ALL = new Query() {
             public final String[] getPropertyNames() {
                 return null;
             }

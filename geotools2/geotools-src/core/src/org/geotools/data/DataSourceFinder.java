@@ -21,7 +21,7 @@ import java.util.Map;
 import org.geotools.factory.FactoryFinder;
 
 
-/*
+/**
  * DataSourceFinder.java
  * Provides methods which enable programs to find all available datasource implementations.
  * In order to be located by this finder datasources must provide an implementation of
