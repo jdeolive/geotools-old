@@ -213,12 +213,39 @@ public class ExpressionDOMParser {
             }
         }
         if(child.getNodeName().equalsIgnoreCase("Function")){
-            LOGGER.finer("function not yet implemented");
-            // TODO: should have a name and a (or more?) expressions
-            // TODO: find out what really happens here
             
+            FunctionExpression func = null;
+            Element param = (Element) child;
+            
+            NamedNodeMap map = param.getAttributes();
+            
+            for (int k = 0; k < map.getLength(); k++) {   
+                String res = map.item(k).getNodeValue();
+                String name = map.item(k).getNodeName();
+                LOGGER.fine("attribute " + name + " with value of " + res);
+                if (name.equalsIgnoreCase("name")) {
+                    func = filterFactory.createFunctionExpression(res);    
+                }
+            }
+            
+            if(func == null ){
+                LOGGER.severe("failed to find function in " + child);
+                return null;
+            }
+            
+            int argCount = func.getArgCount();
+            Expression args[] = new Expression[argCount];
+            Node value = child.getFirstChild();
+            for(int i=0; i< argCount; i++){
+                while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                args[i]=parseExpression(value);
+                value = value.getNextSibling();
+            }
+            func.setArgs(args);
+            return func;
+                
         }
-        
+
         if(child.getNodeType()== Node.TEXT_NODE){
             LOGGER.finer("processing a text node "+root.getNodeValue());
             String nodeValue = root.getNodeValue();
