@@ -59,14 +59,19 @@ import javax.media.jai.registry.RenderedRegistryMode;
 
 // Geotools dependencies
 import org.geotools.pt.Envelope;
-import org.geotools.cv.Category;
-import org.geotools.gc.GridCoverage;
-import org.geotools.cv.SampleDimension;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.ct.MathTransform2D;
+import org.geotools.cv.Category;
+import org.geotools.cv.SampleDimension;
+import org.geotools.gc.GridRange;
+import org.geotools.gc.GridGeometry;
+import org.geotools.gc.GridCoverage;
+import org.geotools.gc.InvalidGridGeometryException;
 
 // Resources
 import org.geotools.units.Unit;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
@@ -87,14 +92,17 @@ import org.geotools.resources.ImageUtilities;
  * different bits of tasks, resulting in the following chain of calls:
  *
  * <ol>
- *   <li>{@link #doOperation}</li>
- *   <li>{@link #deriveGridCoverage}</li>
- *   <li>{@link #deriveSampleDimension}</li>
- *   <li>{@link #deriveCategory}</li>
- *   <li>{@link #deriveUnit}</li>
+ *   <li>{@link #doOperation doOperation} (the entry point)</li>
+ *   <li>{@link #resampleToCommonGeometry resampleToCommonGeometry}
+ *       (reproject all source to the same coordinate system)</li>
+ *   <li>{@link #deriveGridCoverage deriveGridCoverage} (gets the destination properties)</li>
+ *   <li>{@link #deriveSampleDimension} (gets the destination sample dimensions)</li>
+ *   <li>{@link #deriveCategory} (gets the destination categories)</li>
+ *   <li>{@link #deriveUnit} (gets the destination units)</li>
+ *   <li>{@link #createRenderedImage} (the actual call to {@link JAI#createNS JAI.createNS})</li>
  * </ol>
  *
- * @version $Id: OperationJAI.java,v 1.23 2003/07/23 10:33:14 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.24 2003/07/23 18:04:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -188,21 +196,6 @@ public class OperationJAI extends Operation {
     }
 
     /**
-     * Returns the JAI instance to use for operations on {@link RenderedImage}.
-     *
-     * @param hints The rendering hints, or <code>null</code> if none.
-     */
-    static JAI getJAI(final RenderingHints hints) {
-        if (hints != null) {
-            final Object value = hints.get(Hints.JAI_INSTANCE);
-            if (value instanceof JAI) {
-                return (JAI) value;
-            }
-        }
-        return JAI.getDefaultInstance();
-    }
-
-    /**
      * Returns the operation descriptor for the specified JAI operation name.
      * This method uses the default {@link JAI} instance and looks for the
      * <code>&quot;rendered&quot;</code> mode.
@@ -278,6 +271,28 @@ public class OperationJAI extends Operation {
     private static int length(final Object[] array) {
         return (array!=null) ? array.length : 0;
     }
+
+    /**
+     * Returns the coordinate system for the specified coverage. Since the default implementation
+     * of {@link GridCoverage} ignores all dimensions after the 2 first, this method returns only
+     * the coordinate system for the 2 first dimensions.
+     *
+     * @param  coverage The grid coverage to get the coordinate system.
+     * @return The coordinate system for the 2 first dimensions.
+     * @throws InvalidGridGeometryException if this method can't get the CS for the two first
+     *         dimensions.
+     */
+    private static CoordinateSystem getCoordinateSystem(final GridCoverage coverage)
+            throws InvalidGridGeometryException
+    {
+        CoordinateSystem cs = coverage.getCoordinateSystem();
+        cs = CTSUtilities.getSubCoordinateSystem(cs, 0, 2);
+        if (cs != null) {
+            return cs;
+        }
+        // TODO: provides a localized message.
+        throw new InvalidGridGeometryException();
+    }
     
     /**
      * Check if array <code>names</code> contains the element <code>name</code>.
@@ -317,14 +332,6 @@ public class OperationJAI extends Operation {
     }
     
     /**
-     * Returns the number of source grid coverages required for the operation. The
-     * default implementation fetch the information from the {@linkplain #descriptor}.
-     */
-    public int getNumSources() {
-        return descriptor.getNumSources();
-    }
-    
-    /**
      * Returns the description of the processing operation. If there is no description,
      * returns <code>null</code>. The default implementation fetch the description from
      * the {@linkplain #descriptor}.
@@ -343,13 +350,13 @@ public class OperationJAI extends Operation {
             return null;
         }
     }
-
+    
     /**
-     * Returns <code>true</code> if grid coverage should be transformed from sample values
-     * to geophysics value before to apply an operation.
+     * Returns the number of source grid coverages required for the operation. The
+     * default implementation fetch the information from the {@linkplain #descriptor}.
      */
-    boolean computeOnGeophysicsValues() {
-        return true;
+    public int getNumSources() {
+        return descriptor.getNumSources();
     }
 
     /**
@@ -362,6 +369,14 @@ public class OperationJAI extends Operation {
      */
     void setParameter(final ParameterBlockJAI block, final String name, final Object value) {
         block.setParameter(name, value);
+    }
+
+    /**
+     * Returns <code>true</code> if grid coverage should be transformed from sample values
+     * to geophysics value before to apply an operation.
+     */
+    boolean computeOnGeophysicsValues() {
+        return true;
     }
 
     /**
@@ -437,27 +452,26 @@ public class OperationJAI extends Operation {
             setParameter(block, name, value);
         }
         /*
-         * Ensure that all coverages use the same coordinate system and has the same envelope.
-         * Current version throw an exception if the coordinate systems are incompatibles. A
-         * futur version may apply projection automatically as needed.
+         * Ensures that all coverages use the same coordinate system and has the same envelope.
+         * After the projection, the method still checks all CS in case the user overrided the
+         * {@link #resampleToCommonGeometry} method.
          */
-        GridCoverage     coverage = sources[0];
-        final CoordinateSystem cs = coverage.getCoordinateSystem();
-        final Envelope   envelope = coverage.getEnvelope();
-        for (int i=1; i<sources.length; i++) {
-            if (!cs.equals(sources[i].getCoordinateSystem(), false)) {
+        resampleToCommonGeometry(sources, hints);
+        GridCoverage      coverage = sources[MASTER_SOURCE_INDEX];
+        final CoordinateSystem  cs = getCoordinateSystem(coverage);
+        final MathTransform2D toCS = coverage.getGridGeometry().getGridToCoordinateSystem2D();
+        for (int i=0; i<sources.length; i++) {
+            if (!cs.equals(getCoordinateSystem(sources[i]), false) ||
+                !toCS.equals(sources[i].getGridGeometry().getGridToCoordinateSystem2D()))
+            {
                 throw new IllegalArgumentException(Resources.format(
-                        ResourceKeys.ERROR_INCOMPATIBLE_COORDINATE_SYSTEM));
-            }
-            if (!envelope.equals(sources[i].getEnvelope())) {
-                throw new IllegalArgumentException(Resources.format(
-                        ResourceKeys.ERROR_ENVELOPE_MISMATCH));
+                        ResourceKeys.ERROR_INCOMPATIBLE_GRID_GEOMETRY));
             }
         }
         /*
-         * Apply the operation. This delegate the work to the chain of 'deriveXXX' methods.
+         * Apply the operation. This delegates the work to the chain of 'deriveXXX' methods.
          */
-        coverage = deriveGridCoverage(sources, new Parameters(envelope, cs, block, hints, ranges));
+        coverage = deriveGridCoverage(sources, new Parameters(cs, toCS, block, hints, ranges));
         if (requireGeophysicsType != null) {
             coverage = coverage.geophysics(requireGeophysicsType.booleanValue());
         }
@@ -465,13 +479,50 @@ public class OperationJAI extends Operation {
     }
 
     /**
-     * @deprecated Override {@link #deriveGridCoverage} instead.
+     * Resample all sources grid coverages to the same geometry before to apply an operation.
+     * This method has no effect if the operation doesn't take at least two source coverages.
+     * The default implementation use the geometry of the first source. Subclasses may overrides
+     * this method if they want to resample grid coverages in an other way.
+     *
+     * @param  sources The source grid coverages to resample.
+     *                 This array is updated in-place as needed.
+     * @param  hints   The rendering hints, or <code>null</code> if none.
+     * @throws CannotReprojectException if a grid coverage can't be resampled.
      */
-    protected GridCoverage doOperation(final GridCoverage[]    sources,
-                                       final ParameterBlockJAI parameters,
-                                       final RenderingHints    hints)
+    protected void resampleToCommonGeometry(final GridCoverage[] sources,
+                                            final RenderingHints hints)
+            throws CannotReprojectException
     {
-        throw new RuntimeException("Deprecated method.");
+        if (sources.length < 2) {
+            return;
+        }
+        final GridCoverageProcessor processor = getGridCoverageProcessor(hints);
+        GridCoverage   source = sources[MASTER_SOURCE_INDEX];
+        CoordinateSystem cs2D = getCoordinateSystem(source);
+        MathTransform2D  toCS = source.getGridGeometry().getGridToCoordinateSystem2D();
+        GridGeometry     geom = new GridGeometry(null, toCS);
+        for (int i=0; i<sources.length; i++) {
+            source = sources[i];
+            final CoordinateSystem sourceCS = source.getCoordinateSystem();
+            final CoordinateSystem   headCS = getCoordinateSystem(source);
+            final CoordinateSystem   tailCS; // To be set later only if needed.
+            final CoordinateSystem targetCS;
+            final int dimension = sourceCS.getDimension();
+            if (dimension <= 2) {
+                targetCS = cs2D;
+            } else {
+                /*
+                 * The source grid coverage has some extra dimensions. Uses the common CS
+                 * for the two first dimensions, and try to preserve the extra dimensions.
+                 */
+                tailCS = CTSUtilities.getSubCoordinateSystem(sourceCS, 0, dimension);
+                if (tailCS == null) {
+                    // TODO: provides a localized message.
+                    throw new InvalidGridGeometryException();
+                }
+                // TODO: continue implementation (set the new CS and the transform).
+            }
+        }
     }
     
     /**
@@ -557,14 +608,15 @@ public class OperationJAI extends Operation {
         /*
          * Performs the operation using JAI and construct the new grid coverage.
          */
-        RenderedImage data=getJAI(hints).createNS(descriptor.getName(), parameters.parameters, hints);
-        return new GridCoverage(deriveName(source, parameters), // The grid coverage name
-                                data,                           // The underlying data
-                                parameters.coordinateSystem,    // The coordinate system.
-                                parameters.envelope,            // The coverage envelope.
-                                sampleDims,                     // The sample dimensions
-                                sources,                        // The source grid coverages.
-                                null);                          // Properties
+        final String        name = deriveName(source, parameters);
+        final RenderedImage data = createRenderedImage(parameters.parameters, hints);
+        return new GridCoverage(name,                              // The grid coverage name
+                                data,                              // The underlying data
+                                parameters.coordinateSystem,       // The coordinate system.
+                                parameters.gridToCoordinateSystem, // The grid transform.
+                                sampleDims,                        // The sample dimensions
+                                sources,                           // The source grid coverages.
+                                null);                             // Properties
     }
     
     /**
@@ -680,16 +732,6 @@ public class OperationJAI extends Operation {
     }
     
     /**
-     * @deprecated Override {@link #deriveSampleDimension(SampleDimension[][],Parameters)} instead.
-     */
-    protected SampleDimension[] deriveSampleDimension(final SampleDimension[][] bandLists,
-                                                      final CoordinateSystem cs,
-                                                      final ParameterList parameters)
-    {
-        throw new RuntimeException("Deprecated method.");
-    }
-    
-    /**
      * Derive the quantitative category for a {@linkplain SampleDimension sample dimension}
      * in the destination coverage. This method is invoked automatically by the
      * {@link #deriveSampleDimension deriveSampleDimension} method for each band in the
@@ -716,16 +758,6 @@ public class OperationJAI extends Operation {
      */
     protected Category deriveCategory(final Category[] categories, final Parameters parameters) {
         return null;
-    }
-
-    /**
-     * @deprecated Override {@link #deriveCategory(Category[],Parameters)} instead.
-     */
-    protected Category deriveCategory(final Category[] categories,
-                                      final CoordinateSystem cs,
-                                      final ParameterList parameters)
-    {
-        throw new RuntimeException("Deprecated method.");
     }
     
     /**
@@ -756,16 +788,6 @@ public class OperationJAI extends Operation {
     }
 
     /**
-     * @deprecated Override {@link #deriveUnit(Unit[],Parameters)} instead.
-     */
-    protected Unit deriveUnit(final Unit[] units,
-                              final CoordinateSystem cs,
-                              final ParameterList parameters)
-    {
-        throw new RuntimeException("Deprecated method.");
-    }
-
-    /**
      * Returns a name for the target {@linkplain GridCoverage grid coverage} based on the given
      * source. The default implementation returns the operation name followed by the source name
      * between parenthesis.
@@ -777,12 +799,38 @@ public class OperationJAI extends Operation {
     protected String deriveName(final GridCoverage source, final Parameters parameters) {
         return getName()+'('+source.getName(null)+')';
     }
-    
+
     /**
-     * @deprecated Override {@link #deriveName(GridCoverage,Parameters)} instead.
+     * Apply the JAI operation. The operation name can be fetch from {@link #descriptor}.
+     * The JAI instance to use can be fetch from {@link #getJAI}. The default implementation
+     * invokes {@link JAI#createNS JAI.createNS}. Subclasses may overrides this method in order
+     * to invokes a different JAI operation according the parameters.
+     *
+     * @param parameters The parameters to be given to JAI.
+     * @param hints The rendering hints to be given to JAI.
      */
-    protected String deriveName(final GridCoverage source) {
-        throw new RuntimeException("Deprecated method.");
+    protected RenderedImage createRenderedImage(final ParameterBlockJAI parameters,
+                                                final RenderingHints    hints)
+    {
+        return getJAI(hints).createNS(descriptor.getName(), parameters, hints);
+    }
+
+    /**
+     * Returns the {@link JAI} instance to use for operations on {@link RenderedImage}.
+     * If no JAI instance is defined for the {@link Hints#JAI_INSTANCE} key, then the
+     * default instance is returned.
+     *
+     * @param  hints The rendering hints, or <code>null</code> if none.
+     * @return The JAI instance to use (never <code>null</code>).
+     */
+    protected static JAI getJAI(final RenderingHints hints) {
+        if (hints != null) {
+            final Object value = hints.get(Hints.JAI_INSTANCE);
+            if (value instanceof JAI) {
+                return (JAI) value;
+            }
+        }
+        return JAI.getDefaultInstance();
     }
     
     /**
@@ -810,20 +858,22 @@ public class OperationJAI extends Operation {
      *   <li>{@link OperationJAI#deriveUnit}</li>
      * </ul>
      *
-     * @version $Id: OperationJAI.java,v 1.23 2003/07/23 10:33:14 desruisseaux Exp $
+     * @version $Id: OperationJAI.java,v 1.24 2003/07/23 18:04:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected static final class Parameters {
         /**
-         * The envelope for sources and the destination {@link GridCoverage}.
-         */
-        final Envelope envelope;
-
-        /**
-         * The coordinate system for all sources and the destination {@link GridCoverage}.
-         * Sources coverages will be projected in this coordinate system as needed.
+         * The coordinate system for the first 2 dimensions of all sources and the destination
+         * {@link GridCoverage}. Sources coverages will be projected in this coordinate system
+         * as needed. Extra dimensions after the first 2 will be ignored.
          */
         public final CoordinateSystem coordinateSystem;
+
+        /**
+         * The &quot;grid to coordinate system&quot; transform for the first 2 dimensions,
+         * which is common to all source grid coverages.
+         */
+        public final MathTransform2D gridToCoordinateSystem;
 
         /**
          * The parameters to be given to the {@link JAI#createNS} method.
@@ -846,17 +896,17 @@ public class OperationJAI extends Operation {
         /**
          * Construct a new parameter block with the specified values.
          */
-        Parameters(final Envelope          envelope,
-                   final CoordinateSystem  coordinateSystem,
+        Parameters(final CoordinateSystem  coordinateSystem,
+                   final MathTransform2D   gridToCoordinateSystem,
                    final ParameterBlockJAI parameters,
                    final RenderingHints    hints,
                    final RangeSpecifier[]  rangeSpecifiers)
         {
-            this.envelope         = envelope;
-            this.coordinateSystem = coordinateSystem;
-            this.parameters       = parameters;
-            this.hints            = hints;
-            this.rangeSpecifiers  = rangeSpecifiers;
+            this.coordinateSystem       = coordinateSystem;
+            this.gridToCoordinateSystem = gridToCoordinateSystem;
+            this.parameters             = parameters;
+            this.hints                  = hints;
+            this.rangeSpecifiers        = rangeSpecifiers;
         }
 
         /**

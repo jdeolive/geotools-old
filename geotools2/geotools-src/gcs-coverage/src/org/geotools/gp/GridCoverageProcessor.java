@@ -82,7 +82,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.28 2003/07/23 10:33:14 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.29 2003/07/23 18:04:52 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -130,7 +130,7 @@ public class GridCoverageProcessor {
     private final Map operations = new HashMap();
 
     /**
-     * The rendering hints for JAI operations, or <code>null</code> if none.
+     * The rendering hints for JAI operations (never <code>null</code>).
      * This field is usually given as argument to {@link OperationJAI} methods.
      */
     private final RenderingHints hints;
@@ -159,21 +159,20 @@ public class GridCoverageProcessor {
         /*
          * The following line should have been enough:
          *
-         * hints = new RenderingHints(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE);
+         * hints.put(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE);
          *
          * However, this key is available in JAI 1.1.2 only. Since we still have JAI 1.1.1 around,
          * uses the reflection API in order to set this property without requiring JAI 1.1.2 to be
          * installed at compile time and/or run time.
          */
-        RenderingHints hints = null;
+        hints = new RenderingHints(Hints.PROCESSOR_INSTANCE, this);
         try {
             final Object key = JAI.class.getField("KEY_REPLACE_INDEX_COLOR_MODEL").get(null);
-            hints = new RenderingHints((RenderingHints.Key) key, Boolean.FALSE);
+            hints.put((RenderingHints.Key) key, Boolean.FALSE);
         } catch (Exception exception) {
             // We are not running JAI 1.1.2. Ignore this exception,
-            // since this key in know to not exist in earlier version.
+            // since this key is know to not exists in earlier version.
         }
-        this.hints = hints;
     }
 
     /**
@@ -185,19 +184,17 @@ public class GridCoverageProcessor {
      * @param processor The processor to inherit from, or <code>null</code> if none.
      * @param hints A set of supplemental rendering hints, or <code>null</code> if none.
      */
-    public GridCoverageProcessor(final GridCoverageProcessor processor, RenderingHints hints) {
-        if (hints != null) {
-            hints = new RenderingHints(hints);
-        }
+    public GridCoverageProcessor(final GridCoverageProcessor processor, final RenderingHints hints)
+    {
+        this();
         if (processor != null) {
             operations.putAll(processor.operations);
-            if (hints == null) {
-                hints = processor.hints;
-            } else if (processor.hints != null) {
-                hints.add(processor.hints);
-            }
+            this.hints.add(processor.hints);
         }
-        this.hints = hints;
+        if (hints != null) {
+            this.hints.add(hints);
+        }
+        hints.put(Hints.PROCESSOR_INSTANCE, this);
     }
     
     /**
@@ -223,7 +220,14 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new BilevelOperation("Threshold", "Binarize"));
             DEFAULT.addOperation(new FilterOperation(  HysteresisDescriptor.OPERATION_NAME));
             DEFAULT.addOperation(new FilterOperation(NodataFilterDescriptor.OPERATION_NAME));
-            DEFAULT.addOperation(new PolyadicOperation(CombineDescriptor.OPERATION_NAME));
+            DEFAULT.addOperation(new CombineOperation());
+            /*
+             * Remove the PROCESSOR_INSTANCE hints.  It will avoid its serialization and a strong
+             * reference in RenderedImage's properties for the common case where we are using the
+             * default instance. The method Operation.getGridCoverageProcessor will automatically
+             * maps the null value to the default instance anyway.
+             */
+            DEFAULT.hints.remove(Hints.PROCESSOR_INSTANCE);
         }
         return DEFAULT;
     }
@@ -495,7 +499,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.28 2003/07/23 10:33:14 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.29 2003/07/23 18:04:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

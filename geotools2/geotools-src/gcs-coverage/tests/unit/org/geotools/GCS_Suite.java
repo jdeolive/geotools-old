@@ -32,6 +32,9 @@
  */
 package org.geotools;
 
+// J2SE dependencies
+import java.util.logging.Level;
+
 // JUnit dependencies
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -42,13 +45,15 @@ import junit.textui.TestRunner;
 import org.geotools.cv.*;
 import org.geotools.gc.*;
 import org.geotools.gp.*;
+import org.geotools.util.*;
+import org.geotools.resources.*;
 import org.geotools.io.coverage.*;
 
 
 /**
  * Performs all tests for the Grid Coverage Services implementation.
  *
- * @version $Id: GCS_Suite.java,v 1.11 2003/05/13 10:59:53 desruisseaux Exp $
+ * @version $Id: GCS_Suite.java,v 1.12 2003/07/23 18:04:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GCS_Suite extends TestCase {
@@ -63,6 +68,7 @@ public class GCS_Suite extends TestCase {
      * Run the suite from the command line.
      */
     public static void main(final String[] args) {
+        MonolineFormatter.init("org.geotools", Level.INFO);
         TestRunner.run(suite());
     }
 
@@ -84,6 +90,7 @@ public class GCS_Suite extends TestCase {
         suite.addTest(PropertyParserTest  .suite());
         suite.addTest(AdaptersTest        .suite());
         suite.addTest(ResampleTest        .suite());
+        suite.addTest(RangeSetTest        .suite());
         return suite;
     }
 }

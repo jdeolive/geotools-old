@@ -75,7 +75,7 @@ import org.geotools.resources.gcs.Resources;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.13 2003/07/22 15:24:53 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.14 2003/07/23 18:04:52 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -277,6 +277,23 @@ public abstract class Operation implements Serializable {
      */
     protected abstract GridCoverage doOperation(final ParameterList  parameters,
                                                 final RenderingHints hints);
+
+    /**
+     * Returns the {@link GridCoverageProcessor} instance used for an operation.
+     * The instance is fetch from the rendering hints given to the {@link #doOperation} method.
+     *
+     * @param  hints The rendering hints, or <code>null</code> if none.
+     * @return The <code>GridCoverageProcessor</code> instance in use (never <code>null</code>).
+     */
+    protected static GridCoverageProcessor getGridCoverageProcessor(final RenderingHints hints) {
+        if (hints != null) {
+            final Object value = hints.get(Hints.PROCESSOR_INSTANCE);
+            if (value instanceof GridCoverageProcessor) {
+                return (GridCoverageProcessor) value;
+            }
+        }
+        return GridCoverageProcessor.getDefault();
+    }
 
     /**
      * Returns a hash value for this operation.

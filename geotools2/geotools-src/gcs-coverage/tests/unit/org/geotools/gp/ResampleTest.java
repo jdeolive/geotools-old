@@ -75,7 +75,7 @@ import junit.framework.TestSuite;
  * Visual test of the "Resample" operation. A remote sensing image is projected from a fitted
  * coordinate system to a geographic one.
  *
- * @version $Id: ResampleTest.java,v 1.8 2003/07/23 10:33:14 desruisseaux Exp $
+ * @version $Id: ResampleTest.java,v 1.9 2003/07/23 18:04:52 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -164,7 +164,7 @@ public final class ResampleTest extends GridCoverageTest {
         final RenderedImage image = projected.getRenderedImage();
         if (image instanceof RenderedOp) {
             Logger.getLogger("org.geotools.gp")
-                .info("Applied \""+((RenderedOp) image).getOperationName()+"\" JAI operation.");
+                .fine("Applied \""+((RenderedOp) image).getOperationName()+"\" JAI operation.");
         }
     }
 

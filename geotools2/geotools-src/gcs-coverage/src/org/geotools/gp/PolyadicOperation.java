@@ -47,10 +47,10 @@ import org.geotools.gc.GridCoverage;
 /**
  * A JAI operation which accepts an arbitrary number of sources.
  *
- * @version $Id: PolyadicOperation.java,v 1.1 2003/07/22 15:24:53 desruisseaux Exp $
+ * @version $Id: PolyadicOperation.java,v 1.2 2003/07/23 18:04:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class PolyadicOperation extends OperationJAI {
+class PolyadicOperation extends OperationJAI {
     /**
      * Serial number for interoperability with different versions.
      */
@@ -96,7 +96,7 @@ final class PolyadicOperation extends OperationJAI {
      * A {@link ParameterList} which accepts an arbitrary number of sources.
      * This parameter list is also its own descriptor.
      *
-     * @version $Id: PolyadicOperation.java,v 1.1 2003/07/22 15:24:53 desruisseaux Exp $
+     * @version $Id: PolyadicOperation.java,v 1.2 2003/07/23 18:04:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Parameters extends ParameterListImpl implements ParameterListDescriptor {

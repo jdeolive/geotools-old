@@ -67,16 +67,24 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * GridCoverageProcessor processor = new GridCoverageProcessor(hints);
  * </pre></blockquote>
  *
- * @version $Id: Hints.java,v 1.5 2003/05/19 15:05:54 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.6 2003/07/23 18:04:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
+    /**
+     * Key for setting the {@link GridCoverageProcessor} instance. The value for this
+     * key is set automatically by the <code>GridCoverageProcessor</code> constructor
+     * and is used by {@link Operation#getGridCoverageProcessor} only.
+     */
+    static final RenderingHints.Key PROCESSOR_INSTANCE =
+            new Hints(0, "org.geotools.gp.GridCoverageProcessor");
+
     /**
      * Key for setting a {@link JAI} instance other than the default one when
      * JAI operation must be performed at rendering time.
      */
     public static final RenderingHints.Key JAI_INSTANCE =
-            new Hints(0, "javax.media.jai.JAI");
+            new Hints(1, "javax.media.jai.JAI");
 
     /**
      * Key for setting a {@link CoordinateTransformationFactory} object other
@@ -84,14 +92,14 @@ public final class Hints extends RenderingHints.Key {
      * at rendering time.
      */
     public static final RenderingHints.Key COORDINATE_TRANSFORMATION_FACTORY =
-            new Hints(1, "org.geotools.ct.CoordinateTransformationFactory");
+            new Hints(2, "org.geotools.ct.CoordinateTransformationFactory");
 
     /**
      * Key for setting a {@link SampleDimensionType} other than the default one
      * when sample values must be rescaled at rendering time.
      */
     public static final RenderingHints.Key SAMPLE_DIMENSION_TYPE =
-            new Hints(2, "org.geotools.cv.SampleDimensionType");
+            new Hints(3, "org.geotools.cv.SampleDimensionType");
 
     /**
      * The class name for {@link #valueClass}.
