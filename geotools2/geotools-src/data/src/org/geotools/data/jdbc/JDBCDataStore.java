@@ -356,38 +356,57 @@ public abstract class JDBCDataStore implements DataStore {
      * @see org.geotools.data.DataStore#getFeatureReader(org.geotools.feature.FeatureType,
      *      org.geotools.filter.Filter, org.geotools.data.Transaction)
      */
-    public FeatureReader getFeatureReader(final FeatureType featureType,
+    public FeatureReader getFeatureReader(final FeatureType requestType,
         final Filter filter, final Transaction transaction)
         throws IOException {
-        String typeName = featureType.getTypeName();
-        int compare = DataUtilities.compare(featureType, getSchema(typeName));
+            
+        String typeName = requestType.getTypeName();
+        FeatureType schemaType = getSchema( typeName );
+        
+        int compare = DataUtilities.compare(requestType, schemaType);
+        
         Query query;
-
+        
         if (compare == 0) {
             // they are the same type
-            query = new DefaultQuery(featureType.getTypeName(), filter);
+            //
+            query = new DefaultQuery( typeName, filter);
         } else if (compare == 1) {
             // featureType is a proper subset and will require reTyping
-            String[] names = attributeNames(featureType, filter);
-            query = new DefaultQuery(featureType.getTypeName(), filter,
+            //
+            String[] names = attributeNames(requestType, filter);
+            query = new DefaultQuery( typeName, filter,
                     Query.DEFAULT_MAX, names, "getFeatureReader");
         } else {
             // featureType is not compatiable
-            throw new IOException("Type " + typeName + " does not your request");
+            //
+            throw new IOException("Type " + typeName + " does match request");
         }
         
         if( filter == Filter.ALL || filter.equals( Filter.ALL )){
-            return new EmptyFeatureReader( featureType );            
+            return new EmptyFeatureReader( requestType );            
         }
         FeatureReader reader = getFeatureReader(query, transaction);
 
         if (compare == 1) {
-            reader = new ReTypeFeatureReader(reader, featureType);
+            reader = new ReTypeFeatureReader( reader, requestType );
         }
 
         return reader;
     }
-
+    private Set addAll( Set set, Object all[] ){
+        if( set == null ){
+            set = new HashSet();
+        }        
+        if( all == null || all.length == 0){
+            return set;
+        }
+        
+        for (int i = 0; i < all.length; i++) {
+            set.add(all[i]);
+        }
+        return set;        
+    }
     /**
      * Gets the list of attribute names required for both featureType and
      * filter
@@ -419,30 +438,15 @@ public abstract class JDBCDataStore implements DataStore {
             return typeAttributes;
         }
 
-        // need to combine results               
         Set set = new HashSet();
-        int i;
-
-        for (i = 0; i < typeAttributes.length; i++) {
-            set.add(typeAttributes[i]);
-        }
-
-        for (i = 0; i < filterAttributes.length; i++) {
-            set.add(filterAttributes[i]);
-        }
+        addAll( set, typeAttributes );
+        addAll( set, filterAttributes );
 
         if (set.size() == typeAttributes.length) {
             // filter required a subset of featureType attributes
             return typeAttributes;
         } else {
-            String[] attributeNames = new String[set.size()];
-            i = 0;
-
-            for (Iterator names = set.iterator(); names.hasNext(); i++) {
-                attributeNames[i] = (String) names.next();
-            }
-
-            return attributeNames;
+            return (String[]) set.toArray( new String[set.size()] );
         }
     }
 
@@ -471,16 +475,34 @@ public abstract class JDBCDataStore implements DataStore {
      */
     public FeatureReader getFeatureReader(Query query, Transaction trans)
         throws IOException {
+        
         String typeName = query.getTypeName();
-        AttributeType[] attrTypes = getAttTypes(query);
         SQLBuilder sqlBuilder = getSqlBuilder(typeName);
         Filter preFilter = sqlBuilder.getPreQueryFilter(query.getFilter());
         Filter postFilter = sqlBuilder.getPostQueryFilter(query.getFilter());
-
+                        
+        String[] requestedNames = propertyNames( query );        
+        String[] filterNames = DataUtilities.attributeNames( postFilter );
+                                
+        Set set = new HashSet();
+        addAll( set, requestedNames );
+        addAll( set, filterNames );
+        
+        String propertyNames[] =
+            (String[]) set.toArray( new String[set.size()]); 
+        
+        AttributeType[] attrTypes = null;
+        try {
+            attrTypes = getAttributeTypes( typeName, propertyNames );        
+        }
+        catch( SchemaException schemaException ){
+            throw new DataSourceException( "Could not handle query", schemaException );
+        }
         String sqlQuery = constructQuery(query, attrTypes);
 
         QueryData queryData = executeQuery(typeName, sqlQuery, trans,
                 ResultSet.CONCUR_READ_ONLY);
+        
         FeatureType schema;
 
         try {
@@ -493,8 +515,22 @@ public abstract class JDBCDataStore implements DataStore {
             throw new DataSourceException("Schema Error when creating schema for FeatureReader",
                 e);
         }
-
-        return createFeatureReader(schema, postFilter, queryData);
+        
+        FeatureReader reader;
+        reader = createFeatureReader(schema, postFilter, queryData);
+        
+        if( requestedNames.length < propertyNames.length ){
+            // need to scale back to what the user asked for
+            // (remove the attribtues only used for postFilter)
+            //
+            try {
+                FeatureType requestType = DataUtilities.createSubType(schema, requestedNames);
+                reader = new ReTypeFeatureReader( reader, requestType );                
+            } catch (SchemaException schemaException) {
+                throw new DataSourceException( "Could not handle query", schemaException );                  
+            }                        
+        }        
+        return reader;
     }
 
     /** Used internally to call the subclass hooks that construct the SQL query.
@@ -1505,7 +1541,41 @@ public abstract class JDBCDataStore implements DataStore {
 
         return retAttTypes;
     }
-
+    /**
+     * Get propertyNames in a safe manner.
+     * <p>
+     * Method wil figure out names from the schema for query.getTypeName(), if
+     * query getPropertyNames() is <code>null</code>, or
+     * query.retrieveAllProperties is <code>true</code>.
+     * </p>
+     * @param query
+     * @return
+     * @throws IOException
+     */
+    private String[] propertyNames( Query query ) throws IOException{
+        String names[] = query.getPropertyNames();
+        if( names == null || query.retrieveAllProperties() ){
+            String typeName = query.getTypeName();
+            FeatureType schema = getSchema( typeName );
+            
+            names = new String[ schema.getAttributeCount() ];
+            for( int i=0; i<schema.getAttributeCount(); i++){
+                names[i] = schema.getAttributeType(i).getName();
+            }            
+        }    
+        return names;                    
+    }
+    protected AttributeType[] getAttributeTypes( String typeName, String propertyNames[] ) throws IOException, SchemaException{
+        FeatureType schema = getSchema( typeName );
+        AttributeType types[] = new AttributeType[ propertyNames.length ];
+        for( int i=0; i<propertyNames.length;i++){
+            types[i] = schema.getAttributeType( propertyNames[i] );
+            if( types[i] == null ){
+                throw new SchemaException( typeName+" does not contain requested "+propertyNames[i]+" attribute");                            
+            }
+        }
+        return null;
+    }
     private AttributeType[] getAttTypes(Query query) throws IOException {
         FeatureType schema = getSchema(query.getTypeName());
 
