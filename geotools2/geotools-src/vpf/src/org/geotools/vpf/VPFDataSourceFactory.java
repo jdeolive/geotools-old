@@ -22,7 +22,8 @@ import java.util.HashMap;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSourceFactorySpi;
-
+import java.net.URI;
+import java.io.File;
 
 
 /**
@@ -36,6 +37,7 @@ import org.geotools.data.DataSourceFactorySpi;
  */
 
 public class VPFDataSourceFactory implements DataSourceFactorySpi {
+
   public VPFDataSourceFactory() 
   {
     
@@ -52,7 +54,11 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
    */
   public DataSource createDataSource(HashMap hashMap) throws DataSourceException
   {
-    return null;
+    if(!canProcess(hashMap)){
+      return null;
+    }
+    File file = new File(new URI(url));
+    return new VPFDataSource(file);
   }
 
   /**
@@ -62,7 +68,7 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
    */
   public String getDescription()
   {
-    return null;
+    return "Vector Product Format data source implementation.";
   }
 
   /**
@@ -73,7 +79,18 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
    */
   public boolean canProcess(HashMap hashMap)
   {
-    return false;
+    if(!hashMap.containsKey("url")){
+      return false;
+    }
+    String url =  (String)hashMap.get("url");
+    File file = new File(new File(new URI(url)), "dht");
+    if(file.exists() && !file.isDirectory()){
+      return true;
+    }
+    else
+    {
+      return false;
+    } // end of else
   }
   
 }// VPFDataSourceFactory
