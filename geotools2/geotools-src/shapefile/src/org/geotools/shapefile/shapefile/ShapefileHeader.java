@@ -67,6 +67,7 @@ public class ShapefileHeader {
     
     // skip 5 ints...
     file.position(file.position() + 20);
+    
     fileLength = file.getInt();
     
     file.order(ByteOrder.LITTLE_ENDIAN);
@@ -82,6 +83,7 @@ public class ShapefileHeader {
     //skip remaining unused bytes
     file.order(ByteOrder.BIG_ENDIAN);//well they may not be unused forever...
     file.position(file.position() + 32);
+
   }
   
   
@@ -95,7 +97,7 @@ public class ShapefileHeader {
     for (int i = 0; i < 5; i++) {
       file.putInt(0); //Skip unused part of header
     }
-    
+
     file.putInt(length);
     
     file.order(ByteOrder.LITTLE_ENDIAN);
@@ -110,8 +112,9 @@ public class ShapefileHeader {
     file.putDouble(maxY);
     
     //skip remaining unused bytes
-    for (int i = 0; i < 4; i++) {
-      file.putDouble(0); //Skip unused part of header
+    file.order(ByteOrder.BIG_ENDIAN);
+    for (int i = 0; i < 8; i++) {
+      file.putInt(0); //Skip unused part of header
     }
   }
 
@@ -148,5 +151,8 @@ public class ShapefileHeader {
     return res;
   }
 
+  public static void main(String[] args) throws Exception {
+    System.out.println(ShapefileReader.readHeader(new FileInputStream(new File(args[0])).getChannel(),true));
+  }
 }
 

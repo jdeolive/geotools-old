@@ -205,12 +205,15 @@ public class ShapefileReader {
     
     // are there less than eight bytes (record header size) ?
     if (buffer.remaining() < 8) {
-      if (buffer.isReadOnly()) 
+      
+      if (buffer.isReadOnly()) {
         return false;
+      }
       // compact the buffer and fill
       buffer.compact();
-      if (fill(buffer,channel) == -1)
+      if (fill(buffer,channel) == -1) {
         return false;
+      }
       // reset
       buffer.position(0);
     }
@@ -218,8 +221,9 @@ public class ShapefileReader {
     buffer.mark();
     buffer.order(ByteOrder.BIG_ENDIAN);
     int number = buffer.getInt();
-    if (number != record.number + 1)
+    if (number != record.number + 1) {
       return false;
+    }
     buffer.reset();
 
     // if not must be more stuff
@@ -236,9 +240,8 @@ public class ShapefileReader {
     buffer.order(ByteOrder.BIG_ENDIAN);
     // read shape record header
     int recordNumber = buffer.getInt();
-    // / silly ESRI say contentLength is in 2-byte words
+    // silly ESRI say contentLength is in 2-byte words
     // and ByteByffer uses bytes.
-    
     // track the record location
     int recordLength = buffer.getInt() * 2;
 

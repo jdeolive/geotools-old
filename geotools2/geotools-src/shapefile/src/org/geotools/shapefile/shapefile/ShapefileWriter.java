@@ -82,7 +82,7 @@ public class ShapefileWriter {
     header.write(shapeBuffer, type, geometries.getNumGeometries(), fileLength / 2,
     bounds.getMinX(),bounds.getMinY(), bounds.getMaxX(),bounds.getMaxY()
     );
-    header.write(indexBuffer, type, geometries.getNumGeometries(), fileLength / 2,
+    header.write(indexBuffer, type, geometries.getNumGeometries(), 50 + 4 * geometries.getNumGeometries(),
     bounds.getMinX(),bounds.getMinY(), bounds.getMaxX(),bounds.getMaxY()
     );
   }
