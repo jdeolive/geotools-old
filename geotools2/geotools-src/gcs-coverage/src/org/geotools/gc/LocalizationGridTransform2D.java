@@ -71,7 +71,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * interpolation. If input coordinates are outside the grid range, then output
  * coordinates are extrapolated.
  *
- * @version $Id: LocalizationGridTransform2D.java,v 1.12 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: LocalizationGridTransform2D.java,v 1.13 2003/06/30 22:00:12 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -568,7 +568,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      * The inverse transform. This inner class is
      * the inverse of the enclosing math transform.
      *
-     * @version $Id: LocalizationGridTransform2D.java,v 1.12 2003/05/13 10:59:52 desruisseaux Exp $
+     * @version $Id: LocalizationGridTransform2D.java,v 1.13 2003/06/30 22:00:12 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D,
@@ -578,6 +578,13 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
          * Serial number for interoperability with different versions.
          */
         private static final long serialVersionUID = 4876426825123740986L;
+
+        /**
+         * Default constructor.
+         */
+        public Inverse() {
+            LocalizationGridTransform2D.this.super();
+        }
 
         /**
          * Transform a "real world" coordinate into a grid coordinate.

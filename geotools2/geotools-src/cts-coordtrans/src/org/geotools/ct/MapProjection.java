@@ -71,7 +71,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see AffineTransform
  * @see PerspectiveTransform
  *
- * @version $Id: MapProjection.java,v 1.10 2003/05/13 10:58:48 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.11 2003/06/30 21:59:52 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -711,7 +711,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
      */
     public final synchronized MathTransform inverse() {
         if (inverse==null) {
-            inverse=new Inverse();
+            inverse = new Inverse();
         }
         return inverse;
     }
@@ -791,10 +791,14 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Inverse of a map projection.
      *
-     * @version $Id: MapProjection.java,v 1.10 2003/05/13 10:58:48 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.11 2003/06/30 21:59:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
+        public Inverse() {
+            MapProjection.this.super();
+        }
+
         public Point2D transform(final Point2D source, final Point2D dest)
             throws TransformException
         {
@@ -823,7 +827,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Informations about a {@link MapProjection}.
      *
-     * @version $Id: MapProjection.java,v 1.10 2003/05/13 10:58:48 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.11 2003/06/30 21:59:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Provider extends MathTransformProvider {
