@@ -82,7 +82,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.12 2003/03/14 12:37:30 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.13 2003/03/14 18:28:09 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -279,7 +279,8 @@ public class RenderedGridCoverage extends RenderedLayer {
                 GCSUtilities.getVisibleBand(coverage.getRenderedImage())
             };
             final CoordinateSystem sourceCS;
-            coverage = processor.doOperation("BandSelect", coverage, "bandIndices", visibleBands);
+            coverage = processor.doOperation("SelectSampleDimension", coverage,
+                                             "SampleDimensions", visibleBands);
             coverage = coverage.geophysics(false);
             sourceCS = coverage.getCoordinateSystem();
             if (!CTSUtilities.getCoordinateSystem2D(sourceCS).equals(

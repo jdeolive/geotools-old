@@ -53,35 +53,34 @@
     supports the following operations:</P>
 
     <UL>
-      <LI><A HREF="#BandSelect">BandSelect</A></LI>
+      <LI><A HREF="#GradientMagnitude">GradientMagnitude</A></LI>
       <LI><A HREF="#Interpolate">Interpolate</A></LI>
       <LI><A HREF="#Recolor">Recolor</A></LI>
       <LI><A HREF="#Resample">Resample</A></LI>
       <LI><A HREF="#Rescale">Rescale</A></LI>
-      <LI><A HREF="#GradientMagnitude">GradientMagnitude</A></LI>
+      <LI><A HREF="#SelectSampleDimension">SelectSampleDimension</A></LI>
     </UL>
 
     <P>&nbsp;</P>
     <HR>
     <P>&nbsp;</P>
-    <H2><A NAME="BandSelect">BandSelect</A></H2>
-    <P ALIGN="justify">Chooses <var>N</var> bands from a grid coverage and
-    copies the sample data of these bands to the destination coverage in the
-    order specified. The <code>bandIndices</code> parameter specifies the
-    source band (or <code>SampleDimension</code>) indices, and its size
-    (<code>bandIndices.length</code>) determines the number of bands of the
-    destination coverage. The destination coverage may have any number of bands,
-    and a particular band of the source coverage may be repeated in the
-    destination coverage by specifying it multiple times in the
-    <code>bandIndices</code> parameter.</P>
+    <H2><A NAME="GradientMagnitude">GradientMagnitude</A></H2>
+    <P ALIGN="justify">Edge detector which computes the magnitude of the
+    image gradient vector in two orthogonal directions. The result of the
+    "GradientMagnitude" operation may be defined as:</P>
 
-    <P ALIGN="justify">This operation can also be used for selecting a different
-    "visible band". Some images may contain useful data in more than 1 band, but
-    show the content of only 1 band at rendering time. The <code>visibleBand</code>
-    parameter can be used for selecting this band. If ommited, then the new grid
-    coverage will inherit its source's visible band.</P>
+    <BLOCKQUOTE><CODE>
+    dst[<var>x</var>][<var>y</var>][<var>b</var>] = {@linkplain java.lang.Math#sqrt sqrt}(
+    <strong>SH</strong>(<var>x</var>,<var>y</var>,<var>b</var>)<sup>2</sup> +
+    <strong>SV</strong>(<var>x</var>,<var>y</var>,<var>b</var>)<sup>2</sup> )
+    </CODE></BLOCKQUOTE>
+ 
+    <P ALIGN="justify">where <CODE>SH(x,y,b)</CODE> and <CODE>SV(x,y,b)</CODE>
+    are the horizontal and vertical gradient images generated from band <VAR>b</VAR>
+    of the source image by correlating it with the supplied orthogonal (horizontal
+    and vertical) gradient masks.</P>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"BandSelect"</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"GradientMagnitude"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -99,20 +98,36 @@
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>"bandIndices"</td>
-        <td><code>int[]</code></td>
-        <td align="center">Same as source</td>
+        <td>"mask1"</td>
+        <td>{@link javax.media.jai.KernelJAI}</td>
+        <td>{@link javax.media.jai.KernelJAI#GRADIENT_MASK_SOBEL_HORIZONTAL}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>"visibleBand"</td>
-        <td><code>Integer</code></td>
-        <td align="center">Same as source</td>
-        <td align="center">0</td>
+        <td>"mask2"</td>
+        <td>{@link javax.media.jai.KernelJAI}</td>
+        <td>{@link javax.media.jai.KernelJAI#GRADIENT_MASK_SOBEL_VERTICAL}</td>
+        <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
     </table>
+    <P ALIGN="justify">Before to compute the gradients, the kernels are tested
+    against artificials horizontal and vertical gradients of one <cite>unit of
+    sample / unit of localization</cite>. For example:</P>
+    <UL>
+      <LI>For an image of elevation (meters) using a geographic coordinate system (degrees
+          of latitude and longitude), the units are <strong>m/degree</strong>.</LI>
+      <LI>For an image of temperature (°C) using a projected coordinate system (kilometers),
+          the units are <strong>°C/km</strong>.</LI>
+    </UL>
+    <P ALIGN="justify">Kernels are normalized by dividing all their coefficients
+    by the result of this test. In other words, kernels are normalized in such a
+    way that applying the "GradientMagnitude" operation on a horizontal or
+    vertical gradient of 1 such "geophysical" units will give a result of 1.
+    This is an attempt to give geophysical meaning to the numbers produced by the
+    "GradientMagnitude" operation. This normalization depends of the coverage's
+    {@linkplain org.geotools.gc.GridCoverage#getGridGeometry grid geometry}.</P>
     <P><A HREF="#operation-list">Back to summary</A></P>
 
     <P>&nbsp;</P>
@@ -353,23 +368,26 @@
     <P>&nbsp;</P>
     <HR>
     <P>&nbsp;</P>
-    <H2><A NAME="GradientMagnitude">GradientMagnitude</A></H2>
-    <P ALIGN="justify">Edge detector which computes the magnitude of the
-    image gradient vector in two orthogonal directions. The result of the
-    "GradientMagnitude" operation may be defined as:</P>
+    <H2><A NAME="SelectSampleDimension">SelectSampleDimension</A></H2>
+    <P ALIGN="justify">Chooses <var>N</var>
+    {@linkplain org.geotools.cv.SampleDimension sample dimensions} from a grid
+    coverage and copies their sample data to the destination grid coverage
+    in the order specified. The <code>SampleDimensions</code> parameter
+    specifies the source {@link org.geotools.cv.SampleDimension} indices, and
+    its size (<code>SampleDimensions.length</code>) determines the number of
+    sample dimensions of the destination grid coverage. The destination coverage
+    may have any number of sample dimensions, and a particular sample dimension
+    of the source coverage may be repeated in the destination coverage by
+    specifying it multiple times in the <code>SampleDimensions</code> parameter.</P>
 
-    <BLOCKQUOTE><CODE>
-    dst[<var>x</var>][<var>y</var>][<var>b</var>] = {@linkplain java.lang.Math#sqrt sqrt}(
-    <strong>SH</strong>(<var>x</var>,<var>y</var>,<var>b</var>)<sup>2</sup> +
-    <strong>SV</strong>(<var>x</var>,<var>y</var>,<var>b</var>)<sup>2</sup> )
-    </CODE></BLOCKQUOTE>
- 
-    <P ALIGN="justify">where <CODE>SH(x,y,b)</CODE> and <CODE>SV(x,y,b)</CODE>
-    are the horizontal and vertical gradient images generated from band <VAR>b</VAR>
-    of the source image by correlating it with the supplied orthogonal (horizontal
-    and vertical) gradient masks.</P>
+    <P ALIGN="justify">This operation can also be used for selecting a different
+    "visible sample dimension". Some images may contain useful data in more than
+    one sample dimension, but renderer the content of only 1 sample dimension at
+    once. The <code>VisibleSampleDimension</code> parameter can be used for
+    selecting this sample dimension. If ommited, then the new grid coverage will
+    inherit its source's visible sample dimension.</P>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"GradientMagnitude"</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"SelectSampleDimension"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -387,36 +405,20 @@
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>"mask1"</td>
-        <td>{@link javax.media.jai.KernelJAI}</td>
-        <td>{@link javax.media.jai.KernelJAI#GRADIENT_MASK_SOBEL_HORIZONTAL}</td>
+        <td>"SampleDimensions"</td>
+        <td><code>int[]</code></td>
+        <td align="center">Same as source</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>"mask2"</td>
-        <td>{@link javax.media.jai.KernelJAI}</td>
-        <td>{@link javax.media.jai.KernelJAI#GRADIENT_MASK_SOBEL_VERTICAL}</td>
-        <td align="center">N/A</td>
+        <td>"VisibleSampleDimension"</td>
+        <td>{@link java.lang.Integer}</td>
+        <td align="center">Same as source</td>
+        <td align="center">0</td>
         <td align="center">N/A</td>
       </tr>
     </table>
-    <P ALIGN="justify">Before to compute the gradients, the kernels are tested
-    against artificials horizontal and vertical gradients of one <cite>unit of
-    sample / unit of localization</cite>. For example:</P>
-    <UL>
-      <LI>For an image of elevation (meters) using a geographic coordinate system (degrees
-          of latitude and longitude), the units are <strong>m/degree</strong>.</LI>
-      <LI>For an image of temperature (°C) using a projected coordinate system (kilometers),
-          the units are <strong>°C/km</strong>.</LI>
-    </UL>
-    <P ALIGN="justify">Kernels are normalized by dividing all their coefficients
-    by the result of this test. In other words, kernels are normalized in such a
-    way that applying the "GradientMagnitude" operation on a horizontal or
-    vertical gradient of 1 such "geophysical" units will give a result of 1.
-    This is an attempt to give geophysical meaning to the numbers produced by the
-    "GradientMagnitude" operation. This normalization depends of the coverage's
-    {@linkplain org.geotools.gc.GridCoverage#getGridGeometry grid geometry}.</P>
     <P><A HREF="#operation-list">Back to summary</A></P>
   </BODY>
 </HTML>

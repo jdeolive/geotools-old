@@ -59,13 +59,13 @@ import org.geotools.resources.ImageUtilities;
 /**
  * A grid coverage containing a subset of an other GridCoverage's sample dimensions,
  * and/or a different {@link ColorModel}. A common reason why we want to change the
- * color model is to select a different visible band. Consequently, the "BandSelect"
+ * color model is to select a different visible band. Consequently, the "SelectSampleDimension"
  * name still appropriate in this context.
  *
- * @version $Id: BandSelect.java,v 1.1 2003/03/14 12:35:48 desruisseaux Exp $
+ * @version $Id: SelectSampleDimension.java,v 1.1 2003/03/14 18:27:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class BandSelect extends GridCoverage {
+final class SelectSampleDimension extends GridCoverage {
     /**
      * The mapping to bands in the source grid coverage.
      * May be <code>null</code> if all bands were keeped.
@@ -73,8 +73,8 @@ final class BandSelect extends GridCoverage {
     private final int[] bandIndices;
 
     /**
-     * Construct a new <code>BandSelect</code> grid coverage. This grid coverage will use
-     * the same coordinate system and the same geometry than the source grid coverage.
+     * Construct a new <code>SelectSampleDimension</code> grid coverage. This grid coverage will
+     * use the same coordinate system and the same geometry than the source grid coverage.
      *
      * @param source      The source coverage.
      * @param image       The image to use.
@@ -86,10 +86,8 @@ final class BandSelect extends GridCoverage {
      *             without the "Null" one. But as of JAI-1.1.1, "BandSelect" is not
      *             wise enough to detect the case were no copy is required.
      */
-    private BandSelect(final GridCoverage      source,
-                       final RenderedImage     image,
-                       final SampleDimension[] bands,
-                       final int[]       bandIndices)
+    private SelectSampleDimension(final GridCoverage source, final RenderedImage image,
+                                  final SampleDimension[] bands, final int[] bandIndices)
     {
         super(source.getName(null),         // The grid source name
               image,                        // The underlying data
@@ -113,8 +111,8 @@ final class BandSelect extends GridCoverage {
     static GridCoverage create(final ParameterList parameters, RenderingHints hints) {
         RenderedImage image;
         GridCoverage source = (GridCoverage)parameters.getObjectParameter("Source");
-        int[]   bandIndices = (int[])       parameters.getObjectParameter("bandIndices");
-        Integer visibleBand = (Integer)     parameters.getObjectParameter("visibleBand");
+        int[]   bandIndices = (int[])       parameters.getObjectParameter("SampleDimensions");
+        Integer visibleBand = (Integer)     parameters.getObjectParameter("VisibleSampleDimension");
         int        visibleSourceBand;
         int        visibleTargetBand;
         SampleDimension[] sourceBands;
@@ -149,7 +147,7 @@ final class BandSelect extends GridCoverage {
             if (bandIndices==null && visibleSourceBand==visibleTargetBand) {
                 return source;
             }
-            if (!(source instanceof BandSelect)) {
+            if (!(source instanceof SelectSampleDimension)) {
                 break;
             }
             /*
@@ -159,7 +157,7 @@ final class BandSelect extends GridCoverage {
              * band. For example we could change the visible band from 0 to 1, and then come
              * back to 0 later.
              */
-            final int[] parentIndices = ((BandSelect)source).bandIndices;
+            final int[] parentIndices = ((SelectSampleDimension)source).bandIndices;
             if (parentIndices != null) {
                 if (bandIndices != null) {
                     for (int i=0; i<bandIndices.length; i++) {
@@ -227,7 +225,7 @@ final class BandSelect extends GridCoverage {
         }
         image = org.geotools.gp.Operation.getJAI(hints).createNS(operation, params, hints);
         ((WritablePropertySource) image).setProperty("GC_VisibleBand", visibleBand);
-        return new BandSelect(source, image, targetBands, bandIndices);
+        return new SelectSampleDimension(source, image, targetBands, bandIndices);
     }
 
     /**
@@ -245,7 +243,7 @@ final class BandSelect extends GridCoverage {
     /**
      * An operation for selecting bands.
      *
-     * @version $Id: BandSelect.java,v 1.1 2003/03/14 12:35:48 desruisseaux Exp $
+     * @version $Id: SelectSampleDimension.java,v 1.1 2003/03/14 18:27:37 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     final static class Operation extends org.geotools.gp.Operation {
@@ -255,15 +253,15 @@ final class BandSelect extends GridCoverage {
         private static final long serialVersionUID = 6889502343896409135L;
 
         /**
-         * Construct a default "BandSelect" operation.
+         * Construct a default "SelectSampleDimension" operation.
          */
         public Operation() {
-            super("BandSelect", new ParameterListDescriptorImpl(
+            super("SelectSampleDimension", new ParameterListDescriptorImpl(
                     null,           // the object to be reflected upon for enumerated values
                     new String[] {  // the names of each parameter.
                         "Source",
-                        "bandIndices",
-                        "visibleBand"
+                        "SampleDimensions",
+                        "VisibleSampleDimension"
                     },
                     new Class[] {   // the class type of each parameter.
                         GridCoverage.class,
@@ -291,7 +289,7 @@ final class BandSelect extends GridCoverage {
          * @return The result as a grid coverage.
          */
         protected GridCoverage doOperation(final ParameterList parameters, RenderingHints hints) {
-            return BandSelect.create(parameters, hints);
+            return SelectSampleDimension.create(parameters, hints);
         }
     }
 }
