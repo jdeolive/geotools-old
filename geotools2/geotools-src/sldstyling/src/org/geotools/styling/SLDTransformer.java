@@ -293,7 +293,7 @@ public class SLDTransformer extends TransformerBase {
             element("Name",style.getName());
             element("Title",style.getTitle());
             element("Abstract",style.getAbstract());
-            start("UserLayer");
+            start("UserStyle");
             
             FeatureTypeStyle[] fts = style.getFeatureTypeStyles();
             
@@ -301,14 +301,15 @@ public class SLDTransformer extends TransformerBase {
                 visit(fts[i]);
             }
             
-            end("UserLayer");
+            end("UserStyle");
             end("NamedLayer");
         }
         
         public void visit(FeatureTypeStyle fts) {
             start("FeatureTypeStyle");
-            element("FeatureTypeName",fts.getName());
-            
+            if(fts.getName()!=null){
+                element("FeatureTypeName",fts.getName());
+            }
             Rule[] rules = fts.getRules();
             
             for (int i = 0; i < rules.length; i++) {
