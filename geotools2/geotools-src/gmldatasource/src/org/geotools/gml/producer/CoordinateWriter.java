@@ -18,7 +18,6 @@ package org.geotools.gml.producer;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -35,26 +34,25 @@ import java.util.Locale;
  * @author Chris Holmes
  */
 class CoordinateWriter {
-    protected static String COORD_START = "gml:coordinates";
-
-    /** XML fragment for coordinate type */
-    protected static String COORD_END = "</gml:coordinates>";
-    private static String DEFAULT_COORD_DELIMITER = ",";
-    private static String DEFAULT_TUPLE_DELIMITER = " ";
+    private static final String DEFAULT_COORD_DELIMITER = ",";
+    private static final String DEFAULT_TUPLE_DELIMITER = " ";
 
     //REVISIT: There is a way in java to change the decimal delimiter using
     //the number formatter.  
-    private static int NUM_DECIMALS_DEFAULT = 4;
+    private static final int NUM_DECIMALS_DEFAULT = 4;
 
     /**
-     * Internal representation of coordinate delimeter (',' for GML is
-     * default)
+     * Internal representation of coordinate delimeter (',' for GML is default)
      */
     private String coordinateDelimiter = DEFAULT_COORD_DELIMITER;
 
     /** Internal representation of tuple delimeter (' ' for GML is  default) */
     private String tupleDelimiter = DEFAULT_TUPLE_DELIMITER;
+
+    /** To be used for formatting numbers, uses US locale. */
     private NumberFormat coordFormatter = NumberFormat.getInstance(Locale.US);
+
+    /** Whether delimiters should be printed. */
     private boolean printDelimiters = true;
 
     public CoordinateWriter() {
@@ -99,7 +97,7 @@ class CoordinateWriter {
         throws SAXException {
         AttributesImpl atts = new org.xml.sax.helpers.AttributesImpl();
 
-        StringBuffer coordBuff = new StringBuffer(); //(COORD_START);
+        StringBuffer coordBuff = new StringBuffer();
 
         //if (printDelimiters) {
         atts.addAttribute(GMLUtils.GML_URL, "decimal", "decimal", "decimal", ".");
@@ -109,14 +107,14 @@ class CoordinateWriter {
         output.startElement(GMLUtils.GML_URL, "coordinates", "gml:coordinates",
             atts);
 
-        int dimension = geometry.getDimension();
+        //int dimension = geometry.getDimension();
         Coordinate[] tempCoordinates = geometry.getCoordinates();
 
         for (int i = 0, n = geometry.getNumPoints(); i < n; i++) {
             String xCoord = coordFormatter.format(tempCoordinates[i].x);
             String yCoord = coordFormatter.format(tempCoordinates[i].y);
-            coordBuff.append(xCoord + coordinateDelimiter + yCoord +
-                tupleDelimiter);
+            coordBuff.append(xCoord + coordinateDelimiter + yCoord
+                + tupleDelimiter);
         }
 
         coordBuff.deleteCharAt(coordBuff.length() - 1);

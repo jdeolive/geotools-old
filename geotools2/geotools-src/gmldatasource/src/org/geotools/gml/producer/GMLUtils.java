@@ -16,8 +16,6 @@
  */
 package org.geotools.gml.producer;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
@@ -26,8 +24,6 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.logging.Logger;
 
 
@@ -37,11 +33,11 @@ import java.util.logging.Logger;
  * Utilities for gml and xml;
  * @author Chris Holmes, TOPP
  */
-class GMLUtils {
+final class GMLUtils {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.gml.producer");
-    
+
     /** Internal representation of URL used to represent GML */
     public static final String GML_URL = "http://www.opengis.net/gml";
 
@@ -67,31 +63,9 @@ class GMLUtils {
     protected static final int MULTIGEOMETRY = 7;
 
     /**
-     * @param geomType String format of the geometry to end
-     * @TODO work out what this is for
+     * private constructor so default is not used.
      */
-    public static String getGeometryEnd(String geomType) {
-        return "<gml:" + geomType;
-    }
-
-    /**
-     * 
-     */
-    public static String getGeometryStart(String gid, String srs,
-        String geomType) {
-        LOGGER.entering("GMLUtils", "getGeometryStart", 
-        new Object[]{ gid, srs, geomType});
-        StringBuffer sb = new StringBuffer();
-        sb.append("<gml:");
-        sb.append(geomType);
-        sb.append(" gid=\"");
-        sb.append(gid);
-        sb.append("\" srsName=\"");
-        sb.append("http://www.opengis.net/gml/srs/epsg.xml#");
-        sb.append(srs);
-        sb.append("\">");
-        LOGGER.exiting("GMLUtils", "getGeometryStart", sb.toString());
-        return sb.toString();
+    private GMLUtils() {
     }
 
     /**
@@ -103,6 +77,7 @@ class GMLUtils {
      */
     public static String getGeometryName(Geometry geometry) {
         LOGGER.entering("GMLUtils", "getGeometryName", geometry);
+
         Class geomClass = geometry.getClass();
         String returnValue = null;
 
@@ -124,8 +99,9 @@ class GMLUtils {
             //HACK!!! throw exception
             returnValue = null;
         }
-        
+
         LOGGER.exiting("GMLUtils", "getGeometryName", returnValue);
+
         return returnValue;
     }
 
@@ -138,6 +114,7 @@ class GMLUtils {
      */
     public static int getGeometryType(Geometry geometry) {
         LOGGER.entering("GMLUtils", "getGeometryType", geometry);
+
         Class geomClass = geometry.getClass();
         int returnValue = -1;
 
@@ -161,10 +138,12 @@ class GMLUtils {
             returnValue = MULTIGEOMETRY;
         } else {
             returnValue = -1;
+
             //HACK!!! throw exception.
         }
-        
+
         LOGGER.exiting("GMLUtils", "getGeometryType", new Integer(returnValue));
+
         return returnValue;
     }
 
@@ -182,6 +161,7 @@ class GMLUtils {
      */
     public static String encodeXML(String inData) {
         LOGGER.entering("GMLUtils", "encodeXML", inData);
+
         //return null, if null is passed as argument
         if (inData == null) {
             return null;
@@ -190,9 +170,9 @@ class GMLUtils {
         //if no special characters, just return
         //(for optimization. Though may be an overhead, but for most of the
         //strings, this will save time)
-        if ((inData.indexOf('&') == -1) && (inData.indexOf('<') == -1) &&
-                (inData.indexOf('>') == -1) && (inData.indexOf('\'') == -1) &&
-                (inData.indexOf('\"') == -1)) {
+        if ((inData.indexOf('&') == -1) && (inData.indexOf('<') == -1)
+                && (inData.indexOf('>') == -1) && (inData.indexOf('\'') == -1)
+                && (inData.indexOf('\"') == -1)) {
             return inData;
         }
 
@@ -228,6 +208,7 @@ class GMLUtils {
         }
 
         LOGGER.exiting("GMLUtils", "encodeXML", buffer.toString());
+
         //return the encoded string
         return buffer.toString();
     }
