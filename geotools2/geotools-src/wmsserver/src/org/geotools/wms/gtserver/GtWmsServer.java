@@ -36,6 +36,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.data.DataSource;
 
 import org.apache.log4j.Category;
 
@@ -78,11 +79,11 @@ public class GtWmsServer implements WMSServer {
                 if (layers[i].datasource.equalsIgnoreCase("Shapefile")) {
                     Shapefile shapes = new Shapefile((new File(layers[i].properties.getProperty("filename"))).toURL());
                     ShapefileDataSource sds = new ShapefileDataSource(shapes);
-                    FeatureCollectionDefault fc = new FeatureCollectionDefault(sds);
+                   
                     
                     Style style = new BasicPolygonStyle();//bad
                     
-                    features.put(layers[i].id,fc);
+                    features.put(layers[i].id,sds);
                     styles.put(layers[i].id,style); 
                 }     
             }
@@ -133,7 +134,9 @@ public class GtWmsServer implements WMSServer {
             map = new DefaultMap();
             for(int i = 0; i < layers.length; i++){
                 System.out.println("style object is a " + styles.get(layers[i]));
-                map.addFeatureTable((FeatureCollection)features.get(layers[i]),(org.geotools.styling.Style)styles.get(layers[i]));
+                DataSource ds = (DataSource)features.get(layers[i]);
+                FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
+                map.addFeatureTable(fc,(org.geotools.styling.Style)styles.get(layers[i]));
             }
             System.out.println("map setup");
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);

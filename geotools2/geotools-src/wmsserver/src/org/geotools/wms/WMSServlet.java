@@ -388,9 +388,9 @@ public class WMSServlet extends HttpServlet {
         // Send to client
         if (exp_type==null || exp_type.trim().length()==0)
             exp_type = DEFAULT_EXCEPTION;
-        
+        System.out.println("Its all gone wrong "+sException);
         // Check the optional response code (mime-type of exception)
-        if (exp_type.equalsIgnoreCase("application/vnd.ogc.se_xml") || exp_type.equalsIgnoreCase("text/xml")) {
+  //      if (exp_type.equalsIgnoreCase("application/vnd.ogc.se_xml") || exp_type.equalsIgnoreCase("text/xml")) {
             response.setContentType(exp_type);
             PrintWriter pw = response.getWriter();
             // Write header
@@ -403,14 +403,14 @@ public class WMSServlet extends HttpServlet {
             pw.println("  </ServiceExceptionReport>");
             
             pw.close();
-        }
-        if (exp_type.equalsIgnoreCase("text/plain")) {
+    //    }
+     /*   if (exp_type.equalsIgnoreCase("text/plain")) {
             response.setContentType(exp_type);
             PrintWriter pw = response.getWriter();
             pw.println("Exception : Code="+sCode);
             pw.println(sException);
             
-        }
+        }*/
         // Other exception types (graphcal, whatever) to go here
     }
     
