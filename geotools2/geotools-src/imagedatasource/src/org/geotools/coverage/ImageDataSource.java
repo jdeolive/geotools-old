@@ -12,9 +12,11 @@ import com.vividsolutions.jts.geom.Geometry;
 import java.awt.Canvas;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.image.RenderedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+import javax.media.jai.JAI;
 import org.geotools.cs.CoordinateSystemAuthorityFactory;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.data.DataSourceException;
@@ -29,7 +31,7 @@ import org.geotools.filter.NullFilter;
 
 
 /**
- * $Id: ImageDataSource.java,v 1.2 2002/11/13 17:11:34 ianturton Exp $
+ * $Id: ImageDataSource.java,v 1.3 2003/03/11 17:40:14 aaime Exp $
  *
  * @author  iant
  */
@@ -77,17 +79,11 @@ public class ImageDataSource implements org.geotools.data.DataSource{
             format = name.substring(index+1,name.length());
         }
         parser = new WorldFileParser(new File(worldfile));
-        Image img = Toolkit.getDefaultToolkit().createImage(name);
-        Canvas obs = new Canvas();
-        while(img.getWidth(obs) < 0){
-            try{
-                Thread.sleep(100);
-            } catch (InterruptedException e){
-                // empty
-            }
-        }
-        ((WorldFileParser)parser).setHeight(img.getHeight(obs));
-        ((WorldFileParser)parser).setWidth(img.getWidth(obs));
+        RenderedImage image = (RenderedImage) JAI.create("fileload", name);
+        ((WorldFileParser)parser).setHeight(image.getHeight());
+        ((WorldFileParser)parser).setWidth(image.getWidth());
+        ((WorldFileParser)parser).setDimension(image.getSampleModel().getNumBands());
+        
         reader = new org.geotools.io.coverage.ExoreferencedGridCoverageReader(format,parser);
         file = new java.io.File(name);
         

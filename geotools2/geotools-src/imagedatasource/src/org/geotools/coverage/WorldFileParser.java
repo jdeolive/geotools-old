@@ -26,6 +26,7 @@ import org.geotools.io.coverage.PropertyException;
  */
 public class WorldFileParser extends org.geotools.io.coverage.PropertyParser {
     boolean loaded = false;
+    int dimension = 4; // just a default...
     static private Logger LOGGER = Logger.getLogger("org.geotools.coverage");
     /** Creates a new instance of WorldFileParser */
     public WorldFileParser(File worldfile) throws IOException{
@@ -121,10 +122,16 @@ public class WorldFileParser extends org.geotools.io.coverage.PropertyParser {
             LOGGER.severe("property exception " + e);
         }
     }
+    
     public int getDimension(){
         // this should be an array of 3 or 4 depending on transparency - I think.
-        return 4;
+        return this.dimension;
     }
+    
+    public void setDimension(int dimension) {
+        this.dimension = dimension;
+    }
+    
     /**
      * Returns the sample dimensions for each band of the {@link GridCoverage}
      * to be read. If sample dimensions are not know, then this method returns
