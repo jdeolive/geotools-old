@@ -37,11 +37,11 @@ public class PostgisTestSuite extends TestCase {
     
     public void setUp() {
         _log.info("creating postgis connection...");
-        PostgisConnection db = new PostgisConnection ("localhost","5432","test"); 
+        PostgisConnection db = new PostgisConnection ("feathers.leeds.ac.uk","5432","postgis_test"); 
         _log.info("created new db connection");
-        db.setLogin("test","test");
+        db.setLogin("postgis_ro","postgis_ro");
         _log.info("set the login");
-        postgis = new DataSourcePostgis(db, "water");
+        postgis = new DataSourcePostgis(db, "testset");
         _log.info("created new datasource");
     }
 
@@ -52,8 +52,10 @@ public class PostgisTestSuite extends TestCase {
             postgis.importFeatures(collection, new EnvelopeExtent());
         }
         catch(DataSourceException e) {
-            _log.info("...threw data source exception");            
+            _log.info("...threw data source exception");      
+            this.fail("...threw data source exception");  
         }
+        assertEquals(18,collection.getFeatures().length);
         _log.info("...ending type enforcement tests");
     }
 
