@@ -80,10 +80,16 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.10 2003/09/30 10:39:51 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.11 2003/10/07 16:47:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
+    /**
+     * Set to <code>true</code> for debuging. This line may be set from the command line.
+     */
+    private static final boolean DEBUG =
+        System.getProperty("org.geotools.j2d.debug", "false").equalsIgnoreCase("true");
+    
     /**
      * The maximum number of clipped geometries to cache. This number can be set to <code>0</code>
      * for disabling clipping acceleration, which may be useful if a bug is suspected to prevent
@@ -491,6 +497,27 @@ public class RenderedGeometries extends RenderedLayer {
         graphics.draw(polyline);
     }
 
+    /**
+     * Draw a shape inconditionnaly. This method is used for debugging purpose only.
+     * Debugging can been enabled from the command line.
+     *
+     * @param graphics The graphics where to draw.
+     * @param shape    The shape to draw.
+     */
+    private void paintDebug(final Graphics2D graphics, Shape shape) {
+        final Paint  oldPaint  = graphics.getPaint();
+        final Stroke oldStroke = graphics.getStroke();
+        graphics.setColor(Color.GRAY);
+        graphics.setStroke(DEFAULT_STROKE);
+        if (transformedShape != null) {
+            transformedShape.shape = shape;
+            shape = transformedShape;
+        }
+        graphics.draw(shape);
+        graphics.setStroke(oldStroke);
+        graphics.setPaint (oldPaint);
+    }
+
     /*
      * Recursively draw all geometries in the given collection. If one geometry is itself a
      * collection, then this method will be invoked again in order to draw the geometries in
@@ -507,6 +534,9 @@ public class RenderedGeometries extends RenderedLayer {
         final Collection polylines = toDraw.getGeometries();
         for (final Iterator it=polylines.iterator(); it.hasNext();) {
             final Geometry geometry = (Geometry)it.next();
+            if (DEBUG) {
+                paintDebug(graphics, geometry.getBounds2D());
+            }
             if (clip==null || XRectangle2D.intersectInclusive(clip, geometry.getBounds2D())) {
                 final Style2D style = getStyle(geometry, defaultStyle);
                 if (geometry instanceof GeometryCollection) {

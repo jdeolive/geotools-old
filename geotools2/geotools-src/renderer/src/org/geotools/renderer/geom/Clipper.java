@@ -56,7 +56,7 @@ import org.geotools.resources.XArray;
  * The clipping area to apply on a {@link Geometry} object. A <code>Clipper</code> object
  * contains the clip as a {@link Rectangle2D} and its {@link CoordinateSystem}.
  *
- * @version $Id: Clipper.java,v 1.9 2003/09/30 10:39:51 desruisseaux Exp $
+ * @version $Id: Clipper.java,v 1.10 2003/10/07 16:47:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Geometry#clip
@@ -254,7 +254,9 @@ public final class Clipper {
             try {
                 if (result == null) {
                     result = (Polyline) subpoly.clone();
-                    result.prependBorder(border, 0, borderLength, null);
+                    if (borderLength != 0) { // Avoid exception when the polygon is closed.
+                        result.prependBorder(border, 0, borderLength, null);
+                    }
                 } else {
                     result.appendBorder(border, 0, borderLength, null);
                     result.append(subpoly); // 'subpoly.clone()' done by 'append'.
@@ -284,12 +286,12 @@ public final class Clipper {
     protected Polyline clip(final Polyline polyline) {
         Polyline result = (Polyline) alreadyClipped.get(polyline);
         if (result != null) {
-            assert result==null || Utilities.equals(polyline.getStyle(), result.getStyle()) : result;
+            assert Utilities.equals(polyline.getStyle(), result.getStyle()) : result;
             return result;
         }
         /*
          * Gets the clip in the polyline's internal coordinate system.
-         * Then, perform a fast check using the polyline bounds in its
+         * Then, performs a fast check using the polyline bounds in its
          * native coordinate system.
          */
         try {
@@ -318,9 +320,9 @@ public final class Clipper {
         ymin = (float) clip.getMinY();
         ymax = (float) clip.getMaxY();
         /*
-         * It would appear that the polyline is neither completely inside nor completely
-         * outside <code>clip</code>.  It is therefore necessary to perform a more powerful
-         * (and more costly) check.
+         * It appears that the polyline is neither completely inside nor completely
+         * outside <code>clip</code>.   It is therefore necessary to perform a more
+         * powerful (and more costly) check.
          */
         borderLength    = 0;
         intersectLength = 0;
@@ -337,14 +339,15 @@ public final class Clipper {
         }
         /*
          * Obtains the first coordinate of the polyline. This first coordinate will be memorised
-         * in the variables <code>first[X/Y]</code> so it can be reused to eventually close the
-         * polyline. We should check whether this first coordinate is inside or outside the region
+         * in the variables <code>first[X/Y]</code>  so it can be reused to eventually close the
+         * polyline. We must check whether this first coordinate is inside or outside the region
          * of interest.  This check serves to initialise the variable <code>inside</code>, which
          * will serve for the rest of this method.
          */
         if (it.next(line)) {
             final float firstX = line.x2;
             final float firstY = line.y2;
+            boolean  hasJoined = false;
             boolean inside = (firstX>=xmin && firstX<=xmax) && (firstY>=ymin && firstY<=ymax);
             float  initialX1        =  Float.NaN;
             float  initialY1        =  Float.NaN;
@@ -355,22 +358,24 @@ public final class Clipper {
             int lower=0, upper=0;
             while (true) {
                 /*
-                 * Extracts the following coordinates. The point <code>line.p2</code>
+                 * Extracts the next coordinates. The point <code>line.p2</code>
                  * will contain the point that we have just extracted, whilst
                  * point <code>line.p1</code> will be the coordinate we had during the
                  * previous pass through this loop.  If all the coordinates have been
-                 * swept, we will reuse the first point to reclose the polyline.
+                 * iterated, we will reuse the first point to reclose the polyline.
                  */
                 if (!it.next(line)) {
-                    if ((line.x2!=firstX || line.y2!=firstY) && isClosed) {
+                    if (isClosed && (line.x2!=firstX || line.y2!=firstY)) {
+                        assert !hasJoined;
                         line.x2 = firstX;
                         line.y2 = firstY;
+                        hasJoined = true;
                     }
-                    else break;
+                    else break; // The only exit point for this loop.
                 }
-                upper++;
+                upper++; // Point at 'polyline[upper]' is equals to line.P2
                 /*
-                 * Checks whether the segment (x1,y1)-(x2,y2) goes clockwise round the rectangle.
+                 * Checks whether the segment (x1,y1)-(x2,y2) goes clockwise around the rectangle.
                  * The segments inside the rectangle will not be taken into account. In the 
                  * example below, the segment goes anti-clockwise.
                  *
@@ -496,9 +501,9 @@ public final class Clipper {
                     inside = !inside;
                     if (inside) {
                         /*
-                         * If we have just entered the area of interest {@link #clip}, checks whether
-                         * it should add points to surround the clip border. These points will be
-                         * effectively memorised later, when we leave the clip.
+                         * If we have just entered the area of interest 'clip', checks whether
+                         * it should add points to surround the clip border. These points will
+                         * be effectively memorised later, when we leave the clip.
                          */
                         float xn,yn;
                         if (intersectLength >= 2) {
@@ -523,8 +528,10 @@ public final class Clipper {
                          * If we have just left the area of interest, we will create a new 
                          * "sub-polyline" that will contain only the data that appears in the
                          * region (the data will not be copied; only a reference game will be
-                         * carried out). The coordinates x0,y0 will be those of the first
-                         * point outside the clip.
+                         * carried out). The coordinates (x0,y0) will be those of the first
+                         * point outside the clip. Point index range from 'lower' inclusive
+                         * (i.e. the 'line.P2' point at the time we entered in the area) to
+                         * 'upper' exclusive (i.e. the 'line.P2' point right now).
                          */
                         if (intersectLength >= 2) {
                             x0 = intersect[intersectLength-2];
@@ -603,6 +610,9 @@ public final class Clipper {
              * if they were inside the clip.
              */
             if (inside) {
+                if (!hasJoined) {
+                    upper++;
+                }
                 assert upper <= polyline.getPointCount() : upper;
                 result = attach(result, polyline.subpoly(lower, upper));
             }
