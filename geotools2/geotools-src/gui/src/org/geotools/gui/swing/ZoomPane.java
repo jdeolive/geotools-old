@@ -222,7 +222,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * by the user through the scrollbars will be translated by calls to
  * {@link #transform}.</p>
  *
- * @version $Id: ZoomPane.java,v 1.7 2003/01/24 23:41:39 desruisseaux Exp $
+ * @version $Id: ZoomPane.java,v 1.8 2003/01/31 23:16:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ZoomPane extends JComponent implements DeformableViewer {
@@ -2408,7 +2408,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
     /**
      * Convenience method for logging events related to area setting.
      * Events are logged in the <code>"org.geotools.gui"</code> logger
-     * with {@link Level#FINE}. <code>ZoomPane</code> invokes this method
+     * with {@link Level#FINER}. <code>ZoomPane</code> invokes this method
      * for logging any [@link #setPreferredArea} and {@link #setVisibleArea}
      * invocations. Subclasses may invoke this method for logging some other
      * kinds of area changes.
@@ -2432,7 +2432,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
             Arrays.fill(areaBounds, new Double(Double.NaN));
         }
         final Resources resources = Resources.getResources(null);
-        final LogRecord record = resources.getLogRecord(Level.FINE,
+        final LogRecord record = resources.getLogRecord(Level.FINER,
                                                         ResourceKeys.RECTANGLE_$4,
                                                         areaBounds);
         record.setSourceClassName (className);
