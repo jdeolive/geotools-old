@@ -37,9 +37,11 @@ public class ImageLoader implements Runnable{
     
     public BufferedImage get(URL location){
         if(images.containsKey(location)){
+            _log.debug("found it ");
             return (BufferedImage)images.get(location);
         }else{
             images.put(location,null);
+            _log.debug("adding "+location);
             add(location);
             return null;
         }
@@ -56,6 +58,7 @@ public class ImageLoader implements Runnable{
         } catch ( Exception e ) {
             _log.error("Exception fetching image"+e);
             images.remove(location);
+            return;
         }
         _log.debug("IL ("+this+")-->Waiting ");
         try{
@@ -68,7 +71,11 @@ public class ImageLoader implements Runnable{
         _log.debug("finished load status "+state);
         if(state==tracker.COMPLETE)_log.debug("Il: Complete");
         if(state==tracker.ABORTED)_log.debug("Il: ABORTED");
-        if(state==tracker.ERRORED)_log.debug("Il: ERRORED");
+        if(state==tracker.ERRORED){
+            _log.debug("Il: ERRORED");
+            images.remove(location);
+            return;
+        }
         if(state==tracker.LOADING)_log.debug("Il: LOADING");
         if((state&tracker.COMPLETE) == tracker.COMPLETE){
             

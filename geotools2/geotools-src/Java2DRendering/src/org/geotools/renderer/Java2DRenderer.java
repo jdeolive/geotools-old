@@ -50,7 +50,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.21 2002/06/07 16:42:23 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.22 2002/06/18 13:36:35 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -364,8 +364,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             if(supportedGraphicFormats.contains(eg.getFormat().toLowerCase())){
                 if(eg.getFormat().equalsIgnoreCase("image/gif") ||
                 eg.getFormat().equalsIgnoreCase("image/jpg")){
+                    _log.debug("a supported format");
                     BufferedImage img = imageLoader.get(eg.getLocation());
+                    _log.debug("Image return = "+img);
                     if(img!=null){
+                        _log.debug("rendering image");
                         renderImage((Point)geom,img,(int)graphic.getSize(),graphic.getRotation());
                         return;
                     }
@@ -436,7 +439,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             return;
         }
         _log.info("drawing Mark");
-        applyStroke(mark.getStroke(),null);
+        
         AffineTransform temp = graphics.getTransform();
         AffineTransform markAT = new AffineTransform();
         Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName());
@@ -454,6 +457,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         _log.debug("unitsize "+unitSize+" size = "+size+" -> scale "+drawSize);
         markAT.scale(drawSize,-drawSize);
         graphics.setTransform(markAT);
+        applyStroke(mark.getStroke(),null);
         graphics.draw(shape);
         graphics.setTransform(temp);
         return;
@@ -463,7 +467,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             return;
         }
         _log.info("filling mark");
-        applyFill(mark.getFill(),null);
+        
         AffineTransform temp = graphics.getTransform();
         AffineTransform markAT = new AffineTransform();
         Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName());
@@ -482,6 +486,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         
         graphics.setTransform(markAT);
+        applyFill(mark.getFill(),null);
         graphics.fill(shape);
         graphics.setTransform(temp);
         resetFill();
