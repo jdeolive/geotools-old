@@ -12,9 +12,7 @@
           <arg value="site"/> 
         </exec>
     </target>
-    
-    
-    
+        
     <target name="init">
     <condition property="mavenbat">
         <os family="windows"/>
