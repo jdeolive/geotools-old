@@ -27,10 +27,11 @@ import org.geotools.filter.Filter;
 import java.net.URL;
 import java.io.IOException;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.16 2002/09/04 16:19:20 jmacgill Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.17 2002/09/10 21:43:36 cholmesny Exp $
  * @author James Macgill, CCG
  * @task TODO: add support for reading dbf file
  * @task TODO: add support for the optional spatial index files to improve
@@ -44,11 +45,14 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     
     private DbaseFileReader dbf;
     
+    private String dbfFile;
+
     /**
      * The logger for this module.
      */
     private static final Logger LOGGER = Logger.getLogger(
     "org.geotools.shapefile");
+    //LOGGER.setLevel(Level.ALL);
     
     /**
      *
@@ -70,8 +74,10 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
             URL shpURL = new URL(url, filename + shpext);
             
             URL dbfURL = new URL(url, filename + dbfext);
+
             shapefile = new Shapefile(shpURL);
-            dbf = new DbaseFileReader(dbfURL.getFile());
+	    dbfFile = dbfURL.getFile();
+            dbf = new DbaseFileReader(dbfFile);
             LOGGER.fine("dbf url constructed as " + dbfURL);
         } catch (Exception ioe) {
             LOGGER.warning("Unable to construct URL for shapefile " + ioe);
@@ -201,12 +207,11 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
                 Object [] row;
                 if (dbf == null) {
                     row = new Object[1];
-                }
-                else {
+                } else {
                     row = new Object[dbf.getFieldNames().length+1]; //+1 for geomety
                     java.util.ArrayList values = dbf.read();
                     System.arraycopy(values.toArray(),0,row,1,dbf.getFieldNames().length);
-                }
+		}
                 row[0] = (com.vividsolutions.jts.geom.Geometry) shapes.getGeometryN(i);
                 //System.out.println("adding geometry" + row[0]);
                 org.geotools.feature.Feature feature = fac.create(row);
@@ -214,9 +219,14 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
                     collection.addFeatures(new org.geotools.feature.Feature[]{feature});
                 }
             }
-        }
+	    if (dbf != null) { //reset the dbase file
+		dbf = new DbaseFileReader(dbfFile);
+	    }
+	}
         catch (java.io.IOException ioe){
-            throw new DataSourceException("IO Exception loading data : " + ioe.getMessage());
+            ioe.printStackTrace();
+	    throw new DataSourceException("IO Exception loading data : " + ioe.getMessage());
+	    
         }
         catch (ShapefileException se){
             throw new DataSourceException("Shapefile Exception loading data : " + se.getMessage());
