@@ -10,4 +10,32 @@
 
   <!-- Now, set your module-specific build targets here -->
 
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="clean">
+    <ant antfile="common.xml" dir="../gtbuild" target="clean" inheritAll="true"/>
+  </target>
+
+  <!-- Set your module-specific build targets here -->
+
+  <!-- Tests the feature flat stuff -->
+  <target name="test">
+    <property name="dir.module" value="${basedir}"/>           
+    <junit fork="true" printsummary="withOutAndErr">
+      <formatter type="plain" usefile="false"/>
+      <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
+      <classpath>
+        <pathelement path="../../extbin/filter/lib/xerces.jar"/>
+        <pathelement path="../../extbin/core/lib/JTS.jar"/>
+        <pathelement path="../../extbin/core/lib/log4j-1.2.3.jar"/>
+        <pathelement path="./tests/unit"/>
+        <pathelement path="../core/src"/>
+        <pathelement path="../defaultcore/src"/>
+        <pathelement path="../gmldatasource/src"/>
+        <pathelement path="src"/>
+      </classpath>
+      <test fork="false" name="org.geotools.filter.ParserTest"/>
+    </junit>
+  </target>
+  
+
 </project>

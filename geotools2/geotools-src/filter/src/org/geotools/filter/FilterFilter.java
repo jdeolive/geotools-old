@@ -22,10 +22,12 @@ package org.geotools.filter;
 
 import java.util.*;
 import java.math.*;
-
+import org.apache.log4j.Logger;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
-
+import com.vividsolutions.jts.geom.Geometry;
+import org.geotools.feature.*;
+import org.geotools.gml.GMLHandlerJTS;
 
 /**
  * Creates an OGC filter using a SAX filter.
@@ -34,25 +36,28 @@ import org.xml.sax.helpers.*;
  * extracts an OGC filter object from an XML stream and passes it to its parent
  * as a fully instantiated OGC filter object.</p>
  * 
- * @version $Id: FilterFilter.java,v 1.4 2002/06/05 13:54:19 loxnard Exp $
+ * @version $Id: FilterFilter.java,v 1.5 2002/07/09 18:12:25 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class FilterFilter extends XMLFilterImpl {
+public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
+
+    private static Logger _log = Logger.getLogger(FilterFilter.class);
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
     private StackLogic logicStack = new StackLogic();  
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
-    private FactoryFilter filterFactory = new FactoryFilter();  
+    private FilterFactory filterFactory = new FilterFactory();  
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
-    private FactoryExpression expressionFactory = new FactoryExpression();  
+    private ExpressionFactory expressionFactory;  
     
     /** Parent of the filter: must implement GMLHandlerGeometry. */
-    private HandlerFilter parent;  
+    private FilterHandler parent;  
     
-    
-    
+    /** Parent of the filter: must implement GMLHandlerGeometry. */
+    private FeatureType schema;  
+        
     /** Whether or not this parser should consider namespaces. */
     private boolean namespaceAware = true;
     
@@ -66,9 +71,11 @@ public class FilterFilter extends XMLFilterImpl {
      *
      * @param parent The parent of this filter.
      */
-    public FilterFilter (HandlerFilter parent) {
+    public FilterFilter (FilterHandler parent, FeatureType schema) {
         super();
         this.parent = parent;
+        this.schema = schema;
+        expressionFactory = new ExpressionFactory(schema);
     }
     
     
@@ -93,17 +100,20 @@ public class FilterFilter extends XMLFilterImpl {
         
         try { 
             // if at a complex filter start, add it to the logic stack
-            if( FilterDefault.isLogicFilter(filterElementType) ) {
+            if( AbstractFilter.isLogicFilter(filterElementType) ) {
+                _log.debug("found a logic filter start");
                 logicStack.addLogic(filterElementType);
             }
             
             // if at a simple filter start, tell the factory
-            else if( FilterDefault.isSimpleFilter(filterElementType) ) {
+            else if( AbstractFilter.isSimpleFilter(filterElementType) ) {
+                _log.debug("found a simple filter start");
                 filterFactory.start(filterElementType);
             }
             
             // if at an expression start, tell the factory
             else if( ExpressionDefault.isExpression(filterElementType) ) {
+                _log.debug("found an expression filter start");
                 expressionFactory.start(localName);
             }
             else {
@@ -136,6 +146,7 @@ public class FilterFilter extends XMLFilterImpl {
         //  see the documentation for CoordinatesReader to see what this entails
         String message = new String(ch, start, length);
         try{
+            _log.debug("sent to expression factory: " + message);
             expressionFactory.message(message);
         }
         catch(IllegalFilterException ife){
@@ -164,13 +175,15 @@ public class FilterFilter extends XMLFilterImpl {
         try {
             // if at the end of a complex filter, simplify the logic stack
             //  appropriately
-            if( FilterDefault.isLogicFilter(filterElementType) ) {
+            if( AbstractFilter.isLogicFilter(filterElementType) ) {
+                _log.debug("found a logic filter end");
                 logicStack.simplifyLogic(filterElementType);
             }
             
             // if at the end of a simple filter, create it and push it on top of 
             //  the logic stack
-            else if( FilterDefault.isSimpleFilter(filterElementType) ) {
+            else if( AbstractFilter.isSimpleFilter(filterElementType) ) {
+                _log.debug("found a simple filter end");
                 logicStack.push( filterFactory.create() );
             }
             
@@ -179,6 +192,7 @@ public class FilterFilter extends XMLFilterImpl {
             //  2. at end of an inner expression, pass the message along to current
             //      outer expression
             else if( ExpressionDefault.isExpression(filterElementType) ) {
+                _log.debug("found an expression filter end");
                 expressionFactory.end(localName);
                 if( expressionFactory.isReady() ) {
                     filterFactory.expression( expressionFactory.create() );
@@ -198,10 +212,33 @@ public class FilterFilter extends XMLFilterImpl {
         
     }		
 
+    /**
+     * Gets geometry.
+     *
+     * @param geometry The geometry from the filter.
+     */
+    public void geometry(Geometry geometry) {
+
+        // Sends the geometry to the expression
+        try {
+            _log.debug("got geometry: " + geometry.toString());
+            expressionFactory.geometry(geometry);
+            _log.debug("gave geometry to expression factory");
+            if( expressionFactory.isReady() ) {
+                filterFactory.expression( expressionFactory.create());
+                _log.debug("expression factory made expression and sent to filter factory");
+            }
+        }
+        catch(IllegalFilterException e) {
+            _log.debug("Had problems adding geometry: " + geometry.toString());
+        }
+    }
+
+
     /* ************************************************************************
      * Following static methods check for certain aggregate types, based on 
      * (above) declared types.  Note that these aggregate types do not
-     * necessarily map directly to the sub-classes of FilterDefault.  In most,
+     * necessarily map directly to the sub-classes of AbstractFilter.  In most,
      * but not all, cases, a single class implements an aggregate type.
      * However, there are aggregate types that are implemented by multiple
      * classes (ie. the Math type is implemented by two separate classes).
@@ -217,67 +254,67 @@ public class FilterFilter extends XMLFilterImpl {
 
         // matches all filter types to the default logic type
         if( filterType.equals("Or") ) {
-            return FilterDefault.LOGIC_OR;
+            return AbstractFilter.LOGIC_OR;
         }
         else if( filterType.equals("And") ) {
-            return FilterDefault.LOGIC_AND;
+            return AbstractFilter.LOGIC_AND;
         }
         else if( filterType.equals("Not") ) {
-            return FilterDefault.LOGIC_NOT;
+            return AbstractFilter.LOGIC_NOT;
         }
         else if( filterType.equals("Equals") ) {
-            return FilterDefault.GEOMETRY_EQUALS;
+            return AbstractFilter.GEOMETRY_EQUALS;
         }
         else if( filterType.equals("Disjoint") ) {
-            return FilterDefault.GEOMETRY_DISJOINT;
+            return AbstractFilter.GEOMETRY_DISJOINT;
         }
         else if( filterType.equals("Intersects") ) {
-            return FilterDefault.GEOMETRY_INTERSECTS;
+            return AbstractFilter.GEOMETRY_INTERSECTS;
         }
         else if( filterType.equals("Touches") ) {
-            return FilterDefault.GEOMETRY_TOUCHES;
+            return AbstractFilter.GEOMETRY_TOUCHES;
         }
         else if( filterType.equals("Crosses") ) {
-            return FilterDefault.GEOMETRY_CROSSES;
+            return AbstractFilter.GEOMETRY_CROSSES;
         }
         else if( filterType.equals("Within") ) {
-            return FilterDefault.GEOMETRY_WITHIN;
+            return AbstractFilter.GEOMETRY_WITHIN;
         }
         else if( filterType.equals("Contains") ) {
-            return FilterDefault.GEOMETRY_CONTAINS;
+            return AbstractFilter.GEOMETRY_CONTAINS;
         }
         else if( filterType.equals("Overlaps") ) {
-            return FilterDefault.GEOMETRY_OVERLAPS;
+            return AbstractFilter.GEOMETRY_OVERLAPS;
         }
         else if( filterType.equals("Beyond") ) {
-            return FilterDefault.GEOMETRY_BEYOND;
+            return AbstractFilter.GEOMETRY_BEYOND;
         }
         else if( filterType.equals("BBOX") ) {
-            return FilterDefault.GEOMETRY_BBOX;
+            return AbstractFilter.GEOMETRY_BBOX;
         }
         else if( filterType.equals("PropertyIsEqualTo") ) {
-            return FilterDefault.COMPARE_EQUALS;
+            return AbstractFilter.COMPARE_EQUALS;
         }
         else if( filterType.equals("PropertyIsLessThan") ) {
-            return FilterDefault.COMPARE_LESS_THAN;
+            return AbstractFilter.COMPARE_LESS_THAN;
         }
         else if( filterType.equals("PropertyIsGreaterThan") ) {
-            return FilterDefault.COMPARE_GREATER_THAN;
+            return AbstractFilter.COMPARE_GREATER_THAN;
         }
         else if( filterType.equals("PropertyIsLessThanOrEqualTo") ) {
-            return FilterDefault.COMPARE_LESS_THAN_EQUAL;
+            return AbstractFilter.COMPARE_LESS_THAN_EQUAL;
         }
         else if( filterType.equals("PropertyIsGreaterThanOrEqualTo") ) {
-            return FilterDefault.COMPARE_GREATER_THAN_EQUAL;
+            return AbstractFilter.COMPARE_GREATER_THAN_EQUAL;
         }
         else if( filterType.equals("PropertyIsBetween") ) {
-            return FilterDefault.BETWEEN;
+            return AbstractFilter.BETWEEN;
         }
         else if( filterType.equals("PropertyIsLike") ) {
-            return FilterDefault.LIKE;
+            return AbstractFilter.LIKE;
         }
         else if( filterType.equals("PropertyIsNull") ) {
-            return FilterDefault.NULL;
+            return AbstractFilter.NULL;
         }
         else if( filterType.equals("Add") ) {
             return ExpressionDefault.MATH_ADD;

@@ -25,7 +25,7 @@ import java.util.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: StackLogic.java,v 1.3 2002/06/05 14:06:17 loxnard Exp $
+ * @version $Id: StackLogic.java,v 1.4 2002/07/09 18:12:26 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class StackLogic extends Stack {
@@ -51,7 +51,7 @@ public class StackLogic extends Stack {
     public void addLogic(short logicType)
         throws IllegalFilterException {
         
-        if( !FilterDefault.isLogicFilter(logicType) ) {
+        if( !AbstractFilter.isLogicFilter(logicType) ) {
             throw new IllegalFilterException
                 ("Add logic filter type does not match declared type.");
         }
@@ -79,18 +79,18 @@ public class StackLogic extends Stack {
 
             Stack tempStack = (Stack) this.pop();
 
-            if( logicType == FilterDefault.LOGIC_NOT ) {
+            if( logicType == AbstractFilter.LOGIC_NOT ) {
                 tempFilter = (Filter) tempStack.pop();
                 tempFilter = tempFilter.not();
                 this.push( tempFilter );
             }
-            else if ( logicType == FilterDefault.LOGIC_OR ){
+            else if ( logicType == AbstractFilter.LOGIC_OR ){
                 while( !tempStack.empty() ) {
                     tempFilter = tempFilter.or((Filter) tempStack.pop());
                     this.push( tempFilter );
                 }
             }
-            else if( logicType == FilterDefault.LOGIC_AND ) {
+            else if( logicType == AbstractFilter.LOGIC_AND ) {
                 while( !tempStack.empty() ) {
                     tempFilter = tempFilter.and((Filter) tempStack.pop());
                     this.push( tempFilter );
