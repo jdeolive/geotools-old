@@ -7,8 +7,9 @@ import org.geotools.gui.tools.AbstractTool;
 import org.geotools.map.Context;
 /**
  * Factory for constructing Tool classes.
- * @version $Id: WidgetFactory.java,v 1.3 2003/02/09 09:48:08 camerons Exp $
+ * @version $Id: WidgetFactory.java,v 1.4 2003/03/22 10:33:43 camerons Exp $
  * @author Cameron Shorter
+ * @deprecated
  */
 public abstract class WidgetFactory {
     /**
