@@ -65,8 +65,22 @@ public class DOMParserTest extends TestCase {
     /**
      * Constructor with test name.
      */
+    String dataFolder = "";
     public DOMParserTest(String testName) {
         super(testName);
+        _log.info("running DOMParserTests");
+        System.out.println("running DOMParserTests");
+        dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
+        try{
+            featureSetUp();
+        } catch (Exception e){
+            _log.fatal("Exception building test feature ",e);
+        }
     }
     
     /**
@@ -83,6 +97,7 @@ public class DOMParserTest extends TestCase {
     public static Test suite() {
         BasicConfigurator.configure();
         _log.getLoggerRepository().setThreshold(Level.DEBUG);
+        
         TestSuite suite = new TestSuite(DOMParserTest.class);
         return suite;
     }
@@ -93,8 +108,7 @@ public class DOMParserTest extends TestCase {
      * @throws SchemaException If there is a problem setting up the schema.
      * @throws IllegalFeatureException If problem setting up the feature.
      */
-    protected void setUp()
-    throws SchemaException, IllegalFeatureException {
+    protected void featureSetUp() throws SchemaException, IllegalFeatureException {
         
         // Create the schema attributes
         _log.debug("creating flat feature...");
@@ -169,60 +183,72 @@ public class DOMParserTest extends TestCase {
         _log.debug("...flat feature created");
     }
     
-    public void testParser() throws Exception {
-        String dataFolder = System.getProperty("dataFolder");
-        if(dataFolder==null){
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder+="/tests/unit/testData";
-        }
-        parseDocument(dataFolder+"/iantest.xml");
-        for(int i=1;i<11;i++){
-            System.out.println("test number "+i);
-            parseDocument(dataFolder+"/test"+i+".xml");
-        }
-
+    public void test1()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test1.xml");
+        
     }
     
-    /*
     public void test2()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test2.xml");
-        _log.debug("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        Filter test = parseDocument(dataFolder+"/test2.xml");
     }
-     
+
     public void test3a()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test3a.xml");
-        _log.debug("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        Filter test = parseDocument(dataFolder+"/test3a.xml");
     }
-     
+
+    
     public void test3b()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test3b.xml");
-        _log.debug("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        Filter test = parseDocument(dataFolder+"/test3b.xml");
     }
-     
+    
     public void test4()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test4.xml");
-        _log.debug("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
-    }
-     
-     */
-    public void parseDocument(String uri) throws Exception {
+        Filter test = parseDocument(dataFolder+"/test4.xml");
+    }    
+        
+    public void test8()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test8.xml");
+    }    
+
+    public void test9()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test9.xml");
+    }    
+
+    public void test11()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test11.xml");
+    }    
+
+    public void test12()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test12.xml");
+    }    
+
+    public void test13()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test13.xml");
+    }    
+    
+    public void test14()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test14.xml");
+    }    
+
+    
+
+    public Filter parseDocument(String uri) throws Exception {
         Filter filter = null;
-        
-        
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document dom = db.parse(uri);
         
-        _log.debug("about to parse: " + uri);
+
         // first grab a filter node
         NodeList nodes = dom.getElementsByTagName("Filter");
         for(int j=0;j<nodes.getLength();j++){
@@ -239,14 +265,8 @@ public class DOMParserTest extends TestCase {
             }
         }
         
-        _log.debug("just parsed: " + uri);
-        
-        return;
+        return filter;
     }
     
-    
-    public void filter(Filter filter) {
-        this.filter = filter;
-    }
     
 }
