@@ -256,16 +256,47 @@ public class ExpressionXmlParser {
         if(child.getNodeName().equalsIgnoreCase("gml:polygon")){
             _log.debug("polygon");
             type = GML_POLYGON;
+            LinearRing  outer =null;
+            ArrayList inner = new ArrayList();
+            NodeList kids = root.getChildNodes();
+            for(int i=0;i<kids.getLength();i++){
+                Node kid = kids.item(i);
+                _log.debug("doing "+kid);
+                if(kid.getNodeName().equalsIgnoreCase("gml:outerBoundaryIs")){
+                    outer = (LinearRing) parseGML(kid);
+                }
+                if(kid.getNodeName().equalsIgnoreCase("gml:innerBoundaryIs")){
+                    inner.add((LinearRing) parseGML(kid));
+                }
+            }
+            if(inner.size()>0){
+                return gfac.createPolygon(outer,(LinearRing[]) inner.toArray(new LinearRing[0]));
+            }else{
+                return gfac.createPolygon(outer, null);
+            }
+        }
+        if(child.getNodeName().equalsIgnoreCase("gml:outerBoundaryIs") ||
+        child.getNodeName().equalsIgnoreCase("gml:innerBoundaryIs") ){
+            _log.debug("Boundary layer");
+            NodeList kids = ((Element)child).getElementsByTagName("gml:LinearRing");
+            
+            return parseGML(kids.item(0));
+        }
+        
+        if(child.getNodeName().equalsIgnoreCase("gml:linearRing")){
+            _log.debug("LinearRing");
             coords = parseCoords(child);
             com.vividsolutions.jts.geom.LinearRing r = null;
-            try {
+            
+            try{
                 r = gfac.createLinearRing((Coordinate[])coords.toArray(new Coordinate[]{}));
-            } catch (com.vividsolutions.jts.geom.TopologyException e){
-                System.err.println("Topology Exception in GMLBox");
+            } catch (TopologyException te ){
+                _log.error("Topology Exception build linear ring ",te);
                 return null;
             }
-            return gfac.createPolygon(r, null);
+            return r;
         }
+        
         if(child.getNodeName().equalsIgnoreCase("gml:linestring")){
             _log.debug("linestring");
             type = GML_LINESTRING;
