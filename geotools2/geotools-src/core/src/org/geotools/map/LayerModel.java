@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: LayerModel.java,v 1.2 2002/08/01 21:54:33 camerons Exp $
+ * @version $Id: LayerModel.java,v 1.3 2002/08/04 10:47:07 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -81,8 +81,9 @@ public interface LayerModel {
             FeatureCollection[] layer);
 
     /**
-     * Return an array of layers.
-     * @return A list of layers.
+     * Return this model's list of layers.  If no layers are present, then
+     * null is returned.
+     * @return This model's list of layers.
      */
     public FeatureCollection[] getLayers();
 }
