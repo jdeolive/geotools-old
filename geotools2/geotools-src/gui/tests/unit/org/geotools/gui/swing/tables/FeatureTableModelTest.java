@@ -40,6 +40,11 @@ public class FeatureTableModelTest extends TestCase {
 
     public void testDisplay() {
         String dataFolder = System.getProperty("dataFolder");
+         if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
         try{
             URL url = new URL("file:///"+dataFolder+"/statepop.shp");
             System.out.println("Testing ability to load "+url);
