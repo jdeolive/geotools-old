@@ -33,7 +33,6 @@
 package org.geotools.gp;
 
 // J2SE dependencies
-import java.io.IOException;
 import java.rmi.RemoteException;
 
 // JAI dependencies
@@ -55,7 +54,7 @@ import org.geotools.gc.GridCoverage;
  * with <code>org.opengis.gc</code> package.</FONT>
  * All methods accept null argument.
  *
- * @version $Id: Adapters.java,v 1.2 2002/10/17 21:11:04 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.3 2003/01/10 11:18:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters extends org.geotools.gc.Adapters {
@@ -91,12 +90,9 @@ public class Adapters extends org.geotools.gc.Adapters {
      *
      * @param  The OpenGIS  object.
      * @return The Geotools object. 
-     * @throws IOException if an operation failed while querying the OpenGIS object.
-     *         <code>IOException</code> is declared instead of {@link RemoteException}
-     *         because the {@link GridCoverage} implementation may needs to open a
-     *         socket connection in order to send image data through the network.
+     * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
-    protected Coverage doWrap(final CV_Coverage coverage) throws IOException {
+    protected Coverage doWrap(final CV_Coverage coverage) throws RemoteException {
         Coverage wrapped = super.doWrap(coverage);
         if (coverage instanceof GridCoverage.Remote) {
             final Interpolation interp = ((GridCoverage.Remote) coverage).getInterpolation();

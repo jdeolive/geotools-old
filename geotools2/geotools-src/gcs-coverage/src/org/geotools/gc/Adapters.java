@@ -64,7 +64,7 @@ import org.geotools.cs.CoordinateSystem;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.4 2002/10/17 21:11:03 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.5 2003/01/10 11:18:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -176,12 +176,9 @@ public class Adapters extends org.geotools.cv.Adapters {
      *
      * @param  The OpenGIS  object.
      * @return The Geotools object. 
-     * @throws IOException if an operation failed while querying the OpenGIS object.
-     *         <code>IOException</code> is declared instead of {@link RemoteException}
-     *         because the {@link GridCoverage} implementation may needs to open a
-     *         socket connection in order to send image data through the network.
+     * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
-    public GridCoverage wrap(final GC_GridCoverage coverage) throws IOException {
+    public GridCoverage wrap(final GC_GridCoverage coverage) throws RemoteException {
         return (GridCoverage) super.wrap(coverage);
     }
 
@@ -192,10 +189,7 @@ public class Adapters extends org.geotools.cv.Adapters {
      *
      * @param  The OpenGIS  object.
      * @return The Geotools object. 
-     * @throws IOException if an operation failed while querying the OpenGIS object.
-     *         <code>IOException</code> is declared instead of {@link RemoteException}
-     *         because the {@link GridCoverage} implementation may needs to open a
-     *         socket connection in order to send image data through the network.
+     * @throws RemoteException if an operation failed while querying the OpenGIS object.
      *
      * @task REVISIT: What to do with interpolation? We can query the interpolation with
      *                <code>GridCoverage.Remote.getInterpolation()</code> and invoke
@@ -206,8 +200,9 @@ public class Adapters extends org.geotools.cv.Adapters {
      * @task TODO: Implement a {@link RenderedImage} constructing tiles uppon request
      *             by invoking {@link GC_GridCoverage#getPackedDataBlock}. It would be
      *             used when a {@link SerializableRenderedImage} is not available.
+     * @task TODO: Localize the error message in the <code>catch (IOException)</code> block.
      */
-    protected Coverage doWrap(final CV_Coverage coverage) throws IOException {
+    protected Coverage doWrap(final CV_Coverage coverage) throws RemoteException {
         if (coverage instanceof GC_GridCoverage) {
             final GC_GridCoverage   grid  = (GC_GridCoverage) coverage;
             final SampleDimension[] bands = new SampleDimension[grid.getNumSampleDimensions()];
@@ -215,8 +210,15 @@ public class Adapters extends org.geotools.cv.Adapters {
                 bands[i] = wrap(grid.getSampleDimension(i));
             }
             final RenderedImage image;
-            if (coverage instanceof GridCoverage.Remote) {
+            if (coverage instanceof GridCoverage.Remote) try {
                 image = ((GridCoverage.Remote) coverage).getRenderedImage();
+            } catch (RemoteException exception) {
+                // RemoteException is a IOException subclass, but we
+                // do not want to catch it in the expression below.
+                throw exception;
+            } catch (IOException exception) {
+                // TODO: localize this message
+                throw new RemoteException("Can't serialize the underlying RenderedImage", exception);
             } else {
                 // Implementing the general case is possible using
                 // CV_GridCoverage.getPackedDataBlock(...), but it
@@ -248,7 +250,7 @@ public class Adapters extends org.geotools.cv.Adapters {
      * invoking {@link #dispose} will also dispose the serializable image,  which may
      * close socket connection.
      *
-     * @version $Id: Adapters.java,v 1.4 2002/10/17 21:11:03 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.5 2003/01/10 11:18:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ImageProxy extends RenderedImageAdapter {
@@ -260,7 +262,7 @@ public class Adapters extends org.geotools.cv.Adapters {
          *         values are not requested at this time but instead an entry for the name of
          *         each property emitted by the {@link PropertySource} is added to the
          *         <code>name-PropertySource</code> mapping.
-         * @throws IOException If a Remote Method Invocation failed.
+         * @throws RemoteException If a Remote Method Invocation failed.
          */
         public ImageProxy(RenderedImage image, PropertySource source) throws RemoteException {
             super(image);

@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.io.IOException;
 import java.lang.ref.Reference;
 import java.rmi.RemoteException;
 
@@ -72,7 +71,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.4 2002/10/17 21:11:03 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.5 2003/01/10 11:18:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -437,12 +436,9 @@ public class Adapters {
      *
      * @param  The OpenGIS  object.
      * @return The Geotools object. 
-     * @throws IOException if an operation failed while querying the OpenGIS object.
-     *         <code>IOException</code> is declared instead of {@link RemoteException}
-     *         because some implementation (notably {@link org.geotools.gc.GridCoverage})
-     *         may needs to open a socket connection in order to send image data.
+     * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
-    public Coverage wrap(final CV_Coverage coverage) throws IOException {
+    public Coverage wrap(final CV_Coverage coverage) throws RemoteException {
         if (coverage == null) {
             return null;
         }
@@ -462,12 +458,9 @@ public class Adapters {
      *
      * @param  The OpenGIS  object.
      * @return The Geotools object. 
-     * @throws IOException if an operation failed while querying the OpenGIS object.
-     *         <code>IOException</code> is declared instead of {@link RemoteException}
-     *         because some implementation (notably {@link org.geotools.gc.GridCoverage})
-     *         may needs to open a socket connection in order to send image data.
+     * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
-    protected Coverage doWrap(final CV_Coverage coverage) throws IOException {
+    protected Coverage doWrap(final CV_Coverage coverage) throws RemoteException {
         try {
             return new CoverageProxy(coverage);
         } catch (RuntimeException exception) {
@@ -516,7 +509,7 @@ public class Adapters {
      * on a remote machine. {@link RemoteException} are catched and rethrown as a
      * {@link CannotEvaluateException}.
      *
-     * @version $Id: Adapters.java,v 1.4 2002/10/17 21:11:03 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.5 2003/01/10 11:18:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class CoverageProxy extends Coverage {
