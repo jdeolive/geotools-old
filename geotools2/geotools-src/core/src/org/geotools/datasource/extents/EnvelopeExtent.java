@@ -1,3 +1,23 @@
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
 package org.geotools.datasource.extents;
 
 import org.geotools.data.Extent;
@@ -6,27 +26,32 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Envelope;
 
 
-/** A geographic filter class
+/**
+ * A geographic filter class.
  * @author James Macgill, CCG, University of Leeds
  * @author Ian Turton, CCG, University of Leeds
- * $Id: EnvelopeExtent.java,v 1.10 2002/05/14 23:49:50 robhranac Exp $
+ * @version $Id: EnvelopeExtent.java,v 1.11 2002/06/04 14:38:06 loxnard Exp $
  */
 public class EnvelopeExtent implements Extent {
-    /** internal representation of the bounding box
+    /**
+     * Internal representation of the bounding box.
      */
     private Envelope bounds = new Envelope();
-    /** null constructor
+    /**
+     * Null constructor.
      */
     public EnvelopeExtent(){}
     
-    /** construct from a jts envelope
+    /**
+     * Constructs from a jts envelope.
      * @param e the jts envelope to use
      */
     public EnvelopeExtent(Envelope e){
         setBounds(e);
     }
     
-    /** construct from the corners of the area required
+    /**
+     * Constructs from the corners of the area required.
      * @param minx the left hand side of the area
      * @param maxx the right hand side of the area
      * @param miny the lower side of the area
@@ -37,13 +62,14 @@ public class EnvelopeExtent implements Extent {
         setBounds(e);
     }
     
-    /** sets the bounds of the extent
+    /**
+     * Sets the bounds of the extent.
      * @param r the new bounding envelope
      */
     public void setBounds(Envelope r) {
         if (r.getWidth() <= 0 || r.getHeight() <= 0){
-            /* this is almost certainly an error in this context
-             * but technically its a valid envelope
+            /* This is almost certainly an error in this context
+             * but technically it's a valid envelope
              */
             System.err.println("Negative or zero envelope set" + 
                 " in EnvelopeExtent");
@@ -51,15 +77,17 @@ public class EnvelopeExtent implements Extent {
         bounds = r;
     }
     
-    /** get the bounds of this extent
-     * @return a jts envelope represtenting the bounds of this extent
+    /**
+     * Gets the bounds of this extent.
+     * @return a jts envelope representing the bounds of this extent
      */
     public Envelope getBounds() {
         return bounds;
     }
     
-    /** Gets the Extent which represents the intersection between 
-     * this and another
+    /**
+     * Gets the Extent which represents the intersection between 
+     * this Extent and other.
      * @param other The extent to test against
      * @return An Extent representing the intersecting area 
      * between two Extents, null if there is no overlap.
@@ -72,7 +100,8 @@ public class EnvelopeExtent implements Extent {
         return newExtent;
     }
     
-    /** Gets the difference, represented by another Extent, 
+    /**
+     * Gets the difference, represented by another Extent, 
      * between this Extent and other.
      * @param other The extent to test against
      * @return An array of Extents making up the total 
@@ -96,10 +125,11 @@ public class EnvelopeExtent implements Extent {
         return (Extent[]) v.toArray(new Extent[v.size()]);
     }
     
-    /** Tests whether the given Feature is within this Extent. 
-     * This Extent implementation must be
-     * able to read the contents of the Feature.
-     * @return True is the Feature is within this Extent, false if otherwise.
+    /**
+     * Tests whether the given Feature is within this Extent. 
+     * This Extent implementation must be able to read the contents
+     * of the Feature.
+     * @return True if the Feature is within this Extent, otherwise false.
      * @param feature the feature to test
      */
     public boolean containsFeature(Feature feature) {
@@ -110,9 +140,10 @@ public class EnvelopeExtent implements Extent {
         Geometry s = (Geometry) feature.getDefaultGeometry();
         return bounds.overlaps(s.getEnvelopeInternal());
     }
-    /** creates an interface
-     * @param one one of the input envelopes
-     * @param two the other input envelope
+    /**
+     * Creates an interface.
+     * @param one the first input envelope
+     * @param two the second input envelope
      * @return the intersection between the two envelopes
      */
     private Envelope createIntersect(Envelope one, Envelope two){
@@ -162,14 +193,15 @@ public class EnvelopeExtent implements Extent {
         return (new Envelope(nx1, nx2, ny1, ny2));
         
     }
-    /** returns the 4 rectangles that are left after two is 
+    /**
+     * Returns the 4 rectangles that are left after two is 
      * removed from one.
      * Some or all of the rectangles returned may be null.
-     * the side boxes are from base to top of this rectangle, the top/bottom
-     * boxes are from the edge to edge of the intersect <br>
-     * the return order is left,top,right,bottom
+     * The side boxes are from base to top of this rectangle.
+     * The top/bottom boxes are from edge to edge of the intersect<br>
+     * The return order is left,top,right,bottom
      * @param one the first envelope
-     * @param two another envelope
+     * @param two the second envelope
      * @return an array of envelopes - some or all may be null
      */
     private Envelope[] remainder(Envelope one, Envelope two){
@@ -204,8 +236,9 @@ public class EnvelopeExtent implements Extent {
         
         
     }
-    /** toString method
-     * @return string representation of the exent
+    /**
+     * toString method.
+     * @return string representation of the extent
      */
     public String toString(){
         return new String(bounds.getMinX() + "," + bounds.getMinY() +
@@ -214,9 +247,9 @@ public class EnvelopeExtent implements Extent {
     
     /**
      * Produces the smallest extent that will hold 
-     * both the existing extent and that of the extent pased in
-     * TODO: Think about implecation of combining, 
-     * new extent may contain areas which were in neither.
+     * both the existing extent and that of the extent passed in.
+     * TODO: Think about implication of combining. 
+     * New extent may contain areas which were in neither.
      * @param other The extent to combine with this extent
      * @return The new, larger, extent.
      **/
