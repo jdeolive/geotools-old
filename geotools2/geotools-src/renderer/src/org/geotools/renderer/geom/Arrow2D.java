@@ -52,39 +52,43 @@ import java.util.NoSuchElementException;
  * <p align="center">The <code>Arrow2D</code> shape</p>
  * <p>&nbsp;</p>
  *
- * @version $Id: Arrow2D.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+ * @version $Id: Arrow2D.java,v 1.2 2003/03/19 15:08:07 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Arrow2D extends RectangularShape {
     /**
      * Coordonnées <var>x</var> et <var>y</var> minimales.
      */
-    private double x,y;
+    private double minX, minY;
 
     /**
-     * Longueur de la flèche. Cette longueur est mesurée horizontalement
-     * (selon l'axe des <var>x</var>) de la base jusqu'à la pointe de la
-     * flèche.
+     * Longueur de la flèche. Cette longueur est mesurée horizontalement (selon
+     * l'axe des <var>x</var>) de la queue jusqu'à la pointe de la flèche.
      */
     private double length;
 
     /**
-     * Largeur de la flèche. Cette largeur est mesurée verticalement
-     * (selon l'axe des <var>y</var>) le long de la partie la plus
-     * large de cette flèche.
+     * Largeur de la flèche. Cette largeur est mesurée verticalement (selon l'axe
+     * des <var>y</var>) le long de la partie la plus large de cette flèche.
      */
-    private double height;
+    private double thickness;
 
     /**
-     * Largeur et hauteur de la queue de la flèche, en proportion avec les dimensions
-     * totales de cette flèche. Ces facteurs doivent être compris entre 0 et 1. Les
-     * valeurs par défaut sont de 1/3 selon <var>y</var> et 2/3 selon <var>x</var>,
-     * ce qui signifie que la queue de la flèche aura le tiers de la largeur totale
-     * disponible et les deux tiers de la longueur disponible. La pointe de la flèche
-     * aura le reste. Ces proportions donne un assez bon résultat lorsque la flèche
-     * est deux fois plus longue que large.
+     * The arrow's thickness at the tail (<code>x == minX</code>), as a proportion of
+     * the {@linkplain #thickness maximal thickness}. Should be a factor between 0 and 1.
      */
-    private double sy0=0, sy1=(1./3), sx=(2./3);
+    private double sy0 = 0;
+
+    /**
+     * The arrow's thickness at the base (<code>x == minX+sx*length</code>), as a proportion
+     * of the {@linkplain #thickness maximal thickness}. Should be a factor between 0 and 1.
+     */
+    private double sy1 = 1.0/3;
+    
+    /**
+     * The base position, as a factor of the total length. Should be a factor between 0 and 1.
+     */
+    private double sx = 2.0/3;
 
     /**
      * Construit une flèche donc la surface initiale est nulle.
@@ -94,19 +98,19 @@ public class Arrow2D extends RectangularShape {
 
     /**
      * Construit une flèche située aux coordonnées (<var>x</var>,<var>y</var>) avec
-     * une longueur selon <var>x</var> de <code>length</code> et une hauteur selon
+     * une longueur selon <var>x</var> de <code>width</code> et une hauteur selon
      * <var>y</var> de <code>height</code>.
      *
      * @param x Coordonnée <var>x</var> minimale.
      * @param y Coordonnée <var>y</var> minimale.
-     * @param length Longueur selon l'axe des <var>x</var>, de la base à la pointe de la flèche.
+     * @param width  Longueur selon l'axe des <var>x</var>, de la base à la pointe de la flèche.
      * @param height Largeur maximale de la flèche, mesurée selon l'axe des <var>y</var>.
      */
-    public Arrow2D(final double x, final double y, final double length, final double height) {
-        this.x=x;
-        this.y=y;
-        this.length=length;
-        this.height=height;
+    public Arrow2D(final double x, final double y, final double width, final double height) {
+        this.minX      = x;
+        this.minY      = y;
+        this.length    = width;
+        this.thickness = height;
     }
 
     /**
@@ -135,6 +139,7 @@ public class Arrow2D extends RectangularShape {
 
     /**
      * Renvoie la longueur de la queue de la flèche,
+     *
      * @return La longueur de la queue, compris de 0 à <code>getWidth</code>.
      */
     public double getTailLength() {
@@ -144,19 +149,21 @@ public class Arrow2D extends RectangularShape {
     /**
      * Retourne la coordonnée <var>x</var>. Il s'agira du <var>x</var>
      * le plus bas de la superficie couverte par la flêche.
+     *
      * @return La coordonnée <var>x</var> minimale.
      */
     public double getX() {
-        return x;
+        return minX;
     }
 
     /**
      * Retourne la coordonnée <var>y</var>. Il s'agira du <var>y</var>
      * le plus bas de la superficie couverte par la flêche.
+     *
      * @return La coordonnée <var>y</var> minimale.
      */
     public double getY() {
-        return y;
+        return minY;
     }
 
     /**
@@ -172,99 +179,99 @@ public class Arrow2D extends RectangularShape {
      * Cette largeur est mesurée selon l'axe des <var>y</var>.
      */
     public double getHeight() {
-        return height;
+        return thickness;
     }
 
     /**
-     * Renvoie la largeur de la flèche à la position <var>x</var>. Si cette position
-     * n'est pas comprise de <code>getLeft()</code> à <code>getRight</code>, cette
-     * méthode retourne 0. Sinon elle retourne la largeur de la flèche à la position
-     * spécifiée.
+     * Renvoie la largeur de la flèche à la position <var>x</var>. Si cette position n'est pas
+     * comprise de <code>getMinX()</code> à <code>getMaxX()</code>, alors cette méthode retourne 0.
+     * Sinon elle retourne la largeur de la flèche à la position spécifiée.
      *
      * @param x Coordonnée <var>x</var> à laquelle on veut la largeur.
      * @return La largeur de la flèche, comprise entre 0 et <code>getHeight</code>.
      */
     public double getHeight(double x) {
-        x = (x-this.x)/(sx*length);
+        x = (x-minX)/(sx*length);
         if (x<0 || x>1) {
             return 0;
         } else if (x <= 1) {
-            return (sy0+(sy1-sy0)*x)*height;
+            return (sy0+(sy1-sy0)*x)*thickness;
         } else {
-            return (x-1)*sx/(1-sx)*height;
+            return (x-1)*sx/(1-sx)*thickness;
         }
     }
 
     /**
      * Détermine si la superficie de cette flèche est nulle.
+     *
      * @return <code>true</code> si la superficie de cette flèche est nulle.
      */
     public boolean isEmpty() {
-        return !(length>0 && height>0);
+        return !(length>0 && thickness>0);
     }
 
     /**
      * Affecte une nouvelle position et une nouvelle largeur à la flèche.
+     *
      * @param x Coordonnéex <var>x</var> minimale.
      * @param y Coordonnéex <var>y</var> minimale.
-     * @param length Longueur, de la base à la pointe de la flèche.
+     * @param width  Longueur, de la base à la pointe de la flèche.
      * @param height Largeur de la partie la plus large de la flèche.
      */
-    public void setFrame(final double x, final double y, final double length, final double height) {
-        this.x=x;
-        this.y=y;
-        this.length=length;
-        this.height=height;
+    public void setFrame(final double x, final double y, final double width, final double height) {
+        this.minX      = x;
+        this.minY      = y;
+        this.length    = width;
+        this.thickness = height;
     }
 
     /**
      * Renvoie les dimensions de cette flèche.
-     * @return Les dimensions de cette flèche.
      */
     public Rectangle2D getBounds2D() {
-        return new Rectangle2D.Double(x, y, length, height);
+        return new Rectangle2D.Double(minX, minY, length, thickness);
     }
 
     /**
      * Indique si cette flèche contient le point spécifié.
+     *
      * @param x Coordonnée <var>x</var> du point à vérifier.
      * @param y Coordonnée <var>y</var> du point à vérifier.
      */
     public boolean contains(final double x, double y) {
-        if (x < this.x) {
+        if (x < minX) {
             return false;
         }
-        final double base = this.x + sx*length;
+        final double base = minX + sx*length;
         if (x <= base) {
             /*
-             * Point dans la queue. Vérifie s'il
-             * se trouve dans le triangle...
+             * Point dans la queue. Vérifie s'il se trouve dans le triangle...
              */
-            double halfheight = 0.5*height;
-            y -= (this.y + halfheight);
-            halfheight *= sy0+(sy1-sy0)*((x-this.x)/(base-this.x));
-            return (Math.abs(y) <= halfheight);
+            double yMaxAtX = 0.5*thickness;
+            y -= (minY + yMaxAtX);
+            yMaxAtX *= sy0+(sy1-sy0)*((x-minX)/(base-minX));
+            return (Math.abs(y) <= yMaxAtX);
         } else {
             /*
-             * Point dans la pointe. Vérifie s'il
-             * se trouve dans le triangle.
+             * Point dans la pointe. Vérifie s'il se trouve dans le triangle.
              */
-            final double pointe = this.x + length;
-            if (x > pointe) {
+            final double maxX = minX + length;
+            if (x > maxX) {
                 return false;
             }
-            double halfheight = 0.5*height;
-            y -= (this.y + halfheight);
-            halfheight *= (pointe-x)/(pointe-base);
-            return (Math.abs(y) <= halfheight);
+            double yMaxAtX = 0.5*thickness;
+            y -= (minY + yMaxAtX);
+            yMaxAtX *= (maxX-x)/(maxX-base);
+            return (Math.abs(y) <= yMaxAtX);
         }
     }
 
     /**
      * Indique si la flèche contient entièrement le rectangle spécifié. Ce sera
      * le cas si la flèche contient chacun des quatre coins du rectangle.
-     * @param x Coordonnéex <var>x</var> minimale du rectangle.
-     * @param y Coordonnéex <var>y</var> minimale du rectangle.
+     *
+     * @param x Coordonnée <var>x</var> minimale du rectangle.
+     * @param y Coordonnée <var>y</var> minimale du rectangle.
      * @param width Largeur du rectangle.
      * @param height Hauteur du rectangle.
      * @return <code>true</code> si la flèche contient le rectangle.
@@ -279,39 +286,56 @@ public class Arrow2D extends RectangularShape {
 
     /**
      * Indique si la flèche intersepte le rectangle spécifié.
-     * @param x Coordonnéex <var>x</var> minimale du rectangle.
-     * @param y Coordonnéex <var>y</var> minimale du rectangle.
+     *
+     * @param x Coordonnée <var>x</var> minimale du rectangle.
+     * @param y Coordonnée <var>y</var> minimale du rectangle.
      * @param width Largeur du rectangle.
      * @param height Hauteur du rectangle.
      * @return <code>true</code> si la flèche intersepte le rectangle.
      */
-    public boolean intersects(final double x, double y, final double width, final double height) {
-        final double right = x+width;
-        final double thisPointe = this.x + this.length;
-        if (x <= thisPointe  &&  right >= this.x)
-        {
-            y -= 0.5*this.height;
-            final double thisBase = this.x + this.length*sx;
-            final double top = y+height;
-            if (right >= thisBase) {
+    public boolean intersects(final double x, final double y, final double width, final double height) {
+        final double right = x + width;
+        final double maxX  = minX + length;
+        if (x <= maxX  &&  right >= minX) {
+            final double top = y + height;
+            final double maxY = minY + thickness;
+            if (y <= maxY  &&  top >= minY) {
                 /*
-                 * Rectangle intercepte la pointe de la flèche?
+                 * The rectangle intersects this arrow's bounding box. Now, check if a
+                 * rectangle corner is outside the arrow (while in the bounding box).
+                 * If such a case is found, returns false.
                  */
-                double halfheight = 0.5*this.height;
-                halfheight *= (thisPointe-right)/(thisPointe-thisBase);
-                if (top >= this.y-halfheight  &&  y <= this.y+halfheight) {
-                    return true;
+                final double base = minX + length*sx;
+                if (x > base) {
+                    double yMaxAtX = 0.5*thickness;
+                    final double centerY = minY + yMaxAtX;
+                    if (y >= centerY) {
+                        yMaxAtX *= (maxX-x)/(maxX-base);
+                        if (!(y-centerY <= yMaxAtX)) {
+                            return false;
+                        }
+                    } else if (top <= centerY) {
+                        yMaxAtX *= (maxX-x)/(maxX-base);
+                        if (!(centerY-top <= yMaxAtX)) {
+                            return false;
+                        }
+                    }
+                } else if (right < base) {
+                    double yMaxAtX = 0.5*thickness;
+                    final double centerY = minY + yMaxAtX;
+                    if (y >= centerY) {
+                        yMaxAtX *= sy0+(sy1-sy0)*((x-minX)/(base-minX));
+                        if (!(y-centerY <= yMaxAtX)) {
+                            return false;
+                        }
+                    } else if (top <= centerY) {
+                        yMaxAtX *= sy0+(sy1-sy0)*((x-minX)/(base-minX));
+                        if (!(centerY-top <= yMaxAtX)) {
+                            return false;
+                        }
+                    }
                 }
-            }
-            if (x <= thisBase) {
-                /*
-                 * Rectangle intercepte la queue de la flèche?
-                 */
-                double halfheight=0.5*this.height;
-                halfheight *= sy0+(sy1-sy0)*((x-this.x)/(thisBase-this.x));
-                if (top >= this.y-halfheight  &&  y <= this.y+halfheight) {
-                    return true;
-                }
+                return true;
             }
         }
         return false;
@@ -332,6 +356,7 @@ public class Arrow2D extends RectangularShape {
 
     /**
      * Retourne un itérateur permettant de balayer les segments formant la flèche.
+     *
      * @param at Une transformation affine facultative.
      */
     public PathIterator getPathIterator(final AffineTransform at) {
@@ -361,21 +386,23 @@ public class Arrow2D extends RectangularShape {
 
         /**
          * Construit un itérateur balayant les coordonnées de la flèche.
+         *
          * @param at Transformation affine à utiliser pour transformer les coordonnées. Peut être nul.
          */
         Iterator(final AffineTransform at) {
             this.at = at;
-            final double halfheight = 0.5*height;
-            halfBottom0 = y+halfheight*(1-sy0);
-            halfBottom1 = y+halfheight*(1-sy1);
-            center      = y+halfheight;
-            halfTop1    = y+halfheight*(1+sy1);
-            halfTop0    = y+halfheight*(1+sy0);
-            base        = x+sx*length;
+            final double halfheight = 0.5*thickness;
+            halfBottom0 = minY + halfheight*(1-sy0);
+            halfBottom1 = minY + halfheight*(1-sy1);
+            center      = minY + halfheight;
+            halfTop1    = minY + halfheight*(1+sy1);
+            halfTop0    = minY + halfheight*(1+sy0);
+            base        = minX + sx*length;
         }
 
         /**
          * Retourne la règle utilisé pour remplir le polygone.
+         *
          * @return Toujours <code>EVEN_ODD</code>.
          */
         public int getWindingRule() {
@@ -391,19 +418,20 @@ public class Arrow2D extends RectangularShape {
 
         /**
          * Renvoie les coordonnées du segment actuel.
+         *
          * @param Tableau dans lequel mémoriser les coordonnées.
          * @return Le code des coordonnées mémorisées.
          */
         public int currentSegment(final float[] coords) {
             switch (code) {
-                case 0: coords[0]=(float) x;          coords[1]=(float) halfBottom0; break;
-                case 1: coords[0]=(float) base;       coords[1]=(float) halfBottom1; break;
-                case 2: coords[0]=(float) base;       coords[1]=(float) y;           break;
-                case 3: coords[0]=(float) (x+length); coords[1]=(float) center;      break;
-                case 4: coords[0]=(float) base;       coords[1]=(float) (y+height);  break;
-                case 5: coords[0]=(float) base;       coords[1]=(float) halfTop1;    break;
-                case 6: coords[0]=(float) x;          coords[1]=(float) halfTop0;    break;
-                case 7: coords[0]=(float) x;          coords[1]=(float) halfBottom0; break;
+                case 0: coords[0]=(float) minX;          coords[1]=(float) halfBottom0;      break;
+                case 1: coords[0]=(float) base;          coords[1]=(float) halfBottom1;      break;
+                case 2: coords[0]=(float) base;          coords[1]=(float) minY;             break;
+                case 3: coords[0]=(float) (minX+length); coords[1]=(float) center;           break;
+                case 4: coords[0]=(float) base;          coords[1]=(float) (minY+thickness); break;
+                case 5: coords[0]=(float) base;          coords[1]=(float) halfTop1;         break;
+                case 6: coords[0]=(float) minX;          coords[1]=(float) halfTop0;         break;
+                case 7: coords[0]=(float) minX;          coords[1]=(float) halfBottom0;      break;
                 case 8:  return SEG_CLOSE;
                 default: throw new NoSuchElementException();
             }
@@ -415,19 +443,20 @@ public class Arrow2D extends RectangularShape {
 
         /**
          * Renvoie les coordonnées du segment actuel.
+         *
          * @param Tableau dans lequel mémoriser les coordonnées.
          * @return Le code des coordonnées mémorisées.
          */
         public int currentSegment(final double[] coords)  {
             switch (code) {
-                case 0: coords[0]=x;        coords[1]=halfBottom0; break;
-                case 1: coords[0]=base;     coords[1]=halfBottom1; break;
-                case 2: coords[0]=base;     coords[1]=y;           break;
-                case 3: coords[0]=x+length; coords[1]=center;      break;
-                case 4: coords[0]=base;     coords[1]=y+height;    break;
-                case 5: coords[0]=base;     coords[1]=halfTop1;    break;
-                case 6: coords[0]=x;        coords[1]=halfTop0;    break;
-                case 7: coords[0]=x;        coords[1]=halfBottom0; break;
+                case 0: coords[0]=minX;        coords[1]=halfBottom0;    break;
+                case 1: coords[0]=base;        coords[1]=halfBottom1;    break;
+                case 2: coords[0]=base;        coords[1]=minY;           break;
+                case 3: coords[0]=minX+length; coords[1]=center;         break;
+                case 4: coords[0]=base;        coords[1]=minY+thickness; break;
+                case 5: coords[0]=base;        coords[1]=halfTop1;       break;
+                case 6: coords[0]=minX;        coords[1]=halfTop0;       break;
+                case 7: coords[0]=minX;        coords[1]=halfBottom0;    break;
                 case 8:  return SEG_CLOSE;
                 default: throw new NoSuchElementException();
             }
@@ -439,6 +468,7 @@ public class Arrow2D extends RectangularShape {
 
         /**
          * Indique si l'on a terminé de balayer les points.
+         *
          * @return <code>true</code> si le balayage est terminé.
          */
         public boolean isDone() {
@@ -455,13 +485,13 @@ public class Arrow2D extends RectangularShape {
         }
         if (obj!=null && getClass().equals(obj.getClass())) {
             final Arrow2D cast = (Arrow2D) obj;
-            return Double.doubleToLongBits(height) == Double.doubleToLongBits(cast.height) &&
-                   Double.doubleToLongBits(length) == Double.doubleToLongBits(cast.length) &&
-                   Double.doubleToLongBits(  x   ) == Double.doubleToLongBits(cast.x     ) &&
-                   Double.doubleToLongBits(  y   ) == Double.doubleToLongBits(cast.y     ) &&
-                   Double.doubleToLongBits(  sx  ) == Double.doubleToLongBits(cast.sx    ) &&
-                   Double.doubleToLongBits(  sy0 ) == Double.doubleToLongBits(cast.sy1   ) &&
-                   Double.doubleToLongBits(  sy1 ) == Double.doubleToLongBits(cast.sy0   );
+            return Double.doubleToLongBits(thickness) == Double.doubleToLongBits(cast.thickness) &&
+                   Double.doubleToLongBits(length   ) == Double.doubleToLongBits(cast.length   ) &&
+                   Double.doubleToLongBits(minX     ) == Double.doubleToLongBits(cast.minX     ) &&
+                   Double.doubleToLongBits(minY     ) == Double.doubleToLongBits(cast.minY     ) &&
+                   Double.doubleToLongBits(sx       ) == Double.doubleToLongBits(cast.sx       ) &&
+                   Double.doubleToLongBits(sy0      ) == Double.doubleToLongBits(cast.sy1      ) &&
+                   Double.doubleToLongBits(sy1      ) == Double.doubleToLongBits(cast.sy0      );
         } else {
             return false;
         }
@@ -471,13 +501,13 @@ public class Arrow2D extends RectangularShape {
      * Retourne un code "hash value" pour cette flèche.
      */
     public int hashCode() {
-        final long code=Double.doubleToLongBits(height) + 37*
-                       (Double.doubleToLongBits(length) + 37*
-                       (Double.doubleToLongBits(  x   ) + 37*
-                       (Double.doubleToLongBits(  y   ) + 37*
-                       (Double.doubleToLongBits(  sx  ) + 37*
-                       (Double.doubleToLongBits(  sy0 ) + 37*
-                       (Double.doubleToLongBits(  sy1 )))))));
+        final long code=Double.doubleToLongBits(thickness) + 37*
+                       (Double.doubleToLongBits(length   ) + 37*
+                       (Double.doubleToLongBits(minX     ) + 37*
+                       (Double.doubleToLongBits(minY     ) + 37*
+                       (Double.doubleToLongBits(sx       ) + 37*
+                       (Double.doubleToLongBits(sy0      ) + 37*
+                       (Double.doubleToLongBits(sy1)))))));
         return (int) code + (int) (code >>> 32);
     }
 }
