@@ -30,7 +30,7 @@ import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Description
- * 
+ *
  * <p>
  * Details
  * </p>
@@ -43,7 +43,7 @@ public class DefaultFeatureResults implements FeatureResults {
 
     /**
      * FeatureResults query against featureSource.
-     * 
+     *
      * <p>
      * Please note that is object will not be valid after the transaction has
      * closed.
@@ -55,9 +55,9 @@ public class DefaultFeatureResults implements FeatureResults {
     public DefaultFeatureResults(FeatureSource source, Query query) {
         this.featureSource = source;
         String typeName = source.getSchema().getTypeName();
-                
+
         if( typeName.equals( query.getTypeName() ) ){
-            this.query = query;            
+            this.query = query;
         }
         else {
             this.query = new DefaultQuery(
@@ -72,12 +72,12 @@ public class DefaultFeatureResults implements FeatureResults {
 
     /**
      * FeatureSchema for provided query.
-     * 
+     *
      * <p>
      * If query.retrieveAllProperties() is <code>true</code> the FeatureSource
      * getSchema() will be returned.
      * </p>
-     * 
+     *
      * <p>
      * If query.getPropertyNames() is used to limit the result of the Query a
      * sub type will be returned based on FeatureSource.getSchema().
@@ -126,12 +126,12 @@ public class DefaultFeatureResults implements FeatureResults {
      */
     public FeatureReader reader() throws IOException {
         return featureSource.getDataStore().getFeatureReader( query, getTransaction() );
-        
+
     }
 
     /**
      * Returns the bounding box of this FeatureResults
-     * 
+     *
      * <p>
      * This implementation will generate the correct results from reader() if
      * the provided FeatureSource does not provide an optimized result via
@@ -176,7 +176,7 @@ public class DefaultFeatureResults implements FeatureResults {
 
     /**
      * Number of Features in this query.
-     * 
+     *
      * <p>
      * This implementation will generate the correct results from reader() if
      * the provided FeatureSource does not provide an optimized result via

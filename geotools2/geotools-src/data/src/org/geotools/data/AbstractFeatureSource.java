@@ -26,11 +26,11 @@ import java.util.logging.Logger;
 
 /**
  * This is a starting point for providing your own FeatureSource implementation.
- * 
+ *
  * <p>
  * Subclasses must implement:
  * </p>
- * 
+ *
  * <ul>
  * <li>
  * getDataStore()
@@ -45,12 +45,12 @@ import java.util.logging.Logger;
  * removeFeatureListener()
  * </li>
  * </ul>
- * 
+ *
  * <p>
  * You may find a FeatureSource implementations that is more specific to your needs - such as
  * JDBCFeatureSource.
  * </p>
- * 
+ *
  * <p>
  * For an example of this class customized for use please see MemoryDataStore.
  * </p>
@@ -63,7 +63,7 @@ public abstract class AbstractFeatureSource implements FeatureSource {
 
     /**
      * Retrieve the Transaction this FeatureSource is opperating against.
-     * 
+     *
      * <p>
      * For a plain FeatureSource that cannot modify this will always be Transaction.AUTO_COMMIT.
      * </p>
@@ -76,7 +76,7 @@ public abstract class AbstractFeatureSource implements FeatureSource {
 
     /**
      * Provides an interface to for the Resutls of a Query.
-     * 
+     *
      * <p>
      * Various queries can be made against the results, the most basic being to retrieve Features.
      * </p>
@@ -117,11 +117,11 @@ public abstract class AbstractFeatureSource implements FeatureSource {
 
     /**
      * Retrieve Bounds of all Features.
-     * 
+     *
      * <p>
      * Currently returns null, consider getFeatures().getBounds() instead.
      * </p>
-     * 
+     *
      * <p>
      * Subclasses may override this method to perform the appropriate optimization for this result.
      * </p>
@@ -136,11 +136,11 @@ public abstract class AbstractFeatureSource implements FeatureSource {
 
     /**
      * Retrieve Bounds of Query results.
-     * 
+     *
      * <p>
      * Currently returns null, consider getFeatures( query ).getBounds() instead.
      * </p>
-     * 
+     *
      * <p>
      * Subclasses may override this method to perform the appropriate optimization for this result.
      * </p>
@@ -174,13 +174,13 @@ public abstract class AbstractFeatureSource implements FeatureSource {
      * getSchema().getTypeName().
      * </p>
      * @param query Origional query
-     * @return Query with getTypeName() equal to getSchema().getTypeName() 
+     * @return Query with getTypeName() equal to getSchema().getTypeName()
      */
     protected Query namedQuery( Query query ){
         String typeName = getSchema().getTypeName();
         if( query.getTypeName() == null ||
                 !query.getTypeName().equals( typeName )){
-            
+
             return new DefaultQuery(
                     typeName,
                     query.getFilter(),
@@ -191,14 +191,14 @@ public abstract class AbstractFeatureSource implements FeatureSource {
         }
         return query;
     }
-    
+
     /**
      * Retrieve total number of Query results.
-     * 
+     *
      * <p>
      * Currently returns -1, consider getFeatures( query ).getCount() instead.
      * </p>
-     * 
+     *
      * <p>
      * Subclasses may override this method to perform the appropriate optimization for this result.
      * </p>
