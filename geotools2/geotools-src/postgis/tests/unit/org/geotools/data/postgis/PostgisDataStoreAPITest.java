@@ -177,8 +177,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
         FeatureReader reader = data.getFeatureReader(new DefaultQuery("road",
                     Filter.NONE), Transaction.AUTO_COMMIT);
 
-        Envelope bounds = new Envelope();
-        Envelope bounds12 = new Envelope();
+        Envelope bounds = new Envelope();        
         try {
             Feature f;
 
@@ -187,10 +186,6 @@ public class PostgisDataStoreAPITest extends DataTestCase {
                 int index = ((Integer) f.getAttribute("id")).intValue() - 1;
                 roadFeatures[index] = f;
                 bounds.expandToInclude( f.getBounds() );
-                
-                if( index == 1 || index == 2){
-                    bounds12.expandToInclude( f.getBounds() );
-                }
             }                                        
         } finally {
             reader.close();
@@ -202,6 +197,9 @@ public class PostgisDataStoreAPITest extends DataTestCase {
             System.out.println( "now:"+bounds );            
             roadBounds = bounds;
         }
+        Envelope bounds12 = new Envelope();
+        bounds12.expandToInclude( roadFeatures[0].getBounds() );
+        bounds12.expandToInclude( roadFeatures[1].getBounds() );
         if( !rd12Bounds.equals( bounds12 ) ){
             System.out.println( "warning! Database changed bounds of rd1 & rd2");
             System.out.println( "was:"+rd12Bounds );
@@ -1353,15 +1351,23 @@ public class PostgisDataStoreAPITest extends DataTestCase {
     //
     public void testGetFeatureStoreModifyFeatures1() throws IOException {
         FeatureStore road = (FeatureStore) data.getFeatureSource("road");
+        
+        FilterFactory factory = FilterFactory.createFilterFactory();
+        rd1Filter = factory.createFidFilter( roadFeatures[0].getID() );
+        
         AttributeType name = roadType.getAttributeType("name");
         road.modifyFeatures(name, "changed", rd1Filter);
 
-        FeatureCollection results = road.getFeatures(rd1Filter).collection();
+        FeatureCollection results = road.getFeatures(rd1Filter).collection();                
         assertEquals("changed", results.features().next().getAttribute("name"));
     }
 
     public void testGetFeatureStoreModifyFeatures2() throws IOException {
         FeatureStore road = (FeatureStore) data.getFeatureSource("road");
+        
+        FilterFactory factory = FilterFactory.createFilterFactory();
+        rd1Filter = factory.createFidFilter( roadFeatures[0].getID() );
+                
         AttributeType name = roadType.getAttributeType("name");
         road.modifyFeatures(new AttributeType[] { name, },
             new Object[] { "changed", }, rd1Filter);
@@ -1584,12 +1590,14 @@ public class PostgisDataStoreAPITest extends DataTestCase {
 
     public void testGetFeatureLockingExpire() throws Exception {
         FeatureLock lock = FeatureLockFactory.generate("Timed", 1);
+        
         FeatureLocking road = (FeatureLocking) data.getFeatureSource("road");
         road.setFeatureLock(lock);
         assertFalse(isLocked("road", "road.rd1"));
+                
         road.lockFeatures(rd1Filter);
         assertTrue(isLocked("road", "road.rd1"));
-        Thread.sleep(50);
+        Thread.sleep(100);
         assertFalse(isLocked("road", "road.rd1"));
     }
 }
