@@ -21,59 +21,19 @@
 
 package org.geotools.gui.swing;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
-import java.net.URL;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowListener;
-import java.awt.Rectangle;
-import java.io.File;
-import java.io.IOException;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import org.opengis.cs.CS_CoordinateSystem;
-import org.geotools.cs.CoordinateSystemFactory;
-import org.geotools.cs.Datum;
-import org.geotools.cs.FactoryException;
-import org.geotools.cs.HorizontalDatum;
-import org.geotools.data.DataSource;
-import org.geotools.data.DataSourceException;
-import org.geotools.data.MemoryDataSource;
-import org.geotools.feature.AttributeType;
-import org.geotools.feature.AttributeTypeDefault;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureType;
-import org.geotools.feature.FeatureTypeFlat;
-import org.geotools.feature.FeatureFactory;
-import org.geotools.gml.GMLDataSource;
-import org.geotools.gui.tools.ToolFactory;
-import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.widget.FrameWidget;
 import org.geotools.gui.widget.PanelWidget;
-import org.geotools.gui.widget.Widget;
-import org.geotools.gui.widget.MapPane;
-import org.geotools.gui.widget.WidgetFactory;
-import org.geotools.map.BoundingBoxImpl;
-import org.geotools.map.Context;
-import org.geotools.map.ContextImpl;
-import org.geotools.map.DefaultLayer;
-import org.geotools.map.DefaultLayerList;
-import org.geotools.styling.SLDStyle;
-import org.geotools.styling.Style;
-import org.geotools.styling.StyleFactory;
 
 /**
  * A frame which can contain other widgets.
  *
  * @author Cameron Shorter
- * @version $Id: FrameWidgetImpl.java,v 1.1 2003/02/12 08:21:38 camerons Exp $
+ * @version $Id: FrameWidgetImpl.java,v 1.2 2003/02/12 23:34:02 camerons Exp $
  *
  */
 
