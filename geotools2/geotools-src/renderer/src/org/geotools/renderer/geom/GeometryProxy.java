@@ -39,7 +39,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.FlatteningPathIterator;
 
 // Miscellaneous
 import java.util.Map;
@@ -50,7 +49,7 @@ import java.util.IdentityHashMap;
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
-import org.geotools.renderer.style.Style;
+import org.geotools.renderer.style.Style;  // for javadoc
 import org.geotools.math.Statistics;
 
 
@@ -60,10 +59,10 @@ import org.geotools.math.Statistics;
  * to the wrapped geometry. Consequently, <strong>changes in this geometry will impact
  * on the wrapped geometry</strong>, and conversely.
  *
- * @version $Id: GeometryProxy.java,v 1.5 2003/05/31 12:41:27 desruisseaux Exp $
+ * @version $Id: GeometryProxy.java,v 1.6 2004/02/13 14:28:05 aaime Exp $
  * @author Martin Desruisseaux
  */
-final class GeometryProxy extends Geometry {
+public final class GeometryProxy extends Geometry {
     /**
      * Serial number for compatibility with previous versions.
      */
@@ -397,4 +396,5 @@ final class GeometryProxy extends Geometry {
     public int hashCode() {
         return geometry.hashCode() ^ (int)serialVersionUID;
     }
+
 }

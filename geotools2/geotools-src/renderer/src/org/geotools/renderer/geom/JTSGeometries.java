@@ -32,12 +32,6 @@
  */
 package org.geotools.renderer.geom;
 
-// J2SE dependencies
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-
 // JTS dependencies
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
@@ -48,11 +42,10 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 
 // Geotools dependencies
 import org.geotools.math.Statistics;
-import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
-import org.geotools.renderer.style.Style;
+import org.geotools.renderer.style.Style;  // needed for javadoc?
 import org.geotools.renderer.array.JTSArray;
 
 
@@ -60,7 +53,7 @@ import org.geotools.renderer.array.JTSArray;
  * A geometry collection backed by one or many JTS
  * {@link com.vividsolutions.jts.geom.Geometry} objects.
  *
- * @version $Id: JTSGeometries.java,v 1.9 2004/02/05 16:00:33 aaime Exp $
+ * @version $Id: JTSGeometries.java,v 1.10 2004/02/13 14:28:05 aaime Exp $
  * @author Martin Desruisseaux
  */
 public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection {
@@ -69,12 +62,6 @@ public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection
      * bathymétries enregistrées sous d'anciennes versions.
      */
     private static final long serialVersionUID = 1390543865440404086L;
-
-    /**
-     * Maps JTS's {@link com.vividsolutions.jts.geom.Geometry} objects
-     * to their {@link org.geotools.renderer.geom.Geometry} wrappers.
-     */
-    private Map wrapped;
 
     /**
      * Construct an initially empty collection using the
@@ -195,7 +182,7 @@ public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection
             throws TransformException
     {
         Coordinate coord = geometry.getCoordinate();
-        return add(geometry, new org.geotools.renderer.geom.Point(coord, getCoordinateSystem(geometry)));
+        return add(new org.geotools.renderer.geom.Point(coord, getCoordinateSystem(geometry)));
     }
 
     /**
@@ -208,7 +195,7 @@ public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection
     private org.geotools.renderer.geom.Geometry addSF(final LineString geometry)
             throws TransformException
     {
-        return add(geometry, toPolyline(geometry));
+        return add(toPolyline(geometry));
     }
 
     /**
@@ -227,7 +214,7 @@ public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection
         for (int i=0; i<n; i++) {
             polygon.addHole(toPolyline(geometry.getInteriorRingN(i)));
         }
-        return add(geometry, polygon);
+        return add(polygon);
     }
 
     /**
@@ -241,32 +228,11 @@ public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection
             throws TransformException
     {
         final JTSGeometries collection = new JTSGeometries(getCoordinateSystem());
-        collection.wrapped = wrapped;
         final int n = geometry.getNumGeometries();
         for (int i=0; i<n; i++) {
             collection.add(geometry.getGeometryN(i));
         }
-        if (wrapped == null) {
-            wrapped = collection.wrapped;
-        }
-        return add(geometry, collection);
-    }
-
-    /**
-     * Add a Geotools's {@link org.geotools.renderer.geom.Geometry}. We keep a reference to the
-     * source JTS's {@link com.vividsolutions.jts.geom.Geometry} in order to recognize multiple
-     * addition of the same geometry
-     */
-    private org.geotools.renderer.geom.Geometry add(final Geometry geometry,
-                                                    final org.geotools.renderer.geom.Geometry wrapper)
-            throws TransformException
-    {
-        add(wrapper);
-        if (wrapped == null) {
-            wrapped = new IdentityHashMap();
-        }
-        wrapped.put(geometry, wrapper);
-        return wrapper;
+        return add(collection);
     }
 
     /**
@@ -285,16 +251,6 @@ public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection
     public org.geotools.renderer.geom.Geometry add(final Geometry geometry)
             throws TransformException, IllegalArgumentException
     {
-        if (wrapped != null) {
-            final org.geotools.renderer.geom.Geometry candidate =
-                 (org.geotools.renderer.geom.Geometry) wrapped.get(geometry);
-            if (candidate != null) {
-                final org.geotools.renderer.geom.Geometry proxy = new GeometryProxy(candidate);
-                // add may clone the geometry
-                org.geotools.renderer.geom.Geometry newGeom = add(proxy);
-                return newGeom;
-            }
-        }
         if (geometry instanceof Point) {
             return addSF((Point) geometry);
         }
@@ -311,12 +267,9 @@ public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection
     }
 
     /**
-     * Freeze this collection. Since no more geometry can be added, there is no need
-     * to keep the {@link #wrapped} collection. Clear it in order to give a chance the
-     * garbage collector do its work.
+     * Freeze this collection. 
      */
     final void freeze() {
         super.freeze();
-        wrapped = null;
     }
 }

@@ -47,9 +47,7 @@ import java.text.Format;
 import java.text.NumberFormat;
 import java.text.FieldPosition;
 import java.util.Collection;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.LogRecord;
 
 // Miscellaneous
 import java.util.Map;
@@ -61,10 +59,8 @@ import org.geotools.units.Unit; // For Javadoc
 import org.geotools.pt.Latitude;
 import org.geotools.pt.Longitude;
 import org.geotools.pt.AngleFormat;
-import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.LocalCoordinateSystem;
-import org.geotools.cs.ProjectedCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.CoordinateTransformationFactory;
 import org.geotools.ct.CannotCreateTransformException;
@@ -94,7 +90,7 @@ import org.geotools.util.Cloneable;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.12 2003/11/28 23:33:12 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.13 2004/02/13 14:28:05 aaime Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -126,6 +122,11 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      * The resolved style for this geometry, or <code>null</code> if none.
      */
     private Style style;
+    
+    /**
+     * A generic identifier for this geometry. 
+     */
+    private String ID;
 
     /**
      * Construct an empty geographic shape.
@@ -694,4 +695,23 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
         buffer.append(']');
         return buffer.toString();
     }
+    
+    /**
+     * Returns the geometry ID. The ID is string that identifies the current
+     * geometry and its application specific, that is, the renderer won't use it
+     * in any special way
+     * @return
+     */
+    public String getID() {
+        return ID;
+    }
+
+    /**
+     * Sets the geometry ID
+     * @param object
+     */
+    public void setID(String object) {
+        ID = object;
+    }
+
 }

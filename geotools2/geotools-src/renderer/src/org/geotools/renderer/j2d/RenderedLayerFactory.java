@@ -24,6 +24,8 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
+import org.geotools.data.FeatureEvent;
+import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 
@@ -33,6 +35,7 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
 import org.geotools.renderer.geom.Geometry;
+import org.geotools.renderer.geom.GeometryProxy;
 import org.geotools.renderer.geom.JTSGeometries;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style;
@@ -51,10 +54,12 @@ import java.io.IOException;
 
 // J2SE dependencies
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.logging.Logger;
 
 
@@ -63,7 +68,7 @@ import java.util.logging.Logger;
  *
  * @author Andrea Aime
  * @author Martin Desruisseaux
- * @version $Id: RenderedLayerFactory.java,v 1.19 2004/02/12 15:19:32 aaime Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.20 2004/02/13 14:28:05 aaime Exp $
  */
 public class RenderedLayerFactory {
     /** The logger. */
@@ -74,6 +79,14 @@ public class RenderedLayerFactory {
 
     /** Prepare the style factory that will convert SLD styles into resolved styles. */
     private final SLDStyleFactory styleFactory = new SLDStyleFactory();
+
+    /**
+     * Maps the feature sources into a map, which in turn maps the JTS geometries into the rendered
+     * geometries that wraps them. Used to optimize memory usage and get the same optmized and
+     * rendered geometry when a layer is going to be rebuilt (that is, we avoid to rebuild the
+     * decimated version of the rendered geometry on style change)
+     */
+    private final WeakHashMap geometryMaps = new WeakHashMap();
 
     /**
      * The default coordinate system for geometry to be created. If a geometry defines explicitly a
@@ -162,6 +175,14 @@ public class RenderedLayerFactory {
     public RenderedLayer[] create(final FeatureSource featureSource,
         final org.geotools.styling.Style SLDStyle)
         throws TransformException, IOException, IllegalAttributeException {
+        // get the map from JTSGeometries to rendered geometries
+        JTSGeometryMap renderedGeometriesMap = (JTSGeometryMap) geometryMaps.get(featureSource);
+
+        if (renderedGeometriesMap == null) {
+            renderedGeometriesMap = new JTSGeometryMap(featureSource);
+            geometryMaps.put(featureSource, renderedGeometriesMap);
+        }
+
         //  process the styles in order
         FeatureTypeStyle[] featureStylers = SLDStyle.getFeatureTypeStyles();
 
@@ -178,15 +199,14 @@ public class RenderedLayerFactory {
         }
 
         // see what attributes we really need 
-//        StyleAttributeExtractor sae = new StyleAttributeExtractor();
-//        sae.visit(SLDStyle);
-//        String[] ftsAttributes = sae.getAttributeNames();
-//        String[] attributes = new String[ftsAttributes.length + 1];
-//        attributes[0] = featureSource.getSchema().getDefaultGeometry().getName();
-//        System.arraycopy(ftsAttributes, 0, attributes, 1, ftsAttributes.length);
-//        Query q = new DefaultQuery(featureSource.getSchema().getTypeName(), Filter.NONE,
-//                Integer.MAX_VALUE, attributes, "");
-
+        //        StyleAttributeExtractor sae = new StyleAttributeExtractor();
+        //        sae.visit(SLDStyle);
+        //        String[] ftsAttributes = sae.getAttributeNames();
+        //        String[] attributes = new String[ftsAttributes.length + 1];
+        //        attributes[0] = featureSource.getSchema().getDefaultGeometry().getName();
+        //        System.arraycopy(ftsAttributes, 0, attributes, 1, ftsAttributes.length);
+        //        Query q = new DefaultQuery(featureSource.getSchema().getTypeName(), Filter.NONE,
+        //                Integer.MAX_VALUE, attributes, "");
         // get the features and scan them
         FeatureReader reader = featureSource.getFeatures().reader();
 
@@ -227,7 +247,7 @@ public class RenderedLayerFactory {
                         if (featureMatching(feature, ftsTypeName, filter)) {
                             rs.remove(ruleRange);
                             geometries = processSymbolizers(feature, symbolizers, ruleRange,
-                                    renderedLayers, geometries);
+                                    renderedLayers, geometries, renderedGeometriesMap);
                         }
                     }
                 }
@@ -246,7 +266,8 @@ public class RenderedLayerFactory {
 
                                 if ((finalRange != null) && !finalRange.isEmpty()) {
                                     geometries = processSymbolizers(feature, symbolizers,
-                                            finalRange, renderedLayers, geometries);
+                                            finalRange, renderedLayers, geometries,
+                                            renderedGeometriesMap);
                                 }
                             }
                         }
@@ -257,6 +278,7 @@ public class RenderedLayerFactory {
                 featureTypeCurrentLayer.set(i, geometries);
             }
         }
+
         reader.close();
 
         // add the current layer if not empty, for each feature type style
@@ -294,10 +316,10 @@ public class RenderedLayerFactory {
      */
     public RenderedLayer[] create(final Feature[] features,
         final org.geotools.styling.Style SLDStyle) throws TransformException {
-        // ... the list that will contain all generated rendered layers
+        // the list that will contain all generated rendered layers
         List renderedLayers = new ArrayList();
 
-        // ... and the first geometric layer
+        // and the first geometric layer
         JTSGeometries geometries = new JTSGeometries(coordinateSystem);
 
         // process the styles in order
@@ -358,7 +380,7 @@ public class RenderedLayerFactory {
                     for (Iterator it = ruleFeatures.iterator(); it.hasNext();) {
                         Feature feature = (Feature) it.next();
                         geometries = processSymbolizers(feature, symbolizers, ruleRange,
-                                renderedLayers, geometries);
+                                renderedLayers, geometries, null);
                     }
                 }
             }
@@ -385,7 +407,7 @@ public class RenderedLayerFactory {
 
                                 if ((finalRange != null) && !finalRange.isEmpty()) {
                                     geometries = processSymbolizers(feature, symbolizers,
-                                            finalRange, renderedLayers, geometries);
+                                            finalRange, renderedLayers, geometries, null);
                                 }
                             }
                         }
@@ -413,14 +435,15 @@ public class RenderedLayerFactory {
      * @param scaleRange The scale range in which the styled feature should be rendered
      * @param renderedLayers The list of renderedLayers
      * @param geometries The current vector layer under construction
+     * @param geometryMap DOCUMENT ME!
      *
      * @return the new vector layer under construction (may be equal to <code>geometries</code>)
      *
      * @throws TransformException if a transformation was required and failed.
      */
     private JTSGeometries processSymbolizers(Feature feature, Symbolizer[] symbolizers,
-        NumberRange scaleRange, List renderedLayers, JTSGeometries geometries)
-        throws TransformException {
+        NumberRange scaleRange, List renderedLayers, JTSGeometries geometries,
+        JTSGeometryMap geometryMap) throws TransformException {
         for (int i = 0; i < symbolizers.length; i++) {
             Symbolizer symb = symbolizers[i];
             Style style = styleFactory.createStyle(feature, symb, scaleRange);
@@ -436,10 +459,26 @@ public class RenderedLayerFactory {
                 GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
                 renderedLayers.add(new RenderedGridCoverage(grid));
             } else {
-                com.vividsolutions.jts.geom.Geometry geometry = findGeometry(feature, symb);
+                String id = feature.getID();
+                Geometry g = geometryMap.get(id, symb);
 
-                if (geometry != null) {
-                    geometries.add(geometry).setStyle(style);
+                if (g != null) {
+                    // add may clone the geometry
+                    g = geometries.add(new GeometryProxy(g));
+                } else {
+                    com.vividsolutions.jts.geom.Geometry geometry = findGeometry(feature, symb);
+
+                    if (geometry != null) {
+                        g = geometries.add(geometry);
+                        if(!(geometry instanceof Point)) {
+                            geometryMap.put(id, symb, g);
+                        }
+                    }
+                }
+
+                if (g != null) {
+                    g.setStyle(style);
+                    g.setID(feature.getID());
                 }
             }
         }
@@ -503,19 +542,8 @@ public class RenderedLayerFactory {
      * @return The geometry requested in the symbolizer, or the default geometry if none is
      *         specified
      */
-    public com.vividsolutions.jts.geom.Geometry findGeometry(Feature f, Symbolizer s) {
-        String geomName = null;
-
-        // TODO: fix the styles, the getGeometryPropertyName should probably be moved into an interface...
-        if (s instanceof PolygonSymbolizer) {
-            geomName = ((PolygonSymbolizer) s).getGeometryPropertyName();
-        } else if (s instanceof PointSymbolizer) {
-            geomName = ((PointSymbolizer) s).getGeometryPropertyName();
-        } else if (s instanceof LineSymbolizer) {
-            geomName = ((LineSymbolizer) s).getGeometryPropertyName();
-        } else if (s instanceof TextSymbolizer) {
-            geomName = ((TextSymbolizer) s).getGeometryPropertyName();
-        }
+    private com.vividsolutions.jts.geom.Geometry findGeometry(Feature f, Symbolizer s) {
+        String geomName = getGeometryPropertyName(s);
 
         // get the geometry
         com.vividsolutions.jts.geom.Geometry geom;
@@ -530,21 +558,128 @@ public class RenderedLayerFactory {
         // point in order to avoid recomputing that location at each rendering step
         if ((s instanceof PointSymbolizer || s instanceof TextSymbolizer)
                 && !(geom instanceof Point)) {
-            com.vividsolutions.jts.geom.Geometry jtsGeom = (com.vividsolutions.jts.geom.Geometry) geom;
-
             if (geom instanceof LineString && !(geom instanceof LinearRing)) {
                 // use the mid point to represent the point/text symbolizer anchor
-                Coordinate[] coordinates = jtsGeom.getCoordinates();
+                Coordinate[] coordinates = geom.getCoordinates();
                 Coordinate start = coordinates[0];
                 Coordinate end = coordinates[1];
                 Coordinate mid = new Coordinate((start.x + end.x) / 2, (start.y + end.y) / 2);
-                geom = new Point(mid, jtsGeom.getPrecisionModel(), 0);
+                geom = geom.getFactory().createPoint(mid);
             } else {
                 // otherwise use the centroid of the polygon
-                geom = jtsGeom.getCentroid();
+                geom = geom.getCentroid();
             }
         }
 
         return geom;
+    }
+
+    private static String getGeometryPropertyName(Symbolizer s) {
+        String geomName = null;
+
+        // TODO: fix the styles, the getGeometryPropertyName should probably be moved into an interface...
+        if (s instanceof PolygonSymbolizer) {
+            geomName = ((PolygonSymbolizer) s).getGeometryPropertyName();
+        } else if (s instanceof PointSymbolizer) {
+            geomName = ((PointSymbolizer) s).getGeometryPropertyName();
+        } else if (s instanceof LineSymbolizer) {
+            geomName = ((LineSymbolizer) s).getGeometryPropertyName();
+        } else if (s instanceof TextSymbolizer) {
+            geomName = ((TextSymbolizer) s).getGeometryPropertyName();
+        }
+
+        return geomName;
+    }
+
+    /**
+     * A map from feature ids to rendered geometries that is used to avoid wrapping the same JTS
+     * geometry twice, thus saving memory and process time need to decimate again the geometry. It
+     * is based on ID since there is no guarantee that the feature source will generate exactly
+     * the same geometry object loading twice from the same data store (it won't unless it is
+     * memory based or there is a cache), but having the hash map use the equal comparison on
+     * geometries would be a performance problem (normal form generation and coordinate to
+     * coordinate comparison it way too expensive)
+     */
+    private static class JTSGeometryMap implements FeatureListener {
+        HashMap geometryMap;
+        RenderedFeatureKey rfk = new RenderedFeatureKey("", "");
+
+        public JTSGeometryMap(FeatureSource featureSource) {
+            featureSource.addFeatureListener(this);
+            geometryMap = new HashMap();
+        }
+
+        public void put(String ID, Symbolizer symb, Geometry renderedGeometry) {
+            if(symb instanceof PointSymbolizer || symb instanceof TextSymbolizer) {
+                return; // do not cache with these symbolizers, they are problematic
+            } else {
+                geometryMap.put(new RenderedFeatureKey(ID, getGeometryPropertyName(symb)), renderedGeometry);
+            }
+        }
+
+        public Geometry get(String ID, Symbolizer symb) {
+            if(symb instanceof PointSymbolizer || symb instanceof TextSymbolizer) {
+                return null; 
+            } else {
+                rfk.init(ID, getGeometryPropertyName(symb));
+                return (Geometry) geometryMap.get(rfk);
+            }
+        }
+
+        /**
+         * If data in a feature source changes we need to drop the or we would generate a memory
+         * leak. The specific case is a feature source that dinamically changes its features, the
+         * reference to the feature source would not change, but we would collect geometries that
+         * may no longer exist
+         *
+         * @see org.geotools.data.FeatureListener#changed(org.geotools.data.FeatureEvent)
+         */
+        public void changed(FeatureEvent featureEvent) {
+            int eventType = featureEvent.getEventType();
+
+            if ((eventType == FeatureEvent.FEATURES_REMOVED)
+                    || (eventType == FeatureEvent.FEATURES_CHANGED)) {
+                geometryMap = new HashMap();
+            }
+        }
+    }
+
+    private static class RenderedFeatureKey {
+        public String ID;
+        public String geomPropName;
+
+        public RenderedFeatureKey(String ID, String geomPropName) {
+            this.ID = ID;
+            this.geomPropName = geomPropName;
+        }
+
+        public void init(String ID, String geomPropName) {
+            this.ID = ID;
+            this.geomPropName = geomPropName;
+        }
+
+        /**
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        public boolean equals(Object obj) {
+            if (!(obj instanceof RenderedFeatureKey)) {
+                return false;
+            }
+
+            RenderedFeatureKey other = (RenderedFeatureKey) obj;
+
+            if (geomPropName != null) {
+                return ID.equals(other.ID) && geomPropName.equals(other.geomPropName);
+            } else {
+                return ID.equals(other.ID) && (other.geomPropName == null);
+            }
+        }
+
+        /**
+         * @see java.lang.Object#hashCode()
+         */
+        public int hashCode() {
+           return 37 * (17 * ID.hashCode()) + (geomPropName == null ? 0 : geomPropName.hashCode());
+        }
     }
 }
