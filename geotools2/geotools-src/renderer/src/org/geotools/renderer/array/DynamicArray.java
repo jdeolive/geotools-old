@@ -40,7 +40,7 @@ import org.geotools.renderer.geom.CompressionLevel;
 /**
  * Enveloppe un tableau <code>float[]</code> dans lequel des données pourront être ajoutées.
  *
- * @version $Id: DynamicArray.java,v 1.9 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: DynamicArray.java,v 1.10 2003/05/28 10:21:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DynamicArray extends SubArray {
@@ -202,7 +202,7 @@ final class DynamicArray extends SubArray {
      * tableau de façon à ne pas modifier le tableau immutable.
      */
     public PointArray getFinal(final CompressionLevel level) {
-        if (level==CompressionLevel.RELATIVE_AS_BYTES && count()>=8) {
+        if (CompressionLevel.RELATIVE_AS_BYTES.equals(level) && count()>=8) {
             return new CompressedArray(array, lower, upper);
         }
         PointArray points = getInstance(array, lower, upper, true);

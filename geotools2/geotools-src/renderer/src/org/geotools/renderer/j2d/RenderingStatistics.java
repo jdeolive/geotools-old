@@ -51,7 +51,7 @@ import org.geotools.renderer.geom.Geometry; // For Javadoc
  * painting is in process. They are used for logging messages and have no impact
  * on future rendering.
  *
- * @version $Id: RenderingStatistics.java,v 1.6 2003/05/27 18:22:44 desruisseaux Exp $
+ * @version $Id: RenderingStatistics.java,v 1.7 2003/05/28 10:21:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RenderingStatistics {
@@ -71,7 +71,7 @@ final class RenderingStatistics {
 
     /**
      * The number of points recomputed, rendered and the total number of points while painting
-     * an {@link Geometry}. Those informations are updated only by {@link RenderedIsoline}.
+     * an {@link Geometry}. Those informations are updated only by {@link RenderedGeometries}.
      */
     private int recomputed, rendered, total;
 

@@ -44,7 +44,7 @@ import org.geotools.renderer.geom.JTSGeometries;
 /**
  * A factory creating {@link RenderedLayer}s from {@link Feature}s and {@link Style}s.
  *
- * @version $Id: RenderedLayerFactory.java,v 1.3 2003/05/27 18:22:44 desruisseaux Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.4 2003/05/28 10:21:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author <--- add your name --->
  */
@@ -69,7 +69,7 @@ public class RenderedLayerFactory {
             final SFSGeometry geometry = null; // Get a geometry here. It can be a SFSGeometryCollection.
             geometries.add(geometry);
         }
-        final RenderedIsoline layer = new RenderedIsoline(geometries);
+        final RenderedGeometries layer = new RenderedGeometries(geometries);
         layer.setContour   (null); // Set here a 'Paint' for the contour line.
         layer.setForeground(null); // Set here a 'Paint' for filling polygon.
         return layer;

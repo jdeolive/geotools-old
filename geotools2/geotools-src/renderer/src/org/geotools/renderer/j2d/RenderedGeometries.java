@@ -63,6 +63,8 @@ import org.geotools.renderer.geom.Clipper;
 import org.geotools.renderer.geom.Polyline;
 import org.geotools.renderer.geom.Geometry;
 import org.geotools.renderer.geom.GeometryCollection;
+import org.geotools.renderer.style.Style2D;
+import org.geotools.renderer.style.Style;
 import org.geotools.resources.XMath;
 import org.geotools.resources.XDimension2D;
 import org.geotools.resources.XAffineTransform;
@@ -72,12 +74,12 @@ import org.geotools.resources.CTSUtilities;
 /**
  * A layer for a {@link GeometryCollection} object. Instances of this class are typically
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
- * with an instance of <code>RenderedIsoline</code>.
+ * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.17 2003/05/27 18:22:44 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.1 2003/05/28 10:21:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class RenderedIsoline extends RenderedLayer {
+public class RenderedGeometries extends RenderedLayer {
     /**
      * The maximum number of clipped geometries to cache. This number can be set to <code>0</code>
      * for disabling clipping acceleration, which may be useful if a bug is suspected to prevent
@@ -161,7 +163,7 @@ public class RenderedIsoline extends RenderedLayer {
      * @param geometry The geometry, or <code>null</code> if none.
      * @see #setGeometry
      */
-    public RenderedIsoline(final GeometryCollection geometry) {
+    public RenderedGeometries(final GeometryCollection geometry) {
         if (geometry!=null) try {
             setCoordinateSystem(geometry.getCoordinateSystem());
             setGeometry(geometry);
@@ -330,6 +332,22 @@ public class RenderedIsoline extends RenderedLayer {
             return Float.isNaN(z) ? 0 : z;
         }
     }
+
+    /**
+     * Gets the style from a geometry object, or <code>null</code> if none. If the geometry style
+     * is not an instance of of {@link Style2D} (for example if it came from a renderer targeting
+     * an other output device), set it to <code>null</code> in order to lets the garbage collector
+     * do its work. It will not hurt the foreigner rendering device, since the constructor cloned
+     * the geometries.
+     */
+    private static Style2D getStyle(final Geometry geometry) {
+        final Style style = geometry.getStyle();
+        if (style instanceof Style2D) {
+            return (Style2D) style;
+        }
+        geometry.setStyle(null);
+        return null;
+    }
         
     /**
      * Invoked automatically when a polyline is about to be draw. The default implementation
@@ -337,13 +355,13 @@ public class RenderedIsoline extends RenderedLayer {
      * color.
      *
      * @param graphics The graphics in which to draw.
-     * @param polyline The polyline to draw. This polyline may exposes some internal state of
-     *        {@link GeometryCollection}, for example decimation and clipping. <strong>Do
-     *        not modify this polyline, neither keep a reference to it after this method
-     *        call</strong> in order to avoid unexpected behaviour.
+     * @param polyline The polyline to draw.
+     * @param style    The style to apply, or <code>null</code> if none.
      */
-    protected void paint(final Graphics2D graphics, final Polyline polyline) {
-        if (polyline.isClosed()) {
+    protected void paint(final Graphics2D graphics, final Shape polyline, final Style2D style) {
+        // HACK: In a future version, the shape may not be a polyline instance.
+        //       We should never cast to Polyline.
+        if (((Polyline) polyline).isClosed()) {
             graphics.setPaint(foreground);
             graphics.fill(polyline);
             if (foreground.equals(contour)) {
@@ -438,7 +456,7 @@ public class RenderedIsoline extends RenderedLayer {
                                 resolution = (minResolution + maxResolution)/2;
                                 polyline.setRenderingResolution(resolution);
                             }
-                            paint(graphics, polyline);
+                            paint(graphics, polyline, getStyle(polyline));
                             final int numPts = polyline.getCachedPointCount();
                             rendered += Math.abs(numPts);
                             if (numPts < 0) {
@@ -500,13 +518,13 @@ public class RenderedIsoline extends RenderedLayer {
          * If the geometry covers a widther area than necessary, clip it.
          */
         if (bestRatio >= CLIP_THRESHOLD*CLIP_THRESHOLD) {
-            logUpdateCache("RenderedIsoline");
+            logUpdateCache("RenderedGeometries");
             scale(clip, 0.5*(CLIP_THRESHOLD+1));
             final Geometry candidate = bestGeometry.clip(new Clipper(clip, clipCS));
             if (candidate==null || candidate instanceof GeometryCollection) {
                 bestGeometry = (GeometryCollection) candidate;
             } else {
-                // TODO: We should modify RenderedIsoline in order to work
+                // TODO: We should modify RenderedGeometries in order to work
                 //       directly with Geometry rather than GeometryCollection.
                 bestGeometry = new GeometryCollection();
                 bestGeometry.add(candidate);

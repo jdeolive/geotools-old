@@ -65,6 +65,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
 import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.TransformException;
+import org.geotools.renderer.style.Style;
 import org.geotools.resources.Utilities;
 import org.geotools.math.Statistics;
 
@@ -86,20 +87,24 @@ import org.geotools.math.Statistics;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.2 2003/05/28 10:21:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
     /**
-     * Numéro de version pour compatibilité avec des
-     * bathymétries enregistrées sous d'anciennes versions.
+     * Serial number for compatibility with previous versions.
      */
-    private static final long serialVersionUID = 7124872211826875696L;
+    private static final long serialVersionUID = -1274472236517648668L;
 
     /**
      * The logger for the renderer module.
      */
     static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.geom");
+
+    /**
+     * The resolved style for this geometry, or <code>null</code> if none.
+     */
+    private Style style;
 
     /**
      * Construct an empty geographic shape.
@@ -110,11 +115,10 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     /**
      * Construct a geographic shape with the same data than the specified geometry.
      *
-     * @param geometry The geometry to copy data.
+     * @param geometry The geometry to copy data from.
      */
     protected Geometry(final Geometry geometry) {
-        // Nothing to do at this time. However, we keep this constructor in
-        // case we add in a future version some fields to initialize here.
+        this.style = geometry.style;
     }
 
     /**
@@ -127,6 +131,22 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      */
     public String getName(final Locale locale) {
         return null;
+    }
+
+    /**
+     * Returns the style attached to this geometry, or <code>null</code> if none.
+     */
+    public Style getStyle() {
+        return style;
+    }
+
+    /**
+     * Set the style attached to this geometry.
+     *
+     * @param The new style for this geometry, or <code>null</code> if none.
+     */
+    public void setStyle(final Style style) {
+        this.style = style;
     }
 
     /**

@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.10 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.11 2003/05/28 10:21:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -525,6 +525,9 @@ public class Polyline extends Geometry {
         if (coordinateSystem == null) {
             coordinateSystem = getInternalCS();
             // May still null. Its ok.
+        }
+        if (Utilities.equals(coordinateSystem, getCoordinateSystem())) {
+            return;
         }
         CoordinateTransformation transformCandidate =
                 getTransformationFromInternalCS(coordinateSystem);
@@ -1612,26 +1615,26 @@ public class Polyline extends Geometry {
      * @throws TransformException If an error has come up during a cartographic projection.
      */
     public synchronized float compress(final CompressionLevel level) throws TransformException {
-        final Statistics stats = LineString.getResolution(data, coordinateTransform);
-        if (stats != null) {
-            final long   memoryUsage = getMemoryUsage();
-            final double        mean = stats.mean();
-            final double standardDev = stats.standardDeviation(false);
-            final double  resolution = mean + 0.5*standardDev;
-            if (resolution > 0) {
-                /*
-                 * Do not resample if at least 97.7% of coordinate points fits in
-                 * the [-128...+128] range (assuming a gaussian distribution).
-                 */
-                if (standardDev > mean/64) {
-                    setResolution(resolution);
+        final long memoryUsage = getMemoryUsage();
+        if (CompressionLevel.RELATIVE_AS_BYTES.equals(level)) {
+            final Statistics stats = LineString.getResolution(data, coordinateTransform);
+            if (stats != null) {
+                final double        mean = stats.mean();
+                final double standardDev = stats.standardDeviation(false);
+                final double  resolution = mean + 0.5*standardDev;
+                if (resolution > 0) {
+                    /*
+                     * Do not resample if at least 97.7% of coordinate points fits in
+                     * the [-128...+128] range (assuming a gaussian distribution).
+                     */
+                    if (standardDev > mean/256) {
+                        setResolution(resolution);
+                    }
                 }
-                data = LineString.freeze(data, false, level); // Apply the compression algorithm
-                return (float) (memoryUsage - getMemoryUsage()) / (float) memoryUsage;
             }
-            data = LineString.freeze(data, false, null); // No compression
         }
-        return 0;
+        data = LineString.freeze(data, false, level); // Apply the compression algorithm
+        return (float) (memoryUsage - getMemoryUsage()) / (float) memoryUsage;
     }
 
     /**

@@ -103,11 +103,11 @@ import org.geotools.renderer.Renderer2D;
  * A renderer for drawing map objects into a {@link Graphics2D}. A newly constructed
  * <code>Renderer</code> is initially empty. To make something appears, {@link RenderedLayer}s
  * must be added using one of <code>addLayer(...)</code> methods. The visual content depends of
- * the <code>RenderedLayer</code> subclass. It may be an isoline ({@link RenderedIsoline}),
+ * the <code>RenderedLayer</code> subclass. It may be an isoline ({@link RenderedGeometries}),
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.28 2003/05/19 13:10:55 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.29 2003/05/28 10:21:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -275,7 +275,7 @@ public class Renderer implements Renderer2D {
      * The rendering resolutions, in units of {@link RenderingContext#textCS} coordinate system
      * (usually 1/72 of inch). A larger resolution speed up rendering, while a smaller resolution
      * draw more precise map. The value can be set with {@link #setRenderingHint}. They are read
-     * only by {@link RenderedIsoline}.
+     * only by {@link RenderedGeometries}.
      */
     float minResolution, maxResolution;
 

@@ -50,7 +50,7 @@ import org.geotools.renderer.geom.CompressionLevel;
  * doesn't use any compression technic. However, subclasses may be mutable (i.e. support the
  * {@link #insertAt insertAt(...)} method) or compress data.
  *
- * @version $Id: DefaultArray.java,v 1.9 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: DefaultArray.java,v 1.10 2003/05/28 10:21:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see #getInstance
@@ -307,7 +307,7 @@ public class DefaultArray extends PointArray implements RandomAccess {
      * tableau de façon à ne pas modifier le tableau immutable.
      */
     public PointArray getFinal(final CompressionLevel level) {
-        if (level==CompressionLevel.RELATIVE_AS_BYTES && count() >= 8) {
+        if (CompressionLevel.RELATIVE_AS_BYTES.equals(level) && count() >= 8) {
             return new CompressedArray(array, lower(), upper());
         }
         return super.getFinal(level);

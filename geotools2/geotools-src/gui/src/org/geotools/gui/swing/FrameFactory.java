@@ -43,9 +43,9 @@ import com.vividsolutions.jts.geom.sfs.SFSGeometry;
 import org.geotools.gc.GridCoverage;
 import org.geotools.renderer.geom.JTSGeometries;
 import org.geotools.renderer.j2d.RenderedLayer;
-import org.geotools.renderer.j2d.RenderedIsoline;
 import org.geotools.renderer.j2d.RenderedMapScale;
 import org.geotools.renderer.j2d.RenderedGridMarks;
+import org.geotools.renderer.j2d.RenderedGeometries;
 import org.geotools.renderer.j2d.RenderedGridCoverage;
 import org.geotools.resources.Utilities;
 
@@ -56,7 +56,7 @@ import org.geotools.resources.Utilities;
  * coverages} or {@linkplain SFSGeometry geometry} objects in a Swing widget.
  *
  * @author Martin Desruisseaux
- * @version $Id: FrameFactory.java,v 1.4 2003/05/27 18:23:18 desruisseaux Exp $
+ * @version $Id: FrameFactory.java,v 1.5 2003/05/28 10:22:12 desruisseaux Exp $
  */
 public final class FrameFactory {
     /**
@@ -125,7 +125,7 @@ public final class FrameFactory {
      */
     public static void show(final SFSGeometry geometry) {
         show(Utilities.getShortClassName(geometry),
-             new RenderedIsoline(new JTSGeometries(geometry)));
+             new RenderedGeometries(new JTSGeometries(geometry)));
     }
 
     /**
