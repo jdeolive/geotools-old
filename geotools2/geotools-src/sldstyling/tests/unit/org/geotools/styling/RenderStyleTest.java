@@ -134,14 +134,20 @@ public class RenderStyleTest extends TestCase {
         frame.setVisible(true);
         renderer.setOutput(p.getGraphics(),p.getBounds());
         renderer.setInteractive(false);
+        Date start = new Date();
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        Date end = new Date();
+        System.out.println("Time to render to screen: " +(end.getTime() - start.getTime()));
         int w=400,h=400;
         BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
         Graphics g = image.getGraphics();
         g.setColor(Color.white);
         g.fillRect(0,0,w,h);
         renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
+        start = new Date();
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        end = new Date();
+        System.out.println("Time to render to image: " +(end.getTime() - start.getTime()));
         File file = new File(dataFolder, "RenderStyleTest.jpg"); 
         FileOutputStream out = new FileOutputStream(file);
         ImageIO.write(image, "JPEG", out); 

@@ -79,7 +79,7 @@ public class TextTest extends TestCase {
                 Double rotation = new Double(angle);
                 angle+=90.0;
                 Feature pointFeature = pointFac.create(new Object[]{point,size,rotation});
-                System.out.println(""+pointFeature);
+//                System.out.println(""+pointFeature);
                 features.add(pointFeature);
             }
         }

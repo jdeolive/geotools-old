@@ -92,7 +92,7 @@ public class DefaultMarkTest extends TestCase {
             Feature pointFeature = labelFac.create(new Object[]{point,marks[i],new Double(.5),new Double(0)});
             features.add(pointFeature);
         }
-        System.out.println("got "+features.size()+" features");
+//        System.out.println("got "+features.size()+" features");
         FeatureCollectionDefault ft = new FeatureCollectionDefault();
         ft.addFeatures(features);
         
