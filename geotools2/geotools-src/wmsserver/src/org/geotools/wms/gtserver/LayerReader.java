@@ -23,6 +23,9 @@ package org.geotools.wms.gtserver;
 import java.util.*;
 import java.io.*;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.xml.sax.helpers.ParserAdapter;
 import org.xml.sax.XMLReader;
 import org.xml.sax.InputSource;
 import org.xml.sax.Attributes;
@@ -43,7 +46,7 @@ import org.geotools.shapefile.ShapefileDataSource;
 public class LayerReader extends DefaultHandler {
     XMLReader reader;
     // Use the xerces parser
-    public static String parserName = "org.apache.xerces.parsers.SAXParser";
+    //public static String parserName = "org.apache.xerces.parsers.SAXParser";
     
     // Variables for the current parsing operation (parser is assumed to be synchronized)
     public HashMap layers;
@@ -66,8 +69,11 @@ public class LayerReader extends DefaultHandler {
     public LayerReader() {
         try {
             // Create the reader
-            reader = XMLReaderFactory.createXMLReader(parserName);
-            
+            //reader = XMLReaderFactory.createXMLReader();
+            SAXParserFactory fac = SAXParserFactory.newInstance();
+            SAXParser parser = fac.newSAXParser();
+           
+            reader = new ParserAdapter(parser.getParser());
             reader.setContentHandler(this);
             reader.setErrorHandler(this);
         }
