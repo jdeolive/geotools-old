@@ -73,7 +73,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.14 2004/01/11 16:49:31 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.15 2004/02/23 12:28:22 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -442,8 +442,8 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * need to add the {@link #centralMeridian} to the output longitude or remove the
      * {@link #majorAxis} ('<var>a</var>' or '<var>R</var>').
      *
-     * @param x     The easting of the coordinate, in metres.
-     * @param y     The northing of the coordinate, in metres.
+     * @param x     The easting of the coordinate, linear distance on a unit sphere or ellipse.
+     * @param y     The northing of the coordinate, linear distance on a unit sphere or ellipse.
      * @param ptDst the specified coordinate point that stores the result of transforming
      *              <code>ptSrc</code>, or <code>null</code>. Ordinates will be in
      *              <strong>radians</strong>.
@@ -484,7 +484,8 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * @param x     The longitude of the coordinate, in <strong>radians</strong>.
      * @param y     The  latitude of the coordinate, in <strong>radians</strong>.
      * @param ptDst the specified coordinate point that stores the result of transforming
-     *              <code>ptSrc</code>, or <code>null</code>. Ordinates will be in metres.
+     *              <code>ptSrc</code>, or <code>null</code>. Ordinates will be in a
+     *              dimensionless unit, as a linear distance on a unit sphere or ellipse.
      * @return      the coordinate point after transforming <code>x</code>, <code>y</code>
      *              and storing the result in <code>ptDst</code>.
      * @throws ProjectionException if the point can't be transformed.
@@ -640,7 +641,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * {@link MapProjection#inverseTransformNormalized} instead of
      * {@link MapProjection#transformNormalized}.
      *
-     * @version $Id: MapProjection.java,v 1.14 2004/01/11 16:49:31 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.15 2004/02/23 12:28:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {

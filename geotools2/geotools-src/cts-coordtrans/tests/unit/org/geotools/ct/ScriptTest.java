@@ -42,7 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.InputStream;
-import java.io.BufferedReader;
+import java.io.LineNumberReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -80,7 +80,7 @@ import org.geotools.resources.Arguments;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: ScriptTest.java,v 1.4 2004/01/11 17:11:55 desruisseaux Exp $
+ * @version $Id: ScriptTest.java,v 1.5 2004/02/23 12:28:23 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
@@ -357,10 +357,13 @@ public class ScriptTest extends TestCase {
      * The "<code>pt_target</code>" instruction trig the computation.
      *
      * @param  text The instruction to parse.
+     * @param  lineNumber The line number, for error output.
      * @throws FactoryException if the instruction can't be parsed.
      * @throws TransformException if the transformation can't be run.
      */
-    private void runInstruction(final String text) throws FactoryException, TransformException {
+    private void runInstruction(final String text, final int lineNumber)
+            throws FactoryException, TransformException
+    {
         final StringTokenizer st = new StringTokenizer(text, "=");
         if (st.countTokens() != 2) {
             throw new FactoryException("Illegal instruction: "+text);
@@ -402,14 +405,18 @@ public class ScriptTest extends TestCase {
             if (out == null) {
                 throw exception;
             }
-            out.println("----TRANSFORMATION FAILED-------------------------------------------------------");
+            out.print("----TRANSFORMATION FAILED AT LINE ");
+            out.print(String.valueOf(lineNumber));
+            out.println("-------------------------------------------------------");
             out.println(exception);
             out.println();
         } catch (AssertionFailedError error) {
             if (out == null) {
                 throw error;
             }
-            out.println("----TEST FAILED-----------------------------------------------------------------");
+            out.print("----TEST FAILED AT LINE ");
+            out.print(String.valueOf(lineNumber));
+            out.println("-------------------------------------------------------");
             out.println("cs_source : " + sourceCS);
             out.println("cs_target : " + targetCS);
             out.println("pt_source = " + sourcePT);
@@ -430,7 +437,7 @@ public class ScriptTest extends TestCase {
         definitions.clear();
         testRun    = 0;
         testPassed = 0;
-        final BufferedReader reader;
+        final LineNumberReader reader;
         if (true) {
             InputStream in = getClass().getClassLoader().getResourceAsStream(script);
             if (in == null) {
@@ -441,7 +448,7 @@ public class ScriptTest extends TestCase {
                 dataFolder = new File(dataFolder, script);
                 in = new FileInputStream(dataFolder);
             }
-            reader = new BufferedReader(new InputStreamReader(in));
+            reader = new LineNumberReader(new InputStreamReader(in));
         }
         String line;
         while ((line=reader.readLine()) != null) {             
@@ -459,7 +466,7 @@ public class ScriptTest extends TestCase {
                 continue;
             }
             try {
-                runInstruction(line);
+                runInstruction(line, reader.getLineNumber());
             } catch (TransformException exception) {
                 // TODO: We should throw the TransformException instead,
                 //       but Maven doesn't seem to like it.
@@ -548,6 +555,7 @@ public class ScriptTest extends TestCase {
     public static void main(final String[] args) throws Exception {
         final Arguments arguments = new Arguments(args);
         final String script = arguments.getOptionalString("-test");
+        arguments.getRemainingArguments(0);
         final ScriptTest test = new ScriptTest(null);
         boolean done = false;
         test.out = arguments.out;

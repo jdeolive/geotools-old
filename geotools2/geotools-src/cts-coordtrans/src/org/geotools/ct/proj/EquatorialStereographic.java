@@ -71,9 +71,9 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * The USGS equatorial case of the {@linkplain Stereographic stereographic} projection.
  * This is a special case of oblique stereographic projection for 
- * {@link latitudeOfOrigin} == 0.0.
+ * {@link #latitudeOfOrigin} == 0.0.
  *
- * @version $Id: EquatorialStereographic.java,v 1.2 2004/01/11 16:49:31 desruisseaux Exp $
+ * @version $Id: EquatorialStereographic.java,v 1.3 2004/02/23 12:28:22 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -99,18 +99,18 @@ public class EquatorialStereographic extends ObliqueStereographic {
 
     /**
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
-     * and stores the result in <code>ptDst</code> (units in meters).
+     * and stores the result in <code>ptDst</code> (linear distance on a unit sphere).
      *
      * @param  x The longitude in radians.
      * @param  y The latitude in radians.
      * @param  ptDst The destination point, or <code>null</code>.
-     * @return The projected point in meters.
+     * @return The projected point as a linear distance on a unit sphere.
      * @throws ProjectionException if the projection failed.
      */
     protected Point2D transformNormalized(double x, double y, Point2D ptDst)
             throws ProjectionException
     {
-        //Compute using oblique formulas, for comparaison later.
+        // Compute using oblique formulas, for comparaison later.
         assert (ptDst = super.transformNormalized(x, y, ptDst)) != null;
         
         final double chi = 2.0 * Math.atan(ssfn(y, Math.sin(y))) - (Math.PI/2);
@@ -135,7 +135,7 @@ public class EquatorialStereographic extends ObliqueStereographic {
      * Provides the transform equations for the spherical case of the 
      * equatorial stereographic projection.
      *
-     * @version $Id: EquatorialStereographic.java,v 1.2 2004/01/11 16:49:31 desruisseaux Exp $
+     * @version $Id: EquatorialStereographic.java,v 1.3 2004/02/23 12:28:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -153,7 +153,7 @@ public class EquatorialStereographic extends ObliqueStereographic {
 
         /**
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
-         * and stores the result in <code>ptDst</code> (units in meters).
+         * and stores the result in <code>ptDst</code> (linear distance on a unit sphere).
          */
         protected Point2D transformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException

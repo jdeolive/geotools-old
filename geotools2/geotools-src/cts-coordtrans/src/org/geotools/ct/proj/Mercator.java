@@ -79,7 +79,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">"mercator_1sp" on Remote Sensing</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">"mercator_2sp" on Remote Sensing</A>
  * 
- * @version $Id: Mercator.java,v 1.11 2004/01/11 16:49:31 desruisseaux Exp $
+ * @version $Id: Mercator.java,v 1.12 2004/02/23 12:28:22 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -102,7 +102,7 @@ public class Mercator extends CylindricalProjection {
      * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">"mercator_2sp" on Remote Sensing</A>
      * @see org.geotools.ct.MathTransformFactory
      *
-     * @version $Id: Mercator.java,v 1.11 2004/01/11 16:49:31 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.12 2004/02/23 12:28:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -191,7 +191,7 @@ public class Mercator extends CylindricalProjection {
     
     /**
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
-     * and stores the result in <code>ptDst</code> (units in meters). 
+     * and stores the result in <code>ptDst</code> (linear distance on a unit sphere).
      */
     protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException
@@ -231,7 +231,7 @@ public class Mercator extends CylindricalProjection {
     /**
      * Provides the transform equations for the spherical case of the Mercator projection.
      *
-     * @version $Id: Mercator.java,v 1.11 2004/01/11 16:49:31 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.12 2004/02/23 12:28:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */

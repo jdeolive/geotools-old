@@ -73,7 +73,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * This default implementation uses USGS equation (i.e. iteration) for computing
  * the {@linkplain #inverseTransformNormalized inverse transform}.
  *
- * @version $Id: PolarStereographic.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
+ * @version $Id: PolarStereographic.java,v 1.4 2004/02/23 12:28:23 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -104,20 +104,19 @@ public class PolarStereographic extends Stereographic {
      */
     protected PolarStereographic(final Projection parameters) throws MissingParameterException {
         super(parameters);
-        latitudeTrueScale = Math.abs(latitudeToRadians(
-                            parameters.getValue("latitude_true_scale",
-                            parameters.getValue("latitude_of_origin", 90)), true));
-
         southPole = (latitudeOfOrigin < 0);
         if (southPole) {
             latitudeOfOrigin = -(Math.PI/2);
         } else {
             latitudeOfOrigin = +(Math.PI/2);
         }
-        if (Math.abs(latitudeTrueScale-(Math.PI/2)) >= EPS) {
-            final double t = Math.sin(latitudeTrueScale);
-            k0 = msfn(t ,Math.cos(latitudeTrueScale)) /
-                 tsfn(latitudeTrueScale, t);  //derives from (21-32 and 21-33)
+        latitudeTrueScale = latitudeToRadians(parameters.getValue("latitude_true_scale",
+                            southPole ? -90 : 90), true);
+    
+        if (Math.abs(Math.abs(latitudeTrueScale)-(Math.PI/2)) >= EPS) {
+            final double t = Math.sin(Math.abs(latitudeTrueScale));
+            k0 = msfn(t ,Math.cos(Math.abs(latitudeTrueScale))) /
+                 tsfn(Math.abs(latitudeTrueScale), t);  //derives from (21-32 and 21-33)
         } else {
             // True scale at pole (part of (21-33))
             k0 = 2.0 / Math.sqrt(Math.pow(1+e, 1+e)*Math.pow(1-e, 1-e));
@@ -144,12 +143,12 @@ public class PolarStereographic extends Stereographic {
 
     /**
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
-     * and stores the result in <code>ptDst</code> (units in meters).
+     * and stores the result in <code>ptDst</code> (linear distance on a unit sphere).
      *
      * @param  x The longitude in radians.
      * @param  y The latitude in radians.
      * @param  ptDst The destination point, or <code>null</code>.
-     * @return The projected point in meters.
+     * @return The projected point as a linear distance on a unit sphere.
      * @throws ProjectionException if the projection failed.
      */
     protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
@@ -177,10 +176,10 @@ public class PolarStereographic extends Stereographic {
 
     /**
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in meters)
-     * and stores the result in <code>ptDst</code> (units in radians).
+     * and stores the result in <code>ptDst</code> (linear distance on a unit sphere).
      *
-     * @param  x The <var>x</var> ordinate in meters.
-     * @param  y The <var>y</var> ordinate in meters.
+     * @param  x The <var>x</var> ordinate as a linear distance.
+     * @param  y The <var>y</var> ordinate as a linear distance.
      * @param  ptDst The destination point, or <code>null</code>.
      * @return The geographic point in radians.
      * @throws ProjectionException if the projection failed.
@@ -254,7 +253,7 @@ public class PolarStereographic extends Stereographic {
      * Provides the transform equations for the spherical case of the polar
      * stereographic projection.
      *
-     * @version $Id: PolarStereographic.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
+     * @version $Id: PolarStereographic.java,v 1.4 2004/02/23 12:28:23 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -276,8 +275,8 @@ public class PolarStereographic extends Stereographic {
         protected Spherical(final Projection parameters) throws MissingParameterException {
             super(parameters);
             assert isSpherical;
-            if (Math.abs(latitudeTrueScale - (Math.PI/2)) >= EPS) {
-                k0 = 1 + Math.sin(latitudeTrueScale);     //derived from (21-7)
+            if (Math.abs(Math.abs(latitudeTrueScale) - (Math.PI/2)) >= EPS) {
+                k0 = 1 + Math.sin(Math.abs(latitudeTrueScale));     //derived from (21-7)
             } else {
                 k0 = 2;
             }
@@ -285,9 +284,9 @@ public class PolarStereographic extends Stereographic {
 
         /**
          * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
-         * and stores the result in <code>ptDst</code> (units in meters).
+         * and stores the result in <code>ptDst</code> (linear distance on a unit sphere).
          */
-         protected Point2D transformNormalized(double x, double y, Point2D ptDst)
+        protected Point2D transformNormalized(double x, double y, Point2D ptDst)
                 throws ProjectionException
         {
             //Compute using ellipsoidal formulas, for comparaison later.
@@ -371,12 +370,12 @@ public class PolarStereographic extends Stereographic {
      * {@link #inverseTransformNormalized inverseTransformNormalized(...)} method.
      * This is the equation specified by the EPSG. Allows for a 
      * <code>"latitude_true_scale"<code> parameter to be used, but this parameter is
-     * not listed by the EPSG.
+     * not listed by the EPSG and is not given as a parameter by the provider.
      *
-     * @version $Id: PolarStereographic.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
+     * @version $Id: PolarStereographic.java,v 1.4 2004/02/23 12:28:23 desruisseaux Exp $
      * @author Rueben Schulz
      */
-    static final class EPSG extends PolarStereographic {
+    static final class Series extends PolarStereographic {
         /**
          * Constants used for the inverse polar series
          */
@@ -401,7 +400,7 @@ public class PolarStereographic extends Stereographic {
          * @param  parameters The parameter values in standard units.
          * @throws MissingParameterException if a mandatory parameter is missing.
          */
-        protected EPSG(final Projection parameters) throws MissingParameterException {
+        protected Series(final Projection parameters) throws MissingParameterException {
             super(parameters);
             //See Snyde P. 19, "Computation of Series"
             final double e6 = es*es*es;
@@ -413,11 +412,11 @@ public class PolarStereographic extends Stereographic {
             C *= 4.0;
             D *= 8.0;
 
-            if (Math.abs(latitudeTrueScale-(Math.PI/2)) >= EPS) {
-                final double t = Math.sin(latitudeTrueScale);
-                k0 = msfn(t, Math.cos(latitudeTrueScale)) *
+            if (Math.abs(Math.abs(latitudeTrueScale)-(Math.PI/2)) >= EPS) {
+                final double t = Math.sin(Math.abs(latitudeTrueScale));
+                k0 = msfn(t, Math.cos(Math.abs(latitudeTrueScale))) *
                           Math.sqrt(Math.pow(1+e, 1+e)*Math.pow(1-e, 1-e)) /
-                          (2.0*tsfn(latitudeTrueScale, t));
+                          (2.0*tsfn(Math.abs(latitudeTrueScale), t));
             } else {
                 k0 = 1.0;
             }

@@ -70,7 +70,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * The polar case of the {@link Orthographic} projection. Only the spherical
  * form is given here.
  *
- * @version $Id: PolarOrthographic.java,v 1.1 2004/01/11 17:11:55 desruisseaux Exp $
+ * @version $Id: PolarOrthographic.java,v 1.2 2004/02/23 12:28:23 desruisseaux Exp $
  * @author  Rueben Schulz
  */
 public class PolarOrthographic extends Orthographic {
@@ -98,7 +98,7 @@ public class PolarOrthographic extends Orthographic {
     
     /**
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
-     * and stores the result in <code>ptDst</code> (units in meters). 
+     * and stores the result in <code>ptDst</code> (linear distance on a unit sphere). 
      */
     protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException

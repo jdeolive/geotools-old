@@ -93,7 +93,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/albers_equal_area_conic.html"> "Albers_Conic_Equal_Area" on www.remotesensing.org</A>
  * @see <A HREF="http://srmwww.gov.bc.ca/gis/bceprojection.html">British Columbia Albers Standard Projection</A>
  *
- * @version $Id: AlbersEqualArea.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
+ * @version $Id: AlbersEqualArea.java,v 1.4 2004/02/23 12:28:22 desruisseaux Exp $
  * @author Rueben Schulz
  */
 public class AlbersEqualArea extends ConicProjection {
@@ -126,7 +126,7 @@ public class AlbersEqualArea extends ConicProjection {
     /**
      * Informations about a {@link AlbersEqualArea}.
      *
-     * @version $Id: AlbersEqualArea.java,v 1.3 2004/01/11 16:49:31 desruisseaux Exp $
+     * @version $Id: AlbersEqualArea.java,v 1.4 2004/02/23 12:28:22 desruisseaux Exp $
      * @author Rueben Schulz
      */
     static final class Provider extends org.geotools.ct.proj.Provider {
@@ -205,7 +205,7 @@ public class AlbersEqualArea extends ConicProjection {
 
     /**
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
-     * and stores the result in <code>ptDst</code> (units in meters).
+     * and stores the result in <code>ptDst</code> (linear distance on a unit sphere).
      */
     protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException

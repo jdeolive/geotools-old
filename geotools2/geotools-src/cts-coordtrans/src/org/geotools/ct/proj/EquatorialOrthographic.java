@@ -74,7 +74,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @task REVISIT: this code is identical to the oblique except for 6 lines.
  *                It could be moved to the oblique with an isEquatorial flag.
  *
- * @version $Id: EquatorialOrthographic.java,v 1.1 2004/01/11 17:11:55 desruisseaux Exp $
+ * @version $Id: EquatorialOrthographic.java,v 1.2 2004/02/23 12:28:22 desruisseaux Exp $
  * @author Rueben Schulz
  */
 public class EquatorialOrthographic extends ObliqueOrthographic {
@@ -93,7 +93,7 @@ public class EquatorialOrthographic extends ObliqueOrthographic {
     
     /**
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
-     * and stores the result in <code>ptDst</code> (units in meters). 
+     * and stores the result in <code>ptDst</code> (linear distance on a unit sphere).
      */
     protected Point2D transformNormalized(double x, double y, Point2D ptDst)
             throws ProjectionException

@@ -109,7 +109,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://mathworld.wolfram.com/MercatorProjection.html">Transverse Mercator projection on MathWorld</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/transverse_mercator.html">"Transverse_Mercator" on Remote Sensing</A>
  *
- * @version $Id: TransverseMercator.java,v 1.5 2004/01/11 16:49:31 desruisseaux Exp $
+ * @version $Id: TransverseMercator.java,v 1.6 2004/02/23 12:28:23 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -172,7 +172,7 @@ public class TransverseMercator extends CylindricalProjection {
     /**
      * Informations about a {@link TransverseMercator}.
      *
-     * @version $Id: TransverseMercator.java,v 1.5 2004/01/11 16:49:31 desruisseaux Exp $
+     * @version $Id: TransverseMercator.java,v 1.6 2004/02/23 12:28:23 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -262,7 +262,7 @@ public class TransverseMercator extends CylindricalProjection {
     
     /**
      * Transforms the specified (<var>x</var>,<var>y</var>) coordinate (units in radians)
-     * and stores the result in <code>ptDst</code> (units in meters).
+     * and stores the result in <code>ptDst</code> (linear distance on a unit sphere).
      */
     protected Point2D transformNormalized(double x, double y, final Point2D ptDst)
             throws ProjectionException 
