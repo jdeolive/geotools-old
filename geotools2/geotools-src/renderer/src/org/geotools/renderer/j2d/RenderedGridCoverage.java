@@ -41,7 +41,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.awt.RenderingHints;
-import javax.media.jai.ImageMIPMap;
+import javax.media.jai.ImageLayout;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.JAI;
@@ -80,7 +80,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.5 2003/02/22 22:36:03 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.6 2003/02/28 22:27:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -95,7 +95,7 @@ public class RenderedGridCoverage extends RenderedLayer {
      * the resolution of previous level. This value is used only if
      * {@link #USE_PYRAMID} is <code>true</code>.
      */
-    private static final float DOWN_SAMPLER = 0.25f;
+    private static final float DOWN_SAMPLER = 0.5f;
 
     /**
      * Natural logarithm of {@link #DOWN_SAMPLER}. Used
@@ -117,11 +117,18 @@ public class RenderedGridCoverage extends RenderedLayer {
     private static final float DEFAULT_Z_ORDER = Float.NEGATIVE_INFINITY;
 
     /**
-     * {@link ImageMIPMap} previously created for {@link RenderedImage}.
-     * Key are weak references to {@link RenderedImage}, and values are
-     * {@link ImageMIPMap}. This map will be created only when first needed.
+     * A multi-resolution array <code>RenderedImage[]</code> previously created for each
+     * grid coverages.  Keys are weak references to {@link GridCoverage}, and values are
+     * <code>RenderedImage[]</code>. This map will be created only when first needed.
      *
-     * @see #getImageMIPMap
+     * Note: Two coverages could be backed by the same {@link RenderedImage}. Consequently, it
+     *       would be more efficient to use the grid coverage's {@link RenderedImage} as a key
+     *       rather than the grid coverage itself. Unfortunatly, we can't because the rendered
+     *       image if referenced in values,  both directly in the array and indirectly through
+     *       the operation chains. The solution to this problem required the implementation of
+     *       the following RFE ("add joined weak references"):
+     *
+     *       http://developer.java.sun.com/developer/bugParade/bugs/4630118.html
      */
     private static Map sharedImages;
 
@@ -147,16 +154,16 @@ public class RenderedGridCoverage extends RenderedLayer {
     private Rectangle2D coverageArea;
 
     /**
-     * A list of multi-resolution images. Image at level 0 is identical to
-     * {@link GridCoverage#getRenderedImage()}.  Other levels contains the
+     * A list of multi-resolution images. Image at index 0 is identical to
+     * {@link GridCoverage#getRenderedImage()}.  Other indexs contains the
      * image at lower resolution for faster rendering.
      */
-    private ImageMIPMap images;
-    
+    private RenderedImage[] images;
+
     /**
-     * Maximum amount of level to use for multi-resolution images.
+     * Last image used in {@link #images}. Used for logging only.
      */
-    private int maxLevel;
+    private transient int lastLevel;
 
     /**
      * Point dans lequel mémoriser les coordonnées logiques d'un pixel
@@ -262,16 +269,13 @@ public class RenderedGridCoverage extends RenderedLayer {
     /**
      * Initialize this object after a change of <strong>rendering</strong> grid coverage. This
      * change may occurs as a result of {@link #setGridCoverage} or {@link #setCoordinateSystem}.
-     * This method constructs the pyramidal image for the current grid coverage. Together with
-     * tiling, pyramidal images attempt to speed up rendering of large images. This method try
-     * to constructs a shared instance, in order to allow many views of the same image without
-     * duplicating the decimated images.
+     * This method constructs a chain of images with lower resolution.  Together with tiling,
+     * decimation is an attempt to speed up the rendering of large images. This method try to
+     * constructs a shared instance of decimated images,  in order to allow many views of the
+     * same grid coverage without duplicating the decimated images.
      *
-     * @task REVISIT: <code>ImageMIPMap</code> caching may not be wanted if the user provided
+     * @task REVISIT: <code>RenderedImage[]</code> caching may not be wanted if the user provided
      *                custom rendering hints, since the cached images may use different ones.
-     *
-     * @task TODO: <code>ImagePyramid</code> is an <code>ImageMIPMap</code> subclass that may be
-     *             more efficient, but seems more difficult to use. We should investigage it.
      */
     private void initialize() {
         assert Thread.holdsLock(getTreeLock());
@@ -283,40 +287,36 @@ public class RenderedGridCoverage extends RenderedLayer {
         }
         coverageArea = coverage.getEnvelope().getSubEnvelope(0, 2).toRectangle2D();
         /*
-         * The rest of this method compute the pyramidal image.
+         * The rest of this method compute the chain of decimated images.
          * In input,  this method use the following fields: {@link #coverage}, {@link #renderer}.
-         * In output, this method ovewrite the following fields: {@link #maxLevel}, {@link #images}.
+         * In output, this method ovewrite the following field: {@link #images}.
          */
         if (!USE_PYRAMID) {
             images = null;
-            maxLevel = 0;
+            lastLevel = 0;
+            return;
         }
         /*
          * Compute the number of levels-1 (i.e. compute the maximal level allowed).
-         * If the result is 0, then there is no point to construct a pyramidal image.
+         * If the result is 0, then there is no point to construct a chain of images.
          */
-        RenderedImage rootImage = coverage.getRenderedImage();
-        while (rootImage instanceof RenderedOp) {
-            rootImage = ((RenderedOp) rootImage).getRendering();
-            // Required because an operation in the chain other than the down sampler
-            // will confuse ImageMIPMap.   TODO: a drawback of that is that change to
-            // the RenderedOp will not be forwarded to the rendered image.
-        }
-        maxLevel = Math.max(0, (int)(Math.log((double)MIN_SIZE/
-                   Math.max(rootImage.getWidth(), rootImage.getHeight()))/LOG_DOWN_SAMPLER));
+        final RenderedImage image = coverage.getRenderedImage();
+        final int maxLevel = Math.max(0, (int)(Math.log((double)MIN_SIZE/
+                             Math.max(image.getWidth(), image.getHeight()))/LOG_DOWN_SAMPLER));
         if (maxLevel == 0) {
             images = null;
+            lastLevel = 0;
             return;
         }
         synchronized (RenderedGridCoverage.class) {
             /*
-             * Verify if a pyramidal image exists already. This pyramidal image
+             * Verify if a chain of images already exists. This chain
              * can be shared among many 'RenderedGridCoverage' instances.
              */
-            assert rootImage.hashCode() == System.identityHashCode(rootImage);
             if (sharedImages != null) {
-                images = (ImageMIPMap) sharedImages.get(rootImage);
+                images = (RenderedImage[]) sharedImages.get(coverage);
                 if (images != null) {
+                    assert images.length == maxLevel+1;
                     return;
                 }
             }
@@ -336,31 +336,30 @@ public class RenderedGridCoverage extends RenderedLayer {
             if (jai == null) {
                 jai = JAI.getDefaultInstance();
             }
-            RenderedImage image = rootImage;
+            images      = new RenderedImage[maxLevel+1];
+            images[0]   = image;
+            lastLevel   = 0;
+            float scale = DOWN_SAMPLER;
             final ParameterBlock parameters = new ParameterBlock();
-            parameters.add(DOWN_SAMPLER); // xScale
-            parameters.add(DOWN_SAMPLER); // yScale
-            for (int i=0; i<maxLevel; i++) {
-                RenderingHints tileHints = ImageUtilities.getRenderingHints(image);
-                if (tileHints == null) {
-                    tileHints = hints;
-                } else if (hints != null) {
-                    tileHints.add(hints);
+            parameters.addSource(image);
+            for (int i=1; i<=maxLevel; i++) {
+                parameters.removeParameters();
+                parameters.add(scale); // xScale
+                parameters.add(scale); // yScale
+                final RenderedOp opImage = jai.createNS("Scale", parameters, hints);
+                RenderingHints tileHints = ImageUtilities.getRenderingHints(opImage);
+                if (tileHints != null) {
+                    tileHints.add(opImage.getRenderingHints());
+                    opImage.setRenderingHints(tileHints);
                 }
-                parameters.removeSources();
-                parameters.addSource(image);
-                image = jai.createNS("Scale", parameters, tileHints);
-                assert Math.max(image.getWidth(), image.getHeight()) >= MIN_SIZE;
+                images[i] = opImage;
+                assert Math.max(opImage.getWidth(), opImage.getHeight()) >= MIN_SIZE;
+                scale *= DOWN_SAMPLER;
             }
-            /*
-             * Construct the pyramidal image and cache the result for future
-             * use in possibily different 'RenderedGridCoverage' instance.
-             */
-            images = new ImageMIPMap((RenderedOp)image);
             if (sharedImages == null) {
                 sharedImages = new WeakHashMap();
             }
-            sharedImages.put(rootImage, images);
+            sharedImages.put(coverage, images);
         }
     }
 
@@ -458,7 +457,8 @@ public class RenderedGridCoverage extends RenderedLayer {
     protected void paint(final RenderingContext context) throws TransformException {
         assert Thread.holdsLock(getTreeLock());
         if (coverage != null) {
-            assert coverage.getCoordinateSystem().equals(context.mapCS, false);
+            assert CTSUtilities.getCoordinateSystem2D(coverage.getCoordinateSystem())
+                               .equals(context.mapCS, false) : coverage.getCoordinateSystem();
             final AffineTransform gridToCoordinate; // This transform is immutable.
             try {
                 gridToCoordinate = (AffineTransform) coverage.getGridGeometry()
@@ -477,7 +477,7 @@ public class RenderedGridCoverage extends RenderedLayer {
                 transform = context.getGraphics().getTransform();
                 transform.concatenate(gridToCoordinate);
                 final int level = Math.max(0,
-                                  Math.min(maxLevel,
+                                  Math.min(images.length-1,
                                   (int)(Math.log(Math.max(XAffineTransform.getScaleX0(transform),
                                   XAffineTransform.getScaleY0(transform)))/LOG_DOWN_SAMPLER)));
                 /*
@@ -490,27 +490,28 @@ public class RenderedGridCoverage extends RenderedLayer {
                     final double scale = Math.pow(DOWN_SAMPLER, -level);
                     transform.scale(scale, scale);
                 }
-                if (level != images.getCurrentLevel()) {
+                if (level != lastLevel) {
                     final Logger logger = Logger.getLogger("org.geotools.renderer.j2d");
                     if (logger.isLoggable(Level.FINE)) {
                         final Locale locale = getLocale();
                         final LogRecord record = Resources.getResources(locale).getLogRecord(
                                            Level.FINE, ResourceKeys.RESSAMPLING_RENDERED_IMAGE_$3,
                                            coverage.getName(locale),
-                                           new Integer(level), new Integer(maxLevel));
+                                           new Integer(level), new Integer(images.length-1));
                         record.setSourceClassName(Utilities.getShortClassName(this));
                         record.setSourceMethodName("paint");
                         logger.log(record);
                     }
+                    lastLevel = level;
                 }
-                image = images.getImage(level);
+                image = images[level];
             } else {
                 transform = new AffineTransform(gridToCoordinate);
                 image = coverage.getRenderedImage();                
             }
             transform.translate(-0.5, -0.5); // Map to upper-left corner.
             context.getGraphics().drawRenderedImage(image, transform);
-            context.addPaintedArea(coverageArea, coverage.getCoordinateSystem());
+            context.addPaintedArea(coverageArea, context.mapCS);
         }
     }
 
@@ -607,7 +608,7 @@ public class RenderedGridCoverage extends RenderedLayer {
             coverage = sourceCoverage = null;
             coverageArea = null;
             images       = null;
-            maxLevel     = 0;
+            lastLevel    = 0;
         }
     }
 }
