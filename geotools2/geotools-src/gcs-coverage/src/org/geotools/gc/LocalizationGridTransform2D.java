@@ -71,7 +71,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * interpolation. If input coordinates are outside the grid range, then output
  * coordinates are extrapolated.
  *
- * @version $Id: LocalizationGridTransform2D.java,v 1.13 2003/06/30 22:00:12 desruisseaux Exp $
+ * @version $Id: LocalizationGridTransform2D.java,v 1.14 2003/07/02 13:24:50 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -87,7 +87,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      * Maximal number of iterations to try before to fail
      * during an inverse transformation.
      */
-    private static final int MAX_ITER = 30;
+    private static final int MAX_ITER = 40;
 
     /**
      * Set to <code>true</code> for a conservative (and maybe slower) algorithm
@@ -568,7 +568,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      * The inverse transform. This inner class is
      * the inverse of the enclosing math transform.
      *
-     * @version $Id: LocalizationGridTransform2D.java,v 1.13 2003/06/30 22:00:12 desruisseaux Exp $
+     * @version $Id: LocalizationGridTransform2D.java,v 1.14 2003/07/02 13:24:50 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D,
