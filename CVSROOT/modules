@@ -32,7 +32,7 @@ geotools-src geotools2/geotools-src
 extbin geotools2/extbin
 core geotools2/geotools-src/core
 proj4j geotools2/geotools-src/proj4j
-gt2 -d geotools2/geotools-src \
+gt2 -d geotools2/geotools-src geotools2/geotools-src \
     core \
     defaultcore \
     postgis \
