@@ -16,7 +16,7 @@ import org.w3c.dom.*;
  *
  * @author  iant
  */
-public class FilterXMLParser {
+public class FilterDOMParser {
 
     /**
      * The logger for the filter module.
@@ -24,7 +24,7 @@ public class FilterXMLParser {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
     
     /** Creates a new instance of FilterXMLParser */
-    public FilterXMLParser() {
+    public FilterDOMParser() {
     }
     public static Filter parseFilter(Node root){
         LOGGER.fine("parsingFilter "+root.getNodeName());
@@ -56,15 +56,20 @@ public class FilterXMLParser {
                         if(kid.getNodeName().equalsIgnoreCase("LowerBoundary")){
                             value = kid.getFirstChild();
                             while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                            bfilter.addLeftValue(ExpressionXmlParser.parseExpression(value));
+                            bfilter.addLeftValue(ExpressionDOMParser.parseExpression(value));
                         }
                         if(kid.getNodeName().equalsIgnoreCase("UpperBoundary")){
                             value = kid.getFirstChild();
                             while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
-                            bfilter.addRightValue(ExpressionXmlParser.parseExpression(value));
+                            bfilter.addRightValue(ExpressionDOMParser.parseExpression(value));
                         }
                         if(kid.getNodeName().equalsIgnoreCase("PropertyName")){
-                            bfilter.addMiddleValue(ExpressionXmlParser.parseExpression(kid));
+                            bfilter.addMiddleValue(ExpressionDOMParser.parseExpression(kid));
+                        }
+                        if(kid.getNodeName().equalsIgnoreCase("MiddleValue")){
+                            value = kid.getFirstChild();
+                            while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                            bfilter.addMiddleValue(ExpressionDOMParser.parseExpression(value));
                         }
                     }
                     return bfilter;
@@ -77,10 +82,10 @@ public class FilterXMLParser {
                         if(kid == null || kid.getNodeType() != Node.ELEMENT_NODE) continue;
                         String res = kid.getNodeName();
                         if(res.equalsIgnoreCase("PropertyName")){
-                            value = ExpressionXmlParser.parseExpression(kid);
+                            value = ExpressionDOMParser.parseExpression(kid);
                         }
                         if(res.equalsIgnoreCase("Literal")){
-                            pattern = ExpressionXmlParser.parseExpression(kid).toString();
+                            pattern = ExpressionDOMParser.parseExpression(kid).toString();
                         }
                     }
                     NamedNodeMap kids = child.getAttributes();
@@ -116,12 +121,12 @@ public class FilterXMLParser {
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add left value -> "+value+"<-");
-                filter.addLeftValue(ExpressionXmlParser.parseExpression(value));
+                filter.addLeftValue(ExpressionDOMParser.parseExpression(value));
                 value = value.getNextSibling();
                 
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add right value -> "+value+"<-");
-                filter.addRightValue(ExpressionXmlParser.parseExpression(value));
+                filter.addRightValue(ExpressionDOMParser.parseExpression(value));
                 return filter;
                 
             }catch (IllegalFilterException ife){
@@ -136,7 +141,7 @@ public class FilterXMLParser {
                 Node value = child.getFirstChild();
                     while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                     LOGGER.finer("add left value -> "+value+"<-");
-                    filter.addLeftGeometry(ExpressionXmlParser.parseExpression(value));
+                    filter.addLeftGeometry(ExpressionDOMParser.parseExpression(value));
                     value = value.getNextSibling();
                     
                     while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
@@ -150,7 +155,7 @@ public class FilterXMLParser {
                         value = literal;
                     }
         
-                    filter.addRightGeometry(ExpressionXmlParser.parseExpression(value));
+                    filter.addRightGeometry(ExpressionDOMParser.parseExpression(value));
                     return filter;
                 }catch (IllegalFilterException ife){
                 LOGGER.finer("Unable to build filter: " + ife);

@@ -18,7 +18,7 @@ import com.vividsolutions.jts.geom.*;
  *
  * @author  iant
  */
-public class ExpressionXmlParser {
+public class ExpressionDOMParser {
 
     /**
      * The logger for the filter module.
@@ -26,7 +26,7 @@ public class ExpressionXmlParser {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** Creates a new instance of ExpressionXmlParser */
-    public ExpressionXmlParser() {
+    public ExpressionDOMParser() {
     }
     public static Expression parseExpression(Node root){
         LOGGER.finer("parsingExpression "+root.getNodeName());
