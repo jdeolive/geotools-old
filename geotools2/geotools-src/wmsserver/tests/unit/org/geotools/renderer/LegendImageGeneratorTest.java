@@ -47,6 +47,7 @@ import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbolizer;
+import org.geotools.wms.servlet.ImageView;
 
 
 /**
@@ -133,28 +134,11 @@ public class LegendImageGeneratorTest extends TestCase {
         style.setFeatureTypeStyles(new FeatureTypeStyle[] { fts, fts2, fts3 });
 
         LegendImageGenerator lig = new LegendImageGenerator(style, 300, 300);
-        Frame frame = new Frame();
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                e.getWindow().dispose();
-            }
-        });
-
-        Panel p = new Panel();
-        frame.add(p);
-        frame.setSize(300, 300);
-        frame.setVisible(true);
-
         BufferedImage image = lig.getLegend(Color.white);
-        p.getGraphics().drawImage(image, 300, 300, p);
-
-        //        int w = 300, h = 600;
-        //        BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
-        //        Graphics g = image.getGraphics();
-        //        g.setColor(Color.white);
-        //        g.fillRect(0,0,w,h);
-        //        renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
-        //        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        
+        ImageView view = new ImageView(image,"Simple Test");
+        view.setSize(300,300);
+        view.createFrame();
         String dataFolder = System.getProperty("dataFolder");
 
         if (dataFolder == null) {
@@ -168,8 +152,11 @@ public class LegendImageGeneratorTest extends TestCase {
         ImageIO.write(image, "JPEG", out);
         out.close();
 
-        Thread.sleep(5000);
-        frame.dispose();
+        try{
+            Thread.sleep(5000);
+        }catch (InterruptedException e){}
+        view.close();
+
     }
     
     public void testComplexStyle() throws Exception{
@@ -188,27 +175,20 @@ public class LegendImageGeneratorTest extends TestCase {
         SLDStyle stylereader = new SLDStyle(factory,f);
         Style[] style = stylereader.readXML();
         LegendImageGenerator lig = new LegendImageGenerator(style[0], 300, 100);
-        Frame frame = new Frame();
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                e.getWindow().dispose();
-            }
-        });
-
-        Panel p = new Panel();
-        frame.add(p);
-        frame.setSize(300, 100);
-        frame.setVisible(true);
-
-        BufferedImage image = lig.getLegend(Color.white);
-        p.getGraphics().drawImage(image, 300, 100, p);
         
+        BufferedImage image = lig.getLegend(Color.white);
+        ImageView view = new ImageView(image,"Complex Test");
+        view.setSize(300,100);
+        view.createFrame();
         File file = new File(dataFolder, "LegendGraphicTest2.jpg");
         FileOutputStream out = new FileOutputStream(file);
         ImageIO.write(image, "JPEG", out);
         out.close();
-        Thread.sleep(5000);
-        frame.dispose();
+        try{
+            Thread.sleep(5000);
+        }catch (InterruptedException e){}
+        view.close();
+        
         
         
     }
