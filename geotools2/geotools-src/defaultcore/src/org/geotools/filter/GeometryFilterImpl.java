@@ -45,7 +45,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Rob Hranac, TOPP
- * @version $Id: GeometryFilterImpl.java,v 1.14 2003/08/19 17:42:10 cholmesny Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.15 2004/04/12 16:53:20 aaime Exp $
  *
  * @task REVISIT: make this class (and all filters) immutable, implement
  *       cloneable and return new filters when calling addLeftGeometry and
@@ -174,6 +174,11 @@ public class GeometryFilterImpl extends AbstractFilterImpl
         } else {
             left = feature.getDefaultGeometry();
         }
+        
+        // default behaviour: if the geometry that is to be filtered is not
+        // there we default to not returning anything
+        if(left == null)
+            return false;
 
         // Handles all normal geometry cases
         if (filterType == GEOMETRY_EQUALS) {
