@@ -22,7 +22,7 @@
  */
 package org.geotools.renderer;
 import org.geotools.styling.*;
-
+import org.geotools.map.Map;
 
 /**
  *
