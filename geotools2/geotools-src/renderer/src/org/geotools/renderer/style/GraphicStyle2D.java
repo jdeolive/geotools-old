@@ -23,14 +23,13 @@
 package org.geotools.renderer.style;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 
 
 /**
  * A style class used to depict a point, polygon centroid or line with a small graphic icon
  *
  * @author Andrea Aime
- * @version $Id: GraphicStyle2D.java,v 1.2 2003/11/15 14:18:08 aaime Exp $
+ * @version $Id: GraphicStyle2D.java,v 1.3 2004/04/12 16:51:27 aaime Exp $
  */
 public class GraphicStyle2D extends Style2D {
     BufferedImage image;

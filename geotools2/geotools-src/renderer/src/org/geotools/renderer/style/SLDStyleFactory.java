@@ -1046,7 +1046,7 @@ public class SLDStyleFactory {
 
                 return img;
             } catch (IOException mue) {
-                this.LOGGER.warning("Unable to load external svg file, " + mue.getMessage());
+                LOGGER.warning("Unable to load external svg file, " + mue.getMessage());
 
                 return null;
             }
@@ -1055,7 +1055,7 @@ public class SLDStyleFactory {
             //                return null;
             //            }
              catch (Exception e) {
-                this.LOGGER.warning("Unable to process or render external svg file, "
+                LOGGER.warning("Unable to process or render external svg file, "
                     + e.getMessage());
 
                 return null;

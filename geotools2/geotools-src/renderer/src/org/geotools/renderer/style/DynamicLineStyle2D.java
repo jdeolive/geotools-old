@@ -20,7 +20,6 @@ import org.geotools.feature.Feature;
 import org.geotools.filter.Expression;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Stroke;
-import org.geotools.styling.Symbolizer;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
