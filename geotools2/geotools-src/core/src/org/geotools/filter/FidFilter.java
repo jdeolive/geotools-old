@@ -17,7 +17,7 @@
 package org.geotools.filter;
 
 import org.geotools.feature.Feature;
-
+import java.util.Collection;
 
 /**
  * Defines a feature ID filter, which holds a list of feature IDs. This filter
@@ -25,7 +25,7 @@ import org.geotools.feature.Feature;
  * uniquely.
  *
  * @author Rob Hranac, TOPP
- * @version $Id: FidFilter.java,v 1.5 2003/08/07 19:55:22 cholmesny Exp $
+ * @version $Id: FidFilter.java,v 1.6 2004/02/20 00:19:13 seangeo Exp $
  */
 public interface FidFilter extends Filter {
     /**
@@ -51,4 +51,26 @@ public interface FidFilter extends Filter {
      * @return An array of all the fids in this filter.
      */
     String[] getFids();
+    
+	/** 
+	 * Adds a collection of feature IDs to the filter. 
+	 * 
+	 * @param fids A collection of feature IDs. 
+	 */ 
+	void addAllFids(Collection fidsToAdd); 
+
+	/** 
+	 * Removes a collection of feature IDs from the filter. 
+	 * 
+	 * @param fids A collection of feature IDs. 
+	 */ 
+	void removeAllFids(Collection fidsToRemove); 
+
+	/** 
+	 * Removes a feature ID from the filter. 
+	 * 
+	 * @param fid A single feature ID. 
+	 */ 
+	void removeFid(String fid);
+
 }
