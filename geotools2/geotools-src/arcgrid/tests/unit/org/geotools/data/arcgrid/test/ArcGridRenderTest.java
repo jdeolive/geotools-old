@@ -110,7 +110,8 @@ public class ArcGridRenderTest extends TestCaseSupport {
 		map.addFeatureTable(ft, style);
 
 
-		ArcGridRaster arcGridRaster = ds.getArcGridRaster();
+		ArcGridRaster arcGridRaster = ds.openArcGridRaster();
+        arcGridRaster.parseHeader();
 		int w = arcGridRaster.getNCols();
 		int h = arcGridRaster.getNRows();
 

@@ -28,21 +28,13 @@ public class ArcGridHeaderTest extends TestCaseSupport {
 		
 		URL url = getTestResource("ArcGrid.asc");
 		ArcGridRaster header = new ArcGridRaster(url);
-		assertEquals("ncols", header.getProperty(ArcGridRaster.NCOLS), new Integer(233));
-		assertEquals("nrows", header.getProperty(ArcGridRaster.NROWS), new Integer(3));
-		assertEquals(
-			"xllcorner",
-			header.getProperty(ArcGridRaster.XLLCORNER),
-			new Double(122222.0));
-		assertEquals(
-			"yllcorner",
-			header.getProperty(ArcGridRaster.YLLCORNER),
-			new Double(45001.0));
-		assertEquals("cellsize", header.getProperty(ArcGridRaster.CELLSIZE), new Double(250.0));
-		assertEquals(
-			"NODATA_value",
-			header.getProperty(ArcGridRaster.NODATA_VALUE),
-			new Double(1.70141E38));
+        header.parseHeader();
+		assertEquals("ncols", header.getNCols(), 233);
+		assertEquals("nrows", header.getNRows(), 3);
+		assertEquals("xllcorner",header.getXlCorner(), 122222.0, 0);
+		assertEquals("yllcorner",header.getYlCorner(), 45001.0, 0);
+		assertEquals("cellsize", header.getCellSize(), 250.0, 0);
+		assertEquals("NODATA_value",header.getNoData(), 1.70141E38,0);
 
 	}
 
