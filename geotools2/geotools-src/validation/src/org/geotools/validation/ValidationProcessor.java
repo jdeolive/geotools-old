@@ -14,10 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-/* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
- * This code is licensed under the GPL 2.0 license, availible at the root
- * application directory.
- */
 package org.geotools.validation;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -94,21 +90,35 @@ import java.util.Set;
  * </p>
  *
  * @author bowens, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.5 2004/04/20 23:20:19 dmzwiers Exp $
+ * @author $Author: jive $ (last modification)
+ * @version $Id: ValidationProcessor.java,v 1.6 2004/04/21 11:09:36 jive Exp $
  */
 public class ValidationProcessor {
-    // These are no longer used for Integrity Validation tests
-    // used to hold a place in the lookup tables for ALL feature types
-    public final static Object ANYTYPENAME = new Object();
-    protected HashMap featureLookup; // a hashMap with featureTypes as keys that map to array lists 
+    /** Magic key used to hold the place of any featureType */
+    final Object ANYTYPENAME = new Object();    
 
-    //    of feature validation tests
-    protected HashMap integrityLookup; // a hashMap with featureTypes as keys that map to array lists 
+    /**
+     * Stores Lists of FeatureTests by featureType.
+     * <p>
+     * Map of ArrayLists by featureType (the lists contain FeatureValidation instances)
+     * </p>
+     */
+    protected Map featureLookup;  
 
-    //	of integrity validation tests
-    protected ArrayList modifiedFeatureTypes; // a list of feature types that have been modified
-    //protected HashMap errors;
+    /**
+     * Stores Lists of IntegrityValidation by featureType.
+     * <p>
+     * A Map with featureTypes as keys that map to array lists
+     * of integrity validation tests.
+     * </p>
+     * <p>
+     * How are tests that map against all FeatureTypes stored?
+     * </p>
+     */
+    protected Map integrityLookup; //  
+
+    /** List of feature types that have been modified. */
+    protected ArrayList modifiedFeatureTypes;   
 
     /**
      * ValidationProcessor constructor.
@@ -119,8 +129,7 @@ public class ValidationProcessor {
      */
     public ValidationProcessor() {
         featureLookup = new HashMap();
-        integrityLookup = new HashMap();
-        //errors = new HashMap();
+        integrityLookup = new HashMap();        
     }
 
     /**
@@ -407,12 +416,4 @@ public class ValidationProcessor {
         // end for each modified featureType
     }
 
-    /**
-     * Access errors property.
-     *
-     * @return Returns the errors.
-     */
-//    public HashMap getErrors() {
-//        return errors;
-//    }
 }

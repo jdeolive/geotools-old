@@ -43,8 +43,8 @@ import org.xml.sax.SAXException;
  * Load validation configuration from XML.
  *
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: XMLReader.java,v 1.3 2004/04/08 21:39:10 dmzwiers Exp $
+ * @author $Author: jive $ (last modification)
+ * @version $Id: XMLReader.java,v 1.4 2004/04/21 11:05:37 jive Exp $
  */
 public class XMLReader {
     /**
@@ -161,21 +161,18 @@ public class XMLReader {
      *
      * @throws ValidationException DOCUMENT ME!
      */
-    public static TestSuiteDTO readTestSuite(Reader inputSource, Map plugIns)
+    public static TestSuiteDTO readTestSuite(String name, Reader inputSource, Map plugIns)
         throws ValidationException {
         TestSuiteDTO dto = new TestSuiteDTO();
-
         try {
             Element elem = null;
-
             try {
                 elem = ReaderUtils.loadConfig(inputSource);
             } catch (ParserConfigurationException e) {
-                throw new ValidationException("An error occured loading the XML parser.",
+                throw new ValidationException( "Problem parsing "+name+":"+e.getMessage(),
                     e);
             } catch (SAXException e) {
-                throw new ValidationException("An error occured loading the XML parser.",
-                    e);
+                throw new ValidationException( "XML problem with  "+name+":"+e.getMessage(),e);
             }
 
             try {
@@ -411,23 +408,32 @@ public class XMLReader {
 
         try {
             validationDir = ReaderUtils.initFile(validationDir, true);
+        }
+        catch( IOException dirException ){
+            throw new ValidationException("Problem opening "+validationDir.getName(),
+                    dirException);            
+        }
+        File[] fileList = validationDir.listFiles();
+        r = new HashMap();
 
-            File[] fileList = validationDir.listFiles();
-            r = new HashMap();
-
-            for (int i = 0; i < fileList.length; i++) {
+        for (int i = 0; i < fileList.length; i++) {
+            try {
                 if (fileList[i].canWrite() && fileList[i].isFile()) {
                     FileReader fr = new FileReader(fileList[i]);
-                    TestSuiteDTO dto = XMLReader.readTestSuite(fr, plugInDTOs);
-                    r.put(dto.getName(), dto);
-                    fr.close();
+                    try {
+                        TestSuiteDTO dto = XMLReader.readTestSuite( fileList[i].getName(), fr, plugInDTOs);
+                        r.put(dto.getName(), dto);                        
+                    }
+                    finally {                    
+                        fr.close();
+                    }
                 }
             }
-        } catch (IOException e) {
-            throw new ValidationException("An io error occured while loading the plugin's",
-                e);
+            catch (IOException open) {
+                throw new ValidationException("Could not open "+fileList[i].getName(),
+                    open);
+            }
         }
-
         return r;
     }
 }
