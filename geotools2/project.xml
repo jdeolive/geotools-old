@@ -127,13 +127,18 @@
         <classloader>root.maven</classloader>
       </properties>
     </dependency>
-    <dependency>
-      <id>commons-jelly+tags-velocity</id>
-      <version>SNAPSHOT</version>
-      <properties>
-        <classloader>root.maven</classloader>
-      </properties>
+      <dependency>
+      <id>commons-jelly</id>
+      <version>20030211.141339</version>
+      <url>http://jakarta.apache.org/commons/jelly/</url>
     </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly-tags-velocity</artifactId>
+      <version>20030211.144921</version>
+      <url>http://jakarta.apache.org/commons/jelly/tags/ant/</url>
+    </dependency>
+
   </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
