@@ -62,7 +62,7 @@ import org.geotools.io.LineWriter;
  * [core FINE] A log message logged with level FINE from the "org.geotools.core" 
  * logger.</pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.4 2002/08/30 18:54:03 robhranac Exp $
+ * @version $Id: MonolineFormatter.java,v 1.5 2002/09/01 18:30:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatter extends Formatter {
@@ -201,7 +201,7 @@ public class MonolineFormatter extends Formatter {
      * on any loggers outside the <code>base</code> namespace.
      *
      * @param base The base logger name to apply the change on 
-     * (e.g. "org.geotools").
+     *             (e.g. "org.geotools").
      */
     public static void init(final String base) {
         Formatter monoline = null;
@@ -246,7 +246,7 @@ public class MonolineFormatter extends Formatter {
      */
     private static void unexpectedException(final Exception e) {
         Utilities.unexpectedException("org.geotools.resources", 
-                                      "GeotoolsHandler", "init", e);
+                                      "MonolineFormatter", "init", e);
     }
 
     /**
