@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.19 2003/08/22 15:25:31 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.20 2003/10/27 21:23:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -254,7 +254,7 @@ public final class RenderingContext {
     /**
      * Returns the painting area in the specified coordinate system. If the coordinate
      * system is {@link #textCS}, then this method will usually returns the widget's
-     * bounds ((@link Component#getBounds}).
+     * bounds ({@link Component#getBounds}).
      *
      * @param  cs The coordinate system.
      * @return The painting area.
@@ -292,7 +292,7 @@ public final class RenderingContext {
      * coordinate system}. It is only a convenient way to set the
      * {@linkplain Graphics2D#setTransform <code>Graphics2D</code>'s affine transform}, for
      * example in order to alternate rendering mode between geographic features and texts.
-     * The specified coordinate system (argument <code>cs</code>) shoud be one of {@link #mapCS},
+     * The specified coordinate system (argument <code>cs</code>) should be one of {@link #mapCS},
      * {@link #textCS} or {@link #deviceCS} fields. Other coordinate systems may work, but most
      * of them will thrown an exception.
      *
