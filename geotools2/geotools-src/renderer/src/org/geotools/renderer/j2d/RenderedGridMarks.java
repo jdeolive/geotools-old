@@ -33,6 +33,7 @@
 package org.geotools.renderer.j2d;
 
 // J2SE dependencies
+import java.awt.Paint;
 import java.awt.Color;
 import java.awt.Shape;
 import java.awt.Dimension;
@@ -83,10 +84,19 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       Arrows sizes and direction depends of the sample values.</li>
  * </ul>
  *
- * @version $Id: RenderedGridMarks.java,v 1.9 2003/03/15 12:58:15 desruisseaux Exp $
+ * @version $Id: RenderedGridMarks.java,v 1.10 2003/03/19 23:50:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridMarks extends RenderedMarks {
+    /**
+     * Extends the zoomable area by this amount of pixels when computing the "grid" clip area.
+     * This is needed since a mark located outside the clip area may have a part showing in the
+     * visible area if the mark is big enough.
+     *
+     * @task REVISIT: This number should be computed rather than hard-coded.
+     */
+    private static final int VISIBLE_AREA_EXTENSION = 10;
+
     /**
      * Default value for the {@linkplain #getZOrder z-order}.
      */
@@ -174,7 +184,7 @@ public class RenderedGridMarks extends RenderedMarks {
     /**
      * Couleur des flèches.
      */
-    private Color color = DEFAULT_COLOR;
+    private Color color = MarkIterator.DEFAULT_COLOR;
 
     /**
      * The default {@linkplain #getZOrder z-order} for this layer.
@@ -547,13 +557,12 @@ public class RenderedGridMarks extends RenderedMarks {
      * Retourne le nombre de points de cette grille. Le nombre de point retourné
      * tiendra compte de la décimation spécifiée avec {@link #setDecimation}.
      */
-    protected int getCount() {
-        synchronized (getTreeLock()) {
-            if (image==null || numBands==0) {
-                return 0;
-            }
-            return (image.getWidth()/decimateX) * (image.getHeight()/decimateY);
+    final int getCount() {
+        assert Thread.holdsLock(getTreeLock());
+        if (image==null || numBands==0) {
+            return 0;
         }
+        return (image.getWidth()/decimateX) * (image.getHeight()/decimateY);
     }
 
     /**
@@ -610,44 +619,46 @@ public class RenderedGridMarks extends RenderedMarks {
     }
 
     /**
-     * Procède au traçage d'une marque.
+     * Returns the grid indices for the specified zoomable bounds.
+     * Those indices will be used by {@link Iterator#visible(Rectangle)}.
      *
-     * @param graphics Graphique à utiliser pour tracer la flèche. L'espace de coordonnées
-     *                 de ce graphique sera les pixels en les points (1/72 de pouce).
-     * @param shape    Forme géométrique représentant la flèche à tracer.
-     * @param index    Index de la flèche à tracer.
+     * @param  zoomableBounds The zoomable bounds. Do not modify!
+     * @param  csToMap  The transform from {@link #getCoordinateSystem()} to the rendering CS.
+     * @param  mapToTxt The transform from the rendering CS to the Java2D CS.
+     * @return The grid clip, or <code>null</code> if it can't be computed.
      */
-    protected void paint(final Graphics2D graphics, final Shape shape, final MarkIterator iterator)
+    final Rectangle getGridClip(final Rectangle zoomableBounds,
+                                final MathTransform2D  csToMap,
+                                final AffineTransform mapToTxt)
     {
-        graphics.setColor(color);
-        graphics.fill(shape);
-    }
-
-    /**
-     * Retourne les indices qui correspondent aux coordonnées spécifiées.
-     * Ces indices seront utilisées par {@link Iterator#visible(Rectangle)}
-     * pour vérifier si un point est dans la partie visible.
-     *
-     * @param visibleArea Coordonnées logiques de la région visible à l'écran.
-     */
-    final Rectangle getUserClip(final Rectangle2D visibleArea) {
         assert Thread.holdsLock(getTreeLock());
-        if (visibleArea != null) try {
+        Rectangle2D visibleArea = new Rectangle2D.Double(
+                zoomableBounds.x      - VISIBLE_AREA_EXTENSION,
+                zoomableBounds.y      - VISIBLE_AREA_EXTENSION,
+                zoomableBounds.width  + VISIBLE_AREA_EXTENSION*2,
+                zoomableBounds.height + VISIBLE_AREA_EXTENSION*2);
+        try {
+            visibleArea = XAffineTransform.inverseTransform(mapToTxt, visibleArea, visibleArea);
+            final MathTransform2D mapToCS = (MathTransform2D)csToMap.inverse();
+            if (!mapToCS.isIdentity()) {
+                visibleArea = CTSUtilities.transform(mapToCS, visibleArea, visibleArea);
+            }
             // Note: on profite du fait que {@link Rectangle#setRect}
             //       arrondie correctement vers les limites supérieures.
             final Rectangle bounds = (Rectangle) CTSUtilities.transform(
                                                  (MathTransform2D) gridToCoordinateSystem.inverse(),
                                                  visibleArea, new Rectangle());
-
+                                 
             bounds.x      = (bounds.x      -1) / decimateX;
             bounds.y      = (bounds.y      -1) / decimateY;
             bounds.width  = (bounds.width  +2) / decimateX +1;
             bounds.height = (bounds.height +2) / decimateY +1;
             return bounds;
+        } catch (NoninvertibleTransformException exception) {
+            return null;
         } catch (TransformException exception) {
-            // Retourne un clip englobant toutes les coordonnées.
+            return null;
         }
-        return new Rectangle(0, 0, image.getWidth(), image.getHeight());
     }
 
     /**
@@ -708,7 +719,7 @@ public class RenderedGridMarks extends RenderedMarks {
     /**
      * Iterates through all marks in a {@link RenderedGridMarks}.
      *
-     * @version $Id: RenderedGridMarks.java,v 1.9 2003/03/15 12:58:15 desruisseaux Exp $
+     * @version $Id: RenderedGridMarks.java,v 1.10 2003/03/19 23:50:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Iterator extends MarkIterator {
@@ -750,11 +761,15 @@ public class RenderedGridMarks extends RenderedMarks {
         public Iterator() {
             count = getCount();
         }
+
+        public int getIteratorPosition() {
+            return index;
+        }
         
         /**
          * Moves the iterator to the specified index.
          */
-        public void seek(final int n) {
+        public void setIteratorPosition(final int n) {
             index = n;
             valid = false;
         }
@@ -770,7 +785,7 @@ public class RenderedGridMarks extends RenderedMarks {
 
         /**
          * Indique si la marque à l'index spécifié est visible dans le clip spécifié.
-         * Le rectangle <code>clip</code> doit avoir été obtenu par {@link #getUserClip}.
+         * Le rectangle <code>clip</code> doit avoir été obtenu par {@link #getGridClip}.
          */
         final boolean visible(final Rectangle clip) {
             if (!visible()) {
@@ -891,6 +906,13 @@ public class RenderedGridMarks extends RenderedMarks {
          */
         public Shape markShape() {
             return (numBands>=2) ? DEFAULT_SHAPE_2D : DEFAULT_SHAPE_1D;
+        }
+
+        /**
+         * Returns the paint for current mark.
+         */
+        public Paint markPaint() {
+            return color;
         }
 
         /**

@@ -33,10 +33,17 @@
 package org.geotools.renderer.j2d;
 
 // J2SE dependencies
+import java.awt.Font;
+import java.awt.Color;
+import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Rectangle;
+import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.RenderedImage;
+import java.awt.font.GlyphVector;
 
 // Geotools dependencies
 import org.geotools.ct.TransformException;
@@ -49,7 +56,8 @@ import org.geotools.ct.TransformException;
  * implement at least the following methods:
  *
  * <ul>
- *   <li>{@link #seek}</li>
+ *   <li>{@link #getIteratorPosition}</li>
+ *   <li>{@link #setIteratorPosition}</li>
  *   <li>{@link #next}</li>
  *   <li>{@link #position}</li>
  * </ul>
@@ -69,7 +77,7 @@ import org.geotools.ct.TransformException;
  *   <li>{@link #labelPosition}</li>
  * </ul>
  *
- * @version $Id: MarkIterator.java,v 1.1 2003/03/15 12:58:15 desruisseaux Exp $
+ * @version $Id: MarkIterator.java,v 1.2 2003/03/19 23:50:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MarkIterator {
@@ -83,20 +91,44 @@ public abstract class MarkIterator {
     static final Shape DEFAULT_SHAPE = new Ellipse2D.Float(-5, -5, 10, 10);
 
     /**
-     * Construct a default mark iterator.
+     * Default color for marks.
+     */
+    static final Color DEFAULT_COLOR = new Color(102, 102, 153, 192);
+
+    /**
+     * The default font.
+     */
+    private static final Font DEFAULT_FONT = new Font("SansSerif", Font.PLAIN, 10);
+
+    /**
+     * The default font, to be used if the user didn't overrided {@link #font()} method.
+     * This font is set by {@link RenderedMarks} at rendering time.
+     */
+    transient Font font = DEFAULT_FONT;
+
+    /**
+     * Construct a mark iterator.  The <code>MarkIterator</code> is initially positioned
+     * before the first mark. A call to {@link #next} must be done before the first mark
+     * can be read.
      */
     public MarkIterator() {
     }
 
     /**
-     * Moves the iterator the specified mark. A call to <code>seek(0)</code> moves the iterator
-     * on the first mark. A call to <code>seek(-1)</code> moves the iterator to the front of this
-     * <code>MarkIterator</code> object, just before the first mark (i.e. in the same position as
-     * if this <code>MarkIterator</code> object were just created).
+     * Returns the current iterator position. A newly created <code>MarkIterator</code> will
+     * returns -1, since new iterators are initially positioned before the first mark.
+     */
+    public abstract int getIteratorPosition();
+
+    /**
+     * Moves the iterator the specified mark. A call to <code>setIteratorPosition(0)</code> moves
+     * the iterator on the first mark. A call to <code>setIteratorPosition(-1)</code> moves the
+     * iterator to the front of this <code>MarkIterator</code> object, just before the first mark
+     * (i.e. in the same position as when this <code>MarkIterator</code> object was just created).
      *
      * @param index The new position (0 for the first mark, 1 for the second one, etc.).
      */
-    public abstract void seek(int index);
+    public abstract void setIteratorPosition(int index);
 
     /**
      * Moves the iterator to the next marks. A <code>MarkIterator</code> is initially positioned
@@ -126,7 +158,7 @@ public abstract class MarkIterator {
 
     /**
      * Returns <code>true</code> if the current mark is visible in the specified clip. The rectangle
-     * <code>clip</code> must have been created by {@link RenderedMarks#getUserClip}. This method is
+     * <code>clip</code> must have been created by {@link RenderedMarks#getGridClip}. This method is
      * overriden by {@link RenderedGridMarks#Iterator}.
      */
     boolean visible(final Rectangle clip) {
@@ -174,25 +206,37 @@ public abstract class MarkIterator {
      * care of rotation, translation and scale in order to adjust this model to each mark
      * properties. The default implementation returns a circle centred at (0,0) with a diameter
      * of 10 dots.
+     * <br><br>
+     * The returned shape should be treated as immutable. Implementations are encouraged
+     * to return shared instances as much as possible.
      */
     public Shape markShape() {
         return DEFAULT_SHAPE;
     }
 
     /**
-     * Returns the geographic area for the current mark, or <code>null</code> if none.
+     * Returns the geographic area around the current mark, or <code>null</code> if none.
      * This area must be expressed according the {@linkplain RenderedMarks#getCoordinateSystem
      * layer's coordinate system}. Usually (but not mandatory), this area will contains the point
-     * returned by {@link #position}. The default implementation returns always <code>null</code>,
-     * which means that this layer paint marks without geographic extent.
+     * returned by {@link #position}. A typical use of this method is for painting the land which
+     * belong to a building (the mark). The default implementation returns always <code>null</code>,
+     * which means that this layer paint marks without geographic area.
      */
     public Shape geographicArea() {
         return null;
     }
 
     /**
-     * Returns the label for the current mark, or <code>null</code> if none. The default
-     * implementation returns always <code>null</code>.
+     * Returns the font for current label. The default implementation returns a default
+     * font, which is rendering dependent.
+     */
+    public Font font() {
+        return font;
+    }
+
+    /**
+     * Returns the label for the current mark, or <code>null</code> if none.
+     * The default implementation returns always <code>null</code>.
      */
     public String label() {
         return null;
@@ -204,6 +248,76 @@ public abstract class MarkIterator {
      */
     public LegendPosition labelPosition() {
         return LegendPosition.CENTER;
+    }
+
+    /**
+     * Returns the paint for current mark.
+     */
+    public Paint markPaint() {
+        return DEFAULT_COLOR;
+    }
+
+    /**
+     * Paint a mark, its geographic area and its label. This method is automatically invoked from
+     * {@link RenderedMarks#paint(RenderingContext)} at rendering time.   Subclasses can override
+     * this method in order to gets finer control on the rendering process of marks (e.g. colors,
+     * stroke, painting order, etc.). The default implementation use the following pseudo-code:
+     *
+     * <blockquote><pre>
+     *   if (<var>geographicArea</var> != null) {
+     *       graphics.setColor(<cite>some default color</cite>);
+     *       graphics.draw(<var>geographicArea</var>);
+     *   }
+     *   if (<var>markIcon</var> != null) {
+     *       graphics.drawRenderedImage(<var>markIcon</var>, <var>iconXY</var>);
+     *   }
+     *   if (<var>markShape</var> != null) {
+     *       graphics.setPaint({@linkplain #markPaint});
+     *       graphics.fill(<var>markShape</var>);
+     *   }
+     *   if (<var>label</var> != null) {
+     *       graphics.setColor(<cite>some default color</cite>);
+     *       graphics.drawGlyphVector(<var>label</var>, <var>labelXY</var>.x, <var>labelXY</var>.y);
+     *   }
+     * </pre></blockquote>
+     *
+     * @param graphics  The graphics where painting while occurs. The affine transform is set to
+     *                  the Java2D default, also know as the {@linkplain RenderingContext#textCS
+     *                  text coordinate system} in this library.
+     * @param geographicArea The geographic area which belong to the mark, or <code>null</code> if
+     *                  none. This shape is already transformed in the Java2D coordinate system.
+     * @param markShape The shape for the mark, or <code>null</code> if none. This shape is already
+     *                  transformed in the Java2D coordinate system.
+     * @param markIcon  The icon for the mark, or <code>null</code> if none.
+     * @param iconXY    The affine transform to apply on <code>markIcon</code>, or <code>null</code>
+     *                  if <code>markIcon</code> was <code>null</code>.
+     * @param label     The label to draw, or <code>null</code> if none.
+     * @param labelXY   The label position, or <code>null</code> if <code>label</code> was
+     *                  <code>null</code>.
+     */
+    protected void paint(final Graphics2D      graphics,
+                         final Shape           geographicArea,
+                         final Shape           markShape,
+                         final RenderedImage   markIcon,
+                         final AffineTransform iconXY,
+                         final GlyphVector     label,
+                         final Point2D.Float   labelXY)
+    {
+        if (geographicArea != null) {
+            graphics.setColor(Color.ORANGE);
+            graphics.draw(geographicArea);
+        }
+        if (markIcon != null) {
+            graphics.drawRenderedImage(markIcon, iconXY);
+        }
+        if (markShape != null) {
+            graphics.setPaint(markPaint());
+            graphics.fill(markShape);
+        }
+        if (label != null) {
+            graphics.setColor(Color.BLACK);
+            graphics.drawGlyphVector(label, labelXY.x, labelXY.y);
+        }
     }
 
     /**
