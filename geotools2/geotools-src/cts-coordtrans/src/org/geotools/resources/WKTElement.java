@@ -67,7 +67,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * The result is a tree, which can be printed with {@link #print}.
  * Elements can be pull in a <cite>first in, first out</cite> order.
  *
- * @version $Id: WKTElement.java,v 1.3 2002/09/04 15:09:47 desruisseaux Exp $
+ * @version $Id: WKTElement.java,v 1.4 2002/09/08 11:05:08 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -133,20 +133,29 @@ public final class WKTElement {
         keyword = text.substring(lower, upper).toUpperCase(format.locale);
         position.setIndex(upper);
         /*
-         * Parse the opening bracket, then parse all elements inside the bracket.
-         * Elements are parser sequentially and their type are selected according
-         * their first character:
+         * Parse the opening bracket. According CTS's specification, two characters
+         * are acceptable: '[' and '('.  At the end of this method, we will require
+         * the matching closing bracket. For example if the opening bracket was '[',
+         * then we will require that the closing bracket is ']' and not ')'.
+         */
+        int bracketIndex = -1;
+        do {
+            if (++bracketIndex >= format.openingBrackets.length) {
+                list = null;
+                return;
+            }
+        }
+        while (!parseOptionalSeparator(text, position, format.openingBrackets[bracketIndex]));
+        list = new LinkedList();
+        /*
+         * Parse all elements inside the bracket. Elements are parsed sequentially
+         * and their type are selected according their first character:
          *
          *   - If the first character is a quote, then the element is parsed as a String.
          *   - Otherwise, if the first character is a unicode identifier start, then the
          *     element is parsed as a chidren WKTElement.
          *   - Otherwise, the element is parsed as a number.
          */
-        if (!parseOptionalSeparator(text, position, format.openingBracket)) {
-            list = null;
-            return;
-        }
-        list = new LinkedList();
         do {
             if (position.getIndex() >= length) {
                 throw missingCharacter(format.closingBracket, length);
@@ -186,7 +195,7 @@ public final class WKTElement {
             // Otherwise, add the element as a child element.
             list.add(new WKTElement(format, text, position));
         } while (parseOptionalSeparator(text, position, format.elementSeparator));
-        parseSeparator(text, position, format.closingBracket);
+        parseSeparator(text, position, format.closingBrackets[bracketIndex]);
     }
 
     /**

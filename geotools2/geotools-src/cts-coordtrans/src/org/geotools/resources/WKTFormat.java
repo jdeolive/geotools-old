@@ -48,7 +48,7 @@ import java.text.ParseException;
  * etc.). This is a relatively light object compared to their subclasses and can be used when
  * parsing are not needed.
  *
- * @version $Id: WKTFormat.java,v 1.2 2002/09/03 17:53:00 desruisseaux Exp $
+ * @version $Id: WKTFormat.java,v 1.3 2002/09/08 11:05:08 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -79,14 +79,28 @@ public abstract class WKTFormat extends Format {
     public final char textDelimitor = '"';
 
     /**
+     * List of caracters acceptable as opening bracket. The closing bracket must
+     * be the character in {@link #closingBrackets} at the same index than the
+     * opening bracket.
+     */
+    final char[] openingBrackets = {'[', '('};
+
+    /**
+     * List of caracters acceptable as closing bracket.
+     */
+    final char[] closingBrackets = {']', ')'};
+
+    /**
      * The character to use for openining element's parameters.
      * This is usually <code>'['</code> or <code>'('</code>.
+     * This character is used for formatting WKT.
      */
     public final char openingBracket = '[';
 
     /**
      * The character to use for closing element's parameters.
      * This is usually <code>']'</code> or <code>')'</code>.
+     * This character is used for formatting WKT.
      */
     public final char closingBracket = ']';
     
