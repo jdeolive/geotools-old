@@ -93,7 +93,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Isoline.java,v 1.5 2003/02/06 23:46:29 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.6 2003/02/07 23:04:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -963,54 +963,48 @@ public class Isoline extends GeoShape implements Comparable {
      * of the clip area.
      *
      * If this method can't performs the clip, or if it believe that it doesn't worth to do a clip,
-     * it returns <code>this</code>. If this isoline doesn't intersect the clip area, then this method
-     * returns <code>null</code>. Otherwise, a new isoline is created and returned. The new isoline
-     * will try to share as much internal data as possible with <code>this</code> in order to keep
-     * memory footprint low.
+     * it returns <code>this</code>. If this isoline doesn't intersect the clip area, then this
+     * method returns <code>null</code>. Otherwise, a new isoline is created and returned. The new
+     * isoline will try to share as much internal data as possible with <code>this</code> in order
+     * to keep memory footprint low.
      *
      * @param  clipper An object containing the clip area.
      * @return <code>null</code> if this isoline doesn't intersect the clip, <code>this</code>
      *         if no clip has been performed, or a new clipped isoline otherwise.
      */
-//    final Isoline getClipped(final Clipper clipper) {
-//        final Rectangle2D clipRegion = clipper.setCoordinateSystem(coordinateSystem);
-//        final Polygon[] clipPolygons = new Polygon[polygonCount];
-//        int         clipPolygonCount = 0;
-//        boolean              changed = false;
-//        /*
-//         * Clip all polygons, discarding
-//         * polygons outside the clip.
-//         */
-//        for (int i=0; i<polygonCount; i++) {
-//            final Polygon toClip  = polygons[i];
-//            final Polygon clipped = toClip.getClipped(clipper);
-//            if (clipped!=null && !clipped.isEmpty()) {
-//                clipPolygons[clipPolygonCount++] = clipped;
-//                if (!toClip.equals(clipped)) {
-//                    changed = true;
-//                }
-//            } else {
-//                changed = true;
-//            }
-//        }
-//        if (changed) {
-//            /*
-//             * If at least one polygon has been clipped, returns a new isoline.
-//             * Note: we set the new bounds to the clip region. It may be bigger
-//             * than computed bounds, but it is needed for optimal behaviour of
-//             * {@link RenderingContext#clip}. Clipped isolines should not be
-//             * public anyways (except for very short time).
-//             */
-//             final Isoline isoline = new Isoline(value, coordinateSystem);
-//             isoline.polygons      = XArray.resize(clipPolygons, clipPolygonCount);
-//             isoline.polygonCount  = clipPolygonCount;
-//             isoline.bounds        = clipRegion;
-//             isoline.setName(super.getName(null));
-//             return isoline;
-//        } else {
-//            return this;
-//        }
-//    }
+    private final Isoline clip(final Clipper clipper) {
+        assert Thread.holdsLock(this);
+        final Polygon[] clipPolygons = new Polygon[polygonCount];
+        int         clipPolygonCount = 0;
+        boolean              changed = false;
+        /*
+         * Clip all polygons, discarding polygons outside the clip.
+         */
+        for (int i=0; i<polygonCount; i++) {
+            final Polygon toClip  = polygons[i];
+            final Polygon clipped = toClip.clip(clipper);
+            if (clipped!=null && !clipped.isEmpty()) {
+                clipPolygons[clipPolygonCount++] = clipped;
+                if (toClip != clipped) {
+                    changed = true;
+                }
+            } else {
+                changed = true;
+            }
+        }
+        if (changed) {
+             final Isoline isoline = new Isoline(value, coordinateSystem);
+             isoline.polygons      = (Polygon[]) XArray.resize(clipPolygons, clipPolygonCount);
+             isoline.polygonCount  = clipPolygonCount;
+             isoline.setName(super.getName(null));
+             if (coordinateSystem.equals(clipper.mapCS, false)) {
+                isoline.bounds = bounds.createIntersection(clipper.mapClip);
+             }
+             return isoline;
+        } else {
+            return this;
+        }
+    }
 
     /**
      * Returns a hash value for this isoline.
@@ -1187,7 +1181,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.5 2003/02/06 23:46:29 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.6 2003/02/07 23:04:51 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {

@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.io.PrintWriter;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.GeneralPath;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -51,7 +52,7 @@ import org.geotools.resources.Arguments;
 /**
  * Visual check of {@link Polygon}.
  *
- * @version $Id: PolygonTest.java,v 1.1 2003/02/03 09:52:00 desruisseaux Exp $
+ * @version $Id: PolygonTest.java,v 1.2 2003/02/07 23:04:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PolygonTest extends TestCase {
@@ -125,7 +126,9 @@ public class PolygonTest extends TestCase {
          * Donne quelques informations sur l'île. Les
          * principales méthodes publiques seront testées.
          */
+        final Rectangle2D       clip = new Rectangle2D.Double(100, 100, 200, 200);
         final Polygon        polygon = Polygon.getInstances(path, null)[0];
+        final Polygon        clipped = polygon.clip(new Clipper(clip, null));
         final Collection    pointSet = polygon.getPoints();
         final Point2D[]        first = new Point2D.Float[firstPointCount];
         final Point2D[]         last = new Point2D.Float[ lastPointCount];
@@ -142,8 +145,8 @@ public class PolygonTest extends TestCase {
 
         out.println(polygon.toString());
         out.println();
-        Polygon.print(new String[]     {"Iterator", "First/Last", "SubPoly"},
-                      new Collection[] {pointSet, Arrays.asList(extrm), subPointSet},
+        Polygon.print(new String[]     {"Polygon", "First/Last", "SubPoly", "Clipped"},
+                      new Collection[] {pointSet, Arrays.asList(extrm), subPointSet, clipped.getPoints()},
                       out, arguments.locale);
         /*
          * Fait apparaître le polyligne dans une fenêtre. Cette fenêtre
@@ -157,6 +160,7 @@ public class PolygonTest extends TestCase {
         out.println('%');
         ShapePanel.show(path   ).setTitle("Uncompressed GeneralPath");
         ShapePanel.show(polygon).setTitle("Compressed Polygon");
+        ShapePanel.show(clipped).setTitle("Clipped Polygon (uncompressed)");
         out.flush();
     }
 }

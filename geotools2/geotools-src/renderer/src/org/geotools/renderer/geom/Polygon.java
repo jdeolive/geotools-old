@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.4 2003/02/06 23:46:30 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.5 2003/02/07 23:04:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -378,6 +378,7 @@ public class Polygon extends GeoShape {
                 final Polygon polygon = new Polygon(ct);
                 polygon.data = polylines[i];
                 polygon.flattened = polygon.checkFlattenedShape();
+                polygon.close(interiorType);
                 polygons.add(polygon);
             }
         }
@@ -435,7 +436,7 @@ public class Polygon extends GeoShape {
      *
      * @throws CannotCreateTransformException Si la transformation ne peut pas être créée.
      */
-    private CoordinateTransformation getTransformationFromInternalCS(final CoordinateSystem cs)
+    final CoordinateTransformation getTransformationFromInternalCS(final CoordinateSystem cs)
             throws CannotCreateTransformException
     {
         // copy 'coordinateTransform' reference in order to avoid synchronization
@@ -455,8 +456,7 @@ public class Polygon extends GeoShape {
      * transform, then this method returns <code>null</code>. This
      * method accept null argument.
      */
-    private static MathTransform2D getMathTransform2D(final CoordinateTransformation transformation)
-    {
+    static MathTransform2D getMathTransform2D(final CoordinateTransformation transformation) {
         if (transformation != null) {
             final MathTransform transform = transformation.getMathTransform();
             if (!transform.isIdentity()) {
@@ -555,7 +555,10 @@ public class Polygon extends GeoShape {
      *         Ce rectangle peut être vide, mais ne sera jamais nul.
      */
     private Rectangle2D getDataBounds() {
-        assert Thread.holdsLock(this);
+        // assert Thread.holdsLock(this);
+        // Can't make this assertion, because this method is invoked
+        // by {@link #getCachedBounds}. See the later for details.
+
         if (dataBounds == null) {
             dataBounds = getBounds(data, null);
             if (isIdentity(coordinateTransform)) {
@@ -597,7 +600,11 @@ public class Polygon extends GeoShape {
     private Rectangle2D getCachedBounds(final CoordinateSystem coordinateSystem)
             throws TransformException
     {
-        assert Thread.holdsLock(this);
+        // assert Thread.holdsLock(this);
+        // Can't make this assertion, because {@link #intersects(Polygon,boolean)} invokes
+        // this method without synchronization on this polygon. In doesn't hurt as long as
+        // {@link #intersectsPolygon} and {@link #intersectsEdge} are private methods.
+
         if (Utilities.equals(getInternalCS(),       coordinateSystem)) return getDataBounds();
         if (Utilities.equals(getCoordinateSystem(), coordinateSystem)) return getCachedBounds();
         Rectangle2D bounds = Polyline.getBounds2D(data, getMathTransform2D(coordinateTransform));
@@ -1026,7 +1033,7 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Implémentation des méthodes <code>intersects[Edge](Polygon)</code>.
+     * Implémentation des méthodes <code>intersects[Polygon|Edge](Polygon)</code>.
      *
      * @param  shape polygones à vérifier.
      * @param  checkEdgeOnly <code>true</code> pour ne vérifier que
@@ -1034,6 +1041,7 @@ public class Polygon extends GeoShape {
      *         polygone.
      */
     private boolean intersects(final Polygon shape, final boolean checkEdgeOnly) {
+        assert Thread.holdsLock(this);
         try {
             final CoordinateSystem coordinateSystem = getInternalCS();
             if (getDataBounds().intersects(shape.getCachedBounds(coordinateSystem))) {
@@ -1183,6 +1191,22 @@ public class Polygon extends GeoShape {
     public synchronized Collection getPoints() {
         return new Polyline.Collection(Polyline.clone(data),
                                        getMathTransform2D(coordinateTransform));
+    }
+
+    /**
+     * Returns an iterator for this polygon's internal points.
+     * Points are projected in the specified coordinate system.
+     *
+     * @param  cs The destination coordinate system, or <code>null</code>
+     *            for this polygon's native coordinate system.
+     * @return An iterator for points in the specified coordinate system.
+     * @throws CannotCreateTransformException if a transformation can't be constructed.
+     */
+    final Polyline.Iterator iterator(final CoordinateSystem cs)
+            throws CannotCreateTransformException
+    {
+        assert Thread.holdsLock(this);
+        return new Polyline.Iterator(data, getMathTransform2D(getTransformationFromInternalCS(cs)));
     }
 
     /**
@@ -1484,8 +1508,7 @@ public class Polygon extends GeoShape {
             final Statistics stats = getResolution();
             resolution = (stats!=null) ? (float)stats.mean() : Float.NaN;
         }
-        assert Float.isNaN(resolution) ?
-               getResolution() == null :
+        assert Float.isNaN(resolution) ? (getResolution()==null || getPointCount()==0) :
                Math.abs(getResolution().mean()-resolution) <= EPS*resolution : resolution;
         return resolution;
     }
@@ -1608,41 +1631,37 @@ public class Polygon extends GeoShape {
      * of the clip area.
      *
      * If this method can't performs the clip, or if it believe that it doesn't worth to do a clip,
-     * it returns <code>this</code>. If this polygon doesn't intersect the clip area, then this method
-     * returns <code>null</code>. Otherwise, a new polygon is created and returned. The new polygon
-     * will try to share as much internal data as possible with <code>this</code> in order to keep
-     * memory footprint low.
+     * it returns <code>this</code>. If this polygon doesn't intersect the clip area, then this
+     * method returns <code>null</code>. Otherwise, a new polygon is created and returned. The new
+     * polygon will try to share as much internal data as possible with <code>this</code> in order
+     * to keep memory footprint low.
      *
      * @param  clipper An object containing the clip area.
      * @return <code>null</code> if this polygon doesn't intersect the clip, <code>this</code>
      *         if no clip has been performed, or a new clipped polygon otherwise.
      */
-//    final Polygon getClipped(final Clipper clipper) {
-//        final Rectangle2D clip = clipper.setCoordinateSystem(getInternalCS());
-//        final Rectangle2D bounds = getDataBounds();
-//        if (clip.contains(bounds)) {
-//            return this;
-//        }
-//        if (!clip.intersects(bounds)) {
-//            return null;
-//        }
-//        /*
-//         * Selon toutes apparences, le polygone n'est ni complètement à l'intérieur
-//         * ni complètement en dehors de <code>clip</code>. Il faudra donc se resoudre
-//         * à faire une vérification plus poussée (et plus couteuse).
-//         */
-//        final Polygon clipped=clipper.getClipped(this, new Segment.Iterator(data, null));
-//        if (clipped != null) {
-//            if (Segment.equals(data, clipped.data)) {
-//                return this;
-//            }
-//            if (bounds != null) {
-//                clipped.bounds = new Rectangle2D.Float();
-//                Rectangle2D.intersect(bounds, clip, clipped.bounds);
-//            }
-//        }
-//        return clipped;
-//    }
+    final synchronized Polygon clip(final Clipper clipper) {
+        final Rectangle2D clip = clipper.getInternalClip(this);
+        final Rectangle2D dataBounds = getDataBounds();
+        if (clip.contains(dataBounds)) {
+            return this;
+        }
+        if (!clip.intersects(dataBounds)) {
+            return null;
+        }
+        /*
+         * Selon toutes apparences, le polygone n'est ni complètement à l'intérieur
+         * ni complètement en dehors de <code>clip</code>. Il faudra donc se resoudre
+         * à faire une vérification plus poussée (et plus couteuse).
+         */
+        final Polygon clipped = clipper.clip(this);
+        if (clipped != null) {
+            if (Polyline.equals(data, clipped.data)) {
+                return this;
+            }
+        }
+        return clipped;
+    }
 
     /**
      * Returns the string to be used as the tooltip for the given location.
@@ -1831,7 +1850,8 @@ public class Polygon extends GeoShape {
      */
     static void unexpectedException(final String method, final TransformException exception) {
         Polyline.unexpectedException("Polygon", method, exception);
-        final IllegalPathStateException e=new IllegalPathStateException(exception.getLocalizedMessage());
+        final IllegalPathStateException e = new IllegalPathStateException(
+                                                exception.getLocalizedMessage());
         e.initCause(exception);
         throw e;
     }
@@ -1953,7 +1973,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.4 2003/02/06 23:46:30 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.5 2003/02/07 23:04:51 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon

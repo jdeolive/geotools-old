@@ -99,7 +99,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Polyline.java,v 1.4 2003/02/06 23:46:30 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.5 2003/02/07 23:04:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Polyline implements Serializable {
@@ -962,40 +962,38 @@ final class Polyline implements Serializable {
          */
         final Statistics stats = new Statistics();
         Point2D          point = new Point2D.Double();
-        Point2D           last = new Point2D.Double();
+        Point2D           last = null;
         for (scan=getFirst(scan); scan!=null; scan=scan.next) {
             final PointArray array = scan.array;
             if (array == null) {
                 continue;
             }
             final PointIterator it = array.iterator(0);
-            if (it.hasNext()) {
-                last.setLocation(it.nextX(), it.nextY());
+            while (it.hasNext()) {
+                point.setLocation(it.nextX(), it.nextY());
                 if (transform != null) {
-                    last = transform.transform(last, last);
+                    point = transform.transform(point, point);
                 }
+                final double distance;
                 if (ellipsoid != null) {
-                    last.setLocation(Unit.DEGREE.convert(last.getX(), xUnit),
-                                     Unit.DEGREE.convert(last.getY(), yUnit));
-                }
-                while (it.hasNext()) {
-                    point.setLocation(it.nextX(), it.nextY());
-                    if (transform != null) {
-                        point = transform.transform(point, point);
+                    point.setLocation(Unit.DEGREE.convert(point.getX(), xUnit),
+                                      Unit.DEGREE.convert(point.getY(), yUnit));
+                    if (last == null) {
+                        last = (Point2D) point.clone();
+                        continue;
                     }
-                    final double distance;
-                    if (ellipsoid != null) {
-                        point.setLocation(Unit.DEGREE.convert(point.getX(), xUnit),
-                                          Unit.DEGREE.convert(point.getY(), yUnit));
-                        distance = ellipsoid.orthodromicDistance(last, point);
-                    } else {
-                        distance = last.distance(point);
+                    distance = ellipsoid.orthodromicDistance(last, point);
+                } else {
+                    if (last == null) {
+                        last = (Point2D) point.clone();
+                        continue;
                     }
-                    stats.add(distance);
-                    final Point2D swap = last;
-                    last = point;
-                    point = swap;
+                    distance = last.distance(point);
                 }
+                stats.add(distance);
+                final Point2D swap = last;
+                last = point;
+                point = swap;
             }
         }
         return stats;
@@ -1389,7 +1387,7 @@ final class Polyline implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Polyline.java,v 1.4 2003/02/06 23:46:30 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.5 2003/02/07 23:04:51 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1432,7 +1430,7 @@ final class Polyline implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Polyline.java,v 1.4 2003/02/06 23:46:30 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.5 2003/02/07 23:04:51 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {
