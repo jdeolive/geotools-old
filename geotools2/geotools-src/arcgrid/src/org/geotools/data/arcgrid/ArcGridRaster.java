@@ -17,14 +17,9 @@
 package org.geotools.data.arcgrid;
 
 import java.awt.image.Raster;
-import org.geotools.data.DataSourceException;
-import org.geotools.io.NIOBufferUtils;
 import java.awt.image.WritableRaster;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,14 +32,9 @@ import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.media.jai.RasterFactory;
 
-import org.geotools.data.DataSourceException;
 import org.geotools.io.NIOBufferUtils;
 
 
@@ -242,7 +232,7 @@ public class ArcGridRaster {
     
     private double readHeaderDouble(StreamTokenizer st) throws IOException {
         double val = st.nval;
-        if (st.nextToken() == st.TT_WORD && st.sval.startsWith("E")) {
+        if (st.nextToken() == StreamTokenizer.TT_WORD && st.sval.startsWith("E")) {
             val = val * Math.pow(10,Integer.parseInt(st.sval.substring(1)));
         } else {
             st.pushBack();
@@ -419,7 +409,7 @@ public class ArcGridRaster {
         out.print(NROWS); spaces(out,9); out.println(nRows = raster.getHeight());
         out.print(XLLCORNER); spaces(out,5); out.println(xllCorner = xl);
         out.print(YLLCORNER); spaces(out,5); out.println(yllCorner = yl);
-        out.print(CELLSIZE); spaces(out,6); out.println(cellsize = cellsize);
+        out.print(CELLSIZE); spaces(out,6); out.println(cellSize = cellsize);
         out.print(NODATA_VALUE); spaces(out, 2); out.println(noData = -9999);
         
         // reset min and max
