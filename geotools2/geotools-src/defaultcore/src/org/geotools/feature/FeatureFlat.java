@@ -38,12 +38,14 @@ public class FeatureFlat implements Feature {
      * Creates a new instance of flat feature, which must take a flat feature 
      * type schema and all attributes as arguments. 
      *
+     * HACK: Made public by James as he was unsure of reason for a protected constructor.
+     *
      * @param schema Feature type schema for this flat feature.
      * @param attributes Initial attributes for this feature.
      * @throws IllegalFeatureException Attribtues do not conform to feature type
-     * schema.
+     * schema
      */
-    protected FeatureFlat (FeatureTypeFlat schema, Object[] attributes) 
+    public FeatureFlat (FeatureTypeFlat schema, Object[] attributes) 
         throws IllegalFeatureException {
 
         // Set the feature type reference
