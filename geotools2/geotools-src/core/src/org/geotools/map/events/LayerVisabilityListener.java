@@ -26,7 +26,7 @@ import java.util.EventListener;
  * that LayerVisability has changed, the method should call the layer to
  * determine it's visability.
  * @author Cameron Shorter
- * @version $Id: LayerVisabilityListener.java,v 1.1 2002/08/09 12:55:02 camerons Exp $
+ * @version $Id: LayerVisabilityListener.java,v 1.2 2003/07/10 16:19:12 ianturton Exp $
  */
 public interface LayerVisabilityListener extends EventListener {
 
@@ -35,6 +35,7 @@ public interface LayerVisabilityListener extends EventListener {
      * After receiving the event, layer.getVisability() should be called to
      * determine the visability.
      * @param source The layer sending this event.
+     * @deprecated use LayerChangedEvent with reason VISIBILITY
      */
     void LayerVisabilityChanged(Object source);
 }
