@@ -1271,7 +1271,7 @@ BigBoss:    switch (skipSuffix(source, pos, DEGREES_FIELD)) {
                     upper++;
                 }
                 throw new ParseException(Resources.format(
-                            ResourceKeys.ERROR_PARSE_ANGLE_EXCEPTION_$2, source,
+                            ResourceKeys.ERROR_UNPARSABLE_STRING_$2, source,
                             source.substring(lower, Math.min(lower+10, upper))), index);
             }
         }

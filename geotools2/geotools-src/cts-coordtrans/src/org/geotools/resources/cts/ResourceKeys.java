@@ -86,10 +86,12 @@ public interface ResourceKeys
     public static final int ERROR_ILLEGAL_ENVELOPE_ORDINATE_$1          =    54;
     public static final int ERROR_INCOMPATIBLE_ELLIPSOID_$2             =    55;
     public static final int ERROR_INDEX_OUT_OF_BOUNDS_$1                =    56;
+    public static final int ERROR_IN_$2                                 =    88;
     public static final int ERROR_LATITUDE_OUT_OF_RANGE_$1              =    57;
     public static final int ERROR_LONGITUDE_OUT_OF_RANGE_$1             =    58;
     public static final int ERROR_MATRIX_NOT_REGULAR                    =    59;
     public static final int ERROR_MISMATCHED_DIMENSION_$2               =    60;
+    public static final int ERROR_MISSING_CHARACTER_$1                  =    87;
     public static final int ERROR_MISSING_PARAMETER_$1                  =    61;
     public static final int ERROR_NONINVERTIBLE_TRANSFORM               =    62;
     public static final int ERROR_NON_ANGULAR_UNIT_$1                   =    63;
@@ -105,9 +107,10 @@ public interface ResourceKeys
     public static final int ERROR_NO_TRANSFORM_FOR_CLASSIFICATION_$1    =    72;
     public static final int ERROR_NULL_ARGUMENT_$1                      =    73;
     public static final int ERROR_NULL_VALUE_$2                         =    74;
-    public static final int ERROR_PARSE_ANGLE_EXCEPTION_$2              =    75;
     public static final int ERROR_POLE_PROJECTION_$1                    =    76;
+    public static final int ERROR_UNEXPECTED_PARAMETER_$1               =    86;
     public static final int ERROR_UNKNOW_TYPE_$1                        =    77;
     public static final int ERROR_UNMODIFIABLE_AFFINE_TRANSFORM         =    78;
+    public static final int ERROR_UNPARSABLE_STRING_$2                  =    75;
     public static final int ERROR_VALUE_TEND_TOWARD_INFINITY            =    79;
 }
