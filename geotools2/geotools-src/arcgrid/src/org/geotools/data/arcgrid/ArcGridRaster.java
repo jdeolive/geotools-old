@@ -255,7 +255,7 @@ public class ArcGridRaster {
         
         // file based, non zipped - lets use memory-mapped reader
         if (srcURL.getProtocol().equals("file")) {
-            return new MemoryMappedReader(new File(srcURL.getFile()));
+            return new MemoryMappedReader(new File(java.net.URLDecoder.decode(srcURL.getPath(),"UTF-8"))); 
         } 
         
         // default URL
@@ -269,8 +269,8 @@ public class ArcGridRaster {
         java.io.OutputStream out;
         if (srcURL.getProtocol().equals("file")) {
             out = new java.io.BufferedOutputStream(
-                new java.io.FileOutputStream(new File(srcURL.getFile()))
-            );
+                new java.io.FileOutputStream(new File(java.net.URLDecoder.decode(srcURL.getPath(),"UTF-8")))
+            ); 
         } else {
             out = srcURL.openConnection().getOutputStream();
         }
