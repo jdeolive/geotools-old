@@ -108,7 +108,7 @@ public class PostgisDataStoreFactory
         String host = (String) params.get("host");
         String user = (String) params.get("user");
         String passwd = (String) params.get("passwd");
-        String port = (String) params.get("port");
+        String port = params.get("port").toString();
         String database = (String) params.get("database");
         String table = (String) params.get("table");
         String charSet = (String) params.get("charset");
@@ -163,12 +163,12 @@ public class PostgisDataStoreFactory
         return new Param[]{
             new Param("dbtype"),
             new Param("host"),
-            new Param("port",String.class,"database connection port"),
+            new Param("port",Integer.class,"database connection port"),
             new Param("database"),                        
             new Param("user"),
-            new Param("passwd", String.class,"passwd for user (optional)", false),                      
-            new Param("charset",String.class,"character set (optional)", false),
-            new Param("namespace",String.class,"namespace (optional)",false)            
+            new Param("passwd", String.class,"passwd for user", false),                      
+            new Param("charset",String.class,"character set", false),
+            new Param("namespace",String.class,"namespace",false)            
         };
     }    
 }
