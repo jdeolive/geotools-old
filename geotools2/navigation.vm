@@ -40,6 +40,7 @@
    <links>
      #foreach ($reactorProject in $reactorProjects)
      <item name="$reactorProject.name" href="/$reactorProject.artifactId/index.html"/>
+      #end
    </links>
 
     <menu name="GeoTools Community">
