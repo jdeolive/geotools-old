@@ -100,6 +100,7 @@ public class WMSServlet extends HttpServlet {
     private String getUrl;
     private int cacheSize = CACHE_SIZE;
     private String[] outputTypes;
+    private static String[] exceptionTypes={"application/vnd.ogc.se_xml","application/vnd.ogc.se_inimage","application/vnd.ogc.se_blank","text/xml","text/plain"};
     /**
      * Override init() to set up data used by invocations of this servlet.
      *
@@ -294,7 +295,7 @@ public class WMSServlet extends HttpServlet {
      * @throws ServletException DOCUMENT ME!
      * @throws IOException DOCUMENT ME!
      */
-    public synchronized void doGetMap(HttpServletRequest request,
+    public void doGetMap(HttpServletRequest request,
         HttpServletResponse response) throws ServletException, IOException {
         LOGGER.fine("Sending Map");
 
@@ -369,26 +370,7 @@ public class WMSServlet extends HttpServlet {
                 // we should throw an exception here I think but we'll let it go!
                 // instead of a default format we should try to give them the best image we can
                 // so check accept to see what they'll take
-                String accept = request.getHeader("Accept");
-                if(LOGGER.getLevel()==Level.FINE){
-                    LOGGER.fine("browser accepts: " + accept);
-                    LOGGER.fine("JAI supports: ");
-                    for(int i=0;i<outputTypes.length;i++){
-                        LOGGER.fine("\t"+outputTypes[i]);
-                    }
-                }
-                // now we need to find the best overlap between these two lists;
-                if(accept !=null){
-                    for(int i=0;i<outputTypes.length;i++){
-                        if (accept.indexOf(outputTypes[i]) != -1) {
-                            format = outputTypes[i];
-                            break;
-                        }
-                    }
-                } else {
-                    // now might be a good time to throw an exception ??
-                    format = DEFAULT_FORMAT;
-                }
+                format=negotiateFormat(request);
             }
 
             // Check the bbox
@@ -709,36 +691,104 @@ public class WMSServlet extends HttpServlet {
         }
 
         LOGGER.severe("Its all gone wrong! " + sException);
-
+        // *********************************************************************************************
+        // * NOTE if you add a new exception type then you *must* add it to exceptionTypes for it to be
+        // * advertised in the capabilities document.
+        // *********************************************************************************************
         // Check the optional response code (mime-type of exception)
-        //      if (exp_type.equalsIgnoreCase("application/vnd.ogc.se_xml") || exp_type.equalsIgnoreCase("text/xml")) {
-        response.setContentType(exp_type);
+        if (exp_type.equalsIgnoreCase("application/vnd.ogc.se_xml") || exp_type.equalsIgnoreCase("text/xml")) {
+            response.setContentType("text/xml"); // otherwise the browser probably won't know what we'return talking about
 
-        PrintWriter pw = response.getWriter();
+            PrintWriter pw = response.getWriter();
 
-        outputException(sCode, sException, pw);
+            outputXMLException(sCode, sException, pw);
 
-        //    }
-
-        /*   if (exp_type.equalsIgnoreCase("text/plain")) {
+         } else if (exp_type.equalsIgnoreCase("text/plain")) {
            response.setContentType(exp_type);
            PrintWriter pw = response.getWriter();
            pw.println("Exception : Code="+sCode);
            pw.println(sException);
         
-           }*/
+         } else if(exp_type.equalsIgnoreCase("application/vnd.ogc.se_inimage")||
+                   exp_type.equalsIgnoreCase("application/vnd.ogc.se_blank")){
+            String format = getParameter(request, PARAM_FORMAT);
+            if(format==null) {
+                format=negotiateFormat(request);
+            }
+            int width = posIntParam(getParameter(request, PARAM_WIDTH));
+            int height = posIntParam(getParameter(request, PARAM_HEIGHT));
+            boolean trans = boolParam(getParameter(request, PARAM_TRANSPARENT));
+            Color bgcolor = colorParam(getParameter(request, PARAM_BGCOLOR));
+            LOGGER.fine("Creating image "+width+"x"+height);
+            LOGGER.fine("BGCOlor = "+bgcolor+" transparency "+trans);
+            BufferedImage image = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = image.createGraphics();
+            g.setBackground(bgcolor);
+            Color fgcolor = Color.black;
+            if(Color.black.equals(bgcolor)){
+                fgcolor = Color.white;
+            }else{
+                fgcolor = Color.black;
+            }
+            
+            if (!trans) {
+                g.setPaint(bgcolor);
+                g.fillRect(0, 0, width, height);
+                
+            }
+            g.setPaint(fgcolor);
+            if(exp_type.equalsIgnoreCase("application/vnd.ogc.se_inimage")){
+               LOGGER.fine("Writing to image");
+               LOGGER.fine("Background color "+g.getBackground()+" forground "+g.getPaint());
+               g.drawString("Exception : Code="+sCode,10,20);
+               g.drawString(sException,10,40);
+            }
+            response.setContentType(format);
 
-        // Other exception types (graphcal, whatever) to go here
+            OutputStream out = response.getOutputStream();
+
+            // avoid caching in browser
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires", 0);
+
+            try {
+                formatImageOutputStream(format, image, out);
+            } catch (Exception exp) {
+                exp.printStackTrace();
+                LOGGER.severe(
+                    "Unable to complete image generation after response started : " +
+                    exp + exp.getMessage());
+
+                if (exp instanceof SecurityException) {
+                    response.sendError(500,
+                        "Image generation failed because of: " +
+                        exp.getStackTrace()[0] +
+                        " JAI may not have 'write' and 'delete' permissions in temp folder");
+                } else {
+                    response.sendError(500,
+                        "Image generation failed because of: " +
+                        exp.getStackTrace()[0] + "Check JAI configuration");
+                }
+            }finally{
+
+                out.close();
+                image = null;
+            }
+         } else {
+             LOGGER.severe("Unknow exception format "+exp_type);
+         }
+        
     }
 
     /**
-     * DOCUMENT ME!
+     * returns an xml encoded error message to the client
      *
-     * @param sCode
-     * @param sException
-     * @param pw
+     * @param sCode the service exception code (can be null)
+     * @param sException the exception message
+     * @param pw the printwriter to send to
      */
-    protected void outputException(final String sCode, final String sException,
+    protected void outputXMLException(final String sCode, final String sException,
         final PrintWriter pw) {
         // Write header
         pw.println(
@@ -799,7 +849,7 @@ public class WMSServlet extends HttpServlet {
             
 
             for (int i = 0; i < outputTypes.length; i++) {
-                mapFormats += ("<Format>" + outputTypes[i] + "</Format>");
+                mapFormats += ("\t<Format>" + outputTypes[i] + "</Format>\n");
             }
 
             xml.replace(xml.toString().indexOf(XML_MAPFORMATS),
@@ -833,7 +883,9 @@ public class WMSServlet extends HttpServlet {
 
             // Exception formats
             String exceptionFormats = "";
-
+            for (int i = 0; i < exceptionTypes.length; i++) {
+                exceptionFormats += ("\t<Format>" + exceptionTypes[i] + "</Format>\n");
+            }
             // -No more exception formats at this time
             xml.replace(xml.toString().indexOf(XML_EXCEPTIONFORMATS),
                 xml.toString().indexOf(XML_EXCEPTIONFORMATS) +
@@ -1191,5 +1243,27 @@ public class WMSServlet extends HttpServlet {
         public String toString() {
             return "" + key;
         }
+    }
+    
+    private String negotiateFormat(HttpServletRequest request){
+        String format=DEFAULT_FORMAT;
+        String accept = request.getHeader("Accept"); 
+        if(LOGGER.getLevel()==Level.FINE){
+            LOGGER.fine("browser accepts: " + accept);
+            LOGGER.fine("JAI supports: ");
+            for(int i=0;i<outputTypes.length;i++){
+                LOGGER.fine("\t"+outputTypes[i]);
+            }
+        }
+        // now we need to find the best overlap between these two lists;
+        if(accept !=null){
+            for(int i=0;i<outputTypes.length;i++){
+                if (accept.indexOf(outputTypes[i]) != -1) {
+                    format = outputTypes[i];
+                    break;
+                }
+            }
+        } 
+        return format;
     }
 }
