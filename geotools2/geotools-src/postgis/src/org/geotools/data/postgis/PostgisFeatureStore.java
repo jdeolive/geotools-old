@@ -83,7 +83,7 @@ import java.util.logging.Logger;
  * do some solid tests to see which is actually faster.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisFeatureStore.java,v 1.4 2003/12/02 20:52:07 cholmesny Exp $
+ * @version $Id: PostgisFeatureStore.java,v 1.5 2003/12/02 22:08:13 cholmesny Exp $
  *
  * @task HACK: too little code reuse with PostgisDataStore.
  * @task TODO: make individual operations truly atomic.  If the transaction is
@@ -886,8 +886,8 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         StringBuffer sql = new StringBuffer();
 
         //StringBuffer sqlBuffer = new StringBuffer();
-        sql.append("SELECT AsText(force_2d(Envelope(Extent(" + geomName
-            + ")))) ");
+        sql.append("SELECT AsText(force_2d(Envelope(Extent(\"" + geomName
+            + "\")))) ");
         sqlBuilder.sqlFrom(sql, typeName);
         sqlBuilder.sqlWhere(sql, filter);
         LOGGER.fine("SQL: " + sql);
