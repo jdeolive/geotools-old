@@ -52,7 +52,7 @@ import org.geotools.styling.TextSymbolizer;
  */
 public class LegendImageGenerator {
     /** The style to use **/
-    Style style;
+    Style[] styles;
     /** the current renderer object **/
     Java2DRenderer renderer = new Java2DRenderer();
     /** the width of the returned image **/
@@ -86,7 +86,14 @@ public class LegendImageGenerator {
     /** Creates a new instance of LegendImageGenerator */
     public LegendImageGenerator(Style style, int width, int height) {
         this();
-        setStyle(style);
+        setStyles(new Style[]{style});
+        setWidth(width);
+        setHeight(height);
+    }
+    
+    public LegendImageGenerator(Style[] styles, int width, int height) {
+        this();
+        setStyles(styles);
         setWidth(width);
         setHeight(height);
     }
@@ -102,7 +109,7 @@ public class LegendImageGenerator {
             graphics.fillRect(0,0, getWidth(),getHeight());
         }
         renderer.render(graphics, new java.awt.Rectangle(0,0,getWidth(),getHeight()));
-        FeatureTypeStyle[] fts = style.getFeatureTypeStyles();
+        
         RenderedPoint rp=null;
         PointSymbolizer ps;
         Point p;
@@ -114,88 +121,20 @@ public class LegendImageGenerator {
         int offset = vpadding;
         int items=0;
         int hstep = (getWidth() - 2* hpadding)/2;
-        for(int i=0;i<fts.length;i++){
-            Rule[] rules = fts[i].getRules();
-            items+=rules.length;
-        }
-        int vstep = (getHeight() - (items+1)*vpadding)/items;
-        System.out.println("vstep "+vstep);
         
-            
-        for(int i=0;i<fts.length;i++){
-            Rule[] rules = fts[i].getRules();
-            
-            for(int j=0;j<rules.length;j++){
-                String name = rules[j].getName();
-                Graphic[] g = rules[j].getLegendGraphic();
-                
-                if(g != null && g.length>0){
-                    System.out.println("got a legend graphic");
-                    for(int k=0;k<g.length;k++){
-                        p = gFac.createPoint(new Coordinate(hpadding+hstep/2,offset+vstep/2));
-                        Object[] attrib = {p};
-                        try{
-                            feature = fFac.create(attrib);
-                        }catch (IllegalFeatureException ife){
-                            throw new RuntimeException(ife);
-                        }
-                        ps = sFac.createPointSymbolizer();
-                        ps.setGraphic(g[k]);
-                        rp = new RenderedPoint(feature, ps);
-                        
-                        if(rp.isRenderable()) break;
-                    }
-                    rp.render(graphics);  
-                }else{ // no legend graphic provided 
-                    Symbolizer[] syms = rules[j].getSymbolizers();
-                    for(int k=0;k<syms.length;k++){
-                        if (syms[k] instanceof PolygonSymbolizer) {
-                            System.out.println("building polygon");
-                            Coordinate[] c = new Coordinate[5];
-                            c[0] = new Coordinate(hpadding, offset);
-                            c[1] = new Coordinate(hpadding+symbolWidth, offset);
-                            c[2] = new Coordinate(hpadding+symbolWidth, offset+symbolHeight);
-                            c[3] = new Coordinate(hpadding, offset+symbolHeight);
-                            c[4] = new Coordinate(hpadding, offset);
-                            
-                            com.vividsolutions.jts.geom.LinearRing r = null;
-                            
-                            try {
-                                r = gFac.createLinearRing(c);
-                            } catch (com.vividsolutions.jts.geom.TopologyException e) {
-                                System.err.println("Topology Exception in GMLBox");
-                                
-                                return null;
-                            }
-                            
-                            poly = gFac.createPolygon(r, null);
-                            Object[] attrib = {poly};
-                            try{
-                                feature = fFac.create(attrib);
-                            }catch (IllegalFeatureException ife){
-                                throw new RuntimeException(ife);
-                            }
-                            System.out.println("feature = "+feature);
-                            
-                        } else if (syms[k] instanceof LineSymbolizer){
-                            System.out.println("building line");
-                           Coordinate[] c = new Coordinate[5];
-                            c[0] = new Coordinate(hpadding, offset);
-                            c[1] = new Coordinate(hpadding+symbolWidth*.3, offset+symbolHeight*.3);
-                            c[2] = new Coordinate(hpadding+symbolWidth*.3, offset+symbolHeight*.7);
-                            c[3] = new Coordinate(hpadding+symbolWidth*.7, offset+symbolHeight*.7);
-                            c[4] = new Coordinate(hpadding+symbolWidth, offset+symbolHeight); 
-                            LineString line = gFac.createLineString(c);
-                            Object[] attrib = {line};
-                            try{
-                                feature = fFac.create(attrib);
-                            }catch (IllegalFeatureException ife){
-                                throw new RuntimeException(ife);
-                            }
-                            System.out.println("feature = "+feature);
-                            
-                        } else  if(syms[k] instanceof PointSymbolizer){
-                            System.out.println("building point");
+        for(int s=0;s<styles.length;s++){
+            FeatureTypeStyle[] fts = styles[s].getFeatureTypeStyles();
+
+            for(int i=0;i<fts.length;i++){
+                Rule[] rules = fts[i].getRules();
+
+                for(int j=0;j<rules.length;j++){
+                    String name = rules[j].getName();
+                    Graphic[] g = rules[j].getLegendGraphic();
+
+                    if(g != null && g.length>0){
+                        System.out.println("got a legend graphic");
+                        for(int k=0;k<g.length;k++){
                             p = gFac.createPoint(new Coordinate(hpadding+symbolWidth/2,offset+symbolHeight/2));
                             Object[] attrib = {p};
                             try{
@@ -203,31 +142,96 @@ public class LegendImageGenerator {
                             }catch (IllegalFeatureException ife){
                                 throw new RuntimeException(ife);
                             }
-                            System.out.println("feature = "+feature);
-                            
+                            ps = sFac.createPointSymbolizer();
+                            ps.setGraphic(g[k]);
+                            rp = new RenderedPoint(feature, ps);
+
+                            if(rp.isRenderable()) break;
                         }
+                        rp.render(graphics);  
+                    }else{ // no legend graphic provided 
+                        Symbolizer[] syms = rules[j].getSymbolizers();
+                        for(int k=0;k<syms.length;k++){
+                            if (syms[k] instanceof PolygonSymbolizer) {
+                                System.out.println("building polygon");
+                                Coordinate[] c = new Coordinate[5];
+                                c[0] = new Coordinate(hpadding, offset);
+                                c[1] = new Coordinate(hpadding+symbolWidth, offset);
+                                c[2] = new Coordinate(hpadding+symbolWidth, offset+symbolHeight);
+                                c[3] = new Coordinate(hpadding, offset+symbolHeight);
+                                c[4] = new Coordinate(hpadding, offset);
+
+                                com.vividsolutions.jts.geom.LinearRing r = null;
+
+                                try {
+                                    r = gFac.createLinearRing(c);
+                                } catch (com.vividsolutions.jts.geom.TopologyException e) {
+                                    System.err.println("Topology Exception in GMLBox");
+
+                                    return null;
+                                }
+
+                                poly = gFac.createPolygon(r, null);
+                                Object[] attrib = {poly};
+                                try{
+                                    feature = fFac.create(attrib);
+                                }catch (IllegalFeatureException ife){
+                                    throw new RuntimeException(ife);
+                                }
+                                System.out.println("feature = "+feature);
+
+                            } else if (syms[k] instanceof LineSymbolizer){
+                                System.out.println("building line");
+                               Coordinate[] c = new Coordinate[5];
+                                c[0] = new Coordinate(hpadding, offset);
+                                c[1] = new Coordinate(hpadding+symbolWidth*.3, offset+symbolHeight*.3);
+                                c[2] = new Coordinate(hpadding+symbolWidth*.3, offset+symbolHeight*.7);
+                                c[3] = new Coordinate(hpadding+symbolWidth*.7, offset+symbolHeight*.7);
+                                c[4] = new Coordinate(hpadding+symbolWidth, offset+symbolHeight); 
+                                LineString line = gFac.createLineString(c);
+                                Object[] attrib = {line};
+                                try{
+                                    feature = fFac.create(attrib);
+                                }catch (IllegalFeatureException ife){
+                                    throw new RuntimeException(ife);
+                                }
+                                System.out.println("feature = "+feature);
+
+                            } else  if(syms[k] instanceof PointSymbolizer){
+                                System.out.println("building point");
+                                p = gFac.createPoint(new Coordinate(hpadding+symbolWidth/2,offset+symbolHeight/2));
+                                Object[] attrib = {p};
+                                try{
+                                    feature = fFac.create(attrib);
+                                }catch (IllegalFeatureException ife){
+                                    throw new RuntimeException(ife);
+                                }
+                                System.out.println("feature = "+feature);
+
+                            }
+                        }
+                        if(feature == null) continue;
+                        System.out.println("feature "+feature);
+
+                        renderer.processSymbolizers(feature, syms); 
                     }
-                    if(feature == null) continue;
-                    System.out.println("feature "+feature);
-                    
-                    renderer.processSymbolizers(feature, syms); 
+
+                if(name==null || name =="") name = "unknown";
+
+                p = gFac.createPoint(new Coordinate(2*hpadding+symbolWidth,offset+symbolHeight/2));
+                Object[] attrib = {p,name};
+                try{
+                    labelFeature = labelFac.create(attrib);
+                }catch (IllegalFeatureException ife){
+                    throw new RuntimeException(ife);
                 }
-            
-            if(name==null || name =="") name = "unknown";
-            
-            p = gFac.createPoint(new Coordinate(2*hpadding+symbolWidth,offset+symbolHeight/2));
-            Object[] attrib = {p,name};
-            try{
-                labelFeature = labelFac.create(attrib);
-            }catch (IllegalFeatureException ife){
-                throw new RuntimeException(ife);
-            }
-            textSym.setLabel(filFac.createLiteralExpression(name));
-            
-            
-            renderer.processSymbolizers(labelFeature,new Symbolizer[]{textSym});
-//            graphics.drawString(name,hpadding+3*hstep/2,offset+vstep/2);
-            offset += symbolHeight+vpadding;
+                textSym.setLabel(filFac.createLiteralExpression(name));
+
+
+                renderer.processSymbolizers(labelFeature,new Symbolizer[]{textSym});
+    //            graphics.drawString(name,hpadding+3*hstep/2,offset+vstep/2);
+                offset += symbolHeight+vpadding;
+                }
             }
         }
         Iterator it = renderer.renderedObjects.values().iterator(); 
@@ -241,16 +245,16 @@ public class LegendImageGenerator {
      * @return Value of property style.
      *
      */
-    public org.geotools.styling.Style getStyle() {
-        return style;
+    public org.geotools.styling.Style[] getStyle() {
+        return styles;
     }
     
     /** Setter for property style.
      * @param style New value of property style.
      *
      */
-    public void setStyle(org.geotools.styling.Style style) {
-        this.style = style;
+    public void setStyles(org.geotools.styling.Style[] style) {
+        this.styles = style;
     }
     
     /** Getter for property height.

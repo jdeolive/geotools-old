@@ -31,6 +31,7 @@ import javax.imageio.*;
 import javax.imageio.stream.ImageOutputStream;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import org.geotools.renderer.LegendImageGenerator;
 
 
 /**
@@ -213,7 +214,9 @@ public class WMSServlet extends HttpServlet {
             doGetMap(request, response);
         } else if (sRequest.trim().equalsIgnoreCase("GetFeatureInfo")) {
             doGetFeatureInfo(request, response);
-        } else if (sRequest.trim().equalsIgnoreCase("ClearCache")) {
+        } else if (sRequest.trim().equalsIgnoreCase("GetLegendGraphic")) {
+            doGetLegendGraphic(request,response);            
+        }else if (sRequest.trim().equalsIgnoreCase("ClearCache")) {
             // note unpublished request to prevent users clearing the cache for fun.
             clearCache();
         } else if (sRequest.trim().equalsIgnoreCase("SetCache")) {
@@ -636,7 +639,72 @@ public class WMSServlet extends HttpServlet {
                 request, response, exceptions);
         }
     }
+    
+    private void doGetLegendGraphic(HttpServletRequest request,
+        HttpServletResponse response) throws ServletException, IOException {
+    
+        BufferedImage image = null;
+        String exceptions = getParameter(request, PARAM_EXCEPTIONS);
+        String format = getParameter(request, PARAM_FORMAT);
+        String[] layers = commaSeparated(getParameter(request, PARAM_LAYERS));
+        String[] styles = commaSeparated(getParameter(request, PARAM_STYLES),
+            layers.length);
+        int width = posIntParam(getParameter(request, PARAM_WIDTH));
+        int height = posIntParam(getParameter(request, PARAM_HEIGHT));
+        boolean trans = boolParam(getParameter(request, PARAM_TRANSPARENT));
+        Color bgcolor = colorParam(getParameter(request, PARAM_BGCOLOR));
+        
+        if(format==null || format.equals("")){
+            format=negotiateFormat(request);
+        }
+        try{
+            image=server.getLegend(layers,styles,width,height,trans,bgcolor);
+        } catch (WMSException wmsexp) {
+            doException(wmsexp.getCode(), wmsexp.getMessage(), request,
+                response, exceptions);
+            return;
+        } catch (Exception exp) {
+            doException(null,
+                "Unknown exception : " + exp + " : " + exp.getStackTrace()[0] +
+                exp.getMessage(), request, response, exceptions);
+            return;
+        }
 
+        // Write the response
+        response.setContentType(format);
+
+        OutputStream out = response.getOutputStream();
+
+        // avoid caching in browser
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+
+        try {
+            formatImageOutputStream(format, image, out);
+        } catch (Exception exp) {
+            exp.printStackTrace();
+            LOGGER.severe(
+                "Unable to complete image generation after response started : " +
+                exp + exp.getMessage());
+
+            if (exp instanceof SecurityException) {
+                response.sendError(500,
+                    "Image generation failed because of: " +
+                    exp.getStackTrace()[0] +
+                    " JAI may not have 'write' and 'delete' permissions in temp folder");
+            } else {
+                response.sendError(500,
+                    "Image generation failed because of: " +
+                    exp.getStackTrace()[0] + "Check JAI configuration");
+            }
+        }finally{
+
+            out.close();
+            image = null;
+        }
+
+    }
     private WMSFeatureFormatter getFeatureFormatter(String mime)
         throws WMSException {
         for (int i = 0; i < featureFormatters.size(); i++)

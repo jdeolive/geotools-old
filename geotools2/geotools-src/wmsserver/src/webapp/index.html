@@ -42,14 +42,19 @@ options that you can set for fills and strokes, including opacity, patterns and 
 
 The following map uses a more advanced style document to shade the states based on their population:<p>
     <img src='servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=population'
-width=400 height=200/>
+width=400 height=200/> 
+<img src='servlet/gt2wms?request=getLegendGraphic&layers=USA&styles=population&width=250&height=100'
+width='250' height='100'/>
 <p>That map was generated using :<br>
 '<a href="servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=population"/>
 servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=population'</a><br>
-using the <a href="styles/popshade.sld">popshade</A> style document.<p>
+using the <a href="styles/popshade.sld">popshade</A> style document. The legend
+is drawn using the GetLegendGraphics request <a
+href="servlet/gt2wms?request=getLegendGraphic&layers=USA&styles=population&width=250&height=100">servlet/gt2wms?request=getLegendGraphic&layers=USA&styles=population&width=250&height=100</A><p>
 This style document adds filters to the rules so that different states are shaded in different colours.  For example:<br>
 <pre>
 &lt;Rule&gt;
+    &lt;name&gt;between 2000000 and 4000000 persons&lt;/name&gt;
     &lt;Filter xmlns:gml="http://www.opengis.net/gml"&gt;
       &lt;PropertyIsBetween&gt;
         &lt;PropertyName&gt;PERSONS&lt;/PropertyName&gt;

@@ -72,7 +72,22 @@ public interface WMSServer {
     public BufferedImage getMap(String[] layers, String[] styles, String srs,
         double[] bbox, int width, int height, boolean transparent, Color bgcolor)
         throws WMSException;
-
+    /**
+     * Gets a legend image - oddly this is defined on Page 60 of the SLD Spec 1.0.0
+     *
+     * @param layers The Identifying names of the Layers to display. These
+     *        Layers are assumed to be installed and ready on the server. 
+     * @param styles The styles to use for each Layer - one for one
+     * @param width The width of the image, in pixels
+     * @param height The height of the image, in pixels
+     * @param transparent Whether the background of the map is transparent
+     * @param bgcolor The background color of the map
+     *
+     * @return A java.awt.Image object of the drawn map.
+     */
+    public BufferedImage getLegend(String[] layers, String[] styles, int width, int height, boolean transparent, Color bgcolor)
+        throws WMSException;
+    
     /**
      * Gets the Feature info for given Layers. The first 5 parameters are the
      * same as those in the call to getMap. Feature Info can only be returned

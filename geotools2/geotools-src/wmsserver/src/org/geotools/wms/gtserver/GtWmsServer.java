@@ -44,6 +44,7 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.Logger;
 import org.apache.commons.collections.LRUMap;
+import org.geotools.renderer.LegendImageGenerator;
 
 
 public class GtWmsServer implements WMSServer {
@@ -259,11 +260,15 @@ public class GtWmsServer implements WMSServer {
             LOGGER.fine("setting up map");
             
             org.geotools.map.Map map = new DefaultMap();
-            
+            Style[] layerstyle = null;
             for (int i = 0; i < layers.length; i++) {
-                Style[] layerstyle = findStyles(layers, styleNames, i);
+                if(styleNames!=null&&styleNames[i]!=null){ 
+                    layerstyle = findStyles(layers[i], styleNames[i]);
+                }else{
+                    layerstyle = findStyles(layers[i],"");
+                }
                 
-                LOGGER.fine("style object is a " + layerstyle[0]);
+                //LOGGER.fine("style object is a " + layerstyle[0]);
                 
                 DataSource ds = (DataSource) features.get(layers[i]);
                 FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
@@ -308,31 +313,56 @@ public class GtWmsServer implements WMSServer {
     /**
      * DOCUMENT ME!
      *
-     * @param layer
-     * @param style
-     * @param i
+     * @param layer - a list of layer names
+     * @param style - a list of styles
+     * 
      *
      * @return
      *
      * @throws MalformedURLException
      * @throws WMSException
      */
-    private Style[] findStyles(final String[] layer, final String[] style,
-    final int i) throws MalformedURLException, WMSException {
-        Style[] layerstyle = new Style[1];
-        LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer[i]);
-        
-        if ((style != null) && (style[i] != "")) {
-            layerstyle = loadStyle(style, i, layerstyle, layerdefn);
-            return layerstyle;
-        } else {
-            layerstyle = useDefaultStyle(layer, i, layerstyle, layerdefn);
+    private Style[] findStyles(final String[] layer, final String[] style) throws MalformedURLException, WMSException {
+        ArrayList styleList = new ArrayList();
+        Style[] layerstyle = null;
+        for(int i=0;i<layer.length;i++){
             
+            layerstyle = findStyles(layer[i],style[i]);
+            
+            for(int j=0;j<layerstyle.length;j++){
+                styleList.add(layerstyle[j]);
+            }    
         }
-        
+        return (Style[]) styleList.toArray(layerstyle);
+    }
+    
+    private Style[] findStyles(final String layer, final String style) throws MalformedURLException, WMSException {
+        Style[] layerstyle = null;
+        LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer);
+        if ((style != null) && (style != "")) {
+                layerstyle = loadStyle(style, layerdefn);
+                
+            } else {
+                layerstyle = useDefaultStyle(layer, layerdefn);
+
+            }
         return layerstyle;
     }
     
+    public BufferedImage getLegend(String[] layers, String[] styleNames,
+     int width, int height, boolean transparent,
+    Color bgcolor) throws WMSException {
+        BufferedImage image = null;
+        try{
+            Style[] reqStyles = findStyles(layers, styleNames);
+        
+        LegendImageGenerator lig = new LegendImageGenerator(reqStyles,width,height); 
+        image = lig.getLegend(bgcolor);
+        return image;
+        }catch (MalformedURLException mfe){
+            throw new WMSException("Problem in GetLegend",mfe.getMessage());
+        }
+    }
     /**
      * DOCUMENT ME!
      *
@@ -345,9 +375,9 @@ public class GtWmsServer implements WMSServer {
      *
      * @throws MalformedURLException
      */
-    private Style[] useDefaultStyle(final String[] layer, final int i,
-    Style[] layerstyle, final LayerEntry layerdefn)
+    private Style[] useDefaultStyle(final String layer, final LayerEntry layerdefn)
     throws MalformedURLException {
+        Style[] layerstyle = new Style[1];
         LOGGER.fine("Default style "+layerdefn.defaultStyle);
         String sldpath = (String)layerdefn.styles.get(layerdefn.defaultStyle);
         LOGGER.fine("looking for default:" + sldpath);
@@ -392,15 +422,14 @@ public class GtWmsServer implements WMSServer {
      * @throws MalformedURLException
      * @throws WMSException
      */
-    private Style[] loadStyle(final String[] style, final int i,
-    Style[] layerstyle, final LayerEntry layerdefn)
+    private Style[] loadStyle(final String style, final LayerEntry layerdefn)
     throws MalformedURLException, WMSException {
-        String sldpath = (String) layerdefn.styles.get(style[i]);
-        LOGGER.fine("style != null "+(style[i] != null));
-        
+        String sldpath = (String) layerdefn.styles.get(style);
+        LOGGER.fine("style != null "+(style != null));
+        Style[] layerstyle= new Style[1];
         if (sldpath == null) {
             throw new WMSException(WMSException.WMSCODE_STYLENOTDEFINED,
-            "The Style '" + style[i] + "' does not exist for " +
+            "The Style '" + style + "' does not exist for " +
             layerdefn.id);
         }
         
