@@ -101,7 +101,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.20 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.21 2003/09/03 17:57:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see SampleDimension
@@ -258,6 +258,22 @@ public class Category implements Serializable {
         this(name, ARGB, new NumberRange(sample.getClass(), sample, sample), null);
         assert Double.isNaN(inverse.minimum) : inverse.minimum;
         assert Double.isNaN(inverse.maximum) : inverse.maximum;
+    }
+    
+    /**
+     * Construct a quantitative category for samples in the specified range.
+     *
+     * @param  name    The category name.
+     * @param  color   The category color, or <code>null</code> for a default color.
+     * @param  sampleValueRange The range of sample values for this category. Element class
+     *                 is usually {@link Integer}, but {@link Float} and {@link Double} are
+     *                 accepted as well.
+     */
+    public Category(final String      name,
+                    final Color       color,
+                    final NumberRange sampleValueRange) throws IllegalArgumentException
+    {
+        this(name, new Color[] {color}, sampleValueRange, (MathTransform1D) null);
     }
     
     /**
@@ -959,7 +975,7 @@ public class Category implements Serializable {
      * A category with a localized name. Used for the pre-defined categories
      * {@link #NODATA}, {@link #FALSE} and {@link #TRUE}.
      *
-     * @version $Id: Category.java,v 1.20 2003/08/04 19:07:22 desruisseaux Exp $
+     * @version $Id: Category.java,v 1.21 2003/09/03 17:57:19 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Localized extends Category {

@@ -69,7 +69,7 @@ import junit.framework.TestSuite;
  *  <li>{@link #getExample}</li>
  * </ul>
  *
- * @version $Id: GridCoverageTest.java,v 1.9 2003/08/08 17:58:21 desruisseaux Exp $
+ * @version $Id: GridCoverageTest.java,v 1.10 2003/09/03 17:57:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GridCoverageTest extends TestCase {
@@ -246,13 +246,6 @@ public class GridCoverageTest extends TestCase {
     ////////                                                                           ////////
     ///////////////////////////////////////////////////////////////////////////////////////////
     /**
-     * Returns a set of color for the specified code.
-     */
-    private static Color[] decode(final String color) {
-        return new Color[] {Color.decode(color)};
-    }
-
-    /**
      * Returns the number of available image which may be used as example.
      */
     public static int getNumExamples() {
@@ -283,13 +276,13 @@ public class GridCoverageTest extends TestCase {
                 path = "test-data/QL95209.png";
                 cs   = GeographicCoordinateSystem.WGS84;
                 categories = new Category[] {
-                    new Category("Coast line", decode("#000000"), new NumberRange(  0,   0), (MathTransform1D)null),
-                    new Category("Cloud",      decode("#C3C3C3"), new NumberRange(  1,   9), (MathTransform1D)null),
-                    new Category("Unused",     decode("#822382"), new NumberRange( 10,  29), (MathTransform1D)null),
-                    new Category("Sea Surface Temperature", null, new NumberRange( 30, 219), 0.1, 10.0),
-                    new Category("Unused",     decode("#A0505C"), new NumberRange(220, 239), (MathTransform1D)null),
-                    new Category("Land",       decode("#D2C8A0"), new NumberRange(240, 254), (MathTransform1D)null),
-                    new Category("No data",    decode("#FFFFFF"), new NumberRange(255, 255), (MathTransform1D)null),
+                    new Category("Coast line", Color.decode("#000000"), new NumberRange(  0,   0)),
+                    new Category("Cloud",      Color.decode("#C3C3C3"), new NumberRange(  1,   9)),
+                    new Category("Unused",     Color.decode("#822382"), new NumberRange( 10,  29)),
+                    new Category("Sea Surface Temperature", null,       new NumberRange( 30, 219), 0.1, 10.0),
+                    new Category("Unused",     Color.decode("#A0505C"), new NumberRange(220, 239)),
+                    new Category("Land",       Color.decode("#D2C8A0"), new NumberRange(240, 254)),
+                    new Category("No data",    Color.decode("#FFFFFF"), new NumberRange(255, 255)),
                 };
                 // 41°S - 5°N ; 35°E - 80°E  (450 x 460 pixels)
                 bounds = new Rectangle2D.Double(35, -41, 45, 46);
@@ -300,9 +293,9 @@ public class GridCoverageTest extends TestCase {
                 path = "test-data/CHL01195.png";
                 cs   = GeographicCoordinateSystem.WGS84;
                 categories = new Category[] {
-                    new Category("Land",       decode("#000000"), new NumberRange(255, 255), (MathTransform1D)null),
-                    new Category("No data",    decode("#FFFFFF"), new NumberRange(  0,   0), (MathTransform1D)null),
-                    new Category("Log chl-a",  null,              new NumberRange(  1, 254), 0.015, -1.985)
+                    new Category("Land",       Color.decode("#000000"), new NumberRange(255, 255)),
+                    new Category("No data",    Color.decode("#FFFFFF"), new NumberRange(  0,   0)),
+                    new Category("Log chl-a",  null,                    new NumberRange(  1, 254), 0.015, -1.985)
                 };
                 // 34°N - 45°N ; 07°W - 12°E  (1200 x 700 pixels)
                 bounds = new Rectangle2D.Double(-7, 34, 19, 11);
