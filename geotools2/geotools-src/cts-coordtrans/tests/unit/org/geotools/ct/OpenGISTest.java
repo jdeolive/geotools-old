@@ -39,6 +39,7 @@ import java.util.StringTokenizer;
 
 // Input/output
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -58,6 +59,7 @@ import junit.framework.AssertionFailedError;
 // Geotools dependencies
 import org.geotools.cs.*;
 import org.geotools.pt.CoordinatePoint;
+import org.geotools.resources.Arguments;
 
 
 /**
@@ -75,17 +77,12 @@ import org.geotools.pt.CoordinatePoint;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: OpenGISTest.java,v 1.1 2002/10/07 22:49:55 desruisseaux Exp $
+ * @version $Id: OpenGISTest.java,v 1.2 2002/10/08 13:39:19 desruisseaux Exp $
+ * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
 public class OpenGISTest extends TestCase {
-    /**
-     * If <code>true</code>, display error messages instead of throwing
-     * {@link AssertionFailedError}. This is used for debugging only.
-     */
-    private static final boolean DISPLAY_ONLY = true;
-
     /**
      * The test file to parse and execute.
      */
@@ -110,22 +107,34 @@ public class OpenGISTest extends TestCase {
     private Map definitions;
 
     /**
-     * The list of instructions. Example of instructions:
-     * <pre>
-     *   cs_source      = _Wgs84NE_
-     *   cs_target      = _Wgs84SW_
-     *   test_tolerance = 1e-6
-     *   pt_source      = (1, 2)
-     *   pt_target      = (-1, -2)
-     * </pre>
+     * Source and target coordinate systems for the test currently executed.
+     * Those fields are updated many times by {@link #runInstruction}.
      */
-    private Map instructions;
+    private CoordinateSystem sourceCS, targetCS;
+
+    /**
+     * Source and target coordinate points for the test currently executed.
+     * Those fields are updated many times by {@link #runInstruction}.
+     */
+    private CoordinatePoint sourcePT, targetPT;
+
+    /**
+     * Tolerance numbers for the test currently executed.
+     * Thise field is updated many times by {@link #runInstruction}.
+     */
+    private double[] tolerance;
 
     /**
      * Number of test run and passed. Used for displaying
      * a report after once the test is finished.
      */
     private int testRun, testPassed;
+
+    /**
+     * If non-null display error messages to this writer instead of throwing
+     * {@link AssertionFailedError}. This is used for debugging only.
+     */
+    private PrintWriter out;
     
     /**
      * Constructs a test case with the given name.
@@ -149,7 +158,6 @@ public class OpenGISTest extends TestCase {
         csFactory    = CoordinateSystemFactory.getDefault();
         ctFactory    = CoordinateTransformationFactory.getDefault();
         definitions  = new HashMap();
-        instructions = new HashMap();
     }
 
     /**
@@ -173,10 +181,22 @@ public class OpenGISTest extends TestCase {
         assertEquals("The coordinate point doesn't have the expected dimension",
                      expected.getDimension(), dimension);
         for (int i=0; i<dimension; i++) {
-            assertEquals("Mismatch for (zero-based) ordinate "+i,
+            assertEquals("Mismatch for ordinate "+i+" (zero-based):",
                          expected.getOrdinate(i), actual.getOrdinate(i),
                          tolerance[Math.min(i, lastToleranceIndex)]);
         }
+    }
+
+    /**
+     * Returns a coordinate system for the specified name. The coordinate system
+     * must has been previously defined with a call to {@link #addDefinition}.
+     */
+    private CoordinateSystem getCoordinateSystem(final String name) throws FactoryException {
+        final Object cs = definitions.get(name);
+        if (cs instanceof CoordinateSystem) {
+            return (CoordinateSystem) cs;
+        }
+        throw new FactoryException("No coordinate system defined for \""+name+"\".");
     }
 
     /**
@@ -264,8 +284,8 @@ public class OpenGISTest extends TestCase {
                                            "COMPD_CS[\"name\", cs1name, cs2name]");
             }
             String csname = removeDelimitors(st.nextToken(), '"', '"');
-            CoordinateSystem head = (CoordinateSystem) definitions.get(st.nextToken().trim());
-            CoordinateSystem tail = (CoordinateSystem) definitions.get(st.nextToken().trim());
+            CoordinateSystem head = getCoordinateSystem(st.nextToken().trim());
+            CoordinateSystem tail = getCoordinateSystem(st.nextToken().trim());
             cs = csFactory.createCompoundCoordinateSystem(csname, head, tail);
         }
         else if (value.regionMatches(true, 0, FITTED_CS, 0, FITTED_CS.length())) {
@@ -299,40 +319,41 @@ public class OpenGISTest extends TestCase {
      * The "<code>pt_target</code>" instruction trig the computation.
      *
      * @param  text The instruction to parse.
+     * @throws FactoryException if the instruction can't be parsed.
      * @throws TransformException if the transformation can't be run.
      */
-    private void runInstruction(final String text) throws TransformException {
+    private void runInstruction(final String text) throws FactoryException, TransformException {
         final StringTokenizer st = new StringTokenizer(text, "=");
         if (st.countTokens() != 2) {
-            throw new TransformException("Illegal instruction: "+text);
+            throw new FactoryException("Illegal instruction: "+text);
         }
         final String name  = st.nextToken().trim().toLowerCase();
         final String value = st.nextToken().trim();
-        if (name.startsWith("cs_")) {
-            instructions.put(name, definitions.get(value));
+        if (name.equals("cs_source")) {
+            sourceCS = getCoordinateSystem(value);
             return;
         }
-        if (name.startsWith("test_")) {
-            instructions.put(name, parseVector(value));
+        if (name.equals("cs_target")) {
+            targetCS = getCoordinateSystem(value);
             return;
         }
-        if (!name.startsWith("pt_")) {
-            throw new TransformException("Unknow instruction: "+name);
+        if (name.equals("test_tolerance")) {
+            tolerance = parseVector(value);
+            return;
         }
-        instructions.put(name, new CoordinatePoint(parseVector(value)));
+        if (name.equals("pt_source")) {
+            sourcePT = new CoordinatePoint(parseVector(value));
+            return;
+        }
         if (!name.equals("pt_target")) {
-            return;
+            throw new FactoryException("Unknow instruction: "+name);
         }
+        targetPT = new CoordinatePoint(parseVector(value));
         /*
          * The "pt_target" instruction trig the test.
          */
-        final CoordinateSystem sourceCS = (CoordinateSystem) instructions.get("cs_source");
-        final CoordinateSystem targetCS = (CoordinateSystem) instructions.get("cs_target");
-        final CoordinatePoint  sourcePT = (CoordinatePoint)  instructions.get("pt_source");
-        final CoordinatePoint  targetPT = (CoordinatePoint)  instructions.get("pt_target");
-        final double[]        tolerance = (double[]) instructions.get("test_tolerance");
-        CoordinatePoint        computed = null;
-        CoordinateTransformation     tr = null;
+        CoordinatePoint    computed = null;
+        CoordinateTransformation tr = null;
         try {
             testRun++;
             tr = ctFactory.createFromCoordinateSystems(sourceCS, targetCS);
@@ -340,23 +361,23 @@ public class OpenGISTest extends TestCase {
             assertEquals(targetPT, computed, tolerance);
             testPassed++;
         } catch (TransformException exception) {
-            if (!DISPLAY_ONLY) {
+            if (out == null) {
                 throw exception;
             }
-            System.out.println("----TRANSFORMATION FAILED-------------------------------------------------------");
-            System.out.println(exception);
-            System.out.println();
+            out.println("----TRANSFORMATION FAILED-------------------------------------------------------");
+            out.println(exception);
+            out.println();
         } catch (AssertionFailedError error) {
-            if (!DISPLAY_ONLY) {
+            if (out == null) {
                 throw error;
             }
-            System.out.println("----TEST FAILED-----------------------------------------------------------------");
-            System.out.println("cs_source : " + sourceCS);
-            System.out.println("cs_target : " + targetCS);
-            System.out.println("pt_source = " + sourcePT);
-            System.out.println("pt_target = " + targetPT);
-            System.out.println("computed  = " + computed);
-            System.out.println();
+            out.println("----TEST FAILED-----------------------------------------------------------------");
+            out.println("cs_source : " + sourceCS);
+            out.println("cs_target : " + targetCS);
+            out.println("pt_source = " + sourcePT);
+            out.println("pt_target = " + targetPT);
+            out.println("computed  = " + computed);
+            out.println();
         }
     }
 
@@ -394,16 +415,24 @@ public class OpenGISTest extends TestCase {
             runInstruction(line);
         }
         reader.close();
-        System.out.print("Test passed: ");
-        System.out.print((int) (100*testPassed/testRun));
-        System.out.println('%');
+        if (out != null) {
+            out.print("Test passed: ");
+            out.print((int) (100*testPassed/testRun));
+            out.println('%');
+            out.flush();
+        }
     }   
 
     /**
      * Run the test from the command line.
+     *
+     * @param  args The command-line arguments.
+     * @throws Exception if a test failed.
      */
     public static void main(final String[] args) throws Exception {
+        final Arguments arguments = new Arguments(args);
         final OpenGISTest test = new OpenGISTest(null);
+        test.out = arguments.out;
         test.setUp();
         test.testOpenGIS();
     }
