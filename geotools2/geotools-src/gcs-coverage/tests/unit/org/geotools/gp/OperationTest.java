@@ -45,6 +45,7 @@ import javax.media.jai.*;
 import org.geotools.cv.*;
 import org.geotools.gc.*;
 import org.geotools.gp.*;
+import org.geotools.resources.Arguments;
 
 // JUnit dependencies
 import junit.framework.Test;
@@ -55,7 +56,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link OperationJAI} implementation.
  *
- * @version $Id: OperationTest.java,v 1.3 2002/08/09 11:13:57 desruisseaux Exp $
+ * @version $Id: OperationTest.java,v 1.4 2002/08/09 18:41:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationTest extends GridCoverageTest {
@@ -93,10 +94,11 @@ public class OperationTest extends GridCoverageTest {
      */
     public void testOperationJAI() {
         final OperationJAI operation = new OperationJAI("addConst");
+        final PrintWriter out = new PrintWriter(Arguments.getWriter(System.out));
         if (true) try {
-            operation.print(new PrintWriter(System.out), null);
+            operation.print(out, null);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            exception.printStackTrace(out);
             fail();
         }
         assertEquals("numSources",    1, operation.getNumSources());
