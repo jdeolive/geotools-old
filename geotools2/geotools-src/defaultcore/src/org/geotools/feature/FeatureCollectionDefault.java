@@ -24,12 +24,14 @@ import java.util.*;
 import org.geotools.data.*;
 import org.geotools.datasource.extents.*;
 
+import org.geotools.filter.*;
+
 /**
  * The default feature collection holds and passes out features promiscuously
  * to requesting clients.  It does not guarantee that features are of a certain
  * type or that they follow a specific schema. 
  * 
- * @version $Id: FeatureCollectionDefault.java,v 1.4 2002/07/11 16:39:46 loxnard Exp $
+ * @version $Id: FeatureCollectionDefault.java,v 1.5 2002/07/19 14:14:38 jmacgill Exp $
  * @author  James Macgill, CCG<br>
  * @author  Rob Hranac, VFNY<br>
  */
@@ -146,7 +148,7 @@ public class FeatureCollectionDefault implements FeatureCollection {
      */
     public Feature[] getFeatures(Extent ex) 
         throws DataSourceException {
-
+        try{
         // TODO: 2
         // Replace this idiom with a loadedExtent = loadedExtent.or(extent)
         //  idiom.  I think?
@@ -163,7 +165,12 @@ public class FeatureCollectionDefault implements FeatureCollection {
             if (toLoad[i] != null){
                 if (data != null){
                     System.out.println("loading " + i);
-                    data.importFeatures(this, toLoad[i]);
+                    org.geotools.filter.GeometryFilter gf =
+                      new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+                    ExpressionLiteral right = 
+                      new BBoxExpression(((EnvelopeExtent)toLoad[i]).getBounds());
+                    gf.addRightGeometry(right);
+                    data.getFeatures(this,gf);
                 }
                 if (loadedExtent == null){
                     loadedExtent = toLoad[i];
@@ -175,6 +182,10 @@ public class FeatureCollectionDefault implements FeatureCollection {
         }
         System.out.println("calling getfeatures");
         return getFeatures();
+        }
+        catch(IllegalFilterException ife){
+            throw new DataSourceException(ife.toString());
+        }
     }
     
     
