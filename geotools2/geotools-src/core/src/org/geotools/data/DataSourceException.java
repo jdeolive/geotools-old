@@ -20,9 +20,11 @@ package org.geotools.data;
  * Thrown when there is an error in a datasource.
  *
  * @author Ray Gallagher
- * @version $Id: DataSourceException.java,v 1.6 2003/05/16 15:49:06 jmacgill Exp $
+ * @version $Id: DataSourceException.java,v 1.7 2003/10/02 22:42:57 ianschneider Exp $
  */
-public class DataSourceException extends Exception {
+public class DataSourceException extends java.io.IOException {
+    
+    private Throwable cause;
     /**
      * Constructs a new instance of DataSourceException
      *
@@ -39,6 +41,11 @@ public class DataSourceException extends Exception {
      * @param exp the throwable object which caused this exception
      */
     public DataSourceException(String msg, Throwable exp) {
-        super(msg, exp);
+        super(msg);
+        this.cause = cause;
+    }
+    
+    public Throwable getCause() {
+        return cause;
     }
 }
