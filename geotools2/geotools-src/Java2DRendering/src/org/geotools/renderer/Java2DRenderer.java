@@ -38,7 +38,28 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 
+import java.util.HashMap;
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
+    
+    /**
+     * Holds a lookup bewteen SLD names and java constants
+     **/
+    private static final java.util.HashMap joinLookup = new java.util.HashMap();
+    /**
+     * Holds a lookup bewteen SLD names and java constants
+     **/
+    private static final java.util.HashMap capLookup = new java.util.HashMap();
+    
+    static { //static block to populate the lookups
+        joinLookup.put("miter", new Integer(BasicStroke.JOIN_MITER));
+        joinLookup.put("bevel", new Integer(BasicStroke.JOIN_BEVEL));
+        joinLookup.put("round", new Integer(BasicStroke.JOIN_ROUND));
+        
+        capLookup.put("butt",   new Integer(BasicStroke.CAP_BUTT));
+        capLookup.put("round",  new Integer(BasicStroke.CAP_ROUND));
+        capLookup.put("square", new Integer(BasicStroke.CAP_SQUARE));
+    }
+    
     private Graphics2D graphics;
     private Rectangle screenSize;
     private double scaleDenominator;
@@ -62,23 +83,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
 
         double scale = Math.min(screenSize.getHeight()/map.getHeight(),
                 screenSize.getWidth()/map.getWidth());
-        System.out.println("scale is "+scale);
-        System.out.println("e minX "+map.getMinX()+ " width "+map.getWidth());
-        //System.out.println("translation is "+(-e.getMinX()*scale)+","+screenSize.getHeight());
-        //at.setToTranslation(-e.getMinX()*scale,screenSize.getHeight());
-        System.out.println("translation is "+(-map.getMinX()*scale)+","+(-scale*(-screenSize.getHeight()/scale - map.getMinY())));
-        //at.setToTranslation(-map.getMinX(),(-map.getMinY()-(screenSize.getHeight()/scale)));
-        //at.scale(scale,-scale);
-        //at = AffineTransform.getTranslateInstance(-map.getMinX()*scale,map.getMinY()*scale);
-        //AffineTransform scaler = AffineTransform.getScaleInstance(scale,-scale);
-        //AffineTransform trans = AffineTransform.getTranslateInstance(0,screenSize.getHeight());
-        
-        //at.concatenate(scaler);
-        //at.concatenate(trans);
+  
         double angle = 0;//-Math.PI/8d;// rotation angle
         double tx = -map.getMinX()*scale; // x translation - mod by ian
         double ty = map.getMinY()*scale + screenSize.getHeight();// y translation
-        System.out.println("x shift = "+tx+" y shift is "+ty);
         
         double sc = scale*Math.cos(angle);
         double ss = scale*Math.sin(angle);
@@ -137,26 +145,53 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     private void renderPolygon(Feature feature, PolygonSymbolizer symbolizer){
-        org.geotools.styling.Stroke stroke = symbolizer.getStroke();
         Fill fill = symbolizer.getFill();
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature,geomName);
        // Geometry scaled = transform.transformGeometry(geom);
         GeneralPath path = createGeneralPath(geom.getCoordinates());
         //path.closePath();
-
         graphics.setColor(Color.decode(fill.getColor()));
         graphics.fill(path);
+        
+        applyStroke(symbolizer.getStroke());
+        //path = createGeneralPath(geom.getCoordinates());
+        graphics.draw(path);
+//        System.out.println("Rendering a polygon with an outline colour of "+stroke.getColor()+
+//            "and a fill colour of "+fill.getColor()+"\n at "+path.getCurrentPoint().toString());
+    }
+    
+    private void applyStroke(org.geotools.styling.Stroke stroke){
         // I'm not sure if this is right
         // TODO: check this out
         double scale = graphics.getTransform().getScaleX();
-        BasicStroke stroke2d = new BasicStroke((float)(stroke.getWidth()/scale));
+        String joinType = stroke.getLineJoin();
+        
+        if(joinType==null) { joinType="miter"; }
+        int joinCode;
+        if(joinLookup.containsKey(joinType)){
+            joinCode = ((Integer) joinLookup.get(joinType)).intValue();
+        }
+        else{
+            joinCode = java.awt.BasicStroke.JOIN_MITER;
+        }
+        
+        String capType = stroke.getLineCap();
+        if(capType==null) { capType="square"; }
+        int capCode;
+        if(capLookup.containsKey(capType)){
+            capCode = ((Integer) capLookup.get(capType)).intValue();
+        }
+        else{
+            capCode = java.awt.BasicStroke.CAP_SQUARE;
+        }
+            
+        BasicStroke stroke2d = new BasicStroke(
+            (float)stroke.getWidth()/(float)scale, capCode, joinCode,
+            10,stroke.getDashArray(), (float)stroke.getDashOffset());
+        
         graphics.setStroke(stroke2d);
         graphics.setColor(Color.decode(stroke.getColor()));
-        //path = createGeneralPath(geom.getCoordinates());
-        graphics.draw(path);
-        System.out.println("Rendering a polygon with an outline colour of "+stroke.getColor()+
-            "and a fill colour of "+fill.getColor()+"\n at "+path.getCurrentPoint().toString());
     }
 
     private GeneralPath createGeneralPath(final Coordinate[] coords) {
@@ -169,16 +204,16 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     private void renderLine(Feature feature, LineSymbolizer symbolizer){
-        org.geotools.styling.Stroke stroke = symbolizer.getStroke();
+        applyStroke(symbolizer.getStroke());
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
         //Geometry scaled = transform.transformGeometry(geom);
         
         GeneralPath path = createGeneralPath(geom.getCoordinates());
-        System.out.println(path.getBounds());
-        //graphics.setColor(Color.decode(stroke.getColor()));
+        //System.out.println(path.getBounds());
+        
         graphics.draw(path);
-        System.out.println("Rendering a line with a colour of "+stroke.getColor());
+       // System.out.println("Rendering a line with a colour of "+stroke.getColor());
     }
 
     private Geometry findGeometry(final Feature feature, final String geomName) {
