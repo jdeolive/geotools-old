@@ -19,6 +19,7 @@ import org.geotools.styling.*;
 import org.geotools.data.*;
 import org.geotools.data.gml.*;
 import com.vividsolutions.jts.geom.Envelope;
+import java.awt.Dimension;
 import org.geotools.feature.FeatureCollection;
 
 
@@ -79,12 +80,6 @@ public class SVGTest extends TestCase {
             DataSource ds = new GMLDataSource(url);
             FeatureCollection fc = ds.getFeatures(Query.ALL);
             
-            
-            //EnvelopeExtent r = new EnvelopeExtent(ds.getBbox());
-            //r.setBounds(new com.vividsolutions.jts.geom.Envelope(-100, 100, 0, 100.0));
-
-            //fc.getFeatures(r);
-            
             File f = new File(dataFolder,stylefile);
        
             Map map = new DefaultMap();
@@ -93,10 +88,10 @@ public class SVGTest extends TestCase {
             Style style[] = reader.readXML();
             map.addFeatureTable(fc,style[0]);
             
-            System.out.println("schema for first feature is " + fc.features().next().getFeatureType());
-            //fc.getFeatures(new Extent())[0].getSchema();
             url = new URL("file:///"+dataFolder+"/"+outfile);
             FileOutputStream out = new FileOutputStream(url.getFile());
+            
+            gen.setCanvasSize(new Dimension(500,500));
             gen.go(map,fc.getBounds(),out);
             
             
