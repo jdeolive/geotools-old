@@ -5,9 +5,10 @@
  * Created on 29 July 2002, 12:13
  */
 
-package org.geotools.mapinfo;
+package org.geotools.data.mapinfo;
 
 import junit.framework.*;
+import org.geotools.data.mapinfo.*;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Extent;

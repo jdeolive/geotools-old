@@ -8,6 +8,7 @@
 package org.geotools.mapinfo;
 
 import junit.framework.*;
+import org.geotools.data.mapinfo.*;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Extent;
@@ -30,9 +31,7 @@ import java.net.URL;
  *
  * @author iant
  */
-public class MapInfoDataSourceTest extends TestCaseSupport {
-    final String STATEPOP = "statepop.mif";
-    
+public class MapInfoDataSourceTest extends TestCase {
     MapInfoDataSource dsMapInfo;
     boolean setup = false;
     public MapInfoDataSourceTest(java.lang.String testName) {
@@ -51,12 +50,19 @@ public class MapInfoDataSourceTest extends TestCaseSupport {
    
     String dataFolder;
     public void testGetFeatures(){
-       
+        String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
         try{
-            URL url = this.getTestResource(STATEPOP);
+            URL url = new URL("file:////"+dataFolder+"/statepop.mif");
             System.out.println("Testing ability to load "+url);
             MapInfoDataSource datasource = new MapInfoDataSource(url);
-            FeatureCollection table = datasource.getFeatures(null);
+	    Filter filter = null; //should be .getAllFeatures or 
+	    //getFeatures(Filter.ALL)...need semantic.
+            FeatureCollection table = datasource.getFeatures(filter);
             Feature[] features = table.getFeatures();
             System.out.println("No features loaded = "+features.length);
         }
