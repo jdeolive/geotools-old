@@ -12,9 +12,10 @@ import org.xml.sax.helpers.*;
 import org.xml.sax.*;
 import com.vividsolutions.jts.geom.*;
 
-/**
+/** Reads and parses a GML file into a geometry collection
  *
- * @author  ian
+ * @author ian
+ * @version $Id: GMLReader.java,v 1.2 2002/03/06 17:55:13 ianturton Exp $
  */
 public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     boolean stopped = false;
@@ -26,7 +27,10 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     GMLHandler handler,head;
     
     boolean coord = false;
-    /** Creates a new instance of GMLReader */
+    /** Creates a new instance of GMLReader
+     * @param in inputStream to be read
+     * @throws DataSourceException if an IO Exception occurs
+     */
     public GMLReader(Reader in) throws DataSourceException{
         if(in==null){
             throw new DataSourceException("Null input stream in GMLReader");
@@ -41,6 +45,10 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
         
         
     }
+    /** Reads the inputstream
+     * @throws DataSourceException
+     * @return a geometry collection of the geometries read in
+     */    
     public GeometryCollection read()throws DataSourceException{
         try{
             parser.parse(in);
@@ -51,9 +59,13 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
         return (GeometryCollection) head.finish(factory);
     }
     
+    /** allows for the read process to be stopped
+     */    
     public void stopLoading(){
         stopped=true;
     }
+    /** called by parser when a new entity is found
+     */    
     public void startElement(String namespace, String localName, String qName, Attributes atts)
     throws SAXException{
         System.out.println("Got Start of entity: "+qName);
@@ -61,7 +73,7 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
             System.out.println("attr:"+i+":"+atts.getQName(i));
         }
         
-        if(localName.startsWith("coord")){ 
+        if(localName.toLowerCase().startsWith("coord")){ 
             coord=true;
             return;
         }
@@ -86,6 +98,8 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
             }
         
     }
+    /** called by parser when a charater string is found
+     */    
     public void characters(char[] ch,int start, int length) throws SAXException{
         String s = new String(ch,start,length).trim();
         System.out.println("->"+new String(ch,start,length).trim());
@@ -103,6 +117,8 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
             }
         }
     }
+    /** called by parser when an entitiy finishes
+     */    
     public void endElement(String namespace,String localName, String qName) throws SAXException{
         System.out.println("end: "+qName);
         if(handler!=null){

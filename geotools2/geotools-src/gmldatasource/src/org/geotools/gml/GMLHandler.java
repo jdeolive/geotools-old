@@ -6,9 +6,10 @@
 
 package org.geotools.gml;
 import com.vividsolutions.jts.geom.*;
-/**
+/** Specifys how a GML Geometry handler should behave
  *
- * @author  ian
+ * @author ian
+ * @version $Id: GMLHandler.java,v 1.2 2002/03/06 17:55:13 ianturton Exp $
  */
 public interface GMLHandler {
 

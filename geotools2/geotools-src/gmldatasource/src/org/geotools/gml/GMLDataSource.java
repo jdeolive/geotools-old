@@ -10,21 +10,26 @@ import java.net.*;
 import java.io.*;
 import com.vividsolutions.jts.geom.*;
 import java.util.*;
-/**
+/** GMLDataSource provides the interface between the gml reader and the
+ * rest of geotools.
  *
- * @author  ian
+ * @author ian
+ * @version $Id: GMLDataSource.java,v 1.2 2002/03/06 17:55:12 ianturton Exp $
  */
 public class GMLDataSource implements org.geotools.datasource.DataSource{
     boolean stopped=false;
     URL source;
     GMLReader gmlr;
     String[] columnNames = new String[0];
-    /** Creates a new instance of GMLReader */
+    /** Creates a new instance of GMLReader
+     * @param src the url pointing to the resource
+     */
     public GMLDataSource(URL src) {
         source=src;
     }
     
     /** gets the Column names (used by FeatureTable) for this DataSource
+     * @return the names of the columns of the feature table
      */
     public String[] getColumnNames() {
         if(gmlr != null){
@@ -34,6 +39,9 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
     }
     
     /** Loads Feature rows for the given Extent from the datasource
+     * @param ex An extent to limit the data returned
+     * @throws DataSourceException if any exceptions are generated reading the resource
+     * @return List of features
      */
     public List load(Extent ex) throws DataSourceException {
        
@@ -57,6 +65,10 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
     }
     
     /** Saves the given features to the datasource
+     * not currently implemented
+     * @param features the features to be saved
+     *
+     * @throws DataSourceException if anything goes wrong in the write
      */
     public void save(List features) throws DataSourceException {
     }
