@@ -39,10 +39,11 @@
             </classpath>
         </javac>
     </target>
-    <target depends="compile-test,checkstyle" name="test" if="testsuite">
+    <target depends="compile-test,checkstyle" name="test" if="doTest">
 
-        <junit fork="true" printsummary="true">
-            <!--formatter type="plain"/ -->
+        <junit haltOnFailure="true" printsummary="true">
+            <formatter type="plain"/>
+            
             <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
             <classpath>
                 <path path="src"/>
@@ -121,7 +122,19 @@
         </condition>
         <condition property="toBeCheckedToScreen" >
             <equals arg1="${checking}" arg2="screen"/>
-        </condition>                
+        </condition>      
+        <condition property="doTest" >
+            <and>
+                <not>
+                    <equals arg1="${testing}" arg2="false"/>
+                </not>
+                <not>
+                    <equals arg1="${testsuite}" arg2="$${testsuite}"/>
+                </not>
+            </and>
+        </condition>
+                
+            
     </target>
     <target name="prepare-compile" depends="init,set-classpath,add-extbin" >
         <!--echo message="Prep-compile: ${project.name}" /-->
@@ -153,6 +166,7 @@
             <property name="releaseFolder" value="${releaseFolder}"/>
             <property name="lastBuildAttemptTime" value="${lastBuildAttemptTime}"/>
             <property name="checking" value="false"/>
+            <property name="testing" value="false"/>
         </for-each>
     </target>
     
