@@ -97,7 +97,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.5 2003/05/31 12:41:27 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.6 2003/06/01 20:24:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -164,7 +164,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
      * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
      */
-    private transient boolean flattened;
+    private transient boolean flattened = true;
 
     /**
      * The statistics about resolution, or <code>null</code> if none.
@@ -590,8 +590,12 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @param  progress An optional progress listener (<code>null</code> in none). This is an
      *         optional but recommanded argument, since the computation may be very long.
      * @throws TransformException if a transformation was required and failed.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    public void assemble(final ProgressListener progress) throws TransformException {
+    public void assemble(final ProgressListener progress)
+            throws TransformException, UnmodifiableGeometryException
+    {
         assemble(null, new float[]{-0f,0f}, progress);
     }
 
@@ -667,9 +671,15 @@ public class GeometryCollection extends Geometry implements Comparable {
     /**
      * Remove all {@link GeometryCollection} from this collection and returns
      * them in a separated list. This method is used by {@link PolygonAssembler}.
+     *
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    final List extractCollections() {
+    final List extractCollections() throws UnmodifiableGeometryException {
         assert Thread.holdsLock(this);
+        if (frozen) {
+            throw new UnmodifiableGeometryException((Locale)null);
+        }
         int newCount = 0;
         final List collections = new ArrayList();
         for (int i=0; i<count; i++) {
@@ -677,6 +687,7 @@ public class GeometryCollection extends Geometry implements Comparable {
             if (geometry instanceof GeometryCollection) {
                 collections.add(geometry);
             } else {
+                geometry.freeze();
                 geometries[newCount++] = geometry;
             }
         }
@@ -1381,7 +1392,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.5 2003/05/31 12:41:27 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.6 2003/06/01 20:24:51 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static abstract class Filtered extends AbstractCollection {

@@ -93,7 +93,7 @@ import org.geotools.resources.XArray;
  *   <li>The loop is reexecuted from step 1 until no more polylines have been merged.</li>
  * </ol>
  *
- * @version $Id: PolygonAssembler.java,v 1.7 2003/05/30 18:20:53 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.8 2003/06/01 20:24:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: L'implémentation actuelle de cette méthode ne prend pas en compte les
@@ -247,6 +247,9 @@ final class PolygonAssembler implements Comparator {
         this.ellipsoid = CTSUtilities.getHeadGeoEllipsoid(collection.getCoordinateSystem());
         final Collection set = getPolylines(collection);
         polylines = (Polyline[]) XArray.resize(set.toArray(polylines), set.size());
+        for (int i=0; i<polylines.length; i++) {
+            polylines[i] = (Polyline) polylines[i].clone();
+        }
         collection.removeAll();
     }
 
@@ -1275,7 +1278,6 @@ final class PolygonAssembler implements Comparator {
         if (false) {
             final Collection polygons = PolygonInclusion.process(polylines, progress);
             polylines = (Polyline[]) polygons.toArray(new Polyline[polygons.size()]);
-            updateGeometryCollection();
         }
     }
 
@@ -1374,29 +1376,32 @@ final class PolygonAssembler implements Comparator {
                           final float[] toComplete)
             throws TransformException
     {
-        final List   collections = parent.extractCollections();
-        final float  parentValue = parent.getValue();
-        GeometryCollection refer = parent;
-        float delta = 0;
-        for (final Iterator it=references.iterator(); it.hasNext();) {
-            final GeometryCollection candidate = (GeometryCollection) it.next();
-            final float check = Math.abs(candidate.getValue() - parentValue);
-            if (check > delta) {
-                refer = candidate;
-                delta = check;
+        synchronized (parent) {
+            final List   collections = parent.extractCollections();
+            final float  parentValue = parent.getValue();
+            GeometryCollection refer = parent;
+            float delta = 0;
+            for (final Iterator it=references.iterator(); it.hasNext();) {
+                final GeometryCollection candidate = (GeometryCollection) it.next();
+                final float check = Math.abs(candidate.getValue() - parentValue);
+                if (check > delta) {
+                    refer = candidate;
+                    delta = check;
+                }
             }
-        }
-        setGeometryCollection(parent);
-        if (refer!=parent && Arrays.binarySearch(toComplete, parentValue)>=0) {
-            completePolygons(refer);
-        } else {
-            assemblePolygons();
-        }
-        updateGeometryCollection();
-        for (final Iterator it=collections.iterator(); it.hasNext();) {
-            final GeometryCollection child = (GeometryCollection) it.next();
-            assemble(child, collections, toComplete);
-            parent.add(child);
+            setGeometryCollection(parent);
+            if (refer!=parent && Arrays.binarySearch(toComplete, parentValue)>=0) {
+                completePolygons(refer);
+            } else {
+                assemblePolygons();
+            }
+            updateGeometryCollection();
+            for (final Iterator it=collections.iterator(); it.hasNext();) {
+                GeometryCollection child = (GeometryCollection) it.next();
+                child = (GeometryCollection) child.clone();
+                assemble(child, collections, toComplete);
+                parent.add(child);
+            }
         }
     }
 
