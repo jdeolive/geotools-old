@@ -23,6 +23,7 @@
 
 package org.geotools.renderer;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import org.geotools.styling.Style;
 import org.geotools.feature.Feature;
 import com.vividsolutions.jts.geom.Envelope;
@@ -31,7 +32,7 @@ import java.awt.Graphics;
 /**
  * This is very much work in progress.
  *
- * @version $Id: Renderer.java,v 1.17 2003/04/14 21:37:16 jmacgill Exp $
+ * @version $Id: Renderer.java,v 1.18 2003/06/05 11:20:43 ianturton Exp $
  * @author James Macgill
  */
 
@@ -76,5 +77,6 @@ public interface Renderer {
      */
     void setOutput(Graphics g, java.awt.Rectangle r);
     
+    public Coordinate pixelToWorld(int x, int y, Envelope map);
 }
 
