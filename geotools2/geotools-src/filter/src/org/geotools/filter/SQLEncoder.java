@@ -1,0 +1,419 @@
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+package org.geotools.filter;
+
+import java.util.logging.Logger;
+import java.io.Writer;
+import java.io.StringWriter;
+
+/**
+ * Encodes a filter into a SQL WHERE statement.  It should hopefully be generic
+ * enough that any SQL database will work with it, though it has only been
+ * tested with MySQL.  This generic SQL encoder should eventually be able to
+ * encode all filters except Geometry Filters (currently LikeFilters are not
+ * yet fully implemented, but when they are they should be generic enough).  This
+ * is because the OGC's SFS for SQL document specifies two ways of doing SQL
+ * databases, one with native geometry types and one without.  To implement
+ * an encoder for one of the two types simply subclass off of this encoder
+ * and put in the proper GeometryFilter visit method.  Then add the filter
+ * types supported to the capabilities in the static capabilities.addType block.
+ *
+ * @task TODO: Implement LikeFilter encoding, need to figure out escape chars,
+ * the rest of the code should work right.  Once fixed be sure to add the LIKE
+ * type to capabilities, so others know that they can be encoded.
+ *
+ * @author Chris Holmes, TOPP
+ */
+public class SQLEncoder implements org.geotools.filter.FilterVisitor {
+    
+    /** The standard SQL multicharacter wild card.*/
+    private static String SQL_WILD_MULTI = "%";  
+    /** The standard SQL single character wild card.*/
+    private static String SQL_WILD_SINGLE = "_";
+    /** The filter types that this class can encode */
+    private static FilterCapabilities capabilities = new FilterCapabilities();
+    /** Standard java logger */
+    private static Logger log = Logger.getLogger("org.geotools.filter");
+    /** The escaped version of the single wildcard for the REGEXP pattern. */
+    private String escapedWildcardSingle = "\\.\\?";
+    /** The escaped version of the multiple wildcard for the REGEXP pattern. */
+    private String escapedWildcardMulti = "\\.\\*";
+    /** used for constructing the string from visiting the filters.*/
+    private Writer out;
+    /** the encoded string for return */
+    private String encodedSQL;
+   
+    /** sets the capabilities for this encoder */
+    static {
+	capabilities.addType(AbstractFilter.LOGIC_OR);
+	capabilities.addType(AbstractFilter.LOGIC_AND);
+	capabilities.addType(AbstractFilter.LOGIC_NOT);
+	capabilities.addType(AbstractFilter.COMPARE_EQUALS);
+	capabilities.addType(AbstractFilter.COMPARE_LESS_THAN);
+	capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN);
+	capabilities.addType(AbstractFilter.COMPARE_LESS_THAN_EQUAL);
+	capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN_EQUAL);
+	capabilities.addType(AbstractFilter.NULL);
+	capabilities.addType(AbstractFilter.BETWEEN);	
+
+    }
+
+
+    /**
+     * Empty constructor
+     *
+     */
+     public SQLEncoder(){	
+     }
+
+    /** 
+     * Convenience constructor to perform the whole encoding
+     * process at once.
+     *
+     * @param out the writer to encode the SQL to.
+     * @param filter the Filter to be encoded.
+     */
+    public SQLEncoder(Writer out, AbstractFilter filter)
+	throws SQLEncoderException {
+        if (capabilities.fullySupports(filter)) {
+	    this.out = out;
+	    try{
+		out.write("WHERE ");
+		filter.accept(this);
+		//out.write(";"); this should probably be added by client.
+	    }
+	    catch(java.io.IOException ioe){
+		log.warning("Unable to export filter" + ioe);
+	    }
+	} else { 
+	    throw new SQLEncoderException("Filter type not supported");
+	}
+    }
+
+    /**
+     * Performs the encoding, sends the encoded sql to
+     * the writer passed in.
+     * 
+     * @param out the writer to encode the SQL to.
+     * @param filter the Filter to be encoded.
+     */
+    public void encode(Writer out, AbstractFilter filter) 
+	throws SQLEncoderException {
+	if (capabilities.fullySupports(filter)) {
+	    this.out = out;
+	    try{
+		out.write("WHERE ");
+		filter.accept(this);
+		//out.write(";");
+	    }
+	    catch(java.io.IOException ioe){
+		log.warning("Unable to export filter" + ioe);
+	    }
+	}  else { 
+	    throw new SQLEncoderException("Filter type not supported");
+	}
+    }
+    
+    /**
+     * Performs the encoding, returns a string
+     * of the encoded SQL.
+     *
+     * @param filter the Filter to be encoded.
+     * @return the string of the SQL where statement.
+     */
+    public String encode(AbstractFilter filter)
+	throws SQLEncoderException {
+	StringWriter output = new StringWriter();
+	encode(output, filter);
+	return output.getBuffer().toString();
+    }
+
+    /**
+     * Describes the capabilities of this encoder.
+     *
+     * @return The capabilities supported by this encoder.
+     */
+    public FilterCapabilities getCapabilities(){
+	return capabilities; //maybe clone?  Make immutable somehow
+    }
+
+
+    /**
+     * This should never be called.
+     * This can only happen if a subclass of AbstractFilter failes to implement
+     * its own version of accept(FilterVisitor);
+     * @param filter The filter to visit
+     */
+    public void visit(AbstractFilter filter) {
+        log.warning("exporting unknown filter type");
+    }
+    
+
+    /** 
+     * Writes the SQL for the Between Filter.  
+     *
+     * @param filter the  Filter to be visited.  
+     */
+    public void visit(BetweenFilter filter) {
+        log.finer("exporting BetweenFilter");
+        ExpressionDefault left = (ExpressionDefault)filter.getLeftValue();
+        ExpressionDefault right = (ExpressionDefault)filter.getRightValue();
+        ExpressionDefault mid = (ExpressionDefault)filter.getMiddleValue();
+        log.finer("Filter type id is "+filter.getFilterType());
+        log.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
+        String type = (String)comparisions.get(new Integer(filter.getFilterType()));
+        try{
+	    mid.accept(this);
+            out.write(" BETWEEN ");
+	    left.accept(this);
+            out.write(" AND ");
+	    right.accept(this);
+	}
+        catch(java.io.IOException ioe){
+            log.warning("Unable to export filter" + ioe);
+        }
+    }
+
+    /** 
+     * Writes the SQL for the Like Filter.  Assumes the current java
+     * implemented wildcards for the Like Filter: .* for multi and .? for single.
+     * And replaces them with the SQL % and _, respectively.  Currently 
+     * does nothing, and should not be called, not included in the
+     * capabilities.
+     *
+     * @param filter the Like Filter to be visited.  
+     * @tasks TODO: LikeFilter doesn't work right...revisit this when it does.
+     * Need to think through the escape char, so it works
+     * right when Java uses one, and escapes correctly with an '_'.
+     */
+    public void visit(LikeFilter filter){
+	/*        log.finer("exporting like filter");
+        try{
+            String pattern = filter.getPattern();
+	    pattern = pattern.replaceAll(escapedWildcardMulti, SQL_WILD_MULTI);
+	    pattern = pattern.replaceAll(escapedWildcardSingle, SQL_WILD_SINGLE);
+	    //pattern = pattern.replace('\\', ''); //get rid of java escapes.
+		//TODO escape the '_' char, as it could be in our string and will
+		//mess up the SQL wildcard matching
+	    ((ExpressionDefault)filter.getValue()).accept(this);
+	    out.write(" LIKE ");
+	    out.write("'"+pattern+"'");
+            //if (pattern.indexOf(esc) != -1) { //if it uses the escape char
+	    //out.write(" ESCAPE " + "'" + esc + "'");  //this needs testing
+	    //} TODO figure out when to add ESCAPE clause, probably just for the '_' char.
+	} catch (java.io.IOException ioe){
+            log.warning("Unable to export filter" + ioe);
+	    }*/
+    }
+
+    /** 
+     * Writes the SQL for the Logic Filter.  
+     *
+     * @param filter the logic statement to be turned into SQL.
+     */
+    public void visit(LogicFilter filter){
+        log.finer("exporting LogicFilter");
+        
+        filter.getFilterType();
+        
+        String type = (String)logical.get(new Integer(filter.getFilterType()));
+        try{
+	    java.util.Iterator list = filter.getFilterIterator();
+            if(filter.getFilterType() == AbstractFilter.LOGIC_NOT){
+		out.write(" NOT ("); 
+		((AbstractFilter)list.next()).accept(this);
+		out.write(")");
+	    } else { //AND or OR
+		out.write("("); 
+		while(list.hasNext()){ 
+		    ((AbstractFilter)list.next()).accept(this);
+		    if (list.hasNext()){
+			out.write(" " + type + " ");
+		    }
+		}
+		out.write(")"); 
+	    }
+        }
+        catch(java.io.IOException ioe){
+            log.warning("Unable to export filter" + ioe);
+        }
+    }
+    
+    /** 
+     * Writes the SQL for a Compare Filter.  
+     *
+     * @param filter the comparison to be turned into SQL. 
+     */
+    public void visit(CompareFilter filter){
+        log.finer("exporting SQL ComparisonFilter");
+        
+        ExpressionDefault left = (ExpressionDefault)filter.getLeftValue();
+        ExpressionDefault right = (ExpressionDefault)filter.getRightValue();
+        log.finer("Filter type id is "+filter.getFilterType());
+        log.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
+        String type = (String)comparisions.get(new Integer(filter.getFilterType()));
+        try{
+	    left.accept(this);
+            out.write(" " + type + " ");
+	    right.accept(this);
+	}
+        catch(java.io.IOException ioe){
+            log.warning("Unable to export filter" + ioe);
+        }
+    }
+    
+
+    /** 
+     * Writes the SQL for the Geometry Filter.  
+     *
+     * @param filter the geometry logic to be turned into SQL.  
+     */
+    //TODO: Implement this function...or declare abstract and have children implement.
+    public void visit(GeometryFilter filter){
+	//if implementing BBox for use with an sql datasource be
+	//sure to implement an equals method for the BBoxExpression, 
+	//as there is none now, and it is needed to test the unpacking
+    }
+    
+
+    /** 
+     * Writes the SQL for the Null Filter.  
+     *
+     * @param filter the null filter to be written to SQL.  
+     */
+    public void visit(NullFilter filter) {
+        log.finer("exporting NullFilter");
+        ExpressionDefault expr = (ExpressionDefault)filter.getNullCheckValue();
+       
+
+        String type = (String)comparisions.get(new Integer(filter.getFilterType()));
+        try{
+            expr.accept(this);
+	    out.write(" IS NULL ");
+        }
+        catch(java.io.IOException ioe){
+            log.warning("Unable to export filter" + ioe);
+        }
+        
+    }
+    
+    /** 
+     * Writes the SQL for the attribute Expression.  
+     *
+     * @param expression the attribute to turn to SQL.
+     */
+    public void visit(ExpressionAttribute expression) {
+        log.finer("exporting ExpressionAttribute");
+        try{
+            out.write(expression.getAttributePath());
+        }
+        catch(java.io.IOException ioe){
+            log.warning("Unable to export expresion" + ioe);
+        }
+    }
+
+
+   /** 
+     * Writes the SQL for the attribute Expression.  
+     *
+     * @param expression the attribute to turn to SQL.
+     */
+    public void visit(ExpressionDefault expression) {
+        log.warning("exporting unknown (default) expression");
+    }
+
+    /**
+     * Export the contents of a Literal Expresion
+     * @param expresion the Literal to export
+     * @task TODO: Fully support GeometryExpression literals
+     */
+    public void visit(ExpressionLiteral expression) {
+        log.finer("exporting LiteralExpression");
+        try{
+            out.write("'"+expression.getLiteral()+"'");
+        }
+        catch(java.io.IOException ioe){
+            log.warning("Unable to export expresion" + ioe);
+        }
+    }
+    
+
+
+    /** 
+     * Writes the SQL for the Math Expression.  
+     *
+     * @param expression the Math phrase to be written.  
+     */
+    public void visit(ExpressionMath expression) {
+        log.finer("exporting Expression Math");
+        
+        String type = (String)expressions.get(new Integer(expression.getType()));
+        try{
+	    ((ExpressionDefault)expression.getLeftValue()).accept(this);
+            out.write(" " + type + " ");
+	    ((ExpressionDefault)expression.getRightValue()).accept(this);
+	}
+        catch(java.io.IOException ioe){
+            log.warning("Unable to export expresion" + ioe);
+        }
+    }
+
+
+    private static java.util.HashMap comparisions = new java.util.HashMap();
+    private static java.util.HashMap spatial = new java.util.HashMap();
+    private static java.util.HashMap logical = new java.util.HashMap();
+    
+    private static java.util.HashMap expressions = new java.util.HashMap();
+    
+    static{
+        comparisions.put(new Integer(AbstractFilter.COMPARE_EQUALS),"=");
+        comparisions.put(new Integer(AbstractFilter.COMPARE_GREATER_THAN),">");
+        comparisions.put(new Integer(AbstractFilter.COMPARE_GREATER_THAN_EQUAL),">=");
+        comparisions.put(new Integer(AbstractFilter.COMPARE_LESS_THAN),"<");
+        comparisions.put(new Integer(AbstractFilter.COMPARE_LESS_THAN_EQUAL),"<=");
+        comparisions.put(new Integer(AbstractFilter.LIKE),"LIKE");
+        comparisions.put(new Integer(AbstractFilter.NULL),"IS NULL");
+        comparisions.put(new Integer(AbstractFilter.BETWEEN),"BETWEEN");
+        
+        expressions.put(new Integer(ExpressionDefault.MATH_ADD),"+");
+        expressions.put(new Integer(ExpressionDefault.MATH_DIVIDE),"/");
+        expressions.put(new Integer(ExpressionDefault.MATH_MULTIPLY),"*");
+        expressions.put(new Integer(ExpressionDefault.MATH_SUBTRACT),"-");
+        //more to come?
+        
+        spatial.put(new Integer(AbstractFilter.GEOMETRY_EQUALS),"Equals");
+        spatial.put(new Integer(AbstractFilter.GEOMETRY_DISJOINT),"Disjoint");
+        spatial.put(new Integer(AbstractFilter.GEOMETRY_INTERSECTS),"Intersects");
+        spatial.put(new Integer(AbstractFilter.GEOMETRY_TOUCHES),"Touches");
+        spatial.put(new Integer(AbstractFilter.GEOMETRY_CROSSES),"Crosses");
+        spatial.put(new Integer(AbstractFilter.GEOMETRY_WITHIN),"Within");
+        spatial.put(new Integer(AbstractFilter.GEOMETRY_CONTAINS),"Contains");
+        spatial.put(new Integer(AbstractFilter.GEOMETRY_OVERLAPS),"Overlaps");
+        spatial.put(new Integer(AbstractFilter.GEOMETRY_BEYOND),"Beyond");
+        spatial.put(new Integer(AbstractFilter.GEOMETRY_BBOX),"BBOX");
+        
+        logical.put(new Integer(AbstractFilter.LOGIC_AND),"AND");
+        logical.put(new Integer(AbstractFilter.LOGIC_OR),"OR");
+        logical.put(new Integer(AbstractFilter.LOGIC_NOT),"NOT");
+        
+    }
+    
+}
