@@ -44,7 +44,7 @@ public interface Fill {
      * The color value is RGB-encoded using two hexidecimal digits per primary-color component, in the
      * order Red, Green, Blue, prifixed wih the hash (#) sign.  The hexidecimal digits beetween A and F
      * may be in either uppoer of lower case.  For example full red is encoded as "#ff0000" (with no
-     * quotation marks).  The default color is defined to be black ("#000000").
+     * quotation marks).  The default color is defined to be 50% gray ("#808080").
      *
      * Note: in CSS this parameter is just called Fill and not Color
      *
