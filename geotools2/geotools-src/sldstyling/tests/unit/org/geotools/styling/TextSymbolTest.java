@@ -74,6 +74,7 @@ public class TextSymbolTest extends TestCase {
         
         Point point;
         Feature pointFeature;
+        // load font 
         String[] symbol = {"\uF04A", "\uF04B", "\uF059", "\uF05A", "\uF06B", "\uF06C", "\uF06E"};
         double size = 16;
         double rotation = 0.0;
@@ -93,12 +94,23 @@ public class TextSymbolTest extends TestCase {
         
         //The following is complex, and should be built from
         //an SLD document and not by hand
+        
         org.geotools.styling.DefaultFont font = new org.geotools.styling.DefaultFont();
-        font.setFontFamily(new ExpressionLiteral("MapInfo Cartographic"));
+        font.setFontFamily(new ExpressionLiteral(dataFolder + "/geog.ttf"));
         font.setFontSize(new ExpressionAttribute(pointType, "size"));
         
         ExpressionAttribute symbExpr = new ExpressionAttribute(pointType, "symbol");
         TextMark textMark = new TextMark(font,symbExpr);
+        
+        org.geotools.styling.DefaultFont font2 = new org.geotools.styling.DefaultFont();
+        font2.setFontFamily(new ExpressionLiteral("MapInfo Cartographic"));
+        font2.setFontSize(new ExpressionAttribute(pointType, "size"));
+        textMark.addFont(font2);
+        
+        org.geotools.styling.DefaultFont font3 = new org.geotools.styling.DefaultFont();
+        font3.setFontFamily(new ExpressionLiteral("ESRI Cartography"));
+        font3.setFontSize(new ExpressionAttribute(pointType, "size"));
+        textMark.addFont(font3);
         
         DefaultGraphic graphic = new DefaultGraphic();
         graphic.addSymbol(textMark);
