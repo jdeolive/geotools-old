@@ -217,7 +217,7 @@ public abstract class UnitTransform implements Serializable {
     
     /**
      * Après la lecture d'une transformation, vérifie si cette transformation apparaît
-     * déjà dans la banque des unités {@link #pool}. Si oui, l'exemplaire de la banque
+     * déjà dans la banque des unités <code>pool</code>. Si oui, l'exemplaire de la banque
      * sera retourné plutôt que de garder inutilement la transformation courante comme
      * copie.
      */

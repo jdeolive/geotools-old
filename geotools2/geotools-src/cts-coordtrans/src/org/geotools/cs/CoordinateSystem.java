@@ -72,7 +72,7 @@ import java.rmi.RemoteException;
  * of the Earth.  This mapping from the mathematical space into real-world
  * locations is called a Datum.
  *
- * @version $Id: CoordinateSystem.java,v 1.2 2002/06/05 14:44:52 loxnard Exp $
+ * @version $Id: CoordinateSystem.java,v 1.3 2002/06/26 17:29:23 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -201,7 +201,7 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
     /**
      * Returns <code>true</code> if this coordinate system is equivalent to
      * the specified coordinate system. Two coordinate systems are considered
-     * equivalent if the {@link net.seagis.ct.CoordinateTransformation} from
+     * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
      * <code>this</code> to <code>cs</code> would be the identity transform.
      * The <code>equivalents</code> method is less strict than
      * <code>equals</code> in that it doesn't compare names, alias, authority

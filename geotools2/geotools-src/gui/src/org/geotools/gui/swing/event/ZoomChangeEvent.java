@@ -39,7 +39,7 @@ import java.awt.geom.AffineTransform;
 
 /**
  * An event which indicates that a zoom occurred in a component.
- * This event is usually fired by {@link org.geotools.swing.ZoomPane}.
+ * This event is usually fired by {@link org.geotools.gui.swing.ZoomPane}.
  *
  * @version 1.0
  * @author Martin Desruisseaux
@@ -59,7 +59,7 @@ public class ZoomChangeEvent extends EventObject {
      * Construct a new event.
      *
      * @param source The event source
-     *               (usually a {@link org.geotools.swing.ZoomPane}).
+     *               (usually a {@link org.geotools.gui.swing.ZoomPane}).
      * @param change An affine transform indicating the zoom change.
      *               If <code>oldZoom</code> and <code>newZoom</code> are the
      *               affine transform before and after the change respectively,

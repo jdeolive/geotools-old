@@ -38,6 +38,8 @@ package org.geotools.cs;
 // J2SE dependencies
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.io.IOException;   // For JavaDoc
+import java.sql.SQLException; // For JavaDoc
 
 // Geotools dependencies
 import org.geotools.units.Unit;
@@ -49,7 +51,7 @@ import org.geotools.units.Unit;
  * A commonly used authority is EPSG, which is also
  * used in the GeoTIFF standard.
  *
- * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.2 2002/06/05 14:47:13 loxnard Exp $
+ * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.3 2002/06/26 17:29:23 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

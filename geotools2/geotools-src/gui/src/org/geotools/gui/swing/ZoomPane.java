@@ -1109,7 +1109,7 @@ public abstract class ZoomPane extends JComponent {
      *
      * This method combines scale along both axes, which is correct
      * if this <code>ZoomPane</code> has been constructed with the
-     * {@link UNIFORM_SCALE} type.
+     * {@link #UNIFORM_SCALE} type.
      */
     public double getScaleFactor() {
         final double m00 = zoom.getScaleX();

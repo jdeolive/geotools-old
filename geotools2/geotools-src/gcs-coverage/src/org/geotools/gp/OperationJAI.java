@@ -261,7 +261,7 @@ public class OperationJAI extends Operation {
      * apply the operation using the following pseudo-code:
      *
      * <blockquote><pre>
-     * {@link JAI#createNS(String,ParameterBlock) processor.createNS}({@link #descriptor}.getName(),&nbsp;parameters)
+     * {@link JAI#createNS processor.createNS}({@link #descriptor}.getName(),&nbsp;parameters,&nbsp;hints)
      * </pre></blockquote>
      *
      * @param  sources The source coverages.
@@ -273,7 +273,7 @@ public class OperationJAI extends Operation {
      *
      * @see #doOperation(ParameterList, GridCoverageProcessor)
      * @see #deriveCategoryList
-     * @see JAI#createNS(String, ParameterBlock, RenderingHints)
+     * @see JAI#createNS
      */
     protected GridCoverage doOperation(final GridCoverage[]    sources,
                                        final ParameterBlockJAI parameters,
