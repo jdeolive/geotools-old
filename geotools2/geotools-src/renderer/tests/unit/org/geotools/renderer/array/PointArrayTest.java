@@ -33,6 +33,7 @@
 package org.geotools.renderer.array;
 
 // J2SE dependencies
+import java.util.Random;
 import java.util.Arrays;
 import org.geotools.resources.XArray;
 
@@ -45,10 +46,14 @@ import junit.framework.TestSuite;
 /**
  * Test the <code>org.geotools.renderer.array</code> package.
  *
- * @version $Id: PointArrayTest.java,v 1.2 2003/02/12 21:01:56 desruisseaux Exp $
+ * @version $Id: PointArrayTest.java,v 1.3 2003/02/28 13:43:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PointArrayTest extends TestCase {
+    /**
+     * Set to <code>true</code> for printing some informations to the standard output.
+     */
+    private static boolean PRINT = false;
 
     /**
      * Returns the test suite.
@@ -68,6 +73,7 @@ public class PointArrayTest extends TestCase {
      * Run the test.
      */
     public void testPointArray() {
+        final Random random = new Random();
         float[] checkPoints = new float[2];
         PointArray   points = PointArray.getInstance(checkPoints);
         for (int i=0; i<2000; i++) {
@@ -76,24 +82,24 @@ public class PointArrayTest extends TestCase {
              * des points déjà existants. Ce tableau sera remplis avec des nombres
              * aléatoires pour distinguer les différentes coordonnées.
              */
-            final float[] toMerge = new float[(int)(32*Math.random()) & ~1];
+            final float[] toMerge = new float[(int)(32*random.nextDouble()) & ~1];
             for (int j=0; j<toMerge.length; j++) {
-                toMerge[j] = (float) (2000*Math.random()-1000);
+                toMerge[j] = (float) (2000*random.nextDouble()-1000);
             }
             /*
              * Sélectionne au hasard une plage de valeurs à prendre en compte dans
              * le tableau <code>toMerge</code>. Les autres valeurs seront abandonnées.
              * Choisit aussi au hasard un point d'insertions pour les nouveaux points.
              */
-            final int lower = (int)(toMerge.length*(0.49*Math.random()    )) & ~1;
-            final int upper = (int)(toMerge.length*(0.49*Math.random()+0.5)) & ~1;
-            final int index = (int)(checkPoints.length  *Math.random()     ) & ~1;
+            final int lower = (int)(toMerge.length*(0.49*random.nextDouble()    )) & ~1;
+            final int upper = (int)(toMerge.length*(0.49*random.nextDouble()+0.5)) & ~1;
+            final int index = (int)(checkPoints.length  *random.nextDouble()     ) & ~1;
             /*
              * Insère les nouveaux points dans le tableau 'checkPoints'. Ce tableau est
              * maintenu uniquement à des fins de comparaisons avec le "vrai" tableau de
              * points. Vérifie si les deux tableaux ont un contenu identique.
              */
-            final boolean reverse = (Math.random() > 0.5);
+            final boolean reverse = (random.nextDouble() > 0.5);
             points = points.insertAt(index/2, toMerge, lower, upper, reverse);
             if (reverse) {
                 DynamicArray.reverse(toMerge, lower, upper);
@@ -109,7 +115,7 @@ public class PointArrayTest extends TestCase {
          */
         final int index[]=new int[8];
         for (int i=0; i<index.length; i++) {
-            index[i] = (int)(Math.random()*points.count());
+            index[i] = (int)(random.nextDouble()*points.count());
         }
         Arrays.sort(index);
         /*
@@ -136,16 +142,18 @@ public class PointArrayTest extends TestCase {
                     break;
                 }
             }
-            System.out.println(points);
-            for (int j=0; j<index.length; j++) {
-                System.out.print("    [");
-                System.out.print(index[j]);
-                System.out.print("..");
-                System.out.print(index[j+1]);
-                System.out.print("]: ");
-                System.out.println(points.subarray(index[j], index[++j]));
+            if (PRINT) {
+                System.out.println(points);
+                for (int j=0; j<index.length; j++) {
+                    System.out.print("    [");
+                    System.out.print(index[j]);
+                    System.out.print("..");
+                    System.out.print(index[j+1]);
+                    System.out.print("]: ");
+                    System.out.println(points.subarray(index[j], index[++j]));
+                }
+                System.out.println();
             }
-            System.out.println();
         }
         /*
          * Recherche l'écart maximal entre les
@@ -153,16 +161,19 @@ public class PointArrayTest extends TestCase {
          */
         float dx=0, dy=0;
         final PointIterator iterator=points.iterator(0);
-        for (int i=0; i<checkPoints.length;) {
-            assertTrue(iterator.hasNext());
+        for (int i=0; iterator.hasNext();) {
+            assertTrue(i<checkPoints.length);
+            // The compressed array may have less points than 'checkPoints'
             final float dxi = Math.abs(iterator.nextX()-checkPoints[i++]);
             final float dyi = Math.abs(iterator.nextY()-checkPoints[i++]);
             if (dxi > dx) dx=dxi;
             if (dyi > dy) dy=dyi;
         }
-        System.out.print(dx);
-        System.out.print(", ");
-        System.out.println(dy);
+        if (PRINT) {
+            System.out.print(dx);
+            System.out.print(", ");
+            System.out.println(dy);
+        }
     }
 
     /**
@@ -172,6 +183,7 @@ public class PointArrayTest extends TestCase {
      * sans les assertions pour tester les performances.
      */
     public static void main(final String[] args) {
+        PRINT = true;
         new PointArrayTest(null).testPointArray();
     }
 }
