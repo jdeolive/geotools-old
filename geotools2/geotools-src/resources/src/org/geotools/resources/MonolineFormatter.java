@@ -103,7 +103,7 @@ import org.geotools.io.LineWriter;
  * java.util.logging.ConsoleHandler.level = FINE
  * </pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.11 2003/07/23 14:17:46 desruisseaux Exp $
+ * @version $Id: MonolineFormatter.java,v 1.12 2003/07/24 12:32:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatter extends Formatter {
@@ -412,13 +412,14 @@ public class MonolineFormatter extends Formatter {
      * using the {@link SimpleFormatter}. If such instances are found, they are
      * replaced by a single instance of <code>MonolineFormatter</code> writting
      * to the {@linkplain System#out standard output stream} (instead of the
-     * {@linkplain System#err standard error stream}). This action has no effect
-     * on any loggers outside the <code>base</code> namespace.
+     * {@linkplain System#err standard error stream}). If no such {@link ConsoleHandler}
+     * are found, then a new one is created with this <code>MonolineFormatter</code>.
+     * This action has no effect on any loggers outside the <code>base</code> namespace.
      *
      * @param  base The base logger name to apply the change on (e.g. "org.geotools").
-     * @return The registered <code>MonolineFormatter</code>, or <code>null</code>
-     *         if none. The formatter output can be configured using the
-     *         {@link #setTimeFormat} and {@link #setSourceFormat} methods.
+     * @return The registered <code>MonolineFormatter</code> (never <code>null</code>).
+     *         The formatter output can be configured using the {@link #setTimeFormat}
+     *         and {@link #setSourceFormat} methods.
      */
     public static MonolineFormatter init(final String base) {
         return init(base, null);
@@ -437,9 +438,9 @@ public class MonolineFormatter extends Formatter {
      *
      * @param  base The base logger name to apply the change on (e.g. "org.geotools").
      * @param  level The desired level, or <code>null</code> if no level should be set.
-     * @return The registered <code>MonolineFormatter</code>, or <code>null</code>
-     *         if none. The formatter output can be configured using the
-     *         {@link #setTimeFormat} and {@link #setSourceFormat} methods.
+     * @return The registered <code>MonolineFormatter</code> (never <code>null</code>).
+     *         The formatter output can be configured using the {@link #setTimeFormat}
+     *         and {@link #setSourceFormat} methods.
      */
     public static MonolineFormatter init(final String base, final Level level) {
         MonolineFormatter monoline = null;
@@ -479,6 +480,18 @@ public class MonolineFormatter extends Formatter {
                 logger.addHandler(handler);
             }
         }
+        /*
+         * If no formatter has been found, create a new
+         * one and add the handler to the logger.
+         */
+        if (monoline == null) {
+            monoline = new MonolineFormatter(base);
+            Handler handler = new Stdout(monoline);
+            if (level != null) {
+                handler.setLevel(level);
+            }
+            logger.addHandler(handler);
+        }
         logger.setUseParentHandlers(false);
         if (level != null) {
             logger.setLevel(level);
@@ -505,6 +518,15 @@ public class MonolineFormatter extends Formatter {
      * bug get fixed, then {@link #close} no longer need to be overriden.
      */
     private static final class Stdout extends StreamHandler {
+        /**
+         * Construct a handler.
+         *
+         * @param formatter The formatter to use.
+         */
+        public Stdout(final Formatter formatter) {
+            super(System.out, formatter);
+        }
+
         /**
          * Construct a handler.
          *
