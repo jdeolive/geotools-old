@@ -213,6 +213,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                         //TODO: the rule may be FAR more complex than this and code needs to
                         //TODO: writen to support this, particularly the filtering aspects.
                         if(rules[k].getMinScaleDenominator()<scaleDenominator && rules[k].getMaxScaleDenominator()>scaleDenominator){
+                            _log.info("rule passed, moving on to ssymobolizers");
                             //yes it does
                             //this gives us a list of symbolizers
                             Symbolizer[] symbolizers = rules[k].getSymbolizers();
@@ -233,6 +234,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      */
     private void processSymbolizers(final Feature feature, final Symbolizer[] symbolizers) {
         for(int m =0;m<symbolizers.length;m++){
+            _log.info("applying symbolizer "+symbolizers[m]);
             if (symbolizers[m] instanceof PolygonSymbolizer){
                 renderPolygon(feature,(PolygonSymbolizer)symbolizers[m]);
             }
@@ -260,9 +262,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @param symbolizer The polygon symbolizer to apply
      **/
     private void renderPolygon(Feature feature, PolygonSymbolizer symbolizer){
+        _log.info("rendering polygon with a scale of "+this.scaleDenominator);
         Fill fill = symbolizer.getFill();
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature,geomName);
+        
+        if(geom.isEmpty()) return;
         
         GeneralPath path = createGeneralPath(geom);
         
@@ -272,6 +277,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
         if(symbolizer.getStroke() != null) {
             applyStroke(symbolizer.getStroke());
+            _log.debug("path is "+graphics.getTransform().createTransformedShape(path).getBounds2D().toString());
             graphics.draw(path);
         }
     }
@@ -298,6 +304,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         applyStroke(symbolizer.getStroke());
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
+        if(geom.isEmpty()) return;
         GeneralPath path = createGeneralPath(geom);
         graphics.draw(path);
     }
