@@ -27,6 +27,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 import java.net.URL;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +71,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.8 2003/01/22 21:05:34 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.9 2003/01/24 21:12:00 camerons Exp $
  *
  */
 
@@ -119,7 +121,6 @@ public class MapViewer2 extends JFrame {
         Tool tool;
         try {
             // Create a BoundingBox
-            //envelope=new Envelope(-89.0,89.0,0.0,179.0);
             envelope=new Envelope(40, 300, 30, 350);
              CS_CoordinateSystem cs = adapters.export(
                 CoordinateSystemFactory.getDefault(
@@ -130,8 +131,6 @@ public class MapViewer2 extends JFrame {
             // Create a DataSource
             MemoryDataSource datasource = new MemoryDataSource();
             populateDataSource(datasource);
-//            DataSource datasource = new GMLDataSource(
-//                ClassLoader.getSystemResource("/home/cameron/work/geotools2/geotools-src/j2se-demos/src/org/geotools/demos/simple.gml"));
 
             // Create a Style
             StyleFactory styleFactory=StyleFactory.createStyleFactory();
@@ -152,23 +151,26 @@ public class MapViewer2 extends JFrame {
             
             // Initialise this Panel
             this.setTitle("Funky Map");
-            this.setSize(600,600);
+            this.getContentPane().setLayout(new BorderLayout());
+            //this.setSize(600,600);
 
             // Create MapPane and associate a Tool
             tool=new PanTool();
-            mapPane = new MapPane2(tool, context);
+            mapPane = new MapPane2(
+                    tool,
+                    context);
+            mapPane.setLayout(null);// use absolute positioning
+            //mapPane.setSize(400,400);
             mapPane.setBorder(
                 new javax.swing.border.TitledBorder("MapPane Map"));
+            mapPane.setPreferredSize(new Dimension(300,300));
             getContentPane().add(
-                mapPane);
-//                new org.netbeans.lib.awtextra.AbsoluteConstraints(
-//                    0, 0, 300, 420));
-            mapPane.setSize(400,400);
-            //pack();
+                mapPane,"North");
+            pack();
             
             // Extra stuff for testing
             JButton b1=new JButton("ok");
-            getContentPane().add(b1);
+            getContentPane().add(b1,"South");
          } catch (Exception e){
             LOGGER.warning("Exception: "+e+" initialising MapView.");
         }
