@@ -159,12 +159,9 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.16 2004/01/08 01:17:48 seangeo Exp $
+ * $Id: JDBCDataStore.java,v 1.17 2004/01/08 04:28:18 seangeo Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
-    public static final String FID_GEN_AUTO = "auto";
-    public static final String FID_GEN_MANUAL = "manual";
-    public static final String DEFAULT_FID_GEN_KEY = "default";
     
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.data.jdbc");
@@ -211,50 +208,69 @@ public abstract class JDBCDataStore implements DataStore {
     public FeatureListenerManager listenerManager = new FeatureListenerManager();
     private LockingManager lockingManager = createLockingManager();
 
-    /** The ConnectionPool */
-    private ConnectionPool connectionPool;
-
-    /**
-     * The namespace of this DataStore.  This is assuming we want all feature types from a single
-     * data store to have the same namespace.
-     */
-    private String namespace;
-
-    /**
-     * This allows subclasses to define a schema name to narrow down the tables represented by the
-     * data store.  The default is null which means the schema will not be used to narrow down
-     * available tables.
-     */
-    private String databaseSchemaName = null;
-
-    protected final Map fidGenerationTypes;
-    
     /** A map of FeatureTypes with their names as the key. */
     private Map featureTypeMap = null;
 
+    /** The ConnectionPool */
+    private ConnectionPool connectionPool;
+
+    protected final JDBCDataStoreConfig config;
+    
+    /**
+     * 
+     * @param connectionPool
+     * @throws IOException
+     * @deprecated This is deprecated in favour of the JDBCDataStoreConfig object.
+     */
     public JDBCDataStore(ConnectionPool connectionPool) throws IOException {
         this(connectionPool, null, new HashMap(), "");
     }
 
+    /**
+     * 
+     * @param connectionPool
+     * @param databaseSchemaName
+     * @throws IOException
+     * @deprecated This is deprecated in favour of the JDBCDataStoreConfig object.
+     */
     public JDBCDataStore(ConnectionPool connectionPool, String databaseSchemaName)
         throws IOException {
         this(connectionPool, databaseSchemaName,  new HashMap(), databaseSchemaName);
     }
     
+    /**
+     * 
+     * @param connectionPool
+     * @param databaseSchemaName
+     * @param fidGenerationTypes
+     * @throws IOException
+     * @deprecated This is deprecated in favour of the JDBCDataStoreConfig object.
+     */
     public JDBCDataStore(ConnectionPool connectionPool, String databaseSchemaName, Map fidGenerationTypes)
         throws IOException {
         this(connectionPool, databaseSchemaName, fidGenerationTypes, databaseSchemaName);
     }
 
+    /**
+     * 
+     * @param connectionPool
+     * @param databaseSchemaName
+     * @param fidGenerationTypes
+     * @param namespace
+     * @throws IOException
+     * @deprecated This is deprecated in favour of the JDBCDataStoreConfig object.
+     */
     public JDBCDataStore(ConnectionPool connectionPool, String databaseSchemaName, Map fidGenerationTypes, String namespace)
         throws IOException {
-        this.connectionPool = connectionPool;
-        this.namespace = namespace;
-        this.databaseSchemaName = databaseSchemaName;
-        this.featureTypeMap = createFeatureTypeMap();
-        this.fidGenerationTypes = Collections.unmodifiableMap(fidGenerationTypes);
+        this(connectionPool,new JDBCDataStoreConfig(namespace, databaseSchemaName, new HashMap(), fidGenerationTypes));        
     }
 
+    public JDBCDataStore(ConnectionPool connectionPool, JDBCDataStoreConfig config) throws IOException {
+        this.connectionPool = connectionPool;
+        this.config = config;
+		this.featureTypeMap = createFeatureTypeMap();
+    }
+    
     /**
      * Allows subclass to create LockingManager to support their needs.
      *
@@ -278,7 +294,6 @@ public abstract class JDBCDataStore implements DataStore {
         if (featureTypeMap.containsKey(typeName)) {
             FeatureTypeInfo info = getFeatureTypeInfo(typeName);
             FeatureTypeInfo holder = (FeatureTypeInfo) featureTypeMap.get(typeName);
-
             return holder.schema;
         } else {
             throw new SchemaNotFoundException(typeName);
@@ -449,12 +464,12 @@ public abstract class JDBCDataStore implements DataStore {
     /**
      * Gets the list of attribute names required for both featureType and filter
      *
-     * @param featureType DOCUMENT ME!
-     * @param filter DOCUMENT ME!
+     * @param featureType The FeatureType to get attribute names for.
+     * @param filter The filter which needs attributes to filter.
      *
-     * @return DOCUMENT ME!
+     * @return The list of attribute names required by a filter.
      *
-     * @throws IOException DOCUMENT ME!
+     * @throws IOException If we can't get the schema.
      */
     protected String[] attributeNames(FeatureType featureType, Filter filter)
         throws IOException {
@@ -502,13 +517,12 @@ public abstract class JDBCDataStore implements DataStore {
      * method, it will Retype as required
      * </p>
      *
-     * @param query
-     * @param trans
+     * @param query The Query to get a FeatureReader for.
+     * @param trans The transaction this read operation is being performed in.
      *
-     * @return
+     * @return A FeatureReader that contains features defined by the query.
      *
-     * @throws IOException DOCUMENT ME!
-     * @throws DataSourceException
+     * @throws IOException If an error occurs executing the query. 
      */
     public FeatureReader getFeatureReader(Query query, Transaction trans)
         throws IOException {
@@ -654,7 +668,6 @@ public abstract class JDBCDataStore implements DataStore {
      * @return
      *
      * @throws IOException
-     * @throws DataSourceException DOCUMENT ME!
      */
     protected FeatureReader createFeatureReader(FeatureType schema, Filter postFilter,
         QueryData queryData) throws IOException {
@@ -870,7 +883,7 @@ public abstract class JDBCDataStore implements DataStore {
 
             DatabaseMetaData meta = conn.getMetaData();
             String[] tableType = { "TABLE" };
-            ResultSet tables = meta.getTables(null, databaseSchemaName, "%", tableType);
+            ResultSet tables = meta.getTables(null, config.getDatabaseSchemaName(), "%", tableType);
 
             while (tables.next()) {
                 String tableName = tables.getString(TABLE_NAME_COL);
@@ -1155,7 +1168,7 @@ public abstract class JDBCDataStore implements DataStore {
      * @return The namespace.
      */
     public String getNameSpace() {
-        return namespace;
+        return config.getNamespace();
     }
 
     /**
@@ -1487,15 +1500,12 @@ public abstract class JDBCDataStore implements DataStore {
      */
     protected FIDGenerationStrategy getFIDGenerationStrategyFor(final QueryData queryData) throws DataSourceException {
         final FeatureTypeInfo info = queryData.getFeatureTypeInfo();
-        Object strategy = fidGenerationTypes.get(info.featureTypeName);
+        Object strategy = config.getFidGenerationIdFor(info.featureTypeName);        
         
-        if (strategy == null) {
-            strategy = fidGenerationTypes.get(DEFAULT_FID_GEN_KEY);
-        }
         LOGGER.info("FID Generation strategy for " + info.featureTypeName + " is " + strategy);
-        if (strategy == null || FID_GEN_AUTO.equalsIgnoreCase(strategy.toString())) {
+        if (strategy == null || JDBCDataStoreConfig.FID_GEN_INSERT_NULL.equalsIgnoreCase(strategy.toString())) {
             return new InsertNullFIDGenerationStrategy();
-        } else if (FID_GEN_MANUAL.equalsIgnoreCase(strategy.toString())) {
+        } else if (JDBCDataStoreConfig.FID_GEN_MANUAL_INC.equalsIgnoreCase(strategy.toString())) {
             return new MaxIncFIDGenerationStrategy(queryData);
         } else {
             throw new DataSourceException("No valid fid generation strategy defined: " + strategy);

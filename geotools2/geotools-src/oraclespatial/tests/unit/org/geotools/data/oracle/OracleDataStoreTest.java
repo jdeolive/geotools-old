@@ -32,7 +32,7 @@ import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.ConnectionPoolManager;
-import org.geotools.data.jdbc.JDBCDataStore;
+import org.geotools.data.jdbc.JDBCDataStoreConfig;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureType;
@@ -61,7 +61,7 @@ public class OracleDataStoreTest extends TestCase {
     private FilterFactory filterFactory = FilterFactory.createFilterFactory();
     private Properties properties;
     private GeometryFactory jtsFactory = new GeometryFactory();
-    
+    private String schemaName;
     /*
      * @see TestCase#setUp()
      */
@@ -69,6 +69,7 @@ public class OracleDataStoreTest extends TestCase {
         super.setUp();
         properties = new Properties();
         properties.load(new FileInputStream("test.properties"));
+        schemaName = properties.getProperty("schema");
         OracleConnectionFactory fact = new OracleConnectionFactory(properties.getProperty("host"), 
                 properties.getProperty("port"), properties.getProperty("instance"));
         fact.setLogin(properties.getProperty("user"), properties.getProperty("passwd"));
@@ -264,10 +265,12 @@ public class OracleDataStoreTest extends TestCase {
         assertEquals(10.0, point.getY(), 0.001);
     }
     
-    public void testAddFeatures() throws Exception {        
+    public void testAddFeatures() throws Exception {
         Map fidGen = new HashMap();
-        fidGen.put("ORA_TEST_POINTS", JDBCDataStore.FID_GEN_MANUAL);
-        DataStore ds = new OracleDataStore(cPool, properties.getProperty("schema"), fidGen);
+        fidGen.put("ORA_TEST_POINTS", JDBCDataStoreConfig.FID_GEN_MANUAL_INC);
+        JDBCDataStoreConfig config = JDBCDataStoreConfig.createWithSchemaNameAndFIDGenMap(schemaName, fidGen);
+        DataStore ds = new OracleDataStore(cPool, config);
+        
         String name = "add_name";
         BigDecimal intval = new BigDecimal(70);
         Point point = jtsFactory.createPoint(new Coordinate(-15.0, -25));

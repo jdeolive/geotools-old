@@ -22,6 +22,7 @@ import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.DefaultSQLBuilder;
 import org.geotools.data.jdbc.JDBCDataStore;
+import org.geotools.data.jdbc.JDBCDataStoreConfig;
 import org.geotools.data.jdbc.JDBCUtils;
 import org.geotools.data.jdbc.QueryData;
 import org.geotools.data.jdbc.SQLBuilder;
@@ -36,6 +37,14 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Sean Geoghegan, Defence Science and Technology Organisation.
  */
 public class OracleDataStore extends JDBCDataStore {
+    /**
+     * @param connectionPool
+     * @param config
+     * @throws IOException
+     */
+    public OracleDataStore(ConnectionPool connectionPool, JDBCDataStoreConfig config) throws IOException {
+        super(connectionPool, config);
+    }
 
     /**
      * @param connectionPool
@@ -54,6 +63,7 @@ public class OracleDataStore extends JDBCDataStore {
         super(connectionPool, schemaName, fidGeneration, namespace);
     }
 
+    
     /** Crops non feature type tables. 
      * There are alot of additional tables in a Oracle tablespace. This tries
      * to remove some of them.  If the schemaName is provided in the Constructor
@@ -84,21 +94,6 @@ public class OracleDataStore extends JDBCDataStore {
         
         return true;
     }
-    
-    /* (non-Javadoc)
-     * @see org.geotools.data.jdbc.JDBCDataStore#createGeometryReader(org.geotools.feature.AttributeType, org.geotools.data.jdbc.JDBCDataStore.QueryData, int)
-     */
-    protected AttributeReader createGeometryReader(AttributeType attrType, QueryData queryData, int index) throws IOException {        
-        return new OracleSDOAttributeReader(attrType, queryData, index);
-    }
-    
-    /* (non-Javadoc)
-     * @see org.geotools.data.jdbc.JDBCDataStore#createGeometryWriter(org.geotools.feature.AttributeType, org.geotools.data.jdbc.JDBCDataStore.QueryData, int)
-     */
-    protected AttributeWriter createGeometryWriter(AttributeType attrType, QueryData queryData, int index)
-                throws IOException {
-        return new OracleSDOAttributeReader(attrType, queryData, index);
-    }
 
     /** Overrides the buildAttributeType method to check for SDO_GEOMETRY columns.
      * 
@@ -116,6 +111,21 @@ public class OracleDataStore extends JDBCDataStore {
         } else  {
             return super.buildAttributeType(rs);
         }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.geotools.data.jdbc.JDBCDataStore#createGeometryReader(org.geotools.feature.AttributeType, org.geotools.data.jdbc.JDBCDataStore.QueryData, int)
+     */
+    protected AttributeReader createGeometryReader(AttributeType attrType, QueryData queryData, int index) throws IOException {        
+        return new OracleSDOAttributeReader(attrType, queryData, index);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.geotools.data.jdbc.JDBCDataStore#createGeometryWriter(org.geotools.feature.AttributeType, org.geotools.data.jdbc.JDBCDataStore.QueryData, int)
+     */
+    protected AttributeWriter createGeometryWriter(AttributeType attrType, QueryData queryData, int index)
+                throws IOException {
+        return new OracleSDOAttributeReader(attrType, queryData, index);
     }
     
     /* (non-Javadoc)
@@ -141,4 +151,5 @@ public class OracleDataStore extends JDBCDataStore {
         SQLEncoder encoder = new SQLEncoderOracle(info.getFidColumnName(), info.getSRIDs());
         return new DefaultSQLBuilder(encoder);
     }
+
 }
