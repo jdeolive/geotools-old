@@ -45,7 +45,7 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilterImpl.java,v 1.4 2002/10/25 11:37:35 ianturton Exp $
+ * @version $Id: CompareFilterImpl.java,v 1.5 2002/12/04 21:42:23 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class CompareFilterImpl extends AbstractFilterImpl implements CompareFilter { 
@@ -85,6 +85,7 @@ public class CompareFilterImpl extends AbstractFilterImpl implements CompareFilt
      *
      * @param leftValue Expression for 'left' value.
      * @throws IllegalFilterException Filter is not internally consistent.
+     * @tasks REVISIT: immutability?
      */
     public void addLeftValue(Expression leftValue)
         throws IllegalFilterException {
@@ -112,6 +113,7 @@ public class CompareFilterImpl extends AbstractFilterImpl implements CompareFilt
      *
      * @param rightValue Expression for 'right' value.
      * @throws IllegalFilterException Filter is not internally consistent.
+     * @tasks REVISIT: make immutable.
      */
     public void addRightValue(Expression rightValue)
         throws IllegalFilterException {

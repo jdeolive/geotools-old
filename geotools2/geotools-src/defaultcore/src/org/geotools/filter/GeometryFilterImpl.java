@@ -44,12 +44,24 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilterImpl.java,v 1.6 2002/12/04 21:31:15 cholmesny Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.7 2002/12/04 21:42:21 cholmesny Exp $
  * @author Rob Hranac, TOPP
- */
+ * @tasks: REVISIT: make this class (and all filters) immutable, implement  
+ * cloneable and return new filters when calling addLeftGeometry and addRightG
+ * Issues to think through: would be cleaner immutability to have constructor
+ * called with left and right Geometries, but this does not jive with SAX
+ * parsing, which is one of the biggest uses of filters.  But the alternative
+ * is not incredibly efficient either, as there will be two filters that 
+ * are just thrown away every time we make a full geometry filter.  These
+ * issues extend to most filters, as just about all of them are mutable
+ * when creating them.  Other issue is that lots of code will need to 
+ *  be changed for immutability. (comments by cholmes)*/
 public class GeometryFilterImpl 
     extends AbstractFilterImpl 
     implements GeometryFilter {
+    /* 
+
+
 
     /** Class logger */
     private static final Logger LOGGER =  
@@ -86,6 +98,7 @@ public class GeometryFilterImpl
      *
      * @param leftGeometry Expression for 'left' value.
      * @throws IllegalFilterException Filter is not internally consistent.
+     * @tasks REVISIT: make all filters immutable.
      */
     public void addLeftGeometry(Expression leftGeometry)
         throws IllegalFilterException {
@@ -96,7 +109,9 @@ public class GeometryFilterImpl
             this.leftGeometry = leftGeometry;
         }
         else {
-            throw new IllegalFilterException("Attempted to add (left) non-geometry expression to geometry filter.");
+            throw new IllegalFilterException("Attempted to add (left)" + 
+					     " non-geometry expression" +
+					     " to geometry filter.");
         }
 
     }
@@ -106,6 +121,7 @@ public class GeometryFilterImpl
      *
      * @param rightGeometry Expression for 'right' value.
      * @throws IllegalFilterException Filter is not internally consistent.
+     * @tasks REVISIT: make immutable.
      */
     public void addRightGeometry(Expression rightGeometry)
         throws IllegalFilterException {
@@ -116,7 +132,9 @@ public class GeometryFilterImpl
             this.rightGeometry = rightGeometry;
         }
         else {
-            throw new IllegalFilterException("Attempted to add (right) non-geometry expression to geometry filter.");
+            throw new IllegalFilterException("Attempted to add (right)" + 
+					     " non-geometry" +
+					     "expression to geometry filter.");
         }
         
     }
@@ -133,7 +151,7 @@ public class GeometryFilterImpl
      * Determines whether or not a given feature is 'inside' this filter.
      *
      * @param feature Specified feature to examine.
-     * @return Flag confirming whether or not this feature is inside the filter.
+     * @return Flag confirming whether or not this feature is inside filter.
      */
     public boolean contains(Feature feature) {
         
@@ -234,7 +252,8 @@ public class GeometryFilterImpl
         }else if (rightGeometry == null){
             return "[ " + leftGeometry.toString() + operator + "null" + " ]";
         }
-        return "[ " + leftGeometry.toString() + operator + rightGeometry.toString() + " ]";        
+        return "[ " + leftGeometry.toString() + operator + 
+	    rightGeometry.toString() + " ]";        
     }
             
 
@@ -253,15 +272,21 @@ public class GeometryFilterImpl
             boolean isEqual = true;
             
             isEqual = geomFilter.getFilterType() == this.filterType;
-            LOGGER.finest("filter type match:"  + isEqual + "; in:" + geomFilter.getFilterType() + "; out:" + this.filterType);
+            LOGGER.finest("filter type match:"  + isEqual + "; in:" + 
+			  geomFilter.getFilterType() + "; out:" + 
+			  this.filterType);
             isEqual = (geomFilter.leftGeometry != null) ? 
                 isEqual && geomFilter.leftGeometry.equals(this.leftGeometry):
                 isEqual && (this.leftGeometry == null);
-            LOGGER.finest("left geom match:" +  isEqual + "; in:" + geomFilter.leftGeometry + "; out:" + this.leftGeometry);
+            LOGGER.finest("left geom match:" +  isEqual + "; in:" + 
+			  geomFilter.leftGeometry + "; out:" + 
+			  this.leftGeometry);
             isEqual = (geomFilter.rightGeometry != null) ? 
                 isEqual && geomFilter.rightGeometry.equals(this.rightGeometry):
                 isEqual && (this.rightGeometry == null);
-            LOGGER.finest("right geom match:" +  isEqual + "; in:" + geomFilter.rightGeometry + "; out:" + this.rightGeometry);
+            LOGGER.finest("right geom match:" +  isEqual + "; in:" + 
+			  geomFilter.rightGeometry + "; out:" + 
+			  this.rightGeometry);
 	    return isEqual;
 	} else {
 	    return false;

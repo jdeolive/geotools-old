@@ -34,7 +34,7 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilterImpl.java,v 1.5 2002/12/04 21:23:09 cholmesny Exp $
+ * @version $Id: LogicFilterImpl.java,v 1.6 2002/12/04 21:42:28 cholmesny Exp $
  * @author Rob Hranac, TOPP
  */
 public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
@@ -109,6 +109,7 @@ public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
      *
      * @param filter Specified filter to add to the sub filter list.
      * @throws IllegalFilterException Does not conform to logic filter structure
+     * @tasks REVISIT: make all filters immutable.  This should return a new filter.
      */
     public void addFilter(Filter filter) 
         throws IllegalFilterException {
@@ -167,34 +168,31 @@ public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
      *
      * @param filter Parent of the filter: must implement GMLHandlerGeometry.
      * @return ORed filter.
+     * @tasks REVISIT: make immutable, should not modify the subfilters
+     * of the filter being ored.
      */
-    /*public Filter or(Filter filter) {
+    public Filter or(Filter filter) {
         
         // Just makes sure that we are not creating unnecessary new filters
         //  by popping onto stack if current filter is OR
         //HACK: not sure what should be returned by this method
         //HACK: assuming it is the result of each method
+	//REVISIT: should return a new copy, must implement cloneable to do so.
         if (filterType == super.LOGIC_OR) {
             subFilters.add(filter);
-	    try {
-            LogicFilter retFilter = (LogicFilter)this.clone();
-	    subFilters.remove(subFilters.lastIndexOf(filter));
-	    return retFilter;
-	    } catch (java.lang.CloneNotSupportedException e){
-		LOGGER.severe("Shit!");
-		return null;
-	    }
-        }
-        else {
+	    return this;
+        } else {
             return super.or(filter);
         }
-	}*/
+    }
     
     /**
      * Implements a logical AND with this filter and returns the merged filter.
      *
      * @param filter Parent of the filter: must implement GMLHandlerGeometry.
      * @return ANDed filter.
+     * @tasks REVISIT: make immutable, should not modify the subfilters
+     * of the filter being anded.
      */
     public Filter and(Filter filter) {
 
