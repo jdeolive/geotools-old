@@ -69,11 +69,6 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
-      <dependency>
-      <artifactId>filter</artifactId>
-      <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
-    </dependency>
         <dependency>
       <id>JTS</id>
       <version>1.3</version>
