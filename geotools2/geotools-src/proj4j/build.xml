@@ -40,4 +40,10 @@
             <fileset dir="src" includes="**/*.class"/>
         </delete>
     </target>
+    <target name="javadoc">
+        <mkdir dir="${releaseFolder}\docs"/>
+        <javadoc destdir="${releaseFolder}\docs" packagenames="org.geotools.proj4j">
+            <sourcepath path="src"/>
+        </javadoc>
+    </target>
 </project>
