@@ -220,6 +220,23 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         }
     }
     
+    public void visit(FunctionExpression expression) {
+        LOGGER.finer("exporting Expression Math");
+        
+        String type = (String)expressions.get(new Integer(expression.getType()));
+        try{
+            out.write("<"+type+ " name = " + expression.getName() + ">\n");
+            Expression[] args = expression.getArgs();
+            for(int i=0;i<args.length;i++){
+                args[i].accept(this);
+            }
+            out.write("</"+type+">\n");
+        }
+        catch(java.io.IOException ioe){
+            LOGGER.warning("Unable to export expresion: " + ioe);
+        }
+    }
+    
     private static java.util.HashMap comparisions = new java.util.HashMap();
     private static java.util.HashMap spatial = new java.util.HashMap();
     private static java.util.HashMap logical = new java.util.HashMap();
@@ -240,6 +257,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         expressions.put(new Integer(DefaultExpression.MATH_DIVIDE),"Div");
         expressions.put(new Integer(DefaultExpression.MATH_MULTIPLY),"Mul");
         expressions.put(new Integer(DefaultExpression.MATH_SUBTRACT),"Sub");
+        expressions.put(new Integer(DefaultExpression.FUNCTION), "Function");
         //more to come
         
         spatial.put(new Integer(AbstractFilter.GEOMETRY_EQUALS),"Equals");

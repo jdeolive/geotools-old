@@ -376,7 +376,11 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
         }
     }
 
+    public void visit(FunctionExpression expression) {
+        log.warning("Unable to export functions");
+    }    
 
+    
     private static java.util.HashMap comparisions = new java.util.HashMap();
     private static java.util.HashMap spatial = new java.util.HashMap();
     private static java.util.HashMap logical = new java.util.HashMap();
