@@ -44,9 +44,14 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageReadParam;
 import javax.imageio.stream.ImageInputStream;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.ParameterBlockJAI;
+import javax.media.jai.PlanarImage;
 
 // Images and geometry
 import java.awt.Dimension;
+import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
 
 // Miscellaneous
@@ -99,7 +104,7 @@ import org.geotools.io.image.RawBinaryImageReadParam;
  * However, other methods may be overriden too in order to get finner control
  * on the result.
  *
- * @version $Id: GridCoverageReader.java,v 1.10 2003/08/04 19:07:23 desruisseaux Exp $
+ * @version $Id: GridCoverageReader.java,v 1.11 2004/03/14 15:59:17 aaime Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GridCoverageReader {
@@ -107,6 +112,12 @@ public abstract class GridCoverageReader {
      * The logger for the {@link #getGridCoverage} method.
      */
     static Logger LOGGER = Logger.getLogger("org.geotools.io.coverage");
+    
+    /**
+     * Minimum tile size. If tiles are smaller than this size, a format operation
+     * will be carried out to improve the image tiling 
+     */
+    static final int MIN_TILE_SIZE = 1024 * 512;
 
     /**
      * The format name (e.g. "PNG" or "GeoTIFF"). This format name should
@@ -391,73 +402,98 @@ public abstract class GridCoverageReader {
         return null;
     }
     
-    /**
-     * Read the grid coverage. The default implementation gets the
-     * default {@link ImageReadParam} and checks if it is an instance of
-     * {@link RawBinaryImageReadParam}. If it is, this method then invokes
-     * {@link RawBinaryImageReadParam#setStreamImageSize} with informations
-     * provided by {@link #getGridRange}. Finally, a grid coverage is
-     * constructed using informations provided by {@link #getName},
-     * {@link #getCoordinateSystem} and {@link #getEnvelope}.
-     *
-     * @param  index The index of the image to be queried.
-     * @return The {@link GridCoverage} at the specified index.
-     * @throws IllegalStateException if the input source has not been set.
-     * @throws IndexOutOfBoundsException if the supplied index is out of bounds.
-     * @throws IOException if an error occurs reading the width information from
-     *         the input source.
-     */
-    public synchronized GridCoverage getGridCoverage(final int index) throws IOException {
-        checkImageIndex(index);
-        final ImageReadParam param = reader.getDefaultReadParam();
-        if (param instanceof RawBinaryImageReadParam) {
-            final RawBinaryImageReadParam rawParam = (RawBinaryImageReadParam) param;
-            final GridRange range = getGridRange(index);
-            final Dimension  size = new Dimension(range.getLength(0), range.getLength(1));
-            rawParam.setStreamImageSize(size);
+	/**
+	 * Read the grid coverage. The default implementation gets the
+	 * default {@link ImageReadParam} and checks if it is an instance of
+	 * {@link RawBinaryImageReadParam}. If it is, this method then invokes
+	 * {@link RawBinaryImageReadParam#setStreamImageSize} with informations
+	 * provided by {@link #getGridRange}. Finally, a grid coverage is
+	 * constructed using informations provided by {@link #getName},
+	 * {@link #getCoordinateSystem} and {@link #getEnvelope}.
+	 *
+	 * @param  index The index of the image to be queried.
+	 * @return The {@link GridCoverage} at the specified index.
+	 * @throws IllegalStateException if the input source has not been set.
+	 * @throws IndexOutOfBoundsException if the supplied index is out of bounds.
+	 * @throws IOException if an error occurs reading the width information from
+	 *         the input source.
+	 */
+	public synchronized GridCoverage getGridCoverage(final int index) throws IOException {
+		checkImageIndex(index);
+		final ImageReadParam param = reader.getDefaultReadParam();
+		if (param instanceof RawBinaryImageReadParam) {
+			final RawBinaryImageReadParam rawParam = (RawBinaryImageReadParam) param;
+			final GridRange range = getGridRange(index);
+			final Dimension  size = new Dimension(range.getLength(0), range.getLength(1));
+			rawParam.setStreamImageSize(size);
+		}
+		final String          name = getName(index);
+		final Envelope    envelope = getEnvelope(index);
+		final CoordinateSystem  cs = getCoordinateSystem(index);
+		final SampleDimension[] sd = getSampleDimensions(index);
+		final RenderedImage  image = reader.readAsRenderedImage(index, param);
+		if (LOGGER.isLoggable(Level.FINE)) {
+			/*
+			 * Log the arguments used for creating the GridCoverage. This is a costly logging:
+			 * the string representations for some argument are very long   (RenderedImage and
+			 * CoordinateSystem), and string representation for sample dimensions may use many
+			 * lines.
+			 */
+			final StringWriter buffer = new StringWriter(         );
+			final LineWriter   trimer = new LineWriter  (buffer   );
+			final TableWriter   table = new TableWriter (trimer, 1);
+			final PrintWriter     out = new PrintWriter (table    );
+			buffer.write("Creating GridCoverage[\"");
+			buffer.write(name);
+			buffer.write("\"] with:");
+			buffer.write(trimer.getLineSeparator());
+			table.setMultiLinesCells(true);
+			final int sdCount = (sd!=null) ? sd.length : 0;
+			for (int i=-3; i<sdCount; i++) {
+				String key = "";
+				Object value;
+				switch (i) {
+					case -3: key="RenderedImage";    value=image;    break;
+					case -2: key="CoordinateSystem"; value=cs;       break;
+					case -1: key="Envelope";         value=envelope; break;
+					case  0: key="SampleDimensions"; // fall through
+					default: value=sd[i]; break;
+				}
+				out.print("    ");
+				out.print(key   ); table.nextColumn();
+				out.print('='   ); table.nextColumn();
+				out.print(value ); table.nextLine();
+			}
+			out.flush();
+			LOGGER.fine(buffer.toString());
+		}
+
+		/*
+		 * This reformat operation has two purposes:
+		 * - avoid very small tiles (some data sources generate stripes of just 2 pixel height 
+		 * - make the data source use the tile cache (it is not used otherwise, it seems)
+		 */  
+		ImageLayout layout = new ImageLayout(image);
+		int tileHeight = layout.getTileHeight(image);
+        int tileWidth = layout.getTileWidth(image);
+		int[] sizes = image.getSampleModel().getSampleSize();
+		int totalSize = 0;
+		for (int i = 0; i < sizes.length; i++) {
+            totalSize += sizes[i];
         }
-        final String          name = getName(index);
-        final Envelope    envelope = getEnvelope(index);
-        final CoordinateSystem  cs = getCoordinateSystem(index);
-        final SampleDimension[] sd = getSampleDimensions(index);
-        final RenderedImage  image = reader.readAsRenderedImage(index, param);
-        if (LOGGER.isLoggable(Level.FINE)) {
-            /*
-             * Log the arguments used for creating the GridCoverage. This is a costly logging:
-             * the string representations for some argument are very long   (RenderedImage and
-             * CoordinateSystem), and string representation for sample dimensions may use many
-             * lines.
-             */
-            final StringWriter buffer = new StringWriter(         );
-            final LineWriter   trimer = new LineWriter  (buffer   );
-            final TableWriter   table = new TableWriter (trimer, 1);
-            final PrintWriter     out = new PrintWriter (table    );
-            buffer.write("Creating GridCoverage[\"");
-            buffer.write(name);
-            buffer.write("\"] with:");
-            buffer.write(trimer.getLineSeparator());
-            table.setMultiLinesCells(true);
-            final int sdCount = (sd!=null) ? sd.length : 0;
-            for (int i=-3; i<sdCount; i++) {
-                String key = "";
-                Object value;
-                switch (i) {
-                    case -3: key="RenderedImage";    value=image;    break;
-                    case -2: key="CoordinateSystem"; value=cs;       break;
-                    case -1: key="Envelope";         value=envelope; break;
-                    case  0: key="SampleDimensions"; // fall through
-                    default: value=sd[i]; break;
-                }
-                out.print("    ");
-                out.print(key   ); table.nextColumn();
-                out.print('='   ); table.nextColumn();
-                out.print(value ); table.nextLine();
-            }
-            out.flush();
-            LOGGER.fine(buffer.toString());
-        }
-        return new GridCoverage(name, image, cs, envelope, sd, null, null);
-    }
+        if(tileHeight * tileWidth * totalSize < MIN_TILE_SIZE) {
+			int tileMult = (MIN_TILE_SIZE) / (totalSize * tileWidth * tileHeight);
+			layout.setTileHeight(tileHeight * tileMult);
+		}
+		RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
+		// hints.put(JAI.KEY_TILE_CACHE, JAI.getDefaultInstance().getTileCache());
+		ParameterBlockJAI pbj = new ParameterBlockJAI("Format");
+		pbj.addSource(image);
+		pbj.setParameter("dataType", image.getSampleModel().getDataType());
+		PlanarImage pi = JAI.create("Format", pbj, hints);
+
+		return new GridCoverage(name, pi, cs, envelope, sd, null, null);
+	}
     
     /**
      * Returns an {@link Iterator} containing all currently registered
