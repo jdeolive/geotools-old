@@ -65,6 +65,7 @@ import java.awt.RenderingHints;
 // Geotools dependencies
 import org.geotools.gc.GridCoverage;
 import org.geotools.ct.CoordinateTransformationFactory;
+import org.geotools.resources.Arguments;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -77,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.5 2002/08/08 18:35:43 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.6 2002/08/09 18:37:56 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -383,5 +384,36 @@ public class GridCoverageProcessor {
             out.write(lineSeparator);
             operations[i].print(out, null);
         }
+    }
+
+    /**
+     * Dumps to the standard output stream a list of operations for the default
+     * {@link GridCoverageProcessor}. This method can been invoked from the
+     * command line. For example:
+     *
+     * <blockquote><pre>
+     * java org.geotools.gc.GridCoverageProcessor
+     * </pre></blockquote>
+     *
+     * <strong>Note to Windows users:</strong> If the output contains strange
+     * symbols, try to supply an "<code>-encoding</code>" arguments. Example:
+     *
+     * <blockquote><pre>
+     * java org.geotools.gc.GridCoverageProcessor -encoding Cp850
+     * </pre></blockquote>
+     *
+     * The codepage number (850 in the previous example) can be obtained from the DOS
+     * commande line by entering the "<code>chcp</code>" command with no arguments.
+     */
+    public static void main(final String[] args) {
+        final Arguments arguments = new Arguments(args);
+        arguments.getRemainingArguments(0);
+        try {
+            getDefault().print(arguments.out);
+        } catch (IOException exception) {
+            // Should not occurs
+            exception.printStackTrace(arguments.out);
+        }
+        arguments.out.close();
     }
 }

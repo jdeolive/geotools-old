@@ -62,7 +62,7 @@ import org.geotools.resources.ImageUtilities;
  * This factory provides only one public static method: {@link #getColorModel}.  Instances
  * of {@link ColorModel} are shared among all callers in the running virtual machine.
  *
- * @version $Id: ColorModelFactory.java,v 1.1 2002/07/23 17:53:36 desruisseaux Exp $
+ * @version $Id: ColorModelFactory.java,v 1.2 2002/08/09 18:37:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColorModelFactory {
@@ -171,8 +171,10 @@ final class ColorModelFactory {
                 }
             }
             final ColorSpace colors = new ScaledColorSpace(visibleBand, numBands, min, max);
-            return RasterFactory.createComponentColorModel(type,
-                                       colors, false, false, Transparency.OPAQUE);
+            return RasterFactory.createComponentColorModel(type, colors, false, false, Transparency.OPAQUE);
+            // Note: we had to use JAI implementation instead of J2SE's one, because
+            //       javax.media.jai.iterator.RectIter do not work with J2SE's models
+            //       when the data type is float.
         }
         if (numBands != 1) {
             // It would be possible to support 2, 3, 4... bands. But is it

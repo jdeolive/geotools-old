@@ -56,7 +56,6 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.NullOpImage;
 import javax.media.jai.PointOpImage;
-import javax.media.jai.RasterFactory;
 import javax.media.jai.iterator.RectIter;
 import javax.media.jai.iterator.WritableRectIter;
 import javax.media.jai.iterator.RectIterFactory;
@@ -75,7 +74,7 @@ import org.geotools.resources.ImageUtilities;
  * "CRIF" stands for {@link java.awt.image.renderable.ContextualRenderedImageFactory}.
  * The image operation name is "GC_SampleTranscoding".
  *
- * @version $Id: ImageAdapter.java,v 1.6 2002/07/26 22:17:33 desruisseaux Exp $
+ * @version $Id: ImageAdapter.java,v 1.7 2002/08/09 18:37:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ImageAdapter extends PointOpImage {

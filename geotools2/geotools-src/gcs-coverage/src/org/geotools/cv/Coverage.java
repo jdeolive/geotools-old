@@ -45,7 +45,6 @@ import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderContext;
 import java.awt.image.renderable.RenderableImage;
 import javax.media.jai.TiledImage;
-import javax.media.jai.RasterFactory;
 import javax.media.jai.iterator.RectIterFactory;
 import javax.media.jai.iterator.WritableRectIter;
 
@@ -111,7 +110,7 @@ import org.opengis.cv.CV_Coverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.5 2002/07/29 15:15:28 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.6 2002/08/09 18:37:56 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *

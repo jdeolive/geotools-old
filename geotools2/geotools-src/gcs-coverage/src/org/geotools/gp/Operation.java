@@ -40,6 +40,7 @@ import java.io.Writer;
 import java.io.IOException;
 import java.io.Serializable;
 import java.awt.RenderingHints;
+import java.awt.Color;
 import java.util.Locale;
 
 // JAI dependencies
@@ -71,7 +72,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.5 2002/08/08 18:35:43 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.6 2002/08/09 18:37:56 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -357,6 +358,9 @@ public abstract class Operation implements Serializable {
                     value = ((GridCoverage) value).getName(null);
                 } else if (value instanceof Interpolation) {
                     value = getInterpolationName((Interpolation) value);
+                } else if (value instanceof Color) {
+                    final Color c = (Color) value;
+                    value = "RGB["+c.getRed()+','+c.getGreen()+','+c.getBlue()+']';
                 }
                 table.write(String.valueOf(value));
             }
