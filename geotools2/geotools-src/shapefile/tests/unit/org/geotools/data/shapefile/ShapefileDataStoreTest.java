@@ -200,7 +200,6 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         FeatureType type = factory.getFeatureType();
         FeatureCollection features = FeatureCollections.newCollection();
         for (int i = 0, ii = 20; i < ii; i++) {
-            
             features.add(type.create(new Object[] {
                 geom.clone()
             }));
@@ -209,11 +208,12 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         // set up file
         File tmpFile = getTempFile();
         tmpFile.delete();
-
+        
         // write features
         ShapefileDataStore s = new ShapefileDataStore(tmpFile.toURL());
+        s.createSchema(type);
         writeFeatures(s, features);
-        
+
         // read features
         s = new ShapefileDataStore(tmpFile.toURL());
         FeatureCollection fc = loadFeatures(s);
@@ -241,6 +241,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
             
             
         }
+        
         
         tmpFile.delete();
     }
