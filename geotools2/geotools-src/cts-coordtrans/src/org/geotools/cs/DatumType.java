@@ -71,12 +71,6 @@ public abstract class DatumType extends EnumeratedParameter {
     private static final long serialVersionUID = 4829955972189625202L;
     
     /**
-     * The pool of local datum. This pool
-     * will be created only when needed.
-     */
-    private static WeakHashSet pool;
-    
-    /**
      * These datums, such as ED50, NAD27 and NAD83, have been designed
      * to support horizontal positions on the ellipsoid as opposed to positions
      * in 3-D space.  These datums were designed mainly to support a horizontal
@@ -237,12 +231,7 @@ public abstract class DatumType extends EnumeratedParameter {
         } else {
             throw new IllegalArgumentException(String.valueOf(value));
         }
-        synchronized (DatumType.class) {
-            if (pool==null) {
-                pool = new Pool();
-            }
-            return (DatumType) pool.canonicalize(datum);
-        }
+        return (DatumType) Info.pool.canonicalize(datum);
     }
     
     /**
@@ -284,6 +273,26 @@ public abstract class DatumType extends EnumeratedParameter {
      */
     public String getName(final Locale locale) {
         return (key>=0) ? Resources.getResources(locale).getString(key) : getName();
+    }
+
+    /**
+     * Returns the enum value as a hash code.
+     */
+    public int hashCode() {
+        return getValue();
+    }
+
+    /**
+     * Compare this <code>DatumType</code> with the specified object for equality.
+     * Two datum types are equals if and only they are of same class and have the
+     * same enum value.
+     */
+    public boolean equals(final Object obj) {
+        if (obj!=null && obj.getClass().equals(getClass())) {
+            final DatumType that = (DatumType) obj;
+            return that.getValue() == getValue();
+        }
+        return false;
     }
     
     /**
@@ -514,27 +523,5 @@ public abstract class DatumType extends EnumeratedParameter {
         /** Get the minimum value. */ final int getMinimum() {return MINIMUM;}
         /** Get the maximum value. */ final int getMaximum() {return MAXIMUM;}
         /** Return the type key.   */ final int getTypeKey() {return ResourceKeys.LOCAL;}
-    }
-    
-    /**
-     * Pool of custom {@link DatumType}.
-     *
-     * @version 1.00
-     * @author Martin Desruisseaux
-     */
-    private static final class Pool extends WeakHashSet {
-        /**
-         * Override in order to get hash code computed from the enum value.
-         */
-        protected int hashCode(final Object object) {
-            return ((DatumType)object).getValue();
-        }
-        
-        /**
-         * Override in order to compare hash code values only (not the name).
-         */
-        protected boolean equals(final Object object1, final Object object2) {
-            return ((DatumType)object1).getValue() == ((DatumType)object2).getValue();
-        }
     }
 }
