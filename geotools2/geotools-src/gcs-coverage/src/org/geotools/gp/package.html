@@ -81,8 +81,8 @@
     <P ALIGN="justify">Computes each output sample by multiplying elements
     of a kernel with the samples surrounding a particular source sample.</P>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;Convolve&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.ConvolveDescriptor Convolve}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Convolve"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.ConvolveDescriptor Convolve}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -93,14 +93,14 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;kernel&quot;</td>
+        <td>"kernel"</td>
         <td>{@link javax.media.jai.KernelJAI}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
@@ -133,8 +133,8 @@
     of the source image by correlating it with the supplied orthogonal (horizontal
     and vertical) gradient masks.</P>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;GradientMagnitude&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.GradientMagnitudeDescriptor GradientMagnitude}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"GradientMagnitude"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.GradientMagnitudeDescriptor GradientMagnitude}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -145,28 +145,28 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;Mask1&quot;</td>
+        <td>"Mask1"</td>
         <td>{@link javax.media.jai.KernelJAI}</td>
         <td>{@link javax.media.jai.KernelJAI#GRADIENT_MASK_SOBEL_HORIZONTAL}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;Mask2&quot;</td>
+        <td>"Mask2"</td>
         <td>{@link javax.media.jai.KernelJAI}</td>
         <td>{@link javax.media.jai.KernelJAI#GRADIENT_MASK_SOBEL_VERTICAL}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;TargetRange&quot;</td>
+        <td>"TargetRange"</td>
         <td>{@link org.geotools.gp.RangeSpecifier}</td>
         <td>(automatic)</td>
         <td align="center">N/A</td>
@@ -184,10 +184,10 @@
     </UL>
     <P ALIGN="justify">Kernels are normalized by dividing all their coefficients
     by the result of this test. In other words, kernels are normalized in such a
-    way that applying the &quot;GradientMagnitude&quot; operation on a horizontal
-    or vertical gradient of 1 such &quot;geophysical&quot; units will give a result
+    way that applying the "GradientMagnitude" operation on a horizontal
+    or vertical gradient of 1 such "geophysical" units will give a result
     of 1. This is an attempt to give geophysical meaning to the numbers produced by
-    the &quot;GradientMagnitude&quot; operation. This normalization depends of the
+    the "GradientMagnitude" operation. This normalization depends of the
     coverage's {@linkplain org.geotools.gc.GridCoverage#getGridGeometry grid geometry}.</P>
     <P><A HREF="#operation-list">Back to summary</A></P>
 
@@ -205,7 +205,7 @@
     default value is nearest neighbor. The new interpolation type operates
     on all sample dimensions.</P>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;Interpolate&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Interpolate"</CODE><BR>
        <STRONG>JAI operator:</STRONG>&nbsp;N/A<BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
@@ -217,16 +217,16 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;Type&quot;</td>
+        <td>"Type"</td>
         <td>{@link java.lang.CharSequence}</td>
-        <td>&quot;NearestNieghbor&quot;</td>
+        <td>"NearestNieghbor"</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
@@ -269,8 +269,8 @@
     <BLOCKQUOTE><PRE>
     dst[x][y][b] = -src[x][y][b]
     </PRE></BLOCKQUOTE>
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;Invert&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.InvertDescriptor Invert}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Invert"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.InvertDescriptor Invert}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -281,7 +281,7 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
@@ -310,8 +310,8 @@
       <TR align="center"><TD>-1</TD>   <TD>4</TD>  <TD>-1</TD></TR>
       <TR align="center"> <TD>0</TD>  <TD>-1</TD>   <TD>0</TD></TR>
     </TABLE>
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;LaplaceType1Filter&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.ConvolveDescriptor Convolve}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"LaplaceType1Filter"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.ConvolveDescriptor Convolve}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -322,7 +322,7 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
@@ -351,8 +351,8 @@
       <TR align="center"><TD>-1</TD>   <TD>8</TD>  <TD>-1</TD></TR>
       <TR align="center"><TD>-1</TD>  <TD>-1</TD>  <TD>-1</TD></TR>
     </TABLE>
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;LaplaceType1Filter&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.ConvolveDescriptor Convolve}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"LaplaceType1Filter"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.ConvolveDescriptor Convolve}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -363,7 +363,7 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
@@ -389,8 +389,8 @@
     There are several shapes possible for the mask, which are enumerated in the
     {@linkplain javax.media.jai.operator.MaxFilterDescriptor JAI documentation}.</P>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;MaxFilter&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.MaxFilterDescriptor MaxFilter}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"MaxFilter"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.MaxFilterDescriptor MaxFilter}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -401,28 +401,28 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;Xsize&quot;</td>
+        <td>"Xsize"</td>
         <td>{@link java.lang.Integer}</td>
         <td align="center">3</td>
         <td align="center">1</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;Ysize&quot;</td>
+        <td>"Ysize"</td>
         <td>{@link java.lang.Integer}</td>
         <td align="center">3</td>
         <td align="center">1</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;maskShape&quot;</td>
+        <td>"maskShape"</td>
         <td>{@link javax.media.jai.operator.MaxFilterShape}</td>
         <td>{@link javax.media.jai.operator.MaxFilterDescriptor#MAX_MASK_SQUARE}</td>
         <td align="center">N/A</td>
@@ -451,8 +451,8 @@
     There are several shapes possible for the mask, which are enumerated in the
     {@linkplain javax.media.jai.operator.MedianFilterDescriptor JAI documentation}.</P>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;MedianFilter&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.MedianFilterDescriptor MedianFilter}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"MedianFilter"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.MedianFilterDescriptor MedianFilter}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -463,28 +463,28 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;Xsize&quot;</td>
+        <td>"Xsize"</td>
         <td>{@link java.lang.Integer}</td>
         <td align="center">3</td>
         <td align="center">1</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;Ysize&quot;</td>
+        <td>"Ysize"</td>
         <td>{@link java.lang.Integer}</td>
         <td align="center">3</td>
         <td align="center">1</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;maskShape&quot;</td>
+        <td>"maskShape"</td>
         <td>{@link javax.media.jai.operator.MedianFilterShape}</td>
         <td>{@link javax.media.jai.operator.MedianFilterDescriptor#MEDIAN_MASK_SQUARE}</td>
         <td align="center">N/A</td>
@@ -513,8 +513,8 @@
     There are several shapes possible for the mask, which are enumerated in the
     {@linkplain javax.media.jai.operator.MinFilterDescriptor JAI documentation}.</P>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;MinFilter&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.MinFilterDescriptor MinFilter}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"MinFilter"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.MinFilterDescriptor MinFilter}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -525,28 +525,28 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;Xsize&quot;</td>
+        <td>"Xsize"</td>
         <td>{@link java.lang.Integer}</td>
         <td align="center">3</td>
         <td align="center">1</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;Ysize&quot;</td>
+        <td>"Ysize"</td>
         <td>{@link java.lang.Integer}</td>
         <td align="center">3</td>
         <td align="center">1</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;maskShape&quot;</td>
+        <td>"maskShape"</td>
         <td>{@link javax.media.jai.operator.MinFilterShape}</td>
         <td>{@link javax.media.jai.operator.MinFilterDescriptor#MIN_MASK_SQUARE}</td>
         <td align="center">N/A</td>
@@ -594,7 +594,7 @@
     }
     </PRE></BLOCKQUOTE>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;Recolor&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Recolor"</CODE><BR>
        <STRONG>JAI operator:</STRONG>&nbsp;N/A<BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
@@ -606,14 +606,14 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;ColorMaps&quot;</td>
+        <td>"ColorMaps"</td>
         <td><code>{@linkplain java.util.Map}[]</code></td>
         <td align="center">A gray scale</td>
         <td align="center">N/A</td>
@@ -651,9 +651,9 @@
           in the grid coverage.</LI>
     </UL>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;Resample&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.AffineDescriptor Affine}&quot;</CODE>
-               or <CODE>&quot;{@linkplain javax.media.jai.operator.WarpDescriptor Warp}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Resample"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.AffineDescriptor Affine}"</CODE>
+               or <CODE>"{@linkplain javax.media.jai.operator.WarpDescriptor Warp}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -664,28 +664,28 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;InterpolationType&quot;</td>
+        <td>"InterpolationType"</td>
         <td>{@link java.lang.CharSequence}</td>
-        <td>&quot;NearestNieghbor&quot;</td>
+        <td>"NearestNieghbor"</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;CoordinateSystem&quot;</td>
+        <td>"CoordinateSystem"</td>
         <td>{@link org.geotools.cs.CoordinateSystem}</td>
         <td>Same as source grid coverage</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;GridGeometry&quot;</td>
+        <td>"GridGeometry"</td>
         <td>{@link org.geotools.gc.GridGeometry}</td>
         <td>(automatic)</td>
         <td align="center">N/A</td>
@@ -720,8 +720,8 @@
     src[<var>x</var>][<var>y</var>][<var>b</var>]*<strong>constant</strong> + <strong>offset</strong>;
     </CODE></BLOCKQUOTE>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;Rescale&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.RescaleDescriptor Rescale}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Rescale"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.RescaleDescriptor Rescale}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -732,21 +732,21 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;constants&quot;</td>
+        <td>"constants"</td>
         <td><code>double[]</code></td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;offsets&quot;</td>
+        <td>"offsets"</td>
         <td><code>double[]</code></td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
@@ -782,8 +782,8 @@
     selecting this sample dimension. If ommited, then the new grid coverage will
     inherit its source's visible sample dimension.</P>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;SelectSampleDimension&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.BandSelectDescriptor BandSelect}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"SelectSampleDimension"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.BandSelectDescriptor BandSelect}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -794,21 +794,21 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;SampleDimensions&quot;</td>
+        <td>"SampleDimensions"</td>
         <td><code>int[]</code></td>
         <td align="center">Same as source</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;VisibleSampleDimension&quot;</td>
+        <td>"VisibleSampleDimension"</td>
         <td>{@link java.lang.Integer}</td>
         <td align="center">Same as source</td>
         <td align="center">0</td>
@@ -831,8 +831,8 @@
     value and the dimension type of the source sample dimension will be represented
     as 1 bit.</P>
 
-    <P><STRONG>Name:</STRONG>&nbsp;<CODE>&quot;Threshold&quot;</CODE><BR>
-       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.BinarizeDescriptor Binarize}&quot;</CODE><BR>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Threshold"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>"{@linkplain javax.media.jai.operator.BinarizeDescriptor Binarize}"</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -843,14 +843,14 @@
         <th>Maximum value</th>
       </tr>
       <tr>
-        <td>&quot;Source&quot;</td>
+        <td>"Source"</td>
         <td>{@link org.geotools.gc.GridCoverage}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;threshold&quot;</td>
+        <td>"threshold"</td>
         <td><code>double</code></td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
