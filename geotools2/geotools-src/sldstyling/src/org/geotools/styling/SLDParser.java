@@ -2,6 +2,8 @@ package org.geotools.styling;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import org.geotools.filter.Expression;
@@ -798,6 +800,7 @@ public class SLDParser {
         
         String format = "";
         String uri = "";
+        Map paramList = new HashMap();
         
         NodeList children = root.getChildNodes();
         
@@ -837,10 +840,19 @@ public class SLDParser {
                 + child.getFirstChild().getNodeValue());
                 format = (child.getFirstChild().getNodeValue());
             }
+            if (child.getNodeName().equalsIgnoreCase("customProperty")) {
+                LOGGER.finest("custom child is " + child);
+                String propName = child.getAttributes().getNamedItem("name").getNodeValue();
+                LOGGER.finest("seting custom property " + propName + " to "
+                + child.getFirstChild().getNodeValue());
+                Expression value = parseCssParameter(child); 
+                paramList.put(propName, value);
+                
+            }
         }
         
         ExternalGraphic extgraph = factory.createExternalGraphic(uri, format);
-        
+        extgraph.setCustomProperties(paramList);
         return extgraph;
     }
     
