@@ -130,7 +130,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * For example, the {@link #getCoordinateSystem} method constructs a {@link CoordinateSystem}
  * object using available informations. 
  *
- * @version $Id: PropertyParser.java,v 1.9 2003/01/09 21:41:20 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.10 2003/01/12 16:48:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -1191,7 +1191,7 @@ public class PropertyParser {
                 final LogRecord record = new LogRecord(Level.WARNING, message);
                 record.setSourceMethodName(source);
                 record.setSourceClassName("PropertyParser");
-                Logger.getLogger("org.geotools.io.coverage").log(record);
+                GridCoverageReader.LOGGER.log(record);
             }
         }
     }
@@ -1723,7 +1723,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.9 2003/01/09 21:41:20 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.10 2003/01/12 16:48:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -1786,7 +1786,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.9 2003/01/09 21:41:20 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.10 2003/01/12 16:48:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {
