@@ -538,26 +538,31 @@ public class DataUtilities {
     }
 
     public static boolean attributesEqual(Object att, Object otherAtt){
-	  if (att == null && otherAtt != null)
+	if (att == null) {
+	    if (otherAtt != null) {
                 return false;
+            }
+        } else {
             if (! att.equals(otherAtt)){
                 if( att instanceof Geometry &&
                     otherAtt instanceof Geometry ){
                     // we need to special case Geometry
                     // as JTS is broken
-                    // Geometry.equals( Object ) and Geometry.equals( Geometry )
+                   // Geometry.equals( Object ) and Geometry.equals( Geometry )
                     // are different 
                     // (We should fold this knowledge into AttributeType...)
                     // 
                     if( !((Geometry)att).equals( (Geometry) otherAtt )){
-                        return false;   
+                	return false;   
                     }
-                }
+        	}
                 else {
                     return false;
                 }            
             }
-	    return true;
+        }
+	
+	return true;
     }
 
     public static FeatureType createSubType( FeatureType featureType, String properties[]) throws SchemaException{
