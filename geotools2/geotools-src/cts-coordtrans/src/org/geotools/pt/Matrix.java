@@ -38,7 +38,7 @@ import org.geotools.cs.AxisOrientation;
 // Matrix and transforms
 import javax.vecmath.GMatrix;
 import org.opengis.pt.PT_Matrix;             // For JavaDoc
-import javax.media.j3d.Transform3D;          // For JavaDoc
+//import javax.media.j3d.Transform3D;          // For JavaDoc
 import javax.media.jai.PerspectiveTransform; // For JavaDoc
 import java.awt.geom.AffineTransform;
 
