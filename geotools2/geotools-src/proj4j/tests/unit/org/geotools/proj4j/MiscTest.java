@@ -60,6 +60,7 @@ public class MiscTest extends TestCase {
         assertEquals(Math.PI/2.0,Misc.dmsToR("90E"),1e-12);
         assertEquals(-Math.PI/2.0,Misc.dmsToR("90W"),1e-12);
         assertEquals(0.19794943,Misc.dmsToR("11d20'30\""),1e-5);
+        assertEquals(Misc.dmsToR("13d0'0\""),Misc.dmsToR("13d"),1e-5);//no min or sec
         assertEquals(0.19794943,Misc.dmsToR("11.341667"),1e-5);
         assertEquals(10,Misc.dmsToR("10r"),0);
         assertEquals(Double.MAX_VALUE,Misc.dmsToR("abcd"),0);
