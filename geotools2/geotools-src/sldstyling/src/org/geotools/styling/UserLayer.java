@@ -6,12 +6,15 @@
 
 package org.geotools.styling;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author  jamesm
  */
 public class UserLayer extends StyledLayer {
     
+    ArrayList styles = new ArrayList();
     
     public RemoteOWS getRemoteOWS(){
         return null;
@@ -22,16 +25,18 @@ public class UserLayer extends StyledLayer {
     public FeatureTypeConstraint[] getLayerFeatureConstraints(){
         return null;
     }
-    public void setLayerFeatureConstraints(){
+    public void setLayerFeatureConstraints(FeatureTypeConstraint[] constraints){
     }
     
     public Style[] getUserStyles(){
-        return null;
+       return (Style[])styles.toArray(new Style[0]);
     }
     public void setUserStyles(Style[] styles){
+        
     }
     
     public void addUserStyle(Style style){
+        styles.add(style);
     }
     
     
