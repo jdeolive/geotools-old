@@ -1,0 +1,132 @@
+/*
+ * This code is released under the Apache license, availible at the root GML4j directory.
+ */
+package org.geotools.filter;
+
+import org.geotools.datasource.*;
+
+/**
+ * Implements a default expression, with helpful variables and static methods.
+ *
+ * @author Rob Hranac, Vision for New York
+ * @version alpha, 12/01/01
+ */
+public class ExpressionDefault implements Expression {
+
+
+    /** Defines the type of this expression. */
+    protected short expressionType;
+
+    /* This is a listing of all possible expression types, grouped by 
+       expressions that are implemented by a single expression class
+       (ie. all math types are implemented by ExpressionMath). */
+
+    /* Types implemented by ExpressionLiteral */
+    /** Defines a literal expression with a declared double type. */  
+    public static final short LITERAL_DOUBLE = 1;
+    /** Defines a literal expression with a declared integer type. */  
+    public static final short LITERAL_INTEGER = 2;
+    /** Defines a literal expression with a declared string type. */  
+    public static final short LITERAL_STRING = 3;
+    /** Defines a literal expression with a declared string type. */  
+    public static final short LITERAL_GEOMETRY = 4;
+
+    /* Types implemented by ExpressionMath */
+    /** Defines a math expression for adding. */  
+    public static final short MATH_ADD = 5;
+    /** Defines a math expression for subtracting. */  
+    public static final short MATH_SUBTRACT = 6;
+    /** Defines a math expression for multiplying. */  
+    public static final short MATH_MULTIPLY = 7;
+    /** Defines a math expression for dividing. */  
+    public static final short MATH_DIVIDE = 8;
+    
+    /* Types implemented by ExpressionAttribute */
+    /** Defines an attribute expression with a declared double type. */  
+    public static final short ATTRIBUTE_DOUBLE = 9;
+    /** Defines an attribute expression with a declared integer type. */  
+    public static final short ATTRIBUTE_INTEGER = 10;
+    /** Defines an attribute expression with a declared string type. */  
+    public static final short ATTRIBUTE_STRING = 11;
+    /** Defines an attribute expression with a declared string type. */  
+    public static final short ATTRIBUTE_GEOMETRY = 12;
+
+    /**
+     * Gets the type of this expression.
+     */
+    public short getType() {
+        return 0;
+    }
+
+    /**
+     * Returns a value for this expression.
+     *
+     * @param feature Specified feature to use when returning value.
+     */
+    public Object getValue(Feature feature)
+        throws MalformedFilterException {
+        return new Object();
+    }        
+
+
+    /* *************************************************************************
+     * Following static methods check for certain aggregate types, based on 
+     * (above) declared types.  Note that these aggregate types do not
+     * necessarily map directly to the sub-classes of FilterDefault.  In most,
+     * but not all, cases, a single class implements an aggregate type.
+     * However, there are aggregate types that are implemented by multiple
+     *  classes (ie. the Math type is implemented by two seperate classes).
+     *************************************************************************/
+    /**
+     * Checks to see if passed type is attribute.
+     *
+     * @param expressionType Type of expression for check.
+     * @return Whether or not this is an attribute expression type.
+     */
+    protected static boolean isAttributeExpression(short expressionType) {
+        if( (expressionType == ATTRIBUTE_DOUBLE) ||
+            (expressionType == ATTRIBUTE_INTEGER) ||
+            (expressionType == ATTRIBUTE_STRING) ) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Checks to see if passed type is math.
+     *
+     * @param expressionType Type of expression for check.
+     * @return Whether or not this is a math expression type.
+     */
+    protected static boolean isMathExpression(short expressionType) {
+        if( (expressionType == MATH_ADD) ||
+            (expressionType == MATH_SUBTRACT) ||
+            (expressionType == MATH_MULTIPLY) ||
+            (expressionType == MATH_DIVIDE) ) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Checks to see if passed type is geometry.
+     *
+     * @param expressionType Type of expression for check.
+     * @return Whether or not this is a geometry expression type.
+     */
+    protected static boolean isGeometryExpression(short expressionType) {
+        if( (expressionType == ATTRIBUTE_GEOMETRY) ||
+            (expressionType == LITERAL_GEOMETRY) ) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    
+}
