@@ -27,6 +27,7 @@ import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
@@ -50,7 +51,7 @@ import javax.swing.event.MouseInputAdapter;
  * that area.
  *
  * @author Cameron Shorter
- * @version $Id: ZoomToolImpl.java,v 1.9 2003/04/22 20:39:21 camerons Exp $
+ * @version $Id: ZoomToolImpl.java,v 1.10 2003/04/25 07:02:32 camerons Exp $
  */
 public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
     private static final Logger LOGGER =
@@ -69,6 +70,7 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
      */
     public ZoomToolImpl() {
         setName("Zoom");
+        setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
     }
 
     /**
@@ -82,10 +84,13 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
 
         if (zoomFactor == 1) {
             setName("Pan");
+            setCursor(new Cursor(Cursor.MOVE_CURSOR));
         } else if (zoomFactor < 1) {
             setName("Zoom In");
+            setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         } else {
             setName("Zoom Out");
+            setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
     }
 

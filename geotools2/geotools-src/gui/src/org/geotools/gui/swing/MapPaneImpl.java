@@ -38,6 +38,7 @@ import org.geotools.map.events.SelectedToolListener;
 import org.geotools.renderer.Java2DRenderer;
 import org.geotools.styling.Style;
 import java.awt.Dimension;
+import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
@@ -79,7 +80,7 @@ import javax.swing.JPanel;
  * BoundingBox when this component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.19 2003/04/24 09:36:50 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.20 2003/04/25 07:02:31 camerons Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults
  * to 1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -131,6 +132,9 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
 
             // use absolute positioning
             this.setLayout(null);
+            
+            // set up the varialbes associated with this tool.
+            initialiseTool();
         }
     }
 
@@ -302,12 +306,23 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
 
     /**
      * Called when the selectedTool on a MapPane changes.
-     *
+     * Register for mouseEvents on behalf of the tool, and set the Cursor.
      * @param event ComponenetEvent.
      */
     public void selectedToolChanged(EventObject event) {
+        initialiseTool();
+    }
+    
+    /**
+     * Initialise variables associated with the tool.
+     */
+    private void initialiseTool(){
         if (context.getToolList().getTool() != null) {
             context.getToolList().getTool().addMouseListener(this, context);
+            setCursor(context.getToolList().getTool().getCursor());
+        }
+        else {
+            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
     }
     

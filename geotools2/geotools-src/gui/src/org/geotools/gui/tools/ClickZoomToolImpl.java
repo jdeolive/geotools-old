@@ -2,6 +2,7 @@ package org.geotools.gui.tools;
 
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
@@ -21,7 +22,7 @@ import org.geotools.pt.CoordinatePoint;
 /**
  * Pan the map so that the new extent has the click point in the middle
  * of the map and then zoom in/out by the zoomFactor.
- * @version $Id: ClickZoomToolImpl.java,v 1.1 2003/03/30 11:22:26 camerons Exp $
+ * @version $Id: ClickZoomToolImpl.java,v 1.2 2003/04/25 07:02:32 camerons Exp $
  * @author Cameron Shorter
  */
 public class ClickZoomToolImpl extends AbstractTool implements ClickZoomTool
@@ -42,6 +43,7 @@ public class ClickZoomToolImpl extends AbstractTool implements ClickZoomTool
      */
     public ClickZoomToolImpl(){
         setName("Click Zoom");
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**

@@ -27,6 +27,7 @@ import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
@@ -41,7 +42,7 @@ import javax.swing.event.MouseInputAdapter;
  * map and then zoom in/out by the zoomFactor.
  *
  * @author Cameron Shorter
- * @version $Id: ClickPanToolImpl.java,v 1.2 2003/03/31 11:09:23 camerons Exp $
+ * @version $Id: ClickPanToolImpl.java,v 1.3 2003/04/25 07:02:32 camerons Exp $
  */
 public class ClickPanToolImpl extends PanToolImpl implements ClickPanTool {
     private static final Logger LOGGER =
@@ -53,6 +54,7 @@ public class ClickPanToolImpl extends PanToolImpl implements ClickPanTool {
      */
     public ClickPanToolImpl() {
         setName("Click Pan");
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**

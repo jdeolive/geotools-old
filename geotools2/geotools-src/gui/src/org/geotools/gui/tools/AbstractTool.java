@@ -1,6 +1,7 @@
 package org.geotools.gui.tools;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -14,7 +15,7 @@ import org.geotools.map.Context;
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
  * Tools process mouse events on behalf of widgets like MapPane and change
  * data in the Context (like the AreaOfInterest).
- * @version $Id: AbstractTool.java,v 1.2 2003/04/13 21:18:55 camerons Exp $
+ * @version $Id: AbstractTool.java,v 1.3 2003/04/25 07:02:31 camerons Exp $
  * @author Cameron Shorter
  */
 public abstract class AbstractTool
@@ -37,6 +38,9 @@ public abstract class AbstractTool
      */
     protected Context context;
     
+    /** The cursor associated with this tool. */
+    private Cursor cursor = new Cursor(Cursor.DEFAULT_CURSOR);
+
     /**
      * Register this tool to receive MouseEvents from <code>component<code>.
      * @param component The tool will process mouseEvents from this component.
@@ -123,6 +127,22 @@ public abstract class AbstractTool
      */
     public Context getContext(){
         return context;
+    }
+    
+    /**
+     * Return the prefered cursor for this tool.
+     * @return cursor The prefered cursor for this tool.
+     */
+    public Cursor getCursor(){
+        return this.cursor;
+    }
+    
+    /**
+     * Set the cursor for this Tool.
+     * @param cursor The cursor to associate with this tool.
+     */
+    public void setCursor(Cursor cursor) {
+        this.cursor=cursor;
     }
     
     /** Invoked when the mouse button has been clicked (pressed

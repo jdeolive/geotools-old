@@ -27,6 +27,7 @@ import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
@@ -42,7 +43,7 @@ import javax.swing.event.MouseInputAdapter;
  * CordinateTransform for the map's Context.
  *
  * @author $author$
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 public class PanToolImpl extends AbstractTool implements PanTool {
     private static final Logger LOGGER =
@@ -59,6 +60,7 @@ public class PanToolImpl extends AbstractTool implements PanTool {
      */
     public PanToolImpl() {
         setName("Pan");
+        setCursor(new Cursor(Cursor.MOVE_CURSOR));
     }
 
     /**

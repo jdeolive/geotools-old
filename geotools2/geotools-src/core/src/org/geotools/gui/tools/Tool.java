@@ -1,13 +1,14 @@
 package org.geotools.gui.tools;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import org.geotools.map.Context;
 
 /**
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
  * Tools process mouse events on behalf of widgets like MapPane and change
  * data in the Context (like the AreaOfInterest).
- * @version $Id: Tool.java,v 1.2 2003/04/14 21:37:13 jmacgill Exp $
+ * @version $Id: Tool.java,v 1.3 2003/04/25 07:02:30 camerons Exp $
  * @author Cameron Shorter
  */
 public abstract interface Tool {
@@ -46,6 +47,18 @@ public abstract interface Tool {
      * Get the name of the tool.
      */
     public String getName();
+    
+    /**
+     * Return the prefered cursor for this tool.
+     * @return cursor The prefered cursor for this tool.
+     */
+    public Cursor getCursor();
+    
+    /**
+     * Set the cursor for this Tool.
+     * @param cursor The cursor to associate with this tool.
+     */
+    public void setCursor(Cursor cursor);
     
     /**
      * Clean up this class.
