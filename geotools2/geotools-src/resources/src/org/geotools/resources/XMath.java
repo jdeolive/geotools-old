@@ -32,9 +32,13 @@
  */
 package org.geotools.resources;
 
-// Miscellaneous
+// J2SE dependencies
 import java.lang.Math;
 import java.text.ChoiceFormat;
+
+// Geotools dependencies
+import org.geotools.resources.rsc.Resources;
+import org.geotools.resources.rsc.ResourceKeys;
 
 
 /**
@@ -47,11 +51,10 @@ import java.text.ChoiceFormat;
  *   <li><a href="http://developer.java.sun.com/developer/bugParade/bugs/4461243.html">Math.acos is very slow</a></li>
  * </ul>
  *
- * @version $Id: XMath.java,v 1.4 2002/08/06 13:35:17 desruisseaux Exp $
+ * @version $Id: XMath.java,v 1.5 2003/05/02 21:44:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public final class XMath
-{
+public final class XMath {
     /**
      * Natural logarithm of 10.
      * Approximately equal to 2.302585.
@@ -222,8 +225,7 @@ public final class XMath
      * If NaN, returns same value. This code is an adaptation of
      * {@link java.text.ChoiceFormat#nextDouble}.
      */
-    private static float next(final float f, final boolean positive)
-    {
+    private static float next(final float f, final boolean positive) {
         final int SIGN             = 0x80000000;
         final int POSITIVEINFINITY = 0x7F800000;
 
@@ -294,5 +296,91 @@ public final class XMath
      */
     public static double previous(final double f) {
         return ChoiceFormat.previousDouble(f);
+    }
+
+    /**
+     * Returns the next or previous representable number. If <code>amount</code> is equals to
+     * <code>0</code>, then this method returns the <code>value</code> unchanged. Otherwise,
+     * The operation performed depends on the specified <code>type</code>:
+     * <ul>
+     *   <li><p>If the <code>type</code> is {@link Double}, then this method is
+     *       equivalent to invoking   {@link #previous(double)} if <code>amount</code> is equals to
+     *       <code>-1</code>, or invoking {@link #next(double)} if <code>amount</code> is equals to
+     *       <code>+1</code>. If <code>amount</code> is smaller than <code>-1</code> or greater
+     *       than <code>+1</code>, then this method invokes {@link #previous(double)} or
+     *       {@link #next(double)} in a loop for <code>abs(amount)</code> times.</p></li>
+     *
+     *   <li><p>If the <code>type</code> is {@link Float}, then this method is
+     *       equivalent to invoking   {@link #previous(float)} if <code>amount</code> is equals to
+     *       <code>-1</code>, or invoking {@link #next(float)} if <code>amount</code> is equals to
+     *       <code>+1</code>. If <code>amount</code> is smaller than <code>-1</code> or greater
+     *       than <code>+1</code>, then this method invokes {@link #previous(float)} or
+     *       {@link #next(float)} in a loop for <code>abs(amount)</code> times.</p></li>
+     *
+     *   <li><p>If the <code>type</code> is an {@linkplain #isInteger integer}, then invoking
+     *       this method is equivalent to computing <code>value + amount</code>.</p></li>
+     * </ul>
+     *
+     * @param type    The type. Should be the class of {@link Double}, {@link Float},
+     *                {@link Long}, {@link Integer}, {@link Short} or {@link Byte}.
+     * @param value   The number to rool.
+     * @param amount  -1 to return the previous representable number,
+     *                +1 to return the next representable number, or
+     *                 0 to return the number with no change.
+     * @return One of previous or next representable number as a <code>double</code>.
+     * @throws IllegalArgumentException if <code>type</code> is not one of supported types.
+     */
+    public static double rool(final Class type, double value, int amount)
+            throws IllegalArgumentException
+    {
+        if (amount == 0) {
+            return value;
+        }
+        if (Double.class.isAssignableFrom(type)) {
+            if (amount<0) {
+                do {
+                    value = previous(value);
+                } while (++amount != 0);
+            } else {
+                do {
+                    value = next(value);
+                } while (--amount != 0);
+            }
+            return value;
+        }
+        if (Float.class.isAssignableFrom(type)) {
+            float vf = (float)value;
+            if (amount<0) {
+                do {
+                    vf = previous(vf);
+                } while (++amount != 0);
+            } else {
+                do {
+                    vf = next(vf);
+                } while (--amount != 0);
+            }
+            return vf;
+        }
+        if (isInteger(type)) {
+            return value + amount;
+        }
+        throw new IllegalArgumentException(Resources.format(
+                  ResourceKeys.ERROR_UNSUPPORTED_DATA_TYPE_$1,
+                  Utilities.getShortName(type)));
+    }
+
+    /**
+     * Returns <code>true</code> if the specified <code>type</code> is one of integer types.
+     * Integer types includes {@link Long}, {@link Integer}, {@link Short} and {@link Byte}.
+     *
+     * @param  type The type to test.
+     * @return <code>true</code> if <code>type</code> is the class {@link Long}, {@link Integer},
+     *         {@link Short} or {@link Byte}.
+     */
+    public static boolean isInteger(final Class type) {
+        return Long.class.isAssignableFrom(type) ||
+            Integer.class.isAssignableFrom(type) ||
+              Short.class.isAssignableFrom(type) ||
+               Byte.class.isAssignableFrom(type);
     }
 }

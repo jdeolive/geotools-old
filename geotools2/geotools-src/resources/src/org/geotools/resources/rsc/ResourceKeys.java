@@ -44,4 +44,5 @@ public interface ResourceKeys
     public static final int ERROR_PARSE_EXCEPTION_$2              =    17;
     public static final int ERROR_UNKNOW_PARAMETER_$1             =    18;
     public static final int ERROR_UNPARSABLE_NUMBER_$1            =    19;
+    public static final int ERROR_UNSUPPORTED_DATA_TYPE_$1        =    21;
 }
