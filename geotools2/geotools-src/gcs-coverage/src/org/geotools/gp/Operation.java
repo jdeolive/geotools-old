@@ -64,8 +64,9 @@ import org.geotools.ct.CoordinateTransformationFactory;
 // Resources
 import org.geotools.io.TableWriter;
 import org.geotools.resources.Utilities;
-import org.geotools.resources.gcs.Resources;
+import org.geotools.resources.DescriptorNaming;
 import org.geotools.resources.gcs.ResourceKeys;
+import org.geotools.resources.gcs.Resources;
 
 
 /**
@@ -74,7 +75,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.9 2003/03/30 22:43:41 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.10 2003/04/30 21:58:00 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -291,18 +292,19 @@ public abstract class Operation implements Serializable {
      * different implementations of the same class.
      */
     public int hashCode() {
-        return name.hashCode()*37 + descriptor.hashCode();
+        // Since we should have only one operation registered for each name,
+        // the name hash code should be enough.
+        return name.hashCode();
     }
     
     /**
-     * Compares the specified object with
-     * this operation for equality.
+     * Compares the specified object with this operation for equality.
      */
     public boolean equals(final Object object) {
         if (object!=null && object.getClass().equals(getClass())) {
             final Operation that = (Operation) object;
-            return Utilities.equals(this.name,       that.name) &&
-                   Utilities.equals(this.descriptor, that.descriptor);
+            return        Utilities.equals(this.name,       that.name) &&
+                   DescriptorNaming.equals(this.descriptor, that.descriptor);
         }
         return false;
     }

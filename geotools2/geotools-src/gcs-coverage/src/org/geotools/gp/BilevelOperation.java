@@ -45,14 +45,14 @@ import org.geotools.cs.CoordinateSystem;
  * Wraps any JAI operation producing a bilevel image. An example of such operation is
  * {@link BinarizeDescriptor Binarize}.
  *
- * @version $Id: BilevelOperation.java,v 1.1 2003/04/17 13:57:34 desruisseaux Exp $
+ * @version $Id: BilevelOperation.java,v 1.2 2003/04/30 21:58:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class BilevelOperation extends OperationJAI {
     /**
      * The sample dimension for the resulting image.
      */
-    private final SampleDimension SAMPLE_DIMENSION = new SampleDimension(new Category[] {
+    private static final SampleDimension SAMPLE_DIMENSION = new SampleDimension(new Category[] {
         Category.FALSE,
         Category.TRUE
     }, null);

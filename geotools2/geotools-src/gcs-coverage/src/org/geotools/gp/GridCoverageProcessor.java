@@ -60,11 +60,16 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
+import java.lang.ref.WeakReference;
 import java.awt.RenderingHints;
 
 // Geotools dependencies
+import org.geotools.cv.Coverage;
 import org.geotools.gc.GridCoverage;
 import org.geotools.ct.CoordinateTransformationFactory;
+import org.geotools.util.WeakValueHashMap;
+import org.geotools.resources.DescriptorNaming;
+import org.geotools.resources.Utilities;
 import org.geotools.resources.Arguments;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
@@ -78,14 +83,13 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.21 2003/04/17 13:57:37 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.22 2003/04/30 21:58:00 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
 public class GridCoverageProcessor {
     /**
-     * Augment the amout of memory
-     * allocated for the tile cache.
+     * Augment the amout of memory allocated for the tile cache.
      */
     static {
         final long targetCapacity = 0x4000000; // 64 Mo.
@@ -118,6 +122,13 @@ public class GridCoverageProcessor {
      * This field is usually given as argument to {@link OperationJAI} methods.
      */
     private final RenderingHints hints;
+
+    /**
+     * A set of {@link GridCoverage}s resulting from previous invocations to
+     * {@link #doOperation(Operation,ParameterList)}. Will be used in order
+     * to returns pre-computed images as much as possible.
+     */
+    private final Map cache = new WeakValueHashMap();
     
     /**
      * Construct a grid coverage processor with no operation and using the
@@ -366,8 +377,9 @@ public class GridCoverageProcessor {
      * @return The result as a grid coverage.
      * @throws OperationNotFoundException if there is no operation named <code>operationName</code>.
      */
-    public GridCoverage doOperation(final String operationName, final ParameterList parameters)
-        throws OperationNotFoundException
+    public synchronized GridCoverage doOperation(final String     operationName,
+                                                 final ParameterList parameters)
+            throws OperationNotFoundException
     {
         return doOperation(getOperation(operationName), parameters);
     }
@@ -386,7 +398,21 @@ public class GridCoverageProcessor {
      *         and to modify the returned list.
      * @return The result as a grid coverage.
      */
-    public GridCoverage doOperation(final Operation operation, final ParameterList parameters) {
+    public synchronized GridCoverage doOperation(final Operation     operation,
+                                                 final ParameterList parameters)
+    {
+        /*
+         * Check if the result for this operation is already available in the cache.
+         */
+        final CacheKey cacheKey = new CacheKey(operation, parameters);
+        GridCoverage coverage = (GridCoverage) cache.get(cacheKey);
+        if (coverage != null) {
+            return coverage;
+        }
+        /*
+         * Detects the interpolation type for the source grid coverage.
+         * The same interpolation will be applied on the result.
+         */
         Interpolation[] interpolations = null;
         final String operationName = operation.getName();
         if (!operationName.equalsIgnoreCase("Interpolate")) {
@@ -408,7 +434,10 @@ public class GridCoverageProcessor {
                 }
             }
         }
-        GridCoverage coverage = operation.doOperation(parameters, hints);
+        /*
+         * Apply the operation, apply the same interpolation and log a message.
+         */
+        coverage = operation.doOperation(parameters, hints);
         if (interpolations!=null && coverage!=null && !(coverage instanceof Interpolator)) {
             coverage = Interpolator.create(coverage, interpolations);
         }
@@ -436,8 +465,113 @@ public class GridCoverageProcessor {
             record.setSourceClassName("GridCoverageProcessor");
             record.setSourceMethodName("doOperation");
             Logger.getLogger("org.geotools.gp").log(record);
+            cache.put(cacheKey, coverage);
         }
         return coverage;
+    }
+
+    /**
+     * A {@link Operation}-{@link ParameterList} pair, used by
+     * {@link #doOperation(Operation,ParameterList} for caching the result of operations.
+     * Reusing previous computation outputs should be okay since grid coverage (both the
+     * sources and the result) are immutable by default.
+     *
+     * @task REVISIT: There is a trick issue for grid coverage backed by a writable rendered
+     *                image. The OpenGIS specification allows to change sample values.  What
+     *                should be the semantic for operation using those images as sources?
+     *
+     * @version $Id: GridCoverageProcessor.java,v 1.22 2003/04/30 21:58:00 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     */
+    private static final class CacheKey {
+        /** The operation to apply on grid coverages. */
+        private final Operation operation;
+
+        /** The parameters names, including source grid coverages. */
+        private final String[] names;
+
+        /**The parameters values. {@link Coverage} objects will use weak references. */
+        private final Object[] values;
+
+        /** The hash code value for this key. */
+        private final int hashCode;
+
+        /**
+         * Construct a new key for the specified operation and parameters.
+         *
+         * @param operation  The operation to apply on grid coverages.
+         * @param parameters The parameters, including source grid coverages.
+         */
+        public CacheKey(final Operation operation, final ParameterList parameters) {
+            this.operation = operation;
+            int hashCode = operation.hashCode();
+            names = parameters.getParameterListDescriptor().getParamNames();
+            if (names != null) {
+                values = new Object[names.length];
+                for (int i=0; i<names.length; i++) {
+                    try {
+                        values[i] = parameters.getObjectParameter(names[i]);
+                        if (values[i] instanceof Coverage) {
+                            values[i] = new Ref(values[i]);
+                        }
+                    } catch (IllegalStateException exception) {
+                        // Parameter not set. This is not really an error.
+                        values[i] = ParameterListDescriptor.NO_PARAMETER_DEFAULT;
+                    }
+                }
+            } else {
+                values = null;
+            }
+            this.hashCode = hashCode;
+        }
+
+        /**
+         * Returns a hash code value for this key.
+         */
+        public int hashCode() {
+            return hashCode;
+        }
+
+        /**
+         * A weak reference for coverages referenced in {@link CacheKey} objects. This
+         * reference overrides the {@link #equals} method  in order to make it possible for
+         * {@link Arrays#equals(Object[],Object[])} to compare referenced values instead of
+         * the reference itself. The cache will not work without this feature...  Note that
+         * the {@link #equals} method is inconsistent with {@link #hashCode}. It should not
+         * be a problem since this reference is used in an array only.   It should never be
+         * visible outside {@link CacheKey}.
+         */
+        private static final class Ref extends WeakReference {
+            /**
+             * Constructs a new reference for the specified object.
+             */
+            public Ref(final Object coverage) {
+                super(coverage);
+            }
+
+            /**
+             * Compares the specified object with this reference for equality.
+             */
+            public boolean equals(final Object object) {
+                if (object instanceof Ref) {
+                    return Utilities.equals(get(), ((Ref)object).get());
+                }
+                return false;
+            }
+        }
+    
+        /**
+         * Compares the specified object with this key for equality.
+         */
+        public boolean equals(final Object object) {
+            if (object instanceof CacheKey) {
+                final CacheKey that = (CacheKey) object;
+                return Utilities.equals(this.operation,  that.operation) &&
+                          Arrays.equals(this.names,      that.names)     &&
+                          Arrays.equals(this.values,     that.values);
+            }
+            return false;
+        }
     }
     
     /**

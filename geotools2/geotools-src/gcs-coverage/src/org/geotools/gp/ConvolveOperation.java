@@ -42,10 +42,11 @@ import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
 import javax.media.jai.util.Range;
 
-// OpenGIS dependencies
+// Geotools dependencies
 import org.geotools.cv.Category;
 import org.geotools.gc.GridCoverage;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.resources.Utilities;
 
 
 /**
@@ -53,7 +54,7 @@ import org.geotools.cs.CoordinateSystem;
  * "Convolve". It includes the OpenGIS "LaplaceType1Filter" and "LaplaceType2Filter"
  * operations.
  *
- * @version $Id: ConvolveOperation.java,v 1.1 2003/03/30 22:43:40 desruisseaux Exp $
+ * @version $Id: ConvolveOperation.java,v 1.2 2003/04/30 21:58:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ConvolveOperation extends OperationJAI {
@@ -217,5 +218,20 @@ final class ConvolveOperation extends OperationJAI {
             return category.geophysics(isGeophysics);
         }
         return category;
+    }
+    
+    /**
+     * Compares the specified object with this operation for equality.
+     */
+    public boolean equals(final Object object) {
+        if (object == this) {
+            // Slight optimisation
+            return true;
+        }
+        if (super.equals(object)) {
+            final ConvolveOperation that = (ConvolveOperation) object;
+            return Utilities.equals(this.kernel, that.kernel);
+        }
+        return false;
     }
 }

@@ -95,7 +95,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.16 2003/04/17 14:52:02 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.17 2003/04/30 21:58:01 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -617,5 +617,20 @@ public class OperationJAI extends Operation {
                               final ParameterList parameters)
     {
         return null;
+    }
+    
+    /**
+     * Compares the specified object with this operation for equality.
+     */
+    public boolean equals(final Object object) {
+        if (object == this) {
+            // Slight optimisation
+            return true;
+        }
+        if (super.equals(object)) {
+            final OperationJAI that = (OperationJAI) object;
+            return Utilities.equals(this.descriptor, that.descriptor);
+        }
+        return false;
     }
 }
