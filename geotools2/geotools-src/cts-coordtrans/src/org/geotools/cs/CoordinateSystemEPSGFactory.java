@@ -120,7 +120,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.11 2003/02/26 12:04:01 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.12 2003/05/12 22:25:08 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -267,6 +267,23 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     }
 
     /**
+     * Invoked when a new {@link PreparedStatement} is about to be created from a SQL string.
+     * Since the <A HREF="http://www.espg.org">EPSG database</A> is available only in MS-Access
+     * format, SQL statements are formatted using some syntax specific to this particular database
+     * software (for example &quot;<code>SELECT * FROM [Coordinate Reference System]</code>&quot;).
+     * If a port of EPSG database is to be used with an other software, then this method should be
+     * overriden in order to adapt the SQL syntax. For example a subclass connecting to a
+     * <cite>PostgreeSQL</cite> database could replace all spaces (&quot;&nbsp;&quot;) between
+     * watching braces (&quot;[&quot; and &quot;]&quot;) by underscore (&quot;_&quot;).
+     *
+     * @param  statement The statement in MS-Access syntax.
+     * @return The SQL statement to use. The default implementation returns the string unchanged.
+     */
+    protected String adaptSQL(final String statement) {
+        return statement;
+    }
+
+    /**
      * Returns the authority name, which is <code>"EPSG"</code>.
      */
     public String getAuthority() {
@@ -281,14 +298,11 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * @return The connection to the EPSG database.
      * @throws SQLException if the connection can't be etablished.
      */
-    private static Connection getConnection(final String url, String driver) throws SQLException
-    {
+    private static Connection getConnection(final String url, String driver) throws SQLException {
         Info.ensureNonNull("url", url);
-        if (driver!=null)
-        {
+        if (driver != null) {
             LogRecord record;
-            try
-            {
+            try {
                 final Driver drv = (Driver)Class.forName(driver).newInstance();
                 record = Resources.getResources(null).getLogRecord(Level.CONFIG,
                                             ResourceKeys.LOADED_JDBC_DRIVER_$3);
@@ -327,7 +341,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         assert Thread.holdsLock(this);
         PreparedStatement stmt = (PreparedStatement) statements.get(key);
         if (stmt == null) {
-            stmt = connection.prepareStatement(sql);
+            stmt = connection.prepareStatement(adaptSQL(sql));
             statements.put(key, stmt);
         }
         return stmt;
