@@ -51,7 +51,7 @@ import org.geotools.resources.Utilities;
  * where the X axis points towards the Greenwich Prime Meridian, the Y axis
  * points East, and the Z axis points North.
  *
- * @version $Id: WGS84ConversionInfo.java,v 1.7 2004/04/05 03:48:01 desruisseaux Exp $
+ * @version $Id: WGS84ConversionInfo.java,v 1.8 2004/04/10 02:08:41 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -93,85 +93,6 @@ public class WGS84ConversionInfo implements Cloneable, Serializable {
     public WGS84ConversionInfo() {
     }
 
-    /**
-     * Concatenates Bursa Wolf parameters <var><b>f</b></var> to this set of parameters.
-     * When <code>WGS84ConversionInfo</code> objects are {@linkplain #getAffineTransform
-     * exposed as affine transforms}, transforming a point <var>p</var> by the combined
-     * transform is equivalent to first transforming <var>p</var> by <var><b>f</b></var>
-     * and then transforming the result by <code>this</code>. In matrix notation, this
-     * method does the following:
-     * <br><br>
-     * <center><code>[combined] = [this] x [f]</code></center>
-     * <br><br>
-     * The matrix multiplication result may not fit in a <code>WGS84ConversionInfo</code>
-     * object. Consequently, <strong>this method computes an approximation valid only if
-     * the rotation angles are small</strong>. More specifically, for all expressions of
-     * the form &theta;+&theta;<sup>2</sup> (in radians), the &theta;<sup>2</sup> term is
-     * dropped. If an exact concatenation is wanted, then the following must be used instead:
-     * <br><br>
-     * <pre>Matrix c = {@linkplain #getAffineTransform() getAffineTransform()};
-     * c.{@linkplain GMatrix#mul(GMatrix) mul}(f.getAffineTransform())</pre>
-     *
-     * @param  The Bursa Wolf parameters to concatenate to this one.
-     * @return The combined Bursa Wolf parameters.
-     */
-    final WGS84ConversionInfo approximativeConcatenate(final WGS84ConversionInfo f) {
-        /*
-         * Result of matrix multiplication.  The left column is the destination
-         * term. A term may be defined up to 3 times, and those definitions may
-         * not be consistent (i.e., the result of a matrix multiplication can't
-         * be retrofited in a WGS84ConversionInfo object in all cases). However,
-         * expressions are close to the form A+A² where A is some rotation angle
-         * in radians, and the disagrement always appears in the A² term. This
-         * term can be dropped if |A| << 1 (typical values are below 1E-4).
-         *
-         *      S:       S*f.S           + -ez*RS*f.ez*f.RS + -ey*RS*f.ey*f.RS
-         * -ez*RS:      -S*f.ez*f.RS     + -ez*RS*f.S       +  ey*RS*f.ex*f.RS
-         * +ey*RS:       S*f.ey*f.RS     +  ez*RS*f.ex*f.RS +  ey*RS*f.S
-         *     dx:       S*f.dx          + -ez*RS*f.dy      +  ey*RS*f.dz       + dx
-         *
-         * +ez*RS:       ez*RS*f.S       +  S*f.ez*f.RS     +  ex*RS*f.ey*f.RS
-         *      S:      -ez*RS*f.ez*f.RS +  S*f.S           + -ex*RS*f.ex*f.RS
-         * -ex*RS:       ez*RS*f.ey*f.RS + -S*f.ex*f.RS     + -ex*RS*f.S
-         *     dy:       ez*RS*f.dx      +  S*f.dy          + -ex*RS*f.dz       + dy
-         *
-         * -ey*RS:      -ey*RS*f.S       +  ex*RS*f.ez*f.RS + -S*f.ey*f.RS
-         * +ex*RS:       ey*RS*f.ez*f.RS +  ex*RS*f.S       +  S*f.ex*f.RS
-         *      S:      -ey*RS*f.ey*f.RS + -ex*RS*f.ex*f.RS +  S*f.S
-         *     dz:      -ey*RS*f.dx      +  ex*RS*f.dy      +  S*f.dz           + dz
-         */
-        final WGS84ConversionInfo c = new WGS84ConversionInfo();
-        double errorX, errorY, errorZ;
-
-        final double R  = Math.PI/(180*3600); // Arc seconds to radians
-        final double S  = 1 + ppm/1E+6;
-        final double S1 = 1 - (ez*f.ez + ey*f.ey)*(R*R);
-        final double S2 = 1 - (ez*f.ez + ex*f.ex)*(R*R);
-        final double S3 = 1 - (ey*f.ey + ex*f.ex)*(R*R);
-
-        c.ppm = ppm + S*f.ppm;
-
-        double t1, t2;
-        errorZ  = Math.abs(t1 =  0.5*(ey*f.ez));
-        errorY  = Math.abs(t2 = -0.5*(ez*f.ey));
-        c.ex    = R*(t1+t2) + (ex + f.ex);
-
-        errorX  = Math.abs(t1 =  0.5*(ez*f.ex));
-        errorZ += Math.abs(t2 = -0.5*(ex*f.ez));
-        c.ey    = R*(t1+t2) + (ey + f.ey);
-
-        errorY += Math.abs(t1 =  0.5*(ex*f.ey));
-        errorX += Math.abs(t2 = -0.5*(ey*f.ex));
-        c.ez    = R*(t1+t2) + (ez + f.ez);
-
-        // Translation terms: no approximation there.
-        c.dx = dx + S*(f.dx  + R*(f.dz*ey - f.dy*ez));
-        c.dy = dy + S*(f.dy  + R*(f.dx*ez - f.dz*ex));
-        c.dz = dz + S*(f.dz  + R*(f.dy*ex - f.dx*ey));
-
-        return c;
-    }
-    
     /**
      * Returns an affine maps that can be used to define this
      * Bursa Wolf transformation. The formula is as follows:
