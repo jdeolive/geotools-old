@@ -55,10 +55,10 @@ import org.geotools.resources.cts.ResourceKeys;
  * Type of the datum expressed as an enumerated value.
  * The enumeration is split into ranges which indicate the datum's type.
  * The value should be one of the predefined values, or within the range
- * for local types. This will allow OpenGIS Consortium to coordinate the
+ * for local types. This will allow the OpenGIS Consortium to coordinate the
  * addition of new interoperable codes.
  *
- * @version 1.00
+ * @version $Id: DatumType.java,v 1.3 2002/06/05 15:25:37 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -83,11 +83,11 @@ public abstract class DatumType extends EnumeratedParameter {
     
     /**
      * A geocentric datum is a "satellite age" modern geodetic datum
-     * mainly of global extent, such as WGS84 (used in GPS), PZ90 (used in GLONASS) and
-     * ITRF. These datums were designed to support both a horizontal
-     * component of position and a vertical component of position (through
-     * ellipsoidal heights).  The regional realizations of ITRF, such as
-     * ETRF, are also included in this category.
+     * mainly of global extent, such as WGS84 (used in GPS),
+     * PZ90 (used in GLONASS) and ITRF. These datums were designed to
+     * support both a horizontal component of position and a vertical
+     * component of position (through ellipsoidal heights).  The regional
+     * realizations of ITRF, such as ETRF, are also included in this category.
      *
      * @see org.opengis.cs.CS_DatumType#CS_HD_Geocentric
      */
@@ -154,19 +154,23 @@ public abstract class DatumType extends EnumeratedParameter {
     
     /**
      * A temporal datum for Universal Time (UTC).
-     * UTC is based on an atomic clock, while GMT is based on astronomical observations.
+     * UTC is based on an atomic clock, while GMT is based on astronomical
+     * observations.
      * <br><br>
-     * <strong>Note: This enum is not part of OpenGIS specification. It may change
-     *         in incompatible way if OpenGIS define an equivalent enum.</strong>
+     * <strong>Note: This enum is not part of OpenGIS specification. It may
+     *         change in an incompatible way if OpenGIS define an equivalent
+     *         enum.</strong>
      */
     public static final Temporal UTC = new Temporal("UTC", 3001, ResourceKeys.UTC);
     
     /**
      * A temporal datum for Greenwich Mean Time (GMT).
-     * GMT is based on astronomical observations, while UTC is based on an atomic clock.
+     * GMT is based on astronomical observations, while UTC is based on an
+     * atomic clock.
      * <br><br>
-     * <strong>Note: This enum is not part of OpenGIS specification. It may change
-     *         in incompatible way if OpenGIS define an equivalent enum.</strong>
+     * <strong>Note: This enum is not part of OpenGIS specification. It may
+     *         change in an incompatible way if OpenGIS define an equivalent
+     *         enum.</strong>
      */
     public static final Temporal GMT = new Temporal("GMT", 3002, ResourceKeys.GMT);
     
@@ -190,14 +194,15 @@ public abstract class DatumType extends EnumeratedParameter {
     
     /**
      * Resource key, used for building localized name. This key doesn't need to
-     * be serialized, since {@link #readResolve} canonicalize enums according their
-     * {@link #value}. Furthermore, its value is implementation-dependent (which is
-     * an other raison why it should not be serialized).
+     * be serialized, since {@link #readResolve} canonicalize enums according
+     * to their {@link #value}. Furthermore, its value is
+     * implementation-dependent (which is another reason why it should not
+     * be serialized).
      */
     private transient final int key;
     
     /**
-     * Construct a new enum with the specified value.
+     * Constructs a new enum with the specified value.
      */
     private DatumType(final String name, final int value, final int key) {
         super(name, value);
@@ -208,7 +213,7 @@ public abstract class DatumType extends EnumeratedParameter {
     }
     
     /**
-     * Return the enum for the specified value.
+     * Returns the enum for the specified value.
      *
      * @param  value The enum value.
      * @return The enum for the specified value.
@@ -242,22 +247,22 @@ public abstract class DatumType extends EnumeratedParameter {
     abstract boolean isCompatibleOrientation(final AxisOrientation orientation);
     
     /**
-     * Get the minimum value.
+     * Gets the minimum value.
      */
     abstract int getMinimum();
     
     /**
-     * Get the maximum value.
+     * Gets the maximum value.
      */
     abstract int getMaximum();
     
     /**
-     * Return the type key.
+     * Returns the type key.
      */
     abstract int getTypeKey();
     
     /**
-     * Return the type name in the specified locale.
+     * Returns the type name in the specified locale.
      * Type may be "Horizontal", "Vertical", "Temporal" or "Local".
      */
     public String getType(final Locale locale) {
@@ -266,7 +271,8 @@ public abstract class DatumType extends EnumeratedParameter {
     
     /**
      * Returns this enum's name in the specified locale.
-     * If no name is available for the specified locale, a default one will be used.
+     * If no name is available for the specified locale, a default one will
+     * be used.
      *
      * @param  locale The locale, or <code>null</code> for the default locale.
      * @return Enum's name in the specified locale.
@@ -283,9 +289,9 @@ public abstract class DatumType extends EnumeratedParameter {
     }
 
     /**
-     * Compare this <code>DatumType</code> with the specified object for equality.
-     * Two datum types are equals if and only they are of same class and have the
-     * same enum value.
+     * Compare this <code>DatumType</code> with the specified object for
+     * equality.  Two datum types are equals if, and only if, they are of
+     * the same class and have the same enum value.
      */
     public boolean equals(final Object obj) {
         if (obj!=null && obj.getClass().equals(getClass())) {
@@ -296,12 +302,12 @@ public abstract class DatumType extends EnumeratedParameter {
     }
     
     /**
-     * Use a single instance of {@link DatumType} after deserialization.
-     * It allow client code to test <code>enum1==enum2</code> instead of
+     * Uses a single instance of {@link DatumType} after deserialization.
+     * It allows client code to test <code>enum1==enum2</code> instead of
      * <code>enum1.equals(enum2)</code>.
      *
      * @return A single instance of this enum.
-     * @throws ObjectStreamException is deserialization failed.
+     * @throws ObjectStreamException is deserialization fails.
      */
     private Object readResolve() throws ObjectStreamException {
         return getEnum(getValue());
@@ -309,9 +315,6 @@ public abstract class DatumType extends EnumeratedParameter {
     
     /**
      * Horizontal datum type.
-     *
-     * @version 1.00
-     * @author Martin Desruisseaux
      *
      * @see org.opengis.cs.CS_DatumType
      */
@@ -345,7 +348,7 @@ public abstract class DatumType extends EnumeratedParameter {
         public static final Horizontal OTHER = new Horizontal("OTHER", CS_DatumType.CS_HD_Other, ResourceKeys.OTHER);
         
         /**
-         * Construct a new enum with the specified value.
+         * Constructs a new enum with the specified value.
          */
         private Horizontal(final String name, final int value, final int key) {
             super(name, value, key);
@@ -363,16 +366,13 @@ public abstract class DatumType extends EnumeratedParameter {
             AxisOrientation.WEST .equals(orientation);
         }
         
-        /** Get the minimum value. */ final int getMinimum() {return MINIMUM;}
-        /** Get the maximum value. */ final int getMaximum() {return MAXIMUM;}
-        /** Return the type key.   */ final int getTypeKey() {return ResourceKeys.HORIZONTAL;}
+        /** Gets the minimum value. */ final int getMinimum() {return MINIMUM;}
+        /** Gets the maximum value. */ final int getMaximum() {return MAXIMUM;}
+        /** Returns the type key.   */ final int getTypeKey() {return ResourceKeys.HORIZONTAL;}
     }
     
     /**
      * Vertical datum type.
-     *
-     * @version 1.00
-     * @author Martin Desruisseaux
      *
      * @see org.opengis.cs.CS_DatumType
      */
@@ -404,7 +404,7 @@ public abstract class DatumType extends EnumeratedParameter {
         public static final Vertical OTHER = new Vertical("OTHER", CS_DatumType.CS_VD_Other, ResourceKeys.OTHER);
         
         /**
-         * Construct a new enum with the specified value.
+         * Constructs a new enum with the specified value.
          */
         private Vertical(final String name, final int value, final int key) {
             super(name, value, key);
@@ -419,16 +419,13 @@ public abstract class DatumType extends EnumeratedParameter {
                    AxisOrientation.DOWN.equals(orientation);
         }
         
-        /** Get the minimum value. */ final int getMinimum() {return MINIMUM;}
-        /** Get the maximum value. */ final int getMaximum() {return MAXIMUM;}
-        /** Return the type key.   */ final int getTypeKey() {return ResourceKeys.VERTICAL;}
+        /** Gets the minimum value. */ final int getMinimum() {return MINIMUM;}
+        /** Gets the maximum value. */ final int getMaximum() {return MAXIMUM;}
+        /** Returns the type key.   */ final int getTypeKey() {return ResourceKeys.VERTICAL;}
     }
     
     /**
      * Temporal datum type.
-     *
-     * @version 1.00
-     * @author Martin Desruisseaux
      */
     public static final class Temporal extends DatumType {
         /**
@@ -439,25 +436,27 @@ public abstract class DatumType extends EnumeratedParameter {
         /**
          * Lowest possible value for temporal datum types.
          * <br><br>
-         * <strong>Note: Temporal enums are not part of OpenGIS specification.  The
-         *               <code>MINIMUM</code>  "constant"  may change in the future
-         *               if OpenGIS defines an equivalent datum type. If this value
-         *               change, developpers will have to recompile their code.</strong>
+         * <strong>Note: Temporal enums are not part of OpenGIS specification.
+         *               The <code>MINIMUM</code> "constant" may change in the
+         *               future if OpenGIS defines an equivalent datum type.
+         *               If this value changes, developers will have to
+         *               recompile their code.</strong>
          */
         public static final int MINIMUM = 3000;
         
         /**
          * Highest possible value for temporal datum types.
          * <br><br>
-         * <strong>Note: Temporal enums are not part of OpenGIS specification.  The
-         *               <code>MAXIMUM</code>  "constant"  may change in the future
-         *               if OpenGIS defines an equivalent datum type. If this value
-         *               change, developpers will have to recompile their code.</strong>
+         * <strong>Note: Temporal enums are not part of OpenGIS specification.
+         *               The <code>MAXIMUM</code> "constant" may change in the
+         *               future if OpenGIS defines an equivalent datum type.
+         *               If this value changes, developers will have to
+         *               recompile their code.</strong>
          */
         public static final int MAXIMUM = 3999;
         
         /**
-         * Construct a new enum with the specified value.
+         * Constructs a new enum with the specified value.
          */
         private Temporal(final String name, final int value, final int key) {
             super(name, value, key);
@@ -472,16 +471,13 @@ public abstract class DatumType extends EnumeratedParameter {
                    AxisOrientation.PAST  .equals(orientation);
         }
         
-        /** Get the minimum value. */ final int getMinimum() {return MINIMUM;}
-        /** Get the maximum value. */ final int getMaximum() {return MAXIMUM;}
-        /** Return the type key.   */ final int getTypeKey() {return ResourceKeys.TEMPORAL;}
+        /** Gets the minimum value. */ final int getMinimum() {return MINIMUM;}
+        /** Gets the maximum value. */ final int getMaximum() {return MAXIMUM;}
+        /** Returns the type key.   */ final int getTypeKey() {return ResourceKeys.TEMPORAL;}
     }
     
     /**
      * Local datum type.
-     *
-     * @version 1.00
-     * @author Martin Desruisseaux
      *
      * @see org.opengis.cs.CS_DatumType
      */
@@ -506,7 +502,7 @@ public abstract class DatumType extends EnumeratedParameter {
         public static final int MAXIMUM = CS_DatumType.CS_LD_Max;
         
         /**
-         * Construct a new enum with the specified value.
+         * Constructs a new enum with the specified value.
          */
         private Local(final String name, final int value, final int key) {
             super(name, value, key);
@@ -520,8 +516,8 @@ public abstract class DatumType extends EnumeratedParameter {
             return true;
         }
         
-        /** Get the minimum value. */ final int getMinimum() {return MINIMUM;}
-        /** Get the maximum value. */ final int getMaximum() {return MAXIMUM;}
-        /** Return the type key.   */ final int getTypeKey() {return ResourceKeys.LOCAL;}
+        /** Gets the minimum value. */ final int getMinimum() {return MINIMUM;}
+        /** Gets the maximum value. */ final int getMaximum() {return MAXIMUM;}
+        /** Returns the type key.   */ final int getTypeKey() {return ResourceKeys.LOCAL;}
     }
 }
