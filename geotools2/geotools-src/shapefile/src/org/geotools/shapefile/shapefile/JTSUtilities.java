@@ -106,6 +106,20 @@ public class JTSUtilities {
     return ShapeType.UNDEFINED;
   }
   
+  public static final Class findBestGeometryClass(ShapeType type) {
+    if (type == null || type == ShapeType.NULL)
+      return Geometry.class;
+    if (type.isLineType())
+      return MultiLineString.class;
+    if (type.isMultiPointType())
+      return MultiPoint.class;
+    if (type.isPointType())
+      return Point.class;
+    if (type.isPolygonType())
+      return MultiPolygon.class;
+    throw new RuntimeException("Unknown ShapeType->GeometryClass : " + type);
+  }
+  
   /** Does what it says, reverses the order of the Coordinates in the ring.
    * @param lr The ring to reverse.
    * @return A new ring with the reversed Coordinates.
