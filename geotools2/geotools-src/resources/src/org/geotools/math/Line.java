@@ -52,7 +52,7 @@ import java.io.Serializable;
  * can be computed for a given <var>x</var> value using the {@link #y} method. Method
  * {@link #x} compute the converse and should work even if the line is vertical.
  *
- * @version $Id: Line.java,v 1.2 2003/02/04 15:03:23 desruisseaux Exp $
+ * @version $Id: Line.java,v 1.3 2003/02/05 22:56:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Point2D
@@ -133,7 +133,6 @@ public class Line implements Cloneable, Serializable {
      * @param line ligne dont on veut l'équation.
      *
      * @see #setLine(Point2D,Point2D)
-     * @see #setLine(double,double,double,double)
      */
     public void setLine(final Line2D line) {
         setLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
@@ -147,7 +146,6 @@ public class Line implements Cloneable, Serializable {
      * @param p2 Coordonnées du deuxième point.
      *
      * @see #setLine(Line2D)
-     * @see #setLine(double,double,double,double)
      */
     public void setLine(final Point2D p1, final Point2D p2) {
         setLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());

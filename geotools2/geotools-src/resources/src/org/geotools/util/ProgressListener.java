@@ -52,7 +52,7 @@ import org.geotools.resources.Utilities;
  * for performing lenghtly operation in a background thread. Example:
  *
  * <blockquote><pre>
- * &nbsp;ProgressListener p = new {@link PrintProgress}();
+ * &nbsp;ProgressListener p = new {@link org.geotools.gui.headless.ProgressPrinter}();
  * &nbsp;p.setDecription("Loading data");
  * &nbsp;p.start();
  * &nbsp;for (int j=0; j&lt;1000; j++) {
@@ -67,7 +67,7 @@ import org.geotools.resources.Utilities;
  * is used for reducing the amount of calls to {@link #progress} (only once every 256 steps).
  * This is not mandatory, but may speed up the process.
  *
- * @version $Id: ProgressListener.java,v 1.1 2003/02/03 15:30:14 desruisseaux Exp $
+ * @version $Id: ProgressListener.java,v 1.2 2003/02/05 22:56:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gui.headless.ProgressPrinter

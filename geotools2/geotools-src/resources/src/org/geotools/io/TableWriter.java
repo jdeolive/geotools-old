@@ -44,6 +44,7 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 import javax.swing.text.StyleConstants;
 
@@ -82,7 +83,7 @@ import org.geotools.resources.Utilities;
  *      Yvan        Dubois
  * </pre></blockquote>
  *
- * @version $Id: TableWriter.java,v 1.2 2003/01/09 21:41:48 desruisseaux Exp $
+ * @version $Id: TableWriter.java,v 1.3 2003/02/05 22:56:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TableWriter extends FilterWriter {
@@ -371,6 +372,37 @@ public class TableWriter extends FilterWriter {
     public boolean isMultiLinesCells() {
         synchronized (lock) {
             return multiLinesCells;
+        }
+    }
+
+    /**
+     * Set the alignment for all cells in the specified column. This method
+     * overwrite the alignment for all previous cells in the specified column.
+     *
+     * @param column The 0-based column number.
+     * @param alignment Cell alignment. Must be {@link #ALIGN_LEFT}
+     *        {@link #ALIGN_RIGHT} or {@link #ALIGN_CENTER}.
+     */
+    public void setColumnAlignment(final int column, final int alignment) {
+        if (alignment != ALIGN_LEFT  &&
+            alignment != ALIGN_RIGHT &&
+            alignment != ALIGN_CENTER)
+        {
+            throw new IllegalArgumentException(String.valueOf(alignment));
+        }
+        synchronized (lock) {
+            int current = 0;
+            for (final Iterator it=cells.iterator(); it.hasNext();) {
+                final Cell cell = (Cell) it.next();
+                if (cell==null || cell.text==null) {
+                    current = 0;
+                    continue;
+                }
+                if (current == column) {
+                    cell.alignment = alignment;
+                }
+                current++;
+            }
         }
     }
 
@@ -910,7 +942,7 @@ public class TableWriter extends FilterWriter {
      * A class wrapping a cell's content and its text's alignment.
      * This class if for internal use only.
      *
-     * @version 1.0
+     * @version $Id: TableWriter.java,v 1.3 2003/02/05 22:56:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Cell {
@@ -922,7 +954,7 @@ public class TableWriter extends FilterWriter {
         /**
          * The alignment for {@link #text} inside the cell.
          */
-        public final int alignment;
+        public int alignment;
 
         /**
          * The fill character, used for filling

@@ -63,7 +63,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * System.out.println(stats);
  * </pre></blockquote>
  *
- * @version $Id: Statistics.java,v 1.1 2003/02/04 12:30:18 desruisseaux Exp $
+ * @version $Id: Statistics.java,v 1.2 2003/02/05 22:56:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Statistics implements Cloneable, Serializable {
@@ -233,8 +233,8 @@ public class Statistics implements Cloneable, Serializable {
 
     /**
      * Returns the range of sample values. This is equivalent to <code>{@link #maximum maximum} -
-     * {@link #minimum minimum}, except for rounding error. If no samples were added, then returns
-     * {@link Double#NaN NaN}.
+     * {@link #minimum minimum}</code>, except for rounding error. If no samples were added,
+     * then returns {@link Double#NaN NaN}.
      *
      * @see #minimum
      * @see #maximum
@@ -359,8 +359,9 @@ public class Statistics implements Cloneable, Serializable {
                 new Double (standardDeviation(false))
         });
         if (!tabulations) {
-            final TableWriter tmp = new TableWriter(null);
+            final TableWriter tmp = new TableWriter(null, 1);
             tmp.write(text);
+            tmp.setColumnAlignment(1, TableWriter.ALIGN_RIGHT);
             text = tmp.toString();
         }
         return text;
@@ -376,7 +377,7 @@ public class Statistics implements Cloneable, Serializable {
      * <var>s<sub>3</sub></var>-<var>s<sub>2</sub></var>...,
      * which are stored in a {@link #getDeltaStatistics delta} statistics object.
      *
-     * @version $Id: Statistics.java,v 1.1 2003/02/04 12:30:18 desruisseaux Exp $
+     * @version $Id: Statistics.java,v 1.2 2003/02/05 22:56:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Delta extends Statistics {

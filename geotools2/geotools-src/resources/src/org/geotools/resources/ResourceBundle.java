@@ -69,10 +69,15 @@ import java.util.logging.LogRecord;
  * declarative interface is never loaded at run time. This class also
  * provides facilities for string formatting using {@link MessageFormat}.
  *
- * @version $Id: ResourceBundle.java,v 1.4 2002/08/20 21:51:50 desruisseaux Exp $
+ * @version $Id: ResourceBundle.java,v 1.5 2003/02/05 22:56:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ResourceBundle extends java.util.ResourceBundle {
+    /**
+     * The logger for reporting resources loading.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.resources");
+
     /**
      * Maximum string length for text inserted into another text.
      * This parameter is used by {@link #summarize}. Resource strings
@@ -140,9 +145,9 @@ public class ResourceBundle extends java.util.ResourceBundle {
      * @param  out The destination stream.
      * @throws IOException if an output operation failed.
      */
-    public final synchronized void list(final Writer out) throws IOException {
-        ensureLoaded(null);
-        list(out, 0, values.length);
+    public final void list(final Writer out) throws IOException {
+        // Synchronization performed by 'ensureLoaded'
+        list(out, ensureLoaded(null));
     }
 
     /**
@@ -150,14 +155,13 @@ public class ResourceBundle extends java.util.ResourceBundle {
      * more than one line, only the first line will be written.
      * This method is used mostly for debugging purposes.
      *
-     * @param  out   The destination stream.
-     * @param  lower The beginning index (inclusive).
-     * @param  upper The ending index (exclusive).
+     * @param  out    The destination stream.
+     * @param  values The resources to list.
      * @throws IOException if an output operation failed.
      */
-    private void list(final Writer out, int lower, int upper) throws IOException {
-        final String lineSeparator=System.getProperty("line.separator", "\n");
-        for (int i=lower; i<upper; i++) {
+    private static void list(final Writer out, final String[] values) throws IOException {
+        final String lineSeparator = System.getProperty("line.separator", "\n");
+        for (int i=0; i<values.length; i++) {
             String value = values[i];
             if (value==null) continue;
             int indexCR=value.indexOf('\r'); if (indexCR<0) indexCR=value.length();
@@ -176,56 +180,60 @@ public class ResourceBundle extends java.util.ResourceBundle {
      * If they are not, load them immediately.
      *
      * @param  key Key for the requested resource, or <code>null</code>
-     * if all resources are requested. This key is used mostly for constructing
-     * messages.
+     *         if all resources are requested. This key is used mostly
+     *         for constructing messages.
+     * @return The resources.
      * @throws MissingResourceException if this method failed to load resources.
      */
-    private void ensureLoaded(final String key) throws MissingResourceException {
-        if (values!=null) {
-            return;
-        }
-        /*
-         * Prepares a log record. We will wait for successful loading before
-         * posting this record.  If loading fails, the record will be changed
-         * into an error record.
-         */
-        final Logger    logger;
-        final LogRecord record;
-        logger = Logger.getLogger("org.geotools.resources");
-        record = new LogRecord(Level.FINER, "Loaded resources for {0} from bundle \"{1}\".");
-        record.setSourceClassName (getClass().getName());
-        record.setSourceMethodName((key!=null) ? "getObject" : "getKeys");
+    private String[] ensureLoaded(final String key) throws MissingResourceException {
+        LogRecord record = null;
         try {
-            /*
-             * Load resources from the UTF file.
-             */
-            final InputStream in = getClass().getClassLoader().getResourceAsStream(filename);
-            if (in==null) {
-                throw new FileNotFoundException(filename);
+            String[] values;
+            synchronized (this) {
+                values = this.values;
+                if (values != null) {
+                    return values;
+                }
+                /*
+                 * Prepares a log record.  We will wait for successful loading before
+                 * posting this record.  If loading fails, the record will be changed
+                 * into an error record. Note that the message must be logged outside
+                 * the synchronized block, otherwise there is dead locks!
+                 */
+                record= new LogRecord(Level.FINER, "Loaded resources for {0} from bundle \"{1}\".");
+                record.setSourceClassName (getClass().getName());
+                record.setSourceMethodName((key!=null) ? "getObject" : "getKeys");
+                /*
+                 * Load resources from the UTF file.
+                 */
+                final InputStream in = getClass().getClassLoader().getResourceAsStream(filename);
+                if (in == null) {
+                    throw new FileNotFoundException(filename);
+                }
+                final DataInputStream input = new DataInputStream(new BufferedInputStream(in));
+                this.values = values = new String[input.readInt()];
+                for (int i=0; i<values.length; i++) {
+                    values[i] = input.readUTF();
+                    if (values[i].length() == 0)
+                        values[i] = null;
+                }
+                input.close();
+                /*
+                 * Now, log the message. This message is not localized.
+                 */
+                String language = getLocale().getDisplayName(Locale.US);
+                if (language==null || language.length()==0) {
+                    language="<default>";
+                }
+                record.setParameters(new String[]{language, getPackageName()});
             }
-            final DataInputStream input=new DataInputStream(new BufferedInputStream(in));
-            values = new String[input.readInt()];
-            for (int i=0; i<values.length; i++) {
-                values[i] = input.readUTF();
-                if (values[i].length()==0)
-                    values[i]=null;
-            }
-            input.close();
-            /*
-             * Now, log the message. This message is not localized.
-             */
-            String language = getLocale().getDisplayName(Locale.US);
-            if (language==null || language.length()==0) {
-                language="<default>";
-            }
-            record.setParameters(new String[]{language, getPackageName()});
-            logger.log(record);
+            LOGGER.log(record);
+            return values;
         } catch (IOException exception) {
             record.setLevel  (Level.WARNING);
             record.setMessage(exception.getLocalizedMessage());
             record.setThrown (exception);
-            logger.log(record);
-
+            LOGGER.log(record);
             final MissingResourceException error = new MissingResourceException(
                     exception.getLocalizedMessage(), getClass().getName(), key);
             error.initCause(exception);
@@ -236,8 +244,9 @@ public class ResourceBundle extends java.util.ResourceBundle {
     /**
      * Returns an enumeration of the keys.
      */
-    public final synchronized Enumeration getKeys() {
-        ensureLoaded(null);
+    public final Enumeration getKeys() {
+        // Synchronization performed by 'ensureLoaded'
+        final String[] values = ensureLoaded(null);
         return new Enumeration() {
             private int i=0;
 
@@ -268,11 +277,12 @@ public class ResourceBundle extends java.util.ResourceBundle {
      * @exception NullPointerException if <code>key</code> is <code>null</code>
      * @return the object for the given key, or null
      */
-    protected final synchronized Object handleGetObject(final String key) {
-        ensureLoaded(key);
+    protected final Object handleGetObject(final String key) {
+        // Synchronization performed by 'ensureLoaded'
+        final String[] values = ensureLoaded(key);
         final int keyID;
         try {
-            keyID=Integer.parseInt(key);
+            keyID = Integer.parseInt(key);
         } catch (NumberFormatException exception) {
             return null;
         }
@@ -446,39 +456,42 @@ public class ResourceBundle extends java.util.ResourceBundle {
      * @see #getString(String,Object,Object,Object)
      * @see MessageFormat
      */
-    public final synchronized String getString(final int   keyID,
-                                               final Object arg0)
-                                               throws MissingResourceException {
+    public final String getString(final int   keyID,
+                                  final Object arg0)
+            throws MissingResourceException
+    {
         final Object      object = getObject(String.valueOf(keyID));
         final Object[] arguments = toArray(arg0);
-        if (format == null) {
-            /*
-             * Construct a new {@link MessageFormat} for formatting the
-             * arguments. There are two possible {@link Locale} we could use:
-             * default locale or resource bundle locale. If the default locale
-             * uses the same language as this <code>ResourceBundle</code>
-             * locale, then we will use the default locale. This allows
-             * dates and numbers to be formatted according to user conventions
-             * (e.g. French Canada) even if the <code>ResourceBundle</code>
-             * locale is different (e.g. standard French). However, if
-             * languages don't match, then we will use
-             * <code>ResourceBundle</code> locale for better coherence.
-             */
-            Locale locale = Locale.getDefault();
-            final Locale resourceLocale = getLocale();
-            if (!locale.getLanguage().equalsIgnoreCase(resourceLocale.getLanguage())) {
-                locale = resourceLocale;
+        synchronized (this) {
+            if (format == null) {
+                /*
+                 * Construct a new {@link MessageFormat} for formatting the
+                 * arguments. There are two possible {@link Locale} we could use:
+                 * default locale or resource bundle locale. If the default locale
+                 * uses the same language as this <code>ResourceBundle</code>
+                 * locale, then we will use the default locale. This allows
+                 * dates and numbers to be formatted according to user conventions
+                 * (e.g. French Canada) even if the <code>ResourceBundle</code>
+                 * locale is different (e.g. standard French). However, if
+                 * languages don't match, then we will use
+                 * <code>ResourceBundle</code> locale for better coherence.
+                 */
+                Locale locale = Locale.getDefault();
+                final Locale resourceLocale = getLocale();
+                if (!locale.getLanguage().equalsIgnoreCase(resourceLocale.getLanguage())) {
+                    locale = resourceLocale;
+                }
+                format = new MessageFormat(object.toString(), locale);
+            } else if (keyID != lastKey) {
+                /*
+                 * Method {@link MessageFormat#applyPattern} is costly! We will avoid
+                 * calling it again if {@link #format} already has the right pattern.
+                 */
+                format.applyPattern(object.toString());
+                lastKey = keyID;
             }
-            format = new MessageFormat(object.toString(), locale);
-        } else if (keyID != lastKey) {
-            /*
-             * Method {@link MessageFormat#applyPattern} is costly! We will avoid
-             * calling it again if {@link #format} already has the right pattern.
-             */
-            format.applyPattern(object.toString());
-            lastKey = keyID;
+            return format.format(arguments);
         }
-        return format.format(arguments);
     }
 
     /**
@@ -631,9 +644,9 @@ public class ResourceBundle extends java.util.ResourceBundle {
      * This method is for debugging purposes only.
      */
     public synchronized String toString() {
-        final StringBuffer buffer=new StringBuffer(Utilities.getShortClassName(this));
+        final StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(this));
         buffer.append('[');
-        if (values!=null) {
+        if (values != null) {
             int count=0;
             for (int i=0; i<values.length; i++) {
                 if (values[i]!=null) count++;
