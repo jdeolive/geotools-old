@@ -2,19 +2,11 @@
 
 <project>
   <pomVersion>3</pomVersion>
+  <extend>../../project.xml</extend>
   <name>geotools-core</name>
   <id>core</id>
-  <logo>/images/core.gif</logo>
   <currentVersion>0.1</currentVersion>
-  <organization>
-    <name>GeoTools</name>
-    <url>http://www.geotools.org</url>
-    <logo>/images/gtLogo.gif</logo>
-  </organization>
-  <inceptionYear>1996</inceptionYear>
-  <package>org.geotools</package>
   <shortDescription>Core interfaces for GeoTools2</shortDescription>
-  <gumpRepositoryId>geotools</gumpRepositoryId>
   <description>
     The Core module contains the key interfaces that are implemented and used by other GeoTools modules.
     Other than Exceptions and Events the Core module contains no actual code, instead that is provided
@@ -22,19 +14,6 @@
     here.
   </description>
   <url>http://www.geotools.org/</url>
-  <cvsWebUrl/>
-  <issueTrackingUrl/>
-  <siteAddress>www.geotools.org</siteAddress>
-  <siteDirectory/>
-  <distributionDirectory/>
-  
-  <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/core</connection>
-    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/core/</url>
-  </repository>
-  
-
-  <mailingLists/>
   <developers>
     <developer>
       <name>James Macgill</name>
@@ -75,7 +54,8 @@
             </roles>
         </developer>
     </developers>
-  <dependencies>
+    
+    <dependencies>
     <dependency>
       <id>JTS</id>
       <version>1.0</version>
@@ -85,20 +65,6 @@
       <version>0.1</version>
     </dependency>   
     </dependencies>
-  <build>
-    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-      <sourceDirectory>src/</sourceDirectory>
-    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
-    <integrationUnitTestSourceDirectory/>
-    <aspectSourceDirectories/>
-    <unitTest>
-      <includes>
-        <include>**/*Test.java</include>
-      </includes>
-    </unitTest>
-    <integrationUnitTestPatterns/>
-    <jarResources/>
-    <jars/>
-  </build>
+    
 </project>
 
