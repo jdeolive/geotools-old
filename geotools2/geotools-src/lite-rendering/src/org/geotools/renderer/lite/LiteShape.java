@@ -37,7 +37,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
  * geometry can be used by java2d without coordinate cloning
  *
  * @author Andrea Aime
- * @version $Id: LiteShape.java,v 1.7 2004/03/14 18:44:26 aaime Exp $
+ * @version $Id: LiteShape.java,v 1.8 2004/04/15 17:13:26 aaime Exp $
  */
 class LiteShape implements Shape {
     /** The floating precision model */
@@ -535,16 +535,7 @@ class LiteShape implements Shape {
      * @return a geometry with the same vertices as the rectangle
      */
     private Geometry rectangleToGeometry(Rectangle2D r) {
-        Coordinate[] coords = {
-            new Coordinate(r.getMinX(), r.getMinY()),
-            new Coordinate(r.getMinX(), r.getMaxY()),
-            new Coordinate(r.getMaxX(), r.getMaxY()),
-            new Coordinate(r.getMaxX(), r.getMinY()),
-            new Coordinate(r.getMinX(), r.getMinY())
-        };
-        LinearRing lr = new LinearRing(coords, FLOATING_PM, 0);
-
-        return new Polygon(lr, FLOATING_PM, 0);
+        return createRectangle(r.getMinX(), r.getMinY(), r.getWidth(), r.getHeight());
     }
 
     /**
@@ -564,8 +555,8 @@ class LiteShape implements Shape {
             new Coordinate(x + w, y + h), new Coordinate(x + w, y),
             new Coordinate(x, y)
         };
-        LinearRing lr = new LinearRing(coords, FLOATING_PM, 0);
+        LinearRing lr = geometry.getFactory().createLinearRing(coords);
 
-        return new Polygon(lr, FLOATING_PM, 0);
+        return geometry.getFactory().createPolygon(lr, null);
     }
 }
