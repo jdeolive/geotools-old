@@ -310,7 +310,7 @@ public class LockingDataSourceTestCase extends TestCase {
         assertTrue("locked after", isLocked(feature.getID()));
     }
 
-    public void testSetAuthorization() {
+    public void testSetAuthorization() throws DataSourceException {
         FeatureLock lock = FeatureLockFactory.generate("Lock", 3600);
         ds.setAuthorization(lock.getAuthorization());
     }
@@ -425,7 +425,7 @@ public class LockingDataSourceTestCase extends TestCase {
         assertEquals("NONEx1", 4, data.size());
 
         // cholmes - do you still get 8 rather than the expected 4?
-        // 
+        // FeatureCollection is a set so we expect 4
         ds.getFeatures(data, Filter.NONE);
         assertEquals("NONEx2", 4, data.size());
     }
