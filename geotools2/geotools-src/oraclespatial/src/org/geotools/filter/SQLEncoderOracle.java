@@ -39,8 +39,8 @@ import java.util.logging.Logger;
  * Encoded filters get written to the protected Writer called <code>out</code>
  * </p>
  *
- * @author $Author: cholmesny $
- * @version $Id: SQLEncoderOracle.java,v 1.9 2003/11/04 00:43:29 cholmesny Exp $
+ * @author $Author: jive $
+ * @version $Id: SQLEncoderOracle.java,v 1.10 2003/11/04 01:02:42 jive Exp $
  */
 public class SQLEncoderOracle extends SQLEncoder {
     /** The capabilities of the encoder */
@@ -80,7 +80,10 @@ public class SQLEncoderOracle extends SQLEncoder {
     /** The escaped version of the single wildcard for the REGEXP pattern. */
     private String escapedWildcardSingle = "\\.\\?";
 
-    /** The Spatial Reference System IDs */
+    /** The Spatial Reference System IDs
+     * 
+     * Keyed by ColumnName, value is Integer SRID number
+     */
     private Map srids;
 
     /** The FID Column name */
