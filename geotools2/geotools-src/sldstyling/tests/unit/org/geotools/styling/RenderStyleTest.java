@@ -26,7 +26,7 @@ import org.apache.log4j.BasicConfigurator;
 
 /**
  *
- * @author jamesm
+ * @author jamesm,iant
  */
 public class RenderStyleTest extends TestCase {
     
@@ -48,7 +48,7 @@ public class RenderStyleTest extends TestCase {
         //same as the datasource test, load in some features into a table
         
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(5, 15, 5, 35);
+        EnvelopeExtent ex = new EnvelopeExtent(50, 150, 50, 350);
         
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac);
@@ -110,14 +110,15 @@ public class RenderStyleTest extends TestCase {
     }
     
     private LineString makeSampleLineString(final GeometryFactory geomFac) {
-        Coordinate[] linestringCoordinates = new Coordinate[7];
-        linestringCoordinates[0] = new Coordinate(5.0d,5.0d);
-        linestringCoordinates[1] = new Coordinate(6.0d,5.0d);
-        linestringCoordinates[2] = new Coordinate(6.0d,6.0d);
-        linestringCoordinates[3] = new Coordinate(7.0d,6.0d);
-        linestringCoordinates[4] = new Coordinate(7.0d,7.0d);
-        linestringCoordinates[5] = new Coordinate(8.0d,7.0d);
-        linestringCoordinates[6] = new Coordinate(8.0d,8.0d);
+        Coordinate[] linestringCoordinates = new Coordinate[8];
+        linestringCoordinates[0] = new Coordinate(50.0d,50.0d);
+        linestringCoordinates[1] = new Coordinate(60.0d,50.0d);
+        linestringCoordinates[2] = new Coordinate(60.0d,60.0d);
+        linestringCoordinates[3] = new Coordinate(70.0d,60.0d);
+        linestringCoordinates[4] = new Coordinate(70.0d,70.0d);
+        linestringCoordinates[5] = new Coordinate(80.0d,70.0d);
+        linestringCoordinates[6] = new Coordinate(80.0d,80.0d);
+        linestringCoordinates[7] = new Coordinate(130.0d,300.0d);
         LineString line = geomFac.createLineString(linestringCoordinates);
         
         return line;
@@ -125,16 +126,16 @@ public class RenderStyleTest extends TestCase {
     
     private com.vividsolutions.jts.geom.Polygon makeSamplePolygon(final GeometryFactory geomFac) {
         Coordinate[] polygonCoordinates = new Coordinate[10];
-        polygonCoordinates[0] = new Coordinate(7,7);
-        polygonCoordinates[1] = new Coordinate(6,9);
-        polygonCoordinates[2] = new Coordinate(6,11);
-        polygonCoordinates[3] = new Coordinate(7,12);
-        polygonCoordinates[4] = new Coordinate(9,11);
-        polygonCoordinates[5] = new Coordinate(11,12);
-        polygonCoordinates[6] = new Coordinate(13,11);
-        polygonCoordinates[7] = new Coordinate(13,9);
-        polygonCoordinates[8] = new Coordinate(11,7);
-        polygonCoordinates[9] = new Coordinate(7,7);
+        polygonCoordinates[0] = new Coordinate(70,70);
+        polygonCoordinates[1] = new Coordinate(60,90);
+        polygonCoordinates[2] = new Coordinate(60,110);
+        polygonCoordinates[3] = new Coordinate(70,120);
+        polygonCoordinates[4] = new Coordinate(90,110);
+        polygonCoordinates[5] = new Coordinate(110,120);
+        polygonCoordinates[6] = new Coordinate(130,110);
+        polygonCoordinates[7] = new Coordinate(130,90);
+        polygonCoordinates[8] = new Coordinate(110,70);
+        polygonCoordinates[9] = new Coordinate(70,70);
         try{
             LinearRing ring = geomFac.createLinearRing(polygonCoordinates);
             com.vividsolutions.jts.geom.Polygon polyg = geomFac.createPolygon(ring,null);
@@ -147,16 +148,16 @@ public class RenderStyleTest extends TestCase {
     }
     private com.vividsolutions.jts.geom.Polygon makeSamplePolygon2(final GeometryFactory geomFac) {
         Coordinate[] polygonCoordinates = new Coordinate[10];
-        polygonCoordinates[0] = new Coordinate(7,27);
-        polygonCoordinates[1] = new Coordinate(6,29);
-        polygonCoordinates[2] = new Coordinate(6,31);
-        polygonCoordinates[3] = new Coordinate(7,32);
-        polygonCoordinates[4] = new Coordinate(9,31);
-        polygonCoordinates[5] = new Coordinate(11,32);
-        polygonCoordinates[6] = new Coordinate(13,31);
-        polygonCoordinates[7] = new Coordinate(13,29);
-        polygonCoordinates[8] = new Coordinate(11,27);
-        polygonCoordinates[9] = new Coordinate(7,27);
+        polygonCoordinates[0] = new Coordinate(70,270);
+        polygonCoordinates[1] = new Coordinate(60,290);
+        polygonCoordinates[2] = new Coordinate(60,310);
+        polygonCoordinates[3] = new Coordinate(70,320);
+        polygonCoordinates[4] = new Coordinate(90,310);
+        polygonCoordinates[5] = new Coordinate(110,320);
+        polygonCoordinates[6] = new Coordinate(130,310);
+        polygonCoordinates[7] = new Coordinate(130,290);
+        polygonCoordinates[8] = new Coordinate(110,270);
+        polygonCoordinates[9] = new Coordinate(70,270);
         try{
             LinearRing ring = geomFac.createLinearRing(polygonCoordinates);
             com.vividsolutions.jts.geom.Polygon polyg = geomFac.createPolygon(ring,null);
@@ -168,7 +169,7 @@ public class RenderStyleTest extends TestCase {
         return null;
     }
     private Point makeSamplePoint(final GeometryFactory geomFac) {
-        Coordinate c = new Coordinate(14.0d,14.0d);
+        Coordinate c = new Coordinate(140.0d,140.0d);
         Point point = geomFac.createPoint(c);
         return point;
     }

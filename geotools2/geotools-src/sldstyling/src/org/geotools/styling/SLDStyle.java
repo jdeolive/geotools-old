@@ -24,7 +24,7 @@ package org.geotools.styling;
  * A class to read and parse an SLD file based on verion 0.7.2 of
  * the OGC Styled Layer Descriptor Spec.
  *
- * @version $Id: SLDStyle.java,v 1.12 2002/06/25 11:19:35 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.13 2002/06/25 16:21:14 ianturton Exp $
  * @author Ian Turton, CCG
  *
  *
@@ -435,11 +435,35 @@ public class SLDStyle implements org.geotools.styling.Style {
         DefaultStroke stroke = new DefaultStroke();
         NodeList list = ((Element)root).getElementsByTagName("GraphicFill");
         if(list.getLength()>0){
-            //stroke.setGraphicFill(parseGraphic(list.item(0).getFirstChild()));
+            _log.debug("stroke: found a graphic fill "+list.item(0));
+            NodeList kids = list.item(0).getChildNodes();
+            for(int i=0;i<kids.getLength();i++){
+                Node child = kids.item(i);
+                if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                    continue;
+                }
+                if(child.getNodeName().equalsIgnoreCase("Graphic")){
+                    Graphic g = parseGraphic(child);
+                    _log.debug("setting stroke graphicfill with "+g);
+                    stroke.setGraphicFill(g);
+                }
+            }
         }
         list = ((Element)root).getElementsByTagName("GraphicStroke");
         if(list.getLength()>0){
-            //stroke.setGraphicStroke(parseGraphic(list.item(0).getFirstChild()));
+            _log.debug("stroke: found a graphic stroke "+list.item(0));
+            NodeList kids = list.item(0).getChildNodes();
+            for(int i=0;i<kids.getLength();i++){
+                Node child = kids.item(i);
+                if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                    continue;
+                }
+                if(child.getNodeName().equalsIgnoreCase("Graphic")){
+                    Graphic g = parseGraphic(child);
+                    _log.debug("setting stroke graphicStroke with "+g);
+                    stroke.setGraphicStroke(g);
+                }
+            }
         }
         list = ((Element)root).getElementsByTagName("CssParameter");
         for(int i=0;i<list.getLength();i++){

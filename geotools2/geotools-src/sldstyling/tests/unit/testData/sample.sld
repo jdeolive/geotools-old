@@ -24,7 +24,18 @@ A styling layer used for the unit tests of sldstyler
                 you can set stroke (color of line), stroke-width, stroke-opacity, stroke-linejoin
                 stroke-linecap, stroke-dasharray and stroke-dashoffset -->
             <CssParameter name="stroke">#FF0000</CssParameter>
-            <CssParameter name="stroke-width">6</CssParameter>
+            <CssParameter name="stroke-width">10</CssParameter>
+            <GraphicFill>
+                <Graphic>
+                    <mark>
+                        <size>10</size>
+                        <wellknownname>square</wellknownname>
+                        <fill>
+                            <CssParameter name="fill">#00FF00</CssParameter>
+                        </fill>
+                    </mark>
+                </Graphic>
+            </GraphicFill>    
           </Stroke>
         </LineSymbolizer>
         <!-- multiple linesyombolizers are applied one after the other -->
