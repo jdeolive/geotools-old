@@ -64,12 +64,13 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
   
   void test(String f) throws Exception {
     ShapefileDataSource s = new ShapefileDataSource(getTestResource(f));
-    FeatureCollection one = s.getFeatures(null);
+    org.geotools.filter.Filter filter = null;
+    FeatureCollection one = s.getFeatures(filter);
     s = new ShapefileDataSource(getTestResource(TMP_FILE));
     s.setFeatures(one);
     
     s = new ShapefileDataSource(getTestResource(TMP_FILE));
-    FeatureCollection two = s.getFeatures(null);
+    FeatureCollection two = s.getFeatures(filter);
     
     compare(one,two);
   }

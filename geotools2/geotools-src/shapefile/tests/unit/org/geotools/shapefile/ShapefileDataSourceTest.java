@@ -36,7 +36,8 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
   private Feature[] loadFeatures(String resource) throws Exception {
     URL url = getTestResource(resource);
     ShapefileDataSource s = new ShapefileDataSource(url);
-    return s.getFeatures(null).getFeatures();
+    org.geotools.filter.Filter filter = null;
+    return s.getFeatures(filter).getFeatures();
   }
   
   
