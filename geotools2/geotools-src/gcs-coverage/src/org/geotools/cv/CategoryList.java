@@ -83,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.11 2003/04/14 18:34:12 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.12 2003/04/16 19:25:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable {
@@ -140,7 +140,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      * geophysics values to sample values into rasters when no suitable category has
      * been found for a given geophysics value.
      */
-    private final Category nodata;
+    final Category nodata;
 
     /**
      * The category to use if {@link #getCategory(double)} is invoked  with  a sample value

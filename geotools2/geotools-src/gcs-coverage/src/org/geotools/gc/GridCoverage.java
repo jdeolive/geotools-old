@@ -137,7 +137,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.13 2003/04/14 18:34:14 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.14 2003/04/16 19:25:31 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -670,7 +670,8 @@ public class GridCoverage extends Coverage {
                 default: min=0;               length=1;                 label=new Integer(i); break;
             }
             if (range.getLower(i)!=min || range.getLength(i)!=length) {
-                return Resources.format(ResourceKeys.ERROR_BAD_GRID_RANGE_$1, label);
+                return Resources.format(ResourceKeys.ERROR_BAD_GRID_RANGE_$3, label,
+                                        new Integer(min), new Integer(min+length));
             }
         }
         return null;
@@ -1063,7 +1064,7 @@ public class GridCoverage extends Coverage {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.13 2003/04/14 18:34:14 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.14 2003/04/16 19:25:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1092,7 +1093,7 @@ public class GridCoverage extends Coverage {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.13 2003/04/14 18:34:14 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.14 2003/04/16 19:25:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {

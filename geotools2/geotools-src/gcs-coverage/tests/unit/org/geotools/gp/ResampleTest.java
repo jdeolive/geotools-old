@@ -71,7 +71,7 @@ import junit.framework.TestSuite;
  * Visual test of the "Resample" operation. A remote sensing image is projected from a fitted
  * coordinate system to a geographic one.
  *
- * @version $Id: ResampleTest.java,v 1.5 2003/04/12 00:04:38 desruisseaux Exp $
+ * @version $Id: ResampleTest.java,v 1.6 2003/04/16 19:25:38 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -146,8 +146,9 @@ public final class ResampleTest extends GridCoverageTest {
      * Test the "Resample" operation with an "Affine" transform.
      */
     public void testAffine() {
-        AffineTransform atr = AffineTransform.getTranslateInstance(200, 200);
-        atr.concatenate((AffineTransform) coverage.getGridGeometry().getGridToCoordinateSystem());
+        AffineTransform atr = (AffineTransform) coverage.getGridGeometry().getGridToCoordinateSystem();
+        atr = new AffineTransform(atr);
+        atr.preConcatenate(AffineTransform.getTranslateInstance(5, 5));
         MathTransform    tr = MathTransformFactory.getDefault().createAffineTransform(atr);
         CoordinateSystem cs = new FittedCoordinateSystem("F2", coverage.getCoordinateSystem(), tr, null);
         if (true) {

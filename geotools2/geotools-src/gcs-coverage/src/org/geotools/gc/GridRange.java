@@ -59,7 +59,7 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * Defines a range of grid coverage coordinates.
  *
- * @version $Id: GridRange.java,v 1.7 2003/02/16 23:12:16 desruisseaux Exp $
+ * @version $Id: GridRange.java,v 1.8 2003/04/16 19:25:33 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -93,9 +93,12 @@ public class GridRange implements Dimensioned, Serializable {
     private void checkCoherence() throws IllegalArgumentException {
         final int dimension = index.length/2;
         for (int i=0; i<dimension; i++) {
-            if (!(index[i] <= index[dimension+i])) {
+            final int lower = index[i];
+            final int upper = index[dimension+i];
+            if (!(lower <= upper)) {
                 throw new IllegalArgumentException(Resources.format(
-                        ResourceKeys.ERROR_BAD_GRID_RANGE_$1, new Integer(i)));
+                        ResourceKeys.ERROR_BAD_GRID_RANGE_$3, new Integer(i),
+                        new Integer(lower), new Integer(upper)));
             }
         }
     }
@@ -128,6 +131,9 @@ public class GridRange implements Dimensioned, Serializable {
      * @param upper The valid maximum exclusive grid coordinate.
      *              The array contains a maximum value for each
      *              dimension of the grid coverage.
+     *
+     * @see #getLowers
+     * @see #getUppers
      */
     public GridRange(final int[] lower, final int[] upper) {
         if (lower.length != upper.length) {
@@ -203,9 +209,12 @@ public class GridRange implements Dimensioned, Serializable {
      * coordinate along the specified dimension.
      *
      * @see GC_GridRange#getLo
+     * @see #getLowers
      */
     public int getLower(final int dimension) {
-        if (dimension<index.length) return index[dimension];
+        if (dimension < index.length/2) {
+            return index[dimension];
+        }
         throw new ArrayIndexOutOfBoundsException(dimension);
     }
     
@@ -214,9 +223,12 @@ public class GridRange implements Dimensioned, Serializable {
      * coordinate along the specified dimension.
      *
      * @see GC_GridRange#getHi
+     * @see #getUppers
      */
     public int getUpper(final int dimension) {
-        if (dimension>=0) return index[dimension+index.length/2];
+        if (dimension >= 0) {
+            return index[dimension + index.length/2];
+        }
         else throw new ArrayIndexOutOfBoundsException(dimension);
     }
     
@@ -226,6 +238,24 @@ public class GridRange implements Dimensioned, Serializable {
      */
     public int getLength(final int dimension) {
         return index[dimension+index.length/2] - index[dimension];
+    }
+
+    /**
+     * Returns the valid minimum inclusive grid coordinates along all dimensions.
+     */
+    public int[] getLowers() {
+        final int[] lo = new int[index.length/2];
+        System.arraycopy(index, 0, lo, 0, lo.length);
+        return lo;
+    }
+
+    /**
+     * Returns the valid maximum exclusive grid coordinates along all dimensions.
+     */
+    public int[] getUppers() {
+        final int[] hi = new int[index.length/2];
+        System.arraycopy(index, index.length/2, hi, 0, hi.length);
+        return hi;
     }
     
     /**
@@ -311,7 +341,9 @@ public class GridRange implements Dimensioned, Serializable {
         final StringBuffer buffer=new StringBuffer(Utilities.getShortClassName(this));
         buffer.append('[');
         for (int i=0; i<dimension; i++) {
-            if (i!=0) buffer.append(", ");
+            if (i!=0) {
+                buffer.append(", ");
+            }
             buffer.append(index[i]);
             buffer.append("..");
             buffer.append(index[i+dimension]);

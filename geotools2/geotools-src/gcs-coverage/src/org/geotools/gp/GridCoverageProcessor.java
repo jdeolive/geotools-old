@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.18 2003/03/30 22:43:41 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.19 2003/04/16 19:25:34 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -129,12 +129,28 @@ public class GridCoverageProcessor {
      *   <li>{@link JAI#KEY_REPLACE_INDEX_COLOR_MODEL} set to {@link Boolean#FALSE}.</li>
      * </ul>
      *
-     * @task TODO: Uncomment the <code>new RenderingHints</code> line when we
-     *             will upgrade to JAI 1.1.2.
+     * @task REVISIT: This constror contains a hack for JAI 1.1.1 compatibility. This hack
+     *                way be removed in a future version if we are going to require JAI 1.2.
      */
     protected GridCoverageProcessor() {
-        hints = null;
-        // hints = new RenderingHints(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE);
+        /*
+         * The following line should have been enough:
+         *
+         * hints = new RenderingHints(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE);
+         *
+         * However, this key is available in JAI 1.1.2 only. Since we still have JAI 1.1.1 around,
+         * uses the reflection API in order to set this property without requiring JAI 1.1.2 to be
+         * installed at compile time and/or run time.
+         */
+        RenderingHints hints = null;
+        try {
+            final Object key = JAI.class.getField("KEY_REPLACE_INDEX_COLOR_MODEL").get(null);
+            hints = new RenderingHints((RenderingHints.Key) key, Boolean.FALSE);
+        } catch (Exception exception) {
+            // We are not running JAI 1.1.2. Ignore this exception,
+            // since this key in know to not exist in earlier version.
+        }
+        this.hints = hints;
     }
 
     /**

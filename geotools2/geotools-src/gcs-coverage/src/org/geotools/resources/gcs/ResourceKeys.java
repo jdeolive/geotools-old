@@ -54,11 +54,13 @@ public interface ResourceKeys
     public static final int VALUE                                =    68;
     public static final int YELLOW                               =    25;
 
+    public static final int WARNING_ADJUSTED_GRID_GEOMETRY_$1    =    74;
+
     public static final int ERROR_AMBIGIOUS_AXIS_LENGTH          =    26;
     public static final int ERROR_BAD_BAND_NUMBER_$1             =    27;
     public static final int ERROR_BAD_COEFFICIENT_$2             =    28;
     public static final int ERROR_BAD_COORDINATE_$1              =    29;
-    public static final int ERROR_BAD_GRID_RANGE_$1              =    30;
+    public static final int ERROR_BAD_GRID_RANGE_$3              =    30;
     public static final int ERROR_BAD_PARAMETER_$2               =    63;
     public static final int ERROR_BAD_RANGE_$2                   =    31;
     public static final int ERROR_BAD_TRANSFORM_$1               =    64;

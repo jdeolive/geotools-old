@@ -111,7 +111,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.22 2003/04/14 18:34:13 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.23 2003/04/16 19:25:30 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -708,44 +708,21 @@ public class SampleDimension implements Serializable {
     public Category getCategory(final double sample) {
         return (categories!=null) ? categories.getCategory(sample) : null;
     }
-    
+
     /**
-     * Returns a string representation of a sample value. This method try to returns
-     * a representation of the geophysics value; the transformation is automatically
-     * applied when necessary. More specifically:
+     * Returns a default category to use for background. A background category is used
+     * when an image is <A HREF="../gp/package-summary.html#Resample">resampled</A> (for
+     * example reprojected in an other coordinate system) and the resampled image do not
+     * fit in a rectangular area. It can also be used in various situation where a raisonable
+     * &quot;no data&quot; category is needed. The default implementation try to returns one
+     * of the {@linkplain #getNoDataValue no data values}. If no suitable category is found,
+     * then a {@linkplain Category#NODATA default} one is returned.
      *
-     * <ul>
-     *   <li>If <code>value</code> maps a qualitative category, then the
-     *       category name is returned as of {@link Category#getName(Locale)}.</li>
-     *
-     *   <li>Otherwise, if <code>value</code> maps a quantitative category, then the value is
-     *       transformed into a geophysics value as with the {@link #getSampleToGeophysics()
-     *       sampleToGeophysics} transform, the result is formatted as a number and the unit
-     *       symbol is appened.</li>
-     * </ul>
-     *
-     * @param  value  The sample value (can be one of <code>NaN</code> values).
-     * @param  locale Locale to use for formatting, or <code>null</code> for the default locale.
-     * @return A string representation of the geophysics value, or <code>null</code> if there is
-     *         none.
-     *
-     * @task REVISIT: What should we do when the value can't be formatted?
-     *                <code>SampleDimension</code> returns <code>null</code> if there is no
-     *                category or if an exception is thrown, but <code>CategoryList</code>
-     *                returns "Untitled" if the value is an unknow NaN, and try to format
-     *                the number anyway in other cases.
+     * @return A category to use as background for the &quot;Resample&quot; operation.
+     *         Never <code>null</code>.
      */
-    public String getLabel(final double value, final Locale locale) {
-        if (categories != null) {
-            if (isGeophysics) {
-                return categories.format(value, locale);
-            } else try {
-                return categories.inverse.format(categories.transform(value), locale);
-            } catch (TransformException exception) {
-                // Value probably don't match a category. Ignore...
-            }
-        }
-        return null;
+    public Category getBackground() {
+        return (categories!=null) ? categories.nodata : Category.NODATA;
     }
 
     /**
@@ -916,6 +893,45 @@ public class SampleDimension implements Serializable {
             }
         }
         return false;
+    }
+    
+    /**
+     * Returns a string representation of a sample value. This method try to returns
+     * a representation of the geophysics value; the transformation is automatically
+     * applied when necessary. More specifically:
+     *
+     * <ul>
+     *   <li>If <code>value</code> maps a qualitative category, then the
+     *       category name is returned as of {@link Category#getName(Locale)}.</li>
+     *
+     *   <li>Otherwise, if <code>value</code> maps a quantitative category, then the value is
+     *       transformed into a geophysics value as with the {@link #getSampleToGeophysics()
+     *       sampleToGeophysics} transform, the result is formatted as a number and the unit
+     *       symbol is appened.</li>
+     * </ul>
+     *
+     * @param  value  The sample value (can be one of <code>NaN</code> values).
+     * @param  locale Locale to use for formatting, or <code>null</code> for the default locale.
+     * @return A string representation of the geophysics value, or <code>null</code> if there is
+     *         none.
+     *
+     * @task REVISIT: What should we do when the value can't be formatted?
+     *                <code>SampleDimension</code> returns <code>null</code> if there is no
+     *                category or if an exception is thrown, but <code>CategoryList</code>
+     *                returns "Untitled" if the value is an unknow NaN, and try to format
+     *                the number anyway in other cases.
+     */
+    public String getLabel(final double value, final Locale locale) {
+        if (categories != null) {
+            if (isGeophysics) {
+                return categories.format(value, locale);
+            } else try {
+                return categories.inverse.format(categories.transform(value), locale);
+            } catch (TransformException exception) {
+                // Value probably don't match a category. Ignore...
+            }
+        }
+        return null;
     }
     
     /**

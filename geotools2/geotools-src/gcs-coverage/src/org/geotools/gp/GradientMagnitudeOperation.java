@@ -66,7 +66,7 @@ import org.geotools.resources.XAffineTransform;
  * to "geophysics" measurements. The normalization include dividing
  * by the distance between pixels.
  *
- * @version $Id: GradientMagnitudeOperation.java,v 1.1 2003/03/30 17:31:20 desruisseaux Exp $
+ * @version $Id: GradientMagnitudeOperation.java,v 1.2 2003/04/16 19:25:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GradientMagnitudeOperation extends OperationJAI {
@@ -175,6 +175,17 @@ final class GradientMagnitudeOperation extends OperationJAI {
      * @param  mask1 The first kernel for which to compute a normalization factor.
      * @param  mask2 The second kernel for which to compute a normalization factor.
      * @return The normalization factor that could be applied on both kernels.
+     *
+     * @task REVISIT: When the masks are symetric (e.g. Sobel, Prewitt (or Smoothed), isotropic,
+     *       etc.), then this algorithm matches the "normalization factor" times "spatial factor"
+     *       provided by
+     *
+     *       J.J. Simpson (1990), "On the accurate detection and enhancement of oceanic features
+     *       observed in satellite data" in Remote sensing environment, 33:17-33.
+     *
+     *       However, for non-symetric masks (e.g. Kirsch), then a difference is found.
+     *       We should provides a way to disable normalization when the user did it himself
+     *       according some other rules than the one used here.
      */
     private static double getNormalizationFactor(final KernelJAI mask1, final KernelJAI mask2) {
         double factor;
