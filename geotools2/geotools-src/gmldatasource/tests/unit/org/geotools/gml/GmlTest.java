@@ -36,7 +36,7 @@ public class GmlTest extends TestCase {
     }
     
     public static Test suite() {
-        TestSuite suite = new TestSuite(GmlSuite.class);
+        TestSuite suite = new TestSuite(GmlTest.class);
         return suite;
     }
     
