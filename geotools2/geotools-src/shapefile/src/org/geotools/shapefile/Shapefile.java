@@ -1,3 +1,23 @@
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
+ */
+
 package org.geotools.shapefile;
 
 import cmp.LEDataStream.LEDataInputStream;
@@ -6,25 +26,18 @@ import java.io.IOException;
 
 
 /**
+ * This class represnts an ESRI Shapefile.<p>
+ * You construct it with a file name, and later you can read the file's
+ * properties, i.e. Sizes, Types, and the data itself.<p>
  *
- * This class represnts an ESRI Shape file.<p>
- * You construct it with a file name, and later
- * you can read the file's propertys, i.e. Sizes, Types, and the data itself.<p>
- * Copyright 1998 by James Macgill. <p>
+ * This class supports the Shapefile as set out in:-<br>
+ * <a href="http://www.esri.com/library/whitepapers/pdfs/shapefile.pdf">
+ * <b>"ESRI(r) Shapefile - A Technical Description"</b><br>
+ * <i>'An ESRI White Paper. May 1997'</i></a><p>
  *
- * Version 1.0beta1.1 (added construct with inputstream)
- * 1.0beta1.2 (made Shape type constants public 18/Aug/98)
- *
- * This class supports the Shape file as set out in :-<br>
- * <a href="http://www.esri.com/library/whitepapers/pdfs/shapefile.pdf"><b>"ESRI(r) Shapefile - A Technical Description"</b><br>
- * <i>'An ESRI White Paper . May 1997'</i></a><p>
- *
- * This code is coverd by the LGPL.
- *
- * <a href="mailto:j.macgill@geog.leeds.ac.uk">Mail the Author</a>
+ * @version $Id: Shapefile.java,v 1.7 2002/06/05 12:56:49 loxnard Exp $
+ * @author James Macgill, CCG
  */
-
-
 
 public class Shapefile  {
     
@@ -38,7 +51,7 @@ public class Shapefile  {
     public static final int    MULTIPOINT = 8;
     public static final int    ARC_M = 23;
     public static final int    UNDEFINED = -1;
-    //Types 2,4,6,7 and 9 were undefined at time or writeing
+    //Types 2,4,6,7 and 9 were undefined at time of writing
     
     private java.net.URL baseURL;
     private boolean initialized = false;
@@ -46,8 +59,8 @@ public class Shapefile  {
     private ShapefileHeader mainHeader = null;
     private com.vividsolutions.jts.geom.Envelope bounds = null;
     /**
-     * Creates and initialises a shapefile from a url
-     * @param url The url of the shapefile
+     * Creates and initialises a shapefile from a url.
+     * @param url The url of the shapefile.
      */
     public Shapefile(java.net.URL url){
         baseURL=url;
@@ -91,8 +104,9 @@ public class Shapefile  {
     }
     /**
      * Initialises a shapefile from disk.
-     * Use Shapefile(String) if you don't want to use LEDataInputStream directly (recomened)
-     * @param file A LEDataInputStream that conects to the shapefile to read
+     * Use Shapefile(String) if you don't want to use LEDataInputStream
+     * directly (recommended).
+     * @param file A LEDataInputStream that connects to the shapefile to read.
      */
     public com.vividsolutions.jts.geom.GeometryCollection read(com.vividsolutions.jts.geom.GeometryFactory geometryFactory) throws IOException, ShapefileException, com.vividsolutions.jts.geom.TopologyException {
         
@@ -124,8 +138,8 @@ public class Shapefile  {
     }
     
     /**
-     * Saves a shapefile to and output stream.
-     * @param file A LEDataInputStream that conects to the shapefile to read
+     * Saves a shapefile to an output stream.
+     * @param file A LEDataInputStream that connects to the shapefile to read.
      */
     public void write(com.vividsolutions.jts.geom.GeometryCollection geometries) throws IOException {
         cmp.LEDataStream.LEDataOutputStream file = getOutputStream();
@@ -180,8 +194,8 @@ public class Shapefile  {
     
     /**
      * Returns a string for the shape type of index.
-     * @param index An int coresponding to the shape type to be described
-     * @return A string descibing the shape type
+     * @param index An int corresponding to the shape type to be described.
+     * @return A string describing the shape type.
      */
     public static String getShapeTypeDescription(int index){
         switch(index){
@@ -230,8 +244,9 @@ public class Shapefile  {
         file.close();
     }
     
-    /** Getter for property bounds.
-     * @return Value of property bounds. - null if not known
+    /**
+     * Getter for property bounds.
+     * @return Value of property bounds - null if not known.
      */
     public com.vividsolutions.jts.geom.Envelope getBounds() {
         if (!initialized){

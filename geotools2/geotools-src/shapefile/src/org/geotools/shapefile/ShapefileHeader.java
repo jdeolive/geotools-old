@@ -1,7 +1,21 @@
 /*
- * Header.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on February 12, 2002, 3:29 PM
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
 
 package org.geotools.shapefile;
@@ -9,8 +23,8 @@ package org.geotools.shapefile;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- *
- * @author  jamesm
+ * @version $Id: ShapefileHeader.java,v 1.5 2002/06/05 13:01:32 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public class ShapefileHeader{
     private final static boolean DEBUG=true;

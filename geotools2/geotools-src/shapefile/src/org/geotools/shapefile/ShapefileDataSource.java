@@ -1,7 +1,21 @@
 /*
- * ShapefileDataSource.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on March 4, 2002, 1:48 PM
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
 
 package org.geotools.shapefile;
@@ -16,23 +30,25 @@ import org.geotools.datasource.extents.*;
 import com.vividsolutions.jts.geom.*;
 
 /**
- *
- * @author  jamesm
+ * @version $Id: ShapefileDataSource.java,v 1.8 2002/06/05 12:59:45 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public class ShapefileDataSource implements org.geotools.data.DataSource {
     Shapefile shapefile;
-    /** Creates a new instance of ShapefileDataSource */
+    /** Creates a new instance of ShapefileDataSource. */
     public ShapefileDataSource(Shapefile shapefile) {
         this.shapefile = shapefile;
     }
     
-    /** gets the Column names (used by FeatureTable) for this DataSource
+    /**
+     * Gets the Column names (used by FeatureTable) for this DataSource.
      */
     public String[] getColumnNames() {
         return new String[]{"Geometry"};
     }
     
-    /** Loads Feature rows for the given Extent from the datasource
+    /**
+     * Loads Feature rows for the given Extent from the datasource.
      */
     public void importFeatures(FeatureCollection ft,Extent ex) throws DataSourceException {
         if(ex instanceof EnvelopeExtent){
@@ -71,7 +87,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
                 throw new DataSourceException("Topology Exception loading data : "+te.getMessage());
             }
             catch(IllegalFeatureException ife){
-                throw new DataSourceException("Illigal Feature Exception loading data : "+ife.getMessage());
+                throw new DataSourceException("Illegal Feature Exception loading data : "+ife.getMessage());
             }
             
             
@@ -79,8 +95,9 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
         
     }
     
-    /** Saves the given features to the datasource
-     * TODO: write the export code
+    /**
+     * Saves the given features to the datasource.
+     * TODO: write the export code.
      */
     public void exportFeatures(FeatureCollection ft,Extent ex) throws DataSourceException {
         throw new DataSourceException("Exporting of shapefiles not yet supported");
@@ -97,13 +114,15 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
         
     }
     
-    /** Stops this DataSource from loading
+    /**
+     * Stops this DataSource from loading.
      */
     public void stopLoading() {
         //can't sorry
     }
     
-    /** gets the extent of this data source using the default speed of
+    /**
+     * Gets the extent of this datasource using the default speed of
      * this datasource as set by the implementer.
      * @return the extent of the datasource or null if unknown and too
      * expensive for the method to calculate.
@@ -112,11 +131,12 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
         return new EnvelopeExtent(shapefile.getBounds());
     }
     
-    /** gets the extent of this data source using the speed of
+    /**
+     * Gets the extent of this datasource using the speed of
      * this datasource as set by the parameter.
      * @param speed if true then a quick (and possibly dirty) estimate of
-     * the extent is returned. If false then a slow but acurate extent
-     * will be returned
+     * the extent is returned. If false then a slow but accurate extent
+     * will be returned.
      * @return the extent of the datasource or null if unknown and too
      * expensive for the method to calculate.
      */

@@ -1,6 +1,21 @@
 /*
- * $Id: MultiLineHandler.java,v 1.2 2002/03/05 10:23:59 jmacgill Exp $
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
 
 package org.geotools.shapefile;
@@ -11,6 +26,9 @@ import com.vividsolutions.jts.geom.*;
 
 /**
  * Wrapper for a Shapefile arc.
+ *
+ * @version $Id: MultiLineHandler.java,v 1.3 2002/06/05 12:49:03 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public class MultiLineHandler implements ShapeHandler{
     public MultiLineHandler(){};
@@ -85,7 +103,7 @@ public class MultiLineHandler implements ShapeHandler{
     }
     
     /**
-     * Get the type of shape stored (Shapefile.ARC)
+     * Gets the type of shape stored (Shapefile.ARC)
      */
     public int getShapeType(){
         return Shapefile.ARC;
@@ -100,6 +118,9 @@ public class MultiLineHandler implements ShapeHandler{
 
 /*
  * $Log: MultiLineHandler.java,v $
+ * Revision 1.3  2002/06/05 12:49:03  loxnard
+ * Added licence statement and cvs id tag
+ *
  * Revision 1.2  2002/03/05 10:23:59  jmacgill
  * made sure geometries were created using the factory methods
  *
