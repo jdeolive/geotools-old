@@ -17,7 +17,7 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package org.geotools.data;
+package org.geotools.data.mapinfo;
 
 import com.vividsolutions.jts.geom.*;
 

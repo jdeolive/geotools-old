@@ -1,4 +1,4 @@
-package org.geotools.data;
+package org.geotools.data.mapinfo;
 
 import java.net.MalformedURLException;
 import java.net.URL;

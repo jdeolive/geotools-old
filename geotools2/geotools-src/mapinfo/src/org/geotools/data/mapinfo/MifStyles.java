@@ -4,7 +4,7 @@
  * Created on 31 July 2002, 15:18
  */
 
-package org.geotools.data;
+package org.geotools.data.mapinfo;
 
 import java.util.*;
 import org.geotools.styling.*;
