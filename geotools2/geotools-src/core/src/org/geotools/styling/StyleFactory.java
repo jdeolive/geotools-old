@@ -13,41 +13,46 @@ public abstract class StyleFactory {
      * The logger 
      */
     protected static final Logger LOGGER = Logger.getLogger("org.geotools.styling"); 
-    
+    private static StyleFactory factory = null;
     /** creates an instance of a style factory
      * @return an instance of the style factory
      */   
     
-    public static StyleFactory createStyleFactory() throws StyleFactoryCreationException{ 
+    public static StyleFactory createStyleFactory(){ // throws StyleFactoryCreationException{ 
+        if(factory != null ){
+            return factory;
+        }
         String factoryClass = System.getProperty("StyleFactoryImpl");
         LOGGER.fine("loaded property = " + factoryClass);
         StyleFactory sf = null;
         if(factoryClass != null && factoryClass != ""){
-            try{
+            //try{
                 sf = createStyleFactory(factoryClass); 
-            } catch (StyleFactoryCreationException e){
-                // do nothing yet or should we give up now
-                LOGGER.info("Failed to create " + factoryClass + " because \n" + e);
-            }
+//            } catch (StyleFactoryCreationException e){
+//                // do nothing yet or should we give up now
+//                LOGGER.info("Failed to create " + factoryClass + " because \n" + e);
+//            }
         }else{
             sf = createStyleFactory("org.geotools.styling.StyleFactoryImpl");
         }
+        factory = sf;
         return sf;
     }
     
-    public static StyleFactory createStyleFactory(String factoryClass) throws StyleFactoryCreationException{
+    public static StyleFactory createStyleFactory(String factoryClass) { //throws StyleFactoryCreationException{
         try{
-            return (StyleFactory)Class.forName(factoryClass).newInstance();
+            return factory = (StyleFactory)Class.forName(factoryClass).newInstance();
         } catch (ClassNotFoundException cnfe){
             severe("createStyleFactory", "failed to find implementation " + factoryClass, cnfe);
-            throw new StyleFactoryCreationException("Failed to find implementation " + factoryClass, cnfe); 
+            //throw new StyleFactoryCreationException("Failed to find implementation " + factoryClass, cnfe); 
         } catch (InstantiationException ie){
             severe("createStyleFactory", "failed to insantiate implementation " + factoryClass, ie);
-            throw new StyleFactoryCreationException("Failed to insantiate implementation " + factoryClass, ie);
+            //throw new StyleFactoryCreationException("Failed to insantiate implementation " + factoryClass, ie);
         } catch (IllegalAccessException iae){
             severe("createStyleFactory", "failed to access implementation " + factoryClass, iae);
-            throw new StyleFactoryCreationException("Failed to access implementation " + factoryClass, iae);
+            //throw new StyleFactoryCreationException("Failed to access implementation " + factoryClass, iae);
         }
+        return null;
     }
         
     public abstract TextSymbolizer createTextSymbolizer(Fill fill, Font[] fonts, Halo halo, Expression label, LabelPlacement labelPlacement, String geometryPropertyName);
