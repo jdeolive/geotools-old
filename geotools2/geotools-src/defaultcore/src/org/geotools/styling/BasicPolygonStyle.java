@@ -22,7 +22,7 @@ package org.geotools.styling;
 /**
  * A style object is quite hard to set up, involving fills, strokes,
  * symbolizers and rules.
- * @version $Id: BasicPolygonStyle.java,v 1.2 2002/08/09 18:16:08 jmacgill Exp $
+ * @version $Id: BasicPolygonStyle.java,v 1.3 2002/08/11 20:54:49 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class BasicPolygonStyle extends DefaultStyle implements org.geotools.styling.Style {
@@ -31,7 +31,7 @@ public class BasicPolygonStyle extends DefaultStyle implements org.geotools.styl
     
     /** Creates a new instance of BasicPolygonStyle */
     public BasicPolygonStyle() {
-         this(null,null);
+         this(new DefaultFill(),new DefaultStroke());
     }
     
      public BasicPolygonStyle(Fill fill, Stroke stroke) {
@@ -42,7 +42,7 @@ public class BasicPolygonStyle extends DefaultStyle implements org.geotools.styl
          rule.setSymbolizers(new Symbolizer[]{polysym});
          DefaultFeatureTypeStyle fts = new DefaultFeatureTypeStyle();
          fts.setRules(new Rule[]{rule});
-         this.setFeatureTypeStyles(setFeatureTypeStyles(new FeatureTypeStyle[]{fts}));
+         this.setFeatureTypeStyles(new FeatureTypeStyle[]{fts});
     }
 
     public String getAbstract() {
