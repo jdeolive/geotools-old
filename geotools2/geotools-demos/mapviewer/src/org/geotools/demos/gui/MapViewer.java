@@ -27,22 +27,30 @@ import javax.swing.JFrame;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.gui.swing.StatusBar;
-import org.geotools.gui.swing.StyledMapPane;
-import org.geotools.map.Context;
-import org.geotools.map.ContextFactory;
-import org.geotools.map.Layer;
+import org.geotools.gui.swing.StyledMapPane2;
+import org.geotools.map.DefaultMapContext;
+import org.geotools.map.DefaultMapLayer;
+import org.geotools.map.MapContext;
+import org.geotools.map.MapLayer;
 import org.geotools.renderer.j2d.RenderedMapScale;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.Point;
+
 
 /**
- * Load and display a shape file. This demo uses {@link MapPane} with the
- * {@linkplain Renderer J2D renderer}. This renderer has the following capabilities:
+ * Load and display a shape file. At the difference of the {@link MapViewer} demo, this demo
+ * use {@link MapPane} with the {@linkplain Renderer J2D renderer}. This renderer has the
+ * following advantages:
  * <ul>
+ *   <li>faster;</li>
  *   <li>progressive rendering of tiled image;</li>
  *   <li>supports arbitrary map projections (different geometries to be rendered on the same
  *       map can have different coordinate systems);</li>
@@ -58,13 +66,15 @@ import org.geotools.styling.StyleBuilder;
  *       device (when this information is available);</li>
  * </ul>
  *
+ * The inconvenient is a more complex renderer, which is more difficult to modify for new users.
+ * <br><br>
  * NOTE: While not essential, it is recommanded to run this demos in server mode, with:
  * <blockquote><pre>
  * java -server org.geotools.demos.MapViewer2 <I>thefile.shp</I>
  * </pre></blockquote>
  *
  * @author Martin Desruisseaux
- * @version $Id: MapViewer.java,v 1.1 2004/02/05 15:38:05 desruisseaux Exp $
+ * @version $Id: MapViewer.java,v 1.2 2004/02/05 16:07:53 aaime Exp $
  */
 public class MapViewer {
     /**
@@ -74,9 +84,9 @@ public class MapViewer {
      * @throws IOException is a I/O error occured.
      * @throws DataSource if an error occured while reading the data source.
      */
-    public static void main(final String[] args) throws IOException, DataSourceException {
+    public static void main(final String[] args) throws Exception {
         final MapViewer viewer = new MapViewer();
-        final Context context;
+        final MapContext context;
         switch (args.length) {
             default: // Fall through
             case  1: context=viewer.loadContext(new File(args[0]).toURL()); break;
@@ -94,8 +104,8 @@ public class MapViewer {
      * @throws IOException is some other kind of I/O error occured.
      * @throws DataSource if an error occured while reading the data source.
      */
-    protected Context loadContext() throws IOException, DataSourceException {
-        return loadContext(getClass().getClassLoader().getResource("sample-data/statepop.shp"));
+    protected MapContext loadContext() throws IOException, DataSourceException {
+        return loadContext(getClass().getClassLoader().getResource("org/geotools/sampleData/statepop.shp"));
     }
 
     /**
@@ -107,41 +117,48 @@ public class MapViewer {
      * @throws IOException is a I/O error occured.
      * @throws DataSource if an error occured while reading the data source.
      */
-    protected Context loadContext(final URL url) throws IOException, DataSourceException {
+    protected MapContext loadContext(final URL url) throws IOException, DataSourceException {
 
         // Load the file
         if (url == null) {
             throw new FileNotFoundException("Resource not found");
         }
         final DataStore store = new ShapefileDataStore(url);
-        final FeatureCollection features = store.getFeatureSource(store.getTypeNames()[0]).getFeatures().collection();
+        final FeatureSource features = store.getFeatureSource(store.getTypeNames()[0]);
 
         // Create the style
         final StyleBuilder builder = new StyleBuilder();
-        final Style style = builder.createStyle(builder.createPolygonSymbolizer(
-                                                Color.ORANGE, Color.BLACK, 1));
+        final Style style;
+        Class geometryClass = features.getSchema().getDefaultGeometry().getType();
+        if(LineString.class.isAssignableFrom(geometryClass) || MultiLineString.class.isAssignableFrom(geometryClass)) {
+            style = builder.createStyle(builder.createLineSymbolizer());
+        } else if(Point.class.isAssignableFrom(geometryClass) || MultiPoint.class.isAssignableFrom(geometryClass)) {
+            style = builder.createStyle(builder.createPointSymbolizer());
+        } else {
+            style = builder.createStyle(builder.createPolygonSymbolizer(
+                     Color.ORANGE, Color.BLACK, 1));
+        }
+         
 
         // Create the context
-        final ContextFactory factory = ContextFactory.createFactory();
-        final Context        context = factory.createContext();
-        final Layer          layer   = factory.createLayer(features, style);
+        MapContext context = new DefaultMapContext();
+        MapLayer layer = new DefaultMapLayer(features, style);
         layer.setTitle("The shapefile");
-        context.getLayerList().addLayer(layer);
-        context.getBoundingBox().setAreaOfInterest(features.getBounds());
+        context.addLayer(layer);
         context.setTitle("Hello World");
         return context;
     }
 
-    /**
+    /** 
      * Create and show the map pane.
      *
      * @param context The context to show.
      */
-    protected void showMapPane(final Context context) {
+    protected void showMapPane(final MapContext context) throws Exception {
         // Create the map pane and add a map scale layer to it.
-        final StyledMapPane mapPane = new StyledMapPane();
-        mapPane.setContext(context);
-        mapPane.setPaintingWhileAdjusting(true);
+        final StyledMapPane2 mapPane = new StyledMapPane2();
+        mapPane.setMapContext(context);
+        mapPane.setPaintingWhileAdjusting(false);
         mapPane.getRenderer().addLayer(new RenderedMapScale());
 
         // Create the frame, add the map pane and a status bar.
