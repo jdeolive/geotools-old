@@ -39,6 +39,13 @@
       <url>http://www.opengis.org</url>
     </dependency>
     <dependency>
+        <id>opengis</id>
+        <version>SNAPSHOT</version>
+        <url>http://www.opengis.org</url>
+    </dependency>
+
+
+    <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
@@ -53,11 +60,13 @@
       <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
+    <!--
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
+    -->
   </dependencies>
 
   
