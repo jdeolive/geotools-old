@@ -24,11 +24,13 @@ import org.geotools.feature.Feature;
  * filter.  It should handle xpath attributePaths of features, and should
  * report the attribute found at the attributePath of a feature.
  *
- * @version $Id: AttributeExpression.java,v 1.4 2003/08/07 19:55:21 cholmesny Exp $
+ * @version $Id: AttributeExpression.java,v 1.5 2003/09/07 14:19:33 jmacgill Exp $
  */
 public interface AttributeExpression extends Expression {
     /**
      * Sets the path of the attribute of this expression.
+     * For simple, non-nested, features the 'path' is simply the name of an 
+     * attribute.
      *
      * @param attributePath A string of the path.
      *
