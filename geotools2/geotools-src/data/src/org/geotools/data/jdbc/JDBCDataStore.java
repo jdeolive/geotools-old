@@ -370,7 +370,7 @@ public abstract class JDBCDataStore implements DataStore {
         if (compare == 0) {
             // they are the same type
             //
-            query = new DefaultQuery( typeName, filter);
+            query = new DefaultQuery( typeName, filter );
         } else if (compare == 1) {
             // featureType is a proper subset and will require reTyping
             //
@@ -391,7 +391,6 @@ public abstract class JDBCDataStore implements DataStore {
         if (compare == 1) {
             reader = new ReTypeFeatureReader( reader, requestType );
         }
-
         return reader;
     }
     private Set addAll( Set set, Object all[] ){
@@ -477,19 +476,39 @@ public abstract class JDBCDataStore implements DataStore {
         throws IOException {
         
         String typeName = query.getTypeName();
+        FeatureType featureType = getSchema( typeName );
+                
         SQLBuilder sqlBuilder = getSqlBuilder(typeName);
         Filter preFilter = sqlBuilder.getPreQueryFilter(query.getFilter());
         Filter postFilter = sqlBuilder.getPostQueryFilter(query.getFilter());
                         
-        String[] requestedNames = propertyNames( query );        
-        String[] filterNames = DataUtilities.attributeNames( postFilter );
+        String[] requestedNames = propertyNames( query );
+        String propertyNames[];
+        if( requestedNames.length == featureType.getAttributeCount() ){
+            // because we have everything, the filter can run
+            propertyNames = requestedNames;
+        }
+        else if( requestedNames.length < featureType.getAttributeCount() ){
+            // we will need to reType this :-)
+            //
+            // check to make sure we have enough for the filter
+            //
+            String[] filterNames = DataUtilities.attributeNames( postFilter );
                                 
-        Set set = new HashSet();
-        addAll( set, requestedNames );
-        addAll( set, filterNames );
+            Set set = new HashSet();
+            addAll( set, requestedNames );
+            addAll( set, filterNames );
         
-        String propertyNames[] =
-            (String[]) set.toArray( new String[set.size()]); 
+            if( set.size() == requestedNames.length ){
+                propertyNames = requestedNames;
+            }
+            else {
+                propertyNames = (String[]) set.toArray( new String[set.size()]);
+            }
+        } 
+        else {
+            throw new DataSourceException( typeName+" does not contain requested proeprties:"+ query );            
+        }
         
         AttributeType[] attrTypes = null;
         try {
@@ -1574,7 +1593,7 @@ public abstract class JDBCDataStore implements DataStore {
                 throw new SchemaException( typeName+" does not contain requested "+propertyNames[i]+" attribute");                            
             }
         }
-        return null;
+        return types;
     }
     private AttributeType[] getAttTypes(Query query) throws IOException {
         FeatureType schema = getSchema(query.getTypeName());
@@ -1629,7 +1648,12 @@ public abstract class JDBCDataStore implements DataStore {
         }
 
         /**
-         * DOCUMENT ME!
+         * Returns the name of FidColumn if we are using one.
+         * <p>
+         * This is used when we are using a Primary Key for
+         * our Feature ID. If this value is <code>null</code>
+         * we are letting a sequence or OID do the work.
+         * </p>
          *
          * @return
          */

@@ -165,8 +165,25 @@ public class JDBCFeatureSource implements FeatureSource {
      *
      * @see org.geotools.data.FeatureSource#getFeatures(org.geotools.data.Query)
      */
-    public FeatureResults getFeatures(final Query query)
+    public FeatureResults getFeatures( Query request )
         throws IOException {
+        String typeName = featureType.getTypeName();
+
+        if( request.getTypeName() != null &&
+            !typeName.equals( request.getTypeName() )){
+            throw new IOException("Cannot query "+typeName+" with:"+request);                
+        }                    
+        if( request.getTypeName() == null ){
+            request = new DefaultQuery(
+                featureType.getTypeName(),
+                request.getFilter(),
+                request.getMaxFeatures(),
+                request.getPropertyNames(),
+                request.getHandle()
+            );
+        }
+        final Query query = request;
+                                    
         return new DefaultFeatureResults(this, query) {
                 /**
                  * JDBCDataStore has a more direct query method
@@ -180,7 +197,7 @@ public class JDBCFeatureSource implements FeatureSource {
                     FeatureReader reader = getJDBCDataStore().getFeatureReader(query,
                             getTransaction());
 
-                    if (maxFeatures == query.DEFAULT_MAX) {
+                    if (maxFeatures == query.getMaxFeatures()) {
                         return reader;
                     } else {
                         return new MaxFeatureReader(reader, maxFeatures);

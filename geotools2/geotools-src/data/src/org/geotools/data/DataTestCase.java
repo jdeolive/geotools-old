@@ -132,7 +132,11 @@ public class DataTestCase extends TestCase {
             },
             "road.rd3"
         );
-        roadBounds = new Envelope(1, 5, 0, 4);
+        roadBounds = new Envelope();
+        roadBounds.expandToInclude( roadFeatures[0].getBounds() );
+        roadBounds.expandToInclude( roadFeatures[1].getBounds() );
+        roadBounds.expandToInclude( roadFeatures[2].getBounds() );
+        
         FilterFactory factory = FilterFactory.createFilterFactory();
         rd1Filter = factory.createFidFilter("road.rd1");
         rd2Filter = factory.createFidFilter("road.rd2");
@@ -186,7 +190,10 @@ public class DataTestCase extends TestCase {
                             { 4, 6, 4, 8, 6, 10 }
                         }), "rv2", new Double(3.0)
                 }, "river.rv2");
-        riverBounds = new Envelope(4, 13, 3, 10);
+        riverBounds = new Envelope();
+        riverBounds.expandToInclude( riverFeatures[0].getBounds());
+        riverBounds.expandToInclude( riverFeatures[1].getBounds());
+                
         rv1Filter = FilterFactory.createFilterFactory().createFidFilter("river.rv1");
 
         //  9,5   11,5   

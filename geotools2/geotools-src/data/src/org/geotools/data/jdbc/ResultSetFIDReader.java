@@ -32,7 +32,10 @@ import org.geotools.data.jdbc.JDBCDataStore.QueryData;
  * a number, as the typeName is always appended on.  This is because
  * id's must start with a letter or an underscore.  If needed we
  * could only append the typeName if the column is an int.   
- *
+ * <p>
+ * Jody with an update - I test if it is a number, if it starts with letter or underscore
+ * I use it as is
+ * </p>
  * @task TODO: factory construction methods?
  *
  * @author  Chris Holmes
@@ -98,7 +101,6 @@ public class ResultSetFIDReader implements FIDReader, QueryDataListener {
             throw new DataSourceException(msg, sqlException);                         
         }
     }
-
     public String next() throws IOException {
         if (isClosed) {
             throw new IOException("This FIDReader has already been closed");
@@ -112,8 +114,22 @@ public class ResultSetFIDReader implements FIDReader, QueryDataListener {
             index++;
             String fid = null;
             results.absolute(index);
-            fid = typeName + "." + results.getString(column);
-            return fid;
+            fid = results.getString(column);
+            char ch = fid.charAt( 0 );
+            if( Character.isLetter( ch ) || ch == '_' ){
+                return fid;    
+            }
+            else if( Character.isDigit( ch )){
+                // are we an int?
+                try {
+                    long number = Long.parseLong( fid );
+                    return typeName + "." + number;                                        
+                }
+                catch( NumberFormatException badNum ){
+                    //throw new IOException("Invalid FeatureID:"+fid );
+                }                                
+            }                        
+            return typeName+"."+fid;
         } catch (SQLException sqlException) {
             queryData.close( sqlException );
             String msg = "Error obtaining more content"; 
