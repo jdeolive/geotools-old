@@ -5,20 +5,23 @@ import org.geotools.datasource.*;
 public interface FeatureTable {
     public void setDataSource(DataSource ds);
     
-    /** Gets the loaded Extent of this FeatureTable
+    /**
+     * Gets the loaded Extent of this FeatureTable.
      * The Extent of current loaded Features in this table
      */
     public Extent getLoadedExtent();
     
-    /** get the features in the datasource inside the loadedExtent
-     *  will not trigger a datasourceload. 
-     *  functionally equivalent to getFeatures(getLoadedExtent());
+    /**
+     * Gets the features in the datasource inside the loadedExtent.
+     * Will not trigger a datasourceload. 
+     * Functionally equivalent to getFeatures(getLoadedExtent());
      * @see #getfeatures(Extent ex)
      */
     public Feature[] getFeatures();
     
-    /** get the features in the datasource inside the Extent ex
-     *  this may trigger a load on the datasource
+    /**
+     * Gets the features in the datasource inside the Extent ex
+     * this may trigger a load on the datasource
      */
     public Feature[] getFeatures(Extent ex) throws DataSourceException;
     
@@ -35,27 +38,37 @@ public interface FeatureTable {
      */
     public DataSource getDataSource();
     
-    /** Removes the feature from this FeatureTable, notifying TableChangedListeners that the table has changed
+    /**
+     * Removes the feature from this FeatureTable, notifying
+     * TableChangedListeners that the table has changed
      * @param f The Feature to remove
      */
     public void removeFeature(Feature feature);
-    /** Removes the features from this FeatureTable, notifying TableChangedListeners that the table has changed
+    /**
+     * Removes the features from this FeatureTable, notifying
+     * TableChangedListeners that the table has changed
      * @param f The Features to remove
      */
     public void removeFeatures(Feature[] features);
     
-    /** Removes the features from this FeatureTable which fall into the specified extent, notifying TableChangedListeners that the table has changed
+    /**
+     * Removes the features from this FeatureTable which fall into the
+     * specified extent, notifying TableChangedListeners that the table
+     * has changed
      * @param ex The extent defining which features to remove
      */
     public void removeFeatures(Extent ex);
 
     
-    /** Adds the given List of Features to this FeatureTable, notifying TableChangedListeners that the table has changed
+    /**
+     * Adds the given List of Features to this FeatureTable, notifying
+     * TableChangedListeners that the table has changed
      * @param features The List of Features to add
      */
     public void addFeature(Feature feature);
     
-    /** Adds the given List of Features to this FeatureTable
+    /**
+     * Adds the given List of Features to this FeatureTable
      * @param features The List of Features to add
      */
     public void addFeatures(Feature[] features);
