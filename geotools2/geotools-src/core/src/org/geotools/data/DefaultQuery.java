@@ -100,7 +100,8 @@ public class DefaultQuery implements Query {
      */
     public DefaultQuery(String typeName, Filter filter, int maxFeatures,
         String[] propNames, String handle) {
-        this(filter, propNames);
+        this(typeName, filter);
+	this.properties = properties;
         this.maxFeatures = maxFeatures;
         this.handle = handle;
     }
