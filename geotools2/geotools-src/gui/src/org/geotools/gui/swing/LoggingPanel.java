@@ -33,24 +33,25 @@
 package org.geotools.gui.swing;
 
 // Swing dependencies
-import javax.swing.JFrame;
 import javax.swing.JTable;
 import javax.swing.JPanel;
+import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.JInternalFrame;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.event.EventListenerList;
+import javax.swing.event.TableColumnModelListener;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ChangeEvent;
 
 // AWT
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.BorderLayout;
 
 // Logging
@@ -58,7 +59,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
-import java.util.logging.SimpleFormatter;
 
 // Collections
 import java.util.List;
@@ -69,22 +69,31 @@ import java.util.ArrayList;
 import org.geotools.resources.XArray;
 import org.geotools.resources.gui.Resources;
 import org.geotools.resources.gui.ResourceKeys;
+import org.geotools.resources.SwingUtilities;
 
 
 /**
- * A panel displaying logging messages.
+ * A panel displaying logging messages. The windows displaying Geotools's logging messages
+ * can be constructed with the following code:
+ *
+ * <blockquote>
+ * {@link JFrame} frame = new JFrame("Geotools's logging panel");
+ * frame.getContentPane().add(new LoggingPanel("org.geotools"));
+ * frame.pack();
+ * frame.show();
+ * </blockquote>
  *
  * This panel is initially set to listen to messages of level {@link Level#CONFIG} or higher.
- * This level can be changed with <code>{@link #getHandler}.setLevel(level)</code>.
+ * This level can be changed with <code>{@link #getHandler}.setLevel(aLevel)</code>.
  *
- * @version $Id: LoggingPanel.java,v 1.1 2002/08/30 18:41:11 desruisseaux Exp $
+ * @version $Id: LoggingPanel.java,v 1.2 2002/09/01 22:36:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LoggingPanel extends JPanel {
     /**
      * The model for this component.
      */
-    private final Model model = new Model();
+    private final LoggingTableModel model = new LoggingTableModel();
 
     /**
      * The table for displaying logging messages.
@@ -92,43 +101,64 @@ public class LoggingPanel extends JPanel {
     private final JTable table = new JTable(model);
 
     /**
-     * The levels for colors enumerated in <code>levelColors</code>.
-     * This array must be in increasing order.
+     * The levels for colors enumerated in <code>levelColors</code>. This array
+     * <strong>must</strong> be in increasing order. Logging messages of level
+     * <code>levelValues[i]</code> or higher will be displayed with foreground
+     * color <code>levelColors[i*2]</code> and background color <code>levelColors[i*2+1]</code>.
+     *
+     * @see Level#intValue
+     * @see #getForeground(Level)
+     * @see #getBackground(Level)
      */
     private int[] levelValues = new int[0];
 
     /**
-     * The color to use for displaying logging messages. Color at index <var>i</var>
-     * will be used for level <code>levelValues[i/2]</code> or greater.
+     * Pairs of foreground and background colors to use for displaying logging messages.
+     * Logging messages of level <code>levelValues[i]</code> or higher will be displayed
+     * with foreground color <code>levelColors[i*2]</code> and background color
+     * <code>levelColors[i*2+1]</code>.
+     *
+     * @see #getForeground(Level)
+     * @see #getBackground(Level)
      */
     private final List levelColors = new ArrayList();
 
     /**
-     * Construct a logging panel. This panel is not registered to any logger.
-     * In order to register this panel, the following code must be invoked:
+     * Constructs a new logging panel. This panel is not registered to any logger.
+     * Registration can be done with the following code:
      *
      * <blockquote><pre>
-     * aLogger.{@link Logger#addHandler addHandler}({@link #getHandler});
+     * logger.{@link Logger#addHandler addHandler}({@link #getHandler});
      * </pre></blockquote>
      */
     public LoggingPanel() {
         super(new BorderLayout());
         table.setShowGrid(false);
         table.setCellSelectionEnabled(false);
+        table.setGridColor(Color.LIGHT_GRAY);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setDefaultRenderer(Object.class, new CellRenderer());
-        final TableColumnModel columns = table.getColumnModel();
-        columns.getColumn(0).setPreferredWidth(80);
-        columns.getColumn(1).setPreferredWidth(200);
-        add(new JScrollPane(table), BorderLayout.CENTER);
 
-        setLevelColor(Level.INFO,    new Color(0, 128, 0), null);
-        setLevelColor(Level.WARNING, Color.RED,           null);
-        setLevelColor(Level.SEVERE,  Color.WHITE,    Color.RED);
+        if (true) {
+            int width = 300;
+            final TableColumnModel columns = table.getColumnModel();
+            for (int i=model.getColumnCount(); --i>=0;) {
+                columns.getColumn(i).setPreferredWidth(width);
+                width = 80;
+            }
+        }
+
+        final JScrollPane scroll = new JScrollPane(table);
+        new AutoScroll(scroll.getVerticalScrollBar().getModel());
+        add(scroll, BorderLayout.CENTER);
+
+        setLevelColor(Level.CONFIG,  new Color(0, 128, 0), null);
+        setLevelColor(Level.WARNING, Color.RED,            null);
+        setLevelColor(Level.SEVERE,  Color.WHITE,     Color.RED);
     }
 
     /**
-     * Construct a logging panel and register it to the specified logger.
+     * Constructs a new logging panel and register it to the specified logger.
      *
      * @param logger The logger to listen to, or <code>null</code> for the root logger.
      */
@@ -157,8 +187,53 @@ public class LoggingPanel extends JPanel {
     }
 
     /**
-     * Set the color for message of the specified level. Message of level <code>level</code>
-     * or greater will be painted using the specified foreground and background colors.
+     * Returns the foreground color for the specified log record. This method is invoked at
+     * rendering time for every cell in the table's "message" column. The default implementation
+     * returns a color based on the record's level, using colors set with {@link #setLevelColor}.
+     *
+     * @param  record The record to get the foreground color.
+     * @return The foreground color for the specified record,
+     *         or <code>null</code> for the default color.
+     */
+    public Color getForeground(final LogRecord record) {
+        return getColor(record, 0);
+    }
+
+    /**
+     * Returns the background color for the specified log record. This method is invoked at
+     * rendering time for every cell in the table's "message" column. The default implementation
+     * returns a color based on the record's level, using colors set with {@link #setLevelColor}.
+     *
+     * @param  record The record to get the background color.
+     * @return The background color for the specified record,
+     *         or <code>null</code> for the default color.
+     */
+    public Color getBackground(final LogRecord record) {
+        return getColor(record, 1);
+    }
+
+    /**
+     * Returns the foreground or background color for the specified record.
+     *
+     * @param  record The record to get the color.
+     * @param  offset 0 for the foreground color, or 1 for the background color.
+     * @return The color for the specified record, or <code>null</code> for the default color.
+     */
+    private Color getColor(final LogRecord record, final int offset) {
+        int i = Arrays.binarySearch(levelValues, record.getLevel().intValue());
+        if (i < 0) {
+            i = ~i - 1; // "~" is the tild symbol, not minus.
+            if (i < 0) {
+                return null;
+            }
+        }
+        return (Color) levelColors.get(i*2 + offset);
+    }
+
+    /**
+     * Set the foreground and background colors for messages of the specified level.
+     * The specified colors will apply on any messages of level <code>level</code> or
+     * greater, up to the next level set with an other call to <code>setLevelColor(...)</code>.
      *
      * @param level       The minimal level to set color for.
      * @param foreground  The foreground color, or <code>null</code> for the default color.
@@ -179,234 +254,57 @@ public class LoggingPanel extends JPanel {
             levelColors.add(i+0, foreground);
             levelColors.add(i+1, background);
         }
+        assert XArray.isSorted(levelValues);
         assert levelValues.length*2 == levelColors.size();
     }
 
     /**
-     * Returns the foreground color for the specified level.
-     *
-     * @param  level The level to get foreground.
-     * @return The foreground color for the specified level.
+     * Layout this component. This method give all the remaining space, if any,
+     * to the last table's column. This column is usually the one with logging
+     * messages.
      */
-    public Color getForeground(final Level level) {
-        final Color color = getForeground(level.intValue());
-        return (color!=null) ? color : getForeground();
+    public void doLayout() {
+        final TableColumnModel model = table.getColumnModel();
+        final int      messageColumn = model.getColumnCount()-1;
+        Component parent = table.getParent();
+        int delta = parent.getWidth();
+        if ((parent=parent.getParent()) instanceof JScrollPane) {
+            delta -= ((JScrollPane) parent).getVerticalScrollBar().getPreferredSize().width;
+        }
+        for (int i=0; i<messageColumn; i++) {
+            delta -= model.getColumn(i).getWidth();
+        }
+        final TableColumn column = model.getColumn(messageColumn);
+        if (delta > Math.max(column.getWidth(), column.getPreferredWidth())) {
+            column.setPreferredWidth(delta);
+        }
+        super.doLayout();
     }
 
     /**
-     * Returns the foreground color for the specified level.
+     * Convenience method showing this logging panel into a frame.
      *
-     * @param  level The level to get foreground.
-     * @return The foreground color for the specified level.
+     * @param  owner The owner, or <code>null</code> to show
+     *         this logging panel in a top-level window.
+     * @return The frame. May be a {@link JInternalFrame},
+     *         a {@link JDialog} or a {@link JFrame}.
      */
-    public Color getBackground(final Level level) {
-        final Color color = getBackground(level.intValue());
-        return (color!=null) ? color : getBackground();
-    }
-
-    /**
-     * Returns the foreground color for the specified level.
-     *
-     * @param  level The level to get foreground.
-     * @return The foreground color for the specified level.
-     */
-    final Color getForeground(final int level) {
-        int i = Arrays.binarySearch(levelValues, level);
-        if (i < 0) {
-            i = ~i;
-            if (i >= levelValues.length) {
-                return getForeground();
-            }
-        }
-        return (Color) levelColors.get(i*2);
-    }
-
-    /**
-     * Returns the background color for the specified level.
-     *
-     * @param  level The level to get background.
-     * @return The background color for the specified level.
-     */
-    final Color getBackground(final int level) {
-        int i = Arrays.binarySearch(levelValues, level);
-        if (i < 0) {
-            i = ~i;
-            if (i >= levelValues.length) {
-                return getBackground();
-            }
-        }
-        return (Color) levelColors.get(i*2 + 1);
-    }
-
-    /**
-     * The model to use for storing logging data.
-     */
-    private final class Model extends Handler implements TableModel {
-        /**
-         * The list of cell's contents in a row major fashion.
-         */
-        private final List records = new ArrayList();
-
-        /**
-         * Record's levels for each row. Used for selecting a rendering color.
-         */
-        private int[] levels = new int[12];
-
-        /**
-         * Width of the "message" column. This width will never dimunish.
-         * It will only go greater if longer message are logged.
-         */
-        private int width = 20;
-
-        /**
-         * Construct the handler.
-         */
-        public Model() {
-            setLevel(Level.CONFIG);
-            setFormatter(new SimpleFormatter());
-        }
-
-        /**
-         * Publish a {@link LogRecord}.
-         */
-        public synchronized void publish(final LogRecord record) {
-            final int        row = getRowCount();
-            final Level    level = record.getLevel();
-            final String message = getFormatter().formatMessage(record);
-            final int     length = message.length();
-
-            // Store the level
-            if (row >= levels.length) {
-                levels = XArray.resize(levels, row + Math.min(row, 512));
-            }
-            levels[row] = level.intValue();
-
-            // Store the logging message
-            records.add(level.getLocalizedName());
-            records.add(message);
-            EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    fireTableChanged(new TableModelEvent(Model.this, row, row,
-                             TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT));
-                    if (length > width) {
-                        width = length;
-                        final int column = table.convertColumnIndexToView(getColumnCount()-1);
-                        if (column >= 0) {
-                            table.getColumnModel().getColumn(column).setPreferredWidth(length*6);
-                        }
-                    }
-                }
-            });
-        }
-
-        /**
-         * Returns the level for the specified row.
-         */
-        final synchronized int getLevel(final int row) {
-            assert row < getRowCount();
-            return levels[row];
-        }
-
-        /**
-         * Returns the number of columns in the model.
-         */
-        public int getColumnCount() {
-            return 2;
-        }
-        
-        /**
-         * Returns the number of rows in the model.
-         */
-        public synchronized int getRowCount() {
-            final int size = records.size();
-            final int columnCount = getColumnCount();
-            assert (size % columnCount) == 0;
-            return  size / columnCount;
-        }
-
-        /**
-         * Returns the most specific superclass for all the cell values in the column.
-         */
-        public Class getColumnClass(int columnIndex) {
-            return String.class;
-        }
-        
-        /**
-         * Returns the name of the column at <code>columnIndex</code>.
-         */
-        public String getColumnName(int columnIndex) {
-            final int key;
-            switch (columnIndex) {
-                case 0:  key=ResourceKeys.LEVEL;   break;
-                default: key=ResourceKeys.MESSAGE; break;
-            }
-            return Resources.getResources(getLocale()).getString(key);
-        }
-
-        /**
-         * Returns the value for the cell at <code>columnIndex</code> and <code>rowIndex</code>.
-         */
-        public synchronized Object getValueAt(int rowIndex, int columnIndex) {
-            return records.get(rowIndex*getColumnCount() + columnIndex);
-        }
-
-        /**
-         * Do nothing since cells are not editable.
-         */
-        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        }
-
-        /**
-         * Returns <code>false</code> since cells are not editable.
-         */
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return false;
-        }
-        
-        /**
-         * Adds a listener that is notified each time a change to the data model occurs.
-         */
-        public void addTableModelListener(final TableModelListener listener) {
-            listenerList.add(TableModelListener.class, listener);
-        }
-        
-        /**
-         * Removes a listener from the list that is notified each time a change occurs.
-         */
-        public void removeTableModelListener(final TableModelListener listener) {
-            listenerList.remove(TableModelListener.class, listener);
-        }
-
-        /**
-         * Forwards the given notification event to all {@link TableModelListeners}.
-         */
-        private void fireTableChanged(final TableModelEvent event) {
-            final Object[] listeners = listenerList.getListenerList();
-            for (int i=listeners.length-2; i>=0; i-=2) {
-                if (listeners[i]==TableModelListener.class) {
-                    ((TableModelListener)listeners[i+1]).tableChanged(event);
-                }
-            }
-        }
-        
-        /**
-         * Flush any buffered output.
-         */
-        public void flush() {
-        }
-        
-        /**
-         * Close the <code>Handler</code> and free all associated resources.
-         */
-        public void close() {
-        }
+    public Component show(final Component owner) {
+        final Component frame = SwingUtilities.toFrame(owner, this,
+                        Resources.format(ResourceKeys.EVENT_LOGGER));
+        frame.setSize(750, 300);
+        frame.setVisible(true);
+        doLayout();
+        return frame;
     }
 
     /**
      * Display cell contents. This class is used for changing
      * the cell's color according the log record level.
      */
-    private final class CellRenderer extends DefaultTableCellRenderer {
+    private final class CellRenderer extends DefaultTableCellRenderer
+                                  implements TableColumnModelListener
+    {
         /**
          * Default color for the foreground.
          */
@@ -418,11 +316,22 @@ public class LoggingPanel extends JPanel {
         private Color background;
 
         /**
+         * The index of messages column.
+         */
+        private int messageColumn;
+
+        /**
+         * The last row for which the side has been computed.
+         */
+        private int lastRow;
+
+        /**
          * Construct a new cell renderer.
          */
         public CellRenderer() {
             foreground = super.getForeground();
             background = super.getBackground();
+            table.getColumnModel().addColumnModelListener(this);
         }
 
         /**
@@ -446,45 +355,61 @@ public class LoggingPanel extends JPanel {
                                                        final Object  value,
                                                        final boolean isSelected,
                                                        final boolean hasFocus,
-                                                       final int row, final int column)
+                                                       final int     rowIndex,
+                                                       final int     columnIndex)
         {
             Color foreground = this.foreground;
             Color background = this.background;
-            if (column == 0) {
+            final boolean isMessage = (columnIndex == messageColumn);
+            if (!isMessage) {
                 foreground = Color.GRAY;
-            } else if (row >= 0) {
+            }
+            else if (rowIndex >= 0) {
                 final TableModel candidate = table.getModel();
-                if (candidate instanceof Model) {
-                    final Model model = (Model) candidate;
-                    final int   level = model.getLevel(row);
+                if (candidate instanceof LoggingTableModel) {
+                    final LoggingTableModel model = (LoggingTableModel) candidate;
+                    final LogRecord record = model.getLogRecord(rowIndex);
                     Color color;
-                    color=LoggingPanel.this.getForeground(level); if (color!=null) foreground=color;
-                    color=LoggingPanel.this.getBackground(level); if (color!=null) background=color;
+                    color=LoggingPanel.this.getForeground(record); if (color!=null) foreground=color;
+                    color=LoggingPanel.this.getBackground(record); if (color!=null) background=color;
                 }
             }
             super.setBackground(background);
             super.setForeground(foreground);
-            return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            final Component component = super.getTableCellRendererComponent(table, value,
+                                             isSelected, hasFocus, rowIndex, columnIndex);
+            /*
+             * If a new record is being painted and this new record is wider
+             * than previous ones, then make the message column width larger.
+             */
+            if (isMessage) {
+                if (rowIndex > lastRow) {
+                    final int width = component.getPreferredSize().width + 15;
+                    final TableColumn column = table.getColumnModel().getColumn(columnIndex);
+                    if (width > column.getPreferredWidth()) {
+                        column.setPreferredWidth(width);
+                    }
+                    if (rowIndex == lastRow+1) {
+                        lastRow = rowIndex;
+                    }
+                }
+            }
+            return component;
         }
-    }
 
-    /**
-     * Temporary method for testing this widget (will be removed soon).
-     */
-    public static void main(String[] args) throws Exception {
-        JFrame frame = new JFrame();
-        frame.getContentPane().add(new LoggingPanel("org.geotools"));
-        frame.pack();
-        frame.show();
-        for (int i=0; i<50; i++) {
-            Thread.currentThread().sleep(500);
-            Logger.getLogger("org.geotools").info("Test #"+i+org.geotools.resources.Utilities.spaces(i)+"bof");
-            if (i==15) {
-               Logger.getLogger("org.geotools").warning("Test");
-            }
-            if (i==20) {
-               Logger.getLogger("org.geotools").severe("Test");
-            }
+        /**
+         * Invoked when the message column may have moved. This method update the
+         * {@link #messageColumn} field, so that the message column will continue
+         * to be paint with special colors.
+         */
+        private final void update() {
+            messageColumn = table.convertColumnIndexToView(model.getColumnCount()-1);
         }
+        
+        public void columnAdded        (TableColumnModelEvent e) {update();}
+        public void columnMarginChanged          (ChangeEvent e) {update();}
+        public void columnMoved        (TableColumnModelEvent e) {update();}
+        public void columnRemoved      (TableColumnModelEvent e) {update();}
+        public void columnSelectionChanged(ListSelectionEvent e) {update();}
     }
 }

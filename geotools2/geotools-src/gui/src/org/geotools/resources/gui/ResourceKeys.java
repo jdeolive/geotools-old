@@ -22,17 +22,21 @@ package org.geotools.resources.gui;
  */
 public interface ResourceKeys
 {
+    public static final int CLASS                    =    33;
     public static final int CLOSE                    =     0;
     public static final int COORDINATES_SELECTION    =    19;
     public static final int DEBUG                    =     1;
     public static final int DOWN                     =     2;
     public static final int END_TIME                 =    20;
+    public static final int EVENT_LOGGER             =    37;
     public static final int GEOGRAPHIC_COORDINATES   =    21;
     public static final int HIDE                     =     3;
     public static final int LEFT                     =     4;
     public static final int LEVEL                    =    31;
+    public static final int LOGGER                   =    34;
     public static final int MAGNIFIER                =     5;
     public static final int MESSAGE                  =    32;
+    public static final int METHOD                   =    35;
     public static final int NO_DETAILS_$1            =     6;
     public static final int PREFERRED_RESOLUTION     =    22;
     public static final int RECTANGLE_$4             =     7;
@@ -44,6 +48,7 @@ public interface ResourceKeys
     public static final int SHOW_MAGNIFIER           =    12;
     public static final int SIZE_IN_MINUTES          =    24;
     public static final int START_TIME               =    25;
+    public static final int TIME_OF_DAY              =    36;
     public static final int TIME_RANGE               =    26;
     public static final int TIME_ZONE                =    27;
     public static final int UP                       =    13;
