@@ -28,6 +28,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.gui.tools.Tool;
 import org.geotools.map.events.AreaOfInterestChangedEvent;
 import org.geotools.map.events.AreaOfInterestChangedListener;
+import org.geotools.map.AreaOfInterestModel;
 import org.geotools.map.events.LayerListChangedEvent;
 import org.geotools.map.events.LayerListChangedListener;
 import org.geotools.map.LayerModel;
@@ -42,7 +43,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.1 2002/08/01 21:57:28 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.2 2002/08/03 19:21:11 camerons Exp $
  * @author Cameron Shorter
  */
 public class MapPane2 extends JPanel implements
@@ -67,6 +68,7 @@ public class MapPane2 extends JPanel implements
      * The areaOfInterest to be drawn by this map.
      */
     private Envelope areaOfInterest;
+    private AreaOfInterestModel areaOfInterestModel;
 
     /**
      * The style used by this MapPane.
@@ -78,15 +80,25 @@ public class MapPane2 extends JPanel implements
      * extended by other MapPanes.
      * A MapPane provides the core functionality for drawing maps.
      *
-     * @param tool The tool to use with the MapPane.  I'm not sure if the tool
+     * @param tool The tool to use with the MapPane.
      * parameter should be entered here.
+     * @param layerModel The layerModel where all the layers for this view are
+     * kept.
+     * @param areaOfInterestModel The model which stores the area of interest.
+     * @task The style should be moved into the layer model.
      */
     public MapPane2(
             Tool tool,
-            LayerModel layerModel) {        
+            LayerModel layerModel,
+            AreaOfInterestModel areaOfInterestModel) {        
         this.tool=tool;
         this.layerModel=layerModel;
+        this.areaOfInterestModel=areaOfInterestModel;
         this.renderer=new Java2DRenderer();
+        
+        // Initialise the Tool to use this MapPane.
+        this.tool.setMapPane(this);
+        this.tool.setAreaOfInterestModel(this.areaOfInterestModel);
     }
     
     /**
@@ -122,9 +134,11 @@ public class MapPane2 extends JPanel implements
             try {
                 renderer.render(
                         layerModel.getLayers()[i].getFeatures(
-                            new EnvelopeExtent(areaOfInterest)),
-                        this.areaOfInterest,
+                            new EnvelopeExtent(
+                                areaOfInterestModel.getAreaOfInterest())),
+                        areaOfInterestModel.getAreaOfInterest(),
                         this.style);
+                        //layerModel.getStyle());
             } catch (DataSourceException exception) {
                 // log exception
             }
