@@ -37,8 +37,8 @@ public class MySQLConnectionFactory {
      * @param port the port number for the MySQL database
      * @param instance the MySQL database instance name
      */
-    public MySQLConnectionFactory(String host, String port, String instance) {
-        this(MYSQL_URL_PREFIX + host + ":" + port + "/" + instance);
+    public MySQLConnectionFactory(String host, Integer port, String instance) {
+        this(MYSQL_URL_PREFIX + host + ":" + port.toString() + "/" + instance);
     }
     
     /**
@@ -48,7 +48,7 @@ public class MySQLConnectionFactory {
      * @param instance the MySQL database instance name
      */
     public MySQLConnectionFactory(String host, String instance) {
-        this(host, "3306", instance);
+        this(host, new Integer(3306), instance);
     }
 
     /**

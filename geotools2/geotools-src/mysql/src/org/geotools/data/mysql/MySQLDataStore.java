@@ -1,5 +1,6 @@
 package org.geotools.data.mysql;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
@@ -99,7 +100,7 @@ public class MySQLDataStore extends JDBCDataStore {
      * @return a MySQLDataStore for the specified parameters
      */
     public static MySQLDataStore getInstance(String host, String schema, String username, String password) throws IOException, SQLException {
-        return getInstance(host, "3306", schema, username, password);
+        return getInstance(host, new Integer(3306), schema, username, password);
     }
     
     /**
@@ -112,7 +113,7 @@ public class MySQLDataStore extends JDBCDataStore {
      * @throws IOException if the MySQLDataStore cannot be created because the database cannot be properly accessed
      * @throws SQLException if a MySQL connection pool cannot be established
      */
-    public static MySQLDataStore getInstance(String host, String port, String schema, String username, String password) throws IOException, SQLException {
+    public static MySQLDataStore getInstance(String host, Integer port, String schema, String username, String password) throws IOException, SQLException {
         return new MySQLDataStore(new MySQLConnectionFactory(host, port, schema).getConnectionPool(username, password));
     }
     
@@ -121,8 +122,12 @@ public class MySQLDataStore extends JDBCDataStore {
     }
     
     protected AttributeWriter createGeometryWriter(AttributeType attrType, QueryData queryData, int index) throws IOException {
-        return new MySQLAttributeWriter(attrType, queryData, index);
+        return new MySQLGeometryAttributeWriter(attrType, queryData, index);
     }
+    
+    protected AttributeWriter createResultSetWriter(AttributeType[] attrType, QueryData queryData, int startIndex, int endIndex) {
+        return new MySQLAttributeWriter(attrType, queryData, startIndex, endIndex);
+    }    
     
     protected JDBCFeatureWriter createFeatureWriter(FeatureReader fReader, AttributeWriter writer, QueryData queryData) throws IOException {
         return new MySQLFeatureWriter(fReader, writer, queryData);
@@ -350,6 +355,66 @@ public class MySQLDataStore extends JDBCDataStore {
 
             return current;
         }
+        
+        public void write() throws IOException {
+            if (queryData == null) {
+                throw new IOException("FeatureWriter has been closed");
+            }
+
+            if (current == null) {
+                throw new IOException("No feature available to write");
+            }
+
+            if (live != null) {
+                if (live.equals(current)) {
+                    // no modifications made to current
+                    live = null;
+                    current = null;
+                } else {
+                    doUpdate(live, current);
+
+                    Envelope bounds = new Envelope();
+                    bounds.expandToInclude(live.getBounds());
+                    bounds.expandToInclude(current.getBounds());
+                    listenerManager.fireFeaturesChanged(queryData.getFeatureTypeInfo().getFeatureTypeName(), queryData.getTransaction(), bounds);
+                    live = null;
+                    current = null;
+                }
+            } else {
+                // Do an insert
+                try {
+                    doInsert(current);
+                } catch (SQLException e) {
+                    throw new DataSourceException("Row adding failed.", e);
+                }
+
+                listenerManager.fireFeaturesAdded(queryData.getFeatureTypeInfo().getFeatureTypeName(),
+                    queryData.getTransaction(), current.getBounds());
+                current = null;
+            }
+        }
+        
+        private void doUpdate(Feature live, Feature current) throws IOException {
+            try {
+                for (int i = 0; i < current.getNumberOfAttributes(); i++) {
+                    Object curAtt = current.getAttribute(i);
+                    Object liveAtt = live.getAttribute(i);
+
+                    if ((live == null) || !DataUtilities.attributesEqual(curAtt, liveAtt)) {
+                        writer.write(i, curAtt);
+                    }
+                }
+            } catch (IOException ioe) {
+                String message = "problem modifying row";
+
+                if (queryData.getTransaction() != Transaction.AUTO_COMMIT) {
+                    queryData.getTransaction().rollback();
+                    message += "(transaction canceled)";
+                }
+
+                throw ioe;
+            }
+        }        
         
     }
     
