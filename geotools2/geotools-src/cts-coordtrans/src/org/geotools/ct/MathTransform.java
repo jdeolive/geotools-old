@@ -67,8 +67,8 @@ import javax.media.jai.PerspectiveTransform;
  * from observations, the transformation is accurate to within the
  * limitations of those observations.
  *
- * @version 1.00
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: MathTransform.java,v 1.3 2002/07/24 17:34:20 desruisseaux Exp $
+ * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
  * @see org.opengis.ct.CT_MathTransform
@@ -146,9 +146,6 @@ public interface MathTransform {
      * (<var>x<sub>0</sub></var>,<var>y<sub>0</sub></var>,<var>z<sub>0</sub></var>,
      *  <var>x<sub>1</sub></var>,<var>y<sub>1</sub></var>,<var>z<sub>1</sub></var> ...).
      *
-     * The size of the passed array must be an integer multiple of
-     * {@link #getDimSource}.
-     *
      * @param srcPts the array containing the source point coordinates.
      * @param srcOff the offset to the first point to be transformed
      *               in the source array.
@@ -176,9 +173,6 @@ public interface MathTransform {
      *
      * (<var>x<sub>0</sub></var>,<var>y<sub>0</sub></var>,<var>z<sub>0</sub></var>,
      *  <var>x<sub>1</sub></var>,<var>y<sub>1</sub></var>,<var>z<sub>1</sub></var> ...).
-     *
-     * The size of the passed array must be an integer multiple of
-     * {@link #getDimSource}.
      *
      * @param srcPts the array containing the source point coordinates.
      * @param srcOff the offset to the first point to be transformed
