@@ -16,7 +16,7 @@ alternate="yes"
 <!--"file:/usr/java/xxe-m13p1-bin/dtd/docbook/docbookx.dtd"-->
 
 <article id="index">
-    <!-- $Header: /home/root/geotools/geotools2/geotools-src/developersguide/xdocs/Attic/developersguide.sgml,v 1.5 2002/06/15 19:08:36 camerons Exp $ -->
+    <!-- $Id: developersguide.sgml,v 1.6 2002/06/15 19:09:37 camerons Exp $ -->
   <articleinfo>
     <title>Geotools2 Developer Guide</title>
 
@@ -25,7 +25,7 @@ alternate="yes"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/06/15 19:08:36 $</date>
+    <date>$Date: 2002/06/15 19:09:37 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
