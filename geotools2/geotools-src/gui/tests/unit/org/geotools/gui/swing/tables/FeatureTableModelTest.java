@@ -60,7 +60,8 @@ public class FeatureTableModelTest extends TestCase {
             JScrollPane scroll = new JScrollPane(jtable);
             frame.getContentPane().add(scroll,"Center");
             frame.setVisible(true);
-            
+            Thread.sleep(1000);
+            frame.dispose();
         }
         catch(Exception ioe){
             System.out.println(ioe);
