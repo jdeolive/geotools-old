@@ -75,17 +75,14 @@ import javax.media.jai.RenderedOp;
 
 
 /**
- * A data source designed to read the GTOPO30 file format, a publicly available
- * world wide DEM. For more information, and to get the free data, visit <A
+ * A data source designed to read the GTOPO30 file format, a publicly available world wide DEM. For
+ * more information, and to get the free data, visit <A
  * HREF="http://edcdaac.usgs.gov/gtopo30/gtopo30.html">GTOP030 web site</A>
  *
  * @author aaime
  */
 public class GTopo30DataSource extends AbstractDataSource {
-    /**
-     * Let's say that, for the moment, I want to read approximately 128k at a
-     * time
-     */
+    /** Let's say that, for the moment, I want to read approximately 128k at a time */
     private static final int TILE_SIZE = 1024 * 128;
 
     /** Dem data URL */
@@ -108,9 +105,8 @@ public class GTopo30DataSource extends AbstractDataSource {
 
     /** Preset colors used to generate an Image from the raw data */
     private Color[] demColors = new Color[] {
-            new Color(5, 90, 5), new Color(150, 200, 150),
-            new Color(190, 150, 20), new Color(100, 100, 50),
-            new Color(200, 210, 220), Color.WHITE, Color.WHITE, Color.WHITE,
+            new Color(5, 90, 5), new Color(150, 200, 150), new Color(190, 150, 20),
+            new Color(100, 100, 50), new Color(200, 210, 220), Color.WHITE, Color.WHITE, Color.WHITE,
             Color.WHITE
         };
 
@@ -120,18 +116,17 @@ public class GTopo30DataSource extends AbstractDataSource {
     /**
      * Creates a new instance of GTopo30DataSource
      *
-     * @param url URL pointing to one of the GTopo30 files (.dem, .hdr, .src,
-     *        .sch, .stx)
+     * @param url URL pointing to one of the GTopo30 files (.dem, .hdr, .src, .sch, .stx)
      *
-     * @throws MalformedURLException if the URL does not correspond to one of
-     *         the GTOPO30 files
+     * @throws MalformedURLException if the URL does not correspond to one of the GTOPO30 files
+     * @throws DataSourceException if the given url points to an unrecognized file
      */
-    public GTopo30DataSource(final URL url) throws MalformedURLException {
+    public GTopo30DataSource(final URL url) throws MalformedURLException, DataSourceException {
         try {
             filename = URLDecoder.decode(url.getFile(), "US-ASCII");
         } catch (UnsupportedEncodingException use) {
-            throw new MalformedURLException(
-                "Unable to decode " + url + " cause " + use.getMessage());
+            throw new MalformedURLException("Unable to decode " + url + " cause "
+                + use.getMessage());
         }
 
         boolean recognized = false;
@@ -141,10 +136,8 @@ public class GTopo30DataSource extends AbstractDataSource {
         String shext = ".sch";
         String stext = ".stx";
 
-        if (
-            filename.endsWith(dmext) || filename.endsWith(dhext)
-                || filename.endsWith(srext) || filename.endsWith(shext)
-                || filename.endsWith(stext)) {
+        if (filename.endsWith(dmext) || filename.endsWith(dhext) || filename.endsWith(srext)
+                || filename.endsWith(shext) || filename.endsWith(stext)) {
             recognized = true;
         } else {
             dmext = dmext.toUpperCase();
@@ -153,12 +146,14 @@ public class GTopo30DataSource extends AbstractDataSource {
             shext = shext.toUpperCase();
             stext = stext.toUpperCase();
 
-            if (
-                filename.endsWith(dmext) || filename.endsWith(dhext)
-                    || filename.endsWith(srext) || filename.endsWith(shext)
-                    || filename.endsWith(stext)) {
+            if (filename.endsWith(dmext) || filename.endsWith(dhext) || filename.endsWith(srext)
+                    || filename.endsWith(shext) || filename.endsWith(stext)) {
                 recognized = true;
             }
+        }
+
+        if (!recognized) {
+            throw new DataSourceException("Unrecognized file (file extension doesn't match)");
         }
 
         filename = filename.substring(0, filename.length() - 4);
@@ -171,11 +166,11 @@ public class GTopo30DataSource extends AbstractDataSource {
     }
 
     /**
-     * Gets the bounding box of this datasource using the default speed of this
-     * datasource as set by the implementer.
+     * Gets the bounding box of this datasource using the default speed of this datasource as set
+     * by the implementer.
      *
-     * @return The bounding box of the datasource or null if unknown and too
-     *         expensive for the method to calculate.
+     * @return The bounding box of the datasource or null if unknown and too expensive for the
+     *         method to calculate.
      *
      * @throws RuntimeException DOCUMENT ME!
      */
@@ -189,8 +184,7 @@ public class GTopo30DataSource extends AbstractDataSource {
             double ymin = ymax - (header.getNRows() * header.getYDim());
             double xmax = xmin + (header.getNCols() * header.getXDim());
 
-            env = new com.vividsolutions.jts.geom.Envelope(
-                    xmin, xmax, ymin, ymax);
+            env = new com.vividsolutions.jts.geom.Envelope(xmin, xmax, ymin, ymax);
         } catch (Exception e) {
             // This should not happen!
             throw new RuntimeException("Unexpected error!" + e);
@@ -200,14 +194,12 @@ public class GTopo30DataSource extends AbstractDataSource {
     }
 
     /**
-     * Sets an envelope that will be used to crop the source data in order to
-     * get fewer data from the file
+     * Sets an envelope that will be used to crop the source data in order to get fewer data from
+     * the file
      *
-     * @param crop the rectangle that will be used to extract data from the
-     *        file
+     * @param crop the rectangle that will be used to extract data from the file
      */
-    public void setCropEnvelope(
-        final com.vividsolutions.jts.geom.Envelope crop) {
+    public void setCropEnvelope(final com.vividsolutions.jts.geom.Envelope crop) {
         com.vividsolutions.jts.geom.Envelope bbox = getBounds();
 
         if (bbox.intersects(crop)) {
@@ -225,8 +217,8 @@ public class GTopo30DataSource extends AbstractDataSource {
     }
 
     /**
-     * Loads the DEM from the file, wraps it in a feature that will be included
-     * into the returned collection, provided that the DEM passes the filter.
+     * Loads the DEM from the file, wraps it in a feature that will be included into the returned
+     * collection, provided that the DEM passes the filter.
      *
      * @param filter An OpenGIS filter; specifies which features to retrieve.
      *
@@ -243,13 +235,12 @@ public class GTopo30DataSource extends AbstractDataSource {
     }
 
     /**
-     * Loads the DEM from the file, wraps it in a feature that will be included
-     * into the returned collection, provided that it satisfies the passed
-     * query.
+     * Loads the DEM from the file, wraps it in a feature that will be included into the returned
+     * collection, provided that it satisfies the passed query.
      *
      * @param collection The collection to put the features into.
-     * @param query a datasource query object.  It encapsulates requested
-     *        information, such as tableName, maxFeatures and filter.
+     * @param query a datasource query object.  It encapsulates requested information, such as
+     *        tableName, maxFeatures and filter.
      *
      * @throws DataSourceException For all data source errors.
      */
@@ -297,17 +288,15 @@ public class GTopo30DataSource extends AbstractDataSource {
         // Prepare temporaray colorModel and sample model, needed to build the
         // RawImageInputStream
         ColorSpace graycs = ICC_ColorSpace.getInstance(ICC_ColorSpace.CS_GRAY);
-        ColorModel cm = new ComponentColorModel(
-                graycs, false, false, Color.TRANSLUCENT, DataBuffer.TYPE_SHORT);
+        ColorModel cm = new ComponentColorModel(graycs, false, false, Color.TRANSLUCENT,
+                DataBuffer.TYPE_SHORT);
 
-        SampleModel sm = new BandedSampleModel(
-                DataBuffer.TYPE_SHORT, ncols, nrows, 1);
+        SampleModel sm = new BandedSampleModel(DataBuffer.TYPE_SHORT, ncols, nrows, 1);
         ImageTypeSpecifier its = new ImageTypeSpecifier(cm, sm);
 
         // Finally, build the image input stream
         RawImageInputStream raw;
-        raw = new RawImageInputStream(
-                iis, its, new long[] {0},
+        raw = new RawImageInputStream(iis, its, new long[] {0},
                 new Dimension[] {new Dimension(ncols, nrows)});
 
         // if crop needed
@@ -316,8 +305,7 @@ public class GTopo30DataSource extends AbstractDataSource {
 
         // Make some decision about tiling.
         int tileRows = (int) Math.ceil(TILE_SIZE / (ncols * 2));
-        ImageLayout il = new ImageLayout(
-                0, 0, ncols, nrows, 0, 0, ncols, tileRows, sm, cm);
+        ImageLayout il = new ImageLayout(0, 0, ncols, nrows, 0, 0, ncols, tileRows, sm, cm);
 
         // First operator: read the image
         ParameterBlockJAI pbj = new ParameterBlockJAI("ImageRead");
@@ -364,9 +352,8 @@ public class GTopo30DataSource extends AbstractDataSource {
         GeographicCoordinateSystem sourceCS = null;
 
         try {
-            sourceCS = csFactory.createGeographicCoordinateSystem(
-                    "Geographic - WGS84", Unit.DEGREE, datum, meridian,
-                    AxisInfo.LATITUDE, AxisInfo.LONGITUDE);
+            sourceCS = csFactory.createGeographicCoordinateSystem("Geographic - WGS84",
+                    Unit.DEGREE, datum, meridian, AxisInfo.LATITUDE, AxisInfo.LONGITUDE);
         } catch (FactoryException fe) {
             throw new DataSourceException("Unexpected error", fe);
         }
@@ -375,24 +362,19 @@ public class GTopo30DataSource extends AbstractDataSource {
         // needed for visualization
         double offset = 0.0;
         double scale = max / 256.0;
-        Category nullValue = new Category(
-                "null", null, 0, 1, 1, header.getNoData());
-        Category elevation = new Category(
-                "elevation", demColors, 1, 256, scale, offset);
-        SampleDimension sd = new SampleDimension(
-                new Category[] {nullValue, elevation}, Unit.METRE);
+        Category nullValue = new Category("null", null, 0, 1, 1, header.getNoData());
+        Category elevation = new Category("elevation", demColors, 1, 256, scale, offset);
+        SampleDimension sd = new SampleDimension(new Category[] {nullValue, elevation}, Unit.METRE);
         SampleDimension geoSd = sd.geophysics(true);
         SampleDimension[] bands = new SampleDimension[] {geoSd};
 
         // Create the transform from Grid to real coordinates (and flip NS axis)
         GridRange gr = new GridRange(image);
-        GridGeometry gg = new GridGeometry(
-                gr, convertEnvelope(env), new boolean[] {false, true});
+        GridGeometry gg = new GridGeometry(gr, convertEnvelope(env), new boolean[] {false, true});
 
         // Finally, create the gridcoverage!
-        GridCoverage gc = new GridCoverage(
-                "topo", image, sourceCS, gg.getGridToCoordinateSystem(), bands,
-                null, null); //, bands, null, null);
+        GridCoverage gc = new GridCoverage("topo", image, sourceCS, gg.getGridToCoordinateSystem(),
+                bands, null, null); //, bands, null, null);
 
         // last step, wrap, add the the feature collection and return
         try {
@@ -403,15 +385,14 @@ public class GTopo30DataSource extends AbstractDataSource {
     }
 
     /**
-     * Convenience method to wrap a GridCoverage in a feature for inclusion in
-     * a FeatureCollection
+     * Convenience method to wrap a GridCoverage in a feature for inclusion in a FeatureCollection
      *
      * @param gc the GridCoverage to be passed
      *
      * @return a feature wrapping the grid coverage
      *
-     * @throws RuntimeException Should never happens, if so, there's a bug in
-     *         the feature building code
+     * @throws RuntimeException Should never happens, if so, there's a bug in the feature building
+     *         code
      */
     private Feature wrapGcInFeature(GridCoverage gc) {
         // create surrounding polygon
@@ -431,10 +412,8 @@ public class GTopo30DataSource extends AbstractDataSource {
             Polygon bounds = new Polygon(ring, pm, 0);
 
             // create the feature type
-            AttributeType geom = AttributeTypeFactory.newAttributeType(
-                    "geom", Polygon.class);
-            AttributeType grid = AttributeTypeFactory.newAttributeType(
-                    "grid", GridCoverage.class);
+            AttributeType geom = AttributeTypeFactory.newAttributeType("geom", Polygon.class);
+            AttributeType grid = AttributeTypeFactory.newAttributeType("grid", GridCoverage.class);
             FeatureType schema = null;
             AttributeType[] attTypes = {geom, grid};
 
@@ -443,11 +422,9 @@ public class GTopo30DataSource extends AbstractDataSource {
             // create the feature
             feature = schema.create(new Object[] {bounds, gc});
         } catch (SchemaException e) {
-            throw new RuntimeException(
-                "A schema exception occurred, that should not happen!", e);
+            throw new RuntimeException("A schema exception occurred, that should not happen!", e);
         } catch (IllegalAttributeException e) {
-            throw new RuntimeException(
-                "An illegal attribute exception occurred, that "
+            throw new RuntimeException("An illegal attribute exception occurred, that "
                 + "should not happen!", e);
         }
 
@@ -461,8 +438,7 @@ public class GTopo30DataSource extends AbstractDataSource {
      *
      * @return DOCUMENT ME!
      */
-    private Envelope convertEnvelope(
-        com.vividsolutions.jts.geom.Envelope source) {
+    private Envelope convertEnvelope(com.vividsolutions.jts.geom.Envelope source) {
         double[] min = new double[] {source.getMinX(), source.getMinY()};
         double[] max = new double[] {source.getMaxX(), source.getMaxY()};
 
@@ -478,15 +454,12 @@ public class GTopo30DataSource extends AbstractDataSource {
      * @return DOCUMENT ME!
      */
     private com.vividsolutions.jts.geom.Envelope intersectEnvelope(
-        com.vividsolutions.jts.geom.Envelope a,
-        com.vividsolutions.jts.geom.Envelope b) {
+        com.vividsolutions.jts.geom.Envelope a, com.vividsolutions.jts.geom.Envelope b) {
         com.vividsolutions.jts.geom.Envelope env = null;
 
         if (a.intersects(b)) {
-            env = new com.vividsolutions.jts.geom.Envelope(
-                    Math.max(a.getMinX(), b.getMinX()),
-                    Math.min(a.getMaxX(), b.getMaxX()),
-                    Math.max(a.getMinY(), b.getMinY()),
+            env = new com.vividsolutions.jts.geom.Envelope(Math.max(a.getMinX(), b.getMinX()),
+                    Math.min(a.getMaxX(), b.getMaxX()), Math.max(a.getMinY(), b.getMinY()),
                     Math.min(a.getMaxY(), b.getMaxY()));
         }
 
@@ -494,15 +467,13 @@ public class GTopo30DataSource extends AbstractDataSource {
     }
 
     /**
-     * Retrieves the featureType that features extracted from this datasource
-     * will be created with.
+     * Retrieves the featureType that features extracted from this datasource will be created with.
      *
      * @return the schema of features created by this datasource.
      *
-     * @task REVISIT: Our current FeatureType model is not yet advanced enough
-     *       to handle multiple featureTypes.  Should getSchema take a
-     *       typeName now that  a query takes a typeName, and thus DataSources
-     *       can now support multiple types? Or just wait until we can
+     * @task REVISIT: Our current FeatureType model is not yet advanced enough to handle multiple
+     *       featureTypes.  Should getSchema take a typeName now that  a query takes a typeName,
+     *       and thus DataSources can now support multiple types? Or just wait until we can
      *       programmatically make powerful enough schemas?
      */
     public FeatureType getSchema() {
@@ -510,8 +481,8 @@ public class GTopo30DataSource extends AbstractDataSource {
     }
 
     /**
-     * Returns the set of colors used to create the image contained in the
-     * GridCoverage returned by getFeatures
+     * Returns the set of colors used to create the image contained in the GridCoverage returned by
+     * getFeatures
      *
      * @return the set of colors used to depict the DEM
      */
@@ -520,8 +491,7 @@ public class GTopo30DataSource extends AbstractDataSource {
     }
 
     /**
-     * Allows the user to set different colors to depict the DEM returned by
-     * getFeatures
+     * Allows the user to set different colors to depict the DEM returned by getFeatures
      *
      * @param colors the new color set
      */

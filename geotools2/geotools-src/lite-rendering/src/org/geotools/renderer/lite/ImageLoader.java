@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 
 /**
- * $Id: ImageLoader.java,v 1.3 2003/07/27 15:29:47 aaime Exp $
+ * $Id: ImageLoader.java,v 1.4 2003/08/10 07:55:15 aaime Exp $
  *
  * @author Ian Turton
  */
@@ -58,6 +58,9 @@ class ImageLoader implements Runnable {
 
     /** Still waiting for the image? */
     private boolean waiting = true;
+    
+    /** A time
+    private static final long timeOut = 10000;
 
     /**
      * Add an image to be loaded by the ImageLoader

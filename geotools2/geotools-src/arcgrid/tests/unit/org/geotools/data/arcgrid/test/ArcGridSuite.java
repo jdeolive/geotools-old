@@ -23,7 +23,8 @@ public class ArcGridSuite extends TestCase {
     TestSuite suite = new TestSuite("All ArcGridDataSource Tests");
     
     suite.addTestSuite(ArcGridHeaderTest.class);
-	// suite.addTestSuite(ArcGridRenderTest.class);
+    suite.addTestSuite(ArcGridRenderTest.class);
+    suite.addTestSuite(ServiceTest.class);
     
     return suite;
   }
