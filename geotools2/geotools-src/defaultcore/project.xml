@@ -4,6 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>geotools-defaultcore</name>
   <id>defaultcore</id>
+  <logo>/images/defaultcore.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>GeoTools</name>
@@ -12,10 +13,10 @@
     </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
-  <shortDescription>Standard implemetation of the interfaces in the core module</shortDescription>
+  <shortDescription>Standard implementation of the interfaces in the core module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description>Standard implementaion of the interfaces in the core module</description>
-  <url>http://www.geotols.org/</url>
+  <description>Standard implementation of the interfaces in the core module</description>
+  <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
   <siteAddress>www.geotools.org</siteAddress>
@@ -100,6 +101,5 @@
     <jarResources/>
     <jars/>
   </build>
-    <logo>/images/defaultcore.gif</logo>
 </project>
 

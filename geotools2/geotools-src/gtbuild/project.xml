@@ -4,6 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>geotools-gtbuild</name>
   <id>gtbuild</id>
+  <logo>/images/gtbuild.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>GeoTools</name>
@@ -78,6 +79,5 @@
     <jars/>
         <sourceDirectory>src</sourceDirectory>
     </build>
-    <logo>/images/gtbuild.gif</logo>
 </project>
 

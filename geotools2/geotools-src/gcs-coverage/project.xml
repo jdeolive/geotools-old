@@ -4,6 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>geotools-gcs-coverage</name>
   <id>gcs-coverage</id>
+  <logo>/images/gcs.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>GeoTools</name>
@@ -15,7 +16,7 @@
   <shortDescription>gcs-coverage module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description>gcs-coverage module</description>
-  <url>http://www.geotols.org/</url>
+  <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
   <siteAddress>www.geotools.org</siteAddress>
@@ -70,6 +71,5 @@
     <jars/>
         <sourceDirectory>src</sourceDirectory>
     </build>
-    <logo>/images/gcs-coverage.gif</logo>
 </project>
 

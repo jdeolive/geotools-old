@@ -4,6 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>geotools-filter</name>
   <id>filter</id>
+  <logo>/images/filter.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>GeoTools</name>
@@ -15,7 +16,7 @@
   <shortDescription>Implementation of OpenGIS Filter specification</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description><![CDATA[Implementation of OpenGIS Filter specification]]></description>
-  <url>http://www.geotols.org/</url>
+  <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
   <siteAddress>www.geotools.org</siteAddress>
@@ -74,6 +75,5 @@
     <jars/>
         <sourceDirectory>src</sourceDirectory>
     </build>
-    <logo>/images/filter.gif</logo>
 </project>
 

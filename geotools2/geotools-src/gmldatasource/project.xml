@@ -4,6 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>geotools-gmldatasource</name>
   <id>gmldatasource</id>
+  <logo>/images/gmldatasource.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>GeoTools</name>
@@ -15,7 +16,7 @@
   <shortDescription>gmldatasource module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description>gmldatasource module</description>
-  <url>http://www.geotols.org/</url>
+  <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
   <siteAddress>www.geotools.org</siteAddress>
@@ -78,6 +79,5 @@
     <jars/>
         <sourceDirectory>src</sourceDirectory>
     </build>
-    <logo>/images/gmldatasource.gif</logo>
 </project>
 
