@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -43,7 +44,7 @@ import org.geotools.cs.CoordinateSystem;
 /**
  * The "Invert" operation.
  *
- * @version $Id: InvertOperation.java,v 1.1 2003/04/17 13:57:38 desruisseaux Exp $
+ * @version $Id: InvertOperation.java,v 1.2 2003/05/13 10:59:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class InvertOperation extends OperationJAI {

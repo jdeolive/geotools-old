@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -53,7 +54,7 @@ import org.geotools.resources.XArray;
  * The {@link #clip(Polygon, Polyline.Iterator)} method can then repeatedly 'clip' a series of 
  * polygons.
  *
- * @version $Id: Clipper.java,v 1.3 2003/02/19 19:16:03 jmacgill Exp $
+ * @version $Id: Clipper.java,v 1.4 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Clipper {

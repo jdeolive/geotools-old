@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ import junit.framework.TestSuite;
  * Test the {@link WeakHashSet}. A standard {@link HashSet} object
  * is used for comparaison purpose.
  *
- * @version $Id: WeakValueHashMapTest.java,v 1.1 2002/07/20 22:20:39 desruisseaux Exp $
+ * @version $Id: WeakValueHashMapTest.java,v 1.2 2003/05/13 10:58:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class WeakValueHashMapTest extends TestCase {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -63,7 +63,7 @@ import org.geotools.resources.Utilities;
  * the list of {@link Category}. This transform is thread safe if each
  * {@link Category#getSampleToGeophysics} transform is thread-safe too.
  *
- * @version $Id: GeophysicsCategoryList.java,v 1.2 2002/07/26 22:17:33 desruisseaux Exp $
+ * @version $Id: GeophysicsCategoryList.java,v 1.3 2003/05/13 10:59:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GeophysicsCategoryList extends CategoryList {

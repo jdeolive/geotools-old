@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -68,7 +68,7 @@ import org.geotools.units.Unit;
  * A commonly used authority is EPSG, which is also
  * used in the GeoTIFF standard.
  *
- * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.9 2003/04/29 18:28:15 desruisseaux Exp $
+ * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.10 2003/05/13 10:58:47 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

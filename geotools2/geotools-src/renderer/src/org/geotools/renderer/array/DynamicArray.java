@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -37,7 +38,7 @@ package org.geotools.renderer.array;
  * Enveloppe un tableau <code>float[]</code> dans
  * lequel des données pourront être ajoutés.
  *
- * @version $Id: DynamicArray.java,v 1.6 2003/02/26 12:05:34 desruisseaux Exp $
+ * @version $Id: DynamicArray.java,v 1.7 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DynamicArray extends SubArray {

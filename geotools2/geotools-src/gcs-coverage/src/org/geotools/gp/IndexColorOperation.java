@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ import org.geotools.resources.ImageUtilities;
  * Operation applied only on image's colors. This operation work
  * only for source image using an {@link IndexColorModel}.
  *
- * @version $Id: IndexColorOperation.java,v 1.9 2003/04/12 00:04:37 desruisseaux Exp $
+ * @version $Id: IndexColorOperation.java,v 1.10 2003/05/13 10:59:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class IndexColorOperation extends Operation {

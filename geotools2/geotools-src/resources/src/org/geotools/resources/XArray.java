@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ import java.lang.reflect.Array;
  * This class may be removed if JavaSoft provide some language construct
  * functionally equivalent to C/C++'s <code>realloc</code>.
  *
- * @version $Id: XArray.java,v 1.3 2002/09/01 18:12:48 desruisseaux Exp $
+ * @version $Id: XArray.java,v 1.4 2003/05/13 10:58:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class XArray {

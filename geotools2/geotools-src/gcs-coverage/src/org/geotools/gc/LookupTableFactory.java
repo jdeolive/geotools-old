@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -49,7 +50,7 @@ import org.geotools.util.WeakValueHashMap;
  * A factory for {@link LookupTableJAI} objects built from an array of {@link MathTransform1D}.
  * This factory is used internally by {@link GridCoverage#createGeophysics}.
  *
- * @version $Id: LookupTableFactory.java,v 1.1 2003/05/05 10:50:20 desruisseaux Exp $
+ * @version $Id: LookupTableFactory.java,v 1.2 2003/05/13 10:59:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class LookupTableFactory {

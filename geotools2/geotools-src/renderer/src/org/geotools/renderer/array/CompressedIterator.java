@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -36,7 +37,7 @@ package org.geotools.renderer.array;
 /**
  * Itérateur balayant les données d'un tableau {@link CompressedArray}.
  *
- * @version $Id: CompressedIterator.java,v 1.2 2003/01/29 23:18:07 desruisseaux Exp $
+ * @version $Id: CompressedIterator.java,v 1.3 2003/05/13 11:00:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class CompressedIterator extends PointIterator {

@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -69,7 +70,7 @@ import org.geotools.resources.CTSUtilities;
  *
  * <strong>Note:</strong> parsing is not yet implemented in this version.
  *
- * @version $Id: CoordinateFormat.java,v 1.2 2003/01/25 14:01:24 desruisseaux Exp $
+ * @version $Id: CoordinateFormat.java,v 1.3 2003/05/13 10:58:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CoordinateFormat extends Format {

@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -45,7 +46,7 @@ import java.awt.geom.Point2D;
  * for corrections of apparent pixel position in order to get the position we would
  * have if no deformations existed.
  *
- * @version $Id: DeformableViewer.java,v 1.1 2003/01/24 23:40:20 desruisseaux Exp $
+ * @version $Id: DeformableViewer.java,v 1.2 2003/05/13 11:00:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface DeformableViewer {

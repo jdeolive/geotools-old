@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ import java.rmi.RemoteException;
  * geographic or a projected coordinate system with a horizontal datum.
  * The other is a one-dimensional coordinate system with a vertical datum.
  *
- * @version $Id: CompoundCoordinateSystem.java,v 1.9 2003/04/29 18:28:14 desruisseaux Exp $
+ * @version $Id: CompoundCoordinateSystem.java,v 1.10 2003/05/13 10:58:47 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -67,7 +68,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * Informe l'utilisateur des progrès d'une opération en envoyant
  * des courriers électroniques à intervalles régulier.
  *
- * @version $Id: ProgressMailer.java,v 1.1 2003/02/03 15:31:02 desruisseaux Exp $
+ * @version $Id: ProgressMailer.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ProgressMailer implements ProgressListener {

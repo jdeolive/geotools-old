@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -86,7 +86,7 @@ import org.geotools.resources.GraphicsUtilities;
  * <p align="center"><img src="doc-files/ExceptionMonitor.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: ExceptionMonitor.java,v 1.6 2003/01/27 23:02:06 desruisseaux Exp $
+ * @version $Id: ExceptionMonitor.java,v 1.7 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ExceptionMonitor {

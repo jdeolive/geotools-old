@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -52,7 +53,7 @@ import org.geotools.resources.XAffineTransform;
  * by {@link RenderedMarks}. It is designed for reuse with many different affine transforms and
  * shapes. This class is <strong>not</strong> thread-safe.
  *
- * @version $Id: TransformedShape.java,v 1.2 2003/03/21 23:05:31 desruisseaux Exp $
+ * @version $Id: TransformedShape.java,v 1.3 2003/05/13 11:00:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class TransformedShape extends AffineTransform implements Shape {

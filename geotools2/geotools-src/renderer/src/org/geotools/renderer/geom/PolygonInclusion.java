@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -56,7 +57,7 @@ import org.geotools.resources.Utilities;
  *             continent et quelles îles sont contenues dans un lac donnée, de la même façon
  *             qu'on explore les dossiers d'un ordinateur.
  *
- * @version $Id: PolygonInclusion.java,v 1.1 2003/02/04 12:30:52 desruisseaux Exp $
+ * @version $Id: PolygonInclusion.java,v 1.2 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class PolygonInclusion {

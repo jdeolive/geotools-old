@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -48,7 +49,7 @@ import java.awt.image.ComponentSampleModel;
 /**
  * An {@link IndexColorModel} tolerant with image having more than one band.
  *
- * @version $Id: MultiBandsIndexColorModel.java,v 1.3 2003/03/10 10:45:15 desruisseaux Exp $
+ * @version $Id: MultiBandsIndexColorModel.java,v 1.4 2003/05/13 10:59:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Andrea Aime
  */

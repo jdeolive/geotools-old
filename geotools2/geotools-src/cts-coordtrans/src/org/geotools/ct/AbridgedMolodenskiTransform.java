@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -58,7 +58,7 @@ import org.geotools.resources.XAffineTransform;
  * Transforms a three dimensional geographic points using
  * abridged versions of formulas derived by Molodenski.
  *
- * @version $Id: AbridgedMolodenskiTransform.java,v 1.7 2002/10/16 22:35:53 desruisseaux Exp $
+ * @version $Id: AbridgedMolodenskiTransform.java,v 1.8 2003/05/13 10:58:47 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -291,7 +291,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     /**
      * The provider for {@link AbridgedMolodenskiTransform}.
      *
-     * @version $Id: AbridgedMolodenskiTransform.java,v 1.7 2002/10/16 22:35:53 desruisseaux Exp $
+     * @version $Id: AbridgedMolodenskiTransform.java,v 1.8 2003/05/13 10:58:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

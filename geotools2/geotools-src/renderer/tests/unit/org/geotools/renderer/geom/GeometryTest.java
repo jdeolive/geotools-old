@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -49,7 +50,7 @@ import org.geotools.renderer.geom.ShapePanel;
  * Performs a visual check of {@link Geometry} computations. Those computations are
  * an essential part of {@link org.geotools.renderer.geom.Polygon} internal working.
  *
- * @version $Id: GeometryTest.java,v 1.1 2003/02/03 09:52:00 desruisseaux Exp $
+ * @version $Id: GeometryTest.java,v 1.2 2003/05/13 11:00:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GeometryTest extends TestCase implements ShapePanel.Producer {

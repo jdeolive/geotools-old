@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2003, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ import org.geotools.resources.XMath;
 /**
  * Compute the root of a polynomial equation.
  *
- * @version $Id: Polynom.java,v 1.1 2003/04/16 22:05:42 desruisseaux Exp $
+ * @version $Id: Polynom.java,v 1.2 2003/05/13 10:58:04 desruisseaux Exp $
  * @author Ken Turkiwski
  * @author Martin Desruisseaux
  */

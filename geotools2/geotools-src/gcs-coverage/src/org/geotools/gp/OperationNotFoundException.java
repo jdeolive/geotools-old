@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ package org.geotools.gp;
  * Thrown by {@link GridCoverageProcessor} when an operation is queried
  * but has not been found.
  *
- * @version $Id: OperationNotFoundException.java,v 1.2 2002/07/27 12:40:49 desruisseaux Exp $
+ * @version $Id: OperationNotFoundException.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationNotFoundException extends IllegalArgumentException {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ package org.geotools.cs;
  * be a failure to find the authority code ({@link NoSuchAuthorityCodeException}),
  * a failure in the backing store, or a failure to contact the backing store.
  *
- * @version $Id: FactoryException.java,v 1.3 2003/01/18 12:58:32 desruisseaux Exp $
+ * @version $Id: FactoryException.java,v 1.4 2003/05/13 10:58:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class FactoryException extends Exception {

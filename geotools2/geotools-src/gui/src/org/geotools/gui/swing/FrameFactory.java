@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -55,7 +56,7 @@ import org.geotools.resources.Utilities;
  * coverages} or {@linkplain SFSGeometry geometry} objects in a Swing widget.
  *
  * @author Martin Desruisseaux
- * @version $Id: FrameFactory.java,v 1.1 2003/04/16 19:31:07 desruisseaux Exp $
+ * @version $Id: FrameFactory.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
  */
 public final class FrameFactory {
     /**

@@ -1,7 +1,7 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * Copyright (C) 2003 Geotools Project Management Committee (PMC)
- *           (C) 2003, Institut de Recherche pour le Développement
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
+ * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -53,7 +53,7 @@ import junit.framework.TestSuite;
  *   <li>{@link MathTransformFactory#createFilterTransform}</li>
  * </ul>
  *
- * @version $Id: PassthroughTransformTest.java,v 1.1 2003/05/12 21:27:57 desruisseaux Exp $
+ * @version $Id: PassthroughTransformTest.java,v 1.2 2003/05/13 10:58:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PassthroughTransformTest extends TransformationTest {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -52,7 +52,7 @@ import junit.framework.TestSuite;
  * Test the {@link SampleTranscoder} implementation. Image adapter depends
  * heavily on {@link CategoryList}, so this one should be tested first.
  *
- * @version $Id: SampleTranscoderTest.java,v 1.2 2003/05/02 22:17:47 desruisseaux Exp $
+ * @version $Id: SampleTranscoderTest.java,v 1.3 2003/05/13 10:59:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class SampleTranscoderTest extends TestCase {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -69,7 +69,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * This model is used by {@link LoggingPanel} for displaying logging messages in
  * a {@link javax.swing.JTable}.
  *
- * @version $Id: LoggingTableModel.java,v 1.4 2002/09/04 12:52:53 desruisseaux Exp $
+ * @version $Id: LoggingTableModel.java,v 1.5 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class LoggingTableModel extends Handler implements TableModel {

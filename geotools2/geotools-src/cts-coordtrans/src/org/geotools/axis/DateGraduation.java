@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2000, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -52,7 +53,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * A graduation using dates on a linear axis.
  *
- * @version $Id: DateGraduation.java,v 1.1 2003/03/07 23:36:11 desruisseaux Exp $
+ * @version $Id: DateGraduation.java,v 1.2 2003/05/13 10:58:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class DateGraduation extends AbstractGraduation {

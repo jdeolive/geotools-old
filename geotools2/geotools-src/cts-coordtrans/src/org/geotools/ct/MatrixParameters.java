@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * implementation in that it is "extensible", i.e. the number of parameters depends of the
  * number of row and column in the matrix. 
  *
- * @version $Id: MatrixParameters.java,v 1.1 2002/10/10 14:44:21 desruisseaux Exp $
+ * @version $Id: MatrixParameters.java,v 1.2 2003/05/13 10:58:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class MatrixParameters extends Matrix implements ParameterList, ParameterListDescriptor {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Throws when a <code>Coverage.evaluate</code>
  * method is invoked with a point outside coverage.
  *
- * @version $Id: PointOutsideCoverageException.java,v 1.3 2002/10/16 22:32:19 desruisseaux Exp $
+ * @version $Id: PointOutsideCoverageException.java,v 1.4 2003/05/13 10:59:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PointOutsideCoverageException extends CannotEvaluateException {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ import java.awt.geom.Line2D;
  * <code>contains</code> and <code>intersects</code> are faster, which make this
  * class more appropriate for using intensively inside a loop.
  *
- * @version $Id: XRectangle2D.java,v 1.2 2003/03/15 22:47:28 desruisseaux Exp $
+ * @version $Id: XRectangle2D.java,v 1.3 2003/05/13 10:58:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class XRectangle2D extends Rectangle2D implements Serializable {

@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -56,7 +57,7 @@ import org.geotools.pt.CoordinatePoint;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.4 2003/03/18 10:19:48 camerons Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.5 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Cameron Shorter
  */

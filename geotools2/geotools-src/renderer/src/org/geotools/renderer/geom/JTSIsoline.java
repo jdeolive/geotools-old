@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -58,7 +59,7 @@ import org.geotools.renderer.array.JTSArray;
 /**
  * An {@link Isoline} backed by one or many JTS {@link Geometry} objects.
  *
- * @version $Id: JTSIsoline.java,v 1.3 2003/03/05 21:50:36 desruisseaux Exp $
+ * @version $Id: JTSIsoline.java,v 1.4 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class JTSIsoline extends Isoline {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -72,7 +72,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * for {@link java.awt.image.renderable.ContextualRenderedImageFactory}.   The image
  * operation name is &quot;org.geotools.cv.SampleTranscode&quot;.
  *
- * @version $Id: SampleTranscoder.java,v 1.1 2003/05/01 22:57:22 desruisseaux Exp $
+ * @version $Id: SampleTranscoder.java,v 1.2 2003/05/13 10:59:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class SampleTranscoder extends PointOpImage {

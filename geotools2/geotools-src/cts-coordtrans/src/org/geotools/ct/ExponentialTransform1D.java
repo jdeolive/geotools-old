@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -59,7 +59,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <p align="center"><code>{@link #base}<sup>a&nbsp;+&nbsp;b*x</sup> =
  * {@link #base}<sup>a</sup>*({@link #base}<sup>b</sup>)<sup>x</sup></code></p>
  *
- * @version $Id: ExponentialTransform1D.java,v 1.4 2002/10/08 13:38:14 desruisseaux Exp $
+ * @version $Id: ExponentialTransform1D.java,v 1.5 2003/05/13 10:58:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see LogarithmicTransform1D
@@ -320,7 +320,7 @@ final class ExponentialTransform1D extends AbstractMathTransform implements Math
     /**
      * The provider for {@link ExponentialTransform1D} and {@link LogarithmicTransform1D}.
      *
-     * @version $Id: ExponentialTransform1D.java,v 1.4 2002/10/08 13:38:14 desruisseaux Exp $
+     * @version $Id: ExponentialTransform1D.java,v 1.5 2003/05/13 10:58:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

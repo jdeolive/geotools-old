@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -69,7 +69,7 @@ import junit.framework.TestSuite;
  *  <li>{@link #getExample}</li>
  * </ul>
  *
- * @version $Id: GridCoverageTest.java,v 1.7 2003/05/02 22:17:47 desruisseaux Exp $
+ * @version $Id: GridCoverageTest.java,v 1.8 2003/05/13 10:59:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GridCoverageTest extends TestCase {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -82,7 +82,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * {@link #getCoordinateFormat}.setCoordinateSystem(...);
  * </pre></blockquote>
  *
- * @version $Id: StatusBar.java,v 1.3 2003/04/25 17:38:55 desruisseaux Exp $
+ * @version $Id: StatusBar.java,v 1.4 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class StatusBar extends JComponent implements MouseMotionListener {
@@ -313,7 +313,7 @@ public class StatusBar extends JComponent implements MouseMotionListener {
     /**
      * Classe chargée de réagir au progrès de la lecture.
      *
-     * @version $Id: StatusBar.java,v 1.3 2003/04/25 17:38:55 desruisseaux Exp $
+     * @version $Id: StatusBar.java,v 1.4 2003/05/13 11:01:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class ProgressListener implements IIOReadProgressListener, Runnable {

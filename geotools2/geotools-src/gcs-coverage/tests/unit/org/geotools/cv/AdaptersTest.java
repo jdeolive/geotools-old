@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -52,7 +52,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link Adapters} implementation.
  *
- * @version $Id: AdaptersTest.java,v 1.2 2003/04/10 20:41:55 desruisseaux Exp $
+ * @version $Id: AdaptersTest.java,v 1.3 2003/05/13 10:59:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class AdaptersTest extends TestCase {

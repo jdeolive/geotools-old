@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -43,7 +44,7 @@ import org.geotools.resources.ClassChanger;
  * A range of numbers. {@linkplain #union Union} and {@linkplain #intersect intersection}
  * are computed as usual, except that widening conversions will be applied as needed.
  *
- * @version $Id: NumberRange.java,v 1.1 2003/05/02 22:17:47 desruisseaux Exp $
+ * @version $Id: NumberRange.java,v 1.2 2003/05/13 10:59:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class NumberRange extends Range {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ import org.geotools.io.ExpandedTabWriter;
  * We had to extract them in a separated class in order to avoid dependencies of renderer
  * module toward the GUI one, especially since the extracted methods are not Swing specific.
  *
- * @version $Id: GraphicsUtilities.java,v 1.1 2003/01/27 22:52:13 desruisseaux Exp $
+ * @version $Id: GraphicsUtilities.java,v 1.2 2003/05/13 11:00:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GraphicsUtilities {

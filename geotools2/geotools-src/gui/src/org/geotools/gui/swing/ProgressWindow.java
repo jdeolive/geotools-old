@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -80,7 +81,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * problèmes de synchronisation. En général, faire l'opération en arrière plan est recommandé
  * afin de permettre le rafraichissement de l'écran par <i>Swing</i>.</p>
  *
- * @version $Id: ProgressWindow.java,v 1.2 2003/03/28 14:28:12 desruisseaux Exp $
+ * @version $Id: ProgressWindow.java,v 1.3 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ProgressWindow implements ProgressListener {
@@ -442,7 +443,7 @@ public class ProgressWindow implements ProgressListener {
      * tandis qu'une valeur négative signifie que l'on interroge l'état de la comosante
      * (dans ce cas, il faudra extrait l'état du champ {@link #text}).
      *
-     * @version $Id: ProgressWindow.java,v 1.2 2003/03/28 14:28:12 desruisseaux Exp $
+     * @version $Id: ProgressWindow.java,v 1.3 2003/05/13 11:01:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private class Caller implements Runnable {

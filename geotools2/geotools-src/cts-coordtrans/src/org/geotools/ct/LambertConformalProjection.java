@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Fisheries and Oceans Canada
  *
@@ -60,7 +60,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Référence: John P. Snyder (Map Projections - A Working Manual,
  *            U.S. Geological Survey Professional Paper 1395, 1987)
  *
- * @version $Id: LambertConformalProjection.java,v 1.4 2003/04/18 15:22:34 desruisseaux Exp $
+ * @version $Id: LambertConformalProjection.java,v 1.5 2003/05/13 10:58:48 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -271,7 +271,7 @@ final class LambertConformalProjection extends ConicProjection {
     /**
      * Informations about a {@link LambertConformalProjection}.
      *
-     * @version $Id: LambertConformalProjection.java,v 1.4 2003/04/18 15:22:34 desruisseaux Exp $
+     * @version $Id: LambertConformalProjection.java,v 1.5 2003/05/13 10:58:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MapProjection.Provider {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ package org.geotools.ct;
  * Thrown when {@link MathTransform#inverse} is
  * invoked but the transform can't be inverted.
  *
- * @version $Id: NoninvertibleTransformException.java,v 1.2 2003/01/18 12:58:32 desruisseaux Exp $
+ * @version $Id: NoninvertibleTransformException.java,v 1.3 2003/05/13 10:58:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see MathTransform#inverse

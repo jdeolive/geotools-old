@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -46,7 +47,7 @@ import org.geotools.resources.XArray;
  * A wrapper around an array of JTS {@link Coordinate}s. This array is
  * usually a reference to the internal array of a {@link LineString} object.
  *
- * @version $Id: JTSArray.java,v 1.3 2003/05/11 15:27:05 aaime Exp $
+ * @version $Id: JTSArray.java,v 1.4 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class JTSArray extends PointArray {

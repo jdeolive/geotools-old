@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * This interface is applicable to any coverage type.
  * For grid coverages, the sample dimension refers to an individual band.
  *
- * @version $Id: SampleDimensionType.java,v 1.3 2003/04/10 20:41:09 desruisseaux Exp $
+ * @version $Id: SampleDimensionType.java,v 1.4 2003/05/13 10:59:51 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *

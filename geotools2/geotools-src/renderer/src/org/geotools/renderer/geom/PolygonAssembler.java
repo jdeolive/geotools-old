@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -91,7 +92,7 @@ import org.geotools.resources.XArray;
  *           d'un seul point).
  * </blockquote>
  *
- * @version $Id: PolygonAssembler.java,v 1.4 2003/02/06 23:46:30 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.5 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Localize logging and progress messages.

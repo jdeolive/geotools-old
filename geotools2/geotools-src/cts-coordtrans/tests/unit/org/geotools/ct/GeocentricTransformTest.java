@@ -1,7 +1,7 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * Copyright (C) 2002 Geotools Project Management Committee (PMC)
- *           (C) 2002, Institut de Recherche pour le Développement
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
+ * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -54,7 +54,7 @@ import junit.framework.TestSuite;
  *   <li>{@link Ellipsoid}</li>
  * </ul>
  *
- * @version $Id: GeocentricTransformTest.java,v 1.4 2003/05/12 21:27:57 desruisseaux Exp $
+ * @version $Id: GeocentricTransformTest.java,v 1.5 2003/05/13 10:58:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GeocentricTransformTest extends TransformationTest {

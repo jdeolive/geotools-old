@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ import javax.vecmath.SingularMatrixException;
 /**
  * Transforms multi-dimensional coordinate points using a {@link Matrix}.
  *
- * @version $Id: MatrixTransform.java,v 1.7 2003/04/14 21:08:14 desruisseaux Exp $
+ * @version $Id: MatrixTransform.java,v 1.8 2003/05/13 10:58:48 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -388,7 +388,7 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
     /**
      * The provider for {@link MatrixTransform}.
      *
-     * @version $Id: MatrixTransform.java,v 1.7 2003/04/14 21:08:14 desruisseaux Exp $
+     * @version $Id: MatrixTransform.java,v 1.8 2003/05/13 10:58:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

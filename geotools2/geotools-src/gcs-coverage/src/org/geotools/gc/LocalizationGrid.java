@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -67,7 +67,7 @@ import org.geotools.ct.MathTransform2D;
  * affine transform, then an instance of {@link AffineTransform} is returned. Otherwise,
  * a transform backed by the localization grid is returned.
  *
- * @version $Id: LocalizationGrid.java,v 1.7 2003/02/28 11:43:16 desruisseaux Exp $
+ * @version $Id: LocalizationGrid.java,v 1.8 2003/05/13 10:59:52 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -120,7 +120,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.12 2003/05/12 22:25:08 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.13 2003/05/13 10:58:47 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -268,7 +268,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
 
     /**
      * Invoked when a new {@link PreparedStatement} is about to be created from a SQL string.
-     * Since the <A HREF="http://www.espg.org">EPSG database</A> is available only in MS-Access
+     * Since the <A HREF="http://www.epsg.org">EPSG database</A> is available only in MS-Access
      * format, SQL statements are formatted using some syntax specific to this particular database
      * software (for example &quot;<code>SELECT * FROM [Coordinate Reference System]</code>&quot;).
      * If a port of EPSG database is to be used with an other software, then this method should be

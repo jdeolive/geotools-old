@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -64,7 +64,7 @@ import javax.media.jai.ParameterListDescriptorImpl;
  * <code>org.opengis.ct</code> package.</FONT>  All methods accept
  * null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version $Id: Adapters.java,v 1.5 2003/04/29 18:28:17 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.6 2003/05/13 10:58:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters extends org.geotools.cs.Adapters {

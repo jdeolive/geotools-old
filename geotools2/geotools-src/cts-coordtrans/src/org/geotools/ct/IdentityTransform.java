@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -47,7 +47,7 @@ import org.geotools.pt.CoordinatePoint;
  * For 2D identity transform, {@link java.awt.geom.AffineTransform} is already
  * optimized. For 1D transform, {@link IdentityTransform1D} is the class to use.
  *
- * @version $Id: IdentityTransform.java,v 1.2 2002/07/24 18:01:17 desruisseaux Exp $
+ * @version $Id: IdentityTransform.java,v 1.3 2003/05/13 10:58:48 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */

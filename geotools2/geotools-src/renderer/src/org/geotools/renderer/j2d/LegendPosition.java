@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -53,7 +54,7 @@ import javax.media.jai.EnumeratedParameter;
  * <tr><td>{@link #SOUTH_WEST}</td>  <td>{@link  #SOUTH}</td>  <td>{@link #SOUTH_EAST}</td></tr>
  * </table>
  *
- * @version $Id: LegendPosition.java,v 1.3 2003/03/14 12:38:17 desruisseaux Exp $
+ * @version $Id: LegendPosition.java,v 1.4 2003/05/13 11:00:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class LegendPosition extends EnumeratedParameter {

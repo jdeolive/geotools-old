@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -90,7 +90,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * The number of RGB codes doesn't have to match an {@link IndexColorModel}'s
  * map size. RGB codes will be automatically interpolated RGB values when needed.
  *
- * @version $Id: PaletteFactory.java,v 1.3 2002/08/20 13:27:33 desruisseaux Exp $
+ * @version $Id: PaletteFactory.java,v 1.4 2003/05/13 10:59:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PaletteFactory {

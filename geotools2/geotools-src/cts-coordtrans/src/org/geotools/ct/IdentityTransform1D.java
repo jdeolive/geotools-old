@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ import java.io.Serializable;
  * A one dimensional, identity transform. Output values are identical to input values.
  * This class is really a special case of {@link LinearTransform1D} optimized for speed.
  *
- * @version $Id: IdentityTransform1D.java,v 1.1 2002/07/24 17:14:21 desruisseaux Exp $
+ * @version $Id: IdentityTransform1D.java,v 1.2 2003/05/13 10:58:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class IdentityTransform1D extends LinearTransform1D {

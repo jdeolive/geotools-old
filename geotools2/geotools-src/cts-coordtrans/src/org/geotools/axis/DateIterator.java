@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2000, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -56,7 +57,7 @@ import org.geotools.resources.XMath;
  * Il choisit les intervalles de graduation en supposant qu'on utilise
  * un calendrier grégorien.
  *
- * @version $Id: DateIterator.java,v 1.2 2003/03/10 15:08:20 desruisseaux Exp $
+ * @version $Id: DateIterator.java,v 1.3 2003/05/13 10:58:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DateIterator implements TickIterator {

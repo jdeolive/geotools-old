@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -67,7 +67,7 @@ import org.geotools.resources.ComponentColorModelJAI;
  * This factory provides only one public static method: {@link #getColorModel}.  Instances
  * of {@link ColorModel} are shared among all callers in the running virtual machine.
  *
- * @version $Id: ColorModelFactory.java,v 1.6 2003/03/10 10:47:38 desruisseaux Exp $
+ * @version $Id: ColorModelFactory.java,v 1.7 2003/05/13 10:59:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColorModelFactory {

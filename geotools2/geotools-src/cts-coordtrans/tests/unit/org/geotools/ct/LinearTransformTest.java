@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -56,7 +56,7 @@ import junit.framework.TestSuite;
  *   <li>{@link MatrixTransform}</li>
  * </ul>
  *
- * @version $Id: LinearTransformTest.java,v 1.2 2002/07/22 11:06:24 desruisseaux Exp $
+ * @version $Id: LinearTransformTest.java,v 1.3 2003/05/13 10:58:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LinearTransformTest extends TransformationTest {

@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -43,7 +44,7 @@ import org.geotools.util.ProgressListener;
 /**
  * Test {@link ProgressWindow}.
  *
- * @version $Id: ProgressWindowTest.java,v 1.1 2003/03/28 14:34:12 desruisseaux Exp $
+ * @version $Id: ProgressWindowTest.java,v 1.2 2003/05/13 11:01:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ProgressWindowTest extends TestCase {

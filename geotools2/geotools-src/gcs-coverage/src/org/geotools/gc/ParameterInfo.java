@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * OpenGIS specification and its API is significantly different from Java
  * Advanced Imaging.
  *
- * @version $Id: ParameterInfo.java,v 1.2 2002/07/26 23:18:18 desruisseaux Exp $
+ * @version $Id: ParameterInfo.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *

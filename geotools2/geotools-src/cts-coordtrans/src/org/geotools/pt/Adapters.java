@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@ import org.opengis.pt.PT_CoordinatePoint;
  * A default instance of the <code>Adapters</code> classes is provided in the
  * {@link org.geotools.ct.Adapters#getDefault() org.geotools.ct} package.
  *
- * @version $Id: Adapters.java,v 1.2 2003/01/15 21:46:35 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.3 2003/05/13 10:58:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.ct.Adapters#getDefault()

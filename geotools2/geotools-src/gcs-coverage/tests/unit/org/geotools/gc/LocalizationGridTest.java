@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2003, Geotools Project Managment Committee (PMC)
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -47,7 +47,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link LocalizationGrid} implementation.
  *
- * @version $Id: LocalizationGridTest.java,v 1.8 2003/05/12 21:29:32 desruisseaux Exp $
+ * @version $Id: LocalizationGridTest.java,v 1.9 2003/05/13 10:59:53 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

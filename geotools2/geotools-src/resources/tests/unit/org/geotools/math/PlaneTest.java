@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -45,7 +46,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link Plane} class.
  *
- * @version $Id: PlaneTest.java,v 1.1 2003/02/04 12:30:18 desruisseaux Exp $
+ * @version $Id: PlaneTest.java,v 1.2 2003/05/13 10:58:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class PlaneTest extends TestCase {

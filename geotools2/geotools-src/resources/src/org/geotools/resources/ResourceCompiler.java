@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -77,7 +77,7 @@ import java.lang.reflect.Field;
  * don't need to be included in the final JAR file. They are used at
  * compile time only and no other classes should keep reference to them.
  *
- * @version $Id: ResourceCompiler.java,v 1.4 2002/07/30 17:09:37 desruisseaux Exp $
+ * @version $Id: ResourceCompiler.java,v 1.5 2003/05/13 10:58:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ResourceCompiler implements Comparator {
@@ -496,8 +496,7 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
         final BufferedWriter out = new BufferedWriter(new FileWriter(file));
         out.write("/*\n"                                                             +
                   " * Geotools - OpenSource mapping toolkit\n"                       +
-                  " * (C) 2002, Centre for Computational Geography\n"                +
-                  " * (C) 2001, Institut de Recherche pour le Développement\n"       +
+                  " * (C) 2003, Geotools Project Managment Committee (PMC)\n"        +
                   " *\n"                                                             +
                   " *     THIS IS AN AUTOMATICALLY GENERATED FILE. DO NOT EDIT!\n"   +
                   " *     Generated with: org.geotools.resources.ResourceCompiler\n" +

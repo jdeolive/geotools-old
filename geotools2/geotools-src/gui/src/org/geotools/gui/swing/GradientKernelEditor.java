@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -55,7 +56,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/GradientKernelEditor.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: GradientKernelEditor.java,v 1.2 2003/04/15 10:55:10 desruisseaux Exp $
+ * @version $Id: GradientKernelEditor.java,v 1.3 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see KernelEditor
@@ -205,7 +206,7 @@ public class GradientKernelEditor extends JComponent {
     /**
      * A kernel editor for horizontal or vertical gradient kernel.
      *
-     * @version $Id: GradientKernelEditor.java,v 1.2 2003/04/15 10:55:10 desruisseaux Exp $
+     * @version $Id: GradientKernelEditor.java,v 1.3 2003/05/13 11:01:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Editor extends KernelEditor {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ import org.geotools.resources.Arguments;
 /**
  * Test the {@link PropertyParser} implementation.
  *
- * @version $Id: PropertyParserTest.java,v 1.3 2003/03/26 15:46:24 desruisseaux Exp $
+ * @version $Id: PropertyParserTest.java,v 1.4 2003/05/13 10:59:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParserTest extends TestCase {

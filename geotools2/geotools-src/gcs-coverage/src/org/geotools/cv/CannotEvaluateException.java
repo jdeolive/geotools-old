@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -51,7 +51,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * This exception is usually invoked by a <code>Coverage.evaluate</code>
  * method, for example when a point is outside the coverage.
  *
- * @version $Id: CannotEvaluateException.java,v 1.1 2002/10/16 22:32:19 desruisseaux Exp $
+ * @version $Id: CannotEvaluateException.java,v 1.2 2003/05/13 10:59:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CannotEvaluateException extends RuntimeException {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Fisheries and Oceans Canada
  *
@@ -80,7 +80,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">&quot;mercator_1sp&quot; on Remote Sensing</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
  * 
- * @version $Id: Mercator.java,v 1.5 2003/05/12 21:27:56 desruisseaux Exp $
+ * @version $Id: Mercator.java,v 1.6 2003/05/13 10:58:49 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -109,7 +109,7 @@ public class Mercator extends CylindricalProjection {
      * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
      * @see org.geotools.ct.MathTransformFactory
      *
-     * @version $Id: Mercator.java,v 1.5 2003/05/12 21:27:56 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.6 2003/05/13 10:58:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -235,7 +235,7 @@ public class Mercator extends CylindricalProjection {
     /**
      * Provides the transform equations for the spherical case of the Mercator projection.
      *
-     * @version $Id: Mercator.java,v 1.5 2003/05/12 21:27:56 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.6 2003/05/13 10:58:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */

@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -63,7 +64,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * System.out.println(stats);
  * </pre></blockquote>
  *
- * @version $Id: Statistics.java,v 1.3 2003/04/23 10:11:24 desruisseaux Exp $
+ * @version $Id: Statistics.java,v 1.4 2003/05/13 10:58:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Statistics implements Cloneable, Serializable {
@@ -377,7 +378,7 @@ public class Statistics implements Cloneable, Serializable {
      * <var>s<sub>3</sub></var>-<var>s<sub>2</sub></var>...,
      * which are stored in a {@link #getDeltaStatistics delta} statistics object.
      *
-     * @version $Id: Statistics.java,v 1.3 2003/04/23 10:11:24 desruisseaux Exp $
+     * @version $Id: Statistics.java,v 1.4 2003/05/13 10:58:20 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Delta extends Statistics {

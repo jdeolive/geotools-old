@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -61,7 +62,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * points of <code>line</code>. This scalar product can be viewed as a sort of measure of the distance
  * between the start of <code>line</code> and the intersection point.
  *
- * @version $Id: IntersectionPoint.java,v 1.2 2003/02/19 20:21:14 jmacgill Exp $
+ * @version $Id: IntersectionPoint.java,v 1.3 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 

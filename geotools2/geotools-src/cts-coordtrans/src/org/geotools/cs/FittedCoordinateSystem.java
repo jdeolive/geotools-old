@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2003, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -55,7 +55,7 @@ import java.rmi.RemoteException;
  * any other math transform to inject itself into the base coordinate
  * system.
  *
- * @version $Id: FittedCoordinateSystem.java,v 1.3 2003/04/29 18:28:15 desruisseaux Exp $
+ * @version $Id: FittedCoordinateSystem.java,v 1.4 2003/05/13 10:58:47 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

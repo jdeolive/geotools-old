@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -46,7 +47,7 @@ import junit.framework.TestSuite;
 /**
  * Test the <code>org.geotools.renderer.array</code> package.
  *
- * @version $Id: PointArrayTest.java,v 1.3 2003/02/28 13:43:02 desruisseaux Exp $
+ * @version $Id: PointArrayTest.java,v 1.4 2003/05/13 11:00:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PointArrayTest extends TestCase {

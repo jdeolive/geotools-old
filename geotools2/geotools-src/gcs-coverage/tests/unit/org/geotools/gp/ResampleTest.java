@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -71,7 +72,7 @@ import junit.framework.TestSuite;
  * Visual test of the "Resample" operation. A remote sensing image is projected from a fitted
  * coordinate system to a geographic one.
  *
- * @version $Id: ResampleTest.java,v 1.6 2003/04/16 19:25:38 desruisseaux Exp $
+ * @version $Id: ResampleTest.java,v 1.7 2003/05/13 10:59:54 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

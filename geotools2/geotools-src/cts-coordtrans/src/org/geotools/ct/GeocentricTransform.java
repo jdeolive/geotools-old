@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -61,7 +61,7 @@ import javax.media.jai.ParameterList;
  * coordinate points. Input points must be longitudes, latitudes
  * and heights above the ellipsoid.
  *
- * @version $Id: GeocentricTransform.java,v 1.9 2003/04/14 21:08:13 desruisseaux Exp $
+ * @version $Id: GeocentricTransform.java,v 1.10 2003/05/13 10:58:48 desruisseaux Exp $
  * @author Frank Warmerdam
  * @author Martin Desruisseaux
  */
@@ -503,7 +503,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * Inverse of a geocentric transform.
      *
-     * @version $Id: GeocentricTransform.java,v 1.9 2003/04/14 21:08:13 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.10 2003/05/13 10:58:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements Serializable {
@@ -551,7 +551,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * The provider for {@link GeocentricTransform}.
      *
-     * @version $Id: GeocentricTransform.java,v 1.9 2003/04/14 21:08:13 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.10 2003/05/13 10:58:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

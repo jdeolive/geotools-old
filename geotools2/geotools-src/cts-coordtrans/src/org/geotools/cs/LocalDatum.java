@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -52,7 +52,7 @@ import java.rmi.RemoteException;
  * between two different local coordinate systems, as long as they are based
  * on the same local datum.
  *
- * @version $Id: LocalDatum.java,v 1.4 2003/04/29 18:28:16 desruisseaux Exp $
+ * @version $Id: LocalDatum.java,v 1.5 2003/05/13 10:58:47 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

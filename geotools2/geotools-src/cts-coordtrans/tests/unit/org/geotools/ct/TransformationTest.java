@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@ import junit.framework.TestCase;
 /**
  * Base class for test classes.
  *
- * @version $Id: TransformationTest.java,v 1.7 2002/07/19 11:13:06 desruisseaux Exp $
+ * @version $Id: TransformationTest.java,v 1.8 2003/05/13 10:58:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TransformationTest extends TestCase

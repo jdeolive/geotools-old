@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -55,7 +55,7 @@ import java.io.Serializable;
 /**
  * Transforms two-dimensional coordinate points using an {@link AffineTransform}.
  *
- * @version $Id: AffineTransform2D.java,v 1.3 2003/01/20 23:16:16 desruisseaux Exp $
+ * @version $Id: AffineTransform2D.java,v 1.4 2003/05/13 10:58:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class AffineTransform2D extends XAffineTransform implements MathTransform2D, LinearTransform {

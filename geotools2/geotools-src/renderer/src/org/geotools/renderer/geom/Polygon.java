@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -112,7 +113,7 @@ import org.geotools.renderer.array.ArrayData;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.9 2003/02/20 11:18:08 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.10 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -1996,7 +1997,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.9 2003/02/20 11:18:08 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.10 2003/05/13 11:00:46 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2003, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -45,7 +45,7 @@ package org.geotools.science.oceano;
  *   <li>Pressure: decibars (1 dbar = 10 kPa).
  * </ul>
  *
- * @version $Id: SeaWater.java,v 1.1 2003/04/16 22:05:46 desruisseaux Exp $
+ * @version $Id: SeaWater.java,v 1.2 2003/05/13 10:58:04 desruisseaux Exp $
  * @author Bernard Pelchat
  * @author Martin Desruisseux
  */

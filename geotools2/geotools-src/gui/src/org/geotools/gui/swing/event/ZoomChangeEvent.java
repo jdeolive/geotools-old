@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ import java.awt.geom.AffineTransform;
  * An event which indicates that a zoom occurred in a component.
  * This event is usually fired by {@link org.geotools.gui.swing.ZoomPane}.
  *
- * @version $Id: ZoomChangeEvent.java,v 1.4 2002/07/31 08:42:41 desruisseaux Exp $
+ * @version $Id: ZoomChangeEvent.java,v 1.5 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ZoomChangeEvent extends EventObject {

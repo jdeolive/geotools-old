@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -67,7 +67,7 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * Describes the band values for a grid coverage.
  *
- * @version $Id: GridSampleDimension.java,v 1.8 2003/05/02 22:17:46 desruisseaux Exp $
+ * @version $Id: GridSampleDimension.java,v 1.9 2003/05/13 10:59:52 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  */

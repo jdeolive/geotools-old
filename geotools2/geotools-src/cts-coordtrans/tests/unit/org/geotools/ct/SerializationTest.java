@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -35,7 +36,7 @@ import junit.framework.TestSuite;
 /**
  * Test serialization of a {@link CoordinateTransformation} class.
  *
- * @version $Id: SerializationTest.java,v 1.4 2003/01/23 23:58:47 desruisseaux Exp $
+ * @version $Id: SerializationTest.java,v 1.5 2003/05/13 10:58:50 desruisseaux Exp $
  * @author Vadim Semenov
  * @author Martin Desruisseaux
  */

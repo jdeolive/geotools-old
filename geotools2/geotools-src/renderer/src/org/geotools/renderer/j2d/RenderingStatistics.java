@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -49,7 +50,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * painting is in process. They are used for logging messages and have no impact
  * on future rendering.
  *
- * @version $Id: RenderingStatistics.java,v 1.4 2003/03/02 22:16:02 desruisseaux Exp $
+ * @version $Id: RenderingStatistics.java,v 1.5 2003/05/13 11:00:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RenderingStatistics {

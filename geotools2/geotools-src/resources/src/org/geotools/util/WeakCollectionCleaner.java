@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ import org.geotools.resources.Utilities;
  * which remove their entry from the collection when {@link Reference#clear}
  * is invoked.
  *
- * @version $Id: WeakCollectionCleaner.java,v 1.1 2002/07/20 22:18:33 desruisseaux Exp $
+ * @version $Id: WeakCollectionCleaner.java,v 1.2 2003/05/13 10:58:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class WeakCollectionCleaner extends Thread {

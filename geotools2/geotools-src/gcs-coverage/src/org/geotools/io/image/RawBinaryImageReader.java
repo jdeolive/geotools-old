@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -110,7 +110,7 @@ import org.geotools.resources.ComponentColorModelJAI;
  *       subclass setting the <code>padValue</code> field.</li>
  * </ul>
  *
- * @version $Id: RawBinaryImageReader.java,v 1.3 2002/10/16 22:32:19 desruisseaux Exp $
+ * @version $Id: RawBinaryImageReader.java,v 1.4 2003/05/13 10:59:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @deprecated Use Sun's RAW decoder provided with "Java Advanced Imaging Image I/O Tools"

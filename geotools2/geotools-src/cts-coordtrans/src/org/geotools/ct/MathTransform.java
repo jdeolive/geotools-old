@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -67,7 +67,7 @@ import javax.media.jai.PerspectiveTransform;
  * from observations, the transformation is accurate to within the
  * limitations of those observations.
  *
- * @version $Id: MathTransform.java,v 1.5 2003/04/29 18:28:17 desruisseaux Exp $
+ * @version $Id: MathTransform.java,v 1.6 2003/05/13 10:58:48 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -282,7 +282,7 @@ public interface MathTransform {
  * for methods throwing {@link UnsupportedOperationException}). This
  * class is suitable for RMI use.
  *
- * @version $Id: MathTransform.java,v 1.5 2003/04/29 18:28:17 desruisseaux Exp $
+ * @version $Id: MathTransform.java,v 1.6 2003/05/13 10:58:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class MathTransformExport extends UnicastRemoteObject implements CT_MathTransform {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2003, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -81,7 +81,7 @@ import java.awt.geom.Point2D;
  * from -1000 to 3000. Outside of this range, results will be given, but the
  * potential for error is higher.
  *
- * @version $Id: SunRelativePosition.java,v 1.4 2003/04/30 09:25:30 desruisseaux Exp $
+ * @version $Id: SunRelativePosition.java,v 1.5 2003/05/13 10:58:03 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ import java.util.logging.Level;
  * initialization. Current implementation just setup a custom logger for the
  * <code>"org.geotools"</code> package.
  *
- * @version $Id: Geotools.java,v 1.3 2003/03/04 22:29:52 desruisseaux Exp $
+ * @version $Id: Geotools.java,v 1.4 2003/05/13 10:58:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Geotools {

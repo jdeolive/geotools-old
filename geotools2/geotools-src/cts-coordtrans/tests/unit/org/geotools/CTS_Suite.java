@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -47,7 +47,7 @@ import org.geotools.pt.*;
 /**
  * Performs all tests for the Coordinate Transformations Services implementation.
  *
- * @version $Id: CTS_Suite.java,v 1.8 2003/05/12 21:27:57 desruisseaux Exp $
+ * @version $Id: CTS_Suite.java,v 1.9 2003/05/13 10:58:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CTS_Suite extends TestCase {

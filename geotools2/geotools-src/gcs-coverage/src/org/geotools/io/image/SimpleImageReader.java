@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -86,7 +86,7 @@ import org.geotools.resources.ComponentColorModelJAI;
  * <a href="http://java.sun.com/products/java-media/jai/">Java Advanced Imaging</a>
  * operators after reading.
  *
- * @version $Id: SimpleImageReader.java,v 1.2 2002/08/10 12:32:38 desruisseaux Exp $
+ * @version $Id: SimpleImageReader.java,v 1.3 2003/05/13 10:59:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see RawBinaryImageReader

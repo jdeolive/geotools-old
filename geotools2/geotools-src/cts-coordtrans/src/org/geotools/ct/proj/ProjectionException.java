@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -42,7 +42,7 @@ import org.geotools.ct.TransformException;
 /**
  * Thrown by {@link MapProjection} when a map projection failed.
  *
- * @version $Id: ProjectionException.java,v 1.1 2003/03/17 14:24:31 desruisseaux Exp $
+ * @version $Id: ProjectionException.java,v 1.2 2003/05/13 10:58:49 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */

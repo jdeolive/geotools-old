@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -52,7 +53,7 @@ import java.io.Serializable;
  * can be computed for a given <var>x</var> value using the {@link #y} method. Method
  * {@link #x} compute the converse and should work even if the line is vertical.
  *
- * @version $Id: Line.java,v 1.3 2003/02/05 22:56:34 desruisseaux Exp $
+ * @version $Id: Line.java,v 1.4 2003/05/13 10:58:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Point2D

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -55,7 +55,7 @@ import org.geotools.pt.CoordinatePoint;
  * This class is really a special case of {@link MatrixTransform} using a 2&times;2 affine
  * transform. However, this specialized <code>LinearTransform1D</code> class is faster.
  *
- * @version $Id: LinearTransform1D.java,v 1.6 2002/07/24 17:14:21 desruisseaux Exp $
+ * @version $Id: LinearTransform1D.java,v 1.7 2003/05/13 10:58:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class LinearTransform1D extends AbstractMathTransform

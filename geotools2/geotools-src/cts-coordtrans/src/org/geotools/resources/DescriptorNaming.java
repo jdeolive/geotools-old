@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * {@link org.geotools.cs.Projection} using this class for binding classification
  * name to parameter list descriptors.
  *
- * @version $Id: DescriptorNaming.java,v 1.4 2002/10/08 13:38:14 desruisseaux Exp $
+ * @version $Id: DescriptorNaming.java,v 1.5 2003/05/13 10:58:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class DescriptorNaming {

@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -85,7 +86,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       is determined using orthodromic distance computation.</li>
  * </ul>
  *
- * @version $Id: RenderedMapScale.java,v 1.5 2003/03/20 22:49:36 desruisseaux Exp $
+ * @version $Id: RenderedMapScale.java,v 1.6 2003/05/13 11:00:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedMapScale extends RenderedLegend {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ import java.text.ParseException;
  * etc.). This is a relatively light object compared to their subclasses and can be used when
  * parsing are not needed.
  *
- * @version $Id: WKTFormat.java,v 1.3 2002/09/08 11:05:08 desruisseaux Exp $
+ * @version $Id: WKTFormat.java,v 1.4 2003/05/13 10:58:49 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

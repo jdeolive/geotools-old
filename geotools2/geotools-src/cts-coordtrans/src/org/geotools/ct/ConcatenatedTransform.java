@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Base class for concatenated transform. Concatenated transforms are
  * serializable if all their step transforms are serializables.
  *
- * @version $Id: ConcatenatedTransform.java,v 1.4 2003/01/08 19:15:03 desruisseaux Exp $
+ * @version $Id: ConcatenatedTransform.java,v 1.5 2003/05/13 10:58:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class ConcatenatedTransform extends AbstractMathTransform implements Serializable {

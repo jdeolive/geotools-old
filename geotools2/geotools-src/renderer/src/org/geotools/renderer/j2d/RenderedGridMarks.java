@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -84,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       Arrows sizes and direction depends of the sample values.</li>
  * </ul>
  *
- * @version $Id: RenderedGridMarks.java,v 1.11 2003/03/20 22:49:34 desruisseaux Exp $
+ * @version $Id: RenderedGridMarks.java,v 1.12 2003/05/13 11:00:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridMarks extends RenderedMarks {
@@ -788,7 +789,7 @@ public class RenderedGridMarks extends RenderedMarks {
     /**
      * Iterates through all marks in a {@link RenderedGridMarks}.
      *
-     * @version $Id: RenderedGridMarks.java,v 1.11 2003/03/20 22:49:34 desruisseaux Exp $
+     * @version $Id: RenderedGridMarks.java,v 1.12 2003/05/13 11:00:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Iterator extends MarkIterator {

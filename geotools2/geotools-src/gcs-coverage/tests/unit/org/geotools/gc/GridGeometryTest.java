@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2003, Geotools Project Managment Committee (PMC)
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -47,7 +47,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link GridGeometry} implementation.
  *
- * @version $Id: GridGeometryTest.java,v 1.1 2003/05/12 21:29:31 desruisseaux Exp $
+ * @version $Id: GridGeometryTest.java,v 1.2 2003/05/13 10:59:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GridGeometryTest extends TestCase {

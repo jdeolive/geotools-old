@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -67,7 +68,7 @@ import org.geotools.resources.Utilities;
  * is used for reducing the amount of calls to {@link #progress} (only once every 256 steps).
  * This is not mandatory, but may speed up the process.
  *
- * @version $Id: ProgressListener.java,v 1.2 2003/02/05 22:56:35 desruisseaux Exp $
+ * @version $Id: ProgressListener.java,v 1.3 2003/05/13 10:58:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gui.headless.ProgressPrinter

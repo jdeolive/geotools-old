@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -64,7 +64,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see JSpinner
  * @see SpinnerNumberModel
  *
- * @version $Id: AngleSpinnerModel.java,v 1.1 2002/08/07 11:10:08 desruisseaux Exp $
+ * @version $Id: AngleSpinnerModel.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Adapted from Hans Muller
  * @author Martin Desruisseaux
  */
@@ -225,7 +225,7 @@ final class AngleSpinnerModel extends AbstractSpinnerModel implements Serializab
      * This subclass of {@link javax.swing.InternationalFormatter} maps the
      * minimum/maximum properties to a {@link AngleSpinnerModel}.
      *
-     * @version $Id: AngleSpinnerModel.java,v 1.1 2002/08/07 11:10:08 desruisseaux Exp $
+     * @version $Id: AngleSpinnerModel.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
      * @author Adapted from Hans Muller
      * @author Martin Desruisseaux
      */
@@ -309,7 +309,7 @@ final class AngleSpinnerModel extends AbstractSpinnerModel implements Serializab
      * whose minimum and maximum properties are mapped to the
      * {@link SpinnerNumberModel}.
      *
-     * @version $Id: AngleSpinnerModel.java,v 1.1 2002/08/07 11:10:08 desruisseaux Exp $
+     * @version $Id: AngleSpinnerModel.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
      * @author Adapted from Hans Muller
      * @author Martin Desruisseaux
      */

@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -39,7 +40,7 @@ package org.geotools.renderer.array;
  * L'implémentation par défaut de cette classe est imutable. Toutefois, certaines
  * classes dérivées (notamment {@link DynamicArray}) ne le seront pas forcément.
  *
- * @version $Id: SubArray.java,v 1.3 2003/01/29 23:18:08 desruisseaux Exp $
+ * @version $Id: SubArray.java,v 1.4 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class SubArray extends DefaultArray {

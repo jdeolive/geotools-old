@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -45,7 +46,7 @@ import java.awt.geom.Point2D;
  * cet ordre: {@link #nextX} d'abord, suivit de {@link #nextY}. Tout manquement à cette règle (par
  * exemple appeller {@link #nextX} deux fois de suite) peut produire des résultats erronées.
  *
- * @version $Id: PointIterator.java,v 1.2 2003/01/29 23:18:08 desruisseaux Exp $
+ * @version $Id: PointIterator.java,v 1.3 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Once J2SE 1.5 will be available, this class should implements

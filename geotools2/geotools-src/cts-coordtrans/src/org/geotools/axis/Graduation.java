@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2000, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -52,7 +53,7 @@ import org.geotools.units.Unit;
  * For example a graduation for dates is handled in a different way than a
  * graduation for numbers.
  *
- * @version $Id: Graduation.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
+ * @version $Id: Graduation.java,v 1.3 2003/05/13 10:58:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface Graduation {

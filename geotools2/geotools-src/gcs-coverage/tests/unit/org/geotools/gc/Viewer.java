@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ import org.geotools.resources.Utilities;
  * capability, no user interaction and ignores the coordinate system. It is just
  * for quick test of grid coverage.
  *
- * @version $Id: Viewer.java,v 1.5 2003/04/12 00:04:38 desruisseaux Exp $
+ * @version $Id: Viewer.java,v 1.6 2003/05/13 10:59:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Viewer extends JPanel {

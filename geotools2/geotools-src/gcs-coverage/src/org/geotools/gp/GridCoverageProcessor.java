@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -83,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.22 2003/04/30 21:58:00 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.23 2003/05/13 10:59:52 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -480,7 +480,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.22 2003/04/30 21:58:00 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.23 2003/05/13 10:59:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

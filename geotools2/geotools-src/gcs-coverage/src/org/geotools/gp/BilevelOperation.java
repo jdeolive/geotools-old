@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -45,7 +46,7 @@ import org.geotools.cs.CoordinateSystem;
  * Wraps any JAI operation producing a bilevel image. An example of such operation is
  * {@link BinarizeDescriptor Binarize}.
  *
- * @version $Id: BilevelOperation.java,v 1.2 2003/04/30 21:58:00 desruisseaux Exp $
+ * @version $Id: BilevelOperation.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class BilevelOperation extends OperationJAI {

@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2000, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -45,7 +46,7 @@ import java.util.Locale;
  * may use a slightly variable increment between differents months, since
  * all months doesn't have the same number of days.
  *
- * @version $Id: TickIterator.java,v 1.2 2003/03/10 15:08:20 desruisseaux Exp $
+ * @version $Id: TickIterator.java,v 1.3 2003/05/13 10:58:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface TickIterator {

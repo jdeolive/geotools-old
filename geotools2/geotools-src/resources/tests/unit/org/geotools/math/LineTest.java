@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -45,7 +46,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link Line} class.
  *
- * @version $Id: LineTest.java,v 1.2 2003/02/04 15:03:23 desruisseaux Exp $
+ * @version $Id: LineTest.java,v 1.3 2003/05/13 10:58:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class LineTest extends TestCase {

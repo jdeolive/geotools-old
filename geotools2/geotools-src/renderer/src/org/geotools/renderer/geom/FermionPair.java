@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -45,7 +46,7 @@ package org.geotools.renderer.geom;
  * avec le même spin, on ne doit pas avoir nulle part dans la liste deux pointeurs
  * <code>[i/j].path</code> identiques associés à la même valeur booléenne <code>[i/j].mergeEnd</code>.
  *
- * @version $Id: FermionPair.java,v 1.1 2003/02/04 12:30:52 desruisseaux Exp $
+ * @version $Id: FermionPair.java,v 1.2 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class FermionPair {

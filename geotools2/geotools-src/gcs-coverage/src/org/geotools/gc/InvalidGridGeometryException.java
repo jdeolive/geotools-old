@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -37,7 +38,7 @@ package org.geotools.gc;
  * this exception is thrown when {@link GridGeometry#getGridRange() getGridRange()} is
  * invoked while the grid geometry were built with a null {@link GridRange}.
  *
- * @version $Id: InvalidGridGeometryException.java,v 1.2 2003/02/14 15:46:47 desruisseaux Exp $
+ * @version $Id: InvalidGridGeometryException.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class InvalidGridGeometryException extends IllegalStateException {

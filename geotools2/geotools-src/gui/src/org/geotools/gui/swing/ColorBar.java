@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2000, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -96,7 +97,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <p align="center"><img src="doc-files/ColorBar.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: ColorBar.java,v 1.6 2003/05/02 22:18:18 desruisseaux Exp $
+ * @version $Id: ColorBar.java,v 1.7 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ColorBar extends JComponent {
@@ -773,7 +774,7 @@ public class ColorBar extends JComponent {
      * de calculer l'espace qu'elle occupe. Cette classe peut aussi réagir
      * à certains événements.
      *
-     * @version $Id: ColorBar.java,v 1.6 2003/05/02 22:18:18 desruisseaux Exp $
+     * @version $Id: ColorBar.java,v 1.7 2003/05/13 11:01:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class UI extends ComponentUI implements PropertyChangeListener {

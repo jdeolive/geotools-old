@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -53,7 +54,7 @@ import org.geotools.cs.GeographicCoordinateSystem;
  * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system}), but
  * is usually two-dimensional.
  *
- * @version $Id: MouseCoordinateFormat.java,v 1.6 2003/02/27 14:32:45 desruisseaux Exp $
+ * @version $Id: MouseCoordinateFormat.java,v 1.7 2003/05/13 11:00:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MouseCoordinateFormat extends CoordinateFormat {

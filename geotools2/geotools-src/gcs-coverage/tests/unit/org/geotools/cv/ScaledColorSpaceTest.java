@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -51,7 +51,7 @@ import junit.framework.TestSuite;
  * Test the {@link ScaledColorSpace} implementation.
  * This is a visual test.
  *
- * @version $Id: ScaledColorSpaceTest.java,v 1.1 2002/08/09 18:41:23 desruisseaux Exp $
+ * @version $Id: ScaledColorSpaceTest.java,v 1.2 2003/05/13 10:59:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ScaledColorSpaceTest extends TestCase {

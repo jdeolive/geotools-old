@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -79,7 +80,7 @@ import java.awt.event.ActionEvent;
  * origin (0,0) is located in the lower left corner, as in the usual geometric
  * convention.
  *
- * @version $Id: ShapePanel.java,v 1.1 2003/02/03 09:52:00 desruisseaux Exp $
+ * @version $Id: ShapePanel.java,v 1.2 2003/05/13 11:00:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ShapePanel extends JPanel {

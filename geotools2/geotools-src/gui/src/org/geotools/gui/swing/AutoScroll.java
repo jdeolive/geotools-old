@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -59,7 +59,7 @@ import javax.swing.table.DefaultTableModel; // For JavaDoc only
  * table.addRow(...);
  * </pre></blockquote>
  *
- * @version $Id: AutoScroll.java,v 1.1 2002/09/01 22:36:02 desruisseaux Exp $
+ * @version $Id: AutoScroll.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class AutoScroll implements ChangeListener, Serializable {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -51,7 +51,7 @@ import org.geotools.resources.Utilities;
  *       Future implementation will be differents (interpolate in a color table
  *       instead of computing grayscales).
  *
- * @version $Id: ScaledColorSpace.java,v 1.4 2002/07/26 22:17:33 desruisseaux Exp $
+ * @version $Id: ScaledColorSpace.java,v 1.5 2003/05/13 10:59:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ScaledColorSpace extends ColorSpace {

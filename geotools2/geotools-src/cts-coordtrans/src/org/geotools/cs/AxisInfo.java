@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Details of axis. This is used to label axes,
  * and indicate the orientation.
  *
- * @version $Id: AxisInfo.java,v 1.3 2003/01/20 23:16:07 desruisseaux Exp $
+ * @version $Id: AxisInfo.java,v 1.4 2003/05/13 10:58:47 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *

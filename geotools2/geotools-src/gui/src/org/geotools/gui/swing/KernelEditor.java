@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -92,7 +93,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/KernelEditor.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: KernelEditor.java,v 1.3 2003/04/15 10:55:10 desruisseaux Exp $
+ * @version $Id: KernelEditor.java,v 1.4 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see GradientKernelEditor
@@ -436,7 +437,7 @@ public class KernelEditor extends JComponent {
      * currently selected kernel. This object is also a listener for various
      * events (like changing the size of the table).
      *
-     * @version $Id: KernelEditor.java,v 1.3 2003/04/15 10:55:10 desruisseaux Exp $
+     * @version $Id: KernelEditor.java,v 1.4 2003/05/13 11:01:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Model extends AbstractTableModel implements ComboBoxModel,

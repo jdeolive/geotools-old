@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -111,7 +111,7 @@ import org.geotools.resources.JAIUtilities;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.22 2003/05/12 21:27:56 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.23 2003/05/13 10:58:48 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -957,7 +957,7 @@ reduce:     for (int j=0; j<rows.length; j++) {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.22 2003/05/12 21:27:56 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.23 2003/05/13 10:58:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends UnicastRemoteObject implements CT_MathTransformFactory {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ import org.geotools.units.Unit;
  * A ellipsoid which is spherical. This ellipsoid implements a faster
  * {@link #orthodromicDistance} method.
  *
- * @version $Id: Spheroid.java,v 1.2 2002/07/12 10:02:48 desruisseaux Exp $
+ * @version $Id: Spheroid.java,v 1.3 2003/05/13 10:58:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Spheroid extends Ellipsoid {

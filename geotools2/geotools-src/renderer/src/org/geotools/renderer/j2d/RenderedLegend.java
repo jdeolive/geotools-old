@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -55,7 +56,7 @@ import org.geotools.ct.TransformException;
  * and a {@linkplain #getMargin margin} in dots (or pixels) to keep between the legend and
  * widget's borders.
  *
- * @version $Id: RenderedLegend.java,v 1.2 2003/03/12 22:44:42 desruisseaux Exp $
+ * @version $Id: RenderedLegend.java,v 1.3 2003/05/13 11:00:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedLegend extends RenderedLayer {

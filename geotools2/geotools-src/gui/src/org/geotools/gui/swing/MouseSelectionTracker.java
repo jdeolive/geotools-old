@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -77,7 +77,7 @@ import javax.swing.event.MouseInputAdapter;
  * component.addMouseListener(control);
  * </pre></blockquote>
  *
- * @version $Id: MouseSelectionTracker.java,v 1.3 2002/07/31 08:42:40 desruisseaux Exp $
+ * @version $Id: MouseSelectionTracker.java,v 1.4 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class MouseSelectionTracker extends MouseInputAdapter

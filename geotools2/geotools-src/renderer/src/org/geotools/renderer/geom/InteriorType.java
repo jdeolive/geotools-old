@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1998, Pêches et Océans Canada
  *
@@ -49,7 +50,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * island on the ocean) or a {@link #DEPRESSION depression} (e.g. the coastline of a
  * lake in an island).
  *
- * @version $Id: InteriorType.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+ * @version $Id: InteriorType.java,v 1.2 2003/05/13 11:00:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class InteriorType extends EnumeratedParameter {

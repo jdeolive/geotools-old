@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ import javax.imageio.IIOException;
  * The base class for error related to grid coverage's properties.
  * This exception is thrown by the helper class {@link PropertyParser}.
  *
- * @version $Id: PropertyException.java,v 1.2 2002/08/22 11:16:08 desruisseaux Exp $
+ * @version $Id: PropertyException.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyException extends IIOException {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ import org.geotools.resources.DescriptorNaming;
  * Parser for <cite>Well Know Text</cite> (WKT).
  * Instances of this class are thread-safe.
  *
- * @version $Id: WKTParser.java,v 1.6 2002/10/13 19:56:17 desruisseaux Exp $
+ * @version $Id: WKTParser.java,v 1.7 2003/05/13 10:58:47 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ package org.geotools.resources.gui;
 /**
  * Greek language resource.
  *
- * @version $Id: Resources_el.java,v 1.2 2002/08/01 10:49:12 desruisseaux Exp $
+ * @version $Id: Resources_el.java,v 1.3 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Resources_el extends Resources {

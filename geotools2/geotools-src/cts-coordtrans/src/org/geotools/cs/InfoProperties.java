@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -56,7 +56,7 @@ import java.io.ObjectInputStream;
  * this map is used only internally by {@link Info} objects,   users don't need to
  * know those short-comming.
  *
- * @version $Id: InfoProperties.java,v 1.4 2002/08/24 12:28:04 desruisseaux Exp $
+ * @version $Id: InfoProperties.java,v 1.5 2003/05/13 10:58:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class InfoProperties implements Map, Serializable {

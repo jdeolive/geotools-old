@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2003, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -44,7 +44,7 @@ import org.geotools.renderer.geom.JTSIsoline;
 /**
  * A factory creating {@link RenderedLayer}s from {@link Feature}s and {@link Style}s.
  *
- * @version $Id: RenderedLayerFactory.java,v 1.1 2003/03/05 21:50:36 desruisseaux Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.2 2003/05/13 11:00:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author <--- add your name --->
  */

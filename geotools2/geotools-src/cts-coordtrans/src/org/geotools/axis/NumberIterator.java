@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2000, Institut de Recherche pour le Développement
  * (C) 1999, Pêches et Océans Canada
  *
@@ -43,7 +44,7 @@ import org.geotools.resources.XMath;
  * Cet itérateur retourne les positions des graduations à partir de la
  * valeur minimale jusqu'à la valeur maximale.
  *
- * @version $Id: NumberIterator.java,v 1.2 2003/03/10 15:08:20 desruisseaux Exp $
+ * @version $Id: NumberIterator.java,v 1.3 2003/05/13 10:58:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class NumberIterator implements TickIterator {

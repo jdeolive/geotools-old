@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -69,7 +69,7 @@ import java.util.logging.LogRecord;
  * declarative interface is never loaded at run time. This class also
  * provides facilities for string formatting using {@link MessageFormat}.
  *
- * @version $Id: ResourceBundle.java,v 1.5 2003/02/05 22:56:35 desruisseaux Exp $
+ * @version $Id: ResourceBundle.java,v 1.6 2003/05/13 10:58:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ResourceBundle extends java.util.ResourceBundle {

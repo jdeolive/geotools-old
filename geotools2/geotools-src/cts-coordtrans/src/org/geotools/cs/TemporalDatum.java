@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -47,7 +47,7 @@ import java.util.Locale;
 /**
  * Procedure used to measure time.
  *
- * @version $Id: TemporalDatum.java,v 1.3 2002/06/05 16:18:34 loxnard Exp $
+ * @version $Id: TemporalDatum.java,v 1.4 2003/05/13 10:58:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TemporalDatum extends Datum {

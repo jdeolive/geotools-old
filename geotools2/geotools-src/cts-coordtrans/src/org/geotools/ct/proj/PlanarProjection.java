@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  * (C) 1999, Fisheries and Oceans Canada
  *
@@ -44,7 +44,7 @@ import org.geotools.ct.MissingParameterException;
  * <p>&nbsp;</p>
  * <p align="center"><img src="../doc-files/PlanarProjection.png"></p>
  *
- * @version $Id: PlanarProjection.java,v 1.2 2003/04/16 19:26:59 desruisseaux Exp $
+ * @version $Id: PlanarProjection.java,v 1.3 2003/05/13 10:58:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see <A HREF="http://mathworld.wolfram.com/AzimuthalProjection.html">Azimuthal projection on MathWorld</A>

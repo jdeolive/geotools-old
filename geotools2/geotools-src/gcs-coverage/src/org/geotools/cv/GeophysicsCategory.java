@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -56,7 +56,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * values.   By definition, the {@link #getSampleToGeophysics} method for this class returns
  * the identity transform, or <code>null</code> if this category is a qualitative one.
  *
- * @version $Id: GeophysicsCategory.java,v 1.7 2003/05/04 22:33:14 desruisseaux Exp $
+ * @version $Id: GeophysicsCategory.java,v 1.8 2003/05/13 10:59:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GeophysicsCategory extends Category {
@@ -200,7 +200,7 @@ final class GeophysicsCategory extends Category {
      * values is 0 to 20 exclusive or 0 to 18 inclusive, not 0 to 19.9999... The numbers between
      * 18 and 20 is a "gray area" where we don't know for sure what the user intend to do.
      *
-     * @version $Id: GeophysicsCategory.java,v 1.7 2003/05/04 22:33:14 desruisseaux Exp $
+     * @version $Id: GeophysicsCategory.java,v 1.8 2003/05/13 10:59:50 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see GeophysicsCategory#getRange

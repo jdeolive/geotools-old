@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link WKTParser} implementation.
  *
- * @version $Id: WKTParserTest.java,v 1.3 2002/10/07 22:49:55 desruisseaux Exp $
+ * @version $Id: WKTParserTest.java,v 1.4 2003/05/13 10:58:50 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Indicates that an operation cannot be completed properly because
  * of a mismatch in the dimensions of object attributes.
  *
- * @version $Id: MismatchedDimensionException.java,v 1.2 2003/01/20 23:16:18 desruisseaux Exp $
+ * @version $Id: MismatchedDimensionException.java,v 1.3 2003/05/13 10:58:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MismatchedDimensionException extends IllegalArgumentException {

@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ import javax.swing.JInternalFrame;
  * by {@link SwingUtilities} in order to have the same methods working seemless on both
  * {@link Frame} and {@link JInternalFrame}.
  *
- * @version $Id: InternalWindowListener.java,v 1.1 2002/09/08 15:29:28 desruisseaux Exp $
+ * @version $Id: InternalWindowListener.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class InternalWindowListener implements InternalFrameListener {

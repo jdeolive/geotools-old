@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link ExponentialTransform1D} and {@link LogarithmicTransform1D} classes.
  *
- * @version $Id: ExponentialTransformTest.java,v 1.2 2002/10/10 14:44:52 desruisseaux Exp $
+ * @version $Id: ExponentialTransformTest.java,v 1.3 2003/05/13 10:58:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ExponentialTransformTest extends TransformationTest {

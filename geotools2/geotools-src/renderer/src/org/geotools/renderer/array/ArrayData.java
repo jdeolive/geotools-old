@@ -1,5 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2003, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -50,7 +51,7 @@ import org.geotools.resources.XArray;
  * This class (like the whole <code>org.geotools.renderer.array</code> package)
  * is for internal use by {@link org.geotools.renderer.geom.Polygon} only.
  *
- * @version $Id: ArrayData.java,v 1.2 2003/02/10 23:09:34 desruisseaux Exp $
+ * @version $Id: ArrayData.java,v 1.3 2003/05/13 11:00:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ArrayData {

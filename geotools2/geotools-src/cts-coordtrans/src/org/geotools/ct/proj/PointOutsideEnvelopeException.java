@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * Geotools 2 - OpenSource mapping toolkit
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@ import org.geotools.cs.CoordinateSystem;
  * Thrown by {@link MapProjection} when a map projection failed because the point is
  * outside the envelope of validity. Bounds are usually 90°S to 90°N and 180°W to 180°E.
  *
- * @version $Id: PointOutsideEnvelopeException.java,v 1.1 2003/05/12 21:27:56 desruisseaux Exp $
+ * @version $Id: PointOutsideEnvelopeException.java,v 1.2 2003/05/13 10:58:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see CoordinateSystem#getDefaultEnvelope
