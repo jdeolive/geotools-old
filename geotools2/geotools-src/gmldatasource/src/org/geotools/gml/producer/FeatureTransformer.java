@@ -331,15 +331,11 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
 	 
             switch (geometryType) {
             case GMLUtils.POINT:
-                writeCoordinates(geometry);
-                break;
-
-            case GMLUtils.LINESTRING:
+	    case GMLUtils.LINESTRING:
                 writeCoordinates(geometry);
                 break;
 
             case GMLUtils.POLYGON:
-              
                 writePolygon((Polygon) geometry, gid);
                 break;
 
@@ -430,6 +426,7 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
 	    
 	} 
 	
+	//move to gml utils?
 	private String getMemberName(int geometryType){
 	    String member;
 	    switch (geometryType) {
@@ -450,34 +447,5 @@ public class FeatureTransformer implements org.xml.sax.XMLReader {
 	    }
 	}
 
-	/*private void writeMultiLineString(GeometryCollection geometry,
-					  String gid) throws SAXException {
-	    //finalResult.append(abstractGeometryStart1 + gid +
-	    //                abstractGeometryStart2);
-	    String member = "lineStringMember";
-	    //CR();
-	    //TB(indent);
-	    for(int i = 0, n = geometry.getNumGeometries(); i < n; i++) {
-		CR();
-		TB(indent);
-		output.startElement(GML_URL, member, "gml:" + member, atts);
-		CR();
-		indent++;
-		TB(indent++);
-		//if (verbose) finalResult.append(GEOM_OFFSET);
-		//finalResult.append("<gml:lineStringMember>");
-		writeGeometry( geometry.getGeometryN(i), gid + "." + (i + 1));
-		CR();
-		TB(--indent);
-		//--indent;
-		output.endElement(GML_URL, member, "gml:" + member);
-		
-		//if (verbose) finalResult.append(GEOM_OFFSET);
-		//finalResult.append("</gml:lineStringMember>");
-	    }
-	    CR();
-	    TB(--indent);
-	    //finalResult.append( abstractGeometryEnd );
-	    } */
     }
 }
