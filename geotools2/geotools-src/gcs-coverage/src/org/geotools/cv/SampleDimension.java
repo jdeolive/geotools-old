@@ -45,8 +45,15 @@ import java.awt.RenderingHints;
 import java.awt.image.DataBuffer; // For JavaDoc
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
+import java.awt.image.IndexColorModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.renderable.RenderedImageFactory;
+
+// RMI and weak references
+import java.rmi.RemoteException;
+import java.rmi.server.RemoteObject;
+import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;
 
 // JAI dependencies
 import javax.media.jai.JAI;
@@ -57,7 +64,11 @@ import javax.media.jai.OperationDescriptorImpl;
 import javax.media.jai.registry.RenderedRegistryMode;
 
 // OpenGIS dependencies
+import org.opengis.cs.CS_Unit;
 import org.opengis.cv.CV_SampleDimension;
+import org.opengis.cv.CV_SampleDimensionType;
+import org.opengis.cv.CV_ColorInterpretation;
+import org.opengis.cv.CV_PaletteInterpretation;
 
 // Geotools dependencies
 import org.geotools.ct.MathTransform1D;
@@ -90,7 +101,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.8 2002/07/29 15:15:28 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.9 2002/09/15 21:50:59 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -169,6 +180,12 @@ public class SampleDimension implements Serializable {
      * value in some conditions.
      */
     private final MathTransform1D sampleToGeophysics;
+
+    /**
+     * OpenGIS object returned by {@link #toOpenGIS}.
+     * It may be a hard or a weak reference.
+     */
+    private transient Object proxy;
 
     /**
      * Construct a sample dimension with no category.
@@ -771,9 +788,13 @@ public class SampleDimension implements Serializable {
      * the value is {@link ColorInterpretation#UNDEFINED}.
      *
      * @see CV_SampleDimension#getColorInterpretation()
+     *
+     * @task TODO: the 'band' and 'numBands' parameters should be specified at construction time.
      */
     public ColorInterpretation getColorInterpretation() {
-        return ColorInterpretation.UNDEFINED;
+        final int band     = 0;
+        final int numBands = 1;
+        return ColorInterpretation.getEnum(getColorModel(band, numBands), band);
     }
     
     /**
@@ -791,6 +812,8 @@ public class SampleDimension implements Serializable {
      * @return The requested color model, suitable for {@link RenderedImage} objects with values
      *         in the <code>{@link #getRange}</code> range. May be <code>null</code> if this
      *         sample dimension has no category.
+     *
+     * @task TODO: the 'band' and 'numBands' parameters should be specified at construction time.
      */
     public ColorModel getColorModel(final int visibleBand, final int numBands)
     {
@@ -962,5 +985,184 @@ public class SampleDimension implements Serializable {
         registry.registerDescriptor(new Descriptor());
         registry.registerFactory(RenderedRegistryMode.MODE_NAME, "GC_SampleTranscoding",
                                  "geotools.org", new CRIF());
+    }
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////
+    ////////////////                                         ////////////////
+    ////////////////             OPENGIS ADAPTER             ////////////////
+    ////////////////                                         ////////////////
+    /////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns an OpenGIS interface for this sample dimension. This method first
+     * looks in the cache. If no interface was previously cached, then this
+     * method creates a new adapter and caches the result.
+     *
+     * @param  adapters The originating {@link Adapters}.
+     * @return The OpenGIS interface. The returned type is a generic {@link Object}
+     *         in order to avoid premature class loading of OpenGIS interface.
+     */
+    final synchronized Object toOpenGIS(final Object adapters) {
+        if (proxy != null) {
+            if (proxy instanceof Reference) {
+                final Object ref = ((Reference) proxy).get();
+                if (ref != null) {
+                    return ref;
+                }
+            } else {
+                return proxy;
+            }
+        }
+        final Object opengis = new Export(adapters);
+        proxy = new WeakReference(opengis);
+        return opengis;
+    }
+
+    /**
+     * Wraps a {@link SampleDimension} object for use with OpenGIS.  This wrapper is a
+     * good place to check for non-implemented OpenGIS methods (just check for methods
+     * throwing {@link UnsupportedOperationException}). This class is suitable for RMI
+     * use.
+     */
+    final class Export extends RemoteObject implements CV_SampleDimension {
+        /**
+         * The originating adapter.
+         */
+        private final Adapters adapters;
+
+        /**
+         * Constructs a remote object.
+         */
+        protected Export(final Object adapters) {
+            this.adapters = (Adapters)adapters;
+        }
+
+        /**
+         * Returns the underlying implementation.
+         */
+        public final SampleDimension unwrap() {
+            return SampleDimension.this;
+        }
+
+        /**
+         * Sample dimension title or description.
+         */
+        public String getDescription() throws RemoteException {
+            return SampleDimension.this.getDescription(null);
+        }
+
+        /**
+         * A code value indicating grid value data type.
+         *
+         * @task TODO: We should get this information by inspecting
+         *             the image's underlying {@link SampleModel}.
+         */
+        public CV_SampleDimensionType getSampleDimensionType() throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Sequence of category names for the values contained in a sample dimension.
+         */
+        public String[] getCategoryNames() throws RemoteException {
+            return SampleDimension.this.getCategoryNames(null);
+        }
+
+        /**
+         * Color interpretation of the sample dimension.
+         */
+        public CV_ColorInterpretation getColorInterpretation() throws RemoteException {
+            return adapters.export(SampleDimension.this.getColorInterpretation());
+        }
+
+        /**
+         * Indicates the type of color palette entry for sample dimensions which have a palette.
+         */
+        public CV_PaletteInterpretation getPaletteInterpretation() throws RemoteException {
+            return new CV_PaletteInterpretation(CV_PaletteInterpretation.CV_RGB);
+        }
+
+        /**
+         * Color palette associated with the sample dimension.
+         *
+         * @task TODO: Should invokes a no-args method for 'getColorModel()'. Can be done when
+         *             'band' and 'numBands' parameters will be moved into SampleDimension's
+         *             constructor.
+         */
+        public int[][] getPalette() throws RemoteException {
+            final ColorModel model = getColorModel(0, 1);
+            if (model instanceof IndexColorModel) {
+                final IndexColorModel index = (IndexColorModel) model;
+                final int[][] palette = new int[index.getMapSize()][];
+                for (int i=0; i<palette.length; i++) {
+                    final int[] RGB = palette[i] = new int[3];
+                    RGB[0] = index.getRed  (i);
+                    RGB[1] = index.getGreen(i);
+                    RGB[2] = index.getBlue (i);
+                }
+                return palette;
+            } else {
+                throw new UnsupportedOperationException("Not yet implemented");
+            }
+        }
+
+        /**
+         * Values to indicate no data values for the sample dimension.
+         */
+        public double[] getNoDataValue() throws RemoteException {
+            return SampleDimension.this.getNoDataValue();
+        }
+
+        /**
+         * The minimum value occurring in the sample dimension.
+         */
+        public double getMinimumValue() throws RemoteException {
+            return SampleDimension.this.getMinimumValue();
+        }
+
+        /**
+         * The maximum value occurring in the sample dimension.
+         */
+        public double getMaximumValue() throws RemoteException {
+            return SampleDimension.this.getMaximumValue();
+        }
+
+        /**
+         * The unit information for this sample dimension.
+         */
+        public CS_Unit getUnits() throws RemoteException {
+            return adapters.CS.export(SampleDimension.this.getUnits());
+        }
+
+        /**
+         * Offset is the value to add to grid values for this sample dimension.
+         */
+        public double getOffset() throws RemoteException {
+            return SampleDimension.this.getOffset();
+        }
+
+        /**
+         * Scale is the value which is multiplied to grid values for this sample dimension.
+         */
+        public double getScale() throws RemoteException {
+            return SampleDimension.this.getScale();
+        }
+
+        /**
+         * The list of metadata keywords for a sample dimension.
+         */
+        public String[] getMetaDataNames() throws RemoteException {
+            return new String[0];
+        }
+
+        /**
+         * Retrieve the metadata value for a given metadata name.
+         */
+        public String getMetadataValue(String name) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
     }
 }

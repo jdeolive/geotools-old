@@ -42,6 +42,10 @@ import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 
+// Weak references
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+
 // OpenGIS dependencies
 import org.opengis.gc.GC_GridRange;
 
@@ -55,7 +59,7 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * Defines a range of grid coverage coordinates.
  *
- * @version $Id: GridRange.java,v 1.2 2002/07/26 23:18:18 desruisseaux Exp $
+ * @version $Id: GridRange.java,v 1.3 2002/09/15 21:50:59 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -66,12 +70,18 @@ public class GridRange implements Dimensioned, Serializable {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = 1452569710967224145L;
-    
+
     /**
      * Minimum and maximum grid ordinates. The first half contains minimum
      * ordinates, while the last half contains maximum ordinates.
      */
     private final int[] index;
+
+    /**
+     * OpenGIS object returned by {@link #toOpenGIS}.
+     * It may be a hard or a weak reference.
+     */
+    transient Object proxy;
     
     /**
      * Check if ordinate values in the minimum index are less than or
@@ -255,5 +265,84 @@ public class GridRange implements Dimensioned, Serializable {
         }
         buffer.append(']');
         return buffer.toString();
+    }
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////
+    ////////////////                                         ////////////////
+    ////////////////             OPENGIS ADAPTER             ////////////////
+    ////////////////                                         ////////////////
+    /////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns an OpenGIS interface for this grid range. This method first
+     * looks in the cache. If no interface was previously cached, then this
+     * method creates a new adapter and caches the result.
+     *
+     * @param  adapters The originating {@link Adapters}.
+     * @return The OpenGIS interface. The returned type is a generic {@link Object}
+     *         in order to avoid premature class loading of OpenGIS interface.
+     */
+    final synchronized Object toOpenGIS(final Object adapters) {
+        if (proxy != null) {
+            if (proxy instanceof Reference) {
+                final Object ref = ((Reference) proxy).get();
+                if (ref != null) {
+                    return ref;
+                }
+            } else {
+                return proxy;
+            }
+        }
+        final Object opengis = new Export(adapters);
+        proxy = new WeakReference(opengis);
+        return opengis;
+    }
+
+    /**
+     * Wraps a {@link GridRange} object for use with OpenGIS.
+     */
+    final class Export implements GC_GridRange, Serializable {
+        /**
+         * Serial number for interoperability with different versions.
+         */
+        private static final long serialVersionUID = -4941451644914317370L;
+
+        /**
+         * Constructs an OpenGIS structure.
+         */
+        public Export(final Object adapters) {
+        }
+        
+        /**
+         * Returns the underlying implementation.
+         */
+        public final GridRange unwrap() {
+            return GridRange.this;
+        }
+
+        /**
+         * The valid minimum inclusive grid coordinate.
+         */
+        public int[] getLo() {
+            final int[] lower = new int[getDimension()];
+            for (int i=0; i<lower.length; i++) {
+                lower[i] = getLower(i);
+            }
+            return lower;
+        }
+
+        /**
+         * The valid maximum exclusive grid coordinate.
+         */
+        public int[] getHi() {
+            final int[] upper = new int[getDimension()];
+            for (int i=0; i<upper.length; i++) {
+                upper[i] = getUpper(i);
+            }
+            return upper;
+        }
     }
 }

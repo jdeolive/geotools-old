@@ -43,8 +43,16 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 
+// RMI and weak references
+import java.rmi.RemoteException;
+import java.rmi.server.RemoteObject;
+import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;
+
 // OpenGIS dependencies
+import org.opengis.gc.GC_GridRange;
 import org.opengis.gc.GC_GridGeometry;
+import org.opengis.ct.CT_MathTransform;
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
@@ -69,7 +77,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Describes the valid range of grid coordinates and the math
  * transform to transform grid coordinates to real world coordinates.
  *
- * @version $Id: GridGeometry.java,v 1.2 2002/07/26 23:18:18 desruisseaux Exp $
+ * @version $Id: GridGeometry.java,v 1.3 2002/09/15 21:50:59 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -109,6 +117,12 @@ public class GridGeometry implements Dimensioned, Serializable {
      * The inverse of <code>gridToCoordinateSystem2D</code>.
      */
     private final MathTransform2D gridFromCoordinateSystem2D;
+
+    /**
+     * OpenGIS object returned by {@link #toOpenGIS}.
+     * It may be a hard or a weak reference.
+     */
+    transient Object proxy;
     
     /**
      * Construct a new grid geometry from a math transform.
@@ -449,5 +463,88 @@ public class GridGeometry implements Dimensioned, Serializable {
         buffer.append(gridToCoordinateSystem);
         buffer.append(']');
         return buffer.toString();
+    }
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////
+    ////////////////                                         ////////////////
+    ////////////////             OPENGIS ADAPTER             ////////////////
+    ////////////////                                         ////////////////
+    /////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns an OpenGIS interface for this grid geometry. This method first
+     * looks in the cache. If no interface was previously cached, then this
+     * method creates a new adapter and caches the result.
+     *
+     * @param  adapters The originating {@link Adapters}.
+     * @return The OpenGIS interface. The returned type is a generic {@link Object}
+     *         in order to avoid premature class loading of OpenGIS interface.
+     */
+    final synchronized Object toOpenGIS(final Object adapters) {
+        if (proxy != null) {
+            if (proxy instanceof Reference) {
+                final Object ref = ((Reference) proxy).get();
+                if (ref != null) {
+                    return ref;
+                }
+            } else {
+                return proxy;
+            }
+        }
+        final Object opengis = new Export(adapters);
+        proxy = new WeakReference(opengis);
+        return opengis;
+    }
+
+    /**
+     * Wraps a {@link GridGeometry} object for use with OpenGIS.
+     *
+     * @task TODO: This class is not really serializable, since adapters are not.
+     *             Actually, maybe GC_GridGeometry should be a remote interface,
+     *             since CT_MathTransform is a remote interface and may not be
+     *             serializable neither.
+     */
+    final class Export implements GC_GridGeometry, Serializable {
+        /**
+         * Serial number for interoperability with different versions.
+         */
+        private static final long serialVersionUID = 578135758412768567L;
+
+        /**
+         * The originating adapter.
+         */
+        private final Adapters adapters;
+
+        /**
+         * Constructs an OpenGIS structure.
+         */
+        public Export(final Object adapters) {
+            this.adapters = (Adapters) adapters;
+        }
+        
+        /**
+         * Returns the underlying implementation.
+         */
+        public final GridGeometry unwrap() {
+            return GridGeometry.this;
+        }
+
+        /**
+         * The valid coordinate range of a grid coverage.
+         */
+        public GC_GridRange getGridRange() {
+            return adapters.export(GridGeometry.this.getGridRange());
+        }
+
+        /**
+         * The math transform allows for the transformations from grid coordinates to real
+         * world earth coordinates. The transform is often an affine transformation.
+         */
+        public CT_MathTransform getGridToCoordinateSystem() {
+            return adapters.CT.export(GridGeometry.this.getGridToCoordinateSystem());
+        }
     }
 }

@@ -69,6 +69,10 @@ import javax.media.jai.util.CaselessStringKey;
 // Miscellaneous
 import java.util.Arrays;
 import java.util.Locale;
+import java.rmi.RemoteException;
+import java.rmi.server.RemoteObject;
+import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;
 
 // Geotools dependencies (CTS)
 import org.geotools.pt.Matrix;
@@ -88,6 +92,11 @@ import org.geotools.resources.gcs.Resources;
 
 // OpenGIS dependencies
 import org.opengis.cv.CV_Coverage;
+import org.opengis.pt.PT_Envelope;
+import org.opengis.pt.PT_CoordinatePoint;
+import org.opengis.cs.CS_CoordinateSystem;
+import org.opengis.cv.CV_SampleDimension;
+import org.opengis.gc.GC_GridCoverage;
 
 
 /**
@@ -110,7 +119,7 @@ import org.opengis.cv.CV_Coverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.6 2002/08/09 18:37:56 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.7 2002/09/15 21:50:58 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -131,6 +140,12 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * The coordinate system, or <code>null</code> if there is none.
      */
     protected final CoordinateSystem coordinateSystem;
+
+    /**
+     * OpenGIS object returned by {@link #toOpenGIS}.
+     * It may be a hard or a weak reference.
+     */
+    private transient Object proxy;
     
     /**
      * Construct a coverage using the specified coordinate system. If the coordinate system
@@ -295,7 +310,36 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
         return dest;
     }
-    
+
+    /**
+     * Returns a sequence of byte values for a given point in the coverage.
+     * A value for each sample dimension is included in the sequence. The default
+     * interpolation type used when accessing grid values for points which fall
+     * between grid cells is nearest neighbor. The coordinate system of the
+     * point is the same as the grid coverage coordinate system.
+     *
+     * @param  coord The coordinate point where to evaluate.
+     * @param  dest  An array in which to store values, or <code>null</code> to
+     *               create a new array. If non-null, this array must be at least
+     *               <code>{@link #getSampleDimensions()}.length</code> long.
+     * @return The <code>dest</code> array, or a newly created array if <code>dest</code> was null.
+     * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
+     *
+     * @see CV_Coverage#evaluateAsInteger
+     */
+    public byte[] evaluate(final CoordinatePoint coord, byte[] dest)
+            throws PointOutsideCoverageException
+    {
+        final double[] result = evaluate(coord, (double[])null);
+        if (dest==null)  dest = new byte[result.length];
+        for (int i=0; i<result.length; i++) {
+            final double value = Math.rint(result[i]);
+            dest[i] = (value < Byte.MIN_VALUE) ? Byte.MIN_VALUE :
+                      (value > Byte.MAX_VALUE) ? Byte.MAX_VALUE : (byte) value;
+        }
+        return dest;
+    }
+
     /**
      * Returns a sequence of integer values for a given point in the coverage.
      * A value for each sample dimension is included in the sequence. The default
@@ -324,7 +368,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
         return dest;
     }
-    
+
     /**
      * Returns a sequence of float values for a given point in the coverage.
      * A value for each sample dimension is included in the sequence. The default interpolation
@@ -631,5 +675,198 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         buffer.append(getEnvelope());
         buffer.append(']');
         return buffer.toString();
+    }
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////
+    ////////////////                                         ////////////////
+    ////////////////             OPENGIS ADAPTER             ////////////////
+    ////////////////                                         ////////////////
+    /////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns an OpenGIS interface for this coverage. This method first
+     * looks in the cache. If no interface was previously cached, then this
+     * method creates a new adapter and caches the result.
+     *
+     * @param  adapters The originating {@link Adapters}.
+     * @return The OpenGIS interface. The returned type is a generic {@link Object}
+     *         in order to avoid premature class loading of OpenGIS interface.
+     */
+    final synchronized Object toOpenGIS(final Object adapters) {
+        if (proxy != null) {
+            if (proxy instanceof Reference) {
+                final Object ref = ((Reference) proxy).get();
+                if (ref != null) {
+                    return ref;
+                }
+            } else {
+                return proxy;
+            }
+        }
+        final Object opengis = new Export(adapters);
+        proxy = new WeakReference(opengis);
+        return opengis;
+    }
+
+    /**
+     * Export a Geotools {@link Coverage} as an OpenGIS {@link CV_Coverage} object.
+     * This class is suitable for RMI use. User should not create instance of this
+     * class directly. The method {@link Adapters#export(Coverage)} should be used
+     * instead.
+     *
+     * @version $Id: Coverage.java,v 1.7 2002/09/15 21:50:58 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     */
+    protected class Export extends RemoteObject implements CV_Coverage {
+        /**
+         * The originating adapter.
+         */
+        protected final Adapters adapters;
+
+        /**
+         * Constructs a remote object.
+         *
+         * @param adapters The originating adapter.
+         */
+        Export(final Object adapters) {
+            this.adapters = (Adapters)adapters;
+        }
+
+        /**
+         * Constructs a remote object.
+         *
+         * @param adapters The originating adapter.
+         */
+        public Export(final Adapters adapters) {
+            this.adapters = adapters;
+        }
+
+        /**
+         * Returns the underlying implementation.
+         */
+        final Coverage unwrap() {
+            return Coverage.this;
+        }
+
+        /**
+         * Returns The number of sample dimensions in the coverage.
+         * The default implementation invokes {@link Coverage#getSampleDimensions}.
+         */
+        public int getNumSampleDimensions() throws RemoteException {
+            return Coverage.this.getSampleDimensions().length;
+        }
+
+        /**
+         * Returns the names of each dimension in the coverage.
+         * The default implementation invokes {@link Coverage#getDimensionNames}.
+         */
+        public String[] getDimensionNames() throws RemoteException {
+            return Coverage.this.getDimensionNames(null);
+        }
+
+        /**
+         * Returns the number of grid coverages which the grid coverage was derived from.
+         * The default implementation returns <code>0</code>.
+         */
+        public int getNumSources() throws RemoteException {
+            return 0;
+        }
+
+        /**
+         * Returns the list of metadata keywords for a coverage.
+         * The default implementation invokes {@link Coverage#getPropertyNames}.
+         */
+        public String[] getMetadataNames() throws RemoteException {
+            return Coverage.this.getPropertyNames();
+        }
+
+        /**
+         * Returns coordinate system used when accessing a coverage or
+         * or grid coverage with the <code>evaluate</code> methods.
+         * The default implementation invokes {@link Coverage#getCoordinateSystem}.
+         */
+        public CS_CoordinateSystem getCoordinateSystem() throws RemoteException {
+            return adapters.CS.export(Coverage.this.getCoordinateSystem());
+        }
+
+        /**
+         * Returns the bounding box for the coverage domain in coordinate system coordinates.
+         * The default implementation invokes {@link Coverage#getEnvelope}.
+         */
+        public PT_Envelope getEnvelope() throws RemoteException {
+            return adapters.PT.export(Coverage.this.getEnvelope());
+        }
+
+        /**
+         * Retrieve sample dimension information for the coverage.
+         * The default implementation invokes {@link Coverage#getSampleDimensions}.
+         */
+        public CV_SampleDimension getSampleDimension(int index) throws RemoteException {
+            return adapters.export(Coverage.this.getSampleDimensions()[index]);
+        }
+
+        /**
+         * Returns the source data for a grid coverage.
+         * The default implementation throws an {@link ArrayIndexOutOfBoundsException},
+         * since {@link #getNumSources} returned 0.
+         */
+        public GC_GridCoverage getSource(int sourceDataIndex) throws RemoteException {
+            throw new ArrayIndexOutOfBoundsException(sourceDataIndex);
+        }
+
+        /**
+         * Retrieve the metadata value for a given metadata name.
+         * The default implementation invokes {@link Coverage#getProperty}.
+         */
+        public String getMetadataValue(String name) throws RemoteException {
+            final Object value = Coverage.this.getProperty(name);
+            return (value!=null && value!=Image.UndefinedProperty) ? value.toString() : null;
+        }
+
+        /**
+         * Return the value vector for a given point in the coverage.
+         * The default implementation invokes one of other <code>CV_Coverage} method
+         * (for example {@link #evaluateAsDouble}) according the underlying data type.
+         *
+         * @task TODO: Check the underlying data type.
+         */
+        public Object evaluate(PT_CoordinatePoint point) throws RemoteException {
+            return evaluateAsDouble(point);
+        }
+
+        /**
+         * Return a sequence of Boolean values for a given point in the coverage.
+         * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint, boolean[])}.
+         */
+        public boolean[] evaluateAsBoolean(PT_CoordinatePoint point) throws RemoteException {
+            return Coverage.this.evaluate(adapters.PT.wrap(point), (boolean[]) null);
+        }
+
+        /**
+         * Return a sequence of unsigned byte values for a given point in the coverage.
+         * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint, byte[])}.
+         */
+        public byte[] evaluateAsByte(PT_CoordinatePoint point) throws RemoteException {
+            return Coverage.this.evaluate(adapters.PT.wrap(point), (byte[]) null);
+        }
+
+        /**
+         * Return a sequence of integer values for a given point in the coverage.
+         * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint, int[])}.
+         */
+        public int[] evaluateAsInteger(PT_CoordinatePoint point) throws RemoteException {
+            return Coverage.this.evaluate(adapters.PT.wrap(point), (int[]) null);
+        }
+
+        /**
+         * Return a sequence of double values for a given point in the coverage.
+         * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint, double[])}.
+         */
+        public double[] evaluateAsDouble(PT_CoordinatePoint point) throws RemoteException {
+            return Coverage.this.evaluate(adapters.PT.wrap(point), (double[]) null);
+        }
     }
 }

@@ -83,8 +83,13 @@ import java.util.Date;
 import java.util.Arrays;
 import java.text.DateFormat;
 import java.text.FieldPosition;
+import java.rmi.RemoteException;
+import java.rmi.server.RemoteObject;
 
 // OpenGIS dependencies
+import org.opengis.gc.GC_GridRange;
+import org.opengis.gc.GC_GridPacking;
+import org.opengis.gc.GC_GridGeometry;
 import org.opengis.gc.GC_GridCoverage;
 
 // Geotools dependencies
@@ -122,7 +127,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.5 2002/07/27 12:41:28 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.6 2002/09/15 21:50:59 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -197,6 +202,16 @@ public class GridCoverage extends Coverage {
      * <code>true</code> is all sample in the image are geophysics values.
      */
     private final boolean isGeophysics;
+
+    /**
+     * OpenGIS object returned by {@link #toOpenGIS}.
+     * It may be a hard or a weak reference.
+     *
+     * @task TODO: This field is duplicated with <code>Coverage.proxy</code>. This duplication
+     *             would not exists if we had a protected <code>toOpenGIS()</code> method.
+     *             However, we do not want to make this method visible for now...
+     */
+    private transient Object proxy;
     
     /**
      * Construct a new grid coverage with the same parameter than the specified
@@ -893,5 +908,188 @@ public class GridCoverage extends Coverage {
      */
     protected GridCoverage createReplace(final GridCoverage coverage) {
         return coverage;
+    }
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////
+    ////////////////                                         ////////////////
+    ////////////////             OPENGIS ADAPTER             ////////////////
+    ////////////////                                         ////////////////
+    /////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns an OpenGIS interface for this grid coverage. This method first
+     * looks in the cache. If no interface was previously cached, then this
+     * method creates a new adapter and caches the result.
+     *
+     * @param  adapters The originating {@link Adapters}.
+     * @return The OpenGIS interface. The returned type is a generic {@link Object}
+     *         in order to avoid premature class loading of OpenGIS interface.
+     */
+    final synchronized Object toOpenGIS(final Object adapters) {
+        if (proxy != null) {
+            if (proxy instanceof Reference) {
+                final Object ref = ((Reference) proxy).get();
+                if (ref != null) {
+                    return ref;
+                }
+            } else {
+                return proxy;
+            }
+        }
+        final Object opengis = new Export(adapters);
+        proxy = new WeakReference(opengis);
+        return opengis;
+    }
+
+    /**
+     * Wraps a {@link GridCoverage} object for use with OpenGIS.
+     */
+    final class Export extends Coverage.Export implements GC_GridCoverage {
+        /**
+         * Constructs an OpenGIS structure.
+         */
+        public Export(final Object adapters) {
+            super((Adapters)adapters);
+        }
+        
+        /**
+         * Returns the underlying implementation.
+         */
+        final GridCoverage unwrap() {
+            return GridCoverage.this;
+        }
+
+        /**
+         * Returns the source data for a grid coverage.
+         */
+        public GC_GridCoverage getSource(int sourceDataIndex) throws RemoteException {
+            return ((Adapters) adapters).export(GridCoverage.this.getSources()[sourceDataIndex]);
+        }
+
+        /**
+         * Returns <code>true</code> if grid data can be edited.
+         */
+        public boolean isDataEditable() throws RemoteException {
+            return GridCoverage.this.isDataEditable();
+        }
+
+        /**
+         * Information for the packing of grid coverage values.
+         */
+        public GC_GridPacking getGridPacking() throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Information for the grid coverage geometry.
+         */
+        public GC_GridGeometry getGridGeometry() throws RemoteException {
+            return ((Adapters) adapters).export(GridCoverage.this.getGridGeometry());
+        }
+
+        /**
+         * Number of predetermined overviews for the grid.
+         */
+        public int getNumOverviews() throws RemoteException {
+            return 0;
+        }
+
+        /**
+         * Optimal size to use for each dimension when accessing grid values.
+         */
+        public int[] getOptimalDataBlockSizes() throws RemoteException {
+            final int[] size = new int[getDimension()];
+            Arrays.fill(size, 1);
+            size[0] = image.getTileWidth();
+            size[1] = image.getTileHeight();
+            return size;
+        }
+
+        /**
+         * Return the grid geometry for an overview.
+         */
+        public GC_GridGeometry getOverviewGridGeometry(int overviewIndex) throws RemoteException {
+            throw new ArrayIndexOutOfBoundsException(overviewIndex);
+        }
+
+        /**
+         * Returns a pre-calculated overview for a grid coverage.
+         */
+        public GC_GridCoverage getOverview(int overviewIndex) throws RemoteException {
+            throw new ArrayIndexOutOfBoundsException(overviewIndex);
+        }
+
+        /**
+         * Return a sequence of boolean values for a block.
+         */
+        public boolean[] getDataBlockAsBoolean(GC_GridRange gridRange) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Return a sequence of byte values for a block.
+         */
+        public byte[] getDataBlockAsByte(GC_GridRange gridRange) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Return a sequence of int values for a block.
+         */
+        public int[] getDataBlockAsInteger(GC_GridRange gridRange) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Return a sequence of double values for a block.
+         */
+        public double[] getValueBlockAsDouble(GC_GridRange gridRange) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Return a block of grid coverage data for all sample dimensions.
+         */
+        public byte[] getPackedDataBlock(GC_GridRange gridRange) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Set a block of boolean values for all sample dimensions.
+         */
+        public void setDataBlockAsBoolean(GC_GridRange gridRange, boolean[] values) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Set a block of byte values for all sample dimensions.
+         */
+        public void setDataBlockAsByte(GC_GridRange gridRange, byte[] values) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Set a block of bint values for all sample dimensions.
+         */
+        public void setDataBlockAsInteger(GC_GridRange gridRange, int[] values) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Set a block of double values for all sample dimensions.
+         */
+        public void setDataBlockAsDouble(GC_GridRange gridRange, double[] values) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        /**
+         * Set a block of grid coverage data for all sample dimensions.
+         */
+        public void setPackedDataBlock(GC_GridRange gridRange, byte [] values) throws RemoteException {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
     }
 }
