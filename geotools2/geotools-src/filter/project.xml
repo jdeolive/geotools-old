@@ -12,9 +12,9 @@
     </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
-  <shortDescription>Implementaion of OpenGIS Filter specification</shortDescription>
+  <shortDescription>Implementation of OpenGIS Filter specification</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description><![CDATA[Implementaion of OpenGIS Filter specification]]></description>
+  <description><![CDATA[Implementation of OpenGIS Filter specification]]></description>
   <url>http://www.geotols.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
