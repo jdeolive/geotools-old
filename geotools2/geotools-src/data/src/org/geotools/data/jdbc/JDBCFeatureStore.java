@@ -104,7 +104,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
     protected Set fids( Filter filter ) throws NoSuchElementException, IOException, IllegalAttributeException{
         Set fids = new HashSet();
         String typeName = getSchema().getTypeName();        
-        DefaultQuery query = new DefaultQuery( typeName, filter, Integer.MAX_VALUE, Query.NO_NAMES, "fids" );
+        DefaultQuery query = new DefaultQuery( typeName, filter, Integer.MAX_VALUE, Query.ALL_NAMES, "fids" );
         FeatureReader reader =
             getJDBCDataStore().getFeatureReader( query, getTransaction() );
         try {
