@@ -33,10 +33,15 @@
       <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
-        <dependency>
+    <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
       <version>0.1</version>
+    </dependency>
+    <dependency>
+      <id>JTS</id>
+      <version>1.2</version>
+      <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
   </dependencies>
  
