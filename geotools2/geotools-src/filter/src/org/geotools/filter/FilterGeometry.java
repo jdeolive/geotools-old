@@ -1,6 +1,23 @@
 /*
- * This code is released under the Apache license, availible at the root GML4j directory.
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
+
 package org.geotools.filter;
 
 import com.vividsolutions.jts.geom.*;
@@ -11,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Implements a geometry filter.
  *
- * <p>This fitler implements a relationship - of some sort - between two 
+ * <p>This filter implements a relationship - of some sort - between two 
  * geometry expressions.
  *
  * Note that this comparison does not attempt to restict its expressions to be
@@ -26,9 +43,9 @@ import org.geotools.feature.*;
  * two literal geometries, although this is fairly meaningless, since it
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
- * 
+ *
+ * @version $Id: FilterGeometry.java,v 1.4 2002/06/05 13:58:25 loxnard Exp $
  * @author Rob Hranac, Vision for New York
- * @version 
  */
 public class FilterGeometry extends FilterDefault {
 
@@ -151,7 +168,7 @@ public class FilterGeometry extends FilterDefault {
         }
 
         // Note that this is a pretty permissive logic
-        //  if the type has somehow be mis-set (can't happen externally)
+        //  if the type has somehow been mis-set (can't happen externally)
         //  then true is returned in all cases
         else {
             return true;

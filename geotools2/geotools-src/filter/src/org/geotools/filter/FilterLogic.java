@@ -1,6 +1,23 @@
 /*
- * This code is released under the Apache license, availible at the root GML4j directory.
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
+
 package org.geotools.filter;
 
 import java.util.*;
@@ -14,8 +31,8 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
+ * @version $Id: FilterLogic.java,v 1.5 2002/06/05 14:02:33 loxnard Exp $
  * @author Rob Hranac, Vision for New York
- * @version alpha, 12/01/01
  */
 public class FilterLogic extends FilterDefault {
 
@@ -136,7 +153,7 @@ public class FilterLogic extends FilterDefault {
         }
         
         // Note that this is a pretty permissive logic
-        //  if the type has somehow be mis-set (can't happen externally)
+        //  if the type has somehow been mis-set (can't happen externally)
         //  then true is returned in all cases
         return contains;
     }
@@ -149,7 +166,7 @@ public class FilterLogic extends FilterDefault {
      */
     public Filter or(Filter filter) {
         
-        // Just makes sure that we are not creating unecessary new filters
+        // Just makes sure that we are not creating unnecessary new filters
         //  by popping onto stack if current filter is OR
         //HACK: not sure what should be returned by this method
         //HACK: assuming it is the result of each method
@@ -169,7 +186,7 @@ public class FilterLogic extends FilterDefault {
      */
     public Filter and(Filter filter) {
 
-        // Just makes sure that we are not creating unecessary new filters
+        // Just makes sure that we are not creating unnecessary new filters
         //  by popping onto stack if current filter is AND
         //HACK: not sure what should be returned by this method
         //HACK: assuming it is the result of each method
@@ -188,7 +205,7 @@ public class FilterLogic extends FilterDefault {
      */
     public Filter not() {
 
-        // Just makes sure that we are not creating unecessary new filters
+        // Just makes sure that we are not creating unnecessary new filters
         //  by popping off sub filter if current filter is NOT
         //HACK: not sure what should be returned by this method
         //HACK: assuming it is the result of each method
