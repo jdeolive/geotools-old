@@ -13,9 +13,9 @@
   </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
-  <shortDescription>Coordinate Tranformation System</shortDescription>
+  <shortDescription>Coordinate Tranformation Services</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description>Implementation of OGC Coordinate Transformation System</description>
+  <description>Implementation of OGC Coordinate Transformation Services</description>
   <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
@@ -36,41 +36,39 @@
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
-      <organization>SeaGIS</organization>
+      <organization>Institut de Recherche pour le Developpement (IRD)</organization>
             <roles>
                 <role>Module Maintainer</role>
                 <role>Java Developer</role>
             </roles>
-        </developer>
+    </developer>
         
-    </developers>
+  </developers>
   <dependencies>
     <dependency>
       <id>log4j</id>
       <version>1.2.3</version>
     </dependency>
-    
-       
-        <dependency>
+    <dependency>
       <id>opengis-css</id>
       <version>0.1</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>resources</id>
       <version>0.1</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>vecmath</id>
       <version>1.2.1</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>core</id>
       <version>0.1</version>
     </dependency>
     </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-      <sourceDirectory>src/</sourceDirectory>
+    <sourceDirectory>src/</sourceDirectory>
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
     <integrationUnitTestSourceDirectory/>
     <aspectSourceDirectories/>
@@ -81,11 +79,8 @@
      <resources>
       <includes>
          <include>*.utf</include> 
-          
-          
        </includes>
     </resources>
     <jars/>
   </build>
 </project>
-
