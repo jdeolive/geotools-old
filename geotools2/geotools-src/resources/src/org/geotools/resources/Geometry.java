@@ -42,6 +42,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.PathIterator;
+import java.awt.geom.AffineTransform;
 
 
 /**
@@ -521,5 +522,17 @@ public final class Geometry {
             }
         }
         return path;
+    }
+
+    /**
+     * Returns a suggested value for the <code>flatness</code> argument in
+     * {@link Shape#getPathIterator(AffineTransform,double)} for the specified shape.
+     */
+    public static double getFlatness(final Shape shape) {
+        final Rectangle2D bounds = shape.getBounds2D();
+        final double dx = bounds.getWidth();
+        final double dy = bounds.getHeight();
+        return Math.max(0.025*Math.min(dx, dy),
+                        0.001*Math.max(dx, dy));
     }
 }

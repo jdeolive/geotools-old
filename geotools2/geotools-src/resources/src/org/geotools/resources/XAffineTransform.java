@@ -49,7 +49,7 @@ import java.awt.geom.NoninvertibleTransformException;
  * defined to always throw an exception, then <code>XAffineTransform</code>
  * is immutable.
  *
- * @version 1.0
+ * @version $Id: XAffineTransform.java,v 1.8 2003/06/25 15:16:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class XAffineTransform extends AffineTransform {
@@ -61,7 +61,7 @@ public abstract class XAffineTransform extends AffineTransform {
     /**
      * Tolerance value for floating point comparisons.
      */
-    private static final double EPS=1E-6;
+    private static final double EPS = 1E-6;
 
     /**
      * Constructs a new <code>XAffineTransform</code> that is a
