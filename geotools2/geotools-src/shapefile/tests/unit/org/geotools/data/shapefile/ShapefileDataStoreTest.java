@@ -176,7 +176,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         FeatureCollection features = FeatureCollections.newCollection();
         for (int i = 0, ii = 20; i < ii; i++) {
             features.add(type.create(new Object[] {
-                new Point(new Coordinate(1,-1), new PrecisionModel(),0),
+                new GeometryFactory().createPoint(new Coordinate(1,-1)),
                 new Byte( (byte) i ),
                 new Short( (short) i),
                 new Double( i ),

@@ -78,7 +78,7 @@ public class PolygonHandlerTest extends TestCaseSupport {
     for (int i = 0; i < coords.length; i++) {
       coords[i] = new Coordinate();
     }
-    return new LinearRing(coords,pm, SRID);
+    return new GeometryFactory().createLinearRing(coords);
   }
 
   

@@ -34,7 +34,8 @@ import com.vividsolutions.jts.geom.*;
  */
 public class JTSUtilities {
     
-  static CGAlgorithms cga = new RobustCGAlgorithms();
+  static final CGAlgorithms cga = new RobustCGAlgorithms();
+  static final GeometryFactory factory = new GeometryFactory();
   
   private JTSUtilities() {
   }
@@ -134,7 +135,7 @@ public class JTSUtilities {
       newCoords[t] = lr.getCoordinateN(numPoints - t);
     }
     
-    return new LinearRing(newCoords, lr.getPrecisionModel(), lr.getSRID());
+    return factory.createLinearRing(newCoords);
   }
   
   /** Create a nice Polygon from the given Polygon. Will ensure that shells are
@@ -165,7 +166,7 @@ public class JTSUtilities {
       }
     }
     
-    return new Polygon(outer, holes, p.getPrecisionModel(), p.getSRID());
+    return factory.createPolygon(outer, holes);
   }
   
   /** Like makeGoodShapePolygon, but applied towards a multi polygon.
@@ -181,7 +182,7 @@ public class JTSUtilities {
       ps[t] = makeGoodShapePolygon((Polygon) mp.getGeometryN(t));
     }
     
-    result = new MultiPolygon(ps, new PrecisionModel(), 0);
+    result = factory.createMultiPolygon(ps);
     
     return result;
   }
@@ -209,40 +210,38 @@ public class JTSUtilities {
   public static Geometry convertToCollection(Geometry geom,ShapeType type) {
       Geometry retVal = null;
       
-      // copy or create the precision model and srid
-      PrecisionModel pm = geom == null ? new PrecisionModel() : geom.getPrecisionModel();
-      int srid = geom == null ? 0 : geom.getSRID();
-      
       if (type.isPointType()) {
         if((geom instanceof Point)) {
           retVal = geom;
         } else {
-          retVal = new MultiPoint(null, pm, srid);
+          Point[] pNull = null;
+          retVal = factory.createMultiPoint(pNull);
         }
       } else if (type.isLineType()) {
         if((geom instanceof LineString)) {
-          retVal = new MultiLineString(new LineString[] { (LineString) geom}, pm, srid);
+          retVal = factory.createMultiLineString(new LineString[] {(LineString) geom});
         } else if(geom instanceof MultiLineString) {
           retVal = geom;
         } else {
-          retVal = new MultiLineString(null, pm,srid);
+          retVal = factory.createMultiLineString(null);
         }
       } else if (type.isPolygonType()) {
         if(geom instanceof Polygon) {     
           Polygon p = makeGoodShapePolygon( (Polygon) geom);
-          retVal = new MultiPolygon(new Polygon[] {p},pm,srid);
+          retVal = factory.createMultiPolygon(new Polygon[] {p});
         } else if(geom instanceof MultiPolygon) {
           retVal = JTSUtilities.makeGoodShapeMultiPolygon((MultiPolygon) geom);
         } else {
-          retVal = new MultiPolygon(null, pm,srid);
+          retVal = factory.createMultiPolygon(null);
         }
       }  else if (type.isMultiPointType()) {
         if((geom instanceof Point)) {
-          retVal = new MultiPoint(new Point[] { (Point) geom}, pm,srid);
+          retVal = factory.createMultiPoint(new Point[] { (Point) geom});
         } else if(geom instanceof MultiPoint) {
           retVal = geom;
         } else {
-          retVal = new MultiPoint(null, pm,srid);
+          Point[] pNull = null;
+          retVal = factory.createMultiPoint(pNull);
         }
       } else throw new RuntimeException("Could not convert " + geom.getClass() + " to " + type);
       
