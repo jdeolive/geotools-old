@@ -115,15 +115,15 @@ public class ExpressionXmlParser {
             
         }
         if(child.getNodeName().equalsIgnoreCase("PropertyName")){
-            //try{
+            try{
             NodeList kids = child.getChildNodes();
-            ExpressionAttribute attribute = new ExpressionAttribute();
+            ExpressionAttribute attribute = new ExpressionAttribute(null);
             attribute.setAttributePath(child.getFirstChild().getNodeValue());
             return attribute;
-                /* }catch (IllegalFilterException ife){
+                 }catch (IllegalFilterException ife){
                     _log.error("Unable to build expression ",ife);
                     return null;
-                } */
+                } 
         }
         if(child.getNodeName().equalsIgnoreCase("Function")){
             
