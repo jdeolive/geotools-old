@@ -1122,7 +1122,7 @@ cp -pr .netbeans/ .netbeans.</programlisting>
 
       <para><ulink url="http://www.gnu.org/software/emacs/">Emacs</ulink> is
       not a Java IDE, however it can be treated like multi-language IDE
-      without a GUI builder. If your are not a GUI designer or developer emacs
+      without a GUI builder. If you are not a GUI designer or developer emacs
       is well worth considering for a software development environment.</para>
 
       <para>The most important features for GeoTools developers (most of them
@@ -1197,14 +1197,14 @@ cp -pr .netbeans/ .netbeans.</programlisting>
               <listitem>
                 <para>I suggest you download full precompiled binaries
                 <quote>fullbin</quote> from <ulink
-                url="http://ftp.gnu.org/gnu/windows/emacs/latest/">http://jdee.sunsite.dk/</ulink>.
-                This directory contains source and full emacs, elisp
-                documentation. The easiest way to make emacs fully functional
-                is to install <ulink url="http://www.cygwin.com/">CygWin</ulink>.
-                CygWin provides a Unix environment under windows. CygWin
-                contains an emacs package but the native install contains
-                configuration problems relating to ANT and Java so I don&#39;t
-                recommend it.</para>
+                url="http://ftp.gnu.org/gnu/windows/emacs/latest/">
+		http://ftp.gnu.org/</ulink>. This directory contains source and
+                full emacs, elisp documentation. The easiest way to make emacs
+                fully functional is to install <ulink
+                url="http://www.cygwin.com/">CygWin</ulink>. CygWin provides a
+                Unix environment under windows. CygWin contains an emacs package
+                but the native install contains configuration problems relating
+                to ANT and Java so I don&#39;t recommend it.</para> 
               </listitem>
             </varlistentry>
 
@@ -1264,7 +1264,7 @@ cp -pr .netbeans/ .netbeans.</programlisting>
           variable: &#34;PATH&#34;. On Unix like system emacs is Plug and Play
           software and without any additional effort it can be used
           immediately after installation. For use of JDEE and Java look in
-          <ulink url="#envvar">environment variables</ulink> setting
+          <link linkend="envvar">environment variables</link> setting
           description.</para>
 
           <para>There are some tricks to use it on windows system with CygWin
