@@ -338,10 +338,10 @@ public abstract class AbstractDataStore implements DataStore {
         return reader;        
     }
 
-    /**
+    /*
      * @see org.geotools.data.DataStore#getFeatureReader(org.geotools.feature.FeatureType,
      *      org.geotools.filter.Filter, org.geotools.data.Transaction)
-     */            
+     *            
     public FeatureReader getFeatureReader(FeatureType featureType,
         Filter filter, Transaction transaction) throws IOException {
         if (filter == null) {
@@ -384,7 +384,7 @@ public abstract class AbstractDataStore implements DataStore {
 
         return reader;
     }
-
+   */
     TransactionStateDiff state(Transaction transaction) {
         synchronized (transaction) {
             TransactionStateDiff state = (TransactionStateDiff) transaction
