@@ -120,7 +120,7 @@ package org.geotools.feature;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureType.java,v 1.10 2003/11/20 18:32:26 jive Exp $
+ * @version $Id: FeatureType.java,v 1.11 2003/11/26 19:06:12 cholmesny Exp $
  *
  *
  * @see org.geotools.feature.Feature
@@ -185,45 +185,6 @@ public interface FeatureType extends FeatureFactory {
     String getTypeName();
 
     /**
-     * Sets the values for any attribute other than a nested Feature attribute.
-     * This method overwrites any existing attribute definitions.
-     *
-     * @return A modified copy of this schema.
-     *
-     * @throws SchemaException When the type is not cloneable, occurrences  are
-     *         illegal.
-     */
-
-    //See note on other set methods.
-    //FeatureType setAttributeType(AttributeType attribute)
-    //  throws SchemaException;
-
-    /**
-     * Removes the attribute, if it exists.
-     *
-     * @return A modified copy of this schema.
-     *
-     * @throws SchemaException When the attribute does not exist.
-     */
-
-    //See note on other set methods.
-    //FeatureType removeAttributeType(String xPath)
-    //  throws SchemaException;
-
-    /**
-     * Sets the default feature geometry.
-     *
-     * @return A modified copy of this schema.
-     *
-     * @throws SchemaException If the attribute does not exist or is not a
-     *         geometry.
-     */
-
-    //See note on other set methods
-    //FeatureType setDefaultGeometry(String xPath)
-    //  throws SchemaException;
-
-    /**
      * Gets all of the names for the first 'level' of attributes.  This means
      * that nested attributes must be read seperately, via the getNames()
      * method of their schemas or the getAllNames() method.
@@ -231,17 +192,6 @@ public interface FeatureType extends FeatureFactory {
      * @return Non-nested attribute names.
      */
     AttributeType[] getAttributeTypes();
-
-    /**
-     * This is confusing - should move to xPath functionality. Gets all of the
-     * names for all 'levels' of attributes.  This is a convenience method for
-     * clients who want to think of the feature as 'flat', regardless of its
-     * actual occurrences or nested attributes.
-     *
-     * @return Nested attribute names.
-     */
-
-    //AttributeType[] getAllAttributeTypes();
 
     /**
      * This is only used twice in the whole geotools code base, and  one of
