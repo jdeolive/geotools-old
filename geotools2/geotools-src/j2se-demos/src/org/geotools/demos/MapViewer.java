@@ -60,7 +60,7 @@ import javax.swing.*;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.13 2003/05/05 11:03:30 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.14 2003/05/09 11:53:43 camerons Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
@@ -101,18 +101,6 @@ public class MapViewer {
         try {
             ContextFactory contextFactory = ContextFactory.createFactory();
 
-            // Create a BoundingBox
-            envelope = new Envelope(50, 60, 50, 60);
-
-            CS_CoordinateSystem cs =
-                adapters.export(
-                    CoordinateSystemFactory.getDefault()
-                                           .createGeographicCoordinateSystem(
-                        "WGS84", HorizontalDatum.WGS84
-                    )
-                );
-            bbox = contextFactory.createBoundingBox(envelope, cs);
-
             // Create a Style
             StyleFactory styleFactory = StyleFactory.createStyleFactory();
             SLDStyle sldStyle =
@@ -131,35 +119,19 @@ public class MapViewer {
             MemoryDataSource datasource2 = new MemoryDataSource();
             populateDataSource(datasource2, 50, 50, "road");
 
-            // Create a LayerList and Layer
-            layerList = contextFactory.createLayerList();
-            layer = contextFactory.createLayer(datasource1, style[0]);
-            layer.setTitle("river layer");
-            layerList.addLayer(layer);
-
-            layer = contextFactory.createLayer(datasource2, style[0]);
-            layer.setTitle("road layer");
-            layerList.addLayer(layer);
-
-            // Create Tool
-            ToolFactory toolFactory = ToolFactory.createFactory();
-            tool = toolFactory.createPanTool();
-
-            // Create SelectedTool
-            ToolList selectedTool = contextFactory.createToolList(tool);
-
             // Create a Context
             context =
-                contextFactory.createContext(
-                    bbox, // BoundingBox
-                    layerList, // LayerList
-                    selectedTool, // SelectedTool
-                    "defaultContext", // Title
-                    null, // Abstract
-                    null, // Keywords
-                    null
-                ); // ContactInformation
+                contextFactory.createContext();
+            layer = contextFactory.createLayer(datasource1, style[0]);
+            layer.setTitle("river layer");
+            context.getLayerList().addLayer(layer);
 
+            // Create Layers
+            layer = contextFactory.createLayer(datasource2, style[0]);
+            layer.setTitle("road layer");
+            context.getLayerList().addLayer(layer);
+
+            
             // Create MapPane
             mapPane = new MapPaneImpl(context);
             mapPane.setBorder(
@@ -167,22 +139,9 @@ public class MapViewer {
             );
             mapPane.setBackground(Color.BLACK);
             mapPane.setPreferredSize(new Dimension(300, 300));
-        } catch (org.geotools.cs.FactoryException e) {
-            LOGGER.warning(
-                "CS Factory Exception, check your CLASSPATH.  Cause is: "
-                + e.getCause()
-            );
-            throw new RuntimeException();
-        }
-        catch (IllegalFeatureException e) {
+        } catch (IllegalFeatureException e) {
             LOGGER.warning(
                 "Error styling features.  Cause is: " + e.getCause()
-            );
-            throw new RuntimeException();
-        }
-        catch (java.rmi.RemoteException e) {
-            LOGGER.warning(
-                "RemoteException " + e.getCause()
             );
             throw new RuntimeException();
         }
@@ -324,6 +283,27 @@ public class MapViewer {
 
         return line;
     }
+    /**
+     * Create a test LineString.
+     *
+     * @param geomFac The geometry factory to use
+     * @param xoff The starting x postion
+     * @param yoff The starting y position
+     *
+     * @return a line
+     */
+    private LineString makeSampleLineString2(
+        final GeometryFactory geomFac
+    ) {
+        Coordinate[] linestringCoordinates = new Coordinate[4];
+        linestringCoordinates[0] = new Coordinate(-170.0d, -80.0d);
+        linestringCoordinates[1] = new Coordinate(-170.0d, 80.0d);
+        linestringCoordinates[2] = new Coordinate(170.0d, 80.0d);
+        linestringCoordinates[3] = new Coordinate(170.0d, -80.0d);
+        LineString line = geomFac.createLineString(linestringCoordinates);
+
+        return line;
+    }
 
     /**
      * Add some features into a dataSouce
@@ -366,6 +346,13 @@ public class MapViewer {
 
         Feature lineFeature3 = lineFac.create(new Object[] { line3 });
 
+        LineString line4 = makeSampleLineString2(geomFac);
+        lineType =
+            new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
+        lineFac = new FeatureFactory(lineType);
+
+        Feature lineFeature4 = lineFac.create(new Object[] { line4 });
+
         //        Polygon polygon = makeSamplePolygon(geomFac,0,0);
         //        
         //        AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
@@ -395,6 +382,7 @@ public class MapViewer {
         dataSource.addFeature(lineFeature);
         dataSource.addFeature(lineFeature2);
         dataSource.addFeature(lineFeature3);
+        dataSource.addFeature(lineFeature4);
 
         //        datasource.addFeature(polygonFeature);
         //        datasource.addFeature(polygonFeature2);

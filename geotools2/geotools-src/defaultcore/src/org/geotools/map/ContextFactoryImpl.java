@@ -14,14 +14,19 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.map;
 
 import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.CoordinateSystemFactory;
+import org.geotools.cs.HorizontalDatum;
+import org.geotools.ct.Adapters;
 import org.geotools.data.DataSource;
 import org.geotools.gui.tools.Tool;
+import org.geotools.gui.tools.ToolFactory;
 import org.geotools.styling.Style;
 import org.opengis.cs.CS_CoordinateSystem;
+import java.util.logging.Logger;
 
 
 /**
@@ -30,11 +35,19 @@ import org.opengis.cs.CS_CoordinateSystem;
  * ContextFactory, and ContextFactory methods should be called instead.
  */
 public class ContextFactoryImpl extends ContextFactory {
+    /** The class used for identifying for logging. */
+    private static final Logger LOGGER =
+        Logger.getLogger("org.geotools.map.ContextFactoryImpl");
+
+    /** Translates between coordinate systems */
+    private Adapters adapters = Adapters.getDefault();
+
     /**
      * Create an instance of ContextFactoryImpl.  Note that this constructor
      * should only be called from ContextFactory.
      */
-    protected void ContextFactoryImpl() {}
+    protected void ContextFactoryImpl() {
+    }
 
     /**
      * Create a BoundingBox.
@@ -47,10 +60,8 @@ public class ContextFactoryImpl extends ContextFactory {
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public BoundingBox createBoundingBox(
-        Envelope bbox,
-        CS_CoordinateSystem coordinateSystem
-    ) throws IllegalArgumentException {
+    public BoundingBox createBoundingBox(Envelope bbox,
+        CS_CoordinateSystem coordinateSystem) throws IllegalArgumentException {
         return new BoundingBoxImpl(bbox, coordinateSystem);
     }
 
@@ -72,19 +83,60 @@ public class ContextFactoryImpl extends ContextFactory {
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public Context createContext(
-        BoundingBox bbox,
-        LayerList layerList,
-        ToolList toolList,
-        String title,
-        String _abstract,
-        String[] keywords,
-        String contactInformation
-    ) throws IllegalArgumentException {
-        return new ContextImpl(
-            bbox, layerList, toolList, title, _abstract, keywords,
-            contactInformation
+    public Context createContext(BoundingBox bbox, LayerList layerList,
+        ToolList toolList, String title, String _abstract, String[] keywords,
+        String contactInformation) throws IllegalArgumentException {
+        return new ContextImpl(bbox, layerList, toolList, title, _abstract,
+            keywords, contactInformation);
+    }
+
+    /**
+     * Create a Context with default parameters.<br>
+     * boundingBox = WGS84 GeographicCoordinateSystem, (-180,-90),(180,90)<br>
+     * layerList = empty list <br>
+     * toolList = Pan, ZoomIn, ZoomOut<br>
+     * title = "" <br>
+     * _abstract = ""<br>
+     * keywords = empty array<br>
+     * contactInformation = ""<br>
+     *
+     * @return A default Context class.
+     */
+    public Context createContext() {
+        try {
+        CoordinateSystem cs = CoordinateSystemFactory.getDefault()
+                                                     .createGeographicCoordinateSystem("WGS84",
+                HorizontalDatum.WGS84);
+        org.geotools.pt.Envelope envelope = cs.getDefaultEnvelope();
+        Envelope envelope2 = new Envelope(envelope.getMinimum(0),
+                envelope.getMaximum(0), envelope.getMinimum(1),
+                envelope.getMaximum(1));
+
+        CS_CoordinateSystem cs1 = adapters.export(cs);
+
+        return createContext(createBoundingBox(envelope2, cs1),
+            createLayerList(), //
+            createToolList(ToolFactory.createFactory().createPanTool()), //
+            "", // title
+            "", // _abstract
+            null, // keywords
+            "" // contactInformation
         );
+        }
+        catch (org.geotools.cs.FactoryException e) {
+            LOGGER.warning(
+                "CS Factory Exception, check your CLASSPATH.  Cause is: "
+                + e.getCause()
+            );
+            throw new RuntimeException();
+        }
+        catch (java.rmi.RemoteException e) {
+            LOGGER.warning(
+                "CS RemoteExcepion.  Cause is: "
+                + e.getCause()
+            );
+            throw new RuntimeException();
+        }
     }
 
     /**
@@ -99,10 +151,8 @@ public class ContextFactoryImpl extends ContextFactory {
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public Layer createLayer(
-        DataSource dataSource,
-        Style style
-    ) throws IllegalArgumentException {
+    public Layer createLayer(DataSource dataSource, Style style)
+        throws IllegalArgumentException {
         return new LayerImpl(dataSource, style);
     }
 
