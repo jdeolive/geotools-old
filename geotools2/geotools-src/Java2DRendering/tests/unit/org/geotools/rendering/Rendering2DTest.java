@@ -164,6 +164,34 @@ public class Rendering2DTest extends TestCase {
         frame.dispose();
         
     }
+    
+     public void testPixelToWorld()throws Exception {
+        //same as the datasource test, load in some features into a table
+        //System.err.println("starting rendering2DTest");
+        // Request extent
+        EnvelopeExtent ex = new EnvelopeExtent(0, 10, 0, 10);
+        
+        
+        Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
+        Frame frame = new Frame();
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
+        });
+        Panel p = new Panel();
+        frame.add(p);
+        frame.setSize(300,300);
+        frame.setVisible(true);
+        renderer.setOutput(p.getGraphics(),p.getBounds());
+       
+        Coordinate c = renderer.pixelToWorld(150,150,ex.getBounds());
+        LOGGER.info("X Coordinate is " + c.x + " expected is 5 +/- 0.5" );
+        LOGGER.info("Y Coordinate is " + c.y + " expected is 5 +/- 0.5" );
+        assertEquals(5d, c.x, 0.5);
+        assertEquals(5d, c.y, 0.5);
+       
+        
+        
+    }
     private Point makeSamplePoint(final GeometryFactory geomFac) {
         Coordinate c = new Coordinate(14.0d,14.0d);
         Point point = geomFac.createPoint(c);
