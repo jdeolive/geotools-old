@@ -37,8 +37,7 @@ import java.util.logging.Logger;
  *
  * @task TODO: factory construction methods?
  */
-public class ResultSetFIDReader implements FIDReader, QueryDataListener,
-    QueryDataObserver {
+public class ResultSetFIDReader implements FIDReader, QueryDataObserver {
     /** The logger for the jdbc module. */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.data.jdbc");
@@ -116,22 +115,5 @@ public class ResultSetFIDReader implements FIDReader, QueryDataListener,
                 queryData.removeObserver(this);
             }
         }
-    }
-
-    /* (non-Javadoc)
-     * @see org.geotools.data.jdbc.QueryDataListener#queryDataClosed(org.geotools.data.jdbc.JDBCDataStore.QueryData)
-     */
-    public void queryDataClosed(QueryData queryData) {
-        isClosed = true;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param queryData
-     *
-     * @see org.geotools.data.jdbc.QueryDataListener#rowDeleted(org.geotools.data.jdbc.JDBCDataStore.QueryData)
-     */
-    public void rowDeleted(QueryData queryData) {
     }
 }

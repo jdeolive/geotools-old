@@ -28,8 +28,7 @@ import org.geotools.feature.AttributeType;
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  */
 public class ResultSetAttributeIO extends AbstractAttributeIO
-                implements QueryDataListener, QueryDataObserver, 
-                            AttributeWriter, AttributeReader {
+                implements QueryDataObserver, AttributeWriter, AttributeReader {
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.data.jdbc");
 	/** A flag to track the status of the result set. */
 	private boolean isClosed = false;
@@ -206,19 +205,6 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
             LOGGER.log(Level.SEVERE,msg,sqlException);
             throw new DataSourceException(msg, sqlException);                        
         }
-    }
-    
-    /* (non-Javadoc)
-     * @see org.geotools.data.jdbc.QueryDataListener#queryDataClosed(org.geotools.data.jdbc.JDBCDataStore.QueryData)
-     */
-    public void queryDataClosed(QueryData queryData) {
-    }
-
-    /**
-     * @see org.geotools.data.jdbc.QueryDataListener#rowDeleted(org.geotools.data.jdbc.JDBCDataStore.QueryData)
-     * @param queryData
-     */
-    public void rowDeleted(QueryData queryData) {
     }
     
     public boolean isClosed() {
