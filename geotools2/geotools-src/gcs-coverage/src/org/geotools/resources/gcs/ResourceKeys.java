@@ -68,8 +68,12 @@ public interface ResourceKeys
     public static final int ERROR_INCOMPATIBLE_COORDINATE_SYSTEM =    38;
     public static final int ERROR_MISMATCHED_ARRAY_LENGTH        =    39;
     public static final int ERROR_MISMATCHED_DIMENSION_$2        =    40;
+    public static final int ERROR_MIXED_CATEGORIES               =    65;
     public static final int ERROR_NEGATIVE_COLUMN_$2             =    41;
+    public static final int ERROR_NON_INTEGER_CATEGORY           =    66;
+    public static final int ERROR_NON_LINEAR_RELATION            =    67;
     public static final int ERROR_NOT_A_GRID                     =    42;
+    public static final int ERROR_NO_CATEGORY_FOR_VALUE_$1       =    50;
     public static final int ERROR_NO_IMAGE_INPUT                 =    43;
     public static final int ERROR_NO_IMAGE_READER                =    44;
     public static final int ERROR_NO_TRANSFORM2D_AVAILABLE       =    45;
@@ -77,7 +81,6 @@ public interface ResourceKeys
     public static final int ERROR_OPERATION_ALREADY_BOUND_$1     =    47;
     public static final int ERROR_OPERATION_NOT_FOUND_$1         =    48;
     public static final int ERROR_POINT_OUTSIDE_COVERAGE_$1      =    49;
-    public static final int ERROR_QUALITATIVE_CATEGORY_$1        =    50;
     public static final int ERROR_RANGE_OVERLAP_$4               =    51;
     public static final int ERROR_RGB_OUT_OF_RANGE_$1            =    52;
     public static final int ERROR_UNDEFINED_PROPERTY             =    53;
