@@ -41,15 +41,22 @@ import java.awt.geom.Point2D;
 import java.awt.geom.*;
 import java.awt.Shape;
 import java.awt.image.*;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.font.TextLayout;
 //util imports
-import java.util.HashSet;
+import java.util.*;
+
+// file handling
+import java.io.*;
+import java.net.*;
 
 //Logging system
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.50 2002/08/07 07:36:27 desruisseaux Exp $
+ * @version $Id: Java2DRenderer.java,v 1.51 2002/08/21 20:31:18 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -58,7 +65,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * The logger for the rendering module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.rendering");
-
+    
     /**
      * Flag which determines if the renderer is interactive or not.
      * An interactive renderer will return rather than waiting for time
@@ -97,11 +104,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * so that they fit into the output space.
      */
     private double scaleDenominator;
-    static String[] fontFamilies = null;
+    static HashSet fontFamilies = null;
+    static HashMap loadedFonts = new HashMap();
     static java.awt.Canvas obs = new java.awt.Canvas();
     /** Creates a new instance of Java2DRenderer */
     public Java2DRenderer() {
-        System.out.println("creating new j2drenderer");
+        LOGGER.fine("creating new j2drenderer");
     }
     
     /**
@@ -153,6 +161,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      */
     public void render(Feature features[], Envelope map, Style s){
         if (graphics == null) {
+            LOGGER.info("renderer passed null graphics");
+            
             return;
         }
         LOGGER.fine("renderering " + features.length + " features");
@@ -205,8 +215,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      **/
     private static double tolerance = 1e-6;
     private void processStylers(final Feature[] features, final FeatureTypeStyle[] featureStylers) {
+        LOGGER.fine("processing " + featureStylers.length + " stylers");
         for (int i = 0; i < featureStylers.length; i++){
             FeatureTypeStyle fts = featureStylers[i];
+            LOGGER.finer("about to draw " + features.length + " feature");
             for (int j = 0; j < features.length; j++){
                 Feature feature = features[j];
                 if(!mapExtent.overlaps(feature.getDefaultGeometry().getEnvelopeInternal())){
@@ -215,7 +227,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     continue;
                 }
                 LOGGER.fine("feature is " + feature.getSchema().getTypeName() +
-                            " type styler is " + fts.getFeatureTypeName());
+                " type styler is " + fts.getFeatureTypeName());
                 if (feature.getSchema().getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
                     //this styler is for this type of feature
                     //now find which rule applies
@@ -227,7 +239,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                         && rules[k].getMaxScaleDenominator() + tolerance > scaleDenominator
                         && !rules[k].hasElseFilter()){
                             Filter filter = rules[k].getFilter();
-                            
+                            LOGGER.finest("Filter " + filter);
                             if(filter == null || filter.contains(feature) == true){
                                 LOGGER.fine("rule passed, moving on to symobolizers");
                                 //yes it does
@@ -438,47 +450,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         if (label == null) {
             return;
         }
-        
-        
-        if (fontFamilies == null){
-            java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
-            fontFamilies = ge.getAvailableFontFamilyNames();
-            LOGGER.finest("there are "+fontFamilies.length+" fonts available");
-        }
-        
-        java.awt.Font javaFont = null;
         org.geotools.styling.Font[] fonts = symbolizer.getFonts();
-        int styleCode = 0;
-        int size = 6;
-        String requestedFont = "";
-        for (int k = 0; k < fonts.length; k++){
-            requestedFont = fonts[k].getFontFamily().getValue(feature).toString();
+        java.awt.Font javaFont = getFont(feature,fonts);
+        
+
             
-            
-            
-            for (int i = 0; i < fontFamilies.length; i++){
-                LOGGER.finest(fontFamilies[i]);
-                if (requestedFont.equalsIgnoreCase(fontFamilies[i])){
-                    String reqStyle = (String)fonts[k].getFontStyle().getValue(feature);
-                    
-                    if (fontStyleLookup.containsKey(reqStyle)){
-                        styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
-                    }
-                    else {
-                        styleCode = java.awt.Font.PLAIN;
-                    }
-                    String reqWeight = (String)fonts[k].getFontWeight().getValue(feature);
-                    if (reqWeight.equalsIgnoreCase("Bold")){
-                        styleCode = styleCode|java.awt.Font.BOLD;
-                    }
-                    size = ((Number)fonts[k].getFontSize().getValue(feature)).intValue();
-                    LOGGER.finer("requesting " + requestedFont + " " + styleCode + " " + size);
-                    javaFont = new java.awt.Font(requestedFont, styleCode, size);
-                    break;
-                }
-            }
-            if (javaFont != null) break;
-        }
+        
         LabelPlacement placement = symbolizer.getLabelPlacement();
         
         if (javaFont != null){
@@ -537,7 +514,112 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         renderString(graphics, tx, ty, x, y, tl, feature, symbolizer.getFill(),rotation);
         
     }
-    
+
+    private java.awt.Font getFont(Feature feature, org.geotools.styling.Font[] fonts){
+        if (fontFamilies == null){
+            java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
+            fontFamilies = new HashSet();
+            List f = Arrays.asList(ge.getAvailableFontFamilyNames());
+            fontFamilies.addAll(f);
+            LOGGER.finest("there are "+fontFamilies.size()+" fonts available");
+        }
+        
+        java.awt.Font javaFont = null;
+        
+        int styleCode = 0;
+        int size = 6;
+        String requestedFont = "";
+        for (int k = 0; k < fonts.length; k++){
+            requestedFont = fonts[k].getFontFamily().getValue(feature).toString();
+            LOGGER.fine("trying to load " + requestedFont);
+            if(loadedFonts.containsKey(requestedFont)){
+                javaFont = (Font) loadedFonts.get(requestedFont);
+                String reqStyle = (String)fonts[k].getFontStyle().getValue(feature);
+                
+                if (fontStyleLookup.containsKey(reqStyle)){
+                    styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
+                } else {
+                    styleCode = java.awt.Font.PLAIN;
+                }
+                String reqWeight = (String)fonts[k].getFontWeight().getValue(feature);
+                if (reqWeight.equalsIgnoreCase("Bold")){
+                    styleCode = styleCode|java.awt.Font.BOLD;
+                }
+                size = ((Number)fonts[k].getFontSize().getValue(feature)).intValue();
+                
+                return javaFont.deriveFont(styleCode,size);
+            }
+            LOGGER.fine("not already loaded");
+            if(fontFamilies.contains(requestedFont)){
+                String reqStyle = (String)fonts[k].getFontStyle().getValue(feature);
+                
+                if (fontStyleLookup.containsKey(reqStyle)){
+                    styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
+                }
+                else {
+                    styleCode = java.awt.Font.PLAIN;
+                }
+                String reqWeight = (String)fonts[k].getFontWeight().getValue(feature);
+                if (reqWeight.equalsIgnoreCase("Bold")){
+                    styleCode = styleCode|java.awt.Font.BOLD;
+                }
+                size = ((Number)fonts[k].getFontSize().getValue(feature)).intValue();
+                LOGGER.finer("requesting " + requestedFont + " " + styleCode + " " + size);
+                javaFont = new java.awt.Font(requestedFont, styleCode, size);
+                loadedFonts.put(requestedFont,javaFont);
+                return javaFont;
+            }
+            LOGGER.fine("not a system font");
+            // may be its a file or url 
+            InputStream is = null;
+            if(requestedFont.startsWith("http") || requestedFont.startsWith("file:")){
+                try{
+                    URL url = new URL(requestedFont);
+                    is = url.openStream();
+                } catch (MalformedURLException mue){
+                    // this may be ok - but we should mention it
+                    LOGGER.warning("Bad url in java2drenderer" + requestedFont + "\n" + mue);
+                } catch (IOException ioe){
+                    // we'll ignore this for the moment
+                    LOGGER.warning("IO error in java2drenderer " + requestedFont + "\n" + ioe);
+                }
+            } else {
+                LOGGER.fine("not a URL");
+                File file = new File("",requestedFont);
+                if(file.canRead()){
+                    try{
+                        is = new FileInputStream(file);
+                    } catch (FileNotFoundException fne){
+                        // this may be ok - but we should mention it
+                        LOGGER.warning("Bad file name in java2drenderer" + requestedFont + "\n" + fne);
+                    }
+                } else {
+                    LOGGER.fine("not a readable file");
+                    continue; // check for next font
+                }
+                
+            }
+            LOGGER.fine("about to load");
+            if(is == null){
+                LOGGER.fine("null input stream");
+                continue;
+            }
+            try{
+                javaFont = Font.createFont(Font.TRUETYPE_FONT,is);
+            } catch (FontFormatException ffe){
+                LOGGER.warning("Font format error in java2drender " + requestedFont + "\n" + ffe);
+                continue;
+            } catch (IOException ioe){
+                // we'll ignore this for the moment
+                LOGGER.warning("IO error in java2drenderer " + requestedFont + "\n" + ioe);
+                continue;
+            }
+            loadedFonts.put(requestedFont,javaFont);
+            return javaFont;
+        }
+        
+        return null;
+    }
     private void renderString(Graphics2D graphic, double x, double y, double dx, double dy, TextLayout tl, Feature feature, Fill fill, double rotation){
         
         AffineTransform temp = graphics.getTransform();
@@ -812,50 +894,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     private boolean fillDrawTextMark(Graphics2D graphic, double tx, double ty, TextMark mark, int size, double rotation, Feature feature){
-        if (fontFamilies == null){
-            java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
-            fontFamilies = ge.getAvailableFontFamilyNames();
-            LOGGER.finest("there are "+fontFamilies.length+" fonts available");
-        }
-        
-        java.awt.Font javaFont = null;
-        org.geotools.styling.Font[] fonts = mark.getFonts();
-        int styleCode = 0;
-        
-        String requestedFont = "";
-        for (int k = 0; k < fonts.length; k++){
-            requestedFont = fonts[k].getFontFamily().getValue(feature).toString();
-            
-            for (int i = 0; i < fontFamilies.length; i++){
-                LOGGER.finest(fontFamilies[i]);
-                if (requestedFont.equalsIgnoreCase(fontFamilies[i])){
-                    String reqStyle = (String)fonts[k].getFontStyle().getValue(feature);
-                    
-                    if (fontStyleLookup.containsKey(reqStyle)){
-                        styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
-                    }
-                    else {
-                        styleCode = java.awt.Font.PLAIN;
-                    }
-                    String reqWeight = (String)fonts[k].getFontWeight().getValue(feature);
-                    if (reqWeight.equalsIgnoreCase("Bold")){
-                        styleCode = styleCode|java.awt.Font.BOLD;
-                    }
-                    size = ((Number)fonts[k].getFontSize().getValue(feature)).intValue();
-                    LOGGER.finest("requesting " + requestedFont + " " + styleCode + " " + size);
-                    javaFont = new java.awt.Font(requestedFont, styleCode, size);
-                    break;
-                }
-            }
-            if (javaFont != null) break;
-        }
-        
-        
+        java.awt.Font javaFont = getFont(feature,mark.getFonts());
         if (javaFont != null){
             LOGGER.finer("found font " + javaFont.getFamily());
             graphic.setFont(javaFont);
         } else {
-            LOGGER.finer("failed to find font " + requestedFont);
+            LOGGER.finer("failed to find font ");
             return false;
         }
         String symbol = mark.getSymbol().getValue(feature).toString();
