@@ -190,7 +190,7 @@ public class LegendImageGeneratorTest extends TestCase {
         Style[] style = stylereader.readXML();
         LegendImageGenerator lig = new LegendImageGenerator(style[0], 300, 100);
         
-        BufferedImage image = lig.getLegend(Color.white);
+        BufferedImage image = lig.getLegend(Color.gray);
         ImageView view = new ImageView(image,"Complex Test");
         view.setSize(300,100);
         view.createFrame();
