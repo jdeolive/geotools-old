@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  * <b>"ESRI(r) Shapefile - A Technical Description"</b><br>
  * <i>'An ESRI White Paper. May 1997'</i></a><p>
  *
- * @version $Id: Shapefile.java,v 1.13 2002/09/01 15:35:25 jmacgill Exp $
+ * @version $Id: Shapefile.java,v 1.14 2002/09/01 15:45:26 jmacgill Exp $
  * @author James Macgill, CCG
  */
 
@@ -68,7 +68,7 @@ public class Shapefile  {
     /**
      * The logger for the filter module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.shapefile");
     
     /**
      * Creates and initialises a shapefile from a url.
