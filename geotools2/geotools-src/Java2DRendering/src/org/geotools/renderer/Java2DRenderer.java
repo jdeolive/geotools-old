@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.40 2002/07/08 14:28:07 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.41 2002/07/08 16:53:45 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -760,8 +760,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             } catch (InterruptedException e){}
             
         }
-        int width = image.getWidth();
-        int height = image.getHeight();
+        double width = image.getWidth();
+        double height = image.getHeight();
         double unitSize = Math.max(width,height);
         int size = 6;
         try{
@@ -782,20 +782,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
              * look very poor - I have no idea how to fix this.
              */
         _log.debug("scale "+scaleX+" "+scaleY);
-        AffineTransform at2 = new AffineTransform();
-        
-        at2.scale(scaleX,scaleY);
-        at2.translate(width,height);
-        at2.rotate(Math.PI);
-        RenderingHints hints = new RenderingHints(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        hints.put(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-        hints.put(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
-        AffineTransformOp op = new AffineTransformOp(at2,hints);
-        
-        BufferedImage img =  op.filter(image, null);
-        _log.debug("w/h "+img.getWidth()+" "+img.getHeight());
-        Rectangle rect = new Rectangle(0,0,img.getWidth(obs),img.getHeight(obs));
-        java.awt.TexturePaint imagePaint = new java.awt.TexturePaint(img,rect);
+        width *= scaleX;
+        height *= scaleY;
+        Rectangle2D.Double rect = new Rectangle2D.Double(0.0,0.0,width,height);
+        java.awt.TexturePaint imagePaint = new java.awt.TexturePaint(image,rect);
         graphic.setPaint(imagePaint);
         _log.debug("applied TexturePaint "+imagePaint);
     }
