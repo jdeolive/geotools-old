@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/10/27 11:04:40 $</date>
+    <date>$Date: 2002/10/30 16:42:31 $</date>
 
     <abstract>
       <para>Glossary of terms used in the Geotools2 project.</para>
@@ -82,7 +82,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
         <row>
           <entry>JTS</entry>
 
-          <entry><ulink url="http://www.vividsolutions.com/jts/jtshome.htm">Java
+          <entry><ulink url="http://www.vividsolutions.com/jts/jts_frame.htm">Java
           Topology Suite</ulink></entry>
         </row>
 
