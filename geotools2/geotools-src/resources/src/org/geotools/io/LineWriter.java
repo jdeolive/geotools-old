@@ -49,14 +49,14 @@ import org.geotools.resources.XArray;
  * explicitly set at construction time. This writer also remove trailing blanks
  * before end of lines.
  *
- * @version 1.0
+ * @version $Id: LineWriter.java,v 1.2 2002/08/14 16:13:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LineWriter extends FilterWriter {
     /**
      * The line separator for End Of Line (EOL).
      */
-    private final String lineSeparator;
+    private String lineSeparator;
 
     /**
      * Tells if the next '\n' character must be ignored. This field
@@ -83,7 +83,8 @@ public class LineWriter extends FilterWriter {
      * Construct a <code>LineWriter</code> object that
      * will use the platform dependent line separator.
      *
-     * @param out a Writer object to provide the underlying stream.
+     * @param  out a Writer object to provide the underlying stream.
+     * @throws IllegalArgumentException if <code>out</code> is <code>null</code>.
      */
     public LineWriter(final Writer out) {
         this(out, System.getProperty("line.separator", "\n"));
@@ -93,12 +94,42 @@ public class LineWriter extends FilterWriter {
      * Construct a <code>LineWriter</code> object
      * that will use the specified line separator.
      *
-     * @param out a Writer object to provide the underlying stream.
-     * @param lineSeparator String to use as line separator.
+     * @param  out a Writer object to provide the underlying stream.
+     * @param  lineSeparator String to use as line separator.
+     * @throws IllegalArgumentException if <code>out</code> or
+     *         <code>lineSeparator</code> is <code>null</code>.
      */
     public LineWriter(final Writer out, final String lineSeparator) {
         super(out);
         this.lineSeparator = lineSeparator;
+        if (out==null || lineSeparator==null) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    /**
+     * Returns the current line separator.
+     *
+     * @return The current line separator.
+     */
+    public String getLineSeparator() {
+        return lineSeparator;
+    }
+
+    /**
+     * Change the line separator. This is the string to insert in place of
+     * every occurences of "\r", "\n" or "\r\n".
+     *
+     * @param lineSeparator The new line separator.
+     * @throws IllegalArgumentException if <code>lineSeparator</code> is <code>null</code>.
+     */
+    public void setLineSeparator(final String lineSeparator) {
+        if (lineSeparator == null) {
+            throw new IllegalArgumentException();
+        }
+        synchronized (lock) {
+            this.lineSeparator = lineSeparator;
+        }
     }
 
     /**
@@ -134,7 +165,7 @@ public class LineWriter extends FilterWriter {
      */
     private void flushBuffer() throws IOException {
         assert bufferBlank();
-        if (count!=0) {
+        if (count != 0) {
             out.write(buffer, 0, count);
             count = 0;
         }
@@ -347,6 +378,20 @@ public class LineWriter extends FilterWriter {
                 buffer[count++] = string.charAt(offset++);
             }
             assert count==newCount;
+        }
+    }
+
+    /**
+     * Flush the stream's content to the underlying stream. This method flush completly
+     * all internal buffers,  including any whitespace characters that should have been
+     * skipped if the next non-blank character is a line separator.
+     *
+     * @throws IOException If an I/O error occurs
+     */
+    public void flush() throws IOException {
+        synchronized (lock) {
+            flushBuffer();
+            super.flush();
         }
     }
 }

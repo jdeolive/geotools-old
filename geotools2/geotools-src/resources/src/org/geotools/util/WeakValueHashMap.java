@@ -64,7 +64,7 @@ import org.geotools.resources.Utilities;
  * <br><br>
  * The <code>WeakValueHashMap</code> class is thread-safe.
  *
- * @version $Id: WeakValueHashMap.java,v 1.1 2002/07/20 22:18:20 desruisseaux Exp $
+ * @version $Id: WeakValueHashMap.java,v 1.2 2002/08/14 16:13:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see WeakHashMap
@@ -338,7 +338,7 @@ public class WeakValueHashMap extends AbstractMap {
      * Returns <code>true</code> if this map maps one or more keys to this value.
      *
      * @param value value whose presence in this map is to be tested.
-     * @return <code>true</tt> if this map maps one or more keys to this value.
+     * @return <code>true</code> if this map maps one or more keys to this value.
      */
     public synchronized boolean containsValue(final Object value) {
         return super.containsValue(value);
