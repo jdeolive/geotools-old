@@ -46,8 +46,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.WritableRenderedImage;
+import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.TileObserver;
+import java.awt.image.ColorModel;
 import java.awt.image.Raster;
 import java.util.Map;
 import java.util.Locale;
@@ -94,7 +96,7 @@ import org.geotools.resources.DeferredPlanarImage;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.19 2003/08/12 17:05:50 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.20 2004/03/07 16:52:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer implements TileObserver {
@@ -311,14 +313,33 @@ public class RenderedGridCoverage extends RenderedLayer implements TileObserver 
             if (processor == null) {
                 processor = GridCoverageProcessor.getDefault();
             }
-            final int[] visibleBands = new int[] {
-                GCSUtilities.getVisibleBand(coverage.getRenderedImage())
-            };
-            final CoordinateSystem sourceCS;
-            coverage = processor.doOperation("SelectSampleDimension", coverage,
-                                             "SampleDimensions", visibleBands);
+            /*
+             * If the coverage uses an index color model, select only the visible band.
+             * IndexColorModel usually allow only one band, but a custom implementation
+             * (MultiBandsIndexColorModel) allows more bands to be specified, with only
+             * one of them to be displayed. This is used for remote sensing images with
+             * an arbitrary amount of chanels, sometime much more than 3. Selecting the
+             * right band now allows faster rendering (the J2SE buildin IndexColorModel
+             * is much faster than our custom implementation), and avoid the "Resample"
+             * operation to reproject useless bands.
+             */
             coverage = coverage.geophysics(false);
-            sourceCS = coverage.getCoordinateSystem();
+            final ColorModel colorModel = coverage.getRenderedImage().getColorModel();
+            if (colorModel instanceof IndexColorModel) {
+                final int[] visibleBands = new int[] {
+                    GCSUtilities.getVisibleBand(coverage.getRenderedImage())
+                };
+                coverage = processor.doOperation("SelectSampleDimension", coverage,
+                                                 "SampleDimensions", visibleBands);
+            }
+            // TODO: add more special cases when needed, for example a ComponentColorModel with
+            //       more than 3 or 4 bands. This is needed for rendering remote sensing images
+            //       with 5 bands (SPOT), while selecting 3 at a given time for RGB composition.
+            /*
+             * Now check for coordinate systems, and reproject if needed.
+             * The target CS should always be 2D, but the source CS may not.
+             */
+            final CoordinateSystem sourceCS = coverage.getCoordinateSystem();
             if (!CTSUtilities.getCoordinateSystem2D(sourceCS).equals(
                  CTSUtilities.getCoordinateSystem2D(targetCS), false))
             {
