@@ -60,7 +60,7 @@ import org.geotools.resources.ImageUtilities;
  * Operation applied only on image's colors. This operation work
  * only for source image using an {@link IndexColorModel}.
  *
- * @version $Id: IndexColorOperation.java,v 1.7 2003/03/14 17:11:43 desruisseaux Exp $
+ * @version $Id: IndexColorOperation.java,v 1.8 2003/03/14 17:15:58 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class IndexColorOperation extends Operation {

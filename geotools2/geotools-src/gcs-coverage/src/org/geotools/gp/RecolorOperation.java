@@ -56,7 +56,7 @@ import org.geotools.resources.ImageUtilities;
  * are category names as {@link String}. Values are colors as <code>Color[]</code>. The
  * <code>null</code> key is a special value meaning "any quantitative category".
  *
- * @version $Id: RecolorOperation.java,v 1.1 2003/03/14 17:11:44 desruisseaux Exp $
+ * @version $Id: RecolorOperation.java,v 1.2 2003/03/14 17:15:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RecolorOperation extends IndexColorOperation {

@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.13 2003/03/14 17:11:43 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.14 2003/03/14 17:15:58 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
