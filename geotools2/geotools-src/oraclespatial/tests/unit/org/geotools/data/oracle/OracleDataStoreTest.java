@@ -78,12 +78,27 @@ public class OracleDataStoreTest extends TestCase {
     protected void tearDown() throws Exception {
         Connection conn = cPool.getConnection();
         Statement st = conn.createStatement();
-        st.executeUpdate("UPDATE ORA_TEST_POINTS SET NAME = 'point 1' WHERE ID = '1'");
-        st.executeUpdate("UPDATE ORA_TEST_POINTS SET NAME = 'point 2' WHERE ID = '2'");
-        st.executeUpdate("UPDATE ORA_TEST_POINTS SET NAME = 'point 3' WHERE ID = '3'");
-        st.executeUpdate("UPDATE ORA_TEST_POINTS SET NAME = 'point 4' WHERE ID = '4'");
-        st.executeUpdate("UPDATE ORA_TEST_POINTS SET NAME = 'point 5' WHERE ID = '5'");
-        st.executeUpdate("DELETE FROM ORA_TEST_POINTS WHERE NAME = 'add_name'");
+        st.executeUpdate("DELETE FROM ORA_TEST_POINTS");
+        st.executeUpdate("INSERT INTO ora_test_points VALUES ('point 1',10,1," +
+                "MDSYS.SDO_GEOMETRY(2001,NULL,NULL," +
+                "MDSYS.SDO_ELEM_INFO_ARRAY(1,1,1)," +
+                "MDSYS.SDO_ORDINATE_ARRAY(10,10)))");
+        st.executeUpdate("INSERT INTO ora_test_points VALUES ('point 2',20,2," +
+                        "MDSYS.SDO_GEOMETRY(2001,NULL,NULL," +
+                        "MDSYS.SDO_ELEM_INFO_ARRAY(1,1,1)," +
+                        "MDSYS.SDO_ORDINATE_ARRAY(20,10)))");
+        st.executeUpdate("INSERT INTO ora_test_points VALUES ('point 3',30,3," +
+                        "MDSYS.SDO_GEOMETRY(2001,NULL,NULL," +
+                        "MDSYS.SDO_ELEM_INFO_ARRAY(1,1,1)," +
+                        "MDSYS.SDO_ORDINATE_ARRAY(20,30)))");
+        st.executeUpdate("INSERT INTO ora_test_points VALUES ('point 4',40,4," +
+                        "MDSYS.SDO_GEOMETRY(2001,NULL,NULL," +
+                        "MDSYS.SDO_ELEM_INFO_ARRAY(1,1,1)," +
+                        "MDSYS.SDO_ORDINATE_ARRAY(30,10)))");
+        st.executeUpdate("INSERT INTO ora_test_points VALUES ('point 5',50,5," +
+                        "MDSYS.SDO_GEOMETRY(2001,NULL,NULL," +
+                        "MDSYS.SDO_ELEM_INFO_ARRAY(1,1,1)," +
+                        "MDSYS.SDO_ORDINATE_ARRAY(-20,10)))");
         ConnectionPoolManager manager = ConnectionPoolManager.getInstance();
         manager.closeAll();
     }
@@ -242,8 +257,7 @@ public class OracleDataStoreTest extends TestCase {
         assertEquals(10.0, point.getY(), 0.001);
     }
     
-    public void testAddFeatures() throws Exception {
-        System.out.println("Start AddFeatures");
+    public void testAddFeatures() throws Exception {        
         DataStore ds = new OracleDataStore(cPool, properties.getProperty("schema"));
         String name = "add_name";
         BigDecimal intval = new BigDecimal(70);
@@ -264,5 +278,13 @@ public class OracleDataStoreTest extends TestCase {
         } else {
             fail("Feature was not added correctly");
         }
+    }
+    
+    public void testRemoveFeatures() throws Exception {
+        DataStore ds = new OracleDataStore(cPool, properties.getProperty("schema"));
+        FeatureStore fs = (FeatureStore) ds.getFeatureSource("ORA_TEST_POINTS");
+        fs.removeFeatures(Filter.NONE);
+        FeatureResults fr = fs.getFeatures();
+        assertEquals(0, fr.getCount());
     }
 }
