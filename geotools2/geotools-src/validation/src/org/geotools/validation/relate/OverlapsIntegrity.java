@@ -46,8 +46,6 @@ import com.vividsolutions.jts.geom.Geometry;
  * <p>
  * Tests to see if a Geometry intersects with another Geometry.
  * 
- * 
- * 
  * <b>Description:</b><br>
  * <p>
  * If only one Geometry is given, then this test checks to see if it 
@@ -104,8 +102,10 @@ public class OverlapsIntegrity extends RelationIntegrity
 	 * <b>validateMultipleLayers Purpose:</b> <br>
 	 * <p>
 	 * This validation tests for a geometry overlaps another geometry. 
-	 * Uses JTS' Geometry.overlaps(Geometry) method.
-	 * 
+	 * Uses JTS' Geometry.overlaps(Geometry) and  Geometry.contains(Geometry)method.
+	 * The DE-9IM intersection matrix for overlaps is:
+     * T*T***T** (for two points or two surfaces)
+     * 1*T***T** (for two curves) 
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>
@@ -187,13 +187,14 @@ public class OverlapsIntegrity extends RelationIntegrity
 		return success;
 	}
 
-
-
 	/**
 	 * <b>validateSingleLayer Purpose:</b> <br>
 	 * <p>
 	 * This validation tests for a geometry that overlaps with itself. 
-	 * Uses JTS' Geometry.overlaps(Geometry) method.
+	 * Uses JTS' Geometry.overlaps(Geometry) and  Geometry.contains(Geometry)method.
+	 * The DE-9IM intersection matrix for overlaps is:
+     * T*T***T** (for two points or two surfaces)
+     * 1*T***T** (for two curves) 
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>

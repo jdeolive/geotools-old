@@ -92,7 +92,7 @@ public class ContainsIntegrity extends RelationIntegrity {
 	 * <p>
 	 * This validation tests for a geometry containing another geometry. 
 	 * Uses JTS' Geometry.contains(Geometry) method.
-	 * 
+	 * DE-9IM intersection matrix is T*F**F***.
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>
@@ -181,6 +181,7 @@ public class ContainsIntegrity extends RelationIntegrity {
 	 * <p>
 	 * This validation tests for a geometry containing part of itself. 
 	 * Uses JTS' Geometry.contains(Geometry) method.
+	 * DE-9IM intersection matrix is T*F**F***.
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>
