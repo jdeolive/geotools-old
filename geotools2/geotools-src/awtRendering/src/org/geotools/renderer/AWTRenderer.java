@@ -115,7 +115,7 @@ public class AWTRenderer implements org.geotools.renderer.Renderer {
         graphics.drawPolygon(points[0],points[1],points[0].length);
         
         System.out.println("Rendering a polygon with an outline colour of "+stroke.getColor()+
-            "and a fill colour of "+fill.getColor());
+            "and a fill colour of "+fill.getColor() + "\nat "+points[0][0] +","+ points[1][0]);
     }
 
     private int[][] extractPointArrays(final Coordinate[] coords) {
