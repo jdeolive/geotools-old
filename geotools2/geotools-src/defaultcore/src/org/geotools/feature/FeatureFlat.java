@@ -32,7 +32,7 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.9 2002/07/09 18:17:30 robhranac Exp $
+ * @version $Id: FeatureFlat.java,v 1.10 2002/07/11 16:58:17 loxnard Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFlat implements Feature {
@@ -75,7 +75,7 @@ public class FeatureFlat implements Feature {
         _log.debug("is valid: " + isValid);
 
         // Check to ensure that all attributes are valid
-        for(int i = 0; i < n ; i++) {
+        for (int i = 0; i < n ; i++) {
             isValid =  schema.getAttributeType(i).getType().
                 isAssignableFrom(attributes[i].getClass()) &&
                 isValid;
@@ -92,7 +92,7 @@ public class FeatureFlat implements Feature {
         }
 
         // Add if it is valid, otherwise throw an exception.
-        if(isValid) {
+        if (isValid) {
             //_log.info("about to copy");
             this.attributes = new Object[n];
             System.arraycopy(attributes, 0, this.attributes, 0, n);
@@ -150,7 +150,7 @@ public class FeatureFlat implements Feature {
         AttributeType definition = null;
         //_log.info("has attribute: " + schema.hasAttributeType(xPath));
         //_log.info("attribute is: " + schema.getAttributeType(xPath).toString());
-        if( schema.hasAttributeType(xPath) ) {
+        if (schema.hasAttributeType(xPath)) {
             definition = schema.getAttributeType(xPath);
         }
         else {
@@ -197,14 +197,14 @@ public class FeatureFlat implements Feature {
         boolean isValid = (n == attributes.length);
 
         // Checks each attribute for validity
-        for(int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             isValid =  schema.getAttributeType(i).getType().
                 isAssignableFrom(attributes[i].getClass()) &&
                 isValid;
         }
 
         // If all attributes are valid, add; otherwise throw exception
-        if(isValid) {
+        if (isValid) {
             System.arraycopy(attributes, 0, this.attributes, 0, n);
         }
         else {
@@ -233,11 +233,11 @@ public class FeatureFlat implements Feature {
 
         _log.debug("has attribute: " + schema.hasAttributeType(xPath));
 
-        if( schema.hasAttributeType(xPath) ) {
+        if (schema.hasAttributeType(xPath)) {
             //_log.debug("attribute: " + definition.toString());
 
             definition = schema.getAttributeType(xPath);
-            if( definition.getType().isAssignableFrom( attribute.getClass()) ) {
+            if (definition.getType().isAssignableFrom(attribute.getClass())) {
                 //_log.info("position: " + definition.getPosition());
                 attributes[definition.getPosition()] = attribute;
             }
@@ -266,8 +266,8 @@ public class FeatureFlat implements Feature {
      */
     public Geometry getDefaultGeometry() {
         AttributeType gType = schema.getDefaultGeometry();
-        _log.debug("schema "+schema+" \n gType = "+gType);
-        _log.debug("fetching geometry from "+gType.getPosition()+" -> "+attributes[gType.getPosition()]);
+        _log.debug("schema " + schema + " \n gType = " + gType);
+        _log.debug("fetching geometry from " + gType.getPosition() + " -> " + attributes[gType.getPosition()]);
         return (Geometry) ((Geometry) attributes[gType.getPosition()]).clone();
     }
 
@@ -280,7 +280,7 @@ public class FeatureFlat implements Feature {
         throws IllegalFeatureException {
 
         AttributeType geometryAttribute = schema.getDefaultGeometry();
-        if( geometryAttribute.getType().equals(geometry.getClass().getName())) {
+        if (geometryAttribute.getType().equals(geometry.getClass().getName())) {
             attributes[geometryAttribute.getPosition()] = (Geometry) geometry.clone();
         }
         else {
@@ -303,7 +303,7 @@ public class FeatureFlat implements Feature {
         try {
             exactCopy = new FeatureFlat(this.schema, this.attributes);
         }
-        catch(IllegalFeatureException e) {
+        catch (IllegalFeatureException e) {
             // Can never happen
         }
         return exactCopy;
@@ -317,8 +317,8 @@ public class FeatureFlat implements Feature {
     public String toString() {
         StringBuffer returnString = new StringBuffer("\n" + schema.getName() + " -> \n");
         
-        for(int i = 0, n = attributes.length; i < n; i++ ) {
-            returnString.append(attributes[i].toString() + "\n");						
+        for (int i = 0, n = attributes.length; i < n; i++) {
+            returnString.append(attributes[i].toString() + "\n");
         }
         return returnString.toString();        
     }
@@ -329,7 +329,7 @@ public class FeatureFlat implements Feature {
      * @return A representation of this feature as a string.
      */
     public String toString(boolean includeSchema) {
-        if( includeSchema ) {
+        if (includeSchema) {
             return schema.toString() + "\n" + toString();
         }
         else {
