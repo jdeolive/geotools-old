@@ -52,16 +52,14 @@
                 <role>Doc Editor</role>
             </roles>
         </developer>
-        <developer>
+    <developer>
       <name>Cameron Shorter</name>
       <id>camerons</id>
       <email>cameronsl@users.sourceforge.net</email>
-      <organization>None</organization>
-            <roles>
-                
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
     </developers>
   <dependencies>
     <dependency>

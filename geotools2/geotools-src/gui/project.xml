@@ -33,6 +33,14 @@
         <role>Java Developer</role>
       </roles>
     </developer>
+    <developer>
+      <name>Cameron Shorter</name>
+      <id>camerons</id>
+      <email>camerons@users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
   </developers>
 
   <dependencies>

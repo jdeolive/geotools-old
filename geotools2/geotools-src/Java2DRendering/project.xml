@@ -20,22 +20,30 @@
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-                <role>Module Maintainer</role>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
     <developer>
       <name>Ian Turton</name>
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Cameron Shorter</name>
+      <id>camerons</id>
+      <email>camerons@users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
         
-    </developers>
+  </developers>
   <dependencies>
     <dependency>
       <artifactId>core</artifactId>
