@@ -23,12 +23,6 @@ public class ProjectionFactoryTest extends TestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    public static Test suite() {
-        TestSuite suite = new TestSuite(ProjectionFactoryTest.class);
-        
-        return suite;
-    }
-    
     /** Test of createProjection method, of class org.geotools.proj4j.ProjectionFactory. */
     public void testCreateProjection() {
         System.out.println("testCreateProjection");
@@ -37,12 +31,22 @@ public class ProjectionFactoryTest extends TestCase {
         }catch(ProjectionException e){
             fail(e.toString());
         }
+        
+        //load non existent projection
+        try{
+            Projection p = ProjectionFactory.createProjection(new String[]{"proj=foobar","a=6378206.4","es=.006768658"});
+            fail("Projection foobar does not exist and should not have been constructed");
+        }catch(ProjectionException e){
+        }
            
     }
     
-    // Add test methods here, they have to start with 'test' name.
-    // for example: 
-    // public void testHello() {}
+    public static Test suite() {
+        TestSuite suite = new TestSuite(ProjectionFactoryTest.class);
+        
+        return suite;
+    }
+    
 
 
 }
