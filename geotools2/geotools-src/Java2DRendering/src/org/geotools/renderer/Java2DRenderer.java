@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.34 2002/07/03 16:42:14 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.35 2002/07/03 20:26:31 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -497,7 +497,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             graphics.setTransform(labelAT);
             // we move this to the centre of the image.
             _log.debug("about to draw at "+tx+","+ty);
+            applyFill(graphics,symbolizer.getFill(),feature);
             graphics.drawString(label,(float)x,(float)y);
+            resetFill();
             graphics.setTransform(temp);
             return;
                     } catch (org.geotools.filter.MalformedFilterException mfe){
