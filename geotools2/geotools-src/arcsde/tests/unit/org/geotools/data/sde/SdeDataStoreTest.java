@@ -36,7 +36,7 @@ import javax.xml.parsers.*;
  * SdeDatasource's test cases
  *
  * @author Gabriel Roldán
- * @version $Id: SdeDataStoreTest.java,v 1.5 2003/11/19 17:48:30 groldan Exp $
+ * @version $Id: SdeDataStoreTest.java,v 1.6 2003/12/11 19:31:48 jive Exp $
  */
 public class SdeDataStoreTest extends TestCase
 {
@@ -246,8 +246,10 @@ public class SdeDataStoreTest extends TestCase
         {
             FeatureType type = FeatureTypeFactory.newFeatureType(att,
                     point_table);
-            FeatureReader reader = store.getFeatureReader(type, Filter.NONE,
-                    Transaction.AUTO_COMMIT);
+                    
+            Query q = new DefaultQuery( type.getTypeName() );                    
+            FeatureReader reader =
+                store.getFeatureReader( q, Transaction.AUTO_COMMIT);
             FeatureType retType = reader.getFeatureType();
             assertEquals(retType.getAttributeCount(), 1);
             assertNotNull(retType.getDefaultGeometry());

@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeDataStore.java,v 1.9 2003/11/25 17:41:20 groldan Exp $
+ * @version $Id: SdeDataStore.java,v 1.10 2003/12/11 19:31:47 jive Exp $
  */
 public class SdeDataStore
 implements DataStore
@@ -298,8 +298,12 @@ implements DataStore
     protected org.geotools.data.FeatureReader getFeatureReader(String typeName)
         throws IOException
     {
-        return getFeatureReader(getSchema(typeName), Filter.ALL,
-            Transaction.AUTO_COMMIT);
+        return getFeatureReader( new DefaultQuery(typeName), Transaction.AUTO_COMMIT );
+        // Jody - not sure this is right
+        // Filter.ALL would result in an empty result all the time
+        // probably ment FILTER.NONE?
+        //return getFeatureReader(getSchema(typeName), Filter.ALL,
+        //    Transaction.AUTO_COMMIT);
     }
 
     /**
@@ -357,33 +361,53 @@ implements DataStore
      *
      * @throws IOException DOCUMENT ME!
      */
-    // Jody - considering the following
-    // public FeatureReader getFeatureReader( Query, Transaction ) throws IOException, SchemaException
-    public FeatureReader getFeatureReader(FeatureType featureType,
-        Filter filter, Transaction transaction) throws IOException
-    {
-        assertGetReaderParams(featureType, filter, transaction);
-
-        if (filter == Filter.ALL) {
-            return new EmptyFeatureReader(featureType);
+    // Jody - changed from the following
+    //public FeatureReader getFeatureReader(FeatureType featureType,
+    //        Filter filter, Transaction transaction) throws IOException
+    /**
+     * Implement getFeatureReader.
+     * <p>
+     * Description ...
+     * </p>
+     * @see org.geotools.data.DataStore#getFeatureReader(org.geotools.data.Query, org.geotools.data.Transaction)
+     * 
+     * @param query
+     * @param transaction
+     * @return
+     * @throws IOException
+     */
+    public FeatureReader getFeatureReader(Query query, Transaction transaction)
+        throws IOException {
+            
+        assertGetReaderParams(query, transaction);
+        
+        String typeName = query.getTypeName();
+                
+        Filter filter = query.getFilter();
+        FeatureType featureType = getSchema( typeName );
+        
+        if (filter == Filter.ALL || filter.equals( Filter.ALL )) {
+            return new EmptyFeatureReader( featureType );
         }
-
-        String typeName = featureType.getTypeName();
 /*
         if (transaction != Transaction.AUTO_COMMIT) {
             Map diff = state(transaction).diff(typeName);
             reader = new DiffFeatureReader(reader, diff);
         }
 */
+        // Jody - interesting design choice here
+        //
+        // (AbstractFeatureStore makes use of this method to implement its
+        // functionality)
         SdeFeatureStore source = new SdeFeatureStore(this, typeName, featureType);
+        
+        source.setTransaction( transaction );
         FeatureResults results = source.getFeatures(filter);
         FeatureReader sdeReader = results.reader();
 
         return sdeReader;
     }
 
-    // Jody - considering the following
-    // public FeatureSource getView( Query );
     /**
      * DOCUMENT ME!
      *
@@ -483,27 +507,26 @@ implements DataStore
     /**
      * isolated assertion of getFeatureReader parameters
      *
-     * @param featureType DOCUMENT ME!
-     * @param filter DOCUMENT ME!
-     * @param transaction DOCUMENT ME!
+     * @param query Request
+     * @param transaction Transaction request is made against
      *
-     * @throws IOException DOCUMENT ME!
-     * @throws NullPointerException DOCUMENT ME!
+     * @throws IOException (Not used)
+     * @throws NullPointerException if transaction, typeName or filter not provided
      */
-    private void assertGetReaderParams(FeatureType featureType, Filter filter,
+    private void assertGetReaderParams(Query query,
         Transaction transaction) throws IOException
     {
-        if (filter == null)
+        if (query.getFilter() == null)
         {
-            throw new NullPointerException("getFeatureReader requires Filter: "
+            throw new NullPointerException("getFeatureReader requires query.getFilter(): "
                 + "did you mean Filter.NONE?");
         }
 
-        if (featureType == null)
+        if (query.getTypeName() == null)
         {
             throw new NullPointerException(
-                "getFeatureReader requires FeatureType: "
-                + "use getSchema( typeName ) to aquire a FeatureType");
+                "getFeatureReader requires query.getTypeName(): "
+                + "use getTypeNames() to aquire a TypeName");
         }
 
         if (transaction == null)
