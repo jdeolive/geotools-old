@@ -205,6 +205,10 @@ public class StyleObjectTest extends TestCase {
         
         // a stroke is a complex object with lots of properties,
         // need more extensive tests here.
+        Stroke dashArray = styleFactory.getDefaultStroke();
+        dashArray.setDashArray(new float[]{1.0f,2.0f,3.0f});
+        Stroke dashArray2 = (Stroke) dashArray.clone();
+        assertEqualsContract(dashArray,dashArray2);
     }
         
     private static void assertClone(Object real,Object clone) {
@@ -237,6 +241,27 @@ public class StyleObjectTest extends TestCase {
         // check non-null
         assertTrue("Non-null test failed",!test.equals(null));
         
+        // assertHashcode equality
+        int controlEqHash = controlEqual.hashCode();
+        int testHash = test.hashCode();
+        assertTrue("Equal objects should return equal hashcodes",
+                controlEqHash == testHash);
+    }
+    
+    private static void assertEqualsContract(Object controlEqual,Object test){
+        assertNotNull(controlEqual);
+        assertNotNull(test);
+    
+        // check reflexivity
+        assertTrue("Reflexivity test failed",test.equals(test));
+    
+        // check symmetric
+        assertTrue("Symmetry test failed",controlEqual.equals(test));
+        assertTrue("Symmetry test failed",test.equals(controlEqual));
+        
+        // check non-null
+        assertTrue("Non-null test failed",!test.equals(null));
+    
         // assertHashcode equality
         int controlEqHash = controlEqual.hashCode();
         int testHash = test.hashCode();
