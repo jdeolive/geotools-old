@@ -54,7 +54,7 @@ import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFlat;
 import org.geotools.feature.FeatureFactory;
 import org.geotools.gml.GMLDataSource;
-import org.geotools.gui.swing.MapPane2;
+import org.geotools.gui.swing.MapPaneImpl;
 import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.Tool;
 import org.geotools.map.BoundingBox;
@@ -73,7 +73,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.11 2003/01/28 10:10:34 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.12 2003/01/29 08:19:47 camerons Exp $
  *
  */
 
@@ -117,7 +117,7 @@ public class MapViewer2 extends JFrame {
     private void initComponents2() {
         BoundingBox bbox;
         Envelope envelope;
-        MapPane2 mapPane;
+        MapPaneImpl mapPane;
         LayerList layerList;
         Layer layer;
         Tool tool;
@@ -164,7 +164,7 @@ public class MapViewer2 extends JFrame {
 
             // Create MapPane and associate a Tool
             tool=new PanTool();
-            mapPane = new MapPane2(
+            mapPane = new MapPaneImpl(
                     tool,
                     context);
             mapPane.setBorder(
@@ -281,7 +281,7 @@ public class MapViewer2 extends JFrame {
         new MapViewer2().show();
     }
 
-    private MapPane2 mapPane;
+    private MapPaneImpl mapPane;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }

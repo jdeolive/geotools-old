@@ -49,7 +49,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.20 2003/01/28 11:31:16 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.1 2003/01/29 08:19:46 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -57,7 +57,7 @@ import org.geotools.data.DataSourceException;
  * 2 maps which use the same data, but a different style.
  */
 
-public class MapPane2 extends JPanel implements
+public class MapPaneImpl extends JPanel implements
     BoundingBoxListener, LayerListListener
 {
     /**
@@ -90,7 +90,7 @@ public class MapPane2 extends JPanel implements
      * @param context The context where layerList and boundingBox are kept.  If
      * context is null, an IllegalArguementException is thrown.
      */
-    public MapPane2(
+    public MapPaneImpl(
             Tool tool,
             Context context) throws IllegalArgumentException
     {
