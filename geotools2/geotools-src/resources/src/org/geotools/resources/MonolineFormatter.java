@@ -56,17 +56,52 @@ import org.geotools.io.LineWriter;
 
 
 /**
- * A formatter writting log message on a single line. This formatter is used by 
- * Geotools 2 instead of {@link SimpleFormatter}. The main difference is that 
- * this formatter use only one line per message instead of two. For example, a 
- * message formatted by
- * <code>MonolineFormatter</code> looks like:
+ * A formatter writting log messages on a single line. This formatter is used by
+ * Geotools 2 instead of {@link SimpleFormatter}. The main difference is that
+ * this formatter use only one line per message instead of two. For example, a
+ * message formatted by <code>MonolineFormatter</code> looks like:
  *
  * <blockquote><pre>
- * [core FINE] A log message logged with level FINE from the "org.geotools.core" logger.
+ * FINE core - A log message logged with level FINE from the "org.geotools.core" logger.
  * </pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.6 2002/09/03 22:59:05 desruisseaux Exp $
+ * By default, <code>MonolineFormatter</code> display only the level and the
+ * message.  Additional fields can be formatted if {@link #setTimeFormat} or
+ * {@link #setSourceFormat} methods are invoked with a non-null argument. The
+ * format can also be set from the <code>jre/lib/logging.properties</code>
+ * file. For example, user can cut and paste the following properties into
+ * <code>logging.properties</code>:
+ *
+ * <blockquote><pre>
+ * ############################################################
+ * # Properties for the Geotools's MonolineFormatter.
+ * # By default, the monoline formatter display only the level
+ * # and the message. Additional fields can be specified here:
+ * #
+ * #   time:  If set, writes the time ellapsed since the initialization.
+ * #          The argument specifies the output pattern. For example, the
+ * #          pattern HH:mm:ss.SSSS display the hours, minutes, seconds
+ * #          and milliseconds.
+ * #
+ * #  source: If set, writes the source logger or the source class name.
+ * #          The argument specifies the type of source to display. Valid
+ * #          values are logger, logger:long, class and class:long.
+ * ############################################################
+ * org.geotools.resources.MonolineFormatter.time = HH:mm:ss.SSS
+ * org.geotools.resources.MonolineFormatter.source = class
+ * </pre></blockquote>
+ *
+ * If the <code>MonolineFormatter</code> is wanted for the whole system
+ * (not just the <code>org.geotools</code> packages) with level FINE (for
+ * example), then the following properties can be defined as below:
+ *
+ * <blockquote><pre>
+ * java.util.logging.ConsoleHandler.formatter = org.geotools.resources.MonolineFormatter
+ * java.util.logging.ConsoleHandler.encoding = Cp850
+ * java.util.logging.ConsoleHandler.level = FINE
+ * </pre></blockquote>
+ *
+ * @version $Id: MonolineFormatter.java,v 1.7 2002/09/04 08:12:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatter extends Formatter {
@@ -171,6 +206,13 @@ public class MonolineFormatter extends Formatter {
     private final LineWriter writer;
 
     /**
+     * Construct a default <code>MonolineFormatter</code>.
+     */
+    public MonolineFormatter() {
+        this("");
+    }
+
+    /**
      * Construct a <code>MonolineFormatter</code>.
      *
      * @param base   The base logger name. This is used for shortening the logger 
@@ -191,8 +233,18 @@ public class MonolineFormatter extends Formatter {
         // Configure this formatter
         final LogManager manager = LogManager.getLogManager();
 	final String   classname = MonolineFormatter.class.getName();
-        setTimeFormat  (manager.getProperty(classname + ".time"  ));
-        setSourceFormat(manager.getProperty(classname + ".source"));
+        try {
+            setTimeFormat  (manager.getProperty(classname + ".time"  ));
+        } catch (IllegalArgumentException exception) {
+            // Can't use the logging framework, since we are configuring it.
+            // Display the exception name only, not the trace.
+            System.err.println(exception);
+        }
+        try {
+            setSourceFormat(manager.getProperty(classname + ".source"));
+        } catch (IllegalArgumentException exception) {
+            System.err.println(exception);
+        }
     }
 
     /**
@@ -324,19 +376,22 @@ public class MonolineFormatter extends Formatter {
     }
 
     /**
-     * Setup a <code>MonolineFormatter</code> for the specified logger and its 
-     * children.  This method search for all instances of {@link ConsoleHandler} 
-     * using the {@link SimpleFormatter}. If such instances are found, they are 
-     * replaced by a single instance of <code>MonolineFormatter</code> writting 
-     * to the {@linkplain System#out standard output stream} (instead of the 
-     * {@linkplain System#err standard error stream}).  This action has no effect 
+     * Setup a <code>MonolineFormatter</code> for the specified logger and its
+     * children.  This method search for all instances of {@link ConsoleHandler}
+     * using the {@link SimpleFormatter}. If such instances are found, they are
+     * replaced by a single instance of <code>MonolineFormatter</code> writting
+     * to the {@linkplain System#out standard output stream} (instead of the
+     * {@linkplain System#err standard error stream}). This action has no effect
      * on any loggers outside the <code>base</code> namespace.
      *
-     * @param base The base logger name to apply the change on 
+     * @param  base The base logger name to apply the change on 
      *             (e.g. "org.geotools").
+     * @return The registered <code>MonolineFormatter</code>, or <code>null</code>
+     *         if none. The formatter output can be configured using the
+     *         {@link #setTimeFormat} and {@link #setSourceFormat} methods.
      */
-    public static void init(final String base) {
-        Formatter monoline = null;
+    public static MonolineFormatter init(final String base) {
+        MonolineFormatter monoline = null;
         final Logger logger = Logger.getLogger(base);
         for (Logger parent=logger; parent.getUseParentHandlers();) {
             parent = parent.getParent();
@@ -371,6 +426,7 @@ public class MonolineFormatter extends Formatter {
             }
         }
         logger.setUseParentHandlers(false);
+        return monoline;
     }
 
     /**
