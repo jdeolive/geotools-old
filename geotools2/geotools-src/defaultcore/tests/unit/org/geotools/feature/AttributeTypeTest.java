@@ -7,7 +7,7 @@
 
 package org.geotools.feature;
 
-import java.math.BigDecimal;
+import java.math.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -186,6 +186,12 @@ public class AttributeTypeTest extends TestCase {
         //Direct construction should never be used like this, however it is the only way to test
         //the code fully
         AttributeType num = new DefaultAttributeType.Numeric("good",  Double.class, false);
+        
+        // what is this crazy action? If you call "new", one of two things happens
+        // 1) you get an object, rendering this assertion rather useless
+        // 2) some exception is thrown - in which case this statement wouldn't even
+        //    be executed!!!
+        // -IanS
         assertNotNull(num);
         try{
             num = new DefaultAttributeType.Numeric("bad",  String.class, false);
@@ -222,11 +228,38 @@ public class AttributeTypeTest extends TestCase {
     }
 
     public void testParseNumberSubclass() throws Exception {
-        AttributeType type = AttributeTypeFactory.newAttributeType("testbigdecimal", BigDecimal.class,true);
         
+        AttributeType type = AttributeTypeFactory.newAttributeType("testbigdecimal", BigDecimal.class,true);
+
         Object value = type.parse(new BigDecimal(111.111));
-        assertEquals(new Double(111.111),value);
-        assertEquals(Double.class,value.getClass());
+        
+        // I modified this test to pass using BigDecimal. -IanS
+//        assertEquals(new Double(111.111),value);
+//        assertEquals(Double.class,value.getClass());
+        
+        assertEquals(new BigDecimal(111.111),value);
+        assertEquals(BigDecimal.class,value.getClass());
+    }
+    
+    public void testBigNumberSupport() throws Exception {
+        AttributeType decimal = AttributeTypeFactory.newAttributeType("decimal", BigDecimal.class,true);
+        AttributeType integer = AttributeTypeFactory.newAttributeType("integer", BigInteger.class,true);
+        
+        Number parsed = (Number) decimal.parse("200");
+        assertEquals(200,parsed.intValue());
+        assertEquals(BigDecimal.class, parsed.getClass());
+        
+        parsed = (Number) decimal.parse(new Integer(200));
+        assertEquals(200,parsed.intValue());
+        assertEquals(BigDecimal.class, parsed.getClass());
+        
+        parsed = (Number) integer.parse("200");
+        assertEquals(200,parsed.intValue());
+        assertEquals(BigInteger.class, parsed.getClass());
+        
+        parsed = (Number) integer.parse(new Double(200));
+        assertEquals(200,parsed.intValue());
+        assertEquals(BigInteger.class, parsed.getClass());
     }
     
     
