@@ -27,7 +27,7 @@
       <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
       <classpath>
         <pathelement path="src"/>
-        <pathelement path="tests/unit"/>
+        <pathelement path="test.jar"/>
         <pathelement path="../defaultcore/src"/>
         <pathelement path="../gmldatasource/src"/>
         <pathelement path="../core/src"/>

@@ -34,14 +34,12 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: ExpressionFactory.java,v 1.3 2002/09/17 17:33:55 robhranac Exp $
+ * @version $Id: ExpressionFactory.java,v 1.4 2002/09/18 14:29:41 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionFactory {
 
-    /**
-     * The logger for the filter module.
-     */
+    /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** The attribute value, which must be an attribute expression. */

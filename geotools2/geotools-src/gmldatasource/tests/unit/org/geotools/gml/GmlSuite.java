@@ -23,8 +23,7 @@ import junit.framework.*;
  */
 public class GmlSuite extends TestCase {
     
-
-    
+   
     public GmlSuite(java.lang.String testName) {
         super(testName);
     }
