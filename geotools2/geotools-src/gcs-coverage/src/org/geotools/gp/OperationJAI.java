@@ -93,7 +93,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.6 2002/07/27 22:08:44 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.7 2002/07/28 19:25:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -337,15 +337,15 @@ public class OperationJAI extends Operation {
          * Perform the operation using JAI and
          * construct the new grid coverage.
          */
+        final RenderingHints exHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
         JAI processor = JAI.getDefaultInstance();
         if (hints != null) {
             final Object value = hints.get(JAI_INSTANCE);
             if (value instanceof JAI) {
                 processor = (JAI) value;
             }
+            exHints.add(hints); // May overwrite the image layout we just set.
         }
-        final RenderingHints exHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
-        exHints.putAll(hints); // May overwrite the image layout we just set.
         final RenderedImage data = processor.createNS(descriptor.getName(), parameters, exHints);
         return new GridCoverage(source.getName(null), // The grid coverage name
                                 data,                 // The underlying data
