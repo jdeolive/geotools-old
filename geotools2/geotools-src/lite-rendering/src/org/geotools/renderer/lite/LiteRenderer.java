@@ -43,9 +43,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -117,7 +119,7 @@ import com.vividsolutions.jts.geom.Point;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.28 2003/12/23 17:21:02 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.29 2004/01/09 16:35:25 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -559,37 +561,49 @@ public class LiteRenderer implements Renderer, Renderer2D {
         for (int i = 0; i < featureStylers.length; i++) {
             FeatureTypeStyle fts = featureStylers[i];
 
-            // get rules
+            // get applicable rules at the current scale
             Rule[] rules = fts.getRules();
+            List ruleList = new ArrayList();
+            List elseRuleList = new ArrayList();
+            for (int j = 0; j < rules.length; j++) {
+                Rule r = rules[j];
+                if(isWithInScale(r)) {
+                    if(r.hasElseFilter()) {
+                        elseRuleList.add(r);    
+                    } else {
+                        ruleList.add(r);    
+                    }
+                }
+            }
 
+            // process the features according to the rules
             FeatureReader reader = features.reader();
             while(reader.hasNext()) {
                 Feature feature = reader.next();
 
-                for (int k = 0; k < rules.length; k++) {
-                    // if this rule applies
-                    if (isWithInScale(rules[k]) && !rules[k].hasElseFilter()) {
-                        Filter filter = rules[k].getFilter();
-                        Symbolizer[] symbolizers = rules[k].getSymbolizers();
+                // applicable rules
+                for (Iterator it = ruleList.iterator(); it.hasNext(); ) {
+                    Rule r = (Rule) it.next();
+                    
+                    Filter filter = r.getFilter();
+                    Symbolizer[] symbolizers = r.getSymbolizers();
 
-                        String typeName = feature.getFeatureType().getTypeName();
+                    String typeName = feature.getFeatureType().getTypeName();
 
-                        if (((typeName != null)
-                                && (feature.getFeatureType().isDescendedFrom(null,
-                                    fts.getFeatureTypeName())
-                                || typeName.equalsIgnoreCase(fts.getFeatureTypeName())))
-                                && ((filter == null) || filter.contains(feature))) {
-                            processSymbolizers(feature, symbolizers);
-                        }
+                    if (((typeName != null)
+                            && (feature.getFeatureType().isDescendedFrom(null,
+                                fts.getFeatureTypeName())
+                            || typeName.equalsIgnoreCase(fts.getFeatureTypeName())))
+                            && ((filter == null) || filter.contains(feature))) {
+                        processSymbolizers(feature, symbolizers);
                     }
                 }
 
-                for (int k = 0; k < rules.length; k++) {
-                    // if this rule applies
-                    if (isWithInScale(rules[k]) && rules[k].hasElseFilter()) {
-                        Symbolizer[] symbolizers = rules[k].getSymbolizers();
-                        processSymbolizers(feature, symbolizers);
-                    }
+                // rules with an else filter
+                for (Iterator it = elseRuleList.iterator(); it.hasNext(); ) {
+                    Rule r = (Rule) it.next();
+                    Symbolizer[] symbolizers = r.getSymbolizers();
+                    processSymbolizers(feature, symbolizers);
                 }
             }
         }
