@@ -159,7 +159,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.13 2004/01/07 00:53:27 seangeo Exp $
+ * $Id: JDBCDataStore.java,v 1.14 2004/01/08 00:23:51 seangeo Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     public static final String FID_GEN_AUTO = "auto";
@@ -566,7 +566,10 @@ public abstract class JDBCDataStore implements DataStore {
         try {
             attrTypes = getAttributeTypes(typeName, propertyNames);
         } catch (SchemaException schemaException) {
-            throw new DataSourceException("Could not handle query", schemaException);
+            throw new DataSourceException("Some Attribute Names were specified that" +
+                    " do not exist in the FeatureType " + typeName +". " +
+                    "Requested names: " + Arrays.asList(propertyNames) + ", " +
+                    "FeatureType: " + featureType, schemaException);
         }
 
         String sqlQuery = constructQuery(query, attrTypes);
@@ -1326,7 +1329,7 @@ public abstract class JDBCDataStore implements DataStore {
                 "did you mean Transaction.AUTO_COMMIT");
         }
 
-        FeatureType schema = getSchema(typeName);
+        FeatureType featureType = getSchema(typeName);
         FeatureTypeInfo info = getFeatureTypeInfo(typeName);
         LOGGER.fine("getting feature writer for " + typeName + ": " + info);
 
@@ -1334,8 +1337,16 @@ public abstract class JDBCDataStore implements DataStore {
         Filter preFilter = sqlBuilder.getPreQueryFilter(filter);
         Filter postFilter = sqlBuilder.getPostQueryFilter(filter);
         Query query = new DefaultQuery(typeName, filter);
-        String sqlQuery = constructQuery(query, getAttTypes(query));
-
+        String sqlQuery;
+        try {
+            sqlQuery = constructQuery(query, getAttributeTypes(typeName, propertyNames(query)));
+        } catch (SchemaException e) {
+            throw new DataSourceException("Some Attribute Names were specified that" +
+                    " do not exist in the FeatureType " + typeName +". " +
+                    "Requested names: " + Arrays.asList(query.getPropertyNames()) + ", " +
+                    "FeatureType: " + featureType, e);
+        }
+        
         // TODO: This is a hack to workaround Oracle problem with inserting
         // into FORWARD_ONLY result sets.
         QueryData queryData = executeQuery(typeName, sqlQuery, transaction,
@@ -1404,54 +1415,6 @@ public abstract class JDBCDataStore implements DataStore {
     }
 
     /**
-     * Gets the attribute types from the query.  If all are requested then returns all attribute
-     * types of this query.  If only certain propertyNames are requested then this returns the
-     * correct attribute types, throwing an exception is they can not be found.
-     *
-     * <p>
-     * This should be in an abstract class.
-     * </p>
-     *
-     * @param attNames contains the propertyNames.
-     * @param schema DOCUMENT ME!
-     *
-     * @return the array of attribute types to be returned by getFeature.
-     *
-     * @throws IOException DOCUMENT ME!
-     * @throws DataSourceException if query contains a propertyName that is not a part of this
-     *         type's schema.
-     *
-     * @task REVISIT: consider returning a FeatureType.  This should completely clone the schema
-     *       passed in, must get the namespace and typename right, with the abbreviated
-     *       attributes.  Also the inheritance needs to be figured out.
-     */
-    private AttributeType[] getAttTypes(List attNames, FeatureType schema)
-        throws IOException {
-        AttributeType[] schemaTypes = schema.getAttributeTypes();
-
-        AttributeType[] retAttTypes = new AttributeType[attNames.size()];
-        int retPos = 0;
-
-        for (int i = 0, n = schemaTypes.length; i < n; i++) {
-            String schemaTypeName = schemaTypes[i].getName();
-
-            if (attNames.contains(schemaTypeName)) {
-                retAttTypes[retPos++] = schemaTypes[i];
-            }
-        }
-
-        //TODO: better error reporting, and completely test this method.
-        if (attNames.size() != retPos) {
-            //REVISIT: not to clear what's going on here.  Basically
-            //all names should be found in the schema.
-            String msg = "attempted to request a property, " + " that is not part of the schema ";
-            throw new DataSourceException(msg);
-        }
-
-        return retAttTypes;
-    }
-
-    /**
      * Get propertyNames in a safe manner.
      *
      * <p>
@@ -1483,7 +1446,20 @@ public abstract class JDBCDataStore implements DataStore {
         return names;
     }
 
-    protected AttributeType[] getAttributeTypes(String typeName, String[] propertyNames)
+    /**
+     * Gets the attribute types from from a given type.  
+     *     
+     * @param typeName The name of the feature type to get the AttributeTypes for.
+     * @param propertyNames The list of propertyNames to get AttributeTypes for.
+     *
+     * @return the array of attribute types from the schema which match propertyNames.
+     *
+     * @throws IOException If we can't get the schema.
+     * @throws SchemaException if query contains a propertyName that is not a part of this
+     *         type's schema.
+     *
+     */
+    protected final AttributeType[] getAttributeTypes(String typeName, String[] propertyNames)
         throws IOException, SchemaException {
         FeatureType schema = getSchema(typeName);
         AttributeType[] types = new AttributeType[propertyNames.length];
@@ -1498,16 +1474,6 @@ public abstract class JDBCDataStore implements DataStore {
         }
 
         return types;
-    }
-
-    private AttributeType[] getAttTypes(Query query) throws IOException {
-        FeatureType schema = getSchema(query.getTypeName());
-
-        if (query.retrieveAllProperties()) {
-            return schema.getAttributeTypes();
-        } else {
-            return getAttTypes(Arrays.asList(query.getPropertyNames()), schema);
-        }
     }
 
     /**
