@@ -35,7 +35,7 @@ import org.geotools.datasource.extents.EnvelopeExtent;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: DataSourcePostgis.java,v 1.2 2002/06/05 12:04:45 loxnard Exp $
+ * @version $Id: DataSourcePostgis.java,v 1.3 2002/06/28 15:42:54 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class DataSourcePostgis implements org.geotools.data.DataSource {
@@ -94,7 +94,8 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
         sqlTypeMap.put("varchar", String.class);
         sqlTypeMap.put("int4", Integer.class);
         sqlTypeMap.put("float4", Float.class);
-        sqlTypeMap.put("geometry", Point.class);
+        sqlTypeMap.put("float8", Double.class);
+        sqlTypeMap.put("geometry", Geometry.class);
     }
 
 
@@ -229,7 +230,7 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
             
                 // create an individual attribute by looping through columns
                 for( int col = 0, n = schema.attributeTotal(); col < n; col++) {
-                //_log.info("reading attribute: " + col);
+                //_log.info("reading attribute: " + col + "it appears to be "+result.getObject(col+1));
                     attributes[col] = (col == geometryPosition) ? 
                         createGeometry( result.getString( col + 1)) :
                         createOther( result.getObject( col + 1));
