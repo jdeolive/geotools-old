@@ -45,12 +45,12 @@
         </developer>
   </developers>
   <dependencies>
-        <dependencies>
-    <dependency>
+        
+        <dependency>
       <id>core</id>
       <version>0.1</version>
     </dependency>
-    <dependency>
+        <dependency>
       <id>defaultcore</id>
       <version>0.1</version>
     </dependency>
@@ -59,11 +59,6 @@
       <version>1.2.3</version>
     </dependency>
         
-            <dependency>
-      <id>filter</id>
-      <version>0.1</version>
-    </dependency>
-        </dependencies>
     </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
