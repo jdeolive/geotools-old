@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: seangeo $
- * @version $Id: OracleDataSourceFactory.java,v 1.7 2003/12/02 01:24:00 seangeo Exp $
+ * @version $Id: OracleDataSourceFactory.java,v 1.8 2003/12/02 01:25:14 seangeo Exp $
  */
 public class OracleDataSourceFactory implements DataSourceFactorySpi {
     
@@ -49,7 +49,7 @@ public class OracleDataSourceFactory implements DataSourceFactorySpi {
         String user = (String) params.get("user");
         String passwd = (String) params.get("passwd");
         String tableName = (String) params.get("table");
-        String fidDefault = (String) params.get("fid.default");        if (fidDefault == null) {            fidDefault = "OBJECTID";        }        
+        String fidDefault = (String) params.get("fiddefault");        if (fidDefault == null) {            fidDefault = "OBJECTID";        }        
         try {
             OracleConnectionFactory ocFactory = new OracleConnectionFactory(host, port, instance);
             ocFactory.setLogin(user, passwd);
