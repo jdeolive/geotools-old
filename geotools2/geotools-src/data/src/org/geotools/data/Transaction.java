@@ -25,16 +25,49 @@ import java.util.Set;
  * 
  * <p>
  * Shapefiles, databases, etc. are safely modified with the assistance of this
- * interface.
+ * interface. Transactions are also to provide authorization when working with
+ * locked features.
  * </p>
  * 
  * <p>
- * For more information please see DataStore and DataSource.
+ * All opperations are considered to be working against a Transaction.
+ * Transaction.AUTO_COMMIT is used to represent an immidiate mode where
+ * requests are immidately commited.
  * </p>
+ * 
+ * <p>
+ * For more information please see DataStore and FeatureStore.
+ * </p>
+ * 
+ * <p>
+ * Example Use:
+ * </p>
+ * <pre><code>
+ * Transaction t = new DefaultTransaction();
+ * try {
+ *     FeatureStore road = (FeatureStore) store.getFeatureSource("road");
+ *     FeatureStore river = (FeatureStore) store.getFeatureSource("river");
+ * 
+ *     road.setTransaction( t );
+ *     river.setTransaction( t );
+ * 
+ *     t.addAuthorization( lockID );  // proivde authoriztion
+ *     road.removeFeatures( filter ); // opperate against transaction
+ *     river.removeFeature( filter ); // opperate against transaction
+ * 
+ *     t.commit(); // commit opperations
+ * }
+ * catch (IOException io){
+ *     t.rollback(); // cancel opperations
+ * }
+ * finally {
+ *     t.close(); // free resources
+ * }
+ * </code></pre>
  *
  * @author Jody Garnett
  * @author Chris Holmes, TOPP
- * @version $Id: Transaction.java,v 1.2 2003/11/04 00:28:50 cholmesny Exp $
+ * @version $Id: Transaction.java,v 1.3 2003/11/16 00:56:16 jive Exp $
  */
 public interface Transaction {
     /** Represents AUTO_COMMIT Mode */
@@ -197,6 +230,21 @@ public interface Transaction {
     void addAuthorization(String authID) throws IOException;
 
     /**
+     * Provides an oppertunity for a Transaction to free an State it maintains.
+     * <p>
+     * This method should call State.setTransaction( null ) on all State it
+     * maintains.
+     * </p>
+     * <p>
+     * It is hoped that FeatureStore implementations that have externalized
+     * their State with the transaction take the oppertunity to revert to
+     * Transction.AUTO_COMMIT.
+     * </p>
+     * @throws IOException
+     */
+    void close() throws IOException;
+    
+    /**
      * DataStore implementations can use this interface to externalize the
      * state they require to implement Transaction Support.
      * 
@@ -224,7 +272,7 @@ public interface Transaction {
          * 
          * <p>
          * setTransaction is called with <code>null</code> when removeState is
-         * called.
+         * called (usually during Transaction.close() ).
          * </p>
          *
          * @param transaction
@@ -357,6 +405,12 @@ class AutoCommitTransaction implements Transaction {
         // implement a NOP
     }
 
+    /**
+     * Implements a NOP since AUTO_COMMIT does not maintain State.
+     */
+    public void close(){
+        // no state to clean up after
+    }
     /**
      * Auto commit mode cannot support the rollback opperation.
      *

@@ -104,6 +104,9 @@ public class DefaultTransaction implements Transaction {
      * @see org.geotools.data.Transaction#removeState(java.lang.Object)
      */
     public void removeState(Object key) {
+        if( stateLookup == null){
+            throw new IllegalStateException("Transaction has been closed");
+        }        
         if (stateLookup.containsKey(key)) {
             State state = (State) stateLookup.remove(key);
             state.setTransaction(null);
@@ -129,6 +132,9 @@ public class DefaultTransaction implements Transaction {
      * @see org.geotools.data.Transaction#getState(java.lang.Object)
      */
     public State getState(Object key) {
+        if( stateLookup == null){
+            throw new IllegalStateException("Transaction has been closed");
+        }
         return (State) stateLookup.get(key);
     }
 
@@ -211,7 +217,19 @@ public class DefaultTransaction implements Transaction {
                 + problemCount + " problems - the first was", io);
         }
     }
-
+    /**
+     * Frees all State held by this Transaction.
+     */
+    public synchronized void close(){
+        for( Iterator i=stateLookup.values().iterator(); i.hasNext();){
+            State state = (State) i.next();
+            state.setTransaction( null );            
+        }
+        stateLookup.clear();
+        stateLookup = null;
+        authorizations.clear();
+        authorizations = null;
+    }
     /**
      * The current set of Authorization IDs held by this Transaction.
      * 
@@ -222,6 +240,9 @@ public class DefaultTransaction implements Transaction {
      * @return Set of Authorization IDs
      */
     public Set getAuthorizations() {
+        if( authorizations == null){
+            throw new IllegalStateException("Transaction has been closed");
+        }        
         return Collections.unmodifiableSet(authorizations);
     }
 
@@ -240,6 +261,9 @@ public class DefaultTransaction implements Transaction {
      * @see org.geotools.data.Transaction#setAuthorization(java.lang.String)
      */
     public void addAuthorization(String authID) throws IOException {
+        if( authorizations == null){
+            throw new IllegalStateException("Transaction has been closed");
+        }                
         int problemCount = 0;
         IOException io = null;
         State state;
@@ -260,7 +284,6 @@ public class DefaultTransaction implements Transaction {
             if (problemCount == 1) {
                 throw io;
             }
-
             throw new DataSourceException("setAuthorization encountered "
                 + problemCount + " problems - the first was", io);
         }
