@@ -26,12 +26,13 @@ import java.util.logging.Logger;
 
 
 /**
- * DOCUMENT ME!
+ * provides basic read access to ArcSDE Feature Classes
  *
  * @author Gabriel Roldán
- * @version $Id: SdeFeatureSource.java,v 1.4 2003/11/14 17:21:05 groldan Exp $
+ * @version $Id: SdeFeatureStore.java,v 1.1 2003/11/17 17:12:41 groldan Exp $
  */
-public class SdeFeatureSource implements FeatureSource
+public class SdeFeatureStore
+extends AbstractFeatureStore
 {
     /** DOCUMENT ME! */
     private static final Logger LOGGER = Logger.getLogger(
@@ -60,7 +61,7 @@ public class SdeFeatureSource implements FeatureSource
      *
      * @throws IOException DOCUMENT ME!
      */
-    public SdeFeatureSource(SdeDataStore store, String typeName)
+    public SdeFeatureStore(SdeDataStore store, String typeName)
         throws IOException
     {
         this(store, typeName, null);
@@ -80,7 +81,7 @@ public class SdeFeatureSource implements FeatureSource
      * @throws IllegalArgumentException if a default FeatureType is passed and
      *         it's type name differs from <code>typeName</code>
      */
-    protected SdeFeatureSource(SdeDataStore store, String typeName,
+    protected SdeFeatureStore(SdeDataStore store, String typeName,
         FeatureType schema) throws IOException
     {
         if (store == null)
@@ -160,10 +161,9 @@ public class SdeFeatureSource implements FeatureSource
      *
      * @throws IOException DOCUMENT ME!
      */
-    public FeatureResults getFeatures(Query query) throws IOException
+    public FeatureResults getFeatures(Query query)
     {
         FeatureResults results = new SdeFeatureResults(this, query);
-
         return results;
     }
 
@@ -226,11 +226,10 @@ public class SdeFeatureSource implements FeatureSource
      *
      * @throws IOException DOCUMENT ME!
      */
-    public Envelope getBounds() throws IOException
+    public Envelope getBounds()
     {
         Envelope bounds = null;
         SeExtent ext = seLayer.getExtent();
-
         bounds = new Envelope(ext.getMinX(), ext.getMaxX(), ext.getMinY(),
                 ext.getMaxY());
 
@@ -344,4 +343,5 @@ public class SdeFeatureSource implements FeatureSource
     {
         return adapter.getSchema(query, getSchema());
     }
+
 }

@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * from geotool's Query's, mapping SDE types to Java ones and JTS Geometries, etc.
  *
  * @author Gabriel Roldán
- * @version $Id: SdeAdapter.java,v 1.7 2003/11/14 17:17:58 groldan Exp $
+ * @version $Id: SdeAdapter.java,v 1.8 2003/11/17 17:12:41 groldan Exp $
  */
 public class SdeAdapter
 {
@@ -336,7 +336,7 @@ public class SdeAdapter
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public SDEQuery createSeQuery(SdeFeatureSource fSource, Query query)
+    public SDEQuery createSeQuery(SdeFeatureStore fSource, Query query)
         throws DataSourceException
     {
         String[] queryColumns = getQueryColumns(query, fSource.getSchema());
@@ -357,7 +357,7 @@ public class SdeAdapter
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public SDEQuery createSeQuery(SdeFeatureSource fSource,
+    public SDEQuery createSeQuery(SdeFeatureStore fSource,
         String[] queryColumns, Query query) throws DataSourceException
     {
         Filter filter = query.getFilter();
@@ -545,6 +545,56 @@ public class SdeAdapter
     {
         return sdeSqlConstruct;
     }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param stringFids DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     *
+     */
+    public static long[] getNumericFids(String[] stringFids)
+        throws IllegalArgumentException
+    {
+        int nfids = stringFids.length;
+        long[] fids = new long[nfids];
+
+        for (int i = 0; i < nfids; i++)
+        {
+            fids[i] = getNumericFid(stringFids[i]);
+        }
+
+        return fids;
+    }
+
+    /**
+     * Returns the numeric identifier of a FeatureId, given by the full
+     * qualified name of the featureclass prepended to the ArcSDE feature id.
+     * ej: SDE.SDE.SOME_LAYER.1
+     *
+     * @param fid a geotools FeatureID
+     *
+     * @return an ArcSDE feature ID
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     */
+    public static long getNumericFid(String fid) throws IllegalArgumentException
+    {
+        int dotIndex = fid.lastIndexOf('.');
+
+        try
+        {
+            return Long.decode(fid.substring(++dotIndex)).longValue();
+        }
+        catch (Exception ex)
+        {
+            throw new IllegalArgumentException("FeatureID " + fid
+                + " does not seems as a valid ArcSDE FID");
+        }
+    }
 }
 
 
@@ -552,7 +602,7 @@ public class SdeAdapter
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 class SdeTypeDef
 {

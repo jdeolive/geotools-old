@@ -29,12 +29,12 @@ import java.util.*;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeFeatureResults.java,v 1.7 2003/11/14 17:21:05 groldan Exp $
+ * @version $Id: SdeFeatureResults.java,v 1.8 2003/11/17 17:12:41 groldan Exp $
  */
 public class SdeFeatureResults implements FeatureResults
 {
     /** DOCUMENT ME! */
-    private SdeFeatureSource source;
+    private SdeFeatureStore source;
 
     /** DOCUMENT ME! */
     private Query query;
@@ -68,31 +68,11 @@ public class SdeFeatureResults implements FeatureResults
      * @param source DOCUMENT ME!
      * @param query DOCUMENT ME!
      *
-     * @throws IOException is the result envelope can't be computed by a
-     *         SDEQuery object based on <code>query</code>
      */
-    SdeFeatureResults(SdeFeatureSource source, Query query)
-        throws IOException
+    SdeFeatureResults(SdeFeatureStore source, Query query)
     {
         this.source = source;
         this.query = query;
-
-        SDEQuery sdeQuery = null;
-
-        try
-        {
-            sdeQuery = source.createSeQuery(query);
-            this.resultBounds = sdeQuery.calculateLayerExtent();
-        }
-        catch (DataSourceException ex)
-        {
-            throw ex;
-        }
-        finally
-        {
-            if(sdeQuery != null)
-              sdeQuery.close();
-        }
     }
 
     /**

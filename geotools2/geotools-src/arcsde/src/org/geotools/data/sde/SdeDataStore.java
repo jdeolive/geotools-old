@@ -30,9 +30,10 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeDataStore.java,v 1.6 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: SdeDataStore.java,v 1.7 2003/11/17 17:12:41 groldan Exp $
  */
-public class SdeDataStore implements DataStore
+public class SdeDataStore
+implements DataStore
 {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.data.sde");
     /** where to get sde connections from */
@@ -125,7 +126,7 @@ public class SdeDataStore implements DataStore
         //spatially enable the new table, allocating space for 100 initial
         //features and setting the estimated average number of points per feature
         LOGGER.finer("about to spatially enable the new table");
-        sdeLayer.create(100, 4);
+        sdeLayer.create(3, 4);
         LOGGER.finer("new table has been succesfully spatially enabled");
       }catch (SeException ex) {
         throw new DataSourceException(ex.getMessage(), ex);
@@ -365,15 +366,25 @@ public class SdeDataStore implements DataStore
      *
      * @throws IOException DOCUMENT ME!
      */
-    public org.geotools.data.FeatureReader getFeatureReader(FeatureType featureType,
+    public FeatureReader getFeatureReader(FeatureType featureType,
         Filter filter, Transaction transaction) throws IOException
     {
         assertGetReaderParams(featureType, filter, transaction);
 
+        if (filter == Filter.ALL) {
+            return new EmptyFeatureReader(featureType);
+        }
+
         String typeName = featureType.getTypeName();
-        SdeFeatureSource source = new SdeFeatureSource(this, typeName, featureType);
+/*
+        if (transaction != Transaction.AUTO_COMMIT) {
+            Map diff = state(transaction).diff(typeName);
+            reader = new DiffFeatureReader(reader, diff);
+        }
+*/
+        SdeFeatureStore source = new SdeFeatureStore(this, typeName, featureType);
         FeatureResults results = source.getFeatures(filter);
-        org.geotools.data.FeatureReader sdeReader = results.reader();
+        FeatureReader sdeReader = results.reader();
 
         return sdeReader;
     }
@@ -390,7 +401,7 @@ public class SdeDataStore implements DataStore
     public FeatureSource getFeatureSource(String featureType)
         throws IOException
     {
-        return new SdeFeatureSource(this, featureType);
+        return new SdeFeatureStore(this, featureType);
     }
 
     /**
