@@ -1,3 +1,14 @@
+/*
+ * OpenGIS® Coordinate Transformation Services Implementation Specification
+ * Copyright (2001) OpenGIS consortium
+ *
+ * THIS COPYRIGHT NOTICE IS A TEMPORARY PATCH.   Version 1.00 of official
+ * OpenGIS's interface files doesn't contain a copyright notice yet. This
+ * file is a slightly modified version of official OpenGIS's interface.
+ * Changes have been done in order to fix RMI problems and are documented
+ * on the SEAGIS web site (seagis.sourceforge.net). THIS FILE WILL LIKELY
+ * BE REPLACED BY NEXT VERSION OF OPENGIS SPECIFICATIONS.
+ */
 package org.opengis.pt;
 
 // Various JDK's classes
@@ -75,29 +86,7 @@ public class PT_CoordinatePoint implements Cloneable, Serializable
         if (object!=null && getClass().equals(object.getClass()))
         {
             final PT_CoordinatePoint that = (PT_CoordinatePoint) object;
-            if (false)
-            {
-                return Arrays.equals(this.ord, that.ord);
-                /*
-                 * NOTE: The 'Arrays.equals(double[],double[])' method does not exists
-                 *       in JDK 1.1. If compatibility with JDK 1.1 is wanted, use the
-                 *       code below instead.
-                 */
-            }
-            else
-            {
-                if (this.ord == that.ord) return true;
-                if (this.ord!=null && that.ord!=null)
-                {
-                    if (this.ord.length == that.ord.length)
-                    {
-                        for (int i=ord.length; --i>=0;)
-                            if (Double.doubleToLongBits(this.ord[i]) !=
-                                Double.doubleToLongBits(that.ord[i])) return false;
-                        return true;
-                    }
-                }
-            }
+            return Arrays.equals(this.ord, that.ord);
         }
         return false;
     }

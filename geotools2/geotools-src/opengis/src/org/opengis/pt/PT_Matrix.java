@@ -1,3 +1,14 @@
+/*
+ * OpenGIS® Coordinate Transformation Services Implementation Specification
+ * Copyright (2001) OpenGIS consortium
+ *
+ * THIS COPYRIGHT NOTICE IS A TEMPORARY PATCH.   Version 1.00 of official
+ * OpenGIS's interface files doesn't contain a copyright notice yet. This
+ * file is a slightly modified version of official OpenGIS's interface.
+ * Changes have been done in order to fix RMI problems and are documented
+ * on the SEAGIS web site (seagis.sourceforge.net). THIS FILE WILL LIKELY
+ * BE REPLACED BY NEXT VERSION OF OPENGIS SPECIFICATIONS.
+ */
 package org.opengis.pt;
 
 // Various JDK's classes
@@ -77,23 +88,7 @@ public class PT_Matrix implements Cloneable, Serializable
                     {
                         final double[] row1 = this.elt[j];
                         final double[] row2 = that.elt[j];
-                        if (false)
-                        {
-                            if (!Arrays.equals(row1, row2)) return false;
-                            /*
-                             * NOTE: The 'Arrays.equals(double[],double[])' method does not exists
-                             *       in JDK 1.1. If compatibility with JDK 1.1 is wanted, use the
-                             *       code below instead.
-                             */
-                        }
-                        else if (row1 != row2)
-                        {
-                            if (row1==null || row2==null || row1.length!=row2.length)
-                                return false;
-                            for (int i=row1.length; --i>=0;)
-                                if (Double.doubleToLongBits(row1[i]) !=
-                                    Double.doubleToLongBits(row2[i])) return false;
-                        }
+                        if (!Arrays.equals(row1, row2)) return false;
                     }
                     return true;
                 }
