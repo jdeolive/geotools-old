@@ -42,10 +42,10 @@ import java.awt.geom.AffineTransform;
  * over a geometry collection. It can be seen as a composite, since
  * uses in fact other, simpler iterator to work.
  *
- * @version $Id: GeomCollectionIterator.java,v 1.1 2003/02/09 09:49:15 aaime Exp $
+ * @version $Id: GeomCollectionIterator.java,v 1.2 2003/02/12 20:15:04 aaime Exp $
  * @author Andrea Aime
  */
-public class GeomCollectionIterator implements PathIterator {
+class GeomCollectionIterator implements PathIterator {
     private AffineTransform at;
     private Geometry[] geoms;
     private int currentGeom = 0;

@@ -41,10 +41,10 @@ import java.awt.geom.AffineTransform;
  * A path iterator for the LiteShape class, specialized to iterate
  * over LineString object. 
  *
- * @version $Id: LineIterator.java,v 1.1 2003/02/09 09:49:15 aaime Exp $
+ * @version $Id: LineIterator.java,v 1.2 2003/02/12 20:15:06 aaime Exp $
  * @author Andrea Aime
  */
-public class LineIterator implements PathIterator {
+class LineIterator implements PathIterator {
     private AffineTransform at;
     private int currentCoord = 0;
     private Coordinate[] coords = null;
