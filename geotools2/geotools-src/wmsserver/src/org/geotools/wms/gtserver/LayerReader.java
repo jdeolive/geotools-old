@@ -1,3 +1,22 @@
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
+ */
 package org.geotools.wms.gtserver;
 
 import java.util.*;
@@ -17,8 +36,13 @@ import org.geotools.data.DataSource;
 import org.geotools.shapefile.Shapefile;
 import org.geotools.shapefile.ShapefileDataSource;
 
-/** Reads the layers defined in the layers.xml file and exposes them for use in an app.
+/**
+ * Reads the layers defined in the layers.xml file and exposes them for use
+ * in an application.
  * Call read() to read all the layers.
+ *
+ * @version $Id: LayerReader.java,v 1.2 2002/07/15 17:09:59 loxnard Exp $
+ * @author Ray Gallagher
  */
 public class LayerReader extends DefaultHandler
 {
@@ -26,7 +50,8 @@ public class LayerReader extends DefaultHandler
 	// Use the xerces parser
 	public static String parserName = "org.apache.xerces.parsers.SAXParser";
 	
-	// Variables for the current parsing operation (parser is assumed to be synchronized)
+	// Variables for the current parsing operation (parser is assumed
+        // to be synchronized)
 	public Vector layers;
 	public LayerEntry currentLayer;
 	public String currentTag = "";
@@ -41,6 +66,7 @@ public class LayerReader extends DefaultHandler
 	public static final String ATTRIB_NAME = "name";
 	public static final String ATTRIB_VALUE = "value";
 
+
 	public LayerReader()
 	{
 		try
@@ -53,12 +79,14 @@ public class LayerReader extends DefaultHandler
 		}
 		catch(Exception exp)
 		{
-			System.out.println("Exception "+exp.getClass().getName()+" initializing LayerReader : "+exp.getMessage());
-//			exp.printStackTrace();
+			System.out.println("Exception " + exp.getClass().getName() +
+                                           " initializing LayerReader : " + exp.getMessage());
+                        //exp.printStackTrace();
 		}
 	}
 	
-	/** Reads the layers.xml file stream 
+	/**
+         * Reads the layers.xml file stream.
 	 */
 	public LayerEntry [] read(InputStream is) 
 	{
@@ -69,17 +97,17 @@ public class LayerReader extends DefaultHandler
 		}
 		catch(IOException ioexp)
 		{
-			System.out.println("IOException reading layers : "+ioexp.getMessage());
+			System.out.println("IOException reading layers : " + ioexp.getMessage());
 			ioexp.printStackTrace();
 		}
 		catch(SAXException saxexp)
 		{
-			System.out.println("SAXException reading layers : "+saxexp.getMessage());
+			System.out.println("SAXException reading layers : " + saxexp.getMessage());
 			saxexp.printStackTrace();
 		}
 		
 		// Return the result of the parse
-		if (layers!=null)
+		if (layers != null)
 			return (LayerEntry[])layers.toArray(new LayerEntry[layers.size()]);
 		else
 			return null;
@@ -95,10 +123,11 @@ public class LayerReader extends DefaultHandler
 		currentLayer = null;
     } 
 
+
     /** Start element. */
     public void startElement(String uri, String localName, String qName, Attributes attrs) 
     {
-    	currentTag = currentTag+"/"+localName;
+    	currentTag = currentTag + "/" + localName;
 		System.out.println(currentTag);    	
     	// <layer> tag
     	if (currentTag.equalsIgnoreCase(TAG_LAYER))
@@ -114,19 +143,23 @@ public class LayerReader extends DefaultHandler
 		}
 		// <param> tag
 		if (currentTag.equalsIgnoreCase(TAG_PARAM))
-			currentLayer.properties.setProperty(attrs.getValue(ATTRIB_NAME), attrs.getValue(ATTRIB_VALUE));
+			currentLayer.properties.setProperty(attrs.getValue(ATTRIB_NAME),
+                                                            attrs.getValue(ATTRIB_VALUE));
     }
-    /** Characters. */
+
+    /** Characters. */
     public void characters(char ch[], int start, int length) 
     {
     	if (currentTag.equalsIgnoreCase(TAG_DESCRIPTION))
     		currentLayer.description = new String(ch, start, length);
     } 
 
+
     /** Ignorable whitespace. */
     public void ignorableWhitespace(char ch[], int start, int length) 
     {
     }
+
 
     /** End element. */
     public void endElement(String uri, String localName, String qName) 
@@ -138,8 +171,10 @@ public class LayerReader extends DefaultHandler
     		currentLayer = null;
     	}
 
-    	currentTag = currentTag.substring(0, currentTag.length()-localName.length()-1);
+
+    	currentTag = currentTag.substring(0, currentTag.length() - localName.length() - 1);
     }
+
 
     /** End document. */
     public void endDocument() 
@@ -150,21 +185,21 @@ public class LayerReader extends DefaultHandler
     
     /** Warning. */
     public void warning(SAXParseException ex) {
-        System.err.println("[Warning] "+
-                           ex.getMessage());
+        System.err.println("[Warning] " + ex.getMessage());
     }
+
 
     /** Error. */
     public void error(SAXParseException ex) {
-        System.err.println("[Error] "+
-                           ex.getMessage());
+        System.err.println("[Error] "+ ex.getMessage());
     }
+
 
     /** Fatal error. */
     public void fatalError(SAXParseException ex) throws SAXException {
-        System.err.println("[Fatal Error] "+
-                           ex.getMessage());
+        System.err.println("[Fatal Error] " + ex.getMessage());
         throw ex;
     }    
 }
+
 
