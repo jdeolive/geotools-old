@@ -41,6 +41,9 @@ import java.awt.geom.Rectangle2D;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.text.FieldPosition;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
 
 // Miscellaneous
 import java.util.Locale;
@@ -54,6 +57,9 @@ import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.ProjectedCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
+import org.geotools.ct.CoordinateTransformationFactory;
+import org.geotools.ct.CannotCreateTransformException;
+import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.TransformException;
 import org.geotools.resources.Utilities;
 
@@ -69,7 +75,7 @@ import org.geotools.resources.Utilities;
  * which can be changed dynamically (i.e. the shapes can be reprojected). Futhermore,
  * <code>GeoShape</code>s can compress and share their data in order to reduce memory footprint.
  *
- * @version $Id: GeoShape.java,v 1.1 2003/01/13 10:02:12 desruisseaux Exp $
+ * @version $Id: GeoShape.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GeoShape implements Shape, Cloneable, Serializable {
@@ -78,6 +84,11 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
      * bathymétries enregistrées sous d'anciennes versions.
      */
     private static final long serialVersionUID = 1447796611034908887L;
+
+    /**
+     * The logger for the renderer module.
+     */
+    static final Logger LOGGER = Logger.getLogger("org.geotools.renderer");
 
     /**
      * Nom de cette forme. Il s'agit en général d'un nom géographique, par exemple
@@ -154,6 +165,40 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
      */
     public abstract void setCoordinateSystem(final CoordinateSystem coordinateSystem)
             throws TransformException;
+
+    /**
+     * Retourne une transformation identitée pour le système de coordonnées
+     * spécifié, ou <code>null</code> si <code>coordinateSystem</code> est nul.
+     *
+     * @param  coordinateSystem The coordinate system, or <code>null</code>.
+     * @return An identity transformation from and to <code>coordinateSystem</code>,
+     *         or <code>null</code>.
+     */
+    static CoordinateTransformation getIdentityTransform(final CoordinateSystem coordinateSystem) {
+        if (coordinateSystem != null) try {
+            return getCoordinateTransformation(coordinateSystem, coordinateSystem);
+        } catch (CannotCreateTransformException exception) {
+            // Should not happen; we are just asking for an identity transform!
+            Utilities.unexpectedException("org.geotools.renderer", "GeoShape",
+                                          "getIdentityTransform", exception);
+        }
+        return null;
+    }
+
+    /**
+     * Construct a transform from two coordinate systems.
+     *
+     * @param  sourceCS The source coordinate system.
+     * @param  targetCS The target coordinate system.
+     * @return A transformation from <code>sourceCS</code> to <code>targetCS</code>.
+     */
+    static CoordinateTransformation getCoordinateTransformation(final CoordinateSystem sourceCS,
+                                                                final CoordinateSystem targetCS)
+            throws CannotCreateTransformException
+    {
+        return CoordinateTransformationFactory.getDefault()
+                    .createFromCoordinateSystems(sourceCS, targetCS);
+    }
 
     /**
      * Determines whetever this shape is empty.

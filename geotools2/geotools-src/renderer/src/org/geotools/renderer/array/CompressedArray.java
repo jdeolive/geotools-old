@@ -39,10 +39,9 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
- * Tableaux de points compressés. Les objets
- * de cette classe sont immutables.
+ * Tableaux de points compressés. Les objets de cette classe sont immutables.
  *
- * @version $Id: CompressedArray.java,v 1.1 2003/01/10 23:08:46 desruisseaux Exp $
+ * @version $Id: CompressedArray.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CompressedArray extends PointArray {
@@ -200,6 +199,15 @@ class CompressedArray extends PointArray {
      */
     public final int count() {
         return (upper()-lower())/2;
+    }
+
+    /**
+     * Returns an estimation of memory usage in bytes. This method count 2 bytes for each
+     * (x,y) points plus 20 bytes for the internal fields (the {@link #array}, {@link #x0},
+     * {@link #y0}, {@link #scaleX} and {@link #scaleY} fields).
+     */
+    public long getMemoryUsage() {
+        return 2*count() + 20;
     }
 
     /**

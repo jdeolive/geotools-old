@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.renderer;
+package org.geotools.renderer.j2d;
 
 // J2SE dependencies
 import java.awt.Shape;
@@ -53,25 +53,16 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
- * Base class for renderer engines.
+ * A default renderer for Java2D. Rendering are done in a {@link Graphics2D} object.
  *
- * @version $Id: AbstractRenderer.java,v 1.2 2003/01/14 23:10:44 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.1 2003/01/20 00:06:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class AbstractRenderer {
+public class Renderer {
     /**
-     * The logger for the renderer module.
+     * The logger for the Java2D renderer module.
      */
-    static final Logger LOGGER = Logger.getLogger("org.geotools.renderer");
-
-    /**
-     * A default instance to be used by {@link Polygon}.
-     *
-     * @task REVISIT: {@link Poylgon} should be able to access to some real instance of
-     *                {@link AbstractRenderer}, but how to give it to him? We don't want
-     *                to add {@link AbstractRenderer} arguments to {@link Polygon}'s methods.
-     */
-    static final AbstractRenderer DEFAULT = new AbstractRenderer();
+    static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.j2d");
 
     /**
      * A set of rendering hints. Recognized hints include
@@ -106,7 +97,7 @@ final class AbstractRenderer {
      * Construct a new renderer using the {@linkplain GeographicCoordinateSystem#WGS84
      * WGS84} coordinate system.
      */
-    public AbstractRenderer() {
+    public Renderer() {
         this(GeographicCoordinateSystem.WGS84);
     }
 
@@ -116,7 +107,7 @@ final class AbstractRenderer {
      * @param cs The view coordinate system. If this coordinate system has
      *           more than 2 dimensions, only the 2 first will be retained.
      */
-    public AbstractRenderer(final CoordinateSystem cs) {
+    public Renderer(final CoordinateSystem cs) {
         coordinateSystem = CTSUtilities.getCoordinateSystem2D(cs);
     }
 
@@ -161,7 +152,7 @@ final class AbstractRenderer {
     /**
      * Returns a rendering hints.
      *
-     * @param  key The hint key (e.g. Hints#COORDINATE_TRANSFORMATION_FACTORY).
+     * @param  key The hint key (e.g. {@link Hints#COORDINATE_TRANSFORMATION_FACTORY}).
      * @return The hint value for the specified key.
      *
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
@@ -174,90 +165,24 @@ final class AbstractRenderer {
      * Add a rendering hints. Hints provides optional information used by some
      * rendering code.
      *
-     * @param key   The hint key (e.g. Hints#COORDINATE_TRANSFORMATION_FACTORY).
+     * @param key   The hint key (e.g. {@link Hints#COORDINATE_TRANSFORMATION_FACTORY}).
      * @param value The hint value.
      *
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      */
     public void setRenderingHints(final RenderingHints.Key key, final Object value) {
         hints.put(key, value);
-    }
-
-    /**
-     * Paint the specified {@linkplain Isoline isoline} to this renderer.
-     * This method is faster than <code>graphics.draw(this)</code> since it reuse
-     * internal cache when possible.   However, since it may change the isoline's
-     * resolution, this method should not be invoked on user's isoline. It should
-     * be invoked on cloned isoline instead  (remind: cloned isolines share their
-     * data, so the memory overhead is keep low).
-     *
-     * @param  isoline The isoline to paint.
-     * @param  clip The clip area in the renderer's coordinates.
-     * @param  resolution The rendering resolution, in units of this renderer's
-     *         coordinate system (usually metres or degrees). A larger resolution
-     *         speed up rendering, while a smaller resolution draw more precise map.
-     *
-     * @task TODO: This method will move in <code>AbstractRenderedIsoline</code> soon.
-     */
-    protected void paint(final Isoline isoline, final Shape clip, final float resolution) {
-        isoline.paint(this, clip, resolution);
-    }
-
-    /**
-     * Paint an polygon. This method is automatically invoked by
-     * {@link #paint(Isoline, Shape, float)} for each polygon to renderer.
-     *
-     * @task TODO: This method will move in <code>AbstractRenderedIsoline</code> soon.
-     *             This method will be made abstract.
-     */
-    protected void paint(Polygon polygon) {
-    }
-
-    /**
-     * Retourne une transformation identitée pour le système de coordonnées
-     * spécifié, ou <code>null</code> si <code>coordinateSystem</code> est nul.
-     *
-     * @param  coordinateSystem The coordinate system, or <code>null</code>.
-     * @return An identity transformation from and to <code>coordinateSystem</code>,
-     *         or <code>null</code>.
-     */
-    final CoordinateTransformation getIdentityTransform(final CoordinateSystem coordinateSystem) {
-        if (coordinateSystem != null) try {
-            return getCoordinateTransformation(coordinateSystem, coordinateSystem);
-        } catch (CannotCreateTransformException exception) {
-            // Should not happen; we are just asking for an identity transform!
-            Utilities.unexpectedException("org.geotools.renderer", "AbstractRenderer",
-                                          "getIdentityTransform", exception);
+        if (Hints.COORDINATE_TRANSFORMATION_FACTORY.equals(key)) {
+            commonestTransform = null;
         }
-        return null;
     }
 
     /**
      * Construct a transform from two coordinate systems. If a {@link
      * Hints#COORDINATE_TRANSFORMATION_FACTORY} has been provided, the
      * specified {@link CoordinateTransformationFactory} will be used.
-     *
-     * @param  sourceCS The source coordinate system.
-     * @param  targetCS The target coordinate system.
-     * @return A transformation from <code>sourceCS</code> to <code>targetCS</code>.
-     */
-    final CoordinateTransformation getCoordinateTransformation(final CoordinateSystem sourceCS,
-                                                               final CoordinateSystem targetCS)
-        throws CannotCreateTransformException
-    {
-        Object property = hints.get(Hints.COORDINATE_TRANSFORMATION_FACTORY);
-        final CoordinateTransformationFactory factory;
-        if (property instanceof CoordinateTransformationFactory) {
-            factory = (CoordinateTransformationFactory) property;
-        } else {
-            factory = CoordinateTransformationFactory.getDefault();
-        }
-        return factory.createFromCoordinateSystems(sourceCS, targetCS);
-    }
-
-    /**
-     * Construct a transform from two coordinate systems and log a message to the logger.
-     * This is used to trace down the amount of coordinate transformations created.
+     * A message is logged in order to trace down the amount of coordinate
+     * transformations created.
      *
      * @param  sourceCS The source coordinate system.
      * @param  targetCS The target coordinate system.
@@ -269,15 +194,39 @@ final class AbstractRenderer {
                                                                final CoordinateSystem targetCS,
                                                                final String sourceClassName,
                                                                final String sourceMethodName)
-        throws CannotCreateTransformException
+            throws CannotCreateTransformException
     {
+        /*
+         * Copy 'commonestTransform' reference (protect it from change, in order to avoid
+         * the need for synchronisation).  Then, check if 'commonestTransform' could work
+         * for the specified CS.
+         */
+        final CoordinateTransformation commonestTransform = this.commonestTransform;
+        if (commonestTransform != null) {
+            if (sourceCS.equivalents(commonestTransform.getSourceCS()) &&
+                targetCS.equivalents(commonestTransform.getTargetCS()))
+            {
+                return commonestTransform;
+            }
+        }
+        /*
+         * Construct the new transform using the specified factory,
+         * if one has been explicitely set as rendering hint.
+         */
+        Object property = hints.get(Hints.COORDINATE_TRANSFORMATION_FACTORY);
+        final CoordinateTransformationFactory factory;
+        if (property instanceof CoordinateTransformationFactory) {
+            factory = (CoordinateTransformationFactory) property;
+        } else {
+            factory = CoordinateTransformationFactory.getDefault();
+        }
         final LogRecord record = Resources.getResources(null).getLogRecord(Level.FINER,
                                            ResourceKeys.INITIALIZING_TRANSFORMATION_$2,
                                            toString(sourceCS), toString(targetCS));
         record.setSourceClassName (sourceClassName);
         record.setSourceMethodName(sourceMethodName);
         LOGGER.log(record);
-        return getCoordinateTransformation(sourceCS, targetCS);
+        return factory.createFromCoordinateSystems(sourceCS, targetCS);
     }
 
     /**

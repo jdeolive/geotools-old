@@ -40,7 +40,7 @@ import org.geotools.resources.renderer.ResourceKeys;
 /**
  * Classe enveloppant une portion seulement d'un tableau {@link CompressedArray}.
  *
- * @version $Id: SubCompressedArray.java,v 1.1 2003/01/10 23:08:46 desruisseaux Exp $
+ * @version $Id: SubCompressedArray.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class SubCompressedArray extends CompressedArray {
@@ -100,5 +100,14 @@ final class SubCompressedArray extends CompressedArray {
      */
     protected final int upper() {
         return upper;
+    }
+
+    /**
+     * Returns an estimation of memory usage in bytes. This method returns the same value
+     * than {@link CompressedArray#getMemoryUsage} plus 8 bytes for the internal fields
+     * (the {@link #lower} and {@link #upper} fields).
+     */
+    public long getMemoryUsage() {
+        return super.getMemoryUsage() + 8;
     }
 }

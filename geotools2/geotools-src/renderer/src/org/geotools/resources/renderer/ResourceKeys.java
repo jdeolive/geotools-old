@@ -26,6 +26,7 @@ public interface ResourceKeys
     public static final int ELEVATION                                =     5;
     public static final int FLAT                                     =     6;
     public static final int INITIALIZING_TRANSFORMATION_$2           =     3;
+    public static final int PAINTING_$2                              =    10;
     public static final int REBUILD_CACHE_ARRAY_$3                   =     9;
 
     public static final int WARNING_EXCESSIVE_MEMORY_USAGE           =     7;

@@ -96,16 +96,20 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 /**
  * A single polygon. Each <code>Polygon</code> object can have its own {@link CoordinateSystem}
- * object, usually specified at construction time. A set of polygons can be built from an array of
- * (<var>x</var>,<var>y</var>) coordinates using the {@link #getInstances(float[],CoordinateSystem)}
- * factory method. <em>Those points should not contains map border</em>. Border points (orange
- * points in the figure below) are treated specially and must be specified using
- * {@link #appendBorder} or {@link #prependBorder} methods.
+ * object, usually specified at construction time. A set of polygons can be built from an array
+ * of (<var>x</var>,<var>y</var>) coordinates or from a geometric shape using one of
+ * {@link #getInstances(float[],CoordinateSystem) getInstances(...)} factory methods.
+ * <strong>Points given to factory methods should not contains map border.</strong>
+ * Border points (orange points in the figure below) are treated specially and must
+ * be specified using {@link #appendBorder appendBorder(...)} or
+ * {@link #prependBorder prependBorder(...)} methods.
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polygon.java,v 1.2 2003/01/14 23:10:44 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see Isoline
  */
 public class Polygon extends GeoShape {
     /**
@@ -118,7 +122,7 @@ public class Polygon extends GeoShape {
      * Projection à utiliser pour les calculs qui
      * exigent un système de coordonnées cartésien.
      */
-    private static final String CARTESIAN = "Stereographic";
+    private static final String CARTESIAN_PROJECTION = "Stereographic";
 
     /**
      * Cache vers des objets déjà créés. Cette cache utilise des références faibles pour ne
@@ -137,7 +141,7 @@ public class Polygon extends GeoShape {
     /**
      * The enum value for <code>InteriorType == null</code>.
      */
-    private static final int UNCLOSED = 0;
+    private static final int UNCLOSED = InteriorType.UNCLOSED;
 
     /**
      * Un des maillons de la chaîne de polylignes, ou
@@ -234,12 +238,14 @@ public class Polygon extends GeoShape {
      */
     private Polygon(final CoordinateTransformation coordinateTransform) {
         this.coordinateTransform = coordinateTransform;
-        CoordinateSystem cs;
-        if ((cs=coordinateTransform.getSourceCS()).getDimension() != 2 ||
-            (cs=coordinateTransform.getTargetCS()).getDimension() != 2)
-        {
-            throw new IllegalArgumentException(org.geotools.resources.cts.Resources.format(
-               org.geotools.resources.cts.ResourceKeys.ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1, cs));
+        if (coordinateTransform != null) {
+            CoordinateSystem cs;
+            if ((cs=coordinateTransform.getSourceCS()).getDimension() != 2 ||
+                (cs=coordinateTransform.getTargetCS()).getDimension() != 2)
+            {
+                throw new IllegalArgumentException(org.geotools.resources.cts.Resources.format(
+                   org.geotools.resources.cts.ResourceKeys.ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1, cs));
+            }
         }
     }
 
@@ -250,8 +256,7 @@ public class Polygon extends GeoShape {
      *        points in this polygon, or <code>null</code> if unknow.
      */
     public Polygon(final CoordinateSystem coordinateSystem) {
-        this(AbstractRenderer.DEFAULT.getIdentityTransform(
-             CTSUtilities.getCoordinateSystem2D(coordinateSystem)));
+        this(getIdentityTransform(CTSUtilities.getCoordinateSystem2D(coordinateSystem)));
     }
 
     /**
@@ -315,8 +320,7 @@ public class Polygon extends GeoShape {
     public static Polygon[] getInstances(final float[] data, final CoordinateSystem coordinateSystem) {
         final Polyline[] polylines = Polyline.getInstances(data);
         final Polygon[]  polygons  = new Polygon[polylines.length];
-        final CoordinateTransformation ct = AbstractRenderer.DEFAULT.
-                                            getIdentityTransform(coordinateSystem);
+        final CoordinateTransformation ct = getIdentityTransform(coordinateSystem);
         for (int i=0; i<polygons.length; i++) {
             polygons[i] = new Polygon(ct);
             polygons[i].data = polylines[i];
@@ -340,7 +344,7 @@ public class Polygon extends GeoShape {
         if (shape instanceof Polygon) {
             return new Polygon[] {(Polygon) shape};
         }
-        final CoordinateTransformation ct = AbstractRenderer.DEFAULT.getIdentityTransform(coordinateSystem);
+        final CoordinateTransformation ct = getIdentityTransform(coordinateSystem);
         final List               polygons = new ArrayList();
         final Rectangle2D          bounds = shape.getBounds2D();
         final PathIterator            pit = shape.getPathIterator(null, 0.025*Math.max(bounds.getHeight(), bounds.getWidth()));
@@ -422,17 +426,16 @@ public class Polygon extends GeoShape {
      *
      * @throws CannotCreateTransformException Si la transformation ne peut pas être créée.
      */
-    private CoordinateTransformation getCoordinateTransformation(final CoordinateSystem coordinateSystem)
+    private CoordinateTransformation getCoordinateTransformation(final CoordinateSystem cs)
             throws CannotCreateTransformException
     {
         // copy 'coordinateTransform' reference in order to avoid synchronization
         final CoordinateTransformation coordinateTransform = this.coordinateTransform;
-        if (coordinateSystem!=null && coordinateTransform!=null) {
-            if (coordinateSystem.equals(coordinateTransform.getTargetCS(), false)) {
+        if (cs!=null && coordinateTransform!=null) {
+            if (cs.equals(coordinateTransform.getTargetCS(), false)) {
                 return coordinateTransform;
             }
-            return AbstractRenderer.DEFAULT.getCoordinateTransformation(
-                    coordinateTransform.getSourceCS(), coordinateSystem);
+            return getCoordinateTransformation(coordinateTransform.getSourceCS(), cs);
         }
         return null;
     }
@@ -1098,8 +1101,7 @@ public class Polygon extends GeoShape {
                     // Continue... On va simplement reconstruire le tableau à partir de la base.
                 } else {
                     // Should be uncommon. Doesn't hurt, but may be a memory issue for big polygon.
-                    AbstractRenderer.LOGGER.info(Resources.format(
-                                                 ResourceKeys.WARNING_EXCESSIVE_MEMORY_USAGE));
+                    LOGGER.info(Resources.format(ResourceKeys.WARNING_EXCESSIVE_MEMORY_USAGE));
                     array = null; // {@link #toArray} will allocate a new array.
                 }
             }
@@ -1156,6 +1158,19 @@ public class Polygon extends GeoShape {
      */
     final int getDrawingDecimation() {
         return drawingDecimation;
+    }
+
+    /**
+     * Returns an estimation of memory usage in bytes. This method is for information
+     * purpose only. The memory really used by two polygons may be lower than the sum
+     * of their  <code>getMemoryUsage()</code>  return values, since polylgons try to
+     * share their data when possible. Furthermore, this method do not take in account
+     * the extra bytes generated by Java Virtual Machine for each objects.
+     *
+     * @return An <em>estimation</em> of memory usage in bytes.
+     */
+    final synchronized long getMemoryUsage() {
+        return Polyline.getMemoryUsage(data);
     }
 
     /**
@@ -1395,16 +1410,16 @@ public class Polygon extends GeoShape {
      * Close and freeze this polygon. After closing it,
      * no more points can be added to this polygon.
      *
-     * @param interiorType Tells if this polygon is an elevation (e.g. an island in the middle
-     *        of the sea) or a depression (e.g. a lake in the middle of a continent). If this
-     *        argument doesn't apply, then it can be <code>null</code>.
+     * @param type Tells if this polygon is an elevation (e.g. an island in the middle
+     *        of the sea) or a depression (e.g. a lake in the middle of a continent).
+     *        If this argument doesn't apply, then it can be <code>null</code>.
      *
      * @see #getInteriorType
      */
-    public synchronized void close(final InteriorType interiorType) {
-        data = Polyline.freeze(data, interiorType!=null, false);
-        this.interiorType = (interiorType!=null) ? (byte) interiorType.getValue() : UNCLOSED;
-        this.cache = null;
+    public synchronized void close(final InteriorType type) {
+        data = Polyline.freeze(data, type!=null, false);
+        interiorType = (byte) InteriorType.getValue(type);
+        cache = null;
     }
 
     /**
@@ -1428,12 +1443,13 @@ public class Polygon extends GeoShape {
     
     /**
      * Return a polygons with the point of this polygons from <code>lower</code>
-     * inclusive to <code>upper</code> exclusive. The returned polygon will not be
-     * closed, i.e. <code>{@link #getinteriorType}==null</code>.
-     * If no data are available in the specified range, this method return <code>null</code>.
+     * inclusive to <code>upper</code> exclusive. The returned polygon may not be
+     * closed, i.e. {@link #getInteriorType} may returns <code>null</code>.
+     * If no data are available in the specified range, this method returns
+     * <code>null</code>.
      */
     public synchronized Polygon subpoly(final int lower, final int upper) {
-        final Polyline sub=Polyline.subpoly(data, lower, upper);
+        final Polyline sub = Polyline.subpoly(data, lower, upper);
         if (sub == null) {
             return null;
         }
@@ -1441,7 +1457,7 @@ public class Polygon extends GeoShape {
             return this;
         }
         final Polygon subPoly = new Polygon(coordinateTransform);
-        subPoly.data=sub;
+        subPoly.data = sub;
         assert subPoly.getPointCount() == (upper-lower);
         return subPoly;
     }
@@ -1489,7 +1505,8 @@ public class Polygon extends GeoShape {
             final Rectangle2D    bounds = getCachedBounds();
             final Point2D        center = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
             final Ellipsoid   ellipsoid = geoCS.getHorizontalDatum().getEllipsoid();
-            final Projection projection = new Projection("Generated", CARTESIAN, ellipsoid, center, null);
+            final Projection projection = new Projection("Generated", CARTESIAN_PROJECTION,
+                                                         ellipsoid, center, null);
             targetCS = new ProjectedCoordinateSystem("Generated", geoCS, projection);
         }
         Polyline.setResolution(data, getCoordinateTransformation(targetCS), resolution);
@@ -1497,30 +1514,44 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Compresse les données de ce polygone.     La compression peut entraîner une légère
-     * baisse de la précision des points. Avant d'effectuer la compression, cette méthode
-     * modifiera la résolution du polygone  en  interpollant les points à une distance de
-     * <code>dx&nbsp;+&nbsp;factor*std</code>, ou <var>dx</var> est la résolution moyenne
-     * du polygone ({@link #getResolution})  et  <var>std</var> est la déviation standard
-     * de cette résolution.
+     * Compress this polygon. Compression is destructive, i.e. it may lost data. This method
+     * process in two steps:
+     *
+     * First, it invokes <code>{@link #setResolution setResolution}(dx&nbsp;+&nbsp;factor*std)</code>
+     * where <var>dx</var> is the {@linkplain #getResolution mean resolution} of this
+     * polygon and <var>std</var> is the resolution's standard deviation.
+     *
+     * Second, it replace absolute positions (left handed image) by relative positions
+     * (right handed image), i.e. distances relative to the previous point.  Since all
+     * distances are of similar magnitude, distances can be coded in <code>byte</code>
+     * primitive type instead of <code>float</code>.
+     *
+     * <table cellspacing='12'><tr>
+     * <td><p align="center"><img src="doc-files/uncompressed.png"></p></td>
+     * <td><p align="center"><img src="doc-files/compressed.png"></p></td>
+     * </tr></table>
      *
      * @param  factor Facteur contrôlant la baisse de résolution.  Les valeurs élevées
      *         déciment davantage de points, ce qui réduit d'autant la consommation de
      *         mémoire. Ce facteur est généralement positif, mais il peut aussi être 0
      *         où même légèrement négatif.
-     * @return Un pourcentage estimant la baisse de résolution. Par exemple la valeur 0.2
-     *         indique que la distance moyenne entre deux points a augmenté d'environ 20%.
+     * @return A <em>estimation</em> of the compression rate. For example a value of 0.2
+     *         means that the new polygon use <em>approximatively</em> 20% less memory.
+     *         Warning: this value may be inacurate, for example if the old polygon was
+     *         used to shares its data with an other polygon, compressing one polygon
+     *         may actually increase memory usage since the two polygons will no longer
+     *         share their data.
      * @throws TransformException Si une erreur est survenue lors d'une projection cartographique.
      */
     public synchronized float compress(final float factor) throws TransformException {
         final Statistics stats = Polyline.getResolution(data, coordinateTransform);
         if (stats != null) {
-            final double resolution = stats.mean();
-            final double newResolution = resolution + factor*stats.standardDeviation(false);
-            if (newResolution > 0) {
-                setResolution(newResolution);
+            final long  memoryUsage = getMemoryUsage();
+            final double resolution = stats.mean() + factor*stats.standardDeviation(false);
+            if (resolution > 0) {
+                setResolution(resolution);
                 data = Polyline.freeze(data, false, true); // Apply the compression algorithm
-                return (float) (1-(resolution/getResolution()));
+                return (float) (memoryUsage - getMemoryUsage()) / (float) memoryUsage;
             }
             data = Polyline.freeze(data, false, false); // No compression
         }
@@ -1792,5 +1823,45 @@ public class Polygon extends GeoShape {
             buffer.append(lineSeparator);
             out.write(buffer.toString());
         } while (hasNext);
+    }
+
+
+
+
+    /**
+     * This interface defines the method required by any object that
+     * would like to be a renderer for polygons in an {@link Isoline}.
+     * The {@link #paint} method is invoked by {@link Isoline#paint}.
+     *
+     * @version $Id: Polygon.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     *
+     * @see Isoline#paint
+     * @see org.geotools.renderer.j2d.RenderedIsoline
+     */
+    public static interface Renderer {
+        /**
+         * Returns the clip area in units of the isoline's coordinate system.
+         * This is usually "real world" metres or degrees of latitude/longitude.
+         *
+         * @see Isoline#getCoordinateSystem
+         */
+        public abstract Shape getClip();
+
+        /**
+         * Returns the rendering resolution, in units of the isoline's coordinate system
+         * (usually metres or degrees). A larger resolution speed up rendering, while a
+         * smaller resolution draw more precise map.
+         *
+         * @see Isoline#getCoordinateSystem
+         */
+        public abstract float getResolution();
+
+        /**
+         * Draw or fill a polygon.
+         *
+         * @param polygon The polygon to draw. This object should not be changed.
+         */
+        public abstract void paint(final Polygon polygon);
     }
 }

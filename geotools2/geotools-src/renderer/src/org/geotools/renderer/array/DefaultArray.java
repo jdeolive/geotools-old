@@ -44,7 +44,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * que ce soit. L'implémentation par défaut est imutable. Toutefois, certaines
  * classes dérivées (notamment {@link DynamicArray}) ne le seront pas forcément.
  *
- * @version $Id: DefaultArray.java,v 1.1 2003/01/10 23:08:46 desruisseaux Exp $
+ * @version $Id: DefaultArray.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class DefaultArray extends PointArray {
@@ -93,6 +93,14 @@ class DefaultArray extends PointArray {
      */
     public final int count() {
         return (upper()-lower())/2;
+    }
+
+    /**
+     * Returns an estimation of memory usage in bytes. This method count 8 bytes for each
+     * (x,y) points plus 4 bytes for the internal fields (the {@link #array} reference).
+     */
+    public long getMemoryUsage() {
+        return count()*8 + 4;
     }
 
     /**

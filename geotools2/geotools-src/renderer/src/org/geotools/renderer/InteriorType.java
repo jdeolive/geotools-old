@@ -49,7 +49,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * island on the ocean) or a {@link #DEPRESSION depression} (e.g. the coastline of a
  * lake in an island).
  *
- * @version $Id: InteriorType.java,v 1.1 2003/01/13 22:40:17 desruisseaux Exp $
+ * @version $Id: InteriorType.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class InteriorType extends EnumeratedParameter {
@@ -58,7 +58,10 @@ public final class InteriorType extends EnumeratedParameter {
      */
     private static final long serialVersionUID = -1534788354133047237L;
 
-    // NOTE: value 0 is reserved for 'null' (meaning "do not apply").
+    /**
+     * The enum value for <code>null</code>, which means "do not apply".
+     */
+    static final int UNCLOSED = 0;
     
     /**
      * Constant indicating that a polygon's interior is an elevation.
@@ -86,6 +89,13 @@ public final class InteriorType extends EnumeratedParameter {
     private static final InteriorType[] ENUMS = {
         null, ELEVATION, DEPRESSION, FLAT
     };
+    static {
+        for (int i=0; i<ENUMS.length; i++) {
+            if (getValue(ENUMS[i]) != i) {
+                throw new AssertionError(ENUMS[i]);
+            }
+        }
+    }
     
     /**
      * Resource key, used for building localized name. This key doesn't need to be
@@ -114,6 +124,13 @@ public final class InteriorType extends EnumeratedParameter {
         if (value>=0 && value<ENUMS.length) return ENUMS[value];
         throw new NoSuchElementException(String.valueOf(value));
     }
+
+    /**
+     * Return the value for the specified enum, which may be <code>null</code>.
+     */
+    static int getValue(final InteriorType type) {
+        return (type!=null) ? type.getValue() : UNCLOSED;
+    }
     
     /**
      * Returns this enum's name in the specified locale.
@@ -139,7 +156,7 @@ public final class InteriorType extends EnumeratedParameter {
         int value = getValue();
         if (value<0 || value>=ENUMS.length) {
             // Collapse unknow value to a single canonical one
-            value = 0;
+            value = UNCLOSED;
         }
         return ENUMS[value]; // Canonicalize
     }

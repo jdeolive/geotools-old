@@ -39,7 +39,7 @@ package org.geotools.renderer.array;
  * L'implémentation par défaut de cette classe est imutable. Toutefois, certaines
  * classes dérivées (notamment {@link DynamicArray}) ne le seront pas forcément.
  *
- * @version $Id: SubArray.java,v 1.1 2003/01/10 23:08:46 desruisseaux Exp $
+ * @version $Id: SubArray.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class SubArray extends DefaultArray {
@@ -85,5 +85,14 @@ class SubArray extends DefaultArray {
      */
     protected final int upper() {
         return upper;
+    }
+
+    /**
+     * Returns an estimation of memory usage in bytes. This method returns the same value
+     * than {@link DefaultArray#getMemoryUsage} plus 8 bytes for the internal fields (the
+     * {@link #lower} and {@link #upper} fields).
+     */
+    public long getMemoryUsage() {
+        return super.getMemoryUsage() + 8;
     }
 }

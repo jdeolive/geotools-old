@@ -37,7 +37,7 @@ package org.geotools.renderer.array;
  * Enveloppe un tableau <code>float[]</code> dans
  * lequel des données pourront être ajoutés.
  *
- * @version $Id: DynamicArray.java,v 1.2 2003/01/11 12:17:48 desruisseaux Exp $
+ * @version $Id: DynamicArray.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DynamicArray extends SubArray {
@@ -214,5 +214,15 @@ final class DynamicArray extends SubArray {
             points = points.getFinal(compress);
         }
         return points;
+    }
+
+    /**
+     * Returns an estimation of memory usage in bytes. This method returns the same value
+     * than {@link DefaultArray#getMemoryUsage}. This is not quite correct, since this
+     * method may allocate more memory than needed for growing array. But this method is
+     * just asked for an <em>estimation</em>.
+     */
+    public long getMemoryUsage() {
+        return super.getMemoryUsage();
     }
 }
