@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * filter must implement GMLHandlerJTS in order to receive the JTS objects
  * passed by this filter.</p>
  *
- * @version $Id: GMLFilterFeature.java,v 1.11 2003/02/24 20:28:03 jmacgill Exp $
+ * @version $Id: GMLFilterFeature.java,v 1.12 2003/05/14 20:22:17 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
@@ -111,6 +111,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
 		attributeNames.addElement(attName);
 	    }
 	    attributes.addElement(geometry);
+	    endAttribute();
         //currentFeature.setGeometry(geometry);
 	} else {
 	    // parent.geometry(geometry);
@@ -268,7 +269,21 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
                 attributeNames.add(attName);
                 
             }
-            int index =  attName.lastIndexOf('/');
+	    endAttribute();
+        } else {
+	    parent.endElement(namespaceURI, localName, qName);
+            //_log.debug("end - inside feature");
+            //insideFeature = false;
+
+        }
+    }
+
+    /**
+     * Ends an attribute, by resetting the attribute name and
+     * setting insideAttribute to false.
+     */
+    private void endAttribute() {
+	 int index =  attName.lastIndexOf('/');
             if(index > -1 ){
                 //_log.debug("removing " + attName.substring(index+1));
                 attName = attName.substring(0,index);
@@ -277,11 +292,5 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
             }
             //_log.debug("attName now equals " + attName);
             insideAttribute = false;
-        } else {
-	    parent.endElement(namespaceURI, localName, qName);
-            //_log.debug("end - inside feature");
-            //insideFeature = false;
-
-        }
     }
 }
