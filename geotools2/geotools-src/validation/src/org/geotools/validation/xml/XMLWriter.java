@@ -58,7 +58,7 @@ import java.util.Map;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: XMLWriter.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
+ * @version $Id: XMLWriter.java,v 1.3 2004/04/07 17:49:10 dmzwiers Exp $
  */
 public class XMLWriter {
     public static void writePlugIn(PlugInDTO dto, Writer w) {
@@ -179,6 +179,7 @@ public class XMLWriter {
                 cw.textTag("name", dto.getName());
                 cw.writeln(ArgHelper.getArgumentEncoding(dto.getValue()));
             } catch (Exception e) {
+            	// do nothing, just don't write it out
                 e.printStackTrace();
 
                 // error log it;
