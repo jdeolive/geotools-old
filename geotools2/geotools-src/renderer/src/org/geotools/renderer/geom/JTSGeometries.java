@@ -60,7 +60,7 @@ import org.geotools.renderer.array.JTSArray;
  * A geometry collection backed by one or many JTS
  * {@link com.vividsolutions.jts.geom.Geometry} objects.
  *
- * @version $Id: JTSGeometries.java,v 1.8 2003/11/18 14:26:28 desruisseaux Exp $
+ * @version $Id: JTSGeometries.java,v 1.9 2004/02/05 16:00:33 aaime Exp $
  * @author Martin Desruisseaux
  */
 public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection {
@@ -177,7 +177,7 @@ public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection
     private Polyline toPolyline(final LineString geometry) {
         final Coordinate[] coords = geometry.getCoordinates();
         final Polyline polyline = new Polyline(new JTSArray(coords), getCoordinateSystem(geometry));
-        if (geometry.isRing()) {
+        if (coords[0].equals(coords[coords.length - 1])) {
             polyline.close();
         }
         return polyline;
