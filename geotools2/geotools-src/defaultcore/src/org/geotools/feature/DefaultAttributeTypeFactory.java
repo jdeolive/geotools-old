@@ -16,7 +16,7 @@
  */
 package org.geotools.feature;
 
-import org.geotools.cs.CoordinateSystem;
+import org.opengis.sc.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -24,7 +24,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Factory for creating DefaultAttributeTypes.
  *
  * @author Ian Schneider
- * @version $Id: DefaultAttributeTypeFactory.java,v 1.8 2003/12/19 00:23:37 jive Exp $
+ * @version $Id: DefaultAttributeTypeFactory.java,v 1.9 2003/12/19 00:38:22 jive Exp $
  */
 public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
     /**
@@ -79,8 +79,8 @@ public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
         return new DefaultAttributeType(name, clazz, isNillable,fieldLength,defaultValue);
     }
     protected AttributeType createAttributeType( String name, Class clazz, boolean isNillable, int fieldLength, Object defaultValue, Object metaData ){
-        if( Geometry.class.isAssignableFrom( clazz) && metaData instanceof CoordinateSystem ){
-            return createAttributeType( name, clazz, isNillable, fieldLength, defaultValue, (CoordinateSystem) metaData );
+        if( Geometry.class.isAssignableFrom( clazz) && metaData instanceof CoordinateReferenceSystem ){
+            return createAttributeType( name, clazz, isNillable, fieldLength, defaultValue, (CoordinateReferenceSystem) metaData );
         }
         else {
             return createAttributeType( name, clazz, isNillable, fieldLength, defaultValue );
