@@ -2,22 +2,18 @@
 	Geotools2
 	=========
 
-Thank you for downloading the GeoTools2 development snapshot.  This is not an official release,
-but rather an almost direct grab of the source code as it stood on a recent date. 
+Thank you for downloading the GeoTools 2.0 Beta 1.  
 
-There is now sufficient code in a stable condition to warrant more general availability.  The
-j2se-demos and svgsupport modules, in particular, contain code which actually does something useful.  
+There is now sufficient code in a stable condition to warrant more general availability.  
 
-For information on building geotools2, see the guide in the gtbuild module in geotools-src
-(geotools-src/gt-build/www/howto-build.html).  For a more general overview of the development
-process, see the Developers Guide, the most recent copy of which can be viewed by using the
-following link at the end of this document
+For an overview of the development process and how to build GT2, see the Developers Guide, the most recent copy of
+which can be viewed by using the link at the end of this document.
 
 There are a number of apsects of this code which are undergoing active change, some at a quite
-fundamental level, so expect classes to be renamed or to disappear completely in future snapshots.
+fundamental level, so expect classes to be renamed or to disappear completely in future betas.
 
-If you would like to become more involved in the development of GeoTools2, or even if you would
-like to keep up-to-date without waiting for new snapshots, then you should look into setting up
+If you would like to become more involved in the development of GeoTools2, or if you would
+like to keep up-to-date without waiting for new releases, then you should look into setting up
 CVS on your computer.  Using CVS will allow you to see the source code in the same way as
 developers do and it will allow you to receive updates as often as you like.
 
@@ -60,10 +56,6 @@ The GeoTools2 development team.
 
 
 ----
-The following link generates the developers guide from the latest docbook source,
-appologies for the length of the link, a better solution will be available soon.
-
-http://www.cartesia.org/data/docbook/docbook.php?xml=http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/geotools/geotools2/geotools-src/developersguide/xdocs/developersguide.sgml&imgUrl=http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/geotools/geotools2/geotools-src/developersguide/xdocs/
-
-  
+The following link points to a recent build of the geotools 2 dev guide:
+http://www.geotools.org/gt2docs/
 
