@@ -105,16 +105,19 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         loadFeatures(sds);
         
         FeatureWriter writer = sds.getFeatureWriter(sds.getTypeNames()[0],Filter.NONE, Transaction.AUTO_COMMIT);
-        while (writer.hasNext()) {
-            Feature feat = writer.next();
-            Byte b = (Byte) feat.getAttribute(1);
-            if (b.byteValue() % 2 == 0) {
-               writer.remove();
-            } else {
-               feat.setAttribute(1,new Byte( (byte) -1));
+        try {
+            while (writer.hasNext()) {
+                Feature feat = writer.next();
+                Byte b = (Byte) feat.getAttribute(1);
+                if (b.byteValue() % 2 == 0) {
+                    writer.remove();
+                } else {
+                    feat.setAttribute(1,new Byte( (byte) -1));
+                }
             }
+        }finally {
+            writer.close();
         }
-        writer.close();
         FeatureCollection fc = loadFeatures(sds);
         
         assertEquals(10,fc.size());
@@ -133,10 +136,14 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         int idx = loadFeatures(sds).size();
         
         while (idx > 0) {
-            FeatureWriter writer = sds.getFeatureWriter(sds.getTypeNames()[0],Filter.NONE, Transaction.AUTO_COMMIT);    
-            writer.next();
-            writer.remove();
-            writer.close();
+            FeatureWriter writer = sds.getFeatureWriter(sds.getTypeNames()[0],Filter.NONE, Transaction.AUTO_COMMIT);
+            try {
+                writer.next();
+                writer.remove();
+            }
+            finally {
+                writer.close();
+            }
             assertEquals(--idx,loadFeatures(sds).size());
         }
     }
@@ -151,12 +158,16 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
         int idx = loadFeatures(sds).size();
         
         while (idx > 0) {
-            FeatureWriter writer = sds.getFeatureWriter(sds.getTypeNames()[0],Filter.NONE, Transaction.AUTO_COMMIT);    
-            while (writer.hasNext()) {
-                writer.next();
+            FeatureWriter writer = sds.getFeatureWriter(sds.getTypeNames()[0],Filter.NONE, Transaction.AUTO_COMMIT);
+            try {
+                while (writer.hasNext()) {
+                    writer.next();
+                }
+                writer.remove();
             }
-            writer.remove();
-            writer.close();
+            finally {
+                writer.close();
+            }
             assertEquals(--idx,loadFeatures(sds).size());
         }
     }
