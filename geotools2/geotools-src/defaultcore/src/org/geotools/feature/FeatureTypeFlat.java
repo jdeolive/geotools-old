@@ -24,6 +24,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 // J2SE dependencies
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // Geotools dependencies
@@ -44,7 +45,7 @@ import org.geotools.data.*;
  * @task TODO: Rethink getDefaultGeometry, as we now allow more than one
  * geometry.  Which one is the default?  Currently the first in the array of
  * attributes will be default.
- * @version $Id: FeatureTypeFlat.java,v 1.22 2003/02/12 20:35:51 aaime Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.23 2003/03/12 07:33:38 aaime Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat 
@@ -345,7 +346,8 @@ public class FeatureTypeFlat
      */
     public FeatureType setAttributeType(AttributeType attribute)
                                  throws SchemaException {
-        LOGGER.finest("got attribute: " + attribute.toString());
+        if(LOGGER.isLoggable(Level.FINEST))                             
+            LOGGER.finest("got attribute: " + attribute.toString());
 
         FeatureTypeFlat schemaCopy = (FeatureTypeFlat) this.clone();
 
@@ -508,12 +510,13 @@ public class FeatureTypeFlat
      * no geometry.
      */
       public AttributeType getDefaultGeometry() {
-        LOGGER.finer("geometry Position = " + geometryPosition);
-	if (geometryPosition == -1) {
-	    return null;
-	} else {
-        return this.attributeTypes[geometryPosition];
-	}
+        if(LOGGER.isLoggable(Level.FINEST)) 
+            LOGGER.finer("geometry Position = " + geometryPosition);
+        if (geometryPosition == -1) {
+	       return null;
+	    } else {
+           return this.attributeTypes[geometryPosition];
+	    }
     }
 
     /**
