@@ -9,16 +9,26 @@ package org.geotools.data.pickle;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
 import org.geotools.feature.*;
+import java.util.Set;
 
 /**
+ * FeaturePickler provides a mechanism for Feature implementation independant
+ * means of storage.<br>
  *
- * @author  en
+ * For each FeatureType encountered while writing a FeatureCollection, there is
+ * a corresponding FeaturePickler. The job of the pickler is twofold:<br>
+ * <pre>
+ * 1) Store the FeatureType
+ * 2) Read a Feature from the ObjectStream
+ * <pre>
+ * 
+ * @author IanSchneider
  */
 public class FeaturePickler implements java.io.Serializable {
   
+  private transient GeometryPickler pickler = new GeometryPickler();
   private transient FeatureType schema;
   private transient FeatureFactory factory;
-  private transient ClassLoader classLoader;
   private transient short handle;
   private transient Object[] cache;
   private transient byte[] types;
@@ -48,30 +58,8 @@ public class FeaturePickler implements java.io.Serializable {
     }
   }
   
-  public void setClassLoader(ClassLoader loader) {
-    classLoader = loader;
-  }
-  
-  public ClassLoader getClassLoader() {
-    if (classLoader == null) 
-      return ClassLoader.getSystemClassLoader();
-    return classLoader;
-  }
-  
   public FeatureType getSchema() {
     return schema;
-  }
-  
-  private FeatureFactory getFactory() {
-    if (factory == null)
-      factory = new FlatFeatureFactory(schema);
-    return factory;
-  }
-  
-  private Object[] getCache() {
-    if (cache == null)
-      cache = new Object[types.length];
-    return cache;
   }
   
   private byte getType(Class type) {
@@ -103,16 +91,17 @@ public class FeaturePickler implements java.io.Serializable {
     for (int i = 0, ii = types.length; i < ii; i++) {
       AttributeType att = schema.getAttributeType(i);
       stream.writeUTF(att.getName());
-      stream.writeUTF(att.getType().getName());
+      stream.writeObject(att.getType());
     }
   }
   private void readObject(java.io.ObjectInputStream stream)
   throws IOException, ClassNotFoundException {
     final short len = stream.readShort();
-    final ClassLoader loader = getClassLoader();
     AttributeType[] types = new AttributeType[len];
     for (int i = 0; i < len; i++) {
-      types[i] = new AttributeTypeDefault(stream.readUTF(),loader.loadClass(stream.readUTF()));
+      String name = stream.readUTF();
+      Class clazz = (Class) stream.readObject();
+      types[i] = new AttributeTypeDefault(name,clazz);
     }
     try {
       schema = new FeatureTypeFlat(types);
@@ -120,22 +109,24 @@ public class FeaturePickler implements java.io.Serializable {
       throw new IOException("unexpected schema error" + se.getMessage()); 
     }
     initTypes(schema);
+    cache = new Object[types.length];
+    factory = new FlatFeatureFactory(schema);
+    pickler = new GeometryPickler();
   }
   
-  public void writeFeature(Feature f,ObjectOutputStream output)
+  public void writeFeature(Feature f,ObjectOutputStream output,Set clazzes)
   throws IOException {
     Object[] atts = f.getAttributes();
     for (int i = 0, ii = atts.length; i < ii; i++) {
-      if (atts[i] instanceof Geometry) {
-        atts[i] = new GeometryPickler( (Geometry) atts[i] );
-      }
       switch (types[i]) {
         case STRING:
           output.writeUTF( atts[i].toString() );
           break;
         case GEOMETRY:
+          pickler.write( (Geometry) atts[i] ,  output );
+          break;
         case OBJECT:
-          output.writeObject( atts[i] );
+          output.writeUnshared( atts[i] );
           break;
           
         case INT:
@@ -168,10 +159,7 @@ public class FeaturePickler implements java.io.Serializable {
     }
   }
   
-  
-  public Feature readFeature(ObjectInputStream input)
-  throws IOException,ClassNotFoundException,IllegalFeatureException {
-    Object[] cache = getCache();
+  public Object[] readAttributes(ObjectInputStream input) throws IOException,ClassNotFoundException {
     for (int i = 0; i < types.length; i++) {
       switch (types[i]) {
         
@@ -184,11 +172,12 @@ public class FeaturePickler implements java.io.Serializable {
         case STRING:
           cache[i] = input.readUTF();
           break;
-        case GEOMETRY:
         case OBJECT:
           cache[i] = input.readObject();
           break;
-          
+        case GEOMETRY:
+          cache[i] = pickler.read(input);
+          break;
         case FLOAT:
           cache[i] = new Float( input.readFloat() );
           break;  
@@ -208,7 +197,14 @@ public class FeaturePickler implements java.io.Serializable {
           throw new IllegalStateException( "type : " + types[i] );
       }
     }
-    return getFactory().create(cache);
+    return cache;
   }
+  
+  public Feature readFeature(ObjectInputStream input)
+  throws IOException,ClassNotFoundException,IllegalFeatureException {
+    return factory.create(readAttributes(input));
+  }
+  
+
   
 }

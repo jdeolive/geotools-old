@@ -10,10 +10,37 @@ import com.vividsolutions.jts.geom.*;
 import java.io.*;
 
 /**
+ * The GeometryPickler provides a more efficent serialization of JTS Geometry
+ * subclasses.<br>
  *
+ * There is no preservation of PrecisionModel or srid.<br>
+ *
+ * <pre>
+ * Records for coordinates are:
+ *   short length
+ *   double (x,y,z)*
+ *
+ * Records for non collections are unless otherwise specified:
+ *   byte type
+ *   coordinates
+ * 
+ * Records for collections are
+ *   byte type
+ *   geometry*
+ *
+ * Record for Point is
+ *   byte POINT
+ *   double (x,y,z)*
+ *
+ * Record for Polygon is
+ *   byte POLY
+ *   short number of interior rings
+ *   linestring+ (outer + interior)
+ * </pre>
+ *   
  * @author  Ian Schneider
  */
-public final class GeometryPickler implements java.io.Serializable {
+public final class GeometryPickler {
   final int POINT = 1;
   final int LINE  = 2;
   final int POLY  = 3;
@@ -25,24 +52,10 @@ public final class GeometryPickler implements java.io.Serializable {
   static PrecisionModel pm = new PrecisionModel();
   static int srid = 0;
   
-  transient Geometry g;
-  
-  public GeometryPickler(Geometry g) {
-    this.g = g;
+  public GeometryPickler() {
   }
   
-  private Object readResolve() throws ObjectStreamException {
-    return g;
-  }
-  
-  private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-    write(g,out);
-  }
-  private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-    g = read(in);
-  }
-  
-  private void write(Geometry g, ObjectOutputStream out) throws IOException {
+  public void write(Geometry g, ObjectOutputStream out) throws IOException {
     if (g instanceof GeometryCollection) {
       writeCollection ((GeometryCollection)g,out);
     } else if (g instanceof Point) {
@@ -105,7 +118,7 @@ public final class GeometryPickler implements java.io.Serializable {
   }
   
   
-  private Geometry read(ObjectInputStream in) throws IOException {
+  public Geometry read(ObjectInputStream in) throws IOException {
     final int type = in.readByte();
     switch (type) {
       case POINT:
