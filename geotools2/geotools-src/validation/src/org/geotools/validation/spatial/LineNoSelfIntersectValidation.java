@@ -49,7 +49,7 @@ import com.vividsolutions.jts.geom.LineString;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: LineNoSelfIntersectValidation.java,v 1.4 2004/04/20 22:35:37 jive Exp $
+ * @version $Id: LineNoSelfIntersectValidation.java,v 1.5 2004/04/21 11:07:10 jive Exp $
  */
 public class LineNoSelfIntersectValidation extends DefaultFeatureValidation {
     /** The logger for the validation module. */
@@ -79,7 +79,7 @@ public class LineNoSelfIntersectValidation extends DefaultFeatureValidation {
      * @see org.geotools.validation.Validation#getPriority()
      */
     public int getPriority() {
-        return 10;
+        return PRIORITY_COMPLEX;
     }
 
     /**
@@ -110,8 +110,11 @@ public class LineNoSelfIntersectValidation extends DefaultFeatureValidation {
         try {
             line = getDefaultLineString( feature );
         }
-        catch( ClassCastException unLine ){
+        catch( ClassCastException unLine ){            
             results.error(feature,"Geometry is required to be a LineString");
+            System.out.println( feature.getID()+"  name: "+getName() );
+            System.out.println( feature.getID()+"   ref: "+getTypeRef() );
+            System.out.println( feature.getID()+"   ref: "+getTypeRefs() );            
         }
         if (line == null) {
             // Ignore null geometry (user can check with nullZero )
