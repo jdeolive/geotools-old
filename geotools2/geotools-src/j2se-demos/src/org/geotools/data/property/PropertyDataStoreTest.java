@@ -304,7 +304,11 @@ public class PropertyDataStoreTest extends TestCase {
         assertEquals( 4, road.getCount(Query.ALL) );
         assertEquals( null, road.getBounds(Query.ALL) );
         assertEquals( 4, features.getCount() );
-        assertEquals( "Env[-1.0 : 0.0, -1.0 : 0.0]", features.getBounds().toString() );
+        try {            
+            fail( features.getBounds().toString() );
+        }
+        catch (IOException expected ){
+        }
         assertEquals( 4, features.collection().size() );
                 
     }
