@@ -63,8 +63,9 @@ import org.geotools.resources.rsc.ResourceKeys;
  * All entries in this set can be seen as {@link Range} objects.
  * This class is not thread-safe.
  *
- * @version $Id: RangeSet.java,v 1.2 2003/06/13 18:20:07 aaime Exp $
+ * @version $Id: RangeSet.java,v 1.3 2003/07/23 13:43:29 desruisseaux Exp $
  * @author Martin Desruisseaux
+ * @author Andrea Aime
  */
 public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Serializable {
     /**
@@ -311,7 +312,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
         final int modCountChk = modCount;
         int i0 = binarySearch(lower);
         int i1;
-        if (i0<0) {
+        if (i0 < 0) {
             /*
              * Si le début de la plage ne correspond pas à une des dates en
              * mémoire, il faudra l'insérer à quelque part dans le tableau.
@@ -372,7 +373,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
          * A ce stade, on est certain que 'i0' est pair et pointe vers le début
          * de la plage dans le tableau. Fait maintenant le traitement pour 'i1'.
          */
-        if (i1<0) {
+        if (i1 < 0) {
             /*
              * Si la date de fin tombe dans une des plages déjà existantes
              * (si son index est impair), on l'étend pour pendre la fin de
@@ -407,8 +408,8 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
          * de la plage dans le tableau. On va maintenant supprimer tout ce qui
          * se trouve entre 'i0' et 'i1', à l'exclusion de 'i0' et 'i1'.
          */
-        assert (i0 & 1)==0;
-        assert (i1 & 1)!=0;
+        assert (i0 & 1)==0 : i0;
+        assert (i1 & 1)!=0 : i1;
         final int n = i1 - (++i0);
         if (n > 0) {
             modCount++;
@@ -507,33 +508,24 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
     }
     
     /**
-     * Remove a range of values to this set. Range may be removed in any order.
-     * If the specified range overlap an existing range, the two ranges will
-     * be merged.
+     * Remove a range of values from this set. Range may be removed in any order.
      *
-     * @param lower The lower value, inclusive.
-     * @param upper The upper value, inclusive.
-     *
+     * @param lower The lower value to remove, exclusive.
+     * @param upper The upper value to remove, exclusive.
      * @return <code>true</code> if this set changed as a result of the call.
-     *
-     * @throws IllegalArgumentException if <code>lower</code> is greater than
-     *         <code>upper</code>.
+     * @throws IllegalArgumentException if <code>lower</code> is greater than <code>upper</code>.
      */
-    public boolean remove(Comparable lower, Comparable upper)
-    throws IllegalArgumentException {
+    public boolean remove(Comparable lower, Comparable upper) throws IllegalArgumentException {
         if (!relaxedType.isAssignableFrom(lower.getClass())) {
             throw new IllegalArgumentException(String.valueOf(lower));
         }
-        
         if (!relaxedType.isAssignableFrom(upper.getClass())) {
             throw new IllegalArgumentException(String.valueOf(upper));
         }
-        
         if (lower.compareTo(upper) >= 0) {
             throw new IllegalArgumentException(Resources.format(
-            ResourceKeys.ERROR_BAD_RANGE_$2, lower, upper));
+                      ResourceKeys.ERROR_BAD_RANGE_$2, lower, upper));
         }
-        
         if (useClassChanger) {
             try {
                 lower = (Comparable) ClassChanger.toNumber(lower);
@@ -545,134 +537,186 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
                 throw e;
             }
         }
-        
         // if already empty, or range outside the current set, nothing to change
-        if ((array == null)) {
+        if (array == null) {
             return false;
         } 
-        
-        
-        final int modCountChk = modCount;
         int i0 = binarySearch(lower);
-        int i1;
-        
-        
+        int i1 = binarySearch(upper);
         if (i0 < 0) {
             if (((i0 = ~i0) & 1) != 0) { // Attention: c'est ~ et non -
-                
                 /*
-                 * Si le début de la plage ne correspond pas à une des dates en
-                 * mémoire, il faudra l'insérer à quelque part dans le tableau.
-                 * Si la date tombe dans une des plages déjà existantes (si son
-                 * index est impair), on étend la date de début pour prendre le
-                 * début de la plage. Visuellement, on fait:
+                 * Si le début de la plage ne correspond pas à une des dates en mémoire,
+                 * il faudra faire un trou à quelque part dans le tableau. Si la date tombe
+                 * dans une des plages déjà existantes (si son index est impair), on change
+                 * la date de fin de la plage existante. Visuellement, on fait:
                  *
                  *   0   1     2      3     4   5    6     7
-                 *   #####     ########     #####    #######
-                 *             <---^           ^
+                 *   #####     #####---     --###    #######
+                 *                 ^          ^
                  *             lower(i=3)   upper(i=5)
                  */
-                if ((i1 = binarySearch(upper)) != ~i0) {
-                    modCount++;
+                modCount++;
+                if (i1 != ~i0) {
                     Array.set(array, i0, lower);
-                    i1 = binarySearch(upper);
                 } else {
-                     modCount++;
-                    
+                    /*
+                     * Special case if the upper index is inside the same range than the lower one:
+                     *
+                     *   0   1     2                3     4   5
+                     *   #####     ####---------#####     #####
+                     *                ^         ^
+                     *           lower(i=3)   upper(i=3)
+                     */
                     final Object old = array;
                     final int length = Array.getLength(array);
                     array = Array.newInstance(elementType, length + 2);
-                    System.arraycopy(old, 0, array, 0, i0);
+                    System.arraycopy(old, 0,  array, 0, i0);
                     System.arraycopy(old, i0, array, i0 + 2, length - i0);
                     Array.set(array, i0 + 0, lower);
                     Array.set(array, i0 + 1, upper);
-                    
                     return true;
                 }
-                    
             } else {
                 /*
                  * Si la date de début ne tombe pas dans une plage déjà
-                 * existante, il faut étendre la valeur de début qui se
-                 * trouve dans le tableau. Visuellement, on fait:
+                 * existante, il faut prendre la date de fin de la plage
+                 * précédente. Visuellement, on fait:
                  *
                  *   0   1     2      3     4   5    6     7
-                 *   #####  ***########     #####    #######
-                 *          ^                 ^
+                 *   #####     ########     #####    #######
+                 *       <---^                  ^
                  *       lower(i=2)        upper(i=5)
                  */
                 i0--;
-                i1 = binarySearch(upper);
             }
         } else {
             if ((i0 & 1) == 0) {
                 i0--;
             }
-            i1 = binarySearch(upper);
         }
-        
         /*
-         * A ce stade, on est certain que 'i0' est pair et pointe vers le début
-         * de la plage dans le tableau. Fait maintenant le traitement pour 'i1'.
+         * A ce stade, on est certain que 'i0' est impair et pointe vers la fin
+         * d'une plage dans le tableau. Fait maintenant le traitement pour 'i1'.
          */
         if (i1 < 0) {
             /*
              * Si la date de fin tombe dans une des plages déjà existantes
-             * (si son index est impair), on l'étend pour pendre la fin de
-             * la plage trouvée dans le tableau. Visuellement, on fait:
+             * (si son index est impair), on change la date de début de la
+             * plage existante. Visuellement, on fait:
              *
              *   0   1     2      3     4   5    6     7
-             *   #####     ########     #####    #######
-             *             ^             ^-->
-             *          lower(i=2)     upper(i=5)
+             *   #####     ########     --###    #######
+             *                    ^       ^
+             *            lower(i=3)    upper(i=5)
              */
             if (((i1 = ~i1) & 1) != 0) { // Attention: c'est ~ et non -
                 modCount++;
                 Array.set(array, --i1, upper);
             } else {
                 /*
-                 * Si la date de fin ne tombe pas dans une plage déjà
-                 * existante, il faut étendre la valeur de fin qui se
-                 * trouve dans le tableau. Visuellement, on fait:
+                 * Si la date de fin ne tombe pas dans une plage déjà existante, il
+                 * faudra (plus tard) supprimer les éventuelles plages qui le précède.
                  *
-                 *   0   1     2      3     4   5    6     7
-                 *   #####     ########     #####**  #######
-                 *             ^                  ^
-                 *          lower(i=2)         upper(i=6)
+                 *   0   1     2      3        4     5        6         7
+                 *   #####     ########        #######        ###########
+                 *                    ^                  ^
+                 *            lower(i=3)         upper(i=6)
                  */
                 // nothing to do
             }
         } else {
             i1 &= ~1;
         }
-        
         /*
-         * A ce stade, on est certain que 'i1' est impair et pointe vers la fin
+         * A ce stade, on est certain que 'i1' est pair et pointe vers la début
          * de la plage dans le tableau. On va maintenant supprimer tout ce qui
          * se trouve entre 'i0' et 'i1', à l'exclusion de 'i0' et 'i1'.
          */
-        assert (i0 & 1) == 0;
-        assert (i1 & 1) != 0;
-        
+        assert (i0 & 1) != 0 : i0;
+        assert (i1 & 1) == 0 : i1;
         final int n = i1 - (++i0);
-        
         if (n > 0) {
             modCount++;
-            
             final Object old = array;
             final int length = Array.getLength(array);
             array = Array.newInstance(elementType, length - n);
             System.arraycopy(old, 0, array, 0, i0);
             System.arraycopy(old, i1, array, i0, length - i1);
         }
-        
         assert (Array.getLength(array) & 1) == 0;
-        
         return true;
     }
     
-    public boolean remove(double lower, double upper)
-    throws IllegalArgumentException {
+    /**
+     * Remove a range of values from this set. Range may be removed in any order.
+     *
+     * @param lower The lower value to remove, exclusive.
+     * @param upper The upper value to remove, exclusive.
+     * @return <code>true</code> if this set changed as a result of the call.
+     * @throws IllegalArgumentException if <code>lower</code> is greater than <code>upper</code>.
+     */
+    public boolean remove(byte lower, byte upper) throws IllegalArgumentException {
+        return remove(new Byte(lower), new Byte(upper));
+    }
+    
+    /**
+     * Remove a range of values from this set. Range may be removed in any order.
+     *
+     * @param lower The lower value to remove, exclusive.
+     * @param upper The upper value to remove, exclusive.
+     * @return <code>true</code> if this set changed as a result of the call.
+     * @throws IllegalArgumentException if <code>lower</code> is greater than <code>upper</code>.
+     */
+    public boolean remove(short lower, short upper) throws IllegalArgumentException {
+        return remove(new Short(lower), new Short(upper));
+    }
+    
+    /**
+     * Remove a range of values from this set. Range may be removed in any order.
+     *
+     * @param lower The lower value to remove, exclusive.
+     * @param upper The upper value to remove, exclusive.
+     * @return <code>true</code> if this set changed as a result of the call.
+     * @throws IllegalArgumentException if <code>lower</code> is greater than <code>upper</code>.
+     */
+    public boolean remove(int lower, int upper) throws IllegalArgumentException {
+        return remove(new Integer(lower), new Integer(upper));
+    }
+    
+    /**
+     * Remove a range of values from this set. Range may be removed in any order.
+     *
+     * @param lower The lower value to remove, exclusive.
+     * @param upper The upper value to remove, exclusive.
+     * @return <code>true</code> if this set changed as a result of the call.
+     * @throws IllegalArgumentException if <code>lower</code> is greater than <code>upper</code>.
+     */
+    public boolean remove(long lower, long upper) throws IllegalArgumentException {
+        return remove(new Long(lower), new Long(upper));
+    }
+    
+    /**
+     * Remove a range of values from this set. Range may be removed in any order.
+     *
+     * @param lower The lower value to remove, exclusive.
+     * @param upper The upper value to remove, exclusive.
+     * @return <code>true</code> if this set changed as a result of the call.
+     * @throws IllegalArgumentException if <code>lower</code> is greater than <code>upper</code>.
+     */
+    public boolean remove(float lower, float upper) throws IllegalArgumentException {
+        return remove(new Float(lower), new Float(upper));
+    }
+    
+    /**
+     * Remove a range of values from this set. Range may be removed in any order.
+     *
+     * @param lower The lower value to remove, exclusive.
+     * @param upper The upper value to remove, exclusive.
+     * @return <code>true</code> if this set changed as a result of the call.
+     * @throws IllegalArgumentException if <code>lower</code> is greater than <code>upper</code>.
+     */
+    public boolean remove(double lower, double upper) throws IllegalArgumentException {
         return remove(new Double(lower), new Double(upper));
     }
 
@@ -858,7 +902,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
      * An iterator for iterating through ranges in a {@link RangeSet}.
      * All elements are {@link Range} objects.
      *
-     * @version $Id: RangeSet.java,v 1.2 2003/06/13 18:20:07 aaime Exp $
+     * @version $Id: RangeSet.java,v 1.3 2003/07/23 13:43:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Iterator implements java.util.Iterator {

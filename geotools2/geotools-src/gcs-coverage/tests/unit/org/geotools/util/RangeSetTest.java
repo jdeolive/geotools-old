@@ -1,7 +1,6 @@
 /*
  * Geotools 2 - OpenSource mapping toolkit
  * (C) 2003, Geotools Project Management Committee (PMC)
- * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -25,10 +24,6 @@
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
  *             Institut de Recherche pour le Développement / US-Espace
  *             mailto:seasnet@teledetection.fr
- *
- *     CANADA: Observatoire du Saint-Laurent
- *             Institut Maurice-Lamontagne
- *             mailto:osl@osl.gc.ca
  */
 package org.geotools.util;
 
@@ -47,10 +42,10 @@ import org.geotools.resources.Arguments;
 
 
 /**
- * Test the {@link PropertyParser} implementation.
+ * Test the {@link RangeSet} implementation.
  *
- * @version $Id: RangeSetTest.java,v 1.1 2003/06/13 18:20:07 aaime Exp $
- * @author Martin Desruisseaux
+ * @version $Id: RangeSetTest.java,v 1.2 2003/07/23 13:43:29 desruisseaux Exp $
+ * @author Andrea Aime
  */
 public class RangeSetTest extends TestCase {
     /**
@@ -93,6 +88,9 @@ public class RangeSetTest extends TestCase {
         super.setUp();
     }
 
+    /**
+     * Test {@link RangeSet#remove}.
+     */
     public void testRangeRemoval() {
         RangeSet rs = new RangeSet(Double.class);
         rs.add(10.0, 22.0);
@@ -162,9 +160,5 @@ public class RangeSetTest extends TestCase {
         
         rs.remove(0.0, 25.0);
         assertEquals("Full wipeout", 0, rs.size());
-        
     }
-
-
-    
 }
