@@ -38,7 +38,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: PolygonNotOverlappingPolygonValidation.java,v 1.8 2004/04/22 10:17:08 jive Exp $
+ * @version $Id: PolygonNotOverlappingPolygonValidation.java,v 1.9 2004/04/26 21:08:12 jive Exp $
  */
 public class PolygonNotOverlappingPolygonValidation
     extends PolygonPolygonAbstractValidation {
@@ -118,12 +118,13 @@ public class PolygonNotOverlappingPolygonValidation
                 LOGGER.finest("Polgon overlap test against:"+tmp2.getID() );                
                 Geometry gt2 = tmp2.getDefaultGeometry();
 
-                if (gt2.overlaps(gt)) {
-                	results.error( tmp, "Polygon "+typeRef1+" overlapped Polygon "+typeRef2+"("+tmp2.getID()+")" );
+                if (gt2.overlaps(gt) != expected) {
+                	results.error( tmp, "Polygon "+typeRef1+" overlapped Polygon "+typeRef2+"("+tmp2.getID()+") was not "+expected );
                 	success = false;
                 }
             }
         }
         return success;
     }
+    boolean expected = true;
 }
