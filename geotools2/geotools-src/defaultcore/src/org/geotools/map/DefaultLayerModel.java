@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: DefaultLayerModel.java,v 1.1 2002/07/14 11:55:54 camerons Exp $
+ * @version $Id: DefaultLayerModel.java,v 1.2 2002/08/01 21:54:33 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -113,8 +113,7 @@ public class DefaultLayerModel implements LayerModel {
      * Add a new layer and trigger a LayerListChangedEvent.
      * @param layer Then new layer that has been added.
      */
-    public void addLayer(
-            FeatureCollection layer)
+    public void addLayer(FeatureCollection layer)
     {
         this.layers.add(layer);
         fireLayerListChangedListener();
@@ -155,5 +154,10 @@ public class DefaultLayerModel implements LayerModel {
             this.layers.remove(layer[i]);
         }
         fireLayerListChangedListener();
+    }
+    
+    public FeatureCollection[] getLayers()
+    {
+        return (FeatureCollection[])this.layers.toArray();
     }
 }

@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: LayerModel.java,v 1.1 2002/07/14 11:55:54 camerons Exp $
+ * @version $Id: LayerModel.java,v 1.2 2002/08/01 21:54:33 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -58,7 +58,7 @@ public interface LayerModel {
      */
     public void addLayer(
             FeatureCollection layer);
- 
+
     /**
      * Remove a layer and trigger a LayerListChangedEvent.
      * @param layer Then new layer that has been removed.
@@ -79,4 +79,10 @@ public interface LayerModel {
      */
     public void removeLayers(
             FeatureCollection[] layer);
+
+    /**
+     * Return an array of layers.
+     * @return A list of layers.
+     */
+    public FeatureCollection[] getLayers();
 }
