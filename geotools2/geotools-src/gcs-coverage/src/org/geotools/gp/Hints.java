@@ -43,6 +43,7 @@ import java.util.Locale;
 import javax.media.jai.JAI;
 
 // Geotools Dependencies
+import org.geotools.resources.Utilities;
 import org.geotools.cv.SampleDimensionType;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CoordinateTransformationFactory;
@@ -66,7 +67,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * GridCoverageProcessor processor = new GridCoverageProcessor(hints);
  * </pre></blockquote>
  *
- * @version $Id: Hints.java,v 1.4 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.5 2003/05/19 15:05:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
@@ -75,7 +76,7 @@ public final class Hints extends RenderingHints.Key {
      * JAI operation must be performed at rendering time.
      */
     public static final RenderingHints.Key JAI_INSTANCE =
-            new Hints(0, JAI.class);
+            new Hints(0, "javax.media.jai.JAI");
 
     /**
      * Key for setting a {@link CoordinateTransformationFactory} object other
@@ -83,22 +84,25 @@ public final class Hints extends RenderingHints.Key {
      * at rendering time.
      */
     public static final RenderingHints.Key COORDINATE_TRANSFORMATION_FACTORY =
-            new Hints(1, CoordinateTransformationFactory.class);
+            new Hints(1, "org.geotools.ct.CoordinateTransformationFactory");
 
     /**
      * Key for setting a {@link SampleDimensionType} other than the default one
      * when sample values must be rescaled at rendering time.
      */
     public static final RenderingHints.Key SAMPLE_DIMENSION_TYPE =
-            new Hints(2, SampleDimensionType.class);
+            new Hints(2, "org.geotools.cv.SampleDimensionType");
 
     /**
-     * Base class of all values for this key.
-     *
-     * @task TODO: We could use only the class name (as a string)
-     *             here in order to defer class loading.
+     * The class name for {@link #valueClass}.
      */
-    private final Class valueClass;
+    private final String className;
+
+    /**
+     * Base class of all values for this key. Will be created from {@link #className}
+     * only when first required, in order to avoid too early class loading.
+     */
+    private Class valueClass;
 
     /**
      * Construct a new key.
@@ -109,17 +113,43 @@ public final class Hints extends RenderingHints.Key {
     private Hints(final int id, final Class valueClass) {
         super(id);
         this.valueClass = valueClass;
+        this.className  = valueClass.getName();
     }
 
     /**
-     * Returns <code>true</code> if the specified object is a valid
-     * value for this Key.
+     * Construct a new key. This constructor is used when a class loading should
+     * be deferred until first needed.
+     *
+     * @param id An ID. Must be unique for all instances of {@link Key}.
+     * @param className Name of base class for all valid values.
+     */
+    private Hints(final int id, final String className) {
+        super(id);
+        this.className = className;
+        try {
+            assert !Class.forName(className).isPrimitive();
+        } catch (ClassNotFoundException exception) {
+            throw new AssertionError(exception);
+        }
+    }
+
+    /**
+     * Returns <code>true</code> if the specified object is a valid value for this Key.
      *
      * @param  value The object to test for validity.
-     * @return <code>true</code> if the value is valid;
-     *         <code>false</code> otherwise.
+     * @return <code>true</code> if the value is valid; <code>false</code> otherwise.
      */
     public boolean isCompatibleValue(final Object value) {
-        return (value != null) && valueClass.isAssignableFrom(value.getClass());
+        if (value == null) {
+            return false;
+        }
+        if (valueClass == null) try {
+            valueClass = Class.forName(className);
+        } catch (ClassNotFoundException exception) {
+            Utilities.unexpectedException("org.geotools.gp", "Hints", "isCompatibleValue",
+                                          exception);
+            valueClass = Object.class;
+        }
+        return valueClass.isAssignableFrom(value.getClass());
     }
 }

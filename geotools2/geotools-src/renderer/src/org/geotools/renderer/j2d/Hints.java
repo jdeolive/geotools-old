@@ -47,6 +47,7 @@ import javax.media.jai.PlanarImage; // For Javadoc
 import javax.media.jai.operator.ScaleDescriptor; // For Javadoc
 
 // Geotools Dependencies
+import org.geotools.resources.Utilities;
 import org.geotools.renderer.geom.Isoline;
 import org.geotools.gp.GridCoverageProcessor;
 import org.geotools.ct.CoordinateTransformation;
@@ -59,7 +60,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * Rendering hints can be used to control some low-level details, like the expected
  * resolution.
  *
- * @version $Id: Hints.java,v 1.12 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.13 2003/05/19 15:06:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
@@ -69,7 +70,7 @@ public final class Hints extends RenderingHints.Key {
      * coordinate system is different than the grid coverage one.
      */
     public static final RenderingHints.Key GRID_COVERAGE_PROCESSOR =
-                                                new Hints(0, GridCoverageProcessor.class);
+                                        new Hints(0, "org.geotools.gp.GridCoverageProcessor");
 
     /**
      * Key for setting a {@link JAI} object other than the default one when a JAI operation must be
@@ -125,9 +126,15 @@ public final class Hints extends RenderingHints.Key {
     public static final RenderingHints.Key PREFETCH = new Hints(3, Boolean.class);
 
     /**
-     * Base class of all values for this key.
+     * The class name for {@link #valueClass}.
      */
-    private final Class valueClass;
+    private final String className;
+
+    /**
+     * Base class of all values for this key. Will be created from {@link #className}
+     * only when first required, in order to avoid too early class loading.
+     */
+    private Class valueClass;
 
     /**
      * Construct a new key.
@@ -138,18 +145,44 @@ public final class Hints extends RenderingHints.Key {
     private Hints(final int id, final Class valueClass) {
         super(id);
         this.valueClass = valueClass;
+        this.className  = valueClass.getName();
     }
 
     /**
-     * Returns <code>true</code> if the specified object is a valid
-     * value for this key.
+     * Construct a new key. This constructor is used when a class loading should
+     * be deferred until first needed.
+     *
+     * @param id An ID. Must be unique for all instances of {@link Key}.
+     * @param className Name of base class for all valid values.
+     */
+    private Hints(final int id, final String className) {
+        super(id);
+        this.className = className;
+        try {
+            assert !Class.forName(className).isPrimitive();
+        } catch (ClassNotFoundException exception) {
+            throw new AssertionError(exception);
+        }
+    }
+
+    /**
+     * Returns <code>true</code> if the specified object is a valid value for this key.
      *
      * @param  value The object to test for validity.
-     * @return <code>true</code> if the value is valid;
-     *         <code>false</code> otherwise.
+     * @return <code>true</code> if the value is valid; <code>false</code> otherwise.
      */
     public boolean isCompatibleValue(final Object value) {
-        if (value==null || !valueClass.isAssignableFrom(value.getClass())) {
+        if (value == null) {
+            return false;
+        }
+        if (valueClass == null) try {
+            valueClass = Class.forName(className);
+        } catch (ClassNotFoundException exception) {
+            Utilities.unexpectedException("org.geotools.renderer", "Hints", "isCompatibleValue",
+                                          exception);
+            valueClass = Object.class;
+        }
+        if (!valueClass.isAssignableFrom(value.getClass())) {
             return false;
         }
         if (value instanceof Number) {
