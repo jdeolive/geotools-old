@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: FilterFilter.java,v 1.17 2003/05/14 15:51:39 cholmesny Exp $
+ * @version $Id: FilterFilter.java,v 1.18 2003/05/27 20:47:38 cholmesny Exp $
  */
 public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     /** The logger for the filter module. */
@@ -377,7 +377,9 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
             return AbstractFilter.GEOMETRY_BBOX;
         } else if (filterType.equals("PropertyIsEqualTo")) {
             return AbstractFilter.COMPARE_EQUALS;
-        } else if (filterType.equals("PropertyIsLessThan")) {
+        } else if (filterType.equals("PropertyIsNotEqualTo")) {
+            return AbstractFilter.COMPARE_NOT_EQUALS;
+        }else if (filterType.equals("PropertyIsLessThan")) {
             return AbstractFilter.COMPARE_LESS_THAN;
         } else if (filterType.equals("PropertyIsGreaterThan")) {
             return AbstractFilter.COMPARE_GREATER_THAN;

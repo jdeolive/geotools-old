@@ -66,6 +66,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
         capabilities.addType(AbstractFilter.LOGIC_AND);
         capabilities.addType(AbstractFilter.LOGIC_NOT);
         capabilities.addType(AbstractFilter.COMPARE_EQUALS);
+	capabilities.addType(AbstractFilter.COMPARE_NOT_EQUALS);
         capabilities.addType(AbstractFilter.COMPARE_LESS_THAN);
         capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN);
         capabilities.addType(AbstractFilter.COMPARE_LESS_THAN_EQUAL);
@@ -81,6 +82,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
 
     static {
         comparisions.put(new Integer(AbstractFilter.COMPARE_EQUALS), "=");
+	comparisions.put(new Integer(AbstractFilter.COMPARE_NOT_EQUALS), "!=");
         comparisions.put(new Integer(AbstractFilter.COMPARE_GREATER_THAN), ">");
         comparisions.put(new Integer(AbstractFilter.COMPARE_GREATER_THAN_EQUAL),
             ">=");
