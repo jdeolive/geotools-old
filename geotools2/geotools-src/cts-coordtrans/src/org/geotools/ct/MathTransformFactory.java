@@ -100,7 +100,7 @@ import javax.vecmath.GMatrix;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.4 2002/07/12 16:42:31 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.5 2002/07/12 20:38:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -264,11 +264,22 @@ public class MathTransformFactory {
         if (matrix1!=null) {
             final Matrix matrix2 = getMatrix(tr2);
             if (matrix2!=null) {
+                // Compute "matrix = matrix2 * matrix1". Reuse an existing matrix object
+                // if possible, which is always the case when both matrix are square.
+                final int numRow = matrix2.getNumRow();
+                final int numCol = matrix1.getNumCol();
+                final Matrix matrix;
+                if (numCol == matrix2.getNumCol()) {
+                    matrix = matrix2;
+                    matrix2.mul(matrix1);
+                } else {
+                    matrix = new Matrix(numRow, numCol);
+                    matrix.mul(matrix2, matrix1);
+                }
                 // May not be really affine, but work anyway...
                 // This call will detect and optimize the special
                 // case where an 'AffineTransform' can be used.
-                matrix2.mul(matrix1);
-                return createAffineTransform(matrix2);
+                return createAffineTransform(matrix);
             }
         }
         /*
@@ -555,7 +566,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.4 2002/07/12 16:42:31 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.5 2002/07/12 20:38:17 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {
