@@ -42,7 +42,17 @@
                <role>Java Developer</role>
             </roles>
         </developer>
-  </developers>
+        
+        <developer>
+      <name>Ian Turton</name>
+      <id>ianturton</id>
+      <email>ianturton@users.sourceforge.net</email>
+      <organization>CCG</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    </developers>
   <dependencies>
   <dependency>
       <id>core</id>
