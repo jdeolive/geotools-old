@@ -63,8 +63,12 @@ public abstract class PickledFeatureProtocol {
     int fv = fin.read();
     int sv = sin.read();
     PickledFeatureProtocol protocol = null;
-    if (fv == sv && fv == CURRENT_VERSION)
-      protocol = new Version1();
+    if (fv == sv && fv == CURRENT_VERSION) {
+      if (fin instanceof FileInputStream && sin instanceof FileInputStream) 
+        protocol = new Version1NIO();
+      else
+        protocol = new Version1();
+    }
     else
       throw new IOException("No reader for " + fv + "," + sv);
     
@@ -97,8 +101,10 @@ public abstract class PickledFeatureProtocol {
   }
   
   private static void checkMagic(InputStream in) throws IOException {
-    if (in.read() != 0xde || in.read() != 0xca)
-      throw new IOException("Not Pickled File");
+    int fb = in.read();
+    int sb = in.read();
+    if (fb != 0xde || sb != 0xca)
+      throw new IOException("Not Pickled File " + fb + "," + sb);
   }
   
   protected abstract void initRead(InputStream fin,InputStream sin) throws IOException;
@@ -156,7 +162,7 @@ public abstract class PickledFeatureProtocol {
       multi = new MultiInputStream(featureIn); 
       // skip the ObjectStream header bytes 
       schemaIn.skip(4);  
-      // this will read the header bytes from featureIn
+      // this will read the ObjectStream header bytes from featureIn
       input = new ObjectInputStream(multi); 
       dataIn = new DataInputStream(fin); 
     }
@@ -184,7 +190,7 @@ public abstract class PickledFeatureProtocol {
       // flush the objects
       output.flush();
       // write the block size
-      dataOut.writeInt(bytesOut.size());
+      dataOut.writeInt(bytesOut.size());    
       // flush to underlying stream
       dataOut.flush();
       // now write the block
@@ -342,7 +348,97 @@ public abstract class PickledFeatureProtocol {
     
   }
   
-  
+  static class Version1NIO extends Version1 {
+    java.nio.ByteBuffer featureBuffer;
+    java.nio.ByteBuffer schemaBuffer;
+    MultiBufferInputStream multiBuffer;
+    protected void initRead(InputStream fin,InputStream sin) throws IOException {
+      featureIn = fin;
+      schemaIn = sin;
+      
+      featureBuffer = map(fin);
+      schemaBuffer = map(sin);
+      
+      multiBuffer = new MultiBufferInputStream(featureBuffer); 
+      // skip the pickle header bytes + ObjectStream header bytes
+      schemaBuffer.position(3 + 4);
+      // skip pickle header bytes
+      featureBuffer.position(3);
+      // this will read the ObjectStream header bytes from featureIn
+      input = new ObjectInputStream(multiBuffer); 
+    }
+    
+    private java.nio.ByteBuffer map(InputStream in) throws IOException{
+      FileInputStream fin = (FileInputStream) in;
+      java.nio.channels.FileChannel fc = fin.getChannel();
+      return fc.map(java.nio.channels.FileChannel.MapMode.READ_ONLY, 0, (int) fc.size());
+    }
+    
+    public void read(FeatureCollection fc) throws IOException, ClassNotFoundException, SchemaException {
+      // read number of features in file
+      int numberOfFeatures = input.readInt();
+      // read all the types first and switch input
+      readTypes();
+      multiBuffer.switchInput(featureBuffer);
+      
+      // read the features
+      try {
+        for (int i = 0; i < numberOfFeatures; i++) {
+          fc.add(readFeature());
+        }
+      } catch (IllegalFeatureException ife) {
+        throw new SchemaException("IllegalFeatures " + ife);
+      }
+    }
+    
+    public Feature read(int idx) throws IOException, ClassNotFoundException, SchemaException {
+      int numberOfFeatures = input.readInt();
+      readTypes();
+      multiBuffer.switchInput(featureBuffer);
+      // skip through entries
+      for (int i = 0; i < idx; i++) {
+        int l = featureBuffer.getInt();
+        featureBuffer.position(featureBuffer.position() + l);
+      }
+      // now read!
+      try {
+        return readFeature();
+      } catch (IllegalFeatureException ife) {
+        throw new SchemaException("IllegalFeatures " + ife.getMessage());
+      }
+    }
+    
+    protected Feature readFeature() throws IOException, ClassNotFoundException, SchemaException, IllegalFeatureException {
+      // read length in bytes
+      featureBuffer.getInt(); 
+      // read handle
+      final short handle = input.readShort();
+      // short cut for handle lookup
+      if (lastHandle != handle)
+        pickler = (FeaturePickler) typesList.get(handle);
+      
+      // read the feature
+      return pickler.readFeature(input);
+    }
+    
+    protected void readTypes() throws IOException, ClassNotFoundException, SchemaException {
+      // switch to schema file
+      multiBuffer.switchInput(schemaBuffer);
+      // read the FeaturePickler class
+      input.readObject();
+      // while markers exist
+      while (input.readByte() == 1) {
+        // read the FeaturePicklers
+        typesList.add( input.readObject() );
+      }
+      // read in classes, "tricks" input stream
+      final short classNum = input.readShort();
+      for (int i = 0; i < classNum; i++) {
+        input.readObject();
+      }
+    }
+    
+  }
   
   
   static final class MultiInputStream extends FilterInputStream {
@@ -352,6 +448,42 @@ public abstract class PickledFeatureProtocol {
     public void switchInput(InputStream in) {
       this.in = in;
     }
+  }
+  
+  static final class MultiBufferInputStream extends InputStream {
+    java.nio.ByteBuffer buffer;
+    public MultiBufferInputStream(java.nio.ByteBuffer bb) {
+      this.buffer = bb;
+    }
+    public void switchInput(java.nio.ByteBuffer bb) {
+      this.buffer = bb; 
+    }
+    public int read() throws IOException {
+      if (buffer.remaining() > 1)
+        return buffer.get();
+      return -1;
+    }
+    
+    public void close() throws IOException {
+      
+    }
+    
+    public long skip(long n) throws IOException {
+      buffer.position(buffer.position() + (int) n);
+      return n;
+    }
+    
+    public int read(byte[] b) throws IOException {
+      return read(b,0,b.length);
+    }
+    
+    public int read(byte[] b, int off, int len) throws IOException {
+      if (len > buffer.remaining())
+        len = buffer.remaining();
+      buffer.get(b,off,len);
+      return len;
+    }
+    
   }
   
 }

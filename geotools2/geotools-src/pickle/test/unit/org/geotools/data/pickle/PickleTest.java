@@ -66,6 +66,8 @@ public class PickleTest extends TestCase {
       
   }
   
+ 
+  
   /*
    * This test shows that "shared" feature attributes are a problem, because
    * the current stream cannot handle this.
@@ -75,6 +77,7 @@ public class PickleTest extends TestCase {
    *   + when all writing is done, write the shared objects at the end of the feature file
    *   + when resolving, shared objects must be read from the shared pool
    *  Hard Case: two Features which have references to each other)
+   *  Hard Case: random access resolving...
    *
    */
   public void testWriteWithSharedObjects() throws Exception {
