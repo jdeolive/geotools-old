@@ -16,7 +16,7 @@
  */
 package org.geotools.filter;
 
-import java.util.*;
+import java.util.Iterator;
 
 
 /**
@@ -200,8 +200,9 @@ public class SQLUnpacker {
             short type = filter.getFilterType();
 
             if ((type == splitType) && capabilities.supports(splitType)) {
-                //TODO: one special case not covered, when capabilities does not support
-                // AND and it perfectly splits the filter into unsupported and supported
+                //REVISIT: one special case not covered, when capabilities 
+                //does not support AND and it perfectly splits the filter 
+                //into unsupported and supported
                 Iterator filters = ((LogicFilter) filter).getFilterIterator();
 
                 while (filters.hasNext()) {
@@ -214,7 +215,9 @@ public class SQLUnpacker {
             } else if ((type == AbstractFilter.LOGIC_NOT)
                     && capabilities.supports(AbstractFilter.LOGIC_NOT)) {
                 Iterator filters = ((LogicFilter) filter).getFilterIterator();
-                subPair = doUnPack((Filter) filters.next(), splitType); //NOT only has one
+
+                //NOT only has one, so just get filters.next()
+                subPair = doUnPack((Filter) filters.next(), splitType);
                 subSup = subPair.getSupported();
                 subUnSup = subPair.getUnSupported();
 
