@@ -98,15 +98,15 @@ that allows you to describe the latyer in more detail
                     <rotation>45.0</rotation>
                     <mark>
                     <!-- since cross is not implemented yet should draw next mark -->
-                        <wellknownname>cross</wellknownname>
+                        <wellknownname>triangle</wellknownname>
                         <Fill>
                             <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-                            <CssParameter name="fill">#FF0000</CssParameter>
+                            <CssParameter name="fill">#FF00FF</CssParameter>
                             <CssParameter name="fill-opacity">0.5</CssParameter>
                         </Fill>
                     </mark>
                     <mark>
-                        <wellknownname>triangle</wellknownname>
+                        <wellknownname>square</wellknownname>
                         <Fill>
                             <!-- CssParameters allowed are fill (the color) and fill-opacity -->
                             <CssParameter name="fill">#00FF00</CssParameter>
