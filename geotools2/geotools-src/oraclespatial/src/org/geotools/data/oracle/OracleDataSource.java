@@ -51,12 +51,12 @@ import java.util.logging.Logger;
 
 /**
  * Provides a DataSource implementation for Oracle Spatial Database.
- *
+ * * <p>This class is not suitable for subclassing. * 
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: seangeo $
- * @version $Id: OracleDataSource.java,v 1.5 2003/08/08 07:37:18 seangeo Exp $
+ * @version $Id: OracleDataSource.java,v 1.6 2003/08/08 07:50:00 seangeo Exp $
  */
-public class OracleDataSource extends AbstractDataSource {
+public final class OracleDataSource extends AbstractDataSource {
     /** The default column to use as the Feature ID */
     private static final String DEFAULT_FID_COLUMN = "OBJECTID";    /** A logger for logging */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.data.oracle");
@@ -1090,7 +1090,7 @@ public class OracleDataSource extends AbstractDataSource {
         commit();
         setAutoCommit(originalAutoCommit);
     }
-
+    /** Gets a connection.     *      *  <p>The connection returned by this method is suitable for a single     * use.  Once a method has finish with the connection it should call the connections     * close method.     *      * <p>Methods wishing to use a connection for transactions or methods who use     * of the connection involves commits or rollbacks should use getTransactionConnection     * instead of this method.     *       * @return  A single use connection.     * @throws DataSourceException If the connection is not an OracleConnection.      * @throws SQLException If there is a problem with the connection.     */
     private OracleConnection getConnection() throws DataSourceException, SQLException {
         Connection conn = connectionPool.getConnection();
 
@@ -1100,7 +1100,7 @@ public class OracleDataSource extends AbstractDataSource {
             throw new DataSourceException("Connection Pool did not return a connection to"                 + "an Oracle Spatial Database.");
         }
     }
-
+    /** This method should be called when a connection is required for transactions.     *  After completion of the use of the connection the caller should call      *  closeTransactionConnection which will either close the conn if we are in auto      *  commit, or maintain the connection if we are in manual commit.  Successive calls     *  to this method after setting autoCommit to false will return the same connection     *  object.     *       * @return A connection object suitable for multiple transactional calls.     * @throws DataSourceException IF an error occurs getting the connection.     * @throws SQLException If there is something wrong with the connection.     */
     private OracleConnection getTransactionConnection() throws DataSourceException, SQLException {
         if (transactionConnection == null) {
             transactionConnection = getConnection();
@@ -1108,7 +1108,7 @@ public class OracleDataSource extends AbstractDataSource {
 
         return transactionConnection;
     }
-
+    /** This method should be called when a connection retrieved using     *  getTransactionConnection in to be closed.      *      *  <p>This method only closes the connection if it is set to     *  auto commit.  Otherwise the connection is kept open and held in the     *  transactionConnection instance variable.     */
     private void closeTransactionConnection() {
         try {
             // we only close if the transaction is set to auto commit
