@@ -36,7 +36,7 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.20 2003/02/12 18:56:03 cholmesny Exp $
+ * @version $Id: FeatureFlat.java,v 1.21 2003/02/13 20:26:13 aaime Exp $
  * @author Rob Hranac, TOPP
  */
 public class FeatureFlat implements Feature {
@@ -341,7 +341,8 @@ public class FeatureFlat implements Feature {
 	    LOGGER.finer("fetching geometry from " + gType.getPosition() 
 			 + " -> " + attributes[gType.getPosition()]);
 	}
-        return (Geometry) ((Geometry) attributes[gType.getPosition()]).clone();
+        
+        return (Geometry) ((Geometry) attributes[gType.getPosition()]);
     }
 
     /** 
