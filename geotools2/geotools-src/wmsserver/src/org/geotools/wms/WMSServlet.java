@@ -24,6 +24,7 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.*;
 
 import javax.servlet.*;
@@ -88,8 +89,8 @@ public class WMSServlet extends HttpServlet {
     private WMSServer server;
     private Vector featureFormatters;
     private String getUrl;
-    
-    private static Map allMaps = new LRUMap(200);
+    private static final int CACHE_SIZE = 200;
+    private static Map allMaps = new LRUMap(CACHE_SIZE);
     private static Map nationalMaps = new HashMap();
     
     /**
@@ -217,127 +218,116 @@ public class WMSServlet extends HttpServlet {
      */
     public synchronized void doGetMap(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         System.out.println("Sending Map");
-        System.out.println("Request is " + request);
-        // this needs to be something nicer than request as it should ignore format and order and case
-        if(nationalMaps.containsKey(request.getQueryString())){
-            String format = getParameter(request, PARAM_FORMAT);
-            if (format==null)
-                format = DEFAULT_FORMAT;
-            BufferedImage image = (BufferedImage) nationalMaps.get(request.getQueryString());
-            System.out.println("Got image from National cache - sending response as "+format+" ("+image.getWidth(null)+","+image.getHeight(null)+")");
-            
-            // Write the response
-            response.setContentType(format);
-            OutputStream out = response.getOutputStream();
-            // avoid caching in browser
-            response.setHeader("Pragma", "no-cache");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setDateHeader("Expires",0);
-            try{
-                formatImageOutputStream(format, image, out);
-            } catch (WMSException we){
-                System.out.println("WMS Exception " + we);
-            }
-            out.close();
-            return ;
-        } else if(allMaps.containsKey(request.getQueryString())){
-            String format = getParameter(request, PARAM_FORMAT);
-             if (format==null)
-                format = DEFAULT_FORMAT;
-            BufferedImage image = (BufferedImage) allMaps.get(request.getQueryString());
-            System.out.println("Got image from cache - sending response as "+format+" ("+image.getWidth(null)+","+image.getHeight(null)+")");
-            
-            // Write the response
-            response.setContentType(format);
-            OutputStream out = response.getOutputStream();
-            // avoid caching in browser
-            response.setHeader("Pragma", "no-cache");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setDateHeader("Expires",0);
-            
-            try{
-                formatImageOutputStream(format, image, out);
-            } catch (WMSException we){
-                System.out.println("WMS Exception " + we);
-            }
-            out.close();
-            return ;
-        }
-        // Get the requested exception mime-type (if any)
+        BufferedImage image;
         String exceptions = getParameter(request, PARAM_EXCEPTIONS);
-        
-        try {
-            // Get all the parameters for the call
-            String [] layers = commaSeparated(getParameter(request, PARAM_LAYERS));
-            String [] styles = commaSeparated(getParameter(request, PARAM_STYLES), layers.length);
-            String srs = getParameter(request, PARAM_SRS);
-            String bbox = getParameter(request, PARAM_BBOX);
-            int width = posIntParam(getParameter(request, PARAM_WIDTH));
-            int height = posIntParam(getParameter(request, PARAM_HEIGHT));
-            boolean trans = boolParam(getParameter(request, PARAM_TRANSPARENT));
-            Color bgcolor = colorParam(getParameter(request, PARAM_BGCOLOR));
-            String format = getParameter(request, PARAM_FORMAT);
-            
-            System.out.println("Checking params");
-            
-            // Check values
-            if (layers==null || layers.length==0) {
-                doException(null, "No Layers defined", request, response, exceptions);
-                return;
+        String format = getParameter(request, PARAM_FORMAT);
+        if(format == null){
+            format = DEFAULT_FORMAT;
+        }
+        CacheKey key = new CacheKey(request);
+        System.out.println("About to request map with key = " + key);
+        // this needs to be something nicer than request.getQueryString as it should ignore format and order and case
+        if(((image = (BufferedImage)nationalMaps.get(key))==null) &&
+            ((image = (BufferedImage)allMaps.get(key))==null)){
+            // Get the requested exception mime-type (if any)
+
+            try {
+                // Get all the parameters for the call
+                String [] layers = commaSeparated(getParameter(request, PARAM_LAYERS));
+                String [] styles = commaSeparated(getParameter(request, PARAM_STYLES), layers.length);
+                String srs = getParameter(request, PARAM_SRS);
+                String bbox = getParameter(request, PARAM_BBOX);
+                int width = posIntParam(getParameter(request, PARAM_WIDTH));
+                int height = posIntParam(getParameter(request, PARAM_HEIGHT));
+                boolean trans = boolParam(getParameter(request, PARAM_TRANSPARENT));
+                Color bgcolor = colorParam(getParameter(request, PARAM_BGCOLOR));
+
+
+                System.out.println("Checking params");
+
+                // Check values
+                if (layers==null || layers.length==0) {
+                    doException(null, "No Layers defined", request, response, exceptions);
+                    return;
+                }
+                if (styles!=null && styles.length!=layers.length) {
+                    doException(null, "Invalid number of style defined for passed layers", request, response, exceptions);
+                    return;
+                }
+                if (srs==null) {
+                    doException(WMSException.WMSCODE_INVALIDSRS, "SRS not defined", request, response, exceptions);
+                    return;
+                }
+                if (bbox==null) {
+                    doException(null, "BBOX not defined", request, response, exceptions);
+                    return;
+                }
+                if (height==-1 || width==-1) {
+                    doException(null, "HEIGHT or WIDTH not defined", request, response, exceptions);
+                    return;
+                }
+
+                if (format==null)
+                    format = DEFAULT_FORMAT;
+
+                // Check the bbox
+                String [] sBbox = commaSeparated(bbox, 4);
+                if (sBbox==null) {
+                    doException(null, "Invalid bbox : "+bbox, request, response, exceptions);
+                }
+                double [] dBbox = new double[4];
+                for (int i=0;i<4;i++)
+                    dBbox[i] = doubleParam(sBbox[i]);
+
+                System.out.println("Params check out - getting image");
+
+                // Get the image
+                image = server.getMap(layers, styles, srs, dBbox, width, height, trans, bgcolor);
+                
+                //if requested bbox = layer bbox then cache in nationalMaps
+                Capabilities capabilities = server.getCapabilities();
+                Rectangle2D rect = null;
+                for(int i=0;i< layers.length;i++){
+                    Capabilities.Layer l = capabilities.getLayer(layers[i]);
+                    double[] box = l.getBbox();
+                    if(rect == null) {
+                        rect = new Rectangle2D.Double(box[0], box[1], box[2]- box[0], box[3]-box[1]);
+                    }else{
+                        rect.add(box[0], box[1]);
+                        rect.add(box[2], box[3]);
+                    }
+                }
+                Rectangle2D rbbox = new Rectangle2D.Double(dBbox[0], dBbox[1], dBbox[2]- dBbox[0], dBbox[3]-dBbox[1]);
+                System.out.println("layers "+rect+" request "+rbbox);
+                if(rbbox.getCenterX()==rect.getCenterX()&&rbbox.getCenterY()==rect.getCenterY()){
+                    System.out.println("Caching a national map with key " + key);
+                    nationalMaps.put(key, image);
+                }else{
+                    System.out.println("all maps cache with key " + key);
+                    allMaps.put(key, image);
+                }
+                System.out.println("Got image - sending response as "+format+" ("+image.getWidth(null)+","+image.getHeight(null)+")");
+                }
+            catch(WMSException wmsexp) {
+                doException(wmsexp.getCode(), wmsexp.getMessage(), request, response, exceptions);
             }
-            if (styles!=null && styles.length!=layers.length) {
-                doException(null, "Invalid number of style defined for passed layers", request, response, exceptions);
-                return;
+            catch(Exception exp) {
+                doException(null, "Unknown exception : "+exp.getMessage(), request, response, exceptions);
             }
-            if (srs==null) {
-                doException(WMSException.WMSCODE_INVALIDSRS, "SRS not defined", request, response, exceptions);
-                return;
-            }
-            if (bbox==null) {
-                doException(null, "BBOX not defined", request, response, exceptions);
-                return;
-            }
-            if (height==-1 || width==-1) {
-                doException(null, "HEIGHT or WIDTH not defined", request, response, exceptions);
-                return;
-            }
-            
-            if (format==null)
-                format = DEFAULT_FORMAT;
-            
-            // Check the bbox
-            String [] sBbox = commaSeparated(bbox, 4);
-            if (sBbox==null) {
-                doException(null, "Invalid bbox : "+bbox, request, response, exceptions);
-            }
-            double [] dBbox = new double[4];
-            for (int i=0;i<4;i++)
-                dBbox[i] = doubleParam(sBbox[i]);
-            
-            System.out.println("Params check out - getting image");
-            
-            // Get the image
-            BufferedImage image = server.getMap(layers, styles, srs, dBbox, width, height, trans, bgcolor);
-            allMaps.put(request.getQueryString(), image);
-            System.out.println("Got image - sending response as "+format+" ("+image.getWidth(null)+","+image.getHeight(null)+")");
-            
-            // Write the response
-            response.setContentType(format);
-            OutputStream out = response.getOutputStream();
-            // avoid caching in browser
-            response.setHeader("Pragma", "no-cache");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setDateHeader("Expires",0);
-            
+        }    
+        // Write the response
+        response.setContentType(format);
+        OutputStream out = response.getOutputStream();
+        // avoid caching in browser
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires",0);
+        try{
             formatImageOutputStream(format, image, out);
-            out.close();
-        }
-        catch(WMSException wmsexp) {
-            doException(wmsexp.getCode(), wmsexp.getMessage(), request, response, exceptions);
-        }
-        catch(Exception exp) {
+        } catch(Exception exp) {
             doException(null, "Unknown exception : "+exp.getMessage(), request, response, exceptions);
         }
+        out.close();
         
     }
     
@@ -708,8 +698,76 @@ public class WMSServlet extends HttpServlet {
     }
     
     private void clearCache(){
-        allMaps = new LRUMap(200);
+        allMaps = new LRUMap(CACHE_SIZE);
         allMaps = Collections.synchronizedMap(allMaps);
     }
-}
+    
+    class CacheKey{
+        int key;
+         CacheKey(HttpServletRequest request){
+            
+            String tmp = getParameter(request, PARAM_LAYERS);
+            System.out.println("layer string " + tmp);
+            String [] layers = commaSeparated(tmp);
+            String srs = getParameter(request, PARAM_SRS);
+            String bbox = getParameter(request, PARAM_BBOX);
+            int width = posIntParam(getParameter(request, PARAM_WIDTH));
+            int height = posIntParam(getParameter(request, PARAM_HEIGHT));
+            String [] styles = commaSeparated(getParameter(request, PARAM_STYLES), layers.length);
+            boolean trans = boolParam(getParameter(request, PARAM_TRANSPARENT));
+            Color bgcolor = colorParam(getParameter(request, PARAM_BGCOLOR));
+            // Check values
+            if (layers==null || layers.length==0) {
+                System.out.println("No Layers defined");
+                return;
+            }
+            if (styles!=null && styles.length!=layers.length) {
+                System.out.println("Invalid number of styles defined for passed layers");
+                return;
+            }
+            key = 0;
+            for(int i = 0; i < layers.length; i++){
+                key += layers[i].toLowerCase().hashCode();
+                System.out.println("layer "+ layers[i] + " key = " + key);
+                if(i < styles.length){
+                    key += styles[i].toLowerCase().hashCode();
+                    System.out.println("style "+ styles[i] + " key = " + key);
+                }
+            }
+            key*=37;
+            System.out.println("key = " + key);
+            key += bgcolor.hashCode()*37;
+            System.out.println("color "+bgcolor+" key = " + key);
+            key += srs.hashCode()*37;
+            System.out.println("srs "+srs+" key = " + key);
+            key += bbox.hashCode()*37;
+            System.out.println("bbox "+bbox+" key = " + key);
+            key += (width*37 + height)*37;
+            
+            System.out.println("Key = " + key);
+         }
+         
+         public int hashCode(){
+             return key; 
+         }
+         
+         public boolean equals(Object k){
+             if(k == null){
+                return false;
+             }
+             if(this.getClass() != k.getClass()){
+                 return false;
+             }
+             if(((CacheKey)k).key != key){
+                 return false;
+             }
+             
+             return true;
+         }
+         
+         public String toString(){
+             return ""+key;
+         }
+    }
+} 
 
