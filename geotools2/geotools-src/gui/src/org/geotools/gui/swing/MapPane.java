@@ -69,7 +69,7 @@ import org.geotools.renderer.j2d.GeoMouseEvent;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.17 2003/05/19 13:11:14 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.18 2003/05/31 12:40:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MapPane extends ZoomPane {
@@ -84,7 +84,7 @@ public class MapPane extends ZoomPane {
      * it will be decimated before rendering. This value should not be to close from {@link
      * #REQUIRED_RESOLUTION} in order to avoir too frequent recomputation when zoom change.
      */
-    private static final Float FINEST_RESOLUTION = new Float(0.0625);
+    private static final Float FINEST_RESOLUTION = new Float(0.25);
 
     /**
      * Default value for the {@link Hints#REQUIRED_RESOLUTION} rendering hint. This is the
