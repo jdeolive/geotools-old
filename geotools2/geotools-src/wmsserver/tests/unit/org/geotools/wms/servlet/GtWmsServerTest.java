@@ -24,14 +24,7 @@ public class GtWmsServerTest extends TestCase {
     
     public GtWmsServerTest(String name) {
         super(name);
-        //Geotools.init();
-        Logger.getLogger("org.geotools.wmsserver").setLevel(Level.ALL);
-        LOGGER.setLevel(Level.ALL);
-        java.util.logging.Handler handler = new java.util.logging.ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        Logger.getLogger("org.geotools.wmsserver").addHandler(handler);
-        LOGGER.addHandler(handler);
-        LOGGER.info("test constructed");
+        Geotools.init();
        
     }
     
