@@ -74,7 +74,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * interpolation (use the standard {@link GridCoverage} class for that).
  * It should work for other kinds of interpolation however.
  *
- * @version $Id: Interpolator.java,v 1.4 2002/07/27 22:08:44 desruisseaux Exp $
+ * @version $Id: Interpolator.java,v 1.5 2002/08/30 13:12:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Interpolator extends GridCoverage {
@@ -266,7 +266,14 @@ final class Interpolator extends GridCoverage {
         while (scan != null);
         return (Interpolation[]) interp.toArray(new Interpolation[interp.size()]);
     }
-    
+
+    /**
+     * Returns the name of the interpolation used by this {@link Interpolator}.
+     */
+    public String getInterpolationName() {
+        return Operation.getInterpolationName(interpolation);
+    }
+
     /**
      * Return an sequence of integer values for a given two-dimensional point in the coverage.
      *
@@ -592,7 +599,7 @@ final class Interpolator extends GridCoverage {
      * The default value is nearest neighbor. The new interpolation type operates
      * on all sample dimensions. See package description for more details.
      *
-     * @version $Id: Interpolator.java,v 1.4 2002/07/27 22:08:44 desruisseaux Exp $
+     * @version $Id: Interpolator.java,v 1.5 2002/08/30 13:12:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

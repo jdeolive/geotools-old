@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.10 2002/08/25 18:33:45 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.11 2002/08/30 13:12:21 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -349,8 +349,8 @@ public class GridCoverageProcessor {
         }
         if (coverage != source) {
             String interp = "Nearest";
-            if (interpolations!=null && interpolations.length != 0) {
-                interp = Operation.getInterpolationName(interpolations[0]);
+            if (coverage instanceof Interpolator) {
+                interp = ((Interpolator)coverage).getInterpolationName();
             }
             final Locale locale = null; // Set locale here (if any).
             final LogRecord record = Resources.getResources(locale).getLogRecord(
