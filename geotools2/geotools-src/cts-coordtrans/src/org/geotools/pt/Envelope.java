@@ -202,11 +202,10 @@ public class Envelope implements Dimensioned, Cloneable, Serializable {
     }
     
     /**
-     * Returns the minimal ordinate
-     * along the specified dimension.
+     * Returns the minimal ordinate along the specified dimension.
      */
     public double getMinimum(final int dimension) {
-        if (dimension<ord.length) {
+        if (dimension < ord.length/2) {
             return ord[dimension];
         } else {
             throw new ArrayIndexOutOfBoundsException(dimension);
@@ -214,12 +213,11 @@ public class Envelope implements Dimensioned, Cloneable, Serializable {
     }
     
     /**
-     * Returns the maximal ordinate
-     * along the specified dimension.
+     * Returns the maximal ordinate along the specified dimension.
      */
     public double getMaximum(final int dimension) {
-        if (dimension>=0) {
-            return ord[dimension+ord.length/2];
+        if (dimension >= 0) {
+            return ord[dimension + ord.length/2];
         } else {
             throw new ArrayIndexOutOfBoundsException(dimension);
         }

@@ -50,10 +50,10 @@ import org.geotools.ct.MissingParameterException;
  * <p>&nbsp;</p>
  * <p align="center"><img src="../doc-files/ConicProjection.png"></p>
  *
- * @version $Id: ConicProjection.java,v 1.1 2003/03/17 14:24:31 desruisseaux Exp $
+ * @version $Id: ConicProjection.java,v 1.2 2003/04/16 19:26:58 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
- * @see <a href="http://everest.hunter.cuny.edu/mp/conic.html">http://everest.hunter.cuny.edu/mp/conic.html</a>
+ * @see <A HREF="http://mathworld.wolfram.com/ConicProjection.html">Conic projection on MathWorld</A>
  */
 public abstract class ConicProjection extends MapProjection {
     /**

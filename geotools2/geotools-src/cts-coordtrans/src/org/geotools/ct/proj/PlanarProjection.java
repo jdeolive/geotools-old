@@ -44,10 +44,10 @@ import org.geotools.ct.MissingParameterException;
  * <p>&nbsp;</p>
  * <p align="center"><img src="../doc-files/PlanarProjection.png"></p>
  *
- * @version $Id: PlanarProjection.java,v 1.1 2003/03/17 14:24:31 desruisseaux Exp $
+ * @version $Id: PlanarProjection.java,v 1.2 2003/04/16 19:26:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
- * @see <a href="http://everest.hunter.cuny.edu/mp/plane.html">http://everest.hunter.cuny.edu/mp/plane.html</a>
+ * @see <A HREF="http://mathworld.wolfram.com/AzimuthalProjection.html">Azimuthal projection on MathWorld</A>
  */
 public abstract class PlanarProjection extends MapProjection {
     /**

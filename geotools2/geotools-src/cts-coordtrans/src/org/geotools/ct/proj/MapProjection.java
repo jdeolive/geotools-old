@@ -76,9 +76,11 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.4 2003/03/29 20:26:32 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.5 2003/04/16 19:26:59 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
+ *
+ * @see <A HREF="http://mathworld.wolfram.com/MapProjection.html">Map projections on MathWorld</A>
  */
 public abstract class MapProjection extends AbstractMathTransform implements MathTransform2D,
                                                                              Serializable
@@ -497,7 +499,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * {@link MapProjection#inverseTransform(double,double,Point2D)} instead of
      * {@link MapProjection#transform(double,double,Point2D)}.
      *
-     * @version $Id: MapProjection.java,v 1.4 2003/03/29 20:26:32 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.5 2003/04/16 19:26:59 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {

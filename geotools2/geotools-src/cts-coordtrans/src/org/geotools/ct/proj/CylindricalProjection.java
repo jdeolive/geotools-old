@@ -46,10 +46,10 @@ import org.geotools.ct.MissingParameterException;
  * <p>&nbsp;</p>
  * <p align="center"><img src="../doc-files/CylindricalProjection.png"></p>
  *
- * @version $Id: CylindricalProjection.java,v 1.1 2003/03/17 14:24:31 desruisseaux Exp $
+ * @version $Id: CylindricalProjection.java,v 1.2 2003/04/16 19:26:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
- * @see <a href="http://everest.hunter.cuny.edu/mp/cylind.html">http://everest.hunter.cuny.edu/mp/cylind.html</a>
+ * @see <A HREF="http://mathworld.wolfram.com/CylindricalProjection.html">Cylindrical projection on MathWorld</A>
  */
 public abstract class CylindricalProjection extends MapProjection {
     /**

@@ -74,10 +74,11 @@ import org.geotools.resources.cts.ResourceKeys;
  *            'Coordinate Conversions and Transformations including Formulas',
  *            EPSG Guidence Note Number 7, Version 19.
  *
- * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">mercator_1sp</A>
- * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">mercator_2sp</A>
+ * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">&quot;mercator_1sp&quot; on Remote Sensing</A>
+ * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
+ * @see <A HREF="http://mathworld.wolfram.com/MercatorProjection.html">Mercator projection on MathWorld</A>
  * 
- * @version $Id: Mercator.java,v 1.1 2003/04/03 12:29:00 desruisseaux Exp $
+ * @version $Id: Mercator.java,v 1.2 2003/04/16 19:26:59 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -287,7 +288,7 @@ public class Mercator extends CylindricalProjection {
     /**
      * Informations about a {@link Mercator}.
      *
-     * @version $Id: Mercator.java,v 1.1 2003/04/03 12:29:00 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.2 2003/04/16 19:26:59 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static final class Provider extends org.geotools.ct.proj.Provider {
