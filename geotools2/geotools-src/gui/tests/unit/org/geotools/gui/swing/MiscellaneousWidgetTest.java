@@ -37,13 +37,12 @@ import junit.framework.*;
 
 // Geotools dependencies
 import org.geotools.resources.Arguments;
-import org.geotools.gc.GridCoverageTest;
 
 
 /**
  * Tests a set of widgets.
  *
- * @version $Id: MiscellaneousWidgetTest.java,v 1.1 2003/03/28 16:45:58 desruisseaux Exp $
+ * @version $Id: MiscellaneousWidgetTest.java,v 1.2 2003/04/14 20:12:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MiscellaneousWidgetTest extends TestCase {
@@ -129,9 +128,9 @@ public class MiscellaneousWidgetTest extends TestCase {
     /**
      * Test the {@link ColorBar}.
      */
-    public void testColorBar() throws Exception {
-        ColorBar test = new ColorBar();
-        test.setColors(GridCoverageTest.getExample(0));
-        show(test, "ColorBar");
-    }
+//    public void testColorBar() throws Exception {
+//        ColorBar test = new ColorBar();
+//        test.setColors(org.geotools.gc.GridCoverageTest.getExample(0));
+//        show(test, "ColorBar");
+//    }
 }
