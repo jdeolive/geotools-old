@@ -61,7 +61,7 @@ import org.geotools.ct.CoordinateTransformation;
 
 // Miscellaneous
 import java.io.Serializable;
-import org.geotools.util.Statistics;
+import org.geotools.math.Statistics;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Geometry;
 import org.geotools.resources.Utilities;
@@ -94,7 +94,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Polyline.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Polyline implements Serializable {
@@ -1234,7 +1234,7 @@ final class Polyline implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Polyline.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1277,7 +1277,7 @@ final class Polyline implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Polyline.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {

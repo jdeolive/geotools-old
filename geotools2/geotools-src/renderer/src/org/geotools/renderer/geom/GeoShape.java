@@ -62,7 +62,7 @@ import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.TransformException;
 import org.geotools.resources.Utilities;
-import org.geotools.util.Statistics;
+import org.geotools.math.Statistics;
 
 
 /**
@@ -81,7 +81,7 @@ import org.geotools.util.Statistics;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: GeoShape.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+ * @version $Id: GeoShape.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GeoShape implements Shape, Cloneable, Serializable {

@@ -80,7 +80,7 @@ import org.geotools.ct.MathTransform;
 
 // Miscellaneous
 import org.geotools.util.WeakHashSet;
-import org.geotools.util.Statistics;
+import org.geotools.math.Statistics;
 import org.geotools.resources.XMath;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Arguments;
@@ -108,7 +108,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -312,8 +312,7 @@ public class Polygon extends GeoShape {
         }
         final CoordinateTransformation ct = getIdentityTransform(coordinateSystem);
         final List               polygons = new ArrayList();
-        final Rectangle2D          bounds = shape.getBounds2D();
-        final PathIterator            pit = shape.getPathIterator(null, 0.025*Math.max(bounds.getHeight(), bounds.getWidth()));
+        final PathIterator            pit = shape.getPathIterator(null, getFlatness(shape));
         final float[]              buffer = new float[6];
         float[]                     array = new float[64];
         while (!pit.isDone()) {
@@ -363,6 +362,15 @@ public class Polygon extends GeoShape {
             }
         }
         return (Polygon[]) polygons.toArray(new Polygon[polygons.size()]);
+    }
+
+    /**
+     * Returns a suggested value for the <code>flatness</code> argument in
+     * {@link Shape#getPathIterator(AffineTransform,double)} for the specified shape.
+     */
+    static double getFlatness(final Shape shape) {
+        final Rectangle2D bounds = shape.getBounds2D();
+        return 0.025*Math.max(bounds.getHeight(), bounds.getWidth());
     }
 
     /**
@@ -1373,6 +1381,16 @@ public class Polygon extends GeoShape {
     }
 
     /**
+     * Return a polygons with the point of this polygons from <code>lower</code>
+     * inclusive to the end. The returned polygon may not be closed, i.e. {@link
+     * #getInteriorType} may returns <code>null</code>. If no data are available
+     * in the specified range, this method returns <code>null</code>.
+     */
+    final synchronized Polygon subpoly(final int lower) {
+        return subpoly(lower, getPointCount());
+    }
+
+    /**
      * Returns the mean resolution. This method cache the result for faster processing.
      *
      * @return The mean resolution, or {@link Float#NaN} if this polygon doesn't have any point.
@@ -1852,7 +1870,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon

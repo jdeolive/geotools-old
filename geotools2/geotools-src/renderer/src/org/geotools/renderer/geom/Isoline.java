@@ -59,7 +59,7 @@ import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
 import org.geotools.cs.ProjectedCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
-import org.geotools.util.Statistics;
+import org.geotools.math.Statistics;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.renderer.Resources;
@@ -83,7 +83,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Isoline.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -616,8 +616,8 @@ public class Isoline extends GeoShape implements Comparable {
      *         order is more appropriate for searching a polygon.
      * @return The set of polygons. This set will be ordered if possible.
      */
-    private List getPolygonList(final boolean reverse)
-    {
+    private List getPolygonList(final boolean reverse) {
+        assert Thread.holdsLock(this);
         if (!sorted) {
             sort();
         }
@@ -779,8 +779,9 @@ public class Isoline extends GeoShape implements Comparable {
      * the polygon and doesn't set the coordinate system.
      */
     private void addImpl(final Polygon toAdd) {
-        if (polygons==null) {
-            polygons=new Polygon[16];
+        assert Thread.holdsLock(this);
+        if (polygons == null) {
+            polygons = new Polygon[16];
         }
         if (polygonCount >= polygons.length) {
             polygons = (Polygon[])XArray.resize(polygons, polygonCount+Math.min(polygonCount, 256));
@@ -797,11 +798,11 @@ public class Isoline extends GeoShape implements Comparable {
      * @return <code>true</code> if the polylgon has been removed.
      */
     public synchronized boolean remove(final Polygon toRemove) {
-        boolean removed=false;
+        boolean removed = false;
         for (int i=polygonCount; --i>=0;) {
             if (polygons[i].equals(toRemove)) {
                 remove(i);
-                removed=true;
+                removed = true;
             }
         }
         return removed;
@@ -812,9 +813,10 @@ public class Isoline extends GeoShape implements Comparable {
      * Remote the polylgon at the specified index.
      */
     private void remove(final int index) {
+        assert Thread.holdsLock(this);
         bounds = null;
         System.arraycopy(polygons, index+1, polygons, index, polygonCount-(index+1));
-        polygons[--polygonCount]=null;
+        polygons[--polygonCount] = null;
     }
 
     /**
@@ -1064,7 +1066,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.1 2003/02/03 09:51:59 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {
@@ -1147,7 +1149,7 @@ public class Isoline extends GeoShape implements Comparable {
          * Returns the number of elements in this collection.
          */
         public int size() {
-            int count=0;
+            int count = 0;
             for (int i=next(0); i<polygons.length; i=next(i+1)) {
                 count++;
             }
@@ -1158,8 +1160,7 @@ public class Isoline extends GeoShape implements Comparable {
          * Returns an iterator over the elements in this collection.
          */
         public Iterator iterator() {
-            return new Iterator()
-            {
+            return new Iterator() {
                 /** Index of the next valid polygon. */
                 private int index = FilteredSet.this.next(0);
 
