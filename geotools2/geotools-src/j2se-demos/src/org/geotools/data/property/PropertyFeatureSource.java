@@ -12,6 +12,7 @@ public class PropertyFeatureSource extends AbstractFeatureLocking {
     FeatureType featureType;
     PropertyDataStore store;
     
+    long cacheTimestamp = 0;
     Envelope cacheBounds = null;
     int cacheCount = -1;
     
@@ -53,13 +54,15 @@ public class PropertyFeatureSource extends AbstractFeatureLocking {
     public FeatureType getSchema() {
         return featureType;
     }
+    
     public int getCount(Query query) {
         if( query == Query.ALL && getTransaction() == Transaction.AUTO_COMMIT ){
-            if( cacheCount != -1 ){
+            File file = new File( store.directory, typeName+".properties" );            
+            if( cacheCount != -1 && file.lastModified() == cacheTimestamp){
                 return cacheCount;
             }
-            File file = new File( store.directory, typeName+".properties" );
             cacheCount = countFile( file );
+            cacheTimestamp = file.lastModified();
             return cacheCount;
         }
         return -1;
@@ -72,16 +75,18 @@ public class PropertyFeatureSource extends AbstractFeatureLocking {
         }
         catch( IOException e){
             return -1;
-        }                            
+        }
     }
     public Envelope getBounds() {
-        if( cacheBounds != null ){
+        File file = new File( store.directory, typeName+".properties" );                
+        if( cacheBounds != null && file.lastModified() == cacheTimestamp ){            
             // we have the cache
             return cacheBounds;
         }
         try {
             // calculate and store in cache                    
             cacheBounds = getFeatures().getBounds();
+            cacheTimestamp = file.lastModified();            
             return cacheBounds;
         } catch (IOException e) {            
         }
