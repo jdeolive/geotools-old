@@ -61,6 +61,10 @@
       <id>gcs-coverage</id>
       <version>0.6</version>
     </dependency>
+        <dependency>
+        <id>commons-collections</id>
+        <version>2.1</version>
+    </dependency>
     </dependencies>
   
 </project>
