@@ -51,7 +51,7 @@ import java.awt.geom.AffineTransform;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.15 2003/05/28 20:49:20 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.16 2003/06/25 13:22:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -65,7 +65,8 @@ public final class CTSUtilities {
     /**
      * Returns the dimension of the first axis of a particular type.
      * For example, <code>getDimensionOf(cs,&nbsp;AxisInfo.TIME)</code>
-     * would returns the dimension number of time axis.
+     * would returns the dimension number of time axis. If no such dimension
+     * is found, then this method returns <code>-1</code>.
      */
     public static int getDimensionOf(final CoordinateSystem cs, final AxisInfo axis) {
         final int dimension = cs.getDimension();
@@ -73,6 +74,32 @@ public final class CTSUtilities {
         for (int i=0; i<dimension; i++) {
             if (orientation.equals(cs.getAxis(i).orientation.absolute())) {
                 return i;
+            }
+        }
+        return -1;
+    }
+    
+    /**
+     * Returns the dimension of the first coordinate system of the given type.
+     * The <code>type</code> argument must be assignable from {@link CoordinateSystem}.
+     * If no such dimension is found, then this method returns <code>-1</code>.
+     */
+    public static int getDimensionOf(final CoordinateSystem cs, final Class type) {
+        if (!CoordinateSystem.class.isAssignableFrom(type)) {
+            throw new IllegalArgumentException(type.getName());
+        }
+        if (type.isAssignableFrom(cs.getClass())) {
+            return 0;
+        }
+        if (cs instanceof CompoundCoordinateSystem) {
+            int index;
+            final CompoundCoordinateSystem comp = (CompoundCoordinateSystem) cs;
+            final CoordinateSystem headCS = comp.getHeadCS();
+            if ((index=getDimensionOf(headCS, type)) >= 0) {
+                return index;
+            }
+            if ((index=getDimensionOf(comp.getTailCS(), type)) >= 0) {
+                return index + headCS.getDimension();
             }
         }
         return -1;

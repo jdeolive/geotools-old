@@ -380,6 +380,32 @@ public class Envelope implements Dimensioned, Cloneable, Serializable {
         System.arraycopy(ord, lower+curDim, envelope.ord, newDim, newDim);
         return envelope;
     }
+
+    /**
+     * Returns a new envelope with the same values than this envelope minus the
+     * specified range of dimensions.
+     *
+     * @param  lower The first dimension to omit, inclusive.
+     * @param  upper The last  dimension to omit, exclusive.
+     * @return The subenvelope.
+     * @throws IndexOutOfBoundsException if an index is out of bounds.
+     */
+    public Envelope getReducedEnvelope(final int lower, final int upper) {
+        final int curDim = ord.length/2;
+        final int rmvDim = upper-lower;
+        if (lower<0 || lower>curDim) {
+            throw new IndexOutOfBoundsException(Resources.format(
+                    ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2, "lower", new Integer(lower)));
+        }
+        if (rmvDim<0 || upper>curDim) {
+            throw new IndexOutOfBoundsException(Resources.format(
+                    ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2, "upper", new Integer(upper)));
+        }
+        final Envelope envelope = new Envelope(curDim - rmvDim);
+        System.arraycopy(ord, 0,     envelope.ord, 0,            lower);
+        System.arraycopy(ord, lower, envelope.ord, upper, curDim-upper);
+        return envelope;
+    }
     
     /**
      * Returns a {@link Rectangle2D} with the same bounds as this <code>Envelope</code>.

@@ -50,7 +50,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * A one-dimensional coordinate system suitable for time measurements.
  *
- * @version $Id: TemporalCoordinateSystem.java,v 1.8 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: TemporalCoordinateSystem.java,v 1.9 2003/06/25 13:22:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TemporalCoordinateSystem extends CoordinateSystem {
@@ -180,6 +180,28 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
         }
         throw new IndexOutOfBoundsException(Resources.format(
                 ResourceKeys.ERROR_INDEX_OUT_OF_BOUNDS_$1, new Integer(dimension)));
+    }
+
+    /**
+     * Convert the given value into a {@link Date} object.
+     * This method is the converse of {@link #toValue}.
+     *
+     * @param  value A value in this axis unit.
+     * @return The value as a {@linkplain Date date}.
+     */
+    public Date toDate(final double value) {
+        return new Date(Math.round(Unit.MILLISECOND.convert(value, unit)) + epoch);
+    }
+
+    /**
+     * Convert the given {@linkplain Date date} into a value in this axis unit.
+     * This method is the converse of {@link #toDate}.
+     *
+     * @param  The value as a {@linkplain Date date}.
+     * @return value A value in this axis unit.
+     */
+    public double toValue(final Date time) {
+        return unit.convert(time.getTime()-epoch, Unit.MILLISECOND);
     }
     
     /**
