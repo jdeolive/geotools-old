@@ -179,16 +179,15 @@ public class TableInputStream extends VPFInputStream
     return new TableRow(fieldsArr, fieldsMap);
   }
 
-  public VPFRow readRow(int index)
-  {
-	return null;
-  }
-
   public int tableSize()
   {
     return -1;
   }
 
+  public void setPosition(long pos) throws IOException
+  {
+  }
+  
   public static void main(String[] args)
     throws IOException
   {

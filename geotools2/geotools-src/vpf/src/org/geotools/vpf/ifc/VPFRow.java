@@ -25,10 +25,10 @@ package org.geotools.vpf.ifc;
  * Created: Mon Feb 24 22:51:21 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFRow.java,v 1.1 2003/02/24 22:46:34 kobit Exp $
+ * @version $Id: VPFRow.java,v 1.2 2003/03/19 21:36:29 kobit Exp $
  */
 
 public interface VPFRow 
 {
-  
+
 }// VPFRow

@@ -140,20 +140,6 @@ public class TableInputStreamTest extends TestCase
 
   /**
    * Method for testing original source method:
-   * int read()
-   * from tested class
-   */
-  public void testRead()
-  {
-    assertEquals("Reading 1 byte from stream, method had to be implemented but"+
-                 " it does not make sense for this kind of stream so it does "+
-                 "not read byte indeed, but always return -1 "+
-                 varTableInputStream.streamFile,
-                 -1, varTableInputStream.read());
-  } // end of testRead()
-
-  /**
-   * Method for testing original source method:
    * org.geotools.vpf.TableRow readRow()
    * from tested class
    */

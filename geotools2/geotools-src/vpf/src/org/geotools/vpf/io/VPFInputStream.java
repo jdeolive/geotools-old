@@ -18,9 +18,7 @@
  */
 package org.geotools.vpf.io;
 
-import java.io.PushbackInputStream;
-import java.io.InputStream;
-import java.io.FileInputStream;
+import java.io.RandomAccessFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.LinkedList;
@@ -38,16 +36,17 @@ import org.geotools.vpf.exc.VPFDataException;
  * Created: Mon Feb 24 22:39:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFInputStream.java,v 1.3 2003/03/11 22:35:47 kobit Exp $
+ * @version $Id: VPFInputStream.java,v 1.4 2003/03/19 21:36:31 kobit Exp $
  */
-public abstract class VPFInputStream extends InputStream 
+public abstract class VPFInputStream
   implements FileConstants, DataTypesDefinition
 {
 
   protected List rowsReadAhead = new LinkedList();
   protected String streamFile = null;
-  protected PushbackInputStream input = null;
+  protected RandomAccessFile input = null;
   protected char byteOrder = LITTLE_ENDIAN_ORDER;
+  protected String accessMode = "r";
   
   protected VPFHeader header = null;
   
@@ -55,7 +54,7 @@ public abstract class VPFInputStream extends InputStream
 
   public abstract VPFRow readRow() throws IOException;
 
-  public abstract VPFRow readRow(int index) throws IOException;
+  public abstract void setPosition(long pos) throws IOException;
 
   public abstract int tableSize() throws IOException;
 
@@ -63,7 +62,7 @@ public abstract class VPFInputStream extends InputStream
     throws IOException
   {
     this.streamFile = file;
-    input = new PushbackInputStream(new FileInputStream(streamFile));
+    input = new RandomAccessFile(streamFile, accessMode);
     header = readHeader();
   }
 
@@ -72,7 +71,7 @@ public abstract class VPFInputStream extends InputStream
   {
 	this.streamFile = file;
 	this.byteOrder = byteOrder;
-	input = new PushbackInputStream(new FileInputStream(streamFile));
+    input = new RandomAccessFile(streamFile, accessMode);
     header = readHeader();
   } // VariableIndexInputStream constructor
 
@@ -99,6 +98,12 @@ public abstract class VPFInputStream extends InputStream
 	this.byteOrder = newByteOrder;
   }
 
+  public VPFRow readRow(int index) throws IOException
+  {
+	setPosition(index);
+	return readRow();
+  }
+
   public int readRows(VPFRow[] rows) throws IOException
   {
     int counter = 0;
@@ -115,7 +120,8 @@ public abstract class VPFInputStream extends InputStream
   public int readRows(VPFRow[] rows, int fromIndex) throws IOException
   {
     int counter = 0;
-    VPFRow row = readRow(fromIndex);
+	setPosition(fromIndex);
+    VPFRow row = readRow();
     while (row != null && counter < rows.length)
     {
       rows[counter++] = row;
@@ -123,6 +129,16 @@ public abstract class VPFInputStream extends InputStream
     } // end of while (row != null)
 
     return counter;
+  }
+
+  protected void unread(long bytes) throws IOException
+  {
+	input.seek(input.getFilePointer()-bytes);
+  }
+
+  protected void seek(long pos) throws IOException
+  {
+	input.seek(pos);
   }
 
   protected char readChar() throws IOException
@@ -138,7 +154,7 @@ public abstract class VPFInputStream extends InputStream
 	if (terminators.indexOf(ctrl) != -1)
 	{
 	  if (ctrl == VPF_FIELD_SEPARATOR) {
-		input.unread(ctrl);
+		unread(1);
 	  } // end of if (ctrl == VPF_RECORD_SEPARATOR)
 	  return null;
 	}
@@ -157,32 +173,47 @@ public abstract class VPFInputStream extends InputStream
     } // end of if (text.equals("null")) else
   }
 
-  protected int readInteger() throws IOException
+  protected byte[] readNumber(int cnt) throws IOException
   {
-	byte[] fourBytes = new byte[4];
-	int cnt = input.read(fourBytes);
-	if (cnt == 4)
+	byte[] dataBytes = new byte[cnt];
+	int res = input.read(dataBytes);
+	if (res == cnt)
 	{
 	  if (byteOrder == LITTLE_ENDIAN_ORDER)
 	  {
-		fourBytes = DataUtils.toBigEndian(fourBytes);
+		dataBytes = DataUtils.toBigEndian(dataBytes);
 	  } // end of if (byteOrder == LITTLE_ENDIAN_ORDER)
-	  return DataUtils.decodeInt(fourBytes);
-	} // end of if (cnt == 4)
+	  return dataBytes;
+	} // end of if (res == cnt)
 	else
 	{
 	  throw new VPFDataException("Inssufficient bytes in input stream");
-	} // end of else
+	} // end of if (res == cnt) else
+  }
+
+  protected short readShort() throws IOException
+  {
+	return DataUtils.decodeShort(readNumber(DATA_SHORT_INTEGER_LEN));
+  }
+
+  protected int readInteger() throws IOException
+  {
+	return DataUtils.decodeInt(readNumber(DATA_LONG_INTEGER_LEN));
+  }
+
+  protected float readFloat() throws IOException
+  {
+	return DataUtils.decodeFloat(readNumber(DATA_SHORT_FLOAT_LEN));
+  }
+
+  protected double readDouble() throws IOException
+  {
+	return DataUtils.decodeDouble(readNumber(DATA_LONG_FLOAT_LEN));
   }
 
   public int availableRows()
   {
     return rowsReadAhead != null ? rowsReadAhead.size() : 0;
-  }
-
-  public int read()
-  {
-    return -1;
   }
 
   public void close() throws IOException

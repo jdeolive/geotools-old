@@ -30,14 +30,13 @@ import org.geotools.vpf.ifc.VPFRow;
  * Created: Mon Feb 24 22:23:58 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VariableIndexInputStream.java,v 1.4 2003/03/16 22:59:39 kobit Exp $
+ * @version $Id: VariableIndexInputStream.java,v 1.5 2003/03/19 21:36:31 kobit Exp $
  */
 public class VariableIndexInputStream extends VPFInputStream 
 {
 
-  protected int entriesNumber = 0;
-  protected int vpfHeaderLen = 0;
-
+  public static final long VARIABLE_INDEX_ROW_SIZE = 8;
+  
   public VariableIndexInputStream(String file, char byteOrder)
 	throws IOException
   {
@@ -46,14 +45,12 @@ public class VariableIndexInputStream extends VPFInputStream
   
   public int tableSize()
   {
-	return entriesNumber;
+	return ((VariableIndexHeader)getHeader()).getEntriesNumber();
   }
 
   public VPFHeader readHeader() throws IOException
   {
-	entriesNumber = readInteger();
-	vpfHeaderLen = readInteger();
-	return new VariableIndexHeader(entriesNumber, vpfHeaderLen);
+	return new VariableIndexHeader(readInteger(), readInteger());
   }
 
   public VPFRow readRow() throws IOException
@@ -61,9 +58,9 @@ public class VariableIndexInputStream extends VPFInputStream
 	return new VariableIndexRow(readInteger(), readInteger());
   }
 
-  public VPFRow readRow(int index) throws IOException
+  public void setPosition(long pos) throws IOException
   {
-	return null;
+	seek(VARIABLE_INDEX_ROW_SIZE*pos);
   }
-
+  
 } // VariableIndexInputStream

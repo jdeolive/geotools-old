@@ -30,10 +30,12 @@ import org.geotools.vpf.ifc.VPFRow;
  * Created: Mon Feb 24 22:25:15 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: SpatialIndexInputStream.java,v 1.3 2003/03/11 22:47:34 kobit Exp $
+ * @version $Id: SpatialIndexInputStream.java,v 1.4 2003/03/19 21:36:29 kobit Exp $
  */
 public class SpatialIndexInputStream extends VPFInputStream 
 {
+
+  public static final long SPATIAL_INDEX_ROW_SIZE = 8;
   
   public SpatialIndexInputStream(String file, char byteOrder)
 	throws IOException
@@ -48,7 +50,8 @@ public class SpatialIndexInputStream extends VPFInputStream
 
   public VPFHeader readHeader() throws IOException
   {
-	return new SpatialIndexHeader();
+	return new SpatialIndexHeader(readInteger(), readFloat(), readFloat(),
+								  readFloat(), readFloat(), readInteger());
   }
 
   public VPFRow readRow() throws IOException
@@ -56,9 +59,9 @@ public class SpatialIndexInputStream extends VPFInputStream
 	return null;
   }
 
-  public VPFRow readRow(int index) throws IOException
+  public void setPosition(long pos) throws IOException
   {
-	return null;
+	seek(SPATIAL_INDEX_ROW_SIZE*pos);
   }
-
+  
 } // SpatialIndexInputStream
