@@ -14,13 +14,32 @@
   <description>gmldatasource module</description>
  
   <developers>
+      <developer>
+      <name>Darren Edmonds</name>
+      <id>dledmonds</id>
+      <email>dledmonds@users.sourceforge.net</email>
+      <organization></organization>
+      <roles>
+          <role>Module Maintainer</role>
+          <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Chris Holmes</name>
+      <id>cholmesny</id>
+      <email>cholmesny@users.sourceforge.net</email>
+      <organization></organization>
+            <roles>
+                <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+    </developer>
     <developer>
       <name>Rob Hranac</name>
       <id>robhranac</id>
       <email>robhranac@users.sourceforge.net</email>
       <organization></organization>
             <roles>
-                <role>Module Maintainer</role>
                 <role>Java Developer</role>
             </roles>
         </developer>
@@ -40,6 +59,13 @@
      <id>seangeo</id>
      <role>Bug Fixer</role>
      <organization> Defence Science and Technology Organisation </organization>
+    </contributor>
+    <contributor>
+      <name>William Stockhausen</name>
+      <organization>Virginia Institute of Marine Science</organization>
+            <roles>
+               <role>Bug Fixer</role>
+            </roles>
     </contributor>
   </contributors>
 
@@ -64,19 +90,5 @@
     </dependency>
     </dependencies>
  
-    <contributors>
-            
-        
-        <contributor>
-      <name>William Stockhausen</name>
-      
-      
-      <organization>Virginia Institute of Marine Science</organization>
-            <roles>
-               <role>Bug Fixer</role>
-               
-            </roles>
-        </contributor>
-    </contributors>
 </project>
 
