@@ -63,7 +63,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
     private static FilterCapabilities capabilities = null;
 
     /** Standard java logger */
-    private static Logger log = Logger.getLogger("org.geotools.filter");   
+    private static Logger LOGGER = Logger.getLogger("org.geotools.filter");   
 
     /** Map of comparison types to sql representation */
     private static Map comparisions = new HashMap();
@@ -162,7 +162,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
 
                 //out.write(";"); this should probably be added by client.
             } catch (java.io.IOException ioe) {
-                log.warning("Unable to export filter: " + ioe);
+                LOGGER.warning("Unable to export filter: " + ioe);
                 throw new SQLEncoderException("Problem writing filter: ", ioe);
             }
         } else {
@@ -189,7 +189,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
 
                 //out.write(";");
             } catch (java.io.IOException ioe) {
-                log.warning("Unable to export filter" + ioe);
+                LOGGER.warning("Unable to export filter" + ioe);
                 throw new SQLEncoderException("Problem writing filter: ", ioe);
             }
         } else {
@@ -245,12 +245,16 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
         try {
             //HACK: 12345 are Filter.NONE and Filter.ALL, they
             //should have some better names though.
-            if (filter.getFilterType() == 12345) {
+            if (filter.getFilterType() == 12345 ){
                 out.write("TRUE");
-            } else if (filter.getFilterType() == -12345) {
+            }
+            else if (filter.getFilterType() == -12345) {
                 out.write("FALSE");
             }
-            log.warning("exporting unknown filter type:"+filter.getClass().getName());
+            else {
+                LOGGER.warning("exporting unknown filter type:"+filter.toString());
+                //throw new RuntimeException("Do not know how to export filter:"+filter.toString() );
+            }
         } catch (java.io.IOException ioe) {
             throw new RuntimeException(IO_ERROR, ioe);
         }
@@ -264,13 +268,13 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @throws RuntimeException for io exception with writer
      */
     public void visit(BetweenFilter filter) throws RuntimeException {
-        log.finer("exporting BetweenFilter");
+        LOGGER.finer("exporting BetweenFilter");
 
         DefaultExpression left = (DefaultExpression) filter.getLeftValue();
         DefaultExpression right = (DefaultExpression) filter.getRightValue();
         DefaultExpression mid = (DefaultExpression) filter.getMiddleValue();
-        log.finer("Filter type id is " + filter.getFilterType());
-        log.finer("Filter type text is "
+        LOGGER.finer("Filter type id is " + filter.getFilterType());
+        LOGGER.finer("Filter type text is "
             + comparisions.get(new Integer(filter.getFilterType())));
 
         try {
@@ -331,7 +335,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @throws RuntimeException for io exception with writer
      */
     public void visit(LogicFilter filter) throws RuntimeException {
-        log.finer("exporting LogicFilter");
+        LOGGER.finer("exporting LogicFilter");
 
         filter.getFilterType();
 
@@ -370,12 +374,12 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @throws RuntimeException for io exception with writer
      */
     public void visit(CompareFilter filter) throws RuntimeException {
-        log.finer("exporting SQL ComparisonFilter");
+        LOGGER.finer("exporting SQL ComparisonFilter");
 
         DefaultExpression left = (DefaultExpression) filter.getLeftValue();
         DefaultExpression right = (DefaultExpression) filter.getRightValue();
-        log.finer("Filter type id is " + filter.getFilterType());
-        log.finer("Filter type text is "
+        LOGGER.finer("Filter type id is " + filter.getFilterType());
+        LOGGER.finer("Filter type text is "
             + comparisions.get(new Integer(filter.getFilterType())));
 
         String type = (String) comparisions.get(new Integer(
@@ -412,7 +416,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @throws RuntimeException for io exception with writer
      */
     public void visit(NullFilter filter) throws RuntimeException {
-        log.finer("exporting NullFilter");
+        LOGGER.finer("exporting NullFilter");
 
         DefaultExpression expr = (DefaultExpression) filter.getNullCheckValue();
 
@@ -443,7 +447,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @throws RuntimeException for io exception with writer
      */
     public void visit(AttributeExpression expression) throws RuntimeException {
-        log.finer("exporting ExpressionAttribute");
+        LOGGER.finer("exporting ExpressionAttribute");
 
         try {
             out.write("\"" + expression.getAttributePath() + "\"");
@@ -458,7 +462,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @param expression the attribute to turn to SQL.
      */
     public void visit(Expression expression) {
-        log.warning("exporting unknown (default) expression");
+        LOGGER.warning("exporting unknown (default) expression");
     }
 
     /**
@@ -471,7 +475,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @task TODO: Fully support GeometryExpression literals
      */
     public void visit(LiteralExpression expression) throws RuntimeException {
-        log.finer("exporting LiteralExpression");
+        LOGGER.finer("exporting LiteralExpression");
 
         try {
             Object literal = expression.getLiteral();
@@ -505,7 +509,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @throws RuntimeException for io problems
      */
     public void visit(MathExpression expression) throws RuntimeException {
-        log.finer("exporting Expression Math");
+        LOGGER.finer("exporting Expression Math");
 
         String type = (String) expressions.get(new Integer(expression.getType()));
 

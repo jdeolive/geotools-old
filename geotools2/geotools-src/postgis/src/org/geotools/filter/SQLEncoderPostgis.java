@@ -174,7 +174,10 @@ public class SQLEncoderPostgis extends SQLEncoder
             } else if (filter.getFilterType() == -12345) {
                 out.write("FALSE");
             }
-            LOGGER.warning("exporting unknown filter type:"+filter.getClass().getName());
+            else {
+                LOGGER.warning("exporting unknown filter type:"+filter.toString());
+                //throw new RuntimeException("Do not know how to export filter:"+filter.toString() );
+            }
         } catch (java.io.IOException ioe) {
             throw new RuntimeException("io error while writing", ioe);
         }
@@ -275,8 +278,7 @@ public class SQLEncoderPostgis extends SQLEncoder
                     out.write(")");
                 }
             } catch (java.io.IOException ioe) {
-                LOGGER.warning("Unable to export filter" + ioe);
-                throw new RuntimeException("io error while writing", ioe);
+                LOGGER.warning("Unable to export filter" + ioe);                
             }
         } else {
             LOGGER.warning("exporting unknown filter type, only bbox supported");
