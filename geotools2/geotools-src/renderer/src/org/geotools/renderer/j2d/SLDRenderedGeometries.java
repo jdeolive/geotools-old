@@ -21,13 +21,19 @@
  */
 package org.geotools.renderer.j2d;
 
+// J2SE dependencies
+import java.awt.Shape;
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
+
+// Geotools dependencies
 import org.geotools.ct.*;
 import org.geotools.renderer.geom.GeometryCollection;
 import org.geotools.renderer.style.LineStyle2D;
 import org.geotools.renderer.style.PolygonStyle2D;
 import org.geotools.renderer.style.Style2D;
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import org.geotools.resources.XDimension2D;
+import org.geotools.resources.XMath;
 
 
 /**
@@ -37,6 +43,9 @@ import java.awt.Shape;
  * @author aaime
  */
 public class SLDRenderedGeometries extends RenderedGeometries {
+    /**
+     * The current map scale.
+     */
     protected double currentScale;
 
     /**
@@ -51,6 +60,16 @@ public class SLDRenderedGeometries extends RenderedGeometries {
 
         // this layer works directly with device space coordinates
         setRenderUsingMapCS(false);
+        /*
+         * Set a default "pixel" size in order to avoid automatic (and costly) resolution
+         * computation. We assume that the geometry shape is close to an ellipse, i.e. we
+         * estimate the perimeter using PI*sqrt(2*(a² + b²)) where a and b are semi-axis.
+         */
+        Rectangle2D bounds = geometry.getBounds2D();
+        double size = (THICKNESS * 2.2214414690791831235079404950303) *
+                      XMath.hypot(bounds.getWidth(), bounds.getHeight());
+        size /= geometry.getPointCount();
+        setPreferredPixelSize(new XDimension2D.Double(size, size));
     }
 
     /**
@@ -67,7 +86,7 @@ public class SLDRenderedGeometries extends RenderedGeometries {
         // Use only the scaleX since this is the behaviour of Java2DRendering 
         // (reference implementation)
         currentScale = context.getAffineTransform(context.mapCS, context.textCS).getScaleX();
-        System.out.println("Current scale: " + currentScale);
+//        System.out.println("Current scale: " + currentScale);
         super.paint(context);
     }
 

@@ -79,7 +79,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.8 2003/08/11 20:04:16 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.9 2003/09/12 09:23:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
@@ -118,7 +118,7 @@ public class RenderedGeometries extends RenderedLayer {
      * as the geometry's resolution. A value of 0.25 means that geometry might
      * be drawn with a line of tickness equals to 1/4 of the geometry's resolution.
      */
-    private static final double TICKNESS = 0.25;
+    static final double THICKNESS = 0.25;
 
     /**
      * The geometry data.
@@ -126,6 +126,14 @@ public class RenderedGeometries extends RenderedLayer {
      * should matches the {@linkplain #getCoordinateSystem rendering coordinate system}.
      */
     private GeometryCollection geometry;
+
+    /**
+     * A frozen geometry to be returned by {@link #getGeometry} only.
+     * Will be created only when first needed.
+     *
+     * @see #geometry
+     */
+    private transient GeometryCollection frozenGeometry;
 
     /**
      * List of clipped geometries. A clipped geometry may be faster to renderer
@@ -214,6 +222,32 @@ public class RenderedGeometries extends RenderedLayer {
     }
 
     /**
+     * Returns the geometry for this layer. This geometry should not be modified.
+     *
+     * @return The geometry, or <code>null</code> if none.
+     *
+     * @task TODO: Can't freeze the geometry, because Geometry.freeze() is package-private.
+     *             We could make this method public, but then we need to revisit its behavior.
+     *             Should it freeze Geometry.setStyle(...) and setRenderingResolution(...) as well?
+     */
+    public Geometry getGeometry() {
+        GeometryCollection frozen = frozenGeometry;
+        if (frozen == null) {
+            // Synchronize after the 'frozen' check. Not a big deal if two threads
+            // are creating two geometry clones for a short period of time. Remind:
+            // references to data array are cloned, not the full arrays.
+            synchronized (getTreeLock()) {
+                if (geometry != null) {
+                    frozenGeometry = (GeometryCollection) geometry.clone();
+//                    frozenGeometry.freeze();
+                    frozen = frozenGeometry;
+                }
+            }
+        }
+        return frozen;
+    }
+
+    /**
      * Set a new geometry for this layer.
      *
      * @param  geometry The new geometry, or <code>null</code> if none.
@@ -234,7 +268,7 @@ public class RenderedGeometries extends RenderedLayer {
             }
             this.geometry = geometry;
             clearCache();
-            updatePreferences(false);
+            clearPreferences();
         }
         listeners.firePropertyChange("geometry", oldGeometry, geometry);
     }
@@ -253,20 +287,30 @@ public class RenderedGeometries extends RenderedLayer {
             }
             super.setCoordinateSystem(cs);
             clearCache();
-            updatePreferences(false);
+            clearPreferences();
         }
+    }
+
+    /**
+     * Clear the preferred area and preferred pixel size. Those properties will be recomputed
+     * the next time {@link #getPreferredArea} or {@link #getPreferredPixelSize} is invoked.
+     */
+    private void clearPreferences() {
+        preferredArea = null;
+        preferredPixelSize = null;
     }
  
     /**
-     * Compute the preferred area and the preferred pixel size.
+     * Compute the preferred area and the preferred pixel size. This method is invoked from
+     * {@link #getPreferredArea} and {@link #getPreferredPixelSize} if the user didn't set
+     * any preference explicitly, and the preferred area/pixel size were not already computed.
      *
      * @param updateResolution <code>true</code> for updating the {@link #preferredPixelSize}
      *        property as well.
      */
     private void updatePreferences(final boolean updateResolution) {
         assert Thread.holdsLock(getTreeLock());
-        preferredArea = null;
-        preferredPixelSize = null;
+        clearPreferences();
         if (geometry == null) {
             return;
         }
@@ -291,10 +335,17 @@ public class RenderedGeometries extends RenderedLayer {
                 } else {
                     dx = dy = resolution;
                 }
-                preferredPixelSize = new XDimension2D.Double(TICKNESS*dx , TICKNESS*dy);
+                preferredPixelSize = new XDimension2D.Double(THICKNESS*dx , THICKNESS*dy);
             }
         }
         preferredArea = bounds;
+    }
+
+    /**
+     * Returns the default contouring color.
+     */
+    public Paint getContour() {
+        return contour;
     }
 
     /**
@@ -306,10 +357,10 @@ public class RenderedGeometries extends RenderedLayer {
     }
 
     /**
-     * Returns the default contouring color.
+     * Returns the default filling color or paint.
      */
-    public Paint getContour() {
-        return contour;
+    public Paint getForeground() {
+        return foreground;
     }
 
     /**
@@ -321,13 +372,6 @@ public class RenderedGeometries extends RenderedLayer {
     }
 
     /**
-     * Returns the default filling color or paint.
-     */
-    public Paint getForeground() {
-        return foreground;
-    }
-
-    /**
      * Returns the preferred area for this layer. If no preferred area has been
      * explicitely set, then this method returns the geometry's bounding box.
      */
@@ -336,6 +380,9 @@ public class RenderedGeometries extends RenderedLayer {
             final Rectangle2D area = super.getPreferredArea();
             if (area != null) {
                 return area;
+            }
+            if (preferredArea == null) {
+                updatePreferences(false);
             }
             return (preferredArea!=null) ? (Rectangle2D) preferredArea.clone() : null;
         }
@@ -714,6 +761,7 @@ public class RenderedGeometries extends RenderedLayer {
             clipped.clear();
         }
         transformedShape = null;
+        frozenGeometry = null;
         super.clearCache();
     }
 
