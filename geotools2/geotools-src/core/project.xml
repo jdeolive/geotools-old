@@ -51,6 +51,15 @@
           <role>Java Developer</role>
         </roles>
       </developer>
+      <developer>
+          <name>Chris Holmes</name>
+          <id>cholmesny</id>
+          <email>cholmesny@users.sourceforge.net</email>
+          <organization>TOPP</organization>
+          <roles>
+            <role>Java Developer</role>
+          </roles>
+      </developer>
     </developers>
     
     <dependencies>
