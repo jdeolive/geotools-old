@@ -46,6 +46,7 @@ import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CannotCreateTransformException;
+import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.XArray;
@@ -55,7 +56,7 @@ import org.geotools.resources.XArray;
  * The clipping area to apply on a {@link Geometry} object. A <code>Clipper</code> object
  * contains the clip as a {@link Rectangle2D} and its {@link CoordinateSystem}.
  *
- * @version $Id: Clipper.java,v 1.8 2003/06/16 22:04:53 desruisseaux Exp $
+ * @version $Id: Clipper.java,v 1.9 2003/09/30 10:39:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Geometry#clip
@@ -309,7 +310,7 @@ public final class Clipper {
         if (clip.contains(dataBounds)) {
             return polyline;
         }
-        if (!clip.intersects(dataBounds)) {
+        if (!XRectangle2D.intersectInclusive(clip, dataBounds)) {
             return null;
         }
         xmin = (float) clip.getMinX();

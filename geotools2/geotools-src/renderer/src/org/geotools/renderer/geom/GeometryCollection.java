@@ -98,7 +98,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.12 2003/09/02 12:34:11 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.13 2003/09/30 10:39:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -798,7 +798,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @return The collection of geometries containing the specified shape.
      */
     public synchronized Collection getGeometriesContaining(final Shape shape) {
-        if (shape.intersects(getCachedBounds())) {
+        if (XRectangle2D.intersectInclusive(shape, getCachedBounds())) {
             return new Filtered(this) {
                 protected boolean accept(final Geometry geometry) {
                     return geometry.contains(shape);
@@ -819,7 +819,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @return The collection of geometries intersecting the specified shape.
      */
     public synchronized Collection getGeometriesIntersecting(final Shape shape) {
-        if (shape.intersects(getCachedBounds())) {
+        if (XRectangle2D.intersectInclusive(shape, getCachedBounds())) {
             return new Filtered(this) {
                 protected boolean accept(final Geometry geometry) {
                     return geometry.intersects(shape);
@@ -1409,7 +1409,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.12 2003/09/02 12:34:11 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.13 2003/09/30 10:39:51 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static abstract class Filtered extends AbstractCollection {

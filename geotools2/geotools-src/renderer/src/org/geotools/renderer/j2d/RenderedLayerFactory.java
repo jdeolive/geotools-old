@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 
 // JTS dependencies
 import com.vividsolutions.jts.geom.sfs.SFSGeometry;
-import org.geotools.ct.TransformException;
 
 // Geotools dependencies
 import org.geotools.feature.Feature;
@@ -35,6 +34,7 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.ct.TransformException;
 import org.geotools.renderer.geom.Geometry;
 import org.geotools.renderer.geom.JTSGeometries;
 import org.geotools.renderer.style.SLDStyleFactory;
@@ -54,7 +54,7 @@ import org.geotools.util.RangeSet;
 /**
  * A factory creating {@link RenderedLayer}s from {@link Feature}s and {@link Style}s.
  *
- * @version $Id: RenderedLayerFactory.java,v 1.12 2003/09/02 12:34:11 desruisseaux Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.13 2003/09/30 10:39:51 desruisseaux Exp $
  * @author Andrea Aime
  * @author Martin Desruisseaux
  */
@@ -63,6 +63,11 @@ public class RenderedLayerFactory {
      * The logger.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.j2d");
+
+    /**
+     * The full range of map scale.
+     */
+    private static final NumberRange FULL_SCALE_RANGE = new NumberRange(0.0, Double.MAX_VALUE);
 
     /**
      * Prepare the style factory that will convert SLD styles into resolved styles.
@@ -141,7 +146,7 @@ public class RenderedLayerFactory {
 
             for (int j = 0; j < features.length; j++) {
                 RangeSet rs = new RangeSet(Double.class);
-                rs.add(new NumberRange(0.0, Double.MAX_VALUE));
+                rs.add(FULL_SCALE_RANGE);
                 elseFeatureRanges.put(features[j], rs);
             }
 
@@ -327,7 +332,7 @@ public class RenderedLayerFactory {
         String geomName = null;
 
         // TODO: fix the styles, should be the same method name and probably should be moved 
-        // into the a interface...
+        // into an interface...
         if (s instanceof PolygonSymbolizer) {
             geomName = ((PolygonSymbolizer) s).geometryPropertyName();
         } else if (s instanceof PointSymbolizer) {

@@ -70,6 +70,7 @@ import org.geotools.renderer.style.Style2D;
 import org.geotools.renderer.style.Style;
 import org.geotools.resources.XMath;
 import org.geotools.resources.XDimension2D;
+import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.XAffineTransform;
 import org.geotools.resources.CTSUtilities;
 
@@ -79,7 +80,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.9 2003/09/12 09:23:43 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.10 2003/09/30 10:39:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
@@ -506,7 +507,7 @@ public class RenderedGeometries extends RenderedLayer {
         final Collection polylines = toDraw.getGeometries();
         for (final Iterator it=polylines.iterator(); it.hasNext();) {
             final Geometry geometry = (Geometry)it.next();
-            if (clip==null || clip.intersects(geometry.getBounds2D())) {
+            if (clip==null || XRectangle2D.intersectInclusive(clip, geometry.getBounds2D())) {
                 final Style2D style = getStyle(geometry, defaultStyle);
                 if (geometry instanceof GeometryCollection) {
                     paint(graphics, clip, (GeometryCollection)geometry, style);
@@ -582,7 +583,7 @@ public class RenderedGeometries extends RenderedLayer {
             final Paint        oldPaint = graphics.getPaint();
             final Stroke      oldStroke = graphics.getStroke();
             final Shape            clip = graphics.getClip();
-            if (clip==null || clip.intersects(toDraw.getBounds2D())) {
+            if (clip==null || XRectangle2D.intersectInclusive(clip, toDraw.getBounds2D())) {
                 final double R2 = 1.4142135623730950488016887242097; // sqrt(2)
                 double r = R2/Math.sqrt((r=tr.getScaleX())*r + (r=tr.getScaleY())*r +
                                         (r=tr.getShearX())*r + (r=tr.getShearY())*r);

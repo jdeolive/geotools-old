@@ -71,6 +71,7 @@ import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.TransformException;
 import org.geotools.renderer.style.Style;
+import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.Utilities;
 import org.geotools.math.Statistics;
 import org.geotools.util.Cloneable;
@@ -93,7 +94,7 @@ import org.geotools.util.Cloneable;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.10 2003/09/02 12:34:11 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.11 2003/09/30 10:39:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -383,7 +384,7 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     public Geometry clip(final Clipper clipper) {
         // Subclasses will overrides this method with a more efficient implementation.
         if (equivalents(clipper.mapCS, getCoordinateSystem())) {
-            return clipper.mapClip.intersects(getBounds2D()) ? this : null;
+            return XRectangle2D.intersectInclusive(clipper.mapClip, getBounds2D()) ? this : null;
         }
         return this;
     }
