@@ -32,8 +32,9 @@ import com.vividsolutions.jts.geom.Envelope;
 //logging
 import java.util.logging.Logger;
 /**
- * @version $Id: DefaultMap.java,v 1.7 2002/10/22 17:01:50 ianturton Exp $
+ * @version $Id: DefaultMap.java,v 1.8 2003/02/23 09:19:36 camerons Exp $
  * @author James Macgill, CCG
+ * @deprecated Use Context instead
  */
 public class DefaultMap implements org.geotools.map.Map {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
