@@ -49,10 +49,9 @@ import java.util.Set;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.9 2003/07/22 00:05:13 cholmesny Exp $
+ * @version $Id: AbstractDataSource.java,v 1.10 2003/07/22 14:43:53 cholmesny Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
-  
     /** A support string for unsupported operations messages */
     private static String supportMsg = "This datasource does not support ";
 
@@ -383,7 +382,7 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public void abortLoading() throws UnsupportedOperationException {
         if (!getMetaData().supportsAbort()) {
-            throw new UnsupportedOperationException(supportMsg
+            throw new UnsupportedOperationException(supportMsg 
                 + "abortLoading");
         }
     }
@@ -399,8 +398,8 @@ public abstract class AbstractDataSource implements DataSource {
      * @throws UnsupportedOperationException if the datasource can't get
      *         bounds.
      */
-    public Envelope getBounds() throws DataSourceException, 
-    UnsupportedOperationException {
+    public Envelope getBounds()
+        throws DataSourceException, UnsupportedOperationException {
         if (!getMetaData().supportsGetBbox()) {
             throw new UnsupportedOperationException(supportMsg + "getBbox");
         }
@@ -615,8 +614,8 @@ public abstract class AbstractDataSource implements DataSource {
 
         /**
          * Sets whether this datasource has a fast bbox.
-	 *
-	 * @param fast whether fast bboxes are supported.
+         *
+         * @param fast whether fast bboxes are supported.
          */
         public void setFastBbox(boolean fast) {
             this.fastBbox = fast;
