@@ -63,8 +63,8 @@ import org.geotools.map.BoundingBox;
 import org.geotools.map.BoundingBoxImpl;
 import org.geotools.map.Context;
 import org.geotools.map.ContextImpl;
-import org.geotools.map.DefaultLayer;
-import org.geotools.map.DefaultLayerList;
+import org.geotools.map.LayerImpl;
+import org.geotools.map.LayerListImpl;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
 import org.geotools.styling.SLDStyle;
@@ -75,7 +75,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.16 2003/02/10 09:15:34 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.17 2003/02/23 11:27:21 camerons Exp $
  *
  */
 
@@ -130,12 +130,12 @@ public class MapViewer2 {
             populateDataSource(datasource2,50,50,"road");
 
             // Create a LayerList and Layer
-            layerList = new DefaultLayerList();
-            layer=new DefaultLayer(datasource1,style);
+            layerList = new LayerListImpl();
+            layer=new LayerImpl(datasource1,style);
             layer.setTitle("river layer");
             layerList.addLayer(layer);
 
-            layer=new DefaultLayer(datasource2,style);
+            layer=new LayerImpl(datasource2,style);
             layer.setTitle("road layer");
             layerList.addLayer(layer);
 

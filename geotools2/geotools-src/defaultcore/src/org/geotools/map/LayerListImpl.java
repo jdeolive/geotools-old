@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: DefaultLayerList.java,v 1.2 2003/01/28 11:31:16 camerons Exp $
+ * @version $Id: LayerListImpl.java,v 1.1 2003/02/23 11:29:57 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -39,7 +39,7 @@ import javax.swing.event.EventListenerList;
 import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.map.events.LayerListListener;
 
-public class DefaultLayerList implements LayerList {
+public class LayerListImpl implements LayerList {
     /** The layers stored by this LayerList */
     private List layers=Collections.synchronizedList(new ArrayList());
     
@@ -52,7 +52,7 @@ public class DefaultLayerList implements LayerList {
     /**
      * Create a Layer Model without any layers.
      */
-    public DefaultLayerList()
+    public LayerListImpl()
     {
     }
 
@@ -60,7 +60,7 @@ public class DefaultLayerList implements LayerList {
      * Create a Layer Model with one layer and trigger a LayerListChangedEvent.
      * @param layer Then new layer that has been added.
      */
-    public DefaultLayerList(
+    public LayerListImpl(
             Layer layer)
     {
         addLayer(layer);
@@ -71,7 +71,7 @@ public class DefaultLayerList implements LayerList {
      * LayerChangedEvent.
      * @param layer The new layers that are to be added.
      */
-    public DefaultLayerList(
+    public LayerListImpl(
             Layer[] layer)
     {
         addLayers(layer);

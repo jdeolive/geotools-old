@@ -26,13 +26,13 @@ import org.geotools.feature.Feature;
 
 /**
  * Layer is an aggregation of both a FeatureCollection and Style.
- * @version $Id: DefaultLayer.java,v 1.3 2002/09/01 12:02:32 camerons Exp $
+ * @version $Id: LayerImpl.java,v 1.1 2003/02/23 11:29:57 camerons Exp $
  * @author  Cameron Shorter
  * @task REVISIT: This class maybe should contain CoordinateSystem, which
  * could either be set externally, or derived from one of its features.
  */
 
-public class DefaultLayer implements Layer {
+public class LayerImpl implements Layer {
 
     /**
      * Specify the DataSource which provides the features for this layer.
@@ -60,7 +60,7 @@ public class DefaultLayer implements Layer {
      * this layer.
      * @param style The style to use when rendering features associated with
      * this layer.*/
-    public DefaultLayer(
+    public LayerImpl(
             DataSource dataSource,
             Style style
             ) {
