@@ -189,9 +189,9 @@ public interface GC_GridCoverage extends CV_Coverage
      * </table>
      *
      * For grid values smaller than 8 bits, their order within each byte is given by the
-     * value defined in {@link GC_GridPacking#valueInBytePacking}.
+     * value defined in {@link GC_GridPacking#getValueInBytePacking valueInBytePacking}.
      * For grid values bigger than 8 bits, the order of their bytes is given by the
-     * value defined in {@link GC_GridPacking#byteInValuePacking}.
+     * value defined in {@link GC_GridPacking#getByteInValuePacking byteInValuePacking}.
      *
      * @param gridRange Grid range for block of data to be accessed.
      * @return a block of grid coverage data for all sample dimensions.

@@ -101,8 +101,9 @@ public interface CV_Coverage extends Remote
     /**
      * This specifies the coordinate system used when accessing a coverage or grid
      * coverage with the <code>evaluate</code> methods. It is also the coordinate
-     * system of the coordinates used with the math transform (see
-     * {@link org.opengis.gc.GC_GridGeometry#gridToCoordinateSystem}).
+     * system of the coordinates used with the math transform (see {@link
+     * org.opengis.gc.GC_GridGeometry#getGridToCoordinateSystem gridToCoordinateSystem}).
+     *
      * This coordinate system is usually different than the grid coordinate system
      * of the grid. grid coverage can be accessed (re-projected) with new coordinate
      * system with the {@link org.opengis.gp.GP_GridCoverageProcessor} component.
@@ -110,8 +111,9 @@ public interface CV_Coverage extends Remote
      * <br><br>
      * Note: If a coverage does not have an associated coordinate system,
      * the returned value will be <code>null</code>.
-     * The {@link org.opengis.gc.GC_GridGeometry#gridToCoordinateSystem}) attribute
-     * should also be <code>null</code> if the coordinate system is <code>null</code>.
+     * The {@link org.opengis.gc.GC_GridGeometry#getGridToCoordinateSystem
+     * gridToCoordinateSystem}) attribute should also be <code>null</code>
+     * if the coordinate system is <code>null</code>.
      *
      * @return the coordinate system used when accessing a coverage or grid
      *         coverage with the <code>evaluate</code>  methods.
