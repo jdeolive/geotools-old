@@ -1,7 +1,21 @@
 /*
- * Map.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on March 27, 2002, 2:54 PM
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
 
 package org.geotools.map;
@@ -15,27 +29,30 @@ import org.opengis.cs.CS_CoordinateSystem;
 /**
  * Holds a set of FeatureCollections together with styles and a single output
  * coordinate system.
- * @author  jamesm
+ *
+ * @version $Id: Map.java,v 1.7 2002/06/04 15:17:57 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public interface Map {
     
     /**
-     * Set the coordinate system to be used when outputing the features in
+     * Sets the coordinate system to be used when outputting the features in
      * this map.
-     * The features being added to it may well have a veriaty of different
+     * The features being added to it may well have a variety of different
      * coordinate systems.
-     * @param cs The single coordinat system all features will be converted
-     *           for output.
+     * @param cs The single coordinate system that all features will be
+     *           converted to for output.
      */
     public void setCoordinateSystem(CS_CoordinateSystem cs);
     
     /**
-     * Add a collection of features to this map together with a style
-     * specification.  The features need not have the same coordiate system
-     * as the one specifed for this map, though it is strongly recomended that
-     * all features within the collection share a single coordinate system.
+     * Adds a collection of features to this map together with a style
+     * specification.  The features need not have the same coordinate system
+     * as the one specified for this map, though it is strongly recommended
+     * that all features within the collection share a single coordinate
+     * system.
      * TODO: Confirm if single cs should be enforced.
-     * TODO: rename this method addFeatureCollection.
+     * TODO: Rename this method addFeatureCollection.
      *
      * @param fc The collection of features to add.
      * @param style The style to apply to these features.
@@ -43,10 +60,10 @@ public interface Map {
     public void addFeatureTable(FeatureCollection fc, Style style);
     
     /**
-     * Display or output the portion of the map that falls within a 
-     * specified envelop using the provided renderer.
-     * @param renderer The renderer which will produce the output
-     * @param envelope The portion of the map to be rendered
+     * Displays or outputs the portion of the map that falls within a 
+     * specified envelope using the provided renderer.
+     * @param renderer The renderer which will produce the output.
+     * @param envelope The portion of the map to be rendered.
      */
     public void render(Renderer renderer, Envelope envelope);
     

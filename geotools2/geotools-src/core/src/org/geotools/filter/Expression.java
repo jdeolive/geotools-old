@@ -1,6 +1,23 @@
 /*
- * This code is released under the Apache license, availible at the root GML4j directory.
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
+
 package org.geotools.filter;
 
 import org.geotools.data.*;
@@ -10,10 +27,10 @@ import org.geotools.feature.Feature;
  * Defines a complex filter (could also be called logical filter).
  *
  * This filter holds one or more filters together and relates
- * them logically in an internally defined.
+ * them logically in an internally defined manner.
  *
+ * @version $Id: Expression.java,v 1.3 2002/06/04 15:11:42 loxnard Exp $
  * @author Rob Hranac, Vision for New York
- * @version alpha, 12/01/01
  */
 public interface Expression {
 
