@@ -41,10 +41,23 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link PropertyParser} implementation.
  *
- * @version $Id: PropertyParserTest.java,v 1.1 2002/08/22 11:16:08 desruisseaux Exp $
+ * @version $Id: PropertyParserTest.java,v 1.2 2003/02/16 23:24:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParserTest extends TestCase {
+    /**
+     * Set it to <code>true</code> for printing some diagnostic message to the standard output.
+     */
+    private static final boolean PRINT = false;
+
+    /**
+     * Run the suit from the command line.
+     */
+    public static void main(final String[] args) {
+        org.geotools.resources.Geotools.init();
+        junit.textui.TestRunner.run(suite());
+    }
+
     /**
      * Returns the test suite.
      */
@@ -80,8 +93,10 @@ public class PropertyParserTest extends TestCase {
             parser.add("  alias  1", "Value X");
             fail(); // We should not get there.
         } catch (AmbiguousPropertyException exception) {
-            System.out.println(exception);
             // This is the expected exception.
+            if (PRINT) {
+                System.out.println(exception);
+            }
         }
         parser.add("Alias 1", "Value 1"); // Already defined
         parser.add("Alias 3", "Value 3");
@@ -97,16 +112,20 @@ public class PropertyParserTest extends TestCase {
             parser.addAlias(PropertyParser.X_RESOLUTION, "Alias 2");
             fail(); // We should not get there.
         } catch (AmbiguousPropertyException exception) {
-            System.out.println(exception);
             // This is the expected exception.
+            if (PRINT) {
+                System.out.println(exception);
+            }
         }
         parser.add("Alias 2bis", "Value 2");
         try {
             parser.add("Alias 1bis", "Value 2");
             fail(); // We should not get there.
         } catch (AmbiguousPropertyException exception) {
-            System.out.println(exception);
             // This is the expected exception.
+            if (PRINT) {
+                System.out.println(exception);
+            }
         }
         /*
          * Test "get" operations.
@@ -117,8 +136,10 @@ public class PropertyParserTest extends TestCase {
             parser.get(PropertyParser.DATUM);
             fail(); // We should not get there.
         } catch (MissingPropertyException exception) {
-            System.out.println(exception);
             // This is the expected exception.
+            if (PRINT) {
+                System.out.println(exception);
+            }
         }
         /*
          * Test "getAsDouble" and "getAsInt" operations.
@@ -134,10 +155,14 @@ public class PropertyParserTest extends TestCase {
             parser.getAsInt(PropertyParser.Y_MAXIMUM);
             fail(); // We should not get there.
         } catch (PropertyException exception) {
-            System.out.println(exception);
             // This is the expected exception.
+            if (PRINT) {
+                System.out.println(exception);
+            }
         }
-        System.out.println();
-        System.out.println(parser);
+        if (PRINT) {
+            System.out.println();
+            System.out.println(parser);
+        }
     }
 }
