@@ -60,7 +60,7 @@ import org.geotools.resources.Utilities;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.3 2003/01/24 23:40:20 desruisseaux Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.4 2003/01/26 22:30:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GeoMouseEvent extends MouseEvent {
@@ -97,7 +97,7 @@ public final class GeoMouseEvent extends MouseEvent {
      * @param event    The original mouse event.
      * @param renderer The renderer used by the viewer that emmited <code>event</code>.
      */
-    GeoMouseEvent(final MouseEvent event, final Renderer renderer) {
+    public GeoMouseEvent(final MouseEvent event, final Renderer renderer) {
         super(event.getComponent(),    // the Component that originated the event
               event.getID(),           // the integer that identifies the event
               event.getWhen(),         // a long int that gives the time the event occurred

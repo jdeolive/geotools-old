@@ -46,8 +46,11 @@ import javax.swing.Action;
  * etc. If no {@link RenderedLayer} consumed the event, then the {@link Renderer}'s
  * tools is queried last.
  *
- * @version $Id: Tools.java,v 1.2 2003/01/23 12:13:20 desruisseaux Exp $
+ * @version $Id: Tools.java,v 1.3 2003/01/26 22:30:40 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see RenderedLayer
+ * @see Renderer
  */
 public class Tools {
     /**
@@ -57,22 +60,22 @@ public class Tools {
     }
 
     /**
-     * Méthode appelée automatiquement pour construire une chaîne de caractères représentant la
-     * valeur pointée par la souris. En général (mais pas obligatoirement), lorsque cette méthode
-     * est appelée, le buffer <code>toAppendTo</code> contiendra déjà les coordonnées géographiques
-     * de la souris. Cette méthode est appelée pour donner une chance d'ajouter d'autres
-     * informations pertinentes. Par exemple des couches qui représentent une image satellitaire
-     * de température peuvent ajouter à <code>toAppendTo</code> un texte du genre "12°C" (sans
-     * espaces au début). L'implémentation par défaut de cette méthode retourne toujours
-     * <code>false</code> sans rien faire.
+     * Format a value for the current mouse position. This method doesn't have to format the
+     * mouse coordinate (this is {@link MouseCoordinateFormat#format(GeoMouseEvent)} business).
+     * Instead, it is invoked for formatting a value at current mouse position. For example a
+     * remote sensing image of Sea Surface Temperature (SST) can format the temperature in
+     * geophysical units (e.g. "12°C"). The default implementation do nothing and returns
+     * <code>false</code>.
      *
-     * @param  event Coordonnées du curseur de la souris.
-     * @param  toAppendTo Le buffer dans lequel ajouter des informations.
-     * @return <code>true</code> si cette méthode a ajouté des informations dans
-     *         <code>toAppendTo</code>. Dans ce cas, les couches en-dessous ne seront
-     *         pas interrogées.
+     * @param  event The mouse event.
+     * @param  toAppendTo The destination buffer for formatting a value.
+     * @return <code>true</code> if this method has formatted a value, or <code>false</code>
+     *         otherwise. If this method returns <code>true</code>, then the next layers (with
+     *         smaller {@linkplain RenderedLayer#getZOrder z-order}) will not be queried.
+     *
+     * @see MouseCoordinateFormat#format(GeoMouseEvent)
      */
-    protected boolean getLabel(final GeoMouseEvent event, final StringBuffer toAppendTo) {
+    protected boolean formatValue(final GeoMouseEvent event, final StringBuffer toAppendTo) {
         return false;
     }
 
@@ -87,6 +90,8 @@ public class Tools {
      * @param  event Coordonnées du curseur de la souris.
      * @return Le texte à afficher lorsque la souris traîne sur la couche.
      *         Ce texte peut être nul pour signifier qu'il ne faut rien écrire.
+     *
+     * @see Renderer#getToolTipText
      */
     protected String getToolTipText(final GeoMouseEvent event) {
         return null;
@@ -103,6 +108,8 @@ public class Tools {
      * @return Actions for the popup menus, or <code>null</code> if none or if the mouse isn't
      *         over a feature of this layer. If this array is non-null but contains null elements,
      *         then the null elements will be understood as menu separator.
+     *
+     * @see Renderer#getPopupMenu
      */
     protected Action[] getPopupMenu(final GeoMouseEvent event) {
         return null;

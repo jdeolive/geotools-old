@@ -76,7 +76,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Transformations to the {@link RendereringContext#mapCS rendering coordinate system}
  * are performed on the fly at rendering time.
  *
- * @version $Id: RenderedLayer.java,v 1.3 2003/01/24 23:40:21 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.4 2003/01/26 22:30:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedLayer {
@@ -297,8 +297,12 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Returns the preferred pixel size for a close
-     * zoom, or <code>null</code> if there is none.
+     * Returns the preferred pixel size in "real world" coordinates. For image layers, this is
+     * the size of image's pixels. For other kind of layers, "pixel size" are to be understood
+     * as some dimension representative of the layer's resolution.
+     *
+     * @return The preferred pixel size in this {@linkplain #getCoordinateSystem layer's
+     *         coordinate system}, or <code>null</code> if none.
      *
      * @see #setPreferredPixelSize
      * @see #getPreferredArea
@@ -310,11 +314,10 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Set the preferred pixel size for a close zoom. For images, the preferred pixel
-     * size is the image's pixel size (in units of {@link #getCoordinateSystem}). For
-     * other kind of object, this "pixel" size should be some raisonable resolution
-     * for the underlying data. For example a layer drawing an isoline may use the
-     * isoline's mean resolution.
+     * Set the preferred pixel size in "real world" coordinates. For images, this is the
+     * size of image's pixels in units of {@link #getCoordinateSystem}. For other kind of
+     * layers, "pixel size" is to be understood as some raisonable resolution for the
+     * underlying data. For example an isoline layer may returns the isoline's mean resolution.
      *
      * @param size The preferred pixel size, or <code>null</code> if there is none.
      *

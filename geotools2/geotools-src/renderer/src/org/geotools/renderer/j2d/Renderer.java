@@ -34,11 +34,13 @@ package org.geotools.renderer.j2d;
 
 // J2SE dependencies
 import java.awt.Shape;
+import java.awt.Rectangle;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.IllegalComponentStateException;
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.event.MouseEvent;
@@ -60,6 +62,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
+// Java Advanced Imaging
+import javax.media.jai.GraphicsJAI;
+
 // Geotools dependencies
 import org.geotools.cs.AxisInfo;
 import org.geotools.cs.AxisOrientation;
@@ -77,8 +82,12 @@ import org.geotools.ct.TransformException;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
+import org.geotools.resources.XDimension2D;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+
+// TODO: can we get ride of this GUI dependencies?
+//import org.geotools.gui.swing.ExceptionMonitor;
 
 
 /**
@@ -89,7 +98,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverageLayer}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.6 2003/01/24 23:40:21 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.7 2003/01/26 22:30:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -209,12 +218,12 @@ public class Renderer {
     /**
      * A set of rendering hints. Recognized hints include
      * {@link Hints#COORDINATE_TRANSFORMATION_FACTORY} and
-     * any of {@link RenderingHints}.
+     * any of {@link Hints#RESOLUTION}.
      *
      * @see Hints#RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      */
-    private final RenderingHints hints = new RenderingHints(null);
+    protected final RenderingHints hints = new RenderingHints(null);
 
     /**
      * The rendering resolution,  in units of {@link RenderingContext#mapCS} coordinate
@@ -279,12 +288,14 @@ public class Renderer {
     {
         /** Invoked when the mouse has been clicked on a component. */
         public void mouseClicked(final MouseEvent event) {
-            Renderer.this.mouseClicked(event);
+            if (event instanceof GeoMouseEvent) {
+                Renderer.this.mouseClicked((GeoMouseEvent)event);
+            }
         }
 
         /** Invoked when the component's size changes. */
         public void componentResized(final ComponentEvent event) {
-//            Renderer.this.zoomChanged(null);
+            Renderer.this.zoomChanged(null);
         }
 
         /** Invoked when the component's position changes. */
@@ -608,6 +619,63 @@ public class Renderer {
                       (small.getMinX()> big.getMinX() && small.getMaxX()< big.getMaxX() && small.getMinY()> big.getMinY() && small.getMaxY()< big.getMaxY());
     }
 
+    /**
+     * Returns the preferred pixel size in "real world" coordinates. For image layers, this is
+     * the size of image's pixels. For other kind of layers, "pixel size" are to be understood
+     * as some dimension representative of the layer's resolution.  This method invokes {@link
+     * RenderedLayer#getPreferredPixelSize} for each layers and returns the finest resolution,
+     * transformed in this {@linkplain #getCoordinateSystem renderer's coordinate system}.
+     *
+     * @return The preferred pixel size in "real world" coordinates, or <code>null</code>
+     *         if no layer provided a transformable preferred pixel size.
+     *
+     * @task TODO: Transformations should use MathTransform.derivative(...)
+     *             instead, but it is not yet implemented for projections.
+     */
+    public Dimension2D getPreferredPixelSize() {
+        double minWidth  = Double.POSITIVE_INFINITY;
+        double minHeight = Double.POSITIVE_INFINITY;
+        for (int i=layerCount; --i>=0;) {
+            final RenderedLayer layer = layers[i];
+            final Dimension2D size = layer.getPreferredPixelSize();
+            if (size!=null) try {
+                double width  = size.getWidth();
+                double height = size.getHeight();
+                final MathTransform2D transform = (MathTransform2D) getMathTransform(
+                                                        layer.getCoordinateSystem(),
+                                                        this. getCoordinateSystem(),
+                                                        "Renderer", "getPreferredPixelSize");
+                if (!transform.isIdentity()) {
+                    /*
+                     * Create a pixel in the midle of the preferred area and transform it to
+                     * this coordinate system.  TODO: we should use MathTransform.derivative
+                     * instead, but is is not yet implemented for projections.
+                     */
+                    Rectangle2D area = layer.getPreferredArea();
+                    if (area == null) {
+                        area = new Rectangle2D.Double();
+                    }
+                    area.setRect(area.getCenterX()-0.5*width,
+                                 area.getCenterY()-0.5*height,
+                                 width, height);
+                    area   = CTSUtilities.transform(transform, area, area);
+                    width  = area.getWidth();
+                    height = area.getHeight();
+                }
+                if (width  < minWidth ) minWidth =width;
+                if (height < minHeight) minHeight=height;
+            } catch (TransformException exception) {
+                handleException("Renderer", "getPreferredPixelSize", exception);
+                // Not a big deal. Continue...
+            }
+        }
+        if (!Double.isInfinite(minWidth) && !Double.isInfinite(minHeight)) {
+            return new XDimension2D.Double(minWidth, minHeight);
+        } else {
+            return null;
+        }
+    }
+
 
 
     //////////////////////////////////////////////////////////////////
@@ -865,10 +933,10 @@ public class Renderer {
      * @see #setRenderingHint
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      */
-    final MathTransform getMathTransform(final CoordinateSystem sourceCS,
-                                         final CoordinateSystem targetCS,
-                                         final String sourceClassName,
-                                         final String sourceMethodName)
+    final synchronized MathTransform getMathTransform(final CoordinateSystem sourceCS,
+                                                      final CoordinateSystem targetCS,
+                                                      final String sourceClassName,
+                                                      final String sourceMethodName)
             throws CannotCreateTransformException
     {
         MathTransform tr;
@@ -967,6 +1035,63 @@ public class Renderer {
         }
         buffer.append(']');
         return buffer.toString();
+    }
+
+    /**
+     * Paint this <code>Renderer</code> and all visible layers it contains.
+     *
+     * @param graph  The graphics context.
+     * @param zoom   The zoom (usually provided by {@link org.geotools.gui.swing.ZoomPane#zoom}.
+     * @param widget The bounds of drawing area (usually provided by
+     *               {@link org.geotools.gui.swing.ZoomPane#getZoomableBounds}).
+     */
+    public synchronized void paintComponent(final Graphics2D      graph,
+                                            final AffineTransform zoom,
+                                            final Rectangle       bounds)
+    {
+        sortLayers();
+//        if (stroke == null) {
+//            Dimension2D s = getPreferredPixelSize();
+//            double t; t=Math.sqrt((t=s.getWidth())*t + (t=s.getHeight())*t);
+//            stroke = new BasicStroke((float)t);
+//        }
+        final RenderedLayer[] layers = this.layers;
+        final GraphicsJAI   graphics = GraphicsJAI.createGraphicsJAI(graph, mapPane);
+        final Rectangle   clipBounds = graphics.getClipBounds();
+        try {
+            final CoordinateSystem mapCS, textCS, deviceCS;
+            mapCS    = context.mapCS;
+            textCS   = createFittedCoordinateSystem("textCS",    mapCS, zoom);
+            deviceCS = createFittedCoordinateSystem("deviceCS", textCS, graphics.getTransform());
+// TODO: check if we could reuse existing 'this.context'.
+            context = new RenderingContext(this, mapCS, textCS, deviceCS);
+        } catch (TransformException exception) {
+//            ExceptionMonitor.paintStackTrace(graphics, bounds, exception);
+            handleException("Renderer", "paintComponent", exception);
+            return;
+        }
+        graphics.transform(zoom);
+//        graphics.setStroke(stroke);
+        /*
+         * Dessine les couches en commençant par
+         * celles qui ont un <var>z</var> le plus bas.
+         */
+        context.graphics = graphics;
+        try {
+            for (int i=0; i<layerCount; i++) {
+                try {
+                    layers[i].paint(context);
+                } catch (TransformException exception) {
+                    handleException("RenderedLayer", "paintComponent", exception);
+                } catch (RuntimeException exception) {
+                    Utilities.unexpectedException("org.geotools.renderer.j2d",
+                                                  "RenderedLayer",
+                                                  "paint", exception);
+                }
+            }
+        } finally {
+            context.graphics = null;
+        }
     }
 
 
@@ -1074,52 +1199,55 @@ public class Renderer {
      * @param  event The mouse event.
      * @return The tool tip text, or <code>null</code> if there is no tool tip for this location.
      */
-    public synchronized String getToolTipText(final MouseEvent event) {
+    public synchronized String getToolTipText(final GeoMouseEvent event) {
         sortLayers();
         final int                  x = event.getX();
         final int                  y = event.getY();
         final RenderedLayer[] layers = this.layers;
-        final GeoMouseEvent geoEvent = (GeoMouseEvent) event; // TODO: use static method.
         for (int i=layerCount; --i>=0;) {
             final RenderedLayer layer = layers[i];
             final Tools tools = layer.getTools();
             if (tools!=null && layer.contains(x,y)) {
-                final String tooltip = tools.getToolTipText(geoEvent);
+                final String tooltip = tools.getToolTipText(event);
                 if (tooltip != null) {
                     return tooltip;
                 }
             }
         }
-        return (tools!=null) ? tools.getToolTipText(geoEvent) : null;
+        return (tools!=null) ? tools.getToolTipText(event) : null;
     }
 
     /**
-     * Invoked when user clicks on this <code>Renderer</code>. The default implementation
-     * invokes {@link Tools#mouseClicked} for some {@linkplain RenderedLayer layers} in
-     * decreasing {@linkplain RenderedLayer#getZOrder z-order} until one of them
-     * {@linkplain MouseEvent#consume consume} the event.
+     * Format a value for the current mouse position. This method invokes
+     * {@link Tools#formatValue} for some registered {@linkplain RenderedLayer
+     * layers} in decreasing {@linkplain RenderedLayer#getZOrder z-order} until
+     * one is found to returns <code>true</code>.
      *
      * @param  event The mouse event.
+     * @param  toAppendTo The destination buffer for formatting a value.
+     * @return <code>true</code> if this method has formatted a value,
+     *         or <code>false</code> otherwise.
+     *
+     * @see Tools#formatValue
+     * @see MouseCoordinateFormat#format(GeoMouseEvent)
      */
-    private synchronized void mouseClicked(final MouseEvent event) {
+    final synchronized boolean formatValue(final GeoMouseEvent event,
+                                           final StringBuffer toAppendTo)
+    {
         sortLayers();
-        final int                  x = event.getX();
-        final int                  y = event.getY();
+        final int x = event.getX();
+        final int y = event.getY();
         final RenderedLayer[] layers = this.layers;
-        final GeoMouseEvent geoEvent = (GeoMouseEvent) event; // TODO: use static method.
         for (int i=layerCount; --i>=0;) {
             final RenderedLayer layer = layers[i];
             final Tools tools = layer.getTools();
             if (tools!=null && layer.contains(x,y)) {
-                tools.mouseClicked(geoEvent);
-                if (geoEvent.isConsumed()) {
-                    break;
+                if (tools.formatValue(event, toAppendTo)) {
+                    return true;
                 }
             }
         }
-        if (tools != null) {
-            tools.mouseClicked(geoEvent);
-        }
+        return false;
     }
 
     /**
@@ -1133,57 +1261,87 @@ public class Renderer {
      *         If the returned array is non-null but contains null elements,
      *         then the null elements will be understood as menu separator.
      */
-    public synchronized Action[] getPopupMenu(final MouseEvent event) {
+    public synchronized Action[] getPopupMenu(final GeoMouseEvent event) {
         sortLayers();
         final int                  x = event.getX();
         final int                  y = event.getY();
         final RenderedLayer[] layers = this.layers;
-        final GeoMouseEvent geoEvent = (GeoMouseEvent) event; // TODO: use static method.
         for (int i=layerCount; --i>=0;) {
             final RenderedLayer layer = layers[i];
             final Tools tools = layer.getTools();
             if (tools!=null && layer.contains(x,y)) {
-                final Action[] menu = tools.getPopupMenu(geoEvent);
+                final Action[] menu = tools.getPopupMenu(event);
                 if (menu != null) {
                     return menu;
                 }
             }
         }
-        return (tools!=null) ? tools.getPopupMenu(geoEvent) : null;
+        return (tools!=null) ? tools.getPopupMenu(event) : null;
     }
 
     /**
-     * Construit une chaîne de caractères représentant la valeur pointée par la souris.
-     * En général (mais pas obligatoirement), lorsque cette méthode est appelée, le buffer
-     * <code>toAppendTo</code> contiendra déjà une chaîne de caractères représentant les
-     * coordonnées pontées par la souris. Cette méthode est appelée pour donner une chance
-     * aux couches d'ajouter d'autres informations pertinentes. Par exemple les couches
-     * qui représentent une image satellitaire de température peuvent ajouter à
-     * <code>toAppendTo</code> un texte du genre "12°C" (sans espaces au début).
+     * Invoked when user clicks on this <code>Renderer</code>. The default implementation
+     * invokes {@link Tools#mouseClicked} for some {@linkplain RenderedLayer layers} in
+     * decreasing {@linkplain RenderedLayer#getZOrder z-order} until one of them
+     * {@linkplain MouseEvent#consume consume} the event.
      *
-     * @param  event Coordonnées du curseur de la souris.
-     * @param  toAppendTo Le buffer dans lequel ajouter des informations.
-     * @return <code>true</code> si cette méthode a ajouté des informations dans
-     *         <code>toAppendTo</code>.
-     *
-     * @see MouseCoordinateFormat
+     * @param  event The mouse event.
      */
-    final boolean getLabel(final GeoMouseEvent event, final StringBuffer toAppendTo) {
-        // On appele pas 'sortLayer' de façon systèmétique afin de gagner un peu en performance.
-        // Cette méthode peut être appelée très souvent (à chaque déplacement de la souris).
-        final int x = event.getX();
-        final int y = event.getY();
+    private synchronized void mouseClicked(final GeoMouseEvent event) {
+        sortLayers();
+        final int                  x = event.getX();
+        final int                  y = event.getY();
         final RenderedLayer[] layers = this.layers;
         for (int i=layerCount; --i>=0;) {
             final RenderedLayer layer = layers[i];
             final Tools tools = layer.getTools();
             if (tools!=null && layer.contains(x,y)) {
-                if (tools.getLabel(event, toAppendTo)) {
-                    return true;
+                tools.mouseClicked(event);
+                if (event.isConsumed()) {
+                    return;
                 }
             }
         }
-        return false;
+        if (tools != null) {
+            tools.mouseClicked(event);
+        }
+    }
+
+    /**
+     * Méthode appelée automatiquement chaque fois que le zoom a changé.
+     * Cette méthode met à jour les coordonnées des formes géométriques
+     * déclarées dans les objets {@link RenderedLayer}.
+     *
+     * @param change Le changement de zoom, ou <code>null</code> s'il
+     *        n'est pas connu. Dans ce dernier cas, toutes les couches
+     *        seront redessinées lors du prochain traçage.
+     */
+    private synchronized void zoomChanged(AffineTransform change) {
+        final AffineTransform zoom = null; // TODO: SHOULD BE SET TO ZoomPane.zoom
+        if (change != null) try {
+            if (change.isIdentity()) {
+                return;
+            }
+            // NOTE: 'change' is a transformation in LOGICAL coordinates.
+            //       But 'Layer.zoomChanged(...)' expect a transformation
+            //       in PIXEL coordinates. Compute the matrix now...
+            final AffineTransform matrix = zoom.createInverse();
+            matrix.preConcatenate(change);
+            matrix.preConcatenate(zoom);
+            change = matrix;
+        } catch (java.awt.geom.NoninvertibleTransformException exception) {
+            // Should not happen.
+            Utilities.unexpectedException("org.geotools.renderer.j2d", "Renderer",
+                                          "zoomChanged", exception);
+            change = null;
+        }
+        for (int i=layerCount; --i>=0;) {
+            /*
+             * Remind: 'Layer' is about to use the affine transform change
+             *         for updating its bounding shape in pixel coordinates.
+             */
+            layers[i].zoomChanged(change);
+        }
     }
 
     /**

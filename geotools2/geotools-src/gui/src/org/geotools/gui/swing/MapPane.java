@@ -34,8 +34,13 @@
 package org.geotools.gui.swing;
 
 // J2SE dependencies
+import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.EventQueue;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
@@ -66,10 +71,10 @@ import org.geotools.gui.swing.event.ZoomChangeListener;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.9 2003/01/23 23:25:43 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.10 2003/01/26 22:31:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public abstract class MapPane extends ZoomPane {
+public class MapPane extends ZoomPane {
     /**
      * The maximal number of {@link JPopupMenu}s to cache in {@link cachedMenus}.
      */
@@ -179,6 +184,28 @@ public abstract class MapPane extends ZoomPane {
     }
 
     /**
+     * Returns the preferred pixel size in "real world" coordinates. When user ask for a
+     * "close zoom", <code>ZoomPane</code> will adjusts the map scale in such a way that
+     * structures of <code>preferredPixelSize</code> will appears as one pixel on the
+     * screen device.
+     *
+     * @see Renderer#getPreferredPixelSize
+     */
+    protected Dimension2D getPreferredPixelSize() {
+        final Dimension2D size = renderer.getPreferredPixelSize();
+        return (size!=null) ? size : super.getPreferredPixelSize();
+    }
+
+    /**
+     * Returns the default size for this component.  This is the size
+     * returned by {@link #getPreferredSize} if no preferred size has
+     * been explicitly set.
+     */
+    protected Dimension getDefaultSize() {
+        return new Dimension(512,512);
+    }
+
+    /**
      * Add a new layer to this viewer. A <code>MapPane</code> do not draw anything as long as
      * at least one layer hasn't be added. A {@link RenderedLayer} can be anything like an
      * isobath, a remote sensing image, city locations, map scale, etc. The drawing order
@@ -274,6 +301,15 @@ public abstract class MapPane extends ZoomPane {
     }
 
     /**
+     * Paint this <code>MapPane</code> and all visible layers.
+     *
+     * @param graphics The graphics context.
+     */
+    protected void paintComponent(final Graphics2D graphics) {
+        renderer.paintComponent(graphics, zoom, getZoomableBounds(null));
+    }
+
+    /**
      * Returns the default tools to use when no {@linkplain RendererLayer#getTools layer's tools}
      * can do the job. If no default tools has been set, then returns <code>null</code>.
      *
@@ -332,7 +368,7 @@ public abstract class MapPane extends ZoomPane {
      * @see Tools#getToolTipText
      */
     public String getToolTipText(final MouseEvent event) {
-        final String text = renderer.getToolTipText(event);
+        final String text = renderer.getToolTipText((GeoMouseEvent)event);
         return (text!=null) ? text : super.getToolTipText(event);
     }
 
@@ -351,7 +387,7 @@ public abstract class MapPane extends ZoomPane {
      * @see #getDefaultPopupMenu
      */
     protected JPopupMenu getPopupMenu(final MouseEvent event) {
-        final Action[] actions = renderer.getPopupMenu(event);
+        final Action[] actions = renderer.getPopupMenu((GeoMouseEvent) event);
         if (actions == null) {
             return getDefaultPopupMenu((GeoMouseEvent) event);
         }
@@ -409,5 +445,25 @@ public abstract class MapPane extends ZoomPane {
      */
     protected JPopupMenu getDefaultPopupMenu(final GeoMouseEvent event) {
         return super.getPopupMenu(event);
+    }
+
+    /**
+     * Processes mouse events occurring on this component. This method overrides the
+     * default AWT's implementation in order to wrap the <code>MouseEvent</code> into
+     * a {@link GeoMouseEvent}. Then, the default AWT's implementation is invoked in
+     * order to pass this event to any registered {@link MouseListener} objects.
+     */
+    protected void processMouseEvent(final MouseEvent event) {
+        super.processMouseEvent(new GeoMouseEvent(event, renderer));
+    }
+
+    /**
+     * Processes mouse motion events occurring on this component. This method overrides
+     * the default AWT's implementation in order to wrap the <code>MouseEvent</code> into
+     * a {@link GeoMouseEvent}. Then, the default AWT's implementation is invoked in
+     * order to pass this event to any registered {@link MouseMotionListener} objects.
+     */
+    protected void processMouseMotionEvent(final MouseEvent event) {
+        super.processMouseMotionEvent(new GeoMouseEvent(event, renderer));
     }
 }

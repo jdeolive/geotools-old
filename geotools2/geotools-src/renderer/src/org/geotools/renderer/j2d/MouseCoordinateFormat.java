@@ -48,11 +48,12 @@ import org.geotools.cs.GeographicCoordinateSystem;
  * pourront écrire les coordonnées pointées ainsi qu'une éventuelle valeurs sous cette coordonnées
  * (par exemple la température sur une image satellitaire de température).
  *
- * The output coordinate system may have an arbitrary number of dimensions  (as long as
- * a transform exists from the two-dimensional {@linkplain Renderer#getCoordinateSystem
- * renderer's coordinate system}), but is usually two-dimensional.
+ * The {@linkplain #getCoordinateSystem output coordinate system} may have an arbitrary
+ * number of dimensions (as long as a transform exists from the two-dimensional
+ * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system}), but
+ * is usually two-dimensional.
  *
- * @version $Id: MouseCoordinateFormat.java,v 1.1 2003/01/24 23:40:21 desruisseaux Exp $
+ * @version $Id: MouseCoordinateFormat.java,v 1.2 2003/01/26 22:30:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class MouseCoordinateFormat extends CoordinateFormat {
@@ -127,7 +128,7 @@ final class MouseCoordinateFormat extends CoordinateFormat {
         if (valueVisible) {
             final int length = buffer.length();
             buffer.append("  (");
-            if (renderer.getLabel(event, buffer)) {
+            if (renderer.formatValue(event, buffer)) {
                 buffer.append(')');
             } else {
                 buffer.setLength(length);
