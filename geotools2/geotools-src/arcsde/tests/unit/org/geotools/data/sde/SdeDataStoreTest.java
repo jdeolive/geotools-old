@@ -36,7 +36,7 @@ import javax.xml.parsers.*;
  * SdeDatasource's test cases
  *
  * @author Gabriel Roldán
- * @version $Id: SdeDataStoreTest.java,v 1.4 2003/11/14 17:21:05 groldan Exp $
+ * @version $Id: SdeDataStoreTest.java,v 1.5 2003/11/19 17:48:30 groldan Exp $
  */
 public class SdeDataStoreTest extends TestCase
 {
@@ -488,6 +488,10 @@ public class SdeDataStoreTest extends TestCase
         assertNotNull(env2);
         assertFalse(env2.isNull());
 
+
+        env1 = results.getBounds();
+        assertNotNull(env1);
+        assertFalse(env1.isNull());
 
         FeatureReader reader = results.reader();
         assertTrue(reader.hasNext());
