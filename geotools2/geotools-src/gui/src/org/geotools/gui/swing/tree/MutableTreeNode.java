@@ -32,9 +32,13 @@ package org.geotools.gui.swing.tree;
 /**
  * Defines the requirements for a tree node object that can change.
  * It may changes by adding or removing child nodes, or by changing
- * the contents of a user object stored in the node.
+ * the contents of a user object stored in the node. This interface
+ * inherit the {@link #getUserObject getUserObject()} method from
+ * Geotools's <code>TreeNode</code>. The Swing's <code>MutableTreeNode</code>
+ * interface defines a {@link #setUserObject(Object) setUserObject(Object)}
+ * method but doesn't defines or inherit any <code>getUserObject()</code>.
  *
- * @version $Id: MutableTreeNode.java,v 1.1 2003/05/29 16:04:31 desruisseaux Exp $
+ * @version $Id: MutableTreeNode.java,v 1.2 2004/04/30 19:40:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface MutableTreeNode extends javax.swing.tree.MutableTreeNode, TreeNode {

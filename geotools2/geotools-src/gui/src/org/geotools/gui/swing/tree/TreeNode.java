@@ -31,9 +31,11 @@ package org.geotools.gui.swing.tree;
 
 /**
  * Defines the requirements for an object that can be used as a
- * tree node in a {@link javax.swing.JTree}.
+ * tree node in a {@link javax.swing.JTree}. This interface add
+ * the <code>getUserObject()</code> to Swing's interface, which
+ * seems to have been forgotten in J2SE.
  *
- * @version $Id: TreeNode.java,v 1.1 2003/05/29 16:04:31 desruisseaux Exp $
+ * @version $Id: TreeNode.java,v 1.2 2004/04/30 19:40:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface TreeNode extends javax.swing.tree.TreeNode {

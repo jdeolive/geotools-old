@@ -30,9 +30,12 @@ package org.geotools.gui.swing.tree;
 
 
 /**
- * General-purpose node in a tree data structure.
+ * General-purpose node in a tree data structure. This default implementation implements
+ * Geotools's {@link MutableTreeNode} interface, which inherit a <code>getUserObject()</code>
+ * method. This method is provided in Swing's <code>DefaultMutableTreeNode</code> implementation
+ * but seems to have been forgotten in interfaces.
  *
- * @version $Id: DefaultMutableTreeNode.java,v 1.1 2003/05/29 16:04:31 desruisseaux Exp $
+ * @version $Id: DefaultMutableTreeNode.java,v 1.2 2004/04/30 19:40:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class DefaultMutableTreeNode extends javax.swing.tree.DefaultMutableTreeNode
