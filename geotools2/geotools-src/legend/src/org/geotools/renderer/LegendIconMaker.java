@@ -49,6 +49,7 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.Expression;
 import org.geotools.filter.FilterFactory;
+import org.geotools.gui.swing.sldeditor.util.StyleCloner;
 import org.geotools.renderer.lite.LiteRenderer;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
@@ -104,6 +105,7 @@ public class LegendIconMaker {
     /** the current renderer object */
     private static LiteRenderer renderer = new LiteRenderer();
     private static StyleBuilder styleBuilder = new StyleBuilder();
+    private static StyleCloner styleCloner = new StyleCloner(styleBuilder.getStyleFactory());
 
     /**
      * An icon cache that contains no more than a specified number of lastly
@@ -171,10 +173,23 @@ public class LegendIconMaker {
     }
 
     private static Icon reallyMakeLegendIcon(int iconWidth, int iconHeight,
-        Color background, Symbolizer[] syms, Feature sample) {
-        // RenderedPoint renderedPoint = null;
-        // Set rendered = new LinkedHashSet();
+        Color background, Symbolizer[] symbolizers, Feature sample) {
         FeatureCollection fc = FeatureCollections.newCollection();
+        
+        Symbolizer[] syms = symbolizers;
+        for (int i = 0; i < symbolizers.length; i++) {
+            syms[i] = styleCloner.clone(syms[i]);
+            if(syms[i] instanceof PolygonSymbolizer) {
+                PolygonSymbolizer ps = (PolygonSymbolizer) syms[i];
+                ps.setGeometryPropertyName(null);
+            } if (syms[i] instanceof PointSymbolizer) {
+                PointSymbolizer ps = (PointSymbolizer) syms[i];
+                ps.setGeometryPropertyName(null);
+            } if (syms[i] instanceof LineSymbolizer) {
+                LineSymbolizer ls = (LineSymbolizer) syms[i];
+                ls.setGeometryPropertyName(null);
+            }
+        }
 
         for (int i = 0; i < syms.length; i++) {
             Feature feature = null;
@@ -259,21 +274,8 @@ public class LegendIconMaker {
             if (feature != null) {
                 fc.add(feature);
             }
-
-            //            if (feature == null) {
-            //                continue;
-            //            } else {
-            //                renderer.processSymbolizers(rendered, feature, new Symbolizer[] { syms[i] });
-            //            }
         }
 
-        // Iterator it = rendered.iterator();
-        //        while (it.hasNext()) {
-        //            RenderedObject r = (RenderedObject) it.next();
-        //            LOGGER.fine("DRAWING : " + r);
-        //            r.render(graphics);
-        //        }
-        // LOGGER.fine("Image = " + image);
         FeatureTypeStyle fts = styleBuilder.createFeatureTypeStyle("",
                 styleBuilder.createRule(syms));
         fts.setFeatureTypeName(fc.features().next().getFeatureType()
