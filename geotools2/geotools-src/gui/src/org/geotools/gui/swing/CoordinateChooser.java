@@ -55,6 +55,7 @@ import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JOptionPane;
 import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.JRadioButton;
 import javax.swing.BorderFactory;
 import javax.swing.AbstractButton;
@@ -101,31 +102,55 @@ import org.geotools.resources.gui.ResourceKeys;
  * A pane of controls designed to allow a user to select spatio-temporal coordinates.
  * Current implementation use geographic coordinates (longitudes/latitudes) and dates
  * according some locale calendar. Future version may allow the use of user-specified
- * coordinate system.
+ * coordinate system. Latitudes are constrained in the range 90°S to 90°N inclusive.
+ * Longitudes are constrained in the range 180°W to 180°E inclusive. By default, dates
+ * are constrained in the range January 1st, 1970 up to the date at the time the widget
+ * was created.
  *
  * <p>&nbsp;</p>
  * <p align="center"><img src="doc-files/CoordinateChooser.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: CoordinateChooser.java,v 1.7 2003/07/28 22:41:32 desruisseaux Exp $
+ * @version $Id: CoordinateChooser.java,v 1.8 2003/10/29 11:32:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CoordinateChooser extends JPanel {
     /**
      * An enumeration constant for showing or hidding the geographic area selector.
      * Used as argument for {@link #isSelectorVisible} and {@link #setSelectorVisible}.
+     *
+     * @see #TIME_RANGE
+     * @see #RESOLUTION
+     * @see #isSelectorVisible
+     * @see #setSelectorVisible
+     * @see #addChangeListener
+     * @see #removeChangeListener
      */
     public static final int GEOGRAPHIC_AREA = 1;
 
     /**
      * An enumeration constant for showing or hidding the time range selector.
      * Used as argument for {@link #isSelectorVisible} and {@link #setSelectorVisible}.
+     *
+     * @see #GEOGRAPHIC_AREA
+     * @see #RESOLUTION
+     * @see #isSelectorVisible
+     * @see #setSelectorVisible
+     * @see #addChangeListener
+     * @see #removeChangeListener
      */
     public static final int TIME_RANGE = 2;
 
     /**
      * An enumeration constant for showing or hidding the resolution selector.
      * Used as argument for {@link #isSelectorVisible} and {@link #setSelectorVisible}.
+     *
+     * @see #GEOGRAPHIC_AREA
+     * @see #TIME_RANGE
+     * @see #isSelectorVisible
+     * @see #setSelectorVisible
+     * @see #addChangeListener
+     * @see #removeChangeListener
      */
     public static final int RESOLUTION = 4;
 
@@ -178,7 +203,7 @@ public class CoordinateChooser extends JPanel {
     /**
      * Class encompassing various listeners for users selections.
      *
-     * @version $Id: CoordinateChooser.java,v 1.7 2003/07/28 22:41:32 desruisseaux Exp $
+     * @version $Id: CoordinateChooser.java,v 1.8 2003/10/29 11:32:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements ActionListener, ChangeListener {
@@ -220,14 +245,19 @@ public class CoordinateChooser extends JPanel {
     }
 
     /**
-     * Construct a default coordinate chooser.
+     * Constructs a default coordinate chooser. Date will be constrained in the range from
+     * January 1st, 1970 00:00 UTC up to the {@linkplain System#currentTimeMillis current time}.
      */
     public CoordinateChooser() {
         this(new Date(0), new Date());
     }
 
     /**
-     * Construct a coordinate chooser.
+     * Constructs a coordinate chooser with date constrained in the specified range.
+     * Note that the <code>[minTime..maxTime]</code> range is not the same than the
+     * range given to {@link #setTimeRange}. The later set only the time range shown
+     * in the widget, while this constructor set also the minimum and maximum dates
+     * allowed.
      *
      * @param minTime The minimal date allowed.
      * @param maxTime the maximal date allowed.
@@ -238,8 +268,8 @@ public class CoordinateChooser extends JPanel {
         final int timeField = Calendar.DAY_OF_YEAR;
         final Resources resources = Resources.getResources(locale);
 
-        radioBestRes=new JRadioButton(resources.getString(ResourceKeys.USE_BEST_RESOLUTION), true);
-        radioPrefRes=new JRadioButton(resources.getString(ResourceKeys.SET_PREFERRED_RESOLUTION));
+        radioBestRes = new JRadioButton(resources.getString(ResourceKeys.USE_BEST_RESOLUTION), true);
+        radioPrefRes = new JRadioButton(resources.getString(ResourceKeys.SET_PREFERRED_RESOLUTION));
 
         tmin = new JSpinner(new SpinnerDateModel(minTime, minTime, maxTime, timeField));
         tmax = new JSpinner(new SpinnerDateModel(maxTime, minTime, maxTime, timeField));
@@ -267,26 +297,27 @@ public class CoordinateChooser extends JPanel {
         setup(xres,  3, numberFormat);
         setup(yres,  3, numberFormat);
 
-        final String[] timezones=TimeZone.getAvailableIDs();
+        final String[] timezones = TimeZone.getAvailableIDs();
         Arrays.sort(timezones);
-        timezone=new JComboBox(timezones);
+        timezone = new JComboBox(timezones);
         timezone.setSelectedItem(dateFormat.getTimeZone().getID());
 
-        final JLabel labelSize1=new JLabel(resources.getLabel(ResourceKeys.SIZE_IN_MINUTES));
-        final JLabel labelSize2=new JLabel("\u00D7"  /* Multiplication symbol */);
-        final ButtonGroup group=new ButtonGroup();
+        final JLabel labelSize1 = new JLabel(resources.getLabel(ResourceKeys.SIZE_IN_MINUTES));
+        final JLabel labelSize2 = new JLabel("\u00D7"  /* Multiplication symbol */);
+        final ButtonGroup group = new ButtonGroup();
         group.add(radioBestRes);
         group.add(radioPrefRes);
 
-        final Listeners listeners=new Listeners(new JComponent[] {labelSize1, labelSize2, xres, yres});
+        final Listeners listeners = new Listeners(new JComponent[] {
+                                                  labelSize1, labelSize2, xres, yres});
         listeners   .setEnabled(false);
         timezone    .addActionListener(listeners);
         radioPrefRes.addChangeListener(listeners);
 
-        areaPanel=getPanel(resources.getString(ResourceKeys.GEOGRAPHIC_COORDINATES));
-        timePanel=getPanel(resources.getString(ResourceKeys.TIME_RANGE            ));
-        resoPanel=getPanel(resources.getString(ResourceKeys.PREFERRED_RESOLUTION  ));
-        final GridBagConstraints c=new GridBagConstraints();
+        areaPanel = getPanel(resources.getString(ResourceKeys.GEOGRAPHIC_COORDINATES));
+        timePanel = getPanel(resources.getString(ResourceKeys.TIME_RANGE            ));
+        resoPanel = getPanel(resources.getString(ResourceKeys.PREFERRED_RESOLUTION  ));
+        final GridBagConstraints c = new GridBagConstraints();
 
         c.weightx=1;
         c.gridx=1; c.gridy=0; areaPanel.add(ymax, c);
@@ -350,9 +381,9 @@ public class CoordinateChooser extends JPanel {
      * preferred resolution.
      *
      * @param selector One of the following constants:
-     *                {@link #GEOGRAPHIC_AREA},
-     *                {@link #TIME_RANGE} or
-     *                {@link #RESOLUTION}.
+     *                 {@link #GEOGRAPHIC_AREA},
+     *                 {@link #TIME_RANGE} or
+     *                 {@link #RESOLUTION}.
      * @return <code>true</code> if the specified selector is visible,
      *         or <code>false</code> otherwise.
      * @throws IllegalArgumentException if <code>selector</code> is not legal.
@@ -363,6 +394,7 @@ public class CoordinateChooser extends JPanel {
             case TIME_RANGE:      return timePanel.isVisible();
             case RESOLUTION:      return resoPanel.isVisible();
             default: throw new IllegalArgumentException();
+                     // TODO: provide some error message.
         }
     }
 
@@ -371,20 +403,35 @@ public class CoordinateChooser extends JPanel {
      * All selectors are visible by default.
      *
      * @param selectors Any bitwise combinaisons of
-     *                {@link #GEOGRAPHIC_AREA},
-     *                {@link #TIME_RANGE} and/or
-     *                {@link #RESOLUTION}.
+     *                  {@link #GEOGRAPHIC_AREA},
+     *                  {@link #TIME_RANGE} and/or
+     *                  {@link #RESOLUTION}.
      * @param visible <code>true</code> to show the selectors, or
      *                <code>false</code> to hide them.
      * @throws IllegalArgumentException if <code>selectors</code> contains illegal bits.
      */
     public void setSelectorVisible(final int selectors, final boolean visible) {
-        if ((selectors & ~(GEOGRAPHIC_AREA | TIME_RANGE | RESOLUTION)) != 0) {
-            throw new IllegalArgumentException();
-        }
+        ensureValidSelectors(selectors);
         if ((selectors & GEOGRAPHIC_AREA) != 0) areaPanel.setVisible(visible);
         if ((selectors & TIME_RANGE     ) != 0) timePanel.setVisible(visible);
         if ((selectors & RESOLUTION     ) != 0) resoPanel.setVisible(visible);
+    }
+
+    /**
+     * Ensure that the specified bitwise combinaison of selectors is valid.
+     *
+     * @param selectors Any bitwise combinaisons of
+     *                  {@link #GEOGRAPHIC_AREA},
+     *                  {@link #TIME_RANGE} and/or
+     *                  {@link #RESOLUTION}.
+     * @throws IllegalArgumentException if <code>selectors</code> contains illegal bits.
+     *
+     * @task TODO: Provide a better error message.
+     */
+    private static void ensureValidSelectors(final int selectors) throws IllegalArgumentException {
+        if ((selectors & ~(GEOGRAPHIC_AREA | TIME_RANGE | RESOLUTION)) != 0) {
+            throw new IllegalArgumentException(String.valueOf(selectors));
+        }
     }
 
     /**
@@ -657,6 +704,74 @@ public class CoordinateChooser extends JPanel {
     }
 
     /**
+     * Adds a change listener to the listener list. This change listener will be notify when
+     * a value changed. The change may be in a geographic coordinate field, a date field, a
+     * resolution field, etc. The watched values depend on the <code>selectors</code> arguments:
+     * {@link #GEOGRAPHIC_AREA} will watches for the bounding box (East, West, North and South
+     * value); {@link #TIME_RANGE} watches for start time and end time; {@link #RESOLUTION}
+     * watches for the resolution along East-West and North-South axis. Bitwise combinaisons
+     * are allowed. For example, <code>GEOGRAPHIC_AREA | TIME_RANGE</code> will register a
+     * listener for both geographic area and time range.
+     * <br><br>
+     * The source of {@link ChangeEvent}s delivered to {@link ChangeListener}s will be in most
+     * case the {@link SpinnerModel} for the edited field.
+     *
+     * @param  selectors Any bitwise combinaisons of
+     *                   {@link #GEOGRAPHIC_AREA},
+     *                   {@link #TIME_RANGE} and/or
+     *                   {@link #RESOLUTION}.
+     * @param  listener The listener to add to the specified selectors.
+     * @throws IllegalArgumentException if <code>selectors</code> contains illegal bits.
+     */
+    public void addChangeListener(final int selectors, final ChangeListener listener) {
+        ensureValidSelectors(selectors);
+        if ((selectors & GEOGRAPHIC_AREA) != 0) {
+            xmin.getModel().addChangeListener(listener);
+            xmax.getModel().addChangeListener(listener);
+            ymin.getModel().addChangeListener(listener);
+            ymax.getModel().addChangeListener(listener);
+        }
+        if ((selectors & TIME_RANGE) != 0) {
+            tmin.getModel().addChangeListener(listener);
+            tmax.getModel().addChangeListener(listener);
+        }
+        if ((selectors & RESOLUTION) != 0) {
+            xres.getModel().addChangeListener(listener);
+            yres.getModel().addChangeListener(listener);
+            radioPrefRes.getModel().addChangeListener(listener);
+        }
+    }
+
+    /**
+     * Removes a change listener from the listener list.
+     *
+     * @param  selectors Any bitwise combinaisons of
+     *                   {@link #GEOGRAPHIC_AREA},
+     *                   {@link #TIME_RANGE} and/or
+     *                   {@link #RESOLUTION}.
+     * @param  listener The listener to remove from the specified selectors.
+     * @throws IllegalArgumentException if <code>selectors</code> contains illegal bits.
+     */
+    public void removeChangeListener(final int selectors, final ChangeListener listener) {
+        ensureValidSelectors(selectors);
+        if ((selectors & GEOGRAPHIC_AREA) != 0) {
+            xmin.getModel().removeChangeListener(listener);
+            xmax.getModel().removeChangeListener(listener);
+            ymin.getModel().removeChangeListener(listener);
+            ymax.getModel().removeChangeListener(listener);
+        }
+        if ((selectors & TIME_RANGE) != 0) {
+            tmin.getModel().removeChangeListener(listener);
+            tmax.getModel().removeChangeListener(listener);
+        }
+        if ((selectors & RESOLUTION) != 0) {
+            xres.getModel().removeChangeListener(listener);
+            yres.getModel().removeChangeListener(listener);
+            radioPrefRes.getModel().removeChangeListener(listener);
+        }
+    }
+
+    /**
      * Shows a dialog box requesting input from the user. The dialog box will be
      * parented to <code>owner</code>. If <code>owner</code> is contained into a
      * {@link javax.swing.JDesktopPane}, the dialog box will appears as an internal
@@ -694,5 +809,16 @@ public class CoordinateChooser extends JPanel {
             }
         }
         return false;
+    }
+
+    /**
+     * Show the dialog box. This method is provided only as an easy
+     * way to test the dialog appearance from the command line.
+     *
+     * @param args The command line arguments.
+     */
+    public static void main(final String[] args) {
+        new CoordinateChooser().showDialog(null);
+        System.exit(0);
     }
 }
