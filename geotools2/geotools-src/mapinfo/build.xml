@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." default="release" name="mapinfo">
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="release">
+    <property file="build.ant.properties"/>
+    <property name="dir.module" value="${basedir}"/>           
+    <ant antfile="common.xml" dir="../gtbuild" target="all" inheritAll="true"/>
+  </target>
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="clean">
+    <property file="build.ant.properties"/>
+    <ant antfile="common.xml" dir="../gtbuild" target="clean" inheritAll="true"/>
+  </target>
+
+  <!-- Set your module-specific build targets here -->
+
+  <!-- Tests the feature flat stuff -->
+  <target name="test">
+    <property file="build.ant.properties"/>
+    
+    <property name="dir.module" value="${basedir}"/>           
+    <ant antfile="common.xml" dir="../gtbuild" target="test" inheritAll="true"/>
+  </target>
+  
+
+</project>
