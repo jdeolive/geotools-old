@@ -49,11 +49,11 @@ import java.util.Set;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.4 2003/05/15 18:21:41 cholmesny Exp $
+ * @version $Id: AbstractDataSource.java,v 1.5 2003/05/19 17:17:14 ianschneider Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** the meta data object containing information about this datasource. */
-    protected DataSourceMetaData metaData = createMetaData();
+    private DataSourceMetaData metaData;
 
     /**
      * Loads features from the datasource into the passed collection, based on
@@ -161,7 +161,7 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public Set addFeatures(FeatureCollection collection)
         throws DataSourceException, UnsupportedOperationException {
-        if (!metaData.supportsAdd()) {
+        if (!getMetaData().supportsAdd()) {
             throw new UnsupportedOperationException("This datasource does not" +
                 "support addFeatures");
         }
@@ -181,7 +181,7 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public void removeFeatures(Filter filter)
         throws DataSourceException, UnsupportedOperationException {
-        if (!metaData.supportsRemove()) {
+        if (!getMetaData().supportsRemove()) {
             throw new UnsupportedOperationException("This datasource does not" +
                 " support removeFeatures");
         }
@@ -203,7 +203,7 @@ public abstract class AbstractDataSource implements DataSource {
     public void modifyFeatures(AttributeType[] type, Object[] value,
         Filter filter)
         throws DataSourceException, UnsupportedOperationException {
-        if (!metaData.supportsModify()) {
+        if (!getMetaData().supportsModify()) {
             throw new UnsupportedOperationException("This datasource does not" +
                 " support modifyFeatures");
         }
@@ -243,7 +243,7 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public void setFeatures(FeatureCollection collection)
         throws DataSourceException, UnsupportedOperationException {
-        if (!metaData.supportsSetFeatures()) {
+        if (!getMetaData().supportsSetFeatures()) {
             throw new UnsupportedOperationException("This datasource does not" +
                 " support setFeatures");
         }
@@ -277,7 +277,7 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public void rollback()
         throws DataSourceException, UnsupportedOperationException {
-        if (!metaData.supportsRollbacks()) {
+        if (!getMetaData().supportsRollbacks()) {
             throw new UnsupportedOperationException("This datasource does not" +
                 " support rollbacks");
         }
@@ -301,7 +301,7 @@ public abstract class AbstractDataSource implements DataSource {
      */
     public void setAutoCommit(boolean autoCommit)
         throws DataSourceException, UnsupportedOperationException {
-        if (!metaData.supportsRollbacks()) {
+        if (!getMetaData().supportsRollbacks()) {
             throw new UnsupportedOperationException("This datasource does not" +
                 " support rollbacks");
         }
@@ -332,7 +332,7 @@ public abstract class AbstractDataSource implements DataSource {
      *
      * @return metadata about this datasource.
      */
-    public DataSourceMetaData getMetaData() {
+    public final DataSourceMetaData getMetaData() {
         if (metaData == null) {
             metaData = createMetaData();
         }
@@ -378,7 +378,7 @@ public abstract class AbstractDataSource implements DataSource {
      *       2003.
      */
     public void abortLoading() throws UnsupportedOperationException {
-        if (!metaData.supportsAbort()) {
+        if (!getMetaData().supportsAbort()) {
             throw new UnsupportedOperationException("This datasource does not" +
                 " support abortLoading");
         }
@@ -398,7 +398,7 @@ public abstract class AbstractDataSource implements DataSource {
      *       Filters can be unpacked
      */
     public Envelope getBbox() throws DataSourceException {
-        if (!metaData.supportsGetBbox()) {
+        if (!getMetaData().supportsGetBbox()) {
             throw new UnsupportedOperationException("This datasource does not" +
                 " support getBbox");
         }
