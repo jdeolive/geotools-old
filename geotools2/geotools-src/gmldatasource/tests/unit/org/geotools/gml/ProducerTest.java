@@ -179,46 +179,13 @@ public class ProducerTest extends TestCase {
             + "the first feat is " + table.features().next());
 
         FeatureTransformer fr = new FeatureTransformer();
-        //fr.setPrettyPrint(true);
-        //fr.setDefaultNamespace("http://www.openplans.org/ch");
+        fr.setIndentation(4);
+        fr.getFeatureTypeNamespaces().declareDefaultNamespace("test","http://www.geotools.org");
 
-        //increase the capacity if the output gets longer.
-        LogOutputStream out = new LogOutputStream(10000);
-         fr.setIndentation(2);
-        fr.getFeatureTypeNamespaces().declareDefaultNamespace("xxx", "http://www.geotools.org");
-        fr.transform(table, out);
-        LOGGER.info("output is " + out.toString());
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        fr.transform(table, baos);
+        LOGGER.fine("output is " + new String(baos.toByteArray()));
     }
 
-    /** 
-     * little class to allow one to use an output stream and just call
-     * toString on it.  I couldn't find any java class that did this easily,
-     * like a StringWriter.  Maybe I just wasn't looking in the right place,
-     * but this seems to work and was easy to implement.  But it allows
-     * us to not use System.out for the transform, so the logging level can
-     * be recorded.
-     */
-    private static class LogOutputStream extends OutputStream {
-        private ByteBuffer bytes;
-
-        public LogOutputStream(int capacity) {
-            bytes = ByteBuffer.allocate(capacity);
-        }
-
-        public void write(int b) {
-            bytes.put(new Integer(b).byteValue());
-        }
-
-        public void write(byte[] b, int off, int len) {
-            bytes.put(b, off, len);
-        }
-
-        public void write(byte[] b) {
-            bytes.put(b);
-        }
-
-        public String toString() {
-            return new String(bytes.array());
-        }
-    }
+    
 }
