@@ -28,7 +28,7 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.9 2002/12/15 04:05:09 camerons Exp $
+ * @version $Id: DefaultAreaOfInterestModel.java,v 1.10 2002/12/15 04:24:08 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -69,10 +69,25 @@ public class DefaultAreaOfInterestModel implements Cloneable{
     /**
      * Register interest in receiving an AreaOfInterestChangedEvent.
      * @param ecl The object to notify when AreaOfInterest has changed.
+     * @param sendEvent After registering this listener, send a changeEvent
+     * to all listeners.
+     */
+    public void addAreaOfInterestChangedListener(
+            AreaOfInterestChangedListener ecl,
+            boolean sendEvent){
+        listenerList.add(AreaOfInterestChangedListener.class, ecl);
+        if (sendEvent){
+            fireAreaOfInterestChangedListener();
+        }
+    }
+
+    /**
+     * Register interest in receiving an AreaOfInterestChangedEvent.
+     * @param ecl The object to notify when AreaOfInterest has changed.
      */
     public void addAreaOfInterestChangedListener(
             AreaOfInterestChangedListener ecl){
-        listenerList.add(AreaOfInterestChangedListener.class, ecl);
+        addAreaOfInterestChangedListener(ecl,false);
     }
 
     /**
