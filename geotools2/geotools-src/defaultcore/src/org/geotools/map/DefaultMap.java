@@ -30,28 +30,33 @@ import java.util.List;
 //import java.util.logging.Logger;
 
 /**
- * 
+ * DOCUMENT ME!
  *
  * @author James Macgill, CCG
- * @version $Id: DefaultMap.java,v 1.18 2003/08/20 20:51:16 cholmesny Exp $
+ * @version $Id: DefaultMap.java,v 1.19 2003/08/20 21:04:11 cholmesny Exp $
  *
  * @deprecated Use {@link DefaultContext} instead.
  */
 public class DefaultMap implements org.geotools.map.Map {
     //    private static final Logger LOGGER =
     //        Logger.getLogger("org.geotools.defaultcore");
+
+    /** The tables of features. */
     private Hashtable tables = new Hashtable();
+
+    /** The order to draw them in. */
     private List tableOrder = new ArrayList();
 
     /**
-     * 
+     * DOCUMENT ME!
      *
      * @param ft the featureCollection to draw
      * @param style the Style to use in drawing the object
      *
-     * @throws IllegalArgumentException DOCUMENT ME!
+     * @throws IllegalArgumentException if either argument is null.
      */
-    public void addFeatureTable(FeatureCollection ft, Style style) {
+    public void addFeatureTable(FeatureCollection ft, Style style)
+        throws IllegalArgumentException {
         if (ft == null) {
             throw new IllegalArgumentException(
                 "Feature Collection can not be null in DefaultMap.addFeatureTable");
@@ -67,9 +72,9 @@ public class DefaultMap implements org.geotools.map.Map {
     }
 
     /**
-     * 
+     * DOCUMENT ME!
      *
-     * @param fc 
+     * @param fc the features to remove.
      */
     public void removeFeatureTable(FeatureCollection fc) {
         tables.remove(fc);
@@ -77,12 +82,11 @@ public class DefaultMap implements org.geotools.map.Map {
     }
 
     /**
-     * renders the portion of the map conteined within a specified reagion using a supplied
-     * renderer.
+     * renders the portion of the map conteined within a specified reagion
+     * using a supplied renderer.
      *
      * @param renderer The renderer which will draw the map.
      * @param envelope The region to draw
-     *
      */
     public void render(Renderer renderer, Envelope envelope) {
         java.util.Iterator layers = tableOrder.iterator();

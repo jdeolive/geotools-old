@@ -16,12 +16,11 @@
  */
 package org.geotools.map;
 
-
 /**
  * Legacy implementation of {@link Context}
  *
  * @author Cameron Shorter
- * @version $Id: ContextImpl.java,v 1.13 2003/08/20 20:51:16 cholmesny Exp $
+ * @version $Id: ContextImpl.java,v 1.14 2003/08/20 21:04:11 cholmesny Exp $
  *
  * @deprecated Use {@link DefaultContext} instead.
  */
@@ -32,7 +31,7 @@ public class ContextImpl extends DefaultContext {
      * @param bbox The extent associated with this class.
      * @param layerList The list of layers associated with this context.
      * @param title The name of this context.  Must be set.
-     * @param _abstract A description of this context.  Optional, set to null
+     * @param conAbstract A description of this context.  Optional, set to null
      *        if none exists.
      * @param keywords An array of keywords to be used when searching for this
      *        context.  Optional, set to null if none exists.
@@ -41,13 +40,9 @@ public class ContextImpl extends DefaultContext {
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    protected ContextImpl(final BoundingBox bbox,
-                          final LayerList   layerList,
-                          final String      title,
-                          final String      c_abstract,
-                          final String[]    keywords,
-                          final String      contactInformation)
-            throws IllegalArgumentException {
-        super(bbox, layerList, title, c_abstract, keywords, contactInformation);
+    protected ContextImpl(final BoundingBox bbox, final LayerList layerList,
+        final String title, final String conAbstract, final String[] keywords,
+        final String contactInformation) throws IllegalArgumentException {
+        super(bbox, layerList, title, conAbstract, keywords, contactInformation);
     }
 }

@@ -16,12 +16,11 @@
  */
 package org.geotools.map;
 
-
 /**
  * Default implementation of {@link Context}
  *
  * @author Cameron Shorter
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class DefaultContext implements Context {
     /**
@@ -52,7 +51,7 @@ public class DefaultContext implements Context {
      * @see #getAbstract
      * @see #setAbstract
      */
-    private String _abstract;
+    private String conAbstract;
 
     /**
      * The contact information, or <code>null</code> if none.
@@ -62,9 +61,7 @@ public class DefaultContext implements Context {
      */
     private String contactInformation;
 
-    /**
-     * A list of keywords, or <code>null</code> if none.
-     */
+    /** A list of keywords, or <code>null</code> if none. */
     private String[] keywords;
 
     /**
@@ -73,7 +70,7 @@ public class DefaultContext implements Context {
      * @param bbox The extent associated with this class.
      * @param layerList The list of layers associated with this context.
      * @param title The name of this context.  Must be set.
-     * @param _abstract A description of this context.  Optional, set to null
+     * @param conAbstract A description of this context.  Optional, set to null
      *        if none exists.
      * @param keywords An array of keywords to be used when searching for this
      *        context.  Optional, set to null if none exists.
@@ -82,21 +79,16 @@ public class DefaultContext implements Context {
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    protected DefaultContext(final BoundingBox bbox,
-                             final LayerList   layerList,
-                             final String      title,
-                             final String      _abstract,
-                             final String[]    keywords,
-                             final String      contactInformation)
-            throws IllegalArgumentException
-    {
+    protected DefaultContext(final BoundingBox bbox, final LayerList layerList,
+        final String title, final String conAbstract, final String[] keywords,
+        final String contactInformation) throws IllegalArgumentException {
         if ((bbox == null) || (layerList == null) || (title == null)) {
             throw new IllegalArgumentException();
         } else {
             this.bbox = bbox;
             this.layerList = layerList;
             this.setTitle(title);
-            this.setAbstract(_abstract);
+            this.setAbstract(conAbstract);
             this.setKeywords(keywords);
             this.setContactInformation(contactInformation);
         }
@@ -110,7 +102,7 @@ public class DefaultContext implements Context {
     //            bbox,
     //            layerList,
     //            title, 
-    //            _abstract,
+    //            conAbstract,
     //            keywords, 
     //            contactInformation);
     //    }
@@ -142,18 +134,18 @@ public class DefaultContext implements Context {
      * {@inheritDoc}
      */
     public String getAbstract() {
-        if (this._abstract == null) {
+        if (this.conAbstract == null) {
             return "";
         } else {
-            return this._abstract;
+            return this.conAbstract;
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setAbstract(final String _abstract) {
-        this._abstract = _abstract;
+    public void setAbstract(final String conAbstract) {
+        this.conAbstract = conAbstract;
     }
 
     /**
@@ -192,6 +184,7 @@ public class DefaultContext implements Context {
         if (keywords != null) {
             keywords = (String[]) keywords.clone();
         }
+
         this.keywords = keywords;
     }
 

@@ -19,6 +19,8 @@ package org.geotools.map;
 
 // JTS dependencies
 import com.vividsolutions.jts.geom.Envelope;
+
+// Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.Adapters;
 import org.geotools.ct.MathTransform2D;
@@ -26,9 +28,6 @@ import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.TransformException;
 import org.geotools.map.event.BoundingBoxEvent;
 import org.geotools.map.event.BoundingBoxListener;
-
-// Geotools dependencies
-import org.geotools.pt.CoordinatePoint;
 import org.geotools.resources.CTSUtilities;
 
 // OpenGIS dependencies
@@ -48,7 +47,7 @@ import javax.swing.event.EventListenerList;
  *
  * @author Cameron Shorter
  * @author Martin Desruisseaux
- * @version $Id: DefaultBoundingBox.java,v 1.2 2003/08/20 20:51:16 cholmesny Exp $
+ * @version $Id: DefaultBoundingBox.java,v 1.3 2003/08/20 21:04:11 cholmesny Exp $
  *
  * @task REVISIT Probably should use CoordinatePoint or Point2D to store points
  *       instead of using Envelope.  Also worth waiting to see what interface
@@ -307,9 +306,13 @@ public class DefaultBoundingBox implements BoundingBox {
         }
     }
 
-    /*
+    /**
      * Create a copy of this class
-     * @task HACK: Probably need to add all the eventListeners to the cloned class.
+     *
+     * @return the copy of this class.
+     *
+     * @task HACK: Probably need to add all the eventListeners to the cloned
+     *       class.
      */
     public Object clone() {
         return new DefaultBoundingBox(this.areaOfInterest, this.coordinateSystem);
