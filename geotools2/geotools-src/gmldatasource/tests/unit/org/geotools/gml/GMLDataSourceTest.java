@@ -7,19 +7,20 @@
 
 package org.geotools.gml;
 
-import junit.framework.*;
 import org.geotools.datasource.*;
-import java.net.*;
-import java.io.*;
-import com.vividsolutions.jts.geom.*;
+import org.geotools.datasource.extents.*;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
+import java.net.URL;
 import java.util.*;
 
 /**
  *
  * @author ian
  */
-public class GMLDataSourceTest extends TestCase {
-    
+public class GMLDataSourceTest extends junit.framework.TestCase implements TableChangedListener{
+    FeatureTable table = null;
+    FeatureIndex fi = null;
     public GMLDataSourceTest(java.lang.String testName) {
         super(testName);
     }
@@ -28,8 +29,8 @@ public class GMLDataSourceTest extends TestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    public static Test suite() {
-        TestSuite suite = new TestSuite(GMLDataSourceTest.class);
+    public static junit.framework.Test suite() {
+        junit.framework.TestSuite suite = new junit.framework.TestSuite(GMLDataSourceTest.class);
         
         return suite;
     }
@@ -44,11 +45,11 @@ public class GMLDataSourceTest extends TestCase {
             String dataFolder = System.getProperty("dataFolder");
             URL url = new URL("file:///"+dataFolder+"/testGML"+j+".gml");
             //System.out.println("Testing ability to read "+url);
-            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
             GMLReader gmlr = new GMLReader(in);
             
-            GeometryCollection gc = gmlr.read();
-            GeometryCollectionIterator gci = new GeometryCollectionIterator(gc);
+            com.vividsolutions.jts.geom.GeometryCollection gc = gmlr.read();
+            com.vividsolutions.jts.geom.GeometryCollectionIterator gci = new com.vividsolutions.jts.geom.GeometryCollectionIterator(gc);
             int i=0;
             Geometry g = (Geometry)gci.next(); // eat the first geomcollection
             while(gci.hasNext()){
@@ -57,9 +58,9 @@ public class GMLDataSourceTest extends TestCase {
                 //System.out.println("Geometry["+(i++)+"] = "+g.getGeometryType());
                 if(!g.getGeometryType().equalsIgnoreCase("GeometryCollection")){
                     //System.out.println("Coordinates:");
-                    Coordinate[] c = g.getCoordinates();
+                    com.vividsolutions.jts.geom.Coordinate[] c = g.getCoordinates();
                     //for(int k=0;k<c.length;k++){
-                        //System.out.println("\t "+c[k].toString());
+                    //System.out.println("\t "+c[k].toString());
                     //}
                 }
             }
@@ -67,16 +68,16 @@ public class GMLDataSourceTest extends TestCase {
         }
         // now a more complex test - using testGML7
         String dataFolder = System.getProperty("dataFolder");
-        URL url = new URL("file:///"+dataFolder+"/testGML7.xml");
-        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+        URL url = new URL("file:///"+dataFolder+"/testGML7.gml");
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
         GMLReader gmlr = new GMLReader(in);
         
-        GeometryCollection gc = gmlr.read();
-        GeometryCollectionIterator gci = new GeometryCollectionIterator(gc);
+        com.vividsolutions.jts.geom.GeometryCollection gc = gmlr.read();
+        com.vividsolutions.jts.geom.GeometryCollectionIterator gci = new com.vividsolutions.jts.geom.GeometryCollectionIterator(gc);
         int i=0;
         Geometry g = (Geometry)gci.next(); // eat the first geomcollection
-        Polygon box =(Polygon)gci.next();
-        Polygon poly = (Polygon)gci.next();
+        com.vividsolutions.jts.geom.Polygon box =(com.vividsolutions.jts.geom.Polygon)gci.next();
+        com.vividsolutions.jts.geom.Polygon poly = (com.vividsolutions.jts.geom.Polygon)gci.next();
         Point p1 = (Point)gci.next();
         Point p2 = (Point)gci.next();
         Point p3 = (Point)gci.next();
@@ -87,13 +88,58 @@ public class GMLDataSourceTest extends TestCase {
         assertEquals(1,poly.getNumInteriorRing());
         
     }
-    public void xtestDataSource() throws Exception{
+    public void testDataSource() {
         System.out.println("testDataSource");
-        String dataFolder = System.getProperty("dataFolder");
-        URL url = new URL("file:///"+dataFolder+"/testGML1.gml");
-        System.out.println("Testing ability to load "+url+" as datasource");
-        GMLDataSource ds = new GMLDataSource(url);
-        
-        ds.load((Extent)null);
+        try{
+            String dataFolder = System.getProperty("dataFolder");
+            URL url = new URL("file:///"+dataFolder+"/testGML7.gml");
+            System.out.println("Testing ability to load "+url+" as datasource");
+            GMLDataSource ds = new GMLDataSource(url);
+            
+            table = new FeatureTable(ds);
+            table.setLoadMode(FeatureTable.MODE_LOAD_INTERSECT);
+            table.addTableChangedListener(this);
+            
+            EnvelopeExtent r = new EnvelopeExtent();
+            r.setBounds(new com.vividsolutions.jts.geom.Envelope(-100, 0, 100, 100.0));
+            
+            //table.requestExtent(r);
+            try {
+                //fi = new SimpleIndex(table, "LONGITUDE");
+                System.out.println("calling reqExt "+r);
+                table.requestExtent(r);
+                System.out.println("called reqExt ");
+            }catch(Exception exp) {
+                System.out.println("Exception requesting Extent : "+exp.getClass().getName()+" : "+exp.getMessage());
+            }
+            while(table.getState()!=FeatureTable.STATE_NORMAL){
+                try{
+                    Thread.sleep(1000);
+                }catch(InterruptedException e){}
+                System.out.println("waiting...");
+            }
+            System.out.println("loaded "+table.getRows().size());
+        }catch(Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+            fail("Load failed because of exception "+e.toString());
+        }
+    }
+    public void tableChanged(TableChangedEvent tce) {
+        System.out.println("tableChanged called()");
+        System.out.println("tableChanged() : Return code : "+tce.getCode());
+        if (tce.getCode()!=tce.TABLE_OK) {
+            System.out.println("tableChanged() : Exception :"+tce.getException().getClass().getName());
+            tce.getException().printStackTrace();
+        }
+        else {
+            System.out.println("Load code ok - Reading Index");
+            //Iterator it = fi.getFeatures().iterator();
+            Iterator it = table.getRows().iterator();
+            while (it.hasNext()) {
+                Feature f = (Feature)it.next();
+                System.out.println("Feature  : "+f.row[0].toString());
+            }
+        }
     }
 }
