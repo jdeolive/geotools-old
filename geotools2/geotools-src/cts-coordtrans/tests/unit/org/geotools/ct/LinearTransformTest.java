@@ -56,7 +56,7 @@ import junit.framework.TestSuite;
  *   <li>{@link MatrixTransform}</li>
  * </ul>
  *
- * @version $Id: LinearTransformTest.java,v 1.1 2002/07/12 14:38:31 desruisseaux Exp $
+ * @version $Id: LinearTransformTest.java,v 1.2 2002/07/22 11:06:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LinearTransformTest extends TransformationTest {
@@ -138,6 +138,26 @@ public class LinearTransformTest extends TransformationTest {
                 transforms[i] = transforms[i].inverse();
             }
             compareTransforms("LinearTransforms.inverse", transforms);
+        }
+    }
+
+    /**
+     * Make sure that linear transformation preserve NaN values.
+     * This is required for {@link org.geotools.cv.Category}.
+     */
+    public void testNaN() throws FactoryException, TransformException {
+        final MathTransformFactory factory = trFactory.getMathTransformFactory();
+        final Matrix matrix = new Matrix(2,2);
+        matrix.setElement(0,0,0);
+        for (int i=0; i<1000; i++) {
+            final int rawBits = 0x7FC00000 + random.nextInt(100);
+            final float value = Float.intBitsToFloat(rawBits);
+            assertTrue("isNaN", Float.isNaN(value));
+            matrix.setElement(0,1, value);
+            final MathTransform1D tr = (MathTransform1D) factory.createAffineTransform(matrix);
+            assertTrue("ConstantTransform1D", tr instanceof ConstantTransform1D);
+            final float compare = (float) tr.transform(0);
+            assertEquals("rawBits", rawBits, Float.floatToRawIntBits(compare));
         }
     }
 
