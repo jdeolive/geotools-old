@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="master">
 
-    <target depends="init" name="build">
-        
+    <target depends="init" name="build">        
         <exec executable="${maven}">
           <arg value="build"/> 
         </exec>
