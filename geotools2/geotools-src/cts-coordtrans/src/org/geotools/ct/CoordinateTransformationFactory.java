@@ -57,6 +57,7 @@ import org.opengis.ct.CT_CoordinateTransformationFactory;
 import org.geotools.pt.Matrix;
 import org.geotools.cs.AxisInfo;
 import org.geotools.cs.Ellipsoid;
+import org.geotools.cs.LocalCoordinateSystem;
 import org.geotools.cs.Projection;
 import org.geotools.cs.PrimeMeridian;
 import org.geotools.cs.HorizontalDatum;
@@ -86,7 +87,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.18 2003/08/07 11:14:44 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.19 2004/03/07 19:55:52 aaime Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -404,6 +405,18 @@ public class CoordinateTransformationFactory {
             step = factory.createConcatenatedTransform(step, step2.getMathTransform());
             return createFromMathTransform(sourceCS, targetCS, step, step2.getTransformType());
         }
+        
+		///////////////////////////////////////////
+	    ////                                   ////
+	    ////     Cartesian  -->  various CS    ////
+	    ////     Various CS --> Cartesian      ////
+	    ////                                   ////
+	    ///////////////////////////////////////////
+	    if(sourceCS == LocalCoordinateSystem.CARTESIAN || targetCS == LocalCoordinateSystem.CARTESIAN) {
+			final int dimSource = sourceCS.getDimension(); 
+			MathTransform step = factory.createIdentityTransform(dimSource);
+	    	return createFromMathTransform(sourceCS, targetCS, step);
+	    }
         throw new CannotCreateTransformException(sourceCS, targetCS);
     }
 
