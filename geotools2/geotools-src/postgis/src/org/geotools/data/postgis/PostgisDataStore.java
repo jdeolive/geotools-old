@@ -57,7 +57,7 @@ import java.util.logging.Logger;
 /**
  * Postgis DataStore implementation.
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.2 2003/11/04 00:36:18 cholmesny Exp $
+ * @version $Id: PostgisDataStore.java,v 1.3 2003/11/04 01:44:52 cholmesny Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -448,7 +448,14 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 queryData.close(sqle);
                 throw new DataSourceException(msg, sqle);
             } finally {
-                JDBCDataStore.close(statement);
+		if ( statement != null) {
+		try {
+		    statement.close();
+		} catch (SQLException e) {
+		    String msg = "Error closing JDBC Statement";
+		    LOGGER.log(Level.WARNING, msg, e);
+		}
+		}
             }
         }
     }
