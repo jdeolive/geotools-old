@@ -38,7 +38,7 @@ public class ExpressionTest extends TestCase {
 
     /** Feature on which to preform tests */
     private static Feature testFeature = null;
-
+    
     /** Schema on which to preform tests */
     private static FeatureType testSchema = null;
     private static AttributeTypeFactory attFactory = AttributeTypeFactory.newInstance();
@@ -181,7 +181,7 @@ public class ExpressionTest extends TestCase {
         LOGGER.fine("integer attribute expression equals: " +
             testAttribute.getValue(testFeature));
         assertEquals(new Integer(1002), testAttribute.getValue(testFeature));
-
+        
         // Test string attribute
         testAttribute = new AttributeExpressionImpl(testSchema, "testString");
         LOGGER.fine("string attribute expression equals: " +
@@ -200,7 +200,7 @@ public class ExpressionTest extends TestCase {
         LOGGER.fine("integer literal expression equals: " +
             testLiteral.getValue(testFeature));
         assertEquals(new Integer(1002), testLiteral.getValue(testFeature));
-
+        
         // Test string attribute
         testLiteral = new LiteralExpressionImpl("test string data");
         LOGGER.fine("string literal expression equals: " +
@@ -218,16 +218,37 @@ public class ExpressionTest extends TestCase {
         Expression b = new LiteralExpressionImpl(new Double(1004));
 
         FunctionExpression min = filterFactory.createFunctionExpression("min");
-        min.setArgs(new Expression[] { a, b });
-        assertEquals(1002d, ((Double) min.getValue(testFeature)).doubleValue(),
-            0);
-
-        b = new LiteralExpressionImpl(new Double(-100.001));
-        min.setArgs(new Expression[] { a, b });
-        assertEquals(-100.001,
-            ((Double) min.getValue(testFeature)).doubleValue(), 0);
+        min.setArgs(new Expression[]{a,b});
+        
+        assertEquals(1002d,((Double)min.getValue(testFeature)).doubleValue(),0);
+        
+        b = filterFactory.createLiteralExpression(new Double(-100.001));
+        min.setArgs(new Expression[]{a,b});
+        assertEquals(-100.001,((Double)min.getValue(testFeature)).doubleValue(),0);
+        
+        assertEquals(FunctionExpressionImpl.FUNCTION,min.getType());
+        
+        assertEquals("Min", min.getName());
+        assertEquals(2, min.getArgCount());
+        assertEquals(min.getArgs()[0],a);
+        assertEquals(min.getArgs()[1],b);
+        min.toString();
     }
-
+    
+    public void testNonExistentFunction(){
+        try{
+            Expression nochance = filterFactory.createFunctionExpression("%$#%$%#%#$@#%@");
+            fail();
+        }
+        catch(RuntimeException re){
+        }
+          
+    }
+    
+    public void testFunctionNameTrim() throws IllegalFilterException {
+        FunctionExpression min = filterFactory.createFunctionExpression("minFunction");
+        assertTrue(min != null);  
+    }
     /**
      * Tests the max function expression.
      *
@@ -244,11 +265,78 @@ public class ExpressionTest extends TestCase {
             0);
 
         b = new LiteralExpressionImpl(new Double(-100.001));
-        max.setArgs(new Expression[] { a, b });
-        assertEquals(1002d, ((Double) max.getValue(testFeature)).doubleValue(),
-            0);
+        max.setArgs(new Expression[]{a,b});
+        assertEquals(1002d,((Double)max.getValue(testFeature)).doubleValue(),0);
+        
+        assertEquals("Max", max.getName());
+        assertEquals(2, max.getArgCount());
+        assertEquals(max.getArgs()[0],a);
+        assertEquals(max.getArgs()[1],b);
+        max.toString();
+        
     }
+    
+    
+    public void testInvalidMath(){
+        try{
+            MathExpressionImpl bad = new MathExpressionImpl(DefaultExpression.ATTRIBUTE);
+            fail("Only math types should be allowed when constructing");
+        }
+        catch(IllegalFilterException ife){
+        }
+    }
+    
+    public void testDisalowedLeftAndRightExpressions() throws IllegalFilterException {
+        Expression geom = new LiteralExpressionImpl(new Point(new Coordinate(2,2),null,2));
+        Expression text = new LiteralExpressionImpl("text");
+        MathExpressionImpl mathTest = new MathExpressionImpl(DefaultExpression.MATH_ADD);
+        try{
+            mathTest.addLeftValue(geom);
+            fail("geometries are not allowed in math expressions");
+        }
+        catch(IllegalFilterException ife){
+        }
+        try{
+            mathTest.addRightValue(geom);
+            fail("geometries are not allowed in math expressions");
+        }
+        catch(IllegalFilterException ife){
+        }
+        try{
+            mathTest.addLeftValue(text);
+            fail("text strings are not allowed in math expressions");
+        }
+        catch(IllegalFilterException ife){
+        }
+        try{
+            mathTest.addRightValue(text);
+            fail("text strings are not allowed in math expressions");
+        }
+        catch(IllegalFilterException ife){
+        }
+    }
+    
+    public void testIncompleteMathExpression() throws IllegalFilterException {
+        Expression testAttribute1 = new LiteralExpressionImpl(new Integer(4));
 
+        MathExpressionImpl mathTest = new MathExpressionImpl(DefaultExpression.MATH_ADD);
+        mathTest.addLeftValue(testAttribute1);
+        try{
+            mathTest.getValue(testFeature);
+            fail("math expressions should not work if right hand side is not set");
+        }
+        catch(IllegalArgumentException ife){
+        }
+        mathTest = new MathExpressionImpl(DefaultExpression.MATH_ADD);
+        mathTest.addRightValue(testAttribute1);
+        try{
+            mathTest.getValue(testFeature);
+            fail("math expressions should not work if left hand side is not set");
+        }
+        catch(IllegalArgumentException ife){
+        }
+    }
+    
     /**
      * Tests the math expression.
      *
@@ -258,7 +346,7 @@ public class ExpressionTest extends TestCase {
         // Test integer attribute
         Expression testAttribute1 = new LiteralExpressionImpl(new Integer(4));
         Expression testAttribute2 = new LiteralExpressionImpl(new Integer(2));
-
+        
         // Test addition
         MathExpressionImpl mathTest = new MathExpressionImpl(DefaultExpression.MATH_ADD);
         mathTest.addLeftValue(testAttribute1);
@@ -267,7 +355,7 @@ public class ExpressionTest extends TestCase {
             " + " + testAttribute2.getValue(testFeature) + " = " +
             mathTest.getValue(testFeature));
         assertEquals(new Double(6), mathTest.getValue(testFeature));
-
+        
         // Test subtraction
         mathTest = new MathExpressionImpl(DefaultExpression.MATH_SUBTRACT);
         mathTest.addLeftValue(testAttribute1);
@@ -276,7 +364,7 @@ public class ExpressionTest extends TestCase {
             " - " + testAttribute2.getValue(testFeature) + " = " +
             mathTest.getValue(testFeature));
         assertEquals(new Double(2), mathTest.getValue(testFeature));
-
+        
         // Test multiplication
         mathTest = new MathExpressionImpl(DefaultExpression.MATH_MULTIPLY);
         mathTest.addLeftValue(testAttribute1);
@@ -285,7 +373,7 @@ public class ExpressionTest extends TestCase {
             " * " + testAttribute2.getValue(testFeature) + " = " +
             mathTest.getValue(testFeature));
         assertEquals(new Double(8), mathTest.getValue(testFeature));
-
+        
         // Test division
         mathTest = new MathExpressionImpl(DefaultExpression.MATH_DIVIDE);
         mathTest.addLeftValue(testAttribute1);

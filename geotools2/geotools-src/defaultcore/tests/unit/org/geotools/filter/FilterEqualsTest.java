@@ -195,8 +195,32 @@ public class FilterEqualsTest extends TestCase {
 	}
     }   
 
+    public void testFidFilter(){
+        FidFilter ff = new FidFilterImpl();
+        ff.addFid("1");
+        
+        FidFilter ff2 = new FidFilterImpl("1");
+        assertNotNull(ff2);
+        assertEquals(ff, ff2);
+        assertTrue(!ff.equals(null));
+        assertTrue(!ff.equals("a string not even a filter"));
+        ff2.addFid("2");
+        assertTrue(!ff.equals(ff2));
+        
+        
+        
+        ff.addFid("2");
+        assertEquals(ff, ff2);
+        
+        FidFilterImpl ff3 = new FidFilterImpl();
+        ff3.filterType = -1;//REVISIT: should I even be able to do that?
+        
+        assertTrue(!ff2.equals(ff3));
+        
+    }
+    
     public void testExpressionMath(){
-	try {
+        try {
 	    MathExpressionImpl testMath1;
 	    MathExpressionImpl testMath2;
 	    testExp1 = new LiteralExpressionImpl(new Double(5));
@@ -218,9 +242,11 @@ public class FilterEqualsTest extends TestCase {
 	    testMath1.addLeftValue(testExp4);
 	    testMath1.addLeftValue(testExp2);
 	    assertTrue(!testMath1.equals(testMath2));
+            assertTrue(!testMath1.equals("Random Object that happens to be a string"));
 	} catch (IllegalFilterException e){
 	    LOGGER.warning("bad filter: " + e.getMessage());
 	}
+            
     }
 
     public void testExpressionAttribute()

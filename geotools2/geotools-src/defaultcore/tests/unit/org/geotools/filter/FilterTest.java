@@ -43,6 +43,8 @@ public class FilterTest extends TestCase {
     /** Schema on which to preform tests */
     private static FeatureType testSchema = null;
     boolean set = false;
+    
+    FilterFactory fac;
 
       private static AttributeTypeFactory attFactory = AttributeTypeFactory.newInstance();
 
@@ -94,6 +96,8 @@ public class FilterTest extends TestCase {
         }
 
         set = true;
+        
+        fac = FilterFactory.createFilterFactory();
 
         // Create the schema attributes
         //LOGGER.debug("creating flat feature...");
@@ -276,7 +280,7 @@ public class FilterTest extends TestCase {
         // Set up string
         testAttribute = new AttributeExpressionImpl(testSchema, "testString");
 
-        LikeFilterImpl filter = new LikeFilterImpl();
+        LikeFilter filter = fac.createLikeFilter();
         filter.setValue(testAttribute);
 
         // Test for false negative.
@@ -383,12 +387,17 @@ public class FilterTest extends TestCase {
         // Test for false positive.
         testAttribute = new AttributeExpressionImpl(testSchema, "testString");
 
-        NullFilterImpl filter = new NullFilterImpl();
+        NullFilter filter = fac.createNullFilter();
+        assertTrue(!filter.contains(testFeature));
+        
         filter.nullCheckValue(testAttribute);
+        assertEquals(testAttribute , filter.getNullCheckValue());
 
         //LOGGER.info( filter.toString());            
         //LOGGER.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
+        
+        
 
         /*
            testFeature.setAttribute("testString", null);
@@ -400,6 +409,8 @@ public class FilterTest extends TestCase {
            assertTrue(!filter.contains(testFeature));
          */
     }
+    
+    
 
     /**
      * Test the between operator.
@@ -408,7 +419,7 @@ public class FilterTest extends TestCase {
      */
     public void testBetween() throws IllegalFilterException {
         // Set up the integer
-        BetweenFilterImpl filter = new BetweenFilterImpl();
+        BetweenFilter filter = fac.createBetweenFilter();
         Expression testLiteralLower = new LiteralExpressionImpl(new Integer(
                     1001));
         Expression testAttribute = new AttributeExpressionImpl(testSchema,
@@ -587,6 +598,25 @@ public class FilterTest extends TestCase {
         //Test Beyond
     }
 
+    public void testFid() throws IllegalAttributeException {
+        
+        FidFilter ff = fac.createFidFilter();
+        assertTrue(!ff.contains(testFeature));
+        ff.addFid(testFeature.getID());
+        assertTrue(ff.contains(testFeature));
+        assertTrue(!ff.contains(null));
+        
+        FidFilter ff2 = fac.createFidFilter(testFeature.getID());
+        assertNotNull(ff2);
+        assertTrue(ff2.contains(testFeature));  
+        
+        assertEquals(1,((FidFilterImpl)ff).getFids().length);
+        ff.addFid("another id");
+        assertEquals(2,((FidFilterImpl)ff).getFids().length);
+       
+    }
+    
+    
     /**
      * Test the logic operators.
      *
@@ -597,21 +627,20 @@ public class FilterTest extends TestCase {
 
         // Set up true sub filter
         testAttribute = new AttributeExpressionImpl(testSchema, "testString");
-
-        CompareFilterImpl filterTrue = new CompareFilterImpl(AbstractFilter.COMPARE_EQUALS);
+        CompareFilter filterTrue = fac.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
         Expression testLiteral;
         filterTrue.addLeftValue(testAttribute);
         testLiteral = new LiteralExpressionImpl("test string data");
         filterTrue.addRightValue(testLiteral);
 
         // Set up false sub filter
-        CompareFilterImpl filterFalse = new CompareFilterImpl(AbstractFilter.COMPARE_EQUALS);
+        CompareFilter filterFalse = fac.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
         filterFalse.addLeftValue(testAttribute);
         testLiteral = new LiteralExpressionImpl("incorrect test string data");
         filterFalse.addRightValue(testLiteral);
 
         // Test OR for false negatives
-        LogicFilterImpl filter = new LogicFilterImpl(filterFalse, filterTrue,
+        LogicFilter filter = fac.createLogicFilter(filterFalse, filterTrue,
                 AbstractFilter.LOGIC_OR);
 
         //LOGGER.info( filter.toString());            
@@ -619,7 +648,7 @@ public class FilterTest extends TestCase {
         assertTrue(filter.contains(testFeature));
 
         // Test OR for false negatives
-        filter = new LogicFilterImpl(filterTrue, filterTrue,
+        filter = fac.createLogicFilter(filterTrue, filterTrue,
                 AbstractFilter.LOGIC_OR);
 
         //LOGGER.info( filter.toString());            
@@ -627,15 +656,21 @@ public class FilterTest extends TestCase {
         assertTrue(filter.contains(testFeature));
 
         // Test OR for false positives
-        filter = new LogicFilterImpl(filterFalse, filterFalse,
+        filter = fac.createLogicFilter(filterFalse, filterFalse,
                 AbstractFilter.LOGIC_OR);
+         //as above but with shortcut
+        Filter filter2 = filterFalse.or(filterTrue);
+        assertTrue(!filter.contains(testFeature));
 
         //LOGGER.info( filter.toString());            
         //LOGGER.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
+        //as above but with shortcut
+        filter2 = filterFalse.or(filterFalse);
+        assertTrue(!filter.contains(testFeature));
 
         // Test AND for false positives
-        filter = new LogicFilterImpl(filterFalse, filterTrue,
+        filter = fac.createLogicFilter(filterFalse, filterTrue,
                 AbstractFilter.LOGIC_AND);
 
         //LOGGER.info( filter.toString());            
@@ -643,7 +678,7 @@ public class FilterTest extends TestCase {
         assertTrue(!filter.contains(testFeature));
 
         // Test AND for false positives
-        filter = new LogicFilterImpl(filterTrue, filterFalse,
+        filter = fac.createLogicFilter(filterTrue, filterFalse,
                 AbstractFilter.LOGIC_AND);
 
         //LOGGER.info( filter.toString());            
@@ -651,11 +686,16 @@ public class FilterTest extends TestCase {
         assertTrue(!filter.contains(testFeature));
 
         // Test AND for false positives
-        filter = new LogicFilterImpl(filterTrue, filterTrue,
+        filter = fac.createLogicFilter(filterTrue, filterTrue,
                 AbstractFilter.LOGIC_AND);
-
+        filter2 = filterTrue.and(filterTrue);
         //LOGGER.info( filter.toString());            
         //LOGGER.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
+        assertTrue(filter2.contains(testFeature));
+        
+        //finaly test noting shortcut
+        filter2 = filterFalse.not();
+        assertTrue(filter2.contains(testFeature));
     }
 }
