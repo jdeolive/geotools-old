@@ -20,12 +20,12 @@
 package org.geotools.map;
 
 /**
- * LayerModel stores FeatureCollections associated with a geographic map.
+ * LayerModel stores DataSources associated with a geographic map.
  * Geotools uses a Model-View-Control (MVC) design to control maps.
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: DefaultLayerModel.java,v 1.3 2002/08/04 10:49:09 camerons Exp $
+ * @version $Id: DefaultLayerModel.java,v 1.4 2002/08/09 12:54:38 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -34,7 +34,6 @@ import java.util.Vector;
 import javax.swing.event.EventListenerList;
 import org.geotools.map.events.LayerListChangedEvent;
 import org.geotools.map.events.LayerListChangedListener;
-import org.geotools.feature.FeatureCollection;
 
 public class DefaultLayerModel implements LayerModel {
     
@@ -53,7 +52,7 @@ public class DefaultLayerModel implements LayerModel {
      * @param layer Then new layer that has been added.
      */
     public DefaultLayerModel(
-            FeatureCollection layer)
+            Layer layer)
     {
         addLayer(layer);
     }
@@ -64,7 +63,7 @@ public class DefaultLayerModel implements LayerModel {
      * @param layer The new layers that are to be added.
      */
     public DefaultLayerModel(
-            FeatureCollection[] layer)
+            Layer[] layer)
     {
         addLayers(layer);
     }
@@ -100,7 +99,7 @@ public class DefaultLayerModel implements LayerModel {
         // those that are interested in this event
         LayerListChangedEvent llce = new LayerListChangedEvent(
                 this,
-                (FeatureCollection[])this.layers.toArray());
+                (Layer[])this.layers.toArray());
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == LayerListChangedListener.class) {
                 ((LayerListChangedListener)
@@ -113,7 +112,7 @@ public class DefaultLayerModel implements LayerModel {
      * Add a new layer and trigger a LayerListChangedEvent.
      * @param layer Then new layer that has been added.
      */
-    public void addLayer(FeatureCollection layer)
+    public void addLayer(Layer layer)
     {
         this.layers.add(layer);
         fireLayerListChangedListener();
@@ -123,8 +122,7 @@ public class DefaultLayerModel implements LayerModel {
      * Remove a layer and trigger a LayerListChangedEvent.
      * @param layer Then new layer that has been removed.
      */
-    public void removeLayer(
-            FeatureCollection layer)
+    public void removeLayer(Layer layer)
     {
         this.layers.remove(layer);
         fireLayerListChangedListener();
@@ -134,8 +132,7 @@ public class DefaultLayerModel implements LayerModel {
      * Add an array of new layers and trigger a LayerListChangedEvent.
      * @param layer The new layers that are to be added.
      */
-    public void addLayers(
-            FeatureCollection[] layer)
+    public void addLayers(Layer[] layer)
     {
         for (int i = 0; i < layer.length; i++) {
             this.layers.add(layer[i]);
@@ -147,8 +144,7 @@ public class DefaultLayerModel implements LayerModel {
      * Remove an array of new layers and trigger a LayerListChangedEvent.
      * @param layer The layers that are to be removed.
      */
-    public void removeLayers(
-            FeatureCollection[] layer)
+    public void removeLayers(Layer[] layer)
     {
         if (layer!=null){
             for (int i = 0; i < layer.length; i++) {
@@ -163,12 +159,12 @@ public class DefaultLayerModel implements LayerModel {
      * null is returned.
      * @return This model's list of layers.
      */
-    public FeatureCollection[] getLayers()
+    public Layer[] getLayers()
     {
         if (this.layers==null){
             return null;
         } else {
-            return (FeatureCollection[])this.layers.toArray();
+            return (Layer[])this.layers.toArray();
         }
     }
 }

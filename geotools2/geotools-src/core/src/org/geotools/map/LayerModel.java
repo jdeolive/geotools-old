@@ -20,19 +20,20 @@
 package org.geotools.map;
 
 /**
- * LayerModel stores FeatureCollections associated with a geographic map.
+ * LayerModel stores DataSources associated with a geographic map.
  * Geotools uses a Model-View-Control (MVC) design to control maps.
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: LayerModel.java,v 1.3 2002/08/04 10:47:07 camerons Exp $
+ * @version $Id: LayerModel.java,v 1.4 2002/08/09 12:54:38 camerons Exp $
  * @author Cameron Shorter
- * 
+ * @task TODO: Add incrementOrder(layer) decrementOrderLayer
+ * makeFirst(layer) makLast(Layer)
  */
 
 import org.geotools.map.events.LayerListChangedEvent;
 import org.geotools.map.events.LayerListChangedListener;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.map.Layer;
 
 public interface LayerModel {
     
@@ -57,33 +58,35 @@ public interface LayerModel {
      * @param layer Then new layer that has been added.
      */
     public void addLayer(
-            FeatureCollection layer);
+            Layer layer);
 
     /**
      * Remove a layer and trigger a LayerListChangedEvent.
      * @param layer Then new layer that has been removed.
      */
     public void removeLayer(
-            FeatureCollection layer);
+            Layer layer);
  
     /**
      * Add an array of new layers and trigger a LayerListChangedEvent.
      * @param layer The new layers that are to be added.
      */
     public void addLayers(
-            FeatureCollection[] layer);
+            Layer[] layer);
  
     /**
      * Remove an array of new layers and trigger a LayerListChangedEvent.
      * @param layer The layers that are to be removed.
      */
     public void removeLayers(
-            FeatureCollection[] layer);
+            Layer[] layer);
 
     /**
      * Return this model's list of layers.  If no layers are present, then
      * null is returned.
      * @return This model's list of layers.
      */
-    public FeatureCollection[] getLayers();
+    public Layer[] getLayers();
+    
+
 }
