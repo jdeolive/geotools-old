@@ -12,7 +12,8 @@
     </target>
     <!-- TODO: failOnViolation should be set to true eventualy -->
     <target name="checkstyle">
-         <checkstyle failOnViolation="false" headerfile="licence.header"> 
+         <echo message="using ${licence.header} as header check file"/>
+         <checkstyle failOnViolation="false"> 
             <fileset dir="src" includes="**/*.java"/>
             <formatter type="plain"/>
             <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
