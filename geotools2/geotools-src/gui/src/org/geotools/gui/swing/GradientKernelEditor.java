@@ -55,7 +55,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/GradientKernelEditor.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: GradientKernelEditor.java,v 1.1 2003/03/28 16:45:53 desruisseaux Exp $
+ * @version $Id: GradientKernelEditor.java,v 1.2 2003/04/15 10:55:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see KernelEditor
@@ -63,6 +63,84 @@ import org.geotools.resources.gui.ResourceKeys;
  * @see org.geotools.gp.GridCoverageProcessor
  */
 public class GradientKernelEditor extends JComponent {
+    /**
+     * Square root of 2.
+     */
+    private static final float SQRT2 = 1.4142135623730950488016887242097f;
+
+    /**
+     * Horizontal gradient mask according Prewitt (also know as smoothed).
+     */
+    public static final KernelJAI PREWITT_HORIZONTAL = new KernelJAI(3,3,new float[] {
+        -1,  0,  1,
+        -1,  0,  1,
+        -1,  0,  1,
+    });
+
+    /**
+     * Vertical gradient mask according Prewitt (also know as smoothed).
+     */
+    public static final KernelJAI PREWITT_VERTICAL = new KernelJAI(3,3,new float[] {
+        -1, -1, -1,
+         0,  0,  0,
+         1,  1,  1,
+    });
+
+    /**
+     * Horizontal gradient mask (isotropic).
+     */
+    public static final KernelJAI ISOTROPIC_HORIZONTAL = new KernelJAI(3,3,new float[] {
+        -1,      0,      1,
+        -SQRT2,  0,  SQRT2,
+        -1,      0,      1,
+    });
+
+    /**
+     * Vertical gradient mask (isotropic).
+     */
+    public static final KernelJAI ISOTROPIC_VERTICAL = new KernelJAI(3,3,new float[] {
+        -1, -SQRT2, -1,
+         0,      0,  0,
+         1,  SQRT2,  1,
+    });
+
+    /**
+     * Horizontal gradient mask according Sobel.
+     */
+    public static final KernelJAI SOBEL_HORIZONTAL = KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL;
+
+    /**
+     * Vertical gradient mask according Sobel.
+     */
+    public static final KernelJAI SOBEL_VERTICAL = KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL;
+    /*
+     * NOTE: Horizontal and vertical sobel masks seems to have been swapped in KernelJAI.
+     *       See for example J.J. Simpson (1990) in Remote sensing environment, 33:17-33.
+     *       See also some tests in a speadsheet. Is it an error in JAI 1.1.2 or a
+     *       misunderstanding of mine?
+     */
+
+    /**
+     * Horizontal gradient mask according Kirsch.
+     */
+    public static final KernelJAI KIRSCH_HORIZONTAL = new KernelJAI(3,3,new float[] {
+        -3, -3,  5,
+        -3,  0,  5,
+        -3, -3,  5,
+    });
+
+    /**
+     * Vertical gradient mask according Kirsch.
+     *
+     * @task REVISIT: Why positives numbers are on the first row? This is the opposite
+     *       of other vertical gradient masks. Need to verify in J.J. Simpson (1990).
+     */
+    public static final KernelJAI KIRSCH_VERTICAL = new KernelJAI(3,3,new float[] {
+         5,  5,  5,
+        -3,  0, -3,
+        -3, -3, -3,
+    });
+
     /**
      * The horizontal kernel editor.
      */
@@ -127,7 +205,7 @@ public class GradientKernelEditor extends JComponent {
     /**
      * A kernel editor for horizontal or vertical gradient kernel.
      *
-     * @version $Id: GradientKernelEditor.java,v 1.1 2003/03/28 16:45:53 desruisseaux Exp $
+     * @version $Id: GradientKernelEditor.java,v 1.2 2003/04/15 10:55:10 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Editor extends KernelEditor {
@@ -149,9 +227,22 @@ public class GradientKernelEditor extends JComponent {
          * Add a set of predefined kernels.
          */
         public void addDefaultKernels() {
-            final KernelJAI sobel = horizontal ? KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL
-                                               : KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL;
             final String GRADIENT_MASKS = getResources().getString(ResourceKeys.GRADIENT_MASKS);
+            final KernelJAI prewitt, isotropic, kirsch, sobel;
+            if (horizontal) {
+                prewitt   = PREWITT_HORIZONTAL;
+                isotropic = ISOTROPIC_HORIZONTAL;
+                kirsch    = KIRSCH_HORIZONTAL;
+                sobel     = SOBEL_HORIZONTAL;
+            } else {
+                prewitt   = PREWITT_VERTICAL;
+                isotropic = ISOTROPIC_VERTICAL;
+                kirsch    = KIRSCH_VERTICAL;
+                sobel     = SOBEL_VERTICAL;
+            }
+            addKernel(GRADIENT_MASKS, "Prewitt",        prewitt);
+            addKernel(GRADIENT_MASKS, "Isotropic",      isotropic);
+            addKernel(GRADIENT_MASKS, "Kirsch",         kirsch);
             addKernel(GRADIENT_MASKS, "Sobel 3\u00D73", sobel);
             final StringBuffer buffer = new StringBuffer("Sobel ");
             final int base = buffer.length();
@@ -192,7 +283,7 @@ public class GradientKernelEditor extends JComponent {
                 for (int x=key; x!=0; x--) {
                     final int x2 = x*x;
                     final float v = (float) (2/Math.sqrt((x2+y2)*(1+y2/(double)x2)));
-                    if (!horizontal) {
+                    if (horizontal) {
                         data[row1-x] = data[row2-x] = -v;
                         data[row1+x] = data[row2+x] = +v;
                     } else {

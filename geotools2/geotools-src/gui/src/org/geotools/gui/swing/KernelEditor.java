@@ -92,7 +92,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/KernelEditor.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: KernelEditor.java,v 1.2 2003/03/30 22:44:24 desruisseaux Exp $
+ * @version $Id: KernelEditor.java,v 1.3 2003/04/15 10:55:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see GradientKernelEditor
@@ -220,8 +220,14 @@ public class KernelEditor extends JComponent {
         addKernel(ERROR_FILTERS,  "Floyd & Steinberg (1975)",      KernelJAI.ERROR_FILTER_FLOYD_STEINBERG);
         addKernel(ERROR_FILTERS,  "Jarvis, Judice & Ninke (1976)", KernelJAI.ERROR_FILTER_JARVIS);
         addKernel(ERROR_FILTERS,  "Stucki (1981)",                 KernelJAI.ERROR_FILTER_STUCKI);
-        addKernel(GRADIENT_MASKS, "Sobel horizontal", KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL);
-        addKernel(GRADIENT_MASKS, "Sobel vertical",   KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL);
+        /*
+         * NOTE: Horizontal and vertical sobel masks seems to have been swapped in KernelJAI.
+         *       See for example J.J. Simpson (1990) in Remote sensing environment, 33:17-33.
+         *       See also some tests in a speadsheet.
+         *       Is it an error in JAI 1.1.2 or a misunderstanding of mine?
+         */
+        addKernel(GRADIENT_MASKS, "Sobel horizontal", KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL);
+        addKernel(GRADIENT_MASKS, "Sobel vertical",   KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL);
 
         addKernel("Sharp 1",   new float[] { 0.0f, -1.0f,  0.0f,
                                             -1.0f,  5.0f, -1.0f,
@@ -430,7 +436,7 @@ public class KernelEditor extends JComponent {
      * currently selected kernel. This object is also a listener for various
      * events (like changing the size of the table).
      *
-     * @version $Id: KernelEditor.java,v 1.2 2003/03/30 22:44:24 desruisseaux Exp $
+     * @version $Id: KernelEditor.java,v 1.3 2003/04/15 10:55:10 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Model extends AbstractTableModel implements ComboBoxModel,
