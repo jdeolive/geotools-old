@@ -11,7 +11,7 @@
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>
         <logo>/images/gtLogo.gif</logo>
-    </organization>
+  </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
   <shortDescription>gtbuild module</shortDescription>
@@ -31,11 +31,10 @@
 -->
   
   <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot:geotools/geotools2/geotools-src/${pom.artifactId}</connection>
-    
-        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/${pom.artifactId}/</url>
-    </repository>
-  
+    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools:geotools2/geotools-src/${pom.artifactId}:anonymous</connection>
+    <developerConnection>scm:cvs:ext:${maven.username}@cvs.geotools.org:/cvsroot/geotools:geotools2/geotools-src/${pom.artifactId}</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/${pom.artifactId}/</url>
+  </repository>
 
   <mailingLists/>
   <developers>
@@ -44,74 +43,71 @@
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-                <role>Java Developer</role>
-                <role>GT2 Dev Team Member</role>
-            </roles>
-        </developer>
-        
-        <developer>
-      <name>James Macgill</name>
-      <id>jmacgill</id>
-      <email>jmacgill@users.sourceforge.net</email>
-      <organization>CCG</organization>
-            <roles>
-               <role>Java Developer</role>
-               <role>GT2 Dev Team Member</role>
-            </roles>
-        </developer>
-        
-         <developer>
-      <name>Rob Hranac</name>
-      <id>robhranac</id>
-      <email>robhranac@users.sourceforge.net</email>
-      <organization>VFNY</organization>
-            <roles>
-                <role>Java Developer</role>
-                <role>GT2 Dev Team Member</role>
-            </roles>
-        </developer>
-        <developer>
-      <name>Linda Oxnard</name>
-      <id>loxnard</id>
-      <email>loxnard@users.sourceforge.net</email>
-      <organization>None</organization>
-            <roles>
-                <role>Doc Editor</role>
-            </roles>
-        </developer>
-        <developer>
-      <name>Cameron Shorter</name>
-      <id>camerons</id>
-      <email>cameronsl@users.sourceforge.net</email>
-      <organization>None</organization>
-            <roles>
-                <role>Java Developer</role>
-                <role>GT2 Dev Team Member</role>
-            </roles>
-        </developer>
-        
-        <developer>
-      <name>Chris Holmes</name>
-      <id>cholmesny</id>
-      <email>cholmesny@users.sourceforge.net</email>
-      <organization>TOPP</organization>
-            <roles>
-                <role>Java Developer</role>
-                <role>GT2 Dev Team Member</role>
-            </roles>
-        </developer>
-        <developer>
-      <name>Martin Desruisseaux</name>
-      <id>desruisseaux</id>
-      <email>desruisseaux@users.sourceforge.net</email>
-      <organization>Institut de Recherche pour le Developpement (IRD)</organization>
-      <roles>
-        <role>Java Developer</role>
-        <role>GT2 Dev Team Member</role>
-      </roles>
-    </developer>
-    </developers>
+        <roles>
+            <role>Java Developer</role>
+            <role>GT2 Dev Team Member</role>
+        </roles>
+      </developer>  
+      <developer>
+          <name>James Macgill</name>
+          <id>jmacgill</id>
+          <email>jmacgill@users.sourceforge.net</email>
+          <organization>CCG</organization>
+          <roles>
+            <role>Java Developer</role>
+            <role>GT2 Dev Team Member</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Rob Hranac</name>
+          <id>robhranac</id>
+          <email>robhranac@users.sourceforge.net</email>
+          <organization>VFNY</organization>
+          <roles>
+            <role>Java Developer</role>
+            <role>GT2 Dev Team Member</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Linda Oxnard</name>
+          <id>loxnard</id>
+          <email>loxnard@users.sourceforge.net</email>
+          <organization>None</organization>
+          <roles>
+            <role>Doc Editor</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Cameron Shorter</name>
+          <id>camerons</id>
+          <email>cameronsl@users.sourceforge.net</email>
+          <organization>None</organization>
+          <roles>
+            <role>Java Developer</role>
+            <role>GT2 Dev Team Member</role>
+          </roles>
+      </developer>  
+      <developer>
+          <name>Chris Holmes</name>
+          <id>cholmesny</id>
+          <email>cholmesny@users.sourceforge.net</email>
+          <organization>TOPP</organization>
+          <roles>
+            <role>Java Developer</role>
+            <role>GT2 Dev Team Member</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Martin Desruisseaux</name>
+          <id>desruisseaux</id>
+          <email>desruisseaux@users.sourceforge.net</email>
+          <organization>Institut de Recherche pour le Developpement (IRD)</organization>
+          <roles>
+            <role>Java Developer</role>
+            <role>GT2 Dev Team Member</role>
+          </roles>
+      </developer>
+  </developers>
   <dependencies>
     <dependency>
       <id>velocity-dvsl</id>
@@ -138,15 +134,13 @@
       <version>20030211.144921</version>
       <url>http://jakarta.apache.org/commons/jelly/tags/ant/</url>
     </dependency>
-
   </dependencies>
+  
   <build>
-    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-    
+    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>  
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
     <integrationUnitTestSourceDirectory/>
     <aspectSourceDirectories/>
-    
     <integrationUnitTestPatterns/>
     <sourceDirectory>src</sourceDirectory>
 <!--
@@ -164,8 +158,6 @@
         </includes>
       </resource>
     </resources>
-
-    
     <jars/>
 
     <unitTest>
@@ -175,4 +167,3 @@
     </unitTest>
   </build>
 </project>
-
