@@ -46,6 +46,10 @@ public class PickleTest extends TestCase {
     return new FeatureTypeFlat(atts);
   }
   
+  /*
+   * Test support for storing and reading more than one type.
+   *
+   */
   public void testMultiFeatureTypeStorage() throws Exception {
     File file = new File(tempFile);
     PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
@@ -82,17 +86,18 @@ public class PickleTest extends TestCase {
     }
   }
   
+  /*
+   * Test support for storage of arbitrary (non-primitive) objects.
+   */
   public void testWriteWithArbitraryObjects() throws Exception {
     File file = new File(tempFile);
     PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
-    AttributeType[] atts = new AttributeType[3];
-    atts[0] = new AttributeTypeDefault("date", Date.class);
-    atts[1] = new AttributeTypeDefault("rect", Rectangle.class);
-    atts[2] = new AttributeTypeDefault("innerClass", InnerClassTestObject.class);
-    FeatureType test = new FeatureTypeFlat(atts);
+    String[] name = new String[] {"date","rect","innerClass"};
+    Class[] clazz = new Class[] {Date.class,Rectangle.class,InnerClassTestObject.class};
+    FeatureType test = createType(name, clazz);
     FeatureFactory factory = new FlatFeatureFactory(test);
     FeatureCollection collection = new FeatureCollectionDefault();
-    Object[] attVals = new Object[atts.length];
+    Object[] attVals = new Object[test.attributeTotal()];
     long time = System.currentTimeMillis();
     for (int i = 0; i < 100; i++) {
       attVals[0] = new Date(time + i);
@@ -109,10 +114,6 @@ public class PickleTest extends TestCase {
       assertEquals(i,((InnerClassTestObject)attVals[2]).x);
       assertEquals(0,((InnerClassTestObject)attVals[2]).y);
     }
-  }
-  
-  public void testMultiFeatures() throws Exception {
-    
   }
   
   /*
@@ -153,6 +154,9 @@ public class PickleTest extends TestCase {
       
   }
   
+  /*
+   * Test support for unicode names and values.
+   */
   public void testUnicodeSupport() throws Exception {
     File file = new File(tempFile);
     PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
