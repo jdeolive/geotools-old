@@ -63,6 +63,7 @@ public class LegendImageGenerator {
     int vpadding = 3;
     int symbolWidth = 20;
     int symbolHeight = 20;
+    double scale = 1.0;
     static StyleFactory sFac= StyleFactory.createStyleFactory();
     static FilterFactory filFac = FilterFactory.createFilterFactory();
     GeometryFactory gFac = new GeometryFactory();
@@ -108,6 +109,7 @@ public class LegendImageGenerator {
             graphics.setBackground(background);
             graphics.fillRect(0,0, getWidth(),getHeight());
         }
+        renderer.setScaleDenominator(getScale());
         renderer.render(graphics, new java.awt.Rectangle(0,0,getWidth(),getHeight()));
         
         RenderedPoint rp=null;
@@ -129,11 +131,14 @@ public class LegendImageGenerator {
                 Rule[] rules = fts[i].getRules();
 
                 for(int j=0;j<rules.length;j++){
-                    String name = rules[j].getName();
+                    String name = rules[j].getTitle();
+                    if((name==null||name.equalsIgnoreCase("title"))&&rules[j].getFilter()!=null){
+                        name = rules[j].getFilter().toString();
+                    }
                     Graphic[] g = rules[j].getLegendGraphic();
 
                     if(g != null && g.length>0){
-                        System.out.println("got a legend graphic");
+                        //System.out.println("got a legend graphic");
                         for(int k=0;k<g.length;k++){
                             p = gFac.createPoint(new Coordinate(hpadding+symbolWidth/2,offset+symbolHeight/2));
                             Object[] attrib = {p};
@@ -153,7 +158,7 @@ public class LegendImageGenerator {
                         Symbolizer[] syms = rules[j].getSymbolizers();
                         for(int k=0;k<syms.length;k++){
                             if (syms[k] instanceof PolygonSymbolizer) {
-                                System.out.println("building polygon");
+                                //System.out.println("building polygon");
                                 Coordinate[] c = new Coordinate[5];
                                 c[0] = new Coordinate(hpadding, offset);
                                 c[1] = new Coordinate(hpadding+symbolWidth, offset);
@@ -178,10 +183,10 @@ public class LegendImageGenerator {
                                 }catch (IllegalFeatureException ife){
                                     throw new RuntimeException(ife);
                                 }
-                                System.out.println("feature = "+feature);
+                                //System.out.println("feature = "+feature);
 
                             } else if (syms[k] instanceof LineSymbolizer){
-                                System.out.println("building line");
+                                //System.out.println("building line");
                                Coordinate[] c = new Coordinate[5];
                                 c[0] = new Coordinate(hpadding, offset);
                                 c[1] = new Coordinate(hpadding+symbolWidth*.3, offset+symbolHeight*.3);
@@ -195,10 +200,10 @@ public class LegendImageGenerator {
                                 }catch (IllegalFeatureException ife){
                                     throw new RuntimeException(ife);
                                 }
-                                System.out.println("feature = "+feature);
+                                //System.out.println("feature = "+feature);
 
                             } else  if(syms[k] instanceof PointSymbolizer){
-                                System.out.println("building point");
+                                //System.out.println("building point");
                                 p = gFac.createPoint(new Coordinate(hpadding+symbolWidth/2,offset+symbolHeight/2));
                                 Object[] attrib = {p};
                                 try{
@@ -207,13 +212,14 @@ public class LegendImageGenerator {
                                     throw new RuntimeException(ife);
                                 }
                                 System.out.println("feature = "+feature);
+                                
 
                             }
                         }
                         if(feature == null) continue;
-                        System.out.println("feature "+feature);
-
-                        renderer.processSymbolizers(feature, syms); 
+                        //System.out.println("feature "+feature);
+                        renderer.processSymbolizers(feature, syms);
+                        
                     }
 
                 if(name==null || name =="") name = "unknown";
@@ -229,7 +235,7 @@ public class LegendImageGenerator {
 
 
                 renderer.processSymbolizers(labelFeature,new Symbolizer[]{textSym});
-    //            graphics.drawString(name,hpadding+3*hstep/2,offset+vstep/2);
+    
                 offset += symbolHeight+vpadding;
                 }
             }
@@ -351,6 +357,22 @@ public class LegendImageGenerator {
      */
     public void setSymbolHeight(int symbolHeight) {
         this.symbolHeight = symbolHeight;
+    }
+    
+    /** Getter for property scale.
+     * @return Value of property scale.
+     *
+     */
+    public double getScale() {
+        return scale;
+    }
+    
+    /** Setter for property scale.
+     * @param scale New value of property scale.
+     *
+     */
+    public void setScale(double scale) {
+        this.scale = scale;
     }
     
 }
