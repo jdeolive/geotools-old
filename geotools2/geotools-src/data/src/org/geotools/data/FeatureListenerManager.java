@@ -68,7 +68,7 @@ public class FeatureListenerManager {
                 return (EventListenerList) listenerMap.get(featureSource);
             } else {
                 EventListenerList listenerList = new EventListenerList();
-                listenerMap.put(featureSource, listenerMap);
+                listenerMap.put(featureSource, listenerList);
 
                 return listenerList;
             }
@@ -173,7 +173,7 @@ public class FeatureListenerManager {
         FeatureListener[] listeners;
         FeatureEvent event;
 
-        for (Iterator i = getListeners(typeName, transaction).values().iterator();
+        for (Iterator i = getListeners(typeName, transaction).entrySet().iterator();
                 i.hasNext();) {
             entry = (Map.Entry) i.next();
             featureSource = (FeatureSource) entry.getKey();
@@ -276,7 +276,7 @@ public class FeatureListenerManager {
         if (commit) {
             Map map = getListeners(typeName, Transaction.AUTO_COMMIT);
 
-            for (Iterator i = map.values().iterator(); i.hasNext();) {
+            for (Iterator i = map.entrySet().iterator(); i.hasNext();) {
                 entry = (Map.Entry) i.next();
                 featureSource = (FeatureSource) entry.getKey();
                 listeners = (FeatureListener[]) entry.getValue();
@@ -332,7 +332,7 @@ public class FeatureListenerManager {
         FeatureListener[] listeners;
         FeatureEvent event;
 
-        for (Iterator i = getListeners(typeName, transaction).values().iterator();
+        for (Iterator i = getListeners(typeName, transaction).entrySet().iterator();
                 i.hasNext();) {
             entry = (Map.Entry) i.next();
             featureSource = (FeatureSource) entry.getKey();

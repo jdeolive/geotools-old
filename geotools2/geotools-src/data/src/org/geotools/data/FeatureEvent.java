@@ -42,14 +42,14 @@ import java.util.EventObject;
  *
  * @author Jody Garnett
  * @author Ray Gallagher
- * @version $Id: FeatureEvent.java,v 1.2 2003/11/04 00:28:49 cholmesny Exp $
+ * @version $Id: FeatureEvent.java,v 1.3 2003/11/12 05:50:16 jive Exp $
  */
 public class FeatureEvent extends EventObject {
     /**
      * Event type constant denoting the adding of a feature.
      * 
      * <p>
-     * This EventType is used when FeatureWriter.next() is called when
+     * This EventType is used when FeatureWriter.write() is called when
      * <code>FeatureWriter.hasNext()</code> has previously returned
      * <code>false</code>. This action represents a newly create Feature being
      * passed to the DataStore.
@@ -80,7 +80,7 @@ public class FeatureEvent extends EventObject {
      * modified.
      * 
      * <p>
-     * This EventType is used when a FeatureWriter.next() is called when
+     * This EventType is used when a FeatureWriter.write() is called when
      * <code>FeatureWriter.hasNext()</code> returns <code>true</code> and the
      * current Feature has been changed. This EventType is also used when a
      * Transaction <code>commit()</code> or <code>rolledback</code> is called.
