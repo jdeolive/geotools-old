@@ -24,15 +24,19 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
+import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureSource;
 
 // Geotools dependencies
 import org.geotools.feature.Feature;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
 import org.geotools.renderer.geom.Geometry;
 import org.geotools.renderer.geom.JTSGeometries;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style;
+import org.geotools.resources.XArray;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.PointSymbolizer;
@@ -43,6 +47,7 @@ import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
 import org.geotools.util.RangeSet;
+import java.io.IOException;
 
 // J2SE dependencies
 import java.util.ArrayList;
@@ -58,7 +63,7 @@ import java.util.logging.Logger;
  *
  * @author Andrea Aime
  * @author Martin Desruisseaux
- * @version $Id: RenderedLayerFactory.java,v 1.16 2003/11/20 07:28:02 aaime Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.17 2003/12/04 23:19:47 aaime Exp $
  */
 public class RenderedLayerFactory {
     /** The logger. */
@@ -105,6 +110,40 @@ public class RenderedLayerFactory {
      */
     public void setCoordinateSystem(final CoordinateSystem coordinateSystem) {
         this.coordinateSystem = coordinateSystem;
+    }
+
+    /**
+     * Create an array of rendered layers from the specified feature and style.
+     *
+     * @param featureSource the source used to read features
+     * @param style the style for these features
+     *
+     * @return The rendered layer array for the specified feature and style.
+     *
+     * @throws TransformException if a transformation was required and failed.
+     * @throws IOException if an error occurs while reading the features
+     * @throws IllegalAttributeException if an attribute is read from the data that is incompatible
+     *         with the feature type
+     */
+    public RenderedLayer[] create(final FeatureSource featureSource,
+        final org.geotools.styling.Style style)
+        throws TransformException, IOException, IllegalAttributeException {
+        FeatureReader fr = featureSource.getFeatures().reader();
+        Feature[] features = new Feature[100];
+        int currFeature = 0;
+        while (fr.hasNext()) {
+            if (currFeature >= features.length) {
+                features = (Feature[]) XArray.resize(features, (int) ((features.length * 3) / 2)
+                        + 1);
+            }
+
+            features[currFeature] = fr.next();
+            currFeature++;
+        }
+
+        features = (Feature[]) XArray.resize(features, currFeature);
+
+        return create(features, style);
     }
 
     /**
