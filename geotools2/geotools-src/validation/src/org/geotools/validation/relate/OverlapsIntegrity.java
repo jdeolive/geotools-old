@@ -92,6 +92,45 @@ public class OverlapsIntegrity extends RelationIntegrity
 	{
 		boolean success = true;
 		
+		FeatureReader featureReader1 = null;
+		try {
+			featureReader1 = featureSourceA.getDataStore().getFeatureReader(null, null);//TODO fixme (jody)
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		FeatureReader featureReader2 = null;
+		try {
+			featureReader2 = featureSourceB.getDataStore().getFeatureReader(null, null);//TODO fixme (jody)
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		try 
+		{
+			while (featureReader1.hasNext())
+			{
+				Feature f1 = featureReader1.next();
+				Geometry g1 = f1.getDefaultGeometry();
+				while (featureReader2.hasNext())
+				{
+					Feature f2 = featureReader2.next();
+					Geometry g2 = f2.getDefaultGeometry();
+					if(g1.overlaps(g2) != expected || g1.contains(g2) != expected)
+					{
+						results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
+						success = false;
+					}
+				}		
+			}
+		} catch (NoSuchElementException e2) {
+			e2.printStackTrace();
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		} catch (IllegalAttributeException e2) {
+			e2.printStackTrace();
+		}
+				
 		return success;
 	}
 
@@ -131,7 +170,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 					{
 						if(g1.overlaps(g2) != expected || g1.contains(g2) != expected)
 						{
-							results.error( f1, "Geometry "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+") was not "+expected );
+							results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
 							success = false;
 						}
 					}
