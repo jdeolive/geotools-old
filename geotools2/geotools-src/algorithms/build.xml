@@ -17,6 +17,7 @@
         <javac debug="true" srcdir="tests/unit">
             <classpath>
                 <path path="src"/>
+                <fileset dir="..\..\extbin\core\lib\"/>
                 <fileset dir="..\..\extbin\gtbuild\lib\"/>
             </classpath>
         </javac>
@@ -30,7 +31,7 @@
                 <path path="src/"/>
                 <path path="tests/unit/"/>
             </classpath>
-            <test name="org.geotools.algorithms.AlgorithmSuite"/>
+            <test name="org.geotools.algorithms.AlgorithmsSuite"/>
         </junit>
     </target>
     <target depends="test" name="release">
