@@ -24,7 +24,7 @@ import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
-import org.geotools.map.events.BoundingBoxEvent;
+import org.geotools.map.event.BoundingBoxEvent;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -32,7 +32,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author  jamesm
  */
-public class NavigationPane extends javax.swing.JComponent implements org.geotools.map.events.BoundingBoxListener{
+public class NavigationPane extends javax.swing.JComponent implements org.geotools.map.event.BoundingBoxListener{
     /**
      * The maximum extent of any aoi to be displayed.
      * This determins the extent of the map displayed in this panel,
@@ -110,7 +110,7 @@ public class NavigationPane extends javax.swing.JComponent implements org.geotoo
     public void setAoiModel(org.geotools.map.BoundingBox aoiModel) {
         this.aoiModel = aoiModel;
         subAoi = aoiModel.getAreaOfInterest();
-        this.aoiModel.addAreaOfInterestChangedListener(this);
+        this.aoiModel.addBoundingBoxListener(this);
     }
     
     /** Getter for property totalAoi.

@@ -29,9 +29,9 @@ import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
-import org.geotools.map.events.BoundingBoxEvent;
-import org.geotools.map.events.BoundingBoxListener;
-import org.geotools.map.events.LayerListListener;
+import org.geotools.map.event.BoundingBoxEvent;
+import org.geotools.map.event.BoundingBoxListener;
+import org.geotools.map.event.LayerListListener;
 import org.geotools.gui.tools.event.SelectedToolListener;
 import org.geotools.renderer.lite.LiteRenderer;
 import org.geotools.styling.Style;
@@ -59,7 +59,7 @@ import org.geotools.renderer.Renderer2D;
  * component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.31 2003/07/24 06:33:50 aaime Exp $
+ * @version $Id: MapPaneImpl.java,v 1.32 2003/08/18 16:34:02 desruisseaux Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults to
  *       1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -106,8 +106,8 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             this.context = context;
 
             // Request to be notified when map parameters change
-            context.getBbox().addAreaOfInterestChangedListener(this);
-            context.getLayerList().addLayerListChangedListener(this);
+            context.getBbox().addBoundingBoxListener(this);
+            context.getLayerList().addLayerListListener(this);
             toolList.addSelectedToolListener(this);
             toolList.getSelectedTool().addMouseListener(this, context);
             addComponentListener(this);
@@ -159,12 +159,12 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         super.paintComponent(graphics);
 
         if (context.getBbox().getAreaOfInterest() == null) {
-            Envelope bBox = context.getLayerList().getBbox();
+            Envelope bBox = context.getLayerList().getBounds();
 
             if (bBox != null) {
                 LOGGER.info("AreaOfInterest calculated during rendering");
                 context.getBbox().setAreaOfInterest(context.getLayerList()
-                                                           .getBbox(), null);
+                                                           .getBounds(), null);
             }
         }
 
