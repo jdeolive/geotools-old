@@ -178,8 +178,7 @@ public class PostgisLockingDataSource extends PostgisDataSource
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    protected int rowLockFeatures(Query query)
-        throws DataSourceException {
+    protected int rowLockFeatures(Query query) throws DataSourceException {
         if (getAutoCommit()) {
             return 0; // No transaction - no transaction lock
         }
@@ -201,18 +200,22 @@ public class PostgisLockingDataSource extends PostgisDataSource
 
     /**
      * Executes query to lock feature using Transaction Row Locks.
+     * 
      * <p>
-     * The provided query is required to be completely describale as SQL.</p>
+     * The provided query is required to be completely describale as SQL.
+     * </p>
+     * 
      * <p>
-     * You can use isAllSQL( query ) to ensure that this is so.</p>
+     * You can use isAllSQL( query ) to ensure that this is so.
+     * </p>
      *
      * @param query SQL query
+     *
      * @return number of features locked
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    protected int rowLockFeaturesSQL(Query query)
-        throws DataSourceException {
+    protected int rowLockFeaturesSQL(Query query) throws DataSourceException {
         SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
         unpacker.unPackAND(query.getFilter());
 
@@ -245,6 +248,7 @@ public class PostgisLockingDataSource extends PostgisDataSource
                 "Could not represent query as SQL for postgis ("
                 + query.toString() + ")");
         }
+
         sql.append(" FOR UPDATE");
 
         try {
@@ -365,7 +369,8 @@ public class PostgisLockingDataSource extends PostgisDataSource
     /**
      * Inverse of createFid
      *
-     * @param featureId DOCUMENT ME!
+     * @param featureId Feature ID to convert
+     * 
      *
      * @return Actual column value used to construct FID
      */
@@ -388,7 +393,8 @@ public class PostgisLockingDataSource extends PostgisDataSource
      *
      * @param authIds Authorization for current transaction
      *
-     * @throws DataSourceException DOCUMENT ME!
+     * @throws DataSourceException If we are unable to authorize or we are used
+     *         in autoCommit mode
      *
      * @see org.geotools.data.LockingDataSource#setAuthorization(java.util.Set)
      */
