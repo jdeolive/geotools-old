@@ -29,27 +29,55 @@ import java.io.IOException;
  * 
  * <p>
  * This class is also used as a public api to manage locks.
- * </p> 
+ * </p>
  *
  * @author Jody Garnett, Refractions Research
  */
 public interface LockingManager {
     /**
-     * Release lock locks held by authID
+     * Check if any locks exist held by the authorization <code>lockID</code>.
+     * 
+     * <p>
+     * (remember that the lock may have expired)
+     * </p>
      *
-     * @param authID
-     * @param transaction
+     * @param lockID Authorization for lock
+     *
+     * @return <code>true</code> if lock was found
      */
-    void releaseLock(String authID, Transaction transaction)
+    boolean exists(String authID);
+
+    /**
+     * Release locks held by the authorization <code>lockID</code>.
+     * 
+     * <p>
+     * (remember that the lock may have expired)
+     * </p>
+     *
+     * @param lockID Authorization for lock
+     * @param transaction Transaction with authorization for lockID
+     *
+     * @return <code>true</code> if lock was found and released
+     */
+    boolean release(String authID, Transaction transaction)
         throws IOException;
 
     /**
-     * Refresh locks held by authID
+     * Refresh locks held by the authorization <code>lockID</code>.
+     * <p>
+     * All features locked with the provied <code>lockID</code> will be locked
+     * for additional time (the origional duration requested).
+     * </p>
+     * <p>
+     * (remember that the lock may have expired)
+     * </p>
      *
-     * @param authID
-     * @param transaction
+     * @param lockID Authorization for lock
+     * @param transaction Transaction with authorization for lockID
+     *
+     * @return <code>true</code> if lock was found and refreshed
      */
-    void refreshLock(String authID, Transaction transaction)
+    boolean refresh(String authID, Transaction transaction)
         throws IOException;
 
     /**
@@ -74,14 +102,4 @@ public interface LockingManager {
      */
     void lockFeatureID(String typeName, String authID, Transaction transaction,
         FeatureLock featureLock) throws IOException;
-        
-    /**
-     * Check if lock exists on this DataStore.
-     * <p>
-     * Remember that the lock may have expired.
-     * </p>
-     * @param authID
-     * @return
-     */
-    boolean lockExists( String authID );
 }

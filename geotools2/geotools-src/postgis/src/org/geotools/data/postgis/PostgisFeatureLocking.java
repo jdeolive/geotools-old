@@ -57,7 +57,7 @@ import java.util.NoSuchElementException;
  * </p>
  *
  * @author Jody Garnett, Refractions Research, Inc
- * @version $Id: PostgisFeatureLocking.java,v 1.7 2003/11/22 01:02:45 cholmesny Exp $
+ * @version $Id: PostgisFeatureLocking.java,v 1.8 2003/11/25 04:05:55 jive Exp $
  */
 public class PostgisFeatureLocking extends PostgisFeatureStore
     implements FeatureLocking {
@@ -317,59 +317,5 @@ public class PostgisFeatureLocking extends PostgisFeatureStore
         } finally {
             reader.close();
         }
-    }
-
-    /**
-     * Refresh locks held by <code>authID</code>.
-     * 
-     * <p>
-     * FeatureStores that have provided their own locking to will need to
-     * override this method.
-     * </p>
-     *
-     * @param authID
-     *
-     * @throws IOException If authorization was not held to refresh lock
-     * @throws UnsupportedOperationException When DataStore does not  use
-     *         lockingManger, and has not overriden this method
-     *
-     * @see org.geotools.data.FeatureLocking#refreshLock(java.lang.String)
-     */
-    public void refreshLock(String authID) throws IOException {
-        LockingManager lockingManager = getDataStore().getLockingManager();
-
-        if (lockingManager == null) {
-            throw new UnsupportedOperationException(
-                "DataStore not using lockingManager, must provide alternate implementation");
-        }
-
-        lockingManager.refreshLock(authID, getTransaction());
-    }
-
-    /**
-     * Release locks held by <code>authID</code>.
-     * 
-     * <p>
-     * FeatureStores that have provided their own locking to will need to
-     * override this method.
-     * </p>
-     *
-     * @param authID
-     *
-     * @throws IOException If authorization was not held for lock
-     * @throws UnsupportedOperationException When a DataStore subclass does not
-     *         provide a lockingManger
-     *
-     * @see org.geotools.data.FeatureLocking#releaseLock(java.lang.String)
-     */
-    public void releaseLock(String authID) throws IOException {
-        LockingManager lockingManager = getDataStore().getLockingManager();
-
-        if (lockingManager == null) {
-            throw new UnsupportedOperationException(
-                "DataStore not using lockingManager, must provide alternate implementation");
-        }
-
-        lockingManager.releaseLock(authID, getTransaction());
     }
 }

@@ -18,6 +18,7 @@ package org.geotools.data;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -91,5 +92,110 @@ public class DefaultCatalog implements Catalog {
      */
     public synchronized DataStore getDataStore(String namespace) {
         return (DataStore) registration.get(namespace);
+    }
+    
+    /**
+     * Implement lockExists.
+     * 
+     * @see org.geotools.data.Catalog#lockExists(java.lang.String)
+     * 
+     * @param lockID
+     */
+    public boolean lockExists(String lockID) {
+        if( lockID == null ) return false;
+        DataStore store;
+        LockingManager lockManager;
+                
+        for( Iterator i=registration.values().iterator(); i.hasNext(); ){
+             store = (DataStore) i.next();
+             lockManager = store.getLockingManager();
+             if( lockManager == null ) continue; // did not support locking
+             if( lockManager.exists( lockID ) ){
+                 return true;
+             }
+        }
+        return false;
+    }
+    /**
+     * Implement lockRefresh.
+     * <p>
+     * Currently it is an error if the lockID is not found. Because if
+     * we can't find it we cannot refresh it.
+     * </p>
+     * <p>
+     * Since locks are time sensitive it is impossible to check
+     * if a lockExists and then be sure it will still exist when you try to
+     * refresh it. Nothing we do can protect client code from this fact, they
+     * will need to do with the IOException when (not if) this situation
+     * occurs.
+     * </p>
+     * @see org.geotools.data.Catalog#lockRefresh(java.lang.String, org.geotools.data.Transaction)
+     * 
+     * @param lockID Authorizataion of lock to refresh
+     * @param transaction Transaction used to authorize refresh
+     * @throws IOException If opperation encounters problems, or lock not found
+     * @throws IllegalArgumentException if lockID is <code>null</code>
+     */
+    public boolean lockRefresh(String lockID, Transaction transaction) throws IOException{
+        if( lockID == null ){
+            throw new IllegalArgumentException("lockID required");
+        }
+        if( transaction == null || transaction == Transaction.AUTO_COMMIT ){
+            throw new IllegalArgumentException("Tansaction required (with authorization for "+lockID+")");        
+        }
+        
+        DataStore store;
+        LockingManager lockManager;
+        
+        boolean refresh = false;
+        for( Iterator i=registration.values().iterator(); i.hasNext(); ){
+             store = (DataStore) i.next();
+             lockManager = store.getLockingManager();
+             if( lockManager == null ) continue; // did not support locking
+                          
+             if( lockManager.release( lockID, transaction )){
+                 refresh = true;    
+             }                           
+        }
+        return refresh;        
+    }
+
+    /**
+     * Implement lockRelease.
+     * <p>
+     * Currently it is <b>not</b> and error if the lockID is not found, it may
+     * have expired. Since locks are time sensitive it is impossible to check
+     * if a lockExists and then be sure it will still exist when you try to
+     * release it.
+     * </p>
+     * @see org.geotools.data.Catalog#lockRefresh(java.lang.String, org.geotools.data.Transaction)
+     * 
+     * @param lockID Authorizataion of lock to refresh
+     * @param transaction Transaction used to authorize refresh
+     * @throws IOException If opperation encounters problems
+     * @throws IllegalArgumentException if lockID is <code>null</code>
+     */
+    public boolean lockRelease(String lockID, Transaction transaction) throws IOException{
+        if( lockID == null ){
+            throw new IllegalArgumentException("lockID required");
+        }
+        if( transaction == null || transaction == Transaction.AUTO_COMMIT ){
+            throw new IllegalArgumentException("Tansaction required (with authorization for "+lockID+")");        
+        }
+    
+        DataStore store;
+        LockingManager lockManager;
+                
+        boolean release = false;                
+        for( Iterator i=registration.values().iterator(); i.hasNext(); ){
+             store = (DataStore) i.next();
+             lockManager = store.getLockingManager();
+             if( lockManager == null ) continue; // did not support locking
+         
+             if( lockManager.release( lockID, transaction )){
+                 release = true;    
+             }             
+        }
+        return release;        
     }
 }

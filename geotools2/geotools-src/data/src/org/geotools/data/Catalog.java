@@ -16,19 +16,26 @@
  */
 package org.geotools.data;
 
+import java.io.IOException;
+
 /**
  * Provides a Catalog of available FeatureTypes.
+ * <p>
+ * Currently GeoServer is providing requirements:
+ * </p>
+ * <ul>
+ * <li>manage cross DataStore concepts (like Locks)</li>
+ * <li>provide metadata information on FeatureType</li>
+ * </ul>
  * 
  * <p>
  * This class is currently serving as a scratching post for gel our ideas about
  * Catalog requirements.
  * </p>
- * 
  * <p>
  * From Chris Holmes email:
  * </p>
- * <pre>
- * <code>
+ * <p><Code>
  * As for catalog, I looked a bit through ogc catalog specs over the weekend.  
  * I don't know that I like the implementation one too much, I may have to 
  * look at it some more.  But we may borrow some terms from the abstract one.  
@@ -46,9 +53,8 @@ package org.geotools.data;
  * thoughts about this, but I think we should hold off until we get the data
  *  api together.  If gabriel needs it soon he could go ahead and code 
  * something up that works, and we could figure out how to adapt it to OGC 
- * and our Feature stuff later.
- * </code>
- * </pre>
+ * and our Feature stuff later.</code>
+ * </p>
  */
 public interface Catalog {
     /**
@@ -85,4 +91,40 @@ public interface Catalog {
      * @return DataStore for the provided <code>namespace</code>
      */
     DataStore getDataStore(String namespace);
-}
+    
+    /**
+     * Refresh feature lock as indicated by the WFS locking specification. 
+     * <p>
+     * Refresh the indicated locks for each each DataStore managed by this
+     * Catalog.
+     * </p>
+     * @param lockID Authorization identifing lock
+     * @param transaction Transaction with authorization for lock
+     * @return true if lock was found and refreshed
+     * @throws IOException If a problem occurs
+     */
+    boolean lockRefresh( String lockID, Transaction transaction ) throws IOException;
+    
+    /**
+     * Release feature lock. 
+     * <p>
+     * Release the indicated locks for each each DataStore managed by this
+     * Catalog.
+     * </p>
+     * @param lockID Authorization identifing lock
+     * @param transaction Transaction with authorization for lock
+     * @return true if lock was found and released
+     * @throws IOException If a problem occurs
+     */
+    boolean lockRelease( String lockID, Transaction transaction ) throws IOException;
+    /**
+     * Tests if a lock exists in this Catalog.
+     * <p>
+     * This method will search all the DataStores to see if the indicated lock
+     * exists.
+     * </p>
+     * @param lockID Authorization identifing lock
+     * @return true if lock was found
+     */
+    boolean lockExists( String lockID );
+}   

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Collection;
 import java.util.Set;
 
 
@@ -211,7 +210,7 @@ public class InProcessLockingManager implements LockingManager {
 
             for (Iterator i = lockTables.values().iterator(); i.hasNext();) {
                 fidLocks = (Map) i.next();
-                set.addAll(fidLocks.values()); 
+                set.addAll(fidLocks.values());
             }
 
             return set;
@@ -240,6 +239,7 @@ public class InProcessLockingManager implements LockingManager {
      * is equivalent to the WFS locking specification)
      * </li>
      * </ul>
+     * 
      * <p>
      * Right now we are just going to error out with an exception
      * </p>
@@ -248,11 +248,11 @@ public class InProcessLockingManager implements LockingManager {
      * @param featureID FeatureID to check
      * @param transaction Provides Authorization
      *
-     * @throws IOException If transaction does not have sufficient
+     * @throws FeatureLockException If transaction does not have sufficient
      *         authroization
      */
-    public void assertAccess(String typeName, String featureID, Transaction transaction)
-        throws FeatureLockException {
+    public void assertAccess(String typeName, String featureID,
+        Transaction transaction) throws FeatureLockException {
         Lock lock = getLock(typeName, featureID);
 
         if ((lock != null) && !lock.isAuthorized(transaction)) {
@@ -314,7 +314,7 @@ public class InProcessLockingManager implements LockingManager {
 
                 public void close() throws IOException {
                     live = null;
-       	            writer.close();
+                    writer.close();
                 }
             };
     }
@@ -337,61 +337,119 @@ public class InProcessLockingManager implements LockingManager {
     }
 
     /**
-     * Refresh lock indicated by authID, must have correct authorization.
+     * Refresh locks held by the authorization <code>authID</code>.
+     * 
+     * <p>
+     * (remember that the lock may have expired)
+     * </p>
      *
-     * @param authID
-     * @param transaction
+     * @param authID Authorization identifing Lock to refresh
+     * @param transaction Transaction with authorization for lockID
+     *
+     * @return <code>true</code> if lock was found and refreshed
+     *
+     * @throws IOException If transaction not authorized to refresh authID
+     * @throws IllegalArgumentException If authID or transaction not provided
      */
-    public synchronized void refreshLock(String authID, Transaction transaction) {
-        if( authID == null ) return;
-        
-        Lock lock;
-        for (Iterator i = allLocks().iterator(); i.hasNext();) {
-    	    lock = (Lock) i.next();
-    	    
-    	    if (lock.isExpired()) {
-    		    i.remove();
-            } else if (lock.isMatch(authID)) {
-                lock.refresh();
-    	    }
+    public synchronized boolean refresh(String authID, Transaction transaction)
+        throws IOException {
+        if (authID == null) {
+            throw new IllegalArgumentException("lockID required");
         }
-    }
 
-    /**
-     * Release lock indicated by authID, must have correct authroization.
-     *
-     * @param authID
-     * @param transaction
-     */
-    public void releaseLock(String authID, Transaction transaction) {        
-        if( authID == null ) return;
-        
+        if ((transaction == null) || (transaction == Transaction.AUTO_COMMIT)) {
+            throw new IllegalArgumentException(
+                "Tansaction required (with authorization for " + authID + ")");
+        }
+
         Lock lock;
+        boolean refresh = false;
+
         for (Iterator i = allLocks().iterator(); i.hasNext();) {
-	       lock = (Lock) i.next();
+            lock = (Lock) i.next();
 
             if (lock.isExpired()) {
                 i.remove();
             } else if (lock.isMatch(authID)) {
-                i.remove();
+                if (lock.isAuthorized(transaction)) {
+                    lock.refresh();
+                    refresh = true;
+                } else {
+                    throw new IOException("Not authorized to refresh " + lock);
+                }
             }
         }
+
+        return refresh;
+    }
+
+    /**
+     * Release locks held by the authorization <code>authID</code>.
+     * 
+     * <p>
+     * (remember that the lock may have expired)
+     * </p>
+     *
+     * @param authID Authorization identifing Lock to release
+     * @param transaction Transaction with authorization for lockID
+     *
+     * @return <code>true</code> if lock was found and released
+     *
+     * @throws IOException If transaction not authorized to release authID
+     * @throws IllegalArgumentException If authID or transaction not provided
+     */
+    public boolean release(String authID, Transaction transaction)
+        throws IOException {
+        if (authID == null) {
+            throw new IllegalArgumentException("lockID required");
+        }
+
+        if ((transaction == null) || (transaction == Transaction.AUTO_COMMIT)) {
+            throw new IllegalArgumentException(
+                "Tansaction required (with authorization for " + authID + ")");
+        }
+
+        Lock lock;
+        boolean release = false;
+
+        for (Iterator i = allLocks().iterator(); i.hasNext();) {
+            lock = (Lock) i.next();
+
+            if (lock.isExpired()) {
+                i.remove();
+            } else if (lock.isMatch(authID)) {
+                if (lock.isAuthorized(transaction)) {
+                    i.remove();
+                    release = true;
+                } else {
+                    throw new IOException("Not authorized to release " + lock);
+                }
+            }
+        }
+
+        return release;
     }
 
     /**
      * Implment lockExists.
+     * 
      * <p>
      * Remeber lock may have expired.
      * </p>
-     * @see org.geotools.data.LockingManager#lockExists(java.lang.String)
-     * 
+     *
      * @param authID
+     *
      * @return true if lock exists for authID
+     *
+     * @see org.geotools.data.LockingManager#lockExists(java.lang.String)
      */
-    public boolean lockExists(String authID) {
-        if( authID == null ) return false;
-        
+    public boolean exists(String authID) {
+        if (authID == null) {
+            return false;
+        }
+
         Lock lock;
+
         for (Iterator i = allLocks().iterator(); i.hasNext();) {
             lock = (Lock) i.next();
 
@@ -401,6 +459,7 @@ public class InProcessLockingManager implements LockingManager {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -640,5 +699,4 @@ public class InProcessLockingManager implements LockingManager {
             return "MemoryLock(" + authID + "|" + delta + "ms|" + dur + "ms)";
         }
     }
-    
 }

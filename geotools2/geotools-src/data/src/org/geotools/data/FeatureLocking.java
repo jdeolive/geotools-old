@@ -38,7 +38,7 @@ import java.util.Set;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureLocking.java,v 1.3 2003/11/22 00:51:04 jive Exp $
+ * @version $Id: FeatureLocking.java,v 1.4 2003/11/25 04:05:35 jive Exp $
  */
 public interface FeatureLocking extends FeatureStore {
     /**
@@ -176,48 +176,7 @@ public interface FeatureLocking extends FeatureStore {
      * @throws DataSourceException
      */
     void unLockFeatures(Query query) throws IOException;
-
-    /**
-     * Used to complete release a lock.
-     * 
-     * <p>
-     * Authorization must be provided prior before calling this method.
-     * </p>
-     * 
-     * <p>
-     * All featurs locked with the provided authID will be unlocked.
-     * </p>
-     * 
-     * <p>
-     * This method is probably in the wrong spot as it has nothing to do with
-     * FeatureSource, consider moving to Transaction?
-     * </p>
-     *
-     * @param authID Idetification of Lock to release
-     */
-    void releaseLock(String authID) throws IOException;
-
-    /**
-     * Used to refresh a lock.
-     * 
-     * <p>
-     * Authorization must be provided prior before calling this method.
-     * </p>
-     * 
-     * <p>
-     * All features locked with the provied authID will be locked for
-     * additional time (the origional duration request).
-     * </p>
-     * 
-     * <p>
-     * This method is probably in the wrong spot as it has nothing to do with
-     * FeatureSource, consider moving to Transaction?
-     * </p>
-     *
-     * @param authID Idetification of Lock to refresh
-     */
-    void refreshLock(String authID) throws IOException;
-    
+ 
     /**
      * Idea for a response from a high-level lock( Query ) function.
      * 
