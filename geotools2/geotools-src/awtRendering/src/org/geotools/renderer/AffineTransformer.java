@@ -23,8 +23,8 @@ public class AffineTransformer implements CoordinateTransformer {
         System.out.println("Scale is "+scale);
         double angle = 0;//-Math.PI/8d;// rotation angle
         double tx = -map.getMinX()*scale; // x translation - mod by ian
-        double ty = screen.getHeight();// y translation
-        System.out.println("y shift is "+ty);
+        double ty = screen.getHeight() + (-map.getMinY()*scale);// y translation
+        System.out.println("x shift = "+tx+" y shift is "+ty);
         
         double sc = scale*Math.cos(angle);
         double ss = scale*Math.sin(angle);
