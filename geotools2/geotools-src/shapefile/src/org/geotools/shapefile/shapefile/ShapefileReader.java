@@ -53,6 +53,7 @@ public class ShapefileReader {
   public final class Record {
     int length;
     int number = 0;
+    int offset;
     /** The minimum X value. */    
     public double minX;
     /** The minimum Y value. */    
@@ -66,6 +67,9 @@ public class ShapefileReader {
     /** Fetch the shape stored in this record. */    
     public Object shape() {
       return handler.read(buffer,type);
+    }
+    public int offset() {
+      return offset;
     }
     /** A summary of the record. */    
     public String toString() {
@@ -238,6 +242,9 @@ public class ShapefileReader {
     
     // record header is big endian
     buffer.order(ByteOrder.BIG_ENDIAN);
+    
+    record.offset = buffer.position();
+    
     // read shape record header
     int recordNumber = buffer.getInt();
     // silly ESRI say contentLength is in 2-byte words
@@ -296,6 +303,11 @@ public class ShapefileReader {
     // remember, we read one int already...
     record.end = buffer.position() + recordLength - 4;
     return record;
+  }
+  
+  public Object shapeAt(int offset) throws IOException {
+    buffer.position(offset);
+    return nextRecord().shape();
   }
    
   public static void main(String[] args) throws Exception {
