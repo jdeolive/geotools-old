@@ -32,13 +32,14 @@ import org.geotools.filter.Filter;
 import com.esri.sde.sdk.client.SeExtent;
 import com.esri.sde.sdk.client.SeLayer;
 import com.vividsolutions.jts.geom.Envelope;
+import java.util.*;
 
 
 /**
  * provides basic read access to ArcSDE Feature Classes
  *
  * @author Gabriel Roldán
- * @version $Id: SdeFeatureStore.java,v 1.2 2004/01/09 16:58:23 aaime Exp $
+ * @version $Id: SdeFeatureStore.java,v 1.3 2004/02/02 18:34:04 groldan Exp $
  */
 public class SdeFeatureStore
 extends AbstractFeatureStore
@@ -99,13 +100,23 @@ extends AbstractFeatureStore
         if (typeName == null)
             throw new NullPointerException("no featuretype name is provided");
 
-        if ((schema != null) && !schema.getTypeName().equals(typeName))
-            throw new IllegalArgumentException(
-                "typname and schema.getTypeName() must be equal");
-
         this.dataStore = store;
         this.typeName = typeName;
         this.schema = schema;
+
+        if (schema != null)
+        {
+          try {
+            //checking type names validity by this way allows us to
+            //declare a single type name or a full qualified one, since
+            //dataStore.getConnectionPool().getSdeLayer() already checks it
+            dataStore.getConnectionPool().getSdeLayer(schema.getTypeName());
+          }catch (NoSuchElementException ex) {
+            throw new IllegalArgumentException(
+                "typname and schema.getTypeName() must be equal");
+          }
+        }
+
         this.seLayer = dataStore.getConnectionPool().getSdeLayer(typeName);
     }
 

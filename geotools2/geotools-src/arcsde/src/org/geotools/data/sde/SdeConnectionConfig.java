@@ -28,7 +28,7 @@ import java.util.Map;
  * connection properties
  *
  * @author Gabriel Roldán
- * @version $Id: SdeConnectionConfig.java,v 1.5 2004/01/09 16:58:24 aaime Exp $
+ * @version $Id: SdeConnectionConfig.java,v 1.6 2004/02/02 18:34:04 groldan Exp $
  */
 public class SdeConnectionConfig
 {
@@ -145,7 +145,7 @@ public class SdeConnectionConfig
     {
       String dbtype = (String)params.get(DBTYPE_PARAM);
       String server = (String)params.get(SERVER_NAME_PARAM);
-      String port = (String)params.get(PORT_NUMBER_PARAM);
+      String port = String.valueOf(params.get(PORT_NUMBER_PARAM));
       String instance = (String)params.get(INSTANCE_NAME_PARAM);
       String user = (String)params.get(USER_NAME_PARAM);
       String pwd = (String)params.get(PASSWORD_PARAM);
@@ -161,7 +161,9 @@ public class SdeConnectionConfig
     }
 
     private void setUpOptionalParams(Map params)
+    throws IllegalArgumentException
     {
+        String exceptionMsg = null;
         this.minConnections = getInt(params.get(MIN_CONNECTIONS_PARAM),
                                         SdeConnectionPool.DEFAULT_CONNECTIONS);
         this.maxConnections = getInt(params.get(MAX_CONNECTIONS_PARAM),
@@ -170,6 +172,29 @@ public class SdeConnectionConfig
                                    SdeConnectionPool.DEFAULT_INCREMENT);
         this.connTimeOut = getInt(params.get(CONNECTION_TIMEOUT_PARAM),
                                      SdeConnectionPool.DEFAULT_MAX_WAIT_TIME);
+
+        if(this.minConnections.intValue() <= 0)
+          exceptionMsg = MIN_CONNECTIONS_PARAM + " must be a positive integer";
+
+        if(this.maxConnections.intValue() <= 0)
+          exceptionMsg = MAX_CONNECTIONS_PARAM + " must be a positive integer";
+
+        if(this.increment.intValue() <= 0)
+          exceptionMsg = CONNECTIONS_INCREMENT_PARAM + " must be a positive integer";
+
+        if(this.connTimeOut.intValue() <= 0)
+          exceptionMsg = CONNECTION_TIMEOUT_PARAM + " must be a positive integer";
+
+        if(this.minConnections.intValue() > this.maxConnections.intValue())
+          exceptionMsg = MIN_CONNECTIONS_PARAM + " must be lower than " +
+                         MAX_CONNECTIONS_PARAM;
+
+        if(this.increment.intValue() > this.maxConnections.intValue())
+          exceptionMsg = CONNECTIONS_INCREMENT_PARAM + " must be lower than " +
+              MAX_CONNECTIONS_PARAM;
+
+        if(exceptionMsg != null)
+          throw new IllegalArgumentException(exceptionMsg);
     }
 
     private static final Integer getInt(Object value, int defaultValue)

@@ -85,7 +85,7 @@ import com.esri.sde.sdk.client.SeTable;
  * </p>
  *
  * @author Gabriel Roldán
- * @version $Id: SdeConnectionPool.java,v 1.11 2004/01/09 16:58:24 aaime Exp $
+ * @version $Id: SdeConnectionPool.java,v 1.12 2004/02/02 18:34:04 groldan Exp $
  */
 public class SdeConnectionPool {
     /** package's logger */
@@ -139,7 +139,7 @@ public class SdeConnectionPool {
 
     /**
      * Map of <code>SeLayer/SeColumnDefinition[]</code> objects available in
-     * the SDE database, to optimize SDE layers lookup time due to
+     * the SDE database, to optimize SDE layers lookup time
      */
     private Map databaseLayers;
 
@@ -239,13 +239,18 @@ public class SdeConnectionPool {
      */
     private void populate() throws DataSourceException {
         synchronized (mutex) {
-            int increment = config.getIncrement().intValue();
+            int minConnections = config.getMinConnections().intValue();
+            int actualCount = getPoolSize();
+
+            int increment = actualCount == 0? minConnections :
+                            config.getIncrement().intValue();
+
             LOGGER.info("creating " + increment + " new SDE connections");
 
             int actual = 0;
 
             while ((actual++ < increment)
-                    && (getNumConnections() < config.getMaxConnections()
+                    && (getPoolSize() < config.getMaxConnections()
                                                         .intValue())) {
                 try {
                     SeConnection conn = newConnection();
@@ -260,12 +265,17 @@ public class SdeConnectionPool {
     }
 
     /**
-     * DOCUMENT ME!
+     * returns the number of actual connections holded by
+     * this connection pool. In other words, the sum of used and available
+     * connections, regardless
      *
      * @return DOCUMENT ME!
      */
-    private int getNumConnections() {
+    public int getPoolSize() {
+      synchronized(mutex)
+      {
         return usedConnections.size() + availableConnections.size();
+      }
     }
 
     /**
@@ -372,7 +382,6 @@ public class SdeConnectionPool {
                             .size(), getConfig());
                     Throwable trace = uce.fillInStackTrace();
                     uce.setStackTrace(trace.getStackTrace());
-                    uce.printStackTrace();
                     throw uce;
                 }
             } catch (InterruptedException ex) {

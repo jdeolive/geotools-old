@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 
 
 /**
- * Encodes a filter into a SQL WHERE statement for arcsde.
+ * Encodes an attribute filter into a SQL WHERE statement for arcsde.
  *
  * <p>
  * Although not all filters support is coded yet, the strategy to filtering
@@ -38,6 +38,7 @@ import java.util.logging.Logger;
  *
  * @author Chris Holmes, TOPP
  * @author Gabriel Roldán
+ * @see org.geotools.data.sde.GeometryEncoderSDE
  */
 public class SQLEncoderSDE extends SQLEncoder
     implements org.geotools.filter.FilterVisitor

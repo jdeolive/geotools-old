@@ -51,7 +51,7 @@ import com.esri.sde.sdk.client.SeTable;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeDataStore.java,v 1.11 2004/01/09 16:58:24 aaime Exp $
+ * @version $Id: SdeDataStore.java,v 1.12 2004/02/02 18:34:04 groldan Exp $
  */
 public class SdeDataStore
 implements DataStore
@@ -320,59 +320,9 @@ implements DataStore
         throws IOException
     {
         return getFeatureReader( new DefaultQuery(typeName), Transaction.AUTO_COMMIT );
-        // Jody - not sure this is right
-        // Filter.ALL would result in an empty result all the time
-        // probably ment FILTER.NONE?
-        //return getFeatureReader(getSchema(typeName), Filter.ALL,
-        //    Transaction.AUTO_COMMIT);
     }
 
     /**
-     * Provides FeatureReader access.
-     *
-     * <p>
-     * <b>Filter</b> is used as a Low level indication of constraints.
-     * Implementations may resort to using a FilteredFeatureReader, or provide
-     * their own optimizations.
-     * </p>
-     *
-     * <p>
-     * <b>FeatureType</b> provides a template for the returned FeatureReader
-     * </p>
-     *
-     * <ul>
-     * <li>
-     * featureType.getTypeName(): used by JDBC as the table reference to query
-     * against. Shapefile reader may need to store a lookup to required
-     * filename.
-     * </li>
-     * <li>
-     * featureType.getAttributeTypes(): describes the requested content. This
-     * may be a subset of the complete FeatureType defined by the DataStore.
-     * The actual query may need to retrieve additional attributes in order to
-     * correctly apply the filter, although these should be hidden from the
-     * returned FeatureReader.
-     * </li>
-     * </ul>
-     *
-     * <p>
-     * <b>Transaction</b> to externalize DataStore state on a per Transaction
-     * basis. The most common example is a JDBC datastore saving a Connection
-     * for use across several FeatureReader requests. Similarly a Shapefile
-     * reader may wish to redirect FeatureReader requests to a alternate
-     * filename over the course of a Transaction.
-     * </p>
-     *
-     * <p>
-     * Open Questions:
-     * </p>
-     *
-     * <ul>
-     * <li>
-     * Using FeatureType may be overkill, we may wish to simply use typeName
-     * </li>
-     * </ul>
-     *
      *
      * @param featureType Describes the form of the returned Features
      * @param filter Describes constraints used to limit the query
@@ -381,17 +331,8 @@ implements DataStore
      * @return FeatureReader Allows Sequential Processing of featureType
      *
      * @throws IOException DOCUMENT ME!
-     */
-    // Jody - changed from the following
-    //public FeatureReader getFeatureReader(FeatureType featureType,
-    //        Filter filter, Transaction transaction) throws IOException
-    /**
-     * Implement getFeatureReader.
-     * <p>
-     * Description ...
-     * </p>
      * @see org.geotools.data.DataStore#getFeatureReader(org.geotools.data.Query, org.geotools.data.Transaction)
-     * 
+     *
      * @param query
      * @param transaction
      * @return
@@ -399,14 +340,14 @@ implements DataStore
      */
     public FeatureReader getFeatureReader(Query query, Transaction transaction)
         throws IOException {
-            
+
         assertGetReaderParams(query, transaction);
-        
+
         String typeName = query.getTypeName();
-                
+
         Filter filter = query.getFilter();
         FeatureType featureType = getSchema( typeName );
-        
+
         if (filter == Filter.ALL || filter.equals( Filter.ALL )) {
             return new EmptyFeatureReader( featureType );
         }
@@ -421,7 +362,7 @@ implements DataStore
         // (AbstractFeatureStore makes use of this method to implement its
         // functionality)
         SdeFeatureStore source = new SdeFeatureStore(this, typeName, featureType);
-        
+
         source.setTransaction( transaction );
         FeatureResults results = source.getFeatures(filter);
         FeatureReader sdeReader = results.reader();
