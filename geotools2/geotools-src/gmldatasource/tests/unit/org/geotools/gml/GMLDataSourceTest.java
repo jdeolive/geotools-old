@@ -36,8 +36,11 @@ public class GMLDataSourceTest extends TestCase {
     static int NTests = 6;
     public void testRead() throws Exception{
         System.out.println("testRead");
+        String[] results = {"Point","LineString","LinearRing",
+        "Polygon","Polygon","Point","Point","Point"};
+        int r=0;
         for(int j=1;j<=NTests;j++){
-            System.out.println("******* TEST NUMBER "+j+" ***********");
+            //System.out.println("******* TEST NUMBER "+j+" ***********");
             String dataFolder = System.getProperty("dataFolder");
             URL url = new URL("file:///"+dataFolder+"/testGML"+j+".gml");
             //System.out.println("Testing ability to read "+url);
@@ -50,17 +53,38 @@ public class GMLDataSourceTest extends TestCase {
             Geometry g = (Geometry)gci.next(); // eat the first geomcollection
             while(gci.hasNext()){
                 g=(Geometry)gci.next();
-                System.out.println("Geometry = "+g.getGeometryType());
+                assertEquals(results[r++],g.getGeometryType());
+                //System.out.println("Geometry["+(i++)+"] = "+g.getGeometryType());
                 if(!g.getGeometryType().equalsIgnoreCase("GeometryCollection")){
-                    System.out.println("Coordinates:");
+                    //System.out.println("Coordinates:");
                     Coordinate[] c = g.getCoordinates();
-                    for(int k=0;k<c.length;k++){
-                        System.out.println("\t "+c[k].toString());
-                    }
+                    //for(int k=0;k<c.length;k++){
+                        //System.out.println("\t "+c[k].toString());
+                    //}
                 }
             }
-        System.out.println("********* END TEST "+j+" **********");
+            //System.out.println("********* END TEST "+j+" **********");
         }
+        // now a more complex test - using testGML7
+        String dataFolder = System.getProperty("dataFolder");
+        URL url = new URL("file:///"+dataFolder+"/testGML7.xml");
+        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+        GMLReader gmlr = new GMLReader(in);
+        
+        GeometryCollection gc = gmlr.read();
+        GeometryCollectionIterator gci = new GeometryCollectionIterator(gc);
+        int i=0;
+        Geometry g = (Geometry)gci.next(); // eat the first geomcollection
+        Polygon box =(Polygon)gci.next();
+        Polygon poly = (Polygon)gci.next();
+        Point p1 = (Point)gci.next();
+        Point p2 = (Point)gci.next();
+        Point p3 = (Point)gci.next();
+        assertEquals(true,box.equals(poly.getEnvelope()));
+        assertEquals(false,poly.contains(p1));
+        assertEquals(true,poly.contains(p2));
+        assertEquals(false,poly.contains(p3));
+        assertEquals(1,poly.getNumInteriorRing());
         
     }
     public void xtestDataSource() throws Exception{
