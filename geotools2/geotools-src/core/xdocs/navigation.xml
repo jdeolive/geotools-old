@@ -8,7 +8,7 @@
     <links>
       <item name="core" href="http://core.geotools.org"/>
       <item name="defaultcore" href="http://defaultcore.geotools.org"/>
-      <item name="filter" href="http://shapefile.geotools.org"/>
+      <item name="shapefile" href="http://shapefile.geotools.org"/>
     </links>
     <menu name="Overview">
       <!-- <item name="Goals" href="/goals.html"/> -->
