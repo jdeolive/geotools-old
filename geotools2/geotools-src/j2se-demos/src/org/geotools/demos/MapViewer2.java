@@ -55,8 +55,8 @@ import org.geotools.feature.FeatureTypeFlat;
 import org.geotools.feature.FeatureFactory;
 import org.geotools.gml.GMLDataSource;
 import org.geotools.gui.swing.MapPaneImpl;
-import org.geotools.gui.tools.PanTool;
-import org.geotools.gui.tools.Tool;
+import org.geotools.gui.tools.PanToolImpl;
+import org.geotools.gui.tools.AbstractToolImpl;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.BoundingBoxImpl;
 import org.geotools.map.Context;
@@ -73,7 +73,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.12 2003/01/29 08:19:47 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.13 2003/01/29 19:51:26 camerons Exp $
  *
  */
 
@@ -120,7 +120,7 @@ public class MapViewer2 extends JFrame {
         MapPaneImpl mapPane;
         LayerList layerList;
         Layer layer;
-        Tool tool;
+        AbstractToolImpl tool;
         try {
             // Create a BoundingBox
             envelope=new Envelope(50,60,50,60);
@@ -163,7 +163,7 @@ public class MapViewer2 extends JFrame {
             this.getContentPane().setLayout(new BorderLayout());
 
             // Create MapPane and associate a Tool
-            tool=new PanTool();
+            tool=new PanToolImpl();
             mapPane = new MapPaneImpl(
                     tool,
                     context);
