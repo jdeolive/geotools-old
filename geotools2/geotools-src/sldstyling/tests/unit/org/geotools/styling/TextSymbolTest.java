@@ -18,9 +18,14 @@ import java.util.*;
 import junit.framework.*;
 import java.awt.Frame;
 import java.awt.Panel;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
+import java.awt.geom.*;
+import java.awt.image.*;
+import java.io.*;
+import javax.imageio.*;
 import javax.swing.*;
 
 import org.apache.log4j.Logger;
@@ -30,10 +35,16 @@ import org.apache.log4j.BasicConfigurator;
  * @author jamesm
  */
 public class TextSymbolTest extends TestCase {
-    
+    String dataFolder;
     public TextSymbolTest(java.lang.String testName) {
         super(testName);
         BasicConfigurator.configure();
+        dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
     }
     
     public static void main(java.lang.String[] args) {
@@ -64,7 +75,7 @@ public class TextSymbolTest extends TestCase {
         Point point;
         Feature pointFeature;
         String[] symbol = {"\uF04A", "\uF04B", "\uF059", "\uF05A", "\uF06B", "\uF06C", "\uF06E"};
-        int size = 16;
+        double size = 16;
         double rotation = 0.0;
         int rows = 8;
         for(int j=0;j<rows;j++){
@@ -115,9 +126,18 @@ public class TextSymbolTest extends TestCase {
         frame.setVisible(true);
         renderer.setOutput(p.getGraphics(),p.getBounds());
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
-        Thread.sleep(5000);
         
-       
+        int w = 400, h =400;
+        BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
+        Graphics g = image.getGraphics();
+        g.setColor(Color.white);
+        g.fillRect(0,0,w,h);
+        renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
+        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        File file = new File(dataFolder, "TextSymbolTest.jpg"); 
+        FileOutputStream out = new FileOutputStream(file);
+        ImageIO.write(image, "JPEG", out); 
+        Thread.sleep(5000);
         frame.dispose();
     }
     private Point makeSamplePoint(final GeometryFactory geomFac, double x, double y) {

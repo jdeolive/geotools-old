@@ -17,9 +17,13 @@ import java.io.*;
 import junit.framework.*;
 import java.awt.Frame;
 import java.awt.Panel;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
+import java.awt.image.*;
+import java.io.*;
+import javax.imageio.*;
 import javax.swing.*;
 
 
@@ -127,7 +131,18 @@ public class RenderStyleTest extends TestCase {
         renderer.setOutput(p.getGraphics(),p.getBounds());
         renderer.setInteractive(false);
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        int w=400,h=400;
+        BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
+        Graphics g = image.getGraphics();
+        g.setColor(Color.white);
+        g.fillRect(0,0,w,h);
+        renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
+        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        File file = new File(dataFolder, "RenderStyleTest.jpg"); 
+        FileOutputStream out = new FileOutputStream(file);
+        ImageIO.write(image, "JPEG", out); 
         Thread.sleep(5000);
+        frame.dispose();
     }
     
     private LineString makeSampleLineString(final GeometryFactory geomFac, double xoff, double yoff) {
