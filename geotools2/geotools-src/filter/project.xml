@@ -52,6 +52,10 @@
       <id>gmldatasource</id>
       <version>0.1</version>
     </dependency>
+        <dependency>
+      <id>resources</id>
+      <version>0.1</version>
+    </dependency>
     </dependencies>
  
 </project>
