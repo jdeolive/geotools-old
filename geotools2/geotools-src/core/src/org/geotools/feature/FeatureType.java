@@ -120,7 +120,7 @@ package org.geotools.feature;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureType.java,v 1.12 2003/12/19 00:24:45 jive Exp $
+ * @version $Id: FeatureType.java,v 1.13 2004/01/09 22:29:31 jive Exp $
  *
  *
  * @see org.geotools.feature.Feature
@@ -160,8 +160,18 @@ public interface FeatureType extends FeatureFactory {
 
     /**
      * Gets the global schema namespace.
-     *
-     * @return Namespace of schema.
+     * <p>
+     * This is often used to record the schema prefix (not the URI) required
+     * when writing out this Feature using GML. The supportin application
+     * will need to be able to start the GMLWriter off with the correct URI
+     * information so everything makes sense.
+     * </p>
+     * <p>
+     * The Catalog interface provided by the data module provides an example
+     * of how to store associate FeatureType and namespace information. Please
+     * note that you may not have duplicate typeNames in the same Namespace.
+     * </p>
+     * @return Namespace of schema (usually namespace prefix)
      */
     String getNamespace();
 

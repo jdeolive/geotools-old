@@ -79,7 +79,7 @@ import java.io.IOException;
  * 
  *
  * @author Jody Garnett, Refractions Research
- * @version $Id: DataStore.java,v 1.2 2003/12/09 18:51:41 jive Exp $
+ * @version $Id: DataStore.java,v 1.3 2004/01/09 22:29:31 jive Exp $
  */
 public interface DataStore {
     /**
@@ -157,6 +157,11 @@ public interface DataStore {
      * <p>
      * We may wish to limit this method to only support Queries using
      * Filter.ALL.
+     * </p>
+     * <p>
+     * Update - GeoServer has an elegatent implementation of this functionality
+     * that we could steal. GeoServerFeatureSource, GeoServerFeatureStore and
+     * GeoServerFeatureLocking serve as a working prototype.
      * </p> 
      * @param Query Query.getTypeName() locates FeatureType being viewed
      *
