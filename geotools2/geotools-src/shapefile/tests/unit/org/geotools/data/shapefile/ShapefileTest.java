@@ -70,13 +70,15 @@ public class ShapefileTest extends TestCaseSupport {
   
 //  public void testIndexFile() throws Exception {
 //    ShapefileReader reader1 = new ShapefileReader(getTestResourceChannel(STATEPOP));
-//    ShapefileReader reader2 = new ShapefileReader(getTestResourceChannel(STATEPOP));
+//    ShapefileReader reader2 = new ShapefileReader(getReadableFileChannel(STATEPOP));
 //    IndexFile index = new IndexFile(getTestResourceChannel(STATEPOP_IDX));
 //    for (int i = 0; i < index.getRecordCount(); i++) {
 //      if (reader1.hasNext()) {
 //        Geometry g1 = (Geometry) reader1.nextRecord().shape();
 //        Geometry g2 = (Geometry) reader2.shapeAt(2 * (index.getOffset(i) - 50));
 //        //System.out.println(reader1.nextRecord().offset() + " " + (index.getOffset(i) - 100));
+//        System.out.println(g1);
+//        System.out.println(g2);
 //        assertTrue(g1.equalsExact(g2));
 //        
 //      } else {

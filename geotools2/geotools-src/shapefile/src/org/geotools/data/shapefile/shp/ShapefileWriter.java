@@ -53,18 +53,18 @@ public class ShapefileWriter {
   private void init(final GeometryCollection geometries) throws IOException,ShapefileException {
     handler = type.getShapeHandler();
     fileLength = 100;
-    int largestShapeSize = 0;
+    //int largestShapeSize = 0;
     for (int i = geometries.getNumGeometries() - 1; i >= 0; i--) {
       // shape length + record (2 ints)
       int size = handler.getLength( geometries.getGeometryN(i) ) + 8;
       fileLength += size;
-      if (size > largestShapeSize)
-        largestShapeSize = size;
+//      if (size > largestShapeSize)
+//        largestShapeSize = size;
     }
-    allocateBuffers(largestShapeSize,geometries.getNumGeometries());
+    allocateBuffers(geometries.getNumGeometries());
   }
   
-  private void allocateBuffers(int largestShapeSize, int geomCnt) throws IOException {
+  private void allocateBuffers(int geomCnt) throws IOException {
     if (shpChannel instanceof FileChannel) {
       FileChannel shpc = (FileChannel) shpChannel;
       FileChannel shxc = (FileChannel) shxChannel;

@@ -64,6 +64,12 @@ public abstract class TestCaseSupport extends TestCase {
     return java.nio.channels.Channels.newChannel(getTestResourceAsStream(name));
   }
   
+  protected ReadableByteChannel getReadableFileChannel(String name) throws IOException {
+    URL resource = getTestResource(name);
+    File f = new File(resource.getPath());
+    return new FileInputStream(f).getChannel();
+  }
+  
   protected Feature firstFeature(FeatureCollection fc) {
     return fc.features().next(); 
   }

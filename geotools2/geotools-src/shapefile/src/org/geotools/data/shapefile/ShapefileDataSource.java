@@ -52,12 +52,12 @@ import java.nio.charset.Charset;
 import org.geotools.feature.FeatureTypeFactory;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.14 2003/07/17 18:03:34 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.15 2003/07/22 18:18:26 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
 
-public class ShapefileDataSource extends AbstractDataSource implements org.geotools.data.DataSource {
+public class ShapefileDataSource extends AbstractDataSource {
   
   private URL shpURL;
   private URL dbfURL;

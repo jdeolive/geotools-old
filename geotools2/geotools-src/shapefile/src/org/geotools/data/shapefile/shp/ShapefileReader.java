@@ -84,6 +84,7 @@ public class ShapefileReader {
   private ByteBuffer buffer;
   private ShapeType fileShapeType = ShapeType.UNDEFINED;
   private final Record record = new Record();
+  private final boolean randomAccessEnabled;
   
   /** Creates a new instance of ShapeFile.
    * @param channel The ReadableByteChannel this reader will use.
@@ -94,6 +95,7 @@ public class ShapefileReader {
    */
   public ShapefileReader(ReadableByteChannel channel, boolean strict) throws IOException, InvalidShapefileException {
     this.channel = channel;
+    randomAccessEnabled = channel instanceof FileChannel;
     init(strict);
   }
   
@@ -148,7 +150,6 @@ public class ShapefileReader {
   // for filling a ReadableByteChannel
   private static int fill(ByteBuffer buffer,ReadableByteChannel channel) throws IOException {
     int r = buffer.remaining();
-    int cnt = 0;
     // channel reads return -1 when EOF or other error
     // because they a non-blocking reads, 0 is a valid return value!!
     while (buffer.remaining() > 0 && r != -1) {
@@ -199,6 +200,10 @@ public class ShapefileReader {
       channel.close();
     channel = null;
     header = null;
+  }
+  
+  public boolean supportsRandomAccess() {
+    return randomAccessEnabled; 
   }
   
   /** If there exists another record. Currently checks the stream for the presence of
@@ -311,10 +316,13 @@ public class ShapefileReader {
     return record;
   }
   
-  public Object shapeAt(int offset) throws IOException {
-    buffer.position(offset);
-    record.ready = true;
-    return nextRecord().shape();
+  public Object shapeAt(int offset) throws IOException,UnsupportedOperationException {
+    if (randomAccessEnabled) {
+      buffer.position(offset);
+      record.ready = true;
+      return nextRecord().shape();
+    }
+    throw new UnsupportedOperationException("Random Access not enabled");
   }
    
   public static void main(String[] args) throws Exception {
