@@ -43,7 +43,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.12 2003/01/07 19:00:32 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.13 2003/01/15 19:44:02 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -72,8 +72,11 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         /** Well Known Text writer (from JTS). */
     private static WKTWriter geometryWriter = new WKTWriter();
 
+    /** The limit on a select statement. */
+    private static final int HARD_MAX_FEATURES = 10000;
+
     /** The maximum features allowed by the server for any given response. */
-    private static int maxFeatures = 1000;
+    private int maxFeatures = HARD_MAX_FEATURES;
 
     /** The srid of the data in the table. */
     private int srid;
@@ -93,11 +96,6 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
     /** To get the part of the filter incorporated into the sql where statement */
     private SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
-
-
-    static {
-	Geotools.init("Log4JFormatter", Level.FINER);
-    }
 
     /**
      * Sets the table and datasource, rolls a new schema from the db.
@@ -154,6 +152,21 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     }
 
     /**
+     * Sets the table, datasource, schema and maxFeature.
+     *
+     * @param db The datasource holding the table.
+     * @param tableName the name of the table that holds the features.
+     * @param schema the attributes and id held by this table of features.
+     * @param maxFeatures The maximum numbers of features to return.
+     */
+    public PostgisDataSource(javax.sql.DataSource db, String tableName, 
+			     FeatureType schema, int maxFeatures) 
+	throws DataSourceException {
+	this(db, tableName, schema);
+	this.maxFeatures = maxFeatures;
+    }
+
+    /**
      * Initializes the mappings for mapping from sql columns to classes
      * for attributes
      */
@@ -187,8 +200,9 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      */ 
     public static FeatureType makeSchema(String tableName, 
                                           javax.sql.DataSource db) 
-        throws Exception {
-        
+        throws DataSourceException {
+
+        try {
         Connection dbConnection = db.getConnection();
         Statement statement = dbConnection.createStatement();
         ResultSet result = statement.executeQuery("SELECT * FROM " 
@@ -239,6 +253,28 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	((FeatureTypeFlat)retSchema).setSRID(srid);
 	}
 	return retSchema;
+	}
+	catch(SQLException e) {
+	    String message = "Some sort of database connection error: " 
+		+ e.getMessage();
+		LOGGER.warning(message);
+	    throw new DataSourceException(message, e);
+	}
+	catch(SchemaException e) {
+	    String message = "Had problems creating the feature type..." 
+			   + e.getMessage();
+	    LOGGER.warning(message);
+	    throw new DataSourceException(message, e);
+	}
+        catch(Exception e) {
+	    String message = "Error from the result set: " + e.getMessage();
+            LOGGER.warning(message);
+            LOGGER.warning( e.toString() );
+            e.printStackTrace();
+	    throw new DataSourceException(message, e);
+        }
+
+
     }
 
     /**
@@ -337,8 +373,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      *
      * @return Full SQL statement.
      */ 
-
-    public String makeSql(Filter filter, String tableName, FeatureType schema) {
+    public String makeSql(Filter filter, String tableName,
+			  FeatureType schema, boolean useLimit) {
         StringBuffer sqlStatement = new StringBuffer("SELECT");
         AttributeType[] attributeTypes = schema.getAttributeTypes();
 
@@ -365,8 +401,12 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    }
 	    
 	}
+	int limit = HARD_MAX_FEATURES;
+	if (useLimit) {
+	    limit = maxFeatures;
+	}
 	sqlStatement.append(" FROM " + tableName +" "+ where + " LIMIT " 
-			    + maxFeatures + ";").toString();
+			    + limit + ";").toString();
 	LOGGER.fine("sql statement is " + sqlStatement);
 	return sqlStatement.toString();            
     }
@@ -430,20 +470,31 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
             //LOGGER.fine("about to run a query: " + makeSql(filter, tableName, schema));
 	    unpacker.unPackAND(filter);
-            ResultSet result = statement.executeQuery
-		( makeSql(unpacker.getSupported(), tableName, schema));
+	    //if there is no filter applied after the sql select statement then
+	    //we can use the maxFeatures in the statement.  If not we have to 
+	    //filter after (which is a huge memory hit with large datasets)
+	    boolean useLimit = (unpacker.getUnSupported() == null);
+	    LOGGER.finest("passed in " + unpacker.getSupported() + tableName + schema + useLimit);
+	    String sql = makeSql(unpacker.getSupported(), tableName, schema, useLimit);
+	    LOGGER.finest("sql is " + sql);
+            ResultSet result = statement.executeQuery( sql);
 
             // set up a factory, attributes, and a counter for feature creation
             //LOGGER.fine("about to prepare feature reading");
             FeatureFactory factory = new FeatureFactory(schema);
             Object[] attributes = new Object[schema.attributeTotal()];
             String featureId;
-            int geometryPosition = schema.getDefaultGeometry().getPosition();
+	    AttributeType geometryAttr = schema.getDefaultGeometry();
+	    int geometryPosition = -1;
+	    if (geometryAttr != null) {
+		geometryPosition = geometryAttr.getPosition();
+	    }
             int resultCounter = 0;
             int totalAttributes = schema.attributeTotal();
             int col;                
-
+	    Filter featureFilter = unpacker.getUnSupported();
             // loop through entire result set or until maxFeatures are reached
+	    
             while( result.next() && ( resultCounter < maxFeatures)) {
 
                 // grab featureId, which is the (hidden) objectid column and
@@ -464,58 +515,38 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
                         attributes[col] = result.getObject(col + 1);
                     }
                 }
-        
-                // add a feature to the collection and increment result counter
-                features.add( factory.create(attributes, featureId));
-                resultCounter++;
+		Feature curFeature = factory.create(attributes, featureId);
+		//LOGGER.finest("testing feature " + curFeature + " with filter: " + featureFilter);
+		if ((featureFilter == null) || featureFilter.contains(curFeature)) {
+		    //  LOGGER.finest("adding feature.....");
+		    features.add( curFeature);
+		    resultCounter++;
+		}
             }								
             
-	    //get rid of features that the encoder couldn't handle.
-	    filterFeatures(features, unpacker.getUnSupported());
-
-
+	   
             // add features to collection and close the result set
             collection.addFeatures((Feature[]) features.
                                    toArray(new Feature[features.size()]));				
             closeResultSet(result);
         }
         catch(SQLException e) {
-            LOGGER.warning("Some sort of database connection error: " 
-			   + e.getMessage());
-        }
-        catch(SchemaException e) {
-            LOGGER.warning("Had problems creating the feature type..." 
-			   + e.getMessage());
+	    String message = "Some sort of database connection error: " 
+		+ e.getMessage();
+            LOGGER.warning(message);
+	    throw new DataSourceException(message, e);
         }
         catch(Exception e) {
-            LOGGER.warning("Error from the result set: " + e.getMessage());
+	   String message = "Error from the result set: " + e.getMessage();
+            LOGGER.warning(message);
             LOGGER.warning( e.toString() );
             e.printStackTrace();
+	    throw new DataSourceException(message, e);
+
         }
 
     }
 
-
-    /**
-     * Runs through a list of features and returns a list of the
-     * ones that are contained by the filter.  Hopefully when
-     * unpacking filters has more support this will do relatively
-     * little, as the SQL statement should do the majority of the filtering
-     *
-     * @param features The list to be tested.
-     * @param filter The filter to test with.
-     */
-    private void filterFeatures(List features, Filter filter){
-	if (filter != null) {
-	    List filteredFeatures = new ArrayList(maxFeatures);
-	    for (int i = 0; i < features.size(); i++){
-		if (!filter.contains((Feature) features.get(i))){
-		    features.remove(i);
-                i--; //remove shifts index, so we must compensate
-		}
-	    }
-	}
-    }
 
     /**
      * Returns a feature collection, based on the passed filter.  The
