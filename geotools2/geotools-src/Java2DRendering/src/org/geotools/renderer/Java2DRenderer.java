@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.29 2002/07/01 11:33:29 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.30 2002/07/01 14:54:46 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -771,55 +771,75 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     int d = 0;
                     int hx = endX - x;
                     int hy = endY - y;
-                    
-                    int xInc = (int)Math.max(dx,dy);
-                    int yInc = xInc;
+                    int xInc,yInc;
+                    if(Math.abs(dx)>Math.abs(dy)){
+                        xInc = (int)Math.round(dx);
+                        yInc = xInc;
+                    }else{
+                        yInc = (int)Math.round(dy);
+                        xInc = yInc;
+                    }
                     int c,m;
+                    boolean negX = false, negY = false;
                     if(hx < 0){
                         xInc = -xInc;
                         hx = -hx;
+                        negX=true;
                     }
                     if(hy < 0){
                         yInc = -yInc;
                         hy = -hy;
+                        negY=true;
                     }
                     if(hy <= hx){
                         c=2*hx;
                         m=2*hy;
-                        for(int i=0;;i++){
-                            _log.debug("plotting at ("+x+","+y+") @"+(((Math.PI/2.0)-theta+Math.PI)*180d/Math.PI)+" degrees");
-                            //at2.setToTranslation(midx,midy);
+                        for(int i=0;i<50;i++){
                             at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
-                            
                             at2.scale(scaleX,scaleY);
                             op = new AffineTransformOp(at2,hints);
                             image2 =  op.filter(image, null);
                             graphic.drawImage(image2,x-midx,y-midy,null);
                             if( Math.abs(x-endX)<=xInc ) break;
-                            x += xInc;
+                            if(!negX){
+                                x += xInc;
+                            }else{
+                                x -= xInc;
+                            }
                             d += m;
                             if( d > hx){
-                                y+=yInc;
+                                if(!negY){
+                                    y += yInc;
+                                }else{
+                                    y -= yInc;
+                                }
                                 d-=c;
                             }
                         }
                     }else{
                         c=2*hy;
                         m=2*hx;
-                        for(int i=0;;i++){
-                            _log.debug("plotting at ("+x+","+y+") @"+(((Math.PI/2.0)-theta+Math.PI)*180d/Math.PI)+" degrees");
-                            //at2.setToTranslation(midx,midy);
+                        for(int i=0;i<50;i++){
                             at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
-                            
                             at2.scale(scaleX,scaleY);
                             op = new AffineTransformOp(at2,hints);
                             image2 =  op.filter(image, null);
                             graphic.drawImage(image2,x-midx,y-midy,null);
+                            
                             if( Math.abs(y-endY)<=yInc ) break;
-                            y+= yInc;
+                            if(!negY){
+                                y += yInc;
+                            }else{
+                                y -= yInc;
+                            }
+                            
                             d += m;
                             if(d > hy ){
-                                x+=xInc;
+                                if(!negX){
+                                    x += xInc;
+                                }else{
+                                    x -= xInc;
+                                }
                                 d-=c;
                             }
                         }

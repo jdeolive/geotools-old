@@ -48,7 +48,7 @@ public class RenderStyleTest extends TestCase {
         //same as the datasource test, load in some features into a table
         
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(40, 200, 30, 350);
+        EnvelopeExtent ex = new EnvelopeExtent(40, 300, 30, 350);
         
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac,0,0);
@@ -67,7 +67,7 @@ public class RenderStyleTest extends TestCase {
         lineFac = new FeatureFactory(lineType);
         Feature lineFeature3 = lineFac.create(new Object[]{line3});
         
-        Polygon polygon = makeSamplePolygon(geomFac);
+        Polygon polygon = makeSamplePolygon(geomFac,0,0);
         
         AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
         FeatureType polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygon");
@@ -75,16 +75,18 @@ public class RenderStyleTest extends TestCase {
         
         Feature polygonFeature = polygonFac.create(new Object[]{polygon});
         
+        Polygon polygon2 = makeSamplePolygon(geomFac,0,150);
+        polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygontest2");
+        polygonFac = new FeatureFactory(polygonType);
+        Feature polygonFeature2 = polygonFac.create(new Object[]{polygon2});
         
-        Polygon polygon2 = makeSamplePolygon2(geomFac);
+        Polygon polygon3 = makeSamplePolygon(geomFac,220,100);
+        polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygontest3");
+        polygonFac = new FeatureFactory(polygonType);
+        Feature polygonFeature3 = polygonFac.create(new Object[]{polygon3});
         
-        AttributeType polygonAttribute2 = new AttributeTypeDefault("edge2", polygon2.getClass());
-        FeatureType polygonType2 = new FeatureTypeFlat(polygonAttribute2).setTypeName("polygontest");
-        FeatureFactory polygonFac2 = new FeatureFactory(polygonType2);
         
-        Feature polygonFeature2 = polygonFac2.create(new Object[]{polygon2});
-        
-        Point point = makeSamplePoint(geomFac);
+        Point point = makeSamplePoint(geomFac,140.0,140.0);
         AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
         FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("pointfeature");
         FeatureFactory pointFac = new FeatureFactory(pointType);
@@ -96,6 +98,7 @@ public class RenderStyleTest extends TestCase {
         datasource.addFeature(lineFeature3);
         datasource.addFeature(polygonFeature);
         datasource.addFeature(polygonFeature2);
+        datasource.addFeature(polygonFeature3);
         datasource.addFeature(pointFeature);
         
         FeatureCollection ft = new FeatureCollectionDefault(datasource);
@@ -136,18 +139,18 @@ public class RenderStyleTest extends TestCase {
         return line;
     }
     
-    private com.vividsolutions.jts.geom.Polygon makeSamplePolygon(final GeometryFactory geomFac) {
+    private com.vividsolutions.jts.geom.Polygon makeSamplePolygon(final GeometryFactory geomFac, double xoff, double yoff) {
         Coordinate[] polygonCoordinates = new Coordinate[10];
-        polygonCoordinates[0] = new Coordinate(70,70);
-        polygonCoordinates[1] = new Coordinate(60,90);
-        polygonCoordinates[2] = new Coordinate(60,110);
-        polygonCoordinates[3] = new Coordinate(70,120);
-        polygonCoordinates[4] = new Coordinate(90,110);
-        polygonCoordinates[5] = new Coordinate(110,120);
-        polygonCoordinates[6] = new Coordinate(130,110);
-        polygonCoordinates[7] = new Coordinate(130,90);
-        polygonCoordinates[8] = new Coordinate(110,70);
-        polygonCoordinates[9] = new Coordinate(70,70);
+        polygonCoordinates[0] = new Coordinate(70+xoff,70+yoff);
+        polygonCoordinates[1] = new Coordinate(60+xoff,90+yoff);
+        polygonCoordinates[2] = new Coordinate(60+xoff,110+yoff);
+        polygonCoordinates[3] = new Coordinate(70+xoff,120+yoff);
+        polygonCoordinates[4] = new Coordinate(90+xoff,110+yoff);
+        polygonCoordinates[5] = new Coordinate(110+xoff,120+yoff);
+        polygonCoordinates[6] = new Coordinate(130+xoff,110+yoff);
+        polygonCoordinates[7] = new Coordinate(130+xoff,90+yoff);
+        polygonCoordinates[8] = new Coordinate(110+xoff,70+yoff);
+        polygonCoordinates[9] = new Coordinate(70+xoff,70+yoff);
         try{
             LinearRing ring = geomFac.createLinearRing(polygonCoordinates);
             com.vividsolutions.jts.geom.Polygon polyg = geomFac.createPolygon(ring,null);
@@ -158,30 +161,9 @@ public class RenderStyleTest extends TestCase {
         }
         return null;
     }
-    private com.vividsolutions.jts.geom.Polygon makeSamplePolygon2(final GeometryFactory geomFac) {
-        Coordinate[] polygonCoordinates = new Coordinate[10];
-        polygonCoordinates[0] = new Coordinate(70,270);
-        polygonCoordinates[1] = new Coordinate(60,290);
-        polygonCoordinates[2] = new Coordinate(60,310);
-        polygonCoordinates[3] = new Coordinate(70,320);
-        polygonCoordinates[4] = new Coordinate(90,310);
-        polygonCoordinates[5] = new Coordinate(110,320);
-        polygonCoordinates[6] = new Coordinate(130,310);
-        polygonCoordinates[7] = new Coordinate(130,290);
-        polygonCoordinates[8] = new Coordinate(110,270);
-        polygonCoordinates[9] = new Coordinate(70,270);
-        try{
-            LinearRing ring = geomFac.createLinearRing(polygonCoordinates);
-            com.vividsolutions.jts.geom.Polygon polyg = geomFac.createPolygon(ring,null);
-            return polyg;
-        }
-        catch(TopologyException te){
-            fail("Error creating sample polygon for testing "+te);
-        }
-        return null;
-    }
-    private Point makeSamplePoint(final GeometryFactory geomFac) {
-        Coordinate c = new Coordinate(140.0d,140.0d);
+    
+    private Point makeSamplePoint(final GeometryFactory geomFac, double x, double y) {
+        Coordinate c = new Coordinate(x,y);
         Point point = geomFac.createPoint(c);
         return point;
     }

@@ -1,3 +1,5 @@
+
+
 <StyledLayerDescriptor version="0.7.2">
 <!-- a named layer is the basic building block of an sld document -->
 <NamedLayer>
@@ -159,7 +161,7 @@ A styling layer used for the unit tests of sldstyler
       </Rule>
     </FeatureTypeStyle>
     <FeatureTypeStyle>
-      <FeatureTypeName>polygontest</FeatureTypeName>
+      <FeatureTypeName>polygontest2</FeatureTypeName>
       <Rule>
         
         <PolygonSymbolizer>
@@ -169,10 +171,7 @@ A styling layer used for the unit tests of sldstyler
                 <graphic>
                     <size>20</size>
                     <externalGraphic>
-                        <onLineResource 
-                            xmlns:xlink="http://www.w3.org/1999/xlink"
-                            xlink:type="simple"
-                            xlink:href="file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/blob.gif"/>
+                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/blob.gif"/>
                         <format>image/gif</format>
                     </externalGraphic>
                     
@@ -198,6 +197,46 @@ A styling layer used for the unit tests of sldstyler
       </Rule>
     </FeatureTypeStyle>
     <FeatureTypeStyle>
+      <FeatureTypeName>polygontest3</FeatureTypeName>
+      <Rule>
+        <PolygonSymbolizer>
+        <!-- describes the fill of the polygon - if missing the polygon is empty -->  
+          <Fill>
+            <GraphicFill>
+                <graphic>
+                    <size>10</size>
+                    <mark>
+                        <wellknownname>triangle</wellknownname>
+                        <Fill>
+                    
+                            <CssParameter name="fill">#FF00FF</CssParameter>
+                            <CssParameter name="fill-opacity">0.5</CssParameter>
+                        </Fill>
+                    </mark>
+                </graphic>
+            </GraphicFill>
+            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
+            <CssParameter name="fill">#FF00FF</CssParameter>
+            <CssParameter name="fill-opacity">0.5</CssParameter>
+          </Fill>
+          <Stroke>
+            <GraphicStroke>
+                    <Graphic>
+                        <size>8</size>
+                        <mark>
+                            <wellknownname>arrow</wellknownname>
+                            <fill>
+                                <CssParameter name="fill">#2020FF</CssParameter>
+                            </fill>
+                        </mark>
+                    </Graphic>
+                </GraphicStroke>    
+          </Stroke>
+        </PolygonSymbolizer>
+        
+      </Rule>
+    </FeatureTypeStyle>
+    <FeatureTypeStyle>
         <FeatureTypeName>pointfeature</FeatureTypeName>
         <rule>
             <PointSymbolizer>
@@ -206,10 +245,7 @@ A styling layer used for the unit tests of sldstyler
                     
                     <rotation>45.0</rotation>
                     <externalGraphic>
-                        <onLineResource 
-                            xmlns:xlink="http://www.w3.org/1999/xlink"
-                            xlink:type="simple"
-                            xlink:href="file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/blob.gif"/>
+                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/blob.gif"/>
                         <format>image/gif</format>
                     </externalGraphic>
                     <mark>
@@ -236,3 +272,4 @@ A styling layer used for the unit tests of sldstyler
 </UserStyle>
 </NamedLayer>
 </StyledLayerDescriptor>
+
