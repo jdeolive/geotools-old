@@ -21,6 +21,7 @@
 package org.geotools.validation.relate;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -203,7 +204,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 			}
 		}finally
 		{
-			/** Close the connections too the feature readers*/
+			/** Close the connections to the feature readers*/
 			try {
 				fr1.close();
 				if (fr2 != null)
@@ -213,7 +214,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 				throw e4;
 			}
 		}
-				
+		
 		return success;
 	}
 
@@ -253,13 +254,16 @@ public class OverlapsIntegrity extends RelationIntegrity
 	throws Exception
 	{
 		boolean success = true;
-		
+		int errors = 0;
+		Date date1 = new Date();
+		int countInterval = 100;
+		int counter = 0;
 		FeatureType ft = featureSourceA.getSchema();
 		
 		Filter filter = filterBBox(bBox, ft);
 
-		FeatureResults featureResults = featureSourceA.getFeatures(filter);
-		//FeatureResults featureResults = featureSourceA.getFeatures();
+		//FeatureResults featureResults = featureSourceA.getFeatures(filter);
+		FeatureResults featureResults = featureSourceA.getFeatures();
 		
 		FeatureReader fr1 = null;
 		FeatureReader fr2 = null;
@@ -272,46 +276,55 @@ public class OverlapsIntegrity extends RelationIntegrity
 		
 			while (fr1.hasNext())
 			{
-				//System.out.println("Single layer Outer loop count: " + loopCt1);
+				counter++;
 				Feature f1 = fr1.next();
-	//		System.out.println("overlapFilter " + filter.contains(f1));
-//				System.out.println("containsFilter " + containsFilter.contains(f1));
-				//System.out.println("Filter " + filter.contains(f1));
-//				System.out.println("f1 = " + f1.getDefaultGeometry().getEnvelope());
-//				System.out.println("env1 = " + bBox);
+				//System.out.println(f1.getID() + ".envelope = " + f1.getDefaultGeometry().getEnvelope());
 				
 				Geometry g1 = f1.getDefaultGeometry();
 				Filter filter2 = filterBBox(g1.getEnvelope().getEnvelopeInternal(), ft);
 
 				FeatureResults featureResults2 = featureSourceA.getFeatures(filter2);
 				//FeatureResults featureResults2 = featureSourceA.getFeatures();
-				fr2 = featureResults2.reader();	
-				while (fr2 != null && fr2.hasNext())
-				{			
-					Feature f2 = fr2.next();
-				//	System.out.println("Filter2 " + filter2.contains(f2));
-					Geometry g2 = f2.getDefaultGeometry();
-					//System.out.println("Do the two overlap?->" + g1.overlaps(g2));
-					//System.out.println("Does the one contain the other?->" + g1.contains(g2));
-					if (!usedIDs.contains(f2.getID()))
+				
+				fr2 = featureResults2.reader();
+				try {
+					//System.out.println("featureResults length = " + featureResults2.getCount());	
+					while (fr2 != null && fr2.hasNext())
 					{
-						
-						if (!f1.getID().equals(f2.getID()))	// if they are the same feature, move onto the next one
+						Feature f2 = fr2.next();
+						Geometry g2 = f2.getDefaultGeometry();
+						if (!usedIDs.contains(f2.getID()))
 						{
-							if(g1.overlaps(g2) != expected || g1.contains(g2) != expected)
+							
+							if (!f1.getID().equals(f2.getID()))	// if they are the same feature, move onto the next one
 							{
-								//results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
-								results.error( f1, getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+")");
-								System.out.println(f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected);
-								success = false;
+								if(g1.overlaps(g2) != expected || g1.contains(g2) != expected)
+								{
+									//results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
+									results.error( f1, getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+")");
+									System.out.println(f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected);
+									success = false;
+									errors++;
+								}
 							}
 						}
 					}
+					usedIDs.add(f1.getID());
+					if (counter%countInterval == 0)
+						System.out.println("count: " + counter);
+						
+				}finally{
+					if (fr2 != null)
+						fr2.close();
 				}
-				usedIDs.add(f1.getID());
-			}
+			}// end while 1
 		}finally
 		{
+			Date date2 = new Date();
+			float dt = date2.getTime() - date1.getTime();
+			System.out.println("########## Validation duration: " + dt);
+			System.out.println("########## Validation errors: " + errors);
+			
 			/** Close the connections to the feature readers*/
 			try {
 				fr1.close();
@@ -333,11 +346,12 @@ public class OverlapsIntegrity extends RelationIntegrity
 	{
 		FilterFactory ff = FilterFactory.createFilterFactory();
 		BBoxExpression bboxExpr = ff.createBBoxExpression(bBox);
+		//GeometryFilter bbFilter = ff.createGeometryFilter(Filter.GEOMETRY_BBOX);
 		AttributeExpression geomExpr = ff.createAttributeExpression(ft, ft.getDefaultGeometry().getName());
-		GeometryFilter filter = ff.createGeometryFilter(Filter.GEOMETRY_OVERLAPS);//ff.createGeometryFilter(Filter.GEOMETRY_CONTAINS);
-		filter.addLeftGeometry(bboxExpr);
-		filter.addRightGeometry(geomExpr);
-		
+		GeometryFilter disjointFilter = ff.createGeometryFilter(Filter.GEOMETRY_DISJOINT);
+		disjointFilter.addLeftGeometry(geomExpr);
+		disjointFilter.addRightGeometry(bboxExpr);
+		Filter filter = disjointFilter.not();
 		
 		return filter;
 	}
