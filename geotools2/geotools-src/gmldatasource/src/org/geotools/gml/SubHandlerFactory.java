@@ -1,17 +1,32 @@
 /*
- * GMLBoxHandler.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on 07 March 2002, 12:17
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
 
 package org.geotools.gml;
 
 
 /**
- * Creates the appropriate SubHandler element for a given OGC simple geometry type.
+ * Creates the appropriate SubHandler element for a given OGC simple geometry
+ * type.
  *
+ * @version $Id: SubHandlerFactory.java,v 1.4 2002/06/05 11:19:27 loxnard Exp $
  * @author Rob Hranac, Vision for New York
- * @version $Id: SubHandlerFactory.java,v 1.3 2002/05/01 14:29:17 ianturton Exp $
  */
 public class SubHandlerFactory {
     
@@ -24,16 +39,16 @@ public class SubHandlerFactory {
     
     
     /**
-     * Empty contrsuctor.
+     * Empty constructor.
      */
     public SubHandlerFactory() {
     }
     
     /**
-     * Creates a new subhandler, based on the appropriate OGC simple geometry type.  Note that some types are aggregated into
-     * a generic 'multi' type.
+     * Creates a new SubHandler, based on the appropriate OGC simple geometry
+     * type.  Note that some types are aggregated into a generic 'multi' type.
      *
-     * @param type Type of sub-handler to return.
+     * @param type Type of SubHandler to return.
      */
     public SubHandler create(String type) {
         
