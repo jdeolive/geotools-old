@@ -54,11 +54,20 @@ public class SQLEncoderSDE extends SQLEncoder
      * AbstractFilter.COMPARE_GREATER_THAN_EQUAL AbstractFilter.NULL
      * AbstractFilter.BETWEEN
      */
-    private static FilterCapabilities capabilities = SQLEncoder.getCapabilities();
+    private static FilterCapabilities capabilities = null;
 
-    static
-    {
-        capabilities.addType(AbstractFilter.LIKE);
+    /**
+     * Describes the capabilities of this encoder.
+     * <p>
+     * Performs lazy creation of capabilities.
+     * </p>
+     * @return The capabilities supported by this encoder.
+     */
+    public synchronized FilterCapabilities getCapabilities() {
+        if( capabilities == null ){
+            capabilities = createFilterCapabilities();
+        }
+        return capabilities; //maybe clone?  Make immutable somehow
     }
 
     /** DOCUMENT ME! */
@@ -82,16 +91,6 @@ public class SQLEncoderSDE extends SQLEncoder
     public void setLayer(SeLayer layer)
     {
         this.sdeLayer = layer;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public static FilterCapabilities getCapabilities()
-    {
-        return capabilities; //maybe clone?  Make immutable somehow
     }
 
     /**
