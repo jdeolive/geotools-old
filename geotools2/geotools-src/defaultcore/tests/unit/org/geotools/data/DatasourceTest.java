@@ -7,6 +7,9 @@ import java.util.*;
 import junit.framework.*;
 
 public class DatasourceTest extends TestCase implements CollectionListener {
+    private static org.apache.log4j.Logger _log =
+    org.apache.log4j.Logger.getLogger(DatasourceTest.class);
+    
     FeatureCollection ft = null;
     FeatureIndex fi = null;
     public DatasourceTest(java.lang.String testName){
@@ -41,6 +44,7 @@ public class DatasourceTest extends TestCase implements CollectionListener {
             ft.getFeatures(ex);
         }
         catch(DataSourceException e){
+            e.printStackTrace();
             fail(e.toString());
         }
         System.out.println("Loaded: "+ft.getFeatures());

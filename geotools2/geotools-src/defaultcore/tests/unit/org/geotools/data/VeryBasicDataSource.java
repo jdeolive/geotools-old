@@ -131,12 +131,15 @@ public class VeryBasicDataSource implements DataSource {
                 
                 AttributeType geometryAttribute = new AttributeTypeDefault("theGeometry", geomFac.createPoint(p).getClass());
                 AttributeType stringAttribute = new AttributeTypeDefault("theString", String.class);
-
-                FeatureType testType = new FeatureTypeFlat(geometryAttribute); 
-                for(int att=0;att<row.length-1;att++){
-                    testType = testType.setAttributeType(stringAttribute);
-                }
+                AttributeType[] attDefs = new AttributeType[row.length];
+                attDefs[0] = geometryAttribute.setPosition(0);
                 
+                
+                for(int att=1;att<row.length;att++){
+                    attDefs[att] = stringAttribute.setPosition(att);
+                }
+                FeatureType testType = FeatureTypeFactory.create(attDefs);
+                //FeatureType testType = new FeatureTypeFlat(geometryAttribute); 
                 
                 System.out.println("adding P "+p);
                 row[0] = geomFac.createPoint(p);
@@ -145,7 +148,7 @@ public class VeryBasicDataSource implements DataSource {
                     System.out.println("attribue "+val+" is "+row[val].getClass().getName());
                 }
                 System.out.println("Test Type is "+testType);
-                FeatureFactory fac = new FeatureFactory((FeatureTypeFlat) testType);
+                FeatureFactory fac = new FeatureFactory( testType);
                 Feature feat = fac.create(row);
 
                 // Filter Feature Feature Filter
@@ -157,6 +160,7 @@ public class VeryBasicDataSource implements DataSource {
         }
         catch(Exception exp) {
             System.out.println("Exception loading data");
+            exp.printStackTrace();
             throw new DataSourceException("Exception loading data : "+exp.getMessage());
         }
     }
