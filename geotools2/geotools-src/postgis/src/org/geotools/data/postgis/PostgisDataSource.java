@@ -44,7 +44,7 @@ import org.geotools.resources.Geotools;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.26 2003/06/02 23:44:19 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.27 2003/07/02 15:19:48 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -738,7 +738,8 @@ public class PostgisDataSource extends AbstractDataSource
      */
     private String makeInsertSql(String tableName, Feature feature) {
         String attrValue = new String();
-        StringBuffer sql = new StringBuffer("INSERT INTO " + tableName + "(");
+        StringBuffer sql = new StringBuffer("INSERT INTO \"" 
+					    + tableName + "\"(");
         FeatureType featureSchema = feature.getSchema();
         AttributeType geometryAttr = featureSchema.getDefaultGeometry();
         int geomPos = -1;
@@ -833,7 +834,7 @@ public class PostgisDataSource extends AbstractDataSource
                 featureArr = getFeatures(unEncodableFilter).getFeatures();
 
                 if (featureArr.length > 0) {
-                    sql = "DELETE FROM " + tableName + " WHERE ";
+                    sql = "DELETE FROM \"" + tableName + "\" WHERE ";
 
                     for (int i = 0; i < featureArr.length; i++) {
                         fid = formatFid(featureArr[i]);
@@ -994,7 +995,7 @@ public class PostgisDataSource extends AbstractDataSource
 
         if (arrLength == values.length) {
             StringBuffer sqlStatement = new StringBuffer("UPDATE ");
-            sqlStatement.append(tableName + " SET ");
+            sqlStatement.append("\"" + tableName + "\" SET ");
 
             for (int i = 0; i < arrLength; i++) {
                 AttributeType curType = types[i];
