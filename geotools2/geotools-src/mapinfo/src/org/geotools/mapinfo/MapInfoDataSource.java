@@ -49,7 +49,7 @@ import org.geotools.styling.*;
 /**
  *
  *
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  * @author $author$
  */
 public class MapInfoDataSource implements DataSource {
@@ -154,6 +154,8 @@ public class MapInfoDataSource implements DataSource {
     private Fill fill = styleFactory.getDefaultFill();
     
     private String filename;
+    
+    private Envelope bbox;
     
     public MapInfoDataSource(URL url) throws java.net.MalformedURLException {
         filename = java.net.URLDecoder.decode(url.getFile());
@@ -334,7 +336,7 @@ public class MapInfoDataSource implements DataSource {
         }
         
         Feature feature;
-        
+        bbox = new Envelope();
         // Read each object in the MIF file
         while ((feature = readObject(mifReader, midReader)) != null) {
             // Figure out which type of feature it is
@@ -571,7 +573,7 @@ public class MapInfoDataSource implements DataSource {
         } else {
             LOGGER.finest(line + " unknown object in mif reader");
         }
-        
+        bbox.expandToInclude(feature.getDefaultGeometry().getEnvelopeInternal());
         return feature;
     }
     
@@ -1192,8 +1194,8 @@ public class MapInfoDataSource implements DataSource {
      *
      * @task REVISIT:Consider changing return of getBbox to Filter once Filters can be unpacked
      */
-    public Envelope getBbox(boolean speed) {
-        return null;
+    public Envelope getBbox(boolean speed) {  
+        return bbox;
     }
     
     /**
