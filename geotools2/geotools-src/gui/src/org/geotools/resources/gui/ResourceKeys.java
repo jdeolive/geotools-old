@@ -101,6 +101,7 @@ public interface ResourceKeys
     public static final int SYSTEM                   =    73;
     public static final int TASKS                    =    74;
     public static final int TILES_SIZE               =    88;
+    public static final int TILE_CACHE_CAPACITY_$1   =   102;
     public static final int TILE_SIZE_$4             =    80;
     public static final int TIME_OF_DAY              =    36;
     public static final int TIME_RANGE               =    26;

@@ -79,6 +79,9 @@ import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.Iterator;
 
+// Java Advanced Imaging
+import javax.media.jai.JAI;
+
 // Geotools dependencies
 import org.geotools.resources.XArray;
 import org.geotools.resources.Arguments;
@@ -106,12 +109,12 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/About.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: About.java,v 1.1 2003/07/25 18:05:03 desruisseaux Exp $
+ * @version $Id: About.java,v 1.2 2003/08/05 17:44:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class About extends JPanel {
     /**
-     * Unité à utiliser pour les affichages de la quantité de mémoire utilisée.
+     * The amount of bytes in one "unit of memory" to be displayed.
      */
     private static final float HEAP_SIZE_UNIT = (1024f*1024f);
 
@@ -267,16 +270,32 @@ public class About extends JPanel {
             final JPanel pane = new JPanel(new GridBagLayout());
             final GridBagConstraints c=new GridBagConstraints();
             c.gridx=0; c.weightx=1;
-            c.gridy=0; c.insets.top=12; pane.add(new JLabel(                                                  application), c);
-            c.gridy++; c.insets.top= 0; pane.add(new JLabel(resources.getString(ResourceKeys.VERSION_$1,      version)   ), c);
-            c.gridy++;                  pane.add(new JLabel(                                                  vendor     ), c);
-            c.gridy++; c.insets.top= 6; pane.add(new JLabel(resources.getString(ResourceKeys.JAVA_VERSION_$1, System.getProperty("java.version"))), c);
-            c.gridy++; c.insets.top= 0; pane.add(new JLabel(resources.getString(ResourceKeys.JAVA_VENDOR_$1,  System.getProperty("java.vendor" ))), c);
-            c.gridy++; c.insets.top= 6; pane.add(new JLabel(resources.getString(ResourceKeys.OS_NAME_$1,      System.getProperty("os.name"     ))), c);
-            c.gridy++; c.insets.top= 0; pane.add(new JLabel(resources.getString(ResourceKeys.OS_VERSION_$2,   System.getProperty("os.version"),
-                                                                                                              System.getProperty("os.arch"     ))), c);
-            c.gridy++; c.insets.top=12; pane.add(totalMemoryLabel, c); c.insets.bottom=12;
-            c.gridy++; c.insets.top= 0; pane.add(percentUsedLabel, c);
+            c.gridy=0; c.insets.top=12;
+            pane.add(new JLabel(application), c);
+            c.gridy++; c.insets.top=0;
+            pane.add(new JLabel(resources.getString(ResourceKeys.VERSION_$1, version)), c);
+            c.gridy++;
+            pane.add(new JLabel(vendor), c);
+            c.gridy++; c.insets.top=6;
+            pane.add(new JLabel(resources.getString(ResourceKeys.JAVA_VERSION_$1,
+                                                    System.getProperty("java.version"))), c);
+            c.gridy++; c.insets.top=0;
+            pane.add(new JLabel(resources.getString(ResourceKeys.JAVA_VENDOR_$1,
+                                                    System.getProperty("java.vendor" ))), c);
+            c.gridy++; c.insets.top=6;
+            pane.add(new JLabel(resources.getString(ResourceKeys.OS_NAME_$1,
+                                                    System.getProperty("os.name"))), c);
+            c.gridy++; c.insets.top=0;
+            pane.add(new JLabel(resources.getString(ResourceKeys.OS_VERSION_$2,
+                                                    System.getProperty("os.version"),
+                                                    System.getProperty("os.arch"))), c);
+            c.gridy++; c.insets.top=12;
+            pane.add(new JLabel(resources.getString(ResourceKeys.TILE_CACHE_CAPACITY_$1, new Float(
+                 JAI.getDefaultInstance().getTileCache().getMemoryCapacity()/HEAP_SIZE_UNIT))), c);
+            c.gridy++; c.insets.top=0;
+            pane.add(totalMemoryLabel, c);
+            c.gridy++; c.insets.bottom=12;
+            pane.add(percentUsedLabel, c);
             tabs.addTab(resources.getString(ResourceKeys.SYSTEM), pane);
         }
         /*
@@ -412,7 +431,7 @@ public class About extends JPanel {
      * Modèle représentant la liste des processus actif dans un {@link ThreadGroup}.
      * Cette liste se mettre automatiquement à jour de façon périodique.
      *
-     * @version $Id: About.java,v 1.1 2003/07/25 18:05:03 desruisseaux Exp $
+     * @version $Id: About.java,v 1.2 2003/08/05 17:44:56 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ThreadList extends AbstractListModel implements Runnable {
