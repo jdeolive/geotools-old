@@ -18,10 +18,8 @@ package org.geotools.feature;
 
 /**
  * <p>
- * Stores metadata about a single attribute object.  Note that  feature type
- * schemas are also attributes.  All attribute implementations must be
- * immutable.  All attributes must have three properties:
- * 
+ * Stores metadata about a single attribute object. 
+ *  
  * <ol>
  * <li>
  * Name: A string that is used to reference the attribute.
@@ -58,7 +56,7 @@ package org.geotools.feature;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: AttributeType.java,v 1.10 2003/09/22 17:46:40 cholmesny Exp $
+ * @version $Id: AttributeType.java,v 1.11 2003/11/06 23:34:54 ianschneider Exp $
  *
  * @task REVISIT: Think through occurences.  Perhaps a getMinOccurs and
  *       getMaxOccurs, reflecting xml, which would return 1 and 1 for a non
@@ -68,39 +66,6 @@ package org.geotools.feature;
  *       response.
  */
 public interface AttributeType {
-    /*
-     * Design Notes:
-     *  removal of all setter methods
-     *  - this is confusing given that AttributeTypes are immutable
-     *
-     *  removal of getPosition
-     *  - it makes no sense to have an AttributeType know its location within
-     *    a schema. This functionality can easily be replaced by other means.
-     *
-     * parse added, to allow FeatureType to attempt to transform objects
-     * to the preferred storage type.
-     *
-     * removal of occurences, as it's basically broken/not used.
-     *
-     *
-     */
-
-    // removed, use FeatureTypeFactory-IAN
-
-    /**
-     * Sets the position of this attribute in the schema.
-     *
-     * @return Copy of attribute with modified position.
-     *
-     * @task REVISIT: change this so the position does not appear immutable.
-     *       Maybe package private?  Or just remove from interface altogether,
-     *       so the implementing classes use it.  The only drawback I
-     *       potentially see is a Feature implementation using a different
-     *       FeatureType implementation.  But for someone to do that it would
-     *       have to be in the same package if we make it package private.
-     */
-
-    //AttributeType setPosition(int position);
 
     /**
      * Whether or not this attribute is complex in any way.  DefaultAttribute
@@ -132,26 +97,6 @@ public interface AttributeType {
      */
     Class getType();
 
-    /**
-     * Gets the occurrences of this attribute.
-     *
-     * @return Occurrences.
-     *
-     * @task REVISIT: This is not used at all now, and is implemented badly,
-     *       but some sort of occurence reporting might be good.  One idea is
-     *       getMinOccurs and getMaxOccurs, closer to gml, and more useful.
-     *       But that can be implemented once it is needed.
-     */
-
-    //int getOccurrences();
-
-    /**
-     * Gets the position of this attribute.
-     *
-     * @return Position.
-     */
-
-    //int getPosition();
 
     /**
      * Returns whether nulls are allowed for this attribute.
@@ -167,17 +112,6 @@ public interface AttributeType {
      */
     boolean isGeometry();
 
-    //    /**
-    //     * Whether the tested object passes the validity constraints of 
-    //     * this AttributeType.  At a minimum it should be of the correct
-    //     * class specified by {@link #getType()}, non-null if isNillable
-    //     * is <tt>false</tt>, and a geometry if isGeometry is <tt>true</tt>
-    //     *
-    //     * @param obj The object to be tested for validity.
-    //     * @return <tt>true</tt> if the object is allowed to be an attribute
-    //     * for this type, <tt>false</tt> otherwise.
-    //     */
-    //    boolean isValid(Object obj);
 
     /**
      * Allows this AttributeType to convert an argument to its prefered storage
@@ -211,6 +145,30 @@ public interface AttributeType {
      */
     void validate(Object obj) throws IllegalArgumentException;
 
+    /**
+     * Create a duplicate value of the passed Object. For immutable Objects,
+     * it is not neccessary to create a new Object.
+     *
+     * @param src The Object to duplicate.
+     * @throws IllegalAttributeException If the src Object is not the correct type.
+     */
     Object duplicate(Object src) throws IllegalAttributeException;    
+    
+    /**
+     * Create a default value for this AttributeType. If the type is nillable,
+     * the Object may or may not be null.
+     */
+    Object createDefaultValue();
+ 
+    /**
+     * Return a preferred field length value for this attribute type. This value
+     * may have different meanings depending upon the type of attribute held.
+     * For instance, for Strings, the value refers to character length, and for
+     * numeric types, it refers to precision. Other types may not have a use
+     * for this value. A value of zero means that the preferrence is not set, or
+     * is not applicable.
+     * @return The preferred fieldLength or zero if not set or applicable
+     */
+    int getFieldLength();
 
 }

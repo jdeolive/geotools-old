@@ -25,7 +25,7 @@ import org.geotools.factory.FactoryFinder;
  * implement createAttributeType
  *
  * @author Ian Schneider, USDA-ARS
- * @version $Id: AttributeTypeFactory.java,v 1.4 2003/08/05 21:33:26 cholmesny Exp $
+ * @version $Id: AttributeTypeFactory.java,v 1.5 2003/11/06 23:34:53 ianschneider Exp $
  */
 public abstract class AttributeTypeFactory implements Factory {
     /** The instance to be returned by {@link #defaultInstance()} */
@@ -57,6 +57,36 @@ public abstract class AttributeTypeFactory implements Factory {
         return (AttributeTypeFactory) FactoryFinder.findFactory(attFactory,
             "org.geotools.feature.DefaultAttributeTypeFactory");
     }
+    
+    /**
+     * Creates a new AttributeType with the given name, class and nillable
+     * values.
+     *
+     * @param name The name of the AttributeType to be created.
+     * @param clazz The class that objects will validate against.
+     * @param isNillable if nulls are allowed in the new type.
+     *
+     * @return A new AttributeType of name, clazz and isNillable.
+     */
+    public static AttributeType newAttributeType(String name, Class clazz,
+        boolean isNillable,int fieldLength,Object defaultValue) {
+        return defaultInstance().createAttributeType(name, clazz, isNillable,fieldLength, defaultValue);
+    }
+    
+    /**
+     * Creates a new AttributeType with the given name, class and nillable
+     * values.
+     *
+     * @param name The name of the AttributeType to be created.
+     * @param clazz The class that objects will validate against.
+     * @param isNillable if nulls are allowed in the new type.
+     *
+     * @return A new AttributeType of name, clazz and isNillable.
+     */
+    public static AttributeType newAttributeType(String name, Class clazz,
+        boolean isNillable,int fieldLength) {
+        return defaultInstance().createAttributeType(name, clazz, isNillable,fieldLength);
+    }
 
     /**
      * Creates a new AttributeType with the given name, class and nillable
@@ -70,7 +100,7 @@ public abstract class AttributeTypeFactory implements Factory {
      */
     public static AttributeType newAttributeType(String name, Class clazz,
         boolean isNillable) {
-        return newInstance().createAttributeType(name, clazz, isNillable);
+        return defaultInstance().createAttributeType(name, clazz, isNillable,0);
     }
 
     /**
@@ -98,7 +128,7 @@ public abstract class AttributeTypeFactory implements Factory {
      */
     public static AttributeType newAttributeType(String name, FeatureType type,
         boolean isNillable) {
-        return newInstance().createAttributeType(name, type, isNillable);
+        return defaultInstance().createAttributeType(name, type, isNillable);
     }
 
     /**
@@ -116,21 +146,29 @@ public abstract class AttributeTypeFactory implements Factory {
     }
 
     /**
-     * Method to handle the actual attributeCreation.  Must be implemented by
-     * the extending class.
+     * Create an AttributeType with the given name, Class, nillability, 
+     * fieldLength, and provided defaultValue.
      *
      * @param name The name of the AttributeType to be created.
      * @param clazz The class that objects will validate against.
      * @param isNillable if nulls are allowed in the new type.
      *
      * @return the new AttributeType
+     * @throws IllegalArgumentException If the field is not nillable, yet
      */
     protected abstract AttributeType createAttributeType(String name,
-        Class clazz, boolean isNillable);
+        Class clazz, boolean isNillable, int fieldLength, Object defaultValue);
+    
+    /**
+     * Create an AttributeType with the given name, Class, nillability, and
+     * fieldLength, defering the defaultValue to the type of Attribute.
+     */
+    protected abstract AttributeType createAttributeType(String name,
+        Class clazz, boolean isNillable, int fieldLength);
 
     /**
-     * Method to handle the actual attributeCreation.  Must be implemented by
-     * the extending class.
+     * Create a Feature AttributeType which holds the a Feature instance which
+     * is of the given FeatureType or null if any arbitrary Feature can be held.
      *
      * @param name The name of the AttributeType to be created.
      * @param type The FeatureType that Features will validate against.
