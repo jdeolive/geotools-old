@@ -34,7 +34,7 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilterImpl.java,v 1.4 2002/10/25 11:37:35 ianturton Exp $
+ * @version $Id: LogicFilterImpl.java,v 1.5 2002/12/04 21:23:09 cholmesny Exp $
  * @author Rob Hranac, TOPP
  */
 public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
@@ -168,7 +168,7 @@ public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
      * @param filter Parent of the filter: must implement GMLHandlerGeometry.
      * @return ORed filter.
      */
-    public Filter or(Filter filter) {
+    /*public Filter or(Filter filter) {
         
         // Just makes sure that we are not creating unnecessary new filters
         //  by popping onto stack if current filter is OR
@@ -176,12 +176,19 @@ public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
         //HACK: assuming it is the result of each method
         if (filterType == super.LOGIC_OR) {
             subFilters.add(filter);
-            return this;
+	    try {
+            LogicFilter retFilter = (LogicFilter)this.clone();
+	    subFilters.remove(subFilters.lastIndexOf(filter));
+	    return retFilter;
+	    } catch (java.lang.CloneNotSupportedException e){
+		LOGGER.severe("Shit!");
+		return null;
+	    }
         }
         else {
             return super.or(filter);
         }
-    }
+	}*/
     
     /**
      * Implements a logical AND with this filter and returns the merged filter.
