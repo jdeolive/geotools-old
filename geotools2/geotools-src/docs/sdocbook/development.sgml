@@ -92,7 +92,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.1 2002/12/21 01:47:11 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.2 2002/12/21 19:30:30 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -716,15 +716,77 @@ ant</programlisting>
   </section>
 
   <section id="testing">
-    <title>Testing</title>
+    <title>Testing with junit</title>
 
-    <para>To do:</para>
+    <para>As you code, you should write a unit test for each class to test the
+    functionality and robustness of the class. This is made much easier by
+    using <ulink url="http://www.junit.org">junit</ulink>. If you are testing
+    <filename>org.geotools.module.HelloWorld</filename>, you should create a
+    file <filename>geotools-src/module/tests/unit/org/geotools/module/HelloWorld.java</filename>
+    similar to the following:</para>
 
-    <itemizedlist>
-      <listitem>
-        <para>Explain use of junit. Might be a link to another web site.</para>
-      </listitem>
-    </itemizedlist>
+    <example>
+      <title>HelloWorldTest.java</title>
+
+      <programlisting>package org.geotools.module;
+
+import org.geotools.map.BoundingBox;
+
+/**
+ * Unit test for BoundingBox.
+ *
+ * @author Cameron Shorter
+ */                                
+public class HelloWorldTest extends TestCase {
+    
+    /** Test suite for this test case */
+    private TestSuite suite = null;
+    
+    /** 
+     * Constructor with test name.
+     */
+    public HelloWorldTest(String testName) {
+        super(testName);
+    }
+
+    /** 
+     * Main for test runner.
+     */
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
+    
+    /** 
+     * Required suite builder.
+     * @return A test suite for this unit test.
+     */
+    public static Test suite() {
+        TestSuite suite = new TestSuite(HelloWorldTest.class);
+        return suite;
+    }
+
+    /** 
+     * Initialize variables
+     */
+    protected void setUp() {
+        // initialize variables
+    }
+
+    /** Test normal constuctors. */
+    public void testHello(){
+        assertTrue(&#34;HelloWorld should return null is true&#34;,HelloWorld.isNull());
+    }
+}</programlisting>
+    </example>
+
+    <para>Testing with junit is as easy as copying HelloWorldTest.java and
+    adding more tests, and then excuting it. If you want more information,
+    look at the junit documentation or read one of the many <ulink
+    url="http://www.junit.org">junit</ulink> tutorials.</para>
+
+    <para>If your tests require test data, it should be stored in
+    <filename>geotools2/geotools-src/&#60;module&#62;/tests/testdata/</filename>.
+    Note that some old tests do not follow this naming convention.</para>
   </section>
 
   <section>
@@ -1105,25 +1167,8 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
     computer so that you can access the files stored on <ulink
     url="http://sourceforge.net">http://sourceforge.net</ulink>. How to setup
     ssh and cvs for use with Sourceforge is explained in the documents at:
-    <ulink url="https://sourceforge.net/docman/?group_id=1">https://sourceforge.net/docman/?group_id=1</ulink>.</para>
-
-    <para>To do:</para>
-
-    <itemizedlist>
-      <listitem>
-        <para>Also point to some HOWTOs for windows users.</para>
-      </listitem>
-
-      <listitem>
-        <para>What is acceptable to commit to CVS, what is not. (Ie, code
-        should compile)</para>
-      </listitem>
-
-      <listitem>
-        <para>Talk about version numbering convention, use of branches, etc
-        (if we decide to do this).</para>
-      </listitem>
-    </itemizedlist>
+    <ulink url="https://sourceforge.net/docman/?group_id=1">https://sourceforge.net/docman/?group_id=1</ulink>
+    (search for <emphasis>ssh</emphasis> and <emphasis>cvs</emphasis>).</para>
   </section>
 
   <section id="netbeans">
@@ -1353,7 +1398,7 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
   </section>
 
   <section>
-    <title id="poseidon">Poseidon</title>
+    <title id="poseidon">Poseidon UML</title>
 
     <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
     is a Unified Modeling Language (UML) editor. Using Poseidon you can
