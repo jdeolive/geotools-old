@@ -23,7 +23,7 @@ import java.util.*;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.2 2003/07/17 07:09:53 ianschneider Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.3 2003/07/17 16:14:02 ianschneider Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     private final String typeName;
@@ -42,8 +42,11 @@ public class DefaultFeatureType implements FeatureType {
         this.typeName = typeName;
         this.namespace = (namespace == null) ? "" : namespace;
         this.types = (DefaultAttributeType[]) types.toArray(new DefaultAttributeType[types.size()]);
-        this.defaultGeom = defaultGeom;
+        
+        // do this first...
         this.defaultGeomIdx = find(defaultGeom);
+        // before doing this
+        this.defaultGeom = defaultGeom;
     }
 
     
