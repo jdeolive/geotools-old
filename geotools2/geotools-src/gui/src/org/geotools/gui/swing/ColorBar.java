@@ -97,7 +97,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <p align="center"><img src="doc-files/ColorBar.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: ColorBar.java,v 1.8 2003/07/11 16:59:33 desruisseaux Exp $
+ * @version $Id: ColorBar.java,v 1.9 2004/02/13 14:29:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ColorBar extends JComponent {
@@ -365,7 +365,7 @@ public class ColorBar extends JComponent {
             max = tr.transform(upper);
         } catch (TransformException cause) {
             IllegalArgumentException e = new IllegalArgumentException(Resources.format(
-                            ResourceKeys.ERROR_BAD_ARGUMENT_$2, "category", category));
+                            ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2, "category", category));
             e.initCause(cause);
             throw e;
         }
@@ -376,7 +376,7 @@ public class ColorBar extends JComponent {
             max = -max;
         }
         if (!(min <= max)) {
-            throw new IllegalStateException(Resources.format(ResourceKeys.ERROR_BAD_ARGUMENT_$2,
+            throw new IllegalStateException(Resources.format(ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2,
                                                              "category", category));
         }
         AbstractGraduation graduation = (this.graduation instanceof AbstractGraduation) ?
@@ -772,7 +772,7 @@ public class ColorBar extends JComponent {
      * de calculer l'espace qu'elle occupe. Cette classe peut aussi réagir
      * à certains événements.
      *
-     * @version $Id: ColorBar.java,v 1.8 2003/07/11 16:59:33 desruisseaux Exp $
+     * @version $Id: ColorBar.java,v 1.9 2004/02/13 14:29:37 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class UI extends ComponentUI implements PropertyChangeListener {
