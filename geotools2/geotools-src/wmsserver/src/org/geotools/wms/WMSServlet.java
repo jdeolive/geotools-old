@@ -709,7 +709,7 @@ public class WMSServlet extends HttpServlet {
          CacheKey(HttpServletRequest request){
             
             String tmp = getParameter(request, PARAM_LAYERS);
-            LOGGER.fine("layer string " + tmp);
+            LOGGER.finest("layer string " + tmp);
             String [] layers = commaSeparated(tmp);
             String srs = getParameter(request, PARAM_SRS);
             String bbox = getParameter(request, PARAM_BBOX);
@@ -730,23 +730,23 @@ public class WMSServlet extends HttpServlet {
             key = 0;
             for(int i = 0; i < layers.length; i++){
                 key += layers[i].toLowerCase().hashCode();
-                LOGGER.fine("layer "+ layers[i] + " key = " + key);
+                LOGGER.finest("layer "+ layers[i] + " key = " + key);
                 if(i < styles.length){
                     key += styles[i].toLowerCase().hashCode();
-                    LOGGER.fine("style "+ styles[i] + " key = " + key);
+                    LOGGER.finest("style "+ styles[i] + " key = " + key);
                 }
             }
             key*=37;
-            LOGGER.fine("key = " + key);
+            LOGGER.finest("key = " + key);
             key += bgcolor.hashCode()*37;
-            LOGGER.fine("color "+bgcolor+" key = " + key);
+            LOGGER.finest("color "+bgcolor+" key = " + key);
             key += srs.hashCode()*37;
-            LOGGER.fine("srs "+srs+" key = " + key);
+            LOGGER.finest("srs "+srs+" key = " + key);
             key += bbox.hashCode()*37;
-            LOGGER.fine("bbox "+bbox+" key = " + key);
+            LOGGER.finest("bbox "+bbox+" key = " + key);
             key += (width*37 + height)*37;
             
-            LOGGER.fine("Key = " + key);
+            LOGGER.finest("Key = " + key);
          }
          
          public int hashCode(){
