@@ -89,11 +89,11 @@ public class PostgisSQLBuilder extends DefaultSQLBuilder {
         AttributeType[] attributes) {
         if (fidColumnName != null) {
             sql.append(fidColumnName);
-            sql.append(", ");
         }
 
         for (int i = 0; i < attributes.length; i++) {
             String colName = attributes[i].getName();
+            sql.append(", ");
 
             if (attributes[i].isGeometry()) {
                 sql.append("AsText(force_2d(\"" + colName + "\"))");
@@ -101,9 +101,9 @@ public class PostgisSQLBuilder extends DefaultSQLBuilder {
                 sql.append("\"" + colName + "\"");
             }
 
-            if (i < (attributes.length - 1)) {
-                sql.append(", ");
-            }
+            //if (i < (attributes.length - 1)) {
+            //  sql.append(", ");
+            //}
         }
     }
 
