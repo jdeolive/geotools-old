@@ -27,7 +27,7 @@ import java.util.*;
  * sufficient for all simple (ie. non-schema) attribute implementations
  * of this interface.
  *
- * @version $Id: AttributeTypeDefault.java,v 1.5 2002/07/11 16:44:08 loxnard Exp $
+ * @version $Id: AttributeTypeDefault.java,v 1.6 2002/07/11 16:45:07 loxnard Exp $
  * @author Rob Hranac, VFNY
  */
 public class AttributeTypeDefault implements AttributeType {
@@ -143,7 +143,7 @@ public class AttributeTypeDefault implements AttributeType {
         StringBuffer returnString = new StringBuffer("position:" + this.position + ". ");
         returnString.append(this.name);
         returnString.append(" [type:" + this.type + "]");
-        returnString.append(" - occurences:" + this.occurrences);
+        returnString.append(" - occurrences:" + this.occurrences);
         return returnString.toString();
     }
 }
