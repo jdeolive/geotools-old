@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: FilterFilter.java,v 1.20 2003/06/06 18:54:13 cholmesny Exp $
+ * @version $Id: FilterFilter.java,v 1.21 2003/07/02 15:20:25 cholmesny Exp $
  */
 public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     /** The logger for the filter module. */
@@ -368,6 +368,8 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
             return AbstractFilter.GEOMETRY_EQUALS;
         } else if (filterType.equals("Disjoint")) {
             return AbstractFilter.GEOMETRY_DISJOINT;
+        } else if (filterType.equals("DWithin")) {
+            return AbstractFilter.GEOMETRY_DWITHIN;
         } else if (filterType.equals("Intersects")) {
             return AbstractFilter.GEOMETRY_INTERSECTS;
         } else if (filterType.equals("Touches")) {
