@@ -48,7 +48,7 @@ import org.geotools.io.coverage.*;
 /**
  * Performs all tests for the Grid Coverage Services implementation.
  *
- * @version $Id: GCS_Suite.java,v 1.9 2003/05/01 22:57:22 desruisseaux Exp $
+ * @version $Id: GCS_Suite.java,v 1.10 2003/05/12 21:29:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GCS_Suite extends TestCase {
@@ -71,6 +71,7 @@ public class GCS_Suite extends TestCase {
      */
     public static Test suite() {
         final TestSuite suite = new TestSuite("All GCS tests");
+        suite.addTest(GridGeometryTest    .suite());
         suite.addTest(CategoryTest        .suite());
         suite.addTest(CategoryListTest    .suite());
         suite.addTest(SampleDimensionTest .suite());

@@ -60,7 +60,7 @@ import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
 import javax.media.jai.InterpolationNearest;
-import javax.media.jai.util.Range;
+import javax.media.jai.IntegerSequence;
 
 // Geotools (GCS) dependencies
 import org.geotools.cv.Category;
@@ -73,6 +73,7 @@ import org.geotools.cv.SampleDimension;
 import org.geotools.pt.Matrix;
 import org.geotools.pt.Envelope;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.FactoryException;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
@@ -81,6 +82,8 @@ import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CoordinateTransformationFactory;
 
 // Resources
+import org.geotools.util.NumberRange;
+import org.geotools.resources.JAIUtilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.ImageUtilities;
@@ -110,7 +113,7 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.14 2003/04/16 19:25:34 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.15 2003/05/12 21:29:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Resampler extends GridCoverage {
@@ -171,14 +174,15 @@ final class Resampler extends GridCoverage {
      *         This method will looks for {@link Hints#COORDINATE_TRANSFORMATION_FACTORY}
      *         and {@link Hints#JAI_INSTANCE} keys.
      * @return The new grid coverage, or <code>sourceCoverage</code> if no resampling was needed.
-     * @throws TransformException if the grid coverage can't be reprojected.
+     * @throws FactoryException is a transformation step can't be created.
+     * @throws TransformException if a transformation failed.
      */
     public static GridCoverage reproject(      GridCoverage sourceCoverage,
                                          final CoordinateSystem   targetCS,
                                                GridGeometry       targetGG,
                                          final Interpolation interpolation,
                                          final RenderingHints        hints)
-        throws TransformException
+        throws FactoryException, TransformException
     {
         /*
          * Gets the {@link JAI} instance to use from the rendering hints.
@@ -307,7 +311,7 @@ final class Resampler extends GridCoverage {
             }
             final MathTransform step2r;
             step2x = factory.createFromCoordinateSystems(sourceCS, targetCS).getMathTransform();
-            step2r = mtFactory.createSubMathTransform(0, 2, step2x);
+            step2r = getMathTransform2D(step2x, mtFactory);
             /*
              * Gets the source and target envelope. It is difficult to check if the first
              * two dimensions are really independent from other dimensions.   However, if
@@ -348,9 +352,14 @@ final class Resampler extends GridCoverage {
             }
             else if (!GCSUtilities.hasGridRange(targetGG)) {
                 final MathTransform step3x = targetGG.getGridToCoordinateSystem();
-                final GridRange  gridRange = GCSUtilities.toGridRange(CTSUtilities.transform(
-                                                          step3x.inverse(), targetEnvelope));
-                targetGG = new GridGeometry(gridRange, step3x);
+                final Envelope gridRange = CTSUtilities.transform(step3x.inverse(), targetEnvelope);
+                for (int i=gridRange.getDimension(); --i>=0;) {
+                    // According OpenGIS specification, GridGeometry maps pixel's center. But
+                    // the bounding box was for all pixels, not pixel's centers. Offset by
+                    // 0.5 (use +0.5 for maximum too, not -0.5, since maximum is exclusive).
+                    gridRange.setRange(i, gridRange.getMinimum(i)+0.5, gridRange.getMaximum(i)+0.5);
+                }
+                targetGG = new GridGeometry(GCSUtilities.toGridRange(gridRange), step3x);
             }
             step2 = step2r.inverse();
         }
@@ -387,31 +396,38 @@ final class Resampler extends GridCoverage {
                 xtr = mtFactory.createConcatenatedTransform(
                       mtFactory.createConcatenatedTransform(step1x, step2x), step3x);
             }
-            assert mtFactory.createSubMathTransform(0, 2, xtr).equals(transform) : xtr;
+            assert getMathTransform2D(xtr, mtFactory).equals(transform) : xtr;
             Envelope envelope = GCSUtilities.toEnvelope(sourceGG.getGridRange());
             envelope = CTSUtilities.transform(xtr.inverse(), envelope);
             targetGG = new GridGeometry(GCSUtilities.toGridRange(envelope), step1x);
         }
         /*
          * If the target coverage has not been created yet, change the image bounding box in
-         * order to matches the grid range. We are not supposed to modify existing coverages
-         * (they are immutable by design),   which is why we don't touch to the bounding box
-         * of an existing coverage. Furthermore, the only case where a coverage will already
-         * exists is when no grid range has been explicitely specified and a default grid range
-         * has been automatically computed (see the 'if (targetGG==null)' case above).
+         * order to matches the grid range. If the target coverage has already been created,
+         * just make sure that the image bounding box will stay constant even when we will
+         * change the "Null" operation into a "Warp" one later.
          */
-        if (targetCoverage == null) {
-            final GridRange gridRange = targetGG.getGridRange();
-            ImageLayout layout = (ImageLayout)targetImage.getRenderingHint(JAI.KEY_IMAGE_LAYOUT);
+        if (true) {
+            final GridRange gridRange =
+                (targetCoverage!=null ? targetCoverage.getGridGeometry() : targetGG).getGridRange();
+            int layoutMask = 0;
+            ImageLayout layout;
+            if (hints != null) {
+                layout = (ImageLayout)hints.get(JAI.KEY_IMAGE_LAYOUT);
+                if (layout != null) {
+                    layoutMask = layout.getValidMask();
+                }
+            }
+            layout = (ImageLayout)targetImage.getRenderingHint(JAI.KEY_IMAGE_LAYOUT);
             if (layout != null) {
                 layout = (ImageLayout) layout.clone();
             } else {
                 layout = new ImageLayout();
             }
-            if (0==(layout.getValidMask() & (ImageLayout.MIN_X_MASK |
-                                             ImageLayout.MIN_Y_MASK |
-                                             ImageLayout.WIDTH_MASK |
-                                             ImageLayout.HEIGHT_MASK)))
+            if (0==(layoutMask & (ImageLayout.MIN_X_MASK |
+                                  ImageLayout.MIN_Y_MASK |
+                                  ImageLayout.WIDTH_MASK |
+                                  ImageLayout.HEIGHT_MASK)))
             {
                 layout.setMinX  (gridRange.getLower (0));
                 layout.setMinY  (gridRange.getLower (1));
@@ -419,16 +435,19 @@ final class Resampler extends GridCoverage {
                 layout.setHeight(gridRange.getLength(1));
                 targetImage.setRenderingHint(JAI.KEY_IMAGE_LAYOUT, layout);
             }
-            // TODO: We should set that only if 'hints' didn't provides values for them.
-            //       We can't test layout.getValidMask() here, since those hints has been
-            //       set by ImageUtilities.getRenderingHints(sourceImage).
-            layout.setTileGridXOffset(layout.getMinX(targetImage));
-            layout.setTileGridYOffset(layout.getMinY(targetImage));
-            final int width  = layout.getWidth (targetImage);
-            final int height = layout.getHeight(targetImage);
-            if (layout.getTileWidth (targetImage) > width ) layout.setTileWidth (width);
-            if (layout.getTileHeight(targetImage) > height) layout.setTileHeight(height);
-            targetImage.setRenderingHint(JAI.KEY_IMAGE_LAYOUT, layout);
+            if (0==(layoutMask & (ImageLayout.TILE_WIDTH_MASK |
+                                  ImageLayout.TILE_HEIGHT_MASK |
+                                  ImageLayout.TILE_GRID_X_OFFSET_MASK |
+                                  ImageLayout.TILE_GRID_Y_OFFSET_MASK)))
+            {
+                layout.setTileGridXOffset(layout.getMinX(targetImage));
+                layout.setTileGridYOffset(layout.getMinY(targetImage));
+                final int width  = layout.getWidth (targetImage);
+                final int height = layout.getHeight(targetImage);
+                if (layout.getTileWidth (targetImage) > width ) layout.setTileWidth (width);
+                if (layout.getTileHeight(targetImage) > height) layout.setTileHeight(height);
+                targetImage.setRenderingHint(JAI.KEY_IMAGE_LAYOUT, layout);
+            }
         }
         /*
          * If the user request a new grid geometry with the same coordinate system, and if
@@ -463,9 +482,9 @@ final class Resampler extends GridCoverage {
         final SampleDimension[] sampleDimensions = sourceCoverage.getSampleDimensions();
         final double[] background = new double[sampleDimensions.length];
         for (int i=0; i<background.length; i++) {
-            final Range range = sampleDimensions[i].getBackground().getRange();
-            final double min = ((Number)range.getMinValue()).doubleValue();
-            final double max = ((Number)range.getMaxValue()).doubleValue();
+            final NumberRange range = sampleDimensions[i].getBackground().getRange();
+            final double min = range.getMinimum();
+            final double max = range.getMaximum();
             if (range.isMinIncluded()) {
                 background[i] = min;
             } else if (range.isMaxIncluded()) {
@@ -525,7 +544,7 @@ final class Resampler extends GridCoverage {
              * target grid coverage. The trick was to initialize the target image with a null
              * operation, and change the operation here.
              */
-            paramBlk.add(new WarpTransform((MathTransform2D) transform));
+            paramBlk.add(new WarpTransform(sourceCoverage.getName(null), (MathTransform2D)transform));
             paramBlk.add(interpolation).add(background);
             targetImage.setParameterBlock(paramBlk); // Must be invoked before setOperationName
             targetImage.setOperationName("Warp");
@@ -562,6 +581,7 @@ final class Resampler extends GridCoverage {
             }
         }
         /*
+         * Construct the final grid coverage.
          */
         if (targetCoverage == null) {
             targetCoverage = new Resampler(sourceCoverage, targetImage, targetCS, targetGG);
@@ -574,6 +594,31 @@ final class Resampler extends GridCoverage {
         assert targetCoverage.getGridGeometry().getGridRange().getSubGridRange(0,2).toRectangle()
                              .equals(targetImage.getBounds()) : targetGG;
         return targetCoverage;
+    }
+
+    /**
+     * Returns the math transform for the two first dimensions of the specified transform.
+     * This method is usefull for extracting the transformation caused by the head CS in
+     * a {@link org.geotools.cs.CompoundCoordinateSystem}, assuming that this head CS is
+     * a {@link org.geotools.cs.HorizontalCoordinateSystem}.
+     *
+     * @param  transform The transform.
+     * @param  mtFactory The factory to use for extracting the sub-transform.
+     * @return The {@link MathTransform2D} part of <code>transform</code>.
+     * @throws FactoryException if <code>transform</code> is not separable.
+     */
+    private static MathTransform2D getMathTransform2D(MathTransform transform,
+                                                final MathTransformFactory mtFactory)
+            throws FactoryException
+    {
+        final IntegerSequence  inputDimensions = JAIUtilities.createSequence(0, 1);
+        final IntegerSequence outputDimensions = new IntegerSequence();
+        transform = mtFactory.createSubTransform(transform, inputDimensions, outputDimensions);
+        if (JAIUtilities.containsAll(outputDimensions, 0, 2)) {
+            transform = mtFactory.createFilterTransform(transform, inputDimensions);
+            return (MathTransform2D) transform;
+        }
+        throw new FactoryException(Resources.format(ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
     }
     
     /**
@@ -594,7 +639,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.14 2003/04/16 19:25:34 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.15 2003/05/12 21:29:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {
@@ -646,6 +691,10 @@ final class Resampler extends GridCoverage {
             }
             try {
                 coverage = reproject(source, cs, gridGeom, interp, hints);
+            } catch (FactoryException exception) {
+                throw new CannotReprojectException(Resources.format(
+                        ResourceKeys.ERROR_CANT_REPROJECT_$1,
+                        source.getName(null)), exception);
             } catch (TransformException exception) {
                 throw new CannotReprojectException(Resources.format(
                         ResourceKeys.ERROR_CANT_REPROJECT_$1,

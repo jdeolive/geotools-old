@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  * (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -25,10 +25,6 @@
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
  *             Institut de Recherche pour le Développement / US-Espace
  *             mailto:seasnet@teledetection.fr
- *
- *     CANADA: Observatoire du Saint-Laurent
- *             Institut Maurice-Lamontagne
- *             mailto:osl@osl.gc.ca
  */
 package org.geotools.gc;
 
@@ -49,9 +45,9 @@ import junit.framework.TestSuite;
 
 
 /**
- * Test the {@link GridLocalization} implementation.
+ * Test the {@link LocalizationGrid} implementation.
  *
- * @version $Id: LocalizationGridTest.java,v 1.7 2003/04/12 00:04:38 desruisseaux Exp $
+ * @version $Id: LocalizationGridTest.java,v 1.8 2003/05/12 21:29:32 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */

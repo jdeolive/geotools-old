@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * (C) 2002, Geotools Project Managment Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -25,10 +25,6 @@
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
  *             Institut de Recherche pour le Développement / US-Espace
  *             mailto:seasnet@teledetection.fr
- *
- *     CANADA: Observatoire du Saint-Laurent
- *             Institut Maurice-Lamontagne
- *             mailto:osl@osl.gc.ca
  */
 package org.geotools.resources;
 
@@ -50,7 +46,7 @@ import org.geotools.gc.InvalidGridGeometryException;
  * A set of utilities methods for the Grid Coverage package. Those methods are not really
  * rigorous; must of them should be seen as temporary implementations.
  *
- * @version $Id: GCSUtilities.java,v 1.5 2003/05/01 22:57:22 desruisseaux Exp $
+ * @version $Id: GCSUtilities.java,v 1.6 2003/05/12 21:29:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GCSUtilities {
@@ -126,11 +122,11 @@ public final class GCSUtilities {
 
 
 
-    ///////////////////////////////////////////////////////////////////
-    ////////                                                   ////////
-    ////////    GridRange / SampleDimension / RenderedImage    ////////
-    ////////                                                   ////////
-    ///////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////
+    ////////                                                      ////////
+    ////////    GridCoverage / SampleDimension / RenderedImage    ////////
+    ////////                                                      ////////
+    //////////////////////////////////////////////////////////////////////
 
     /**
      * Returns <code>true</code> if at least one of the specified sample dimensions has a

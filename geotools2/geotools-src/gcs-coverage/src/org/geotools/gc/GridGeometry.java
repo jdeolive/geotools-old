@@ -50,6 +50,9 @@ import java.rmi.RemoteException;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
 
+// JAI dependencies
+import javax.media.jai.IntegerSequence;
+
 // OpenGIS dependencies
 import org.opengis.gc.GC_GridRange;
 import org.opengis.gc.GC_GridGeometry;
@@ -66,9 +69,11 @@ import org.geotools.ct.TransformException;
 import org.geotools.pt.MismatchedDimensionException;
 import org.geotools.cv.CannotEvaluateException;
 import org.geotools.ct.NoninvertibleTransformException;
+import org.geotools.cs.FactoryException;
 
 // Resources
 import org.geotools.resources.Utilities;
+import org.geotools.resources.JAIUtilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
@@ -78,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Describes the valid range of grid coordinates and the math
  * transform to transform grid coordinates to real world coordinates.
  *
- * @version $Id: GridGeometry.java,v 1.9 2003/04/29 18:28:49 desruisseaux Exp $
+ * @version $Id: GridGeometry.java,v 1.10 2003/05/12 21:29:31 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -148,8 +153,7 @@ public class GridGeometry implements Dimensioned, Serializable {
     public GridGeometry(final GridRange gridRange, final MathTransform gridToCoordinateSystem) {
         this.gridRange                  = gridRange;
         this.gridToCoordinateSystem     = gridToCoordinateSystem;
-        this.gridToCoordinateSystem2D   = (gridToCoordinateSystem instanceof MathTransform2D) ?
-                                          (MathTransform2D) gridToCoordinateSystem : null;
+        this.gridToCoordinateSystem2D   = getMathTransform2D(gridToCoordinateSystem);
         this.gridFromCoordinateSystem2D = inverse(gridToCoordinateSystem2D);
         if (gridRange!=null && gridToCoordinateSystem!=null) {
             final int dimRange  = gridRange.getDimension();
@@ -186,8 +190,7 @@ public class GridGeometry implements Dimensioned, Serializable {
     {
         this.gridRange = gridRange;
         /*
-         * Check arguments validity.
-         * Dimensions must match.
+         * Check arguments validity. Dimensions must match.
          */
         final int dimension = gridRange.getDimension();
         if (userRange.getDimension() != dimension) {
@@ -197,9 +200,8 @@ public class GridGeometry implements Dimensioned, Serializable {
             throw new MismatchedDimensionException(dimension, inverse.length);
         }
         /*
-         * Prepare elements for the 2D sub-transform.
-         * Those elements will be set during the matrix
-         * setup below.
+         * Prepare elements for the 2D sub-transform. Those
+         * elements will be set during the matrix setup below.
          */
         double scaleX = 1;
         double scaleY = 1;
@@ -306,17 +308,17 @@ public class GridGeometry implements Dimensioned, Serializable {
     }
 
     /**
-     * Returns the bounding box of "real world" coordinates in the range of this grid geometry.
-     * The envelope is the {@linkplain #getGridRange grid range} transformed to the "real world"
-     * coordinate system.
+     * Returns the bounding box of &quot;real world&quot; coordinates for this grid geometry. This
+     * envelope is the {@linkplain #getGridRange grid range} {@linkplain #getGridToCoordinateSystem
+     * transformed} to the &quot;real world&quot; coordinate system.
      *
-     * @return The bounding box of the "real world" coordinates.
+     * @return The bounding box in &quot;real world&quot; coordinates.
      * @throws InvalidGridGeometryException if the envelope can't be computed.
      *
      * @see #getGridRange
      * @see #getGridToCoordinateSystem
      */
-    final Envelope getEnvelope() throws InvalidGridGeometryException {
+    public Envelope getEnvelope() throws InvalidGridGeometryException {
         final int dimension = getDimension();
         final Envelope envelope = new Envelope(dimension);
         for (int i=0; i<dimension; i++) {
@@ -406,6 +408,37 @@ public class GridGeometry implements Dimensioned, Serializable {
         }
         throw new InvalidGridGeometryException(Resources.format(
                   ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
+    }
+
+    /**
+     * Returns the math transform for the two first dimensions of the specified transform.
+     * This method is usefull for extracting the transformation caused by the head CS in
+     * a {@link org.geotools.cs.CompoundCoordinateSystem}, assuming that this head CS is
+     * a {@link org.geotools.cs.HorizontalCoordinateSystem}.
+     *
+     * @param  transform The transform.
+     * @param  mtFactory The factory to use for extracting the sub-transform.
+     * @return The {@link MathTransform2D} part of <code>transform</code>, or <code>null</code>
+     *         if none.
+     */
+    private static MathTransform2D getMathTransform2D(MathTransform transform) {
+        if (transform==null || transform instanceof MathTransform2D) {
+            return (MathTransform2D) transform;
+        }
+        final MathTransformFactory factory = MathTransformFactory.getDefault();
+        final IntegerSequence  inputDimensions = JAIUtilities.createSequence(0, 1);
+        final IntegerSequence outputDimensions = new IntegerSequence();
+        try {
+            transform = factory.createSubTransform(transform, inputDimensions, outputDimensions);
+        } catch (FactoryException exception) {
+            // A MathTransform2D is not mandatory. Just tell that we have none.
+            return null;
+        }
+        if (JAIUtilities.containsAll(outputDimensions, 0, 2)) {
+            transform = factory.createFilterTransform(transform, inputDimensions);
+            return (MathTransform2D) transform;
+        }
+        return null;
     }
     
     /**

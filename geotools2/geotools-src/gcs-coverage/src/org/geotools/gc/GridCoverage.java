@@ -155,7 +155,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.19 2003/05/05 10:50:20 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.20 2003/05/12 21:29:31 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -604,7 +604,7 @@ public class GridCoverage extends Coverage {
          * Check sample dimensions. The number of SampleDimensions must matches the
          * number of image's bands (this is checked by GridSampleDimension.create).
          */
-        sampleDimensions = new SampleDimension[image.getSampleModel().getNumBands()];
+        sampleDimensions = new SampleDimension[image.getNumBands()];
         isGeophysics     = GridSampleDimension.create(name, image, sdBands, sampleDimensions);
         /*
          * Constructs the grid range and the envelope if they were not explicitly provided.
@@ -1362,7 +1362,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.19 2003/05/05 10:50:20 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.20 2003/05/12 21:29:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1391,7 +1391,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.19 2003/05/05 10:50:20 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.20 2003/05/12 21:29:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {
