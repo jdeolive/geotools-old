@@ -559,7 +559,6 @@ public class ShapefileDataStore extends AbstractDataStore {
                     throw new IOException("Unable to write : " + colType.getName());
                 }
             }
-            System.out.println("header " + header);
             return header;
         }
         
