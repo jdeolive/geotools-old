@@ -56,7 +56,7 @@ import org.geotools.filter.Filter;
  * </p>
  * 
  * @author Jody Garnett, Refractions Research, Inc
- * @version $Id: PostgisFeatureLocking.java,v 1.5 2003/11/22 00:20:54 jive Exp $
+ * @version $Id: PostgisFeatureLocking.java,v 1.6 2003/11/22 00:31:02 jive Exp $
  *
  */
 public class PostgisFeatureLocking extends PostgisFeatureStore implements FeatureLocking {
@@ -153,8 +153,10 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
         //
         // WILD HACK FOR SPEED
         //
-        boolean SPEED_HACK = false;         
-        if( SPEED_HACK && query.getPropertyNames() == Query.NO_NAMES && query.getFilter() instanceof FidFilter ){
+        boolean SPEED_HACK_ENABLED = true;         
+        if( SPEED_HACK_ENABLED &&
+            query.getPropertyNames() == Query.NO_NAMES &&
+            query.getFilter() instanceof FidFilter ){
             Transaction transaction = getTransaction();
             FidFilter fidFilter = (FidFilter) query.getFilter();
             String fids[] = fidFilter.getFids();
