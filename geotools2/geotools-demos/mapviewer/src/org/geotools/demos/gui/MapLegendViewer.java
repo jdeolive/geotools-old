@@ -27,6 +27,8 @@ import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.gui.swing.Legend;
 import org.geotools.gui.swing.StatusBar;
 import org.geotools.gui.swing.StyledMapPane2;
+import org.geotools.gui.swing.sldeditor.SLDEditor;
+import org.geotools.gui.swing.worker.BlockingSwingWorker;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.DefaultMapLayer;
 import org.geotools.map.MapContext;
@@ -48,6 +50,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 
@@ -100,12 +103,13 @@ import javax.swing.JToolBar;
  * </blockquote>
  *
  * @author Martin Desruisseaux
- * @version $Id: MapLegendViewer.java,v 1.1 2004/02/23 17:56:25 aaime Exp $
+ * @version $Id: MapLegendViewer.java,v 1.2 2004/02/27 14:10:55 aaime Exp $
  */
 public class MapLegendViewer extends JFrame {
     private MapContext context;
     private JFrame frame;
     private Legend legend;
+    private StyledMapPane2 mapPane;
 
     /**
      * Create and show the map pane.
@@ -116,7 +120,7 @@ public class MapLegendViewer extends JFrame {
         context = new DefaultMapContext();
 
         // Create the map pane and add a map scale layer to it.
-        final StyledMapPane2 mapPane = new StyledMapPane2();
+        mapPane = new StyledMapPane2();
         mapPane.setMapContext(context);
         mapPane.setPaintingWhileAdjusting(false);
         mapPane.getRenderer().addLayer(new RenderedMapScale());
@@ -133,6 +137,7 @@ public class MapLegendViewer extends JFrame {
         JButton btnMoveUp = new JButton("Move up");
         JButton btnMoveDown = new JButton("Move down");
         JButton btnHideShow = new JButton("Hide/Show");
+        final JToggleButton btnExpert = new JToggleButton("SLD Editors - Expert mode");
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.add(btnAddLayer);
@@ -140,6 +145,7 @@ public class MapLegendViewer extends JFrame {
         toolbar.add(btnMoveDown);
         toolbar.add(btnMoveUp);
         toolbar.add(btnHideShow);
+        toolbar.add(btnExpert);
 
         // layout the form
         JSplitPane splitPane = new JSplitPane();
@@ -175,6 +181,11 @@ public class MapLegendViewer extends JFrame {
         btnMoveDown.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     moveDownLayer();
+                }
+            });
+        btnExpert.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    SLDEditor.propertyEditorFactory.setInExpertMode(btnExpert.isSelected());
                 }
             });
 
@@ -233,9 +244,21 @@ public class MapLegendViewer extends JFrame {
             style = builder.createStyle(builder.createPolygonSymbolizer(Color.ORANGE, Color.BLACK, 1));
         }
 
-        MapLayer layer = new DefaultMapLayer(features, style);
+        final MapLayer layer = new DefaultMapLayer(features, style);
         layer.setTitle(name);
-        context.addLayer(layer);
+        
+        BlockingSwingWorker worker = new BlockingSwingWorker(this) {
+
+            protected void doNonUILogic() throws RuntimeException {
+                context.addLayer(layer);
+
+                if (context.getLayerCount() == 1) {
+                    mapPane.reset();
+                }                
+            }
+             
+        };
+        worker.start();
     }
 
     /**
@@ -263,10 +286,10 @@ public class MapLegendViewer extends JFrame {
 
             try {
                 addLayer(file.toURL(), file.getName());
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 JOptionPane.showMessageDialog(this, "An error occurred while loading the file",
                     "Map viewer", JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
+                t.printStackTrace();
             }
         }
     }
