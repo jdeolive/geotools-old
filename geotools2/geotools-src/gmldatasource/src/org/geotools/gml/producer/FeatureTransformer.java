@@ -40,6 +40,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import org.geotools.data.FeatureResults;
 import org.geotools.feature.FeatureType;
 import org.geotools.xml.transform.TransformerBase;
 import org.xml.sax.helpers.NamespaceSupport;
@@ -83,7 +84,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  * </pre>
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.9 2003/11/05 23:46:20 ianschneider Exp $
+ * @version $Id: FeatureTransformer.java,v 1.10 2003/11/06 00:03:44 ianschneider Exp $
  * @task TODO: Interior rings of polygons.
  * @task TODO: srs printed, multi namespaces, bbox.
  */
@@ -203,6 +204,10 @@ public class FeatureTransformer extends TransformerBase {
             }
         }
         
+        public void endFeatureCollection() {
+            end(fc);
+        }
+        
         /**
          * Prints up the gml for a featurecollection.
          *
@@ -211,7 +216,7 @@ public class FeatureTransformer extends TransformerBase {
         public void handleFeatureCollection(FeatureCollection collection) {
             
             startFeatureCollection();
-            writeBounds(collection);
+            writeBounds(collection.getBounds());
         }
         
         /**
@@ -221,12 +226,12 @@ public class FeatureTransformer extends TransformerBase {
          * @throws SAXException if it is thorwn while writing the element or
          * coordinates
          */
-        private void writeBounds(FeatureCollection fc) {
+        public void writeBounds(Envelope bounds) {
             try {
                 String boundedBy = geometryTranslator.getDefaultPrefix() + ":" + "boundedBy";
                 String box = geometryTranslator.getDefaultPrefix() + ":" + "Box";
                 contentHandler.startElement("", "", boundedBy, NULL_ATTS);
-                geometryTranslator.encode(fc.getBounds());
+                geometryTranslator.encode(bounds);
                 contentHandler.endElement("","", boundedBy);
             } catch (SAXException se) {
                 throw new RuntimeException(se);
@@ -239,7 +244,7 @@ public class FeatureTransformer extends TransformerBase {
          * @param fc DOCUMENT ME!
          */
         public void endFeatureCollection(FeatureCollection collection) {
-            end(fc);
+            endFeatureCollection();
         }
         
         /**
