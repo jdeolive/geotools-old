@@ -56,6 +56,259 @@
     how successful you are and we can include it here.</para>
   </section>
 
+  <section id="cvs">
+    <title>Code Versioning (using CVS with ssh)</title>
+
+    <para>To edit geotools files you will need to set up CVS and ssh on your
+    computer so that you can access the files stored on <ulink
+    url="http://sourceforge.net">http://sourceforge.net</ulink>. How to setup
+    ssh and cvs for use with Sourceforge is explained in the documents at:
+    <ulink url="https://sourceforge.net/docman/?group_id=1">https://sourceforge.net/docman/?group_id=1</ulink>
+    (search for <emphasis>ssh</emphasis> and <emphasis>cvs</emphasis>).</para>
+  </section>
+
+  <section id="netbeans">
+    <title>Netbeans</title>
+
+    <section id="netbeansoverview">
+      <title>Introduction</title>
+
+      <para><ulink url="http://www.netbeans.org">Netbeans</ulink> is a free
+      java IDE which also provides a framework for adding extra functionality.
+      Geotools2 is developed using the same modular structure as Netbeans and
+      we plan to integrate geotools into Netbeans. Sun have repackaged
+      Netbeans and called it <ulink
+      url="http://wwws.sun.com/software/sundev/jde/index.html">Sun ONE Studio</ulink>
+      (previously Forte for J).</para>
+    </section>
+
+    <section id="netbeansprerequisites">
+      <title>Prerequisites</title>
+
+      <para>Before setting up Netbeans for geotools development you need to:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Have ssh installed, and ssh key-value pairs set up so you do
+          not need a password to access sourceforge CVS repository. See <link
+          linkend="cvs">Code Versioning</link> for details.</para>
+        </listitem>
+
+        <listitem>
+          <para>Have CVS installed.</para>
+        </listitem>
+
+        <listitem>
+          <para>Have checked out the geotools2 CVS repository into a local
+          directory on your computer.</para>
+        </listitem>
+
+        <listitem>
+          <para>The geotools .jar files need to be created in the release
+          directory, which is done by running the ant or maven build scripts.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section id="netbeanscompileoptions">
+      <title>Compile Options</title>
+
+      <para>As <link linkend="java">mentioned</link>, geotools needs to be
+      compiled with a recent Java compiler. This is done from the following
+      windows:</para>
+
+      <para><command>Tools-&#62;Options-&#62;Building-&#62;Compiler Types</command><command>-&#62;External
+      Compilation</command></para>
+
+      <para>Set <command><command>Enable JDK 1.4 Source</command></command> to
+      &#34;True&#34;.</para>
+    </section>
+
+    <section id="netbeansmodules">
+      <title>Adding Modules</title>
+
+      <para>A few modules should be added to the standard Netbeans install to
+      help geotools development. For use installed from the Netbeans Update
+      center use:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Tools-&#62;Update Center</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>For other modules use:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Tools-&#62;Options-&#62;System-&#62;Modules (for Netbeans 3.3)</para>
+        </listitem>
+
+        <listitem>
+          <para>Tools-&#62;Options-&#62;IDE
+          Configuration-&#62;System-&#62;Modules (for Netbeans 3.4)</para>
+        </listitem>
+
+        <listitem>
+          <para>right click on <command><command>Modules</command></command></para>
+        </listitem>
+
+        <listitem>
+          <para>select <command>add-&#62;Module</command></para>
+        </listitem>
+
+        <listitem>
+          <para>select the relevant .jar file.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The following modules may be installed:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><filename>View over a Filesystem</filename> is a &#34;must
+          have&#34; module of Netbeans. It allows you to mount each module
+          within CVS and is almost essential for geotools development within
+          Netbeans. The default Netbeans only allows you to mount one source
+          directory but geotools has a source directory for each geotools
+          module.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>XML Editor</filename> is useful for editing and
+          validating documentation and Geographic Markup Language (GML) files.</para>
+        </listitem>
+
+        <listitem>
+          <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
+          is a Unified Modeling Language (UML) editor which we occasionally
+          use to explain ideas about design. You can get away without
+          installing this.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>RefactorIt</filename> is a useful module for
+          changing many classes at once, and provide a free licence for open
+          source projects like geotools. See <xref linkend="refactorit" /> for
+          more details. Installation instructions are in the download.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section id="netbeansmounting">
+      <title>Mounting Directories</title>
+
+      <variablelist>
+        <varlistentry>
+          <term>Geotools Repository</term>
+
+          <listitem>
+            <para>You will need to mount the geotools2 repository. In the
+            Explorer window, right click on Filesystems, select
+            <command>Mount-&#62;Version Control-&#62;CVS</command>. Select the
+            geotools2 directory that you have already booked out from CVS.
+            Don&#39;t worry about the relative mount point, it will be covered
+            by &#34;View over Filesystem&#34; below. You shouldn&#39;t need to
+            change the CVS and ssh parameters, they will have been picked up
+            correctly from when you booked geotools out from CVS manually.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>View over FileSystem</term>
+
+          <listitem>
+            <para>If you want to debug files using Netbeans, you will need to
+            mount the source module directories based on the root source
+            directory of that module. To do this, you will need to ensure the
+            &#34;View over FileSystem&#34; Netbeans module is installed.
+            Select all <filename>geotools2/geotools-src/&#60;module_name&#62;/src</filename>
+            directories in the Filesystem Explorer then select
+            <command>Tools-&#62;Mount As New Filesystem</command>. If you are
+            running any test or demonstration programs, you will probably also
+            need to mount their directory using the same method.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>External Jar files</term>
+
+          <listitem>
+            <para>External packages need to be mounted. In the Explorer
+            window, right click <command>FileSystems</command> and select
+            <command>Mount-&#62;Archive Files</command> <filename>geotools2/extbin/&#60;module&#62;/lib/*.jar</filename>.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>It is a good idea to update the Parser Database after mounting the
+      geotools directories. This enables filename auto-completion and &#34;go
+      to declaration&#34;.</para>
+    </section>
+
+    <section id="netbeansprojects">
+      <title>Using Projects</title>
+
+      <para>After mounting all the directories from the previous section, your
+      netbeans window explorer may be a bit crowded. You can create a
+      manageable view of your classes by creating a project.</para>
+
+      <para>Right click on your files or modules in the windows explorer, then
+      select <command>Tools-&#62;Add to Project</command>.</para>
+
+      <para>You can now view your files by selecting the <command>Project</command>
+      tab in the explorer.</para>
+    </section>
+  </section>
+
+  <section id="poseidon">
+    <title>Poseidon UML</title>
+
+    <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
+    is a Unified Modeling Language (UML) editor which is good for writing
+    class diagrams and generating stub classes during the design phase of
+    development.</para>
+
+    <para>Using Poseidon you can reverse engineer the Geotools2 code and view
+    class diagrams, javadocs and code using a powerful graphical interface. It
+    is a good way to quickly navigate through the Geotools2 design. Poseidon
+    can&#39;t revserse engineer too much of the code at once because it
+    sometimes runs out of memory, and sometimes freezes (which is possibly due
+    to running out of memory). Below is a few tips I used to import Geotools2
+    files into Poseidon.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>Increase Poseidon Memory Size</term>
+
+        <listitem>
+          <para>As explained in the <ulink
+          url="http://www.gentleware.de/support/faq.pl#e33">Poseidon FAQ</ulink>,
+          you can increase Poseidon memory by changing the parameter &#34;-Xmx
+          96m&#34; to &#34;-Xm192 m&#34; in the Poseidon startup script. This
+          changes memory allocation from 96Meg to 192Meg.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Import a few modules at a time</term>
+
+        <listitem>
+          <para>For some reason, the <filename>cts-transform</filename> module
+          has problems being imported with other modules. I imported the other
+          modules by copying <filename>geotools2/geotools-src</filename> to a
+          temporary directory, removed the <filename>geotools2/geotools-src/cts-transform</filename>
+          directory, then imported <filename>geotools2/geotools-src</filename>.
+          Afterwards, I imported <filename>geotools2/geotools-src/cts-transform</filename>
+          seperately.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>Poseidon can be installed into <emphasis>Netbeans</emphasis> as a
+    module. Refer to Poseidon download instructions for more details.</para>
+  </section>
+
   <section id="templates">
     <title>Template File</title>
 
@@ -92,7 +345,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.4 2003/01/05 19:23:28 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.5 2003/01/05 19:55:22 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -451,6 +704,38 @@ org.geotools.cts.level = INFO</programlisting>
         <para>Separate out the Code examples from the Configuration examples.</para>
       </listitem>
     </itemizedlist>
+  </section>
+
+  <section id="refactorit">
+    <title>RefactorIt</title>
+
+    <para><ulink url="http://www.refactorit.com/">RefactorIt</ulink> provides
+    tools to:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>research, probe and understand existing source code,</para>
+      </listitem>
+
+      <listitem>
+        <para>move, organise and transform existing code,</para>
+      </listitem>
+
+      <listitem>
+        <para>and provide code metrics.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>More details can be found from the online help.</para>
+
+    <para>RefactorIt is commercial, but provides free licences for Open Source
+    projects like Geotools. See the RefactorIt web pages for details. It can
+    be plugged into a variety of IDEs, including <filename>Netbeans</filename>.</para>
+
+    <para>Installation is fairly strait forward through <command>Tools -&#62;
+    RefactorIt -&#62; Project Options</command> in <filename>netbeans</filename>,
+    although setting up soucepath and classpath is a bit of a pain in the arse
+    if some of the geotools files don&#39;t compile.</para>
   </section>
 
   <section id="building">
@@ -949,7 +1234,7 @@ id=&#34;index&#34;&#62;
       <literal>&#60;xi:include&#62;</literal> tag into <filename>design.xml</filename>.</para>
 
       <para>Notice in the above example that <emphasis>&#60;section&#62;</emphasis>
-      tags contain an <emphasis>id</emphasis> tag. This means the URL of
+      tags contain an <emphasis>id</emphasis> attribute. This means the URL of
       sections will be human readable, something like <filename>http://geotools.org/gt2docs/design.html#licence</filename>
       instead of <filename>http://geotools.org/gt2docs/design.html#id2754172</filename>.</para>
     </section>
@@ -1163,288 +1448,5 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
         </listitem>
       </itemizedlist>
     </section>
-  </section>
-
-  <section id="cvs">
-    <title>Code Versioning (using CVS with ssh)</title>
-
-    <para>To edit geotools files you will need to set up CVS and ssh on your
-    computer so that you can access the files stored on <ulink
-    url="http://sourceforge.net">http://sourceforge.net</ulink>. How to setup
-    ssh and cvs for use with Sourceforge is explained in the documents at:
-    <ulink url="https://sourceforge.net/docman/?group_id=1">https://sourceforge.net/docman/?group_id=1</ulink>
-    (search for <emphasis>ssh</emphasis> and <emphasis>cvs</emphasis>).</para>
-  </section>
-
-  <section id="netbeans">
-    <title>Netbeans</title>
-
-    <section id="netbeansoverview">
-      <title>Introduction</title>
-
-      <para><ulink url="http://www.netbeans.org">Netbeans</ulink> is a free
-      java IDE which also provides a framework for adding extra functionality.
-      Geotools2 is developed using the same modular structure as Netbeans and
-      we plan to integrate geotools into Netbeans. Sun have repackaged
-      Netbeans and called it <ulink
-      url="http://wwws.sun.com/software/sundev/jde/index.html">Sun ONE Studio</ulink>
-      (previously Forte for J).</para>
-    </section>
-
-    <section id="netbeansprerequisites">
-      <title>Prerequisites</title>
-
-      <para>Before setting up Netbeans for geotools development you need to:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Have ssh installed, and ssh key-value pairs set up so you do
-          not need a password to access sourceforge CVS repository. See <link
-          linkend="cvs">Code Versioning</link> for details.</para>
-        </listitem>
-
-        <listitem>
-          <para>Have CVS installed.</para>
-        </listitem>
-
-        <listitem>
-          <para>Have checked out the geotools2 CVS repository into a local
-          directory on your computer.</para>
-        </listitem>
-
-        <listitem>
-          <para>The geotools .jar files need to be created in the release
-          directory, which is done by running the ant or maven build scripts.</para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section id="netbeanscompileoptions">
-      <title>Compile Options</title>
-
-      <para>As <link linkend="java">mentioned</link>, geotools needs to be
-      compiled with a recent Java compiler. This is done from the following
-      windows:</para>
-
-      <para><command>Tools-&#62;Options-&#62;Building-&#62;Compiler Types</command><command>-&#62;External
-      Compilation</command></para>
-
-      <para>Set <command><command>Enable JDK 1.4 Source</command></command> to
-      &#34;True&#34;.</para>
-    </section>
-
-    <section id="netbeansmodules">
-      <title>Adding Modules</title>
-
-      <para>A few modules should be added to the standard Netbeans install to
-      help geotools development. For use installed from the Netbeans Update
-      center use:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Tools-&#62;Update Center</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>For other modules use:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Tools-&#62;Options-&#62;System-&#62;Modules (for Netbeans 3.3)</para>
-        </listitem>
-
-        <listitem>
-          <para>Tools-&#62;Options-&#62;IDE
-          Configuration-&#62;System-&#62;Modules (for Netbeans 3.4)</para>
-        </listitem>
-
-        <listitem>
-          <para>right click on <command><command>Modules</command></command></para>
-        </listitem>
-
-        <listitem>
-          <para>select <command>add-&#62;Module</command></para>
-        </listitem>
-
-        <listitem>
-          <para>select the relevant .jar file.</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>The following modules may be installed:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para><filename>View over a Filesystem</filename> is a &#34;must
-          have&#34; module of Netbeans. It allows you to mount each module
-          within CVS and is almost essential for geotools development within
-          Netbeans. The default Netbeans only allows you to mount one source
-          directory but geotools has a source directory for each geotools
-          module.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>XML Editor</filename> is useful for editing and
-          validating documentation and Geographic Markup Language (GML) files.</para>
-        </listitem>
-
-        <listitem>
-          <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
-          is a Unified Modeling Language (UML) editor which we occasionally
-          use to explain ideas about design. You can get away without
-          installing this.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>RefactorIt</filename> is a useful module for
-          changing many classes at once, and provide a free licence for open
-          source projects like geotools. See <xref linkend="refactorit" /> for
-          more details. Installation instructions are in the download.</para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section id="netbeansmounting">
-      <title>Mounting Directories</title>
-
-      <variablelist>
-        <varlistentry>
-          <term>Geotools Repository</term>
-
-          <listitem>
-            <para>You will need to mount the geotools2 repository. In the
-            Explorer window, right click on Filesystems, select
-            <command>Mount-&#62;Version Control-&#62;CVS</command>. Select the
-            geotools2 directory that you have already booked out from CVS.
-            Don&#39;t worry about the relative mount point, it will be covered
-            by &#34;View over Filesystem&#34; below. You shouldn&#39;t need to
-            change the CVS and ssh parameters, they will have been picked up
-            correctly from when you booked geotools out from CVS manually.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>View over FileSystem</term>
-
-          <listitem>
-            <para>If you want to debug files using Netbeans, you will need to
-            mount the source module directories based on the root source
-            directory of that module. To do this, you will need to ensure the
-            &#34;View over FileSystem&#34; Netbeans module is installed.
-            Select all <filename>geotools2/geotools-src/&#60;module_name&#62;/src</filename>
-            directories in the Filesystem Explorer then select
-            <command>Tools-&#62;Mount As New Filesystem</command>. If you are
-            running any test or demonstration programs, you will probably also
-            need to mount their directory using the same method.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>External Jar files</term>
-
-          <listitem>
-            <para>External packages need to be mounted. In the Explorer
-            window, right click <command>FileSystems</command> and select
-            <command>Mount-&#62;Archive Files</command> <filename>geotools2/extbin/&#60;module&#62;/lib/*.jar</filename>.</para>
-          </listitem>
-        </varlistentry>
-      </variablelist>
-
-      <para>It is a good idea to update the Parser Database after mounting the
-      geotools directories. This enables filename auto-completion and &#34;go
-      to declaration&#34;.</para>
-    </section>
-
-    <section id="netbeansprojects">
-      <title>Using Projects</title>
-
-      <para>After mounting all the directories from the previous section, your
-      netbeans window explorer may be a bit crowded. You can create a
-      manageable view of your classes by creating a project.</para>
-
-      <para>Right click on your files or modules in the windows explorer, then
-      select <command>Tools-&#62;Add to Project</command>.</para>
-
-      <para>You can now view your files by selecting the <command>Project</command>
-      tab in the explorer.</para>
-    </section>
-  </section>
-
-  <section id="refactorit">
-    <title>RefactorIt</title>
-
-    <para><ulink url="http://www.refactorit.com/">RefactorIt</ulink> provides
-    tools to:</para>
-
-    <itemizedlist>
-      <listitem>
-        <para>research, probe and understand existing source code,</para>
-      </listitem>
-
-      <listitem>
-        <para>move, organise and transform existing code,</para>
-      </listitem>
-
-      <listitem>
-        <para>and provide code metrics.</para>
-      </listitem>
-    </itemizedlist>
-
-    <para>More details can be found from the online help.</para>
-
-    <para>RefactorIt is commercial, but provides free licences for Open Source
-    projects like Geotools. See the RefactorIt web pages for details. It can
-    be plugged into a variety of IDEs, including <filename>Netbeans</filename>.</para>
-
-    <para>Installation is fairly strait forward through <command>Tools -&#62;
-    RefactorIt -&#62; Project Options</command> in <filename>netbeans</filename>,
-    although setting up soucepath and classpath is a bit of a pain in the arse
-    if some of the geotools files don&#39;t compile.</para>
-  </section>
-
-  <section id="poseidon">
-    <title>Poseidon UML</title>
-
-    <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
-    is a Unified Modeling Language (UML) editor. Using Poseidon you can
-    reverse engineer the Geotools2 code and view class diagrams, javadocs and
-    code using a powerful graphical interface. It is a good way to quickly
-    navigate through the Geotools2 design.</para>
-
-    <para>Poseidon can&#39;t revserse engineer too much of the code at once
-    because it sometimes runs out of memory, and sometimes freezes (which is
-    possibly due to running out of memory). Below is a few tips I used to
-    import Geotools2 files into Poseidon.</para>
-
-    <variablelist>
-      <varlistentry>
-        <term>Increase Poseidon Memory Size</term>
-
-        <listitem>
-          <para>As explained in the <ulink
-          url="http://www.gentleware.de/support/faq.pl#e33">Poseidon FAQ</ulink>,
-          you can increase Poseidon memory by changing the parameter &#34;-Xmx
-          96m&#34; to &#34;-Xm192 m&#34; in the Poseidon startup script. This
-          changes memory allocation from 96Meg to 192Meg.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>Import a few modules at a time</term>
-
-        <listitem>
-          <para>For some reason, the <filename>cts-transform</filename> module
-          has problems being imported with other modules. I imported the other
-          modules by copying <filename>geotools2/geotools-src</filename> to a
-          temporary directory, removed the <filename>geotools2/geotools-src/cts-transform</filename>
-          directory, then imported <filename>geotools2/geotools-src</filename>.
-          Afterwards, I imported <filename>geotools2/geotools-src/cts-transform</filename>
-          seperately.</para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-
-    <para>Poseidon can be installed into <emphasis>Netbeans</emphasis> as a
-    module. Refer to Poseidon download instructions for more details.</para>
   </section>
 </section>
