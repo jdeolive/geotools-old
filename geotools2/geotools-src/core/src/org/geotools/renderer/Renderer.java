@@ -30,12 +30,20 @@ import com.vividsolutions.jts.geom.Envelope;
 /**
  * This is very much work in progress.
  *
- * @version $Id: Renderer.java,v 1.12 2002/06/04 15:19:33 loxnard Exp $
+ * @version $Id: Renderer.java,v 1.13 2002/06/24 10:40:37 ianturton Exp $
  * @author James Macgill
  */
 
 public interface Renderer {
 
+    /**
+     * Flag which determines if the renderer is interactive or not
+     * an interactive renderer will return rather than waiting for time consuming 
+     * opperations to complete (e.g. Image Loading)
+     * A non-interactive renderer (e.g. a SVG or PDF renderer) will block for these opperations
+     */
+     boolean interactive = true;
+    
     /**
      * Renders the provided features using the specified style.
      * The features should fill the viewport but may well extend beyond it.
@@ -50,5 +58,15 @@ public interface Renderer {
      */
     public void render(Feature f[], Envelope viewport, Style style);
 
+    /** Getter for property interactive.
+     * @return Value of property interactive.
+     */
+    public boolean isInteractive();
+    
+    /** Setter for property interactive.
+     * @param interactive New value of property interactive.
+     */
+    public void setInteractive(boolean interactive);
+    
 }
 

@@ -104,6 +104,7 @@ public class RenderStyleTest extends TestCase {
         frame.setSize(300,300);
         frame.setVisible(true);
         renderer.setOutput(p.getGraphics(),p.getBounds());
+        renderer.setInteractive(false);
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
         Thread.sleep(5000);
     }

@@ -29,21 +29,34 @@ public class ImageLoader implements Runnable{
     public ImageLoader() {
     }
     URL location;
-    private void add(URL location){
+    boolean waiting = true;
+    private void add(URL location, boolean interactive){
         this.location = location;
         Thread t = new Thread(this);
         t.start();
+        if(interactive){
+            return;
+        }else{
+            while(waiting){
+                try{
+                    Thread.sleep(500);
+                } catch (InterruptedException e){
+                }
+            }
+            return;
+        }
+            
     }
     
-    public BufferedImage get(URL location){
+    public BufferedImage get(URL location,boolean interactive){
         if(images.containsKey(location)){
             _log.debug("found it ");
             return (BufferedImage)images.get(location);
         }else{
             images.put(location,null);
             _log.debug("adding "+location);
-            add(location);
-            return null;
+            add(location,interactive);
+            return (BufferedImage)images.get(location);
         }
     }
     
@@ -56,27 +69,30 @@ public class ImageLoader implements Runnable{
             tracker.addImage(img,myID);
             
         } catch ( Exception e ) {
-            _log.error("Exception fetching image"+e);
+            _log.error("Exception fetching image from "+location+"\n"+e);
             images.remove(location);
+            waiting = false;
             return;
         }
-        _log.debug("IL ("+this+")-->Waiting ");
+        
         try{
             while((tracker.statusID(myID,true)&tracker.LOADING)!=0){
                 tracker.waitForID(myID,500);
+                
             }
         } catch (InterruptedException ie){
         }
+        
         int state=tracker.statusID(myID,true);
-        _log.debug("finished load status "+state);
-        if(state==tracker.COMPLETE)_log.debug("Il: Complete");
-        if(state==tracker.ABORTED)_log.debug("Il: ABORTED");
+        
+        
         if(state==tracker.ERRORED){
             _log.debug("Il: ERRORED");
             images.remove(location);
+            waiting = false;
             return;
         }
-        if(state==tracker.LOADING)_log.debug("Il: LOADING");
+        
         if((state&tracker.COMPLETE) == tracker.COMPLETE){
             
             int iw = img.getWidth(obs);
@@ -86,6 +102,7 @@ public class ImageLoader implements Runnable{
             big.drawImage(img,0,0,obs);
             images.put(location,bi);
         }
-        
+        waiting = false;
+        return;
     }
 }

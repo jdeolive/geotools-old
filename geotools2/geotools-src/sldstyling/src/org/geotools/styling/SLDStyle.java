@@ -4,7 +4,7 @@
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *    
+ *
  */
 
 package org.geotools.styling;
@@ -24,10 +24,10 @@ package org.geotools.styling;
  * A class to read and parse an SLD file based on verion 0.7.2 of
  * the OGC Styled Layer Descriptor Spec.
  *
- * @version $Id: SLDStyle.java,v 1.10 2002/06/18 11:20:11 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.11 2002/06/24 10:40:37 ianturton Exp $
  * @author Ian Turton, CCG
  *
-
+ *
  */
 
 import org.w3c.dom.*;
@@ -339,7 +339,7 @@ public class SLDStyle implements org.geotools.styling.Style {
         return symbol;
     }
     private Graphic parseGraphic(Node root){
-        _log.debug("processing graphic");
+        _log.debug("processing graphic "+root);
         DefaultGraphic graphic = new DefaultGraphic();
         
         NodeList children = root.getChildNodes();
@@ -373,6 +373,7 @@ public class SLDStyle implements org.geotools.styling.Style {
         return graphic;
     }
     private DefaultMark parseMark(Node root){
+        _log.debug("parsing mark");
         DefaultMark mark = new DefaultMark();
         NodeList children = root.getChildNodes();
         for(int i=0; i<children.getLength(); i++){
@@ -405,13 +406,24 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("OnLineResource")){
-                _log.debug("online resource child is "+child);
-                _log.debug("seting ExtGraph uri "+child.getFirstChild().getNodeValue());
-                extgraph.setURI(child.getFirstChild().getNodeValue());
+                Element param = (Element)child;
+                NamedNodeMap map =  param.getAttributes();
+                
+                _log.debug("attributes "+map.toString());
+                for(int k=0;k<map.getLength();k++){
+                    String res = map.item(k).getNodeValue();
+                    String name = map.item(k).getNodeName();
+                    _log.debug("processing attribute "+name+"="+res);
+                    // TODO: process the name space properly
+                    if(map.item(k).getNodeName().equalsIgnoreCase("xlink:href")){
+                        _log.debug("seting ExtGraph uri "+res);
+                        extgraph.setURI(res);
+                    }
+                }
             }
             if(child.getNodeName().equalsIgnoreCase("format")){
                 _log.debug("format child is "+child);
-                _log.debug("seting ExtGraph format "+child.getNodeValue());
+                _log.debug("seting ExtGraph format "+child.getFirstChild().getNodeValue());
                 extgraph.setFormat(child.getFirstChild().getNodeValue());
             }
         }
@@ -421,11 +433,11 @@ public class SLDStyle implements org.geotools.styling.Style {
         DefaultStroke stroke = new DefaultStroke();
         NodeList list = ((Element)root).getElementsByTagName("GraphicFill");
         if(list.getLength()>0){
-            //stroke.setGraphicFill(new DefaultGraphic(list.item(0).getNodeValue()));
+            //stroke.setGraphicFill(parseGraphic(list.item(0).getFirstChild()));
         }
         list = ((Element)root).getElementsByTagName("GraphicStroke");
         if(list.getLength()>0){
-            //stroke.setGraphicStroke(new DefaultGraphic(list.item(0).getNodeValue()));
+            //stroke.setGraphicStroke(parseGraphic(list.item(0).getFirstChild()));
         }
         list = ((Element)root).getElementsByTagName("CssParameter");
         for(int i=0;i<list.getLength();i++){
@@ -476,11 +488,24 @@ public class SLDStyle implements org.geotools.styling.Style {
         return stroke;
     }
     
-        private Fill parseFill(Node root){
+    private Fill parseFill(Node root){
+        _log.debug("parsing fill ");
         DefaultFill fill = new DefaultFill();
         NodeList list = ((Element)root).getElementsByTagName("GraphicFill");
         if(list.getLength()>0){
-            //fill.setGraphicFill(new DefaultGraphic(list.item(0).getNodeValue()));
+            _log.debug("fill found a graphic fill "+list.item(0));
+            NodeList kids = list.item(0).getChildNodes();
+            for(int i=0;i<kids.getLength();i++){
+                Node child = kids.item(i);
+                if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                    continue;
+                }
+                if(child.getNodeName().equalsIgnoreCase("Graphic")){
+                    Graphic g = parseGraphic(child);
+                    _log.debug("setting fill graphic with "+g);
+                    fill.setGraphicFill(g);
+                }
+            }
         }
         list = ((Element)root).getElementsByTagName("CssParameter");
         for(int i=0;i<list.getLength();i++){
@@ -506,6 +531,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 }
             }
         }
+        _log.debug("fill graphic "+fill.getGraphicFill());
         return fill;
         
     }
@@ -521,14 +547,14 @@ public class SLDStyle implements org.geotools.styling.Style {
             return parseExpression(child);
         }
         _log.debug("no children in CssParam");
-      
-            Element literal = dom.createElement("literal");
-            Node child = dom.createTextNode(root.getFirstChild().getNodeValue());
-            
-            
-            literal.appendChild(child);
-            _log.debug("Built new literal "+literal);
-            return parseExpression(literal);
+        
+        Element literal = dom.createElement("literal");
+        Node child = dom.createTextNode(root.getFirstChild().getNodeValue());
+        
+        
+        literal.appendChild(child);
+        _log.debug("Built new literal "+literal);
+        return parseExpression(literal);
     }
     
     private Expression parseExpression(Node root){
@@ -672,5 +698,5 @@ public class SLDStyle implements org.geotools.styling.Style {
         
         return null;
     }
-
+    
 }

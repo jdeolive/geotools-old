@@ -82,6 +82,7 @@ public class DefaultMarkTest extends TestCase {
         Panel p = new Panel();
         frame.add(p);
         frame.setSize(300,300);
+        frame.setLocation(300,0);
         frame.setVisible(true);
         renderer.setOutput(p.getGraphics(),p.getBounds());
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
