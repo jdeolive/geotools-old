@@ -57,7 +57,7 @@ public abstract class TransformerBase {
      * Create a Transformer which is initialized with the settings of this 
      * TransformerBase.
      */
-    protected Transformer createTransformer() throws TransformerException {
+    public Transformer createTransformer() throws TransformerException {
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer();
         
@@ -108,7 +108,7 @@ public abstract class TransformerBase {
     /**
      * Create an XMLReader to use in the transformation.
      */
-    protected XMLReader createXMLReader(Object object) {
+    public XMLReader createXMLReader(Object object) {
         return new XMLReaderSupport(this,object);
     }
     
