@@ -133,6 +133,17 @@ public class MySQLDataStore extends JDBCDataStore {
         return new MySQLFeatureWriter(fReader, writer, queryData);
     }
     
+    private String makeDeleteSql(Feature feature, FeatureTypeInfo ftInfo) {
+        String tableName = ftInfo.getFeatureTypeName();
+        String keyName = ftInfo.getFidColumnName();
+        String fid = feature.getID();
+        int split = fid.indexOf('.');
+        if(split != -1 && fid.substring(0, split).equals(tableName)) {
+            fid = fid.substring(split+1);
+        }
+        return "DELETE FROM " + tableName + " WHERE " + keyName + " = " + fid;
+    }
+    
     private String makeInsertSql(Feature feature, FeatureTypeInfo ftInfo) {
         String tableName = ftInfo.getFeatureTypeName();
         String attrValue;
@@ -413,6 +424,47 @@ public class MySQLDataStore extends JDBCDataStore {
                 }
 
                 throw ioe;
+            }
+        }
+        
+        public void remove() throws IOException {
+            if (queryData == null) {
+                throw new IOException("FeatureWriter has been closed");
+            }
+
+            if (current == null) {
+                throw new IOException("No feature available to remove");
+            }
+
+            if (live != null) {
+                Envelope bounds = live.getBounds();
+
+                Statement statement = null;
+                try {
+                    statement = queryData.getConnection().createStatement();
+                    String sql = makeDeleteSql(current, queryData.getFeatureTypeInfo());
+                    System.out.println("going to delete:");
+                    System.out.println(sql);
+                    statement.executeUpdate(sql);
+                    statement.close();
+                    
+                    live = null;
+                    current = null;
+
+                    listenerManager.fireFeaturesRemoved(queryData.getFeatureTypeInfo().getFeatureTypeName(), queryData.getTransaction(), bounds);
+                } catch (SQLException sqle) {
+                    String message = "problem deleting row";
+
+                    if (queryData.getTransaction() != Transaction.AUTO_COMMIT) {
+                        queryData.getTransaction().rollback();
+                        message += "(transaction canceled)";
+                    }
+
+                    throw new DataSourceException(message, sqle);
+                }
+            } else {
+                // cancel add new content
+                current = null;
             }
         }        
         
