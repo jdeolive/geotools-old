@@ -338,4 +338,23 @@ public class ArcGridDataSource extends AbstractDataSource {
             demColors = colors;
         }
     }
+    
+    public static final void main(String[] args) throws Exception {
+        ArcGridDataSource grid = new ArcGridDataSource(new java.io.File(args[0]).toURL());
+        org.geotools.feature.Feature g = grid.getFeatures().features().next();
+        org.geotools.gc.GridCoverage gc = (org.geotools.gc.GridCoverage) g.getAttribute("grid");
+        final java.awt.image.RenderedImage i = gc.getRenderedImage();
+        final java.awt.geom.AffineTransform a = new java.awt.geom.AffineTransform();
+        javax.swing.JPanel p = new javax.swing.JPanel() {
+            public void paint(java.awt.Graphics g) {
+                ((java.awt.Graphics2D)g).drawRenderedImage(i, a);
+            }
+        };
+        javax.swing.JFrame f = new javax.swing.JFrame();
+        f.setDefaultCloseOperation(f.EXIT_ON_CLOSE);
+        f.getContentPane().add(p);
+        f.setSize(i.getWidth(),i.getHeight());
+        f.setLocationRelativeTo(null);
+        f.show();
+    }
 }

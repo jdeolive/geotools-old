@@ -17,12 +17,6 @@
 package org.geotools.data.arcgrid;
 
 import org.geotools.data.DataSourceException;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferFloat;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -45,7 +39,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-//import javax.media.jai.DataBufferFloat;
+
 import javax.media.jai.RasterFactory;
 
 
@@ -326,7 +320,13 @@ public class ArcGridRaster {
      */
     public WritableRaster getRaster() throws IOException {
 
-        WritableRaster raster = RasterFactory.createBandedRaster(DataBuffer.TYPE_FLOAT,getNCols(),getNRows(),1,null);
+        WritableRaster raster = RasterFactory.createBandedRaster(
+            java.awt.image.DataBuffer.TYPE_FLOAT,
+            getNCols(),
+            getNRows(),
+            1,
+            null
+        );
         int type = 0;
         
         Reader reader = openReader();
@@ -426,6 +426,5 @@ public class ArcGridRaster {
         }
         
     }
-    
     
 }
