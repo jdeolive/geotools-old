@@ -38,6 +38,9 @@ public class ServiceTest extends TestCaseSupport {
     junit.textui.TestRunner.run(suite(ServiceTest.class));
   }
   
+  /**
+   * Make sure that the loading mechanism is working properly.
+   */
   public void testIsAvailable() {
     Iterator list = DataStoreFinder.getAvailableDataStores();
     boolean found = false;
@@ -52,6 +55,9 @@ public class ServiceTest extends TestCaseSupport {
     assertTrue("ShapefileDataSourceFactory not registered", found);
   }
   
+  /**
+   * Ensure that we can create a DataStore using url OR string url.
+   */ 
   public void testShapefileDataStore() throws Exception{
     HashMap params = new HashMap();
     params.put("url", getTestResource(TEST_FILE));
