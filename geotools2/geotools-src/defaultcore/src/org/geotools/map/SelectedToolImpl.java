@@ -27,7 +27,7 @@ import org.geotools.map.events.SelectedToolListener;
 
 /**
  * The tool which will process mouse events on a MapPane.
- * @version $Id: SelectedToolImpl.java,v 1.2 2003/03/21 19:25:09 camerons Exp $
+ * @version $Id: SelectedToolImpl.java,v 1.3 2003/03/22 10:23:37 camerons Exp $
  * @author  Cameron Shorter
  */
 
@@ -47,7 +47,8 @@ public class SelectedToolImpl implements SelectedTool
     /** Classes to notify if the LayerList changes */
     private EventListenerList listenerList = new EventListenerList();
 
-    /** Creates a new instance of SelectedTool.
+    /**
+     * Creates a new instance of SelectedTool.
      * @param tool The selected tool.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */

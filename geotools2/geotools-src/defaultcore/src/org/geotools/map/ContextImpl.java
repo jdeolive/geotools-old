@@ -23,7 +23,7 @@ package org.geotools.map;
  * Store context information about a map display.  This object is based on the
  * OGC Web Map Context Specification.
  *
- * @version $Id: ContextImpl.java,v 1.2 2003/03/05 09:33:06 camerons Exp $
+ * @version $Id: ContextImpl.java,v 1.3 2003/03/22 10:23:37 camerons Exp $
  * @author Cameron Shorter
  */
 
@@ -46,9 +46,17 @@ public class ContextImpl implements Context {
     /**
      * Initialise the context.
      * @param bbox The extent associated with this class.
+     * @param layerList The list of layers associated with this context.
+     * @param title The name of this context.  Must be set.
+     * @param _abstract A description of this context.  Optional, set to
+     * null if none exists.
+     * @param keywords An array of keywords to be used when searching for
+     * this context.  Optional, set to null if none exists.
+     * @param contactInformation Contact details for the person who created
+     * this context.  Optional, set to null if none exists.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public ContextImpl(
+    protected ContextImpl(
         BoundingBox bbox,
         LayerList layerList,
         String title,

@@ -28,7 +28,7 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: BoundingBoxImpl.java,v 1.6 2003/03/18 20:21:13 camerons Exp $
+ * @version $Id: BoundingBoxImpl.java,v 1.7 2003/03/22 10:23:37 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT Probably should use CoordinatePoint or Point2D to store
  * points instead of using Envelope.  Also worth waiting to see what interface
@@ -50,7 +50,6 @@ import org.geotools.ct.TransformException;
 import org.geotools.ct.Adapters;
 import org.geotools.pt.CoordinatePoint;
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.map.BoundingBox;
 import org.geotools.map.events.*;
 import org.opengis.cs.CS_CoordinateSystem;
 import org.opengis.ct.CT_MathTransform;
@@ -66,10 +65,11 @@ public class BoundingBoxImpl implements BoundingBox{
     /**
      * Initialise the model.
      * @param bbox The extent associated with this class.
-     * @param coordinateSystem The coordinate system associated with this class.
+     * @param coordinateSystem The coordinate system associated with this
+     * class.
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    public BoundingBoxImpl(
+    protected BoundingBoxImpl(
         Envelope bbox,
         CS_CoordinateSystem coordinateSystem) throws IllegalArgumentException
     {

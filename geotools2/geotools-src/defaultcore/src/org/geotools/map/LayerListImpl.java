@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: LayerListImpl.java,v 1.1 2003/02/23 11:29:57 camerons Exp $
+ * @version $Id: LayerListImpl.java,v 1.2 2003/03/22 10:23:37 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -52,7 +52,7 @@ public class LayerListImpl implements LayerList {
     /**
      * Create a Layer Model without any layers.
      */
-    public LayerListImpl()
+    protected LayerListImpl()
     {
     }
 

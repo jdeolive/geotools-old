@@ -26,7 +26,7 @@ import org.geotools.feature.Feature;
 
 /**
  * Layer is an aggregation of both a FeatureCollection and Style.
- * @version $Id: LayerImpl.java,v 1.2 2003/03/08 07:40:00 camerons Exp $
+ * @version $Id: LayerImpl.java,v 1.3 2003/03/22 10:23:37 camerons Exp $
  * @author  Cameron Shorter
  * @task REVISIT: This class maybe should contain CoordinateSystem, which
  * could either be set externally, or derived from one of its features.
@@ -55,48 +55,45 @@ public class LayerImpl implements Layer {
      */
     private String title;
     
-    /** Creates a new instance of DefaultLayer.
+    /** Creates a Layer.
      * @param dataSource The dataSource to query in order to get features for
      * this layer.
      * @param style The style to use when rendering features associated with
-     * this layer.*/
-    public LayerImpl(
-            DataSource dataSource,
-            Style style
-            ) {
-        this.dataSource=dataSource;
-        this.style=style;
-        visability=true;
+     * this layer.
+     * @throws IllegalArgumentException if an argument is <code>null</code>.
+     */
+    protected LayerImpl(
+        DataSource dataSource,
+        Style style) throws IllegalArgumentException
+    {
+        if ((style==null)||(dataSource==null)){
+            throw new IllegalArgumentException();
+        }else
+        {
+            this.dataSource=dataSource;
+            this.style=style;
+            visability=true;
+        }
     }
 
     /**
-     * Get the dataSource for this layer.  If dataSource has not
-     * been set yet, then null is returned.
+     * Get the dataSource for this layer.
      */
     public DataSource getDataSource() {
-        if (dataSource==null){
-            return null;
-        }else{
-            return dataSource;
-        }
+        return dataSource;
     }
     
     /**
-     * Get the style for this layer.  If style has not been set, then null is
-     * returned.
+     * Get the style for this layer.
      * @return The style (SLD).
      */
     public Style getStyle() {
-        if (style==null){
-            return null;
-        }else{
-            return style;
-        }
+        return style;
     }
     
     /**
-     * Specify whether this layer is visable on a MapPane or whether the layer
-     * is hidden.  Visibility defaults to TRUE on initialisation.
+     * Specify whether this layer is visable on a MapPane or whether the
+     * layer is hidden.  Visibility defaults to TRUE on initialisation.
      * @param visable Set the layer visable if TRUE.
      */
     public void setVisability(boolean visability) {
