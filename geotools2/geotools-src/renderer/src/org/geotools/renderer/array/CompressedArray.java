@@ -55,7 +55,7 @@ import org.geotools.renderer.geom.CompressionLevel;
  *             work providing that each points are approximatively equidistant. The current
  *             {@link org.geotools.renderer.geom.Polyline#setResolution} method ensure exactly that.
  *
- * @version $Id: CompressedArray.java,v 1.6 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: CompressedArray.java,v 1.7 2003/06/02 21:54:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CompressedArray extends PointArray {
@@ -77,8 +77,8 @@ class CompressedArray extends PointArray {
      * Les coordonnées du "vrai" premier point seront obtenues par:
      *
      * <pre>
-     *     x = x0 + array[0]*scaleX;
-     *     y = y0 + array[1]*scaleY;
+     *     x = x0 + array[lower+0]*scaleX;
+     *     y = y0 + array[lower+1]*scaleY;
      * </pre>
      */
     protected final float x0, y0;
@@ -137,10 +137,10 @@ class CompressedArray extends PointArray {
          * Calcule les plus grands écarts de longitude (<var>dx</var>)
          * et de latitude (<var>dy</var>) entre deux points.
          */
-        float dxMin=Float.POSITIVE_INFINITY;
-        float dxMax=Float.NEGATIVE_INFINITY;
-        float dyMin=Float.POSITIVE_INFINITY;
-        float dyMax=Float.NEGATIVE_INFINITY;
+        float dxMin = Float.POSITIVE_INFINITY;
+        float dxMax = Float.NEGATIVE_INFINITY;
+        float dyMin = Float.POSITIVE_INFINITY;
+        float dyMax = Float.NEGATIVE_INFINITY;
         for (int i=lower+2; i<upper; i++) {
             float delta;
             delta = coord[i]-coord[i-2];
@@ -154,8 +154,8 @@ class CompressedArray extends PointArray {
         /*
          * Construit le tableau de coordonnées compressées.
          */
-        this.x0    = coord[lower+0];
-        this.y0    = coord[lower+1];
+        this.x0 = coord[lower+0];
+        this.y0 = coord[lower+1];
         byte[] array = new byte[upper-lower];
         int reduceXMin = 0;
         int reduceXMax = 0;
@@ -238,8 +238,8 @@ class CompressedArray extends PointArray {
      */
     public final Point2D getFirstPoint(final Point2D point) {
         final int lower = lower();
-        final float x = x0+scaleX*array[lower+0];
-        final float y = y0+scaleY*array[lower+1];
+        final float x = x0 + scaleX*array[lower+0];
+        final float y = y0 + scaleY*array[lower+1];
         if (point != null) {
             point.setLocation(x,y);
             return point;
@@ -258,13 +258,13 @@ class CompressedArray extends PointArray {
     public final Point2D getLastPoint(final Point2D point) {
         int dx=0;
         int dy=0;
-        final int upper=upper();
+        final int upper = upper();
         for (int i=lower(); i<upper;) {
             dx += array[i++];
             dy += array[i++];
         }
-        final float x = x0+scaleX*dx;
-        final float y = y0+scaleY*dy;
+        final float x = x0 + scaleX*dx;
+        final float y = y0 + scaleY*dy;
         if (point != null) {
             point.setLocation(x,y);
             return point;
@@ -377,15 +377,10 @@ class CompressedArray extends PointArray {
                 copy[dst++] = x0 + scaleX*dxi;
                 copy[dst++] = y0 + scaleY*dyi;
             }
-        } else if (lower < upper) {
-            if (copy.length <= dst) {
-                dest.array = copy = XArray.resize(copy, capacity(lower, dst, offset));
-            }
-            copy[dst++] = x0;
-            copy[dst++] = y0;
-            float lastX = 0;
-            float lastY = 0;
-            int src = lower + 2;
+        } else {
+            float lastX = Float.NEGATIVE_INFINITY;
+            float lastY = Float.NEGATIVE_INFINITY;
+            int src = lower;
             while (src < upper) {
                 dxi += array[src++];
                 dyi += array[src++];
