@@ -82,7 +82,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.7 2003/07/17 07:09:55 ianschneider Exp $
+ * @version $Id: LiteRenderer.java,v 1.8 2003/07/17 17:07:47 cholmesny Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -299,15 +299,17 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     continue;
                 }
 
-                FeatureCollection fc = new FeatureCollectionDefault(layer.getDataSource());
+                FeatureCollection fc = layer.getFeatures();
 
                 try {
-                    Feature[] features = fc.getFeatures(new EnvelopeExtent(
-                                this.context.getBbox().getAreaOfInterest()));
+		    //TODO: don't use feature array, use fc directly, see
+		    //Java2dRenderer.
+                    Feature[] features = (Feature [])fc.toArray(new Feature[fc.size()]);
+								
                     mapExtent = this.context.getBbox().getAreaOfInterest();
 
                     if (LOGGER.isLoggable(Level.FINE)) {
-                        LOGGER.fine("renderering " + features.length +
+                        LOGGER.fine("renderering " + fc.size() +
                             " features");
                     }
 
@@ -536,7 +538,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                         Filter filter = rules[k].getFilter();
                         Symbolizer[] symbolizers = rules[k].getSymbolizers();
 
-                        String typeName = feature.getSchema().getTypeName();
+                        String typeName = feature.getFeatureType().getTypeName();
 
                         if (((typeName != null) &&
                                 typeName.equalsIgnoreCase(
@@ -1872,14 +1874,14 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     private void renderRaster(Feature feature, RasterSymbolizer symbolizer) {
-        try {
+        //try {
             GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
             GridCoverageRenderer gcr = new GridCoverageRenderer(grid);
             gcr.paint(graphics);
             LOGGER.finest("Raster rendered");
-        } catch (IllegalFeatureException ife) {
-            LOGGER.severe("No grid in feature " + ife.getMessage());
-        }
+	    //} catch (IllegalAttributeException ife) {
+            //LOGGER.severe("No grid in feature " + ife.getMessage());
+	    //}
     }
 
     /**
@@ -1911,16 +1913,16 @@ public class LiteRenderer implements Renderer, Renderer2D {
         if (geomName == null) {
             geom = feature.getDefaultGeometry();
         } else {
-            try {
+            //try {
                 geom = (Geometry) feature.getAttribute(geomName);
-            } catch (IllegalFeatureException ife) {
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("Geometry " + geomName + " not found " + ife);
-                }
+		//} catch (IllegalAttributeException ife) {
+                //if (LOGGER.isLoggable(Level.FINEST)) {
+		//  LOGGER.finest("Geometry " + geomName + " not found " + ife);
+                //}
 
                 //hack: not sure if null is the right thing to return at this point
-                geom = null;
-            }
+                //geom = null;
+		//}
         }
 
         return geom;
