@@ -61,6 +61,7 @@ import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.Projection;
 
 // Resources
+import org.geotools.units.Unit;
 import org.geotools.util.WeakHashSet;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
@@ -104,7 +105,7 @@ import org.geotools.resources.DescriptorNaming;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.9 2002/07/31 10:19:29 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.10 2002/10/08 13:38:14 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -578,6 +579,26 @@ public class MathTransformFactory {
     }
 
     /**
+     * Returns the unit for the specified parameter.
+     * This method returns one of the following:
+     * <ul>
+     *   <li>If the specified parameter is a linear measure, then this method returns
+     *       {@link Unit#METRE}. Other linear units are not authorized.</li>
+     *   <li>If the specified parameter is an angular measure, then this method returns
+     *       {@link Unit#DEGREE}. Other angular units are not authorized.</li>
+     *   <li>Otherwise, this method may returns {@link Unit#DIMENSIONLESS} or
+     *       <code>null</code>.</li>
+     * </ul>
+     *
+     * @param  name The parameter name (e.g. <code>"false_easting"</code>
+     *         or <code>"central_meridian"</code>).
+     * @return The parameter unit, or <code>null</code>.
+     */
+    public Unit getParameterUnit(final String parameter) {
+        return DescriptorNaming.getParameterUnit(parameter);
+    }
+
+    /**
      * Returns an OpenGIS interface for this info.
      * This method first looks in the cache. If no
      * interface was previously cached, then this
@@ -619,7 +640,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.9 2002/07/31 10:19:29 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.10 2002/10/08 13:38:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {
@@ -702,7 +723,8 @@ public class MathTransformFactory {
         public boolean isParameterAngular(final String parameterName)
             throws RemoteException
         {
-            throw new UnsupportedOperationException("Not yet implemented");
+            final Unit unit = getParameterUnit(parameterName);
+            return (unit!=null) && Unit.DEGREE.canConvert(unit);
         }
         
         /**
@@ -711,7 +733,8 @@ public class MathTransformFactory {
         public boolean isParameterLinear(final String parameterName)
             throws RemoteException
         {
-            throw new UnsupportedOperationException("Not yet implemented");
+            final Unit unit = getParameterUnit(parameterName);
+            return (unit!=null) && Unit.METRE.canConvert(unit);
         }
     }
 }

@@ -53,13 +53,14 @@ import org.geotools.resources.WKTFormat;
 import org.geotools.resources.WKTElement;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
+import org.geotools.resources.DescriptorNaming;
 
 
 /**
  * Parser for <cite>Well Know Text</cite> (WKT).
  * Instances of this class are thread-safe.
  *
- * @version $Id: WKTParser.java,v 1.4 2002/09/04 15:09:45 desruisseaux Exp $
+ * @version $Id: WKTParser.java,v 1.5 2002/10/08 13:38:14 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -262,10 +263,11 @@ final class WKTParser extends WKTFormat {
      *
      * @param  parent The parent element.
      * @param  ellipsoid The ellipsoid, or <code>null</code> if none.
+     * @param  unit The linear unit of the parent PROJCS element, or <code>null</code> if none.
      * @return The "PROJECTION" element as a {@link Projection} object.
      * @throws ParseException if the "PROJECTION" element can't be parsed.
      */
-    private Projection parseProjection(final WKTElement parent, final Ellipsoid ellipsoid)
+    private Projection parseProjection(final WKTElement parent, final Ellipsoid ellipsoid, final Unit unit)
         throws ParseException
     {                
         final WKTElement element = parent.pullElement("PROJECTION");
@@ -279,8 +281,12 @@ final class WKTParser extends WKTFormat {
         final ParameterList parameters = factory.createProjectionParameterList(classname);
         WKTElement param;
         while ((param=parent.pullOptionalElement("PARAMETER")) != null) {
-            final String paramName  = param.pullString("name");
-            final double paramValue = param.pullDouble("value");
+            String paramName  = param.pullString("name");
+            double paramValue = param.pullDouble("value");
+            Unit   paramUnit  = DescriptorNaming.getParameterUnit(paramName);
+            if (unit!=null && paramUnit!=null && paramUnit.canConvert(unit)) {
+                paramValue = paramUnit.convert(paramValue, unit);
+            }
             parameters.setParameter(paramName, paramValue);
         }
         if (ellipsoid != null) {
@@ -538,8 +544,9 @@ final class WKTParser extends WKTFormat {
         WKTElement             element = parent.pullElement("PROJCS");
         CharSequence              name = element.pullString("name");
         GeographicCoordinateSystem gcs = parseGeoGCS(element);
-        Projection          projection = parseProjection(element, gcs.getHorizontalDatum().getEllipsoid());
+        Ellipsoid            ellipsoid = gcs.getHorizontalDatum().getEllipsoid();
         Unit                      unit = parseUnit(element, Unit.METRE);
+        Projection          projection = parseProjection(element, ellipsoid, unit);
         AxisInfo                 axis0 = parseAxis(element, false);
         AxisInfo                 axis1;
         if (axis0 != null) {

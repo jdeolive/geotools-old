@@ -59,7 +59,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <p align="center"><code>{@link #base}<sup>a&nbsp;+&nbsp;b*x</sup> =
  * {@link #base}<sup>a</sup>*({@link #base}<sup>b</sup>)<sup>x</sup></code></p>
  *
- * @version $Id: ExponentialTransform1D.java,v 1.3 2002/07/18 09:19:49 desruisseaux Exp $
+ * @version $Id: ExponentialTransform1D.java,v 1.4 2002/10/08 13:38:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see LogarithmicTransform1D
@@ -320,7 +320,7 @@ final class ExponentialTransform1D extends AbstractMathTransform implements Math
     /**
      * The provider for {@link ExponentialTransform1D} and {@link LogarithmicTransform1D}.
      *
-     * @version $Id: ExponentialTransform1D.java,v 1.3 2002/07/18 09:19:49 desruisseaux Exp $
+     * @version $Id: ExponentialTransform1D.java,v 1.4 2002/10/08 13:38:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
@@ -364,8 +364,8 @@ final class ExponentialTransform1D extends AbstractMathTransform implements Math
          * @return A {@link MathTransform} object of this classification.
          */
         public MathTransform create(final ParameterList parameters) {
-            final double   base = parameters.getDoubleParameter("Base");
-            final int dimension = parameters.getIntParameter("Dimension");
+            final double   base = parameters.getDoubleParameter("base");
+            final int dimension = parameters.getIntParameter("dimension");
             if (dimension == 1) {
                 if (logarithm) {
                     return new LogarithmicTransform1D(base, 0);

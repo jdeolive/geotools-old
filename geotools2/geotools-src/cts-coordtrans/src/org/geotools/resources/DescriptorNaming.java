@@ -49,6 +49,7 @@ import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.util.CaselessStringKey;
 
 // Resources
+import org.geotools.units.Unit;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.rsc.Resources;
 import org.geotools.resources.rsc.ResourceKeys;
@@ -59,7 +60,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * {@link org.geotools.cs.Projection} using this class for binding classification
  * name to parameter list descriptors.
  *
- * @version 1.0
+ * @version $Id: DescriptorNaming.java,v 1.4 2002/10/08 13:38:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class DescriptorNaming {
@@ -69,6 +70,34 @@ public final class DescriptorNaming {
      */
     public static final DescriptorNaming PROJECTIONS = new DescriptorNaming(
                 "org.geotools.ct.MathTransformFactory", "org.geotools.cts");
+
+    /**
+     * The parameters using linear units.
+     * @see #getParameterUnit
+     */
+    private static final String[] METRES = {
+        "semi_major",
+        "semi_minor",
+        "false_easting",
+        "false_northing"
+    };
+
+    /**
+     * The parameters using angular units.
+     * @see #getParameterUnit
+     */
+    private static final String[] DEGREES = {
+        "central_meridian",
+        "latitude_of_origin"
+    };
+
+    /**
+     * The parameters using dimensionless units.
+     * @see #getParameterUnit
+     */
+    private static final String[] DIMENSIONLESS = {
+        "scale_factor"
+    };
 
     /**
      * Map classification name to {@link ParameterListDescriptor}
@@ -268,5 +297,40 @@ public final class DescriptorNaming {
             }
         }
         return true;
+    }
+
+    /**
+     * Returns <code>true</code> if the specified array contains
+     * the specified name. Comparaisons are case-insensitive.
+     */
+    private static boolean contains(final String[] array, final String name) {
+        for (int i=0; i<array.length; i++) {
+            if (name.equalsIgnoreCase(array[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the unit for the specified parameter.
+     * This method returns one of the following:
+     * <ul>
+     *   <li>If the specified parameter is a linear measure, then this method returns
+     *       {@link Unit#METRE}. Other linear units are not authorized.</li>
+     *   <li>If the specified parameter is an angular measure, then this method returns
+     *       {@link Unit#DEGREE}. Other angular units are not authorized.</li>
+     *   <li>Otherwise, this method may returns {@link Unit#DIMENSIONLESS} or
+     *       <code>null</code>.</li>
+     * </ul>
+     *
+     * @param  name The parameter name.
+     * @return The parameter unit, or <code>null</code>.
+     */
+    public static Unit getParameterUnit(final String name) {
+        if (contains(METRES,        name)) return Unit.METRE;
+        if (contains(DEGREES,       name)) return Unit.DEGREE;
+        if (contains(DIMENSIONLESS, name)) return Unit.DIMENSIONLESS;
+        return null;
     }
 }
