@@ -24,7 +24,7 @@ package org.geotools.styling;
  * A class to read and parse an SLD file based on verion 0.7.2 of
  * the OGC Styled Layer Descriptor Spec.
  *
- * @version $Id: SLDStyle.java,v 1.15 2002/07/03 16:42:14 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.16 2002/07/05 15:28:31 ianturton Exp $
  * @author Ian Turton, CCG
  *
  *
@@ -339,7 +339,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 symbol.setLabel(parseCssParameter(child));
             }
             if(child.getNodeName().equalsIgnoreCase("Font")){
-                symbol.setFont(parseFont(child));
+                symbol.addFont(parseFont(child));
             }
             if(child.getNodeName().equalsIgnoreCase("LabelPlacement")){
                 symbol.setLabelPlacement(parseLabelPlacement(child));
@@ -682,7 +682,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 dpp.setDisplacement(parseDisplacement(child));
             }
             if(child.getNodeName().equalsIgnoreCase("Rotation")){
-                dpp.setRotation(ExpressionXmlParser.parseExpression(child));
+                dpp.setRotation(parseCssParameter(child));
             }
         }
         return dpp;
@@ -699,7 +699,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("PerpendicularOffset")){
-                dlp.setPerpendicularOffset(ExpressionXmlParser.parseExpression(child));
+                dlp.setPerpendicularOffset(parseCssParameter(child));
             }
         }
         return dlp;
@@ -716,10 +716,10 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("AnchorPointX")){ 
-                dap.setAnchorPointX(ExpressionXmlParser.parseExpression(child));
+                dap.setAnchorPointX(parseCssParameter(child));
             }
             if(child.getNodeName().equalsIgnoreCase("AnchorPointY")){ 
-                dap.setAnchorPointY(ExpressionXmlParser.parseExpression(child));
+                dap.setAnchorPointY(parseCssParameter(child));
             }
         }
         return dap;
@@ -735,10 +735,10 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("DisplacementX")){ 
-                dd.setDisplacementX(ExpressionXmlParser.parseExpression(child));
+                dd.setDisplacementX(parseCssParameter(child));
             }
             if(child.getNodeName().equalsIgnoreCase("DisplacementY")){ 
-                dd.setDisplacementY(ExpressionXmlParser.parseExpression(child));
+                dd.setDisplacementY(parseCssParameter(child));
             }
         }
         return dd;
@@ -758,7 +758,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 halo.setFill((DefaultFill)parseFill(child));
             }
             if(child.getNodeName().equalsIgnoreCase("Radius")){ 
-                halo.setRadius(ExpressionXmlParser.parseExpression(child));
+                halo.setRadius(parseCssParameter(child));
             }
         }
         return halo;

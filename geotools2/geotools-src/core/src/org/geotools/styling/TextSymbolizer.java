@@ -29,7 +29,7 @@
 package org.geotools.styling;
 import org.geotools.filter.Expression;
 /**
- * $Id: TextSymbolizer.java,v 1.1 2002/07/03 13:35:21 ianturton Exp $
+ * $Id: TextSymbolizer.java,v 1.2 2002/07/05 15:28:31 ianturton Exp $
  * @author  iant
  */
 
@@ -42,7 +42,7 @@ public interface TextSymbolizer extends Symbolizer {
      * returns a device independent Font object that is tobe used to render the 
      * label
      */
-    public Font getFont();
+    public Font[] getFonts();
     /**
      * A pointPlacement specifies how a text element should be rendered relative
      * to its geometric point

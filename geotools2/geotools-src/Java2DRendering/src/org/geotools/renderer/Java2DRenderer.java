@@ -44,7 +44,7 @@ import java.awt.Shape;
 import java.awt.image.*;
 import java.awt.Image;
 import java.awt.RenderingHints;
-
+import java.awt.font.TextLayout;
 //util imports
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.36 2002/07/04 16:46:49 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.37 2002/07/05 15:28:31 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -461,30 +461,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 if(javaFont!=null) break;
             }
             LabelPlacement placement = symbolizer.getLabelPlacement();
-            Halo halo = symbolizer.getHalo();
-            if(halo!=null){
-                
-                float radius = ((Number)halo.getRadius().getValue(feature)).floatValue();
-                
-                applyFill(graphics,halo.getFill(),feature);
-                //drawText(graphics,feature,label,placement);
-                resetFill();
-            }
+            
             if(javaFont!=null){
                 graphics.setFont(javaFont);
             }
-            applyFill(graphics,symbolizer.getFill(),feature);
-            
-            drawText(graphics,feature,label,placement);
-            resetFill();
-            
-        }catch (org.geotools.filter.MalformedFilterException mfe){
-            _log.fatal("Malformed Filter exception:"+mfe);
-            return;
-        }
-    }
-    private void drawText(Graphics2D graphics, Feature feature, String label,LabelPlacement placement){
-        try{    
+
             AffineTransform temp = graphics.getTransform();
             AffineTransform labelAT = new AffineTransform();
             double x=0,y=0,rotation=0;
@@ -538,6 +519,29 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             
             //        markAT.scale(drawSize,drawSize);
             graphics.setTransform(labelAT);
+            Halo halo = symbolizer.getHalo();
+
+            if(halo!=null){
+                _log.debug("doing halo");
+                TextLayout tl =new TextLayout(label,graphics.getFont(),graphics.getFontRenderContext());
+                float sx = (float) tl.getBounds().getMinX();
+                float sy = (float) tl.getBounds().getMinY();
+                float sw = (float) tl.getBounds().getWidth();
+                float sh = (float) tl.getBounds().getHeight();
+                _log.debug("Halo "+sx+","+sy+" size "+sw+" "+sh);
+                /*
+                 * creates an outline shape from the TextLayout 
+                 */
+                AffineTransform at = new AffineTransform();
+                at.translate(x,y);
+                Shape sha = tl.getOutline(at);
+                applyFill(graphics,halo.getFill(),feature);
+                float radius = ((Number)halo.getRadius().getValue(feature)).floatValue();
+                Shape haloShape = new BasicStroke(2f*radius).createStrokedShape(sha);
+                graphics.fill(haloShape);
+                resetFill();
+            }
+            applyFill(graphics,symbolizer.getFill(),feature);
             // we move this to the centre of the image.
             _log.debug("about to draw at "+tx+","+ty);
             

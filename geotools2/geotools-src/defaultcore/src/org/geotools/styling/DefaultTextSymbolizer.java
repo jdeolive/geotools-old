@@ -7,13 +7,14 @@
 package org.geotools.styling;
 
 import org.geotools.filter.*;
+import java.util.ArrayList;
 /**
  *
  * @author  iant
  */
 public class DefaultTextSymbolizer implements TextSymbolizer {
     DefaultFill fill = new DefaultFill();
-    Font font = new DefaultFont();
+    ArrayList fonts = new ArrayList();
     Halo halo = new DefaultHalo();
     LabelPlacement labelPlacement = new DefaultPointPlacement();
     String geometryPropertyName = null;
@@ -60,14 +61,17 @@ public class DefaultTextSymbolizer implements TextSymbolizer {
      * returns a device independent Font object that is tobe used to render the
      * label
      */
-    public Font getFont() {
-        return font;
+    public Font[] getFonts() {
+        if(fonts.size()==0){
+            fonts.add(new DefaultFont());
+        }
+        return (Font[])fonts.toArray(new Font[]{});
     }
     /** Setter for property font.
      * @param font New value of property font.
      */
-    public void setFont(org.geotools.styling.Font font) {
-        this.font = font;
+    public void addFont(org.geotools.styling.Font font) {
+        this.fonts.add(font);
     }
     /** A halo fills an extended area outside the glyphs of a rendered text label
      * to make the label easier to read over a background.
