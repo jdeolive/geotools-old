@@ -23,6 +23,7 @@ import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceFactorySpi;
 import org.geotools.data.DataSourceFinder;
 import org.geotools.data.MemoryDataSource;
+import org.geotools.data.DataSourceMetaData;
 import org.geotools.data.postgis.*;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
@@ -154,15 +155,15 @@ public class GtWmsServer implements WMSServer {
                 }
 
                 Style style = new BasicPolygonStyle(); //bad
-                Envelope bbox = ds.getBbox(false);
-
-                if (bbox == null) {
-                    LOGGER.warning("Unable to obtain bounds for " + url);
+		DataSourceMetaData meta = ds.getMetaData();
+		
+		Envelope bbox = null;
+		if (!meta.supportsGetBbox()){
+		    LOGGER.warning("Unable to obtain bounds for " +url);
                     loop.remove();
-
                     continue;
-                }
-
+		}
+		bbox = ds.getBbox();
                 entry.bbox = new double[4];
                 entry.bbox[0] = bbox.getMinX();
                 entry.bbox[1] = bbox.getMinY();
