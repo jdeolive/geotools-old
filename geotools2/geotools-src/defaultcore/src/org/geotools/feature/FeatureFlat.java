@@ -32,7 +32,7 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.12 2002/07/25 16:59:51 ianturton Exp $
+ * @version $Id: FeatureFlat.java,v 1.13 2002/07/29 16:50:35 ianturton Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFlat implements Feature {
@@ -110,23 +110,24 @@ public class FeatureFlat implements Feature {
         boolean isValid = (n == attributes.length);
         //_log.debug("schema attributes: " + n);
         _log.debug("passed attributes: " + attributes.length);
-        _log.debug("is valid: " + isValid);
+        _log.debug("is right length: " + isValid);
 
         // Check to ensure that all attributes are valid
         for (int i = 0; i < n ; i++) {
             isValid =  schema.getAttributeType(i).getType().
                 isAssignableFrom(attributes[i].getClass()) &&
                 isValid;
-            //String existingType = schema.getAttributeType(i).getType();
-            //String targetType = attributes[i].getClass().getName();
-            //_log.debug("target type:" + attributes[i].toString());
-            //_log.debug("validity check:" + schema.getAttributeType(i).getName());
-            //_log.debug("existing type:" + existingType );
-            //_log.debug("target type:" + targetType );
-            //if( !(existingType.equals( targetType ) ) ) {
-            //  isValid = false;
-            //}
-            //_log.debug("is valid: " + isValid);
+            if(!isValid){
+
+                String existingType = schema.getAttributeType(i).getType().toString();
+                String targetType = attributes[i].getClass().getName();
+                _log.debug("target type:" + attributes[i].toString());
+                _log.debug("validity check:" + schema.getAttributeType(i).getName());
+                _log.debug("existing type:" + existingType );
+                _log.debug("target type:" + targetType );
+                throw new IllegalFeatureException("Attribute[" + i + "] is of wrong type.\n" +
+                 "expected " + existingType + " got " + targetType);
+            }
         }
 
         // Add if it is valid, otherwise throw an exception.
