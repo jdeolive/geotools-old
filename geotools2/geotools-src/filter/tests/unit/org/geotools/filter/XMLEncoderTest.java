@@ -47,7 +47,7 @@ import org.geotools.gml.GMLFilterDocument;
 public class XMLEncoderTest extends TestCase {
     
     /** Standard logging instance */
-    private static Logger _log = Logger.getLogger("fitler");
+    private static Logger _log = Logger.getLogger("filter");
     
     /** Feature on which to preform tests */
     private Filter filter = null;
@@ -66,6 +66,7 @@ public class XMLEncoderTest extends TestCase {
      * Constructor with test name.
      */
     String dataFolder = "";
+    boolean setup = false;
     public XMLEncoderTest(String testName) {
         super(testName);
         _log.info("running XMLEncoderTests");;
@@ -75,11 +76,7 @@ public class XMLEncoderTest extends TestCase {
             dataFolder = System.getProperty("basedir");
             dataFolder+="/tests/unit/testData";
         }
-        try{
-            featureSetUp();
-        } catch (Exception e){
-            _log.fatal("Exception building test feature ",e);
-        }
+        
     }
     
     /**
@@ -107,8 +104,9 @@ public class XMLEncoderTest extends TestCase {
      * @throws SchemaException If there is a problem setting up the schema.
      * @throws IllegalFeatureException If problem setting up the feature.
      */
-    protected void featureSetUp() throws SchemaException, IllegalFeatureException {
-        
+    protected void setUp() throws SchemaException, IllegalFeatureException {
+        if(setup) return;
+        setup=true;
         // Create the schema attributes
         _log.debug("creating flat feature...");
         AttributeType geometryAttribute =

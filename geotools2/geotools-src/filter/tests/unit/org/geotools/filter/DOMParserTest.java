@@ -66,6 +66,7 @@ public class DOMParserTest extends TestCase {
      * Constructor with test name.
      */
     String dataFolder = "";
+    boolean setup = false;
     public DOMParserTest(String testName) {
         super(testName);
         _log.info("running DOMParserTests");
@@ -76,11 +77,7 @@ public class DOMParserTest extends TestCase {
             dataFolder = System.getProperty("basedir");
             dataFolder+="/tests/unit/testData";
         }
-        try{
-            featureSetUp();
-        } catch (Exception e){
-            _log.fatal("Exception building test feature ",e);
-        }
+        
     }
     
     /**
@@ -96,7 +93,7 @@ public class DOMParserTest extends TestCase {
      */
     public static Test suite() {
         BasicConfigurator.configure();
-        _log.getLoggerRepository().setThreshold(Level.DEBUG);
+        _log.getLoggerRepository().setThreshold(Level.INFO);
         
         TestSuite suite = new TestSuite(DOMParserTest.class);
         return suite;
@@ -108,8 +105,10 @@ public class DOMParserTest extends TestCase {
      * @throws SchemaException If there is a problem setting up the schema.
      * @throws IllegalFeatureException If problem setting up the feature.
      */
-    protected void featureSetUp() throws SchemaException, IllegalFeatureException {
+    protected void setUp() throws SchemaException, IllegalFeatureException {
         
+        if(setup) return;
+        setup=true;
         // Create the schema attributes
         _log.debug("creating flat feature...");
         AttributeType geometryAttribute =

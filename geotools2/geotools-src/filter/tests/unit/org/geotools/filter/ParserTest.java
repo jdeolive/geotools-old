@@ -68,6 +68,7 @@ public class ParserTest extends TestCase implements FilterHandler {
      * Constructor with test name.
      */
     String dataFolder ="";
+    boolean setup=false;
     public ParserTest(String testName) {
         super(testName);
         _log.info("running parser tests");
@@ -77,11 +78,6 @@ public class ParserTest extends TestCase implements FilterHandler {
             //then we are being run by maven
             dataFolder = System.getProperty("basedir");
             dataFolder+="/tests/unit/testData";
-        }
-        try{
-            featureSetUp();
-        } catch (Exception e){
-            _log.fatal("Exception building test feature ",e);
         }
     }        
     
@@ -109,9 +105,11 @@ public class ParserTest extends TestCase implements FilterHandler {
      * @throws SchemaException If there is a problem setting up the schema.
      * @throws IllegalFeatureException If problem setting up the feature.
      */
-    protected void featureSetUp() 
+    protected void setUp() 
         throws SchemaException, IllegalFeatureException {
         
+        if(setup) return;
+        setup=true;
         // Create the schema attributes
         _log.debug("creating flat feature...");
         AttributeType geometryAttribute = 
