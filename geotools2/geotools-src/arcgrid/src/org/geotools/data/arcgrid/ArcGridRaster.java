@@ -17,6 +17,7 @@
 package org.geotools.data.arcgrid;
 
 import org.geotools.data.DataSourceException;
+import org.geotools.io.NIOBufferUtils;
 import java.awt.image.WritableRaster;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -39,6 +40,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 
 import javax.media.jai.RasterFactory;
 
@@ -398,14 +400,19 @@ public class ArcGridRaster {
         ByteBuffer map;
         CharBuffer chars;
         CharsetDecoder decoder = Charset.forName("US-ASCII").newDecoder();
+        FileChannel channel;
         public MemoryMappedReader(File f) throws IOException {
-            FileChannel channel = new FileInputStream(f).getChannel();
+            channel= new FileInputStream(f).getChannel();
             map = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
             chars = chars.allocate(16 * 1028);
             fill();
         }
         
         public void close() throws IOException {
+            if(channel != null)
+                channel.close();
+            NIOBufferUtils.clean(map);
+            channel = null;
             map = null;
         }
         
