@@ -14,28 +14,37 @@ public class PicklePerformanceTest {
     java.util.logging.Logger.getLogger("org.geotools.data.shapefile").setLevel(java.util.logging.Level.OFF);
     long[] times = new long[4];
     final int trials = 10;
+    Compiler.compileClass(PickleDataSource.class);
     for (int i = 0; i < trials; i++) {
+      System.gc();
       long time = System.currentTimeMillis();
       org.geotools.data.shapefile.ShapefileDataSource sds = new org.geotools.data.shapefile.ShapefileDataSource(url);
       FeatureCollection fc = sds.getFeatures();
       System.out.println("read shapefile");
+      if (i > 0)
       times[0] += (System.currentTimeMillis() - time);
       
+      System.gc();
       time = System.currentTimeMillis();
       sds = new org.geotools.data.shapefile.ShapefileDataSource(tmpShp);
       sds.setFeatures(fc);
       System.out.println("wrote shapefile");
+      if (i > 0)
       times[1] += (System.currentTimeMillis() - time);
       
+      System.gc();
       time = System.currentTimeMillis();
       PickleDataSource pds = new PickleDataSource(new File(tmpDir), "pickletest_deleteme");
       pds.setFeatures(fc);
       System.out.println("pickled");
+      if (i > 0)
       times[2] += (System.currentTimeMillis() - time);
       
+      System.gc();
       time = System.currentTimeMillis();
       fc = pds.getFeatures();
       System.out.println("unpickled");
+      if (i > 0)
       times[3] += (System.currentTimeMillis() - time);
       
       // uncomment to test serial access

@@ -49,18 +49,15 @@
   <build>
     <unitTest>
       <includes>
-        <include>**/*Test.java</include>
+        <include>**/*.java</include>
       </includes>
       <resources>
           <resource>
-              <directory>${basedir}/tests/unit</directory>
-              <includes>
-                  <include>**/data.zip</include>
-              </includes>
+              <directory>${basedir}/test/unit</directory>
           </resource>
       </resources>
     </unitTest>
-    </build>
+  </build>
     
 </project>
 
