@@ -49,6 +49,7 @@ import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.EventQueue;
 import java.awt.BasicStroke;
+import java.awt.GraphicsConfiguration;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
@@ -70,6 +71,7 @@ import org.geotools.ct.MathTransform;
 import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
+import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.XAffineTransform;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
@@ -85,7 +87,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.16 2003/03/14 22:00:43 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.17 2003/03/16 22:28:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -115,6 +117,15 @@ public abstract class RenderedLayer {
      * être nul.
      */
     private CoordinateSystem coordinateSystem = GeographicCoordinateSystem.WGS84;
+
+    /**
+     * The widget area (in screen coordinates) enqueued for painting, or <code>null</code> if no
+     * painting is in process. This field is set by the {@link Renderer} only when its {@link
+     * Renderer#paint} method is begining its work, and reset to <code>null</code> as soon as
+     * this layer has been painted. This information is used by {@link #repaint(Rectangle)} in
+     * order to avoid repainting twice the same area.
+     */
+    private transient Shape dirtyArea;
 
     /**
      * Forme géométrique englobant la région dans laquelle la couche a été dessinée lors du
@@ -459,6 +470,15 @@ public abstract class RenderedLayer {
     }
 
     /**
+     * Set the dirty area for all layers. This method is invoked by {@link Renderer#paint} only.
+     */
+    static void setDirtyArea(final RenderedLayer[] layers, int count, final Shape area) {
+        while (--count >= 0) {
+            layers[count].dirtyArea = area;
+        }
+    }
+
+    /**
      * Indique que cette couche a besoin d'être redéssinée. La couche ne sera pas redessinée
      * immediatement, mais seulement un peu plus tard. Cette méthode <code>repaint()</code>
      * peut être appelée à partir de n'importe quel thread (pas nécessairement celui de
@@ -476,6 +496,21 @@ public abstract class RenderedLayer {
      * @param bounds Coordonnées (en points) de la partie à redessiner.
      */
     final void repaint(final Rectangle bounds) {
+        /*
+         * Implementation note: this method copy references 'dirtyArea', 'renderer' and
+         * 'mapPane' in order to avoid the need for synchronization. According the Java
+         * language specification, copying 32 bits is always thread-safe.
+         */
+        final Shape dirtyArea = this.dirtyArea;
+        if (dirtyArea!=null && dirtyArea.contains(bounds!=null ? bounds : XRectangle2D.INFINITY)) {
+            /*
+             * If this layer is already scheduled for painting, do not enqueu an other 'paint'
+             * request. This slight optimization may occurs when this layer changed its state
+             * after the renderer started to paint but before the paint process reach this layer.
+             * This layer may have changed its state as a result of a "scale" event.
+             */
+            return;
+        }
         final Renderer renderer = this.renderer;
         if (renderer == null) {
             return;
@@ -589,8 +624,9 @@ public abstract class RenderedLayer {
                 }
                 context.getGraphics().setStroke(stroke);
                 context.paintedArea = null;
+                this.dirtyArea      = null;
                 paint(context);
-                this.paintedArea = context.paintedArea;
+                this.paintedArea    = context.paintedArea;
                 context.paintedArea = null;
             }
         }
@@ -731,13 +767,19 @@ public abstract class RenderedLayer {
      * <code>"visible"</code>, <code>"zOrder"</code>, <code>"preferredArea"</code>
      * and <code>"preferredPixelSize"</code> change events respectively.
      * <br><br>
-     * A particular event, namely <code>"scale"</code>, is also fire everytime the zoom changes.
-     * It is particular in that there is no <code>setScale(...)</code> method. Instead, this event
-     * is fired as a result of some user action external to the renderer module. The scale factor
-     * is usually a number between 0 and 1. For example for a 1:10000 scale, the scale factor will
-     * be 1E-4.
+     * A particular event, namely <code>"scale"</code>, is also fired everytime the zoom changes. It
+     * is particular in that this event results from a change in the {@linkplain Renderer renderer}
+     * state rather than a change applied directly on this layer. However, since {@linkplain
+     * Renderer#getScale scale} changes are propagated to all layers at rendering time, it makes
+     * sense to notify layer's listeners as well. A layer can changes its own state as a result of
+     * a scale change; for example a layer may hide or show more features. The scale factor is
+     * usually greater than 1. For example for a 1:10000 scale, the scale factor will be 10000.
+     * This scale factor takes in account the physical size of the rendering device (e.g. the
+     * screen size) if such information is available. Note that this scale can't be more accurate
+     * than the {@linkplain GraphicsConfiguration#getNormalizingTransform() information supplied
+     * by the underlying system}.
      *
-     * @param listener The property change listener to be added
+     * @param listener The property change listener to be added.
      */
     public void addPropertyChangeListener(final PropertyChangeListener listener) {
         listeners.addPropertyChangeListener(listener);
@@ -797,6 +839,7 @@ public abstract class RenderedLayer {
      */
     void clearCache() {
         assert Thread.holdsLock(getTreeLock());
+        // Do not clear 'dirtyArea'; this is Renderer's job.
         paintedArea = null;
         stroke      = null;
     }

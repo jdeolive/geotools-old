@@ -84,7 +84,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       is determined using orthodromic distance computation.</li>
  * </ul>
  *
- * @version $Id: RenderedMapScale.java,v 1.3 2003/03/14 12:38:17 desruisseaux Exp $
+ * @version $Id: RenderedMapScale.java,v 1.4 2003/03/16 22:28:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedMapScale extends RenderedLegend {
@@ -652,5 +652,25 @@ public class RenderedMapScale extends RenderedLegend {
         tickGlyphs = null;
         tickBounds = null;
         super.clearCache();
+    }
+
+    /**
+     * Returns the map scale as a tool tip text.
+     */
+    String getToolTipText(final GeoMouseEvent event) {
+        if (renderer != null) {
+            float scale = renderer.getScale();
+            if (!Float.isNaN(scale)) {
+                if (true) {
+                    // Keep only 3 significant digits. Our scale is
+                    // not accurate enough for displaying all digits.
+                    final double factor = XMath.pow10((int)Math.floor(XMath.log10(scale))-2);
+                    scale = (float) (Math.rint(scale/factor) * factor);
+                }
+                return Resources.getResources(getLocale()).getString(ResourceKeys.SCALE_$1,
+                                                                     new Float(scale));
+            }
+        }
+        return super.getToolTipText(event);
     }
 }

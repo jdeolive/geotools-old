@@ -30,8 +30,10 @@ public interface ResourceKeys
     public static final int PAINTING_$2                              =    10;
     public static final int POLYGON_CACHE_USE_$3                     =     9;
     public static final int RESSAMPLING_RENDERED_IMAGE_$3            =    15;
+    public static final int SCALE_$1                                 =    18;
 
     public static final int WARNING_EXCESSIVE_MEMORY_USAGE           =     7;
+    public static final int WARNING_UNEXPECTED_UNIT_$1               =    17;
 
     public static final int ERROR_BAD_ARGUMENT_$2                    =    12;
     public static final int ERROR_BAD_RANGE_$2                       =     0;

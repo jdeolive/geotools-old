@@ -41,6 +41,7 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.GraphicsConfiguration;
 import java.awt.IllegalComponentStateException;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
@@ -67,6 +68,7 @@ import javax.media.jai.GraphicsJAI;
 import javax.media.jai.PlanarImage; // For Javadoc
 
 // Geotools dependencies
+import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.AxisInfo;
 import org.geotools.cs.AxisOrientation;
 import org.geotools.cs.CoordinateSystem;
@@ -81,6 +83,8 @@ import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.NoninvertibleTransformException;
 import org.geotools.ct.CoordinateTransformationFactory;
 import org.geotools.ct.TransformException;
+import org.geotools.units.UnitException;
+import org.geotools.units.Unit;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
@@ -100,7 +104,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.21 2003/03/14 22:00:44 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.22 2003/03/16 22:28:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -196,6 +200,22 @@ public class Renderer {
      * @see RenderingContext#deviceCS
      */
     private RenderingContext context;
+
+    /**
+     * The scale factor from the last rendering, or <code>null</code> if unknow.
+     * This scale factor is computed at rendering time after a zoom change. All
+     * registered listeners will be notified of any scale change.
+     */
+    private Float scaleFactor;
+
+    /**
+     * The affine transform from the units used in {@link RenderingContext#mapCS mapCS} to
+     * "dots" units. A dots is equals to 1/72 of inch. This transform is basically nothing
+     * else than a unit conversion;  we still in "real world" CS  (not yet the screen CS).
+     * This transform is used as a convenient step in the computation of a realistic scale
+     * factor.
+     */
+    private final AffineTransform normalizeToDots = new AffineTransform();
 
     /**
      * The affine transform from {@link RenderingContext#mapCS mapCS} to
@@ -304,7 +324,7 @@ public class Renderer {
         /** Invoked when the component's size changes. */
         public void componentResized(final ComponentEvent event) {
             synchronized (Renderer.this) {
-                zoomChanged(null, mapToText);
+                zoomChanged(null);
             }
         }
 
@@ -365,6 +385,7 @@ public class Renderer {
         if (mapPane != null) {
             mapPane.addComponentListener(listenerProxy);
         }
+        updateNormalizationFactor(cs);
     }
 
     /**
@@ -458,9 +479,68 @@ public class Renderer {
                 CoordinateSystem textCS = createFittedCoordinateSystem("textCS", cs, mapToText);
                 context = new RenderingContext(this, cs, textCS, textCS);
                 computePreferredArea("Renderer", "setCoordinateSystem");
+                updateNormalizationFactor(cs);
+                scaleFactor = null;
             }
         }
         listeners.firePropertyChange("coordinateSystem", oldCS, cs);
+    }
+
+    /**
+     * Update {@link #normalizeToDots} for the specified coordinate system.
+     */
+    private void updateNormalizationFactor(final CoordinateSystem cs) {
+        final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(cs);
+        normalizeToDots.setToScale(getNormalizationFactor(cs.getUnits(0), ellipsoid),
+                                   getNormalizationFactor(cs.getUnits(1), ellipsoid));
+    }
+
+    /**
+     * Returns the amount of "dots" in one unit of the specified unit. There is 72 dots in one
+     * inch, and 2.54/100 inchs in one metre.  The <code>unit</code> argument must be a linear
+     * or an angular unit.
+     *
+     * @param unit The unit. If <code>null</code>, then the unit will be assumed to be metres or
+     *        degrees depending of whatever <code>ellipsoid</code> is <code>null</code> or not.
+     * @param ellipsoid The ellipsoid if the coordinate system is geographic, or <code>null</code>
+     *        otherwise.
+     */
+    private double getNormalizationFactor(Unit unit, final Ellipsoid ellipsoid) {
+        double m = 1;
+        try {
+            if (ellipsoid != null) {
+                if (unit == null) {
+                    unit = Unit.DEGREE;
+                }
+                /*
+                 * Converts an angular unit to a linear one. It is not clear which ellipsoid axis we
+                 * should use. For the WGS84 ellipsoid, the semi-major axis results in a nautical
+                 * mile of 1855.32 metres while the semi-minor axis results in a nautical mile
+                 * of 1849.10 metres. The average of semi-major and semi-minor axis results in a
+                 * nautical mile of 1852.21 metres, which is pretty close to the internationaly
+                 * agreed length (1852 metres). Consequently, is seems an acceptable guess.
+                 */
+                m = Unit.RADIAN.convert(m, unit) * 0.5*(ellipsoid.getSemiMajorAxis() +
+                                                        ellipsoid.getSemiMinorAxis());
+                unit = ellipsoid.getAxisUnit();
+            }
+            if (unit != null) {
+                m = Unit.METRE.convert(m, unit);
+            }
+        } catch (UnitException exception) {
+            /*
+             * A unit conversion failed. Since this normalizing factor is used only for computing a
+             * scale, it is not crucial to the renderer working. Log a warning message and continue.
+             * We keep the m value computed so far, which will be assumed to be a length in metres.
+             */
+            final LogRecord record = Resources.getResources(getLocale()).getLogRecord(Level.WARNING,
+                                                     ResourceKeys.WARNING_UNEXPECTED_UNIT_$1, unit);
+            record.setSourceClassName ("Renderer");
+            record.setSourceMethodName("setCoordinateSystem");
+            record.setThrown(exception);
+            LOGGER.log(record);
+        }
+        return 7200/2.54 * m;
     }
 
     /**
@@ -735,6 +815,20 @@ public class Renderer {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Returns the scale factor, or {@link Float#NaN} if the scale is not know.
+     * The scale factor is usually greater than 1. For example for a 1:10000 scale,
+     * the scale factor will be 10000. This scale factor takes in account the physical
+     * size of the rendering device (e.g. the screen size) if such information is available.
+     * Note that this scale can't be more accurate than the
+     * {@linkplain GraphicsConfiguration#getNormalizingTransform() information supplied
+     * by the underlying system}.
+     */
+    public float getScale() {
+        final Float scaleFactor = this.scaleFactor; // Avoid the need for synchronization.
+        return (scaleFactor!=null) ? scaleFactor.floatValue() : Float.NaN;
     }
 
 
@@ -1177,63 +1271,94 @@ public class Renderer {
         final AffineTransform toDevice = graphics.getTransform();
         final boolean         toScreen = toDevice.isIdentity();
         final boolean         sameZoom = mapToText.equals(zoom);
-        /*
-         * If the zoom has changed, send a notification to all layers before
-         * to start the rendering.  Layers will update their cache, which is
-         * used in order to decide if a layer need to be repainted or not.
-         */
-        if (!sameZoom) try {
-            final AffineTransform change = mapToText.createInverse();
-            change.preConcatenate(zoom);
-            if (true) {
-                // Scale slightly the zoom in order to avoid rounding errors in Area.
-                final double centerX = bounds.getCenterX();
-                final double centerY = bounds.getCenterY();
-                change.translate( centerX,  centerY);
-                change.scale(1+EPS, 1+EPS);
-                change.translate(-centerX, -centerY);
-            }
-            zoomChanged(change, zoom);
-        } catch (java.awt.geom.NoninvertibleTransformException exception) {
-            // Should not happen. If it happen anyway, declare that everything must be
-            // repainted. It will be slower, but will not prevent the renderer to work.
-            Utilities.unexpectedException("org.geotools.renderer.j2d",
-                                          "Renderer", "paint", exception);
-            zoomChanged(null, zoom);
-        }
-        /*
-         * If the zoom or the device changed, then the 'textCS' and 'deviceCS' must
-         * be recreated.
-         */
-        if (!sameZoom || !toScreen) try {
-            final CoordinateSystem mapCS, textCS, deviceCS;
-            mapCS    = context.mapCS;
-            textCS   = createFittedCoordinateSystem("textCS",    mapCS, zoom);
-            deviceCS = createFittedCoordinateSystem("deviceCS", textCS, toDevice);
-            context  = new RenderingContext(this, mapCS, textCS, deviceCS);
-            if (toScreen) {
-                mapToText.setTransform(zoom);
-                this.context = context;
-            }
-            if (prefetch) {
-                // Prepare data in separated threads.
-                context.init(null, bounds);
-                prefetch(context);
-            }
-        } catch (TransformException exception) {
-            // Impossible to process to the rendering. Paint the stack
-            // trace right into the component and exit from this method.
-            GraphicsUtilities.paintStackTrace(graphics, bounds, exception);
-            return;
-        }
-        /*
-         * Dessine les couches en commençant par
-         * celles qui ont un <var>z</var> le plus bas.
-         */
-        graphics.transform(zoom);
-        graphics.addRenderingHints(hints);
-        context.init(graphics, bounds);
         try {
+            /*
+             * Set a flag for avoiding some 'paint' events while we are actually painting...
+             */
+            RenderedLayer.setDirtyArea(layers, layerCount, clipBounds.contains(bounds) ?
+                                                           XRectangle2D.INFINITY : clipBounds);
+            /*
+             * If the zoom or the device changed, then the 'textCS' and 'deviceCS' must
+             * be recreated.
+             */
+            if (!sameZoom || !toScreen) try {
+                final CoordinateSystem mapCS, textCS, deviceCS;
+                mapCS    = context.mapCS;
+                textCS   = createFittedCoordinateSystem("textCS",    mapCS, zoom);
+                deviceCS = createFittedCoordinateSystem("deviceCS", textCS, toDevice);
+                context  = new RenderingContext(this, mapCS, textCS, deviceCS);
+                if (toScreen) {
+                    mapToText.setTransform(zoom);
+                    this.context = context;
+                }
+            } catch (TransformException exception) {
+                // Impossible to process to the rendering. Paint the stack
+                // trace right into the component and exit from this method.
+                GraphicsUtilities.paintStackTrace(graphics, bounds, exception);
+                return;
+            }
+            /*
+             * If the zoom has changed, send a notification to all layers before to start the
+             * rendering. Layers will update their cache, which is used in order to decide if
+             * a layer need to be repainted or not. Note that some layers may change their state,
+             * which may results in a new 'paint' event to be fired. But because of the 'dirtyArea'
+             * flag above, some 'paint' event will be intercepted in order to avoid repainting the
+             * same area twice.
+             */
+            if (!sameZoom) {
+                /*
+                 * Compute the change as an affine transform, and sent the notification.
+                 */
+                try {
+                    final AffineTransform change = mapToText.createInverse();
+                    change.preConcatenate(zoom);
+                    if (true) {
+                        // Scale slightly the zoom in order to avoid rounding errors in Area.
+                        final double centerX = bounds.getCenterX();
+                        final double centerY = bounds.getCenterY();
+                        change.translate( centerX,  centerY);
+                        change.scale(1+EPS, 1+EPS);
+                        change.translate(-centerX, -centerY);
+                    }
+                    zoomChanged(change);
+                } catch (java.awt.geom.NoninvertibleTransformException exception) {
+                    // Should not happen. If it happen anyway, declare that everything must be
+                    // repainted. It will be slower, but will not prevent the renderer to work.
+                    Utilities.unexpectedException("org.geotools.renderer.j2d",
+                                                  "Renderer", "paint", exception);
+                    zoomChanged(null);
+                }
+                try {
+                    /*
+                     * Compute the new scale factor. This scale factor take in account the real
+                     * size of the rendering device (e.g. the screen),  but is only as accurate
+                     * as the information supplied by the underlying system.
+                     */
+                    final GraphicsConfiguration config = graphics.getDeviceConfiguration();
+                    final AffineTransform normalize = zoom.createInverse();
+                    normalize.concatenate(config.getNormalizingTransform());
+                    normalize.preConcatenate(normalizeToDots);
+                    scaleChanged((float)XAffineTransform.getScale(normalize));
+                } catch (java.awt.geom.NoninvertibleTransformException exception) {
+                    Utilities.unexpectedException("org.geotools.renderer.j2d",
+                                                  "Renderer", "paint", exception);
+                }
+                /*
+                 * Notify all layers that they are about to be draw. Some layers may spend
+                 * one or two threads for pre-computing data.
+                 */
+                if (prefetch) {
+                    // Prepare data in separated threads.
+                    context.init(null, bounds);
+                    prefetch(context);
+                }
+            }
+            /*
+             * Draw all layers, starting with the one with the lowest <var>z</var> value.
+             */
+            graphics.transform(zoom);
+            graphics.addRenderingHints(hints);
+            context.init(graphics, bounds);
             for (int i=0; i<layerCount; i++) {
                 try {
                     layers[i].update(context, clipBounds);
@@ -1246,8 +1371,9 @@ public class Renderer {
             }
         } finally {
             context.init(null, null);
+            RenderedLayer.setDirtyArea(layers, layerCount, null);
+            graphics.setTransform(toDevice);
         }
-        graphics.setTransform(toDevice);
         /*
          * If this map took a long time to renderer, log a message.
          */
@@ -1386,18 +1512,33 @@ public class Renderer {
      * @param change The zoom <strong>change</strong> in <strong>device</strong> coordinate
      *        system, or <code>null</code> if unknow. If <code>null</code>, then all layers
      *        will be fully redrawn during the next rendering.
-     * @param zoom The new zoom. Should never be null.
      */
-    private void zoomChanged(final AffineTransform change, final AffineTransform zoom) {
+    private void zoomChanged(final AffineTransform change) {
+        if (change!=null && change.isIdentity()) {
+            return;
+        }
         assert Thread.holdsLock(this);
-        final Double oldScale = new Double(XAffineTransform.getScale(mapToText));
-        final Double newScale = new Double(XAffineTransform.getScale(zoom     ));
-        final boolean changed = (change==null || !change.isIdentity());
         for (int i=layerCount; --i>=0;) {
-            if (changed) {
-                layers[i].zoomChanged(change);
+            layers[i].zoomChanged(change);
+        }
+    }
+
+    /**
+     * Invoked automatically everytime the scale changed. This method is usually (but not always)
+     * invoked together with {@link #zoomChanged}. Note that some zoom changes do not imply a
+     * scale change. For example the zoom change may be just a translation or a rotation.
+     *
+     * @param scaleFactor The new scale factor.
+     */
+    private void scaleChanged(final float scaleFactor) {
+        final Float oldScale = this.scaleFactor;
+        if (oldScale==null || oldScale.floatValue()!=scaleFactor) {
+            final Float newScale = new Float(scaleFactor);
+            this.scaleFactor = newScale;
+            for (int i=layerCount; --i>=0;) {
+                layers[i].listeners.firePropertyChange("scale", oldScale, newScale);
             }
-            layers[i].listeners.firePropertyChange("scale", oldScale, newScale);
+            listeners.firePropertyChange("scale", oldScale, newScale);
         }
     }
 
@@ -1413,6 +1554,19 @@ public class Renderer {
     }
 
     /**
+     * Add a <code>PropertyChangeListener</code> for a specific property.
+     * The listener will be invoked only when that specific property changes.
+     *
+     * @param propertyName The name of the property to listen on.
+     * @param listener     The PropertyChangeListener to be added.
+     */
+    public void addPropertyChangeListener(final String propertyName,
+                                          final PropertyChangeListener listener)
+    {
+        listeners.addPropertyChangeListener(propertyName, listener);
+    }
+
+    /**
      * Remove a property change listener from the listener list.
      * This removes a <code>PropertyChangeListener</code> that
      * was registered for all properties.
@@ -1421,6 +1575,18 @@ public class Renderer {
      */
     public void removePropertyChangeListener(final PropertyChangeListener listener) {
         listeners.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Remove a PropertyChangeListener for a specific property.
+     *
+     * @param propertyName The name of the property that was listened on.
+     * @param listener     The PropertyChangeListener to be removed.
+     */
+    public void removePropertyChangeListener(final String propertyName,
+                                             final PropertyChangeListener listener)
+    {
+        listeners.removePropertyChangeListener(propertyName, listener);
     }
 
     /**
