@@ -5,7 +5,7 @@
         <!-- WRITEME -->
     </target>
     
-    <target name="compile">
+    <target name="compile" depends="defaultcore">
         <javac debug="true" srcdir="src">
             <classpath>
                 <fileset dir="..\..\extbin\gmldatasource\lib\"/>
@@ -53,5 +53,9 @@
         <delete>
             <fileset dir="src" includes="**/*.class"/>
         </delete>
+    </target>
+
+    <target name="defaultcore">
+        <ant dir="../defaultcore" target="release"/>
     </target>
 </project>

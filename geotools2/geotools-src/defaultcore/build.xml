@@ -5,7 +5,7 @@
         <!-- WRITEME -->
     </target>
     
-    <target name="compile">
+    <target name="compile" depends="core">
         <javac debug="true" srcdir="src">
             <classpath>
                 <fileset dir="..\..\extbin\core\lib\"/>
@@ -46,5 +46,8 @@
         <delete>
             <fileset dir="src" includes="**/*.class"/>
         </delete>
+    </target>
+    <target name="core">
+        <ant dir="../core" target="release"/>
     </target>
 </project>
