@@ -3,7 +3,8 @@
  */
 package org.geotools.filter;
 
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 
 /**
  * Defines a null filter, which checks to see if an attribute is null.
