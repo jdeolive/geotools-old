@@ -77,7 +77,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.34 2003/08/21 17:47:38 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.35 2003/09/09 19:53:56 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -151,10 +151,12 @@ public class PostgisDataSource extends AbstractDataSource
         throws DataSourceException {
         // create the return response type
         this.connectionPool = connPool;
-        LOGGER.info("new postgis!");
+        LOGGER.finer("new postgis!");
+
 
         //try {
         Connection conn = getConnection();
+
 
         //} catch (SQLException sqle) {
         //  String message = CONN_ERROR + sqle.getMessage();
@@ -167,6 +169,7 @@ public class PostgisDataSource extends AbstractDataSource
         //is a lot of work that much take place each time the datasource
         //is constructed.  
         try {
+	   
             this.schema = makeSchema(tableName, conn, fidColumn);
 
             if (schema.getDefaultGeometry() != null) {
@@ -187,11 +190,17 @@ public class PostgisDataSource extends AbstractDataSource
      */
     private static void initMaps() {
         sqlTypeMap.put("varchar", String.class);
+	sqlTypeMap.put("int2", Short.class);
         sqlTypeMap.put("int4", Integer.class);
+	sqlTypeMap.put("int8", Long.class);
         sqlTypeMap.put("float4", Float.class);
         sqlTypeMap.put("float8", Double.class);
         sqlTypeMap.put("geometry", Geometry.class);
         sqlTypeMap.put("date", java.util.Date.class);
+	//insert this if we get it in attributeType.  For now it should work
+	//fine as an Object.
+        //sqlTypeMap.put("numeric", java.math.BigDecimal.class);
+	
 
         geometryTypeMap.put("GEOMETRY", Geometry.class);
         geometryTypeMap.put("POINT", Point.class);
@@ -236,6 +245,7 @@ public class PostgisDataSource extends AbstractDataSource
         Statement statement = null;
 
         try {
+	    LOGGER.finer("type map is " + dbConnection.getTypeMap());
             statement = dbConnection.createStatement();
 
             ResultSet result = statement.executeQuery("SELECT * FROM \""
@@ -276,6 +286,9 @@ public class PostgisDataSource extends AbstractDataSource
                         + (Class) sqlTypeMap.get(columnTypeName));
 
                     Class type = (Class) sqlTypeMap.get(columnTypeName);
+		    if (type == null) {
+			type = Object.class;
+		    }
                     attributes[i - offset] = AttributeTypeFactory
                         .newAttributeType(columnName, type);
 
@@ -653,6 +666,7 @@ public class PostgisDataSource extends AbstractDataSource
                         }
                     } else {
                         attributes[col] = result.getObject(col + 2);
+			//LOGGER.finest("object class is " + attributes[col].getClass());
                     }
                 }
 
