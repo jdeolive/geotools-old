@@ -54,7 +54,8 @@ public class GMLSLDExample extends java.awt.Panel{
              style = new SLDStyle(sldurl);
             ft.setDataSource(datasource);
             //testGML7.gml -90.5485,16.2633  32.5485,34.2633
-            r.setBounds(new Envelope(-95,37, 10, 54));
+            //r.setBounds(new Envelope(-95,37, 10, 54));
+            r.setBounds(new Envelope(0,30,0,30));
             //  testGML7_1.gml 10.5485,16.2633  132.5485,34.2633     
             //r.setBounds(new Envelope(5,133, 17, 35));
             // testGML10 1002210.8176,193188.0372 1002218.8175,193298.0361

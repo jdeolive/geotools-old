@@ -1,35 +1,23 @@
 <StyledLayerDescriptor version="0.7.2">
 <!-- a named layer is the basic building block of an sld document -->
 <NamedLayer>
-<Name>A Random Layer</Name>
-<title>The title of the layer</title>
+<Name>A Simple Layer</Name>
+<title>A Small Town with a river running though it</title>
 <abstract>
-A longer and some would say less random peice of text
-that allows you to describe the latyer in more detail
+This is for testing only, it has two 'buildings' and two 
+roads.  The roads meet at a junction and a river runs 
+under them.  There is a boundary of some sort round
+one part of the map that includes one but not both of the
+buildings.  One road and the river run through the zone.
 </abstract>
 <!-- with in a layer you have Named Styles -->
 <UserStyle>
     <!-- again they have names, titles and abstracts -->
   <Name>SimpleStyle</Name>
     <!-- FeatureTypeStyles describe how to render different features -->
+    
     <FeatureTypeStyle>
-      <FeatureTypeName>zone</FeatureTypeName>
-      <Rule>
-        
-        <PolygonSymbolizer>
-        <!-- describes the fill of the polygon - if missing the polygon is empty -->  
-          <Fill>
-            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-          </Fill>
-          <Stroke>
-            <!-- default stroke #0000000 -->
-          </Stroke>
-        </PolygonSymbolizer>
-        
-      </Rule>
-    </FeatureTypeStyle>
-    <FeatureTypeStyle>
-        <!-- this describes the featureTypeName to apply this style to e.g. road -->
+        <!-- this describes the featureTypeName to apply this style to i.e. river -->
       <FeatureTypeName>river</FeatureTypeName>
        <!-- the actual rule describes the style -->
       <Rule>
@@ -46,6 +34,8 @@ that allows you to describe the latyer in more detail
         </LineSymbolizer>
       </Rule>
     </FeatureTypeStyle>
+    
+    <!-- part one of the styling for the roads, this provides the outer case -->
     <FeatureTypeStyle>
         <!-- this describes the featureTypeName to apply this style to e.g. road -->
       <FeatureTypeName>road</FeatureTypeName>
@@ -62,10 +52,17 @@ that allows you to describe the latyer in more detail
             <CssParameter name="stroke-width">6</CssParameter>
           </Stroke>
         </LineSymbolizer>
-        <!-- multiple linesyombolizers are applied one after the other -->
+      </Rule>
+    </FeatureTypeStyle>
+    <!-- part one of the styling for the roads, this provides the outer case -->
+    <FeatureTypeStyle>
+        <!-- this describes the featureTypeName to apply this style to e.g. road -->
+      <FeatureTypeName>road</FeatureTypeName>
+       <!-- the actual rule describes the style -->
+      <Rule>
         <LineSymbolizer>
           <Stroke>
-            <CssParameter name="stroke">#FFFFFF</CssParameter>
+            <CssParameter name="stroke">#88FF00</CssParameter>
             <CssParameter name="width">2</CssParameter>
           </Stroke>
         </LineSymbolizer>
@@ -84,12 +81,28 @@ that allows you to describe the latyer in more detail
           <Fill>
             <!-- CssParameters allowed are fill (the color) and fill-opacity -->
             <CssParameter name="fill">#FF0000</CssParameter>
-            <CssParameter name="fill-opacity">0.5</CssParameter>
+            
           </Fill>
         </PolygonSymbolizer>
       </Rule>
     </FeatureTypeStyle>
-    
+    <FeatureTypeStyle>
+      <FeatureTypeName>zone</FeatureTypeName>
+      <Rule>
+        
+        <PolygonSymbolizer>
+        <!-- describes the fill of the polygon - if missing the polygon is empty -->  
+          <Fill>
+            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
+            <CssParameter name="fill">#FFFF88</CssParameter>
+            <CssParameter name="fill-opacity">0.5</CssParameter>
+          </Fill>
+          <Stroke>
+            <CssParameter name="stroke-dasharray">2 2 1 2</CssParameter>
+          </Stroke>
+        </PolygonSymbolizer>
+      </Rule>
+    </FeatureTypeStyle> 
 </UserStyle>
 </NamedLayer>
 </StyledLayerDescriptor>
