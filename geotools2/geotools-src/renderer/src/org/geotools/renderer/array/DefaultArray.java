@@ -45,7 +45,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * que ce soit. L'implémentation par défaut est imutable. Toutefois, certaines
  * classes dérivées (notamment {@link DynamicArray}) ne le seront pas forcément.
  *
- * @version $Id: DefaultArray.java,v 1.4 2003/02/06 23:46:29 desruisseaux Exp $
+ * @version $Id: DefaultArray.java,v 1.5 2003/02/11 16:01:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class DefaultArray extends PointArray {
@@ -211,7 +211,7 @@ class DefaultArray extends PointArray {
     /**
      * Renverse l'ordre de tous les points compris dans ce tableau.
      *
-     * @return <code>this</code> si l'invertion à pu être faite sur-place,
+     * @return <code>this</code> si l'inversion a pu être faite sur-place,
      *         ou un autre tableau si ça n'a pas été possible.
      */
     public PointArray reverse() {

@@ -37,7 +37,7 @@ package org.geotools.renderer.array;
  * Enveloppe un tableau <code>float[]</code> dans
  * lequel des données pourront être ajoutés.
  *
- * @version $Id: DynamicArray.java,v 1.4 2003/01/29 23:18:08 desruisseaux Exp $
+ * @version $Id: DynamicArray.java,v 1.5 2003/02/11 16:01:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DynamicArray extends SubArray {
@@ -183,7 +183,7 @@ final class DynamicArray extends SubArray {
     /**
      * Renverse l'ordre de tous les points compris dans ce tableau.
      *
-     * @return <code>this</code> si l'invertion à pu être faite sur-place,
+     * @return <code>this</code> si l'inversion a pu être faite sur-place,
      *         ou un autre tableau si ça n'a pas été possible.
      */
     public PointArray reverse() {

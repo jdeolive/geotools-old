@@ -55,7 +55,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Pour un point situé à l'index <code>i</code>, les coordonnées <var>x</var> et <var>y</var>
  * correspondantes se trouvent aux index <code>2*i</code> et <code>2*i+1</code> respectivement.
  *
- * @version $Id: PointArray.java,v 1.5 2003/02/06 23:46:29 desruisseaux Exp $
+ * @version $Id: PointArray.java,v 1.6 2003/02/11 16:01:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class PointArray implements Serializable {
@@ -271,7 +271,7 @@ public abstract class PointArray implements Serializable {
     /**
      * Renverse l'ordre de tous les points compris dans ce tableau.
      *
-     * @return <code>this</code> si l'invertion à pu être faite sur-place,
+     * @return <code>this</code> si l'inversion a pu être faite sur-place,
      *         ou un autre tableau si ça n'a pas été possible.
      */
     public abstract PointArray reverse();

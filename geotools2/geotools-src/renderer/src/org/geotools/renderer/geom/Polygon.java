@@ -91,6 +91,7 @@ import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.renderer.array.PointArray;
 import org.geotools.renderer.array.ArrayData;
 
 
@@ -111,7 +112,7 @@ import org.geotools.renderer.array.ArrayData;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.6 2003/02/10 23:09:37 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.7 2003/02/11 16:02:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -256,6 +257,20 @@ public class Polygon extends GeoShape {
         flattened           = polygon.flattened;
         resolution          = polygon.resolution;
         interiorType        = polygon.interiorType;
+    }
+
+    /**
+     * Construct a closed polygon with the specified rectangle.
+     * The new polygon will be empty if the rectangle was empty
+     * or contains at least one <code>NaN</code> value.
+     *
+     * @param rectangle Rectangle to copy in the new polygon.
+     * @param coordinateSystem The rectangle's coordinate system,
+     *        or <code>null</code> if unknow.
+     */
+    Polygon(final PointArray data, final CoordinateSystem coordinateSystem) {
+        this(coordinateSystem);
+        this.data = new Polyline(data);
     }
 
     /**
@@ -2006,7 +2021,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.6 2003/02/10 23:09:37 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.7 2003/02/11 16:02:33 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon
