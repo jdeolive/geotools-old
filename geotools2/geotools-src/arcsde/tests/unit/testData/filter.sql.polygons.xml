@@ -1,0 +1,12 @@
+<Filter>
+<And>
+<PropertyIsNotEqualTo>
+<PropertyName>ADMIN_NAME</PropertyName>
+<Literal>Buenos Aires</Literal>
+</PropertyIsNotEqualTo>
+<PropertyIsGreaterThanOrEqualTo>
+<PropertyName>POP_ADMIN</PropertyName>
+<Literal>1000000</Literal>
+</PropertyIsGreaterThanOrEqualTo>
+</And>
+</Filter>
