@@ -41,18 +41,22 @@ public class Example1_1 extends java.awt.Panel{
             System.out.println("Testing ability to load "+url.toString());
             DataSource datasource = null;
             try{
-                 datasource = new org.geotools.gml.GMLGeometryDataSource(url);
+                 datasource = new org.geotools.gml.GMLDataSource(url);
             }catch (DataSourceException e){
                 System.out.println(e.toString());
                 return;
             }
             ft.setDataSource(datasource);
             //testGML7.gml -90.5485,16.2633  32.5485,34.2633
-            //r.setBounds(new Envelope(-95,33, 17, 35));
+            r.setBounds(new Envelope(-95,33, 17, 54));
             //  testGML7_1.gml 10.5485,16.2633  132.5485,34.2633     
-            r.setBounds(new Envelope(5,133, 17, 35));
+            //r.setBounds(new Envelope(5,133, 17, 35));
             // testGML10 1002210.8176,193188.0372 1002218.8175,193298.0361
-            //r.setBounds(new Envelope(1002000,1003000,93150,93300));
+            // 1002210.8176,193188.0372 1002218.8175,193298.0361
+           //r = new EnvelopeExtent(1002200, 1004250, 193150, 193300);
+            //276753.650,183754.900 283431.940,191849.110
+            //277971.000,185990.000 280016.000,185990.000 280028.000,188025.000 277964.000,188035.000 277971.000,185990.00
+            //r.setBounds(new Envelope(277971.000,280016.000,185990.000,188025.000));
             //Feature[] features = table.getFeatures(r);
             //System.out.println("No features loaded = "+features.length);
         }catch(IOException ioe){
@@ -64,18 +68,33 @@ public class Example1_1 extends java.awt.Panel{
         
         //The following is complex, and should be built from
         //an SLD document and not by hand
-        LineSymbolizer linesym = new DefaultLineSymbolizer();
+        DefaultLineSymbolizer linesym = new DefaultLineSymbolizer();
+        DefaultPolygonSymbolizer plsym = new DefaultPolygonSymbolizer();
+        DefaultStroke stroke = new DefaultStroke();
+        stroke.setDashArray(new float[]{5,3});
+        stroke.setWidth(2);
+        stroke.setOpacity(.4);
+        
+        linesym.setStroke(stroke);
         DefaultPolygonSymbolizer polysym = new DefaultPolygonSymbolizer();
         DefaultFill myFill = new DefaultFill();
         myFill.setColor("#ff0000");
         polysym.setFill(myFill);
-        DefaultRule rule = new DefaultRule();
-        rule.setSymbolizers(new Symbolizer[]{linesym,polysym});
+        DefaultRule rulePolygon = new DefaultRule();
+        rulePolygon.setSymbolizers(new Symbolizer[]{polysym});
         DefaultFeatureTypeStyle fts = new DefaultFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
+        fts.setFeatureTypeName("Polygon");
+        fts.setRules(new Rule[]{rulePolygon});
+        
+        DefaultRule rulePolyline = new DefaultRule();
+        rulePolyline.setSymbolizers(new Symbolizer[]{linesym});
+        
+        DefaultFeatureTypeStyle fts2 = new DefaultFeatureTypeStyle();
+        fts2.setFeatureTypeName("Polyline");
+        fts2.setRules(new Rule[]{rulePolyline});
         
         DefaultStyle style = new DefaultStyle();
-        style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts});
+        style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts,fts2});
         try{
             ft.getFeatures(r);
         }catch (DataSourceException e){
