@@ -52,7 +52,7 @@ public class GeometryTransformer {
         if (ringCount>0){
             LinearRing holes[] = new LinearRing[ringCount];
             for(int i=0;i<in.getNumInteriorRing();i++){
-                holes[i] = transformLinearRing(in.getExteriorRing());
+                holes[i] = transformLinearRing(in.getInteriorRingN(i));
             }
            return new Polygon(exRing,holes,in.getPrecisionModel(),trans.getTargetSRID());
         }
