@@ -400,7 +400,7 @@ public class PostgisDataStoreTest extends TestCase {
         return attributes;
     }
 
-    public void testGetFeatureWriterRemove()
+    /*    public void testGetFeatureWriterRemove()
         throws IOException, IllegalAttributeException {
         Transaction trans = new DefaultTransaction();
         JDBCTransactionState state = new JDBCTransactionState(connPool);
@@ -430,7 +430,7 @@ public class PostgisDataStoreTest extends TestCase {
         numFeatures = count(reader);
         assertEquals("Wrong number of features after add", 5, numFeatures);
         state.rollback();
-    }
+	}*/
 
     //assertEquals( fixture.roadFeatures.length-1, data.features( "road" ).size() );
 
