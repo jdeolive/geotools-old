@@ -67,4 +67,17 @@ public class ServiceTest extends TestCaseSupport {
     assertNotNull(ds);
   }
   
+  public void testBadURL() {
+    HashMap params = new HashMap();
+    params.put("url","aaa://bbb.ccc");
+    try {
+        ShapefileDataStoreFactory f = new ShapefileDataStoreFactory();
+        f.createDataStore(params);
+        fail("did not throw error");
+    } catch (java.io.IOException ioe) {
+        // this is actually good
+    }
+   
+  }
+  
 }
