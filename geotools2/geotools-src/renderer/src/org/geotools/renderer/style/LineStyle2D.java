@@ -22,6 +22,7 @@
 package org.geotools.renderer.style;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 
 /**
@@ -35,6 +36,9 @@ public class LineStyle2D extends Style2D {
     protected Stroke stroke;
     protected Composite contourComposite;
 
+    /** Holds value of property graphicStroke. */
+    private BufferedImage graphicStroke;
+    
     /**
      * Returns the stroke for the {@linkplain org.geotools.renderer.geom.Polyline polyline} to be
      * rendered, or <code>null</code> if none.
@@ -94,4 +98,21 @@ public class LineStyle2D extends Style2D {
     public void setContourComposite(Composite contourComposite) {
         this.contourComposite = contourComposite;
     }
+    
+    /** Getter for property graphicStroke.
+     * @return Value of property graphicStroke.
+     *
+     */
+    public BufferedImage getGraphicStroke() {
+        return this.graphicStroke;
+    }
+    
+    /** Setter for property graphicStroke.
+     * @param graphicStroke New value of property graphicStroke.
+     *
+     */
+    public void setGraphicStroke(BufferedImage graphicStroke) {
+        this.graphicStroke = graphicStroke;
+    }
+    
 }
