@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  * to simplify/make meaningful filter logic.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: CompareFilterImpl.java,v 1.10 2003/08/11 18:48:25 cholmesny Exp $
+ * @version $Id: CompareFilterImpl.java,v 1.11 2004/03/12 04:00:14 cholmesny Exp $
  */
 public class CompareFilterImpl extends AbstractFilterImpl
     implements CompareFilter {
@@ -158,6 +158,9 @@ public class CompareFilterImpl extends AbstractFilterImpl
 
         try {
             // Non-math comparison
+
+	if (!(leftValue.getValue(feature) instanceof Number && 
+	      rightValue.getValue(feature) instanceof Number)){
             if (filterType == COMPARE_EQUALS) {
                 if (LOGGER.isLoggable(Level.FINEST)) {
                     LOGGER.finest("is equals thingy");
@@ -167,7 +170,7 @@ public class CompareFilterImpl extends AbstractFilterImpl
                         + rightValue.getValue(feature).getClass().toString());
                 }
 
-                return leftValue.getValue(feature).equals(rightValue.getValue(
+		return leftValue.getValue(feature).equals(rightValue.getValue(
                         feature));
             }
 
@@ -175,13 +178,22 @@ public class CompareFilterImpl extends AbstractFilterImpl
                 return !leftValue.getValue(feature).equals(rightValue.getValue(
                         feature));
             }
-
+            }
             // Math comparisons
             double leftResult = ((Number) leftValue.getValue(feature))
                 .doubleValue();
             double rightResult = ((Number) rightValue.getValue(feature))
                 .doubleValue();
 
+
+            if (filterType == COMPARE_EQUALS) {
+                return leftResult == rightResult;
+            } 
+
+            if (filterType == COMPARE_NOT_EQUALS) {
+                return leftResult != rightResult;
+            } 
+            
             if (filterType == COMPARE_LESS_THAN) {
                 return (leftResult < rightResult);
             }
