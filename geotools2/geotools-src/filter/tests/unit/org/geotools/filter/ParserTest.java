@@ -80,17 +80,16 @@ public class ParserTest extends FilterTestSupport {
         return suite;
     }
 
+    public void setUp() throws SchemaException, IllegalAttributeException {
+        super.setUp();
 
-      public void setUp()  throws SchemaException, 
-    IllegalAttributeException {
-	super.setUp();
-	FeatureTypeFactory feaTypeFactory = FeatureTypeFactory.createTemplate(testSchema);
-	AttributeType doubleAttribute2 = attFactory.newAttributeType("testZeroDouble",
+        FeatureTypeFactory feaTypeFactory = FeatureTypeFactory.createTemplate(testSchema);
+        AttributeType doubleAttribute2 = attFactory.newAttributeType("testZeroDouble",
                 Double.class);
-	feaTypeFactory.addType(doubleAttribute2);
-	testSchema = feaTypeFactory.getFeatureType();
+        feaTypeFactory.addType(doubleAttribute2);
+        testSchema = feaTypeFactory.getFeatureType();
 
-	    GeometryFactory geomFac = new GeometryFactory();
+        GeometryFactory geomFac = new GeometryFactory();
 
         // Creates coordinates for the linestring
         Coordinate[] coords = new Coordinate[3];
@@ -110,9 +109,9 @@ public class ParserTest extends FilterTestSupport {
         attributes[7] = new Float(10000.4);
         attributes[8] = new Double(100000.5);
         attributes[9] = "test string data";
-	attributes[10] = new Double(0.0);
+        attributes[10] = new Double(0.0);
+
         // Creates the feature itself
-        
         testFeature = testSchema.create(attributes);
     }
 
@@ -245,9 +244,9 @@ public class ParserTest extends FilterTestSupport {
     //      LOGGER.fine("parsed: " + test.toString());
     //} 
     public Filter parseDocument(String uri) throws Exception {
+        LOGGER.finest("about to create parser");
+
         SAXParserFactory factory = SAXParserFactory.newInstance();
-        LOGGER.info("about to parse: " + uri);
-        LOGGER.fine("just created factory");
 
         // chains all the appropriate filters together (in correct order)
         //  and initiates parsing
@@ -255,8 +254,6 @@ public class ParserTest extends FilterTestSupport {
         FilterFilter filterFilter = new FilterFilter(filterHandler, null);
         GMLFilterGeometry geometryFilter = new GMLFilterGeometry(filterFilter);
         GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
-
-        LOGGER.fine("about to make parser");
 
         //XMLReader parser = XMLReaderFactory.createXMLReader(/*"org.apache.xerces.parsers.SAXParser"*/); 
         // uncomment to use xerces parser
@@ -269,7 +266,7 @@ public class ParserTest extends FilterTestSupport {
         p.setContentHandler(documentFilter);
         LOGGER.fine("just made parser, " + uri);
         p.parse(uri);
-        LOGGER.fine("just parsed: " + uri);
+        LOGGER.finest("just parsed: " + uri);
 
         return filterHandler.getFilter();
     }

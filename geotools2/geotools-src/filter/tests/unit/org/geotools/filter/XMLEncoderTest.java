@@ -37,7 +37,6 @@ import javax.xml.parsers.*;
  * @author Rob Hranac, TOPP
  */
 public class XMLEncoderTest extends FilterTestSupport {
-
     /** Feature on which to preform tests */
     private Filter filter = null;
 
@@ -52,7 +51,7 @@ public class XMLEncoderTest extends FilterTestSupport {
         super(testName);
 
         //_log.getLoggerRepository().setThreshold(Level.DEBUG);
-        LOGGER.info("running XMLEncoderTests");
+        LOGGER.finer("running XMLEncoderTests");
         ;
         dataFolder = System.getProperty("dataFolder");
 
@@ -60,7 +59,7 @@ public class XMLEncoderTest extends FilterTestSupport {
             //then we are being run by maven
             dataFolder = System.getProperty("basedir");
             dataFolder = "file:////" + dataFolder + "/tests/unit/testData"; //url.toString();
-            LOGGER.fine("data folder is " + dataFolder);
+            LOGGER.finer("data folder is " + dataFolder);
         }
     }
 
@@ -86,70 +85,82 @@ public class XMLEncoderTest extends FilterTestSupport {
 
     public void test1() throws Exception {
         Filter test = parseDocument(dataFolder + "/test1.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        //LOGGER.fine("parsed filter is: " + test);
     }
 
     public void test2() throws Exception {
         Filter test = parseDocument(dataFolder + "/test2.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        //LOGGER.fine("parsed filter is: " + test);
     }
 
     public void test3a() throws Exception {
         Filter test = parseDocument(dataFolder + "/test3a.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        //LOGGER.fine("parsed filter is: " + test);
     }
 
     public void test3b() throws Exception {
         Filter test = parseDocument(dataFolder + "/test3b.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        //LOGGER.fine("parsed filter is: " + test);
     }
 
     public void test4() throws Exception {
         Filter test = parseDocument(dataFolder + "/test4.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        //LOGGER.fine("parsed filter is: " + test);
     }
 
     public void test8() throws Exception {
         Filter test = parseDocument(dataFolder + "/test8.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        //LOGGER.fine("parsed filter is: " + test);
     }
 
     public void test9() throws Exception {
         Filter test = parseDocument(dataFolder + "/test9.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        //LOGGER.fine("parsed filter is: " + test);
     }
 
     public void test11() throws Exception {
         Filter test = parseDocument(dataFolder + "/test11.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        //LOGGER.fine("parsed filter is: " + test);
     }
 
     public void test12() throws Exception {
         Filter test = parseDocument(dataFolder + "/test12.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        // LOGGER.fine("parsed filter is: " + test);
     }
 
     public void test13() throws Exception {
         Filter test = parseDocument(dataFolder + "/test13.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        //LOGGER.fine("parsed filter is: " + test);
     }
 
     public void test14() throws Exception {
         Filter test = parseDocument(dataFolder + "/test14.xml");
-        LOGGER.fine("parsed filter is: " + test);
+
+        //LOGGER.fine("parsed filter is: " + test);
     }
 
-	public void test28() throws Exception {
-		Filter test = parseDocument(dataFolder + "/test28.xml");
-		LOGGER.fine("parsedfilter is: " + test);
-	}
+    public void test28() throws Exception {
+        Filter test = parseDocument(dataFolder + "/test28.xml");
+
+        //LOGGER.fine("parsedfilter is: " + test);
+    }
 
     public Filter parseDocument(String uri) throws Exception {
         Filter filter = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document dom = db.parse(uri);
-        LOGGER.info("exporting " + uri);
+        LOGGER.fine("exporting " + uri);
 
         // first grab a filter node
         NodeList nodes = dom.getElementsByTagName("Filter");
@@ -163,20 +174,20 @@ public class XMLEncoderTest extends FilterTestSupport {
                 child = list.item(i);
 
                 //_log.getLoggerRepository().setThreshold(Level.INFO);
-                if ((child == null) ||
-                        (child.getNodeType() != Node.ELEMENT_NODE)) {
+                if ((child == null)
+                        || (child.getNodeType() != Node.ELEMENT_NODE)) {
                     continue;
                 }
 
                 filter = FilterDOMParser.parseFilter(child);
 
                 //_log.getLoggerRepository().setThreshold(Level.DEBUG);
-                LOGGER.info("filter: " + filter.getClass().toString());
+                LOGGER.fine("filter: " + filter);
 
                 StringWriter output = new StringWriter();
                 XMLEncoder encode = new XMLEncoder(output, filter);
-                LOGGER.info("Resulting filter XML is \n" +
-                    output.getBuffer().toString());
+                LOGGER.fine("Resulting filter XML is \n"
+                    + output.getBuffer().toString());
             }
         }
 
