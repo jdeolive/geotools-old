@@ -2,7 +2,7 @@
 
 <project>
   <pomVersion>3</pomVersion>
-  <extend>../../project.xml</extend>
+  <extend>${basedir}/../../project.xml</extend>
   <name>geotools-shapefile</name>
   <id>shapefile</id>
   <currentVersion>0.1</currentVersion>

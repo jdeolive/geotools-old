@@ -3,7 +3,7 @@
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-resources</name>
-  <extend>../../project.xml</extend>
+   <extend>${basedir}/../../project.xml</extend>
   <id>resources</id>
   <currentVersion>0.1</currentVersion>
 

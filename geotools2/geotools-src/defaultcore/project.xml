@@ -2,7 +2,7 @@
 
 <project>
   <pomVersion>3</pomVersion>
-  <extend>../../project.xml</extend>
+  <extend>${basedir}/../../project.xml</extend>
   <name>geotools-defaultcore</name>
   <id>defaultcore</id>
   
