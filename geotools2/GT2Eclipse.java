@@ -106,7 +106,7 @@ public static Set targets(String path){
             // a few corrections
             if( line.equals( "oracle-spatial") ) line = "oraclespatial";
             if( line.equals( "java2drendering") ) line = "Java2DRendering";
-            
+            if( line.equals( "wmsserver")) continue; 
             System.out.println("target "+line );            
             set.add( line );
         }        
