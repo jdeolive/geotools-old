@@ -15,7 +15,7 @@
   <package>org.geotools</package>
   <shortDescription>ArcGrid datasource module</shortDescription>
   <description>Datasource created to read ArcGrid raster
-  format.</description>
+  format. Currently Serving as a prototype for the GridCoverageExchange API</description>
   <developers>
     <developer>
       <name>Christiaan ten Klooster</name>
