@@ -222,7 +222,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * by the user through the scrollbars will be translated by calls to
  * {@link #transform}.</p>
  *
- * @version $Id: ZoomPane.java,v 1.14 2003/09/18 13:45:13 desruisseaux Exp $
+ * @version $Id: ZoomPane.java,v 1.15 2004/02/16 07:00:04 aaime Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ZoomPane extends JComponent implements DeformableViewer {
@@ -378,6 +378,8 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
         /*[8] RotateLeft  */ ResourceKeys.ROTATE_LEFT,
         /*[9] RotateRight */ ResourceKeys.ROTATE_RIGHT
     };
+    
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.gui.swing");
 
     /**
      * List of default keystrokes used to perform zooms.
@@ -553,7 +555,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * contextual menu appear).  It will listen out for changes in the size
      * of the component (to adjust the zoom), etc.
      *
-     * @version $Id: ZoomPane.java,v 1.14 2003/09/18 13:45:13 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.15 2004/02/16 07:00:04 aaime Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners extends MouseAdapter implements MouseWheelListener,
@@ -1703,7 +1705,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * place the user clicked when this menu was invoked.
      *
      * @author Martin Desruisseaux
-     * @version $Id: ZoomPane.java,v 1.14 2003/09/18 13:45:13 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.15 2004/02/16 07:00:04 aaime Exp $
      */
     private static final class PointPopupMenu extends JPopupMenu {
         /**
@@ -1886,7 +1888,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * class is not used because it is difficult to get {@link JViewport} to
      * cooperate with transformations already handled by {@link ZoomPane#zoom}.
      *
-     * @version $Id: ZoomPane.java,v 1.14 2003/09/18 13:45:13 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.15 2004/02/16 07:00:04 aaime Exp $
      * @author Martin Desruisseaux
      */
     private final class ScrollPane extends JComponent implements PropertyChangeListener {
@@ -2067,7 +2069,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * <code>ZoomPane</code> object.
      *
      * @author Martin Desruisseaux
-     * @version $Id: ZoomPane.java,v 1.14 2003/09/18 13:45:13 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.15 2004/02/16 07:00:04 aaime Exp $
      */
     private final class Synchronizer implements ChangeListener, ZoomChangeListener {
         /**
@@ -2470,23 +2472,25 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
     static void log(final String className,
                     final String methodName,
                     final Rectangle2D area) {
-        final Double[] areaBounds;
-        if (area != null) {
-            areaBounds = new Double[] {
-                new Double(area.getMinX()), new Double(area.getMaxX()),
-                new Double(area.getMinY()), new Double(area.getMaxY())
-            };
-        } else {
-            areaBounds = new Double[4];
-            Arrays.fill(areaBounds, new Double(Double.NaN));
+        if(LOGGER.isLoggable(Level.FINER)) {
+            final Double[] areaBounds;
+            if (area != null) {
+                areaBounds = new Double[] {
+                    new Double(area.getMinX()), new Double(area.getMaxX()),
+                    new Double(area.getMinY()), new Double(area.getMaxY())
+                };
+            } else {
+                areaBounds = new Double[4];
+                Arrays.fill(areaBounds, new Double(Double.NaN));
+            }
+            final Resources resources = Resources.getResources(null);
+            final LogRecord record = resources.getLogRecord(Level.FINER,
+                                                            ResourceKeys.RECTANGLE_$4,
+                                                            areaBounds);
+            record.setSourceClassName (className);
+            record.setSourceMethodName(methodName);
+            LOGGER.log(record);
         }
-        final Resources resources = Resources.getResources(null);
-        final LogRecord record = resources.getLogRecord(Level.FINER,
-                                                        ResourceKeys.RECTANGLE_$4,
-                                                        areaBounds);
-        record.setSourceClassName (className);
-        record.setSourceMethodName(methodName);
-        Logger.getLogger("org.geotools.gui.swing").log(record);
     }
 
     /**
