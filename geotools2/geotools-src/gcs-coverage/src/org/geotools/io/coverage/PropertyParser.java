@@ -130,7 +130,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * For example, the {@link #getCoordinateSystem} method constructs a {@link CoordinateSystem}
  * object using available informations. 
  *
- * @version $Id: PropertyParser.java,v 1.6 2002/08/24 22:11:06 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.7 2002/08/26 16:26:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -694,7 +694,7 @@ public class PropertyParser {
      * @see #add(PropertySource,String)
      * @see #parseLine
      */
-    public synchronized void add(final String alias, Object value)
+    public synchronized void add(String alias, Object value)
         throws AmbiguousPropertyException
     {
         assert isValid();
@@ -702,14 +702,19 @@ public class PropertyParser {
             return;
         }
         if (value instanceof CharSequence) {
-            final String text = trim(value.toString(), " ");
+            final String text = trim(value.toString().trim(), " ");
             if (text.length() == 0) return;
             value = text;
         }
         if (properties==null) {
             properties = new LinkedHashMap();
         }
-        final AliasKey aliasAsKey = (alias!=null) ? new AliasKey(alias) : null;
+        final AliasKey aliasAsKey;
+        if (alias!=null) {
+            alias = alias.trim();
+            aliasAsKey = new AliasKey(alias);
+        }
+        else aliasAsKey = null;
         /*
          * Consistency check:
          *
@@ -788,9 +793,10 @@ public class PropertyParser {
      * @see #contains
      * @see #get
      */
-    public synchronized void addAlias(final Key key, final String alias)
+    public synchronized void addAlias(final Key key, String alias)
         throws AmbiguousPropertyException
     {
+        alias = trim(alias.trim(), " ");
         final AliasKey aliasAsKey = new AliasKey(alias);
         final Object   property   = getProperty(aliasAsKey);
         if (property != null) {
@@ -1713,7 +1719,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.6 2002/08/24 22:11:06 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.7 2002/08/26 16:26:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -1776,7 +1782,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.6 2002/08/24 22:11:06 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.7 2002/08/26 16:26:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {
