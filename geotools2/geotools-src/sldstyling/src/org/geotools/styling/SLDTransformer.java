@@ -35,9 +35,9 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
     private int indent = 4;
     
     /** The namespace to use if none is provided. */
-    private String defaultNamespace = "";
+    private String defaultNamespace = null;
     
-    private String prefix = "";
+    private String prefix = null;
     
     private Style[] styles;
     
@@ -90,7 +90,6 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             transformer.setOutputProperty(OutputKeys.INDENT,"yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", indent + "");
         }
-        
         InputSource inputSource = new InputSource();
         SAXSource source = new SAXSource(this, inputSource);
         StreamResult result = new StreamResult(out);
@@ -110,7 +109,9 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         
         OutputVisitor output = new OutputVisitor();
         
-        output.start("StyledLayerDescriptor");
+        Attributes atts = documentAtts();
+        
+        output.start("StyledLayerDescriptor",atts);
         
         for (int i = 0, ii = styles.length; i < ii; i++) {
             styles[i].accept(output);
@@ -121,6 +122,13 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         contentHandler.endDocument();
     }
     
+    private Attributes documentAtts() {
+        if (defaultNamespace == null) return NULL_ATTS;
+        AttributesImpl ns = new AttributesImpl();
+        String p = prefix == null ? "" : prefix;
+        ns.addAttribute("", "", "xmlns:" + p, "", defaultNamespace);
+        return ns;
+    }
     
     /**
      * walks the given collection.
@@ -163,7 +171,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
 
         FilterTransformer.OutputVisitor filterOutput() {
             if (filterOutput == null)
-                filterOutput = FilterTransformer.createOutputVisitor(contentHandler);
+                filterOutput = FilterTransformer.createOutputVisitor(contentHandler,defaultNamespace,prefix);
             return filterOutput;
         }
         
@@ -196,7 +204,8 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         
         void start(String element,Attributes atts) {
             try {
-                contentHandler.startElement(defaultNamespace, "", element, atts);
+                String el = prefix == null ? element : prefix + ":" + element;
+                contentHandler.startElement("", "", el, atts);
             } catch (SAXException se) {
                 throw new RuntimeException(se);
             }
@@ -213,7 +222,8 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         
         void end(String element) {
             try {
-                contentHandler.endElement(defaultNamespace, "", element);
+                String el = prefix == null ? element : prefix + ":" + element;
+                contentHandler.endElement("", "", el);
             } catch (SAXException se) {
                 throw new RuntimeException(se);
             }
@@ -222,13 +232,9 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         public void visit(PointPlacement pp) {
             start("LabelPlacement");
             start("PointPlacement");
-            System.out.println("FIX ME");
-            //pp.getAnchorPoint().accept(this);
-            //pp.getDisplacement().accept(this);
-            start("Rotation");
-            System.out.println("FIX ME");
-            //encode(pp.getRotation());
-            end("Rotation");
+            pp.getAnchorPoint().accept(this);
+            pp.getDisplacement().accept(this);
+            element("Rotation",pp.getRotation());
             end("PointPlacement");
             end("LabelPlacement");
         }
@@ -282,10 +288,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
 
             encodeGeometryProperty(text.getGeometryPropertyName());
             
-            start("Label");
-            System.out.println("FIX ME");
-            //encode(sym.getLabel());
-            end("Label");
+            element("Label",text.getLabel());
             
             start("Font");
             Font[] fonts = text.getFonts();
@@ -296,14 +299,13 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             encodeCssParam("font-style", fonts[0].getFontStyle());
             encodeCssParam("font-weight", fonts[0].getFontWeight());
             end("Font");
+            
             start("Label");
-            System.out.println("FIX ME");
-            //sym.getLabelPlacement().accept(this);
+            text.getLabelPlacement().accept(this);
             end("Label");
-            System.out.println("FIX ME");
-            //sym.getHalo().accept(this);
-            System.out.println("FIX ME");
-            //sym.getFill().accept(this);
+            
+            text.getHalo().accept(this);
+            text.getFill().accept(this);
             end("TextSymbolizer");
         }
         
@@ -321,14 +323,13 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             start("PolygonSymbolizer");
             encodeGeometryProperty(poly.getGeometryPropertyName());
             
-            System.out.println("FIX ME");
-//            if (sym.getFill() != null) {
-//                sym.getFill().accept(this);
-//            }
-//
-//            if (sym.getStroke() != null) {
-//                sym.getStroke().accept(this);
-//            }
+            if (poly.getFill() != null) {
+                poly.getFill().accept(this);
+            }
+
+            if (poly.getStroke() != null) {
+                poly.getStroke().accept(this);
+            }
 
             end("PolygonSymbolizer");
         }
@@ -341,7 +342,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
                 atts.addAttribute(XLINK_NAMESPACE, "type", "", "", "simple");
                 atts.addAttribute(XLINK_NAMESPACE, "xlink", "","", exgr.getLocation().toString());
             } catch (java.net.MalformedURLException murle) {
-                throw new Error("YOU CODED THE X LINK NAMESPACE WRONG!!");
+                throw new Error("SOMEONE CODED THE X LINK NAMESPACE WRONG!!");
             }   
             element("OnlineResource",null,atts);
             end("ExternalGraphic");
@@ -352,8 +353,7 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             
             encodeGeometryProperty(line.getGeometryPropertyName());
            
-            System.out.println("FIX ME - Filter Encoding");
-            //sym.getStroke().accept(this);
+            line.getStroke().accept(this);
             end("LineSymbolizer");
         }
         
@@ -383,10 +383,8 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
                 element("MinScaleDenominator",rule.getMinScaleDenominator() + "");
             }
             
-            org.geotools.filter.Filter filter = rule.getFilter();
-            
-            if (filter != null) {
-                System.out.println("FIX ME - Filter Encoding");
+            if (rule.getFilter() != null) {
+                filterOutput().encode(rule.getFilter());
             }
             
             if (rule.hasElseFilter()) {
@@ -412,19 +410,16 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         public void visit(Mark mark) {
             start("Mark");
             start("WellKnownName");
-            
-            System.out.println("FIX ME");
-            //mark.getWellKnownName().accept(filterEncoder);
+            filterOutput().encode(mark.getWellKnownName());
             end("WellKnownName");
 
-            System.out.println("FIX ME");
-//            if (mark.getFill() != null) {
-//                mark.getFill().accept(this);
-//            }
-//
-//            if (mark.getStroke() != null) {
-//                mark.getStroke().accept(this);
-//            }
+            if (mark.getFill() != null) {
+                mark.getFill().accept(this);
+            }
+
+            if (mark.getStroke() != null) {
+                mark.getStroke().accept(this);
+            }
 
             end("Mark");
         }
@@ -440,11 +435,9 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         
         public void visit(Halo halo) {
             start("Halo");
-            System.out.println("FIX ME");
-            //halo.getFill().accept(this);
+            halo.getFill().accept(this);
             start("Radius");
-            System.out.println("FIX ME");
-            //encode(halo.getRadius());
+            filterOutput().encode(halo.getRadius());
             end("Radius");
             end("Halo");
         }
@@ -454,17 +447,9 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             
             encodeGeometryProperty(gr.getGeometryPropertyName());
             
-            System.out.println("FIX ME - Filter Encoding");
-            //            out.write("<Size>\n");
-            //            encode(gr.getSize());
-            //            out.write("</Size>\n");
-            //
-            //            out.write("<Opacity>\n");
-            //            encode(gr.getOpacity());
-            //            out.write("</Opacity>\n");
-            //            out.write("<Rotation>\n");
-            //            encode(gr.getRotation());
-            //            out.write("</Rotation>\n");
+            element("Size",gr.getSize());
+            element("Opacity",gr.getOpacity());
+            element("Rotation",gr.getRotation());
             
             Symbol[] symbols = gr.getSymbols();
             
@@ -519,11 +504,11 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
             end("Geometry");
         }
         
-        void encodeCssParam(String name,org.geotools.filter.Expression expression) {
+        void encodeCssParam(String name,Expression expression) {
             AttributesImpl atts = new AttributesImpl();
             atts.addAttribute("", "name", "", "", name);
             start("CssParameter",atts);
-            System.out.println("FIX ME- Expressions");
+            filterOutput().encode(expression);
             end("CssParameter");
             
         }
@@ -552,8 +537,10 @@ public class SLDTransformer extends XMLFilterImpl implements XMLReader {
         SLDTransformer transformer = new SLDTransformer();
         transformer.setPrettyPrint(true);
         transformer.setDefaultNamespace("http://www.somewhere.org");
-        transformer.setPrefix("cool");
+        transformer.setPrefix("xxx");
         transformer.transform(s.readXML(), new FileOutputStream(System.getProperty("java.io.tmpdir") + "/junk.eraseme"));
+        
+        
     }
     
 }

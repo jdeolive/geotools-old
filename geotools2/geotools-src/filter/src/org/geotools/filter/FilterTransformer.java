@@ -29,9 +29,9 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
     private int indent = 4;
     
     /** The namespace to use if none is provided. */
-    private String defaultNamespace = "";
+    private String defaultNamespace = null;
     
-    private String prefix = "";
+    private String prefix = null;
     
     private Object object;
     
@@ -143,8 +143,8 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
         transformer.transform(source, result);
     }
     
-    public static OutputVisitor createOutputVisitor(ContentHandler handler) {
-        return new OutputVisitor(handler,"");
+    public static OutputVisitor createOutputVisitor(ContentHandler handler,String nsURI,String prefix) {
+        return new OutputVisitor(handler,nsURI,prefix);
     }
     
     /**
@@ -158,7 +158,7 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
         ContentHandler handler = getContentHandler();
         handler.startDocument();
         
-        OutputVisitor output = createOutputVisitor(handler);
+        OutputVisitor output = createOutputVisitor(handler,defaultNamespace,prefix);
         
         if (object instanceof Expression) {
             output.encode( (Expression) object);
@@ -201,19 +201,15 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
     public static class OutputVisitor implements FilterVisitor {
         
         ContentHandler contentHandler;
-        String defaultNamespace = "";
+        String defaultNamespace = null;
+        String prefix = null;
         
-        public OutputVisitor(ContentHandler handler,String defaultNamespace) {
+        public OutputVisitor(ContentHandler handler,String nsURI,String prefix) {
             this.contentHandler = handler;
-            this.defaultNamespace = defaultNamespace;
-        }
-        
-        void element(String element,Expression e) {
-            System.out.println("FIX ME");
-        }
-        
-        void element(String element,Filter f) {
-            System.out.println("FIX ME");
+            this.defaultNamespace = nsURI;
+            if (prefix == "")
+              prefix = null;
+            this.prefix = prefix;
         }
         
         void element(String element,String content) {
@@ -233,7 +229,8 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
         
         void start(String element,Attributes atts) {
             try {
-                contentHandler.startElement(defaultNamespace, "", element, atts);
+                String el = prefix == null ? element : prefix + ":" + element;
+                contentHandler.startElement("", "", el, atts);
             } catch (SAXException se) {
                 throw new RuntimeException(se);
             }
@@ -250,7 +247,8 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
         
         public void end(String element) {
             try {
-                contentHandler.endElement(defaultNamespace, "", element);
+                String el = prefix == null ? element : prefix + ":" + element;
+                contentHandler.endElement("", "", el);
             } catch (SAXException se) {
                 throw new RuntimeException(se);
             }
@@ -418,26 +416,6 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
             end("Filter");
         }
         
-    }
-    
-    
-    
-    
-    /**
-     * Currently does nothing.
-     *
-     * @param args DOCUMENT ME!
-     *
-     * @throws Exception DOCUMENT ME!
-     */
-    public static final void main(String[] args) throws Exception {
-        //        java.net.URL url = new java.io.File(args[0]).toURL();
-        //        SLDStyle s = new SLDStyle(StyleFactory.createStyleFactory(),url);
-        //        SLDTransformer transformer = new SLDTransformer();
-        //        transformer.setPrettyPrint(true);
-        //        transformer.setDefaultNamespace("http://www.somewhere.org");
-        //        transformer.setPrefix("cool");
-        //        transformer.transform(s.readXML(), new FileOutputStream(System.getProperty("java.io.tmpdir") + "/junk.eraseme"));
     }
     
 }
