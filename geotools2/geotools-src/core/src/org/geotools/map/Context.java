@@ -21,15 +21,24 @@ package org.geotools.map;
  * OGC Web Map Context Specification.
  *
  * @author Cameron Shorter
- * @version $Id: Context.java,v 1.8 2003/08/18 16:32:31 desruisseaux Exp $
+ * @version $Id: Context.java,v 1.9 2003/08/18 20:07:49 desruisseaux Exp $
  */
 public interface Context {
     /**
      * Returns a bounding box associated with this context.
      *
      * @return The BoundingBox.
+     *
+     * @deprecated use {@link #getBoundingBox()} instead.
      */
     BoundingBox getBbox();
+
+    /**
+     * Returns a bounding box associated with this context.
+     *
+     * @return The BoundingBox.
+     */
+    BoundingBox getBoundingBox();
 
     /**
      * Returns a list of layers associated with this context.

@@ -21,13 +21,13 @@ package org.geotools.map;
  * Default implementation of {@link Context}
  *
  * @author Cameron Shorter
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class DefaultContext implements Context {
     /**
      * The bounding box, or <code>null</code> if none..
      *
-     * @see #getBbox
+     * @see #getBoundingBox
      */
     private BoundingBox bbox;
 
@@ -117,8 +117,17 @@ public class DefaultContext implements Context {
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated use {@link #getBoundingBox()} instead.
      */
     public BoundingBox getBbox() {
+        return getBoundingBox();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public BoundingBox getBoundingBox() {
         return this.bbox;
     }
 
