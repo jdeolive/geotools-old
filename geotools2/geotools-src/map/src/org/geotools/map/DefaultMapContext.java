@@ -48,7 +48,6 @@ import java.util.logging.Logger;
 public class DefaultMapContext implements MapContext {
     /** The logger for the map module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.map");
-    
     List layerList = new ArrayList();
     CoordinateReferenceSystem crs = LocalCoordinateSystem.CARTESIAN;
     Envelope areaOfInterest = null;
@@ -341,6 +340,13 @@ public class DefaultMapContext implements MapContext {
     }
 
     /**
+     * @see org.geotools.map.MapContext#indexOf(org.geotools.map.MapLayer)
+     */
+    public int indexOf(MapLayer layer) {
+        return layerList.indexOf(layer);
+    }
+
+    /**
      * Returns an iterator over the layers in this context in proper sequence.
      *
      * @return an iterator over the layers in this context in proper sequence.
@@ -432,8 +438,8 @@ public class DefaultMapContext implements MapContext {
     }
 
     /**
-     * Gets the current area of interest. If no area of interest is the, the default
-     * is to fall back on the layer bounds
+     * Gets the current area of interest. If no area of interest is the, the default is to fall
+     * back on the layer bounds
      *
      * @return Current area of interest
      */
@@ -442,14 +448,18 @@ public class DefaultMapContext implements MapContext {
             try {
                 areaOfInterest = getLayerBounds();
             } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Can't get layer bounds, and area of interest is not set", e);
+                LOGGER.log(Level.SEVERE, "Can't get layer bounds, and area of interest is not set",
+                    e);
+
                 return null;
             }
-        } 
-        if(areaOfInterest == null)
-          return null;
-        else
-          return new Envelope(this.areaOfInterest);
+        }
+
+        if (areaOfInterest == null) {
+            return null;
+        } else {
+            return new Envelope(this.areaOfInterest);
+        }
     }
 
     /**
@@ -519,17 +529,6 @@ public class DefaultMapContext implements MapContext {
         layerList.clear();
 
         fireMapLayerListListenerLayerRemoved(new MapLayerListEvent(this, null, 0, 1));
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param layer DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public int indexOf(MapLayer layer) {
-        return layerList.indexOf(layer);
     }
 
     /**
@@ -678,10 +677,10 @@ public class DefaultMapContext implements MapContext {
      */
     public synchronized void removeMapLayerListListener(
         org.geotools.map.event.MapLayerListListener listener) {
-        if(listenerList == null) {
+        if (listenerList == null) {
             return;
         }
-        
+
         listenerList.remove(org.geotools.map.event.MapLayerListListener.class, listener);
     }
 
@@ -779,10 +778,10 @@ public class DefaultMapContext implements MapContext {
      */
     public synchronized void removePropertyChangeListener(
         java.beans.PropertyChangeListener listener) {
-        if(listenerList == null) {
+        if (listenerList == null) {
             return;
         }
-        
+
         propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
@@ -806,10 +805,10 @@ public class DefaultMapContext implements MapContext {
      */
     public synchronized void removeMapBoundsListener(
         org.geotools.map.event.MapBoundsListener listener) {
-        if(listenerList == null) {
+        if (listenerList == null) {
             return;
         }
-        
+
         listenerList.remove(org.geotools.map.event.MapBoundsListener.class, listener);
     }
 
