@@ -108,7 +108,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/CoordinateChooser.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: CoordinateChooser.java,v 1.2 2002/08/30 10:45:29 desruisseaux Exp $
+ * @version $Id: CoordinateChooser.java,v 1.3 2002/09/08 12:07:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CoordinateChooser extends JPanel {
@@ -179,7 +179,7 @@ public class CoordinateChooser extends JPanel {
     /**
      * Class encompassing various listeners for users selections.
      *
-     * @version $Id: CoordinateChooser.java,v 1.2 2002/08/30 10:45:29 desruisseaux Exp $
+     * @version $Id: CoordinateChooser.java,v 1.3 2002/09/08 12:07:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements ActionListener, ChangeListener {
@@ -543,6 +543,8 @@ public class CoordinateChooser extends JPanel {
      * Returns the accessory component.
      *
      * @return The accessory component, or <code>null</code> if there is none.
+     *
+     * @deprecated Depracated together with {@link #setAccessory}.
      */
     public JComponent getAccessory() {
         return accessory;
@@ -558,6 +560,15 @@ public class CoordinateChooser extends JPanel {
      * coordinate chooser.
      *
      * @param The accessory component, or <code>null</code> to remove any previous accessory.
+     *
+     * @deprecated This method doesn't bring any new feature. You can do
+     *             the same with better results using the following code:
+     *
+     *             <blockquote><pre>
+     *             JPanel panel = new JPanel(new BorderLayout());
+     *             panel.add(coordinateChooser, BorderLayout.WEST);
+     *             panel.add(accessory, BorderLayout.CENTER);
+     *             </pre></blockquote>
      */
     public void setAccessory(final JComponent accessory) {
         synchronized (getTreeLock()) {
