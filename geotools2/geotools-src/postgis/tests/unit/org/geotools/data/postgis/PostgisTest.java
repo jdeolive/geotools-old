@@ -37,12 +37,13 @@ public class PostgisTest extends TestCase {
     }
     
     public void setUp() {
+        BasicConfigurator.configure();
         _log.info("creating postgis connection...");
         PostgisConnection db = new PostgisConnection("feathers.leeds.ac.uk","5432","postgis_test");
         _log.info("created new db connection");
         db.setLogin("postgis_ro","postgis_ro");
         _log.info("set the login");
-        postgis = new DataSourcePostgis(db, "testset");
+        postgis = new PostgisDataSource(db, "testset");
         _log.info("created new datasource");
     }
     

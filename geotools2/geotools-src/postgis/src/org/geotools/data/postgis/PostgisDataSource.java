@@ -36,7 +36,7 @@ import org.geotools.datasource.extents.EnvelopeExtent;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.1 2002/08/07 18:25:37 robhranac Exp $
+ * @version $Id: PostgisDataSource.java,v 1.2 2002/08/17 21:46:48 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class PostgisDataSource implements org.geotools.data.DataSource {
@@ -56,13 +56,13 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * GID.  Since all layers may contain only one primary geometry
      * (i.e. geometry or geom collection), this is the same as a row ID
      */
-    private static final String GID_NAME = "objectid";
+    private static final String GID_NAME = "gid";
     
     /**
      * FID. Since all layers may contain only one primary geometry
      * (i.e. geometry or geom collection), this is the same as a row ID
      */
-    private static final String FID_NAME = "objectid";
+    private static final String FID_NAME = "gid";
     
     /** Factory for producing geometries (from JTS). */
     private static GeometryFactory geometryFactory = new GeometryFactory();
@@ -161,15 +161,15 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         // initialize some local convenience variables        
         String columnName;
         String columnTypeName;
-        AttributeType[] attributes = new AttributeType[metaData.getColumnCount() - 1];
+        AttributeType[] attributes = new AttributeType[metaData.getColumnCount() -1];
 
         int offset = 1;
         //_log.debug("about to loop through cols");
         // loop through all columns
         for( int i = 1, n = metaData.getColumnCount(); i <= n; i++) {
-            //_log.debug("reading col: " + i);
-            //_log.debug("reading col: " + metaData.getColumnTypeName(i));
-            //_log.debug("reading col: " + metaData.getColumnName(i));
+            _log.debug("reading col: " + i);
+            _log.debug("reading col: " + metaData.getColumnTypeName(i));
+            _log.debug("reading col: " + metaData.getColumnName(i));
 
             columnTypeName = metaData.getColumnTypeName(i);
             columnName = metaData.getColumnName(i);
@@ -182,7 +182,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
             // object id is ignored in the schema, since it is treated as a 
             //  feature id
-            else if (columnName.equals("objectid")) {
+            else if (columnName.equals("gid")) {
                 offset++;
             }
 
@@ -252,7 +252,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * @return Full SQL statement.
      */ 
     private static String makeSql(Filter filter, String tableName, FeatureType schema) {
-        StringBuffer sqlStatement = new StringBuffer("SELECT objectid,");
+        StringBuffer sqlStatement = new StringBuffer("SELECT gid,");
         AttributeType[] attributeTypes = schema.getAttributeTypes();
 
         for( int i = 0; i < attributeTypes.length; i++) {
@@ -361,7 +361,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
                 }
         
                 // add a feature to the collection and increment result counter
-                features.add( factory.createFlat(attributes, featureId));
+                features.add( factory.create(attributes, featureId));
                 resultCounter++;
             }								
             
