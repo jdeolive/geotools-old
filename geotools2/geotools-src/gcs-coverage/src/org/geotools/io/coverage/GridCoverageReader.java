@@ -101,7 +101,7 @@ import org.geotools.io.image.RawBinaryImageReadParam;
  * However, other methods may be overriden too in order to get finner control
  * on the result.
  *
- * @version $Id: GridCoverageReader.java,v 1.7 2003/01/12 16:48:39 desruisseaux Exp $
+ * @version $Id: GridCoverageReader.java,v 1.8 2003/02/27 12:13:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GridCoverageReader {
@@ -193,7 +193,7 @@ public abstract class GridCoverageReader {
      * {@link ImageInputStream}) may be accepted too.
      * <br><br>
      * If this method is invoked for the first time or after a call to
-     * {@link #reset}, then it will queries @link #getImageReaders} for
+     * {@link #reset}, then it will queries {@link #getImageReaders} for
      * a list of {@link ImageReader}s and select the first one that accept
      * the input.
      *
@@ -439,7 +439,8 @@ public abstract class GridCoverageReader {
             buffer.write("\"] with:");
             buffer.write(trimer.getLineSeparator());
             table.setMultiLinesCells(true);
-            for (int i=-3; i<sd.length; i++) {
+            final int sdCount = (sd!=null) ? sd.length : 0;
+            for (int i=-3; i<sdCount; i++) {
                 String key = "";
                 Object value;
                 switch (i) {
