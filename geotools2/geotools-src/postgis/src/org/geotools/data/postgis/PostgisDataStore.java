@@ -39,6 +39,8 @@ import org.geotools.data.jdbc.JDBCFeatureLocking;
 import org.geotools.data.jdbc.JDBCFeatureStore;
 import org.geotools.data.jdbc.SQLBuilder;
 import org.geotools.data.jdbc.WKTAttributeIO;
+import org.geotools.data.jdbc.QueryData;
+import org.geotools.data.jdbc.JDBCUtils;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
@@ -61,7 +63,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.9 2003/11/24 03:07:09 jive Exp $
+ * @version $Id: PostgisDataStore.java,v 1.10 2003/12/02 18:46:29 cholmesny Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -223,7 +225,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         } catch (IOException ioe) {
             throw new DataSourceException("getting connection", ioe);
         } finally {
-            JDBCDataStore.close(dbConnection, Transaction.AUTO_COMMIT, null);
+            JDBCUtils.close(dbConnection, Transaction.AUTO_COMMIT, null);
         }
     }
 
@@ -310,7 +312,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
             if (result.next()) {
                 int retSrid = result.getInt("srid");
-                close(statement);
+                JDBCUtils.close(statement);
 
                 return retSrid;
             } else {
@@ -323,7 +325,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             LOGGER.warning(message);
             throw new DataSourceException(message, sqle);
         } finally {
-            JDBCDataStore.close(dbConnection, Transaction.AUTO_COMMIT, null);
+            JDBCUtils.close(dbConnection, Transaction.AUTO_COMMIT, null);
         }
     }
 
@@ -373,8 +375,9 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
      */
     public FeatureSource getFeatureSource(String typeName)
         throws IOException {
-            
+	LOGGER.fine("get Feature source called on " + typeName);
         if( OPTIMIZE_MODE == OPTIMIZE_SQL ){
+	    LOGGER.fine("returning pg feature locking");
             return new PostgisFeatureLocking(this, getSchema(typeName));
         }
         // default 
@@ -382,9 +385,11 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         if (getLockingManager() != null) {
             // Use default JDBCFeatureLocking that delegates all locking
             // the getLockingManager
+	    LOGGER.fine("returning jdbc feature locking");
             return new JDBCFeatureLocking(this, getSchema(typeName));
             
         } else {
+	    LOGGER.fine("returning jdbc feature store (lock manager is null)");
             // subclass should provide a FeatureLocking implementation
             // but for now we will simply forgo all locking
             return new JDBCFeatureStore(this, getSchema(typeName));
@@ -525,13 +530,10 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             throws IOException, SQLException {
             LOGGER.fine("inserting into postgis feature " + current);
 
-            ResultSet rs = queryData.getResultSet();
-
-            //rs.moveToInsertRow();
             Statement statement = null;
 
             try {
-                Connection conn = rs.getStatement().getConnection();
+                Connection conn = queryData.getConnection();
                 statement = conn.createStatement();
 
                 String sql = makeInsertSql(current,
@@ -544,7 +546,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             } catch (SQLException sqle) {
                 String msg = "SQL Exception writing geometry column";
                 LOGGER.log(Level.SEVERE, msg, sqle);
-                queryData.close(sqle);
+                queryData.close(sqle, this);
                 throw new DataSourceException(msg, sqle);
             } finally {
                 if (statement != null) {
@@ -557,6 +559,11 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 }
             }
         }
+	
+	public void close() throws IOException {
+	    super.close();
+	}
+	    
     }
 
     /**
