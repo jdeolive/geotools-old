@@ -49,7 +49,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link Category} implementation.
  *
- * @version $Id: CategoryTest.java,v 1.3 2002/07/24 18:15:05 desruisseaux Exp $
+ * @version $Id: CategoryTest.java,v 1.4 2002/07/26 22:18:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CategoryTest extends TestCase {
@@ -123,11 +123,11 @@ public class CategoryTest extends TestCase {
                                                     category1.getSampleToGeophysics());
 
             assertEquals("<init>", category1, category2);
-            assertEquals("lower",  category1.rescale(false).getRange().getMinValue(), sample);
-            assertEquals("upper",  category1.rescale(false).getRange().getMaxValue(), sample);
+            assertEquals("lower",  category1.geophysics(false).getRange().getMinValue(), sample);
+            assertEquals("upper",  category1.geophysics(false).getRange().getMaxValue(), sample);
 
-            assertNull("rescale(false).transform", category1.rescale(false).getSampleToGeophysics());
-            assertNull("rescale(true).transform",  category1.rescale(true ).getSampleToGeophysics());
+            assertNull("geophysics(false)", category1.geophysics(false).getSampleToGeophysics());
+            assertNull("geophysics(true)",  category1.geophysics(true ).getSampleToGeophysics());
             for (int i=0; i<200; i++) {
                 final double x  = 100*random.nextDouble();
                 final double y1 = category1.transform.transform(x);
@@ -155,10 +155,10 @@ public class CategoryTest extends TestCase {
             final double offset = 10*random.nextDouble() - 5.0;
             final Category category = new Category("Auto", null, lower, upper, scale, offset);
 
-            assertEquals("lower",  category.rescale(false).getRange().getMinValue(), lower);
-            assertEquals("upper",  category.rescale(false).getRange().getMaxValue(), upper);
-            assertEquals("minimum", category.rescale(true).getRange().getMinValue(), lower*scale+offset, EPS);
-            assertEquals("maximum", category.rescale(true).getRange().getMaxValue(), upper*scale+offset, EPS);
+            assertEquals("lower",  category.geophysics(false).getRange().getMinValue(), lower);
+            assertEquals("upper",  category.geophysics(false).getRange().getMaxValue(), upper);
+            assertEquals("minimum", category.geophysics(true).getRange().getMinValue(), lower*scale+offset, EPS);
+            assertEquals("maximum", category.geophysics(true).getRange().getMaxValue(), upper*scale+offset, EPS);
 
             for (int i=0; i<200; i++) {
                 final double x = 100*random.nextDouble();

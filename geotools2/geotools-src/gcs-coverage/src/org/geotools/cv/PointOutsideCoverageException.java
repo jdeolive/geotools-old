@@ -52,7 +52,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Throws when a <code>Coverage.evaluate</code>
  * method is invoked with a point outside coverage.
  *
- * @version 1.0
+ * @version $Id: PointOutsideCoverageException.java,v 1.2 2002/07/26 22:17:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PointOutsideCoverageException extends RuntimeException {

@@ -63,7 +63,7 @@ import org.geotools.resources.Utilities;
  * the list of {@link Category}. This transform is thread safe if each
  * {@link Category#getSampleToGeophysics} transform is thread-safe too.
  *
- * @version $Id: GeophysicsCategoryList.java,v 1.1 2002/07/23 17:53:36 desruisseaux Exp $
+ * @version $Id: GeophysicsCategoryList.java,v 1.2 2002/07/26 22:17:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GeophysicsCategoryList extends CategoryList {
@@ -127,20 +127,21 @@ final class GeophysicsCategoryList extends CategoryList {
         super(categories, unit, true, inverse);
         this.unit    = unit;
         this.ndigits = getFractionDigitCount(categories);
+        assert isScaled(true);
     }
     
     /**
      * Compute the smallest number of fraction digits necessary to resolve all
      * quantitative values. This method assume that geophysics values in the range
-     * <code>Category.rescale(true).getRange</code> are stored as integer sample
-     * values in the range <code>Category.rescale(false).getRange</code>.
+     * <code>Category.geophysics(true).getRange</code> are stored as integer sample
+     * values in the range <code>Category.geophysics(false).getRange</code>.
      */
     private static int getFractionDigitCount(final Category[] categories) {
         int ndigits = 0;
         final double EPS = 1E-6;
         for (int i=0; i<categories.length; i++) {
-            final Category geophysics = categories[i].rescale(true);
-            final Category samples    = categories[i].rescale(false);
+            final Category geophysics = categories[i].geophysics(true);
+            final Category samples    = categories[i].geophysics(false);
             final double ln = XMath.log10((geophysics.maximum - geophysics.minimum)/
                                           (   samples.maximum -    samples.minimum));
             if (!Double.isNaN(ln)) {
@@ -154,11 +155,15 @@ final class GeophysicsCategoryList extends CategoryList {
     }
 
     /**
-     * Returns a category list with a new range of sample values.
-     * This method work as {@link Category#rescale(boolean)}.
+     * If <code>toGeophysics</code> is <code>false</code>, cancel the action of a previous
+     * call to <code>geophysics(true)</code>. This method always returns a list of categories
+     * in which <code>{@link Category#geophysics(boolean) Category.geophysics}(toGeophysics)</code>
+     * has been invoked for each category.
      */
-    public CategoryList rescale(final boolean toGeophysics) {
-        return super.rescale(!toGeophysics);
+    public CategoryList geophysics(final boolean toGeophysics) {
+        final CategoryList scaled = toGeophysics ? this : inverse;
+        assert scaled.isScaled(toGeophysics);
+        return scaled;
     }
     
     /**

@@ -80,6 +80,7 @@ import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.AxisOrientation;
 
 // Resources
+import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.XAffineTransform;
@@ -96,27 +97,32 @@ import org.opengis.cv.CV_Coverage;
  * may be queried in many ways:
  *
  * <ul>
- *   <li><code>getSourceCoordinateSystem().getDimension();</code></li>
- *   <li><code>getDimensionNames().length;</code></li>
- *   <li><code>getDimension();</code></li>
+ *   <li><code>{@link #getSourceCoordinateSystem()}.getDimension();</code></li>
+ *   <li><code>{@link #getDimensionNames()}.length;</code></li>
+ *   <li><code>{@link #getDimension()};</code></li>
  * </ul>
  *
  * All those methods should returns the same number.   Note that the dimension
  * of grid coverage <strong>is not the same</strong> than the number of sample
- * dimensions  (<code>getSampleDimensions().length</code>).   The later may be
- * better understood as the number of bands for 2D grid coverage.
+ * dimensions (<code>{@link #getSampleDimensions()}.length</code>).  The later
+ * may be better understood as the number of bands for 2D grid coverage.
  * <br><br>
  * There is no <code>getMetadataValue(...)</code> method in this implementation.
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.3 2002/07/17 23:30:55 desruisseaux Exp $
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: Coverage.java,v 1.4 2002/07/26 22:17:33 desruisseaux Exp $
+ * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
  * @see org.opengis.cv.CV_Coverage
  */
 public abstract class Coverage extends PropertySourceImpl implements Dimensioned {
+    /**
+     * The set of default axis name.
+     */
+    private static final String[] DIMENSION_NAMES = {"x", "y", "z", "t"};
+
     /**
      * The coverage name.
      */
@@ -128,72 +134,18 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
     protected final CoordinateSystem coordinateSystem;
     
     /**
-     * The names of each dimension in the coverage. Typically these names are
-     * “x”, “y”, “z” and “t”. Grid coverages are typically 2D (x,y) while other
-     * coverages may be 3D (x,y,z) or 4D (x,y,z,t). The number of dimensions of
-     * the coverage is the number of entries in this list of dimension names.
-     */
-    private final String[] dimensionNames;
-    
-    /**
-     * Construct a new coverage with the same
-     * parameters than the specified coverage.
-     */
-    protected Coverage(final Coverage coverage) {
-        // NOTE: This constructor keep a strong reference to the
-        //       source coverage (through 'PropertySourceImpl').
-        //       In many cases, it is not a problem since GridCoverage
-        //       will retains a strong reference to its source anyway.
-        super(null, coverage);
-        this.name             = coverage.name;
-        this.coordinateSystem = coverage.coordinateSystem;
-        this.dimensionNames   = coverage.dimensionNames;
-    }
-    
-    /**
-     * Construct a coverage with no coordinate system.
+     * Construct a coverage using the specified coordinate system. If the coordinate system
+     * is <code>null</code>, then the subclasses must override {@link #getDimension()}.
      *
      * @param name The coverage name.
-     * @param dimensionNames The names of each dimension in the coverage.
-     *        Typically these names are “x”, “y”, “z” and “t”. Grid coverages
-     *        are typically 2D (x,y) while other coverages may be 3D (x,y,z)
-     *        or 4D (x,y,z,t). The array's length will determine the number
-     *        of dimensions of the coverage.
+     * @param coordinateSystem The coordinate system. This specifies the coordinate
+     *        system used when accessing a coverage or grid coverage with the
+     *        <code>evaluate(...)</code> methods.
      * @param source The source for this coverage, or <code>null</code> if none.
      *        Source may be (but is not limited to) {@link javax.media.jai.PlanarImage}
      *        or an other <code>Coverage</code> object.
-     * @param properties The set of properties for this coverage, or <code>null</code>
-     *        if there is none. "Properties" in <em>Java Advanced Imaging</em> is what
-     *        OpenGIS calls "Metadata".  There is no <code>getMetadataValue(...)</code>
-     *        method in this implementation. Use {@link #getProperty} instead. Keys may
-     *        be {@link String} or {@link CaselessStringKey} objects,  while values may
-     *        be any {@link Object}.
-     */
-    protected Coverage(final String         name,
-                       final String[]       dimensionNames,
-                       final PropertySource source,
-                       final Map            properties)
-    {
-        super(properties, source);
-        this.name             = name;
-        this.coordinateSystem = null;
-        this.dimensionNames   = (String[]) dimensionNames.clone();
-    }
-    
-    /**
-     * Construct a coverage using the specified coordinate system.
-     * The names of each dimension in the coverage will be determined
-     * from the coordinate system axis infos.
-     *
-     * @param name The coverage name.
-     * @param coordinateSystem The coordinate system. This specifies
-     *        the coordinate system used when accessing a coverage or
-     *        grid coverage with the “evaluate” methods.
-     * @param source The source for this coverage, or <code>null</code> if none.
-     *        Source may be (but is not limited to) {@link javax.media.jai.PlanarImage}
-     *        or an other <code>Coverage</code> object.
-     * @param properties The set of properties for this coverage, or <code>null</code>
-     *        if there is none. "Properties" in <em>Java Advanced Imaging</em> is what
+     * @param properties The set of properties for this coverage, or <code>null</code> if
+     *        there is none. "Properties" in <cite>Java Advanced Imaging</cite> is what
      *        OpenGIS calls "Metadata".  There is no <code>getMetadataValue(...)</code>
      *        method in this implementation. Use {@link #getProperty} instead. Keys may
      *        be {@link String} or {@link CaselessStringKey} objects,  while values may
@@ -207,10 +159,20 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         super(properties, source);
         this.name             = name;
         this.coordinateSystem = coordinateSystem;
-        this.dimensionNames   = new String[coordinateSystem.getDimension()];
-        for (int i=0; i<dimensionNames.length; i++) {
-            dimensionNames[i] = coordinateSystem.getAxis(i).name;
-        }
+    }
+    
+    /**
+     * Construct a new coverage with the same
+     * parameters than the specified coverage.
+     */
+    protected Coverage(final Coverage coverage) {
+        // NOTE: This constructor keep a strong reference to the
+        //       source coverage (through 'PropertySourceImpl').
+        //       In many cases, it is not a problem since GridCoverage
+        //       will retains a strong reference to its source anyway.
+        super(null, coverage);
+        this.name             = coverage.name;
+        this.coordinateSystem = coverage.coordinateSystem;
     }
     
     /**
@@ -229,9 +191,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
     
     /**
      * Returns the coordinate system. This specifies the coordinate system used when
-     * accessing a coverage or grid coverage with the “evaluate” methods. It is also
-     * the coordinate system of the coordinates used with the math transform  {@link
-     * org.geotools.gc.GridGeometry#getGridToCoordinateSystem}. This coordinate
+     * accessing a coverage or grid coverage with the <code>evaluate(...)</code> methods.
+     * It is also the coordinate system of the coordinates used with the math transform
+     * {@link org.geotools.gc.GridGeometry#getGridToCoordinateSystem}. This coordinate
      * system is usually different than the grid coordinate system of the grid. A grid
      * coverage can be accessed (re-projected) with new coordinate system with the
      * {@link org.geotools.gp.GridCoverageProcessor} component.
@@ -261,16 +223,17 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
     }
     
     /**
-     * Returns the dimension of the grid coverage.
+     * Returns the dimension of the grid coverage. The default implementation
+     * returns the dimension of the underlying {@link CoordinateSystem}.
      */
     public int getDimension() {
-        return dimensionNames.length;
+        return getCoordinateSystem().getDimension();
     }
     
     /**
-     * Returns the names of each dimension in the coverage. Typically these names
-     * are “x”, “y”, “z” and “t”. Grid coverages are typically 2D (x,y) while other
-     * coverages may be 3D (x,y,z) or 4D (x,y,z,t).
+     * Returns the names of each dimension in this coverage. Typically these names are
+     * "x", "y", "z" and "t". The default implementation ask for {@link CoordinateSystem}
+     * axis names, or returns "x", "y"... if this coverage has no coordinate system.
      *
      * @param  locale The desired locale, or <code>null</code> for the default locale.
      * @return The names of each dimension. The array's length is equals to {@link #getDimension}.
@@ -285,8 +248,13 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
                 names[i] = cs.getAxis(i).getName(locale);
             }
             return names;
+        } else {
+            final String[] names = (String[]) XArray.resize(DIMENSION_NAMES, getDimension());
+            for (int i=DIMENSION_NAMES.length; i<names.length; i++) {
+                names[i] = "dim"+(i+1);
+            }
+            return names;
         }
-        return (String[]) dimensionNames.clone();
     }
     
     /**
@@ -317,7 +285,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      *
      * @see CV_Coverage#evaluateAsBoolean
      */
-    public boolean[] evaluate(final CoordinatePoint coord, boolean[] dest) throws PointOutsideCoverageException {
+    public boolean[] evaluate(final CoordinatePoint coord, boolean[] dest)
+            throws PointOutsideCoverageException
+    {
         final double[] result = evaluate(coord, (double[])null);
         if (dest==null)  dest = new boolean[result.length];
         for (int i=0; i<result.length; i++) {
@@ -343,7 +313,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      *
      * @see CV_Coverage#evaluateAsInteger
      */
-    public int[] evaluate(final CoordinatePoint coord, int[] dest) throws PointOutsideCoverageException {
+    public int[] evaluate(final CoordinatePoint coord, int[] dest)
+            throws PointOutsideCoverageException
+    {
         final double[] result = evaluate(coord, (double[])null);
         if (dest==null)  dest = new int[result.length];
         for (int i=0; i<result.length; i++) {
@@ -368,7 +340,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * @return The <code>dest</code> array, or a newly created array if <code>dest</code> was null.
      * @throws PointOutsideCoverageException if <code>coord</code> is outside coverage.
      */
-    public float[] evaluate(final CoordinatePoint coord, float[] dest) throws PointOutsideCoverageException {
+    public float[] evaluate(final CoordinatePoint coord, float[] dest)
+            throws PointOutsideCoverageException
+    {
         final double[] result = evaluate(coord, (double[])null);
         if (dest==null) {
             dest = new float[result.length];
@@ -395,11 +369,14 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      *
      * @see CV_Coverage#evaluateAsDouble
      */
-    public abstract double[] evaluate(CoordinatePoint coord, double[] dest) throws PointOutsideCoverageException;
+    public abstract double[] evaluate(CoordinatePoint coord, double[] dest)
+            throws PointOutsideCoverageException;
     
     /**
      * Returns 2D view of this grid coverage as a renderable image.
      * This method allows interoperability with Java2D.
+     *
+     * <strong>Note: this method is not yet tested</strong>
      *
      * @param  xAxis Dimension to use for <var>x</var> axis.
      * @param  yAxis Dimension to use for <var>y</var> axis.
@@ -414,9 +391,11 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * Renderable images allow interoperability with Java2D
      * for a two-dimensional view of a coverage (which may
      * or may not be a grid coverage).
+     * <br><br>
+     * <strong>Note: this class is not yet tested</strong>
      *
-     * @version 1.0
-     * @author Martin Desruisseaux
+     * @task REVISIT: The whole design of this class need to be reevaluated.
+     *                It badly need also extensive testing.
      */
     protected class Renderable extends PropertySourceImpl implements RenderableImage {
         /**
@@ -446,9 +425,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
             this.yAxis = yAxis;
             final Envelope envelope = getEnvelope();
             bounds = new Rectangle2D.Double(envelope.getMinimum(xAxis),
-            envelope.getMinimum(yAxis),
-            envelope.getLength(xAxis),
-            envelope.getLength(yAxis));
+                                            envelope.getMinimum(yAxis),
+                                            envelope.getLength (xAxis),
+                                            envelope.getLength (yAxis));
         }
         
         /**
@@ -537,7 +516,8 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
             final double boundsHeight = bounds.getHeight();
             if (!(width>0)) { // Use '!' in order to catch NaN
                 if (!(height>0)) {
-                    throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_UNSPECIFIED_IMAGE_SIZE));
+                    throw new IllegalArgumentException(Resources.format(
+                             ResourceKeys.ERROR_UNSPECIFIED_IMAGE_SIZE));
                 }
                 width = (int)Math.round(height * (boundsWidth/boundsHeight));
             } else if (!(height>0)) {
@@ -559,7 +539,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
             final Shape                 area = context.getAreaOfInterest();
             final Rectangle2D        srcRect = (area!=null) ? area.getBounds2D() : bounds;
             final Rectangle          dstRect = (Rectangle) XAffineTransform.transform(transform, srcRect, new Rectangle());
-            final ColorModel      colorModel = catg[0].getColorModel(SampleInterpretation.GEOPHYSICS, 0, catg.length);
+            final ColorModel      colorModel = catg[0].geophysics(true).getColorModel(0, catg.length);
             final Dimension         tileSize = ImageUtilities.toTileSize(dstRect.getSize());
             final SampleModel    sampleModel = colorModel.createCompatibleSampleModel(tileSize.width, tileSize.height);
             final TiledImage           image = new TiledImage(dstRect.x, dstRect.y, dstRect.width, dstRect.height, 0, 0, sampleModel, colorModel);
@@ -572,25 +552,27 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
             Arrays.fill(padNaNs, Double.NaN);
             
             final WritableRectIter iterator = RectIterFactory.createWritable(image, dstRect);
-            try {
+            if (!iterator.finishedLines()) try {
                 int y=dstRect.y; do {
                     iterator.startPixels();
-                    int x=dstRect.x; do {
-                        point2D.x = x;
-                        point2D.y = y;
-                        transform.inverseTransform(point2D, point2D);
-                        if (area==null || area.contains(point2D)) {
-                            coordinate.ord[xAxis] = point2D.x;
-                            coordinate.ord[yAxis] = point2D.y;
-                            iterator.setPixel(evaluate(coordinate, samples));
-                        } else {
-                            iterator.setPixel(padNaNs);
+                    if (!iterator.finishedPixels()) {
+                        int x=dstRect.x; do {
+                            point2D.x = x;
+                            point2D.y = y;
+                            transform.inverseTransform(point2D, point2D);
+                            if (area==null || area.contains(point2D)) {
+                                coordinate.ord[xAxis] = point2D.x;
+                                coordinate.ord[yAxis] = point2D.y;
+                                iterator.setPixel(evaluate(coordinate, samples));
+                            } else {
+                                iterator.setPixel(padNaNs);
+                            }
+                            x++;
                         }
-                        x++;
+                        while (!iterator.nextPixelDone());
+                        assert(x == dstRect.x + dstRect.width);
+                        y++;
                     }
-                    while (!iterator.nextPixelDone());
-                    assert(x == dstRect.x + dstRect.width);
-                    y++;
                 }
                 while (!iterator.nextLineDone());
                 assert(y == dstRect.y + dstRect.height);
@@ -639,7 +621,8 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
     }
     
     /**
-     * Returns a string représentation of this coverage.
+     * Returns a string représentation of this coverage. This string is
+     * for debugging purpose only and may change in future version.
      */
     public String toString() {
         final StringBuffer buffer=new StringBuffer(Utilities.getShortClassName(this));

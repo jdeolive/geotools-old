@@ -58,8 +58,8 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Enumeration class specifing the
  * mapping of a band to a color model component.
  *
- * @version 1.00
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: ColorInterpretation.java,v 1.3 2002/07/26 22:17:33 desruisseaux Exp $
+ * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
  * @see org.opengis.cv.CV_ColorInterpretation

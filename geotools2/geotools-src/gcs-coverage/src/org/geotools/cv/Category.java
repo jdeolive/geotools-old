@@ -96,7 +96,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.4 2002/07/24 18:16:05 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.5 2002/07/26 22:17:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
@@ -713,39 +713,34 @@ public class Category implements Serializable {
     }
 
     /**
-     * Returns a category with a new range of sample values. The
-     * new sample value range will be one of two predefined ranges:
+     * If <code>true</code>, returns a category with sample values equals to geophysics values. In
+     * any such <cite>geophysics category</cite>, {@link #getSampleToGeophysics sampleToGeophysics}
+     * is the identity transform by definition. The following rules hold:
      *
      * <ul>
-     *   <li>If <code>toGeophysics</code> is <code>true</code>, then the new range will matches
-     *       the range of <em>geophysics</em> values. In other words, this method rescale the range
-     *       in such a way that {@link #getSampleToGeophysics} will returns an identity transform
-     *       for the new category (or <code>null</code> if this is a qualitative category).</li>
-     *   <li>If <code>toGeophysics</code> is <code>false</code>, then the new range will
-     *       matches the original range specified at construction time. In other words,
-     *       <code>rescale(false)</code> cancel a previous call to <code>rescale(true)</code>.
-     * </ul>
-     *
-     * The following idioms are of common use:
-     *
-     * <ul>
-     *   <li><code>rescale(false).getRange()</code> returns the range of original sample values
-     *       (usually integers). Call to <code>category.rescale(false)</code> can be ommited if
-     *       the <code>category</code> object is know to not be the result of a previous call to
-     *       <code>rescale(true)</code>.</li>
-     *   <li><code>rescale(true).getRange()</code> returns the range of geophysics values, as
+     *   <li><code>geophysics(true).getSampleToGeophysics()</code> always returns the identity
+     *       transform, or <code>null</code> if this category is a qualitative one.</li>
+     *   <li><code>geophysics(false)</code> returns the original category. In other words,
+     *       it cancel a previous call to <code>geophysics(true)</code>.</li>
+     *   <li>In <code>geophysics(b).geophysics(b)</code>, the second call has no effect
+     *       if <var>b</var> has the same value.</li>
+     *   <li><code>geophysics(false)</code> has no effect if <code>geophysics(true)</code>
+     *       has never been invoked. In other words, the default state after {@link Category}
+     *       construction is <code>geophysics(false)</code>.</li>
+     *   <li><code>geophysics(true).getRange()</code> returns the range of geophysics values, as
      *       transformed by the {@link #getSampleToGeophysics sampleToGeophysics} transform.</li>
+     *   <li><code>geophysics(false).getRange()</code> returns the range of original sample values
+     *       (usually integers).</li>
      * </ul>
      *
-     * @param  toGeophysics <code>true</code> to gets a category with range over geophysics values,
-     *         or <code>false</code> to get back the original category.
-     * @return The rescaled category. Never <code>null</code>, but may be <code>this</code> if the
-     *         current category is already properly scaled.
+     * @param  toGeophysics <code>true</code> to gets a category with sample matching geophysics
+     *         values, or <code>false</code> to get back the original category.
+     * @return The category. Never <code>null</code>, but may be <code>this</code>.
      *
-     * @see SampleDimension#rescale
-     * @see org.geotools.gc.GridCoverage#rescale
+     * @see SampleDimension#geophysics
+     * @see org.geotools.gc.GridCoverage#geophysics
      */
-    public Category rescale(final boolean toGeophysics) {
+    public Category geophysics(final boolean toGeophysics) {
         return toGeophysics ? inverse : this;
     }
     

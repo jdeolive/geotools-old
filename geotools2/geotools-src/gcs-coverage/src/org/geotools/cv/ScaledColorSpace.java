@@ -51,7 +51,7 @@ import org.geotools.resources.Utilities;
  *       Future implementation will be differents (interpolate in a color table
  *       instead of computing grayscales).
  *
- * @version 1.0
+ * @version $Id: ScaledColorSpace.java,v 1.4 2002/07/26 22:17:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ScaledColorSpace extends ColorSpace {

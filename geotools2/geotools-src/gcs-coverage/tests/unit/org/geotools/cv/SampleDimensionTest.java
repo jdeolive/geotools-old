@@ -54,7 +54,7 @@ import junit.framework.TestSuite;
  * rely on {@link CategoryList} for many of its work, many <code>SampleDimension</code>
  * tests are actually <code>CategoryList</code> tests.
  *
- * @version $Id: SampleDimensionTest.java,v 1.4 2002/07/25 22:31:58 desruisseaux Exp $
+ * @version $Id: SampleDimensionTest.java,v 1.5 2002/07/26 22:18:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class SampleDimensionTest extends TestCase {
@@ -133,10 +133,19 @@ public class SampleDimensionTest extends TestCase {
         for (int i=0; i<CATEGORIES.length; i++) {
             assertEquals("nodataValues["+i+']', NO_DATA[i], nodataValues[i], 0);
         }
-        assertEquals("scale",   test.getScale(),     scale,  0);
-        assertEquals("offset",  test.getOffset(),    offset, 0);
-        assertEquals("minimum", test.getMinimumValue(),   0, 0);
-        assertEquals("maximum", test.getMaximumValue(), 255, 0);
+        assertTrue  ("identity", !test.getSampleToGeophysics().isIdentity());
+        assertEquals("scale",     scale,  test.getScale(),        0);
+        assertEquals("offset",    offset, test.getOffset(),       0);
+        assertEquals("minimum",   0,      test.getMinimumValue(), 0);
+        assertEquals("maximum",   255,    test.getMaximumValue(), 0);
+
+        final SampleDimension invt = test.geophysics(true);
+        assertTrue(test != invt);
+        assertTrue  ("identity",  invt.getSampleToGeophysics().isIdentity());
+        assertEquals("scale",     1,    invt.getScale(),        0);
+        assertEquals("offset",    0,    invt.getOffset(),       0);
+        assertEquals("minimum",   6,    invt.getMinimumValue(), 0);
+        assertEquals("maximum",   24.9, invt.getMaximumValue(), 1E-7);
     }
 
     /**
@@ -147,15 +156,15 @@ public class SampleDimensionTest extends TestCase {
      */
     public void testImageAdapterCreation() {
         final OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
-        assertNotNull(registry.getDescriptor("rendered", "SampleToGeophysics"));
+        assertNotNull(registry.getDescriptor("rendered", "GC_SampleTranscoding"));
 
         final BufferedImage       dummy = new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
-        final ParameterBlockJAI   param = new ParameterBlockJAI("SampleToGeophysics");
+        final ParameterBlockJAI   param = new ParameterBlockJAI("GC_SampleTranscoding");
         final ParameterListDescriptor d = param.getParameterListDescriptor();
         assertTrue(d.getParamClasses()[0].equals( SampleDimension[].class ));
 
         try {
-            JAI.create("SampleToGeophysics", param);
+            JAI.create("GC_SampleTranscoding", param);
             fail();
         } catch (IllegalArgumentException expected) {
             // This is the expected exception: source required
@@ -163,14 +172,14 @@ public class SampleDimensionTest extends TestCase {
 
         param.addSource(dummy);
         try {
-            JAI.create("SampleToGeophysics", param);
+            JAI.create("GC_SampleTranscoding", param);
             fail();
         } catch (IllegalArgumentException expected) {
             // This is the expected exception: source required
         }
 
         param.setParameter("sampleDimensions", new SampleDimension[] {test});
-        final RenderedOp op = JAI.create("SampleToGeophysics", param);
+        final RenderedOp op = JAI.create("GC_SampleTranscoding", param);
         assertTrue(op.getRendering() instanceof ImageAdapter);
     }
 }

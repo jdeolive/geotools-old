@@ -53,7 +53,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link CategoryList} implementation.
  *
- * @version $Id: CategoryListTest.java,v 1.2 2002/07/24 18:15:04 desruisseaux Exp $
+ * @version $Id: CategoryListTest.java,v 1.3 2002/07/26 22:18:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CategoryListTest extends TestCase {
@@ -154,8 +154,8 @@ public class CategoryListTest extends TestCase {
         }
         for (int i=0; i<categories.length; i++) {
             final Category cat = categories[i];
-            assertSame(cat, cat.rescale(true).rescale(false));
-            categories[i] = cat.rescale(true);
+            assertSame(cat, cat.geophysics(true).geophysics(false));
+            categories[i] = cat.geophysics(true);
         }
         try {
             new CategoryList(categories, null);
@@ -186,9 +186,9 @@ public class CategoryListTest extends TestCase {
         do {
             list = new CategoryList(categories, null, searchNearest, null);
             assertTrue("containsAll", list.containsAll(Arrays.asList(categories)));
-            assertSame(list.rescale(true), list.inverse());
-            assertSame(list.rescale(true).rescale(false), list);
-            assertSame(list.rescale(false), list);
+            assertSame(list.geophysics(true), list.inverse());
+            assertSame(list.geophysics(true).geophysics(false), list);
+            assertSame(list.geophysics(false), list);
 
             final Range range = list.getRange();
             assertEquals("min", 0,   ((Number)range.getMinValue()).doubleValue(), 0);

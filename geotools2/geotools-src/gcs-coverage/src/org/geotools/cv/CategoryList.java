@@ -82,7 +82,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.3 2002/07/23 17:53:36 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.4 2002/07/26 22:17:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable
@@ -108,7 +108,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      *       <code>inverse</code> must be an instance of {@link CategoryList}.</li>
      * </ul>
      */
-    private final CategoryList inverse;
+    final CategoryList inverse;
 
     /**
      * The range of values in this category list. This is the union of the range of values
@@ -174,6 +174,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
             throws IllegalArgumentException
     {
         this(categories, units, false, null);
+        assert isScaled(false);
     }
 
     /**
@@ -194,26 +195,36 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      * @throws IllegalArgumentException if two or more categories have overlapping sample value
      *         range.
      */
-    CategoryList(Category[] categories, final Unit units, final boolean searchNearest,
-                 CategoryList inverse) throws IllegalArgumentException
+    CategoryList(Category[] categories, Unit units, boolean searchNearest, CategoryList inverse)
+            throws IllegalArgumentException
     {
-        assert (inverse != null) == (this instanceof GeophysicsCategoryList);
+        /*
+         * Check if we are constructing a geophysics category list,  then rescale all cagegories
+         * according. We may loose the user intend by doing so (he may have specified explicitly
+         * a list of GeophysicsCategory), but this is the SampleDimension's job to keep trace of
+         * it.
+         */
+        final boolean isGeophysics = (this instanceof GeophysicsCategoryList);
+        assert (inverse != null) == isGeophysics;
         this.categories = categories = (Category[]) categories.clone();
         for (int i=0; i<categories.length; i++) {
-            categories[i] = categories[i].rescale(inverse!=null);
+            categories[i] = categories[i].geophysics(isGeophysics);
         }
         Arrays.sort(categories, this);
         assert isSorted(categories);
+        assert isScaled(isGeophysics);
+        /*
+         * Construct the array of Category.minimum values. During
+         * the loop, we make sure there is no overlapping ranges.
+         */
         minimums = new double[categories.length];
         for (int i=0; i<categories.length; i++) {
             final double minimum = minimums[i] = categories[i].minimum;
             if (i!=0) {
                 assert !(minimum < minimums[i-1]); // Use '!' to accept NaN.
                 if (compare(minimum, categories[i-1].maximum) <= 0) {
-                    /*
-                     * Two categories have overlapping range.
-                     * Format an error message.
-                     */
+                    // Two categories have overlapping range;
+                    // Format an error message...............
                     final Range range1 = categories[i-1].getRange();
                     final Range range2 = categories[i-0].getRange();
                     final Comparable[] args = new Comparable[] {
@@ -235,13 +246,14 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
             }
         }
         /*
-         * Search for the "nodata" category.
+         * Search for the "nodata" category. This loop looks
+         * for a qualitative category with the NaN value.
          */
         Category nodata = (categories.length!=0) ? categories[0] : NODATA;
         final long nodataBits = Double.doubleToRawLongBits(Double.NaN);
         for (int i=categories.length; --i>=0;) {
             final Category candidate = categories[i];
-            final double value = candidate.rescale(true).minimum;
+            final double value = candidate.geophysics(true).minimum;
             if (Double.isNaN(value)) {
                 nodata = candidate;
                 if (Double.doubleToRawLongBits(value) == nodataBits) {
@@ -254,7 +266,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
         }
         this.nodata = nodata;
         /*
-         * Search for what seems to be the "main" category. This code looks for the
+         * Search for what seems to be the "main" category. This loop looks for the
          * quantitative category (if there is one) with the widest range of sample values.
          */
         double range = 0;
@@ -262,7 +274,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
         for (int i=categories.length; --i>=0;) {
             final Category candidate = categories[i];
             if (candidate.isQuantitative()) {
-                final Category candidatePeer = candidate.rescale(false);
+                final Category candidatePeer = candidate.geophysics(false);
                 final double candidateRange = candidatePeer.maximum - candidatePeer.minimum;
                 if (candidateRange >= range) {
                     range = candidateRange;
@@ -289,7 +301,9 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
         }
         this.overflowFallback = overflowFallback;
         /*
-         * Construct the inverse transform.
+         * Set the inverse transform. If no inverse transform has been explicitly specified, then
+         * this is the "normal" construction call (i.e. not the special construction performed by
+         * GeophysicsCategoryList) and we create our internal inverse object.
          */
         if (inverse == null) {
             inverse = new GeophysicsCategoryList(categories, units, this);
@@ -400,11 +414,43 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
     }
 
     /**
-     * Returns a category list with a new range of sample values.
-     * This method work as {@link Category#rescale(boolean)}.
+     * If <code>toGeophysics</code> is <code>true</code>, returns a list of categories scaled
+     * to geophysics values. This method always returns a list of categories in which
+     * <code>{@link Category#geophysics(boolean) Category.geophysics}(toGeophysics)</code>
+     * has been invoked for each category.
      */
-    public CategoryList rescale(final boolean toGeophysics) {
-        return toGeophysics ? inverse : this;
+    public CategoryList geophysics(final boolean toGeophysics) {
+        final CategoryList scaled = toGeophysics ? inverse : this;
+        assert scaled.isScaled(toGeophysics);
+        return scaled;
+    }
+
+    /**
+     * Verify if all categories are scaled to the specified state.
+     * This is used mostly in assertion statements.
+     *
+     * @param  toGeophysics The state to test.
+     * @return <code>true</code> if all categories are in the specified state.
+     */
+    final boolean isScaled(final boolean toGeophysics) {
+        return isScaled(categories, toGeophysics);
+    }
+
+    /**
+     * Verify if all categories are scaled to the specified state.
+     *
+     * @param  categories The categories to test.
+     * @param  toGeophysics The state to test.
+     * @return <code>true</code> if all categories are in the specified state.
+     */
+    static boolean isScaled(final Category[] categories, final boolean toGeophysics) {
+        for (int i=0; i<categories.length; i++) {
+            final Category c = categories[i];
+            if (c.geophysics(toGeophysics) != c) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -426,7 +472,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
             buffer.append(')');
         }
         buffer.append(' ');
-        return String.valueOf(rescale(true).formatRange(buffer, locale));
+        return String.valueOf(geophysics(true).formatRange(buffer, locale));
     }
     
     /**
@@ -437,7 +483,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      * This method is to be overriden by {@link GeophysicsCategoryList}.   The default
      * implementation returns <code>null</code> since sample values are not geophysics
      * values as long as they have not been transformed.   The {@link SampleDimension}
-     * class will invoke <code>rescale(true).getUnits()</code> in order to get a
+     * class will invoke <code>geophysics(true).getUnits()</code> in order to get a
      * non-null unit.
      */
     public Unit getUnits() {
@@ -504,7 +550,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      * Format the specified value using the specified locale convention.
      * This method is to be overriden by {@link GeophysicsCategoryList}.
      * The default implementation do not format the value very properly,
-     * since most invocation will be done on <code>rescale(true).format(...)</code>
+     * since most invocation will be done on <code>geophysics(true).format(...)</code>
      * anyway.
      *
      * @param  value The value to format.
@@ -681,8 +727,17 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      * It is usually provided for debugging purposes only.
      */
     public final String toString() {
+        return toString(this);
+    }
+    
+    /**
+     * Returns a string representation of this category list.
+     * The <code>owner</code> argument allow for a different
+     * class name to be formatted.
+     */
+    final String toString(final Object owner) {
         final String lineSeparator = System.getProperty("line.separator", "\n");
-        StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(this));
+        StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(owner));
         buffer = formatRange(buffer, null);
         buffer.append(lineSeparator);
         /*
@@ -824,8 +879,8 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
         {
             category = getCategory(value);
             if (category == null) {
-                // TODO: localize this message.
-                throw new TransformException("No category for "+value);
+                throw new TransformException(Resources.format(
+                        ResourceKeys.ERROR_NO_CATEGORY_FOR_VALUE_$1, new Double(value)));
             }
             last = category;
         }
@@ -846,8 +901,8 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
         {
             category = getCategory(value);
             if (category == null) {
-                // TODO: localize this message.
-                throw new TransformException("No category for "+value);
+                throw new TransformException(Resources.format(
+                        ResourceKeys.ERROR_NO_CATEGORY_FOR_VALUE_$1, new Double(value)));
             }
             last = category;
         }
@@ -988,8 +1043,8 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
             }
             category = getCategory(value);
             if (category == null) {
-                // TODO: localize this message.
-                throw new TransformException("No category for "+value);
+                throw new TransformException(Resources.format(
+                        ResourceKeys.ERROR_NO_CATEGORY_FOR_VALUE_$1, new Double(value)));
             }
             maximum = category.maximum;
             minimum = category.minimum;

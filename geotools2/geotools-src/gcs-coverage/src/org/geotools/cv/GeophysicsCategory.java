@@ -48,6 +48,7 @@ import org.geotools.ct.TransformException;
 import org.geotools.ct.MathTransformFactory;
 
 // Resources
+import org.geotools.resources.Utilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -57,7 +58,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * values.   By definition, the {@link #getSampleToGeophysics} method for this class returns
  * the identity transform, or <code>null</code> if this category is a qualitative one.
  *
- * @version $Id: GeophysicsCategory.java,v 1.1 2002/07/23 17:53:36 desruisseaux Exp $
+ * @version $Id: GeophysicsCategory.java,v 1.2 2002/07/26 22:17:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GeophysicsCategory extends Category {
@@ -69,7 +70,7 @@ final class GeophysicsCategory extends Category {
     /**
      * The identity transform. To be returned by {@link #getSampleToGeophysics}.
      */
-    private static final MathTransform1D IDENTITY;
+    static final MathTransform1D IDENTITY;
     static {
         IDENTITY = (MathTransform1D) MathTransformFactory.getDefault().createIdentityTransform(1);
     }
@@ -128,9 +129,9 @@ final class GeophysicsCategory extends Category {
                               new Double(min), minIncluded,
                               new Double(max), maxIncluded);
         } catch (TransformException cause) {
-            // TODO: This message is not very appropriate...
             IllegalStateException exception = new IllegalStateException(Resources.format(
-                         ResourceKeys.ERROR_QUALITATIVE_CATEGORY_$1, getName(null)));
+                                                  ResourceKeys.ERROR_BAD_TRANSFORM_$1,
+                                                  Utilities.getShortClassName(inverse.transform)));
             exception.initCause(cause);
             throw exception;
         }
@@ -164,10 +165,11 @@ final class GeophysicsCategory extends Category {
     }
 
     /**
-     * Returns a category with a new range of sample values.
+     * If <code>false</code>, returns a category with the
+     * original sample values.
      */
-    public Category rescale(final boolean toGeophysics) {
+    public Category geophysics(final boolean toGeophysics) {
         assert !(inverse instanceof GeophysicsCategory);
-        return inverse.rescale(toGeophysics);
+        return inverse.geophysics(toGeophysics);
     }
 }

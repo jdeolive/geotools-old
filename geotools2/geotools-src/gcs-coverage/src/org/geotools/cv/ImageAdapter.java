@@ -73,8 +73,9 @@ import org.geotools.resources.ImageUtilities;
  * transformation in geophyics values, or the converse.  Images are created using
  * the {@link #getInstance} method, which is invoked by <code>SampleDimension.CRIF</code>.
  * "CRIF" stands for {@link java.awt.image.renderable.ContextualRenderedImageFactory}.
+ * The image operation name is "GC_SampleTranscoding".
  *
- * @version $Id: ImageAdapter.java,v 1.5 2002/07/25 22:31:19 desruisseaux Exp $
+ * @version $Id: ImageAdapter.java,v 1.6 2002/07/26 22:17:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ImageAdapter extends PointOpImage {
@@ -127,7 +128,7 @@ final class ImageAdapter extends PointOpImage {
             if (categories.length == other.categories.length) {
                 boolean valid = true;
                 for (int i=0; i<categories.length; i++) {
-                    if (!categories[i].equals(other.categories[i].inverse())) {
+                    if (!categories[i].equals(other.categories[i].inverse)) {
                         valid = false;
                         break;
                     }
@@ -138,9 +139,9 @@ final class ImageAdapter extends PointOpImage {
             }
         }
         /*
-         * The image must be rescaled. Check if the rescale operation is only a linear
-         * transformation.  If yes, we can use the JAI's "Rescale" operation, which is
-         * hardware accelerated.
+         * The image must be transcoded. Check if the transcoding operation is only a
+         * linear transformation.   If yes, we can use the JAI's "Rescale" operation,
+         * which is hardware accelerated.
          */
         try {
             boolean valid = true;
@@ -216,7 +217,7 @@ final class ImageAdapter extends PointOpImage {
                                          final CategoryList[] categories)
     {
         final int     band = 0; // The visible band.
-        CategoryList categ = (CategoryList) categories[band].inverse();
+        CategoryList categ = categories[band].inverse;
         ImageLayout layout = ImageUtilities.getImageLayout(image);
         ColorModel  colors = categ.getColorModel(band, image.getSampleModel().getNumBands());
         SampleModel  model = colors.createCompatibleSampleModel(image.getWidth(), image.getHeight());
