@@ -28,8 +28,6 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
 /**
  *
  * @author jamesm
@@ -38,7 +36,6 @@ public class TextSymbolTest extends TestCase {
     String dataFolder;
     public TextSymbolTest(java.lang.String testName) {
         super(testName);
-        BasicConfigurator.configure();
         dataFolder = System.getProperty("dataFolder");
         if(dataFolder==null){
             //then we are being run by maven
