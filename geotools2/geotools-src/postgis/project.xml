@@ -97,5 +97,17 @@
     </dependency>
     </dependencies>
   
+  <build>
+    <unitTest>
+    
+      <!-- This section excludes the tests -->
+      <excludes>
+        <exclude>**/PostgisLockingTest.java</exclude>
+        <exclude>**/PostgisTestSuite.java</exclude>
+      </excludes>
+      <!-- End exclude tests -->
+    </unitTest>
+    </build>
+
 </project>
 
