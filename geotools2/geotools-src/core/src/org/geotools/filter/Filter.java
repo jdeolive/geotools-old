@@ -25,10 +25,52 @@ import org.geotools.feature.Feature;
 /**
  * Defines an OpenGIS Filter object, with default behaviors for all methods.
  *
- * @version $Id: Filter.java,v 1.7 2002/10/25 11:38:30 ianturton Exp $
+ * @version $Id: Filter.java,v 1.8 2003/05/14 16:16:01 ianschneider Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface Filter {
+  
+  static final Filter NONE = new Filter() {
+    public final boolean contains(Feature f) {
+      return true; 
+    }
+    public final Filter or(Filter f) {
+      return this;
+    }
+    public final Filter and(Filter f) {
+      return f;
+    }
+    public final Filter not() {
+      return Filter.ALL;
+    }
+    public final short getFilterType() {
+      return 12345; 
+    }
+    public final void accept(FilterVisitor v) {
+      v.visit(this);
+    }
+  };
+  
+  static final Filter ALL = new Filter() {
+    public final boolean contains(Feature f) {
+      return false; 
+    }
+    public final Filter or(Filter f) {
+      return f;
+    }
+    public final Filter and(Filter f) {
+      return this;
+    }
+    public final Filter not() {
+      return Filter.NONE;
+    }
+    public final short getFilterType() {
+      return -12345; 
+    }
+    public final void accept(FilterVisitor v) {
+      v.visit(this);
+    }
+  };
 
     /**
      * Determines whether or not a given feature is 'contained by' this filter.
