@@ -56,7 +56,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * for local types. This will allow the OpenGIS Consortium to coordinate the
  * addition of new interoperable codes.
  *
- * @version $Id: DatumType.java,v 1.7 2003/08/04 17:11:16 desruisseaux Exp $
+ * @version $Id: DatumType.java,v 1.8 2003/09/02 12:33:32 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -171,6 +171,19 @@ public abstract class DatumType extends EnumeratedParameter {
      *         enum.</strong>
      */
     public static final Temporal GMT = new Temporal("GMT", 3002, ResourceKeys.GMT);
+
+    /**
+     * A local datum for unknow coordinate system. Such coordinate system are usually
+     * assumed cartesian, but will not have any transformation path to other CS.
+     * <br><br>
+     * <strong>Note: This enum is not part of OpenGIS specification. It may
+     *         change in an incompatible way if OpenGIS define an equivalent
+     *         enum.</strong>
+     *
+     * @see LocalDatum#UNKNOW
+     * @see LocalCoordinateSystem#CARTESIAN
+     */
+    public static final Local UNKNOW = new Local("UNKNOW", Local.MAXIMUM, ResourceKeys.UNKNOW);
     
     /**
      * List of predefined enum types.
@@ -187,7 +200,8 @@ public abstract class DatumType extends EnumeratedParameter {
         GEOID_MODEL_DERIVED,
         DEPTH,
         UTC,
-        GMT
+        GMT,
+        UNKNOW
     };
     
     /**
@@ -218,7 +232,7 @@ public abstract class DatumType extends EnumeratedParameter {
      */
     public static DatumType getEnum(final int value) {
         for (int i=0; i<ENUMS.length; i++) {
-            if (ENUMS[i].getValue()==value) {
+            if (ENUMS[i].getValue() == value) {
                 return ENUMS[i];
             }
         }

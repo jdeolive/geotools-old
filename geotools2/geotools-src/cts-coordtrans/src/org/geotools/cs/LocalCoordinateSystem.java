@@ -35,17 +35,20 @@
  */
 package org.geotools.cs;
 
+// J2SE and Java3D dependencies
+import java.util.Locale;
+import java.util.Arrays;
+import java.rmi.RemoteException;
+import javax.vecmath.MismatchedSizeException;
+
 // OpenGIS dependencies
 import org.opengis.cs.CS_LocalDatum;
 import org.opengis.cs.CS_LocalCoordinateSystem;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
-
-// J2SE and Java3D dependencies
-import java.util.Arrays;
-import java.rmi.RemoteException;
-import javax.vecmath.MismatchedSizeException;
+import org.geotools.resources.cts.Resources;
+import org.geotools.resources.cts.ResourceKeys;
 
 
 /**
@@ -61,7 +64,7 @@ import javax.vecmath.MismatchedSizeException;
  * (E.g. from a database of transformations, which is created and
  * maintained from real-world measurements.)
  *
- * @version $Id: LocalCoordinateSystem.java,v 1.11 2003/08/04 17:11:17 desruisseaux Exp $
+ * @version $Id: LocalCoordinateSystem.java,v 1.12 2003/09/02 12:33:32 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -72,6 +75,23 @@ public class LocalCoordinateSystem extends CoordinateSystem {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = -2067954038057402418L;
+
+    /**
+     * A two-dimensional cartesian coordinate system with
+     * {@linkplain AxisInfo#X x},{@linkplain AxisInfo#Y y} axis in
+     * {@linkplain Unit#METRE metres}. By default, this coordinate system has no transformation
+     * path to any other coordinate system  (i.e. a map using this CS can't be reprojected to a
+     * {@linkplain GeographicCoordinateSystem geographic coordinate system}). This CS is usefull
+     * as a default one when no CS were explicitly specified.
+     */
+    public static final LocalCoordinateSystem CARTESIAN = new LocalCoordinateSystem(
+                        "Cartesian", LocalDatum.UNKNOW, Unit.METRE,
+                        new AxisInfo[] {AxisInfo.X, AxisInfo.Y})
+    {
+        public String getName(final Locale locale) {
+            return Resources.getResources(locale).getString(ResourceKeys.CARTESIAN);
+        }
+    };
     
     /**
      * The local datum.

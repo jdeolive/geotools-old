@@ -35,14 +35,17 @@
  */
 package org.geotools.cs;
 
+// J2SE dependencies
+import java.util.Locale;
+import java.rmi.RemoteException;
+
 // OpenGIS dependencies
 import org.opengis.cs.CS_LocalDatum;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
-
-// J2SE dependencies
-import java.rmi.RemoteException;
+import org.geotools.resources.cts.Resources;
+import org.geotools.resources.cts.ResourceKeys;
 
 
 /**
@@ -52,7 +55,7 @@ import java.rmi.RemoteException;
  * between two different local coordinate systems, as long as they are based
  * on the same local datum.
  *
- * @version $Id: LocalDatum.java,v 1.6 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: LocalDatum.java,v 1.7 2003/09/02 12:33:32 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -63,6 +66,19 @@ public class LocalDatum extends Datum {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = 426762179497761085L;
+
+    /**
+     * A local datum for unknow coordinate system. Such coordinate system are usually
+     * assumed cartesian, but will not have any transformation path to other CS.
+     *
+     * @see DatumType#UNKNOW
+     * @see LocalCoordinateSystem#CARTESIAN
+     */
+    public static final LocalDatum UNKNOW = new LocalDatum("Unknow", DatumType.UNKNOW) {
+        public String getName(final Locale locale) {
+            return Resources.getResources(locale).getString(ResourceKeys.UNKNOW);
+        }
+    };
     
     /**
      * Creates a local datum.

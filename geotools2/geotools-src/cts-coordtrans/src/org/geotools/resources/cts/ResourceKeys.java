@@ -27,6 +27,7 @@ public interface ResourceKeys
     public static final int ALTITUDE                                    =     2;
     public static final int BAROMETRIC_ALTITUDE                         =     3;
     public static final int BURSA_WOLF_PARAMETERS_REQUIRED              =     4;
+    public static final int CARTESIAN                                   =    95;
     public static final int CLASSIC                                     =     5;
     public static final int CONVERSION                                  =     6;
     public static final int CONVERSION_AND_TRANSFORMATION               =     7;
@@ -63,6 +64,7 @@ public interface ResourceKeys
     public static final int TIME                                        =    35;
     public static final int TRANSFORMATION                              =    36;
     public static final int TRANSVERSE_MERCATOR_PROJECTION              =    37;
+    public static final int UNKNOW                                      =    94;
     public static final int UP                                          =    38;
     public static final int UTC                                         =    39;
     public static final int VERTICAL                                    =    40;
