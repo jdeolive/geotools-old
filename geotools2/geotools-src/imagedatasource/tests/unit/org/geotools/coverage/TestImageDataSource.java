@@ -7,8 +7,6 @@
 
 package org.geotools.coverage;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -18,20 +16,25 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
+
 import javax.imageio.ImageIO;
-import junit.framework.*;
-import org.geotools.data.DataSourceException;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.Filter;
 import org.geotools.map.DefaultMap;
-import org.geotools.renderer.Java2DRenderer;
+import org.geotools.renderer.lite.LiteRenderer;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.RasterSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbolizer;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -114,7 +117,7 @@ public class TestImageDataSource extends TestCase {
         Style style = sFac.createStyle();
         style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts});
         map.addFeatureTable(ft,style);
-        Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
+        LiteRenderer renderer = new LiteRenderer();
         Frame frame = new Frame();
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
