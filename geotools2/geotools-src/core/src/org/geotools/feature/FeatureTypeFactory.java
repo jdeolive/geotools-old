@@ -47,7 +47,7 @@ import org.geotools.factory.*;
  * 
  * This class is not thread-safe.
  *
- * @version $Id: FeatureTypeFactory.java,v 1.4 2003/07/21 23:41:49 ianschneider Exp $
+ * @version $Id: FeatureTypeFactory.java,v 1.5 2003/07/21 23:49:30 ianschneider Exp $
  * @author  Ian Schneider
  */
 public abstract class FeatureTypeFactory implements Factory {
@@ -176,7 +176,6 @@ public abstract class FeatureTypeFactory implements Factory {
     Set builtin = getBuiltinTypes();
     if (builtin != null)
       supers.addAll(builtin);
-    System.out.println("supers " + supers);
     return supers;
   }
   
