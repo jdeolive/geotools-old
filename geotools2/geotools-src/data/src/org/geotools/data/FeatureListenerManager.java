@@ -224,7 +224,7 @@ public class FeatureListenerManager {
         FeatureListener[] listeners;
         FeatureEvent event;
 
-        for (Iterator i = getListeners(typeName, transaction).values().iterator();
+        for (Iterator i = getListeners(typeName, transaction).entrySet().iterator();
                 i.hasNext();) {
             entry = (Map.Entry) i.next();
             featureSource = (FeatureSource) entry.getKey();
