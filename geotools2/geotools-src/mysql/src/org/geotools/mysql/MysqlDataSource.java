@@ -20,29 +20,37 @@
 
 package org.geotools.data.mysql;
 
-import java.util.Map;
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import org.apache.log4j.Category;
-import com.vividsolutions.jts.io.*;
-import com.vividsolutions.jts.geom.*;
-import org.geotools.data.*;
-import org.geotools.feature.*;
+//import org.apache.log4j.Category;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.WKTWriter;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.feature.SchemaException;
+import org.geotools.feature.FeatureFactory;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollectionDefault;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.IllegalFeatureException;
 import org.geotools.filter.Filter;
-import org.geotools.datasource.extents.EnvelopeExtent;
+import org.geotools.data.DataSourceException;
+import java.util.logging.Logger;
 
 /**
  * Connects to a Mysql database and returns properly formatted GML.
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: MysqlDataSource.java,v 1.1 2002/08/04 12:57:40 jmacgill Exp $
+ * @version $Id: MysqlDataSource.java,v 1.2 2002/08/16 20:29:26 cholmesny Exp $
  * @author Chris Holmes, Vision for New York
  * @author Rob Hranac, Vision for New York
  *
@@ -51,13 +59,13 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
 
     /** For use when reading in attributes.  One off due to sql columns
      *  starting at 1 instead of 0, another one for Feature ID in first column.*/
-    private static int COLUMN_OFFSET = 2;
-
-    /** Map of sql Type to Java class */
-    private static Map sqlTypeMap = new HashMap();
+    private static final int COLUMN_OFFSET = 2;
+ 
+    /** The logger for the default core module.  */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.mysql");
 
     /** Standard logging instance. */
-    private static Category _log = Category.getInstance(MysqlDataSource.class.getName());
+    //    private static Category _log = Category.getInstance(MysqlDataSource.class.getName());
     
     /** Factory for producing geometries (from JTS). */
     private static GeometryFactory geometryFactory = new GeometryFactory();
@@ -93,63 +101,17 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
         // create the return response type
         this.db = db;
         this.tableName = feaTableName;
-	sqlTypeMap.put("TINY", Byte.class);
-	sqlTypeMap.put("SHORT", Short.class);
-	sqlTypeMap.put("INT", Integer.class);
-	sqlTypeMap.put("LONG", Integer.class); //check this
-	sqlTypeMap.put("LONGLONG", Long.class);
-	sqlTypeMap.put("DOUBLE", Double.class);
-	sqlTypeMap.put("VARCHAR", String.class);
-	sqlTypeMap.put("DECIMAL", String.class);
-	sqlTypeMap.put("CHAR", String.class);
-	sqlTypeMap.put("TEXT", String.class);
-	sqlTypeMap.put("BLOB", String.class);//figure this shit out
-	sqlTypeMap.put("FLOAT", Float.class); 
-	//TODO type map for all sql types
-	try{
-	Connection dbConnection = db.getConnection();
-	geomDataCol = new MysqlGeomColumn(dbConnection, feaTableName);
-	dbConnection.close();
-	} catch(SQLException e) {
-            _log.info("Some sort of database connection error: " + e.getMessage());
-	}	
+       try {
+           Connection dbConnection = db.getConnection();
+          geomDataCol = new MysqlGeomColumn(dbConnection, feaTableName);
+          //schema = geomDataCol.getSchema();
+          dbConnection.close();
+       } catch (SQLException e) {
+            LOGGER.warning("Some sort of database connection error: " + e.getMessage());
+       } catch (SchemaException e) {
+            LOGGER.warning("problems creating the schema" + e);
+        }
     }
-
-    /**
-     * Creates the schema, a FeatureType of the attributes.
-     * @param metaData from the query of the feature table.
-     * @return a FeatureType of the attributes.
-     * tasks TODO: put this method MysqlGeomColumn or a SchemaFactory
-     */
-    private FeatureType makeSchema(ResultSetMetaData metaData) 
-        throws SQLException, SchemaException {
-	String columnName = null;
-	Class colClass = null;
-	String geoColumn = geomDataCol.getGeomColName(); 
-	int numCols = metaData.getColumnCount();
-        AttributeType[] attributes = new AttributeType[numCols - 1];
-
-        _log.info("about to loop through cols");
-
-        // loop through all columns except first, as it's the featureID
-        for( int i = 2; i <= numCols; i++) {
-	    columnName = metaData.getColumnName(i);
-            _log.info("reading col: " + i + " named: " + columnName);
-            _log.info("reading col: " + metaData.getColumnTypeName(i));
-            // set column name and type from database
-	    //TODO: use MysqlGeomColumn.getGeomType, once it's fully implemented
-	    if(columnName.equals(geoColumn)) {  //if it is a geomtry column, by name
-		attributes[i - COLUMN_OFFSET] = new AttributeTypeDefault(columnName, Geometry.class);
-	    } else {
-		colClass = (Class) sqlTypeMap.get(metaData.getColumnTypeName(i));
-		attributes[i - COLUMN_OFFSET] = new AttributeTypeDefault ( columnName, colClass );
-	    }
-        }        
-        return FeatureTypeFactory.create(attributes);
-    }
-
-
-
 
 
     /**
@@ -162,67 +124,71 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      */ 
     public void getFeatures(FeatureCollection collection, Filter filter) 
         throws DataSourceException {
-	List features = new ArrayList(maxFeatures);
+        List features = new ArrayList(maxFeatures);
 
 
         try {
-            _log.info("about to make connection");
+            LOGGER.finer("about to make connection");
             Connection dbConnection = db.getConnection();
             Statement statement = dbConnection.createStatement();
             ResultSet result = statement.executeQuery( makeImportSql(filter));
-	    // if no schema has been passed to the datasource, roll our own
-	    // TODO: move this to constructor, as modify and delete also need
-	    // access, works now because those call a get for filtering purposes
-	    // as we can't yet unpack the filters.
-	    if( schema == null) {
-		schema = makeSchema(result.getMetaData());
+            // if no schema has been passed to the datasource, roll our own
+            // TODO: move this to constructor, as modify and delete also need
+            // access, works now because those call a get for filtering purposes
+            // as we can't yet unpack the filters.
+            if ( schema == null) {
+                try {
+                    //schema = makeSchema(result.getMetaData());      
+                    schema = MysqlGeomColumn.makeSchema(result.getMetaData(), 
+                                               geomDataCol.getGeomColName());
+                } catch (Exception e) {
+                    LOGGER.warning("Had problems creating the Schema..." + e.getMessage());
+                }
             }
-            _log.info("about to prepare feature reading");
+            LOGGER.finer("about to prepare feature reading");
             // set up a factory, attributes, and a counter for feature creation
             FeatureFactory factory = new FeatureFactory(schema);
             Object[] attributes = new Object[schema.attributeTotal()];
             int geometryPosition = schema.getDefaultGeometry().getPosition();
-	    int resultCounter = 0;
-	    int numAttr = schema.attributeTotal(); //counter for getting attributes;
-	    Geometry geom;
-	    String featureID;
+            int resultCounter = 0;
+            int numAttr = schema.attributeTotal(); //counter for getting attributes;
+            Geometry geom;
+            String featureID;
             // loop through entire result set or until maxFeatures are reached
-            while( result.next() && ( resultCounter < maxFeatures)) {
-                _log.info("reading feature: " + resultCounter);
+            while (result.next() && ( resultCounter < maxFeatures)) {
+                LOGGER.finer("reading feature: " + resultCounter);
                 // create an individual attribute by looping through columns
-		featureID = result.getString(1); //the first column is always the feature ID;
-		for( int col = 0; col < numAttr; col++) {
-		    _log.info("reading attribute: " + col);
-		    if (col == geometryPosition) {
-			geom = geomDataCol.getGeometry( result.getInt(col + COLUMN_OFFSET));
-			if (geom == null) {
-			    throw new DataSourceException("inconsistent database, the gid did not " +							  "find valid geometry data");
-			}
-			attributes[col] = geom;
-		    } else {
-			attributes[col] = result.getObject( col + COLUMN_OFFSET);
-		    }
-		}
+                featureID = result.getString(1); //the first column is always the feature ID;
+                for (int col = 0; col < numAttr; col++) {
+                    LOGGER.finer("reading attribute: " + col);
+                    if (col == geometryPosition) {
+                        geom = geomDataCol.getGeometry( result.getInt(col + COLUMN_OFFSET));
+                        if (geom == null) {
+                            throw new DataSourceException("inconsistent database, " + 
+                                    "the gid did not find valid geometry data");
+                        }
+                        attributes[col] = geom;
+                    } else {
+                        attributes[col] = result.getObject( col + COLUMN_OFFSET);
+                    }
+                }
                 //The following line used to read: But featureID support is not yet in CVS
-                //features.add( factory.create(attributes, featureID));
-                features.add( factory.create(attributes));
-		resultCounter++;
-	    }								
-	    filterFeatures(features, filter);
+                features.add( factory.create(attributes, featureID));
+                //features.add( factory.create(attributes));
+                resultCounter++;
+            }
+            filterFeatures(features, filter);
             collection.addFeatures((Feature[]) features.
-                                   toArray(new Feature[features.size()]));				
-	    result.close();
-	    statement.close();
-	    dbConnection.close();
-	}
-        catch(SQLException e) {
-            _log.info("Some sort of database connection error: " + e.getMessage());
-        }
-	 catch(SchemaException e) {
-            _log.info("Had problems creating the feature type..." + e.getMessage());
-	 } catch(IllegalFeatureException e){
-	     _log.info("Had problems creating the feature: " + e.getMessage());
-	 }
+                                   toArray(new Feature[features.size()]));
+            result.close();
+            statement.close();
+            dbConnection.close();
+        } catch (SQLException e) {
+            LOGGER.warning("Some sort of database connection error: " + e.getMessage());
+
+         } catch (IllegalFeatureException e){
+             LOGGER.warning("Had problems creating the feature: " + e.getMessage());
+         }
 
     }
 
@@ -236,13 +202,13 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      * @param filter The filter to test with.
      */
     private void filterFeatures(List features, Filter filter){
-	List filteredFeatures = new ArrayList(maxFeatures);
-	for(int i = 0; i < features.size(); i++){
-	    if (!filter.contains((Feature)features.get(i))){
-		features.remove(i);
-		i--; //remove shifts index, so we must compensate
-	    }
-	}
+        List filteredFeatures = new ArrayList(maxFeatures);
+        for (int i = 0; i < features.size(); i++){
+            if (!filter.contains((Feature) features.get(i))){
+                features.remove(i);
+                i--; //remove shifts index, so we must compensate
+            }
+        }
     }
     
     
@@ -255,73 +221,73 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      * @throws DataSourceException For all data source errors.
      */
     public FeatureCollection getFeatures(Filter filter) 
-	throws DataSourceException {
-	FeatureCollection fc = new FeatureCollectionDefault();
+        throws DataSourceException {
+        FeatureCollection fc = new FeatureCollectionDefault();
 
-	getFeatures(fc, filter);
-	return fc;
+        getFeatures(fc, filter);
+        return fc;
     }
 
     /**
      * Adds all features from the passed feature collection to the datasource.
      *
-     * @param collection The collection from which to add the features.
+     * @param features The collection from which to add the features.
      * @throws DataSourceException If anything goes wrong or if exporting is
      * not supported.
      */
     public void addFeatures(FeatureCollection features)
         throws DataSourceException {
-	Feature[] featureArr;
-	AttributeType[] attributeTypes;
-	int geomPos;
-	int curFeature;
-	Object[] curAttributes;
-	String sql = "";
-	String featureID;
-	String geomSql = "";
-	int numAttributes;
-	String attrValue = "";
-	int gid;
-	Geometry curGeom = null;
-	
-	featureArr = features.getFeatures();
-	schema = featureArr[0].getSchema();
-	attributeTypes = schema.getAttributeTypes(); 
-	numAttributes = attributeTypes.length;     
-	geomPos = schema.getDefaultGeometry().getPosition();
-	try{ 
-	    Connection dbConnection = db.getConnection();
-	    Statement statement = dbConnection.createStatement();
-	    for(int i = 0; i < featureArr.length; i++){
-		curAttributes = featureArr[i].getAttributes();
-		sql = "INSERT INTO " + geomDataCol.getFeaTableName() + 
-		    " VALUES(";
-		featureID = featureArr[i].getId(); 
-		sql += addQuotes(featureID) + ", ";
-		for(int j = 0; j < curAttributes.length; j++){
-		if (j == geomPos) {
-		    gid = createGID(featureID);
-		    curGeom = (Geometry) curAttributes[j];
-		    geomSql = makeGeomSql(curGeom, gid);
-		    geomDataCol.populateData(gid, geometryWriter.write(curGeom));
-		    attrValue = new Integer(gid).toString();
-		} else {
-		    attrValue = addQuotes(curAttributes[j]);
-		}
-		sql += attrValue;
-		if (j < curAttributes.length - 1){
-		    sql += ", ";
-		}
-	    }
-	    sql += ")";
-	    _log.info("this sql statement = " + sql);
-	    statement.executeUpdate(geomSql);
-	    statement.executeUpdate(sql);
-	}
-	statement.close();
-	dbConnection.close();
-	} catch(SQLException e) {
-            _log.info("Some sort of database connection error: " + e.getMessage());
+        Feature[] featureArr;
+        AttributeType[] attributeTypes;
+        int geomPos;
+        int curFeature;
+        Object[] curAttributes;
+        String sql = "";
+        String featureID;
+        String geomSql = "";
+        int numAttributes;
+        String attrValue = "";
+        int gid;
+        Geometry curGeom = null;
+       
+        featureArr = features.getFeatures();
+        schema = featureArr[0].getSchema();
+        attributeTypes = schema.getAttributeTypes(); 
+        numAttributes = attributeTypes.length;     
+        geomPos = schema.getDefaultGeometry().getPosition();
+        try { 
+            Connection dbConnection = db.getConnection();
+            Statement statement = dbConnection.createStatement();
+            for (int i = 0; i < featureArr.length; i++){
+                curAttributes = featureArr[i].getAttributes();
+                sql = "INSERT INTO " + geomDataCol.getFeaTableName() + 
+                    " VALUES(";
+                featureID = featureArr[i].getId(); 
+                sql += addQuotes(featureID) + ", ";
+                for (int j = 0; j < curAttributes.length; j++){
+                if (j == geomPos) {
+                    gid = createGID(featureID);
+                    curGeom = (Geometry) curAttributes[j];
+                    geomSql = makeGeomSql(curGeom, gid);
+                    geomDataCol.populateData(gid, geometryWriter.write(curGeom));
+                    attrValue = new Integer(gid).toString();
+                } else {
+                    attrValue = addQuotes(curAttributes[j]);
+                }
+                sql += attrValue;
+                if (j < curAttributes.length - 1){
+                    sql += ", ";
+                }
+            }
+            sql += ")";
+            LOGGER.finer("this sql statement = " + sql);
+            statement.executeUpdate(geomSql);
+            statement.executeUpdate(sql);
+        }
+        statement.close();
+        dbConnection.close();
+        } catch (SQLException e) {
+            LOGGER.warning("Some sort of database connection error: " + e.getMessage());
         }
     }
 
@@ -332,11 +298,11 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      * @return a unique integer representation based on the featureID.
      */ 
     private int createGID(Object featureID){
-	/*The feature ID can be any type of object, its hashcode
-	 * will consistently return the same integer, and if two
-	 * objects are equal according to the equals(Object) method
-	 * they return the same hashcode.*/
-	return featureID.hashCode();
+        /*The feature ID can be any type of object, its hashcode
+         * will consistently return the same integer, and if two
+         * objects are equal according to the equals(Object) method
+         * they return the same hashcode.*/
+        return featureID.hashCode();
     }
 
     /**
@@ -349,9 +315,9 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      * @return a string representation of the object with quotes.
      */
     private String addQuotes(Object value){
-	String retString;
-	retString = "'" + value.toString() + "'";
-	return retString;
+        String retString;
+        retString = "'" + value.toString() + "'";
+        return retString;
     }
 
     /**
@@ -360,7 +326,7 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      * unpacking filter support is available this will be more complex.
      *
      * @param filter passed in to importFeatures.
-     * @param return the sql statement.
+     * @return the sql statement.
      */ 
     private String makeImportSql(Filter filter) {        
         return "SELECT * FROM " + tableName + ";";
@@ -370,11 +336,11 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      * Creates a sql delete statement from a GID.
      *
      * @param gid The id for this feature's geometry row.
-     * @param return the sql statement.
+     * @return the sql statement.
      */ 
     private String makeDelGeomSql(int gid){
-	return  "DELETE FROM " + geomDataCol.getGeomTableName() + " WHERE " +
-		"GID = " + gid;
+        return  "DELETE FROM " + geomDataCol.getGeomTableName() + " WHERE " +
+                "GID = " + gid;
     }
 
  /**
@@ -387,18 +353,18 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      *  tasks TODO use wkb instead of wkt.
      */ 
     private String makeGeomSql(Geometry curGeom, int geomID){
-	Envelope env = curGeom.getEnvelopeInternal();
+        Envelope env = curGeom.getEnvelopeInternal();
          double xMin = env.getMinX();
-	 double yMin = env.getMinY();
-	 double xMax = env.getMaxX();
-	 double yMax = env.getMaxY();
-	 String returnSql = "INSERT INTO " + geomDataCol.getGeomTableName()
-	    + " VALUES(" + geomID + ", " + xMin + ", " + yMin + ", " + xMax + ", " + yMax + ", '" 
-	    +  geometryWriter.write(curGeom)  + "')";//; "; //eventually this will be wkb, not
-	//wktext as it is now.  FeatureID will be same as Geometry ID, x and y maxs
-	//are currently just nulls, TODO implement proper maxs and mins.
-	_log.info("to put our location in we say: " + returnSql);
-	return returnSql;
+         double yMin = env.getMinY();
+         double xMax = env.getMaxX();
+         double yMax = env.getMaxY();
+         String returnSql = "INSERT INTO " + geomDataCol.getGeomTableName()
+            + " VALUES(" + geomID + ", " + xMin + ", " + yMin + ", " + xMax + ", " + yMax + ", '" 
+            +  geometryWriter.write(curGeom)  + "')";//; "; //eventually this will be wkb, not
+        //wktext as it is now.  FeatureID will be same as Geometry ID, x and y maxs
+        //are currently just nulls, TODO implement proper maxs and mins.
+        LOGGER.finer("to put our location in we say: " + returnSql);
+        return returnSql;
     
     }
 
@@ -412,33 +378,34 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      * @return an update sql statement.
      */ 
     private String makeModifySql(AttributeType type, Object value, Feature feature){
-	String sql;
-	String id = addQuotes(feature.getId());
-	//TODO error checking to make sure type matches schema
-	sql = "UPDATE " + geomDataCol.getFeaTableName() + " SET " + 
-	    type.getName() + " = " + addQuotes(value) + " WHERE ID = " + id;
-	return sql;
+        String sql;
+        String id = addQuotes(feature.getId());
+        //TODO error checking to make sure type matches schema
+        sql = "UPDATE " + geomDataCol.getFeaTableName() + " SET " + 
+            type.getName() + " = " + addQuotes(value) + " WHERE ID = " + id;
+        return sql;
     }
 
 
     /**
      *  Performs the filter operation on the database.
      *
-     * @param Filter the filter for the data
+     * @param filter the filter for the data
      * @return an list of the feature ID strings
      * tasks TODO: Use unpacking of filters to eliminate the need to call 
      * an import before doing any remove or modify operation.
+     * @throws DataSourceException if there was trouble with the datasource.
      */
     private Feature[] getFilteredFeatures(Filter filter)
-	throws DataSourceException{
-	/*This implementation is awful, we need to think about how
-	 * to better use SQL clauses to do the filtering instead of pulling
-	 * all the data out and then examining it
-	 */
-	FeatureCollection collection = getFeatures(filter);
-	return collection.getFeatures();
+        throws DataSourceException{
+       /* This implementation is awful, we need to think about how
+        * to better use SQL clauses to do the filtering instead of pulling
+        * all the data out and then examining it
+        */
+        FeatureCollection collection = getFeatures(filter);
+        return collection.getFeatures();
     }
-	
+
     /**
      * Removes all of the features specificed by the passed filter from the
      * collection.
@@ -452,56 +419,54 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      */
     public void removeFeatures(Filter filter)
         throws DataSourceException {
-	Feature[] featureArr;
-	Object[] curAttributes;
-	String sql = "";
-	Object featureID;
-	String geomSql = "";
-	String attrValue = "";
-	Object fidValue;
-	String fid = null;
-	AttributeType fidType;
-	String gidName;
-	int gid = 0;
-	int gidPos;
-	String feaTabName = geomDataCol.getFeaTableName();
+        Feature[] featureArr;
+        Object[] curAttributes;
+        String sql = "";
+        Object featureID;
+        String geomSql = "";
+        String attrValue = "";
+        Object fidValue;
+        String fid = null;
+        AttributeType fidType;
+        String gidName;
+        int gid = 0;
+        int gidPos;
+        String feaTabName = geomDataCol.getFeaTableName();
 
-	featureArr = getFilteredFeatures(filter);//this does a nasty import, make it nicer.
-	schema = featureArr[0].getSchema();
-	gidName = schema.getDefaultGeometry().getName();  //this will not always exist
-	gidPos = schema.getDefaultGeometry().getPosition();
-	//if we make our filter db interaction more elegant, ie not importing everything.
-	//possible solution is to have the geomDataCol store the schema and feature ID type and name
-	try{ 
-	    Connection dbConnection = db.getConnection();
-	    Statement statement = dbConnection.createStatement();
-	    Statement stmtR = dbConnection.createStatement();
-	    ResultSet rs;
-	    //sql = "SELECT * FROM " + feaTabName;// +" WHERE ID = " + fid;
-	    //rs = stmtR.executeQuery(sql);
-	    for(int i = 0; i < featureArr.length; i++){
-		curAttributes = featureArr[i].getAttributes();
-		fidValue = featureArr[i].getId();
-		fid = addQuotes(fidValue);
-		//rs.next();
-		//    gid = rs.getInt(gidPos + 2);
-		gid = createGID(fidValue); //TODO: make SFS SQL 92 compliant
-		    sql = "DELETE FROM "  + feaTabName + " WHERE ID = " + fid;
-		    //TODO: the field that contains ID will not always be named ID.
-		    _log.info("our delete says : " + sql);
-		    statement.executeUpdate(sql);
-		statement.executeUpdate(sql);
-		
-		statement.executeUpdate(makeDelGeomSql(gid));
-		geomDataCol.removeData(gid); //shouldn't be necessary, but keeps things consistent.
-	    }
-	    //rs.close();
-		statement.close();
-		dbConnection.close();
-	    
-	} catch(SQLException e) {
-	    _log.info("Error with sql " + e.getMessage());
-	}
+        featureArr = getFilteredFeatures(filter);//this does a nasty import, make it nicer.
+        schema = featureArr[0].getSchema();
+        gidName = schema.getDefaultGeometry().getName();  //this will not always exist
+        gidPos = schema.getDefaultGeometry().getPosition();
+        //if we make our filter db interaction more elegant, ie not importing everything.
+        //possible solution is to have the geomDataCol store the schema and feature ID type and name
+        try { 
+            Connection dbConnection = db.getConnection();
+            Statement statement = dbConnection.createStatement();
+            Statement stmtR = dbConnection.createStatement();
+            ResultSet rs;
+            //sql = "SELECT * FROM " + feaTabName;// +" WHERE ID = " + fid;
+            //rs = stmtR.executeQuery(sql);
+            for (int i = 0; i < featureArr.length; i++){
+                curAttributes = featureArr[i].getAttributes();
+                fidValue = featureArr[i].getId();
+                fid = addQuotes(fidValue);
+                //rs.next();
+                //    gid = rs.getInt(gidPos + 2);
+                gid = createGID(fidValue); //TODO: make SFS SQL 92 compliant
+                    sql = "DELETE FROM "  + feaTabName + " WHERE ID = " + fid;
+                    //TODO: the field that contains ID will not always be named ID.
+                    LOGGER.finer("our delete says : " + sql);
+                    statement.executeUpdate(sql);
+                statement.executeUpdate(sql);
+                statement.executeUpdate(makeDelGeomSql(gid));
+                geomDataCol.removeData(gid); //shouldn't be necessary, but keeps things consistent.
+            }
+            //rs.close();
+                statement.close();
+                dbConnection.close();    
+        } catch (SQLException e) {
+              LOGGER.warning("Error with sql " + e.getMessage());
+        }
     }
 
 
@@ -518,38 +483,37 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      */
     public void modifyFeatures(AttributeType type, Object value, Filter filter)
         throws DataSourceException {
-	    Feature[] featureArr;
-	    FeatureCollection collection = new FeatureCollectionDefault();
-	    int geomPos;
-	    int gid;
+            Feature[] featureArr;
+            FeatureCollection collection = new FeatureCollectionDefault();
+            int geomPos;
+            int gid;
 
-	    featureArr = getFilteredFeatures(filter);
-	    geomPos = schema.getDefaultGeometry().getPosition();
-	    //be sure to load the schema in the constructor when we no longer 
-	    //do the nasty getFeatures.
+            featureArr = getFilteredFeatures(filter);
+            geomPos = schema.getDefaultGeometry().getPosition();
+            //be sure to load the schema in the constructor when we no longer 
+            //do the nasty getFeatures.
 
-	    try{
-		Connection dbConnection = db.getConnection();
-		Statement stmt = dbConnection.createStatement();
-		for (int i = 0; i < featureArr.length; i++){
-		    _log.info("type pos = " + type.getPosition() +", geomPos = " + geomPos);
-		    if(Geometry.class.isAssignableFrom(type.getType())) {
-			if ( featureArr[i].getId().equals("6")){
-			    gid = createGID(featureArr[i].getId()); //HACK
-			    stmt.executeUpdate(makeDelGeomSql(gid));  //delete old row
-			    stmt.executeUpdate(makeGeomSql((Geometry)value, gid)); //create new
-			}
-		    } else {
-			stmt.executeUpdate(makeModifySql(type, value, featureArr[i]));
-		    }
-		}
-	    } catch (SQLException e) {
-		
-	    }
-	    
+            try {
+                Connection dbConnection = db.getConnection();
+                Statement stmt = dbConnection.createStatement();
+                for (int i = 0; i < featureArr.length; i++){
+                    LOGGER.finer("type pos = " + type.getPosition() + ", geomPos = " + geomPos);
+                    if (Geometry.class.isAssignableFrom(type.getType())) {
+                        if ( featureArr[i].getId().equals("6")){
+                            gid = createGID(featureArr[i].getId()); //HACK
+                            stmt.executeUpdate(makeDelGeomSql(gid));  //delete old row
+                            stmt.executeUpdate(makeGeomSql((Geometry) value, gid)); //create new
+                        }
+                    } else {
+                        stmt.executeUpdate(makeModifySql(type, value, featureArr[i]));
+                    }
+                }
+            } catch (SQLException e) {
+                LOGGER.warning("sql exception: " + e);
+            }    
     }
-	
-		
+       
+       
     /**
      * Modifies the passed attribute types with the passed objects in all
      * features that correspond to the passed OGS filter.
@@ -562,10 +526,10 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      * types do not match the attribute types.
      */
     public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter)
-	    throws DataSourceException{
-	for (int i = 0; i < type.length; i++){
-	    modifyFeatures(type[i], value[i], filter);
-	}
+            throws DataSourceException{
+        for (int i = 0; i < type.length; i++){
+            modifyFeatures(type[i], value[i], filter);
+        }
     }
 
     /**

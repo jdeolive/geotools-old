@@ -25,13 +25,21 @@ import java.util.HashMap;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import org.apache.log4j.Category;
-import com.vividsolutions.jts.io.*;
-import com.vividsolutions.jts.geom.*;
-import org.geotools.data.*;
-import org.geotools.feature.*;
-import org.geotools.datasource.extents.EnvelopeExtent;
+//import org.apache.log4j.Category;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import org.geotools.data.DataSourceException;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeDefault;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.feature.SchemaException;
+import java.util.logging.Logger;
+
 
 
 /**
@@ -45,7 +53,7 @@ import org.geotools.datasource.extents.EnvelopeExtent;
  * with the ID from the feature table.
  *
  *
- * @version $Id: MysqlGeomColumn.java,v 1.1 2002/08/04 12:57:40 jmacgill Exp $
+ * @version $Id: MysqlGeomColumn.java,v 1.2 2002/08/16 20:29:26 cholmesny Exp $
  * @author Chris Holmes, Vision for New York
  * tasks TODO: put MakeSchema from MysqlDataSource in this class.
  */
@@ -60,8 +68,18 @@ public class MysqlGeomColumn {
     /** From the SFS for SQL spec, always has the meta data*/
     public static final String GEOMETRY_META_NAME = "GEOMETRY_COLUMNS";
     
+       /** For use when reading in attributes.  One off due to sql columns
+     *  starting at 1 instead of 0, another one for Feature ID in first column.*/
+    private static final int COLUMN_OFFSET = 2;
+
+     /** Map of sql Type to Java class */
+        private static Map sqlTypeMap = new HashMap();
+    
+    /** The logger for the default core module.  */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.mysql");
+
     /** Standard logging instance */
-    private static Category _log = Category.getInstance(MysqlGeomColumn.class.getName());
+    //    private static Category _log = Category.getInstance(MysqlGeomColumn.class.getName());
     
     /** Factory for producing geometries (from JTS). */
     private static GeometryFactory geometryFactory = new GeometryFactory();
@@ -111,7 +129,26 @@ public class MysqlGeomColumn {
      * the SPATIAL_REF_SYS table.*/
     private int spacRefID;
     
-    
+    /** The featureType schema corresponding to this geometry column.*/
+    private FeatureType schema = null;
+
+    static {
+        sqlTypeMap.put("TINY", Byte.class);
+        sqlTypeMap.put("SHORT", Short.class);
+        sqlTypeMap.put("INT", Integer.class);
+        sqlTypeMap.put("LONG", Integer.class); //check this
+        sqlTypeMap.put("LONGLONG", Long.class);
+        sqlTypeMap.put("DOUBLE", Double.class);
+        sqlTypeMap.put("VARCHAR", String.class);
+        sqlTypeMap.put("DECIMAL", String.class);
+        sqlTypeMap.put("CHAR", String.class);
+        sqlTypeMap.put("TEXT", String.class);
+        sqlTypeMap.put("BLOB", String.class);//figure this shit out
+        sqlTypeMap.put("FLOAT", Float.class);
+    }
+
+
+
     /**
      * Default constructor
      */
@@ -143,10 +180,12 @@ public class MysqlGeomColumn {
      * functions.
      * @param dbConnection An open connection to the database.
      * @param feaTableName The feature table that references this Geometry Col.
-     * @param geomTableName The geometry columns table containing meta-info.
+     * @throws SQLException if there were problems accessing the database.
+     * @throws SchemaException if there were problems creating the schema.
      * @tasks TODO: Get rid of this constructor, move the functionality outside.
      */
-    public MysqlGeomColumn(Connection dbConnection, String feaTableName){
+    public MysqlGeomColumn(Connection dbConnection, String feaTableName)
+        throws SQLException, SchemaException {
         this.feaTabName  = feaTableName;
         
         try {
@@ -154,11 +193,11 @@ public class MysqlGeomColumn {
             //MySQL does not pre-compile statements, so making prepared
             //statements leads to no performance increases.
             String sqlQuery = makeGeomSql(feaTableName);
-            _log.info("SQL q = " + sqlQuery);
+            LOGGER.warning("SQL q = " + sqlQuery);
             ResultSet result = statement.executeQuery(sqlQuery);
-            while(result.next()){
+            while (result.next()){
                 //only flat features for now, with multiple geometries
-                //all but the last one will be discarded
+                //all but the last feature will be discarded
                 feaTabCatalog = result.getString(1);
                 feaTabSchema = result.getString(2);
                 feaGeomColumn = result.getString(4);
@@ -172,24 +211,24 @@ public class MysqlGeomColumn {
                 spacRefID = result.getInt(12);
                 
             }
-            _log.info("creating new geometry column with values: " +
-            feaTabName +" " + feaGeomColumn + " " + geomTabName);
+            LOGGER.finer("creating new geometry column with values: " +
+            feaTabName + " " + feaGeomColumn + " " + geomTabName);
             result =  statement.executeQuery("SELECT * FROM " + geomTabName);
             //currently selects all, should be more elegant as we get complex
             //queries.  Ideally move outside and call populate data on results.
             int gid = 0;
-            String WKB = null; //now it is actually Well Known Text, waiting for WKB reader
+            String wkb = null; //now it is actually Well Known Text, waiting for WKB reader
             while (result.next()){
                 gid = result.getInt(1);
-                WKB = result.getString(6);
-                populateData(gid, WKB);
+                wkb = result.getString(6);
+                populateData(gid, wkb);
             }
             result.close();
             statement.close();
             
             
-        } catch(SQLException e) {
-            _log.info("Some sort of database connection error: " + e.getMessage());
+        } catch (SQLException e) {
+            LOGGER.warning("Some sort of database connection error: " + e.getMessage());
         }
         
     }
@@ -219,7 +258,7 @@ public class MysqlGeomColumn {
      */
     public void populateData(int geomID, String wellKnownText){
         
-        _log.info("putting " + wellKnownText + " into gidMap");
+        LOGGER.finer("putting " + wellKnownText + " into gidMap");
         gidMap.put(new Integer(geomID), wellKnownText);
         //we should probably change to objects, GID not necessarily an
         //int, and the getString will change to blob when we do WKB
@@ -239,20 +278,20 @@ public class MysqlGeomColumn {
      * @param geomID the ID of the feature geometry.
      * @return a jts geometry represention of the stored data, returns
      * null is it is not found.
+     * @throws DataSourceException if there is trouble with the Database.
      */
     public Geometry getGeometry(int geomID) throws DataSourceException {
         String wellKnownText;
         Geometry returnGeometry = null;
         wellKnownText = (String) gidMap.get(new Integer(geomID));
-        _log.info("about to create geometry for " + wellKnownText);
+        LOGGER.finer("about to create geometry for " + wellKnownText);
         if (wellKnownText == null){
             return null;
         } else {
             try {
                 returnGeometry = geometryReader.read(wellKnownText);
-            }
-            catch (ParseException e) {
-                _log.info("Failed to parse the geometry from Mysql: " + e.getMessage());
+            } catch (ParseException e) {
+                LOGGER.finer("Failed to parse the geometry from Mysql: " + e.getMessage());
             }
             return returnGeometry;
         }
@@ -385,17 +424,77 @@ public class MysqlGeomColumn {
     public int getStorageType(){
         return storageType;
     }
-    
-    //see note on get geom type
+
+     /**
+     * Sets the Geometry type of the geometry column.
+     * @param gType the geometery type
+     */
     public void setGeomType(int gType){
         geomType = gType;
     }
     
-    //I think this should eventually return the jts geometry class
-    //TODO implement a hashmap, int of type key to class type.
+    /**
+     * Gets the Geometry type of the geometry column.
+     * @return the int representation of the GeometryType
+     * @tasks TODO: implement a hashmap so we return jts Geometry Class 
+     * Types instead of ints.
+     */
     public int getGeomType(){
         return geomType;
     }
+
+    /**
+     * Gets the schema for this geometry column.  
+     * @return the schema corresponding to this geometry column.
+     */
+  public FeatureType getSchema(){
+        return schema;
+    }
     
+  
+    /**
+     * sets the schema for this geometry column.  
+     * @param schema for this geometry column.
+     */
+    public void setSchema(FeatureType schema){
+        //TODO: check to make sure the schema is correct (geom col names are same, etc.)
+        this.schema = schema;
+    }
+
+    /**
+     * Creates the schema, a FeatureType of the attributes.
+     * @param metaData from the query of the feature table.
+     * @param geoColumn the name of the geometry column in the feature table.
+     * @return a FeatureType of the attributes.
+     * @throws SQLException if there was database connectivity issues.
+     * @throws SchemaException if there was problems creating the FeatureType.
+     * tasks TODO: put this method MysqlGeomColumn or a SchemaFactory.
+     */
+    public static FeatureType makeSchema(ResultSetMetaData metaData, String geoColumn) 
+        throws SQLException, SchemaException {
+        String columnName = null;
+        Class colClass = null;
+        int numCols = metaData.getColumnCount();
+        AttributeType[] attributes = new AttributeType[numCols - 1];
+
+        LOGGER.finer("about to loop through cols");
+        // loop through all columns except first, as it's the featureID
+        for (int i = 2; i <= numCols; i++) {
+            columnName = metaData.getColumnName(i);
+           LOGGER.finer("reading col: " + i + " named: " + columnName);
+           LOGGER.finer("reading col: " + metaData.getColumnTypeName(i));
+            // set column name and type from database
+            //TODO: use MysqlGeomColumn.getGeomType, once it's fully implemented
+            if (columnName.equals(geoColumn)) {  //if it is a geomtry column, by name
+                attributes[i - COLUMN_OFFSET] = new AttributeTypeDefault(columnName, 
+                                                                      Geometry.class);
+            } else {
+                colClass = (Class) sqlTypeMap.get(metaData.getColumnTypeName(i));
+                attributes[i - COLUMN_OFFSET] = new AttributeTypeDefault ( columnName, colClass );
+            }
+        }        
+        return FeatureTypeFactory.create(attributes);
+    }
+
     
 }
