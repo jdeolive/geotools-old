@@ -48,7 +48,7 @@ public class Units extends SymbolResources {
      * de cette instance.
      */
     private final static Units resources =
-        (Units) getBundle("org.geotools.resources.Units");
+        (Units) getBundle("org.geotools.resources.units.Units");
 
     /**
      * Initialise les ressources par défaut. Ces ressources ne seront pas forcément dans
