@@ -29,6 +29,7 @@ import java.io.IOException;
  *
  * @author Ian Turton, ccg
  *
+ * @deprecated Use org.geotools.styling.SLDTransformer
  * @task HACK: Logging errors, very bad!  We need a style visitor exception, or
  *       have visit methods throw illegal filter exceptions, or io exceptions.
  * @task TODO: Support full header information for new XML file
