@@ -76,7 +76,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.8 2003/05/13 10:58:49 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.9 2003/05/14 10:15:40 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  *
@@ -116,23 +116,48 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
     /**
      * Ellipsoid excentricity, equals to <code>sqrt({@link #es})</code>.
      * Value 0 means that the ellipsoid is spherical.
+     *
+     * @see #es
+     * @see #isSpherical
      */
     protected final double e;
     
     /**
      * The square of excentricity: e² = (a²-b²)/a² where
-     * <var>a</var> is the semi-major axis length and
-     * <var>b</var> is the semi-minor axis length.
+     * <var>a</var> is the {@linkplain #semiMajor semi major} axis length and
+     * <var>b</var> is the {@linkplain #semiMinor semi minor} axis length.
+     *
+     * @see #e
+     * @see #semiMajor
+     * @see #semiMinor
+     * @see #isSpherical
      */
     protected final double es;
+
+    /**
+     * <code>true</code> if this projection is spherical. Spherical model has identical
+     * {@linkplain #semiMajor semi major} and {@linkplain #semiMinor semi minor} axis
+     * length, and an {@linkplain #e excentricity} zero.
+     *
+     * @see #e
+     * @see #semiMajor
+     * @see #semiMinor
+     */
+    protected final boolean isSpherical;
     
     /**
      * Length of semi-major axis, in metres.
+     *
+     * @see #e
+     * @see #semiMinor
      */
     protected final double semiMajor;
     
     /**
      * Length of semi-minor axis, in metres.
+     *
+     * @see #e
+     * @see #semiMajor
      */
     protected final double semiMinor;
     
@@ -196,8 +221,9 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
         scaleFactor      =                    parameters.getValue("scale_factor",       1);
         falseEasting     =                    parameters.getValue("false_easting",      0);
         falseNorthing    =                    parameters.getValue("false_northing",     0);
-        es = 1.0 - (semiMinor*semiMinor)/(semiMajor*semiMajor);
-        e  = Math.sqrt(es);
+        isSpherical      = (semiMajor == semiMinor);
+        es               = 1.0 - (semiMinor*semiMinor)/(semiMajor*semiMajor);
+        e                = Math.sqrt(es);
     }
     
     /**
@@ -266,20 +292,28 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
         }
         return x;
     }
+
+    /**
+     * Returns <code>true</code> if the classification for the specified projection
+     * contains the specified word. The word must be delimited by "_" character or
+     * end of line. Search is case-insensitive.
+     */
+    static boolean contains(final Projection projection, final String word) {
+        final String name = projection.getClassName().trim();
+        final int  length = word.length();
+        int index = 0;
+        while ((index = name.indexOf('_', index)) >= 0) {
+            if (name.regionMatches(true, ++index, word, 0, length)) {
+                return true;
+            }
+        }
+        return true;
+    }
     
     /**
      * Returns a human readable name localized for the specified locale.
      */
     public abstract String getName(final Locale locale);
-
-    /**
-     * Returns <code>true</code> if this projection uses a spherical model.
-     * The model is spherical if {@link #semiMajor} and {@link #semiMinor}
-     * axis length are equals.
-     */
-    public final boolean isSpherical() {
-        return semiMajor == semiMinor;
-    }
 
     
     /**
@@ -534,7 +568,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * {@link MapProjection#inverseTransform(double,double,Point2D)} instead of
      * {@link MapProjection#transform(double,double,Point2D)}.
      *
-     * @version $Id: MapProjection.java,v 1.8 2003/05/13 10:58:49 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.9 2003/05/14 10:15:40 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {

@@ -64,8 +64,8 @@ import org.geotools.resources.cts.ResourceKeys;
  * <br><br>
  *
  * This implementation handles both the 1 and 2 stardard parallel cases.
- * For Mercator_1SP (EPSG code 9804), the line of contact is the equator. 
- * For Mercator_2SP (EPSG code 9805) lines of contact are symmetrical 
+ * For <code>Mercator_1SP</code> (EPSG code 9804), the line of contact is the equator. 
+ * For <code>Mercator_2SP</code> (EPSG code 9805) lines of contact are symmetrical 
  * about the equator.
  * <br><br>
  *
@@ -80,7 +80,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">&quot;mercator_1sp&quot; on Remote Sensing</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
  * 
- * @version $Id: Mercator.java,v 1.6 2003/05/13 10:58:49 desruisseaux Exp $
+ * @version $Id: Mercator.java,v 1.7 2003/05/14 10:15:41 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -98,7 +98,6 @@ public class Mercator extends CylindricalProjection {
      */
     protected final double standardParallel;
 
-
     /**
      * The {@link MathTransformProvider} for a {@link Mercator} projection. Exactly
      * two instances of this provider are constructed by the default implementation
@@ -109,7 +108,7 @@ public class Mercator extends CylindricalProjection {
      * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
      * @see org.geotools.ct.MathTransformFactory
      *
-     * @version $Id: Mercator.java,v 1.6 2003/05/13 10:58:49 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.7 2003/05/14 10:15:41 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -130,7 +129,7 @@ public class Mercator extends CylindricalProjection {
             remove("latitude_of_origin");
             if (sp2) {
                 remove("scale_factor");
-                put("standard_parallel", 0, LATITUDE_RANGE); 
+                put("standard_parallel1", 0, LATITUDE_RANGE); 
             }
             this.sp2 = sp2;
         }
@@ -152,22 +151,27 @@ public class Mercator extends CylindricalProjection {
      * Construct a new map projection from the supplied parameters.
      *
      * @param  parameters The parameter values in standard units.
+     * @throws MissingParameterException if a mandatory parameter is missing.
+     */
+    protected Mercator(final Projection parameters) throws MissingParameterException {
+        this(parameters, contains(parameters, "2SP"));
+    }
+
+    /**
+     * Construct a new map projection from the supplied parameters.
+     *
+     * @param  parameters The parameter values in standard units.
      * @param  sp2 Indicates if this is a 1 or 2 standard parallel case of the mercator projection.
      * @throws MissingParameterException if a mandatory parameter is missing.
-     *
-     * @task TODO: If a future version, we may infer the <code>sp2</code> argument directly
-     *             from the projection name in the <code>parameters</code> argument.
      */
-    protected Mercator(final Projection parameters, final boolean sp2)
-        throws MissingParameterException
-    {
+    Mercator(final Projection parameters, final boolean sp2) throws MissingParameterException {
         //Fetch parameters 
         super(parameters);
         if (sp2) {
             // No scale factor. Compute it from the standard parallel.
             standardParallel = latitudeToRadians(Math.abs(
-                               parameters.getValue("standard_parallel", 0)), false);
-            if (isSpherical()) {
+                               parameters.getValue("standard_parallel1", 0)), false);
+            if (isSpherical) {
                 scaleFactor *= Math.cos(standardParallel);
             }  else {
                 scaleFactor *= msfn(Math.sin(standardParallel),
@@ -185,8 +189,7 @@ public class Mercator extends CylindricalProjection {
      * Returns a human readable name localized for the specified locale.
      */
     public String getName(final Locale locale) {
-        final Resources resources = Resources.getResources(locale);
-        return resources.getString(ResourceKeys.CYLINDRICAL_MERCATOR_PROJECTION);
+        return Resources.getResources(locale).getString(ResourceKeys.CYLINDRICAL_MERCATOR_PROJECTION);
     }
     
     /**
@@ -194,7 +197,7 @@ public class Mercator extends CylindricalProjection {
      * and stores the result in <code>ptDst</code> (units in meters). 
      */
     protected Point2D transform(double x, double y, final Point2D ptDst)
-        throws ProjectionException
+            throws ProjectionException
     {
         if (Math.abs(y) > (Math.PI/2 - EPS)) {
             throw new ProjectionException(Resources.format(
@@ -218,7 +221,7 @@ public class Mercator extends CylindricalProjection {
      * and stores the result in <code>ptDst</code>.
      */
     protected Point2D inverseTransform(double x, double y, final Point2D ptDst)
-        throws ProjectionException
+            throws ProjectionException
     {
         x = ensureInRange((x-falseEasting)/ak0 + centralMeridian);
         y = Math.exp(-(y-falseNorthing)/ak0);
@@ -235,7 +238,7 @@ public class Mercator extends CylindricalProjection {
     /**
      * Provides the transform equations for the spherical case of the Mercator projection.
      *
-     * @version $Id: Mercator.java,v 1.6 2003/05/13 10:58:49 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.7 2003/05/14 10:15:41 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -248,10 +251,10 @@ public class Mercator extends CylindricalProjection {
          * @throws MissingParameterException if a mandatory parameter is missing.
          */
         protected Spherical(final Projection parameters, final boolean sp2)
-            throws MissingParameterException
+                throws MissingParameterException
         {
             super(parameters, sp2);
-            assert isSpherical();
+            assert isSpherical;
 	}
 
 	/**
@@ -259,7 +262,7 @@ public class Mercator extends CylindricalProjection {
          * and stores the result in <code>ptDst</code> using equations for a Sphere.
 	 */
         protected Point2D transform(double x, double y, Point2D ptDst)
-             throws ProjectionException
+                throws ProjectionException
         {
             if (Math.abs(y) > (Math.PI/2 - EPS)) {
                 throw new ProjectionException(Resources.format(
@@ -288,7 +291,7 @@ public class Mercator extends CylindricalProjection {
          * and stores the result in <code>ptDst</code> using equations for a sphere.
          */
         protected Point2D inverseTransform(double x, double y, Point2D ptDst)
-            throws ProjectionException
+                throws ProjectionException
         {
             // Compute using ellipsoidal formulas, for comparaison later.
             assert (ptDst = super.inverseTransform(x, y, ptDst)) != null;
@@ -339,7 +342,7 @@ public class Mercator extends CylindricalProjection {
     void toString(final StringBuffer buffer) {
         super.toString(buffer);
         if (!Double.isNaN(standardParallel)) {
-            addParameter(buffer, "standard_parallel", Math.toDegrees(standardParallel));
+            addParameter(buffer, "standard_parallel1", Math.toDegrees(standardParallel));
         }
     }
 }

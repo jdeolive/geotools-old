@@ -11,5 +11,54 @@
     in metres. Map projections are implementations of {@link org.geotools.ct.MathTransform2D}.
     This package is for internal use by the <code>org.geotools.ct.</code> package
     and should not be used directly in normal use.</P>
+
+    <P ALIGN="justify">Most projections expect the following parameters:
+    <code>&quot;semi_major&quot;</code> (mandatory),
+    <code>&quot;semi_minor&quot;</code> (mandatory),
+    <code>&quot;central_meridian&quot;</code> (default to 0),
+    <code>&quot;latitude_of_origin&quot;</code> (default to 0),
+    <code>&quot;scale_factor&quot;</code> (default to 1),
+    <code>&quot;false_easting&quot;</code> (default to 0) and
+    <code>&quot;false_northing&quot;</code> (default to 0).
+    The following table list the projection available in this package
+    together with the extra-parameters expected by some of them.</P>
+
+    <TABLE ALIGN="center" BORDER='2' CELLPADDING='6' BGCOLOR="F4F8FF">
+      <TR BGCOLOR="#B9DCFF">
+        <TH ALIGN="center">Implementation</TH>
+        <TH ALIGN="center">Classification</TH>
+        <TH ALIGN="center"><A HREF="http://www.epsg.org">EPSG</A> code</TH>
+        <TH ALIGN="center">Parameters</TH>
+      </TR>
+      <TR>
+        <TD rowspan='3'>{@link org.geotools.ct.proj.LambertConformal}</TD>
+        <TD><CODE>Lambert_Conformal_Conic_1SP</CODE></TD>
+        <TD ALIGN="center">9801</TD>
+        <TD><code>latitude_of_origin</code></TD>
+      </TR>
+      <TR>
+        <TD><CODE>Lambert_Conformal_Conic_2SP</CODE></TD>
+        <TD ALIGN="center">9802</TD>
+        <TD><code>standard_parallel1<br>
+                  standard_parallel2</code></TD>
+      </TR>
+      <TR>
+        <TD><CODE>Lambert_Conic_Conformal_2SP_Belgium</CODE></TD>
+        <TD ALIGN="center">9803</TD>
+        <TD><code>standard_parallel1<br>
+                  standard_parallel2</code></TD>
+      </TR>
+      <TR>
+        <TD rowspan='2'>{@link org.geotools.ct.proj.Mercator}</TD>
+        <TD><CODE>Mercator_1SP</CODE></TD>
+        <TD ALIGN="center">9804</TD>
+        <TD><code>scale_factor</code></TD>
+      </TR>
+      <TR>
+        <TD><CODE>Mercator_2SP</CODE></TD>
+        <TD ALIGN="center">9805</TD>
+        <TD><code>standard_parallel1</code></TD>
+      </TR>
+    </TABLE>
   </BODY>
 </HTML>

@@ -60,7 +60,7 @@ import org.geotools.resources.DescriptorNaming;
  * Parser for <cite>Well Know Text</cite> (WKT).
  * Instances of this class are thread-safe.
  *
- * @version $Id: WKTParser.java,v 1.7 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: WKTParser.java,v 1.8 2003/05/14 10:15:39 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -247,6 +247,10 @@ final class WKTParser extends WKTFormat {
         double inverseFlattening = element.pullDouble("inverseFlattening");
         name = parseAuthority(element, name);
         element.close();
+        if (inverseFlattening == 0) {
+            // Inverse flattening nul is an OGC convention for a sphere.
+            inverseFlattening = Double.POSITIVE_INFINITY;
+        }
         try {
             return factory.createFlattenedSphere(name, semiMajorAxis, inverseFlattening, Unit.METRE);
         } catch (FactoryException exception) {
