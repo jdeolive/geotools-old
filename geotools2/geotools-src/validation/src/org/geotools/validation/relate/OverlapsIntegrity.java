@@ -21,6 +21,7 @@
 package org.geotools.validation.relate;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -44,29 +45,48 @@ import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * OverlapsIntegrity<br>
- * @author bowens<br>
+ * @author bowens, ptozer<br>
  * Created Apr 27, 2004<br>
  * @version <br>
  * 
  * <b>Puropse:</b><br>
  * <p>
- * Tests to see if a Geometry intersects with another Geometry.
+ * Tests to see if a Geometry overlaps, partiella or entirely, with another Geometry.
  * 
  * <b>Description:</b><br>
  * <p>
- * If only one Geometry is given, then this test checks to see if it 
- * intersects part of itself.
+ * If only one layer is provided, the geometries of that layer are compared with each other.
+ * If two layers are provided, then the geometries are compared across the layers.
  * </p>
  * 
  * <b>Usage:</b><br>
  * <p>
- * 
+ * 		OverlapsIntegrity overlap = new OverlapsIntegrity();
+ *		overlap.setExpected(false);
+ *		overlap.setGeomTypeRefA("my:line");
+ *		
+ *		Map map = new HashMap();
+ *		try
+ *		{
+ *			map.put("my:line", mds.getFeatureSource("line"));
+ *		} catch (IOException e1)
+ *		{
+ *			e1.printStackTrace();
+ *		}
+ *		
+ *		try
+ *		{
+ *			assertFalse(overlap.validate(map, lineBounds, vr));
+ *		} catch (Exception e)
+ *		{
+ *			e.printStackTrace();
+ *		}
  * </p>
  */
 public class OverlapsIntegrity extends RelationIntegrity 
 {
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.validation");
-	
+	private static HashSet usedIDs;
 	
 	/**
 	 * OverlapsIntegrity Constructor
@@ -75,6 +95,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 	public OverlapsIntegrity()
 	{
 		super();
+		usedIDs = new HashSet();	//TODO: remove me later, memory inefficient
 	}
 	
 	
@@ -171,6 +192,8 @@ public class OverlapsIntegrity extends RelationIntegrity
 				{
 					Feature f2 = fr2.next();
 					Geometry g2 = f2.getDefaultGeometry();
+					System.out.println("Do the two overlap?->" + g1.overlaps(g2));
+					System.out.println("Does the one contain the other?->" + g1.contains(g2));
 					if(g1.overlaps(g2) != expected || g1.contains(g2) != expected)
 					{
 						results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefB()+"("+f2.getID()+"), Result was not "+expected );
@@ -235,7 +258,8 @@ public class OverlapsIntegrity extends RelationIntegrity
 		
 		Filter filter = filterBBox(bBox, ft);
 
-		FeatureResults featureResults = featureSourceA.getFeatures(filter);
+		//FeatureResults featureResults = featureSourceA.getFeatures(filter);
+		FeatureResults featureResults = featureSourceA.getFeatures();
 		
 		FeatureReader fr1 = null;
 		FeatureReader fr2 = null;
@@ -245,37 +269,46 @@ public class OverlapsIntegrity extends RelationIntegrity
 
 			if (fr1 == null)
 				return success;
-						
+		
 			while (fr1.hasNext())
 			{
+				//System.out.println("Single layer Outer loop count: " + loopCt1);
 				Feature f1 = fr1.next();
 //				System.out.println("overlapFilter " + overlapsFilter.contains(f1));
 //				System.out.println("containsFilter " + containsFilter.contains(f1));
-				System.out.println("Filter " + filter.contains(f1));
+				//System.out.println("Filter " + filter.contains(f1));
 //				System.out.println("f1 = " + f1.getDefaultGeometry().getEnvelope());
 //				System.out.println("env1 = " + bBox);
 				
 				Geometry g1 = f1.getDefaultGeometry();
 				Filter filter2 = filterBBox(g1.getEnvelope().getEnvelopeInternal(), ft);
 
-				FeatureResults featureResults2 = featureSourceA.getFeatures(filter2);
+				//FeatureResults featureResults2 = featureSourceA.getFeatures(filter2);
+				FeatureResults featureResults2 = featureSourceA.getFeatures();
 				fr2 = featureResults2.reader();	
-				
 				while (fr2 != null && fr2.hasNext())
-				{
+				{			
 					Feature f2 = fr2.next();
-					System.out.println("Filter2 " + filter2.contains(f2));
+					//System.out.println("Filter2 " + filter2.contains(f2));
 					Geometry g2 = f2.getDefaultGeometry();
-					if (!f1.getID().equals(f2.getID()))	// if they are the same feature, move onto the next one
+					//System.out.println("Do the two overlap?->" + g1.overlaps(g2));
+					//System.out.println("Does the one contain the other?->" + g1.contains(g2));
+					if (!usedIDs.contains(f2.getID()))
 					{
-						if(g1.overlaps(g2) != expected || g1.contains(g2) != expected)
+						
+						if (!f1.getID().equals(f2.getID()))	// if they are the same feature, move onto the next one
 						{
-							results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
-							System.out.println(f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected);
-							success = false;
+							if(g1.overlaps(g2) != expected || g1.contains(g2) != expected)
+							{
+								//results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
+								results.error( f1, getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+")");
+								System.out.println(f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+"("+f1.getID()+")"+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected);
+								success = false;
+							}
 						}
 					}
-				}		
+				}
+				usedIDs.add(f1.getID());
 			}
 		}finally
 		{
@@ -301,14 +334,15 @@ public class OverlapsIntegrity extends RelationIntegrity
 		FilterFactory ff = FilterFactory.createFilterFactory();
 		BBoxExpression bboxExpr = ff.createBBoxExpression(bBox);
 		AttributeExpression geomExpr = ff.createAttributeExpression(ft, ft.getDefaultGeometry().getName());
-		GeometryFilter containsFilter = ff.createGeometryFilter(Filter.GEOMETRY_CONTAINS);
+		GeometryFilter containsFilter = ff.createGeometryFilter(Filter.GEOMETRY_DISJOINT);
 		containsFilter.addLeftGeometry(bboxExpr);
 		containsFilter.addRightGeometry(geomExpr);
 		
-		GeometryFilter overlapsFilter = ff.createGeometryFilter(Filter.GEOMETRY_OVERLAPS);
-		overlapsFilter.addLeftGeometry(bboxExpr);
-		overlapsFilter.addRightGeometry(geomExpr);
-		Filter filter = containsFilter.or(overlapsFilter);
+//		GeometryFilter overlapsFilter = ff.createGeometryFilter(Filter.GEOMETRY_OVERLAPS);
+//		overlapsFilter.addLeftGeometry(bboxExpr);
+//		overlapsFilter.addRightGeometry(geomExpr);
+//		Filter filter = containsFilter.or(overlapsFilter);
+		Filter filter = containsFilter.and(containsFilter);
 		return filter;
 	}
 }
