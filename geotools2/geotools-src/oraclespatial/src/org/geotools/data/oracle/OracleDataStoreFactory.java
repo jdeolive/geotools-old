@@ -38,10 +38,13 @@ import org.geotools.data.jdbc.ConnectionPool;
 public class OracleDataStoreFactory
     implements DataStoreFactorySpi {
      
+    private static final String JDBC_DRIVER = "oracle.jdbc.driver.OracleDriver";
+
     /**
      * Creates a new instance of OracleDataStoreFactory
      */
     public OracleDataStoreFactory() {
+
     }
 
     /**
@@ -157,6 +160,25 @@ public class OracleDataStoreFactory
     }
 
     /**
+     * Returns whether the OracleDataStoreFactory would actually be able to
+     * generate a DataStore.  Depends on whether the appropriate libraries
+     * are on the classpath.  For now just checks for the presence of the
+     * JDBC driver, should probably check for SDOAPI as well.
+     * 
+     * @return True if the classes to make an oracle connection are present.
+     * @task Figure out a class to check the SDOAPI for, and check it.
+     */
+    public boolean available() {
+        try {
+            Class.forName(JDBC_DRIVER);
+        } catch (ClassNotFoundException cnfe) {
+            return false;
+        } 
+        return true;
+        //check for sdoapi too?
+    }
+
+    /**
      * Describe parameters.
      * 
      * @see org.geotools.data.DataStoreFactorySpi#getParametersInfo()
@@ -164,9 +186,10 @@ public class OracleDataStoreFactory
      */
     public Param[] getParametersInfo() {
         return new Param[]{
-            new Param("oracle", String.class, "This must be 'oracle'.", true,"oracle"),            
+            new Param("dbtype", String.class, "This must be 'oracle'.", true,"oracle"),            
             new Param("host", String.class, "The host name of the server.", true),
-            new Param("port", String.class, "The port oracle is running on.", true),
+            new Param("port", String.class, "The port oracle is running on. " +
+                      "(Default is 1521)", true, "1521"),
             new Param("user", String.class, "The user name to log in with.", true),
             new Param("passwd", String.class, "The password.", true),
             new Param("instance", String.class, "The name of the Oracle instance to connect to.", true),   
