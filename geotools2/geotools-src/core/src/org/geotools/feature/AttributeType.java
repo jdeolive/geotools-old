@@ -44,7 +44,7 @@ public interface AttributeType {
      * 
      * @return Type.
      */
-    public String getType();
+    public Class getType();
     
     /**
      * Gets the occurences of this attribute.

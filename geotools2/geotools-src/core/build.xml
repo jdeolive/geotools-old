@@ -2,13 +2,28 @@
 
 <project basedir="." default="release" name="gmldatasource">
 
+  <property file="build.ant.properties"/>
+  <property name="dir.module" value="${basedir}"/>           
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="init" if="cond.Uninitialized">
+    <condition property="cond.Uninitialized" value="false"/>           
+    <ant antfile="common.xml" dir="../gtbuild" target="externalInit" inheritAll="true"/>
+  </target>
+
   <!-- Runs default build; don't modify this target and run it as default -->
   <target name="release">
-    <property file="build.ant.properties"/>
-    <property name="dir.module" value="${basedir}"/>           
     <ant antfile="common.xml" dir="../gtbuild" target="all" inheritAll="true"/>
   </target>
 
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="clean">
+    <ant antfile="common.xml" dir="../gtbuild" target="clean" inheritAll="true"/>
+  </target>
+
   <!-- Now, set your module-specific build targets here -->
+  <target name="testme" depends="init">
+    <echo message="dir.test = ${dir.test}"/>
+  </target>
 
 </project>

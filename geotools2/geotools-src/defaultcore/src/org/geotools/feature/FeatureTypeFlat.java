@@ -58,16 +58,16 @@ public class FeatureTypeFlat implements FeatureType {
         geometry = geometry.setPosition(geometryPosition);
         attributeTypes[geometryPosition] = geometry;
         nameMap.put(geometry.getName(), geometry);
-        allowedClasses = new ArrayList( java.util.Arrays.asList(new String[] 
-            { Boolean.class.getName(), 
-              Character.class.getName(), 
-              Byte.class.getName(), 
-              Short.class.getName(), 
-              Integer.class.getName(), 
-              Long.class.getName(), 
-              Float.class.getName(), 
-              Double.class.getName(), 
-              String.class.getName() }) );
+        allowedClasses = new ArrayList( java.util.Arrays.asList(new Class[] 
+            { Boolean.class, 
+              Character.class, 
+              Byte.class, 
+              Short.class, 
+              Integer.class, 
+              Long.class, 
+              Float.class, 
+              Double.class, 
+              String.class }) );
     }
 
 
@@ -130,8 +130,8 @@ public class FeatureTypeFlat implements FeatureType {
      *
      * @return Type name of feature type.
      */
-    public String getType() {
-        return org.geotools.feature.Feature.class.getName();
+    public Class getType() {
+        return org.geotools.feature.Feature.class;
     }
     
     /**

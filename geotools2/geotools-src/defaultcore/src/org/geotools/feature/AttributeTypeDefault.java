@@ -14,7 +14,7 @@ public class AttributeTypeDefault implements AttributeType {
     private final String name;
         
     /** Class type of this attribute. */
-    private final String type;
+    private final Class type;
         
     /** Number of instances of this attribute in the schema. */
     private int occurrences = 1;
@@ -29,7 +29,7 @@ public class AttributeTypeDefault implements AttributeType {
      * @param name Name of this attribute.
      * @param type Class type of this attribute.
      */
-    public AttributeTypeDefault (String name, String type) {
+    public AttributeTypeDefault (String name, Class type) {
         this.name = name;
         this.type = type;
     }
@@ -41,7 +41,7 @@ public class AttributeTypeDefault implements AttributeType {
      * @param type Class type of this attribute.
      * @param occurrences Number of instances of this attribute in the schema.
      */
-    public AttributeTypeDefault (String name, String type, int occurrences) {
+    public AttributeTypeDefault (String name, Class type, int occurrences) {
         this.name = name;
         this.type = type;
         this.occurrences = occurrences;
@@ -84,7 +84,7 @@ public class AttributeTypeDefault implements AttributeType {
      * 
      * @return Type.
      */
-    public String getType() {
+    public Class getType() {
         return type;
     }
     

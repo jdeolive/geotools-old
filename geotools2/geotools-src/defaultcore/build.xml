@@ -9,6 +9,11 @@
     <ant antfile="common.xml" dir="../gtbuild" target="all" inheritAll="true"/>
   </target>
 
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="clean">
+    <ant antfile="common.xml" dir="../gtbuild" target="clean" inheritAll="true"/>
+  </target>
+
   <!-- Set your module-specific build targets here -->
 
   <!-- Tests the feature flat stuff -->

@@ -34,16 +34,18 @@ public class FeatureFlatTest extends TestCase {
     public void setUp() {
         try {
             _log.info("creating flat feature...");
-            AttributeType geometryAttribute = new AttributeTypeDefault("testGeometry", Point.class.getName());
-            AttributeType booleanAttribute = new AttributeTypeDefault("testBoolean", Boolean.class.getName());
-            AttributeType charAttribute = new AttributeTypeDefault("testCharacter", Character.class.getName());
-            AttributeType byteAttribute = new AttributeTypeDefault("testByte", Byte.class.getName());
-            AttributeType shortAttribute = new AttributeTypeDefault("testShort", Short.class.getName());
-            AttributeType intAttribute = new AttributeTypeDefault("testInteger", Integer.class.getName());
-            AttributeType longAttribute = new AttributeTypeDefault("testLong", Long.class.getName());
-            AttributeType floatAttribute = new AttributeTypeDefault("testFloat", Float.class.getName());
-            AttributeType doubleAttribute = new AttributeTypeDefault("testDouble", Double.class.getName());
-            AttributeType stringAttribute = new AttributeTypeDefault("testString", String.class.getName());
+            AttributeType geometryAttribute = new AttributeTypeDefault("testGeometry", Point.class);
+            _log.info("created geometry attribute");
+            AttributeType booleanAttribute = new AttributeTypeDefault("testBoolean", Boolean.class);
+            _log.info("created boolean attribute");
+            AttributeType charAttribute = new AttributeTypeDefault("testCharacter", Character.class);
+            AttributeType byteAttribute = new AttributeTypeDefault("testByte", Byte.class);
+            AttributeType shortAttribute = new AttributeTypeDefault("testShort", Short.class);
+            AttributeType intAttribute = new AttributeTypeDefault("testInteger", Integer.class);
+            AttributeType longAttribute = new AttributeTypeDefault("testLong", Long.class);
+            AttributeType floatAttribute = new AttributeTypeDefault("testFloat", Float.class);
+            AttributeType doubleAttribute = new AttributeTypeDefault("testDouble", Double.class);
+            AttributeType stringAttribute = new AttributeTypeDefault("testString", String.class);
 
             FeatureType testType = new FeatureTypeFlat(geometryAttribute); 
             _log.info("created feature type and added geometry");
@@ -162,4 +164,3 @@ public class FeatureFlatTest extends TestCase {
 
     
 }
-

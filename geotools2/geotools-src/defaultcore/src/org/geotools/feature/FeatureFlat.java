@@ -50,26 +50,20 @@ public class FeatureFlat implements Feature {
 
         // Set the feature type reference
         this.schema = schema;
-        //_log.info("creating feature");
+        _log.info("creating feature");
 
         // Gets the number of attributes from feature and uses to set valid flag
         int n = schema.attributeTotal();
         boolean isValid = (n == attributes.length);
         //_log.info("schema attributes: " + n);
-        //_log.info("passed attributes: " + attributes.length);
-        //_log.info("is valid: " + isValid);
+        _log.info("passed attributes: " + attributes.length);
+        _log.info("is valid: " + isValid);
 
         // Check to ensure that all attributes are valid
         for(int i = 0; i < n ; i++) {
-            try{
-                Class template = Class.forName(schema.getAttributeType(i).getType());
-                isValid =  template.isAssignableFrom(attributes[i].getClass()) &&
+            isValid =  schema.getAttributeType(i).getType().
+                isAssignableFrom(attributes[i].getClass()) &&
                 isValid;
-            }
-            catch(ClassNotFoundException cnfe){
-                throw new IllegalFeatureException("You have attempted to"+
-                "create an invalid feature instance. "+cnfe);
-            }
             //String existingType = schema.getAttributeType(i).getType();
             //String targetType = attributes[i].getClass().getName();
             //_log.info("target type:" + attributes[i].toString());
@@ -186,8 +180,8 @@ public class FeatureFlat implements Feature {
 
         // Check each attribute for validity
         for(int i = 0; i < n; i++) {
-            isValid = schema.getAttributeType(i).getType().
-                equals( attributes[i].getClass().getName() ) && 
+            isValid =  schema.getAttributeType(i).getType().
+                isAssignableFrom(attributes[i].getClass()) &&
                 isValid;
         }
 
@@ -217,7 +211,7 @@ public class FeatureFlat implements Feature {
         AttributeType definition = null;
         if( schema.hasAttributeType(xPath) ) {
             definition = schema.getAttributeType(xPath);
-            if( definition.getType().equals( attribute.getClass().getName() ) ) {
+            if( definition.getType().isAssignableFrom( attribute.getClass()) ) {
                 attributes[definition.getPosition()] = attribute;
             }
             else {
