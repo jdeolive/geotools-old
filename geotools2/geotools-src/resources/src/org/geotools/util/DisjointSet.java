@@ -130,7 +130,7 @@ public class DisjointSet extends AbstractSet {
      */
     public DisjointSet(final boolean hasTrash) {
         map   = new LinkedHashMap();
-        trash = (hasTrash) ? new DisjointSet(false) : null;
+        trash = (hasTrash) ? new DisjointSet(map) : null;
     }
 
     /**
@@ -146,6 +146,14 @@ public class DisjointSet extends AbstractSet {
     public DisjointSet(final DisjointSet disjointSet) {
         map   = disjointSet.map;
         trash = disjointSet.trash;
+    }
+
+    /**
+     * Construct a trash set.
+     */
+    private DisjointSet(final Map map) {
+        this.map = map;
+        trash = null;
     }
 
     /**
