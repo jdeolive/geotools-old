@@ -66,8 +66,6 @@ public class PickleTest extends TestCase {
       
   }
   
- 
-  
   /*
    * This test shows that "shared" feature attributes are a problem, because
    * the current stream cannot handle this.
@@ -104,6 +102,28 @@ public class PickleTest extends TestCase {
       last = attVals[0];
     }
       
+  }
+  
+  public void testUnicodeSupport() throws Exception {
+    File file = new File(tempFile);
+    PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
+    AttributeType[] atts = new AttributeType[1];
+    atts[0] = new AttributeTypeDefault("\uAAAA\uBBBB\uCCCC\uDDDD\uEEEE", String.class);
+    FeatureType test = new FeatureTypeFlat(atts);
+    FeatureFactory factory = new FlatFeatureFactory(test);
+    FeatureCollection collection = new FeatureCollectionDefault();
+    Object[] attVals = new Object[atts.length];
+    for (int i = 0; i < 100; i++) {
+      attVals[0] = "\uEEEE\uEEEE\uEEEE\uEEEE\uEEEE";
+      collection.add( factory.create(attVals) );
+    }
+    pds.setFeatures(collection);
+    FeatureCollection fc = pds.getFeatures();
+    Feature[] f = fc.getFeatures();
+    assertEquals("\uAAAA\uBBBB\uCCCC\uDDDD\uEEEE",f[0].getSchema().getAttributeType(0).getName());
+    for (int i = 0; i < f.length; i++) {
+      assertEquals("\uEEEE\uEEEE\uEEEE\uEEEE\uEEEE",f[i].getAttributes()[0]);
+    }
   }
   
   public static class InnerClassTestObject implements java.io.Serializable {
