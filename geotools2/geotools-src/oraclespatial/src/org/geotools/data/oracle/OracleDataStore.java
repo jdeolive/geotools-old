@@ -31,7 +31,7 @@ import org.geotools.filter.SQLEncoderOracle;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * @author geoghegs
+ * @author Sean Geoghegan, Defence Science and Technology Organisation.
  */
 public class OracleDataStore extends JDBCDataStore {
 
