@@ -155,6 +155,7 @@
             <include>**/*.txt</include> 
             <include>**/*.utf</include> 
             <include>**/*.properties</include> 
+            <include>**/services/**</include> 
         </includes>
       </resource>
     </resources>
