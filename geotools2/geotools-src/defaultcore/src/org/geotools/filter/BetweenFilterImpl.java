@@ -31,7 +31,7 @@ import org.geotools.feature.Feature;
  * filter.
  *
  * @author Rob Hranac, TOPP
- * @version $Id: BetweenFilterImpl.java,v 1.7 2003/08/11 18:48:25 cholmesny Exp $
+ * @version $Id: BetweenFilterImpl.java,v 1.8 2004/03/13 06:25:31 cholmesny Exp $
  *
  * @task REVISIT: I think AbstractFilter right now does not consider between a
  *       math filter. ch
@@ -80,11 +80,49 @@ public class BetweenFilterImpl extends CompareFilterImpl
         if (middleValue == null) {
             return false;
         } else {
-            double left = ((Number) leftValue.getValue(feature)).doubleValue();
-            double right = ((Number) rightValue.getValue(feature)).doubleValue();
-            double mid = ((Number) middleValue.getValue(feature)).doubleValue();
+	    /*Object leftObj = leftValue.getValue(feature);
+	    Object rightObj = rightValue.getValue(feature);
+	    Object middleObj = middleValue.getValue(feature);
+	    //if (leftObj instanceof Number &&
+	    //middleObj instanceof Number &&
+	    //rightObj instanceof Number) {
+		double left = ((Number) leftObj).doubleValue();
+		double right = ((Number) rightObj).doubleValue();
+		double mid = ((Number) middleObj).doubleValue();
+		
+		return (left <= mid) && (right >= mid);
+	    */
+	    Object leftObj = leftValue.getValue(feature);
+	    Object rightObj = rightValue.getValue(feature);
+	    Object middleObj = middleValue.getValue(feature);
+	    if (leftObj instanceof Number &&
+		middleObj instanceof Number &&
+		rightObj instanceof Number) {
+		double left = ((Number) leftObj).doubleValue();
+		double right = ((Number) rightObj).doubleValue();
+		double mid = ((Number) middleObj).doubleValue();
+		
+		return (left <= mid) && (right >= mid);
+		//instanceof Comparator?  And same object type?
+	    
+		//this may miss variations on similar classes that actually
+		//could be compared, but I think AttributeType parsing may
+		//have helped us out before we get here.
+	    } else if (leftObj.getClass() == middleObj.getClass() &&
+		       rightObj.getClass() == middleObj.getClass() &&
+		       //I don't think we need to check all for comparator
+		       //if they are all the same class?
+		       leftObj instanceof Comparable) {
+		return (((Comparable)leftObj).compareTo(middleObj) <= 0 &&
+			((Comparable)middleObj).compareTo(rightObj) <= 0);
+	    } else {
+		String mesg = "Supplied between values are either not " +
+		    "compatible or not supported for comparison: " + leftObj + 
+		    " <= " + middleObj + " <= " + rightObj;
+		throw new IllegalArgumentException(mesg);
+	    }			 
 
-            return (left <= mid) && (right >= mid);
+		
         }
     }
 
