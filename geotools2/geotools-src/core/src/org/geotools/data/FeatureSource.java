@@ -55,7 +55,7 @@ import java.io.IOException;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureSource.java,v 1.2 2003/12/01 22:00:47 cholmesny Exp $
+ * @version $Id: FeatureSource.java,v 1.3 2003/12/02 20:03:41 cholmesny Exp $
  */
 public interface FeatureSource {
     /**
@@ -191,7 +191,7 @@ public interface FeatureSource {
      * @return The bounding box of the datasource or null if unknown and too
      *         expensive for the method to calculate or any errors occur.
      */
-    Envelope getBounds(Query query);
+    Envelope getBounds(Query query) throws IOException;
 
     /**
      * Gets the number of the features that would be returned by this query.

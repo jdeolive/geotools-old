@@ -291,7 +291,7 @@ public class JDBCFeatureSource implements FeatureSource {
      *
      * @return null representing the lack of an optimization
      */
-    public Envelope getBounds(Query query) {
+    public Envelope getBounds(Query query) throws IOException {
         if (query.getFilter() == Filter.ALL) {
             return new Envelope();
         }
