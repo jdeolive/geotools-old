@@ -71,7 +71,7 @@ public class Rendering2DTest extends TestCase {
         FeatureFactory lineFac = new FlatFeatureFactory(lineType);
         Feature lineFeature = lineFac.create(new Object[]{line});
         
-        Polygon polygon = makeSamplePolygon(geomFac);
+        com.vividsolutions.jts.geom.Polygon polygon = makeSamplePolygon(geomFac);
         
         AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
         FeatureType polygonType = new FeatureTypeFlat(polygonAttribute);
