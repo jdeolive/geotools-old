@@ -33,11 +33,27 @@ public class GMLDataSourceTest extends TestCase {
         
         return suite;
     }
-    
-    public void testReader() throws Exception{
+    public void testRead() throws Exception{
+        System.out.println("testRead");
         String dataFolder = System.getProperty("dataFolder");
         URL url = new URL("file:///"+dataFolder+"/testGML1.gml");
-        System.out.println("Testing ability to load "+url);
+        System.out.println("Testing ability to read "+url);
+        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+        GMLReader gmlr = new GMLReader(in);
+        
+        GeometryCollection gc = gmlr.read();
+        assertEquals(1,gc.getNumGeometries());
+        url = new URL("file:///"+dataFolder+"/testGML2.gml");
+        in=new BufferedReader(new InputStreamReader(url.openStream()));
+        gmlr = new GMLReader(in);
+        gc = gmlr.read();
+        assertEquals(1,gc.getNumGeometries());
+        
+    }
+    public void testDataSource() throws Exception{
+        String dataFolder = System.getProperty("dataFolder");
+        URL url = new URL("file:///"+dataFolder+"/testGML1.gml");
+        System.out.println("Testing ability to load "+url+" as datasource");
         GMLDataSource ds = new GMLDataSource(url);
         
         ds.load((Extent)null);   
