@@ -32,6 +32,7 @@
  */
 package org.geotools.resources;
 
+
 // JUnit dependencies
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -44,24 +45,36 @@ import junit.framework.TestSuite;
  * @author Ian Schneider
  */
 public class NumberParserTest extends TestCase {
-  /**
-   * Returns the test suite.
-   */
-  public static Test suite() {
-    return new TestSuite(NumberParserTest.class);
-  }
-  
+  NumberParser numberParser;
+
   /**
    * Constructs a test case with the given name.
    */
   public NumberParserTest(String name) {
     super(name);
   }
-  
-  private void test1(String s) {
-    assertEquals(Double.parseDouble(s), NumberParser.parseDouble(s),0); 
+
+  /**
+   * Returns the test suite.
+   */
+  public static Test suite() {
+    return new TestSuite(NumberParserTest.class);
   }
-  
+
+
+  /**
+       * @see junit.framework.TestCase#setUp()
+       */
+  protected void setUp() throws Exception {
+    numberParser = new NumberParser();
+  }
+
+
+  private void test1(String s) {
+    assertEquals(Double.parseDouble(s), numberParser.parseDouble(s), 0);
+  }
+
+
   private void testDouble(String s) {
     boolean javafail = false;
     boolean gtfail = false;
@@ -70,22 +83,30 @@ public class NumberParserTest extends TestCase {
     try {
       // lets trim just to make sure
       javadouble = Double.parseDouble(s.trim());
-    } catch (NumberFormatException nfe) {
+    } catch(NumberFormatException nfe) {
       javafail = true;
     }
+
     try {
-      gtdouble = NumberParser.parseDouble(s);
-    } catch (NumberFormatException nfe) {
+      gtdouble = numberParser.parseDouble(s);
+    } catch(NumberFormatException nfe) {
       gtfail = true;
     }
-    if (javafail)
+
+    if(javafail) {
       assertTrue("gtfailure '" + s + "'", gtfail);
-    if (gtfail)
+    }
+
+    if(gtfail) {
       assertTrue("javafailure '" + s + "'", javafail);
-    if (!javafail && !gtfail)
-      assertEquals(javadouble,gtdouble, 0);
+    }
+
+    if(!javafail && !gtfail) {
+      assertEquals(javadouble, gtdouble, 0);
+    }
   }
-  
+
+
   private void testInteger(String s) {
     boolean javafail = false;
     boolean gtfail = false;
@@ -94,22 +115,30 @@ public class NumberParserTest extends TestCase {
     try {
       // Integer parse will not trim values...
       javaint = Integer.parseInt(s.trim());
-    } catch (NumberFormatException nfe) {
+    } catch(NumberFormatException nfe) {
       javafail = true;
     }
+
     try {
-      gtint = NumberParser.parseInt(s);
-    } catch (NumberFormatException nfe) {
+      gtint = numberParser.parseInt(s);
+    } catch(NumberFormatException nfe) {
       gtfail = true;
     }
-    if (javafail)
+
+    if(javafail) {
       assertTrue("gtfailure '" + s + "' = " + gtint, gtfail);
-    if (gtfail)
+    }
+
+    if(gtfail) {
       assertTrue("javafailure '" + s + "' = " + javaint, javafail);
-    if (!javafail && !gtfail)
-      assertEquals(javaint,gtint, 0);
+    }
+
+    if(!javafail && !gtfail) {
+      assertEquals(javaint, gtint, 0);
+    }
   }
-  
+
+
   public void testValidDoubles() {
     testDouble("4.275");
     testDouble("0.123e5");
@@ -124,12 +153,13 @@ public class NumberParserTest extends TestCase {
     testDouble("10.e");
     testDouble(".");
     testDouble(" -2000 ");
-    
+
     // check garbage bytes robustness
-    char[] zeros = new char [] {0,49,49,0};
-    assertEquals( (double) 11,NumberParser.parseDouble(new String(zeros)), 0);
+    char[] zeros = new char[] { 0, 49, 49, 0 };
+    assertEquals((double) 11, numberParser.parseDouble(new String(zeros)), 0);
   }
-  
+
+
   public void testValidIntegers() {
     testInteger("400");
     testInteger(" 400");
@@ -137,17 +167,17 @@ public class NumberParserTest extends TestCase {
     testInteger("400 ");
     testInteger(" -2000 ");
   }
-  
+
+
   public void testInvalidDoubles() {
-    testDouble(""); 
+    testDouble("");
     testDouble("x");
     testDouble("e");
     testDouble("\b");
   }
-  
+
+
   public static void main(String[] args) {
     junit.textui.TestRunner.run(suite());
   }
-  
-  
 }

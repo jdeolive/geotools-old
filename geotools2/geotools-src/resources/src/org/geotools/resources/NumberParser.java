@@ -25,7 +25,24 @@ public final class NumberParser {
   boolean	mustSetRoundDir = false;
   int		roundDir; // set by doubleValue
   
-  private NumberParser(boolean negSign, int decExponent, char[] digits, int n, boolean e) {
+  public NumberParser() {
+      // nothing special to do
+  }
+  
+  private void clear() {
+      isExceptional = false;
+      isNegative = false;
+      decExponent = 0;
+      digits = null;
+      nDigits = 0;
+      bigIntExp = 0;
+      bigIntNBits = 0;
+      mustSetRoundDir = false;
+      roundDir = 0;
+  }
+  
+  private void init(boolean negSign, int decExponent, char[] digits, int n, boolean e) {
+    clear();
     isNegative = negSign;
     isExceptional = e;
     this.decExponent = decExponent;
@@ -371,7 +388,9 @@ public final class NumberParser {
     /*
      * FIRST IMPORTANT CONSTRUCTOR: DOUBLE
      */
-  private NumberParser(double d) {
+  private void init(double d) {
+    clear();
+      
     long	dBits = Double.doubleToLongBits( d );
     long	fractBits;
     int	binExp;
@@ -807,11 +826,11 @@ public final class NumberParser {
     }
   }
   
-  public static int parseInt(String s) throws NumberFormatException {
+  public int parseInt(String s) throws NumberFormatException {
     return parseInt(s,0,s.length() - 1);
   }
   
-  public static int parseInt(CharSequence s,int start,int end)
+  public int parseInt(CharSequence s,int start,int end)
   throws NumberFormatException {
     int ostart = start;
     int oend = end;
@@ -899,15 +918,16 @@ public final class NumberParser {
     return new NumberFormatException("'" + s.subSequence(start, end + 1).toString() + "'");
   }
   
-  public static double parseDouble(String s) throws NumberFormatException {
+  public double parseDouble(String s) throws NumberFormatException {
     return parseDouble(s,0,s.length() - 1);
   }
   
-  public static double parseDouble(CharSequence s,int start, int end) throws NumberFormatException {
-    return readJavaFormatString(s,start,end).doubleValue();
+  public double parseDouble(CharSequence s,int start, int end) throws NumberFormatException {
+    readJavaFormatString(s,start,end);
+    return doubleValue();
   }
   
-  private static NumberParser
+  private void
   readJavaFormatString( CharSequence in,int start, int end) throws NumberFormatException {
     boolean isNegative = false;
     boolean signSeen   = false;
@@ -993,10 +1013,15 @@ public final class NumberParser {
           // must be matched ==> j must equal targetChars.length
           // and i must equal l
           if( (j == targetChars.length) && (i == l) ) { // return NaN or infinity
-            return (potentialNaN ? new NumberParser(Double.NaN) // NaN has no sign
-            : new NumberParser(isNegative?
-            Double.NEGATIVE_INFINITY:
-              Double.POSITIVE_INFINITY)) ;
+              if(potentialNaN) {
+                  init(Double.NaN);
+                  return;
+              } else {
+                  init(isNegative?
+                  Double.NEGATIVE_INFINITY:
+                    Double.POSITIVE_INFINITY);
+                  return;
+              }
           }
           else { // something went wrong, throw exception
             break parseNumber;
@@ -1175,7 +1200,8 @@ public final class NumberParser {
             break parseNumber; // go throw exception
           }
           
-          return new NumberParser( isNegative, decExp, digits, nDigits,  false );
+          init( isNegative, decExp, digits, nDigits,  false );
+          return;
       } catch ( StringIndexOutOfBoundsException e ){ }
       throw new NumberFormatException(in.subSequence(ostart,oend + 1).toString());
   }

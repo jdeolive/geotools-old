@@ -88,6 +88,7 @@ public class DbaseFileReader {
   int[] fieldLengths;
   int cnt = 1;
   Row row;
+  NumberParser numberParser = new NumberParser();
   
   /** Creates a new instance of DBaseFileReader
    * @param channel The readable channel to use.
@@ -391,7 +392,7 @@ public class DbaseFileReader {
         case 'N':
           try {
             if (header.getFieldDecimalCount(fieldNum) == 0) {
-              object = new Integer(NumberParser.parseInt(charBuffer, fieldOffset, fieldOffset + fieldLen - 1));
+              object = new Integer(numberParser.parseInt(charBuffer, fieldOffset, fieldOffset + fieldLen - 1));
               break;
             }
             // else will fall through to the floating point number
@@ -408,7 +409,7 @@ public class DbaseFileReader {
           try {
             
             
-            object = new Double(NumberParser.parseDouble(charBuffer,fieldOffset, fieldOffset + fieldLen - 1));
+            object = new Double(numberParser.parseDouble(charBuffer,fieldOffset, fieldOffset + fieldLen - 1));
           } catch (NumberFormatException e) {
               // todo: use progresslistener, this isn't a grave error, though it
               // does indicate something is wrong
