@@ -9,7 +9,7 @@ import com.vividsolutions.jts.geom.Envelope;
 /** A geographic filter class
  * @author James Macgill, CCG, University of Leeds
  * @author Ian Turton, CCG, University of Leeds
- * $Id: EnvelopeExtent.java,v 1.8 2002/04/19 16:34:23 ianturton Exp $
+ * $Id: EnvelopeExtent.java,v 1.9 2002/04/20 12:15:17 jmacgill Exp $
  */
 public class EnvelopeExtent implements Extent {
     /** internal representation of the bounding box
@@ -89,11 +89,11 @@ public class EnvelopeExtent implements Extent {
         if (side != null){
             for (int i = 0; i < side.length; i++){
                 if (side[i] != null){
-                    v.addElement(side[i]);
+                    v.addElement(new EnvelopeExtent(side[i]));
                 }
             }
         }
-        return (Extent[]) v.toArray(new Envelope[v.size()]);
+        return (Extent[]) v.toArray(new Extent[v.size()]);
     }
     
     /** Tests whether the given Feature is within this Extent. 
