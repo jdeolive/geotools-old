@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -96,7 +97,7 @@ import java.util.logging.Logger;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.11 2004/04/22 09:11:07 jive Exp $
+ * @version $Id: ValidationProcessor.java,v 1.12 2004/04/22 09:38:43 jive Exp $
  */
 public class ValidationProcessor {
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.validation");
@@ -419,9 +420,13 @@ public class ValidationProcessor {
             LOGGER.finer("Running test:"+validator.getName() );
             results.setValidation(validator);
 			try{
-				validator.validate(stores, envelope, results);
+				boolean success = validator.validate(stores, envelope, results);
+				if( !success ){
+					results.error( null, "Was not successful" );
+				}
 			} catch(Throwable e){
-				LOGGER.finer( "Validation test died:"+ validator.getName() );				
+				LOGGER.finer( "Validation test died:"+ validator.getName() );
+				LOGGER.log( Level.WARNING, validator.getName()+" failed", e );
 				results.error(null,e.getMessage());
 			}
         }        

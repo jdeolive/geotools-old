@@ -14,12 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-/*
- * Created on Jan 24, 2004
- *
- * To change the template for this generated file go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 package org.geotools.validation.spatial;
 
 import java.util.Map;
@@ -44,7 +38,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: PolygonNotOverlappingPolygonValidation.java,v 1.5 2004/04/22 08:10:39 jive Exp $
+ * @version $Id: PolygonNotOverlappingPolygonValidation.java,v 1.6 2004/04/22 09:38:43 jive Exp $
  */
 public class PolygonNotOverlappingPolygonValidation
     extends PolygonPolygonAbstractValidation {
@@ -85,21 +79,24 @@ public class PolygonNotOverlappingPolygonValidation
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
     	
-    	LOGGER.finer("Starting test "+getName()+" ("+getClass().getName()+")" );    	
-        FeatureSource polySource1 = (FeatureSource) layers.get(getPolygonTypeRef());
-        FeatureSource polySource2 = (FeatureSource) layers.get(getRestrictedPolygonTypeRef());
-
-        LOGGER.finer("featureType 1:"+polySource1.getSchema().getTypeName() );        
+    	LOGGER.finer("Starting test "+getName()+" ("+getClass().getName()+")" );
+    	String typeRef1 = getPolygonTypeRef();
+    	LOGGER.finer( typeRef1 +": looking up FeatureSource " );    	
+        FeatureSource polySource1 = (FeatureSource) layers.get( typeRef1 );
+        LOGGER.finer( typeRef1 +": found "+polySource1.getSchema().getTypeName() );
         FeatureResults features1 = polySource1.getFeatures(); // limit with envelope
         FeatureCollection collection1 = features1.collection();
         Object[] poly1 = collection1.toArray();
 
-        LOGGER.finer("featureType 2:"+polySource2.getSchema().getTypeName() );        
+        String typeRef2 = getRestrictedPolygonTypeRef();
+        LOGGER.finer( typeRef2 +": looking up FeatureSource " );        
+        FeatureSource polySource2 = (FeatureSource) layers.get( typeRef2 );
+        LOGGER.finer( typeRef2 +": found "+polySource2.getSchema().getTypeName() );
         FeatureResults features2 = polySource2.getFeatures(); // limit with envelope
         FeatureCollection collection2 = features2.collection();
         Object[] poly2 = collection1.toArray();
         
-        if (!envelope.contains(collection1.getBounds())) {
+/*        if (!envelope.contains(collection1.getBounds())) {
             results.error((Feature) poly1[0],
                 "Polygon Feature Source is not contained within the Envelope provided.");
             return false;
@@ -108,9 +105,9 @@ public class PolygonNotOverlappingPolygonValidation
         if (!envelope.contains(collection2.getBounds())) {
             results.error((Feature) poly2[0],
                 "Restricted Polygon Feature Source is not contained within the Envelope provided.");
-            return false;
-        }
-
+            return true;
+        }*/
+        boolean success = true;
         for (int i = 0; i < poly1.length; i++) {
             Feature tmp = (Feature) poly1[i];
             Geometry gt = tmp.getDefaultGeometry();
@@ -120,11 +117,11 @@ public class PolygonNotOverlappingPolygonValidation
                 Geometry gt2 = tmp2.getDefaultGeometry();
 
                 if (gt2.touches(gt)) {
-                    return false;
+                	results.error( tmp, "Polygon "+typeRef1+" overlapped Polygon "+typeRef2+"("+tmp2.getID()+")" );
+                	success = false;
                 }
             }
         }
-
-        return true;
+        return success;
     }
 }
