@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 <!-- Use the following if you want to use ant to style this file when offline
@@ -33,7 +33,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2002/12/07 04:13:13 $</date>
+    <date>$Date: 2002/12/08 19:32:06 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
@@ -135,10 +135,10 @@ id="index">
       <para>If you use <filename>ant</filename> for compiling, or building
       javadocs or similar, then you will need to include something like:</para>
 
-      <para><command>&#60;javadoc source=&#34;1.4&#62;...</command></para>
+      <para><command>&#60;javadoc source=&#34;1.4&#34;&#62;...</command></para>
 
-      <para>So far, I have only tested Geotools with Sun&#39;s Java Run Time
-      Environment. If you try another Run Time Environment, then let me know
+      <para>So far, I have only tested Geotools with Sun&#39;s Software
+      Development Kit (SDK). If you try another java compiler then let me know
       how successful you are and we can include it here.</para>
     </section>
 
@@ -178,10 +178,9 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @author Your Name
  * @version <emphasis>$Id</emphasis> <emphasis>:$</emphasis>
+ * @author Your Name
  */
-
 public class ThisClass { 
     /**
      * Description of internalVar.
@@ -232,8 +231,9 @@ public class ThisClass {
 
         <itemizedlist>
           <listitem>
-            <para>Using Sun&#39;s coding standard, need to note any exceptions
-            to it.</para>
+            <para>Using <ulink
+            url="http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html">Sun&#39;s
+            coding standard</ulink>, need to note any exceptions to it.</para>
           </listitem>
 
           <listitem>
@@ -349,6 +349,9 @@ public class ThisClass {
 
     <section id="logging">
       <title>Logging</title>
+
+      <para>to do: Need to change granularity of logger to package level
+      instead of module level.</para>
 
       <para>The logging package (<filename>java.util.logging</filename>) is
       bundled into J2SE 1.4 and above. An overview is available on line in the
@@ -555,7 +558,7 @@ org.geotools.cts.level = INFO</programlisting>
         <para>They key part of maven is the use of project files, you should
         now be able to find a project.xml file in every active module (note
         for example that awtRenderer does not have one, this is because it is
-        very out of date and not currently being developed) </para>
+        very out of date and not currently being developed)</para>
 
         <para>The project file tells you the name of the module, who maintains
         it, who develops it, what version it has reached and what it depends
@@ -580,7 +583,7 @@ org.geotools.cts.level = INFO</programlisting>
           <title>Installing Maven</title>
 
           <para>Unpack the archive you downloaded to a convenient location on
-          your machine (c:\program files is good for windoze boxes) </para>
+          your machine (c:\program files is good for windoze boxes)</para>
 
           <para>Set an environment variable called MAVEN_HOME to point to this
           location (e.g. c:\program files\maven-1.0-beta-7)</para>
@@ -613,7 +616,7 @@ org.geotools.cts.level = INFO</programlisting>
           <para>All being well maven should startup and proceed to build all
           the modules in the right order, at the end of this process it will
           display a list of all the modules which were built and installed
-          correctly. </para>
+          correctly.</para>
 
           <para><emphasis>NOTE:</emphasis> The first build can take a very
           long time as maven actually downloads a lot of the files it needs to
@@ -641,8 +644,7 @@ org.geotools.cts.level = INFO</programlisting>
           be able to build individual modules.</para>
 
           <para>Change to the modules home directory (e.g.
-          geotools-src\defaultcore) <command> Type &#39;maven&#39;</command>
-          </para>
+          geotools-src\defaultcore) <command> Type &#39;maven&#39;</command></para>
 
           <para>It should do a complete build, note that if you have not done
           a full build yet then the build may fail because it can&#39;t find
@@ -663,7 +665,7 @@ org.geotools.cts.level = INFO</programlisting>
         </section>
 
         <section>
-          <title> Doing things other than building</title>
+          <title>Doing things other than building</title>
 
           <para>In any individual module home you can type maven -g to see a
           full list of goals that can be run for that module.</para>
@@ -836,7 +838,7 @@ void example(int i) {
           </listitem>
 
           <listitem>
-            <para> Smaller file units to load into an editing program.</para>
+            <para>Smaller file units to load into an editing program.</para>
           </listitem>
 
           <listitem>
