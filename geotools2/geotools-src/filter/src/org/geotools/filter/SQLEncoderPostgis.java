@@ -64,6 +64,8 @@ public class SQLEncoderPostgis extends SQLEncoder
     /** The srid of the schema, so the bbox conforms.  Could be better to have
      * it in the bbox filter itself, but this works for now.*/
     private int srid;
+    
+    private String defaultGeometry;
 
     static {
 	capabilities.addType(AbstractFilter.GEOMETRY_BBOX);
@@ -110,6 +112,10 @@ public class SQLEncoderPostgis extends SQLEncoder
     public void setSRID(int srid) {
 	this.srid = srid;
     }
+    
+    public void setDefaultGeometry(String name) {
+        this.defaultGeometry = name;
+    }
 
     public void visit(GeometryFilter filter) {
 
@@ -118,9 +124,19 @@ public class SQLEncoderPostgis extends SQLEncoder
 	    DefaultExpression left = (DefaultExpression)filter.getLeftGeometry();
 	    DefaultExpression right = (DefaultExpression)filter.getRightGeometry();
 	    try {
-		left.accept(this);
+                if(left == null){
+                    out.write(defaultGeometry);
+                }
+                else {
+                    left.accept(this);
+                }
 		out.write(" && ");
-		right.accept(this);
+		if(right == null){
+                    out.write(defaultGeometry);
+                }
+                else {
+                    right.accept(this);
+                }
 	    }
 	    catch(java.io.IOException ioe){
 		log.warning("Unable to export filter" + ioe);
