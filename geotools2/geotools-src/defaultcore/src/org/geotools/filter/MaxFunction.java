@@ -49,5 +49,7 @@ public class MaxFunction extends FunctionExpressionImpl implements FunctionExpre
     public Expression[] getArgs() {
         return args;
     }
-    
+    public String toString(){
+        return "Max( " + a + ", " + b + ")";
+    }
 }

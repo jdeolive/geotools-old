@@ -51,4 +51,7 @@ public class MinFunction extends FunctionExpressionImpl implements FunctionExpre
         return args;
     }
     
+    public String toString(){
+        return "Min( " + a + ", " + b + ")";
+    }
 }
