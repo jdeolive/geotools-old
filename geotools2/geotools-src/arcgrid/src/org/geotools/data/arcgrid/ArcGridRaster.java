@@ -326,8 +326,6 @@ public class ArcGridRaster {
         
         int type = 0;
         
-//        InputStream in = srcURL.openStream();
-//        Reader r = new BufferedReader(new InputStreamReader(in));
         Reader reader = openReader();
         StreamTokenizer st = new StreamTokenizer(reader);
         st.parseNumbers();
@@ -336,40 +334,46 @@ public class ArcGridRaster {
         st.lowerCaseMode(true);
         
         // skip header
-        for (int i = 0; i < 15; i++) {
-            type = st.nextToken();
-        }
-        
-        if (type == StreamTokenizer.TT_NUMBER) {
-            st.pushBack(); // put it back if its a number - thats data
-        } else {
+        for (int i = 0; i < 12; i++) {
             type = st.nextToken();
         }
         
         st.ordinaryChars('E', 'E');
         
+        type = st.nextToken();
         // Read and write values.
         int i1 = 0;
-        double d1 = 0;
+        float d1 = 0;
         
-        //System.out.println("");
         for (int y = 0; y < getNRows(); y++) {
             for (int x = 0; x < getNCols(); x++) {
-                st.nextToken();
-                d1 = st.nval;
-                type = st.nextToken();
                 
-                if ((type != StreamTokenizer.TT_NUMBER) && (type != StreamTokenizer.TT_EOF)) {
-                    /* Either an exponent term number or end of file marker or something is wrong (eg. grid value is non-numeric)! */
-                    st.nextToken();
-                    d1 = d1 * Math.pow(10.0, st.nval);
-                } else {
-                    st.pushBack();
+                // read a token, expected: a number
+                switch (type) {
+                    case StreamTokenizer.TT_NUMBER:
+                        d1 = (float) st.nval;
+                        break;
+                    case StreamTokenizer.TT_EOF:
+                        throw new IOException("Unexpected EOF at " + x + "," + y);
                 }
                 
-                //i1 = new Double((255.0d * (d1 - minValue)) / (maxValue - minValue)).intValue();
-                i1 = (int) ((255.0d * (d1 - minValue)) / (maxValue - minValue));
-                writableRaster.setSample(x, y, 0, i1);
+                // read another
+                type = st.nextToken();
+                // if its a word, it better be "E"
+                switch (type) {
+                    case StreamTokenizer.TT_WORD:
+                        if (! st.sval.equalsIgnoreCase("E"))
+                            throw new IOException("Malformed floating number at " + x + "," + y + ":" + st.sval);
+                        type = st.nextToken();
+                        if (type != StreamTokenizer.TT_NUMBER)
+                            throw new IOException("Expected exponent at " + x + "," + y);
+                        d1 = d1 * (float) Math.pow(10.0,st.nval);
+                        
+                        // make sure to advance again
+                        type = st.nextToken();
+                }
+
+                writableRaster.setSample(x, y, 0, d1);
             }
         }
         
@@ -400,7 +404,10 @@ public class ArcGridRaster {
         
         public int read() throws IOException {
             if (chars.remaining() == 0) {
+                chars.flip();
                 fill();
+                if (chars.remaining() == 0)
+                    return -1;
             }
             return chars.get();
         }
@@ -409,5 +416,10 @@ public class ArcGridRaster {
             throw new RuntimeException("Expected single character read");
         }
         
+    }
+    
+    public static final void main(String[] args) throws Exception {
+        ArcGridRaster grid = new ArcGridRaster(new java.io.File(args[0]).toURL());
+        grid.getImage();
     }
 }
