@@ -4,13 +4,12 @@
  * Created on March 4, 2003, 3:44 PM
  */
 
-package org.geotools.gml;
+package org.geotools.data.gml;
 
 import java.net.URL;
 import java.util.Map;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.gml.GMLDataSource;
 
 /**
  *
