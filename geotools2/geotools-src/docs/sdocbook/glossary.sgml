@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/11/08 11:03:20 $</date>
+    <date>$Date: 2002/11/10 09:00:32 $</date>
 
     <abstract>
       <para>Glossary of terms used in the Geotools2 project.</para>
@@ -37,10 +37,6 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
           <entry>CTS</entry>
 
           <entry>Coordinate Transform Service</entry>
-        </row>
-
-        <row>
-          <entry>GPL</entry>
         </row>
       </thead>
 
@@ -106,6 +102,12 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
 
         <row>
           <entry>LGPL</entry>
+
+          <entry><ulink url="http://www.gnu.org/copyleft/lesser.html">Lesser
+          General Public Licence</ulink></entry>
+
+          <entry>Geotools licence which ensures the code is open, free and can
+          be used in proprietry software.</entry>
         </row>
 
         <row>
