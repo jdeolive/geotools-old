@@ -34,7 +34,6 @@ public class MapInfoDataSourceTest extends TestCase {
     boolean setup = false;
     public MapInfoDataSourceTest(java.lang.String testName) {
         super(testName);
-        org.apache.log4j.BasicConfigurator.configure();
     }
     
     public static void main(java.lang.String[] args) {

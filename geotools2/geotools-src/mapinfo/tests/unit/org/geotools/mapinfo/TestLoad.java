@@ -24,7 +24,8 @@ import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import com.vividsolutions.jts.geom.*;
-import org.apache.log4j.*;
+import java.util.logging.Logger;
+
 /**
  *
  * @author iant
@@ -67,7 +68,7 @@ public class TestLoad extends TestCase {
 
         // Load file
         
-        _log.getLoggerRepository().setThreshold(Level.INFO);
+        
         
         String miffile = dataFolder + "/statepop.mif";
         
