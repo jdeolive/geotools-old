@@ -44,7 +44,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.19 2003/03/28 19:24:17 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.20 2003/04/09 23:23:02 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -123,6 +123,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    throw new DataSourceException("Couldn't make schema: " + e);
 	}
 	this.srid = getSrid();
+	encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
 	encoder.setSRID(srid);
 
     }
@@ -160,6 +161,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	this.tableName = tableName;
 	this.schema = schema;
 	this.srid = getSrid();
+	encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
 	encoder.setSRID(srid);
 	this.fidColumn = getFidColumn(dbConnection, tableName);
     }
@@ -320,10 +322,10 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      */
     private int getSrid() {
 	int srid = 0;
-	if (schema.getClass().isAssignableFrom(FeatureTypeFlat.class)) {
-	    srid = ((FeatureTypeFlat)schema).getSRID();
-	    if (srid != 0) return srid; //if 0 then it was not initialized, 
-	}    //so it should be found with querySRID.
+	//if (schema.getClass().isAssignableFrom(FeatureTypeFlat.class)) {
+	//    srid = ((FeatureTypeFlat)schema).getSRID();
+	//    if (srid != 0) return srid; //if 0 then it was not initialized, 
+	//}    //so it should be found with querySRID.
 	try {
 	    srid = querySRID(dbConnection, tableName);  //this will slow things 
 	} catch (Exception e) {     //srid should be set in schema.
