@@ -40,6 +40,7 @@ import java.util.Map;
  * Class user for parsing an ArcGrid header (.arc, .asc) file
  *
  * @author <a href="mailto:ckl@dacelo.nl">Christiaan ten Klooster</a>
+ * @author <a href="mailto:aaime@users.sf.net">Andrea Aime</a>
  */
 public class ArcGridRaster {
     /** Column number tag in the header file */
@@ -116,7 +117,7 @@ public class ArcGridRaster {
     /**
      * Returns a property value
      *
-     * @param property use mnemonic constants
+     * @param property use mnemonic constants defined above
      *
      * @return the property value or null if the passed property is not recognized
      */

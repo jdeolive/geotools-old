@@ -51,9 +51,11 @@ import java.net.URLDecoder;
 
 /**
  * Data source that read the ARC Grid ASCII format. Returns as usual a feature collection with a
- * single feature, the GridCoverage being contained in the "grid" attribute.
+ * single feature, the GridCoverage being contained in the "grid" attribute. Loads the raster file
+ * but cannot georeference it, default georeferencing is WGS84 lat/long.
  *
  * @author <a href="mailto:ckl@dacelo.nl">Christiaan ten Klooster</a>
+ * @author <a href="mailto:aaime@users.sf.net">Andrea Aime</a>
  */
 public class ArcGridDataSource extends AbstractDataSource {
     /** URL pointing to the arc grid header or data file */
@@ -66,10 +68,13 @@ public class ArcGridDataSource extends AbstractDataSource {
     private CoordinateSystem coordinateSystem = GeographicCoordinateSystem.WGS84;
 
     /** Default color ramp */
-    private Color[] demColors = new Color[] { Color.BLUE, Color.WHITE, Color.RED };
+    private Color[] demColors = new Color[] {Color.BLUE, Color.WHITE, Color.RED};
 
     /** The grid coverage read from the data file */
     private GridCoverage gridCoverage = null;
+
+    /** The name of the file, used as the schema name */
+    private String name = null;
 
     /**
      * Creates a new instance of ArcGridDataSource
@@ -94,6 +99,8 @@ public class ArcGridDataSource extends AbstractDataSource {
 
         if (!filename.toLowerCase().endsWith(arcext) && !filename.toLowerCase().endsWith(ascext)) {
             throw new MalformedURLException("file extension not recognized: " + filename);
+        } else {
+            name = filename.substring(0, filename.length() - 4);
         }
 
         srcURL = new URL(url, filename);
@@ -117,7 +124,8 @@ public class ArcGridDataSource extends AbstractDataSource {
 
     /**
      * Returns the GridCoverage read by the datasource. Use it if you want to avoid unpacking the
-     * getFeatures return
+     * getFeatures returned feature collection. Use only for specific needs, it's not a datasource
+     * independent method.
      *
      * @return the GridCoverage read by the datasource
      */
@@ -209,9 +217,9 @@ public class ArcGridDataSource extends AbstractDataSource {
         Category nullValue = new Category("null", null, 0, 1, 1, arcGridRaster.getNoData());
         Category elevation = new Category("elevation", demColors, 1, 256, SCALE, OFFSET);
 
-        SampleDimension sd = new SampleDimension(new Category[] { nullValue, elevation }, Unit.METRE);
+        SampleDimension sd = new SampleDimension(new Category[] {nullValue, elevation}, Unit.METRE);
         SampleDimension geoSd = sd.geophysics(true);
-        SampleDimension[] bands = new SampleDimension[] { geoSd };
+        SampleDimension[] bands = new SampleDimension[] {geoSd};
 
         RenderedImage image = arcGridRaster.getImage();
 
@@ -257,13 +265,12 @@ public class ArcGridDataSource extends AbstractDataSource {
         AttributeType grid = AttributeTypeFactory.newAttributeType("grid", GridCoverage.class);
 
         FeatureType schema = null;
-        AttributeType[] attTypes = { geom, grid };
+        AttributeType[] attTypes = {geom, grid};
 
-        //HACK - the name should not be arcgrid, but instead the name of the file.
-        schema = FeatureTypeFactory.newFeatureType(attTypes, "arcgrid");
+        schema = FeatureTypeFactory.newFeatureType(attTypes, name);
 
         // create the feature
-        Feature feature = schema.create(new Object[] { bounds, gc });
+        Feature feature = schema.create(new Object[] {bounds, gc});
 
         return feature;
     }
@@ -276,8 +283,8 @@ public class ArcGridDataSource extends AbstractDataSource {
      * @return the equivalent geotools envelope
      */
     private Envelope convertEnvelope(com.vividsolutions.jts.geom.Envelope source) {
-        double[] min = new double[] { source.getMinX(), source.getMinY() };
-        double[] max = new double[] { source.getMaxX(), source.getMaxY() };
+        double[] min = new double[] {source.getMinX(), source.getMinY()};
+        double[] max = new double[] {source.getMaxX(), source.getMaxY()};
 
         return new Envelope(min, max);
     }
