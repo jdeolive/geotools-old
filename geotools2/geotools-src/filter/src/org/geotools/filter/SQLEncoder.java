@@ -348,13 +348,23 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
     public void visit(LiteralExpression expression) {
         log.finer("exporting LiteralExpression");
         try{
-            out.write("'"+expression.getLiteral()+"'");
+	    Object literal = expression.getLiteral();
+	    short type = expression.getType();
+	    switch (type) {
+	    case DefaultExpression.LITERAL_DOUBLE:
+	    case DefaultExpression.LITERAL_INTEGER:
+		out.write(literal.toString()); break;
+	    case DefaultExpression.LITERAL_STRING:
+		out.write("'" + literal + "'");break;
+		//case LITERAL_GEOMETRY is SQL implementation specific.	    
+	    } 
+
         }
         catch(java.io.IOException ioe){
             log.warning("Unable to export expresion" + ioe);
         }
+
     }
-    
 
 
     /** 
