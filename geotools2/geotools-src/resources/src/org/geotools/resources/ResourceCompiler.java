@@ -77,7 +77,7 @@ import java.lang.reflect.Field;
  * don't need to be included in the final JAR file. They are used at
  * compile time only and no other classes should keep reference to them.
  *
- * @version $Id: ResourceCompiler.java,v 1.3 2002/07/25 13:51:57 desruisseaux Exp $
+ * @version $Id: ResourceCompiler.java,v 1.4 2002/07/30 17:09:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ResourceCompiler implements Comparator {
@@ -86,6 +86,7 @@ final class ResourceCompiler implements Comparator {
      * with the specified prefix.
      */
     private static final String[] ORDER = {
+        "WARNING_",
         "ERROR_"
     };
 

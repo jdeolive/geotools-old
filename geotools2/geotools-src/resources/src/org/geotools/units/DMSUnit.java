@@ -38,7 +38,7 @@ package org.geotools.units;
  * ce type, et nous en avons parfois besoin pour interagir avec des
  * logiciels existants...
  *
- * @version 1.0
+ * @version $Id: DMSUnit.java,v 1.2 2002/07/30 17:09:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DMSUnit extends Unit {
@@ -46,12 +46,31 @@ final class DMSUnit extends Unit {
      * Unité des degrés.
      */
     private static final Unit DEGREE = Unit.DEGREE;
+
+    /**
+     * The value to divide DMS unit by.
+     * For "degree minute second" (EPSG code 9107), this is 1.
+     * For "sexagesimal degree" (EPSG code 9110), this is 10000.
+     */
+    private final int divider;
     
     /**
      * Construit un objet <code>DMSUnit</code>.
      */
-    public DMSUnit() {
-        super("DMS", null);
+    public DMSUnit(final int divider) {
+        super(getSymbol(divider), null);
+        this.divider = divider;
+    }
+
+    /**
+     * Returns a symbol for the specified divider.
+     */
+    private static String getSymbol(final int divider) {
+        switch (divider) {
+            case 1:     return "DMS";
+            case 10000: return "D.MS";
+            default: throw new IllegalArgumentException(String.valueOf(divider));
+        }
     }
     
     /**
@@ -69,7 +88,7 @@ final class DMSUnit extends Unit {
         final int deg,min,sec;  deg = (int) value; // Round toward 0
         value = (value-deg)*60; min = (int) value; // Round toward 0
         value = (value-min)*60; sec = (int) value; // Round toward 0
-        return ((deg*100 + min)*100 + sec) + value;
+        return (((deg*100 + min)*100 + sec) + value)/divider;
     }
     
     /**
@@ -84,7 +103,7 @@ final class DMSUnit extends Unit {
             value = values[i];      deg = (int) value; // Round toward 0
             value = (value-deg)*60; min = (int) value; // Round toward 0
             value = (value-min)*60; sec = (int) value; // Round toward 0
-            values[i] = ((deg*100 + min)*100 + sec) + value;
+            values[i] = (((deg*100 + min)*100 + sec) + value)/divider;
         }
     }
     
@@ -100,7 +119,7 @@ final class DMSUnit extends Unit {
             value = values[i];      deg = (int) value; // Round toward 0
             value = (value-deg)*60; min = (int) value; // Round toward 0
             value = (value-min)*60; sec = (int) value; // Round toward 0
-            values[i] = ((deg*100 + min)*100 + sec) + value;
+            values[i] = (((deg*100 + min)*100 + sec) + value)/divider;
         }
     }
     
@@ -108,6 +127,7 @@ final class DMSUnit extends Unit {
      * Convertit une mesure vers d'autre unités.
      */
     double inverseConvert(double value, final Unit toUnit) throws UnitException {
+        value *= divider;
         final int deg,min;
         deg = (int) (value/10000); value -= 10000*deg;
         min = (int) (value/  100); value -=   100*min;
@@ -127,7 +147,7 @@ final class DMSUnit extends Unit {
      */
     void inverseConvert(final double[] values, final Unit toUnit) throws UnitException {
         for (int i=0; i<values.length; i++) {
-            double value = values[i];
+            double value = values[i]*divider;
             final int deg,min;
             deg = (int) (value/10000); value -= 10000*deg;
             min = (int) (value/  100); value -=   100*min;
@@ -148,7 +168,7 @@ final class DMSUnit extends Unit {
      */
     void inverseConvert(final float[] values, final Unit toUnit) throws UnitException {
         for (int i=0; i<values.length; i++) {
-            float value = values[i];
+            float value = values[i]*divider;
             final int deg,min;
             deg = (int) (value/10000); value -= 10000*deg;
             min = (int) (value/  100); value -=   100*min;
@@ -212,7 +232,7 @@ final class DMSUnit extends Unit {
      * en compte.
      */
     boolean equalsIgnoreSymbol(final Unit unit) {
-        return (unit instanceof DMSUnit);
+        return (unit instanceof DMSUnit) && ((DMSUnit) unit).divider == divider;
     }
     
     /**
@@ -227,6 +247,6 @@ final class DMSUnit extends Unit {
      * Returns an hash code for this object.
      */
     public int hashCode() {
-        return 457829627;
+        return 457829627 + divider;
     }
 }

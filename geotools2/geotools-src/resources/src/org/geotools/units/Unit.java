@@ -56,7 +56,7 @@ import org.geotools.resources.units.Units;
  * <strong>IMPORTANT: future version will NOT be compatible
  * will this one. Remind, this is a temporary class!</strong>
  *
- * @version 1.0
+ * @version $Id: Unit.java,v 1.3 2002/07/30 17:09:37 desruisseaux Exp $
  * @author Steven R. Emmerson
  * @author Bill Hibbard
  * @author Martin Desruisseaux
@@ -132,7 +132,19 @@ public abstract class Unit implements Serializable {
      * "unit" appears really often in the EPSG database, and we
      * need it for interoperability with legacy libraries.
      */
-    public static final Unit DMS = (Unit) new DMSUnit().intern();
+    public static final Unit DMS = (Unit) new DMSUnit(1).intern();
+    
+    /**
+     * Convenience constant for "Degrees dot Minutes Secondes" unit.
+     * For example, this "unit" convert 12.5° into 12.3 (i.e.
+     * the concatenation of 12°30'00"). In a strict sence, this
+     * is a formatting issue rather than an unit transformation
+     * issue. Such transformation would be better handle by the
+     * {@link org.geotools.pt.AngleFormat} class. However, this
+     * "unit" appears really often in the EPSG database, and we
+     * need it for interoperability with legacy libraries.
+     */
+    public static final Unit SEXAGESIMAL_DEGREE = (Unit) new DMSUnit(10000).intern();
     
     /**
      * Symbole des unités de cet objet <code>Unit</code> (par exemple "kg").
