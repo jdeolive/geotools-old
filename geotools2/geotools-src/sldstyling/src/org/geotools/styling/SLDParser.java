@@ -190,7 +190,7 @@ public class SLDParser {
      * @return
      */
     private NodeList findElements(final org.w3c.dom.Document document, final String name) {
-        NodeList nodes = document.getElementsByTagNameNS("*",name);
+        NodeList nodes = document.getElementsByTagName(name);
         
      //   if(nodes.getLength() == 0){
      //       nodes = document.getElementsByTagNameNS("*",name);
