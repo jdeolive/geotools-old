@@ -70,7 +70,7 @@ import org.geotools.resources.CTSUtilities;
  *
  * <strong>Note:</strong> parsing is not yet implemented in this version.
  *
- * @version $Id: CoordinateFormat.java,v 1.4 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: CoordinateFormat.java,v 1.5 2003/07/18 13:27:01 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CoordinateFormat extends Format {
@@ -85,7 +85,7 @@ public class CoordinateFormat extends Format {
     private CoordinateSystem coordinateSystem;
 
     /**
-     * The formats to uses for formatting. This array's length must be equals
+     * The formats to use for formatting. This array's length must be equals
      * to the {@linkplain #getCoordinateSystem coordinate system}'s dimension.
      * This array is never <code>null</code>.
      */
@@ -94,8 +94,7 @@ public class CoordinateFormat extends Format {
     /**
      * The type for each value in the <code>formats</code> array.
      * Types are: 0=number, 1=longitude, 2=latitude, 3=other angle,
-     * 4=date, 5=ellapsed time.
-     * This array is never <code>null</code>.
+     * 4=date, 5=ellapsed time. This array is never <code>null</code>.
      */
     private byte[] types;
 
@@ -297,6 +296,22 @@ public class CoordinateFormat extends Format {
                 lastFormat = format;
             }
         }
+    }
+
+    /**
+     * Returns the format to use for formatting an ordinate at the given dimension.
+     * The dimension parameter range from 0 inclusive to the
+     * {@linkplain #getCoordinateSystem coordinate system}'s dimension, exclusive.
+     * This method returns a direct reference to the internal format; any change to
+     * the returned {@link Format} object will change the formatting for this
+     * <code>CoordinateFormat</code> object.
+     *
+     * @param  dimension The dimension for the ordinate to format.
+     * @return The format for the given dimension.
+     * @throws IndexOutOfBoundsException if <code>dimension</code> is out of range.
+     */
+    public Format getFormat(final int dimension) throws IndexOutOfBoundsException {
+        return formats[dimension];
     }
 
     /**
