@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.4 2002/07/16 15:16:41 jmacgill Exp $
+ * @version $Id: DefaultAreaOfInterestModel.java,v 1.5 2002/09/19 20:03:33 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -153,5 +153,13 @@ public class DefaultAreaOfInterestModel implements AreaOfInterestModel {
      */
     public CS_CoordinateSystem getCoordinateSystem() {
         return this.coordinateSystem;
+    }
+    
+    /**
+     * Show the Envelope extent.
+     */
+    public String toString() {
+        return "("+areaOfInterest.getMinX()+","+areaOfInterest.getMinY()+"),"
+            +"("+areaOfInterest.getMaxX()+","+areaOfInterest.getMaxY()+")";
     }
 }
