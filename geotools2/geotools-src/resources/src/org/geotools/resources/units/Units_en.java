@@ -73,7 +73,7 @@ public class Units_en extends Units
         "min",    "minute",
         "h",      "hour",
         "d",      "day",
-        "°",      "degree of angle",
+        "\u00b0",      "degree of angle",
         "'",      "minute of angle",
         "\"",     "seconde of angle",
         "l",      "litre",
@@ -114,8 +114,8 @@ public class Units_en extends Units
         "atm",    "standard atmosphere",
         "pound",  "pound",             // Symbole non-standard
         "onze",   "onze",              // Symbole non-standard
-        "°C",     "Celcius degree",
-        "°F",     "fahrenheit"         // Symbole non-standard
+        "\u00b0C",     "Celcius degree",
+        "\u00b0F",     "fahrenheit"         // Symbole non-standard
     };
 
     /**
