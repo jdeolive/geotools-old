@@ -21,6 +21,9 @@
  */
 package org.geotools.gml.producer;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygon;
@@ -305,18 +308,50 @@ public class FeatureTransformer extends XMLFilterImpl implements XMLReader {
 
                 String ns = fc.features().next().getFeatureType().getNamespace();
 
-                if (ns == null) {
+                if (ns == null || "".equals(ns)) {
                     ns = defaultNamespace;
                 }
-
                 fcAtts.addAttribute("", "xmlns", "xmlns", "xmlns", ns);
                 fcAtts.addAttribute(ns, "wfs", "xmlns:wfs", "wfs", WFS_URI);
+                fcAtts.addAttribute(ns, "gml", "xmlns:gml", "gml", GML_URL);
                 output.startElement("http://www.opengis.net/wfs",
                     "featureCollection", "wfs:featureCollection", fcAtts);
+
                 cReturn();
+
+                writeBounds(fc);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        /**
+         * writes the <code>gml:boundedBy</code> element to output based
+         * on <code>fc.getBounds()</code>
+         * @param fc
+         * @throws SAXException if it is thorwn while writing the element or
+         * coordinates
+         */
+        private void writeBounds(FeatureCollection fc)
+            throws SAXException {
+          //HACK: write bounds
+          Envelope bounds = fc.getBounds();
+          Coordinate []coords = new Coordinate[4];
+          coords[0] = new Coordinate(bounds.getMinX(), bounds.getMinY());
+          coords[1] = new Coordinate(bounds.getMinX(), bounds.getMaxY());
+          coords[2] = new Coordinate(bounds.getMaxX(), bounds.getMaxY());
+          coords[3] = new Coordinate(bounds.getMaxX(), bounds.getMinY());
+
+          Geometry bbox = new GeometryFactory().createLineString(coords);
+
+          AttributesImpl atts = new AttributesImpl();
+          output.startElement(GMLUtils.GML_URL, "boundedBy", "gml:boundedBy", atts);
+          output.startElement(GMLUtils.GML_URL, "Box", "gml:Box", atts);
+          writeCoordinates(bbox);
+          output.endElement(GMLUtils.GML_URL, "Box", "gml:Box");
+          output.endElement(GMLUtils.GML_URL, "boundedBy", "gml:boundedBy");
+          cReturn();
         }
 
         /**
