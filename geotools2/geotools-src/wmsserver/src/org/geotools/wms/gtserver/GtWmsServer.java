@@ -134,8 +134,8 @@ public class GtWmsServer implements WMSServer {
                 LOGGER.finer("Loading layer with " + ds);
                 MemoryDataSource cache = new MemoryDataSource();
                 
-                
-                FeatureCollection temp = ds.getFeatures(null);
+                Filter filter = null;
+                FeatureCollection temp = ds.getFeatures(filter);
                 if(temp == null) {
                     LOGGER.warning("Layer from "+url+" not installed");
                     loop.remove();
