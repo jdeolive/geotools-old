@@ -60,7 +60,7 @@ import org.geotools.renderer.geom.CompressionLevel;
  * Note: this implementation is not the fastest one. For maximal performance, consider using
  * {@link DefaultArray} instead.
  *
- * @version $Id: GenericArray.java,v 1.6 2003/06/04 18:16:45 desruisseaux Exp $
+ * @version $Id: GenericArray.java,v 1.7 2003/07/23 14:17:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see DefaultArray
@@ -393,7 +393,7 @@ public class GenericArray extends PointArray implements RandomAccess {
     /**
      * A path iterator for the data.
      *
-     * @version $Id: GenericArray.java,v 1.6 2003/06/04 18:16:45 desruisseaux Exp $
+     * @version $Id: GenericArray.java,v 1.7 2003/07/23 14:17:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Iterator implements PathIterator {
@@ -463,7 +463,7 @@ public class GenericArray extends PointArray implements RandomAccess {
      * Wrap an array of <code>double</code>, <code>float</code>, <code>long</code>,
      * <code>int</code>, <code>short</code> or <code>byte</code> data.
      *
-     * @version $Id: GenericArray.java,v 1.6 2003/06/04 18:16:45 desruisseaux Exp $
+     * @version $Id: GenericArray.java,v 1.7 2003/07/23 14:17:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Vector implements Serializable {
@@ -526,7 +526,6 @@ public class GenericArray extends PointArray implements RandomAccess {
 
         /** Search a value. This method should be invoked only if {@link #isSorted} is true. */
         public final int search(double value) {
-            double ext;
             if (value<minimum) return 0;
             if (value>maximum) return length();
             final int index = binarySearch(value);

@@ -103,7 +103,7 @@ import org.geotools.io.LineWriter;
  * java.util.logging.ConsoleHandler.level = FINE
  * </pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.10 2003/07/11 16:56:16 desruisseaux Exp $
+ * @version $Id: MonolineFormatter.java,v 1.11 2003/07/23 14:17:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatter extends Formatter {
@@ -189,7 +189,7 @@ public class MonolineFormatter extends Formatter {
      * {@link #LOGGER_SHORT}, {@link #LOGGER_LONG},
      * {@link #CLASS_SHORT} or {@link #CLASS_LONG}.
      */
-    private int sourceFormat;
+    private int sourceFormat = NO_SOURCE;
 
     /**
      * Buffer for formatting messages. We will reuse this

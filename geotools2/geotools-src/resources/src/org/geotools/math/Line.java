@@ -53,7 +53,7 @@ import java.io.Serializable;
  * can be computed for a given <var>x</var> value using the {@link #y} method. Method
  * {@link #x} compute the converse and should work even if the line is vertical.
  *
- * @version $Id: Line.java,v 1.4 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: Line.java,v 1.5 2003/07/23 14:17:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Point2D
@@ -463,7 +463,6 @@ public class Line implements Cloneable, Serializable {
         }
         final double x  = summit.getX();
         final double y  = summit.getY();
-        final double dx = x0 - x + y/slope;
         final double dy = y0 - y + slope*x;
         final double B  = -slope*dy;
         final double A  = slope*slope + 1;

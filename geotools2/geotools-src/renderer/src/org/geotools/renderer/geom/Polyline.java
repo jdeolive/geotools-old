@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.21 2003/07/11 16:59:02 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.22 2003/07/23 14:17:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -1216,7 +1216,6 @@ public class Polyline extends Geometry {
          */
         while (true) {
             final float x0=x1;
-            final float y0=y1;
             nPointsToRecheck++;
             if (it.next(nextPt) == null) {
                 return false;

@@ -101,7 +101,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link LineString} plutôt que sur une seule instance.
  *
- * @version $Id: LineString.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: LineString.java,v 1.2 2003/07/23 14:17:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class LineString implements Serializable {
@@ -1304,7 +1304,6 @@ final class LineString implements Serializable {
     {
         resolution *= resolution;
         poly = getFirst(poly);
-        int totalLength = 0;
         GeneralPath path = null;
         for (LineString scan=poly; scan!=null; scan=scan.next) {
             for (int i=FIRST_ARRAY; i<=LAST_ARRAY; i++) {
@@ -1443,7 +1442,7 @@ final class LineString implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polyline#getPoints}.
      *
-     * @version $Id: LineString.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
+     * @version $Id: LineString.java,v 1.2 2003/07/23 14:17:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1486,7 +1485,7 @@ final class LineString implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: LineString.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
+     * @version $Id: LineString.java,v 1.2 2003/07/23 14:17:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {

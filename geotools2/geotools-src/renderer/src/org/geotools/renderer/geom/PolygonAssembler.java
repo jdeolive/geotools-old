@@ -93,7 +93,7 @@ import org.geotools.resources.XArray;
  *   <li>The loop is reexecuted from step 1 until no more polylines have been merged.</li>
  * </ol>
  *
- * @version $Id: PolygonAssembler.java,v 1.11 2003/07/22 15:25:16 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.12 2003/07/23 14:17:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: L'implémentation actuelle de cette méthode ne prend pas en compte les
@@ -1113,7 +1113,7 @@ final class PolygonAssembler implements Comparator {
                 final StringBuffer message = new StringBuffer("Too many intersection points");
                 int index = intersectPoints.length;
                 final String lineSeparator = System.getProperty("line.separator", "\n");
-                for (int i=countIntersectionsToRemove; --countIntersectionsToRemove>=0;) {
+                for (int i=countIntersectionsToRemove; --i>=0;) {
                     message.append(lineSeparator);
                     message.append("    Removing ");
                     message.append(intersectPoints[--index]);
