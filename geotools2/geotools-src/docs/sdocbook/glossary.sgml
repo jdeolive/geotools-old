@@ -13,7 +13,7 @@ id="index">
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/11/22 05:06:15 $</date>
+    <date>$Date: 2002/12/01 10:28:31 $</date>
 
     <abstract>
       <para>Glossary of terms used in the Geotools2 project.</para>
@@ -173,11 +173,29 @@ id="index">
           </row>
 
           <row>
+            <entry>MIL-STD 498</entry>
+
+            <entry>Military Standard 498</entry>
+
+            <entry>Set of processes for software development. While Geotools2
+            does not follow this standard, some of it&#39;s processes have
+            been adopted.</entry>
+          </row>
+
+          <row>
             <entry>OGC</entry>
 
             <entry><ulink url="http://opengis.org">Open GIS Consortium</ulink></entry>
 
             <entry>Geographic Standards Body</entry>
+          </row>
+
+          <row>
+            <entry>SDD</entry>
+
+            <entry>Software Design Description</entry>
+
+            <entry>A design document as defined by MIL-STD 498.</entry>
           </row>
 
           <row>
