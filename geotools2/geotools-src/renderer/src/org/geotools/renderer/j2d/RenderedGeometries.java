@@ -79,7 +79,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.6 2003/06/10 11:30:27 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.7 2003/06/16 22:04:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
@@ -587,7 +587,7 @@ public class RenderedGeometries extends RenderedLayer {
                         transformedShape = new TransformedShape();
                     }
                     transformedShape.setTransform(graphics.getTransform());
-                    context.setCoordinateSystem(context.textCS);
+                    graphics.setTransform(IDENTITY_TRANSFORM);
                     graphics.setStroke(DEFAULT_STROKE);
                 }
                 try {
@@ -595,7 +595,7 @@ public class RenderedGeometries extends RenderedLayer {
                 } finally {
                     if (transformedShape != null) {
                         transformedShape.shape = null;
-                        context.setCoordinateSystem(context.mapCS);
+                        graphics.setTransform(transformedShape);
                     }
                     graphics.setStroke(oldStroke);
                     graphics.setPaint (oldPaint);

@@ -97,7 +97,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.7 2003/06/10 11:30:26 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.8 2003/06/16 22:04:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -626,6 +626,7 @@ public class GeometryCollection extends Geometry implements Comparable {
             final Geometry toClip  = geometries[i];
             final Geometry clipped = toClip.clip(clipper);
             if (clipped!=null && !clipped.isEmpty()) {
+                assert Utilities.equals(toClip.getStyle(), clipped.getStyle()) : clipped;
                 clips[clipCount++] = clipped;
                 if (toClip != clipped) {
                     changed = true;
@@ -635,7 +636,14 @@ public class GeometryCollection extends Geometry implements Comparable {
             }
         }
         if (clipCount == 1) {
-            return clips[0];
+            // If there is only one geometry left, returns this particular geometry as
+            // an optimisation.  It force us to copy the style, otherwise the geometry
+            // will not be correctly rendered. REVISIT: is it the right thing to do?
+            final Geometry clipped = clips[0];
+            if (clipped.getStyle() == null) {
+                clipped.setStyle(getStyle());
+            }
+            return clipped;
         }
         if (!changed) {
             freeze();
@@ -645,6 +653,7 @@ public class GeometryCollection extends Geometry implements Comparable {
         geometry.geometries = (Geometry[]) XArray.resize(clips, clipCount);
         geometry.count      = clipCount;
         geometry.value      = this.value;
+        geometry.setStyle(getStyle());
         if (coordinateSystem.equals(clipper.mapCS, false)) {
             geometry.bounds = new UnmodifiableRectangle(bounds.createIntersection(clipper.mapClip));
             // Note: Bounds computed above may be bigger than the bounds usually computed
@@ -1392,7 +1401,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.7 2003/06/10 11:30:26 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.8 2003/06/16 22:04:54 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static abstract class Filtered extends AbstractCollection {

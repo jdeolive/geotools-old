@@ -92,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.21 2003/05/27 18:22:44 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.22 2003/06/16 22:04:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -109,6 +109,11 @@ public abstract class RenderedLayer {
      * {@link #getPreferredPixelSize}.
      */
     static final Stroke DEFAULT_STROKE = new BasicStroke(0);
+
+    /**
+     * The identity transform. <strong>Do not modify</strong>.
+     */
+    static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
 
     /**
      * The renderer that own this layer, or <code>null</code> if this layer has not yet

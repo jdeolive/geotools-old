@@ -47,6 +47,7 @@ import org.geotools.ct.TransformException;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.resources.CTSUtilities;
+import org.geotools.resources.Utilities;
 import org.geotools.resources.XArray;
 
 
@@ -54,7 +55,7 @@ import org.geotools.resources.XArray;
  * The clipping area to apply on a {@link Geometry} object. A <code>Clipper</code> object
  * contains the clip as a {@link Rectangle2D} and its {@link CoordinateSystem}.
  *
- * @version $Id: Clipper.java,v 1.7 2003/05/29 18:11:26 desruisseaux Exp $
+ * @version $Id: Clipper.java,v 1.8 2003/06/16 22:04:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Geometry#clip
@@ -282,6 +283,7 @@ public final class Clipper {
     protected Polyline clip(final Polyline polyline) {
         Polyline result = (Polyline) alreadyClipped.get(polyline);
         if (result != null) {
+            assert result==null || Utilities.equals(polyline.getStyle(), result.getStyle()) : result;
             return result;
         }
         /*
@@ -648,11 +650,13 @@ public final class Clipper {
                  * that will cover the whole zoom.
                  */
                 result = new Polyline(clip, polyline.getCoordinateSystem());
+                result.setStyle(polyline.getStyle());
                 if (isClosed) {
                     result.close();
                 }
             }
         }
+        assert result==null || Utilities.equals(polyline.getStyle(), result.getStyle()) : result;
         alreadyClipped.put(polyline, result);
         return result;
     }

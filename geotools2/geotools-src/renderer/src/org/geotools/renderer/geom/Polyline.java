@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.18 2003/06/03 18:08:18 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.19 2003/06/16 22:04:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -788,6 +788,7 @@ public class Polyline extends Geometry {
         final Polyline subPoly = new Polyline(coordinateTransform);
         subPoly.data = sub;
         subPoly.flattened = subPoly.checkFlattenedShape();
+        subPoly.setStyle(getStyle());
         assert subPoly.getPointCount() == (upper-lower);
         return subPoly;
     }
@@ -1619,6 +1620,7 @@ public class Polyline extends Geometry {
                 freeze();
                 return this;
             }
+            assert Utilities.equals(clipped.getStyle(), getStyle()) : clipped;
         }
         return clipped;
     }
