@@ -236,10 +236,22 @@ public class FilterTest extends TestCase {
         testLiteral = new LiteralExpressionImpl("incorrect test string data");
         filter.addRightValue(testLiteral);
 
-        //LOGGER.info( filter.toString());            
-        //LOGGER.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
+
+	filter = new CompareFilterImpl(AbstractFilter.COMPARE_LESS_THAN);
+	filter.addLeftValue(testAttribute);
+
+        // Test for false positive.
+        testLiteral = new LiteralExpressionImpl("zebra");
+        filter.addRightValue(testLiteral);
+	assertTrue(filter.contains(testFeature));
+
+	testLiteral = new LiteralExpressionImpl("blorg");
+        filter.addRightValue(testLiteral);
+	assertTrue(!filter.contains(testFeature));
+
     }
+	
 
     /**
      * Helper class for the integer compare operators.
@@ -459,6 +471,37 @@ public class FilterTest extends TestCase {
         //LOGGER.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
     }
+
+
+    public void testBetweenStrings() throws IllegalFilterException {
+        // Set up the integer
+        BetweenFilter filter = fac.createBetweenFilter();
+        Expression testLiteralLower = new LiteralExpressionImpl("blorg");
+        Expression testAttribute = new AttributeExpressionImpl(testSchema,
+                "testString");
+        Expression testLiteralUpper = new LiteralExpressionImpl("tron");
+
+        // String tests
+        filter.addLeftValue(testLiteralLower);
+        filter.addMiddleValue(testAttribute);
+        filter.addRightValue(testLiteralUpper);
+
+        // Test for false negative.
+        //LOGGER.info( filter.toString());            
+        //LOGGER.info( "contains feature: " + filter.contains(testFeature));
+        assertTrue(filter.contains(testFeature));
+
+        // Test for false positive.
+        testLiteralLower = new LiteralExpressionImpl("zebra");
+        testLiteralUpper = new LiteralExpressionImpl("zikes");
+        filter.addLeftValue(testLiteralLower);
+        filter.addRightValue(testLiteralUpper);
+
+        //LOGGER.info( filter.toString());            
+        //LOGGER.info( "contains feature: " + filter.contains(testFeature));
+        assertTrue(!filter.contains(testFeature));
+    }
+
 
     /**
      * Test the geometry operators.
