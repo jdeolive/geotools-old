@@ -19,6 +19,7 @@
 package org.geotools.vpf.io;
 
 import java.io.RandomAccessFile;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.LinkedList;
@@ -29,6 +30,7 @@ import org.geotools.vpf.ifc.VPFRow;
 import org.geotools.vpf.util.DataUtils;
 import org.geotools.vpf.exc.VPFDataException;
 import org.geotools.vpf.Coordinate2DFloat;
+import org.geotools.vpf.TripletId;
 
 /**
  * VPFInputStream.java
@@ -37,7 +39,7 @@ import org.geotools.vpf.Coordinate2DFloat;
  * Created: Mon Feb 24 22:39:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFInputStream.java,v 1.5 2003/03/24 16:38:24 kobit Exp $
+ * @version $Id: VPFInputStream.java,v 1.6 2003/03/26 15:19:54 kobit Exp $
  */
 public abstract class VPFInputStream
   implements FileConstants, DataTypesDefinition
@@ -64,8 +66,8 @@ public abstract class VPFInputStream
     this.streamFile = file;
     input = new RandomAccessFile(streamFile, accessMode);
     header = readHeader();
-    System.out.println("("+streamFile+
-                       ") header.getRecordSize()="+header.getRecordSize());
+//     condeb("("+streamFile+
+//            ") header.getRecordSize()="+header.getRecordSize());
     if (header.getRecordSize() < 0)
     {
       variableIndex =
@@ -130,17 +132,21 @@ public abstract class VPFInputStream
 
   public void setPosition(long pos) throws IOException
   {
-    if (header.getRecordSize() == -1)
+//     condeb("setPosition: "+pos);
+//     condeb("header.getRecordSize(): "+header.getRecordSize());
+    if (header.getRecordSize() < 0)
     {
       VariableIndexRow varRow =
         (VariableIndexRow)variableIndex.readRow((int)pos);
-      System.out.println("Variable index info:\noffset="+varRow.getOffset()+
-                         "\nsize="+varRow.getSize());
+//       condeb("Variable index info:\noffset="+varRow.getOffset()+
+//              "\nsize="+varRow.getSize());
       seek(varRow.getOffset());
+//       condeb("seek: "+varRow.getOffset());
     } // end of if (header.getRecordSize() == -1)
     else
     {
       seek(header.getLength()+(pos-1)*header.getRecordSize());
+//       condeb("seek: "+(header.getLength()+(pos-1)*header.getRecordSize()));
     } // end of if (header.getRecordSize() == -1) else
   }
 
@@ -213,7 +219,6 @@ public abstract class VPFInputStream
     throws IOException
   {
     int instances = readInteger();
-    System.out.println("Variable length instances: "+instances);
     return readFixedSizeData(dataType, instances);
   }
   
@@ -227,10 +232,6 @@ public abstract class VPFInputStream
 	  case DATA_LEVEL1_TEXT:
 	  case DATA_LEVEL2_TEXT:
 	  case DATA_LEVEL3_TEXT:
-	  case DATA_SHORT_FLOAT:
-	  case DATA_LONG_FLOAT:
-	  case DATA_SHORT_INTEGER:
-	  case DATA_LONG_INTEGER:
         byte[] dataBytes =
           new byte[instancesCount*DataUtils.getDataTypeSize(dataType)];
         input.read(dataBytes);
@@ -239,6 +240,38 @@ public abstract class VPFInputStream
           dataBytes = DataUtils.toBigEndian(dataBytes);
         }
         result = DataUtils.decodeData(dataBytes, dataType);
+        break;
+
+	  case DATA_SHORT_FLOAT:
+        result = new Float(readFloat());
+        break;
+
+	  case DATA_LONG_FLOAT:
+        result = new Double(readDouble());
+        break;
+
+	  case DATA_SHORT_INTEGER:
+        result = new Short(readShort());
+        break;
+
+	  case DATA_LONG_INTEGER:
+        result = new Integer(readInteger());
+        break;
+        
+      case DATA_NULL_FIELD:
+        result = "NULL";
+        break;
+
+      case DATA_TRIPLET_ID:
+        byte tripletDef = (byte)input.read();
+        int dataSize = TripletId.calculateDataSize(tripletDef);
+        byte[] tripletData = new byte[dataSize+1];
+        tripletData[0] = tripletDef;
+        if (dataSize > 0)
+        {
+          input.read(tripletData, 1, dataSize);
+        } // end of if (dataSize > 0)
+        result = new TripletId(tripletData);
         break;
 
       case DATA_2_COORD_F:
@@ -317,6 +350,11 @@ public abstract class VPFInputStream
   {
     input.close();
     input = null;
+  }
+
+  protected void condeb(String msg)
+  {
+    System.out.println(msg);
   }
   
 } // VPFInputStream

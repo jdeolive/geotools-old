@@ -28,7 +28,7 @@ import org.geotools.vpf.ifc.DataTypesDefinition;
  * Created: Mon Jan 27 13:58:34 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: RowField.java,v 1.5 2003/03/24 16:38:21 kobit Exp $
+ * @version $Id: RowField.java,v 1.6 2003/03/26 15:19:50 kobit Exp $
  */
 
 public class RowField implements DataTypesDefinition
@@ -55,6 +55,15 @@ public class RowField implements DataTypesDefinition
       //      return "null ("+type+")";
       return "null";
     } // end of if (value != null) else
+  }
+
+  public boolean equals(Object obj)
+  {
+    if (obj == null || !(obj instanceof RowField))
+    {
+      return false;
+    } // end of if (row == null || !(row instanceof TableRow))
+    return toString().equals(obj.toString());
   }
 
   public char getType()

@@ -149,14 +149,14 @@ public class TableInputStreamTest extends TestCase
     varTableInputStream =
       new TableInputStream(System.getProperty("basedir")+
                            "/tests/testdata/dnc13/browse/coa/cnd");
-    TableRow row = (TableRow)varTableInputStream.readRow();
-    assertNotNull("Reading 1 row from given table "+
-                  varTableInputStream.streamFile, row);
-    if (row != null)
-    {
-      System.out.println("Fixed size data row read from "+
-                         "dnc13/browse/coa/cnd:\n"+row.toString());
-    } // end of if (row != null)
+    TableRow rowNext = (TableRow)varTableInputStream.readRow();
+    assertNotNull("Reading next row from given table "+
+                  varTableInputStream.streamFile, rowNext);
+    TableRow row1 = (TableRow)varTableInputStream.readRow(1);
+    assertNotNull("Reading row no 1 from given table "+
+                  varTableInputStream.streamFile, row1);
+    assertEquals("Comparing read result of readRow() and readRow(int)",
+                 rowNext, row1);
   } // end of testReadRow()
   
   /**
@@ -170,14 +170,14 @@ public class TableInputStreamTest extends TestCase
     varTableInputStream =
       new TableInputStream(System.getProperty("basedir")+
                            "/tests/testdata/dnc13/browse/coa/edg");
-    TableRow row = (TableRow)varTableInputStream.readRow();
-    assertNotNull("Reading 1 row from given table "+
-                  varTableInputStream.streamFile, row);
-    if (row != null)
-    {
-      System.out.println("Variable size data row read from "+
-                         "dnc13/browse/coa/edg:\n"+row.toString());
-    } // end of if (row != null)
+    TableRow rowNext = (TableRow)varTableInputStream.readRow();
+    assertNotNull("Reading next row from given table "+
+                  varTableInputStream.streamFile, rowNext);
+    TableRow row1 = (TableRow)varTableInputStream.readRow(1);
+    assertNotNull("Reading row no 1 from given table "+
+                  varTableInputStream.streamFile, row1);
+    assertEquals("Comparing read result of readRow() and readRow(int)",
+                 rowNext, row1);
   } // end of testReadRow()
   
   /**
@@ -191,20 +191,29 @@ public class TableInputStreamTest extends TestCase
     varTableInputStream =
       new TableInputStream(System.getProperty("basedir")+
                            "/tests/testdata/dnc13/browse/coa/cnd");
-    System.out.println("Table header:\n"+varTableInputStream.header.toString());
-    TableRow[] rows = new TableRow[5];
-    assertEquals("Reading 5 rows into given array from given table "+
+    //    System.out.println("Table header:\n"+varTableInputStream.header.toString());
+    TableRow[] rowsNext = new TableRow[5];
+    assertEquals("Reading 5 next rows into given array from given table "+
                  varTableInputStream.streamFile,
-                 5, varTableInputStream.readRows(rows));
-    System.out.println("Fixed size data "+rows.length+" rows read from "+
-                       "dnc13/browse/coa/cnd:");
-    for (int i = 0; i < rows.length; i++)
+                 5, varTableInputStream.readRows(rowsNext));
+    TableRow[] rows1 = new TableRow[5];
+    assertEquals("Reading 5 rows from 1st into given array from given table "+
+                 varTableInputStream.streamFile,
+                 5, varTableInputStream.readRows(rows1, 1));
+    for (int i = 0; i < rowsNext.length; i++)
     {
-      if (rows[i] != null)
-      {
-        System.out.println(rows[i].toString());
-      } // end of if (row != null)
-    } // end of for (int i = 0; i < rows.length; i++)
+      assertEquals("Comparing read result of readRow() and readRow(int)",
+                  rowsNext[i], rows1[i]);
+    } // end of for (int i = 0; i < rowsNext.length; i++)
+//     System.out.println("Fixed size data "+rows.length+" rows read from "+
+//                        "dnc13/browse/coa/cnd:");
+//     for (int i = 0; i < rows.length; i++)
+//     {
+//       if (rows[i] != null)
+//       {
+//         System.out.println(rows[i].toString());
+//       } // end of if (row != null)
+//     } // end of for (int i = 0; i < rows.length; i++)
   } // end of testReadRows895743446(org.geotools.vpf.TableRow[])
 
   /**
@@ -219,20 +228,29 @@ public class TableInputStreamTest extends TestCase
     varTableInputStream =
       new TableInputStream(System.getProperty("basedir")+
                            "/tests/testdata/dnc13/browse/coa/edg");
-    System.out.println("Table header:\n"+varTableInputStream.header.toString());
-    TableRow[] rows = new TableRow[5];
-    assertEquals("Reading 5 rows into given array from given table "+
+    //    System.out.println("Table header:\n"+varTableInputStream.header.toString());
+    TableRow[] rowsNext = new TableRow[5];
+    assertEquals("Reading 5 next rows into given array from given table "+
                  varTableInputStream.streamFile,
-                 5, varTableInputStream.readRows(rows));
-    System.out.println("Variable size data "+rows.length+" rows read from "+
-                       "dnc13/browse/coa/edg:");
-    for (int i = 0; i < rows.length; i++)
+                 5, varTableInputStream.readRows(rowsNext));
+    TableRow[] rows1 = new TableRow[5];
+    assertEquals("Reading 5 rows from 1st into given array from given table "+
+                 varTableInputStream.streamFile,
+                 5, varTableInputStream.readRows(rows1, 1));
+    for (int i = 0; i < rowsNext.length; i++)
     {
-      if (rows[i] != null)
-      {
-        System.out.println(rows[i].toString());
-      } // end of if (row != null)
-    } // end of for (int i = 0; i < rows.length; i++)
+      assertEquals("Comparing read result of readRow() and readRow(int)",
+                  rowsNext[i], rows1[i]);
+    } // end of for (int i = 0; i < rowsNext.length; i++)
+//     System.out.println("Variable size data "+rows.length+" rows read from "+
+//                        "dnc13/browse/coa/edg:");
+//     for (int i = 0; i < rows.length; i++)
+//     {
+//       if (rows[i] != null)
+//       {
+//         System.out.println(rows[i].toString());
+//       } // end of if (row != null)
+//     } // end of for (int i = 0; i < rows.length; i++)
   } // end of testReadRows895743446(org.geotools.vpf.TableRow[])
 
 } // end of TableInputStreamTest

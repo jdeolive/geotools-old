@@ -48,25 +48,25 @@ public class TableRow implements VPFRow
 
   public String toString()
   {
-//     StringBuffer buff = new StringBuffer(" ["+getClass().getName());
-//     buff.append(" (fieldsMap=");
-//     if (fieldsMap == null)
-//     {
-//       buff.append("null)");
-//     } // end of if (columnDefs == null)
-//     else
-//     {
-//       Iterator it = fieldsMap.entrySet().iterator();
-//       while (it.hasNext())
-//       {
-//         Map.Entry entry = (Map.Entry)it.next();
-//         buff.append("\n"+
-//                     entry.getKey().toString()+"="+
-//                     entry.getValue().toString());
-//       } // end of while (it.hasNext())
-//       buff.append("\n)");
-//     } // end of if (columnDefs == null) else
-//     buff.append("]");
+    //     StringBuffer buff = new StringBuffer(" ["+getClass().getName());
+    //     buff.append(" (fieldsMap=");
+    //     if (fieldsMap == null)
+    //     {
+    //       buff.append("null)");
+    //     } // end of if (columnDefs == null)
+    //     else
+    //     {
+    //       Iterator it = fieldsMap.entrySet().iterator();
+    //       while (it.hasNext())
+    //       {
+    //         Map.Entry entry = (Map.Entry)it.next();
+    //         buff.append("\n"+
+    //                     entry.getKey().toString()+"="+
+    //                     entry.getValue().toString());
+    //       } // end of while (it.hasNext())
+    //       buff.append("\n)");
+    //     } // end of if (columnDefs == null) else
+    //     buff.append("]");
     StringBuffer buff = new StringBuffer();
     if (fieldsMap == null)
     {
@@ -96,6 +96,31 @@ public class TableRow implements VPFRow
   public RowField get(int idx)
   {
     return fieldsArr[idx];
+  }
+
+  public boolean equals(Object obj)
+  {
+    if (obj == null || !(obj instanceof TableRow))
+    {
+      return false;
+    } // end of if (row == null || !(row instanceof TableRow))
+    TableRow row = (TableRow)obj;
+    if (fieldsArr == null || row.fieldsArr == null)
+    {
+      return false;
+    } // end of if (fieldsArr == null || row.fieldsArr == null)
+    if (fieldsArr.length != row.fieldsArr.length)
+    {
+      return false;
+    } // end of if (fieldsArr.length != row.fieldsArr.length)
+    for (int i = 0; i < fieldsArr.length; i++)
+    {
+      if (!fieldsArr[i].equals(row.fieldsArr[i]))
+      {
+        return false;
+      } // end of if (!fieldsArr[i].equals(row.fieldsArr[i]))
+    } // end of for (int i = 0; i < fieldsArr.length; i++)
+    return true;
   }
 
 } // TableRow

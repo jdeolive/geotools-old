@@ -44,7 +44,7 @@ import org.geotools.vpf.ifc.VPFRow;
  * Class <code>TableInputStream</code> implements
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: TableInputStream.java,v 1.13 2003/03/24 16:38:24 kobit Exp $
+ * @version $Id: TableInputStream.java,v 1.14 2003/03/26 15:19:53 kobit Exp $
  */
 public class TableInputStream extends VPFInputStream
   implements FileConstants, DataTypesDefinition
@@ -153,11 +153,13 @@ public class TableInputStream extends VPFInputStream
 
   public VPFRow readRow() throws IOException
   {
+    //    condeb("Current file position: "+input.getFilePointer());
 	List rowsDef = ((TableHeader)header).getColumnDefs();
     RowField[] fieldsArr = new RowField[rowsDef.size()];
     HashMap fieldsMap = new HashMap();
 	for (int i = 0; i < rowsDef.size(); i++) {
 	  TableColumnDef tcd = (TableColumnDef)rowsDef.get(i);
+      //      condeb("Reading field: "+tcd.getName()+", columnSize="+tcd.getColumnSize());
       Object value = null;
       if (tcd.getColumnSize() < 0)
       {
@@ -168,6 +170,7 @@ public class TableInputStream extends VPFInputStream
         value = readFixedSizeData(tcd.getType(), tcd.getElementsNumber());
       } // end of if (tcd.getColumnSize() <= 0) else
       //  	  Object value = DataUtils.decodeData(bytes, tcd.getType());
+      //      condeb("Read value="+value.toString());
       RowField field = new RowField(value, tcd.getType());
       fieldsArr[i] = field;
       fieldsMap.put(tcd.getName(), field);
@@ -180,10 +183,6 @@ public class TableInputStream extends VPFInputStream
     return -1;
   }
 
-  public void setPosition(long pos) throws IOException
-  {
-  }
-  
   public static void main(String[] args)
     throws IOException
   {

@@ -149,7 +149,7 @@ public class TableHeaderTest extends TestCase
   public void testGetLength()
   {
     assertEquals("Cheking header length detection.",
-                 1257, varTableHeader.getLength());
+                 1261, varTableHeader.getLength());
   } // end of testGetLength()
 
   /**

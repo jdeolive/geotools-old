@@ -26,7 +26,7 @@ package org.geotools.vpf.ifc;
  * Created: Thu Jan 02 17:26:02 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: DataTypesDefinition.java,v 1.6 2003/01/30 12:51:14 kobit Exp $
+ * @version $Id: DataTypesDefinition.java,v 1.7 2003/03/26 15:19:53 kobit Exp $
  */
 
 public interface DataTypesDefinition 
@@ -65,7 +65,7 @@ public interface DataTypesDefinition
   public static final char DATA_3_COORD_R     = 'Y';
   public static final char DATA_DATE_TIME     = 'D';
   public static final char DATA_NULL_FIELD    = 'X';
-  public static final char DATA_TRIPLED_ID    = 'K';
+  public static final char DATA_TRIPLET_ID    = 'K';
   
   public static final int DATA_SHORT_FLOAT_LEN   = 4;
   public static final int DATA_LONG_FLOAT_LEN    = 8;
@@ -76,7 +76,7 @@ public interface DataTypesDefinition
   public static final int DATA_2_COORD_R_LEN     = 16;
   public static final int DATA_3_COORD_F_LEN     = 12;
   public static final int DATA_3_COORD_R_LEN     = 24;
-  public static final int DATA_TRIPLED_ID_LEN    = 1;
+  public static final int DATA_TRIPLET_ID_LEN    = 1;
   public static final int DATA_NULL_FIELD_LEN    = 0;
 
   public static final String STRING_NULL_VALUE = "-";

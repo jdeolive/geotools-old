@@ -125,13 +125,13 @@ public class TableHeader
   }
 
   /**
-   * Gets the value of length of ASCII header string
-   * (i.e., the remaining information after this field)
+   * Gets the value of full length of ASCII header string
+   * including <code>headerLength</code> field.
    * @return the value of headerLength
    */
   public int getLength() 
   {
-    return this.headerLength;
+    return this.headerLength+4;
   }
 
   /**
