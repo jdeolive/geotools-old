@@ -83,7 +83,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  * </pre>
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.8 2003/11/05 17:24:33 ianschneider Exp $
+ * @version $Id: FeatureTransformer.java,v 1.9 2003/11/05 23:46:20 ianschneider Exp $
  * @task TODO: Interior rings of polygons.
  * @task TODO: srs printed, multi namespaces, bbox.
  */
@@ -194,7 +194,7 @@ public class FeatureTransformer extends TransformerBase {
             }
         }
         
-        protected void startFeatureCollection() {
+        public void startFeatureCollection() {
             try {
                 String element = getDefaultPrefix() == null ? fc : getDefaultPrefix() + ":" + fc;
                 contentHandler.startElement("", "", element, NULL_ATTS);
