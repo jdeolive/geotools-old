@@ -8,7 +8,8 @@
   <organization>
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>
-  </organization>
+        <logo>/images/gtLogo.gif</logo>
+    </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
   <shortDescription>Standard implemetation of the interfaces in the core module</shortDescription>
