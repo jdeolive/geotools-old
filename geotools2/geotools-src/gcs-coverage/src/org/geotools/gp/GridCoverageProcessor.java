@@ -337,21 +337,22 @@ public class GridCoverageProcessor {
      */
     public GridCoverage doOperation(final Operation operation, final ParameterList parameters) {
         Interpolation[] interpolations = null;
-        final String[] paramNames = parameters.getParameterListDescriptor().getParamNames();
-        for (int i=0; i<paramNames.length; i++) {
-            final Object param = parameters.getObjectParameter(paramNames[i]);
-            if (param instanceof Interpolator) {
-                // If all sources use the same interpolation,  preserve the
-                // interpolation for the resulting coverage. Otherwise, use
-                // the default interpolation (nearest neighbor).
-                final Interpolation[] interp = ((Interpolator) param).getInterpolations();
-                if (interpolations!=null) {
-                    if (!Arrays.equals(interpolations, interp)) {
+        if (!operation.getName().equalsIgnoreCase("Interpolate")) {
+            final String[] paramNames = parameters.getParameterListDescriptor().getParamNames();
+            for (int i=0; i<paramNames.length; i++) {
+                final Object param = parameters.getObjectParameter(paramNames[i]);
+                if (param instanceof Interpolator) {
+                    // If all sources use the same interpolation,  preserve the
+                    // interpolation for the resulting coverage. Otherwise, use
+                    // the default interpolation (nearest neighbor).
+                    final Interpolation[] interp = ((Interpolator) param).getInterpolations();
+                    if (interpolations == null) {
+                        interpolations = interp;
+                    } else if (!Arrays.equals(interpolations, interp)) {
                         // Set to no interpolation.
-                        interpolations = new Interpolation[0];
+                        interpolations = null;
+                        break;
                     }
-                } else {
-                    interpolations = interp;
                 }
             }
         }
