@@ -16,6 +16,7 @@
  */
 package org.geotools.map;
 
+import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.factory.Factory;
 import org.geotools.factory.FactoryConfigurationError;
 import org.geotools.factory.FactoryFinder;
@@ -23,16 +24,16 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.styling.Style;
 import org.opengis.cs.CS_CoordinateSystem;
 
-import com.vividsolutions.jts.geom.Envelope;
-
 
 /**
  * An implementation of ContextFactory to be used to construct Context classes.
  * It should not be called directly.  Instead it should be created from
  * ContextFactory, and ContextFactory methods should be called instead.
+ *
+ * @version $Id: ContextFactory.java,v 1.14 2003/08/07 22:11:58 cholmesny Exp $
  */
 public abstract class ContextFactory implements Factory {
-
+    /** A cached factory to be returned by createFactory. */
     private static ContextFactory factory = null;
 
     /**
@@ -40,18 +41,19 @@ public abstract class ContextFactory implements Factory {
      *
      * @return An instance of ContextFactory, or null if ContextFactory could
      *         not be created.
+     *
+     * @throws FactoryConfigurationError for any errors in configuration.
      */
-    public static ContextFactory createFactory() throws
-    FactoryConfigurationError {
+    public static ContextFactory createFactory()
+        throws FactoryConfigurationError {
         if (factory == null) {
             factory = (ContextFactory) FactoryFinder.findFactory(
-              "org.geotools.map.ContextFactory",
-              "org.geotools.map.ContextFactoryImpl");
+                    "org.geotools.map.ContextFactory",
+                    "org.geotools.map.ContextFactoryImpl");
         }
 
         return factory;
     }
-
 
     /**
      * Create a BoundingBox.
@@ -73,7 +75,7 @@ public abstract class ContextFactory implements Factory {
      * @param bbox The extent associated with this class.
      * @param layerList The list of layers associated with this context.
      * @param title The name of this context.  Must be set.
-     * @param _abstract A description of this context.  Optional, set to null
+     * @param cabstract A description of this context.  Optional, set to null
      *        if none exists.
      * @param keywords An array of keywords to be used when searching for this
      *        context.  Optional, set to null if none exists.
@@ -85,9 +87,8 @@ public abstract class ContextFactory implements Factory {
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     public abstract Context createContext(BoundingBox bbox,
-        LayerList layerList, String title,
-        String _abstract, String[] keywords, String contactInformation)
-        throws IllegalArgumentException;
+        LayerList layerList, String title, String cabstract, String[] keywords,
+        String contactInformation) throws IllegalArgumentException;
 
     /**
      * Create a Context with default parameters.<br>
@@ -104,8 +105,7 @@ public abstract class ContextFactory implements Factory {
     /**
      * Creates a Layer.
      *
-     * @param dataSource The dataSource to query in order to get features for
-     *        this layer.
+     * @param features the features for this layer.
      * @param style The style to use when rendering features associated with
      *        this layer.
      *
