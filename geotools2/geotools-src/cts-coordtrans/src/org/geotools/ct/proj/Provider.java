@@ -47,7 +47,7 @@ import org.geotools.resources.cts.Resources;
 /**
  * Base class for {@link MapProjection} provider.
  *
- * @version $Id: Provider.java,v 1.2 2003/03/28 10:21:57 desruisseaux Exp $
+ * @version $Id: Provider.java,v 1.3 2003/03/29 20:25:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Provider extends MathTransformProvider {
@@ -114,7 +114,7 @@ public abstract class Provider extends MathTransformProvider {
      *          or <code>false</code> if it is ellipsoidal.
      * @throws MissingParameterException if a mandatory parameter is missing.
      */
-    protected final boolean isSpherical(final Projection parameters)
+    protected static boolean isSpherical(final Projection parameters)
             throws MissingParameterException
     {
         return parameters.getValue("semi_major") ==
