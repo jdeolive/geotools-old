@@ -15,7 +15,8 @@
   <package>org.geotools</package>
   <shortDescription>Implementation of OpenGIS Filter specification</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description><![CDATA[Implementation of OpenGIS Filter specification]]></description>
+  <description><![CDATA[Classes for reading OGC Filters which are encoded in their standard XML format.
+]]></description>
   <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
