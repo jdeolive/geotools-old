@@ -106,7 +106,7 @@ public class FilterDOMParser {
                         if(res.equalsIgnoreCase("singleChar")){
                             single = kid.getNodeValue();
                         }
-                        if(res.equalsIgnoreCase("escapeChar")){
+                        if(res.equalsIgnoreCase("escapeChar") || res.equalsIgnoreCase("escape")){
                             escape = kid.getNodeValue();
                         }
                     }
