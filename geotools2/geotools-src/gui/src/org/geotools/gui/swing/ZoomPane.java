@@ -219,11 +219,11 @@ import org.geotools.resources.gui.ResourceKeys;
  * by the user through the scrollbars will be translated by calls to
  * {@link #transform}.</p>
  *
- * $Id: ZoomPane.java,v 1.3 2002/07/15 15:45:50 loxnard Exp $
+ * $Id: ZoomPane.java,v 1.4 2002/07/22 09:24:18 jmacgill Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
-public abstract class ZoomPane extends JComponent {
+public abstract class ZoomPane extends JComponent{
     /**
      * Minimum width and height of this component.
      */
@@ -945,8 +945,8 @@ public abstract class ZoomPane extends JComponent {
      * @param  logicalBounds Logical coordinates of the region to be displayed.
      * @throws IllegalArgumentException if <code>source</code> is empty.
      */
-    public final void setVisibleArea(final Rectangle2D logicalBounds)
-                                     throws IllegalArgumentException {
+    public void setVisibleArea(final Rectangle2D logicalBounds) 
+           throws IllegalArgumentException {
         log("setVisibleArea", logicalBounds);
         transform(setVisibleArea(logicalBounds, getZoomableBounds()));
     }
