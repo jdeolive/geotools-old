@@ -8,13 +8,14 @@ package org.geotools.algorithms;
 
 import com.vividsolutions.jts.geom.*;
 
-/** Robust implementation of the GeometryProperties interface
+/** 
+ * Robust implementation of the GeometryProperties interface
  * TODO: Update comments
  * TODO: Add in calculation for area of a Polygon
  *
  *
  * @author andyt
- * @version $Revision: 1.1 $ $Date: 2002/03/07 11:30:48 $
+ * @version $Revision: 1.2 $ $Date: 2002/03/12 10:31:15 $
  */
 public class RobustGeometryProperties implements org.geotools.algorithms.GeometryProperties {
 
@@ -120,10 +121,52 @@ public class RobustGeometryProperties implements org.geotools.algorithms.Geometr
     /**
      * Returns the area of a Polygon
      * @param polygon1 - the Polygon for which the area is calculated
-     * WARNING!!!! THIS CODE IS INCOMPLETE
      */
     protected double getArea(Polygon polygon1) {
-        return 0.0d;
+        double area = 0.0d;
+        double interiorArea = 0.0d;
+        Coordinate[] exteriorRingCoordinates = polygon1.getExteriorRing().getCoordinates();
+        int numberOfExteriorRingCoordinates = exteriorRingCoordinates.length;
+        // Calculate the boundingBox of polygon1 aligned with the axes x and y
+        double minx = Double.POSITIVE_INFINITY;
+        double maxx = Double.NEGATIVE_INFINITY;
+        double miny = Double.POSITIVE_INFINITY;
+        double maxy = Double.NEGATIVE_INFINITY;
+        for (int i = 0; i < numberOfExteriorRingCoordinates; i ++) {
+            minx = Math.min(minx,exteriorRingCoordinates[i].x);
+            maxx = Math.max(maxx,exteriorRingCoordinates[i].x);
+            miny = Math.min(miny,exteriorRingCoordinates[i].y);
+            maxy = Math.max(maxy,exteriorRingCoordinates[i].y);
+        }
+        //Calculate area of each trapezoid formed by droping lines from each pair of coordinates in exteriorRingCoorinates to the x-axis.
+        //x[i]<x[i-1] will contribute a negative area
+        for (int i = 0; i < (numberOfExteriorRingCoordinates - 1); i ++) {
+            area += (((exteriorRingCoordinates[i+1].x - minx) - (exteriorRingCoordinates[i].x - minx)) * (((exteriorRingCoordinates[i+1].y - miny) + (exteriorRingCoordinates[i].y - miny)) / 2d));
+        }
+        area = Math.abs(area);
+        //Calculate area of each trapezoid formed by droping lines from each pair of coordinates in interiorRingCoorinates to the x-axis.
+        int numberOfInteriorRings = polygon1.getNumInteriorRing();
+        int numberOfInteriorRingCoordinates;
+        Coordinate[] interiorRingCoordinates;
+        for (int i = 0; i < numberOfInteriorRings; i ++) {
+            interiorRingCoordinates = polygon1.getInteriorRingN(i).getCoordinates();
+            numberOfInteriorRingCoordinates = interiorRingCoordinates.length;
+            minx = Double.POSITIVE_INFINITY;
+            maxx = Double.NEGATIVE_INFINITY;
+            miny = Double.POSITIVE_INFINITY;
+            maxy = Double.NEGATIVE_INFINITY;
+            for (int j = 0; j < numberOfInteriorRingCoordinates; j ++) {
+                minx = Math.min(minx,interiorRingCoordinates[j].x);
+                maxx = Math.max(maxx,interiorRingCoordinates[j].x);
+                miny = Math.min(miny,interiorRingCoordinates[j].y);
+                maxy = Math.max(maxy,interiorRingCoordinates[j].y);
+            }
+            for (int j = 0; j < (numberOfInteriorRingCoordinates - 1); j ++) {
+                interiorArea += (((interiorRingCoordinates[j+1].x - minx) - (interiorRingCoordinates[j].x - minx)) * (((interiorRingCoordinates[j+1].y - miny) + (interiorRingCoordinates[j].y - miny)) / 2d));
+            }
+        }
+        area -= Math.abs(interiorArea);
+        return area;
     }
 
     /**
