@@ -17,6 +17,8 @@ import org.geotools.pt.CoordinatePoint;
 /**
  * Abstract class for geotools Tools that use Mouse events.  Refer to Tool
  * javadocs for more information.
+ * @task TODO Need to rename this class to NoActionTool and make it
+ * non-abstract.  Need to import widget functionality from AbstractToolImpl.
  */
 public abstract class MouseToolImpl extends AbstractToolImpl
         implements MouseListener

@@ -13,6 +13,10 @@ import org.geotools.gui.widget.Widget;
  * Tools can be created with null parameters at any time.  Tools should be
  * initialsed by Widgets when the Widget assigns a Tool to the Widget.
  * Tools should be destroyed when the owning Widget is destroyed.
+ * @task TODO set/getWidget functionality needs to be moved into
+ * MouseToolImpl.  This class needs to be renamed AbstractAction.  Actions
+ * are like tools but they do not process mouse events.  Actions should be
+ * kept in a seperate package.
  */
 public abstract class AbstractToolImpl implements AbstractTool {
     /**
@@ -27,24 +31,6 @@ public abstract class AbstractToolImpl implements AbstractTool {
      */
     protected Context context;
     
-//    /**
-//     * Construct a tool.
-//     * @param context Where state data for this mapPane is stored.
-//     * @param mapPane The mapPane from which this tool gets MouseEvents.
-//     * @thows IllegalArgumentException
-//     */
-//    public Tool(
-//        Context context,
-//        JComponent mapPane) throws IllegalArgumentException
-//    {
-//        if ((context==null)||(mapPane==null)){
-//            throw new IllegalArgumentException();
-//        }else{
-//            this.context=context;
-//            this.widget=mapPane;
-//        }
-//    }
-
     /**
      * Get the MapPane from which this Tool get's MouseEvents.  If widget has
      * not been set yet, then null is returned.
