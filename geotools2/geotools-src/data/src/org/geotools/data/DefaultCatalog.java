@@ -17,9 +17,12 @@
 package org.geotools.data;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -39,59 +42,51 @@ import java.util.Map;
  * @author Jody Garnett, Refractions Research
  */
 public class DefaultCatalog implements Catalog {
-    protected Map registration = new HashMap();
-
-    public String[] getNameSpaces() {
-        return (String[]) registration.keySet().toArray( new String[ registration.size() ] );
-    }
-
+    protected String defaultPrefix = null;
+    protected Map namespaces = new HashMap();
+    protected Set datastores = new HashSet();
+    
     /**
-     * Registrers datastore with the provided namespace.
-     *
-     * @param namespace
-     * @param dataStore
-     *
-     * @see org.geotools.data.Catalog#registerDataStore(java.lang.String,
-     *      org.geotools.data.DataStore)
-     */
-    public synchronized void registerDataStore(String namespace,
-        DataStore dataStore) {
-        registration.put(namespace, dataStore);
-    }
-
-    /**
-     * Finds and registers DataStore indicated by the parameters.
+     * Retrieve prefix set.
      * 
-     * <p>
-     * The provided parameters must specify a <code>namespace</code> for the
-     * resulting DataStore.
-     * </p>
-     *
-     * @param params
-     *
-     * @throws IOException
+     * @see org.geotools.data.Catalog#getPrefixes()
+     * 
+     * @return Set of namespace prefixes
      */
-    public void register(Map params) throws IOException {
-        if (params.containsKey("namespace")) {
-            throw new IOException(
-                "Could not locate namespace in provided prameters");
-        }
-
-        registerDataStore((String) params.get("namespace"),
-            DataStoreFinder.getDataStore(params));
+    public Set getPrefixes() {
+        return Collections.unmodifiableSet( namespaces.keySet() );
     }
 
     /**
-     * Retrieve DataStore managed by this Catalog.
-     *
-     * @param namespace
-     *
-     * @return
-     *
-     * @see org.geotools.data.Catalog#getDataStore(java.lang.String)
+     * Retrieve Namespace for prefix.
+     * <p>
+     * This class will lazily create the namespace as required.
+     * </p>
+     * @see org.geotools.data.Catalog#getNamespace(java.lang.String)
+     * 
+     * @param prefix Prefix used for Namespace
+     * @return Namespace associated with Prefix
      */
-    public synchronized DataStore getDataStore(String namespace) {
-        return (DataStore) registration.get(namespace);
+    public synchronized NamespaceMetaData getNamespace(String prefix) {
+        if( namespaces.containsKey( prefix)){
+            return (NamespaceMetaData) namespaces.get( prefix );
+        }
+        NamespaceMetaData namespace = createNamespaceMetaData( prefix ); 
+        namespaces.put( prefix, namespace );         
+        return namespace;
+    }
+    
+    /**
+     * Default implementation creates DefaultNamespaceMetaData.
+     * <p>
+     * You will need to override this to work with your own Namespace type.
+     * This is the usual Factory method patter, as opposed to the
+     * AbstractFactory used by most GeoTools2 based code.
+     * </p>
+     * @param prefix Prefix used for XML output of namespace 
+     */
+    protected NamespaceMetaData createNamespaceMetaData( String prefix ){
+        return new DefaultNamespaceMetaData( prefix );        
     }
     
     /**
@@ -106,7 +101,7 @@ public class DefaultCatalog implements Catalog {
         DataStore store;
         LockingManager lockManager;
                 
-        for( Iterator i=registration.values().iterator(); i.hasNext(); ){
+        for( Iterator i=datastores.iterator(); i.hasNext(); ){
              store = (DataStore) i.next();
              lockManager = store.getLockingManager();
              if( lockManager == null ) continue; // did not support locking
@@ -148,7 +143,7 @@ public class DefaultCatalog implements Catalog {
         LockingManager lockManager;
         
         boolean refresh = false;
-        for( Iterator i=registration.values().iterator(); i.hasNext(); ){
+        for( Iterator i=datastores.iterator(); i.hasNext(); ){
              store = (DataStore) i.next();
              lockManager = store.getLockingManager();
              if( lockManager == null ) continue; // did not support locking
@@ -187,7 +182,7 @@ public class DefaultCatalog implements Catalog {
         LockingManager lockManager;
                 
         boolean release = false;                
-        for( Iterator i=registration.values().iterator(); i.hasNext(); ){
+        for( Iterator i=datastores.iterator(); i.hasNext(); ){
              store = (DataStore) i.next();
              lockManager = store.getLockingManager();
              if( lockManager == null ) continue; // did not support locking
@@ -197,5 +192,51 @@ public class DefaultCatalog implements Catalog {
              }             
         }
         return release;        
+    }
+
+    /**
+     * Implement getDefaultPrefix.
+     * <p>
+     * Description ...
+     * </p>
+     * @see org.geotools.data.Catalog#getDefaultPrefix()
+     * 
+     * @return
+     */
+    public String getDefaultPrefix() {
+        return defaultPrefix;
+    }
+    public void setDefaultPrefix( String prefix ){
+        defaultPrefix = prefix;
+    }
+    /**
+     * Implement registerDataStore.
+     * <p>
+     * Description ...
+     * </p>
+     * @see org.geotools.data.Catalog#registerDataStore(org.geotools.data.DataStore)
+     * 
+     * @param dataStore
+     * @throws IOException
+     */
+    public void registerDataStore(DataStore dataStore) throws IOException {
+        if( datastores.contains( dataStore )){
+            throw new IOException("DataStore already registered with Catalog");
+        }
+        // TODO: register FeatureTypes with namespace ...
+    }
+
+    /**
+     * Implement getDataStores.
+     * <p>
+     * Description ...
+     * </p>
+     * @see org.geotools.data.Catalog#getDataStores(java.lang.String)
+     * 
+     * @param namespace
+     * @return
+     */
+    public Set getDataStores(String namespace) {
+        return Collections.unmodifiableSet( datastores );
     }
 }
