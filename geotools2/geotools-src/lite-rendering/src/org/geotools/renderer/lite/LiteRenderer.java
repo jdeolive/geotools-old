@@ -87,7 +87,7 @@ import javax.imageio.ImageIO;
 
 
 /**
- * @version $Id: LiteRenderer.java,v 1.2 2003/05/11 15:24:03 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.3 2003/05/11 17:49:47 aaime Exp $
  * @author James Macgill
  * @author Andrea Aime
  */
@@ -326,7 +326,7 @@ public class LiteRenderer implements org.geotools.renderer.Renderer {
         
         if (LOGGER.isLoggable(Level.FINE)) {
             long endTime = System.currentTimeMillis();
-            double elapsed = (endTime - startTime) / 1000;
+            double elapsed = (endTime - startTime) / 1000.0;
             LOGGER.fine("Rendered " + features.length + " features in " + elapsed + " sec.");
             
         }
