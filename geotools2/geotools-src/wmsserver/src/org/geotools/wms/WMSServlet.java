@@ -1138,6 +1138,7 @@ public class WMSServlet extends HttpServlet {
      * @return a valid double value, NaN if param is invalid
      */
     private double doubleParam(String param) {
+        if(param==null||param.trim()=="") return Double.NaN;
         try {
             double val = Double.parseDouble(param);
 
