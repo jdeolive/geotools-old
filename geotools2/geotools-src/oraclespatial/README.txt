@@ -6,10 +6,16 @@ The Oracle spatial data source requires jars that are non-distributable by
 the Geotools team.  These jars are the sodapi.jar and the Oracle thin JDBC
 driver (classes12.jar).  We do provide a dummy jar that contains stub classes
 to allow the Oracle data source to build, however the real jars will be required
-to run anything that uses the data source.  You can either just include
-these jars in your runtime or copy the jars to you Maven repository under
-the oracle/jars directory.  If you choose the second option, you can make maven
-use the real jars over the stub jar by commenting out this:
+to run anything that uses the data source.  
+
+Note: It seems that a bug occurs when adding features to the database if you
+do not use the classes12.jar file that comes with your Oracle install.  If you
+get an error message to the effect of "Invalid logical handle" make sure you
+are using the JDBC driver from your Oracle installation.
+
+You can either just include these jars in your runtime or copy the jars to you 
+Maven repository under the oracle/jars directory.  If you choose the second 
+option, you can make maven use the real jars over the stub jar by commenting out this:
 
 <!-- Use this when you dont have classes12 and sdoapi -->
 <dependency>
