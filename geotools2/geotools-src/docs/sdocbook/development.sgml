@@ -544,7 +544,10 @@ cvs tag -R r2_3_4</programlisting>
 
         <para>If a module you are developing needs a third party jar to
         operate then this is the place to put it, the naming convention is:
-        <filename>projectname/jars/jarname-version.jar</filename> .</para>
+        <filename>groupId/jars/artifactId-version.jar</filename> . The
+        groupId usually corresponds to the name of the project, and the
+        artifactId corresponds to the jar name. In many cases there is
+        only one artifact within a group, and so they may be the same.</para>
 
         <para>You can find the remote repository on the shell sever
         (shell.sourceforge.net) at <filename>/home/groups/g/ge/geotools/htdocs/gt2modules/extbin</filename>
@@ -556,7 +559,9 @@ cvs tag -R r2_3_4</programlisting>
         you can find this jar online at:<ulink
         url="http://www.geotools.org/gt2modules/extbin/JTS/jars/JTS-1.0.jar">http://www.geotools.org/gt2modules/extbin/JTS/jars/JTS-1.0.jar</ulink></para>
 
-        <para>Which is stored on the server in <filename>/home/groups/g/ge/geotools/htdocs/gt2modules/extbin/JTS/jars/JTS-1.0.jar</filename></para>
+        <para>Which is stored on the server in <filename>/home/groups/g/ge/geotools/htdocs/gt2modules/extbin/JTS/jars/JTS-1.0.jar</filename>. Note that this
+        is a case where the groupId and artifactId are the same, but they are
+        not required to be.</para>
 
         <para>Any module which needs to depend on JTS will then have the
         following tag in its project.xml file:</para>
@@ -565,7 +570,8 @@ cvs tag -R r2_3_4</programlisting>
           <title>Sample project.xml dependency entry</title>
 
           <programlisting>&#60;dependency&#62;
-  &#60;id&#62;JTS&#60;/id&#62;
+  &#60;groupId&#62;JTS&#60;/groupId&#62;
+  &#60;artifactId&#62;JTS&#60;/artifactId&#62;
   &#60;version&#62;1.0&#60;/version&#62;
 &#60;/dependency&#62;</programlisting>
         </example>
@@ -942,7 +948,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.26 2003/03/27 14:38:24 crotwell Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.27 2003/03/27 14:58:25 crotwell Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
