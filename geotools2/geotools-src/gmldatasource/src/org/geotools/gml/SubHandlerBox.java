@@ -20,23 +20,30 @@
 
 package org.geotools.gml;
 
-import com.vividsolutions.jts.geom.Coordinate;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import java.util.logging.Logger;
 
 /**
  * Creates a simple OGC box.
  *
- * @version $Id: SubHandlerBox.java,v 1.4 2002/06/05 11:17:42 loxnard Exp $
+ * @version $Id: SubHandlerBox.java,v 1.5 2003/08/05 17:09:19 dledmonds Exp $
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
  */
 public class SubHandlerBox extends SubHandler {
+
+    /** The logger for the GML module */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
     
+    /** */
     com.vividsolutions.jts.geom.Envelope e = new com.vividsolutions.jts.geom.Envelope();
     
     
     /** Creates a new instance of GMLBoxHandler. */
     public SubHandlerBox() {
+        LOGGER.entering("SubHandlerBox", "new");
+        LOGGER.exiting("SubHandlerBox", "new");
     }
     
     
@@ -45,7 +52,9 @@ public class SubHandlerBox extends SubHandler {
      * @param c the coordinate of the corner.
      */
     public void addCoordinate(Coordinate c) {
+        LOGGER.entering("SubHandlerBox", "addCoordinate", c);
         e.expandToInclude(c);
+        LOGGER.exiting("SubHandlerBox", "addCoordinate");
     }
     
     
@@ -55,6 +64,8 @@ public class SubHandlerBox extends SubHandler {
      * @return Flag for a complete geometry.
      */
     public boolean isComplete(String message) {
+        LOGGER.entering("SubHandlerBox", "isComplete", message);
+        LOGGER.exiting("SubHandlerBox", "isComplete", Boolean.TRUE);
         return true;
     }
     
@@ -66,6 +77,8 @@ public class SubHandlerBox extends SubHandler {
      * polygon.
      */
     public com.vividsolutions.jts.geom.Geometry create(com.vividsolutions.jts.geom.GeometryFactory geometryFactory) {
+        LOGGER.entering("SubHandlerBox", "create", geometryFactory);
+        
         Coordinate[] c = new Coordinate[5];
         c[0] = new Coordinate(e.getMinX(), e.getMinY());
         c[1] = new Coordinate(e.getMinX(), e.getMaxY());
@@ -77,10 +90,12 @@ public class SubHandlerBox extends SubHandler {
             r = geometryFactory.createLinearRing(c);
         } catch (com.vividsolutions.jts.geom.TopologyException e){
             System.err.println("Topology Exception in GMLBoxHandler");
-            return null;
+            return null;  // could this be handled better?
         }
-        return geometryFactory.createPolygon(r, null);
         
+        com.vividsolutions.jts.geom.Geometry returnValue = geometryFactory.createPolygon(r, null);
+        LOGGER.exiting("SubHandlerBox", "create", returnValue);
+        return returnValue;
     }
     
 }
