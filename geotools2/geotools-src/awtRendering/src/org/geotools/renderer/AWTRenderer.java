@@ -37,22 +37,22 @@ import java.awt.*;
 
 public class AWTRenderer implements org.geotools.renderer.Renderer {
     private Graphics graphics;
-    private Component component;
+    private Rectangle screen;
     private double scaleDenominator;
     
     /** Creates a new instance of AWTRenderer */
     public AWTRenderer() {
     }
     
-   public void setOutput(Component comp){
-       graphics = comp.getGraphics();
-       component = comp;
+   public void setOutput(Graphics g,Rectangle bounds){
+       graphics = g;
+       screen = bounds;
     }
     
     public void render(Feature features[], Envelope e,Style s){
         if(graphics==null) return;
         System.out.println("renderering "+features.length+" features");
-        GeometryTransformer transform = new GeometryTransformer(new AffineTransformer(e,component.getBounds()));
+        GeometryTransformer transform = new GeometryTransformer(new AffineTransformer(e,screen));
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
         processStylers(features, transform, featureStylers);
     }
