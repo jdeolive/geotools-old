@@ -133,7 +133,7 @@ public class Rendering2DTest extends TestCase {
         style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts,fts2,fts3});
         
         map.addFeatureTable(ft,style);
-        Java2DLiteRenderer renderer = new org.geotools.renderer.lite.Java2DLiteRenderer();
+        LiteRenderer renderer = new org.geotools.renderer.lite.LiteRenderer();
         Frame frame = new Frame();
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
@@ -173,7 +173,7 @@ public class Rendering2DTest extends TestCase {
         EnvelopeExtent ex = new EnvelopeExtent(0, 10, 0, 10);
         
         
-        Java2DLiteRenderer renderer = new org.geotools.renderer.lite.Java2DLiteRenderer();
+        LiteRenderer renderer = new org.geotools.renderer.lite.LiteRenderer();
         Frame frame = new Frame();
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
