@@ -25,7 +25,11 @@ public class DatasourceTest extends TestCase implements CollectionListener {
         EnvelopeExtent r = new EnvelopeExtent();
         r.setBounds(new Envelope(50, 360, 0, 180.0));
         String dataFolder = System.getProperty("dataFolder");
-        
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
         String path =new java.io.File(dataFolder,"Furizibad.csv").getCanonicalFile().toString();
         
         ft = new FeatureCollectionDefault(new VeryBasicDataSource(path));
