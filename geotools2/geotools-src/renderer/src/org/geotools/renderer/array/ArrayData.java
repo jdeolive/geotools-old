@@ -49,9 +49,9 @@ import org.geotools.resources.XArray;
  * {@link org.geotools.ct.MathTransform}.
  *
  * This class (like the whole <code>org.geotools.renderer.array</code> package)
- * is for internal use by {@link org.geotools.renderer.geom.Polygon} only.
+ * is for internal use by {@link org.geotools.renderer.geom.Polyline} only.
  *
- * @version $Id: ArrayData.java,v 1.4 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: ArrayData.java,v 1.5 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ArrayData {
@@ -202,7 +202,7 @@ public class ArrayData {
                 }
                 case PathIterator.SEG_CLOSE: {
                     // Since the shape argument is for map border only, which is just a small part
-                    // of the whole polygon, we are not allowed to close the shape. Fall through...
+                    // of the whole Polyline, we are not allowed to close the shape. Fall through...
                 }
                 default: {
                     throw new IllegalPathStateException();

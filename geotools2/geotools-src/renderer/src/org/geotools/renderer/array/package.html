@@ -16,10 +16,10 @@
     map. For example, a {@link org.geotools.renderer.array.PointArray} object may be used
     for storing one polygon representing a land contour or an isobath. A
     {@link org.geotools.renderer.array.PointArray} may be compressed by invoking its
-    {@link org.geotools.renderer.array.PointArray#getFinal} method with a <CODE>true</CODE>
-    argument. <STRONG>Note that compression is destructive</STRONG>: it will
-    result in a lost of coordinates precision. The lost is minimized if every
-    point is equally spaced.</P>
+    {@link org.geotools.renderer.array.PointArray#getFinal} method with a non-null
+    {@link org.geotools.renderer.geom.CompressionLevel} argument. <STRONG>Note that
+    compression is destructive</STRONG>: it will result in a lost of coordinates
+    precision. The lost is minimized if every point is equally spaced.</P>
 
     <P ALIGN="justify">{@link org.geotools.renderer.array.PointArray} has an iterator
     allowing forward-only iteration through coordinate points. It does not

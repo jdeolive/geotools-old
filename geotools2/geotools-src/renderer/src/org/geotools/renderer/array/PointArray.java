@@ -33,16 +33,19 @@
  */
 package org.geotools.renderer.array;
 
-// Divers
+// J2SE dependencies
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
 import java.io.Serializable;
+
+// Geotools dependencies
 import org.geotools.resources.Utilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.renderer.geom.CompressionLevel;
 
 
 /**
@@ -60,7 +63,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Pour un point situé à l'index <code>i</code>, les coordonnées <var>x</var> et <var>y</var>
  * correspondantes se trouvent aux index <code>2*i</code> et <code>2*i+1</code> respectivement.
  *
- * @version $Id: PointArray.java,v 1.10 2003/05/24 12:45:08 desruisseaux Exp $
+ * @version $Id: PointArray.java,v 1.11 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see DefaultArray
@@ -199,11 +202,30 @@ public abstract class PointArray implements Serializable {
     }
     
     /**
-     * Returns the bounding box of all <var>x</var> and <var>y</var> ordinates,
-     * or <code>null</code> if this bounding box is to expensive to compute.
+     * Returns the bounding box of all <var>x</var> and <var>y</var> ordinates.
+     * If this array is empty, then this method returns <code>null</code>.
+     * The default implementation iterates through all coordinates provided by
+     * {@link PointIterator}.
      */
-    Rectangle2D getBounds2D() {
-        return null;
+    public Rectangle2D getBounds2D() {
+        float xmin = Float.POSITIVE_INFINITY;
+        float xmax = Float.NEGATIVE_INFINITY;
+        float ymin = Float.POSITIVE_INFINITY;
+        float ymax = Float.NEGATIVE_INFINITY;
+        final PointIterator it = iterator(0);
+        while (it.hasNext()) {
+            final float x = it.nextX();
+            final float y = it.nextY();
+            if (x<xmin) xmin=x;
+            if (x>xmax) xmax=x;
+            if (y<ymin) ymin=y;
+            if (y>ymax) ymax=y;
+        }
+        if (xmin<=xmax && ymin<=ymax) {
+            return new Rectangle2D.Float(xmin, ymin, xmax-xmin, ymax-ymin);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -276,14 +298,12 @@ public abstract class PointArray implements Serializable {
      * méthodes {@link #insertAt} ou {@link #reverse}) vont retourner un autre
      * tableau de façon à ne pas modifier le tableau immutable.
      *
-     * @param  compress <code>true</code> si l'on souhaite aussi comprimer les
-     *         données. Cette compression peut se traduire par une plus grande
-     *         lenteur lors des accès aux données, ainsi qu'une perte de précision.
+     * @param  level The compression level, or <code>null</code> if no compression is wanted.
      * @return Tableau immutable et éventuellement compressé, <code>this</code>
      *         si ce tableau répondait déjà aux conditions ou <code>null</code>
      *         si ce tableau ne contient aucune donnée.
      */
-    public PointArray getFinal(final boolean compress) {
+    public PointArray getFinal(final CompressionLevel level) {
         return count()>0 ? this : null;
     }
 
@@ -362,7 +382,7 @@ public abstract class PointArray implements Serializable {
      * @return The lines in this <code>PointArray</code> as a Java2D {@linkplain Shape shape}.
      */
     public final Shape toShape(final AffineTransform transform) {
-        return new ShapeAdapter(this, transform, getBounds2D());
+        return new ShapeAdapter(this, transform);
     }
 
     /**

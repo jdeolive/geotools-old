@@ -59,10 +59,10 @@ import org.geotools.math.Statistics;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
-import org.geotools.renderer.geom.InteriorType;
-import org.geotools.renderer.geom.GeoShape;
-import org.geotools.renderer.geom.Polygon;
-import org.geotools.renderer.geom.Isoline;
+import org.geotools.renderer.geom.Clipper;
+import org.geotools.renderer.geom.Polyline;
+import org.geotools.renderer.geom.Geometry;
+import org.geotools.renderer.geom.GeometryCollection;
 import org.geotools.resources.XMath;
 import org.geotools.resources.XDimension2D;
 import org.geotools.resources.XAffineTransform;
@@ -70,16 +70,16 @@ import org.geotools.resources.CTSUtilities;
 
 
 /**
- * A layer for an {@link Isoline} object. Instances of this class are typically
- * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
- * require a different instance of <code>RenderedIsoline</code>.
+ * A layer for a {@link GeometryCollection} object. Instances of this class are typically
+ * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
+ * with an instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.16 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.17 2003/05/27 18:22:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
     /**
-     * The maximum number of clipped isolines to cache. This number can be set to <code>0</code>
+     * The maximum number of clipped geometries to cache. This number can be set to <code>0</code>
      * for disabling clipping acceleration, which may be useful if a bug is suspected to prevent
      * proper rendering.
      */
@@ -87,7 +87,7 @@ public class RenderedIsoline extends RenderedLayer {
 
     /**
      * The threshold ratio for computing a new clip. When the width and height of the underlying
-     * {@link #isoline} bounding box divided by the width and height of the clip area is greater
+     * {@link #geometry} bounding box divided by the width and height of the clip area is greater
      * than this threshold, a new clip is performed for faster rendering.
      *
      * DEBUGGING TIPS: Set this scale to a value below 1 to <em>see</em> the clipping's
@@ -97,8 +97,8 @@ public class RenderedIsoline extends RenderedLayer {
 
     /**
      * A factor slightly greater than 1 for computing the minimum size required for accepting
-     * a clipped isoline.  A greater isoline's bounding box is necessary since a bounding box
-     * too close to the clip's bounding box will make isoline contour apparent.
+     * a clipped geometry. A greater geometry's bounding box is necessary since a bounding box
+     * too close to the clip's bounding box will make geometry contour apparent.
      */
     private static final double CLIP_EPS = 1.05;
 
@@ -108,22 +108,23 @@ public class RenderedIsoline extends RenderedLayer {
     private static final Color FILL_COLOR = new Color(246,212,140);
 
     /**
-     * The "preferred line tickness" relative to the isoline's resolution.
-     * A value of 1 means that isoline might be drawn with a line as tick
-     * as the isoline's resolution. A value of 0.25 means that isoline might
-     * be drawn with a line of tickness equals to 1/4 of the isoline's resolution.
+     * The "preferred line tickness" relative to the geometry's resolution.
+     * A value of 1 means that geometry might be drawn with a line as tick
+     * as the geometry's resolution. A value of 0.25 means that geometry might
+     * be drawn with a line of tickness equals to 1/4 of the geometry's resolution.
      */
     private static final double TICKNESS = 0.25;
 
     /**
-     * The isoline data. The {@linkplain Isoline#getCoordinateSystem isoline's coordinate system}
+     * The geometry data.
+     * The {@linkplain GeometryCollection#getCoordinateSystem geometry's coordinate system}
      * should matches the {@linkplain #getCoordinateSystem rendering coordinate system}.
      */
-    private Isoline isoline;
+    private GeometryCollection geometry;
 
     /**
-     * List of clipped isolines. A clipped isoline may be faster to renderer
-     * than the full isoline. Most rencently used isolines are last in this list.
+     * List of clipped geometries. A clipped geometry may be faster to renderer
+     * than the full geometry. Most rencently used geometries are last in this list.
      */
     private final List clipped = (CLIP_CACHE_SIZE!=0) ? new LinkedList() : null;
 
@@ -133,25 +134,14 @@ public class RenderedIsoline extends RenderedLayer {
     private Paint contour = UIManager.getColor("Panel.foreground");
 
     /**
-     * Paint for filling holes. Default to panel's background (usually gray).
-     */
-    private Paint background = UIManager.getColor("Panel.background");
-
-    /**
-     * Paint for filling elevations.
+     * Paint for filling polygons.
      */
     private Paint foreground = FILL_COLOR;
 
     /**
-     * The number of points in {@link #isoline}. For statistics purpose only.
+     * The number of points in {@link #geometry}. For statistics purpose only.
      */
     private int numPoints;
-
-    /**
-     * The renderer to use for painting polygons.
-     * Will be created only when first needed.
-     */
-    private transient IsolineRenderer isolineRenderer;
 
     /**
      * The default {@linkplain #getPreferredArea preferred area} for this layer.
@@ -166,19 +156,19 @@ public class RenderedIsoline extends RenderedLayer {
     private Dimension2D preferredPixelSize;
 
     /**
-     * Construct a layer for the specified isoline.
+     * Construct a layer for the specified geometry.
      *
-     * @param isoline The isoline, or <code>null</code> if none.
-     * @see #setIsoline
+     * @param geometry The geometry, or <code>null</code> if none.
+     * @see #setGeometry
      */
-    public RenderedIsoline(final Isoline isoline) {
-        if (isoline!=null) try {
-            setCoordinateSystem(isoline.getCoordinateSystem());
-            setIsoline(isoline);
+    public RenderedIsoline(final GeometryCollection geometry) {
+        if (geometry!=null) try {
+            setCoordinateSystem(geometry.getCoordinateSystem());
+            setGeometry(geometry);
         } catch (TransformException exception) {
             /*
-             * Should not happen, since isoline use 2D coordinate systems. Rethrow it as an
-             * illegal argument exception, which is not too far from the reality: the isoline
+             * Should not happen, since geometry use 2D coordinate systems. Rethrow it as an
+             * illegal argument exception, which is not too far from the reality: the geometry
              * is not of the usual class.
              */
             final IllegalArgumentException e;
@@ -189,41 +179,42 @@ public class RenderedIsoline extends RenderedLayer {
     }
 
     /**
-     * Set a new isoline for this layer.
+     * Set a new geometry for this layer.
      *
-     * @param  isoline The new isoline, or <code>null</code> if none.
-     * @throws TransformException if the isoline can't be projected in the
+     * @param  geometry The new geometry, or <code>null</code> if none.
+     * @throws TransformException if the geometry can't be projected in the
      *         {@linkplain #getCoordinateSystem rendering coordinate system}.
      */
-    public void setIsoline(Isoline isoline) throws TransformException {
-        final Isoline oldIsoline;
+    public void setGeometry(GeometryCollection geometry) throws TransformException {
+        final GeometryCollection oldGeometry;
         synchronized (getTreeLock()) {
-            oldIsoline = this.isoline;
-            if (isoline != null) {
-                isoline = (Isoline)isoline.clone(); // Remind: underlying data are shared, not cloned.
-                isoline.setCoordinateSystem(getCoordinateSystem());
-                numPoints = isoline.getPointCount();
+            oldGeometry = this.geometry;
+            if (geometry != null) {
+                // Remind: underlying data are shared, not cloned.
+                geometry = (GeometryCollection)geometry.clone();
+                geometry.setCoordinateSystem(getCoordinateSystem());
+                numPoints = geometry.getPointCount();
             } else {
                 numPoints = 0;
             }
-            this.isoline = isoline;
+            this.geometry = geometry;
             clearCache();
             updatePreferences();
         }
-        listeners.firePropertyChange("isoline", oldIsoline, isoline);
+        listeners.firePropertyChange("geometry", oldGeometry, geometry);
     }
 
     /**
      * Set the rendering coordinate system for this layer.
      *
      * @param  cs The coordinate system.
-     * @throws TransformException If <code>cs</code> if the isoline
-     *         can't be projected to the specified coordinate system.
+     * @throws TransformException if the geometry can't be projected
+     *         to the specified coordinate system.
      */
     protected void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
         synchronized (getTreeLock()) {
-            if (isoline != null) {
-                isoline.setCoordinateSystem(cs);
+            if (geometry != null) {
+                geometry.setCoordinateSystem(cs);
             }
             super.setCoordinateSystem(cs);
             clearCache();
@@ -236,17 +227,17 @@ public class RenderedIsoline extends RenderedLayer {
      */
     private void updatePreferences() {
         assert Thread.holdsLock(getTreeLock());
-        if (isoline == null) {
+        if (geometry == null) {
             preferredArea = null;
             preferredPixelSize = null;
             return;
         }
-        final Rectangle2D  bounds = isoline.getBounds2D();
-        final Statistics resStats = isoline.getResolution();
+        final Rectangle2D  bounds = geometry.getBounds2D();
+        final Statistics resStats = geometry.getResolution();
         if (resStats != null) {
             final double dx,dy;
             final double resolution = resStats.mean();
-            Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isoline.getCoordinateSystem());
+            Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(geometry.getCoordinateSystem());
             if (ellipsoid != null) {
                 // Transforms the resolution into a pixel size in the middle of 'bounds'.
                 // Note: 'r' is the inverse of **apparent** ellipsoid's radius at latitude 'y'.
@@ -267,53 +258,38 @@ public class RenderedIsoline extends RenderedLayer {
     }
 
     /**
-     * Sets the contouring color or paint.
-     * This paint will be used by all polygons.
+     * Sets the contouring color or paint. This is the default paint
+     * to use when no styling information is provided for a polyline.
      */
     public void setContour(final Paint paint) {
         contour = paint;
     }
 
     /**
-     * Returns the contouring color or paint.
+     * Returns the default contouring color.
      */
     public Paint getContour() {
         return contour;
     }
 
     /**
-     * Sets the filling color or paint. This paint
-     * will be used only for closed polygons.
+     * Sets the filling color or paint. This is the default paint
+     * to use when no styling information is provided for a polyline.
      */
     public void setForeground(final Paint paint) {
         foreground = paint;
     }
 
     /**
-     * Returns the filling color or paint.
+     * Returns the default filling color or paint.
      */
     public Paint getForeground() {
         return foreground;
     }
 
     /**
-     * Set the background color or paint. This information is needed in
-     * order to allows <code>RenderedIsoline</code> to fill holes correctly.
-     */
-    public void setBackground(final Paint paint) {
-        background = paint;
-    }
-
-    /**
-     * Returns the background color or paint.
-     */
-    public Paint getBackground() {
-        return background;
-    }
-
-    /**
-     * Returns the preferred area for this layer. If no preferred area has been explicitely
-     * set, then this method returns the isoline's bounding box.
+     * Returns the preferred area for this layer. If no preferred area has been
+     * explicitely set, then this method returns the geometry's bounding box.
      */
     public Rectangle2D getPreferredArea() {
         synchronized (getTreeLock()) {
@@ -327,7 +303,7 @@ public class RenderedIsoline extends RenderedLayer {
 
     /**
      * Returns the preferred pixel size in rendering coordinates. If no preferred pixel size
-     * has been explicitely set, then this method returns the isoline's pixel size.
+     * has been explicitely set, then this method returns the geometry's pixel size.
      */
     public Dimension2D getPreferredPixelSize() {
         synchronized (getTreeLock()) {
@@ -342,117 +318,44 @@ public class RenderedIsoline extends RenderedLayer {
     /**
      * Returns the <var>z-order</var> for this layer. Layers with highest <var>z-order</var>
      * will be painted on top of layers with lowest <var>z-order</var>. If no order has been
-     * explicitely set, then the default <var>z-order</var> is {@link Isoline#value}.
+     * explicitely set, then the default <var>z-order</var> is
+     * {@link GeometryCollection#getValue}.
      */
     public float getZOrder() {
         synchronized (getTreeLock()) {
-            if (isoline==null || isZOrderSet()) {
+            if (geometry==null || isZOrderSet()) {
                 return super.getZOrder();
             }
-            return isoline.value;
-        }
-    }
-
-    /**
-     * The renderer for polygons. An instance of this class is attached to each instance
-     * of {@link RenderedIsoline} when its <code>paint(...)</code> method is invoked for
-     * the first time.  The <code>paint(...)</code> must initialize the fields before to
-     * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
-     *
-     * @version $Id: RenderedIsoline.java,v 1.16 2003/05/13 11:00:47 desruisseaux Exp $
-     * @author Martin Desruisseaux
-     */
-    private final class IsolineRenderer implements Polygon.Renderer {
-        /**
-         * The minimum and maximum rendering resolution
-         * in units of the isoline's coordinate system.
-         */
-        protected float minResolution, maxResolution;
-
-        /**
-         * The {@link Graphics2D} handler where to draw polygons.
-         * Should be <code>null</code> once the rendering is completed.
-         */
-        protected Graphics2D graphics;
-
-        /**
-         * Returns the clip area in units of the isoline's coordinate system.
-         * This is usually "real world" metres or degrees of latitude/longitude.
-         */
-        public Shape getClip() {
-            return graphics.getClip();
-        }
-        
-        /**
-         * Returns the rendering resolution, in units of the isoline's coordinate system
-         * (usually metres or degrees).  A larger resolution speed up rendering, while a
-         * smaller resolution draw more precise map.
-         *
-         * @param  current The current rendering resolution.
-         * @return the <code>current</code> rendering resolution if it still good enough,
-         *         or a new resolution if a change is needed.
-         */
-        public float getRenderingResolution(float resolution) {
-            if (resolution>=minResolution && resolution<=maxResolution) {
-                return resolution;
-            }
-            return (minResolution + maxResolution)/2;
-        }
-        
-        /**
-         * Draw or fill a polygon. This polygon expose some internal state of {@link Isoline}.
-         * <strong>Do not modify it, neither keep a reference to it after this method call</strong>
-         * in order to avoid unexpected behaviour.
-         */
-        public void paint(final Polygon polygon) {
-            RenderedIsoline.this.paint(graphics, polygon);
-        }
-
-        /**
-         * Invoked once after a series of polygons has been painted.
-         *
-         * @param rendered The total number of <em>rendered</em> points.
-         * @param recomputed The number of points that has been recomputed
-         *        (i.e. decompressed, decimated, projected and transformed).
-         * @param resolution The mean resolution of rendered polygons.
-         */
-        public void paintCompleted(final int rendered, final int recomputed, double resolution) {
-            renderer.statistics.addIsoline(numPoints, rendered, recomputed, resolution);
+            final float z = geometry.getValue();
+            return Float.isNaN(z) ? 0 : z;
         }
     }
         
     /**
-     * Invoked automatically when a polygon is about to be draw. The default implementation
-     * draw or fill the polygon according the current {@linkplain #getBackground background},
-     * {@linkplain #getForeground foreground} and other settings.
+     * Invoked automatically when a polyline is about to be draw. The default implementation
+     * draw or fill the polyline according the current {@linkplain #getForeground foreground}
+     * color.
      *
      * @param graphics The graphics in which to draw.
-     * @param polygon The polygon to draw. This polygon may exposes some internal state of
-     *        {@link Isoline}, for example decimation and clipping. <strong>Do not modify
-     *        this polygon, neither keep a reference to it after this method call</strong>
-     *        in order to avoid unexpected behaviour.
+     * @param polyline The polyline to draw. This polyline may exposes some internal state of
+     *        {@link GeometryCollection}, for example decimation and clipping. <strong>Do
+     *        not modify this polyline, neither keep a reference to it after this method
+     *        call</strong> in order to avoid unexpected behaviour.
      */
-    protected void paint(final Graphics2D graphics, final Polygon polygon) {
-        final InteriorType type = polygon.getInteriorType();
-        if (InteriorType.ELEVATION.equals(type)) {
+    protected void paint(final Graphics2D graphics, final Polyline polyline) {
+        if (polyline.isClosed()) {
             graphics.setPaint(foreground);
-            graphics.fill(polygon);
+            graphics.fill(polyline);
             if (foreground.equals(contour)) {
-                return;
-            }
-        } else if (InteriorType.DEPRESSION.equals(type)) {
-            graphics.setPaint(background);
-            graphics.fill(polygon);
-            if (background.equals(contour)) {
                 return;
             }
         }
         graphics.setPaint(contour);
-        graphics.draw(polygon);
+        graphics.draw(polyline);
     }
 
     /**
-     * Draw the isoline.
+     * Draw the geometry.
      *
      * @param  context The set of transformations needed for transforming geographic
      *         coordinates (<var>longitude</var>,<var>latitude</var>) into pixels coordinates.
@@ -460,60 +363,93 @@ public class RenderedIsoline extends RenderedLayer {
      */
     protected void paint(final RenderingContext context) throws TransformException {
         assert Thread.holdsLock(getTreeLock());
-        if (isoline == null) {
+        if (geometry == null) {
             return;
         }
         /*
          * If the rendering coordinate system changed since last
-         * time, then reproject the isoline and flush the cache.
+         * time, then reproject the geometry and flush the cache.
          */
-        CoordinateSystem isolineCS = isoline.getCoordinateSystem();
-        if (!context.mapCS.equals(isolineCS, false)) {
-            isoline.setCoordinateSystem(context.mapCS);
-            isolineCS = isoline.getCoordinateSystem();
+        CoordinateSystem geometryCS = geometry.getCoordinateSystem();
+        if (!context.mapCS.equals(geometryCS, false)) {
+            geometry.setCoordinateSystem(context.mapCS);
+            geometryCS = geometry.getCoordinateSystem();
             clearCache();
         }
         /*
-         * Rendering acceleration: First performs the clip (if enabled),
-         * then compute the decimation to use.
+         * Rendering acceleration: First performs the clip (if enabled), then compute the
+         * decimation to use.  The decimation is computed assuming a cartesian coordinate
+         * system even if the output CS is actually a geographic one. Distance in degrees
+         * is not really meaningful on a mathematical point of view, but we use it because
+         * it is was the user see.
          */
-        final Rectangle2D  bounds = isoline.getBounds2D();
-        final AffineTransform  tr = context.getAffineTransform(context.mapCS, context.textCS);
-        final Isoline      toDraw = getIsoline(context.getPaintingArea(isolineCS).getBounds2D());
+        final Rectangle2D        bounds = geometry.getBounds2D();
+        final AffineTransform        tr = context.getAffineTransform(context.mapCS, context.textCS);
+        final GeometryCollection toDraw = getGeometry(
+                                     context.getPaintingArea(geometryCS).getBounds2D(), geometryCS);
         if (toDraw != null) {
             final Graphics2D graphics = context.getGraphics();
             final Paint      oldPaint = graphics.getPaint();
             final Stroke    oldStroke = graphics.getStroke();
-            final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isolineCS);
-            double r; // Estimation of the "real world" length (usually in meters) of one pixel.
-            if (ellipsoid != null) {
-                final Unit xUnit = isolineCS.getUnits(0);
-                final Unit yUnit = isolineCS.getUnits(1);
-                final double  R2 = 0.70710678118654752440084436210485; // sqrt(0.5)
-                final double   x = Unit.DEGREE.convert(bounds.getCenterX(), xUnit);
-                final double   y = Unit.DEGREE.convert(bounds.getCenterY(), yUnit);
-                final double  dx = Unit.DEGREE.convert(R2/XAffineTransform.getScaleX0(tr), xUnit);
-                final double  dy = Unit.DEGREE.convert(R2/XAffineTransform.getScaleY0(tr), yUnit);
-                assert !Double.isNaN( x) && !Double.isNaN( y) : bounds;
-                assert !Double.isNaN(dx) && !Double.isNaN(dy) : tr;
-                r = ellipsoid.orthodromicDistance(x-dx, y-dy, x+dy, y+dy);
-            } else {
-                // Assume a cartesian coordinate system.
+            final Shape          clip = graphics.getClip();
+            if (toDraw.boundsIntersects(clip)) {
                 final double R2 = 1.4142135623730950488016887242097; // sqrt(2)
-                r = R2/Math.sqrt((r=tr.getScaleX())*r + (r=tr.getScaleY())*r +
-                                 (r=tr.getShearX())*r + (r=tr.getShearY())*r);
+                double r = R2/Math.sqrt((r=tr.getScaleX())*r + (r=tr.getScaleY())*r +
+                                        (r=tr.getShearX())*r + (r=tr.getShearY())*r);
                 assert !Double.isNaN(r) : tr;
-            }
-            if (isolineRenderer == null) {
-                isolineRenderer = new IsolineRenderer();
-            }
-            isolineRenderer.minResolution = (float)(renderer.minResolution*r);
-            isolineRenderer.maxResolution = (float)(renderer.maxResolution*r);
-            isolineRenderer.graphics      = graphics;
-            try {
-                toDraw.paint(isolineRenderer);
-            } finally {
-                isolineRenderer.graphics = null;
+                final float minResolution = (float)(renderer.minResolution*r);
+                final float maxResolution = (float)(renderer.maxResolution*r);
+                /*
+                 * If the rendering coordinate system is geographic, then the resolution computed
+                 * above do not use linear units. Computes an approximative correction factor.
+                 * This factor has no impact on the rendering appareance. It is used for
+                 * statistics purpose only, usually for logging.
+                 */
+                final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(geometryCS);
+                if (ellipsoid != null) {
+                    final Unit xUnit = geometryCS.getUnits(0);
+                    final Unit yUnit = geometryCS.getUnits(1);
+                    final double R2I = 0.70710678118654752440084436210485; // sqrt(0.5)
+                    final double   x = Unit.DEGREE.convert(bounds.getCenterX(), xUnit);
+                    final double   y = Unit.DEGREE.convert(bounds.getCenterY(), yUnit);
+                    final double  dx = Unit.DEGREE.convert(R2I/XAffineTransform.getScaleX0(tr), xUnit);
+                    final double  dy = Unit.DEGREE.convert(R2I/XAffineTransform.getScaleY0(tr), yUnit);
+                    assert !Double.isNaN( x) && !Double.isNaN( y) : bounds;
+                    assert !Double.isNaN(dx) && !Double.isNaN(dy) : tr;
+                    r = ellipsoid.orthodromicDistance(x-dx, y-dy, x+dy, y+dy) / r;
+                } else {
+                    r = 1;
+                }
+                /*
+                 * Now draw all polylines. If polyline's rendering resolution is not in current
+                 * bounds, then a new rendering resolution will be set, which will probably flush
+                 * the cache. 'renderer' and 'recomputed' hold statistics about cache activity.
+                 */
+                double meanResolution = 0;
+                int rendered=0, recomputed=0;
+                final List polylines = toDraw.getPolylines();
+                final int count = polylines.size();
+                for (int i=0; i<count; i++) {
+                    final Polyline polyline = (Polyline)polylines.get(i);
+                    synchronized (polyline) {
+                        if (polyline.boundsIntersects(clip)) {
+                            float resolution = polyline.getRenderingResolution();
+                            if (!(resolution>=minResolution && resolution<=maxResolution)) {
+                                resolution = (minResolution + maxResolution)/2;
+                                polyline.setRenderingResolution(resolution);
+                            }
+                            paint(graphics, polyline);
+                            final int numPts = polyline.getCachedPointCount();
+                            rendered += Math.abs(numPts);
+                            if (numPts < 0) {
+                                recomputed -= numPts;
+                            }
+                            meanResolution += resolution * Math.abs(numPts);
+                        }
+                    }
+                }
+                meanResolution /= rendered;
+                renderer.statistics.addGeometry(numPoints, rendered, recomputed, meanResolution*r);
             }
             graphics.setStroke(oldStroke);
             graphics.setPaint (oldPaint);
@@ -522,56 +458,67 @@ public class RenderedIsoline extends RenderedLayer {
     }
 
     /**
-     * Returns an isoline approximatively clipped to the specified area. The clip is
-     * approximative in that the resulting isoline may extends outside the clip area.
-     * However, this method garanteed that the clipped isoline will contains at least
-     * the interior of the clip area, providing that the "master" isoline cover this
+     * Returns an geometry approximatively clipped to the specified area. The clip is
+     * approximative in that the resulting geometry may extends outside the clip area.
+     * However, this method garanteed that the clipped geometry will contains at least
+     * the interior of the clip area, providing that the "master" geometry cover this
      * area.
      *
-     * @param  The clip area, in this {@linkplain #getCoordinateSystem isoline's
+     * @param  The clip area, in this {@linkplain #getCoordinateSystem geometry's
      *         coordinate system}. Note: this rectangle will be overwritten with
      *         a bigger one.
-     * @return An isoline, or <code>null</code> if no isoline intercepts the clip.
+     * @return An geometry, or <code>null</code> if no geometry intercepts the clip.
+     * @throws TransformException if a transform was required and failed.
      */
-    private Isoline getIsoline(final Rectangle2D clip) {
+    private GeometryCollection getGeometry(final Rectangle2D clip, final CoordinateSystem clipCS)
+            throws TransformException
+    {
         if (clipped == null) {
-            return isoline;
+            return geometry;
         }
         final double clipArea = clip.getWidth()*clip.getHeight();
         scale(clip, CLIP_EPS);
-        Isoline     bestIsoline = isoline;
-        Rectangle2D bestBounds  = bestIsoline.getBounds2D();
+        GeometryCollection bestGeometry = geometry;
+        Rectangle2D bestBounds  = bestGeometry.getBounds2D();
         double      bestRatio   = (bestBounds.getWidth()*bestBounds.getHeight()) / clipArea;
         /*
-         * Find the isoline that best matches the clipped area.
+         * Find the geometry that best matches the clipped area.
          */
         for (final Iterator it=clipped.iterator(); it.hasNext();) {
-            final Isoline  candidate = (Isoline) it.next();
+            final GeometryCollection candidate = (GeometryCollection) it.next();
             final Rectangle2D bounds = candidate.getBounds2D();
             if (Renderer.contains(bounds, clip, true)) {
                 final double ratio = (bounds.getWidth()*bounds.getHeight()) / clipArea;
                 if (ratio < bestRatio) {
-                    bestRatio   = ratio;
-                    bestBounds  = bounds;
-                    bestIsoline = candidate;
+                    bestRatio    = ratio;
+                    bestBounds   = bounds;
+                    bestGeometry = candidate;
                 }
             }
         }
         /*
-         * If the isoline covers a widther area than necessary, clip it.
+         * If the geometry covers a widther area than necessary, clip it.
          */
         if (bestRatio >= CLIP_THRESHOLD*CLIP_THRESHOLD) {
             logUpdateCache("RenderedIsoline");
             scale(clip, 0.5*(CLIP_THRESHOLD+1));
-            bestIsoline = bestIsoline.clip(clip);
-            if (bestIsoline!=null && CLIP_THRESHOLD>1) {
-                clipped.add(bestIsoline);
+            final Geometry candidate = bestGeometry.clip(new Clipper(clip, clipCS));
+            if (candidate==null || candidate instanceof GeometryCollection) {
+                bestGeometry = (GeometryCollection) candidate;
+            } else {
+                // TODO: We should modify RenderedIsoline in order to work
+                //       directly with Geometry rather than GeometryCollection.
+                bestGeometry = new GeometryCollection();
+                bestGeometry.add(candidate);
+            }
+            if (bestGeometry!=null && CLIP_THRESHOLD>1) {
+                clipped.add(bestGeometry);
                 while (clipped.size() >= CLIP_CACHE_SIZE) {
                     clipped.remove(0);
                 }
             }
         }
-        return bestIsoline;
+        return bestGeometry;
     }
 
     /**
@@ -590,17 +537,17 @@ public class RenderedIsoline extends RenderedLayer {
 
     /**
      * Returns a tool tip text for the specified coordinates.
-     * The default implementation delegates to {@link Isoline#getPolygonName}.
+     * The default implementation delegates to {@link GeometryCollection#getPolygonName}.
      *
      * @param  event The mouve event with geographic coordinétes.
      * @return The tool tip text, or <code>null</code> if there
      *         in no tool tips for this location.
      */
     String getToolTipText(final GeoMouseEvent event) {
-        if (isoline != null) {
+        if (geometry != null) {
             final Point2D point = event.getMapCoordinate(null);
             if (point != null) {
-                final String toolTips = isoline.getPolygonName(point, getLocale());
+                final String toolTips = geometry.getPolygonName(point, getLocale());
                 if (toolTips != null) {
                     return toolTips;
                 }
@@ -617,7 +564,6 @@ public class RenderedIsoline extends RenderedLayer {
         if (clipped != null) {
             clipped.clear();
         }
-        isolineRenderer = null;
         super.clearCache();
     }
 
@@ -631,10 +577,9 @@ public class RenderedIsoline extends RenderedLayer {
     public void dispose() {
         synchronized (getTreeLock()) {
             numPoints  = 0;
-            isoline    = null;
+            geometry   = null;
             contour    = Color.BLACK;
             foreground = Color.GRAY;
-            background = Color.WHITE;
             super.dispose();
         }
     }

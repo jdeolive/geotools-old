@@ -49,15 +49,15 @@ import org.geotools.resources.XArray;
 
 
 /**
- * Class in charge of clipping several polygons.  The constructor receives a rectangle
- * {@link Rectangle2D} as an argument. This rectangle represents the contour of the "clip".
- * The {@link #clip(Polygon, Polyline.Iterator)} method can then repeatedly 'clip' a series of 
- * polygons.
+ * The clipping area to apply on a {@link Geometry} object. A <code>Clipper</code> object
+ * contains a {@link Rectangle2D} and its {@link CoordinateSystem}.
  *
- * @version $Id: Clipper.java,v 1.4 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: Clipper.java,v 1.5 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see Geometry#clip
  */
-final class Clipper {
+public final class Clipper {
     /**
      * Coordinate system of {@link #mapClip}.
      */
@@ -72,7 +72,7 @@ final class Clipper {
 
     /**
      * Region to clip. The coordinates are the same as in {@link #mapClip},
-     * but projected in the native coordinate system of the polygon to be clipped.
+     * but projected in the native coordinate system of the polyline to be clipped.
      */
     private final Rectangle2D clip = new Rectangle2D.Double();
 
@@ -83,16 +83,15 @@ final class Clipper {
     private float xmin, ymin, xmax, ymax;
 
     /**
-     * Line representing a segment of a {@link Polygon} object. This object
+     * Line representing a segment of a {@link Polyline} object. This object
      * is created just once in order to avoid having to recreate it too often.
-     * It is used internally to sweep the coordinates of a {@link Polygon} object.
+     * It is used internally to sweep the coordinates of a {@link Polyline} object.
      */
     private final Line2D.Float line = new Line2D.Float();
 
     /**
-     * Coordinates to transmit to {@link Polygon#appendBorder}. This table is reserved
-     * for internal use by {@link #clip(Polygon, Polyline.Iterator)}, which will constantly
-     * construct and modify it.
+     * Coordinates to transmit to {@link Polyline#appendBorder}. This table is reserved for
+     * internal use by {@link #clip(Polyline)}, which will constantly construct and modify it.
      */
     private float[] border = new float[16];
 
@@ -103,9 +102,9 @@ final class Clipper {
     private int borderLength;
 
     /**
-     * Coordinates of intersection points between a polygon and {@link #clip}. This table is
-     * reserved for internal use by {@link #clip(Polygon, Polyline.Iterator)}, which will
-     * constantly construct and modify it.
+     * Coordinates of intersection points between a polyline and {@link #clip}. This table is
+     * reserved for internal use by {@link #clip(Polyline)}, which will constantly construct
+     * and modify it.
      */
     private float[] intersect = new float[8];
 
@@ -116,8 +115,7 @@ final class Clipper {
     private int intersectLength;
 
     /**
-     * Constructs an object which will be responsable for clipping 
-     * polygons appearing in a particular region.
+     * Constructs a clipping area.
      *
      * @param mapClip The limits of the region to keep.
      * @param mapCS <code>clip</code>'s coordinate system.
@@ -133,18 +131,18 @@ final class Clipper {
     }
 
     /**
-     * Returns the clip in the polygon's internal coordinate system. This method
-     * <strong>must</strong> be invoked before {@link #clip(Polygon, Polyline.Iterator)}.
+     * Returns the clip in the polyline's internal coordinate system. This method
+     * <strong>must</strong> be invoked before {@link #clip(Polyline)}.
      *
-     * @param  The polygon to clip.
-     * @return The clip in polygon's internal coordinate system. Will never be null, but may
+     * @param  The polyline to clip.
+     * @return The clip in polyline's internal coordinate system. Will never be null, but may
      *         be empty if a transformation failed. Note: this method returns an internal
      *         rectangle. <strong>Do not modify</strong>.
      */
-    public Rectangle2D getInternalClip(final Polygon polygon) {
+    final Rectangle2D getInternalClip(final Polyline polyline) {
         try {
             final MathTransform2D tr;
-            tr = Polygon.getMathTransform2D(polygon.getTransformationFromInternalCS(mapCS));
+            tr = Polyline.getMathTransform2D(polyline.getTransformationFromInternalCS(mapCS));
             if (tr != null) {
                 CTSUtilities.transform((MathTransform2D) tr.inverse(), mapClip, clip);
             } else {
@@ -152,7 +150,7 @@ final class Clipper {
             }
         } catch (TransformException exception) {
             // Cette exception peut être normale.
-            Polyline.unexpectedException("Clipper", "getInternalClip", exception);
+            LineString.unexpectedException("Clipper", "getInternalClip", exception);
             clip.setRect(0,0,0,0);
         }
         xmin = (float) clip.getMinX();
@@ -260,22 +258,22 @@ final class Clipper {
     }
 
     /**
-     * Attaches the polygon <code>subpoly</code> to the end of polygon <code>result</code>.
+     * Attaches the polyline <code>subpoly</code> to the end of polyline <code>result</code>.
      * The border {@link #border}, if there is one, will be inserted between the two. This
-     * method returns the polygon resulting from the merger.
+     * method returns the polyline resulting from the merger.
      *
-     * @param result  The first polygon, or <code>null</code>. This polygon will be modified.
-     *                We usually create this polygon inside this method and reuse it in many
-     *                calls in order to build the clipped polygon.
-     * @param subpoly The second polygon (usually the result of a call to {@link Polygob#subpoly}.
-     *                This polygon will never be modified.
-     * @return <code>result</code>, or a new polygon if <code>result</code> was null.
+     * @param result  The first polyline, or <code>null</code>. This polyline will be modified.
+     *                We usually create this polyline inside this method and reuse it in many
+     *                calls in order to build the clipped polyline.
+     * @param subpoly The second polyline (usually the result of a call to {@link Polygob#subpoly}.
+     *                This polyline will never be modified.
+     * @return <code>result</code>, or a new polyline if <code>result</code> was null.
      */
-    private Polygon attach(Polygon result, Polygon subpoly) {
+    private Polyline attach(Polyline result, Polyline subpoly) {
         if (subpoly != null) {
             try {
                 if (result == null) {
-                    result = (Polygon) subpoly.clone();
+                    result = (Polyline) subpoly.clone();
                     result.prependBorder(border, 0, borderLength, null);
                 } else {
                     result.appendBorder(border, 0, borderLength, null);
@@ -284,47 +282,46 @@ final class Clipper {
                 borderLength = 0;
             } catch (TransformException exception) {
                 // Should not happen, since we are working
-                // in polygon's native coordinate system.
-                Polygon.unexpectedException("clip", exception);
+                // in polyline's native coordinate system.
+                Polyline.unexpectedException("clip", exception);
             }
         }
         return result;
     }
 
     /**
-     * Returns a polygon which only contains the points of <code>polygon</code> that appear
-     * in the rectangle specified in the constructeur. If none of the polygon's points appear inside
-     * <code>clip</code>, this method returns <code>null</code>. If all the polygon's points
-     * appear inside <code>clip</code>, this method returns <code>polygon</code>. Otherwise, this
-     * method returns a polygon that contains the points that appear inside <code>clip</code>. 
-     * These polygons will share the same data as <code>polygon</code> where possible, so that
-     * memory consumption should remain reasonable.
+     * Returns a polyline which only contains the points of <code>polyline</code> that appear
+     * in the rectangle specified in the constructeur. If none of the polyline's points appear
+     * inside <code>clip</code>, this method returns <code>null</code>. If all the polyline's
+     * points appear inside <code>clip</code>, this method returns <code>polyline</code>.
+     * Otherwise, this method returns a polyline that contains the points that appear inside
+     * <code>clip</code>. These polylines will share the same data as <code>polyline</code>
+     * where possible, so that memory consumption should remain reasonable.
      * <br><br>
-     * Note: before calling this method, {@link #getInternalClip}
-     *       must have been called.
+     * Note: before calling this method, {@link #getInternalClip} must have been called.
      *
-     * @param  polygon Polygon to clip in a region.
-     * @return Clipped polygon.
+     * @param  polyline Polyline to clip in a region.
+     * @return Clipped polyline.
      */
-    public Polygon clip(final Polygon polygon) {
+    final Polyline clip(final Polyline polyline) {
         borderLength    = 0;
         intersectLength = 0;
-        Polygon result  = null;
-        final InteriorType polygonType = polygon.getInteriorType();
-        final Polyline.Iterator it;
+        Polyline result = null;
+        final boolean isClosed = polyline.isClosed();
+        final LineString.Iterator it;
         try {
-            it = polygon.iterator(null);
+            it = polyline.iterator(null);
         } catch (CannotCreateTransformException exception) {
-            // Should not happen, since we are working in polygon's native CS.
+            // Should not happen, since we are working in polyline's native CS.
             final IllegalPathStateException e;
             e = new IllegalPathStateException(exception.getLocalizedMessage());
             e.initCause(exception);
             throw e;
         }
         /*
-         * Obtains the first coordinate of the polygon. This first coordinate will be memorised
+         * Obtains the first coordinate of the polyline. This first coordinate will be memorised
          * in the variables <code>first[X/Y]</code> so it can be reused to eventually close the
-         * polygon. We should check whether this first coordinate is inside or outside the region
+         * polyline. We should check whether this first coordinate is inside or outside the region
          * of interest.  This check serves to initialise the variable <code>inside</code>, which
          * will serve for the rest of this method.
          */
@@ -345,10 +342,10 @@ final class Clipper {
                  * will contain the point that we have just extracted, whilst
                  * point <code>line.p1</code> will be the coordinate we had during the
                  * previous pass through this loop.  If all the coordinates have been
-                 * swept, we will reuse the first point to reclose the polygon.
+                 * swept, we will reuse the first point to reclose the polyline.
                  */
                 if (!it.next(line)) {
-                    if ((line.x2!=firstX || line.y2!=firstY) && polygonType!=null) {
+                    if ((line.x2!=firstX || line.y2!=firstY) && isClosed) {
                         line.x2 = firstX;
                         line.y2 = firstY;
                     }
@@ -417,11 +414,11 @@ final class Clipper {
                  *
                  *  1) We have just entered the clip. The code below will construct all
                  *     the border that precedes the entrance. We complete this border with the
-                 *     intersection point between the clip and the polygon.
+                 *     intersection point between the clip and the polyline.
                  *  2) We have just left the clip.  The code below will memorise the data
-                 *     needed to render the polygon that is found entirely inside the clip.
+                 *     needed to render the polyline that is found entirely inside the clip.
                  *     We complete these data with the intersection point between the clip and
-                 *     the polygon. Later in the loop, a border will be added after this
+                 *     the polyline. Later in the loop, a border will be added after this
                  *     intersection point, followed by another intersection point (stage 1).
                  *  3) It is possible that we have gone through the whole clip without
                  *     stopping inside.  Code below will try to detect this particular situation.
@@ -507,7 +504,7 @@ final class Clipper {
                     } else {
                         /*
                          * If we have just left the area of interest, we will create a new 
-                         * "sub-polygon" that will contain only the data that appears in the
+                         * "sub-polyline" that will contain only the data that appears in the
                          * region (the data will not be copied; only a reference game will be
                          * carried out). The coordinates x0,y0 will be those of the first
                          * point outside the clip.
@@ -519,8 +516,8 @@ final class Clipper {
                             x0 = x2;
                             y0 = y2;
                         }
-                        assert upper <= polygon.getPointCount() : upper;
-                        result = attach(result, polygon.subpoly(lower, upper));
+                        assert upper <= polyline.getPointCount() : upper;
+                        result = attach(result, polyline.subpoly(lower, upper));
                     }
                     lower = upper;
                     /*
@@ -589,10 +586,10 @@ final class Clipper {
              * if they were inside the clip.
              */
             if (inside) {
-                assert upper <= polygon.getPointCount() : upper;
-                result = attach(result, polygon.subpoly(lower, upper));
+                assert upper <= polyline.getPointCount() : upper;
+                result = attach(result, polyline.subpoly(lower, upper));
             }
-            if (polygonType != null) {
+            if (isClosed) {
                 if (!Float.isNaN(x0) && !Float.isNaN(y0)) {
                     buildBorder(clockwise+initialClockwise, x0, y0, initialX1, initialY1);
                 }
@@ -600,17 +597,19 @@ final class Clipper {
             if (result != null) {
                 try {
                     result.appendBorder(border, 0, borderLength, null);
-                    result.close(polygonType);
+                    if (isClosed) {
+                        result.close();
+                    }
                 } catch (TransformException exception) {
                     // Should not happen, since we are working
-                    // in polygon's native coordinate system.
-                    Polygon.unexpectedException("clip", exception);
+                    // in polyline's native coordinate system.
+                    Polyline.unexpectedException("clip", exception);
                 }
             } else if (borderLength != 0) {
                 /*
-                 * If no polygon has been created, but we have nevertheless
+                 * If no polyline has been created, but we have nevertheless
                  * detected intersections (i.e. if the zoom doesn't contain
-                 * any point of the polygon but intercepts one of the polygon's
+                 * any point of the polyline but intercepts one of the polyline's
                  * lines) then we will add the intersection points and their borders.
                  */
                 final float tmp[];
@@ -620,19 +619,24 @@ final class Clipper {
                     tmp = new float[borderLength];
                     System.arraycopy(border, 0, tmp, 0, borderLength);
                 }
-                final Polygon[] results = Polygon.getInstances(tmp, polygon.getCoordinateSystem());
+                final Polyline[] results = Polyline.getInstances(tmp, 0, tmp.length,
+                                                    polyline.getCoordinateSystem());
                 assert results.length == 1;
                 result = results[0];
-                result.close(polygonType);
-            } else if (polygon.contains(clip.getCenterX(), clip.getCenterY())) {
+                if (isClosed) {
+                    result.close();
+                }
+            } else if (polyline.contains(clip.getCenterX(), clip.getCenterY())) {
                 /*
-                 * If absolutely no point of the polygon is found inside the zoom
+                 * If absolutely no point of the polyline is found inside the zoom
                  * then the zoom is either completely inside or completely outside
-                 * the polygon.  If it is completely inside, we will memorise a rectangle
+                 * the polyline.  If it is completely inside, we will memorise a rectangle
                  * that will cover the whole zoom.
                  */
-                result = new Polygon(clip, polygon.getCoordinateSystem());
-                result.close(polygonType);
+                result = new Polyline(clip, polyline.getCoordinateSystem());
+                if (isClosed) {
+                    result.close();
+                }
             }
         }
         return result;

@@ -38,26 +38,27 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.io.PrintWriter;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.AffineTransform;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 // Geotools dependencies
-import org.geotools.renderer.geom.Polygon;
+import org.geotools.renderer.geom.Polyline;
 import org.geotools.resources.Arguments;
 
 
 /**
  * Visual check of {@link Polygon}.
  *
- * @version $Id: PolygonTest.java,v 1.3 2003/05/13 11:00:48 desruisseaux Exp $
+ * @version $Id: PolygonTest.java,v 1.4 2003/05/27 18:22:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PolygonTest extends TestCase {
-
     /**
      * Construct a test case.
      */
@@ -91,13 +92,13 @@ public class PolygonTest extends TestCase {
      *           plus grossière, tandis qu'une valeur plus faible se traduira par
      *           une île plus finement tracée.
      */
-    public void testPolygon() throws Exception {
+    public void testPolyline() throws Exception {
         String[] args = new String[0];
         final Arguments arguments = new Arguments(args);
         final int firstPointCount = 4;
         final int  lastPointCount = 4;
         /*
-         * Créé une carte imaginaire. La carte ressemblera à un cercle,
+         * Crée une carte imaginaire. La carte ressemblera à un cercle,
          * mais des pertubations aléatoires seront ajoutées de façon à
          * rendre l'île un peu plus irrégulière. L'île créée se trouvera
          * mémorisée dans un objet <code>GeneralPath</code>, une classe
@@ -128,9 +129,9 @@ public class PolygonTest extends TestCase {
          * principales méthodes publiques seront testées.
          */
         final Rectangle2D       clip = new Rectangle2D.Double(100, 100, 200, 200);
-        final Polygon        polygon = Polygon.getInstances(path, null)[0];
-        final Polygon        clipped = polygon.clip(new Clipper(clip, null));
-        final Collection    pointSet = polygon.getPoints();
+        final Polyline      polyline = Polyline.getInstances(path, null)[0];
+        final Polyline       clipped = (Polyline)polyline.clip(new Clipper(clip, null));
+        final Collection    pointSet = polyline.getPoints();
         final Point2D[]        first = new Point2D.Float[firstPointCount];
         final Point2D[]         last = new Point2D.Float[ lastPointCount];
         final Point2D[]        extrm = new Point2D.Float[pointSet.size()];
@@ -138,30 +139,48 @@ public class PolygonTest extends TestCase {
         for (int i=0; i<first.length; i++) {
             subPointSet.add(null);
         }
-        subPointSet.addAll(polygon.subpoly(first.length, extrm.length-last.length).getPoints());
-        polygon.getFirstPoints(first);
-        polygon.getLastPoints (last);
+        subPointSet.addAll(polyline.subpoly(first.length, extrm.length-last.length).getPoints());
+        polyline.getFirstPoints(first);
+        polyline.getLastPoints (last);
         System.arraycopy(first, 0, extrm, 0,                       first.length);
         System.arraycopy(last,  0, extrm, extrm.length-last.length, last.length);
 
-        out.println(polygon.toString());
+        out.println(polyline.toString());
         out.println();
-        Polygon.print(new String[]     {"Polygon", "First/Last", "SubPoly", "Clipped"},
-                      new Collection[] {pointSet, Arrays.asList(extrm), subPointSet, clipped.getPoints()},
-                      out, arguments.locale);
+        Polyline.print(new String[]     {"Polyline", "First/Last", "SubPoly", "Clipped"},
+                       new Collection[] {pointSet, Arrays.asList(extrm), subPointSet, clipped.getPoints()},
+                       out, arguments.locale);
         /*
-         * Fait apparaître le polyligne dans une fenêtre. Cette fenêtre
+         * Fait apparaître la polyligne dans une fenêtre. Cette fenêtre
          * offira quelques menus qui permettront à l'utilisateur de
          * vérifier si des points sont à l'intérieur ou a l'extérieur
          * du polyligne.
          */
         out.println();
         out.print("Compression: ");
-        out.print(100*polygon.compress(0));
+        out.print(100*polyline.compress(CompressionLevel.RELATIVE_AS_BYTES));
         out.println('%');
-        ShapePanel.show(path   ).setTitle("Uncompressed GeneralPath");
-        ShapePanel.show(polygon).setTitle("Compressed Polygon");
-        ShapePanel.show(clipped).setTitle("Clipped Polygon (uncompressed)");
+        ShapePanel.show(path    ).setTitle("Uncompressed GeneralPath");
+        ShapePanel.show(polyline).setTitle("Compressed Polyline");
+        ShapePanel.show(clipped ).setTitle("Clipped Polyline (uncompressed)");
         out.flush();
+        /*
+         * Fait apparaître aussi un polygone.
+         */
+        final Polygon polygon = new Polygon(Polyline.getInstances(path, null)[0]);
+        polygon.addHole(Polyline.getInstances(reduced(path), null)[0]);
+        ShapePanel.show(polygon).setTitle("Polygon (uncompressed)");
+    }
+
+    /**
+     * Returns a reduced version of the specified shape.
+     */
+    private static final Shape reduced(final Shape shape) {
+        final Rectangle2D    bounds = shape.getBounds2D();
+        final AffineTransform scale = new AffineTransform();
+        scale.translate(+bounds.getCenterX(), +bounds.getCenterY());
+        scale.scale(0.5, 0.5);
+        scale.translate(-bounds.getCenterX(), -bounds.getCenterY());
+        return scale.createTransformedShape(shape);
     }
 }

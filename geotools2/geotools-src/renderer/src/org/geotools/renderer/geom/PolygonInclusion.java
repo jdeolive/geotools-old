@@ -38,11 +38,14 @@ import java.util.Set;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 
 // Geotools dependencies
-import org.geotools.util.ProgressListener;
 import org.geotools.resources.Utilities;
+import org.geotools.util.ProgressListener;
+import org.geotools.ct.TransformException;
 
 
 /**
@@ -51,33 +54,29 @@ import org.geotools.resources.Utilities;
  * vers d'autres objets <code>PolygonInclusion</code> dont les polygones sont entièrement compris
  * à l'intérieur de celui de cet objet <code>PolygonInclusion</code>.
  *
- * @task TODO: Avec un peu plus de code, il serait possible de faire apparaître ces objet comme
- *             un noeud dans une composante {@link javax.swing.JTree}. Ça pourrait être très
- *             intéressant, car l'utilisateur pourrait voir quels lacs sont contenus sur un
- *             continent et quelles îles sont contenues dans un lac donnée, de la même façon
- *             qu'on explore les dossiers d'un ordinateur.
+ * @task TODO: This class is not yet used. It should be part of <code>PolygonAssembler</code>,
+ *             work, but is not yet finished neither tested.
  *
- * @version $Id: PolygonInclusion.java,v 1.2 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: PolygonInclusion.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class PolygonInclusion {
     /**
      * Polygone associé à cet objet.
      */
-    private final Polygon polygon;
+    private final Polyline polygon;
 
     /**
      * Liste des objets <code>PolygonInclusion</code> fils. Les polygons de chacun de
      * ces fils sera entièrement compris dans le polygon {@link #polygon} de cet objet.
      */
-    private List childs;
+    private Collection childs;
 
     /**
-     * Construit un noeud qui enveloppera le polygone
-     * spécifié. Ce noeud n'aura aucune branche pour
-     * l'instant.
+     * Construit un noeud qui enveloppera le polygone spécifié.
+     * Ce noeud n'aura aucune branche pour l'instant.
      */
-    private PolygonInclusion(Polygon polygon) {
+    private PolygonInclusion(Polyline polygon) {
         this.polygon = polygon;
     }
 
@@ -104,7 +103,7 @@ final class PolygonInclusion {
      * sorte qu'après l'appel de cette méthode, <code>polygons</code> ne contiendra plus
      * que les polygones qui ne sont pas compris dans {@link #polygon}.
      */
-    private void addChilds(final List polygons) {
+    private void addChilds(final Collection polygons) {
         for (final Iterator it=polygons.iterator(); it.hasNext();) {
             final PolygonInclusion node = (PolygonInclusion) it.next();
             if (node!=this && polygon.contains(node.polygon))  {
@@ -129,7 +128,7 @@ final class PolygonInclusion {
      * trouvera qu'il contient entièrement "Île" et l'ajoutera à sa propre liste interne
      * après l'avoir retiré de la liste {@link #child} de "Continent".
      */
-    private static void buildTree(final List childs, final ProgressListener progress) {
+    private static void buildTree(final Collection childs, final ProgressListener progress) {
         if (childs != null) {
             int count = 0;
             final Set alreadyProcessed = new HashSet(childs.size() + 64);
@@ -140,73 +139,71 @@ final class PolygonInclusion {
                         progress.progress(100f * (count++ / childs.size()));
                     }
                     node.addChilds(childs);
-                    it = childs.iterator();
+                    it = childs.iterator(); // Need a new iterator since collection changed.
                 }
             }
         }
     }
 
     /**
-     * Examine tous les polygones spécifiés et tente de
-     * différencier les îles des lacs. Les polygones de
-     * la liste spécifiée seront automatiquement classés.
+     * Add polygons in the <code>polygons</code> array.
+     *
+     * @param  nodes The collection of <code>PolygonInclusion</code> to process.
+     * @param  polygons The destination in which to add {@link Polygon} objects.
+     *
+     * @throws TransformException if a transformation was required and failed.
+     *         This exception should never happen if all polygons use the same
+     *         coordinate system.
      */
-    static void process(final Polygon[] polygons, final ProgressListener progress) {
+    private static void createPolygons(final Collection nodes, final Collection polygons)
+            throws TransformException
+    {
+        if (nodes != null) {
+            for (final Iterator it=nodes.iterator(); it.hasNext();) {
+                PolygonInclusion node = (PolygonInclusion) it.next();
+                if (!node.polygon.isClosed()) {
+                    polygons.add(node.polygon);
+                    continue;
+                }
+                final Polygon polygon = new Polygon(node.polygon);
+                polygons.add(polygon);
+                if (node.childs != null) {
+                    for (final Iterator it2=node.childs.iterator(); it2.hasNext();) {
+                        node = (PolygonInclusion) it.next();
+                        polygon.addHole(node.polygon);
+                        createPolygons(node.childs, polygons);
+                    }
+                }
+            }    
+        }
+    }
+
+    /**
+     * Examine tous les polygones spécifiés et tente de différencier les îles des lacs.
+     *
+     * @param  The source polylines.
+     * @param  progres An optional progress listener.
+     * @return The polygons.
+     * @throws TransformException if a transformation was required and failed.
+     *         This exception should never happen if all polygons use the same
+     *         coordinate system.
+     */
+    static Collection process(final Polyline[] polygons, final ProgressListener progress)
+            throws TransformException
+    {
         if (progress != null) {
             // TODO: localize...
             progress.setDescription("Searching lakes");
             progress.started();
         }
-        final List childs = new LinkedList();
+        final List nodes = new LinkedList();
         for (int i=0; i<polygons.length; i++) {
-            childs.add(new PolygonInclusion(polygons[i]));
+            nodes.add(new PolygonInclusion(polygons[i]));
         }
-        buildTree(childs, progress);
-        assert setType(childs, true, polygons, 0) == polygons.length;
-    }
-
-    /**
-     * Définie comme étant une île ou un lac tous les noeuds
-     * apparaissant dans la liste spécifiée. Les polygones-fils
-     * des noeuds seront aussi définis avec le type opposé (une
-     * île si le parent est un lac, et vis-versa). Au passage,
-     * cette méthode recopiera les références dans le tableau
-     * spécifié en argument. Elles seront ainsi classé.
-     *
-     * @param childs Liste des noeuds à définir.
-     * @param land <code>true</code> s'il faut les définir comme des îles,
-     *        land <code>false</code> s'il faut les définir comme des lacs.
-     * @param polygons Tableau dans lequel recopier les références.
-     * @param index Index à partir d'où copier les références.
-     * @return Index suivant celui de la dernière référence copiée.
-     */
-    private static int setType(final List childs, final boolean land,
-                               final Polygon[] polygons, int index)
-    {
-        if (childs != null) {
-            /*
-             * Commence par traiter tous les polygones-fils. On fait ceux-ci
-             * en premier afin qu'ils apparaissent au début de la liste, avant
-             * les polygones parents qui les contiennent.
-             */
-            for (final Iterator it=childs.iterator(); it.hasNext();) {
-                final PolygonInclusion node = (PolygonInclusion) it.next();
-                index = setType(node.childs, !land, polygons, index);
-            }
-            /*
-             * Procède maintenant au traitement
-             * des polygones de <code>childs</code>.
-             */
-            final InteriorType type = land ? InteriorType.ELEVATION : InteriorType.DEPRESSION;
-            for (final Iterator it=childs.iterator(); it.hasNext();) {
-                final PolygonInclusion node = (PolygonInclusion) it.next();
-                if (node.polygon.getInteriorType() != null) {
-                    node.polygon.close(type);
-                }
-                polygons[index++] = node.polygon;
-            }
-        }
-        return index;
+        buildTree(nodes, progress);
+        final List result = new ArrayList(polygons.length);
+        createPolygons(nodes, result);
+        return result;
     }
 
     /**

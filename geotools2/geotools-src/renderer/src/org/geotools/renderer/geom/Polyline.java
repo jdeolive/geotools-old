@@ -33,1627 +33,2027 @@
  */
 package org.geotools.renderer.geom;
 
-// Collections
-import java.util.List;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.AbstractCollection;
-import java.util.NoSuchElementException;
-import java.lang.UnsupportedOperationException;
-
-// Geometry
+// Geometry and graphics
+import java.awt.Shape;
+import java.awt.Rectangle;
+import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.PathIterator;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.FlatteningPathIterator;
+import java.awt.geom.IllegalPathStateException;
+import java.awt.geom.NoninvertibleTransformException;
 
-// Arrays
-import org.geotools.renderer.array.ArrayData;
-import org.geotools.renderer.array.PointArray;
-import org.geotools.renderer.array.DefaultArray;
-import org.geotools.renderer.array.PointIterator;
+// Collections
+import java.util.List;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.NoSuchElementException;
 
-// Coordinate systems
+// Input/Output
+import java.io.Writer;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.OutputStreamWriter;
+
+// Formatting
+import java.util.Locale;
+import java.text.NumberFormat;
+import java.text.FieldPosition;
+
+// Geotools dependencies
 import org.geotools.units.Unit;
 import org.geotools.cs.Ellipsoid;
+import org.geotools.cs.Projection;
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.cs.CompoundCoordinateSystem;
+import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.ProjectedCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
-import org.geotools.cs.HorizontalDatum;
-import org.geotools.ct.MathTransform;
-import org.geotools.ct.MathTransform2D;
-import org.geotools.ct.TransformException;
+import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.CoordinateTransformation;
+import org.geotools.ct.TransformException;
+import org.geotools.ct.MathTransform2D;
+import org.geotools.ct.MathTransform;
 
 // Miscellaneous
-import java.io.Serializable;
+import org.geotools.util.WeakHashSet;
 import org.geotools.math.Statistics;
+import org.geotools.resources.XMath;
 import org.geotools.resources.XArray;
-import org.geotools.resources.Geometry;
+import org.geotools.resources.Arguments;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.renderer.array.PointArray;
+import org.geotools.renderer.array.ArrayData;
 
 
 /**
- * Ligne tracée sans lever le crayon. Cette ligne ne représente par forcément une forme fermée
- * (un polygone). Les objets <code>Polyline</code> ont deux caractéristiques particulières:
+ * A succession of lines linked by their extremities. A polyline is closed if it is part of a
+ * {@link Polygon} (either the external ring of one of the holes). Each <code>Polyline</code>
+ * object can have its own {@link CoordinateSystem} object, usually specified at construction
+ * time.
  *
- * <ul>
- *   <li>Ils mémorisent séparément les points qui ne font que former une bordure. Par exemple, si
- *       seulement la moitié d'une île apparaît sur une carte, les points qui servent à joindre
- *       les deux extrémités des polylignes (en suivant la bordure de la carte là où l'île est
- *       coupée) n'ont pas de réalité géographique. Dans chaque objet <code>Polyline</code>, il doit
- *       y avoir une distinction claire entre les véritable points géographique les "points de
- *       bordure". Ces points sont mémorisés séparéments dans les tableaux
- *       {@link #prefix}/{@link #suffix} et {@link #array} respectivement.</li>
+ * A set of <code>Polyline</code>s can be built from an array of (<var>x</var>,<var>y</var>)
+ * coordinates or from a geometric {@linkplain Shape shape} using one of
+ * {@link GeometryCollection#add(Shape) GeometryCollection.add(...)} methods. <strong>Points given
+ * to those methods should not contain map border.</strong> Border points (orange points in the
+ * figure below) are treated specially and must be specified using
+ * {@link #appendBorder appendBorder(...)} or {@link #prependBorder prependBorder(...)} methods.
  *
- *   <li>Ils peuvent être chaînés avec d'autres objets <code>Polyline</code>. Former une chaîne
- *       d'objets <code>Polyline</code> peut être utile lorsque les coordonnées d'une côte ont été
- *       obtenues à partir de la digitalisation de plusieurs cartes bathymétriques, que l'on joindra
- *       en une ligne continue au moment du traçage. Elle peut aussi se produire lorsqu'une ligne
- *       qui se trouve près du bord de la carte entre, sort, réentre et resort plusieurs fois du
- *       cadre.</li>
- * </ul>
+ * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * Par convention, toutes les méthodes statiques de cette classe peuvent agir
- * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
- *
- * @version $Id: Polyline.java,v 1.9 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.10 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see Polygon
+ * @see GeometryCollection
  */
-final class Polyline implements Serializable {
+public class Polyline extends Geometry {
     /**
-     * Serial version for compatibility with previous version.
+     * Version number for compatibility with geometries serialized with previous versions
+     * of this class.
      */
-    private static final long serialVersionUID = -18866207694621371L;
+    private static final long serialVersionUID = -8889783056267013008L;
 
     /**
-     * Set to <code>true</code> for disallowing two consecutive points with the same value.
-     * Some algorithms in this class and in {@link PathAnalyser} require the distance between
-     * two consecutive points to be greater than 0 in all cases.
+     * Small number for comparisons (mostly in assertions).
+     * Should be in the range of precision of <code>float</code> type.
      */
-    private static final boolean REMOVE_DOUBLONS = true;
+    private static final double EPS = 1E-6;
 
     /**
-     * Set to <code>true</code> for removing doublons in borders as well.
+     * Projection to use for calculations that require a Cartesian coordinate system.
+     * We prefer "Stereographic" rather than "Mercator", because it can work at poles.
+     */
+    private static final String CARTESIAN_PROJECTION = "Stereographic";
+
+    /**
+     * Last coordinate transformation used for computing {@link #coordinateTransform}.
+     * Used in order to avoid the costly call to {@link CoordinateSystemFactory} methods
+     * when the same transform is requested many consecutive time, which is a very common
+     * situation.
+     */
+    private static CoordinateTransformation lastCoordinateTransform =
+                    getIdentityTransform(GeographicCoordinateSystem.WGS84);
+
+    /**
+     * Un des maillons de la chaîne de polylignes, ou
+     * <code>null</code> s'il n'y a aucune donnée de
+     * mémorisée.
+     */
+    private LineString data;
+
+    /**
+     * Transformation from coordinate system in use for <code>data</code> to the coordinate
+     * system of this <code>Polyline</code>. {@link CoordinateTransformation#getSourceCS}
+     * absolutely must be the <code>data</code> coordinate system  (usually fixed once for
+     * ever at construction time), whilst {@link CoordinateTransformation#getTargetCS} is
+     * the <code>Polyline</code>'s coordinate system, which can be changed at any time.
+     * When this polyline uses the same coordinate system as <code>data</code> (which is
+     * normally the case), this field will contain an identity transformation.
+     * This field can be null if <code>data</code>'s coordinate system is unknown.
+     */
+    private CoordinateTransformation coordinateTransform;
+
+    /**
+     * Rectangle completely encompassing all <code>data</code>'s points, or <code>null</code>
+     * if it is not yet computed. This rectangle is very useful for quickly spotting features
+     * which don't need to be redrawn (for example, when zoomed in on). <strong>The rectangle
+     * {@link Rectangle2D} referenced by this field must never be modified</strong>, as it could
+     * be shared by several {@link Polyline} objects.
+     */
+    private transient Rectangle2D dataBounds;
+
+    /**
+     * Rectangle completely encompassing the projected coordinates of this polyline.
+     * This field is used as a cache for the {@link #getBounds2D()} method to make it
+     * quicker.
      *
-     * @task TODO: Current algorithm prevent the creation of curved line. The algorithm
-     *             should be modified in such a way that  doublons are removed from the
-     *             first of last points of the main data instead of from the border (the
-     *             should not be modified by '[append|prepend]Border'. The work done by
-     *             'addBorder' is correct however). How to do: add the following methods:
-     *             'remove[First|Last]Points(int n)', and use it in '[append|prepend]Border'.
+     * <strong>The {@link Rectangle2D} rectangle referenced by this field should never be
+     * modified</strong>, as it could be shared by several {@link Polyline} objects.
      */
-    private static final boolean REMOVE_DOUBLONS_IN_BORDER = false;
+    private transient Rectangle2D bounds;
 
     /**
-     * Set to <code>true</code> if {@link #freeze} should try to merge the {@link #array} of
-     * two consecutive polylines. Experience has show that it was often a bad idea, since it
-     * force a lot of copies during clipping.
+     * <code>true</code> if {@link #getPathIterator} will return a flattened iterator.
+     * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
+     * This field doesn't need to be serialized because it is reasonably fast to compute.
      */
-    private static final boolean MERGE_POLYLINE_DATA = false;
+    private transient boolean flattened;
 
     /**
-     * Polylignes précédentes et suivantes. La classe <code>Polyline</code> implémente une liste à
-     * double liens. Chaque objet <code>Polyline</code> est capable d'accéder et d'agir sur les
-     * autres éléments de la liste à laquelle il appartient. En conséquent, il n'est pas nécessaire
-     * d'utiliser une classe séparée (par exemple {@link java.util.LinkedList}) comme conteneur.
-     * Il ne s'agit pas forcément d'un bon concept de programmation, mais il est pratique dans le
-     * cas particulier de la classe <code>Polyline</code> et offre de bonnes performances.
+     * <code>true</code> if this <code>Polyline</code> is a closed ring.
      */
-    private Polyline previous, next;
+    private boolean isClosed;
 
     /**
-     * Coordonnées formant la polyligne. Ces coordonnées doivent être celles d'un trait de côte ou
-     * de toute autre forme géométrique ayant une signification cartographique. Les points qui
-     * servent à "couper" un polygone (par exemple des points longeant la bordure de la carte)
-     * doivent être mémorisés séparément dans le tableau <code>suffix</code>.
+     * The resolution to apply at rendering time.
+     * The value 0 means that all data should be used.
      */
-    private PointArray array;
+    private transient float renderingResolution;
 
     /**
-     * Coordonnées à retourner après celles de <code>array</code>. Ces coordonnées servent
-     * généralement à refermer un polygone, par exemple en suivant le cadre de la carte. Ce
-     * champ peut être nul s'il ne s'applique pas.
+     * Soft reference to a <code>float[]</code> array. This array is used to
+     * keep in memory the points that have already been projected or transformed.
      */
-    private PointArray suffix;
+    private transient PolylineCache cache;
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////                                                                       ////////////
+    ////////////    C O N S T R U C T O R S   A N D   F A C T O R Y   M E T H O D S    ////////////
+    ////////////                                                                       ////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Valeur minimales et maximales autorisées comme arguments pour les méthodes {@link #getArray}
-     * et {@link #setArray}. Lorsque ces valeurs sont utilisées en ordre croissant, {@link #getArray}
-     * retourne dans l'ordre les tableaux {@link #prefix}, {@link #array} et {@link #suffix}.
-     * <br><br>
-     * Note: si les valeurs de ces constantes changent, alors il faudra revoir l'implémentation des
-     * méthodes suivantes:
-     *
-     *    {@link #getArray},
-     *    {@link #setArray},
-     *    {@link #reverse},
-     *    {@link #freeze},
+     * Constructs a <code>Polyline</code> which is initially empty.
      */
-    private static final int FIRST_ARRAY=0, LAST_ARRAY=1;
-
-    /**
-     * Construit un objet qui enveloppera les points spécifiés.
-     * Cette polyligne fera initialement partie d'aucune liste.
-     */
-    Polyline(final PointArray array) {
-        this.array = array;
-    }
-
-    /**
-     * Construit des objets mémorisant les coordonnées <code>data</code>. Les valeurs
-     * <code>NaN</code> au début et à la fin de <code>data</code> seront ignorées. Celles
-     * qui apparaissent au milieu auront pour effet de séparer le trait en plusieurs polylignes.
-     *
-     * @param data   Tableau de coordonnées (peut contenir des NaN).
-     * @return       Tableau de polylignes. Peut avoir une longueur de 0, mais ne sera jamais nul.
-     */
-    public static Polyline[] getInstances(final float[] data) {
-        return getInstances(data, 0, data.length);
-    }
-
-    /**
-     * Construit des objets mémorisant les coordonnées <code>data</code> de l'index
-     * <code>lower</code> inclusivement jusqu'à <code>upper</code> exclusivement. Ces
-     * index doivent se référer à la position absolue dans le tableau <code>data</code>,
-     * c'est-à-dire être le double de l'index de la coordonnée. Les valeurs <code>NaN</code>
-     * au début et à la fin de <code>data</code> seront ignorées. Celles qui apparaissent au
-     * milieu auront pour effet de séparer le trait en plusieurs polylignes.
-     *
-     * @param data   Tableau de coordonnées (peut contenir des NaN).
-     * @param lower  Index de la première donnée à considérer.
-     * @param upper  Index suivant celui de la dernière donnée.
-     * @return       Tableau de polylignes. Peut avoir une longueur de 0, mais ne sera jamais nul.
-     */
-    public static Polyline[] getInstances(float[] data, int lower, int upper) {
-        if (REMOVE_DOUBLONS) {
-            final float[] candidate = removeDoublons(data, lower, upper);
-            if (candidate != null) {
-                data  = candidate;
-                lower = 0;
-                upper = data.length;
+    private Polyline(final CoordinateTransformation coordinateTransform) {
+        this.coordinateTransform = coordinateTransform;
+        if (coordinateTransform != null) {
+            CoordinateSystem cs;
+            if ((cs=coordinateTransform.getSourceCS()).getDimension() != 2 ||
+                (cs=coordinateTransform.getTargetCS()).getDimension() != 2)
+            {
+                throw new IllegalArgumentException(org.geotools.resources.cts.Resources.format(
+                   org.geotools.resources.cts.ResourceKeys.ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1, cs));
             }
         }
-        final List polylines = new ArrayList();
-        for (int i=lower; i<upper; i+=2) {
-            if (!Float.isNaN(data[i]) && !Float.isNaN(data[i+1])) {
-                final int lowerValid = i;
-                while ((i+=2) < upper) {
-                    if (Float.isNaN(data[i]) || Float.isNaN(data[i+1])) {
+        flattened = checkFlattenedShape();
+    }
+
+    /**
+     * Construct an empty <code>Polyline</code>.
+     * Points can be added after the construction with the {@link #append} method.
+     *
+     * @param coordinateSystem The coordinate system to use for all points in this
+     *        <code>Polyline</code>, or <code>null</code> if unknown.
+     */
+    public Polyline(final CoordinateSystem coordinateSystem) {
+        this(getIdentityTransform(getCoordinateSystem2D(coordinateSystem)));
+    }
+
+    /**
+     * Construct a new <code>Polyline</code> with the same data as the specified one.
+     * The new <code>Polyline</code> will have a copy semantic. However, implementation
+     * shares as much internal data as possible in order to reduce memory footprint.
+     */
+    public Polyline(final Polyline polyline) {
+        super(polyline);
+        data                = LineString.clone(polyline.data);
+        coordinateTransform = polyline.coordinateTransform;
+        dataBounds          = polyline.dataBounds;
+        bounds              = polyline.bounds;
+        flattened           = polyline.flattened;
+        isClosed            = polyline.isClosed;
+    }
+
+    /**
+     * Construct a <code>Polyline</code> with the specified point array.
+     * The new <code>Polyline</code> will be empty if the point array was empty.
+     *
+     * @param data The data to copy in the new <code>Polyline</code>.
+     * @param coordinateSystem The data's coordinate system, or <code>null</code> if unknown.
+     */
+    Polyline(final PointArray data, final CoordinateSystem coordinateSystem) {
+        this(coordinateSystem);
+        this.data = new LineString(data);
+    }
+
+    /**
+     * Construct a closed <code>Polyline</code> with the specified rectangle.
+     * The new <code>Polyline</code> will be empty if the rectangle was empty
+     * or contains at least one <code>NaN</code> value.
+     *
+     * @param rectangle Rectangle to copy in the new <code>Polyline</code>.
+     * @param coordinateSystem The rectangle's coordinate system,
+     *        or <code>null</code> if unknown.
+     */
+    Polyline(final Rectangle2D rectangle, final CoordinateSystem coordinateSystem) {
+        this(coordinateSystem);
+        if (!rectangle.isEmpty()) {
+            final float xmin = (float)rectangle.getMinX();
+            final float ymin = (float)rectangle.getMinY();
+            final float xmax = (float)rectangle.getMaxX();
+            final float ymax = (float)rectangle.getMaxY();
+            final LineString[] strings = LineString.getInstances(new float[] {
+                xmin,ymin,
+                xmax,ymin,
+                xmax,ymax,
+                xmin,ymax
+            });
+            if (strings.length == 1) {
+                // length may be 0 or 2 if some points contain NaN
+                data = strings[0];
+                isClosed = true;
+            }
+        }
+    }
+
+    /**
+     * Constructs <code>Polyline</code>s from specified (<var>x</var>,<var>y</var>) coordinates.
+     * <code>NaN</code> values at the beginning and end of <code>data</code> will be ignored.
+     * Those that appear in the middle will separate the feature in a number of
+     * <code>Polyline</code>s.
+     *
+     * @param  data Array of (<var>x</var>,<var>y</var>) coordinates points (may contain NaNs).
+     *         These data will be copied, in such a way that any future modifications of
+     *         <code>data</code> will have no impact on the <code>Polyline</code>s created.
+     * @param  lower Index of the first <var>x</var> ordinate to add to the polyline.
+     * @param  upper Index after of the last <var>y</var> ordinate to add to the polyline.
+     * @param  coordinateSystem <code>data</code> point coordinate system.
+     *         This argument can be null if the coordinate system is unknown.
+     * @return List of <code>Polyline</code> objects. May have 0 length, but will never be null.
+     */
+    static Polyline[] getInstances(final float[] data, final int lower, final int upper,
+                                   final CoordinateSystem coordinateSystem)
+    {
+        final LineString[] strings = LineString.getInstances(data, lower, upper);
+        final Polyline[] polylines = new Polyline[strings.length];
+        final CoordinateTransformation ct = getIdentityTransform(coordinateSystem);
+        for (int i=0; i<polylines.length; i++) {
+            final Polyline polyline = new Polyline(ct);
+            polyline.data      = strings[i];
+            polyline.flattened = polyline.checkFlattenedShape();
+            polylines[i]       = polyline;
+        }
+        return polylines;
+    }
+
+    /**
+     * Constructs polylines from the specified geometric shape. If <code>shape</code>
+     * is already from the <code>Polyline</code> class, it will be returned in an array of
+     * length 1. In all other cases, this method can return an array of 0 length, but never
+     * returns <code>null</code>.
+     *
+     * @param  shape Geometric shape to copy in one or more polylines.
+     * @param  coordinateSystem <code>shape</code> point coordinate system.
+     *         This argument may be null if the coordinate system is unknown.
+     * @return List of <code>Polyline</code> objects. Can have 0 length, but will never be null.
+     */
+    static Polyline[] getInstances(final Shape shape, CoordinateSystem coordinateSystem) {
+        coordinateSystem = getCoordinateSystem2D(coordinateSystem);
+        if (shape instanceof Polyline) {
+            return new Polyline[] {(Polyline) shape};
+        }
+        final CoordinateTransformation ct = getIdentityTransform(coordinateSystem);
+        final List              polylines = new ArrayList();
+        final PathIterator            pit = shape.getPathIterator(null, getFlatness(shape));
+        final float[]              buffer = new float[6];
+        float[]                     array = new float[64];
+        while (!pit.isDone()) {
+            if (pit.currentSegment(array) != PathIterator.SEG_MOVETO) {
+                throw new IllegalPathStateException();
+            }
+            /*
+             * Once in this block, the array <code>array</code> already contains
+             * the first point at index 0 (for x) and 1 (for y). Now the other points
+             * are added so that they correspond to the <code>LINETO</code> instructions.
+             */
+            int index = 2;
+            boolean isClosed = false;
+      loop: for (pit.next(); !pit.isDone(); pit.next()) {
+                switch (pit.currentSegment(buffer)) {
+                    case PathIterator.SEG_LINETO: {
+                        if (index >= array.length) {
+                            array = XArray.resize(array, 2*index);
+                        }
+                        System.arraycopy(buffer, 0, array, index, 2);
+                        index += 2;
                         break;
                     }
+                    case PathIterator.SEG_MOVETO: {
+                        break loop;
+                    }
+                    case PathIterator.SEG_CLOSE: {
+                        isClosed = true;
+                        pit.next();
+                        break loop;
+                    }
+                    default: {
+                        throw new IllegalPathStateException();
+                    }
                 }
-                final PointArray points = DefaultArray.getInstance(data, lowerValid, i, true);
-                if (points != null) {
-                    polylines.add(new Polyline(points));
+            }
+            /*
+             * Construit les polylignes qui correspondent à
+             * la forme géométrique qui vient d'être balayée.
+             */
+            final LineString[] strings = LineString.getInstances(array, 0, index);
+            for (int i=0; i<strings.length; i++) {
+                final Polyline polyline = new Polyline(ct);
+                polyline.data = strings[i];
+                polyline.flattened = polyline.checkFlattenedShape();
+                if (isClosed) {
+                    polyline.close();
                 }
+                polylines.add(polyline);
             }
         }
         return (Polyline[]) polylines.toArray(new Polyline[polylines.size()]);
     }
 
     /**
-     * Remove consecutive identical points, since it hurt many algorithms in this
-     * package. {@link Float#NaN} values are ignored (they may have doublons).
-     *
-     * @param  data  The data to examine.
-     * @param  lower The lower index to examine in <code>data</code>, inclusive.
-     * @param  upper The upper index to examine in <code>data</code>, inclusive.
-     * @return <code>null</code> if no doublons was found in <code>data</code>,
-     *         otherwise a new array without doublons.
+     * Returns a suggested value for the <code>flatness</code> argument in
+     * {@link Shape#getPathIterator(AffineTransform,double)} for the specified shape.
      */
-    private static float[] removeDoublons(final float[] data, final int lower, final int upper) {
-        int dest = 0;
-        float[] copy = null;
-        for (int i=lower; (i+=2)<upper;) {
-            if (data[i-2]==data[i] && data[i-1]==data[i+1]) {
-                if (copy == null) {
-                    dest = i-lower;
-                    copy = new float[upper-lower-2];
-                    System.arraycopy(data, lower, copy, 0, dest);
+    static double getFlatness(final Shape shape) {
+        final Rectangle2D bounds = shape.getBounds2D();
+        return 0.025*Math.max(bounds.getHeight(), bounds.getWidth());
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////                                                                       ////////////
+    ////////////          C O O R D I N A T E   S Y S T E M S   S E T T I N G          ////////////
+    ////////////                                                                       ////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Same as {@link CTSUtilities#getCoordinateSystem2D}, but wraps the {@link TransformException}
+     * into an {@link IllegalArgumentException}. Used for constructors only. Other methods still
+     * use the method throwing a transform exception.
+     */
+    private static CoordinateSystem getCoordinateSystem2D(final CoordinateSystem cs)
+            throws IllegalArgumentException
+    {
+        try {
+            return CTSUtilities.getCoordinateSystem2D(cs);
+        } catch (TransformException exception) {
+            throw new IllegalArgumentException(exception.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Returns the native coordinate system of {@link #data}'s points, or <code>null</code>
+     * if unknown.
+     */
+    private CoordinateSystem getInternalCS() {
+        // copy 'coordinateTransform' reference in order to avoid synchronization
+        final CoordinateTransformation coordinateTransform = this.coordinateTransform;
+        return (coordinateTransform!=null) ? coordinateTransform.getSourceCS() : null;
+    }
+
+    /**
+     * Returns the polyline's coordinate system, or <code>null</code> if unknown.
+     */
+    public CoordinateSystem getCoordinateSystem() {
+        // copy 'coordinateTransform' reference in order to avoid synchronization
+        final CoordinateTransformation coordinateTransform = this.coordinateTransform;
+        return (coordinateTransform!=null) ? coordinateTransform.getTargetCS() : null;
+    }
+
+    /**
+     * Returns the transform from coordinate system used by {@link #data} to the specified
+     * coordinate system. If at least one of the coordinate systems is unknown, this method
+     * returns <code>null</code>.
+     *
+     * @throws CannotCreateTransformException If the transform cannot be created.
+     */
+    final CoordinateTransformation getTransformationFromInternalCS(final CoordinateSystem cs)
+            throws CannotCreateTransformException
+    {
+        // copy 'coordinateTransform' reference in order to avoid synchronization
+        CoordinateTransformation coordinateTransform = this.coordinateTransform;
+        if (cs!=null && coordinateTransform!=null) {
+            if (cs.equals(coordinateTransform.getTargetCS(), false)) {
+                return coordinateTransform;
+            }
+            coordinateTransform = lastCoordinateTransform;
+            if (cs.equals(coordinateTransform.getTargetCS(), false)) {
+                if (equivalents(coordinateTransform.getSourceCS(), getInternalCS())) {
+                    return coordinateTransform;
                 }
-                continue;
             }
-            if (copy != null) {
-                copy[dest++] = data[i  ];
-                copy[dest++] = data[i+1];
-            }
+            coordinateTransform=getCoordinateTransformation(coordinateTransform.getSourceCS(), cs);
+            lastCoordinateTransform = coordinateTransform;
+            return coordinateTransform;
         }
-        if (copy != null) {
-            copy = XArray.resize(copy, dest);
-        }
-        return copy;
+        return null;
     }
 
     /**
-     * Renvoie le premier élément de la liste à laquelle appartient la
-     * polyligne. Cette méthode peut retourner <code>scan</code>, mais
-     * jamais <code>null</code>  (sauf si l'argument <code>scan</code>
-     * est nul).
+     * Returns a math transform for the specified transformations.
+     * If no transformation is available, or if it is the identity
+     * transform, then this method returns <code>null</code>. This
+     * method accepts null argument.
      */
-    private static Polyline getFirst(Polyline scan) {
-        if (scan != null) {
-            while (scan.previous != null) {
-                scan = scan.previous;
-                assert scan.previous != scan;
-                assert scan.next     != scan;
+    static MathTransform2D getMathTransform2D(final CoordinateTransformation transformation) {
+        if (transformation != null) {
+            final MathTransform transform = transformation.getMathTransform();
+            if (!transform.isIdentity()) {
+                return (MathTransform2D) transform;
             }
         }
-        return scan;
+        return null;
     }
 
     /**
-     * Renvoie le dernier élément de la liste à laquelle appartient la
-     * polyligne. Cette méthode peut retourner <code>scan</code>, mais
-     * jamais <code>null</code>  (sauf si l'argument <code>scan</code>
-     * est nul).
-     */
-    private static Polyline getLast(Polyline scan) {
-        if (scan != null) {
-            while (scan.next != null) {
-                scan = scan.next;
-                assert scan.previous != scan;
-                assert scan.next     != scan;
-            }
-        }
-        return scan;
-    }
-
-    /**
-     * Ajoute la polyligne <code>toAdd</code> à la fin de la polyligne <code>queue</code>.
-     * Les arguments <code>queue</code> et <code>toAdd</code> peuvent être n'importe
-     * quel maillon d'une chaîne, mais cette méthode sera plus rapide si <code>queue</code>
-     * est le dernier maillon.
+     * Sets the polyline's coordinate system. Calling this method is equivalent
+     * to reprojecting all polyline's points from the old coordinate system to the
+     * new one.
      *
-     * @param  queue <code>Polyline</code> à la fin duquel ajouter <code>toAdd</code>. Si cet
-     *               argument est nul, alors cette méthode retourne directement <code>toAdd</code>.
-     * @param  toAdd <code>Polyline</code> à ajouter à <code>queue</code>. Cet objet sera ajouté
-     *               même s'il est vide. Si cet argument est nul, alors cette méthode retourne
-     *               <code>queue</code> sans rien faire.
-     * @return <code>Polyline</code> résultant de la fusion. Les anciens objets <code>queue</code>
-     *         et <code>toAdd</code> peuvent avoir été modifiés et ne devraient plus être utilisés.
-     * @throws IllegalArgumentException si <code>toAdd</code> avait déjà été ajouté à
-     *         <code>queue</code>.
+     * @param  The new coordinate system. A <code>null</code> value resets the
+     *         coordinate system given at construction time.
+     * @throws TransformException If a transformation failed. In case of failure,
+     *         the state of this object will stay unchanged (as if this method has
+     *         never been invoked).
      */
-    public static Polyline append(Polyline queue, Polyline toAdd) throws IllegalArgumentException {
-        // On doit faire l'ajout même si 'toAdd' est vide.
-        final Polyline veryLast = getLast(toAdd);
-        toAdd = getFirst(toAdd);
-        queue = getLast (queue);
-        if (toAdd == null) return queue;
-        if (queue == null) return toAdd;
-        if (queue == veryLast) {
-            throw new IllegalArgumentException();
+    public synchronized void setCoordinateSystem(CoordinateSystem coordinateSystem)
+            throws TransformException
+    {
+        // Do not use 'Polyline.getCoordinateSystem2D', since
+        // we want a 'TransformException' in case of failure.
+        coordinateSystem = CTSUtilities.getCoordinateSystem2D(coordinateSystem);
+        if (coordinateSystem == null) {
+            coordinateSystem = getInternalCS();
+            // May still null. Its ok.
         }
-
-        assert queue.next     == null;
-        assert toAdd.previous == null;
-        queue.next     = toAdd;
-        toAdd.previous = queue;
-
-        assert getFirst(queue) == getFirst(toAdd);
-        assert getLast (queue) == getLast (toAdd);
-        assert veryLast.next   == null;
-        return veryLast;
+        CoordinateTransformation transformCandidate =
+                getTransformationFromInternalCS(coordinateSystem);
+        if (transformCandidate == null) {
+            transformCandidate = getIdentityTransform(coordinateSystem);
+        }
+        /*
+         * Compute bounds now. The getBounds2D(...) method scans every point.
+         * Consequently, if an exception must be thrown, it will be thrown now.
+         */
+        bounds = LineString.getBounds2D(data, (transformCandidate==null) ? null :
+                              (MathTransform2D)transformCandidate.getMathTransform());
+        /*
+         * Store the new coordinate transform
+         * only after projection has succeeded.
+         */
+        this.coordinateTransform = transformCandidate;
+        this.cache = null;
+        this.flattened = checkFlattenedShape();
     }
 
     /**
-     * Supprime ce maillon de la chaîne. Ce maillon
-     * conservera toutefois ses données.
+     * Indicates whether the specified transform is the identity transform.
+     * A null transform (<code>null</code>) is considered to be an identity transform.
      */
-    private void remove() {
-        if (previous != null) {
-            previous.next = next;
-        }
-        if (next != null) {
-            next.previous = previous;
-        }
-        previous = next = null;
+    private static boolean isIdentity(final CoordinateTransformation coordinateTransform) {
+        return coordinateTransform==null || coordinateTransform.getMathTransform().isIdentity();
     }
 
-    /**
-     * Indique si cette polyligne est vide. Une polyligne est vide si tous
-     * ces tableaux sont nuls. Cette méthode ne vérifie pas l'état des
-     * autres maillons de la chaîne.
-     */
-    private boolean isEmpty() {
-        return array==null && suffix==null;
-    }
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////                                                                       ////////////
+    ////////////        M O D I F I E R S :   append / prepend   M E T H O D S         ////////////
+    ////////////                                                                       ////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Retourne un des tableaux de données de cette polyligne. Le tableau retourné
-     * peut être {@link #prefix}, {@link #array} ou {@link #suffix} selon que
-     * l'argument est -1, 0 ou +1 respectivement. Toute autre valeur lancera
-     * une exception.
+     * Adds points to the start of this polyline. These points will be considered to 
+     * form part of the map border, and not considered as points representing
+     * a geographic structure.
      *
-     * @param arrayID Un code compris entre {@link #FIRST_ARRAY}
-     *                et {@link #LAST_ARRAY} inclusivement.
+     * @param  border Coordinates to add as (x,y) number pairs.
+     * @param  lower Index of the first <var>x</var> ordinate to add to the border.
+     * @param  upper Index after of the last <var>y</var> ordinate to add to the border.
+     * @throws IllegalStateException if this polyline has already been closed.
+     * @throws TransformException if <code>border</code> contains points that are invalid
+     *         for this polyline's native coordinate system.
      */
-    private PointArray getArray(final int arrayID) {
-        switch (arrayID) {
-        //  case -1: return prefix;
-            case  0: return array;
-            case +1: return suffix;
-            default: throw new IllegalArgumentException(String.valueOf(arrayID));
-        }
+    public void prependBorder(final float[] border, final int lower, final int upper)
+            throws TransformException
+    {
+        prependBorder(border, lower, upper, getCoordinateSystem());
     }
 
     /**
-     * Modifie un des tableaux de données de cette polyligne. Le tableau modifié
-     * peut être {@link #prefix}, {@link #array} ou {@link #suffix} selon que
-     * l'argument est -1, 0 ou +1 respectivement.  Toute autre valeur lancera
-     * une exception.
+     * Adds points to the end of this polyline. These points will be considered to
+     * form part of the map border, and not considered as points representing 
+     * a geographic structure.
      *
-     * @param arrayID Un code compris entre {@link #FIRST_ARRAY}
-     *                et {@link #LAST_ARRAY} inclusivement.
+     * @param  border Coordinates to add as (x,y) number pairs.
+     * @param  lower Index of the first <var>x</var> ordinate to add to the border.
+     * @param  upper Index after the last <var>y</var> ordinate to add to the border.
+     * @throws IllegalStateException if this polyline has already been closed.
+     * @throws TransformException if <code>border</code> contains points that are invalid
+     *         for this polyline's native coordinate system.
      */
-    private void setArray(final int arrayID, final PointArray data) {
-        switch (arrayID) {
-        //  case -1: prefix=data; break;
-            case  0: array =data; break;
-            case +1: suffix=data; break;
-            default: throw new IllegalArgumentException(String.valueOf(arrayID));
+    public void appendBorder(final float[] border, final int lower, final int upper)
+            throws TransformException
+    {
+        appendBorder(border, lower, upper, getCoordinateSystem());
+    }
+
+    /**
+     * Prepends a border expressed in an arbitrary coordinate system.
+     * If <code>cs</code> is null, then the internal CS is assumed.
+     */
+    final void prependBorder(final float[] border, final int lower, final int upper,
+                             final CoordinateSystem cs)
+            throws TransformException
+    {
+        addBorder(border, lower, upper, cs, false);
+    }
+
+    /**
+     * Appends a border expressed in an arbitrary coordinate system.
+     * If <code>cs</code> is null, then the internal CS is assumed.
+     */
+    final void appendBorder(final float[] border, final int lower, final int upper,
+                             final CoordinateSystem cs)
+            throws TransformException
+    {
+        addBorder(border, lower, upper, cs, true);
+    }
+
+    /**
+     * Implementation of <code>appendBorder(...)</code> and <code>prependBorder(...)</code>.
+     *
+     * @param cs The border coordinate system, or <code>null</code> for the internal CS.
+     * @param append <code>true</code> to carry out the operation <code>appendBorder</code>, or
+     *               <code>false</code> to carry out the operation <code>prependBorder</code>.
+     */
+    private synchronized void addBorder(float[] border, int lower, int upper,
+                                        final CoordinateSystem cs, final boolean append)
+            throws TransformException
+    {
+        if (isClosed) {
+            throw new IllegalStateException(Resources.format(ResourceKeys.ERROR_POLYGON_CLOSED));
+        }
+        MathTransform2D transform = getMathTransform2D(getTransformationFromInternalCS(cs));
+        if (transform != null) {
+            final float[] oldBorder = border;
+            border = new float[upper-lower];
+            transform.inverse().transform(oldBorder, lower, border, 0, border.length);
+            lower = 0;
+            upper = border.length;
+        }
+        if (append) {
+            data = LineString.appendBorder(data, border, lower, upper);
+        } else {
+            data = LineString.prependBorder(data, border, lower, upper);
+        }
+        flattened  = checkFlattenedShape();
+        dataBounds = null;
+        bounds     = null;
+        cache      = null;
+        // No change to resolution, since it doesn't take border into account.
+    }
+
+    /**
+     * Adds the specified coordinate points to the end of this polyline.
+     *
+     * @param  points Array of (<var>x</var>,<var>y</var>) coordinates points.
+     *         These data will be copied, in such a way that any future modifications of
+     *         <code>data</code> will have no impact on the <code>Polyline</code>s created.
+     * @param  lower Index of the first <var>x</var> ordinate to add to the polyline.
+     * @param  upper Index after of the last <var>y</var> ordinate to add to the polyline.
+     * @throws IllegalStateException if this polyline has already been closed.
+     * @throws TransformException if <code>points</code> contains points that are invalid
+     *         for this polyline's native coordinate system.
+     */
+    public synchronized void append(final float[] points, final int lower, final int upper)
+            throws TransformException
+    {
+        if (points != null) {
+            final Polyline[] polylines = getInstances(points, lower, upper, getCoordinateSystem());
+            for (int i=0; i<polylines.length; i++) {
+                append(polylines[i]);
+            }
         }
     }
 
     /**
-     * Returns an estimation of memory usage in bytes.  This method is for information
-     * purpose only. The memory really used by two polylines may be lower than the sum
-     * of their  <code>getMemoryUsage()</code>  return values,  since polylines try to
-     * share their data when possible. Furthermore, this method do not take in account
+     * Adds to the end of this polyline the data of the specified polyline.
+     * This method does nothing if <code>toAppend</code> is null.
+     *
+     * @param  toAppend <code>Polyline</code> to add to the end of <code>this</code>.
+     *         The polyline <code>toAppend</code> will not be modified.
+     * @throws IllegalStateException if this polyline has already been closed.
+     * @throws IllegalArgumentException if the polyline <code>toAppend</code> has already been closed.
+     * @throws TransformException if <code>toAppend</code> contains points that are invalid
+     *         for this polyline's native coordinate system.
+     */
+    public synchronized void append(final Polyline toAppend) throws TransformException {
+        if (toAppend == null) {
+            return;
+        }
+        if (!equivalents(getInternalCS(), toAppend.getInternalCS())) {
+            throw new TransformException("Transformation not yet implemented"); // TODO.
+        }
+        if (isClosed || toAppend.isClosed) {
+            throw new IllegalStateException(Resources.format(ResourceKeys.ERROR_POLYGON_CLOSED));
+        }
+        data = LineString.append(data, LineString.clone(toAppend.data));
+        if (dataBounds != null) {
+            if (toAppend.dataBounds != null) {
+                dataBounds.add(toAppend.dataBounds);
+                assert equalsEps(dataBounds, getDataBounds()) : dataBounds;
+            } else {
+                dataBounds = null;
+            }
+        }
+        bounds    = null;
+        cache     = null;
+        flattened = checkFlattenedShape();
+    }
+
+    /**
+     * Reverse point order in this polyline.
+     */
+    public synchronized void reverse() {
+        data = LineString.reverse(data);
+        flattened = checkFlattenedShape();
+        cache = null;
+    }
+    
+    /**
+     * Returns a polyline with the point of this polyline from <code>lower</code>
+     * inclusive to <code>upper</code> exclusive. The returned polyline may not be
+     * closed. If no data are available in the specified range, this method returns
+     * <code>null</code>.
+     */
+    public synchronized Polyline subpoly(final int lower, final int upper) {
+        final LineString sub = LineString.subpoly(data, lower, upper);
+        if (sub == null) {
+            return null;
+        }
+        if (LineString.equals(sub, data)) {
+            return this;
+        }
+        final Polyline subPoly = new Polyline(coordinateTransform);
+        subPoly.data = sub;
+        subPoly.flattened = subPoly.checkFlattenedShape();
+        assert subPoly.getPointCount() == (upper-lower);
+        return subPoly;
+    }
+
+    /**
+     * Returns a polyline with the point of this polyline from <code>lower</code>
+     * inclusive to the end. The returned polyline may not be closed. If no data
+     * are available in the specified range, this method returns <code>null</code>.
+     */
+    final synchronized Polyline subpoly(final int lower) {
+        return subpoly(lower, getPointCount());
+    }
+
+    /**
+     * Close and freeze this polyline. After closing it,
+     * no more points can be added to this polyline.
+     */
+    public synchronized void close() {
+        data = LineString.freeze(data, true, null);
+        flattened = checkFlattenedShape();
+        isClosed  = true;
+        cache     = null;
+    }
+
+    /**
+     * Returns whether this polyline is closed or not. A closed
+     * polyline is usually a {@link Polygon} instance.
+     */
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////                                                                       ////////////
+    ////////////           A C C E S S O R S :   'getPoints'   M E T H O D S           ////////////
+    ////////////                                                                       ////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Test if this polyline is empty. An empty polyline contains no points.
+     *
+     * @see #getPointCount
+     */
+    public synchronized boolean isEmpty() {
+        return LineString.isEmpty(data);
+    }
+
+    /**
+     * Returns an estimation of memory usage in bytes. This method is for information
+     * purposes only. The memory really used by two polylines may be lower than the sum
+     * of their  <code>getMemoryUsage()</code>  return values, since polylgons try to
+     * share their data when possible. Furthermore, this method does not take into account
      * the extra bytes generated by Java Virtual Machine for each objects.
      *
      * @return An <em>estimation</em> of memory usage in bytes.
      */
-    public static long getMemoryUsage(Polyline scan) {
-        scan = getFirst(scan);
-        long count = 16; // Take in account 4 internal fields of reference type (4 bytes each).
-        while (scan != null) {
-            for (int i=FIRST_ARRAY; i<=LAST_ARRAY; i++) {
-                final PointArray data = scan.getArray(i);
-                if (data!=null) {
-                    count += data.getMemoryUsage();
-                }
-            }
-            scan = scan.next;
-        }
-        return count;
+    synchronized long getMemoryUsage() {
+        return LineString.getMemoryUsage(data) + 50;
     }
 
     /**
-     * Retourne le nombre de points de la polyligne spécifiée
-     * ainsi que de tous les polylignes qui le suivent.
+     * Returns the number of points in the cache. This method is invoked only for statistics
+     * purpose after a rendering. The number of points is the absolute value of the returned
+     * value. A positive value means that the cache has been reused. A negative value means
+     * that the cache has been flushed and recomputed.
+     */
+    public synchronized int getCachedPointCount() {
+        if (cache == null) {
+            return 0;
+        }
+        final int n = cache.getPointCount();
+        return cache.recomputed() ? -n : n;
+    }
+
+    /**
+     * Return the number of points in this polyline.
      *
-     * @param scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *             mais cette méthode sera plus rapide si c'est le premier maillon.
+     * @see #isEmpty
+     * @see #getPoints
+     * @see #getFirstPoint
+     * @see #getFirstPoints
+     * @see #getLastPoint
+     * @see #getLastPoints
+     * @see #toArray
      */
-    public static int getPointCount(Polyline scan) {
-        scan = getFirst(scan);
-        int count = 0;
-        while (scan != null) {
-            for (int i=FIRST_ARRAY; i<=LAST_ARRAY; i++) {
-                final PointArray data = scan.getArray(i);
-                if (data!=null) {
-                    count += data.count();
-                }
-            }
-            scan = scan.next;
-        }
-        return count;
+    public synchronized int getPointCount() {
+        return LineString.getPointCount(data);
     }
 
     /**
-     * Returns <code>true</code> if at least one point of the specified polyline is a border.
+     * Returns all polyline's points. Point coordinates are stored in {@link Point2D}
+     * objects using this polyline's coordinate system ({@link #getCoordinateSystem}).
+     * This method returns an immutable collection: changes done to <code>Polyline</code>
+     * after calling this method will not affect the collection. Despite the fact that
+     * this method has a copy semantic, the collection will share many internal structures
+     * in such a way that memory consumption should stay low.
+     *
+     * @return The polyline's points as a collection of {@link Point2D} objects.
+     *
+     * @see #getFirstPoint
+     * @see #getFirstPoints
+     * @see #getLastPoint
+     * @see #getLastPoints
      */
-    public static boolean hasBorder(Polyline scan) {
-        scan = getFirst(scan);
-        while (scan != null) {
-            if (scan.suffix != null) {
-                return true;
+    public synchronized Collection getPoints() {
+        return new LineString.Collection(LineString.clone(data),
+                                         getMathTransform2D(coordinateTransform));
+    }
+
+    /**
+     * Returns an iterator for this polyline's internal points.
+     * Points are projected in the specified coordinate system.
+     *
+     * @param  cs The destination coordinate system, or <code>null</code>
+     *            for this polyline's native coordinate system.
+     * @return An iterator for points in the specified coordinate system.
+     * @throws CannotCreateTransformException if a transformation can't be constructed.
+     */
+    final LineString.Iterator iterator(final CoordinateSystem cs)
+            throws CannotCreateTransformException
+    {
+        assert Thread.holdsLock(this);
+        return new LineString.Iterator(data, getMathTransform2D(getTransformationFromInternalCS(cs)));
+    }
+
+    /**
+     * Stores the value of the first point into the specified point object.
+     *
+     * @param  point Object in which to store the unprojected coordinate.
+     * @return <code>point</code>, or a new {@link Point2D} if <code>point</code> was null.
+     * @throws NoSuchElementException If this polyline contains no point.
+     *
+     * @see #getFirstPoints(Point2D[])
+     * @see #getLastPoint(Point2D)
+     */
+    public synchronized Point2D getFirstPoint(Point2D point) throws NoSuchElementException {
+        point = LineString.getFirstPoint(data, point);
+        final MathTransform2D transform = getMathTransform2D(coordinateTransform);
+        if (transform!=null) try {
+            point = transform.transform(point, point);
+        } catch (TransformException exception) {
+            // Should not happen, since {@link #setCoordinateSystem}
+            // has already successfully projected every points.
+            unexpectedException("getFirstPoint", exception);
+        }
+        assert !Double.isNaN(point.getX()) && !Double.isNaN(point.getY());
+        return point;
+    }
+
+    /**
+     * Stores the value of the last point into the specified point object.
+     *
+     * @param  point Object in which to store the unprojected coordinate.
+     * @return <code>point</code>, or a new {@link Point2D} if <code>point</code> was null.
+     * @throws NoSuchElementException If this polyline contains no point.
+     *
+     * @see #getLastPoints(Point2D[])
+     * @see #getFirstPoint(Point2D)
+     */
+    public synchronized Point2D getLastPoint(Point2D point) throws NoSuchElementException {
+        point = LineString.getLastPoint(data, point);
+        final MathTransform2D transform = getMathTransform2D(coordinateTransform);
+        if (transform!=null) try {
+            point = transform.transform(point, point);
+        } catch (TransformException exception) {
+            // Should not happen, since {@link #setCoordinateSystem}
+            // has already successfully projected every point.
+            unexpectedException("getLastPoint", exception);
+        }
+        assert !Double.isNaN(point.getX()) && !Double.isNaN(point.getY());
+        return point;
+    }
+
+    /**
+     * Stores the values of <code>points.length</code> first points into the specified array.
+     *
+     * @param points An array to fill with first polyline's points. <code>points[0]</code>
+     *               will contains the first point, <code>points[1]</code> the second point,
+     *               etc.
+     *
+     * @throws NoSuchElementException If this polyline doesn't contain enough points.
+     */
+    public synchronized void getFirstPoints(final Point2D[] points) throws NoSuchElementException {
+        LineString.getFirstPoints(data, points);
+        final MathTransform2D transform = getMathTransform2D(coordinateTransform);
+        if (transform!=null) try {
+            for (int i=0; i<points.length; i++) {
+                points[i] = transform.transform(points[i], points[i]);
+                assert !Double.isNaN(points[i].getX()) && !Double.isNaN(points[i].getY());
             }
-            scan = scan.next;
+        } catch (TransformException exception) {
+            // Should not happen, since {@link #setCoordinateSystem}
+            // has already successfully projected every point.
+            unexpectedException("getFirstPoints", exception);
+        }
+        assert points.length==0 || Utilities.equals(getFirstPoint(null), points[0]);
+    }
+
+    /**
+     * Stores the values of <code>points.length</code> last points into the specified array.
+     *
+     * @param points An array to fill with last polyline's points.
+     *               <code>points[points.length-1]</code> will contains the last point,
+     *               <code>points[points.length-2]</code> the point before the last one, etc.
+     *
+     * @throws NoSuchElementException If this polyline doesn't contain enough points.
+     */
+    public synchronized void getLastPoints(final Point2D[] points) throws NoSuchElementException {
+        LineString.getLastPoints(data, points);
+        final MathTransform2D transform = getMathTransform2D(coordinateTransform);
+        if (transform!=null) try {
+            for (int i=0; i<points.length; i++) {
+                points[i] = transform.transform(points[i], points[i]);
+                assert !Double.isNaN(points[i].getX()) && !Double.isNaN(points[i].getY());
+            }
+        } catch (TransformException exception) {
+            // Should not happen, since {@link #setCoordinateSystem}
+            // has already successfully projected every point.
+            unexpectedException("getLastPoints", exception);
+        }
+        assert points.length==0 || Utilities.equals(getLastPoint(null), points[points.length-1]);
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////                                                                       ////////////
+    ////////////                S H A P E   I M P L E M E N T A T I O N                ////////////
+    ////////////            getBounds2D() / contains(...) / intersects(...)            ////////////
+    ////////////                                                                       ////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Return the bounding box of this polyline, including its possible
+     * borders. This method uses a cache, such that after a first calling,
+     * the following calls should be fairly quick.
+     *
+     * @return A bounding box of this polyline. Changes to the
+     *         fields of this rectangle will not affect the cache.
+     */
+    public synchronized Rectangle2D getBounds2D() {
+        return (Rectangle2D) getCachedBounds().clone();
+    }
+
+    /**
+     * Returns the smallest bounding box containing {@link #getBounds2D}.
+     *
+     * @deprecated This method is required by the {@link Shape} interface,
+     *             but it doesn't provide enough precision for most cases.
+     *             Use {@link #getBounds2D()} instead.
+     */
+    public synchronized Rectangle getBounds() {
+        final Rectangle bounds = new Rectangle();
+        bounds.setRect(getCachedBounds()); // 'setRect' effectue l'arrondissement correct.
+        return bounds;
+    }
+
+    /**
+     * Returns a rectangle encompassing all {@link #data}'s points. Because this method returns
+     * the rectangle directly from the cache and not a copy, the returned rectangle should
+     * never be modified.
+     *
+     * @return A rectangle encompassing all {@link #data}'s points.
+     *         This rectangle may be empty, but will never be null.
+     */
+    private Rectangle2D getDataBounds() {
+        // assert Thread.holdsLock(this);
+        // Can't make this assertion, because this method is invoked
+        // by {@link #getCachedBounds}. See later for details.
+
+        if (dataBounds == null) {
+            dataBounds = getBounds(data, null);
+            if (isIdentity(coordinateTransform)) {
+                bounds = dataBounds; // Avoid computing the same rectangle twice
+            }
+        }
+        assert equalsEps(getBounds(data, null), dataBounds) : dataBounds;
+        return dataBounds;
+    }
+
+    /**
+     * Return the bounding box of this isoline. This method returns
+     * a direct reference to the internally cached bounding box. DO
+     * NOT MODIFY!
+     */
+    private Rectangle2D getCachedBounds() {
+        assert Thread.holdsLock(this);
+        if (bounds == null) {
+            bounds = getBounds(data, coordinateTransform);
+            if (isIdentity(coordinateTransform)) {
+                dataBounds = bounds; // Avoid computing the same rectangle twice
+            }
+        }
+        assert equalsEps(getBounds(data, coordinateTransform), bounds) : bounds;
+        return bounds;
+    }
+
+    /**
+     * Returns a rectangle encompassing all the points projected in the specified coordinate system.
+     * This method will try to return one of the rectangles from the internal cache when appropriate.
+     * Because this method can return the rectangle directly from the cache and not a copy, the
+     * returned rectangle should never be modified.
+     *
+     * @param  The coordinate system according to which the points should be projected.
+     * @return A rectangle encompassing all the points of this polyline.
+     *         This rectangle may be empty, but will never be null.
+     * @throws TransformException if a cartographic projection fails.
+     */
+    private Rectangle2D getCachedBounds(final CoordinateSystem coordinateSystem)
+            throws TransformException
+    {
+        // assert Thread.holdsLock(this);
+        // Can't make this assertion, because {@link #intersects(Polyline,boolean)} invokes
+        // this method without synchronization on this polyline. In doesn't hurt as long as
+        // {@link #intersectsPolyline} and {@link #intersectsEdge} are private methods.
+
+        if (equivalents(getInternalCS(),       coordinateSystem)) return getDataBounds();
+        if (equivalents(getCoordinateSystem(), coordinateSystem)) return getCachedBounds();
+        Rectangle2D bounds = LineString.getBounds2D(data, getMathTransform2D(coordinateTransform));
+        if (bounds == null) {
+            bounds = new Rectangle2D.Float();
+        }
+        return bounds;
+    }
+
+    /**
+     * Returns a rectangle encompassing all <code>data</code>'s points.  This method should
+     * only be called in a context where it is known that the cartographic projection 
+     * should never fail.
+     *
+     * @param  data One of the links in the chain of <code>PointArray</code>s (may be null).
+     * @param  coordinateTransform Transform to apply on <code>data</code>'s points.
+     * @return A rectangle encompassing all <code>data</code>'s points.
+     *         This rectangle may be empty, but will never be null.
+     */
+    private static Rectangle2D getBounds(final LineString data,
+                                         final CoordinateTransformation coordinateTransform)
+    {
+        Rectangle2D bounds;
+        try {
+            bounds = LineString.getBounds2D(data, getMathTransform2D(coordinateTransform));
+            if (bounds == null) {
+                assert LineString.getPointCount(data) == 0;
+                bounds = new Rectangle2D.Float();
+            }
+        } catch (TransformException exception) {
+            // Should not happen, since {@link #setCoordinateSystem}
+            // has already successfully projected every point.
+            unexpectedException("getBounds2D", exception);
+            bounds = null; // Make the compiler happy, but should never reach this point.
+        }
+        return bounds;
+    }
+
+    /**
+     * Check if two rectangles are almost equal (except for an epsilon value).  If one or
+     * both arguments are <code>null</code>, then this method does nothing. This method occurs
+     * when one rectangle comes from the cache and hasn't been computed yet.  This method is
+     * used for assertions only.
+     */
+    private static boolean equalsEps(final Rectangle2D expected, final Rectangle2D actual) {
+        if (expected==null || actual==null) {
+            return true;
+        }
+        final double eps = EPS * XMath.hypot(expected.getCenterX(), expected.getCenterY());
+        return Math.abs(expected.getMinX() - actual.getMinX()) <= eps &&
+               Math.abs(expected.getMinY() - actual.getMinY()) <= eps &&
+               Math.abs(expected.getMaxX() - actual.getMaxX()) <= eps &&
+               Math.abs(expected.getMaxY() - actual.getMaxY()) <= eps;
+    }
+
+    /**
+     * Indicates whether the specified (<var>x</var>,<var>y</var>) coordinate is inside this
+     * polyline. The polyline should have been closed before the call to this method (see
+     * {@link #close}).
+     *
+     * @param  x <var>x</var> coordinate of the point to test.
+     * @param  y <var>y</var> coordinate of the point to test.
+     * @param  transformation Transform to use for converting {@link #data}'s points,
+     *         or <code>null</code> if no transform is required. If a non-null transform
+     *         is specified, it should have been obtained by a call to the method 
+     *         <code>getTransformationFromInternalCS(targetCS)</code>. All the polyline's points
+     *         will then be projected according to the <code>targetCS</code> coordinate system. Where
+     *         possible, it is more efficient to calculate only the inverse projection of point
+     *         (<var>x</var>,<var>y</var>) and to specify <code>null</code> for this argument.
+     * @return <code>true</code> if the point is inside this polyline.
+     *
+     * @author André Gosselin (original C version)
+     * @author Martin Desruisseaux (Java adaptation)
+     */
+    private boolean contains(final float x, final float y,
+                             final CoordinateTransformation transformation)
+    {
+        assert isClosed;
+        /*
+         * Imagine a straight line starting at point (<var>x</var>,<var>y</var>)
+         * and going to infinity to the right of this point (i.e., towards the <var>x</var>
+         * positive axis). We count the number of times the polyline intercepts this line.
+         * If the number is odd, the point is inside the polyline. The variable <code>nInt</code>
+         * will do this counting.
+         */
+        int   nInt                   = 0;
+        int   intSuspended           = 0;
+        int   nPointsToRecheck       = 0;
+        final Point2D.Float nextPt   = new Point2D.Float();
+        final LineString.Iterator it = new LineString.Iterator(data, getMathTransform2D(transformation));
+        float x1                     = Float.NaN;
+        float y1                     = Float.NaN;
+        /*
+         * Extracts a first point.  There will be a problem in the following algorithm if the
+         * first point is on the same horizontal line as the point to check.
+         * To solve the problem, we look for the first point that isn't on the same horizontal
+         * line.
+         */
+        while (true) {
+            final float x0=x1;
+            final float y0=y1;
+            nPointsToRecheck++;
+            if (it.next(nextPt) == null) {
+                return false;
+            }
+            x1 = nextPt.x;
+            y1 = nextPt.y;
+            if (y1 != y) break;
+            /*
+             * Checks whether the point falls exactly on the
+             * segment (x0,y0)-(x1-y1). If it does,
+             * it's not worth going any further.
+             */
+            if (x0 < x1) {
+                if (x>=x0 && x<=x1) return true;
+            } else {
+                if (x>=x1 && x<=x0) return true;
+            }
+        }
+        /*
+         * Sweeps through all the points of the polyline. When the last point is extracted
+         * the variable <code>count</code> is adjusted so that only the points that need
+         * passing through again are 're-swept'.
+         */
+        for (int count=-1; count!=0; count--) {
+            /*
+             * Obtains the following point.  If we have reached the end of the polyline,
+             * we reclose the polyline if this has not already been done.
+             * If the polyline had already been reclosed, that is the end of the loop.
+             */
+            final float x0 = x1;
+            final float y0 = y1;
+            if (it.next(nextPt) == null) {
+                count = nPointsToRecheck+1;
+                nPointsToRecheck = 0;
+                it.rewind();
+                continue;
+            }
+            x1 = nextPt.x;
+            y1 = nextPt.y;
+            /*
+             * We now have a right-hand segment going from the coordinates
+             * (<var>x0</var>,<var>y0</var>) to (<var>x1</var>,<var>y1</var>).
+             * If we realise that the right-hand segment is completely above or completely
+             * below the point (<var>x</var>,<var>y</var>), we know that there is no right-hand
+             * intersection and we continue the loop.
+             */
+            if (y0 < y1) {
+                if (y<y0 || y>y1) continue;
+            } else {
+                if (y<y1 || y>y0) continue;
+            }
+            /*
+             * We now know that our segment passes either to the right or the left of our point.
+             * We now calculate the coordinate <var>xi</var> where the intersection takes place
+             * (with the horizontal right passing through our point).
+             */
+            final float dy = y1-y0;
+            final float xi = x0 + (x1-x0)*(y-y0)/dy;
+            if (!Float.isInfinite(xi) && !Float.isNaN(xi)) {
+                /*
+                 * If the intersection is completely to the left of the point, there is
+                 * evidently no intersection to the right and we continue the loop. Otherwise,
+                 * if the intersection occurs precisely at the coordinate <var>x</var> (which
+                 * is unlikely...), this means our point is exactly on the border of the
+                 * polyline and the treatment ends.
+                 */
+                if (x >  xi) continue;
+                if (x == xi) return true;
+            } else {
+                /*
+                 * There is a special treatment if the segment is horizontal. The value
+                 * <var>xi</var> isn't valid (we can visualize that as if intersections were 
+                 * found all over the right-hand side rather than on a single point). Instead
+                 * of performing checks with <var>xi</var>, we will do them with the minimum and
+                 * maximum <var>x</var>s of the segment.
+                 */
+                if (x0 < x1) {
+                    if (x >  x1) continue;
+                    if (x >= x0) return true;
+                } else {
+                    if (x >  x0) continue;
+                    if (x >= x1) return true;
+                }
+            }
+            /*
+             * We now know that there is an intersection on the right.  In principal, it
+             * would be sufficient to increment 'nInt'.  However, we should pay particular
+             * attention to the case where <var>y</var> is at exactly the same height as one of the
+             * extremities of the segment.  Is there an intersection or not?  That depends on
+             * whether the following segments continue in the same direction or not.  We adjust
+             * a flag, so that the decision to increment 'nInt' or not is taken later in the loop
+             * when the other segments have been examined.
+             */
+            if (x0==x1 && y0==y1) {
+                continue;
+            }
+            if (y==y0 || y==y1) {
+                final int sgn=XMath.sgn(dy);
+                if (sgn != 0) {
+                    if (intSuspended!=0) {
+                        if (intSuspended==sgn) nInt++;
+                        intSuspended=0;
+                    } else {
+                        intSuspended=sgn;
+                    }
+                }
+            }
+            else nInt++;
+        }
+        /*
+         * If the number of intersections to the right of the point is odd,
+         * the point is inside the polyline. Otherwise, it is outside.
+         */
+        return (nInt & 1)!=0;
+    }
+
+    /**
+     * Indicates whether the specified (<var>x</var>,<var>y</var>) coordinate is inside
+     * this polyline.  The point's coordinates must be expressed according to the polyline's
+     * coordinate system, that is {@link #getCoordinateSystem()}. The polyline must also
+     * have been closed before the call to this method (see {@link #close}), if it wasn't
+     * this method will always return <code>false</code>.
+     */
+    public synchronized boolean contains(double x, double y) {
+        if (!isClosed) {
+            return false;
+        }
+        /*
+         * IMPLEMENTATION NOTE: The polyline's native point array ({@link #data}) and the
+         * (x,y) point may use different coordinate systems. For efficiency reasons, the
+         * (x,y) point is projected to the "native" polyline's coordinate system instead
+         * of projecting all polyline's points. As a result, points very close to the polyline's
+         * edge may appear inside (when viewed on screen) while this method returns <code>false</code>,
+         * and vice-versa. This is because some projections transform straight lines
+         * into curves, but the Polyline class ignores curves and always uses straight
+         * lines between any two points.
+         */
+        if (coordinateTransform!=null) try {
+            final MathTransform transform = coordinateTransform.getMathTransform();
+            if (!transform.isIdentity()) {
+                Point2D point = new Point2D.Double(x,y);
+                point = ((MathTransform2D) transform.inverse()).transform(point, point);
+                x = point.getX();
+                y = point.getY();
+            }
+        } catch (TransformException exception) {
+            // If the projection fails, the point is probably outside the polyline
+            // (since all the polyline's points are projectable).
+            return false;
+        }
+        /*
+         * First we check whether the rectangle 'dataBounds' contains
+         * the point, before calling the costly method 'contains'.
+         */
+        return getDataBounds().contains(x,y) && contains((float)x, (float)y, null);
+    }
+
+    /**
+     * Checks whether a point <code>pt</code> is inside this polyline. The point's coordinates
+     * must be expressed according to the polyline's coordinate system, that is
+     * {@link #getCoordinateSystem()}. The polyline must also have been closed before the call
+     * to this method (see {@link #close}), if it wasn't this method will always return
+     * <code>false</code>.
+     */
+    public boolean contains(final Point2D pt) {
+        return contains(pt.getX(), pt.getY());
+    }
+
+    /**
+     * Test if the interior of this polyline entirely contains the given rectangle.
+     * The rectangle's coordinates must be expressed in this polyline's coordinate
+     * system (as returned by {@link #getCoordinateSystem}).
+     */
+    public synchronized boolean contains(final Rectangle2D rect) {
+        return containsPolyline(new Polyline(rect, getCoordinateSystem()));
+    }
+
+    /**
+     * Test if the interior of this polyline entirely contains the given shape.
+     */
+    public synchronized boolean contains(final Shape shape) {
+        if (shape instanceof Polyline) {
+            return containsPolyline((Polyline) shape);
+        }
+        final Polyline[] polylines = getInstances(shape, getCoordinateSystem());
+        for (int i=0; i<polylines.length; i++) {
+            if (!containsPolyline(polylines[i])) {
+                return false;
+            }
+        }
+        return polylines.length != 0;
+    }
+
+    /**
+     * Test if the interior of this polyline entirely contains the given polyline.
+     */
+    boolean containsPolyline(final Polyline shape) {
+        /*
+         * This method returns <code>true</code> if this polyline contains at least
+         * one point of <code>shape</code> and there is no intersection 
+         * between <code>shape</code> and <code>this</code>.
+         */
+        if (isClosed) try {
+            final CoordinateSystem coordinateSystem = getInternalCS();
+            if (getDataBounds().contains(shape.getCachedBounds(coordinateSystem))) {
+                final Point2D.Float  firstPt = new Point2D.Float();
+                final  Line2D.Float  segment = new  Line2D.Float();
+                final LineString.Iterator it = new LineString.Iterator(shape.data,
+                                          shape.getMathTransform2D(
+                                          shape.getTransformationFromInternalCS(coordinateSystem)));
+                if (it.next(firstPt)!=null && contains(firstPt.x, firstPt.y, null)) {
+                    segment.x2 = firstPt.x;
+                    segment.y2 = firstPt.y;
+                    do if (!it.next(segment)) {
+                        if (!shape.isClosed || isSingular(segment)) {
+                            return true;
+                        }
+                        segment.x2 = firstPt.x;
+                        segment.y2 = firstPt.y;
+                    } while (!intersects(segment));
+                }
+            }
+        } catch (TransformException exception) {
+            // Conservatively returns 'false' if some points from 'shape' can't be projected into
+            // {@link #data}'s coordinate system.  This behavior is compliant with the Shape
+            // specification. Futhermore, those points are probably outside this polyline since
+            // all polyline's points are projectable.
         }
         return false;
     }
 
     /**
-     * Donne à la coordonnée spécifiée la valeur du premier point. Si une bordure a été
-     * ajoutée avec la méthode {@link #prepend}, elle sera pris en compte. Si cet objet
-     * <code>Polyline</code> ne contient aucun point, l'objet qui suit dans la chaîne
-     * sera automatiquement interrogé.
-     *
-     * @param  scan  Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *               mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param  point Point dans lequel mémoriser la coordonnée.
-     * @return L'argument <code>point</code>, ou un nouveau point
-     *         si <code>point</code> était nul.
-     * @throws NoSuchElementException Si <code>scan</code> est nul
-     *         ou s'il ne reste plus de points dans la chaîne.
-     *
-     * @see #getFirstPoints
-     * @see #getLastPoint
+     * Indicates whether or not the points (x1,y1) and (x2,y2)
+     * from the specified line are identical.
      */
-    public static Point2D getFirstPoint(Polyline scan, final Point2D point)
-            throws NoSuchElementException
-    {
-        scan = getFirst(scan);
-        while (scan != null) {
-            for (int i=FIRST_ARRAY; i<=LAST_ARRAY; i++) {
-                final PointArray data=scan.getArray(i);
-                if (data != null) {
-                    return data.getFirstPoint(point);
-                }
-            }
-            scan = scan.next;
-        }
-        throw new NoSuchElementException();
+    private static boolean isSingular(final Line2D.Float segment) {
+        return Float.floatToIntBits(segment.x1)==Float.floatToIntBits(segment.x2) &&
+               Float.floatToIntBits(segment.y1)==Float.floatToIntBits(segment.y2);
     }
 
     /**
-     * Donne à la coordonnée spécifiée la valeur du dernier point. Si une bordure a été
-     * ajoutée avec la méthode {@link #append}, elle sera pris en compte.  Si cet objet
-     * <code>Polyline</code> ne contient aucun point, l'objet qui précède dans la chaîne
-     * sera automatiquement interrogé.
+     * Determines whether the line <code>line</code> intercepts one of this polyline's lines.
+     * The polyline will automatically be reclosed if necessary;
+     * it is therefore not necessary for the last point to repeat the first.
      *
-     * @param  scan  Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *               mais cette méthode sera plus rapide si c'est le dernier maillon.
-     * @param  point Point dans lequel mémoriser la coordonnée.
-     * @return L'argument <code>point</code>, ou un nouveau point
-     *         si <code>point</code> était nul.
-     * @throws NoSuchElementException Si <code>scan</code> est nul
-     *         ou s'il ne reste plus de points dans la chaîne.
-     *
-     * @see #getLastPoints
-     * @see #getFirstPoint
+     * @param  line Line we want to check to see if it intercepts this polyline.
+     *         This line absolutely must be expressed according to the native coordinate system
+     *         of {@link #array}, i.e. {@link #getInternalCS}.
+     * @return <code>true</code> if the line <code>line</code> intercepts this polyline.
      */
-    public static Point2D getLastPoint(Polyline scan, final Point2D point)
-            throws NoSuchElementException
-    {
-        scan = getLast(scan);
-        while (scan != null) {
-            for (int i=LAST_ARRAY; i>=FIRST_ARRAY; i--) {
-                PointArray data=scan.getArray(i);
-                if (data != null) {
-                    return data.getLastPoint(point);
+    private boolean intersects(final Line2D line) {
+        final Point2D.Float  firstPt = new Point2D.Float();
+        final  Line2D.Float  segment = new  Line2D.Float();
+        final LineString.Iterator it = new LineString.Iterator(data, null); // Ok even if 'data' is null.
+        if (it.next(firstPt) != null) {
+            segment.x2 = firstPt.x;
+            segment.y2 = firstPt.y;
+            do if (!it.next(segment)) {
+                if (!isClosed || isSingular(segment)) {
+                    return false;
                 }
-            }
-            scan = scan.previous;
+                segment.x2 = firstPt.x;
+                segment.y2 = firstPt.y;
+            } while (!segment.intersectsLine(line));
+            return true;
         }
-        throw new NoSuchElementException();
+        return false;
     }
 
     /**
-     * Donne aux coordonnées spécifiées les valeurs des premiers points.
-     *
-     * @param scan   Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *               mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param points Tableau dans lequel mémoriser les premières coordonnées. <code>points[0]</code>
-     *               contiendra la première coordonnée, <code>points[1]</code> la seconde, etc. Si
-     *               un élément de ce tableau est nul, un objet {@link Point2D} sera automatiquement
-     *               créé.
-     *
-     * @throws NoSuchElementException Si <code>scan</code> est nul ou
-     *         s'il ne reste pas suffisament de points dans la chaîne.
+     * Tests if the interior of the polyline intersects the interior of a specified rectangle.
+     * The rectangle's coordinates must be expressed in this polyline's coordinate
+     * system (as returned by {@link #getCoordinateSystem}).
      */
-    public static void getFirstPoints(Polyline scan, final Point2D points[])
-            throws NoSuchElementException
-    {
-        scan = getFirst(scan);
-        if (points.length == 0) {
-            return;
-        }
-        if (scan == null) {
-            throw new NoSuchElementException();
-        }
-        int      arrayID = FIRST_ARRAY;
-        PointArray  data = null;
-        PointIterator it = null;
-        for (int j=0; j<points.length; j++) {
-            while (it==null || !it.hasNext()) {
-                if (arrayID > LAST_ARRAY) {
-                    arrayID = FIRST_ARRAY;
-                    scan    = scan.next;
-                    if (scan == null) {
-                        throw new NoSuchElementException();
-                    }
-                }
-                data = scan.getArray(arrayID++);
-                if (data != null) {
-                    it = data.iterator(0);
-                }
-            }
-            if (points[j] == null) {
-                points[j] = new Point2D.Float(it.nextX(), it.nextY());
-            } else {
-                points[j].setLocation(it.nextX(), it.nextY());
-            }
-            if (REMOVE_DOUBLONS) {
-                assert j==0 || !points[j].equals(points[j-1]) : scan;
-            }
-        }
-        assert Utilities.equals(getFirstPoint(scan, null), points[0]) : scan;
+    public synchronized boolean intersects(final Rectangle2D rect) {
+        return intersectsPolyline(new Polyline(rect, getCoordinateSystem()));
     }
 
     /**
-     * Donne aux coordonnées spécifiées les valeurs des derniers points.
-     *
-     * @param scan   Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *               mais cette méthode sera plus rapide si c'est le dernier maillon.
-     * @param points Tableau dans lequel mémoriser les dernières coordonnées.
-     *               <code>points[length-1]</code> contiendra la dernière coordonnée,
-     *               <code>points[length-2]</code> l'avant dernière, etc. Si un élément de
-     *               ce tableau est nul, un objet {@link Point2D} sera automatiquement créé.
-     *
-     * @throws NoSuchElementException Si <code>scan</code> est nul ou
-     *         s'il ne reste pas suffisament de points dans la chaîne.
+     * Tests if the interior of the polyline intersects the interior of a specified shape.
+     * The shape's coordinates must be expressed in this polyline's coordinate
+     * system (as returned by {@link #getCoordinateSystem}).
      */
-    public static void getLastPoints(Polyline scan, final Point2D points[])
-            throws NoSuchElementException
-    {
-        scan = getLast(scan);
-        if (points.length == 0) {
-            // Nécessaire pour l'implémentation ci-dessous.
-            return;
+    public synchronized boolean intersects(final Shape shape) {
+        if (shape instanceof Polyline) {
+            return intersectsPolyline((Polyline) shape);
         }
-        if (scan == null) {
-            throw new NoSuchElementException();
-        }
-        int startIndex = -points.length;
-        int    arrayID = LAST_ARRAY+1;
-        PointArray data;
-        /*
-         * Recherche la position à partir d'où lire les données.  A la
-         * sortie de cette boucle, la première donnée valide sera à la
-         * position <code>scan.getArray(arrayID).iterator(i)</code>.
-         */
-        do {
-            do {
-                if (--arrayID < FIRST_ARRAY) {
-                    arrayID = LAST_ARRAY;
-                    scan = scan.previous;
-                    if (scan==null) {
-                        throw new NoSuchElementException();
-                    }
-                }
-                data = scan.getArray(arrayID);
-            }
-            while (data==null);
-            startIndex += data.count();
-        }
-        while (startIndex < 0);
-        /*
-         * Procède à la mémorisation des coordonnées.   Note: parvenu à ce stade, 'data' devrait
-         * obligatoirement être non-nul. Un {@link NullPointerException} dans le code ci-dessous
-         * serait une erreur de programmation.
-         */
-        PointIterator it = data.iterator(startIndex);
-        for (int j=0; j<points.length; j++) {
-            while (!it.hasNext()) {
-                do {
-                    if (++arrayID > LAST_ARRAY) {
-                        arrayID = FIRST_ARRAY;
-                        scan = scan.next;
-                    }
-                    data = scan.getArray(arrayID);
-                }
-                while (data==null);
-                it = data.iterator(0);
-            }
-            if (points[j] == null) {
-                points[j]=new Point2D.Float(it.nextX(), it.nextY());
-            } else {
-                points[j].setLocation(it.nextX(), it.nextY());
-            }
-            if (REMOVE_DOUBLONS) {
-                assert j==0 || !points[j].equals(points[j-1]) : scan;
+        final Polyline[] polylines = getInstances(shape, getCoordinateSystem());
+        for (int i=0; i<polylines.length; i++) {
+            if (intersectsPolyline(polylines[i])) {
+                return true;
             }
         }
-        assert !it.hasNext();
-        assert Utilities.equals(getLastPoint(scan, null), points[points.length-1]) : scan;
+        return false;
     }
 
     /**
-     * Retourne une polyligne qui couvrira les données de cette polyligne
-     * de l'index <code>lower</code> inclusivement jusqu'à l'index
-     * <code>upper</code> exclusivement.
+     * Test if this polyline intercepts a specified polyline.
      *
-     * @param scan  Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *              mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param lower Index du premier point à retenir.
-     * @param upper Index suivant celui du dernier point à retenir.
-     * @return      Une chaîne de nouvelles polylignes, ou <code>scan</code> si aucun
-     *              point n'a été ignorés. Si la polyligne obtenu ne contient aucun
-     *              point, alors cette méthode retourne <code>null</code>.
+     * If this polyline is <em>closed</em> (if it is an island or a lake),
+     * this method will return <code>true</code> if at least one point of
+     * <code>s</code> lies inside this polyline. If this polyline is not
+     * closed, then this method will return the same thing as
+     * {@link #intersectsEdge}.
      */
-    public static Polyline subpoly(Polyline scan, int lower, int upper) {
-        if (lower == upper) {
-            return null;
-        }
-        scan = getFirst(scan);
-        if (lower==0 && upper==getPointCount(scan)) {
-            return scan;
-        }
-        Polyline queue=null;
-        while (scan!=null) {
-            Polyline toAdd = null;
-            for (int i=FIRST_ARRAY; i<=LAST_ARRAY; i++) {
-                PointArray data = scan.getArray(i);
-                if (data == null) {
-                    continue;
-                }
-                /*
-                 * Vérifie si le tableau 'data' contient au moins quelques points
-                 * à prendre en compte. Si ce n'est pas le cas, il sera ignoré en
-                 * bloc.
-                 */
-                int count = data.count();
-                if (count <= lower) {
-                    lower -= count;
-                    upper -= count;
-                    continue;
-                }
-                /*
-                 * Prend en compte les données de 'data' de 'lower' jusqu'à 'upper',
-                 * mais sans dépasser la longueur du tableau. S'il reste encore des
-                 * points à aller chercher (upper!=0), on examinera les tableaux suivants.
-                 */
-                if (count > upper) {
-                    count = upper;
-                }
-                assert lower >= 0 : lower;
-                assert count <= data.count() : count;
-                data = data.subarray(lower, count);
-                if (data != null) {
-                    if (toAdd == null) {
-                        toAdd = new Polyline(null);
-                        queue = append(queue, toAdd);
-                    }
-                    assert toAdd.getArray(i)==null;
-                    toAdd.setArray(i, data);
-                }
-                lower  = 0;
-                upper -= count;
-                if (upper==0) {
-                    return queue;
-                }
-            }
-            scan = scan.next;
-        }
-        throw new IndexOutOfBoundsException();
+    boolean intersectsPolyline(final Polyline shape) {
+        return intersects(shape, !isClosed);
     }
 
     /**
-     * Ajoute des points à la bordure de cette polyligne. Cette méthode est réservée
-     * à un usage interne par {@link #prependBorder} et {@link #appendBorder}.
+     * Test if the edge of this polyline intercepts the edge of a
+     * specified polyline.
+     *
+     * This should never happen with an error-free bathymery map. However,
+     * it could happen if the two polylines don't represent the same feature.
+     * For example, this method may be used to test if an isoline of 15 degrees
+     * celsius intercepts an isobath of 30 meters.
+     *
+     * @param s polylines to test.
+     * @return <code>true</code> If an intersection is found.
      */
-    private void addBorder(float[] data, int lower, int upper, final boolean toEnd) {
-        if (REMOVE_DOUBLONS) {
-            final float[] candidate = removeDoublons(data, lower, upper);
-            if (candidate != null) {
-                data  = candidate;
-                lower = 0;
-                upper = data.length;
-            }
-        }
-        if (suffix == null) {
-            suffix = DefaultArray.getInstance(data, lower, upper, true);
-        } else {
-            suffix = suffix.insertAt(toEnd ? suffix.count() : 0, data, lower, upper, false);
-        }
+    final boolean intersectsEdge(final Polyline shape) {
+        return intersects(shape, true);
     }
 
     /**
-     * Ajoute des points au début de cette polyligne. Ces points seront considérés comme
-     * faisant partie de la bordure de la carte, et non comme des points représentant
-     * une structure géographique.
+     * Implémentation of the <code>intersects[Polyline|Edge](Polyline)</code> methods.
      *
-     * @param  scan  Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne.
-     * @param  data  Coordonnées à ajouter sous forme de paires de nombres (x,y).
-     * @param  lower Index du premier <var>x</var> à ajouter à la bordure.
-     * @param  upper Index suivant celui du dernier <var>y</var> à ajouter à la bordure.
-     * @return Polyline résultant. Ca sera en général <code>scan</code>.
+     * @param  shape polylines to check.
+     * @param  checkEdgeOnly <code>true</code> to only check edges, without bothering with
+     *         the inside of this polyline.
      */
-    public static Polyline prependBorder(Polyline scan, final float[] data, int lower, int upper) {
-        if (REMOVE_DOUBLONS_IN_BORDER) {
-            try {
-                final Point2D check = getFirstPoint(scan, null);
-                final float x = (float)check.getX();
-                final float y = (float)check.getY();
-                while (lower<upper && data[upper-2]==x && data[upper-1]==y) {
-                    upper -= 2;
-                }
-            } catch (NoSuchElementException exception) {
-                // No points in this polyline, no doublons, no problem. Continue...
-            }
-        }
-        final int length = upper-lower;
-        if (length > 0) {
-            scan = getFirst(scan);
-            if (scan==null || scan.array!=null) {
-                scan = getFirst(append(new Polyline(null), scan));
-                assert scan.array==null;
-            }
-            scan.addBorder(data, lower, upper, false);
-        }
-        return scan;
-    }
-
-    /**
-     * Ajoute des points à la fin de cette polyligne. Ces points seront considérés comme
-     * faisant partie de la bordure de la carte, et non comme des points représentant
-     * une structure géographique.
-     *
-     * @param  scan  Polyline. Cet argument peut être n'importe quel maillon d'une chaîne.
-     * @param  data  Coordonnées à ajouter sous forme de paires de nombres (x,y).
-     * @param  lower Index du premier <var>x</var> à ajouter à la bordure.
-     * @param  upper Index suivant celui du dernier <var>y</var> à ajouter à la bordure.
-     * @return Polyligne résultante. Ca sera en général <code>scan</code>.
-     */
-    public static Polyline appendBorder(Polyline scan, final float[] data, int lower, int upper) {
-        if (REMOVE_DOUBLONS_IN_BORDER) {
-            try {
-                final Point2D check = getLastPoint(scan, null);
-                final float x = (float)check.getX();
-                final float y = (float)check.getY();
-                while (lower<upper && data[lower]==x && data[lower+1]==y) {
-                    lower += 2;
-                }
-            } catch (NoSuchElementException exception) {
-                // No points in this polyline, no doublons, no problem. Continue...
-            }
-        }
-        final int length = upper-lower;
-        if (length > 0) {
-            scan = getLast(scan);
-            if (scan == null) {
-                scan = new Polyline(null);
-            }
-            scan.addBorder(data, lower, upper, true);
-        }
-        return scan;
-    }
-
-    /**
-     * Inverse l'ordre de tous les points.  Cette méthode retournera le
-     * premier maillon d'une nouvelle chaîne de polylignes qui contiendra
-     * les données en ordre inverse.
-     *
-     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *              mais cette méthode sera plus rapide si c'est le dernier maillon.
-     */
-    public static Polyline reverse(Polyline scan) {
-        Polyline queue=null;
-        for (scan=getLast(scan); scan!=null; scan=scan.previous) {
-            for (int arrayID=LAST_ARRAY; arrayID>=FIRST_ARRAY; arrayID--) {
-                PointArray array = scan.getArray(arrayID);
-                if (array != null) {
-                    array = array.reverse();
-                    /*
-                     * Tous les tableaux sont balayés dans cette boucle,
-                     * un à un et dans l'ordre inverse. Les préfix doivent
-                     * devenir des suffix, et les suffix doivent devenir
-                     * des préfix.
-                     */
-                    if (arrayID == 0) {
-                        queue = append(queue, new Polyline(array));
-                    } else {
-                        queue = getLast(queue); // Par précaution.
-                        if (queue == null) {
-                            queue = new Polyline(null);
-                        }
-                        assert queue.suffix==null;
-                        queue.suffix=array;
-                    }
-                }
-            }
-        }
-        return queue;
-    }
-
-    /**
-     * Retourne les coordonnées d'une boîte qui englobe complètement tous
-     * les points de la polyligne. Si cette polyligne ne contient aucun point,
-     * alors cette méthode retourne <code>null</code>.
-     *
-     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *              mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param  transform Transformation à appliquer sur les données (nulle pour aucune).
-     * @return Un rectangle englobeant toutes les coordonnées de cette polyligne et de
-     *         ceux qui la suivent.
-     * @throws TransformException Si une projection cartographique a échoué.
-     */
-    public static Rectangle2D getBounds2D(Polyline scan, final MathTransform2D transform)
-            throws TransformException
-    {
-        float xmin = Float.POSITIVE_INFINITY;
-        float xmax = Float.NEGATIVE_INFINITY;
-        float ymin = Float.POSITIVE_INFINITY;
-        float ymax = Float.NEGATIVE_INFINITY;
-        final Point2D.Float point=new Point2D.Float();
-        for (scan=getFirst(scan); scan!=null; scan=scan.next) {
-            for (int arrayID=FIRST_ARRAY; arrayID<=LAST_ARRAY; arrayID++) {
-                final PointArray array = scan.getArray(arrayID);
-                if (array != null) {
-                    final PointIterator it=array.iterator(0);
-                    if (transform!=null && !transform.isIdentity()) {
-                        while (it.hasNext()) {
-                            point.x=it.nextX();
-                            point.y=it.nextY();
-                            transform.transform(point, point);
-                            if (point.x<xmin) xmin=point.x;
-                            if (point.x>xmax) xmax=point.x;
-                            if (point.y<ymin) ymin=point.y;
-                            if (point.y>ymax) ymax=point.y;
-                        }
-                    } else {
-                        while (it.hasNext()) {
-                            final float x=it.nextX();
-                            final float y=it.nextY();
-                            if (x<xmin) xmin=x;
-                            if (x>xmax) xmax=x;
-                            if (y<ymin) ymin=y;
-                            if (y>ymax) ymax=y;
-                        }
-                    }
-                }
-            }
-        }
-        if (xmin<=xmax && ymin<=ymax) {
-            return new Rectangle2D.Float(xmin, ymin, xmax-xmin, ymax-ymin);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Renvoie des statistiques sur la résolution d'un polyligne. Cette résolution sera
-     * la distance moyenne entre deux points du polyligne,  mais sans prendre en compte
-     * les "points de bordure"  (par exemple les points qui suivent le bord d'une carte
-     * plutôt que de représenter une structure géographique réelle).
-     * <br><br>
-     * La résolution est calculée en utilisant le système de coordonnées spécifié. Les
-     * unités du résultat seront donc  les unités des deux premiers axes de ce système
-     * de coordonnées,  <strong>sauf</strong>  si les deux premiers axes utilisent des
-     * coordonnées géographiques angulaires  (c'est le cas notamment des objets {@link
-     * GeographicCoordinateSystem}).  Dans ce dernier cas,  le calcul utilisera plutôt
-     * les distances orthodromiques sur l'ellipsoïde ({@link Ellipsoid}) du système de
-     * coordonnées.   En d'autres mots, pour les systèmes cartographiques, le résultat
-     * de cette méthode sera toujours exprimé en unités linéaires (souvent des mètres)
-     * peu importe que le système de coordonnées soit {@link ProjectedCoordinateSystem}
-     * ou {@link GeographicCoordinateSystem}.
-     *
-     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *         mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param  transformation Systèmes de coordonnées source et destination.
-     *         <code>getSourceCS()</code> doit être le système interne des points
-     *         des polylignes, tandis que  <code>getTargetCS()</code> doit être le
-     *         système dans lequel faire le calcul. C'est <code>getTargetCS()</code>
-     *         qui déterminera les unités du résultat. Cet argument peut être nul
-     *         si aucune transformation n'est nécessaire. Dans ce cas, le système
-     *         de coordonnées <code>getTargetCS()</code> sera supposé cartésien.
-     * @return Statistiques sur la résolution. L'objet retourné ne sera jamais nul, mais les
-     *         statistiques seront tous à NaN si cette courbe de niveau ne contenait aucun
-     *         point. Voir la description de cette méthode pour les unités.
-     * @throws TransformException Si une transformation de coordonnées a échouée.
-     */
-    static Statistics getResolution(Polyline scan, final CoordinateTransformation transformation)
-            throws TransformException
-    {
-        /*
-         * Checks the coordinate system validity. If valid and if geographic,
-         * gets the ellipsoid to use for orthodromic distance computations.
-         */
-        final MathTransform2D transform;
-        final Ellipsoid       ellipsoid;
-        final Unit         xUnit, yUnit;
-        if (transformation != null) {
-            final MathTransform tr = transformation.getMathTransform();
-            transform = !tr.isIdentity() ? (MathTransform2D) tr : null;
-            final CoordinateSystem targetCS = transformation.getTargetCS();
-            xUnit = targetCS.getUnits(0);
-            yUnit = targetCS.getUnits(1);
-            if (!Utilities.equals(xUnit, yUnit)) {
-                throw new IllegalArgumentException(Resources.format(
-                                            ResourceKeys.ERROR_NON_CARTESIAN_COORDINATE_SYSTEM_$1,
-                                            targetCS.getName(null)));
-            }
-            ellipsoid = CTSUtilities.getHeadGeoEllipsoid(targetCS);
-        } else {
-            transform = null;
-            ellipsoid = null;
-            xUnit = yUnit = null;
-        }
-        /*
-         * Compute statistics...
-         */
-        final Statistics stats = new Statistics();
-        Point2D          point = new Point2D.Double();
-        Point2D           last = null;
-        for (scan=getFirst(scan); scan!=null; scan=scan.next) {
-            final PointArray array = scan.array;
-            if (array == null) {
-                continue;
-            }
-            final PointIterator it = array.iterator(0);
-            while (it.hasNext()) {
-                point.setLocation(it.nextX(), it.nextY());
-                if (transform != null) {
-                    point = transform.transform(point, point);
-                }
-                final double distance;
-                if (ellipsoid != null) {
-                    point.setLocation(Unit.DEGREE.convert(point.getX(), xUnit),
-                                      Unit.DEGREE.convert(point.getY(), yUnit));
-                    if (last == null) {
-                        last = (Point2D) point.clone();
-                        continue;
-                    }
-                    distance = ellipsoid.orthodromicDistance(last, point);
-                } else {
-                    if (last == null) {
-                        last = (Point2D) point.clone();
-                        continue;
-                    }
-                    distance = last.distance(point);
-                }
-                stats.add(distance);
-                final Point2D swap = last;
-                last = point;
-                point = swap;
-            }
-        }
-        return stats;
-    }
-
-    /**
-     * Modifie la résolution de cette carte. Cette méthode procèdera en interpolant les données
-     * de façon à ce que chaque point soit séparé du précédent par la distance spécifiée.  Cela
-     * peut se traduire par des économies importante de mémoire  si  une trop grande résolution
-     * n'est pas nécessaire. Notez que cette opération est irreversible.  Appeler cette méthode
-     * une seconde fois avec une résolution plus fine gonflera la taille des tableaux internes,
-     * mais sans amélioration réelle de la précision.
-     *
-     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *         mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param  transformation Transformation permettant de convertir les coordonnées des polylignes
-     *         vers des coordonnées cartésiennes. Cet argument peut être nul si les coordonnées de
-     *         <code>this</code> sont déjà exprimées selon un système de coordonnées cartésiennes.
-     * @param  resolution Résolution désirée, selon les mêmes unités que {@link #getResolution}.
-     * @throws TransformException Si une erreur est survenue lors d'une projection cartographique.
-     *
-     * @see #getResolution
-     */
-    public static void setResolution(Polyline scan, final CoordinateTransformation transformation,
-                                     double resolution)
-            throws TransformException
-    {
-        /*
-         * Checks arguments validity. This method do not support latitude/longitude
-         * coordinates. Coordinates must be projected in some linear units.
-         */
-        if (!(resolution > 0)) {
-            throw new IllegalArgumentException(String.valueOf(resolution));
-        }
-        final MathTransform2D transform;
-        final MathTransform2D inverseTransform;
-        if (transformation != null) {
-            final CoordinateSystem targetCS = transformation.getTargetCS();
-            if (CTSUtilities.getHeadGeoEllipsoid(targetCS)!=null ||
-                !Utilities.equals(targetCS.getUnits(0), targetCS.getUnits(1)))
-            {
-                throw new IllegalArgumentException(Resources.format(
-                                            ResourceKeys.ERROR_NON_CARTESIAN_COORDINATE_SYSTEM_$1,
-                                            targetCS.getName(null)));
-            }
-            final MathTransform tr = transformation.getMathTransform();
-            if (!tr.isIdentity()) {
-                transform        = (MathTransform2D) tr;
-                inverseTransform = (MathTransform2D) transform.inverse();
-            } else {
-                transform        = null;
-                inverseTransform = null;
-            }
-        } else {
-            transform        = null;
-            inverseTransform = null;
-        }
-        /*
-         * Performs the linear interpolations, assuming
-         * that we are using a cartesian coordinate system.
-         */
-        for (scan=getFirst(scan); scan!=null; scan=scan.next) {
-            final PointArray points = scan.array;
-            if (points == null) {
-                continue;
-            }
-            /*
-             * Obtiens les coordonnées projetées. Si ces coordonnées représentent des
-             * degrés de longitudes et latitudes, alors une projection cartographique
-             * sera obligatoire afin de faire correctement les calculs de distances.
-             */
-            float[] array = points.toArray();
-            assert (array.length & 1)==0;
-            if (transform!=null && !transform.isIdentity()) {
-                transform.transform(array, 0, array, 0, array.length/2);
-            }
-            if (array.length >= 2) {
-                /*
-                 * Effectue la décimation des coordonnées. La toute première
-                 * coordonnée sera conservée inchangée. Il en ira de même de
-                 * la dernière, à la fin de ce bloc.
-                 */
-                final Point2D.Float point = new Point2D.Float(array[0], array[1]);
-                final Line2D.Float   line = new  Line2D.Float(0,0, point.x, point.y);
-                int destIndex   = 2; // Ne touche pas au premier point.
-                int sourceIndex = 2; // Le premier point est déjà lu.
-                while (sourceIndex < array.length) {
-                    line.x1 = line.x2;
-                    line.y1 = line.y2;
-                    line.x2 = array[sourceIndex++];
-                    line.y2 = array[sourceIndex++];
-                    Point2D next;
-                    while ((next=Geometry.colinearPoint(line, point, resolution)) != null) {
-                        if (destIndex == sourceIndex) {
-                            final int extra = 256;
-                            final float[] oldArray=array;
-                            array=new float[array.length + extra];
-                            System.arraycopy(oldArray, 0,         array, 0,                                  destIndex);
-                            System.arraycopy(oldArray, destIndex, array, sourceIndex+=extra, oldArray.length-destIndex);
-                        }
-                        assert destIndex < sourceIndex;
-                        array[destIndex++] = line.x1 = point.x = (float)next.getX();
-                        array[destIndex++] = line.y1 = point.y = (float)next.getY();
-                    }
-                }
-                /*
-                 * La décimation est maintenant terminée. Vérifie si le dernier point
-                 * apparaît dans le tableau décimé. S'il n'apparaît pas, on l'ajoutera.
-                 * Ensuite, on libèrera la mémoire réservée en trop.
-                 */
-                if (array[destIndex-2] != line.x2  ||  array[destIndex-1] != line.y2) {
-                    if (destIndex == array.length) {
-                        array = XArray.resize(array, destIndex+2);
-                    }
-                    array[destIndex++] = line.x2;
-                    array[destIndex++] = line.y2;
-                }
-                if (destIndex != array.length) {
-                    array = XArray.resize(array, destIndex);
-                }
-            }
-            /*
-             * Les interpolations étant terminées, reconvertit les coordonnées
-             * selon leur système de coordonnés initial et mémorise le nouveau
-             * tableau décimé à la place de l'ancien.
-             */
-            if (inverseTransform != null) {
-                inverseTransform.transform(array, 0, array, 0, array.length/2);
-            }
-            scan.array = (array!=null && array.length!=0) ? new DefaultArray(array) : null;
-        }
-    }
-
-    /**
-     * Déclare que les données de cette polyligne ne vont plus changer. Cette
-     * méthode peut réaranger les tableaux de points d'une façon plus compacte.
-     *
-     * @param  scan     Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *                  mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param  close    <code>true</code> pour indiquer que ces polylignes représentent une
-     *                  forme géométrique fermée (donc un polygone).
-     * @param  compress <code>true</code> pour compresser les données,  ou <code>false</code>
-     *                  pour les laisser telle qu'elles sont (ce qui signifie que les données
-     *                  déjà compressées ne seront pas décompressées).
-     *
-     * @return La polyligne compressée (habituellement <code>scan</code> lui-même),
-     *         ou <code>null</code> si la polyligne ne contenait aucune donnée.
-     */
-    public static Polyline freeze(Polyline scan, final boolean close, final boolean compress) {
-        scan = getFirst(scan);
-        /*
-         * Etape 1: Si on a demandé à fermer le polygone, vérifie si le premier maillon de
-         *          la chaîne ne contenait qu'une bordure.  Si c'est le cas, on déménagera
-         *          cette bordure à la fin du dernier maillon.
-         */
-        if (close && scan!=null && scan.suffix!=null && scan.array==null) {
-            Polyline last = getLast(scan);
-            if (last != scan) {
-                if (last.suffix != null) {
-                    last.suffix = last.suffix.insertAt(last.suffix.count(), scan.suffix, false);
-                } else {
-                    last.suffix = scan.suffix;
-                }
-                scan.suffix = null;
-            }
-        }
-        /*
-         * Etape 2: Fusionne ensemble des polylignes qui peuvent l'être.
-         *          Deux polylignes peuvent être fusionnées ensemble si elles
-         *          ne sont séparées par aucune bordure, ou si elle sont toutes
-         *          deux des bordures.
-         */
-        if (scan != null) {
-            Polyline previous = scan;
-            Polyline current  = scan;
-            while ((current=current.next) != null) {
-                if (previous.suffix == null) {
-                    if (previous.array != null) {
-                        // Déménage le tableau de points de 'previous' au début
-                        // de celui de 'current' si aucune bordure ne les sépare.
-                        if (current.array != null) {
-                            if (MERGE_POLYLINE_DATA) {
-                                current.array = current.array.insertAt(0, previous.array, false);
-                                previous.array = null;
+    private boolean intersects(final Polyline shape, final boolean checkEdgeOnly) {
+        assert Thread.holdsLock(this);
+        try {
+            final CoordinateSystem coordinateSystem = getInternalCS();
+            if (getDataBounds().intersects(shape.getCachedBounds(coordinateSystem))) {
+                final Point2D.Float  firstPt = new Point2D.Float();
+                final  Line2D.Float  segment = new  Line2D.Float();
+                final LineString.Iterator it = new LineString.Iterator(shape.data,
+                                          shape.getMathTransform2D(
+                                          shape.getTransformationFromInternalCS(coordinateSystem)));
+                if (it.next(firstPt) != null) {
+                    if (checkEdgeOnly || !contains(firstPt.x, firstPt.y)) {
+                        segment.x2 = firstPt.x;
+                        segment.y2 = firstPt.y;
+                        do if (!it.next(segment)) {
+                            if (!isClosed || isSingular(segment)) {
+                                return false;
                             }
-                        } else {
-                            current.array = previous.array;
-                            previous.array = null;
-                        }
+                            segment.x2 = firstPt.x;
+                            segment.y2 = firstPt.y;
+                        } while (!intersects(segment));
                     }
-                } else {
-                    if (current.array == null) {
-                        // Déménage le suffix de 'previous' au début de
-                        // celui de 'current' si rien ne les sépare.
-                        if (current.suffix != null) {
-                            current.suffix = current.suffix.insertAt(0, previous.suffix, false);
-                        } else {
-                            current.suffix = previous.suffix;
-                        }
-                        previous.suffix = null;
-                    }
+                    return true;
                 }
-                previous=current;
             }
+            return false;
+        } catch (TransformException exception) {
+            // Conservatively return 'true' if some points from 'shape' can't be projected into
+            // {@link #data}'s coordinate system.  This behavior is compliant with the Shape
+            // specification.
+            return true;
         }
-        /*
-         * Etape 3: Gèle et compresse les tableaux de points, et
-         *          élimine les éventuels tableaux devenus inutile.
-         */
-        Polyline root=scan;
-        while (scan!=null) {
-            /*
-             * Comprime tous les tableaux d'un maillon de la chaîne.
-             * La compression maximale ("full") ne sera toutefois pas
-             * appliquée sur les "points de bordure".
-             */
-            for (int arrayID=FIRST_ARRAY; arrayID<=LAST_ARRAY; arrayID++) {
-                final PointArray array = scan.getArray(arrayID);
-                if (array != null) {
-                    scan.setArray(arrayID, array.getFinal(arrayID==0 && compress));
-                }
-            }
-            /*
-             * Supprime les maillons devenus vides. Ca peut avoir pour effet
-             * de changer de maillon ("root") pour le début de la chaîne.
-             */
-            Polyline current=scan;
-            scan = scan.next;
-            if (current.isEmpty()) {
-                current.remove();
-                if (current == root) {
-                    root = scan;
-                }
-            }
-        }
-        return root;
     }
 
     /**
-     * Copy (<var>x</var>,<var>y</var>) coordinates in the specified destination array.
-     * If <code>resolution</code> is greater than 0, then points that are closer than
-     * <code>resolution</code> from previous one will be skiped.
+     * Test if the {@linkplain #getBounds2D bounding box} of this polyline intersects the
+     * interior of the specified shape. This method is less precise but faster than invoking
+     * {@link #intersects(Shape)}.
+     */
+    public synchronized boolean boundsIntersects(final Shape shape) {
+        return shape.intersects(getCachedBounds());
+    }
+
+    /**
+     * Returns a polyline approximately equal to this polyline clipped to the specified bounds.
+     * The clip is only approximative in that the resulting polyline may extend outside the clip
+     * area. However, it is guaranteed that the resulting polyline contains at least all the
+     * interior of the clip area.
+     *
+     * If this method can't perform the clip, or if it believes that it isn't worth doing a clip,
+     * it returns <code>this</code>. If this polyline doesn't intersect the clip area, then this
+     * method returns <code>null</code>. Otherwise, a new polyline is created and returned. The new
+     * polyline will try to share as much internal data as possible with <code>this</code> in order
+     * to keep memory footprint low.
+     *
+     * @param  clipper The clip area.
+     * @return <code>null</code> if this polyline doesn't intersect the clip, <code>this</code>
+     *         if no clip has been performed, or a new clipped polyline otherwise.
+     *
+     * @task TODO: Change the returns type to Polyline when we will be allowed to use the J2SE 1.5
+     *             compiler. Then remove the cast in Polygon.clip(Clipper).
+     */
+    public synchronized Geometry clip(final Clipper clipper) {
+        final Rectangle2D clip = clipper.getInternalClip(this);
+        final Rectangle2D dataBounds = getDataBounds();
+        if (clip.contains(dataBounds)) {
+            return this;
+        }
+        if (!clip.intersects(dataBounds)) {
+            return null;
+        }
+        /*
+         * It would appear that the polyline is neither completely inside nor completely
+         * outside <code>clip</code>.  It is therefore necessary to resolve to perform
+         * a more powerful (and more costly) check.
+         */
+        final Polyline clipped = clipper.clip(this);
+        if (clipped != null) {
+            if (LineString.equals(data, clipped.data)) {
+                return this;
+            }
+        }
+        return clipped;
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////                                                                       ////////////
+    ////////////    C O M P R E S S I O N   /   R E S O L U T I O N   S E T T I N G    ////////////
+    ////////////                                                                       ////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Compress this polyline. The <code>level</code> argument specify the algorithm,
+     * which may be desctructive (i.e. data may loose precision). Compressing polyline
+     * may help to reduce memory usage, providing that there is no reference to the
+     * (<var>x</var>,<var>y</var>) coordinate points outside this polyline (otherwise
+     * the garbage collector will not reclaim the old data).
+     *
+     * @param  level The compression level (or algorithm) to use. See the {@link CompressionLevel}
+     *         javadoc for an explanation of available algorithms.
+     * @return A <em>estimation</em> of the compression rate. For example a value of 0.2
+     *         means that the new polyline use <em>approximatively</em> 20% less memory.
+     *         Warning: this value may be inacurate, for example if the old polyline was
+     *         used to shares its data with an other polyline, compressing one polyline
+     *         may actually increase memory usage since the two polylines will no longer
+     *         share their data.
+     * @throws TransformException If an error has come up during a cartographic projection.
+     */
+    public synchronized float compress(final CompressionLevel level) throws TransformException {
+        final Statistics stats = LineString.getResolution(data, coordinateTransform);
+        if (stats != null) {
+            final long   memoryUsage = getMemoryUsage();
+            final double        mean = stats.mean();
+            final double standardDev = stats.standardDeviation(false);
+            final double  resolution = mean + 0.5*standardDev;
+            if (resolution > 0) {
+                /*
+                 * Do not resample if at least 97.7% of coordinate points fits in
+                 * the [-128...+128] range (assuming a gaussian distribution).
+                 */
+                if (standardDev > mean/64) {
+                    setResolution(resolution);
+                }
+                data = LineString.freeze(data, false, level); // Apply the compression algorithm
+                return (float) (memoryUsage - getMemoryUsage()) / (float) memoryUsage;
+            }
+            data = LineString.freeze(data, false, null); // No compression
+        }
+        return 0;
+    }
+
+    /**
+     * Returns the polyline's resolution.  The mean resolution is the mean distance between
+     * every pair of consecutive points in this polyline  (ignoring "extra" points used for
+     * drawing a border, if there is one). This method tries to express the resolution in
+     * linear units (usually meters) no matter whether the coordinate system is actually a
+     * {@link ProjectedCoordinateSystem} or a {@link GeographicCoordinateSystem}.
+     * More specifically:
+     * <ul>
+     *   <li>If the coordinate system is a {@linkplain GeographicCoordinateSystem geographic}
+     *       one, then the resolution is expressed in units of the underlying
+     *       {@linkplain Ellipsoid#getAxisUnit ellipsoid's axis length}.</li>
+     *   <li>Otherwise (especially if the coordinate system is a {@linkplain
+     *       ProjectedCoordinateSystem projected} one), the resolution is expressed in
+     *       {@linkplain ProjectedCoordinateSystem#getUnits units of the coordinate system}.</li>
+     * </ul>
+     */
+    public synchronized Statistics getResolution() {
+        try {
+            return LineString.getResolution(data, coordinateTransform);
+        } catch (TransformException exception) {
+            // Should not happen, since {@link #setCoordinateSystem}
+            // has already successfully projected every points.
+            unexpectedException("getResolution", exception);
+            return null;
+        }
+    }
+
+    /**
+     * Sets the polyline's resolution. This method interpolates new points in such a way
+     * that every point is spaced by exactly <code>resolution</code> units (usually meters)
+     * from the previous one.
+     *
+     * @param  resolution Desired resolution, in the same units as {@link #getResolution}.
+     * @throws TransformException If some coordinate transformations were needed and failed.
+     *         There is no guarantee on polyline's state in case of failure.
+     */
+    public synchronized void setResolution(final double resolution) throws TransformException {
+        CoordinateSystem targetCS = getCoordinateSystem();
+        if (CTSUtilities.getHeadGeoEllipsoid(targetCS) != null) {
+            /*
+             * The 'LineString.setResolution(...)' algorithm requires a cartesian coordinate system.
+             * If this polyline's coordinate system is not cartesian, check whether the underlying data
+             * used a cartesian CS  (this polyline may be a "view" of the data under another CS).
+             * If the underlying data are not cartesian either, create a temporary sterographic
+             * projection for computation purposes.
+             */
+            targetCS = getInternalCS();
+            if (targetCS instanceof GeographicCoordinateSystem) {
+                final GeographicCoordinateSystem geoCS = (GeographicCoordinateSystem) targetCS;
+                final Ellipsoid ellipsoid = geoCS.getHorizontalDatum().getEllipsoid();
+                final String         name = "Temporary cartesian";
+                final Rectangle2D  bounds = getCachedBounds();
+                final Point2D      center = new Point2D.Double(bounds.getCenterX(),
+                                                               bounds.getCenterY());
+                final Projection projection = new Projection(name, CARTESIAN_PROJECTION,
+                                                             ellipsoid, center, null);
+                targetCS = new ProjectedCoordinateSystem(name, geoCS, projection);
+            }
+        }
+        LineString.setResolution(data, getTransformationFromInternalCS(targetCS), resolution);
+        clearCache(); // Clear everything in the cache.
+    }
+
+    /**
+     * Returns the rendering resolution. This is the spatial resolution used by
+     * {@link PathIterator} only; it has no effect on the underyling data.
+     *
+     * @return The rendering resolution in units of this polyline's {@linkplain #getCoordinateSystem
+     *         coordinate system} (linear or angular units), or 0 if the finest available
+     *         resolution should be used.
+     */
+    public float getRenderingResolution() {
+        return renderingResolution;
+    }
+
+    /**
+     * Hints this polyline that the specified resolution is sufficient for rendering.
+     * Value 0 ask for the best available resolution. If a value greater than 0 is provided,
+     * then the {@link PathIterator} will skip as many points as it can while preserving a
+     * distance equals or smaller than <code>resolution</code> between two consecutive points.
+     *
+     * @param resolution The resolution to use at rendering time, in units of this polyline's
+     *        {@linkplain #getCoordinateSystem coordinate system} (linear or angular units).
+     */
+    public synchronized void setRenderingResolution(final float resolution) {
+        if (!Float.isNaN(resolution) && resolution!=renderingResolution) {
+            cache = null;
+            renderingResolution = resolution;
+        }
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////                                                                       ////////////
+    ////////////       P A T H   I T E R A T O R   /   M I S C E L L A N E O U S       ////////////
+    ////////////                                                                       ////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns a path iterator for this polyline.
+     */
+    public synchronized PathIterator getPathIterator(final AffineTransform transform) {
+        return new PolygonPathIterator(this, null, transform);
+    }
+
+    /**
+     * Returns <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
+     * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
+     */
+    final boolean isFlattenedShape() {
+        assert flattened == checkFlattenedShape() : flattened;
+        return flattened;
+    }
+
+    /**
+     * Returns <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
+     * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
+     */
+    private boolean checkFlattenedShape() {
+        return coordinateTransform==null ||
+               coordinateTransform.getMathTransform()==null ||
+               !LineString.hasBorder(data);
+    }
+
+    /**
+     * Returns the cache for rendering data. This cache
+     * is used by the {@link PolygonPathIterator} only.
+     */
+    final PolylineCache getCache() {
+        assert Thread.holdsLock(this);
+        if (cache == null) {
+            cache = new PolylineCache();
+        }
+        return cache;
+    }
+
+    /**
+     * Returns a copy of all coordinates of this polyline. Coordinates are usually
+     * (<var>x</var>,<var>y</var>) or (<var>longitude</var>,<var>latitude</var>)
+     * pairs, depending on the {@linkplain #getCoordinateSystem coordinate system
+     * in use}.
      *
      * @param  The destination array. The coordinates will be filled in {@link ArrayData#array}
      *         from index {@link ArrayData#length}. The array will be expanded if needed, and
      *         {@link ArrayData#length} will be updated with index after the <code>array</code>'s
      *         element filled with the last <var>y</var> ordinates.
-     * @param  resolution The minimum distance desired between points, in this polyline's
-     *         coordinate system.
-     * @param  transform The transform to apply, or <code>null</code> if none.
-     * @throws TransformException if a transformation failed.
+     * @param  resolution The minimum distance desired between points, in linear or angular units.
      */
-    public static void toArray(Polyline poly, final ArrayData dest, float resolution,
-                               final MathTransform2D transform) throws TransformException
+    final void toArray(final ArrayData dest, float resolution) {
+        assert Thread.holdsLock(this);
+        try {
+            /*
+             * Transform the resolution from this polyline's CS to the underlying data CS.
+             * TODO: we should use 'MathTransform.derivative' instead, but it is not yet
+             *       implemented for most transforms.
+             */
+            if (coordinateTransform != null) {
+                final MathTransform tr = coordinateTransform.getMathTransform();
+                if (!tr.isIdentity()) {
+                    final Rectangle2D bounds = getCachedBounds();
+                    final double  centerX = bounds.getCenterX();
+                    final double  centerY = bounds.getCenterY();
+                    final double[] coords = new double[] {
+                        centerX-resolution, centerY,
+                        centerX+resolution, centerY,
+                        centerX,            centerY-resolution,
+                        centerX,            centerY+resolution
+                    };
+                    tr.inverse().transform(coords, 0, coords, 0, coords.length/2);
+                    resolution = (float) (0.25*(
+                                          XMath.hypot(coords[2]-coords[0], coords[3]-coords[1]) +
+                                          XMath.hypot(coords[6]-coords[4], coords[7]-coords[5])));
+                }
+            }
+            /*
+             * Gets the array and transforms it, if needed.
+             */
+            LineString.toArray(data, dest, resolution, getMathTransform2D(coordinateTransform));
+        } catch (TransformException exception) {
+            // Should not happen, since {@link #setCoordinateSystem}
+            // has already successfully projected every point.
+            unexpectedException("toArray", exception);
+        }
+    }
+
+    /**
+     * Returns a copy of all coordinates of this polyline. Coordinates are usually
+     * (<var>x</var>,<var>y</var>) or (<var>longitude</var>,<var>latitude</var>)
+     * pairs, depending on the {@linkplain #getCoordinateSystem coordinate system
+     * in use}. This method never returns <code>null</code>, but may return an array
+     * of length 0 if no data are available.
+     *
+     * @param  resolution The minimum distance desired between points, in the same units
+     *         as for the {@link #getResolution} method  (i.e. linear units as much as
+     *         possible - usually meters - even for geographic coordinate system).
+     *         If <code>resolution</code> is greater than 0, then points that are closer
+     *         than <code>resolution</code> from previous points will be skipped. This method
+     *         is not required to perform precise distance computations.
+     * @return The coordinates expressed in this
+     *         {@linkplain #getCoordinateSystem polyline's coordinate system}.
+     */
+    public synchronized float[] toArray(float resolution) {
+        /*
+         * If the polyline's coordinate system is geographic, then we must translate
+         * the resolution (which is in linear units, usually meters) to angular units.
+         * The formula used below is only an approximation (probably not the best one).
+         * It estimates the average of latitudinal and longitudinal angles corresponding
+         * to the distance 'resolution' in the middle of the polyline's bounds. The average
+         * is weighted according to the width/height ratio of the polyline's bounds.
+         */
+        final CoordinateSystem cs = getCoordinateSystem();
+        final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(cs);
+        if (ellipsoid != null) {
+            final Unit          unit = cs.getUnits(1);
+            final Rectangle2D bounds = getCachedBounds();
+            double             width = bounds.getWidth();
+            double            height = bounds.getHeight();
+            double          latitude = bounds.getCenterY();
+            latitude = Unit.RADIAN.convert(latitude, unit);
+            final double sin = Math.sin(latitude);
+            final double cos = Math.cos(latitude);
+            final double normalize = width+height;
+            width  /= normalize;
+            height /= normalize;
+            resolution *= (height + width/cos) * XMath.hypot(sin/ellipsoid.getSemiMajorAxis(),
+                                                             cos/ellipsoid.getSemiMinorAxis());
+            // Assume that longitude has the same unit as latitude.
+            resolution = (float) unit.convert(resolution, Unit.RADIAN);
+        }
+        final ArrayData array = new ArrayData(64);
+        toArray(array, resolution);
+        return XArray.resize(array.array(), array.length());
+    }
+
+    /**
+     * Returns a hash value for this polyline.
+     */
+    public synchronized int hashCode() {
+        return LineString.hashCode(data);
+    }
+
+    /**
+     * Compare the specified object with this polyline for equality.
+     */
+    public synchronized boolean equals(final Object object) {
+        if (object == this) {
+            // Slight optimization
+            return true;
+        }
+        if (object!=null && object.getClass().equals(getClass())) {
+            final Polyline that = (Polyline) object;
+            return                  this.isClosed        ==   that.isClosed             &&
+                   Utilities.equals(this.coordinateTransform, that.coordinateTransform) &&
+                  LineString.equals(this.data,                that.data);
+        }
+        return false;
+    }
+
+    /**
+     * Return a clone of this polyline. The clone has a deep copy semantic,
+     * i.e. any change to the current polyline (including adding new points)
+     * will not affect the clone,  and vice-versa   (any change to the clone
+     * will not affect the current polyline). However, the two polylines will
+     * share many internal structures in such a way that memory consumption
+     * for polyline's clones should be kept low.
+     */
+    public synchronized Object clone() {
+        final Polyline polyline = (Polyline) super.clone();
+        polyline.data = LineString.clone(data); // Take an immutable view of 'data'.
+        return polyline;
+    }
+
+    /**
+     * Clears all information that was kept in an internal cache.
+     * This method can be called when we know that this polyline will no longer be used
+     * before a long time. It does not cause the loss of any information but will make
+     * the next use of this polyline slower (the time during which the internal caches
+     * are reconstructed, after which the polyline will resume its normal speed).
+     */
+    final synchronized void clearCache() {
+        cache      = null;
+        bounds     = null;
+        dataBounds = null;
+        flattened  = checkFlattenedShape();
+        super.clearCache();
+    }
+
+    /**
+     * Invoked during deserialization.
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        flattened = checkFlattenedShape(); // Reasonably fast to compute.
+    }
+
+    /**
+     * Method called when an unexpected error has occurred.
+     *
+     * @param  method Name of the method in which the exception has occurred.
+     * @param  exception The exception which has occurred.
+     * @throws IllegalPathStateException systematically rethrown.
+     */
+    static void unexpectedException(final String method, final TransformException exception) {
+        LineString.unexpectedException("Polyline", method, exception);
+        final IllegalPathStateException e = new IllegalPathStateException(
+                                                exception.getLocalizedMessage());
+        e.initCause(exception);
+        throw e;
+    }
+
+    /**
+     * Write all point coordinates to the specified stream.
+     * This method is useful for debugging purposes.
+     *
+     * @param  out The destination stream, or <code>null</code> for the standard output.
+     * @param  locale Desired locale, or <code>null</code> for a default one.
+     * @throws IOException If an error occured while writing to the destination stream.
+     */
+    public void print(final Writer out, final Locale locale) throws IOException {
+        print(new String[]{getName(locale)}, new Collection[]{getPoints()}, out, locale);
+    }
+
+    /**
+     * Write all point coordinates of many polylines side by side.
+     * This method is useful for checking the result of a coordinate
+     * transformation; one could write the original and transformed
+     * polylines side by side. Note that this method may require unicode
+     * support for proper output.
+     *
+     * @param  polylines The set of polylines. Polygons may have different lengths.
+     * @param  out The destination stream, or <code>null</code> for the standard output.
+     * @param  locale Desired locale, or <code>null</code> for a default one.
+     * @throws IOException If an error occured while writing to the destination stream.
+     */
+    public static void print(final Polyline[] polylines, final Writer out, final Locale locale)
+            throws IOException
     {
-        resolution *= resolution;
-        poly = getFirst(poly);
-        int totalLength = 0;
-        GeneralPath path = null;
-        for (Polyline scan=poly; scan!=null; scan=scan.next) {
-            for (int i=FIRST_ARRAY; i<=LAST_ARRAY; i++) {
-                final PointArray array = scan.getArray(i);
-                if (array != null) {
-                    final int lower = dest.length();
-                    // On ne décime pas les points de bordure (i!=0).
-                    array.toArray(dest, (i==0) ? resolution : 0);
-                    if (transform != null) {
-                        if (i==0) {
-                            // Transform the main data: fast way, no curves.
-                            final float[] data = dest.array();
-                            transform.transform(data, lower, data, lower, (dest.length()-lower)/2);
-                        } else {
-                            // Transform the borders: slower, can create curves.
-                            if (path == null) {
-                                path = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
-                            }
-                            path.reset();
-                            dest.extract(lower, path);
-                            dest.append(transform.createTransformedShape(path));
-                        }
-                    }
-                }
-            }
+        final String[]     titles = new String[polylines.length];
+        final Collection[] arrays = new Collection[polylines.length];
+        for (int i=0; i<polylines.length; i++) {
+            final Polyline polyline = polylines[i];
+            titles[i] = polyline.getName(locale);
+            arrays[i] = polyline.getPoints();
         }
+        print(titles, arrays, out, locale);
     }
 
     /**
-     * Retourne une représentation de cet objet sous forme
-     * de chaîne de caractères.  Cette représentation sera
-     * de la forme <code>"Polyline[3 of 4; 47 pts]"</code>.
-     */
-    public String toString() {
-        final StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(this));
-        buffer.append('[');
-        int index=1;
-        for (Polyline scan=previous; scan!=null; scan=scan.previous) {
-            index++;
-        }
-        buffer.append(index);
-        for (Polyline scan=next; scan!=null; scan=scan.next) {
-            index++;
-        }
-        buffer.append(" of ");
-        buffer.append(index);
-        buffer.append("; ");
-        buffer.append(array!=null ? array.count() : 0);
-        buffer.append(" points");
-        if (suffix != null) {
-            buffer.append(" + ");
-            buffer.append(suffix.count());
-            buffer.append(" in border");
-        }
-        buffer.append(']');
-        return buffer.toString();
-    }
-
-    /**
-     * Retourne un code représentant la polyligne spécifiée.
+     * Write all points from arbitrary collections side by side.
+     * Note that this method may require unicode support for proper output.
      *
-     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *              mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @return Un code calculé à partir de quelques points de la polyligne spécifiée.
+     * @param  titles The column's titles. Should have the same length as <code>points</code>.
+     * @param  points Array of points collections. Collections may have different sizes.
+     * @param  out The destination stream, or <code>null</code> for the standard output.
+     * @param  locale Desired locale, or <code>null</code> for a default one.
+     * @throws IOException If an error occured while writing to the destination stream.
      */
-    public static int hashCode(Polyline scan) {
-        int code = (int)serialVersionUID;
-        for (scan=getFirst(scan); scan!=null; scan=scan.next) {
-            if (scan.array != null) {
-                code = 37*code + scan.array.hashCode();
-            }
-        }
-        return code;
-    }
-
-    /**
-     * Indique si deux polylignes contiennent les mêmes points. Cette méthode
-     * retourne aussi <code>true</code> si les deux arguments sont nuls.
-     *
-     * @param poly1 Première polyligne. Cet argument peut être n'importe quel maillon d'une
-     *              chaîne, mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param poly2 Seconde polyligne. Cet argument peut être n'importe quel maillon d'une
-     *              chaîne, mais cette méthode sera plus rapide si c'est le premier maillon.
-     */
-    public static boolean equals(Polyline poly1, Polyline poly2) {
-        poly1 = getFirst(poly1);
-        poly2 = getFirst(poly2);
-        while (poly1 != poly2) {
-            if (poly1==null || poly2==null) {
-                return false;
-            }
-            for (int arrayID=FIRST_ARRAY; arrayID<=LAST_ARRAY; arrayID++) {
-                final PointArray array1 = poly1.getArray(arrayID);
-                final PointArray array2 = poly2.getArray(arrayID);
-                if (!Utilities.equals(array1, array2)) {
-                    return false;
-                }
-            }
-            poly1 = poly1.next;
-            poly2 = poly2.next;
-        }
-        return true;
-    }
-
-    /**
-     * Retourne une copie de la polyligne spécifiée. Cette méthode ne copie que les références
-     * vers une version immutable des tableaux de points. Les points eux-mêmes ne sont pas
-     * copiés, ce qui permet d'éviter de consommer une quantité excessive de mémoire.
-     *
-     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *              mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @return Copie de la chaîne <code>scan</code>.
-     */
-    public static Polyline clone(Polyline scan) {
-        Polyline queue=null;
-        for (scan=getFirst(scan); scan!=null; scan=scan.next) {
-            final Polyline toMerge = new Polyline(null);
-            for (int arrayID=FIRST_ARRAY; arrayID<=LAST_ARRAY; arrayID++) {
-                PointArray array = scan.getArray(arrayID);
-                if (array != null) {
-                    array = array.getFinal(false);
-                }
-                toMerge.setArray(arrayID, array);
-            }
-            if (!toMerge.isEmpty()) {
-                queue = append(queue, toMerge);
-            }
-        }
-        return queue;
-    }
-
-
-
-
-    /**
-     * A set of points ({@link Point2D}) from a polyline or a polygon.
-     * This set of points is returned by {@link Polygon#getPoints}.
-     *
-     * @version $Id: Polyline.java,v 1.9 2003/05/23 17:58:59 desruisseaux Exp $
-     * @author Martin Desruisseaux
-     */
-    static final class Collection extends AbstractCollection {
-        /**
-         * Première polyligne de la chaîne de points à balayer.
-         */
-        private final Polyline data;
-
-        /**
-         * Transformation à appliquer sur chacun des points.
-         */
-        private final MathTransform2D transform;
-
-        /**
-         * Construit un ensemble de points.
-         */
-        public Collection(final Polyline data, final MathTransform2D transform) {
-            this.data = data;
-            this.transform = transform;
-        }
-
-        /**
-         * Retourne le nombre de points dans cet ensemble.
-         */
-        public int size() {
-            return getPointCount(data);
-        }
-
-        /**
-         * Retourne un itérateur balayant les points de cet ensemble.
-         */
-        public java.util.Iterator iterator() {
-            return new Iterator(data, transform);
-        }
-    }
-
-
-
-
-    /**
-     * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
-     *
-     * @version $Id: Polyline.java,v 1.9 2003/05/23 17:58:59 desruisseaux Exp $
-     * @author Martin Desruisseaux
-     */
-    static final class Iterator implements java.util.Iterator {
-        /**
-         * Polyligne qui sert de point de départ à cet itérateur.
-         * Cette informations est utilisée par {@link #rewind}.
-         */
-        private final Polyline start;
-
-        /**
-         * Polyligne qui sera balayée par les prochains appels de {@link #next}.
-         * Ce champs sera mis à jour au fur et à mesure que l'on passera d'une
-         * polyligne à l'autre.
-         */
-        private Polyline current;
-
-        /**
-         * Code indiquant quel champs de {@link #current} est présentement en cours d'examen:
-         *
-         *    -1 pour {@link Polyline#prefix},
-         *     0 pour {@link Polyline#array} et
-         *    +1 pour {@link Polyline#suffix}.
-         */
-        private int arrayID = FIRST_ARRAY-1;;
-
-        /**
-         * Itérateur balayant les données. Cet itérateur
-         * aura été obtenu d'un tableau {@link PointArray}.
-         */
-        private PointIterator iterator;
-
-        /**
-         * Transformation à appliquer sur les coordonnées,
-         * ou <code>null</code> s'il n'y en a pas.
-         */
-        private final MathTransform2D transform;
-
-        /**
-         * Point utilisé temporairement pour les projections.
-         */
-        private final Point2D.Float point = new Point2D.Float();
-
-        /**
-         * Initialise l'itérateur de façon à démarrer
-         * les balayages à partir de la polyligne spécifiée.
-         *
-         * @param start Polyligne (peut être nul).
-         * @param transform Transformation à appliquer sur les
-         *        coordonnées, ou <code>null</code> s'il n'y en a pas.
-         */
-        public Iterator(final Polyline start, final MathTransform2D transform) {
-            this.start = current = getFirst(start);
-            this.transform = (transform!=null && !transform.isIdentity()) ? transform : null;
-            nextArray();
-        }
-
-        /**
-         * Avance l'itérateur au prochain tableau.
-         */
-        private void nextArray() {
-            while (current != null) {
-                while (++arrayID <= LAST_ARRAY) {
-                    final PointArray array = current.getArray(arrayID);
-                    if (array != null) {
-                        iterator = array.iterator(0);
-                        if (iterator.hasNext()) {
-                            return;
-                        }
-                    }
-                }
-                arrayID = Polyline.FIRST_ARRAY-1;
-                current = current.next;
-            }
-            iterator = null;
-        }
-
-        /**
-         * Indique s'il reste des données que peut retourner {@link #next}.
-         */
-        public boolean hasNext() {
-            while (iterator != null) {
-                if (iterator.hasNext()) {
-                    return true;
-                }
-                nextArray();
-            }
-            return false;
-        }
-
-        /**
-         * Retourne les coordonnées du point suivant.
-         *
-         * @return Le point suivant comme un objet {@link Point2D}.
-         */
-        public Object next() throws NoSuchElementException {
-            if (hasNext()) {
-                Point2D point = (Point2D) iterator.next();
-                if (transform != null) try {
-                    point = transform.transform(point, point);
-                } catch (TransformException exception) {
-                    // Should not happen, since {@link Polygon#setCoordinateSystem}
-                    // has already successfully projected every points.
-                    unexpectedException("Polyline", "next", exception);
-                    return null;
-                }
-                return point;
-            } else {
-                throw new NoSuchElementException();
-            }
-        }
-
-        /**
-         * Retourne les coordonnées du point suivant. Contrairement à la méthode {@link #next()},
-         * celle-ci retourne <code>null</code> sans lancer d'exception s'il ne reste plus de point
-         * à balayer.
-         *
-         * @param  dest Point dans lequel mémoriser le résultat. Si cet argument
-         *         est nul, un nouvel objet sera créé et retourné pour mémoriser
-         *         les coordonnées.
-         * @return S'il restait des coordonnées à lire, le point <code>point</code> qui avait été
-         *         spécifié en argument. Si <code>point</code> était nul, un objet {@link Point2D}
-         *         nouvellement créé. S'il ne restait plus de données à lire, cette méthode retourne
-         *         toujours <code>null</code>.
-         */
-        final Point2D.Float next(Point2D.Float dest) {
-            while (hasNext()) {
-                if (dest != null) {
-                    dest.x = iterator.nextX();
-                    dest.y = iterator.nextY();
-                } else {
-                    dest = new Point2D.Float(iterator.nextX(), iterator.nextY());
-                }
-                if (transform != null) try {
-                    transform.transform(dest, dest);
-                } catch (TransformException exception) {
-                    // Should not happen, since {@link Polygon#setCoordinateSystem}
-                    // has already successfully projected every points.
-                    unexpectedException("Polyline", "next", exception);
-                    continue;
-                }
-                return dest;
-            }
-            return null;
-        }
-
-        /**
-         * Retourne les coordonnées du prochain point dans le champs
-         * (<var>x2</var>,<var>y2</var>) de la ligne spécifiée. Les
-         * anciennes coordonnées (<var>x2</var>,<var>y2</var>) seront
-         * préalablement copiées dans (<var>x1</var>,<var>y1</var>).
-         * Si cette méthode a réussie, elle retourne <code>true</code>.
-         *
-         * Si elle a échouée parce qu'il ne restait plus de points disponibles, elle
-         * aura tout de même copié les coordonnées (<var>x2</var>,<var>y2</var>) dans
-         * (<var>x1</var>,<var>y1</var>) (ce qui aura pour effet de donner à la ligne
-         * une longueur de 0) et retournera <code>false</code>.
-         */
-        final boolean next(final Line2D.Float line) {
-            line.x1 = line.x2;
-            line.y1 = line.y2;
-            while (hasNext()) {
-                if (transform == null) {
-                    line.x2 = iterator.nextX();
-                    line.y2 = iterator.nextY();
-                } else try {
-                    point.x = iterator.nextX();
-                    point.y = iterator.nextY();
-                    transform.transform(point, point);
-                    line.x2 = point.x;
-                    line.y2 = point.y;
-                } catch (TransformException exception) {
-                    // Should not happen, since {@link Polygon#setCoordinateSystem}
-                    // has already successfully projected every points.
-                    unexpectedException("Polyline", "next", exception);
-                    continue;
-                }
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * Repositionne cet itérateur à son point de départ.
-         */
-        final void rewind() {
-            current  = start;
-            arrayID  = FIRST_ARRAY-1;
-            nextArray();
-        }
-
-        /**
-         * Cette opération n'est pas supportée.
-         *
-         * @throws UnsupportedOperationException Systématiquement lancée.
-         */
-        public void remove() throws UnsupportedOperationException {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    /**
-     * Méthode appelée lorsqu'une erreur inatendue est survenue.
-     *
-     * @param source Nom de la classe dans laquelle est survenu l'exception.
-     * @param method Nom de la méthode dans laquelle est survenu l'exception.
-     * @param exception L'exception survenue.
-     */
-    static void unexpectedException(final String classe, final String method,
-                                    final TransformException exception)
+    public static void print(final String[] titles, final Collection[] points, Writer out, Locale locale)
+            throws IOException
     {
-        Utilities.unexpectedException("org.geotools.renderer.geom", classe, method, exception);
+        if (locale == null) locale = Locale.getDefault();
+        if (out    == null)    out = Arguments.getWriter(System.out);
+
+        final int            width = 8; // Columns width.
+        final int        precision = 3; // Significant digits.
+        final String     separator = "  \u2502  "; // Vertical bar.
+        final String lineSeparator = System.getProperty("line.separator", "\n");
+        final NumberFormat  format = NumberFormat.getNumberInstance(locale);
+        final FieldPosition  dummy = new FieldPosition(0);
+        final StringBuffer  buffer = new StringBuffer();
+        format.setMinimumFractionDigits(precision);
+        format.setMaximumFractionDigits(precision);
+        format.setGroupingUsed(false);
+
+        final Iterator[] iterators = new Iterator[points.length];
+        for (int i=0; i<points.length; i++) {
+            if (i != 0) {
+                out.write(separator);
+            }
+            int length=0;
+            if (titles[i] != null) {
+                length=titles[i].length();
+                final int spaces = Math.max(width-length/2, 0);
+                out.write(Utilities.spaces(spaces));
+                out.write(titles[i]);
+                length += spaces;
+            }
+            out.write(Utilities.spaces(1+2*width-length));
+            iterators[i]=points[i].iterator();
+        }
+        out.write(lineSeparator);
+        boolean hasNext; do {
+            hasNext=false;
+            buffer.setLength(0);
+            for (int i=0; i<iterators.length; i++) {
+                if (i!=0) buffer.append(separator);
+                final Iterator   it = iterators[i];
+                final boolean hasPt = it.hasNext();
+                final Point2D point = (hasPt) ? (Point2D) it.next() : null;
+                boolean xy=true; do {
+                    final int start = buffer.length();
+                    if (point != null) {
+                        format.format(xy ? point.getX() : point.getY(), buffer, dummy);
+                    }
+                    buffer.insert(start, Utilities.spaces(width-(buffer.length()-start)));
+                    if (xy) {
+                        buffer.append('\u00A0'); // No-break space
+                    }
+                } while (!(xy = !xy));
+                hasNext |= hasPt;
+            }
+            if (!hasNext) {
+                break;
+            }
+            buffer.append(lineSeparator);
+            out.write(buffer.toString());
+        } while (hasNext);
     }
 }

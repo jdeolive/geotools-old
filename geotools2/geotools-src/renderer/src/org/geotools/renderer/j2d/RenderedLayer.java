@@ -92,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.20 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.21 2003/05/27 18:22:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -424,7 +424,7 @@ public abstract class RenderedLayer {
      * Set the preferred pixel size in "real world" coordinates. For images, this is the
      * size of image's pixels in units of {@link #getCoordinateSystem}. For other kind of
      * layers, "pixel size" is to be understood as some raisonable resolution for the
-     * underlying data. For example an isoline layer may returns the isoline's mean resolution.
+     * underlying data. For example a geometry layer may returns the geometry's mean resolution.
      *
      * @param size The preferred pixel size, or <code>null</code> if there is none.
      *

@@ -41,6 +41,7 @@ import com.vividsolutions.jts.geom.LineString;
 
 // Geotools dependencies
 import org.geotools.resources.XArray;
+import org.geotools.renderer.geom.CompressionLevel;
 
 
 /**
@@ -49,7 +50,7 @@ import org.geotools.resources.XArray;
  * class wrap directly this {@link LineString} internal array,  in order to avoid object creation
  * and copies.
  *
- * @version $Id: JTSArray.java,v 1.5 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: JTSArray.java,v 1.6 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see DefaultArray
@@ -224,17 +225,12 @@ public final class JTSArray extends PointArray implements RandomAccess {
 
     /**
      * Retourne un tableau immutable qui contient les mêmes données que celui-ci.
-     *
-     * @param  compress <code>true</code> si l'on souhaite aussi comprimer les données.
-     * @return Tableau immutable et éventuellement compressé, <code>this</code>
-     *         si ce tableau répondait déjà aux conditions ou <code>null</code>
-     *         si ce tableau ne contient aucune donnée.
      */
-    public final PointArray getFinal(final boolean compress) {
-        if (compress && count() >= 8) {
-            return new DefaultArray(toArray());
+    public final PointArray getFinal(final CompressionLevel level) {
+        if (level!=null && count() >= 8) {
+            return new DefaultArray(toArray()).getFinal(level);
         }
-        return super.getFinal(compress);
+        return super.getFinal(level);
     }
     
     /**

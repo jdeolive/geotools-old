@@ -18,7 +18,7 @@ import org.geotools.resources.XAffineTransform;
  * It is rather used for debugging purpose, as well as rendering lines in some simplier
  * context (e.g. {@link org.geotools.gui.swing.Plot2D}).
  *
- * @version $Id: ShapeAdapter.java,v 1.2 2003/05/24 12:45:08 desruisseaux Exp $
+ * @version $Id: ShapeAdapter.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see PointArray#toShape
@@ -50,18 +50,13 @@ final class ShapeAdapter implements Shape, Serializable {
      *
      * @param array     The array of (<var>x</var>,<var>y</var>) coordinates
      * @param transform An optional transform to apply on coordinates, or <code>null</code> if none.
-     * @param bounds    The shape bounds, or <code>null</code> for computing it automatically.
-     *        <strong>NOTE: This rectangle will be modified. Do not pass internal data.</strong>
      */
-    public ShapeAdapter(final PointArray array, AffineTransform transform, Rectangle2D bounds) {
-        this.array = array;
+    public ShapeAdapter(final PointArray array, AffineTransform transform) {
         if (transform==null || transform.isIdentity()) {
             transform = null;
-        } else if (bounds != null) {
-            bounds = XAffineTransform.transform(transform, bounds, bounds);
         }
         this.transform = transform;
-        this.bounds    = bounds;
+        this.array     = array;
     }
     
     /**
@@ -130,21 +125,10 @@ final class ShapeAdapter implements Shape, Serializable {
      */
     private Rectangle2D getInternalBounds2D() {
         if (bounds == null) {
-            float xmin = Float.POSITIVE_INFINITY;
-            float xmax = Float.NEGATIVE_INFINITY;
-            float ymin = Float.POSITIVE_INFINITY;
-            float ymax = Float.NEGATIVE_INFINITY;
-            final PointIterator it = array.iterator(0);
-            while (it.hasNext()) {
-                final float x = it.nextX();
-                final float y = it.nextY();
-                if (x < xmin) xmin=x;
-                if (x > xmax) xmax=x;
-                if (y < ymin) ymin=y;
-                if (y > ymax) ymax=y;
-            }
-            bounds = new Rectangle2D.Float(xmin, ymin, xmax-xmin, ymax-ymin);
-            if (transform != null) {
+            bounds = array.getBounds2D();
+            if (bounds == null) {
+                bounds = new Rectangle2D.Float();
+            } else if (transform != null) {
                 bounds = XAffineTransform.transform(transform, bounds, bounds);
             }
         }
@@ -158,6 +142,12 @@ final class ShapeAdapter implements Shape, Serializable {
      * instructions).
      */
     public PathIterator getPathIterator(AffineTransform at) {
+        if (at==null || at.isIdentity()) {
+            at = transform;
+        } else if (transform != null) {
+            at = new AffineTransform(at);
+            at.concatenate(transform);
+        }
         return array.getPathIterator(at);
     }
     
@@ -174,7 +164,7 @@ final class ShapeAdapter implements Shape, Serializable {
     /**
      * The path iterator for the data to plot.
      *
-     * @version $Id: ShapeAdapter.java,v 1.2 2003/05/24 12:45:08 desruisseaux Exp $
+     * @version $Id: ShapeAdapter.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator extends Point2D.Double implements PathIterator {

@@ -57,65 +57,58 @@ import org.geotools.renderer.array.JTSArray;
 
 
 /**
- * An {@link Isoline} backed by one or many JTS {@link Geometry} objects.
+ * A geometry collection backed by one or many JTS {@link Geometry} objects.
  *
- * @version $Id: JTSIsoline.java,v 1.4 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: JTSGeometries.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class JTSIsoline extends Isoline {
+public class JTSGeometries extends GeometryCollection {
     /**
      * Numéro de version pour compatibilité avec des
      * bathymétries enregistrées sous d'anciennes versions.
      */
-    private static final long serialVersionUID = 1313504311244991561L;
+//    private static final long serialVersionUID = 1313504311244991561L;
 
     /**
-     * Construct an initially empty isoline using the
-     * {@linkplain org.geotools.cs.GeographicCoordinateSystem#WGS84 default}
-     * geographic coordinate system. Polygons can be added using {@link #add}.
-     * method.
-     *
-     * @param value The value for this isoline. In the case
-     *        of isobath, the value is the altitude.
+     * Construct an initially empty collection using the
+     * {@linkplain org.geotools.cs.GeographicCoordinateSystem#WGS84 WGS84}
+     * geographic coordinate system. Geometries can be added using {@link #add} method.
      */
-    public JTSIsoline(final float value) {
-        super(value);
+    public JTSGeometries() {
     }
 
     /**
-     * Construct an initialy empty isoline. Polygon may be added using
-     * {@link #add} method.
+     * Construct an initialy empty collection.
+     * Geometries can be added using {@link #add} method.
      *
-     * @param value The value for this isoline. In the case
-     *        of isobath, the value is the altitude.
      * @param coordinateSystem The coordinate system to use for all
-     *        points in this isoline, or <code>null</code> if unknow.
+     *        points in this geometry, or <code>null</code> if unknow.
      */
-    public JTSIsoline(final float value, final CoordinateSystem cs) {
-        super(value, cs);
+    public JTSGeometries(final CoordinateSystem cs) {
+        super(cs);
     }
 
     /**
-     * Construct an isoline for the specified geometry. The {@link #value} is computed
-     * from the mean value of all {@link Coordinate#z} in the specified geometry.
+     * Construct a collection for the specified geometry. The {@link #getValue value} is
+     * computed from the mean value of all {@link Coordinate#z} in the specified geometry.
      *
      * @param geometry The geometry to wrap, or <code>null</code> if none.
      *
      * @task TODO: The coordinate system currently default to WGS84. We should
      *             find it from the SRID code.
      */
-    public JTSIsoline(final SFSGeometry geometry) {
-        super((geometry!=null) ? (float)statistics(geometry).mean() : 0);
+    public JTSGeometries(final SFSGeometry geometry) {
         if (geometry!=null) try {
             add(geometry);
         } catch (TransformException exception) {
-            // Should not happen, since this isoline is suppose to be
+            // Should not happen, since this collection is suppose to be
             // set to the same coordinate system than the geometry.
             final IllegalArgumentException e;
             e = new IllegalArgumentException(exception.getLocalizedMessage());
             e.initCause(exception);
             throw e;
         }
+        setValue((float)statistics(geometry).mean());
     }
 
     /**
@@ -170,12 +163,12 @@ public class JTSIsoline extends Isoline {
     }
 
     /**
-     * Add the specified point to this isoline. This method should rarely be
-     * used, since isoline are not designed for handling individual points.
+     * Add the specified point to this collection. This method should rarely be
+     * used, since polylines are not designed for handling individual points.
      *
      * @param  geometry The point to add.
      * @throws TransformException if the specified geometry can't
-     *         be transformed in this isoline's coordinate system.
+     *         be transformed in this collection's coordinate system.
      */
     private void addSF(final SFSPoint geometry) throws TransformException {
         final Coordinate[] coords;
@@ -184,33 +177,26 @@ public class JTSIsoline extends Isoline {
         } else {
             coords = new Coordinate[] {geometry.getCoordinate()};
         }
-        add(new Polygon(new JTSArray(coords), getCoordinateSystem(geometry)));
+        add(new Polyline(new JTSArray(coords), getCoordinateSystem(geometry)));
     }
 
     /**
-     * Add the specified line string to this isoline.
+     * Add the specified line string to this collection.
      *
      * @param  geometry The line string to add.
      * @throws TransformException if the specified geometry can't
-     *         be transformed in this isoline's coordinate system.
+     *         be transformed in this collection's coordinate system.
      */
     private void addSF(final SFSLineString geometry) throws TransformException {
-        addSF(geometry, InteriorType.ELEVATION);
+        add(toPolyline(geometry));
     }
 
     /**
-     * Add the specified line string to this isoline. The shape will be closed using the
-     * specified type (usually {@link InteriorType#ELEVATION}, except for holes in which
-     * case it is {@link InteriorType#DEPRESSION}).
+     * Returns the specified line string as a {@link Polyline} object.
      *
-     * @param  geometry The line string to add.
-     * @param  type The type ({@link InteriorType#ELEVATION} or {@link InteriorType#DEPRESSION}).
-     * @throws TransformException if the specified geometry can't
-     *         be transformed in this isoline's coordinate system.
+     * @param geometry The line string to add.
      */
-    private void addSF(final SFSLineString geometry, final InteriorType type)
-            throws TransformException
-    {
+    private Polyline toPolyline(final SFSLineString geometry) {
         final Coordinate[] coords;
         if (geometry instanceof LineString) {
             coords = ((LineString) geometry).getCoordinates();
@@ -220,34 +206,35 @@ public class JTSIsoline extends Isoline {
                 coords[i] = geometry.getCoordinateN(i);
             }
         }
-        final Polygon polygon = new Polygon(new JTSArray(coords), getCoordinateSystem(geometry));
+        final Polyline polyline = new Polyline(new JTSArray(coords), getCoordinateSystem(geometry));
         if (geometry.isRing()) {
-            polygon.close(type);
+            polyline.close();
+        }
+        return polyline;
+    }
+
+    /**
+     * Add the specified polygon to this collection.
+     *
+     * @param  geometry The polygon to add.
+     * @throws TransformException if the specified geometry can't
+     *         be transformed in this collection's coordinate system.
+     */
+    private void addSF(final SFSPolygon geometry) throws TransformException {
+        final Polygon polygon = new Polygon(toPolyline(geometry.getExteriorRing()));
+        final int n = geometry.getNumInteriorRing();
+        for (int i=0; i<n; i++) {
+            polygon.addHole(toPolyline(geometry.getInteriorRingN(i)));
         }
         add(polygon);
     }
 
     /**
-     * Add the specified polygon to this isoline.
-     *
-     * @param  geometry The polygon to add.
-     * @throws TransformException if the specified geometry can't
-     *         be transformed in this isoline's coordinate system.
-     */
-    private void addSF(final SFSPolygon geometry) throws TransformException {
-        addSF(geometry.getExteriorRing());
-        final int n = geometry.getNumInteriorRing();
-        for (int i=0; i<n; i++) {
-            addSF(geometry.getInteriorRingN(i), InteriorType.DEPRESSION);
-        }
-    }
-
-    /**
-     * Add the specified geometry collection to this isoline.
+     * Add the specified geometry collection to this collection.
      *
      * @param  geometry The geometry collection to add.
      * @throws TransformException if the specified geometry can't
-     *         be transformed in this isoline's coordinate system.
+     *         be transformed in this collection's coordinate system.
      */
     private void addSF(final SFSGeometryCollection geometry) throws TransformException {
         final int n = geometry.getNumGeometries();
@@ -257,13 +244,13 @@ public class JTSIsoline extends Isoline {
     }
 
     /**
-     * Add the specified geometry to this isoline. The geometry must be one
+     * Add the specified geometry to this collection. The geometry must be one
      * of the following classes: {@link SFSPoint}, {@link SFSLineString},
      * {@link SFSPolygon} or {@link SFSGeometryCollection}.
      *
      * @param  geometry The geometry to add.
      * @throws TransformException if the specified geometry can't
-     *         be transformed in this isoline's coordinate system.
+     *         be transformed in this collection's coordinate system.
      * @throws IllegalArgumentException if the geometry is not a a valid class.
      */
     private void addAny(final SFSGeometry geometry) throws TransformException,
@@ -289,13 +276,13 @@ public class JTSIsoline extends Isoline {
     }
 
     /**
-     * Add the specified geometry to this isoline. The geometry must be one
+     * Add the specified geometry to this collection. The geometry must be one
      * of the following classes: {@link SFSPoint}, {@link SFSLineString},
      * {@link SFSPolygon} or {@link SFSGeometryCollection}.
      *
      * @param  geometry The geometry to add.
      * @throws TransformException if the specified geometry can't
-     *         be transformed in this isoline's coordinate system.
+     *         be transformed in this collection's coordinate system.
      * @throws IllegalArgumentException if the geometry is not a a valid class.
      */
     public void add(final SFSGeometry geometry) throws TransformException, IllegalArgumentException

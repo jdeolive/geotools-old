@@ -35,8 +35,8 @@ package org.geotools.renderer.geom;
 
 
 /**
- * Paire de traits de côte à fusionner ensemble. Cet objet contient deux références
- * vers deux traits de côtes {@link Polygon}, désignés {@link #i} et {@link #j}. Les
+ * Paire d'objets {@link Polyline} à fusionner ensemble. Cet objet contient deux références
+ * vers deux objets {@link Polyline}, désignés {@link #i} et {@link #j}. Les
  * champs <code>[i/j].mergeEnd</code> indiquent de quelle façon il faut fusionner ces
  * segments (par exemple faut-il ajouter <var>i</var> à la fin de <var>j</var> ou
  * l'inverse?).
@@ -46,7 +46,7 @@ package org.geotools.renderer.geom;
  * avec le même spin, on ne doit pas avoir nulle part dans la liste deux pointeurs
  * <code>[i/j].path</code> identiques associés à la même valeur booléenne <code>[i/j].mergeEnd</code>.
  *
- * @version $Id: FermionPair.java,v 1.2 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: FermionPair.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class FermionPair {
@@ -70,7 +70,7 @@ final class FermionPair {
     /**
      * Distance au carré entre le début ou la fin de <code>j.path</code> avec le début ou la
      * fin de <code>i.path</code>. Les champs <code>[i/j].mergeEnd</code> indiquent quelles
-     * extrémitées de <code>Polygon</code> sont comparées.
+     * extrémitées de {@link Polyline} sont comparées.
      */
     double minDistanceSq=Double.POSITIVE_INFINITY;
 
@@ -82,8 +82,8 @@ final class FermionPair {
 
     /**
      * Renvoie une représentation sous forme de chaîne de caractères de cet objet. Cette
-     * représentation sera généralement de la forme "Polylines[23+56 pts; D=0.3 km]" ou
-     * "Polygon[65 pts; D=0.2 km]". Cette information est utile à des fins de déboguage.
+     * représentation sera généralement de la forme "Polyline[23+56 pts; D=0.3 km]" ou
+     * "Polyline[65 pts; D=0.2 km]". Cette information est utile à des fins de déboguage.
      */
     public String toString() {
         StringBuffer buffer = new StringBuffer(j.path==i.path ? "Polygon[" : "Polyline[");

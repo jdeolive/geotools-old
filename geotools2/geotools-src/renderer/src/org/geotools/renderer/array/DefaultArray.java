@@ -33,11 +33,15 @@
  */
 package org.geotools.renderer.array;
 
-// Divers
+// J2SE dependencies
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+
+// Geotools dependencies
 import org.geotools.resources.XArray;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.renderer.geom.CompressionLevel;
 
 
 /**
@@ -46,7 +50,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * doesn't use any compression technic. However, subclasses may be mutable (i.e. support the
  * {@link #insertAt insertAt(...)} method) or compress data.
  *
- * @version $Id: DefaultArray.java,v 1.8 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: DefaultArray.java,v 1.9 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see #getInstance
@@ -203,6 +207,31 @@ public class DefaultArray extends PointArray implements RandomAccess {
     }
 
     /**
+     * Returns the bounding box of all <var>x</var> and <var>y</var> ordinates.
+     * If this array is empty, then this method returns <code>null</code>.
+     */
+    public final Rectangle2D getBounds2D() {
+        float xmin = Float.POSITIVE_INFINITY;
+        float xmax = Float.NEGATIVE_INFINITY;
+        float ymin = Float.POSITIVE_INFINITY;
+        float ymax = Float.NEGATIVE_INFINITY;
+        final int upper = upper();
+        for (int i=lower(); i<upper;) {
+            final float x = array[i++];
+            final float y = array[i++];
+            if (x<xmin) xmin=x;
+            if (x>xmax) xmax=x;
+            if (y<ymin) ymin=y;
+            if (y>ymax) ymax=y;
+        }
+        if (xmin<=xmax && ymin<=ymax) {
+            return new Rectangle2D.Float(xmin, ymin, xmax-xmin, ymax-ymin);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Retourne un tableau enveloppant les mêmes points que le tableau courant,
      * mais des index <code>lower</code> inclusivement jusqu'à <code>upper</code>
      * exclusivement. Si le sous-tableau ne contient aucun point (c'est-à-dire si
@@ -276,19 +305,12 @@ public class DefaultArray extends PointArray implements RandomAccess {
      * Après l'appel de cette méthode, toute tentative de modification (avec les
      * méthodes {@link #insertAt} ou {@link #reverse}) vont retourner un autre
      * tableau de façon à ne pas modifier le tableau immutable.
-     *
-     * @param  compress <code>true</code> si l'on souhaite aussi comprimer les
-     *         données. Cette compression peut se traduire par une plus grande
-     *         lenteur lors des accès aux données.
-     * @return Tableau immutable et éventuellement compressé, <code>this</code>
-     *         si ce tableau répondait déjà aux conditions ou <code>null</code>
-     *         si ce tableau ne contient aucune donnée.
      */
-    public PointArray getFinal(final boolean compress) {
-        if (compress && count() >= 8) {
+    public PointArray getFinal(final CompressionLevel level) {
+        if (level==CompressionLevel.RELATIVE_AS_BYTES && count() >= 8) {
             return new CompressedArray(array, lower(), upper());
         }
-        return super.getFinal(compress);
+        return super.getFinal(level);
     }
 
     /**

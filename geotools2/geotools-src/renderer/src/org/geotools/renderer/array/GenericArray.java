@@ -47,6 +47,7 @@ import java.util.Arrays;
 // Geotools dependencies
 import org.geotools.resources.XArray;
 import org.geotools.resources.XRectangle2D;
+import org.geotools.renderer.geom.CompressionLevel;
 
 
 /**
@@ -59,7 +60,7 @@ import org.geotools.resources.XRectangle2D;
  * Note: this implementation is not the fastest one. For maximal performance, consider using
  * {@link DefaultArray} instead.
  *
- * @version $Id: GenericArray.java,v 1.2 2003/05/24 12:45:08 desruisseaux Exp $
+ * @version $Id: GenericArray.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see DefaultArray
@@ -227,6 +228,7 @@ public class GenericArray extends PointArray implements RandomAccess {
     
     /**
      * Returns the bounding box of all <var>x</var> and <var>y</var> ordinates.
+     * If this array is empty, then this method returns <code>null</code>.
      */
     public Rectangle2D getBounds2D() {
         final XRectangle2D bounds = new XRectangle2D();
@@ -234,7 +236,7 @@ public class GenericArray extends PointArray implements RandomAccess {
         bounds.xmax = x.maximum;
         bounds.ymin = y.minimum;
         bounds.ymax = y.maximum;
-        return bounds;
+        return bounds.isEmpty() ? null : bounds;
     }
 
     /**
@@ -301,17 +303,12 @@ public class GenericArray extends PointArray implements RandomAccess {
 
     /**
      * Retourne un tableau immutable qui contient les mêmes données que celui-ci.
-     *
-     * @param  compress <code>true</code> si l'on souhaite aussi comprimer les données.
-     * @return Tableau immutable et éventuellement compressé, <code>this</code>
-     *         si ce tableau répondait déjà aux conditions ou <code>null</code>
-     *         si ce tableau ne contient aucune donnée.
      */
-    public PointArray getFinal(final boolean compress) {
-        if (compress && count()>=8 && Math.max(x.type(), y.type())>=2) {
-            return new DefaultArray(toArray());
+    public PointArray getFinal(final CompressionLevel level) {
+        if (level!=null && count()>=8 && Math.max(x.type(), y.type())>=2) {
+            return new DefaultArray(toArray()).getFinal(level);
         }
-        return super.getFinal(compress);
+        return super.getFinal(level);
     }
     
     /**
@@ -363,7 +360,7 @@ public class GenericArray extends PointArray implements RandomAccess {
     /**
      * A path iterator for the data.
      *
-     * @version $Id: GenericArray.java,v 1.2 2003/05/24 12:45:08 desruisseaux Exp $
+     * @version $Id: GenericArray.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Iterator implements PathIterator {
@@ -433,7 +430,7 @@ public class GenericArray extends PointArray implements RandomAccess {
      * Wrap an array of <code>double</code>, <code>float</code>, <code>long</code>,
      * <code>int</code>, <code>short</code> or <code>byte</code> data.
      *
-     * @version $Id: GenericArray.java,v 1.2 2003/05/24 12:45:08 desruisseaux Exp $
+     * @version $Id: GenericArray.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Vector implements Serializable {

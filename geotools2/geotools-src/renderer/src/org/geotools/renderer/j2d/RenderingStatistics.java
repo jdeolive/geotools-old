@@ -43,6 +43,7 @@ import java.util.logging.LogRecord;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.renderer.geom.Geometry; // For Javadoc
 
 
 /**
@@ -50,7 +51,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * painting is in process. They are used for logging messages and have no impact
  * on future rendering.
  *
- * @version $Id: RenderingStatistics.java,v 1.5 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: RenderingStatistics.java,v 1.6 2003/05/27 18:22:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RenderingStatistics {
@@ -70,8 +71,7 @@ final class RenderingStatistics {
 
     /**
      * The number of points recomputed, rendered and the total number of points while painting
-     * an {@link org.geotools.renderer.geom.Isoline}. Those informations are updated only by
-     * {@link RenderedIsoline}.
+     * an {@link Geometry}. Those informations are updated only by {@link RenderedIsoline}.
      */
     private int recomputed, rendered, total;
 
@@ -96,7 +96,7 @@ final class RenderingStatistics {
     }
 
     /**
-     * Update statistics about the rendering of an isoline.
+     * Update statistics about the rendering of a geometry.
      *
      * @param total The total number of points in rendered polygons.
      * @param rendered The total number of <em>rendered</em> points
@@ -105,8 +105,8 @@ final class RenderingStatistics {
      *        (i.e. decompressed, decimated, projected and transformed).
      * @param resolution The mean resolution of rendered polygons.
      */
-    public void addIsoline(final int total, final int rendered, final int recomputed,
-                           double resolution)
+    public void addGeometry(final int total, final int rendered, final int recomputed,
+                            double resolution)
     {
         this.total      += total;
         this.rendered   += rendered;

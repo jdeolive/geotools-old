@@ -45,12 +45,13 @@ import junit.framework.TestSuite;
 
 // Geotools dependencies
 import org.geotools.resources.XArray;
+import org.geotools.renderer.geom.CompressionLevel;
 
 
 /**
  * Test the <code>org.geotools.renderer.array</code> package.
  *
- * @version $Id: PointArrayTest.java,v 1.5 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: PointArrayTest.java,v 1.6 2003/05/27 18:22:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PointArrayTest extends TestCase {
@@ -136,7 +137,7 @@ public class PointArrayTest extends TestCase {
                     break;
                 }
                 case 1: {
-                    points = points.getFinal(false);
+                    points = points.getFinal(CompressionLevel.DIRECT_AS_FLOATS);
                     break;
                 }
                 case 2: {
@@ -146,7 +147,7 @@ public class PointArrayTest extends TestCase {
                     break;
                 }
                 case 3: {
-                    points = points.getFinal(true);
+                    points = points.getFinal(CompressionLevel.RELATIVE_AS_BYTES);
                     break;
                 }
             }

@@ -35,23 +35,23 @@ package org.geotools.renderer.geom;
 
 
 /**
- * Référence vers un trait de côte {@link Polygon}. Cette classe contient aussi un valeur
+ * Référence vers un objet {@link Polyline}. Cette classe contient aussi un valeur
  * booléenne qui sera prise en compte par la méthode {@link #hashCode}. Cette valeur booléenne
  * agit comme le spin d'un électron. Deux instances de <code>Fermion</code> peuvent référer au
- * même segment {@link Polygon} s'ils n'ont pas la même valeur booléenne ("spin"). Cette classe
+ * même segment {@link Polyline} s'ils n'ont pas la même valeur booléenne ("spin"). Cette classe
  * est réservée à un usage interne par {@link PolygonAssembler}.
  *
  * @see FermionPair
  *
- * @version $Id: Fermion.java,v 1.2 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: Fermion.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Fermion {
     /**
-     * Référence vers le trait de côte représenté par cet objet. Dans l'analogie
+     * Référence vers la polyligne représentée par cet objet. Dans l'analogie
      * avec la mécanique quantique, ça serait le "niveau atomique" d'un Fermion.
      */
-    Polygon path;
+    Polyline path;
 
     /**
      * Si <code>true</code>, la fin de du trait de côte <code>path</code> devra être fusionné

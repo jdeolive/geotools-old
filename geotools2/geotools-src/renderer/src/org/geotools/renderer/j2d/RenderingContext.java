@@ -54,7 +54,6 @@ import org.geotools.ct.TransformException;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.CoordinateTransformationFactory;
-import org.geotools.renderer.geom.GeoShape;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.XAffineTransform;
@@ -86,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.14 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.15 2003/05/27 18:22:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint

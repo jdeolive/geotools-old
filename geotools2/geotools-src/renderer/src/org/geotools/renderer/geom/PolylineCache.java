@@ -50,19 +50,13 @@ import org.geotools.renderer.array.ArrayData;
 
 /**
  * Soft reference for <code>float[]</code> array of (<var>x</var>,<var>y</var>) coordinates.
- * There is at most one instance of this class for each instance of {@link Polygon}. This
+ * There is at most one instance of this class for each instance of {@link Polyline}. This
  * class is strictly for internal use by {@link PolygonPathIterator}.
  *
- * @version $Id: PolygonCache.java,v 1.4 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: PolylineCache.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
- *
- * @task TODO: More work are needed: hold a strong reference to the array for some time before
- *             to let it go with soft reference, in order to reduce the amount of time it is
- *             recomputed. Impose a global memory limit before the strong reference is cleared.
- *             Manage the list of PolygonCache using a double-linked list, in order to know
- *             which one to clear (the last used).
  */
-final class PolygonCache {
+final class PolylineCache {
     /**
      * Cache vers les transformation affine déjà créées. Cette cache utilise des références
      * faibles pour ne retenir les transformations que si ells sont déjà utilisées ailleurs
@@ -73,7 +67,7 @@ final class PolygonCache {
 
     /**
      * Transformation affine identité. Cette transformation affine
-     * sera partagée par plusieurs objets {@link PolygonCache}  et
+     * sera partagée par plusieurs objets {@link PolylineCache} et
      * ne doit pas être modifiée.
      */
     private static final AffineTransform IDENTITY = new AffineTransform();
@@ -113,9 +107,9 @@ final class PolygonCache {
     private int[] curves;
 
     /**
-     * Construct a new empty cache. This constructor is used by {@link Polygon#getCache} only.
+     * Construct a new empty cache. This constructor is used by {@link Polyline#getCache} only.
      */
-    PolygonCache() {
+    PolylineCache() {
     }
 
     /**
@@ -123,7 +117,7 @@ final class PolygonCache {
      * The method {@link #releaseRenderingArray} <strong>must</strong> be invoked once the
      * rendering is finished.
      *
-     * @param  polygon The source polygon.
+     * @param  polyline The source polyline.
      * @param  destination The destination iterator. The {@link ArrayData#array} field will be
      *         set to a direct reference to cache's internal data. Consequently, data should not
      *         be modified outside this <code>getRenderingArray</code> method.
@@ -133,11 +127,11 @@ final class PolygonCache {
      * @see #releaseRenderingArray
      * @see #getPointCount
      */
-    public void getRenderingArray(final Polygon polygon,
+    public void getRenderingArray(final Polyline polyline,
                                   final ArrayData destination,
                                   AffineTransform newTransform)
     {
-        assert Thread.holdsLock(polygon);
+        assert Thread.holdsLock(polyline);
         if (newTransform != null) {
             newTransform = (AffineTransform) pool.canonicalize(new AffineTransform(newTransform));
             // TODO: This line may fill 'pool' with a lot of entries
@@ -184,12 +178,12 @@ final class PolygonCache {
                 destination.setData(array, length, curves);
                 return;
             } catch (NoninvertibleTransformException exception) {
-                Utilities.unexpectedException("org.geotools.renderer.geom", "Polygon",
+                Utilities.unexpectedException("org.geotools.renderer.geom", "Polyline",
                                               "getPathIterator", exception);
                 // Continue... On va simplement reconstruire le tableau à partir de la base.
             } else {
-                // Should be uncommon. Doesn't hurt, but may be a memory issue for big polygon.
-                Polygon.LOGGER.info(Resources.format(ResourceKeys.WARNING_EXCESSIVE_MEMORY_USAGE));
+                // Should be uncommon. Doesn't hurt, but may be a memory issue for big polyline.
+                Polyline.LOGGER.info(Resources.format(ResourceKeys.WARNING_EXCESSIVE_MEMORY_USAGE));
                 this.array = array = new float[32];
             }
         } else {
@@ -197,10 +191,10 @@ final class PolygonCache {
         }
         /*
          * Reconstruit le tableau de points à partir des données de bas niveau.
-         * La projection cartographique sera appliquée par {@link Polygon#toArray}.
+         * La projection cartographique sera appliquée par {@link Polyline#toArray}.
          */
         destination.setData(array, 0, null);
-        polygon.toArray(destination, polygon.getRenderingResolution());
+        polyline.toArray(destination, polyline.getRenderingResolution());
         this.array = array = destination.array();
         this.length = destination.length();
         this.curves = destination.curves();

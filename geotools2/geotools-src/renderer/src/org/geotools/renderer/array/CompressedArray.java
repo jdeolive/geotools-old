@@ -38,6 +38,7 @@ import java.awt.geom.Point2D;
 import org.geotools.resources.XArray;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.renderer.geom.CompressionLevel;
 
 
 /**
@@ -52,9 +53,9 @@ import org.geotools.resources.renderer.ResourceKeys;
  *             or something like that. Instead of storing (dx,dy) value for each point, we should
  *             store only the angle (theta) in a 0-255 range (resolution of 1.41°). It should
  *             work providing that each points are approximatively equidistant. The current
- *             {@link org.geotools.renderer.geom.Polygon#setResolution} method ensure exactly that.
+ *             {@link org.geotools.renderer.geom.Polyline#setResolution} method ensure exactly that.
  *
- * @version $Id: CompressedArray.java,v 1.5 2003/05/13 11:00:45 desruisseaux Exp $
+ * @version $Id: CompressedArray.java,v 1.6 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CompressedArray extends PointArray {
@@ -339,7 +340,7 @@ class CompressedArray extends PointArray {
      * Cette méthode retourne toujours <code>this</code> puisque ce tableau est
      * déjà immutable et compressé.
      */
-    public final PointArray getFinal(final boolean compress) {
+    public final PointArray getFinal(final CompressionLevel level) {
         return this;
     }
 

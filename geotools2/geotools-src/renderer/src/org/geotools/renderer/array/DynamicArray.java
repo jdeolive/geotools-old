@@ -33,11 +33,14 @@
  */
 package org.geotools.renderer.array;
 
+// Geotools dependencies
+import org.geotools.renderer.geom.CompressionLevel;
+
 
 /**
  * Enveloppe un tableau <code>float[]</code> dans lequel des données pourront être ajoutées.
  *
- * @version $Id: DynamicArray.java,v 1.8 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: DynamicArray.java,v 1.9 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DynamicArray extends SubArray {
@@ -197,21 +200,14 @@ final class DynamicArray extends SubArray {
      * Après l'appel de cette méthode, toute tentative de modification (avec les
      * méthodes {@link #insertAt} ou {@link #reverse}) vont retourner un autre
      * tableau de façon à ne pas modifier le tableau immutable.
-     *
-     * @param  compress <code>true</code> si l'on souhaite aussi comprimer les
-     *         données. Cette compression peut se traduire par une plus grande
-     *         lenteur lors des accès aux données.
-     * @return Tableau immutable et éventuellement compressé, <code>this</code>
-     *         si ce tableau répondait déjà aux conditions ou <code>null</code>
-     *         si ce tableau ne contient aucune donnée.
      */
-    public PointArray getFinal(final boolean compress) {
-        if (compress && count()>=8) {
+    public PointArray getFinal(final CompressionLevel level) {
+        if (level==CompressionLevel.RELATIVE_AS_BYTES && count()>=8) {
             return new CompressedArray(array, lower, upper);
         }
         PointArray points = getInstance(array, lower, upper, true);
         if (points != null) {
-            points = points.getFinal(compress);
+            points = points.getFinal(level);
         }
         return points;
     }

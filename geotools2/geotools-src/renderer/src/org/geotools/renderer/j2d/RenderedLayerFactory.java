@@ -38,13 +38,13 @@ import com.vividsolutions.jts.geom.sfs.SFSGeometry;
 import org.geotools.styling.Style;
 import org.geotools.feature.Feature;
 import org.geotools.ct.TransformException;
-import org.geotools.renderer.geom.JTSIsoline;
+import org.geotools.renderer.geom.JTSGeometries;
 
 
 /**
  * A factory creating {@link RenderedLayer}s from {@link Feature}s and {@link Style}s.
  *
- * @version $Id: RenderedLayerFactory.java,v 1.2 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.3 2003/05/27 18:22:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author <--- add your name --->
  */
@@ -59,21 +59,19 @@ public class RenderedLayerFactory {
      */
     public RenderedLayer create(final Feature feature, final Style style) throws TransformException
     {
-        //
-        // Case 1: Draw a geometry collection. This block create an 'isoline' object, which can
-        //         contains an arbitrary number of geometric shapes.   All geometries must have
-        //         the same 'z' value. For example, an 'isoline' could be the 50 meters isobath.
-        //
-        final JTSIsoline isoline = new JTSIsoline(0 /* put the z value here */
-                                                    /* put the CS here (default to geographic) */);
+        /*
+         * Case 1: Draw a geometry collection. This block create an 'GeometryCollection' object,
+         *         which can contains an arbitrary number of geometric shapes. All geometries should
+         *         have the same 'z' value. For example, an 'isoline' could be the 50 meters isobath.
+         */
+        final JTSGeometries geometries = new JTSGeometries(/* put the CS here (default to geographic) */);
         for (int i=0; i<5 /* put the number of geometry here */; i++) {
-            final SFSGeometry geometry = null; // Get a geometry here. It can be a GeometryCollection.
-            isoline.add(geometry);
+            final SFSGeometry geometry = null; // Get a geometry here. It can be a SFSGeometryCollection.
+            geometries.add(geometry);
         }
-        final RenderedIsoline layer = new RenderedIsoline(isoline);
+        final RenderedIsoline layer = new RenderedIsoline(geometries);
         layer.setContour   (null); // Set here a 'Paint' for the contour line.
         layer.setForeground(null); // Set here a 'Paint' for filling polygon.
-        layer.setBackground(null); // Set here a 'Paint' for filling polygon holes.
         return layer;
     }
 }

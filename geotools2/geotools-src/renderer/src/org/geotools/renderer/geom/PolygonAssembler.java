@@ -36,15 +36,18 @@ package org.geotools.renderer.geom;
 // J2SE dependencies
 import java.awt.Shape;
 import java.util.Map;
+import java.util.Set;
 import java.util.List;
+import java.util.Locale;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collection;
-import java.util.logging.Logger;
+import java.util.Collections;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -63,45 +66,57 @@ import org.geotools.resources.XArray;
 
 
 /**
- * Classes assembling pieces of polygons ({@link Polyline})  in order to create closed polygons
- * ({@link Polygon}). This class analyses all available {@link Polyline} and merge together the
- * polylines that look like parts of the same polygons. This class can also complete the polygons
- * that were cut by the map border.
+ * Assemble all {@linkplain Polyline polylines} in order to create closed {@linkplain Polygon
+ * polygons} for proper rendering. This class analyses all available polylines and merges
+ * together the polylines that look like parts of the same polygons. It can also complete the
+ * polygons that were cut by the map border.
  *
- * This class is usefull in the context of isolines digitalized from many consecutive maps
- * (for example the GEBCO digital atlas).  It is not possible to fill polygons with Java2D
- * if the polygons are broke in many pieces.  Running this class <strong>once</strong> for
- * a given set of isolines before renderering help to repair them. The algorithm is:
+ * This method is useful in the context of geometries digitalized from many consecutive
+ * maps (for example the GEBCO digital atlas). It is not possible to fill polygons with
+ * <A HREF="http://java.sun.com/products/java-media/2D/">Java2D</A> if the polygons are
+ * broken in many pieces, as in the figure below.
  *
+ * <p align="center"><img src="doc-files/splitted.png"></p>
+ *
+ * <P>Running this method <strong>once</strong> for a given collection of geometries before
+ * renderering helps to repair them. The algorithm is:</P>
  * <ol>
  *   <li>A list of all possible pairs of polylines is built.</li>
  *   <li>For any pair of polylines, the shortest distance between their extremities is
- *       computed. All combinaisons between the begining and the end of a polyline with
- *       the begining or end of the other polyline are taken in account.</li>
- *   <li>The pair with the shorest distance is identified. When the shortest distance
+ *       computed. All combinations between the beginning and the end of a polyline with
+ *       the beginning or end of the other polyline are taken into account.</li>
+ *   <li>The pair with the shortest distance are identified. When the shortest distance
  *       from one polyline's extremity is the other extremity of the same polyline, then
  *       the polyline is identified as a closed polygon (e.g. an island or a lake).
  *       Otherwise, the closest polylines are merged together.</li>
- *   <li>The loop is reexecuted from step 1 until no more polyline has been merged.</li>
+ *   <li>The loop is reexecuted from step 1 until no more polylines have been merged.</li>
  * </ol>
  *
- * <blockquote>
- *     NOTE: L'implémentation actuelle de cette méthode ne prend pas en compte les
- *           cas où deux polylignes se chevaucheraient. (En fait, un début de prise
- *           en compte est fait et concerne les cas où des polylignes se chevauchent
- *           d'un seul point).
- * </blockquote>
- *
- * @version $Id: PolygonAssembler.java,v 1.5 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.6 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
- * @task TODO: Localize logging and progress messages.
+ * @task TODO: L'implémentation actuelle de cette méthode ne prend pas en compte les
+ *             cas où deux polylignes se chevaucheraient. (En fait, un début de prise
+ *             en compte est fait et concerne les cas où des polylignes se chevauchent
+ *             d'un seul point).
+ *
+ * @task TODO: Localize logging and progress messages. Improves the progres bar: for now,
+ *             it restart from 0 many times (it is pretty hard to guess in advance how much
+ *             pass will be needed). Empirical tests suggest that there is about 4 long passes
+ *             and hundred of very short (almost instantaneous) passes.
  */
 final class PolygonAssembler implements Comparator {
     /**
      * The level for logging messages.
      */
     private static final Level LEVEL = Level.FINEST;
+
+    /**
+     * The locale for progress and error message.
+     *
+     * @taks TODO: Make it configurable.
+     */
+    private final Locale locale = Locale.getDefault();
 
     /**
      * The progress listener, or <code>null</code> if none.
@@ -121,19 +136,19 @@ final class PolygonAssembler implements Comparator {
     private final double flatness;
 
     /**
-     * The list of polygons to process. May have a length of 0, but will never be null.
+     * The list of polylines to process. May have a length of 0, but will never be null.
      */
-    private Polygon[] polygons = new Polygon[16];
+    private Polyline[] polylines = new Polyline[16];
 
     /**
      * Isoligne présentement en cours d'analyse.
      */
-    private Isoline isoline;
+    private GeometryCollection collection;
 
     /**
      * Ellipsoïde à utiliser pour calculer les distances, ou <code>null</code> si le
      * système de coordonnées est cartésien. Cette information est déduite à partir
-     * du système de coordonnées de l'isoligne {@link #isoline}.
+     * du système de coordonnées de l'isoligne {@link #collection}.
      */
     private Ellipsoid ellipsoid;
 
@@ -152,7 +167,7 @@ final class PolygonAssembler implements Comparator {
 
     /**
      * Instance d'une clé. Cette instance est créée une fois pour toute pour éviter d'avoir
-     * à en créer à chaque appel de la méthode {@link #get(Polygon, boolean)}.  Les valeurs
+     * à en créer à chaque appel de la méthode {@link #get(Polyline, boolean)}.  Les valeurs
      * de ses champs seront modifiés à chaque appels de cette méthode.
      */
     private final Fermion key = new Fermion();
@@ -187,11 +202,11 @@ final class PolygonAssembler implements Comparator {
      * @param progress Objet à utiliser pour informer des progrès, ou <code>null</code>
      *                 s'il n'y en a pas.
      *
-     * @see #setIsoline
+     * @see #setGeometryCollection
      */
-    private PolygonAssembler(final Shape clip, final ProgressListener progress) {
+    public PolygonAssembler(final Shape clip, final ProgressListener progress) {
         this.progress  = progress;
-        this.flatness  = Polygon.getFlatness(clip);
+        this.flatness  = Polyline.getFlatness(clip);
         this.clip      = clip;
     }
 
@@ -205,35 +220,35 @@ final class PolygonAssembler implements Comparator {
     ///////////////////////////////////////////////////////////////////
 
     /**
-     * Set the next isoline to process. This method must be invoked first, before any
-     * processing. It is legal to invoke this method with the current isoline (i.e.
-     * {@link #isoline}); it will update internal fields according the current state
-     * of the isolone.
+     * Set the next collection to process. This method must be invoked first, before any
+     * processing. It is legal to invoke this method with the current collection (i.e.
+     * {@link #collection}); it will update internal fields according the current state
+     * of the collection.
      *
-     * @param isoline A new isoline to process, or {@link #isoline} for updating
-     *        <code>PolygonAssembler</code> according the current isoline state.
+     * @param collection A new collection to process, or {@link #collection} for updating
+     *        <code>PolygonAssembler</code> according the current collection state.
      */
-    private void setIsoline(final Isoline isoline) {
-        if (isoline != this.isoline) {
+    private void setGeometryCollection(final GeometryCollection collection) {
+        if (collection != this.collection) {
             // TODO: localize
-            GeoShape.LOGGER.log(LEVEL, "Assembling isoline "+isoline.value);
-            this.isoline = isoline;
+            Polyline.LOGGER.log(LEVEL, "Assembling collection "+collection.getName(locale));
+            this.collection = collection;
         }
-        this.ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isoline.getCoordinateSystem());
-        final Collection set = isoline.getPolygons();
-        polygons = (Polygon[]) XArray.resize(set.toArray(polygons), set.size());
-        isoline.removeAll();
+        this.ellipsoid = CTSUtilities.getHeadGeoEllipsoid(collection.getCoordinateSystem());
+        final Collection set = collection.getPolylines();
+        polylines = (Polyline[]) XArray.resize(set.toArray(polylines), set.size());
+        collection.removeAll();
     }
 
     /**
-     * Update the isoline with newly completed polygons.
+     * Update the collection with newly completed polygons.
      *
      * @throws TransformException if a transformation was needed and failed.
      */
-    private void updateIsoline() throws TransformException {
-        isoline.removeAll();
-        for (int i=0; i<polygons.length; i++) {
-            isoline.add(polygons[i]);
+    private void updateGeometryCollection() throws TransformException {
+        collection.removeAll();
+        for (int i=0; i<polylines.length; i++) {
+            collection.add(polylines[i]);
         }
     }
 
@@ -359,20 +374,20 @@ final class PolygonAssembler implements Comparator {
      * @param  mergeEnd Valeur de <code>mergeEnd</code> pour la polyligne à rechercher.
      * @return La paire de polylignes trouvée, ou <code>null</code> s'il n'y en a pas.
      */
-    private FermionPair get(final Polygon path, final boolean mergeEnd) {
+    private FermionPair get(final Polyline path, final boolean mergeEnd) {
         key.path     = path;
         key.mergeEnd = mergeEnd;
         return (FermionPair) fermions.get(key);
     }
 
     /**
-     * Remove a polygon from the {@link #polygons} list.
+     * Remove a polyline from the {@link #polylines} list.
      */
-    private void remove(final Polygon polygon) {
-        for (int i=polygons.length; --i>=0;) {
-            if (polygons[i] == polygon) {
-                polygons = (Polygon[]) XArray.remove(polygons, i, 1);
-                // There should be no other polygons, but continue just in case...
+    private void remove(final Polyline polyline) {
+        for (int i=polylines.length; --i>=0;) {
+            if (polylines[i] == polyline) {
+                polylines = (Polyline[]) XArray.remove(polylines, i, 1);
+                // There should be no other polylines, but continue just in case...
             }
         }
     }
@@ -410,7 +425,7 @@ final class PolygonAssembler implements Comparator {
      * @param path Polyligne pour laquelle on veut vérifier si les comparaisons sont terminées.
      * @return <code>false</code> s'il vaudrait mieux continuer les comparaisons.
      */
-    private boolean isDone(final Polygon path) {
+    private boolean isDone(final Polyline path) {
         key.path = path;
         FermionPair pair;
 
@@ -448,7 +463,7 @@ final class PolygonAssembler implements Comparator {
      *
      * @param path Polyligne à inverser.
      */
-    private void reverse(final Polygon path) {
+    private void reverse(final Polyline path) {
         path.reverse();
         key.path = path;
         key.mergeEnd=true;  final FermionPair op=(FermionPair) fermions.remove(key);
@@ -492,7 +507,7 @@ final class PolygonAssembler implements Comparator {
      * @param searchFor Polyligne à remplacer.
      * @param replaceBy Polyligne remplaçant <code>searchFor</code>.
      */
-    private void replace(final Polygon searchFor, final Polygon replaceBy) {
+    private void replace(final Polyline searchFor, final Polyline replaceBy) {
         key.path = searchFor;
         key.mergeEnd=true;  final FermionPair op=(FermionPair) fermions.remove(key);
         key.mergeEnd=false; final FermionPair np=(FermionPair) fermions.remove(key);
@@ -507,13 +522,13 @@ final class PolygonAssembler implements Comparator {
     }
 
     /**
-     * Indique que la polyligne <code>polygon</code> pourrait représenter un polygon fermé.
+     * Indique que la polyligne <code>polyline</code> pourrait représenter un polygone fermé.
      * Cette méthode vérifiera d'abord s'il existe d'autres objets {@link FermionPair} pour
      * cette polyligne. Si c'est le cas, et si la distance mesurée par ces {@link FermionPair}
      * est inférieure à la valeur de l'argument <code>sqrt(distanceSq)</code> de cette méthode,
      * alors rien ne sera fait.
      *
-     * @param polygon Référence vers la polyligne représentant peut-être un polygone fermé.
+     * @param polyline Référence vers la polyligne représentant peut-être un polygone fermé.
      * @param distanceSq Carré de la distance entre le premier et dernier point de ce polygone.
      * @return <code>true</code> si une information précédemment calculée a dû
      *         être supprimée. Dans ce cas, toutes la boucle calculant ces
@@ -521,16 +536,16 @@ final class PolygonAssembler implements Comparator {
      *
      * @see #candidateToMerging
      */
-    private boolean candidateToClosing(final Polygon polygon, final double distanceSq) {
+    private boolean candidateToClosing(final Polyline polyline, final double distanceSq) {
         /*
          * Recherche les objets <code>FermionPair</code> se référant déjà à la polyligne
-         * <code>polygon</code>. Au besoin, un nouvel objet sera créé si aucun n'avait été
+         * <code>polyline</code>. Au besoin, un nouvel objet sera créé si aucun n'avait été
          * définie. Les variables <code>op</code> et <code>np</code> contiendront des références
          * vers les deux objets <code>FermionPair</code> possibles. Elles ne seront jamais nulles,
          * mais peuvent avoir la même valeur toutes les deux.
          */
-        FermionPair op = get(polygon, true);
-        FermionPair np = get(polygon, false);
+        FermionPair op = get(polyline, true);
+        FermionPair np = get(polyline, false);
         if (np == null) {
             np = op;
             if (np == null) {
@@ -551,7 +566,7 @@ final class PolygonAssembler implements Comparator {
             np.i.mergeEnd = true;
             np.j.mergeEnd = false;
             np.minDistanceSq = distanceSq;
-            np.i.path = np.j.path = polygon;
+            np.i.path = np.j.path = polyline;
             np.allComparisonsDone = false;
             put(np);
             return true;
@@ -577,8 +592,8 @@ final class PolygonAssembler implements Comparator {
      *
      * @see #candidateToClosing
      */
-    private boolean candidateToMerging(final Polygon jPath, final boolean mergeEndJ,
-                                       final Polygon iPath, final boolean mergeEndI,
+    private boolean candidateToMerging(final Polyline jPath, final boolean mergeEndJ,
+                                       final Polyline iPath, final boolean mergeEndI,
                                        final double distanceSq)
     {
         assert (jPath != iPath);
@@ -643,7 +658,7 @@ final class PolygonAssembler implements Comparator {
                 if (progress != null) {
                     progress.setDescription("Analyzing (pass "+pass+')'); // TODO: localize
                 }
-                for (int j=0; j<polygons.length; j++) {
+                for (int j=0; j<polylines.length; j++) {
                     if (progress != null) {
                         /*
                          * Utiliser 'j' directement pour informer des progrès ne donne pas
@@ -653,17 +668,17 @@ final class PolygonAssembler implements Comparator {
                          * On utilisera donc plutôt la formule ci-dessous, qui ferra paraître
                          * linéaire la progression.
                          */
-                        progress.progress(100f * (j*(2*polygons.length-j)) /
-                                          (polygons.length*polygons.length));
+                        progress.progress(100f * (j*(2*polylines.length-j)) /
+                                          (polylines.length*polylines.length));
                     }
-                    final Polygon jPath = polygons[j];
+                    final Polyline jPath = polylines[j];
                     if (!isDone(jPath)) {
                         /*
                          * Le code de ce bloc est assez laborieux. Aussi, il ne sera exécuté que
                          * si les informations dans la cache ne sont plus valides pour cette
                          * polyligne. Les prochaines lignes calculent la distance entre le premier
                          * et le dernier point de la polyligne j. On part de l'hypothèse que j est
-                         * un polygon fermé (île ou lac par exemple).
+                         * un polygone fermé (île ou lac par exemple).
                          */
                         double minDistanceSq;
                         minDistanceSq = distanceSq(jPath.getFirstPoint(jFirstPoint),
@@ -675,10 +690,10 @@ final class PolygonAssembler implements Comparator {
                              * aurait une dont le début ou la fin serait plus proche du début
                              * ou de la fin de la polyligne j. Si on trouve une telle polyligne,
                              * elle sera désignée par i et remplacera l'hypothèse précédente à
-                             * l'effet que j est un polygon fermé.
+                             * l'effet que j est un polygone fermé.
                              */
-                            for (int i=j+1; i<polygons.length; i++) {
-                                final Polygon iPath = polygons[i];
+                            for (int i=j+1; i<polylines.length; i++) {
+                                final Polyline iPath = polylines[i];
                                 if (!isDone(iPath)) {
                                     minDistanceSq = distanceSq(iPath.getFirstPoint(iFirstPoint),
                                                                iPath.getLastPoint (iLastPoint));
@@ -779,7 +794,7 @@ final class PolygonAssembler implements Comparator {
     private void assemblePolygons() throws TransformException {
         updateFermions();
         final StringBuffer message;
-        if (GeoShape.LOGGER.isLoggable(LEVEL)) {
+        if (Polyline.LOGGER.isLoggable(LEVEL)) {
             message = new StringBuffer();
         } else {
             message = null;
@@ -840,7 +855,7 @@ final class PolygonAssembler implements Comparator {
                 if (pair.j.mergeEnd && !pair.i.mergeEnd) {
                     if (message != null) {
                         message.append("Append #1 to #2");
-                        GeoShape.LOGGER.log(LEVEL, message.toString());
+                        Polyline.LOGGER.log(LEVEL, message.toString());
                     }
                     pair.j.path.append(pair.i.path.subpoly(overlap));
                     replace(pair.i.path, pair.j.path);
@@ -849,7 +864,7 @@ final class PolygonAssembler implements Comparator {
                 else if (pair.i.mergeEnd && !pair.j.mergeEnd) {
                     if (message != null) {
                         message.append("Append #2 to #1");
-                        GeoShape.LOGGER.log(LEVEL, message.toString());
+                        Polyline.LOGGER.log(LEVEL, message.toString());
                     }
                     pair.i.path.append(pair.j.path.subpoly(overlap));
                     replace(pair.j.path, pair.i.path);
@@ -879,7 +894,7 @@ final class PolygonAssembler implements Comparator {
      * de façon à pouvoir les remplir. Elle est généralement appellée pour l'isoligne correspondant
      * au niveau 0. Les autres profondeurs utiliseront {@link #assemblePolygons} afin de ne pas
      * complèter les polygones.
-     *
+     * <br><br>
      * Pour pouvoir complèter correctement les polygones, cette méthode a besoin de connaître
      * la forme géométrique des limites de la carte. Il ne s'agit pas des limites que vous
      * souhaitez donner à la carte, mais des limites qui avaient été spécifiées au logiciel
@@ -890,7 +905,7 @@ final class PolygonAssembler implements Comparator {
      * construction de cet objet <code>PolygonAssembler</code>.
      *
      * @param ptRef  La coordonnée d'un point en mer, selon le système de coordonnées de l'isoligne
-     *               en cours ({@link #isoline}). Ce point <u>doit</u> être sur l'un des bords de
+     *               en cours ({@link #collection}). Ce point <u>doit</u> être sur l'un des bords de
      *               la carte (gauche, droit, haut ou bas si {@link #clip} est un rectangle). S'il
      *               n'est pas exactement sur un des bords, il sera projeté sur le bord le plus
      *               proche.
@@ -923,7 +938,7 @@ final class PolygonAssembler implements Comparator {
         startingPoint.border           = -1;
         startingPoint.scalarProduct    = Double.NaN;
         startingPoint.minDistanceSq    = Double.POSITIVE_INFINITY;
-        startingPoint.coordinateSystem = isoline.getCoordinateSystem();
+        startingPoint.coordinateSystem = collection.getCoordinateSystem();
         PathIterator pit               = clip.getPathIterator(null, flatness);
         for (int border=0; !pit.isDone(); border++) {
             final boolean closed = nextSegment(pit); // Update 'pathLine'
@@ -937,7 +952,7 @@ final class PolygonAssembler implements Comparator {
             }
             if (closed) break;
         }
-        GeoShape.LOGGER.log(LEVEL, "Reference point: "+startingPoint);
+        Polyline.LOGGER.log(LEVEL, "Reference point: "+startingPoint);
         if (startingPoint.minDistanceSq > flatness) {
             throw new IllegalStateException("Reference point is too far away"); // TODO: localize
         }
@@ -957,15 +972,15 @@ final class PolygonAssembler implements Comparator {
          * si le calcul fut fait à partir des données du début ou de la fin du segment.
          */
         intersections.clear();
-        for (int i=0; i<polygons.length; i++) {
-            final Polygon iPath = polygons[i];
+        for (int i=0; i<polylines.length; i++) {
+            final Polyline iPath = polylines[i];
             /*
              * Met à jour la boîte de dialogue informant des
              * progrès de l'opération. Les progrès seront à
              * peu près proportionnels à <var>i</var>.
              */
             if (progress != null) {
-                progress.progress(100f * i / polygons.length);
+                progress.progress(100f * i / polylines.length);
             }
             /*
              * La boucle suivante ne sera exécutée que deux fois. Le premier
@@ -1028,7 +1043,7 @@ final class PolygonAssembler implements Comparator {
                                     intersectPoint.setLocation(intPt, pathLine, border);
                                     intersectPoint.path             = iPath;
                                     intersectPoint.append           = append;
-                                    intersectPoint.coordinateSystem = isoline.getCoordinateSystem();
+                                    intersectPoint.coordinateSystem = collection.getCoordinateSystem();
                                     intersectPoint.minDistanceSq    = minDistanceSq;
                                     info.allComparisonsDone = false;
                                 }
@@ -1076,7 +1091,7 @@ final class PolygonAssembler implements Comparator {
                 countIntersectionsToRemove = intersectPoints.length;
             }
             Arrays.sort(intersectPoints, this);
-            if (GeoShape.LOGGER.isLoggable(LEVEL)) {
+            if (Polyline.LOGGER.isLoggable(LEVEL)) {
                 final StringBuffer message = new StringBuffer("Too many intersection points");
                 int index = intersectPoints.length;
                 final String lineSeparator = System.getProperty("line.separator", "\n");
@@ -1085,7 +1100,7 @@ final class PolygonAssembler implements Comparator {
                     message.append("    Removing ");
                     message.append(intersectPoints[--index]);
                 }
-                GeoShape.LOGGER.log(LEVEL, message.toString());
+                Polyline.LOGGER.log(LEVEL, message.toString());
             }
             intersectPoints = (IntersectionPoint[]) XArray.resize(intersectPoints,
                               intersectPoints.length-countIntersectionsToRemove);
@@ -1113,7 +1128,7 @@ final class PolygonAssembler implements Comparator {
             indexNextIntersect++;
         }
         indexNextIntersect %= intersectPoints.length;
-        if (GeoShape.LOGGER.isLoggable(LEVEL)) {
+        if (Polyline.LOGGER.isLoggable(LEVEL)) {
             final StringBuffer message = new StringBuffer("Sorted list of intersection points");
             final String lineSeparator = System.getProperty("line.separator", "\n");
             for (int j=0; j<intersectPoints.length; j++) {
@@ -1121,7 +1136,7 @@ final class PolygonAssembler implements Comparator {
                 message.append(j==indexNextIntersect ? "==> " : "    ");
                 message.append(intersectPoints[j]);
             }
-            GeoShape.LOGGER.log(LEVEL, message.toString());
+            Polyline.LOGGER.log(LEVEL, message.toString());
         }
         /*
          * Procède maintenant à la création du cadre. On balayera tous les points
@@ -1224,14 +1239,14 @@ final class PolygonAssembler implements Comparator {
                     reverse(buffer);
                     lastIntersectPoint.path.prependBorder(buffer, 0, length);
                 }
-                if (GeoShape.LOGGER.isLoggable(LEVEL)) {
-                    final StringBuffer message = new StringBuffer("    Polygon[");
+                if (Polyline.LOGGER.isLoggable(LEVEL)) {
+                    final StringBuffer message = new StringBuffer("    Polyline[");
                     message.append(lastIntersectPoint.path.getPointCount());
                     message.append(" pts].");
                     message.append(lastIntersectPoint.append ? "append[" : "prepend[");
                     message.append(length/2);
                     message.append(" pts]");
-                    GeoShape.LOGGER.log(LEVEL, message.toString());
+                    Polyline.LOGGER.log(LEVEL, message.toString());
                 }
             }
             lastIntersectPoint = intersectPoint;
@@ -1241,13 +1256,17 @@ final class PolygonAssembler implements Comparator {
             throw new AssertionError("Odd intersects");
         }
         assemblePolygons();
-        for (int i=0; i<polygons.length; i++) {
-            polygons[i].close(InteriorType.ELEVATION);
+        for (int i=0; i<polylines.length; i++) {
+            polylines[i].close();
         }
         /*
-         * It is up to {@link Isoline} to decide if polygons are elevation
-         * (e.g. island) or depression (e.g. lake). It will be done later.
+         * TODO: Enable the following code when it will have been more extensively tested.
          */
+        if (false) {
+            final Collection polygons = PolygonInclusion.process(polylines, progress);
+            polylines = (Polyline[]) polygons.toArray(new Polyline[polygons.size()]);
+            updateGeometryCollection();
+        }
     }
 
     /**
@@ -1264,8 +1283,9 @@ final class PolygonAssembler implements Comparator {
      *         ne devrait pas se produre.
      * @throws TransformException if a transformation was needed and failed.
      */
-    private void completePolygons(final Isoline otherIsoline) throws TransformException {
-        if (otherIsoline.value == isoline.value) {
+    private void completePolygons(final GeometryCollection otherIsoline) throws TransformException {
+        final int comparaison = collection.compareTo(otherIsoline);
+        if (comparaison == 0) {
             throw new IllegalArgumentException("Same isoline level");
         }
         /*
@@ -1285,9 +1305,9 @@ final class PolygonAssembler implements Comparator {
                  * On recherchera maintenant le polygone qui se termine le plus
                  * près de cette bordure.
                  */
-                final Iterator iterator = otherIsoline.getPolygons().iterator();
+                final Iterator iterator = otherIsoline.getPolylines().iterator();
                 while (iterator.hasNext()) {
-                    final Polygon jPath=(Polygon) iterator.next();
+                    final Polyline jPath=(Polyline) iterator.next();
                     boolean first = true;
                     do { // Cette boucle sera exécutée deux fois
                         double distanceSq;
@@ -1312,7 +1332,7 @@ final class PolygonAssembler implements Comparator {
             }
             if (closed) break;
         }
-        completePolygons(refPt, isoline.value < otherIsoline.value);
+        completePolygons(refPt, comparaison < 0);
     }
 
 
@@ -1320,58 +1340,74 @@ final class PolygonAssembler implements Comparator {
 
     ///////////////////////////////////////////////////////////////////
     //////////                                               //////////
-    //////////             M E A N   M E T H O D             //////////
+    //////////            M E A N   M E T H O D S            //////////
     //////////                                               //////////
     ///////////////////////////////////////////////////////////////////
 
     /**
-     * Mean method. Assemble all polygons in the specified set of isolines.
-     * The isolines are updated in place.
+     * Assemble the specified geometry collection. This method performs the following steps:
      *
-     * @param  isolines Isolines to assemble.
-     * @param  toComplete {@link Isoline#value} of isoline to complete with map border.
-     *         Usually, only the coast line is completed (<code>value==0</code>).
-     * @param  The boundind shape of the map, or <code>null</code> for assuming a rectangular
-     *         map inferred from the <code>isolines</code>. This is the bounding shape of the
-     *         software which that isoline data, not an arbitrary clip that the application
-     *         would like.
-     * @param  progress An optional progress listener (<code>null</code> in none).
+     * <ul>
+     *   <li>{@link #setGeometryCollection} for setting the collection to process.</li>
+     *   <li>{@link #completePolygons} or {@link #assemblePolygons} for doing the work.</li>
+     *   <li>{@link #updateGeometryCollection} for updating the collection set in first step.</li>
+     * </ul>
+     *
+     * @param  parent     The geometry collection to assemble.
+     * @param  references Siblers of the <code>parent</code> collection.
+     * @param  toComplete {@linkplain GeometryCollection#getValue value} of collections to complete
+     *         with map border. Usually, only the coast line is completed (<code>value==0</code>).
      * @throws TransformException if a transformation was needed and failed.
      */
-    public static void assemble(final Isoline[]        isolines,
-                                final float[]          toComplete,
-                                      Shape            mapBounds,
-                                final ProgressListener progress)
+    private void assemble(final GeometryCollection parent,
+                          final List references,
+                          final float[] toComplete)
+            throws TransformException
+    {
+        final List   collections = parent.extractCollections();
+        final float  parentValue = parent.getValue();
+        GeometryCollection refer = parent;
+        float delta = 0;
+        for (final Iterator it=references.iterator(); it.hasNext();) {
+            final GeometryCollection candidate = (GeometryCollection) it.next();
+            final float check = Math.abs(candidate.getValue() - parentValue);
+            if (check > delta) {
+                refer = candidate;
+                delta = check;
+            }
+        }
+        setGeometryCollection(parent);
+        if (refer!=parent && Arrays.binarySearch(toComplete, parentValue)>=0) {
+            completePolygons(refer);
+        } else {
+            assemblePolygons();
+        }
+        updateGeometryCollection();
+        for (final Iterator it=collections.iterator(); it.hasNext();) {
+            final GeometryCollection child = (GeometryCollection) it.next();
+            assemble(child, collections, toComplete);
+            parent.add(child);
+        }
+    }
+
+    /**
+     * Assemble the specified geometry collection.
+     *
+     * @param  collection  The geometry collection to assemble.
+     * @param  toComplete {@linkplain GeometryCollection#getValue value} of collections to complete
+     *         with map border. Usually, only the coast line is completed (<code>value==0</code>).
+     * @throws TransformException if a transformation was needed and failed.
+     */
+    public void assemble(final GeometryCollection collection, float[] toComplete)
             throws TransformException
     {
         if (progress != null) {
             progress.setDescription("Analyzing"); // TODO: localize
             progress.started();
         }
-        Arrays.sort(isolines);
+        toComplete = (float[]) toComplete.clone();
         Arrays.sort(toComplete);
-        if (mapBounds == null) {
-            Rectangle2D bounds = null;
-            for (int i=0; i<isolines.length; i++) {
-                final Rectangle2D toAdd = isolines[i].getBounds2D();
-                if (bounds == null) {
-                    bounds = toAdd;
-                } else {
-                    bounds.add(toAdd);
-                }
-            }
-            mapBounds = bounds;
-        }
-        final PolygonAssembler assembler = new PolygonAssembler(mapBounds, progress);
-        for (int i=0; i<isolines.length; i++) {
-            assembler.setIsoline(isolines[i]);
-            if (isolines.length > 1  &&  Arrays.binarySearch(toComplete, isolines[i].value) >= 0) {
-                assembler.completePolygons(isolines[i!=0 ? 0 : isolines.length-1]);
-            } else {
-                assembler.assemblePolygons();
-            }
-            assembler.updateIsoline();
-        }
+        assemble(collection, Collections.EMPTY_LIST, toComplete);
         if (progress != null) {
             progress.complete();
         }

@@ -44,22 +44,23 @@ import org.geotools.renderer.array.ArrayData;
 
 
 /**
- * Itérateur balayant les points d'un polygone ou d'un isobath.
+ * Iterator for iterating through a collection of {@link Polyline} objects.
+ * This iterator is typically used for drawing a single {@link Polygon}, which
+ * may be made of many {@link Polylines}.
  *
- * @version $Id: PolygonPathIterator.java,v 1.4 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: PolygonPathIterator.java,v 1.5 2003/05/27 18:22:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class PolygonPathIterator extends ArrayData implements PathIterator {
     /**
-     * Itérateur balayant les objets
-     * {@link Polygon} à tracer.
+     * Itérateur balayant les objets {@link Polyline} à tracer.
      */
-    private final Iterator polygons;
+    private final Iterator polylines;
 
     /**
-     * Le polygone en cours de traçage.
+     * The polylines in the process of being drawn.
      */
-    private Polygon polygon;
+    private Polyline polyline;
 
     /**
      * Transformation a appliquer aux coordonnées (rotation, translation, échelle...).
@@ -77,41 +78,38 @@ final class PolygonPathIterator extends ArrayData implements PathIterator {
     private int curveType = SEG_MOVETO;
 
     /**
-     * Construit un itérateur qui balayera les points d'un seul polygone.
+     * Construit un itérateur qui balayera les points d'un ensemble de polylignes.
      *
-     * @param polygone Polygone à tracer.
-     * @param transform Transformation affine facultative (peut être nulle).
+     * @param first     The first polyline, or <code>null</code> if none.
+     * @param polylines Iterator through the next {@link Polylines} objects, or <code>null</code>.
+     * @param transform An optional affine transform, or <code>null</code> if none.
      */
-    public PolygonPathIterator(final Polygon polygon, final AffineTransform transform) {
-        final PolygonCache cache = polygon.getCache();
-        this.polygon   = polygon;
-        this.polygons  = null;
+    public PolygonPathIterator(final Polyline first,
+                               final Iterator polylines,
+                               final AffineTransform transform) {
+        this.polyline  = first;
+        this.polylines = polylines;
         this.transform = transform;
-        cache.getRenderingArray(polygon, this, transform);
-        if (array==null || length==0) {
-            cache.releaseRenderingArray(array);
-            array = null;
-        }
-    }
-
-    /**
-     * Construit un itérateur qui balayera les points d'un ensemble de polygones.
-     *
-     * @param polygons Itérateur balayant une liste d'objets {@link Polygons}.
-     * @param transform Transformation affine facultative (peut être nulle).
-     */
-    public PolygonPathIterator(final Iterator polygons, final AffineTransform transform) {
-        this.polygons  = polygons;
-        this.transform = transform;
-        while (polygons.hasNext()) {
-            polygon = (Polygon) polygons.next();
-            final PolygonCache cache = polygon.getCache();
-            cache.getRenderingArray(polygon, this, transform);
+        if (polyline != null) {
+            final PolylineCache cache = polyline.getCache();
+            cache.getRenderingArray(polyline, this, transform);
             if (array!=null && length!=0) {
-                break;
+                return;
             }
             cache.releaseRenderingArray(array);
             array = null;
+        }
+        if (polylines != null) {
+            while (polylines.hasNext()) {
+                polyline = (Polyline) polylines.next();
+                final PolylineCache cache = polyline.getCache();
+                cache.getRenderingArray(polyline, this, transform);
+                if (array!=null && length!=0) {
+                    break;
+                }
+                cache.releaseRenderingArray(array);
+                array = null;
+            }
         }
     }
 
@@ -124,7 +122,7 @@ final class PolygonPathIterator extends ArrayData implements PathIterator {
     }
 
     /**
-     * Moves the polygons to the next segment of the path forwards
+     * Moves the iterator to the next segment of the path forwards
      * along the primary direction of traversal as long as there are
      * more points in that direction.
      */
@@ -138,18 +136,18 @@ final class PolygonPathIterator extends ArrayData implements PathIterator {
                 default: throw new IllegalPathStateException();
             }
             if (index >= length) {
-                if (index!=length || !polygon.isClosed()) {
-                    synchronized (polygon) {
-                        polygon.getCache().releaseRenderingArray(array);
+                if (index!=length || !polyline.isClosed()) {
+                    synchronized (polyline) {
+                        polyline.getCache().releaseRenderingArray(array);
                         setData(null, 0, null);
                         index = 0;
                     }
-                    if (polygons != null) {
-                        while (polygons.hasNext()) {
-                            polygon = (Polygon) polygons.next();
-                            synchronized (polygon) {
-                                final PolygonCache cache = polygon.getCache();
-                                cache.getRenderingArray(polygon, this, transform);
+                    if (polylines != null) {
+                        while (polylines.hasNext()) {
+                            polyline = (Polyline) polylines.next();
+                            synchronized (polyline) {
+                                final PolylineCache cache = polyline.getCache();
+                                cache.getRenderingArray(polyline, this, transform);
                                 if (array!=null && length!=0) {
                                     break;
                                 }
@@ -166,7 +164,7 @@ final class PolygonPathIterator extends ArrayData implements PathIterator {
 
     /**
      * Retourne la coordonnée et le type du prochain segment. Cette méthode retourne
-     * {@link #SEG_MOVETO} au début de chaque polygone. Après le dernier point, elle
+     * {@link #SEG_MOVETO} au début de chaque polyligne. Après le dernier point, elle
      * retourne {@link #SEG_CLOSE} si la forme géométrique est une île, un lac ou tout
      * autre forme fermée. Entre ces deux extrémités, elle retourne toujours {@link #SEG_LINETO}.
      *
@@ -191,7 +189,7 @@ final class PolygonPathIterator extends ArrayData implements PathIterator {
 
     /**
      * Retourne la coordonnée et le type du prochain segment. Cette méthode retourne
-     * {@link #SEG_MOVETO} au début de chaque polygone. Après le dernier point, elle
+     * {@link #SEG_MOVETO} au début de chaque polyligne. Après le dernier point, elle
      * retourne {@link #SEG_CLOSE} si la forme géométrique est une île, un lac ou tout
      * autre forme fermée. Entre ces deux extrémités, elle retourne toujours {@link #SEG_LINETO}.
      *
