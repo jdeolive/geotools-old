@@ -55,14 +55,42 @@ import javax.media.jai.util.Range;
  *
  * @author Martin Desruisseaux
  * @author Andrea Aime
- * @version $Id: RenderedLayerFactory.java,v 1.8 2003/07/22 03:00:38 jmacgill Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.9 2003/08/13 18:18:30 desruisseaux Exp $
  */
 public class RenderedLayerFactory {
+    /**
+     * The logger.
+     */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.j2d");
 
-    // prepare the style factory that will convert SLD styles into resolved styles
-    private static SLDStyleFactory styleFactory = new SLDStyleFactory();
+    /**
+     * The default factory. Will be created only when first needed.
+     */
+    private static RenderedLayerFactory DEFAULT;
 
+    /**
+     * Prepare the style factory that will convert SLD styles into resolved styles.
+     */
+    private final SLDStyleFactory styleFactory = new SLDStyleFactory();
+
+    /**
+     * Construct a default factory.
+     */
+    public RenderedLayerFactory() {
+    }
+
+    /**
+     * Returns a default instance of layer factory.
+     */
+    public static RenderedLayerFactory getDefault() {
+        // No synchronisation needed; it is not a big
+        // deal if two instances exist for a short time.
+        if (DEFAULT == null) {
+            DEFAULT = new RenderedLayerFactory();
+        }
+        return DEFAULT;
+    }
+    
     /**
      * Create an array of rendered layers from the specified feature and style.
      *

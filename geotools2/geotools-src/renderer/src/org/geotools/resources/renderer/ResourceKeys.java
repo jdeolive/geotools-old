@@ -37,6 +37,7 @@ public interface ResourceKeys
     public static final int ERROR_BAD_ARGUMENT_$2                    =     9;
     public static final int ERROR_BAD_RANGE_$2                       =    10;
     public static final int ERROR_HOLE_NOT_INSIDE_POLYGON            =    17;
+    public static final int ERROR_ILLEGAL_COORDINATE_SYSTEM          =    21;
     public static final int ERROR_NON_AFFINE_TRANSFORM               =    11;
     public static final int ERROR_NON_CARTESIAN_COORDINATE_SYSTEM_$1 =    12;
     public static final int ERROR_NOT_GREATER_THAN_ZERO_$1           =    13;
