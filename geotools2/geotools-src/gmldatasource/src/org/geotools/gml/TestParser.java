@@ -48,7 +48,7 @@ import org.geotools.feature.*;
  * own class.  The only requirement of your new class is that it implements 
  * <code>GMLHandlerJTS</code>.  That's it!</p>
  * 
- * @version $Id: TestParser.java,v 1.8 2002/07/12 17:36:33 loxnard Exp $
+ * @version $Id: TestParser.java,v 1.9 2002/07/25 09:35:50 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class TestParser {
@@ -112,17 +112,21 @@ public class TestParser {
         System.out.println("Parsing the flat feature collection in this GML " +
         "resource:" + uri);
         
-        GMLDataSource data = new GMLDataSource(uri);
-        FeatureCollectionDefault featureCollection = new FeatureCollectionDefault(data);
-        
-        Vector parsedFeatures =
-        new Vector(java.util.Arrays.asList(featureCollection.getFeatures()));
-        FeatureFlat tempFeature;
-        
-        for (int i = 0; i < parsedFeatures.size(); i++) {
-            tempFeature = (FeatureFlat) parsedFeatures.get(i);
-            System.out.println("Parsed feature is ... "
-            + tempFeature.toString());
+        try {
+            GMLDataSource data = new GMLDataSource(uri);
+            FeatureCollectionDefault featureCollection = new FeatureCollectionDefault(data);
+
+            Vector parsedFeatures =
+            new Vector(java.util.Arrays.asList(featureCollection.getFeatures()));
+            FeatureFlat tempFeature;
+
+            for (int i = 0; i < parsedFeatures.size(); i++) {
+                tempFeature = (FeatureFlat) parsedFeatures.get(i);
+                System.out.println("Parsed feature is ... "
+                + tempFeature.toString());
+            }
+        } catch (DataSourceException e) {
+                System.out.println("TestParser->parseFeatures DataSourceException: "+e.toString());
         }
         
         //parsedFeatures.
